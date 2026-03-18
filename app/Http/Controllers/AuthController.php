@@ -1,0 +1,107 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use App\Models\User;
+
+class AuthController extends Controller
+{
+    public function showLogin()
+    {
+        if (Auth::check()) {
+            return redirect()->route('dashboard');
+        }
+        return view('auth.login');
+    }
+
+    public function login(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required|string',
+        ]);
+
+        $user = User::where('email', $request->email)
+            ->where('is_active', 1)
+            ->first();
+
+        if ($user) {
+            // Support both 'password' and legacy 'password_hash' column names
+            $storedHash = $user->password ?? $user->password_hash ?? null;
+
+            if (
+                $storedHash && (
+                    Hash::check($request->password, $storedHash) ||
+                    password_verify($request->password, $storedHash)
+                )
+            ) {
+                Auth::login($user, $request->boolean('remember'));
+                $request->session()->regenerate();
+                return redirect()->intended(route('dashboard'))
+                    ->with('success', 'Welcome back, ' . ($user->full_name ?? $user->name) . '!');
+            }
+        }
+
+        return back()->withErrors([
+            'email' => 'Invalid email or password.',
+        ])->onlyInput('email');
+    }
+
+    public function register(Request $request)
+    {
+        $request->validate([
+            'first_name' => 'required|string|max:50',
+            'last_name' => 'required|string|max:50',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|string|min:6|confirmed',
+            'role' => 'required|in:staff,secretary,manager,dispatcher',
+        ]);
+
+        // Generate username based on role and first name
+        $rolePrefix = $request->role;
+        $firstName = strtolower(str_replace(' ', '', $request->first_name));
+        $username = $rolePrefix . '-' . $firstName;
+        
+        // Ensure unique username
+        $originalUsername = $username;
+        $counter = 1;
+        while (User::where('username', $username)->exists()) {
+            $username = $originalUsername . '-' . $counter;
+            $counter++;
+        }
+
+        $user = User::create([
+            'full_name' => $request->first_name . ' ' . $request->last_name,
+            'email' => $request->email,
+            'username' => $username,
+            'password' => Hash::make($request->password),
+            'role' => $request->role,
+            'is_active' => true,
+        ]);
+
+        Auth::login($user);
+        $request->session()->regenerate();
+
+        return redirect()->route('dashboard')
+            ->with('success', 'Account created successfully!');
+    }
+
+    public function showRegister()
+    {
+        if (Auth::check()) {
+            return redirect()->route('dashboard');
+        }
+        return view('auth.register');
+    }
+
+    public function logout(Request $request)
+    {
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        return redirect()->route('login');
+    }
+}
