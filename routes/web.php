@@ -34,6 +34,11 @@ Route::get('/auth/github/callback', [GitHubAuthController::class, 'handleGitHubC
 Route::get('/api/dashboard/realtime', [DashboardController::class, 'getRealTimeData'])->middleware('auth');
 Route::get('/api/revenue-trend', [DashboardController::class, 'getRevenueTrend'])->middleware('auth');
 Route::get('/api/units-overview', [DashboardController::class, 'getUnitsOverview'])->middleware('auth');
+Route::get('/api/daily-boundary-collections', [DashboardController::class, 'getDailyBoundaryCollections'])->middleware('auth');
+Route::get('/api/net-income-details', [DashboardController::class, 'getNetIncomeDetails'])->middleware('auth');
+Route::get('/api/maintenance-units', [DashboardController::class, 'getMaintenanceUnits'])->middleware('auth');
+Route::get('/api/active-drivers', [DashboardController::class, 'getActiveDrivers'])->middleware('auth');
+Route::get('/api/coding-units', [DashboardController::class, 'getCodingUnits'])->middleware('auth');
 
 // Auto Reload Route
 Route::get('/check-changes', function() {

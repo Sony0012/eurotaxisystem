@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use App\Models\Unit;
 use App\Models\Boundary;
 use App\Models\Maintenance;
@@ -511,5 +512,558 @@ class DashboardController extends Controller
         if ($roiPercentage >= 75) return 'good';
         if ($roiPercentage >= 50) return 'average';
         return 'growing';
+    }
+
+    /**
+     * Get daily boundary collections with detailed information
+     */
+    public function getDailyBoundaryCollections()
+    {
+        try {
+            // Get boundary collections with complete information
+            $collections = DB::table('boundaries as b')
+                ->leftJoin('units as u', 'b.unit_id', '=', 'u.id')
+                ->leftJoin('drivers as d', 'u.driver_id', '=', 'd.id')
+                ->leftJoin('users as du', 'd.user_id', '=', 'du.id')
+                ->select([
+                    'b.id',
+                    'b.unit_id',
+                    'b.boundary_amount',
+                    'b.date',
+                    'u.unit_number',
+                    'u.plate_number',
+                    'du.name as driver_name',
+                    'd.id as driver_id'
+                ])
+                ->orderBy('b.date', 'desc')
+                ->orderBy('b.id', 'desc')
+                ->get()
+                ->map(function($collection) {
+                    return [
+                        'id' => $collection->id,
+                        'unit_id' => $collection->unit_id,
+                        'unit_number' => $collection->unit_number,
+                        'plate_number' => $collection->plate_number,
+                        'driver_name' => $collection->driver_name,
+                        'driver_id' => $collection->driver_id,
+                        'boundary_amount' => (float) $collection->boundary_amount,
+                        'date' => $collection->date,
+                        'time' => 'N/A', // Default value since time column doesn't exist
+                        'location' => 'Main Office', // Default value since location column doesn't exist
+                        'status' => 'verified' // Default value since status column doesn't exist
+                    ];
+                });
+
+            // Calculate statistics
+            $stats = [
+                'total_collections' => $collections->count(),
+                'unique_units' => $collections->pluck('unit_id')->unique()->count(),
+                'unique_drivers' => $collections->pluck('driver_id')->unique()->count(),
+                'total_amount' => $collections->sum('boundary_amount'),
+                'today_collections' => $collections->where('date', now()->toDateString())->count(),
+                'today_amount' => $collections->where('date', now()->toDateString())->sum('boundary_amount')
+            ];
+
+            return response()->json([
+                'success' => true,
+                'collections' => $collections,
+                'stats' => $stats,
+                'data_source' => 'real_database',
+                'last_updated' => now()->toDateTimeString()
+            ]);
+            
+        } catch (\Exception $e) {
+            \Log::error('Error loading daily boundary collections: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error loading boundary collections: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Get net income details with breakdown
+     */
+    public function getNetIncomeDetails()
+    {
+        try {
+            // Get income data from boundaries
+            $incomeData = DB::table('boundaries as b')
+                ->leftJoin('units as u', 'b.unit_id', '=', 'u.id')
+                ->leftJoin('drivers as d', 'u.driver_id', '=', 'd.id')
+                ->leftJoin('users as du', 'd.user_id', '=', 'du.id')
+                ->select([
+                    'b.id',
+                    'b.unit_id',
+                    'b.boundary_amount',
+                    'b.date',
+                    'u.unit_number',
+                    'u.plate_number',
+                    'du.name as driver_name',
+                    'd.id as driver_id'
+                ])
+                ->orderBy('b.date', 'desc')
+                ->orderBy('b.id', 'desc')
+                ->get()
+                ->map(function($item) {
+                    return [
+                        'id' => $item->id,
+                        'type' => 'income',
+                        'description' => 'Boundary Collection - ' . $item->unit_number,
+                        'category' => 'Boundary Income',
+                        'amount' => (float) $item->boundary_amount,
+                        'date' => $item->date,
+                        'source' => $item->unit_number,
+                        'reference' => 'Boundary #' . $item->id,
+                        'unit_number' => $item->unit_number,
+                        'driver_name' => $item->driver_name
+                    ];
+                });
+
+            // Initialize expense data as empty collection
+            $expenseData = collect();
+            $expenseTable = null;
+
+            // Try different expense table names - but handle gracefully
+            try {
+                // Check for office_expenses table
+                if (Schema::hasTable('office_expenses')) {
+                    $expenseTable = 'office_expenses';
+                }
+                // Check for expenses table
+                elseif (Schema::hasTable('expenses')) {
+                    $expenseTable = 'expenses';
+                }
+                // Check for office_expense table (singular)
+                elseif (Schema::hasTable('office_expense')) {
+                    $expenseTable = 'office_expense';
+                }
+
+                if ($expenseTable) {
+                    $expenseData = DB::table($expenseTable . ' as oe')
+                        ->leftJoin('users as u', 'oe.user_id', '=', 'u.id')
+                        ->select([
+                            'oe.id',
+                            'oe.expense_type',
+                            'oe.amount',
+                            'oe.description',
+                            'oe.date',
+                            'oe.user_id',
+                            'u.name as user_name'
+                        ])
+                        ->orderBy('oe.date', 'desc')
+                        ->orderBy('oe.id', 'desc')
+                        ->get()
+                        ->map(function($item) {
+                            return [
+                                'id' => $item->id,
+                                'type' => 'expense',
+                                'description' => $item->description || $item->expense_type,
+                                'category' => $item->expense_type,
+                                'amount' => (float) $item->amount,
+                                'date' => $item->date,
+                                'source' => $item->user_name,
+                                'reference' => 'Expense #' . $item->id,
+                                'expense_type' => $item->expense_type,
+                                'user_name' => $item->user_name
+                            ];
+                        });
+                }
+            } catch (\Exception $expenseError) {
+                \Log::error('Error loading expense data: ' . $expenseError->getMessage());
+                // Continue with empty expense data
+                $expenseData = collect();
+            }
+
+            // Combine income and expense data
+            $allData = $incomeData->concat($expenseData)
+                ->sortByDesc('date')
+                ->values();
+
+            // Calculate statistics
+            $totalIncome = $incomeData->sum('amount');
+            $totalExpenses = $expenseData->sum('amount');
+            $netIncome = $totalIncome - $totalExpenses;
+            $profitMargin = $totalIncome > 0 ? (($netIncome / $totalIncome) * 100) : 0;
+
+            $stats = [
+                'total_income' => $totalIncome,
+                'total_expenses' => $totalExpenses,
+                'net_income' => $netIncome,
+                'profit_margin' => $profitMargin,
+                'income_count' => $incomeData->count(),
+                'expense_count' => $expenseData->count(),
+                'total_transactions' => $allData->count(),
+                'expense_table_used' => $expenseTable,
+                'debug_info' => [
+                    'income_data_count' => $incomeData->count(),
+                    'expense_data_count' => $expenseData->count(),
+                    'expense_table_found' => $expenseTable ? 'yes' : 'no'
+                ]
+            ];
+
+            return response()->json([
+                'success' => true,
+                'income_data' => $allData,
+                'stats' => $stats,
+                'data_source' => 'real_database',
+                'last_updated' => now()->toDateTimeString()
+            ]);
+            
+        } catch (\Exception $e) {
+            \Log::error('Error loading net income details: ' . $e->getMessage());
+            \Log::error('Stack trace: ' . $e->getTraceAsString());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Error loading net income details: ' . $e->getMessage(),
+                'debug_info' => [
+                    'error_type' => get_class($e),
+                    'error_code' => $e->getCode(),
+                    'error_file' => $e->getFile(),
+                    'error_line' => $e->getLine()
+                ]
+            ], 500);
+        }
+    }
+
+    /**
+     * Get maintenance units with detailed information
+     */
+    public function getMaintenanceUnits()
+    {
+        try {
+            $hasMaintenances = Schema::hasTable('maintenances');
+            $hasDrivers = Schema::hasTable('drivers');
+
+            $unitsQuery = DB::table('units as u');
+
+            if ($hasDrivers) {
+                $unitsQuery
+                    ->leftJoin('drivers as d', 'u.driver_id', '=', 'd.id')
+                    ->leftJoin('users as du', 'd.user_id', '=', 'du.id');
+            }
+
+            if ($hasMaintenances) {
+                $unitsQuery->leftJoin('maintenances as m', 'u.id', '=', 'm.unit_id');
+            }
+
+            $select = [
+                'u.id',
+                'u.unit_number',
+                'u.plate_number',
+                'u.status',
+                'u.purchase_cost',
+                'u.boundary_rate',
+                'u.created_at',
+                $hasDrivers ? 'du.name as driver_name' : DB::raw('NULL as driver_name'),
+                $hasMaintenances ? 'm.id as maintenance_id' : DB::raw('NULL as maintenance_id'),
+                $hasMaintenances ? 'm.maintenance_type' : DB::raw('NULL as maintenance_type'),
+                $hasMaintenances ? 'm.description' : DB::raw('NULL as description'),
+                $hasMaintenances ? 'm.start_date' : DB::raw('NULL as start_date'),
+                $hasMaintenances ? 'm.end_date' : DB::raw('NULL as end_date'),
+                $hasMaintenances ? 'm.status as maintenance_status' : DB::raw('NULL as maintenance_status'),
+                $hasMaintenances ? 'm.cost as maintenance_cost' : DB::raw('NULL as maintenance_cost'),
+            ];
+
+            $maintenanceUnits = $unitsQuery
+                ->select($select)
+                ->where('u.status', '=', 'maintenance')
+                ->when($hasMaintenances, function ($q) {
+                    $q->orderBy('m.start_date', 'desc');
+                }, function ($q) {
+                    $q->orderBy('u.id', 'desc');
+                })
+                ->get()
+                ->map(function($unit) {
+                    $startDate = data_get($unit, 'start_date');
+                    $endDate = data_get($unit, 'end_date');
+                    return [
+                        'id' => data_get($unit, 'id'),
+                        'unit_number' => data_get($unit, 'unit_number'),
+                        'plate_number' => data_get($unit, 'plate_number'),
+                        'status' => data_get($unit, 'status'),
+                        'driver_name' => data_get($unit, 'driver_name'),
+                        'maintenance_type' => data_get($unit, 'maintenance_type') ?: 'Maintenance',
+                        'description' => data_get($unit, 'description') ?: 'No description available',
+                        'start_date' => $startDate,
+                        'end_date' => $endDate,
+                        'estimated_completion' => $endDate ?: 'Not specified',
+                        'maintenance_status' => data_get($unit, 'maintenance_status') ?: 'Ongoing',
+                        'maintenance_cost' => (float) (data_get($unit, 'maintenance_cost') ?? 0),
+                        'purchase_cost' => (float) (data_get($unit, 'purchase_cost') ?? 0),
+                        'boundary_rate' => (float) (data_get($unit, 'boundary_rate') ?? 0)
+                    ];
+                });
+
+            // Calculate statistics
+            $totalMaintenance = $maintenanceUnits->count();
+            $completedMaintenance = $maintenanceUnits->where('maintenance_status', 'completed')->count();
+            $pendingMaintenance = $maintenanceUnits->where('maintenance_status', 'pending')->count();
+            $avgMaintenanceDays = $totalMaintenance > 0 ? 
+                $maintenanceUnits->filter(function($unit) {
+                    return !empty($unit['start_date']) && !empty($unit['end_date']);
+                })->map(function($unit) {
+                    return Carbon::parse($unit['end_date'])->diffInDays(Carbon::parse($unit['start_date']));
+                })->avg() : 0;
+
+            $stats = [
+                'total_maintenance' => $totalMaintenance,
+                'completed_maintenance' => $completedMaintenance,
+                'pending_maintenance' => $pendingMaintenance,
+                'avg_maintenance_days' => round($avgMaintenanceDays, 1),
+                'total_maintenance_cost' => $maintenanceUnits->sum('maintenance_cost')
+            ];
+
+            return response()->json([
+                'success' => true,
+                'units' => $maintenanceUnits,
+                'stats' => $stats,
+                'data_source' => 'real_database',
+                'last_updated' => now()->toDateTimeString()
+            ]);
+            
+        } catch (\Exception $e) {
+            \Log::error('Error loading maintenance units: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error loading maintenance units: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Get active drivers with detailed information
+     */
+    public function getActiveDrivers()
+    {
+        try {
+            if (!Schema::hasTable('drivers')) {
+                return response()->json([
+                    'success' => true,
+                    'drivers' => [],
+                    'stats' => [
+                        'active_drivers' => 0,
+                        'assigned_units' => 0,
+                        'avg_boundary' => 0,
+                        'top_performers' => 0,
+                        'total_boundary_collected' => 0
+                    ],
+                    'data_source' => 'real_database',
+                    'last_updated' => now()->toDateTimeString()
+                ]);
+            }
+
+            $select = [
+                'd.id',
+                'd.user_id',
+                'u.name',
+                'u.email',
+                DB::raw('COUNT(DISTINCT unit.id) as assigned_units'),
+                DB::raw('COALESCE(SUM(b.boundary_amount), 0) as total_boundary'),
+                DB::raw('COALESCE(AVG(b.boundary_amount), 0) as avg_boundary'),
+            ];
+            $groupBy = ['d.id', 'd.user_id', 'u.name', 'u.email'];
+
+            if (Schema::hasColumn('drivers', 'hire_date')) {
+                $select[] = 'd.hire_date';
+                $groupBy[] = 'd.hire_date';
+            } else {
+                $select[] = DB::raw('NULL as hire_date');
+            }
+
+            if (Schema::hasColumn('drivers', 'license_number')) {
+                $select[] = 'd.license_number';
+                $groupBy[] = 'd.license_number';
+            } else {
+                $select[] = DB::raw('NULL as license_number');
+            }
+
+            if (Schema::hasColumn('drivers', 'phone')) {
+                $select[] = 'd.phone';
+                $groupBy[] = 'd.phone';
+            } else {
+                $select[] = DB::raw('NULL as phone');
+            }
+
+            if (Schema::hasColumn('drivers', 'address')) {
+                $select[] = 'd.address';
+                $groupBy[] = 'd.address';
+            } else {
+                $select[] = DB::raw('NULL as address');
+            }
+
+            $query = DB::table('drivers as d')
+                ->leftJoin('users as u', 'd.user_id', '=', 'u.id')
+                ->leftJoin('units as unit', 'd.id', '=', 'unit.driver_id')
+                ->leftJoin('boundaries as b', 'unit.id', '=', 'b.unit_id')
+                ->select($select);
+
+            if (Schema::hasColumn('drivers', 'status')) {
+                $query->where('d.status', '=', 'active');
+            }
+
+            $activeDrivers = $query
+                ->groupBy($groupBy)
+                ->orderBy('u.name', 'asc')
+                ->get()
+                ->map(function($driver) {
+                    $avgBoundary = (float) ($driver->avg_boundary ?? 0);
+                    $performanceRating = 'average';
+                    if ($avgBoundary >= 2000) $performanceRating = 'excellent';
+                    elseif ($avgBoundary >= 1500) $performanceRating = 'good';
+                    elseif ($avgBoundary >= 1000) $performanceRating = 'average';
+                    else $performanceRating = 'needs_improvement';
+
+                    return [
+                        'id' => $driver->id,
+                        'name' => $driver->name,
+                        'email' => $driver->email,
+                        'license_number' => $driver->license_number,
+                        'phone' => $driver->phone,
+                        'address' => $driver->address,
+                        'hire_date' => $driver->hire_date,
+                        'assigned_units' => (int) ($driver->assigned_units ?? 0),
+                        'total_boundary' => (float) ($driver->total_boundary ?? 0),
+                        'avg_boundary' => $avgBoundary,
+                        'performance_rating' => $performanceRating
+                    ];
+                });
+
+            // Calculate statistics
+            $totalActiveDrivers = $activeDrivers->count();
+            $totalAssignedUnits = $activeDrivers->sum('assigned_units');
+            $avgBoundaryPerDriver = $totalActiveDrivers > 0 ? 
+                $activeDrivers->avg('avg_boundary') : 0;
+            $topPerformers = $activeDrivers->where('performance_rating', 'excellent')->count();
+
+            $stats = [
+                'active_drivers' => $totalActiveDrivers,
+                'assigned_units' => $totalAssignedUnits,
+                'avg_boundary' => round($avgBoundaryPerDriver, 2),
+                'top_performers' => $topPerformers,
+                'total_boundary_collected' => $activeDrivers->sum('total_boundary')
+            ];
+
+            return response()->json([
+                'success' => true,
+                'drivers' => $activeDrivers,
+                'stats' => $stats,
+                'data_source' => 'real_database',
+                'last_updated' => now()->toDateTimeString()
+            ]);
+            
+        } catch (\Exception $e) {
+            \Log::error('Error loading active drivers: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error loading active drivers: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Get coding units with detailed information
+     */
+    public function getCodingUnits()
+    {
+        try {
+            $hasMaintenances = Schema::hasTable('maintenances');
+            $hasDrivers = Schema::hasTable('drivers');
+
+            $unitsQuery = DB::table('units as u');
+
+            if ($hasDrivers) {
+                $unitsQuery
+                    ->leftJoin('drivers as d', 'u.driver_id', '=', 'd.id')
+                    ->leftJoin('users as du', 'd.user_id', '=', 'du.id');
+            }
+
+            if ($hasMaintenances) {
+                $unitsQuery->leftJoin('maintenances as m', 'u.id', '=', 'm.unit_id');
+            }
+
+            $select = [
+                'u.id',
+                'u.unit_number',
+                'u.plate_number',
+                'u.status',
+                'u.purchase_cost',
+                'u.boundary_rate',
+                'u.created_at',
+                $hasDrivers ? 'du.name as driver_name' : DB::raw('NULL as driver_name'),
+                $hasMaintenances ? 'm.id as coding_id' : DB::raw('NULL as coding_id'),
+                $hasMaintenances ? 'm.maintenance_type as coding_type' : DB::raw('NULL as coding_type'),
+                $hasMaintenances ? 'm.description' : DB::raw('NULL as description'),
+                $hasMaintenances ? 'm.start_date' : DB::raw('NULL as start_date'),
+                $hasMaintenances ? 'm.end_date' : DB::raw('NULL as end_date'),
+                $hasMaintenances ? 'm.status as coding_status' : DB::raw('NULL as coding_status'),
+                $hasMaintenances ? 'm.cost as coding_cost' : DB::raw('NULL as coding_cost'),
+            ];
+
+            $codingUnits = $unitsQuery
+                ->select($select)
+                ->where('u.status', '=', 'coding')
+                ->when($hasMaintenances, function ($q) {
+                    $q->orderBy('m.start_date', 'desc');
+                }, function ($q) {
+                    $q->orderBy('u.id', 'desc');
+                })
+                ->get()
+                ->map(function($unit) {
+                    $startDate = data_get($unit, 'start_date');
+                    $endDate = data_get($unit, 'end_date');
+                    return [
+                        'id' => data_get($unit, 'id'),
+                        'unit_number' => data_get($unit, 'unit_number'),
+                        'plate_number' => data_get($unit, 'plate_number'),
+                        'status' => data_get($unit, 'status'),
+                        'driver_name' => data_get($unit, 'driver_name'),
+                        'coding_type' => data_get($unit, 'coding_type') ?: 'Coding',
+                        'description' => data_get($unit, 'description') ?: 'No description available',
+                        'start_date' => $startDate,
+                        'end_date' => $endDate,
+                        'estimated_completion' => $endDate ?: 'Not specified',
+                        'coding_status' => data_get($unit, 'coding_status') ?: 'Ongoing',
+                        'coding_cost' => (float) (data_get($unit, 'coding_cost') ?? 0),
+                        'purchase_cost' => (float) (data_get($unit, 'purchase_cost') ?? 0),
+                        'boundary_rate' => (float) (data_get($unit, 'boundary_rate') ?? 0)
+                    ];
+                });
+
+            // Calculate statistics
+            $totalCoding = $codingUnits->count();
+            $completedCoding = $codingUnits->where('coding_status', 'completed')->count();
+            $pendingCoding = $codingUnits->where('coding_status', 'pending')->count();
+            $avgCodingDays = $totalCoding > 0 ? 
+                $codingUnits->filter(function($unit) {
+                    return !empty($unit['start_date']) && !empty($unit['end_date']);
+                })->map(function($unit) {
+                    return Carbon::parse($unit['end_date'])->diffInDays(Carbon::parse($unit['start_date']));
+                })->avg() : 0;
+
+            $stats = [
+                'total_coding' => $totalCoding,
+                'completed_coding' => $completedCoding,
+                'pending_coding' => $pendingCoding,
+                'avg_coding_days' => round($avgCodingDays, 1),
+                'total_coding_cost' => $codingUnits->sum('coding_cost')
+            ];
+
+            return response()->json([
+                'success' => true,
+                'units' => $codingUnits,
+                'stats' => $stats,
+                'data_source' => 'real_database',
+                'last_updated' => now()->toDateTimeString()
+            ]);
+            
+        } catch (\Exception $e) {
+            \Log::error('Error loading coding units: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error loading coding units: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }
