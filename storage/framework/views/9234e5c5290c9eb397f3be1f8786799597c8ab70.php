@@ -25,7 +25,7 @@
 
         <div class="bg-white rounded-lg shadow card-hover">
             <div class="p-6">
-                <div class="flex items-center justify-between">
+                <div class="flex items-center justify-between cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors" onclick="showDailyBoundaryModal()">
                     <div>
                         <p class="text-sm font-medium text-gray-600">Daily Boundary Collection</p>
                         <p class="text-2xl font-bold text-gray-900" data-stat="today_boundary"><?php echo e(formatCurrency($stats['today_boundary'])); ?></p>
@@ -40,14 +40,14 @@
 
         <div class="bg-white rounded-lg shadow card-hover">
             <div class="p-6">
-                <div class="flex items-center justify-between">
+                <div class="flex items-center justify-between cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors" onclick="showNetIncomeModal()">
                     <div>
                         <p class="text-sm font-medium text-gray-600">Net Income Today</p>
                         <p class="text-2xl font-bold text-green-600" data-stat="net_income"><?php echo e(formatCurrency($stats['net_income'])); ?></p>
                         <p class="text-xs text-gray-500">After all expenses</p>
                     </div>
-                    <div class="p-3 bg-blue-100 rounded-full">
-                        <i data-lucide="trending-up" class="w-6 h-6 text-blue-600"></i>
+                    <div class="p-3 bg-green-100 rounded-full">
+                        <i data-lucide="trending-up" class="w-6 h-6 text-green-600"></i>
                     </div>
                 </div>
             </div>
@@ -55,7 +55,7 @@
 
         <div class="bg-white rounded-lg shadow card-hover">
             <div class="p-6">
-                <div class="flex items-center justify-between">
+                <div class="flex items-center justify-between cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors" onclick="showMaintenanceUnitsModal()">
                     <div>
                         <p class="text-sm font-medium text-gray-600">Units Under Maintenance</p>
                         <p class="text-2xl font-bold text-gray-900" data-stat="maintenance_units"><?php echo e($stats['maintenance_units']); ?></p>
@@ -73,13 +73,13 @@
     <div class="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div class="bg-white rounded-lg shadow card-hover">
             <div class="p-6">
-                <div class="flex items-center justify-between">
+                <div class="flex items-center justify-between cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors" onclick="showActiveDriversModal()">
                     <div>
                         <p class="text-sm text-gray-500">Active Drivers</p>
                         <p class="text-2xl font-bold text-gray-900" data-stat="active_drivers"><?php echo e($stats['active_drivers']); ?></p>
                     </div>
                     <div class="p-3 bg-blue-100 rounded-full">
-                        <i data-lucide="users" class="w-8 h-8 text-blue-600"></i>
+                        <i data-lucide="users" class="w-6 h-6 text-blue-600"></i>
                     </div>
                 </div>
             </div>
@@ -101,53 +101,16 @@
 
         <div class="bg-white rounded-lg shadow card-hover">
             <div class="p-6">
-                <div class="flex items-center justify-between">
+                <div class="flex items-center justify-between cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors" onclick="showCodingUnitsModal()">
                     <div>
                         <p class="text-sm text-gray-500">Coding Units</p>
                         <p class="text-2xl font-bold text-gray-900" data-stat="coding_units"><?php echo e($stats['coding_units']); ?></p>
                     </div>
                     <div class="p-3 bg-purple-100 rounded-full">
-                        <i data-lucide="code" class="w-8 h-8 text-purple-600"></i>
+                        <i data-lucide="code" class="w-6 h-6 text-purple-600"></i>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-
-    <!-- Alerts Section -->
-    <div class="mt-6 bg-white rounded-lg shadow">
-        <div class="p-6 border-b">
-            <h3 class="text-lg font-semibold text-gray-900">System Alerts &amp; Notifications</h3>
-        </div>
-        <div class="p-6" data-alerts-container>
-            <?php if($alerts->isEmpty()): ?>
-                <p class="text-gray-500 text-center py-4">No active alerts</p>
-            <?php else: ?>
-                <div class="space-y-3">
-                    <?php $__currentLoopData = $alerts; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $alert): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                        <div class="flex items-start gap-3 p-3 rounded-lg border
-                                    <?php if(in_array($alert->severity, ['high', 'critical'])): ?> bg-red-50 border-red-200
-                                    <?php elseif($alert->severity === 'medium'): ?> bg-yellow-50 border-yellow-200
-                                    <?php elseif($alert->severity === 'low'): ?> bg-blue-50 border-blue-200
-                                    <?php else: ?> bg-gray-50 border-gray-200
-                                    <?php endif; ?>">
-                            <div class="mt-0.5">
-                                <?php if(in_array($alert->severity, ['high', 'critical'])): ?>
-                                    <i data-lucide="alert-triangle" class="w-5 h-5 text-red-600"></i>
-                                <?php elseif($alert->severity === 'medium'): ?>
-                                    <i data-lucide="alert-triangle" class="w-5 h-5 text-yellow-600"></i>
-                                <?php else: ?>
-                                    <i data-lucide="info" class="w-5 h-5 text-blue-600"></i>
-                                <?php endif; ?>
-                            </div>
-                            <div class="flex-1">
-                                <p class="text-sm text-gray-900"><?php echo e($alert->message); ?></p>
-                                <span class="text-xs text-gray-500 capitalize"><?php echo e($alert->alert_type); ?></span>
-                            </div>
-                        </div>
-                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                </div>
-            <?php endif; ?>
         </div>
     </div>
 
@@ -215,7 +178,587 @@
         </div>
     </div>
 
-    <!-- Units Overview Modal -->
+    <!-- Maintenance Units Modal -->
+<div id="maintenanceUnitsModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-6xl h-[95vh] flex flex-col overflow-hidden">
+        <!-- Modal Header -->
+        <div class="p-4 border-b bg-gradient-to-r from-orange-600 via-amber-600 to-yellow-600 flex-shrink-0">
+            <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center gap-3">
+                    <div class="p-2 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30">
+                        <i data-lucide="wrench" class="w-6 h-6 text-white"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-white">Units Under Maintenance</h3>
+                        <p class="text-orange-100 text-xs font-medium">Complete maintenance tracking details</p>
+                    </div>
+                </div>
+                <button onclick="hideMaintenanceUnitsModal()" class="text-white/80 hover:text-white hover:bg-white/20 p-2 rounded-lg transition-all duration-200 backdrop-blur-sm">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            
+            <!-- Search and Date Filter -->
+            <div class="flex items-center gap-3">
+                <div class="relative flex-1">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i data-lucide="search" class="w-4 h-4 text-white/60"></i>
+                    </div>
+                    <input 
+                        type="text" 
+                        id="maintenanceSearchInput"
+                        placeholder="Search by unit number, plate, or maintenance type..."
+                        class="w-full pl-10 pr-4 py-2 bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent transition-all duration-200 text-sm"
+                        onkeyup="filterMaintenanceUnits()"
+                    >
+                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                        <button onclick="clearMaintenanceSearch()" class="text-white/60 hover:text-white transition-colors">
+                            <i data-lucide="x-circle" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+                <input 
+                    type="date" 
+                    id="maintenanceDateFilter"
+                    class="px-3 py-2 bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent transition-all duration-200 text-sm"
+                    onchange="filterMaintenanceUnits()"
+                >
+            </div>
+        </div>
+        
+        <div class="flex-1 overflow-hidden flex flex-col min-h-0">
+            <!-- Summary Stats -->
+            <div class="bg-gradient-to-r from-orange-50 to-amber-50 p-4 border-b border-orange-200 flex-shrink-0">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="bg-white rounded-lg p-3 shadow-sm border border-orange-100 hover:shadow-md transition-shadow">
+                        <div class="flex items-center gap-2">
+                            <div class="p-1.5 bg-orange-100 rounded">
+                                <i data-lucide="wrench" class="w-4 h-4 text-orange-600"></i>
+                            </div>
+                            <div>
+                                <div class="text-lg font-bold text-orange-600" id="maintenanceUnitsCount">0</div>
+                                <div class="text-xs text-gray-600 uppercase tracking-wide font-medium">Maintenance</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg p-3 shadow-sm border border-blue-100 hover:shadow-md transition-shadow">
+                        <div class="flex items-center gap-2">
+                            <div class="p-1.5 bg-blue-100 rounded">
+                                <i data-lucide="clock" class="w-4 h-4 text-blue-600"></i>
+                            </div>
+                            <div>
+                                <div class="text-lg font-bold text-blue-600" id="avgMaintenanceDaysCount">0</div>
+                                <div class="text-xs text-gray-600 uppercase tracking-wide font-medium">Avg Days</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg p-3 shadow-sm border border-green-100 hover:shadow-md transition-shadow">
+                        <div class="flex items-center gap-2">
+                            <div class="p-1.5 bg-green-100 rounded">
+                                <i data-lucide="check-circle" class="w-4 h-4 text-green-600"></i>
+                            </div>
+                            <div>
+                                <div class="text-lg font-bold text-green-600" id="completedMaintenanceCount">0</div>
+                                <div class="text-xs text-gray-600 uppercase tracking-wide font-medium">Completed</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg p-3 shadow-sm border border-purple-100 hover:shadow-md transition-shadow">
+                        <div class="flex items-center gap-2">
+                            <div class="p-1.5 bg-purple-100 rounded">
+                                <i data-lucide="alert-circle" class="w-4 h-4 text-purple-600"></i>
+                            </div>
+                            <div>
+                                <div class="text-lg font-bold text-purple-600" id="pendingMaintenanceCount">0</div>
+                                <div class="text-xs text-gray-600 uppercase tracking-wide font-medium">Pending</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Maintenance Units Grid -->
+            <div class="flex-1 overflow-y-auto p-4 bg-gray-50 min-h-0">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pb-4" id="maintenanceGrid">
+                    <!-- Loading State -->
+                    <div class="col-span-full text-center py-16">
+                        <div class="inline-flex flex-col items-center">
+                            <div class="animate-spin rounded-full h-12 w-12 border-4 border-orange-600 border-t-transparent mb-4"></div>
+                            <span class="text-lg text-gray-600 font-semibold mb-2">Loading maintenance data...</span>
+                            <p class="text-sm text-gray-400">Please wait while we fetch maintenance details</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Active Drivers Modal -->
+<div id="activeDriversModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-6xl h-[95vh] flex flex-col overflow-hidden">
+        <!-- Modal Header -->
+        <div class="p-4 border-b bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 flex-shrink-0">
+            <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center gap-3">
+                    <div class="p-2 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30">
+                        <i data-lucide="users" class="w-6 h-6 text-white"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-white">Active Drivers</h3>
+                        <p class="text-blue-100 text-xs font-medium">Complete driver management details</p>
+                    </div>
+                </div>
+                <button onclick="hideActiveDriversModal()" class="text-white/80 hover:text-white hover:bg-white/20 p-2 rounded-lg transition-all duration-200 backdrop-blur-sm">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            
+            <!-- Search and Date Filter -->
+            <div class="flex items-center gap-3">
+                <div class="relative flex-1">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i data-lucide="search" class="w-4 h-4 text-white/60"></i>
+                    </div>
+                    <input 
+                        type="text" 
+                        id="driversSearchInput"
+                        placeholder="Search by name, license, or contact..."
+                        class="w-full pl-10 pr-4 py-2 bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent transition-all duration-200 text-sm"
+                        onkeyup="filterActiveDrivers()"
+                    >
+                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                        <button onclick="clearDriversSearch()" class="text-white/60 hover:text-white transition-colors">
+                            <i data-lucide="x-circle" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+                <input 
+                    type="date" 
+                    id="driversDateFilter"
+                    class="px-3 py-2 bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent transition-all duration-200 text-sm"
+                    onchange="filterActiveDrivers()"
+                >
+            </div>
+        </div>
+        
+        <div class="flex-1 overflow-hidden flex flex-col min-h-0">
+            <!-- Summary Stats -->
+            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 border-b border-blue-200 flex-shrink-0">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="bg-white rounded-lg p-3 shadow-sm border border-blue-100 hover:shadow-md transition-shadow">
+                        <div class="flex items-center gap-2">
+                            <div class="p-1.5 bg-blue-100 rounded">
+                                <i data-lucide="users" class="w-4 h-4 text-blue-600"></i>
+                            </div>
+                            <div>
+                                <div class="text-lg font-bold text-blue-600" id="activeDriversCount">0</div>
+                                <div class="text-xs text-gray-600 uppercase tracking-wide font-medium">Active</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg p-3 shadow-sm border border-green-100 hover:shadow-md transition-shadow">
+                        <div class="flex items-center gap-2">
+                            <div class="p-1.5 bg-green-100 rounded">
+                                <i data-lucide="car" class="w-4 h-4 text-green-600"></i>
+                            </div>
+                            <div>
+                                <div class="text-lg font-bold text-green-600" id="assignedUnitsCount">0</div>
+                                <div class="text-xs text-gray-600 uppercase tracking-wide font-medium">Assigned</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg p-3 shadow-sm border border-orange-100 hover:shadow-md transition-shadow">
+                        <div class="flex items-center gap-2">
+                            <div class="p-1.5 bg-orange-100 rounded">
+                                <i data-lucide="trending-up" class="w-4 h-4 text-orange-600"></i>
+                            </div>
+                            <div>
+                                <div class="text-lg font-bold text-orange-600" id="avgBoundaryCount">₱0</div>
+                                <div class="text-xs text-gray-600 uppercase tracking-wide font-medium">Avg Daily</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg p-3 shadow-sm border border-purple-100 hover:shadow-md transition-shadow">
+                        <div class="flex items-center gap-2">
+                            <div class="p-1.5 bg-purple-100 rounded">
+                                <i data-lucide="star" class="w-4 h-4 text-purple-600"></i>
+                            </div>
+                            <div>
+                                <div class="text-lg font-bold text-purple-600" id="topPerformersCount">0</div>
+                                <div class="text-xs text-gray-600 uppercase tracking-wide font-medium">Top Performers</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Active Drivers Grid -->
+            <div class="flex-1 overflow-y-auto p-4 bg-gray-50 min-h-0">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pb-4" id="activeDriversGrid">
+                    <!-- Loading State -->
+                    <div class="col-span-full text-center py-16">
+                        <div class="inline-flex flex-col items-center">
+                            <div class="animate-spin rounded-full h-12 w-12 border-4 border-blue-600 border-t-transparent mb-4"></div>
+                            <span class="text-lg text-gray-600 font-semibold mb-2">Loading driver data...</span>
+                            <p class="text-sm text-gray-400">Please wait while we fetch driver details</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Coding Units Modal -->
+<div id="codingUnitsModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-6xl h-[95vh] flex flex-col overflow-hidden">
+        <!-- Modal Header -->
+        <div class="p-4 border-b bg-gradient-to-r from-purple-600 via-pink-600 to-rose-600 flex-shrink-0">
+            <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center gap-3">
+                    <div class="p-2 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30">
+                        <i data-lucide="code" class="w-6 h-6 text-white"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-white">Coding Units</h3>
+                        <p class="text-purple-100 text-xs font-medium">Complete coding unit management details</p>
+                    </div>
+                </div>
+                <button onclick="hideCodingUnitsModal()" class="text-white/80 hover:text-white hover:bg-white/20 p-2 rounded-lg transition-all duration-200 backdrop-blur-sm">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            
+            <!-- Search and Date Filter -->
+            <div class="flex items-center gap-3">
+                <div class="relative flex-1">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i data-lucide="search" class="w-4 h-4 text-white/60"></i>
+                    </div>
+                    <input 
+                        type="text" 
+                        id="codingSearchInput"
+                        placeholder="Search by unit number, plate, or coding status..."
+                        class="w-full pl-10 pr-4 py-2 bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent transition-all duration-200 text-sm"
+                        onkeyup="filterCodingUnits()"
+                    >
+                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                        <button onclick="clearCodingSearch()" class="text-white/60 hover:text-white transition-colors">
+                            <i data-lucide="x-circle" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+                <input 
+                    type="date" 
+                    id="codingDateFilter"
+                    class="px-3 py-2 bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent transition-all duration-200 text-sm"
+                    onchange="filterCodingUnits()"
+                >
+            </div>
+        </div>
+        
+        <div class="flex-1 overflow-hidden flex flex-col min-h-0">
+            <!-- Summary Stats -->
+            <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-4 border-b border-purple-200 flex-shrink-0">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="bg-white rounded-lg p-3 shadow-sm border border-purple-100 hover:shadow-md transition-shadow">
+                        <div class="flex items-center gap-2">
+                            <div class="p-1.5 bg-purple-100 rounded">
+                                <i data-lucide="code" class="w-4 h-4 text-purple-600"></i>
+                            </div>
+                            <div>
+                                <div class="text-lg font-bold text-purple-600" id="codingUnitsCount">0</div>
+                                <div class="text-xs text-gray-600 uppercase tracking-wide font-medium">Coding</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg p-3 shadow-sm border border-blue-100 hover:shadow-md transition-shadow">
+                        <div class="flex items-center gap-2">
+                            <div class="p-1.5 bg-blue-100 rounded">
+                                <i data-lucide="calendar" class="w-4 h-4 text-blue-600"></i>
+                            </div>
+                            <div>
+                                <div class="text-lg font-bold text-blue-600" id="avgCodingDaysCount">0</div>
+                                <div class="text-xs text-gray-600 uppercase tracking-wide font-medium">Avg Days</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg p-3 shadow-sm border border-green-100 hover:shadow-md transition-shadow">
+                        <div class="flex items-center gap-2">
+                            <div class="p-1.5 bg-green-100 rounded">
+                                <i data-lucide="check-circle" class="w-4 h-4 text-green-600"></i>
+                            </div>
+                            <div>
+                                <div class="text-lg font-bold text-green-600" id="completedCodingCount">0</div>
+                                <div class="text-xs text-gray-600 uppercase tracking-wide font-medium">Completed</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg p-3 shadow-sm border border-orange-100 hover:shadow-md transition-shadow">
+                        <div class="flex items-center gap-2">
+                            <div class="p-1.5 bg-orange-100 rounded">
+                                <i data-lucide="alert-circle" class="w-4 h-4 text-orange-600"></i>
+                            </div>
+                            <div>
+                                <div class="text-lg font-bold text-orange-600" id="pendingCodingCount">0</div>
+                                <div class="text-xs text-gray-600 uppercase tracking-wide font-medium">Pending</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Coding Units Grid -->
+            <div class="flex-1 overflow-y-auto p-4 bg-gray-50 min-h-0">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pb-4" id="codingGrid">
+                    <!-- Loading State -->
+                    <div class="col-span-full text-center py-16">
+                        <div class="inline-flex flex-col items-center">
+                            <div class="animate-spin rounded-full h-12 w-12 border-4 border-purple-600 border-t-transparent mb-4"></div>
+                            <span class="text-lg text-gray-600 font-semibold mb-2">Loading coding data...</span>
+                            <p class="text-sm text-gray-400">Please wait while we fetch coding details</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Net Income Modal -->
+<div id="netIncomeModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-6xl h-[95vh] flex flex-col overflow-hidden">
+        <!-- Modal Header -->
+        <div class="p-4 border-b bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 flex-shrink-0">
+            <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center gap-3">
+                    <div class="p-2 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30">
+                        <i data-lucide="trending-up" class="w-6 h-6 text-white"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-white">Net Income Details</h3>
+                        <p class="text-green-100 text-xs font-medium">Complete income and expense breakdown</p>
+                    </div>
+                </div>
+                <button onclick="hideNetIncomeModal()" class="text-white/80 hover:text-white hover:bg-white/20 p-2 rounded-lg transition-all duration-200 backdrop-blur-sm">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            
+            <!-- Search and Date Filter -->
+            <div class="flex items-center gap-3">
+                <div class="relative flex-1">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i data-lucide="search" class="w-4 h-4 text-white/60"></i>
+                    </div>
+                    <input 
+                        type="text" 
+                        id="incomeSearchInput"
+                        placeholder="Search by description, category, or amount..."
+                        class="w-full pl-10 pr-4 py-2 bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent transition-all duration-200 text-sm"
+                        onkeyup="filterIncomeData()"
+                    >
+                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                        <button onclick="clearIncomeSearch()" class="text-white/60 hover:text-white transition-colors">
+                            <i data-lucide="x-circle" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+                <input 
+                    type="date" 
+                    id="incomeDateFilter"
+                    class="px-3 py-2 bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent transition-all duration-200 text-sm"
+                    onchange="filterIncomeData()"
+                >
+            </div>
+        </div>
+        
+        <div class="flex-1 overflow-hidden flex flex-col min-h-0">
+            <!-- Summary Stats -->
+            <div class="bg-gradient-to-r from-green-50 to-emerald-50 p-4 border-b border-green-200 flex-shrink-0">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="bg-white rounded-lg p-3 shadow-sm border border-green-100 hover:shadow-md transition-shadow">
+                        <div class="flex items-center gap-2">
+                            <div class="p-1.5 bg-green-100 rounded">
+                                <i data-lucide="trending-up" class="w-4 h-4 text-green-600"></i>
+                            </div>
+                            <div>
+                                <div class="text-lg font-bold text-green-600" id="totalIncomeCount">₱0</div>
+                                <div class="text-xs text-gray-600 uppercase tracking-wide font-medium">Total Income</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg p-3 shadow-sm border border-red-100 hover:shadow-md transition-shadow">
+                        <div class="flex items-center gap-2">
+                            <div class="p-1.5 bg-red-100 rounded">
+                                <i data-lucide="trending-down" class="w-4 h-4 text-red-600"></i>
+                            </div>
+                            <div>
+                                <div class="text-lg font-bold text-red-600" id="totalExpenseCount">₱0</div>
+                                <div class="text-xs text-gray-600 uppercase tracking-wide font-medium">Total Expenses</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg p-3 shadow-sm border border-blue-100 hover:shadow-md transition-shadow">
+                        <div class="flex items-center gap-2">
+                            <div class="p-1.5 bg-blue-100 rounded">
+                                <i data-lucide="calculator" class="w-4 h-4 text-blue-600"></i>
+                            </div>
+                            <div>
+                                <div class="text-lg font-bold text-blue-600" id="netIncomeCount">₱0</div>
+                                <div class="text-xs text-gray-600 uppercase tracking-wide font-medium">Net Income</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg p-3 shadow-sm border border-purple-100 hover:shadow-md transition-shadow">
+                        <div class="flex items-center gap-2">
+                            <div class="p-1.5 bg-purple-100 rounded">
+                                <i data-lucide="pie-chart" class="w-4 h-4 text-purple-600"></i>
+                            </div>
+                            <div>
+                                <div class="text-lg font-bold text-purple-600" id="profitMarginCount">0%</div>
+                                <div class="text-xs text-gray-600 uppercase tracking-wide font-medium">Profit Margin</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Income Data Grid -->
+            <div class="flex-1 overflow-y-auto p-4 bg-gray-50 min-h-0">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pb-4" id="incomeGrid">
+                    <!-- Loading State -->
+                    <div class="col-span-full text-center py-16">
+                        <div class="inline-flex flex-col items-center">
+                            <div class="animate-spin rounded-full h-12 w-12 border-4 border-green-600 border-t-transparent mb-4"></div>
+                            <span class="text-lg text-gray-600 font-semibold mb-2">Loading income data...</span>
+                            <p class="text-sm text-gray-400">Please wait while we fetch financial details</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Daily Boundary Collection Modal -->
+<div id="dailyBoundaryModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-6xl h-[95vh] flex flex-col overflow-hidden">
+        <!-- Modal Header -->
+        <div class="p-4 border-b bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 flex-shrink-0">
+            <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center gap-3">
+                    <div class="p-2 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30">
+                        <i data-lucide="calendar" class="w-6 h-6 text-white"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-white">Daily Boundary Collections</h3>
+                        <p class="text-green-100 text-xs font-medium">Complete boundary collection details</p>
+                    </div>
+                </div>
+                <button onclick="hideDailyBoundaryModal()" class="text-white/80 hover:text-white hover:bg-white/20 p-2 rounded-lg transition-all duration-200 backdrop-blur-sm">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            
+            <!-- Search and Date Filter -->
+            <div class="flex items-center gap-3">
+                <div class="relative flex-1">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i data-lucide="search" class="w-4 h-4 text-white/60"></i>
+                    </div>
+                    <input 
+                        type="text" 
+                        id="boundarySearchInput"
+                        placeholder="Search by unit number, driver, or amount..."
+                        class="w-full pl-10 pr-4 py-2 bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent transition-all duration-200 text-sm"
+                        onkeyup="filterBoundaryCollections()"
+                    >
+                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                        <button onclick="clearBoundarySearch()" class="text-white/60 hover:text-white transition-colors">
+                            <i data-lucide="x-circle" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+                <input 
+                    type="date" 
+                    id="boundaryDateFilter"
+                    class="px-3 py-2 bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent transition-all duration-200 text-sm"
+                    onchange="filterBoundaryCollections()"
+                >
+            </div>
+        </div>
+        
+        <div class="flex-1 overflow-hidden flex flex-col min-h-0">
+            <!-- Summary Stats -->
+            <div class="bg-gradient-to-r from-green-50 to-emerald-50 p-4 border-b border-green-200 flex-shrink-0">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="bg-white rounded-lg p-3 shadow-sm border border-green-100 hover:shadow-md transition-shadow">
+                        <div class="flex items-center gap-2">
+                            <div class="p-1.5 bg-green-100 rounded">
+                                <i data-lucide="calendar" class="w-4 h-4 text-green-600"></i>
+                            </div>
+                            <div>
+                                <div class="text-lg font-bold text-green-600" id="totalBoundaryCount">0</div>
+                                <div class="text-xs text-gray-600 uppercase tracking-wide font-medium">Total Collections</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg p-3 shadow-sm border border-green-100 hover:shadow-md transition-shadow">
+                        <div class="flex items-center gap-2">
+                            <div class="p-1.5 bg-blue-100 rounded">
+                                <i data-lucide="car" class="w-4 h-4 text-blue-600"></i>
+                            </div>
+                            <div>
+                                <div class="text-lg font-bold text-blue-600" id="uniqueUnitsCount">0</div>
+                                <div class="text-xs text-gray-600 uppercase tracking-wide font-medium">Unique Units</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg p-3 shadow-sm border border-green-100 hover:shadow-md transition-shadow">
+                        <div class="flex items-center gap-2">
+                            <div class="p-1.5 bg-purple-100 rounded">
+                                <i data-lucide="user" class="w-4 h-4 text-purple-600"></i>
+                            </div>
+                            <div>
+                                <div class="text-lg font-bold text-purple-600" id="uniqueDriversCount">0</div>
+                                <div class="text-xs text-gray-600 uppercase tracking-wide font-medium">Unique Drivers</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg p-3 shadow-sm border border-green-100 hover:shadow-md transition-shadow">
+                        <div class="flex items-center gap-2">
+                            <div class="p-1.5 bg-yellow-100 rounded">
+                                <i data-lucide="trending-up" class="w-4 h-4 text-yellow-600"></i>
+                            </div>
+                            <div>
+                                <div class="text-lg font-bold text-yellow-600" id="totalBoundaryAmount">₱0</div>
+                                <div class="text-xs text-gray-600 uppercase tracking-wide font-medium">Total Amount</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Boundary Collections Grid -->
+            <div class="flex-1 overflow-y-auto p-4 bg-gray-50 min-h-0">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pb-4" id="boundaryGrid">
+                    <!-- Loading State -->
+                    <div class="col-span-full text-center py-16">
+                        <div class="inline-flex flex-col items-center">
+                            <div class="animate-spin rounded-full h-12 w-12 border-4 border-green-600 border-t-transparent mb-4"></div>
+                            <span class="text-lg text-gray-600 font-semibold mb-2">Loading boundary collections...</span>
+                            <p class="text-sm text-gray-400">Please wait while we fetch collection details</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Units Overview Modal -->
     <div id="unitsModal" class="hidden fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-white rounded-2xl shadow-2xl max-w-7xl w-full mx-4 h-[95vh] flex flex-col border border-gray-100">
             <!-- Compact Header with Search -->
@@ -270,6 +813,9 @@
                     </button>
                     <button onclick="filterByStatus('retired')" class="px-2 py-1 bg-white/20 backdrop-blur-sm border border-white/30 rounded-full text-white text-xs font-medium hover:bg-white/30 transition-colors filter-tag" data-status="retired">
                         Retired
+                    </button>
+                    <button onclick="filterByMonth('2026-05')" class="px-2 py-1 bg-white/20 backdrop-blur-sm border border-white/30 rounded-full text-white text-xs font-medium hover:bg-white/30 transition-colors filter-tag" data-month="2026-05">
+                        May 2026
                     </button>
                 </div>
             </div>
@@ -519,6 +1065,1228 @@
                 .catch(error => console.error('Error updating revenue trend:', error));
         }
 
+        // Maintenance Units Modal Functions
+        function showMaintenanceUnitsModal() {
+            document.getElementById('maintenanceUnitsModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            loadMaintenanceUnitsData();
+        }
+        
+        function hideMaintenanceUnitsModal() {
+            document.getElementById('maintenanceUnitsModal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+        
+        function loadMaintenanceUnitsData() {
+            fetch('/api/maintenance-units')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        displayMaintenanceUnitsData(data);
+                    } else {
+                        showMaintenanceError(data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading maintenance units data:', error);
+                    showMaintenanceError('Error loading maintenance units data. Please try again.');
+                });
+        }
+        
+        function displayMaintenanceUnitsData(data) {
+            const grid = document.getElementById('maintenanceGrid');
+            const units = data.units || [];
+            const stats = data.stats || {};
+            
+            // Update summary stats
+            document.getElementById('maintenanceUnitsCount').textContent = stats.total_maintenance || 0;
+            document.getElementById('avgMaintenanceDaysCount').textContent = stats.avg_maintenance_days || 0;
+            document.getElementById('completedMaintenanceCount').textContent = stats.completed_maintenance || 0;
+            document.getElementById('pendingMaintenanceCount').textContent = stats.pending_maintenance || 0;
+            
+            // Store original data for filtering
+            window.originalMaintenanceData = units;
+            window.currentFilteredMaintenanceData = units;
+            
+            // Render maintenance units
+            renderMaintenanceUnits(units);
+            
+            // Re-initialize Lucide icons
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        }
+        
+        function renderMaintenanceUnits(units) {
+            const grid = document.getElementById('maintenanceGrid');
+            
+            if (units.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full text-center py-20">
+                        <div class="inline-flex flex-col items-center">
+                            <div class="p-4 bg-gray-100 rounded-full mb-4">
+                                <i data-lucide="wrench" class="w-8 h-8 text-gray-400"></i>
+                            </div>
+                            <span class="text-xl text-gray-600 font-semibold mb-2">No maintenance units found</span>
+                            <p class="text-sm text-gray-400">Try adjusting your search or date filter</p>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+            
+            grid.innerHTML = units.map(unit => `
+                <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden border-l-4 border-orange-500 hover:scale-102">
+                    <div class="p-4">
+                        <!-- Header -->
+                        <div class="flex items-start justify-between mb-3">
+                            <div class="flex items-center gap-3">
+                                <div class="p-2 bg-orange-100 rounded-lg">
+                                    <i data-lucide="wrench" class="w-4 h-4 text-orange-600"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-lg font-bold text-gray-900">${unit.unit_number}</h4>
+                                    <span class="text-xs text-gray-500">${unit.plate_number || 'N/A'}</span>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-lg font-bold text-orange-600">${unit.maintenance_type || 'Unknown'}</div>
+                                <div class="text-xs text-gray-500">${unit.start_date || 'N/A'}</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Maintenance Details -->
+                        <div class="bg-gray-50 rounded-lg p-3 mb-3">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-sm font-medium text-gray-900">Status: ${unit.status || 'Unknown'}</span>
+                                <span class="text-xs text-gray-600">${unit.estimated_completion || 'N/A'}</span>
+                            </div>
+                            <div class="text-xs text-gray-600">
+                                <span class="font-medium">Description:</span> ${unit.description || 'No description available'}
+                            </div>
+                        </div>
+                        
+                        <!-- Footer -->
+                        <div class="flex items-center justify-between text-xs text-gray-500">
+                            <span class="flex items-center gap-1">
+                                <i data-lucide="calendar" class="w-3 h-3"></i>
+                                ${unit.start_date || 'No start date'}
+                            </span>
+                            <span class="flex items-center gap-1">
+                                <i data-lucide="check-circle" class="w-3 h-3"></i>
+                                ${unit.status || 'Unknown'}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function filterMaintenanceUnits() {
+            const searchTerm = document.getElementById('maintenanceSearchInput').value.toLowerCase();
+            const dateFilter = document.getElementById('maintenanceDateFilter').value;
+            
+            let filteredUnits = window.originalMaintenanceData || [];
+            
+            // Apply date filter
+            if (dateFilter) {
+                filteredUnits = filteredUnits.filter(unit => {
+                    return unit.start_date === dateFilter;
+                });
+            }
+            
+            // Apply search filter
+            if (searchTerm) {
+                filteredUnits = filteredUnits.filter(unit => {
+                    const searchableText = [
+                        unit.unit_number || '',
+                        unit.plate_number || '',
+                        unit.maintenance_type || '',
+                        unit.status || '',
+                        unit.description || '',
+                        unit.start_date || '',
+                        unit.estimated_completion || ''
+                    ].join(' ').toLowerCase();
+                    
+                    return searchableText.includes(searchTerm);
+                });
+            }
+            
+            window.currentFilteredMaintenanceData = filteredUnits;
+            renderMaintenanceUnits(filteredUnits);
+        }
+        
+        function clearMaintenanceSearch() {
+            document.getElementById('maintenanceSearchInput').value = '';
+            document.getElementById('maintenanceDateFilter').value = '';
+            filterMaintenanceUnits();
+        }
+        
+        function showMaintenanceError(message, debugInfo = null) {
+            const grid = document.getElementById('maintenanceGrid');
+            const debugHtml = debugInfo ? `
+                <div class="mt-4 p-3 bg-gray-100 rounded-lg text-xs">
+                    <h4 class="font-bold text-gray-700 mb-2">Debug Information:</h4>
+                    <pre class="text-gray-600 whitespace-pre-wrap">${JSON.stringify(debugInfo, null, 2)}</pre>
+                </div>
+            ` : '';
+            
+            grid.innerHTML = `
+                <div class="col-span-full text-center py-20">
+                    <div class="inline-flex flex-col items-center">
+                        <div class="p-4 bg-red-100 rounded-full mb-4">
+                            <i data-lucide="alert-circle" class="w-8 h-8 text-red-600"></i>
+                        </div>
+                        <span class="text-xl text-gray-600 font-semibold mb-2">Error Loading Maintenance Data</span>
+                        <p class="text-sm text-gray-400 mb-4">${message}</p>
+                        <div class="flex gap-2">
+                            <button onclick="loadMaintenanceUnitsData()" class="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors">
+                                <i data-lucide="refresh-cw" class="w-4 h-4 inline mr-2"></i>
+                                Retry
+                            </button>
+                            <button onclick="testMaintenanceAPI()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                                <i data-lucide="bug" class="w-4 h-4 inline mr-2"></i>
+                                Test API
+                            </button>
+                        </div>
+                        ${debugHtml}
+                    </div>
+                </div>
+            `;
+            
+            // Re-initialize Lucide icons
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        }
+        
+        function testMaintenanceAPI() {
+            const grid = document.getElementById('maintenanceGrid');
+            grid.innerHTML = `
+                <div class="col-span-full text-center py-20">
+                    <div class="inline-flex flex-col items-center">
+                        <div class="p-4 bg-blue-100 rounded-full mb-4">
+                            <i data-lucide="bug" class="w-8 h-8 text-blue-600"></i>
+                        </div>
+                        <span class="text-xl text-gray-600 font-semibold mb-2">Testing API Connection</span>
+                        <p class="text-sm text-gray-400 mb-4">Checking API endpoint...</p>
+                        <div class="w-64 bg-gray-200 rounded-full h-2 mb-4">
+                            <div class="bg-blue-600 h-2 rounded-full animate-pulse" style="width: 60%"></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Test the API endpoint
+            fetch('/api/maintenance-units')
+                .then(response => {
+                    console.log('API Response Status:', response.status);
+                    console.log('API Response Headers:', response.headers);
+                    return response.text();
+                })
+                .then(text => {
+                    console.log('API Response Text:', text);
+                    try {
+                        const data = JSON.parse(text);
+                        console.log('Parsed API Data:', data);
+                        showMaintenanceError('API Test Complete - Check Console for Details', {
+                            response_status: 'success',
+                            data_keys: Object.keys(data),
+                            data: data
+                        });
+                    } catch (parseError) {
+                        console.log('JSON Parse Error:', parseError);
+                        showMaintenanceError('API Test Complete - JSON Parse Error', {
+                            response_status: 'parse_error',
+                            raw_response: text.substring(0, 500) + (text.length > 500 ? '...' : ''),
+                            parse_error: parseError.message
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.log('API Fetch Error:', error);
+                    showMaintenanceError('API Test Complete - Fetch Error', {
+                        response_status: 'fetch_error',
+                        error: error.message,
+                        stack: error.stack
+                    });
+                });
+        }
+
+        // Active Drivers Modal Functions
+        function showActiveDriversModal() {
+            document.getElementById('activeDriversModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            loadActiveDriversData();
+        }
+        
+        function hideActiveDriversModal() {
+            document.getElementById('activeDriversModal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+        
+        function loadActiveDriversData() {
+            fetch('/api/active-drivers')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        displayActiveDriversData(data);
+                    } else {
+                        showActiveDriversError(data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading active drivers data:', error);
+                    showActiveDriversError('Error loading active drivers data. Please try again.');
+                });
+        }
+        
+        function displayActiveDriversData(data) {
+            const grid = document.getElementById('activeDriversGrid');
+            const drivers = data.drivers || [];
+            const stats = data.stats || {};
+            
+            // Update summary stats
+            document.getElementById('activeDriversCount').textContent = stats.active_drivers || 0;
+            document.getElementById('assignedUnitsCount').textContent = stats.assigned_units || 0;
+            document.getElementById('avgBoundaryCount').textContent = '₱' + (stats.avg_boundary || 0).toLocaleString();
+            document.getElementById('topPerformersCount').textContent = stats.top_performers || 0;
+            
+            // Store original data for filtering
+            window.originalActiveDriversData = drivers;
+            window.currentFilteredActiveDriversData = drivers;
+            
+            // Render active drivers
+            renderActiveDrivers(drivers);
+            
+            // Re-initialize Lucide icons
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        }
+        
+        function renderActiveDrivers(drivers) {
+            const grid = document.getElementById('activeDriversGrid');
+            
+            if (drivers.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full text-center py-20">
+                        <div class="inline-flex flex-col items-center">
+                            <div class="p-4 bg-gray-100 rounded-full mb-4">
+                                <i data-lucide="users" class="w-8 h-8 text-gray-400"></i>
+                            </div>
+                            <span class="text-xl text-gray-600 font-semibold mb-2">No active drivers found</span>
+                            <p class="text-sm text-gray-400">Try adjusting your search or date filter</p>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+            
+            grid.innerHTML = drivers.map(driver => `
+                <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden border-l-4 border-blue-500 hover:scale-102">
+                    <div class="p-4">
+                        <!-- Header -->
+                        <div class="flex items-start justify-between mb-3">
+                            <div class="flex items-center gap-3">
+                                <div class="p-2 bg-blue-100 rounded-lg">
+                                    <i data-lucide="users" class="w-4 h-4 text-blue-600"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-lg font-bold text-gray-900">${driver.name || 'Unknown'}</h4>
+                                    <span class="text-xs text-gray-500">${driver.license_number || 'N/A'}</span>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-lg font-bold text-blue-600">${driver.assigned_units || 0}</div>
+                                <div class="text-xs text-gray-500">Units Assigned</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Driver Details -->
+                        <div class="bg-gray-50 rounded-lg p-3 mb-3">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-sm font-medium text-gray-900">Contact: ${driver.phone || 'N/A'}</span>
+                                <span class="text-xs text-gray-600">${driver.email || 'N/A'}</span>
+                            </div>
+                            <div class="text-xs text-gray-600">
+                                <span class="font-medium">Address:</span> ${driver.address || 'No address available'}
+                            </div>
+                        </div>
+                        
+                        <!-- Performance Stats -->
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="flex items-center gap-2">
+                                <div class="w-1.5 h-1.5 rounded-full ${driver.performance_rating === 'excellent' ? 'bg-green-500' : driver.performance_rating === 'good' ? 'bg-yellow-500' : driver.performance_rating === 'average' ? 'bg-orange-500' : 'bg-gray-400'} animate-pulse"></div>
+                                <span class="text-xs font-medium text-gray-600">
+                                    ${driver.performance_rating ? driver.performance_rating.charAt(0).toUpperCase() + driver.performance_rating.slice(1) : 'Unknown'}
+                                </span>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-lg font-bold text-blue-600">₱${driver.total_boundary ? driver.total_boundary.toLocaleString() : '0'}</div>
+                                <div class="text-xs text-gray-500">Total Collected</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Footer -->
+                        <div class="flex items-center justify-between text-xs text-gray-500">
+                            <span class="flex items-center gap-1">
+                                <i data-lucide="calendar" class="w-3 h-3"></i>
+                                ${driver.hire_date || 'No hire date'}
+                            </span>
+                            <span class="flex items-center gap-1">
+                                <i data-lucide="check-circle" class="w-3 h-3"></i>
+                                Active
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function filterActiveDrivers() {
+            const searchTerm = document.getElementById('driversSearchInput').value.toLowerCase();
+            const dateFilter = document.getElementById('driversDateFilter').value;
+            
+            let filteredDrivers = window.originalActiveDriversData || [];
+            
+            // Apply date filter
+            if (dateFilter) {
+                filteredDrivers = filteredDrivers.filter(driver => {
+                    return driver.hire_date === dateFilter;
+                });
+            }
+            
+            // Apply search filter
+            if (searchTerm) {
+                filteredDrivers = filteredDrivers.filter(driver => {
+                    const searchableText = [
+                        driver.name || '',
+                        driver.license_number || '',
+                        driver.phone || '',
+                        driver.email || '',
+                        driver.address || '',
+                        driver.performance_rating || '',
+                        driver.total_boundary ? driver.total_boundary.toString() : '',
+                        driver.assigned_units ? driver.assigned_units.toString() : '',
+                        driver.hire_date || ''
+                    ].join(' ').toLowerCase();
+                    
+                    return searchableText.includes(searchTerm);
+                });
+            }
+            
+            window.currentFilteredActiveDriversData = filteredDrivers;
+            renderActiveDrivers(filteredDrivers);
+        }
+        
+        function clearDriversSearch() {
+            document.getElementById('driversSearchInput').value = '';
+            document.getElementById('driversDateFilter').value = '';
+            filterActiveDrivers();
+        }
+        
+        function showActiveDriversError(message, debugInfo = null) {
+            const grid = document.getElementById('activeDriversGrid');
+            const debugHtml = debugInfo ? `
+                <div class="mt-4 p-3 bg-gray-100 rounded-lg text-xs">
+                    <h4 class="font-bold text-gray-700 mb-2">Debug Information:</h4>
+                    <pre class="text-gray-600 whitespace-pre-wrap">${JSON.stringify(debugInfo, null, 2)}</pre>
+                </div>
+            ` : '';
+            
+            grid.innerHTML = `
+                <div class="col-span-full text-center py-20">
+                    <div class="inline-flex flex-col items-center">
+                        <div class="p-4 bg-red-100 rounded-full mb-4">
+                            <i data-lucide="alert-circle" class="w-8 h-8 text-red-600"></i>
+                        </div>
+                        <span class="text-xl text-gray-600 font-semibold mb-2">Error Loading Driver Data</span>
+                        <p class="text-sm text-gray-400 mb-4">${message}</p>
+                        <div class="flex gap-2">
+                            <button onclick="loadActiveDriversData()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                                <i data-lucide="refresh-cw" class="w-4 h-4 inline mr-2"></i>
+                                Retry
+                            </button>
+                            <button onclick="testActiveDriversAPI()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                                <i data-lucide="bug" class="w-4 h-4 inline mr-2"></i>
+                                Test API
+                            </button>
+                        </div>
+                        ${debugHtml}
+                    </div>
+                </div>
+            `;
+            
+            // Re-initialize Lucide icons
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        }
+        
+        function testActiveDriversAPI() {
+            const grid = document.getElementById('activeDriversGrid');
+            grid.innerHTML = `
+                <div class="col-span-full text-center py-20">
+                    <div class="inline-flex flex-col items-center">
+                        <div class="p-4 bg-blue-100 rounded-full mb-4">
+                            <i data-lucide="bug" class="w-8 h-8 text-blue-600"></i>
+                        </div>
+                        <span class="text-xl text-gray-600 font-semibold mb-2">Testing API Connection</span>
+                        <p class="text-sm text-gray-400 mb-4">Checking API endpoint...</p>
+                        <div class="w-64 bg-gray-200 rounded-full h-2 mb-4">
+                            <div class="bg-blue-600 h-2 rounded-full animate-pulse" style="width: 60%"></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Test the API endpoint
+            fetch('/api/active-drivers')
+                .then(response => {
+                    console.log('API Response Status:', response.status);
+                    console.log('API Response Headers:', response.headers);
+                    return response.text();
+                })
+                .then(text => {
+                    console.log('API Response Text:', text);
+                    try {
+                        const data = JSON.parse(text);
+                        console.log('Parsed API Data:', data);
+                        showActiveDriversError('API Test Complete - Check Console for Details', {
+                            response_status: 'success',
+                            data_keys: Object.keys(data),
+                            data: data
+                        });
+                    } catch (parseError) {
+                        console.log('JSON Parse Error:', parseError);
+                        showActiveDriversError('API Test Complete - JSON Parse Error', {
+                            response_status: 'parse_error',
+                            raw_response: text.substring(0, 500) + (text.length > 500 ? '...' : ''),
+                            parse_error: parseError.message
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.log('API Fetch Error:', error);
+                    showActiveDriversError('API Test Complete - Fetch Error', {
+                        response_status: 'fetch_error',
+                        error: error.message,
+                        stack: error.stack
+                    });
+                });
+        }
+
+        // Coding Units Modal Functions
+        function showCodingUnitsModal() {
+            document.getElementById('codingUnitsModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            loadCodingUnitsData();
+        }
+        
+        function hideCodingUnitsModal() {
+            document.getElementById('codingUnitsModal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+        
+        function loadCodingUnitsData() {
+            fetch('/api/coding-units')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        displayCodingUnitsData(data);
+                    } else {
+                        showCodingError(data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading coding units data:', error);
+                    showCodingError('Error loading coding units data. Please try again.');
+                });
+        }
+        
+        function displayCodingUnitsData(data) {
+            const grid = document.getElementById('codingGrid');
+            const units = data.units || [];
+            const stats = data.stats || {};
+            
+            // Update summary stats
+            document.getElementById('codingUnitsCount').textContent = stats.total_coding || 0;
+            document.getElementById('avgCodingDaysCount').textContent = stats.avg_coding_days || 0;
+            document.getElementById('completedCodingCount').textContent = stats.completed_coding || 0;
+            document.getElementById('pendingCodingCount').textContent = stats.pending_coding || 0;
+            
+            // Store original data for filtering
+            window.originalCodingUnitsData = units;
+            window.currentFilteredCodingUnitsData = units;
+            
+            // Render coding units
+            renderCodingUnits(units);
+            
+            // Re-initialize Lucide icons
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        }
+        
+        function renderCodingUnits(units) {
+            const grid = document.getElementById('codingGrid');
+            
+            if (units.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full text-center py-20">
+                        <div class="inline-flex flex-col items-center">
+                            <div class="p-4 bg-gray-100 rounded-full mb-4">
+                                <i data-lucide="code" class="w-8 h-8 text-gray-400"></i>
+                            </div>
+                            <span class="text-xl text-gray-600 font-semibold mb-2">No coding units found</span>
+                            <p class="text-sm text-gray-400">Try adjusting your search or date filter</p>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+            
+            grid.innerHTML = units.map(unit => `
+                <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden border-l-4 border-purple-500 hover:scale-102">
+                    <div class="p-4">
+                        <!-- Header -->
+                        <div class="flex items-start justify-between mb-3">
+                            <div class="flex items-center gap-3">
+                                <div class="p-2 bg-purple-100 rounded-lg">
+                                    <i data-lucide="code" class="w-4 h-4 text-purple-600"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-lg font-bold text-gray-900">${unit.unit_number}</h4>
+                                    <span class="text-xs text-gray-500">${unit.plate_number || 'N/A'}</span>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-lg font-bold text-purple-600">${unit.coding_type || 'Unknown'}</div>
+                                <div class="text-xs text-gray-500">${unit.start_date || 'N/A'}</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Coding Details -->
+                        <div class="bg-gray-50 rounded-lg p-3 mb-3">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-sm font-medium text-gray-900">Status: ${unit.status || 'Unknown'}</span>
+                                <span class="text-xs text-gray-600">${unit.estimated_completion || 'N/A'}</span>
+                            </div>
+                            <div class="text-xs text-gray-600">
+                                <span class="font-medium">Description:</span> ${unit.description || 'No description available'}
+                            </div>
+                        </div>
+                        
+                        <!-- Footer -->
+                        <div class="flex items-center justify-between text-xs text-gray-500">
+                            <span class="flex items-center gap-1">
+                                <i data-lucide="calendar" class="w-3 h-3"></i>
+                                ${unit.start_date || 'No start date'}
+                            </span>
+                            <span class="flex items-center gap-1">
+                                <i data-lucide="check-circle" class="w-3 h-3"></i>
+                                ${unit.status || 'Unknown'}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function filterCodingUnits() {
+            const searchTerm = document.getElementById('codingSearchInput').value.toLowerCase();
+            const dateFilter = document.getElementById('codingDateFilter').value;
+            
+            let filteredUnits = window.originalCodingUnitsData || [];
+            
+            // Apply date filter
+            if (dateFilter) {
+                filteredUnits = filteredUnits.filter(unit => {
+                    return unit.start_date === dateFilter;
+                });
+            }
+            
+            // Apply search filter
+            if (searchTerm) {
+                filteredUnits = filteredUnits.filter(unit => {
+                    const searchableText = [
+                        unit.unit_number || '',
+                        unit.plate_number || '',
+                        unit.coding_type || '',
+                        unit.status || '',
+                        unit.description || '',
+                        unit.start_date || '',
+                        unit.estimated_completion || ''
+                    ].join(' ').toLowerCase();
+                    
+                    return searchableText.includes(searchTerm);
+                });
+            }
+            
+            window.currentFilteredCodingUnitsData = filteredUnits;
+            renderCodingUnits(filteredUnits);
+        }
+        
+        function clearCodingSearch() {
+            document.getElementById('codingSearchInput').value = '';
+            document.getElementById('codingDateFilter').value = '';
+            filterCodingUnits();
+        }
+        
+        function showCodingError(message, debugInfo = null) {
+            const grid = document.getElementById('codingGrid');
+            const debugHtml = debugInfo ? `
+                <div class="mt-4 p-3 bg-gray-100 rounded-lg text-xs">
+                    <h4 class="font-bold text-gray-700 mb-2">Debug Information:</h4>
+                    <pre class="text-gray-600 whitespace-pre-wrap">${JSON.stringify(debugInfo, null, 2)}</pre>
+                </div>
+            ` : '';
+            
+            grid.innerHTML = `
+                <div class="col-span-full text-center py-20">
+                    <div class="inline-flex flex-col items-center">
+                        <div class="p-4 bg-red-100 rounded-full mb-4">
+                            <i data-lucide="alert-circle" class="w-8 h-8 text-red-600"></i>
+                        </div>
+                        <span class="text-xl text-gray-600 font-semibold mb-2">Error Loading Coding Data</span>
+                        <p class="text-sm text-gray-400 mb-4">${message}</p>
+                        <div class="flex gap-2">
+                            <button onclick="loadCodingUnitsData()" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">
+                                <i data-lucide="refresh-cw" class="w-4 h-4 inline mr-2"></i>
+                                Retry
+                            </button>
+                            <button onclick="testCodingUnitsAPI()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                                <i data-lucide="bug" class="w-4 h-4 inline mr-2"></i>
+                                Test API
+                            </button>
+                        </div>
+                        ${debugHtml}
+                    </div>
+                </div>
+            `;
+            
+            // Re-initialize Lucide icons
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        }
+        
+        function testCodingUnitsAPI() {
+            const grid = document.getElementById('codingGrid');
+            grid.innerHTML = `
+                <div class="col-span-full text-center py-20">
+                    <div class="inline-flex flex-col items-center">
+                        <div class="p-4 bg-blue-100 rounded-full mb-4">
+                            <i data-lucide="bug" class="w-8 h-8 text-blue-600"></i>
+                        </div>
+                        <span class="text-xl text-gray-600 font-semibold mb-2">Testing API Connection</span>
+                        <p class="text-sm text-gray-400 mb-4">Checking API endpoint...</p>
+                        <div class="w-64 bg-gray-200 rounded-full h-2 mb-4">
+                            <div class="bg-blue-600 h-2 rounded-full animate-pulse" style="width: 60%"></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Test the API endpoint
+            fetch('/api/coding-units')
+                .then(response => {
+                    console.log('API Response Status:', response.status);
+                    console.log('API Response Headers:', response.headers);
+                    return response.text();
+                })
+                .then(text => {
+                    console.log('API Response Text:', text);
+                    try {
+                        const data = JSON.parse(text);
+                        console.log('Parsed API Data:', data);
+                        showCodingError('API Test Complete - Check Console for Details', {
+                            response_status: 'success',
+                            data_keys: Object.keys(data),
+                            data: data
+                        });
+                    } catch (parseError) {
+                        console.log('JSON Parse Error:', parseError);
+                        showCodingError('API Test Complete - JSON Parse Error', {
+                            response_status: 'parse_error',
+                            raw_response: text.substring(0, 500) + (text.length > 500 ? '...' : ''),
+                            parse_error: parseError.message
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.log('API Fetch Error:', error);
+                    showCodingError('API Test Complete - Fetch Error', {
+                        response_status: 'fetch_error',
+                        error: error.message,
+                        stack: error.stack
+                    });
+                });
+        }
+
+        // Net Income Modal Functions
+        function showNetIncomeModal() {
+            document.getElementById('netIncomeModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            loadIncomeData();
+        }
+        
+        function hideNetIncomeModal() {
+            document.getElementById('netIncomeModal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+        
+        function loadIncomeData() {
+            fetch('/api/net-income-details')
+                .then(response => {
+                    // Check if response is HTML (error page) or JSON
+                    const contentType = response.headers.get('content-type');
+                    if (contentType && contentType.includes('text/html')) {
+                        return response.text().then(text => {
+                            throw new Error('API returned HTML instead of JSON. This usually means a Laravel error occurred. Check the Laravel logs for details.');
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        displayIncomeData(data);
+                    } else {
+                        showIncomeError(data.message, data.debug_info || null);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading income data:', error);
+                    showIncomeError('Error loading income data. Please try again.', {
+                        fetch_error: error.message,
+                        stack: error.stack
+                    });
+                });
+        }
+        
+        function displayIncomeData(data) {
+            const grid = document.getElementById('incomeGrid');
+            const incomeData = data.income_data || [];
+            const stats = data.stats || {};
+            
+            // Update summary stats
+            document.getElementById('totalIncomeCount').textContent = '₱' + (stats.total_income || 0).toLocaleString();
+            document.getElementById('totalExpenseCount').textContent = '₱' + (stats.total_expenses || 0).toLocaleString();
+            document.getElementById('netIncomeCount').textContent = '₱' + (stats.net_income || 0).toLocaleString();
+            document.getElementById('profitMarginCount').textContent = (stats.profit_margin || 0).toFixed(1) + '%';
+            
+            // Store original data for filtering
+            window.originalIncomeData = incomeData;
+            window.currentFilteredIncomeData = incomeData;
+            
+            // Render income data
+            renderIncomeData(incomeData);
+            
+            // Re-initialize Lucide icons
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        }
+        
+        function renderIncomeData(incomeData) {
+            const grid = document.getElementById('incomeGrid');
+            
+            if (incomeData.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full text-center py-20">
+                        <div class="inline-flex flex-col items-center">
+                            <div class="p-4 bg-gray-100 rounded-full mb-4">
+                                <i data-lucide="trending-up" class="w-8 h-8 text-gray-400"></i>
+                            </div>
+                            <span class="text-xl text-gray-600 font-semibold mb-2">No income data found</span>
+                            <p class="text-sm text-gray-400">Try adjusting your search or date filter</p>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+            
+            grid.innerHTML = incomeData.map(item => `
+                <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden border-l-4 ${item.type === 'income' ? 'border-green-500' : 'border-red-500'} hover:scale-102">
+                    <div class="p-4">
+                        <!-- Header -->
+                        <div class="flex items-start justify-between mb-3">
+                            <div class="flex items-center gap-3">
+                                <div class="p-2 ${item.type === 'income' ? 'bg-green-100' : 'bg-red-100'} rounded-lg">
+                                    <i data-lucide="${item.type === 'income' ? 'trending-up' : 'trending-down'}" class="w-4 h-4 ${item.type === 'income' ? 'text-green-600' : 'text-red-600'}"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-lg font-bold text-gray-900">${item.description || 'Unknown'}</h4>
+                                    <span class="text-xs text-gray-500">${item.category || 'General'}</span>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-lg font-bold ${item.type === 'income' ? 'text-green-600' : 'text-red-600'}">
+                                    ${item.type === 'income' ? '+' : '-'}₱${Math.abs(item.amount).toLocaleString()}
+                                </div>
+                                <div class="text-xs text-gray-500">${item.date}</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Details -->
+                        <div class="bg-gray-50 rounded-lg p-3 mb-3">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-sm font-medium text-gray-900">Type: ${item.type === 'income' ? 'Income' : 'Expense'}</span>
+                                <span class="text-xs text-gray-600">${item.source || 'Unknown'}</span>
+                            </div>
+                            ${item.reference ? `
+                                <div class="text-xs text-gray-600">
+                                    Reference: ${item.reference}
+                                </div>
+                            ` : ''}
+                        </div>
+                        
+                        <!-- Footer -->
+                        <div class="flex items-center justify-between text-xs text-gray-500">
+                            <span class="flex items-center gap-1">
+                                <i data-lucide="calendar" class="w-3 h-3"></i>
+                                ${item.date}
+                            </span>
+                            <span class="flex items-center gap-1">
+                                <i data-lucide="check-circle" class="w-3 h-3"></i>
+                                Verified
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function filterIncomeData() {
+            const searchTerm = document.getElementById('incomeSearchInput').value.toLowerCase();
+            const dateFilter = document.getElementById('incomeDateFilter').value;
+            
+            let filteredData = window.originalIncomeData || [];
+            
+            // Apply date filter
+            if (dateFilter) {
+                filteredData = filteredData.filter(item => {
+                    return item.date === dateFilter;
+                });
+            }
+            
+            // Apply search filter
+            if (searchTerm) {
+                filteredData = filteredData.filter(item => {
+                    const searchableText = [
+                        item.description || '',
+                        item.category || '',
+                        item.type || '',
+                        item.source || '',
+                        item.reference || '',
+                        item.amount ? item.amount.toString() : '',
+                        item.date || ''
+                    ].join(' ').toLowerCase();
+                    
+                    return searchableText.includes(searchTerm);
+                });
+            }
+            
+            window.currentFilteredIncomeData = filteredData;
+            renderIncomeData(filteredData);
+        }
+        
+        function clearIncomeSearch() {
+            document.getElementById('incomeSearchInput').value = '';
+            document.getElementById('incomeDateFilter').value = '';
+            filterIncomeData();
+        }
+        
+        function showIncomeError(message, debugInfo = null) {
+            const grid = document.getElementById('incomeGrid');
+            const debugHtml = debugInfo ? `
+                <div class="mt-4 p-3 bg-gray-100 rounded-lg text-xs">
+                    <h4 class="font-bold text-gray-700 mb-2">Debug Information:</h4>
+                    <pre class="text-gray-600 whitespace-pre-wrap">${JSON.stringify(debugInfo, null, 2)}</pre>
+                </div>
+            ` : '';
+            
+            grid.innerHTML = `
+                <div class="col-span-full text-center py-20">
+                    <div class="inline-flex flex-col items-center">
+                        <div class="p-4 bg-red-100 rounded-full mb-4">
+                            <i data-lucide="alert-circle" class="w-8 h-8 text-red-600"></i>
+                        </div>
+                        <span class="text-xl text-gray-600 font-semibold mb-2">Error Loading Income Data</span>
+                        <p class="text-sm text-gray-400 mb-4">${message}</p>
+                        <div class="flex gap-2">
+                            <button onclick="loadIncomeData()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                                <i data-lucide="refresh-cw" class="w-4 h-4 inline mr-2"></i>
+                                Retry
+                            </button>
+                            <button onclick="testIncomeAPI()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                                <i data-lucide="bug" class="w-4 h-4 inline mr-2"></i>
+                                Test API
+                            </button>
+                        </div>
+                        ${debugHtml}
+                    </div>
+                </div>
+            `;
+            
+            // Re-initialize Lucide icons
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        }
+        
+        function testIncomeAPI() {
+            const grid = document.getElementById('incomeGrid');
+            grid.innerHTML = `
+                <div class="col-span-full text-center py-20">
+                    <div class="inline-flex flex-col items-center">
+                        <div class="p-4 bg-blue-100 rounded-full mb-4">
+                            <i data-lucide="bug" class="w-8 h-8 text-blue-600"></i>
+                        </div>
+                        <span class="text-xl text-gray-600 font-semibold mb-2">Testing API Connection</span>
+                        <p class="text-sm text-gray-400 mb-4">Checking API endpoint...</p>
+                        <div class="w-64 bg-gray-200 rounded-full h-2 mb-4">
+                            <div class="bg-blue-600 h-2 rounded-full animate-pulse" style="width: 60%"></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Test the API endpoint
+            fetch('/api/net-income-details')
+                .then(response => {
+                    console.log('API Response Status:', response.status);
+                    console.log('API Response Headers:', response.headers);
+                    console.log('Content-Type:', response.headers.get('content-type'));
+                    
+                    // Check if response is HTML (error page) or JSON
+                    const contentType = response.headers.get('content-type');
+                    if (contentType && contentType.includes('text/html')) {
+                        return response.text().then(text => {
+                            throw new Error('API returned HTML instead of JSON. This usually means a Laravel error occurred. Response: ' + text.substring(0, 200) + '...');
+                        });
+                    }
+                    
+                    return response.text();
+                })
+                .then(text => {
+                    console.log('API Response Text:', text);
+                    console.log('Response Length:', text.length);
+                    console.log('First 100 chars:', text.substring(0, 100));
+                    
+                    // Check if response starts with HTML
+                    if (text.trim().startsWith('<')) {
+                        throw new Error('API returned HTML instead of JSON. Response starts with: ' + text.substring(0, 100) + '...');
+                    }
+                    
+                    try {
+                        const data = JSON.parse(text);
+                        console.log('Parsed API Data:', data);
+                        showIncomeError('API Test Complete - Check Console for Details', {
+                            response_status: 'success',
+                            data_keys: Object.keys(data),
+                            data: data
+                        });
+                    } catch (parseError) {
+                        console.log('JSON Parse Error:', parseError);
+                        console.log('Raw Response:', text);
+                        showIncomeError('API Test Complete - JSON Parse Error', {
+                            response_status: 'parse_error',
+                            raw_response: text.substring(0, 500) + (text.length > 500 ? '...' : ''),
+                            parse_error: parseError.message,
+                            response_length: text.length,
+                            first_chars: text.substring(0, 100)
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.log('API Fetch Error:', error);
+                    showIncomeError('API Test Complete - Fetch Error', {
+                        response_status: 'fetch_error',
+                        error: error.message,
+                        stack: error.stack
+                    });
+                });
+        }
+
+        // Daily Boundary Collection Modal Functions
+        function showDailyBoundaryModal() {
+            document.getElementById('dailyBoundaryModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            loadBoundaryCollections();
+        }
+        
+        function hideDailyBoundaryModal() {
+            document.getElementById('dailyBoundaryModal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+        
+        function loadBoundaryCollections() {
+            fetch('/api/daily-boundary-collections')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        displayBoundaryCollections(data);
+                    } else {
+                        showBoundaryError(data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading boundary collections:', error);
+                    showBoundaryError('Error loading boundary collections. Please try again.');
+                });
+        }
+        
+        function displayBoundaryCollections(data) {
+            const grid = document.getElementById('boundaryGrid');
+            const collections = data.collections || [];
+            const stats = data.stats || {};
+            
+            // Update summary stats
+            document.getElementById('totalBoundaryCount').textContent = stats.total_collections || 0;
+            document.getElementById('uniqueUnitsCount').textContent = stats.unique_units || 0;
+            document.getElementById('uniqueDriversCount').textContent = stats.unique_drivers || 0;
+            document.getElementById('totalBoundaryAmount').textContent = '₱' + (stats.total_amount || 0).toLocaleString();
+            
+            // Store original data for filtering
+            window.originalBoundaryData = collections;
+            window.currentFilteredBoundaryData = collections;
+            
+            // Render boundary collections
+            renderBoundaryCollections(collections);
+            
+            // Re-initialize Lucide icons
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        }
+        
+        function renderBoundaryCollections(collections) {
+            const grid = document.getElementById('boundaryGrid');
+            
+            if (collections.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full text-center py-20">
+                        <div class="inline-flex flex-col items-center">
+                            <div class="p-4 bg-gray-100 rounded-full mb-4">
+                                <i data-lucide="calendar" class="w-8 h-8 text-gray-400"></i>
+                            </div>
+                            <span class="text-xl text-gray-600 font-semibold mb-2">No boundary collections found</span>
+                            <p class="text-sm text-gray-400">Try adjusting your search or date filter</p>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+            
+            grid.innerHTML = collections.map(collection => `
+                <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden border-l-4 border-green-500 hover:scale-102">
+                    <div class="p-4">
+                        <!-- Header -->
+                        <div class="flex items-start justify-between mb-3">
+                            <div class="flex items-center gap-3">
+                                <div class="p-2 bg-green-100 rounded-lg">
+                                    <i data-lucide="car" class="w-4 h-4 text-green-600"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-lg font-bold text-gray-900">${collection.unit_number}</h4>
+                                    <span class="text-xs text-gray-500">${collection.plate_number || 'N/A'}</span>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-lg font-bold text-green-600">₱${collection.boundary_amount.toLocaleString()}</div>
+                                <div class="text-xs text-gray-500">${collection.date}</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Driver Information -->
+                        <div class="bg-gray-50 rounded-lg p-3 mb-3">
+                            <div class="flex items-center gap-2 mb-2">
+                                <i data-lucide="user" class="w-4 h-4 text-gray-600"></i>
+                                <span class="text-sm font-medium text-gray-900">Driver: ${collection.driver_name || 'N/A'}</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <i data-lucide="clock" class="w-4 h-4 text-gray-600"></i>
+                                <span class="text-xs text-gray-600">Time: ${collection.time || 'N/A'}</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Collection Details -->
+                        <div class="flex items-center justify-between text-xs text-gray-500">
+                            <span class="flex items-center gap-1">
+                                <i data-lucide="map-pin" class="w-3 h-3"></i>
+                                ${collection.location || 'Main Office'}
+                            </span>
+                            <span class="flex items-center gap-1">
+                                <i data-lucide="check-circle" class="w-3 h-3"></i>
+                                Verified
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function filterBoundaryCollections() {
+            const searchTerm = document.getElementById('boundarySearchInput').value.toLowerCase();
+            const dateFilter = document.getElementById('boundaryDateFilter').value;
+            
+            let filteredCollections = window.originalBoundaryData || [];
+            
+            // Apply date filter
+            if (dateFilter) {
+                filteredCollections = filteredCollections.filter(collection => {
+                    return collection.date === dateFilter;
+                });
+            }
+            
+            // Apply search filter
+            if (searchTerm) {
+                filteredCollections = filteredCollections.filter(collection => {
+                    const searchableText = [
+                        collection.unit_number || '',
+                        collection.plate_number || '',
+                        collection.driver_name || '',
+                        collection.boundary_amount ? collection.boundary_amount.toString() : '',
+                        collection.date || '',
+                        collection.time || '',
+                        collection.location || ''
+                    ].join(' ').toLowerCase();
+                    
+                    return searchableText.includes(searchTerm);
+                });
+            }
+            
+            window.currentFilteredBoundaryData = filteredCollections;
+            renderBoundaryCollections(filteredCollections);
+        }
+        
+        function clearBoundarySearch() {
+            document.getElementById('boundarySearchInput').value = '';
+            document.getElementById('boundaryDateFilter').value = '';
+            filterBoundaryCollections();
+        }
+        
+        function showBoundaryError(message) {
+            const grid = document.getElementById('boundaryGrid');
+            grid.innerHTML = `
+                <div class="col-span-full text-center py-20">
+                    <div class="inline-flex flex-col items-center">
+                        <div class="p-4 bg-red-100 rounded-full mb-4">
+                            <i data-lucide="alert-circle" class="w-8 h-8 text-red-600"></i>
+                        </div>
+                        <span class="text-xl text-gray-600 font-semibold mb-2">Error Loading Collections</span>
+                        <p class="text-sm text-gray-400 mb-4">${message}</p>
+                        <button onclick="loadBoundaryCollections()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                            <i data-lucide="refresh-cw" class="w-4 h-4 inline mr-2"></i>
+                            Retry
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
         // Units Modal Functions
         function showUnitsModal() {
             const modal = document.getElementById('unitsModal');
@@ -740,9 +2508,15 @@
             document.getElementById('roiUnitsCount').textContent = stats.roi_units || 0;
             document.getElementById('avgRoiCount').textContent = stats.avg_roi ? stats.avg_roi.toFixed(1) + '%' : '0%';
             
-            // Add data source indicator
+            // Remove any existing data source indicator
+            const existingIndicator = grid.parentNode.querySelector('.data-source-indicator');
+            if (existingIndicator) {
+                existingIndicator.remove();
+            }
+            
+            // Add single data source indicator
             const dataSourceIndicator = document.createElement('div');
-            dataSourceIndicator.className = 'text-xs text-gray-400 text-center mb-2';
+            dataSourceIndicator.className = 'data-source-indicator text-xs text-gray-400 text-center mb-2';
             dataSourceIndicator.innerHTML = `
                 <i data-lucide="database" class="w-3 h-3 inline mr-1"></i>
                 Real Database Data • Last Updated: ${data.last_updated || 'Unknown'}
@@ -784,13 +2558,20 @@
         // Search and Filter Functions
         function filterUnits() {
             const searchTerm = document.getElementById('unitSearchInput').value.toLowerCase();
-            const activeFilter = document.querySelector('.filter-tag.active').dataset.status;
+            const activeFilter = document.querySelector('.filter-tag.active');
             
             let filteredUnits = window.originalUnitsData || [];
             
             // Apply status filter
-            if (activeFilter !== 'all') {
-                filteredUnits = filteredUnits.filter(unit => unit.status === activeFilter);
+            if (activeFilter) {
+                if (activeFilter.dataset.status) {
+                    filteredUnits = filteredUnits.filter(unit => unit.status === activeFilter.dataset.status);
+                } else if (activeFilter.dataset.month) {
+                    // Filter by month - get boundaries from that month
+                    filteredUnits = filteredUnits.filter(unit => {
+                        return unit.last_activity && unit.last_activity.includes(activeFilter.dataset.month);
+                    });
+                }
             }
             
             // Apply search filter
@@ -798,12 +2579,16 @@
                 filteredUnits = filteredUnits.filter(unit => {
                     const searchableText = [
                         unit.unit_number || '',
+                        unit.plate_number || '',
                         unit.status || '',
+                        unit.driver_name || '',
+                        unit.performance_rating || '',
                         unit.roi_percentage >= 100 ? 'excellent profitable' : 
                         unit.roi_percentage >= 75 ? 'good' : 
                         unit.roi_percentage >= 50 ? 'average growing' : 'growing investment',
                         unit.boundary_rate ? unit.boundary_rate.toString() : '',
                         unit.total_boundary ? unit.total_boundary.toString() : '',
+                        unit.today_boundary ? unit.today_boundary.toString() : '',
                         unit.purchase_cost ? unit.purchase_cost.toString() : ''
                     ].join(' ').toLowerCase();
                     
@@ -843,6 +2628,19 @@
             document.querySelectorAll('.filter-tag').forEach(tag => {
                 tag.classList.remove('active', 'bg-white/40');
                 if (tag.dataset.status === status) {
+                    tag.classList.add('active', 'bg-white/40');
+                }
+            });
+            
+            // Apply filter
+            filterUnits();
+        }
+        
+        function filterByMonth(month) {
+            // Update active filter tag
+            document.querySelectorAll('.filter-tag').forEach(tag => {
+                tag.classList.remove('active', 'bg-white/40');
+                if (tag.dataset.month === month) {
                     tag.classList.add('active', 'bg-white/40');
                 }
             });
