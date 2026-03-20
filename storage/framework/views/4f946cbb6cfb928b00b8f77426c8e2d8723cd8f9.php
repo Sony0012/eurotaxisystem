@@ -1,14 +1,12 @@
-@extends('layouts.app')
+<?php $__env->startSection('title', 'Boundary Management - Euro System'); ?>
+<?php $__env->startSection('page-heading', 'Boundary Management'); ?>
+<?php $__env->startSection('page-subheading', 'Track daily boundary collections and payments'); ?>
 
-@section('title', 'Boundary Management - Euro System')
-@section('page-heading', 'Boundary Management')
-@section('page-subheading', 'Track daily boundary collections and payments')
-
-@section('content')
+<?php $__env->startSection('content'); ?>
 
 <!-- Search and Filters -->
 <div class="bg-white rounded-lg shadow p-6 mb-6">
-    <form class="flex flex-col sm:flex-row gap-4" method="GET" action="{{ route('boundaries.index') }}">
+    <form class="flex flex-col sm:flex-row gap-4" method="GET" action="<?php echo e(route('boundaries.index')); ?>">
         <div class="flex-1">
             <div class="relative">
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -18,7 +16,7 @@
                     type="text"
                     id="search"
                     name="search"
-                    value="{{ $search }}"
+                    value="<?php echo e($search); ?>"
                     class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none"
                     placeholder="Search by unit, plate, or driver..."
                 >
@@ -30,7 +28,7 @@
                 type="date"
                 id="date_filter"
                 name="date"
-                value="{{ $date_filter }}"
+                value="<?php echo e($date_filter); ?>"
                 class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none"
             >
         </div>
@@ -42,10 +40,10 @@
                 class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none"
             >
                 <option value="">All Status</option>
-                <option value="pending" {{ $status_filter === 'pending' ? 'selected' : '' }}>Pending</option>
-                <option value="paid" {{ $status_filter === 'paid' ? 'selected' : '' }}>Paid</option>
-                <option value="shortage" {{ $status_filter === 'shortage' ? 'selected' : '' }}>Shortage</option>
-                <option value="excess" {{ $status_filter === 'excess' ? 'selected' : '' }}>Excess</option>
+                <option value="pending" <?php echo e($status_filter === 'pending' ? 'selected' : ''); ?>>Pending</option>
+                <option value="paid" <?php echo e($status_filter === 'paid' ? 'selected' : ''); ?>>Paid</option>
+                <option value="shortage" <?php echo e($status_filter === 'shortage' ? 'selected' : ''); ?>>Shortage</option>
+                <option value="excess" <?php echo e($status_filter === 'excess' ? 'selected' : ''); ?>>Excess</option>
             </select>
         </div>
         
@@ -75,54 +73,59 @@
                 </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
-                @if (empty($boundariesArray))
+                <?php if(empty($boundariesArray)): ?>
                     <tr>
                         <td colspan="7" class="px-6 py-12 text-center text-gray-500">
                             <i data-lucide="dollar-sign" class="w-12 h-12 mx-auto mb-4 text-gray-300"></i>
                             <p>No boundary records found</p>
                         </td>
                     </tr>
-                @else
-                    @foreach ($boundariesArray as $boundary)
+                <?php else: ?>
+                    <?php $__currentLoopData = $boundariesArray; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $boundary): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                         <tr class="hover:bg-gray-50">
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                {{ formatDate($boundary['date']) }}
+                                <?php echo e(formatDate($boundary['date'])); ?>
+
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div>
-                                    <div class="text-sm font-medium text-gray-900">{{ $boundary['unit_number'] }}</div>
-                                    <div class="text-sm text-gray-500">{{ $boundary['plate_number'] }}</div>
+                                    <div class="text-sm font-medium text-gray-900"><?php echo e($boundary['unit_number']); ?></div>
+                                    <div class="text-sm text-gray-500"><?php echo e($boundary['plate_number']); ?></div>
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                {{ $boundary['driver_name'] ?? 'Unassigned' }}
+                                <?php echo e($boundary['driver_name'] ?? 'Unassigned'); ?>
+
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                {{ formatCurrency($boundary['boundary_amount']) }}
+                                <?php echo e(formatCurrency($boundary['boundary_amount'])); ?>
+
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                {{ formatCurrency($boundary['actual_boundary'] ?? 0) }}
+                                <?php echo e(formatCurrency($boundary['actual_boundary'] ?? 0)); ?>
+
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                @php
+                                <?php
                                     $statusClass = 'bg-yellow-100 text-yellow-800';
                                     if ($boundary['status'] === 'paid') $statusClass = 'bg-green-100 text-green-800';
                                     if ($boundary['status'] === 'shortage') $statusClass = 'bg-red-100 text-red-800';
                                     if ($boundary['status'] === 'excess') $statusClass = 'bg-blue-100 text-blue-800';
-                                @endphp
-                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $statusClass }}">
-                                    {{ ucfirst($boundary['status']) }}
+                                ?>
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full <?php echo e($statusClass); ?>">
+                                    <?php echo e(ucfirst($boundary['status'])); ?>
+
                                 </span>
-                                @if ($boundary['shortage'] > 0)
-                                    <div class="text-xs text-red-600 mt-1">Shortage: {{ formatCurrency($boundary['shortage']) }}</div>
-                                @elseif ($boundary['excess'] > 0)
-                                    <div class="text-xs text-blue-600 mt-1">Excess: {{ formatCurrency($boundary['excess']) }}</div>
-                                @endif
+                                <?php if($boundary['shortage'] > 0): ?>
+                                    <div class="text-xs text-red-600 mt-1">Shortage: <?php echo e(formatCurrency($boundary['shortage'])); ?></div>
+                                <?php elseif($boundary['excess'] > 0): ?>
+                                    <div class="text-xs text-blue-600 mt-1">Excess: <?php echo e(formatCurrency($boundary['excess'])); ?></div>
+                                <?php endif; ?>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                 <button
                                     type="button"
-                                    onclick="editBoundary({{ $boundary['id'] }})"
+                                    onclick="editBoundary(<?php echo e($boundary['id']); ?>)"
                                     class="text-yellow-600 hover:text-yellow-900 mr-3"
                                     title="Edit Boundary"
                                 >
@@ -130,195 +133,187 @@
                                 </button>
                             </td>
                         </tr>
-                    @endforeach
-                @endif
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                <?php endif; ?>
             </tbody>
         </table>
     </div>
     
     <!-- Pagination -->
-    @if ($pagination['total_pages'] > 1)
+    <?php if($pagination['total_pages'] > 1): ?>
         <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
             <div class="flex-1 flex justify-between sm:hidden">
-                @if ($pagination['has_prev'])
-                    <a href="?page={{ $pagination['prev_page'] }}&search={{ urlencode($search) }}&date={{ urlencode($date_filter) }}&status={{ urlencode($status_filter) }}" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">Previous</a>
-                @endif
-                @if ($pagination['has_next'])
-                    <a href="?page={{ $pagination['next_page'] }}&search={{ urlencode($search) }}&date={{ urlencode($date_filter) }}&status={{ urlencode($status_filter) }}" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">Next</a>
-                @endif
+                <?php if($pagination['has_prev']): ?>
+                    <a href="?page=<?php echo e($pagination['prev_page']); ?>&search=<?php echo e(urlencode($search)); ?>&date=<?php echo e(urlencode($date_filter)); ?>&status=<?php echo e(urlencode($status_filter)); ?>" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">Previous</a>
+                <?php endif; ?>
+                <?php if($pagination['has_next']): ?>
+                    <a href="?page=<?php echo e($pagination['next_page']); ?>&search=<?php echo e(urlencode($search)); ?>&date=<?php echo e(urlencode($date_filter)); ?>&status=<?php echo e(urlencode($status_filter)); ?>" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">Next</a>
+                <?php endif; ?>
             </div>
             <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
                 <div>
                     <p class="text-sm text-gray-700">
-                        Showing <span class="font-medium">{{ $pagination['offset'] + 1 }}</span> to 
-                        <span class="font-medium">{{ min($pagination['offset'] + $pagination['items_per_page'], $pagination['total_items']) }}</span> of 
-                        <span class="font-medium">{{ $pagination['total_items'] }}</span> results
+                        Showing <span class="font-medium"><?php echo e($pagination['offset'] + 1); ?></span> to 
+                        <span class="font-medium"><?php echo e(min($pagination['offset'] + $pagination['items_per_page'], $pagination['total_items'])); ?></span> of 
+                        <span class="font-medium"><?php echo e($pagination['total_items']); ?></span> results
                     </p>
                 </div>
                 <div>
                     <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
-                        @if ($pagination['has_prev'])
-                            <a href="?page={{ $pagination['prev_page'] }}&search={{ urlencode($search) }}&date={{ urlencode($date_filter) }}&status={{ urlencode($status_filter) }}" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                        <?php if($pagination['has_prev']): ?>
+                            <a href="?page=<?php echo e($pagination['prev_page']); ?>&search=<?php echo e(urlencode($search)); ?>&date=<?php echo e(urlencode($date_filter)); ?>&status=<?php echo e(urlencode($status_filter)); ?>" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
                                 <i data-lucide="chevron-left" class="w-4 h-4"></i>
                             </a>
-                        @endif
+                        <?php endif; ?>
                         
-                        @php
+                        <?php
                         $start_page = max(1, $pagination['page'] - 2);
                         $end_page = min($pagination['total_pages'], $pagination['page'] + 2);
-                        @endphp
+                        ?>
                         
-                        @for ($i = $start_page; $i <= $end_page; $i++)
-                            <a href="?page={{ $i }}&search={{ urlencode($search) }}&date={{ urlencode($date_filter) }}&status={{ urlencode($status_filter) }}" class="relative inline-flex items-center px-4 py-2 border text-sm font-medium {{ $i === $pagination['page'] ? 'z-10 bg-yellow-50 border-yellow-500 text-yellow-600' : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50' }}">
-                                {{ $i }}
+                        <?php for($i = $start_page; $i <= $end_page; $i++): ?>
+                            <a href="?page=<?php echo e($i); ?>&search=<?php echo e(urlencode($search)); ?>&date=<?php echo e(urlencode($date_filter)); ?>&status=<?php echo e(urlencode($status_filter)); ?>" class="relative inline-flex items-center px-4 py-2 border text-sm font-medium <?php echo e($i === $pagination['page'] ? 'z-10 bg-yellow-50 border-yellow-500 text-yellow-600' : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'); ?>">
+                                <?php echo e($i); ?>
+
                             </a>
-                        @endfor
+                        <?php endfor; ?>
                         
-                        @if ($pagination['has_next'])
-                            <a href="?page={{ $pagination['next_page'] }}&search={{ urlencode($search) }}&date={{ urlencode($date_filter) }}&status={{ urlencode($status_filter) }}" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                        <?php if($pagination['has_next']): ?>
+                            <a href="?page=<?php echo e($pagination['next_page']); ?>&search=<?php echo e(urlencode($search)); ?>&date=<?php echo e(urlencode($date_filter)); ?>&status=<?php echo e(urlencode($status_filter)); ?>" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
                                 <i data-lucide="chevron-right" class="w-4 h-4"></i>
                             </a>
-                        @endif
+                        <?php endif; ?>
                     </nav>
                 </div>
             </div>
         </div>
-    @endif
+    <?php endif; ?>
 </div>
 
 <!-- Boundary Modal -->
-<div id="boundaryModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-lg shadow-xl w-full max-w-sm p-3 max-h-[95vh] overflow-y-auto">
-        <div class="flex justify-between items-center mb-2">
+<div id="boundaryModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full z-50">
+    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-lg bg-white">
+        <div class="flex justify-between items-center mb-4">
             <h3 class="text-lg font-semibold text-gray-900" id="modalTitle">Add Boundary Record</h3>
             <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600">
                 <i data-lucide="x" class="w-5 h-5"></i>
             </button>
         </div>
         
-        <form id="boundaryForm" method="POST" action="{{ route('boundaries.store') }}">
-            @csrf
+        <form id="boundaryForm" method="POST" action="<?php echo e(route('boundaries.store')); ?>">
+            <?php echo csrf_field(); ?>
             <input type="hidden" name="action" id="formAction" value="add_boundary">
             <input type="hidden" name="id" id="boundaryId">
             
-            <div class="space-y-2">
+            <div class="space-y-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Unit *</label>
-                    <div class="relative">
-                        <input type="text" id="unitDisplay" required 
-                               class="w-full px-2 py-1.5 border border-gray-300 rounded-lg bg-white cursor-pointer focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
-                               placeholder="Type to search units...">
-                        <input type="hidden" name="unit_id" id="unitId" required>
-                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                            <i data-lucide="chevron-down" class="w-4 h-4 text-gray-400"></i>
-                        </div>
-                        
-                        <!-- Unit Dropdown -->
-                        <div id="unit_dropdown" class="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-32 overflow-y-auto hidden">
-                            @foreach ($units as $unit)
-                                <div class="unit-option px-2 py-1 hover:bg-yellow-50 cursor-pointer border-b border-gray-100 last:border-b-0"
-                                     data-id="{{ $unit['id'] }}"
-                                     data-name="{{ $unit['unit_number'] }}"
-                                     data-plate="{{ $unit['plate_number'] }}"
-                                     data-model="{{ $unit['make_model'] ?? '' }}">
-                                    <div class="font-medium text-xs">{{ $unit['unit_number'] }}</div>
-                                    <div class="text-xs text-gray-500">{{ $unit['plate_number'] }} - {{ $unit['make_model'] ?? 'N/A' }}</div>
-                                </div>
-                            @endforeach
-                        </div>
-                    </div>
+                    <select name="unit_id" id="unitId" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
+                        <option value="">Select Unit</option>
+                        <?php $__currentLoopData = $units; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $unit): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <option value="<?php echo e($unit['id']); ?>" 
+                                    data-rate="<?php echo e($unit['boundary_rate'] ?? 1100); ?>"
+                                    data-coding-day="<?php echo e($unit['coding_day'] ?? ''); ?>">
+                                <?php echo e($unit['unit_number']); ?> - <?php echo e($unit['plate_number']); ?>
+
+                            </option>
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                    </select>
                 </div>
                 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Driver *</label>
                     <div class="relative">
-                        <input type="text" id="driverDisplay" required 
-                               class="w-full px-2 py-1.5 border border-gray-300 rounded-lg bg-white cursor-pointer focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
-                               placeholder="Type to search drivers...">
-                        <input type="hidden" name="driver_id" id="driverId" required>
-                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                            <i data-lucide="chevron-down" class="w-4 h-4 text-gray-400"></i>
+                        <!-- Searchable Driver Dropdown -->
+                        <div class="relative">
+                            <input type="text" 
+                                   id="driver_search" 
+                                   placeholder="Search and select driver..." 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
+                                   autocomplete="off"
+                                   onkeyup="filterDrivers()"
+                                   onfocus="showDriverDropdown()"
+                                   onblur="hideDriverDropdown()">
+                            <button type="button" 
+                                    onclick="clearDriverSelection()"
+                                    class="absolute inset-y-0 right-0 pr-3 flex items-center"
+                                    title="Clear selection">
+                                <i data-lucide="x" class="w-4 h-4 text-gray-400 hover:text-gray-600"></i>
+                            </button>
                         </div>
-                        
-                        <!-- Driver Dropdown -->
-                        <div id="driver_dropdown" class="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-32 overflow-y-auto hidden">
-                            <!-- All drivers option -->
-                            <div class="driver-option px-2 py-1 hover:bg-yellow-50 cursor-pointer border-b border-gray-100"
-                                 data-id="all"
-                                 data-name="All Drivers"
-                                 data-unit=""
-                                 data-plate="">
-                                <div class="font-medium text-xs">All Drivers</div>
-                                <div class="text-xs text-gray-500">Show all available drivers</div>
-                            </div>
-                            <!-- Unit-specific drivers -->
-                            @foreach ($unit_drivers as $unit_id => $drivers)
-                                <div class="unit-drivers-group" data-unit-id="{{ $unit_id }}" style="display: none;">
-                                    @foreach ($drivers as $driver)
-                                        <div class="driver-option px-2 py-1 hover:bg-yellow-50 cursor-pointer border-b border-gray-100 last:border-b-0"
-                                             data-id="{{ $driver['id'] }}"
-                                             data-name="{{ $driver['name'] }}"
-                                             data-unit="{{ $driver['current_unit'] }}"
-                                             data-plate="{{ $driver['current_plate'] }}">
-                                            <div class="font-medium text-xs">{{ $driver['name'] }}</div>
-                                            <div class="text-xs text-gray-500">{{ $driver['current_plate'] }} - {{ $driver['current_unit'] }}</div>
-                                        </div>
-                                    @endforeach
+                        <!-- Hidden select to maintain form compatibility -->
+                        <select name="driver_id" id="driverId" required class="hidden">
+                            <option value="">Select Driver</option>
+                            <?php $__currentLoopData = $all_drivers; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $driver): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <option value="<?php echo e($driver['id']); ?>" 
+                                        data-name="<?php echo e($driver['name']); ?>"
+                                        data-unit="<?php echo e($driver['current_unit']); ?>"
+                                        data-plate="<?php echo e($driver['current_plate']); ?>"
+                                        data-assigned-count="<?php echo e($driver['assigned_units_count']); ?>">
+                                    <?php echo e($driver['name']); ?>
+
+                                    <?php if($driver['current_unit'] !== 'No Assignment'): ?>
+                                        (<?php echo e($driver['current_unit']); ?> - <?php echo e($driver['current_plate']); ?>)
+                                    <?php endif; ?>
+                                </option>
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                        </select>
+                        <!-- Hidden data for assigned drivers -->
+                        <div id="assignedDriversData" style="display: none;">
+                            <?php $__currentLoopData = $assigned_drivers; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $driver): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <div class="assigned-driver" 
+                                     data-id="<?php echo e($driver['id']); ?>"
+                                     data-name="<?php echo e($driver['name']); ?>"
+                                     data-unit="<?php echo e($driver['current_unit']); ?>"
+                                     data-plate="<?php echo e($driver['current_plate']); ?>">
                                 </div>
-                            @endforeach
-                            <!-- All drivers list -->
-                            <div class="all-drivers-list">
-                                @foreach ($drivers as $driver)
-                                    <div class="driver-option px-2 py-1 hover:bg-yellow-50 cursor-pointer border-b border-gray-100 last:border-b-0"
-                                         data-id="{{ $driver['id'] }}"
-                                         data-name="{{ $driver['name'] }}"
-                                         data-unit="{{ $driver['current_unit'] }}"
-                                         data-plate="{{ $driver['current_plate'] }}">
-                                    </div>
-                                @endforeach
-                            </div>
-                            <!-- Hidden data for unit-specific drivers -->
-                            <div id="unitDriversData" style="display: none;">
-                                @foreach ($unit_drivers as $unit_id => $drivers)
-                                    <div class="unit-drivers" 
-                                         data-unit-id="{{ $unit_id }}">
-                                        @foreach ($drivers as $driver)
-                                            <div class="unit-driver" 
-                                                 data-id="{{ $driver['id'] }}"
-                                                 data-name="{{ $driver['name'] }}"
-                                                 data-unit="{{ $driver['current_unit'] }}"
-                                                 data-plate="{{ $driver['current_plate'] }}">
-                                            </div>
-                                        @endforeach
-                                    </div>
-                                @endforeach
-                            </div>
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                        </div>
+                        <!-- Hidden data for unit-specific drivers -->
+                        <div id="unitDriversData" style="display: none;">
+                            <?php $__currentLoopData = $unit_drivers; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $unit_id => $drivers): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <div class="unit-drivers" 
+                                     data-unit-id="<?php echo e($unit_id); ?>">
+                                    <?php $__currentLoopData = $drivers; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $driver): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <div class="unit-driver" 
+                                             data-id="<?php echo e($driver['id']); ?>"
+                                             data-name="<?php echo e($driver['name']); ?>"
+                                             data-unit="<?php echo e($driver['current_unit']); ?>"
+                                             data-plate="<?php echo e($driver['current_plate']); ?>">
+                                        </div>
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                </div>
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                        </div>
+                        <!-- Dropdown for search results -->
+                        <div id="driver_dropdown" class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto hidden">
+                            <!-- Driver options will be populated here -->
                         </div>
                     </div>
                 </div>
                 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Date *</label>
-                    <input type="date" name="date" id="date" required value="{{ date('Y-m-d') }}" class="w-full px-2 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
+                    <input type="date" name="date" id="date" required value="<?php echo e(date('Y-m-d')); ?>" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
                 </div>
                 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Boundary Amount *</label>
-                    <input type="number" name="boundary_amount" id="boundaryAmount" required step="0.01" min="0" class="w-full px-2 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
+                    <input type="number" name="boundary_amount" id="boundaryAmount" required step="0.01" min="0" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
                 </div>
                 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Actual Boundary</label>
-                    <input type="number" name="actual_boundary" id="actualBoundary" step="0.01" min="0" class="w-full px-2 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
+                    <input type="number" name="actual_boundary" id="actualBoundary" step="0.01" min="0" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
                 </div>
                 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Notes</label>
-                    <textarea name="notes" id="notes" rows="2" class="w-full px-2 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"></textarea>
+                    <textarea name="notes" id="notes" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"></textarea>
                 </div>
             </div>
             
-            <div class="mt-4 flex gap-3">
+            <div class="mt-6 flex gap-3">
                 <button type="submit" class="flex-1 bg-yellow-600 text-white py-2 px-4 rounded-lg hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500">
                     Save
                 </button>
@@ -330,9 +325,9 @@
     </div>
 </div>
 
-@endsection
+<?php $__env->stopSection(); ?>
 
-@push('scripts')
+<?php $__env->startPush('scripts'); ?>
 <script>
 // Search and filter functionality
 document.getElementById('search').addEventListener('input', function() {
@@ -656,159 +651,7 @@ function clearDriverSelection() {
 // Initialize driver dropdown when page loads
 document.addEventListener('DOMContentLoaded', function() {
     initializeDriverDropdown();
-    initializeUnitDropdown();
 });
-
-// Unit dropdown functionality
-function initializeUnitDropdown() {
-    const unitDisplay = document.getElementById('unitDisplay');
-    const unitDropdown = document.getElementById('unit_dropdown');
-    const unitOptions = document.querySelectorAll('.unit-option');
-    
-    if (unitDisplay && unitDropdown) {
-        // Show dropdown on focus
-        unitDisplay.addEventListener('focus', function() {
-            filterUnits('');
-            unitDropdown.classList.remove('hidden');
-        });
-        
-        // Filter units on input
-        unitDisplay.addEventListener('input', function() {
-            const searchTerm = this.value.toLowerCase();
-            filterUnits(searchTerm);
-        });
-        
-        // Close dropdown when clicking outside
-        document.addEventListener('click', function(e) {
-            if (!unitDisplay.contains(e.target) && !unitDropdown.contains(e.target)) {
-                unitDropdown.classList.add('hidden');
-            }
-        });
-        
-        // Handle unit selection
-        unitOptions.forEach(option => {
-            option.addEventListener('click', function() {
-                const unitId = this.getAttribute('data-id');
-                const unitName = this.getAttribute('data-name');
-                const unitPlate = this.getAttribute('data-plate');
-                
-                document.getElementById('unitId').value = unitId;
-                unitDisplay.value = `${unitName} - ${unitPlate}`;
-                unitDropdown.classList.add('hidden');
-                
-                // Trigger change event
-                document.getElementById('unitId').dispatchEvent(new Event('change'));
-            });
-        });
-    }
-}
-
-function filterUnits(searchTerm) {
-    const unitOptions = document.querySelectorAll('.unit-option');
-    const unitDropdown = document.getElementById('unit_dropdown');
-    
-    let hasResults = false;
-    unitOptions.forEach(option => {
-        const unitName = option.getAttribute('data-name').toLowerCase();
-        const unitPlate = option.getAttribute('data-plate').toLowerCase();
-        const unitModel = (option.getAttribute('data-model') || '').toLowerCase();
-        
-        if (unitName.includes(searchTerm) || unitPlate.includes(searchTerm) || unitModel.includes(searchTerm)) {
-            option.style.display = 'block';
-            hasResults = true;
-        } else {
-            option.style.display = 'none';
-        }
-    });
-    
-    // Show/hide no results message
-    let noResultsMsg = unitDropdown.querySelector('.no-results');
-    if (!hasResults) {
-        if (!noResultsMsg) {
-            noResultsMsg = document.createElement('div');
-            noResultsMsg.className = 'no-results px-2 py-1 text-xs text-gray-500 text-center';
-            noResultsMsg.textContent = 'No units found';
-            unitDropdown.appendChild(noResultsMsg);
-        }
-    } else if (noResultsMsg) {
-        noResultsMsg.remove();
-    }
-}
-
-// Driver dropdown functionality  
-function initializeDriverDropdown() {
-    const driverDisplay = document.getElementById('driverDisplay');
-    const driverDropdown = document.getElementById('driver_dropdown');
-    const driverOptions = document.querySelectorAll('.driver-option');
-    
-    if (driverDisplay && driverDropdown) {
-        // Show dropdown on focus
-        driverDisplay.addEventListener('focus', function() {
-            filterDrivers('');
-            driverDropdown.classList.remove('hidden');
-        });
-        
-        // Filter drivers on input
-        driverDisplay.addEventListener('input', function() {
-            const searchTerm = this.value.toLowerCase();
-            filterDrivers(searchTerm);
-        });
-        
-        // Close dropdown when clicking outside
-        document.addEventListener('click', function(e) {
-            if (!driverDisplay.contains(e.target) && !driverDropdown.contains(e.target)) {
-                driverDropdown.classList.add('hidden');
-            }
-        });
-        
-        // Handle driver selection
-        driverOptions.forEach(option => {
-            option.addEventListener('click', function() {
-                const driverId = this.getAttribute('data-id');
-                const driverName = this.getAttribute('data-name');
-                
-                document.getElementById('driverId').value = driverId;
-                driverDisplay.value = driverName;
-                driverDropdown.classList.add('hidden');
-                
-                // Trigger change event
-                document.getElementById('driverId').dispatchEvent(new Event('change'));
-            });
-        });
-    }
-}
-
-function filterDrivers(searchTerm) {
-    const driverOptions = document.querySelectorAll('.driver-option');
-    const driverDropdown = document.getElementById('driver_dropdown');
-    
-    let hasResults = false;
-    driverOptions.forEach(option => {
-        const driverName = option.getAttribute('data-name').toLowerCase();
-        const driverUnit = (option.getAttribute('data-unit') || '').toLowerCase();
-        const driverPlate = (option.getAttribute('data-plate') || '').toLowerCase();
-        
-        if (driverName.includes(searchTerm) || driverUnit.includes(searchTerm) || driverPlate.includes(searchTerm)) {
-            option.style.display = 'block';
-            hasResults = true;
-        } else {
-            option.style.display = 'none';
-        }
-    });
-    
-    // Show/hide no results message
-    let noResultsMsg = driverDropdown.querySelector('.no-results');
-    if (!hasResults) {
-        if (!noResultsMsg) {
-            noResultsMsg = document.createElement('div');
-            noResultsMsg.className = 'no-results px-2 py-1 text-xs text-gray-500 text-center';
-            noResultsMsg.textContent = 'No drivers found';
-            driverDropdown.appendChild(noResultsMsg);
-        }
-    } else if (noResultsMsg) {
-        noResultsMsg.remove();
-    }
-}
 
 // Modal functions
 function addBoundary() {
@@ -824,7 +667,7 @@ function addBoundary() {
 
 function editBoundary(id) {
     // Find the boundary data directly from the page
-    const boundaryData = @json($boundariesArray);
+    const boundaryData = <?php echo json_encode($boundariesArray, 15, 512) ?>;
     const boundary = boundaryData.find(b => b.id == id);
     
     if (boundary) {
@@ -867,4 +710,5 @@ function closeModal() {
     document.getElementById('boundaryAmount').readOnly = false;
 }
 </script>
-@endpush
+<?php $__env->stopPush(); ?>
+<?php echo $__env->make('layouts.app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\xampp\htdocs\eurotaxisystem\resources\views\boundaries\index.blade.php ENDPATH**/ ?>

@@ -1015,4 +1015,4 @@
     </script>
 </body>
 
-</html><?php /**PATH C:\xampp\htdocs\eurotaxisystem\resources\views/auth/login.blade.php ENDPATH**/ ?>
+</html><?php /**PATH C:\xampp\htdocs\eurotaxisystem\resources\views\auth\login.blade.php ENDPATH**/ ?>

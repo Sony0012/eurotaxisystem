@@ -1,19 +1,19 @@
-﻿@extends('layouts.app')
+﻿
 
-@section('title', 'Unit Management - Euro System')
-@section('page-heading', 'Unit Management')
-@section('page-subheading', 'Manage your fleet of taxi units')
+<?php $__env->startSection('title', 'Unit Management - Euro System'); ?>
+<?php $__env->startSection('page-heading', 'Unit Management'); ?>
+<?php $__env->startSection('page-subheading', 'Manage your fleet of taxi units'); ?>
 
-@section('content')
+<?php $__env->startSection('content'); ?>
     <!-- Search and Filters -->
     <div class="bg-white rounded-lg shadow p-6 mb-6">
-        <form method="GET" action="{{ route('units.index') }}" class="flex flex-col md:flex-row gap-4">
+        <form method="GET" action="<?php echo e(route('units.index')); ?>" class="flex flex-col md:flex-row gap-4">
             <div class="flex-1">
                 <div class="relative">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <i data-lucide="search" class="h-5 w-5 text-gray-400"></i>
                     </div>
-                    <input type="text" name="search" value="{{ $search }}"
+                    <input type="text" name="search" value="<?php echo e($search); ?>"
                         class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none"
                         placeholder="Search by unit number, plate, make, or model...">
                 </div>
@@ -22,10 +22,10 @@
                 <select name="status"
                     class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none">
                     <option value="">All Status</option>
-                    <option value="active" {{ $status_filter === 'active' ? 'selected' : '' }}>Active</option>
-                    <option value="maintenance" {{ $status_filter === 'maintenance' ? 'selected' : '' }}>Maintenance</option>
-                    <option value="coding" {{ $status_filter === 'coding' ? 'selected' : '' }}>Coding</option>
-                    <option value="retired" {{ $status_filter === 'retired' ? 'selected' : '' }}>Retired</option>
+                    <option value="active" <?php echo e($status_filter === 'active' ? 'selected' : ''); ?>>Active</option>
+                    <option value="maintenance" <?php echo e($status_filter === 'maintenance' ? 'selected' : ''); ?>>Maintenance</option>
+                    <option value="coding" <?php echo e($status_filter === 'coding' ? 'selected' : ''); ?>>Coding</option>
+                    <option value="retired" <?php echo e($status_filter === 'retired' ? 'selected' : ''); ?>>Retired</option>
                 </select>
             </div>
             <div class="flex gap-2">
@@ -37,11 +37,11 @@
                     class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-2">
                     <i data-lucide="plus" class="w-4 h-4"></i> Add Unit
                 </button>
-                <a href="{{ route('units.import') }}" 
+                <a href="<?php echo e(route('units.import')); ?>" 
                    class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2">
                     <i data-lucide="upload" class="w-4 h-4"></i> Import CSV
                 </a>
-                <a href="{{ route('units.import') }}" 
+                <a href="<?php echo e(route('units.import')); ?>" 
                    class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 flex items-center gap-2">
                     <i data-lucide="file-text" class="w-4 h-4"></i> Import Excel
                 </a>
@@ -78,35 +78,36 @@
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
-                    @forelse($units as $unit)
-                        @php
+                    <?php $__empty_1 = true; $__currentLoopData = $units; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $unit): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                        <?php
                             $is_available = (!$unit->driver_id && !$unit->secondary_driver_id) && $unit->status === 'active';
                             $primary_driver = $unit->primary_driver ?? null;
                             $secondary_driver = $unit->secondary_driver ?? null;
                             $total_collected = $unit->total_collected ?? 0;
                             $purchase_cost = $unit->purchase_cost ?? 0;
                             $roi_achieved = $unit->roi_achieved ?? false;
-                        @endphp
+                        ?>
                         <tr class="hover:bg-gray-50 transition-colors">
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="space-y-1">
-                                    <div class="text-sm font-bold text-gray-900">{{ $unit->unit_number }}</div>
-                                    <div class="text-sm text-gray-500">{{ $unit->plate_number }}</div>
-                                    @if($unit->color)
-                                        <div class="text-xs text-gray-400">Color: {{ $unit->color }}</div>
-                                    @endif
+                                    <div class="text-sm font-bold text-gray-900"><?php echo e($unit->unit_number); ?></div>
+                                    <div class="text-sm text-gray-500"><?php echo e($unit->plate_number); ?></div>
+                                    <?php if($unit->color): ?>
+                                        <div class="text-xs text-gray-400">Color: <?php echo e($unit->color); ?></div>
+                                    <?php endif; ?>
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="space-y-1">
-                                    <div class="text-sm font-medium text-gray-900">{{ $unit->make }} {{ $unit->model }}</div>
-                                    <div class="text-sm text-gray-500">{{ $unit->year }}</div>
+                                    <div class="text-sm font-medium text-gray-900"><?php echo e($unit->make); ?> <?php echo e($unit->model); ?></div>
+                                    <div class="text-sm text-gray-500"><?php echo e($unit->year); ?></div>
                                     <div class="flex items-center gap-2 text-xs">
                                         <span
-                                            class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full">{{ ucfirst($unit->unit_type ?? 'new') }}</span>
+                                            class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full"><?php echo e(ucfirst($unit->unit_type ?? 'new')); ?></span>
                                         <span class="px-2 py-1 bg-green-100 text-green-800 rounded-full">
                                             <i data-lucide="droplet" class="w-3 h-3 inline"></i>
-                                            {{ ucfirst($unit->fuel_status ?? 'full') }}
+                                            <?php echo e(ucfirst($unit->fuel_status ?? 'full')); ?>
+
                                         </span>
                                     </div>
                                 </div>
@@ -114,104 +115,109 @@
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="flex items-center gap-2">
                                     <span
-                                        class="px-2 py-1 text-xs rounded-full {{ $is_available ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
-                                        {{ $is_available ? 'Available' : 'Occupied' }}
+                                        class="px-2 py-1 text-xs rounded-full <?php echo e($is_available ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'); ?>">
+                                        <?php echo e($is_available ? 'Available' : 'Occupied'); ?>
+
                                     </span>
-                                    @if($is_available)
+                                    <?php if($is_available): ?>
                                         <i data-lucide="check-circle" class="w-4 h-4 text-green-600"></i>
-                                    @else
+                                    <?php else: ?>
                                         <i data-lucide="users" class="w-4 h-4 text-red-600"></i>
-                                    @endif
+                                    <?php endif; ?>
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="space-y-1">
-                                    @if($unit->driver_id && $primary_driver)
-                                        @php $d1 = explode('|', $primary_driver); @endphp
+                                    <?php if($unit->driver_id && $primary_driver): ?>
+                                        <?php $d1 = explode('|', $primary_driver); ?>
                                         <div class="flex items-center gap-2">
                                             <span class="text-xs font-medium text-gray-900">Driver 1:</span>
-                                            <span class="text-xs text-gray-700">{{ $d1[0] ?? '' }}</span>
+                                            <span class="text-xs text-gray-700"><?php echo e($d1[0] ?? ''); ?></span>
                                         </div>
-                                    @else
+                                    <?php else: ?>
                                         <div class="text-xs text-gray-400">No Driver 1</div>
-                                    @endif
-                                    @if($unit->secondary_driver_id && $secondary_driver)
-                                        @php $d2 = explode('|', $secondary_driver); @endphp
+                                    <?php endif; ?>
+                                    <?php if($unit->secondary_driver_id && $secondary_driver): ?>
+                                        <?php $d2 = explode('|', $secondary_driver); ?>
                                         <div class="flex items-center gap-2">
                                             <span class="text-xs font-medium text-gray-900">Driver 2:</span>
-                                            <span class="text-xs text-gray-700">{{ $d2[0] ?? '' }}</span>
+                                            <span class="text-xs text-gray-700"><?php echo e($d2[0] ?? ''); ?></span>
                                         </div>
-                                    @else
+                                    <?php else: ?>
                                         <div class="text-xs text-gray-400">No Driver 2</div>
-                                    @endif
+                                    <?php endif; ?>
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <span class="px-2 py-1 text-xs rounded-full
-                                        @if($unit->status === 'active') bg-green-100 text-green-800
-                                        @elseif($unit->status === 'maintenance') bg-yellow-100 text-yellow-800
-                                        @elseif($unit->status === 'coding') bg-red-100 text-red-800
-                                        @else bg-gray-100 text-gray-800
-                                        @endif">
-                                    {{ ucfirst($unit->status) }}
+                                        <?php if($unit->status === 'active'): ?> bg-green-100 text-green-800
+                                        <?php elseif($unit->status === 'maintenance'): ?> bg-yellow-100 text-yellow-800
+                                        <?php elseif($unit->status === 'coding'): ?> bg-red-100 text-red-800
+                                        <?php else: ?> bg-gray-100 text-gray-800
+                                        <?php endif; ?>">
+                                    <?php echo e(ucfirst($unit->status)); ?>
+
                                 </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                {{ formatCurrency($unit->boundary_rate) }}
+                                <?php echo e(formatCurrency($unit->boundary_rate)); ?>
+
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="flex flex-wrap gap-1">
-                                    @if($unit->gps_device_count > 0)
+                                    <?php if($unit->gps_device_count > 0): ?>
                                         <span
                                             class="px-3 py-1 bg-green-100 text-green-800 rounded-full flex items-center gap-1 text-xs font-medium">
-                                            <i data-lucide="map-pin" class="w-3 h-3"></i> GPS: {{ $unit->gps_device_count }}
+                                            <i data-lucide="map-pin" class="w-3 h-3"></i> GPS: <?php echo e($unit->gps_device_count); ?>
+
                                         </span>
-                                    @endif
-                                    @if($unit->dashcam_device_count > 0)
+                                    <?php endif; ?>
+                                    <?php if($unit->dashcam_device_count > 0): ?>
                                         <span
                                             class="px-3 py-1 bg-orange-100 text-orange-800 rounded-full flex items-center gap-1 text-xs font-medium">
-                                            <i data-lucide="camera" class="w-3 h-3"></i> Cam: {{ $unit->dashcam_device_count }}
+                                            <i data-lucide="camera" class="w-3 h-3"></i> Cam: <?php echo e($unit->dashcam_device_count); ?>
+
                                         </span>
-                                    @endif
-                                    @if(!$unit->gps_device_count && !$unit->dashcam_device_count)
+                                    <?php endif; ?>
+                                    <?php if(!$unit->gps_device_count && !$unit->dashcam_device_count): ?>
                                         <span class="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-xs font-medium">No
                                             Devices</span>
-                                    @endif
+                                    <?php endif; ?>
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                @if($purchase_cost > 0)
-                                    @if($roi_achieved)
+                                <?php if($purchase_cost > 0): ?>
+                                    <?php if($roi_achieved): ?>
                                         <span class="text-green-600 flex items-center gap-1">
                                             <i data-lucide="check-circle" class="w-4 h-4"></i> Achieved
                                         </span>
-                                    @else
-                                        @php $pct = $purchase_cost > 0 ? ($total_collected / $purchase_cost) * 100 : 0; @endphp
+                                    <?php else: ?>
+                                        <?php $pct = $purchase_cost > 0 ? ($total_collected / $purchase_cost) * 100 : 0; ?>
                                         <div class="text-gray-600">
                                             <div class="flex items-center gap-1 text-xs">
                                                 <i data-lucide="trending-up" class="w-4 h-4"></i>
-                                                {{ number_format($pct, 1) }}%
+                                                <?php echo e(number_format($pct, 1)); ?>%
                                             </div>
                                         </div>
-                                    @endif
-                                @else
+                                    <?php endif; ?>
+                                <?php else: ?>
                                     <span class="text-gray-400 flex items-center gap-1"><i data-lucide="clock" class="w-4 h-4"></i>
                                         No Cost Set</span>
-                                @endif
+                                <?php endif; ?>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="flex gap-2">
-                                    <button onclick="editUnit({{ $unit->id }})"
+                                    <button onclick="editUnit(<?php echo e($unit->id); ?>)"
                                         class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg" title="Edit Unit">
                                         <i data-lucide="edit-2" class="w-4 h-4"></i>
                                     </button>
-                                    <button onclick="viewUnitDetails({{ $unit->id }})"
+                                    <button onclick="viewUnitDetails(<?php echo e($unit->id); ?>)"
                                         class="p-2 text-green-600 hover:bg-green-50 rounded-lg" title="View Details">
                                         <i data-lucide="eye" class="w-4 h-4"></i>
                                     </button>
-                                    <form method="POST" action="{{ route('units.destroy', $unit->id) }}"
-                                        onsubmit="return confirm('Delete unit {{ $unit->unit_number }}?')">
-                                        @csrf @method('DELETE')
+                                    <form method="POST" action="<?php echo e(route('units.destroy', $unit->id)); ?>"
+                                        onsubmit="return confirm('Delete unit <?php echo e($unit->unit_number); ?>?')">
+                                        <?php echo csrf_field(); ?> <?php echo method_field('DELETE'); ?>
                                         <button type="submit" class="p-2 text-red-600 hover:bg-red-50 rounded-lg"
                                             title="Delete Unit">
                                             <i data-lucide="trash-2" class="w-4 h-4"></i>
@@ -220,57 +226,59 @@
                                 </div>
                             </td>
                         </tr>
-                    @empty
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                         <tr>
                             <td colspan="9" class="px-6 py-12 text-center text-gray-500">
                                 <i data-lucide="car" class="w-12 h-12 mx-auto mb-4 text-gray-300"></i>
                                 <p>No units found</p>
                             </td>
                         </tr>
-                    @endforelse
+                    <?php endif; ?>
                 </tbody>
             </table>
         </div>
 
         <!-- Pagination -->
-        @if($pagination['total_pages'] > 1)
+        <?php if($pagination['total_pages'] > 1): ?>
             <div class="px-6 py-4 border-t border-gray-200">
                 <div class="flex items-center justify-between">
                     <div class="text-sm text-gray-700">
-                        Showing {{ $pagination['total_items'] }} results / Page {{ $pagination['page'] }} of
-                        {{ $pagination['total_pages'] }}
+                        Showing <?php echo e($pagination['total_items']); ?> results / Page <?php echo e($pagination['page']); ?> of
+                        <?php echo e($pagination['total_pages']); ?>
+
                     </div>
                     <div class="flex items-center gap-2">
-                        @if($pagination['has_prev'])
-                            <a href="?page={{ $pagination['prev_page'] }}&search={{ urlencode($search) }}&status={{ urlencode($status_filter) }}"
+                        <?php if($pagination['has_prev']): ?>
+                            <a href="?page=<?php echo e($pagination['prev_page']); ?>&search=<?php echo e(urlencode($search)); ?>&status=<?php echo e(urlencode($status_filter)); ?>"
                                 class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
                                 <i data-lucide="chevron-left" class="w-4 h-4"></i>
                             </a>
-                        @endif
-                        @for($i = max(1, $pagination['page'] - 2); $i <= min($pagination['total_pages'], $pagination['page'] + 2); $i++)
-                            <a href="?page={{ $i }}&search={{ urlencode($search) }}&status={{ urlencode($status_filter) }}"
+                        <?php endif; ?>
+                        <?php for($i = max(1, $pagination['page'] - 2); $i <= min($pagination['total_pages'], $pagination['page'] + 2); $i++): ?>
+                            <a href="?page=<?php echo e($i); ?>&search=<?php echo e(urlencode($search)); ?>&status=<?php echo e(urlencode($status_filter)); ?>"
                                 class="relative inline-flex items-center px-4 py-2 border text-sm font-medium
-                                           {{ $i === $pagination['page'] ? 'z-10 bg-yellow-50 border-yellow-500 text-yellow-600' : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50' }}">
-                                {{ $i }}
+                                           <?php echo e($i === $pagination['page'] ? 'z-10 bg-yellow-50 border-yellow-500 text-yellow-600' : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'); ?>">
+                                <?php echo e($i); ?>
+
                             </a>
-                        @endfor
-                        @if($pagination['has_next'])
-                            <a href="?page={{ $pagination['next_page'] }}&search={{ urlencode($search) }}&status={{ urlencode($status_filter) }}"
+                        <?php endfor; ?>
+                        <?php if($pagination['has_next']): ?>
+                            <a href="?page=<?php echo e($pagination['next_page']); ?>&search=<?php echo e(urlencode($search)); ?>&status=<?php echo e(urlencode($status_filter)); ?>"
                                 class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
                                 <i data-lucide="chevron-right" class="w-4 h-4"></i>
                             </a>
-                        @endif
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
-        @endif
+        <?php endif; ?>
     </div>
 
-    {{-- Add Unit Modal --}}
+    
     <div id="addUnitModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden h-full w-full z-50 flex items-center justify-center p-4">
         <div class="relative bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
 
-            {{-- Modal Header --}}
+            
             <div class="bg-gradient-to-r from-yellow-500 to-yellow-600 p-6 rounded-t-lg">
                 <div class="flex justify-between items-center">
                     <div class="flex items-center gap-3">
@@ -289,11 +297,11 @@
                 </div>
             </div>
 
-            {{-- Form --}}
-            <form method="POST" action="{{ route('units.store') }}" id="addUnitForm" class="p-6">
-                @csrf
+            
+            <form method="POST" action="<?php echo e(route('units.store')); ?>" id="addUnitForm" class="p-6">
+                <?php echo csrf_field(); ?>
 
-                {{-- Section 1: Basic Information --}}
+                
                 <div class="mb-8">
                     <div class="flex items-center gap-2 mb-4">
                         <div class="p-2 bg-blue-100 rounded-lg">
@@ -339,7 +347,7 @@
                     </div>
                 </div>
 
-                {{-- Section 2: Vehicle Details --}}
+                
                 <div class="mb-8">
                     <div class="flex items-center gap-2 mb-4">
                         <div class="p-2 bg-green-100 rounded-lg">
@@ -364,7 +372,7 @@
                         </div>
                         <div class="space-y-2">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Year <span class="text-red-500">*</span></label>
-                            <input type="number" name="year" required min="2000" max="{{ date('Y') }}" value="{{ date('Y') }}"
+                            <input type="number" name="year" required min="2000" max="<?php echo e(date('Y')); ?>" value="<?php echo e(date('Y')); ?>"
                                 class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
                                 placeholder="e.g., 2023">
                         </div>
@@ -396,7 +404,7 @@
                     </div>
                 </div>
 
-                {{-- Section 3: Financial Information --}}
+                
                 <div class="mb-8">
                     <div class="flex items-center gap-2 mb-4">
                         <div class="p-2 bg-purple-100 rounded-lg">
@@ -438,7 +446,7 @@
                     </div>
                 </div>
 
-                {{-- Section 4: Driver Assignment --}}
+                
                 <div class="mb-8">
                     <div class="flex items-center gap-2 mb-4">
                         <div class="p-2 bg-blue-100 rounded-lg">
@@ -447,7 +455,7 @@
                         <h4 class="text-lg font-semibold text-gray-900">Driver Assignment</h4>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {{-- Primary Driver --}}
+                        
                         <div class="space-y-2">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Primary Driver</label>
                             <div class="relative">
@@ -467,18 +475,19 @@
                                 </button>
                                 <select id="add_driver1" name="driver_id" class="hidden">
                                     <option value="">Select Primary Driver</option>
-                                    @foreach($all_drivers as $driver)
-                                        <option value="{{ $driver->id }}" data-name="{{ $driver->full_name }}" data-license="{{ $driver->license_number ?? '' }}">
-                                            {{ $driver->full_name }} - {{ $driver->license_number ?? 'No License' }}
+                                    <?php $__currentLoopData = $all_drivers; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $driver): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <option value="<?php echo e($driver->id); ?>" data-name="<?php echo e($driver->full_name); ?>" data-license="<?php echo e($driver->license_number ?? ''); ?>">
+                                            <?php echo e($driver->full_name); ?> - <?php echo e($driver->license_number ?? 'No License'); ?>
+
                                         </option>
-                                    @endforeach
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                 </select>
                                 <div id="add_driver1_dropdown" class="absolute z-20 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto hidden"></div>
                             </div>
                             <p class="text-xs text-gray-500">Main driver assigned to this unit</p>
                         </div>
 
-                        {{-- Secondary Driver --}}
+                        
                         <div class="space-y-2">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Secondary Driver (Optional)</label>
                             <div class="relative">
@@ -498,18 +507,19 @@
                                 </button>
                                 <select id="add_driver2" name="secondary_driver_id" class="hidden">
                                     <option value="">Select Secondary Driver</option>
-                                    @foreach($all_drivers as $driver)
-                                        <option value="{{ $driver->id }}" data-name="{{ $driver->full_name }}" data-license="{{ $driver->license_number ?? '' }}">
-                                            {{ $driver->full_name }} - {{ $driver->license_number ?? 'No License' }}
+                                    <?php $__currentLoopData = $all_drivers; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $driver): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <option value="<?php echo e($driver->id); ?>" data-name="<?php echo e($driver->full_name); ?>" data-license="<?php echo e($driver->license_number ?? ''); ?>">
+                                            <?php echo e($driver->full_name); ?> - <?php echo e($driver->license_number ?? 'No License'); ?>
+
                                         </option>
-                                    @endforeach
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                 </select>
                                 <div id="add_driver2_dropdown" class="absolute z-20 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto hidden"></div>
                             </div>
                             <p class="text-xs text-gray-500">Backup or relief driver (optional)</p>
                         </div>
 
-                        {{-- Remove All Drivers button --}}
+                        
                         <div class="pt-2">
                             <button type="button" onclick="addUnitClearDriver('add_driver1'); addUnitClearDriver('add_driver2')"
                                 class="w-full bg-red-50 text-red-600 py-2 px-4 rounded-lg hover:bg-red-100 transition-colors flex items-center justify-center gap-2 border border-red-200">
@@ -520,7 +530,7 @@
                     </div>
                 </div>
 
-                {{-- Section 5: Coding Information --}}
+                
                 <div class="mb-8">
                     <div class="flex items-center gap-2 mb-4">
                         <div class="p-2 bg-indigo-100 rounded-lg">
@@ -529,7 +539,7 @@
                         <h4 class="text-lg font-semibold text-gray-900">Coding Information</h4>
                     </div>
 
-                    {{-- MMDA Schedule Reference --}}
+                    
                     <div class="mb-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
                         <div class="flex items-center gap-2 mb-3">
                             <i data-lucide="info" class="w-4 h-4 text-blue-600"></i>
@@ -586,7 +596,7 @@
                     <div id="addCodingStatusDisplay" class="mt-4"></div>
                 </div>
 
-                {{-- Section 6: Device Management --}}
+                
                 <div class="mb-8">
                     <div class="flex items-center gap-2 mb-4">
                         <div class="p-2 bg-indigo-100 rounded-lg">
@@ -595,7 +605,7 @@
                         <h4 class="text-lg font-semibold text-gray-900">Device Management</h4>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {{-- GPS Devices --}}
+                        
                         <div class="border-2 border-dashed border-gray-300 rounded-lg p-4 hover:border-indigo-400 transition-colors">
                             <div class="flex items-center justify-between mb-3">
                                 <div class="flex items-center gap-2">
@@ -610,7 +620,7 @@
                                 <p class="text-sm text-gray-500 text-center py-2">No GPS devices added</p>
                             </div>
                         </div>
-                        {{-- Dashcam Devices --}}
+                        
                         <div class="border-2 border-dashed border-gray-300 rounded-lg p-4 hover:border-purple-400 transition-colors">
                             <div class="flex items-center justify-between mb-3">
                                 <div class="flex items-center gap-2">
@@ -628,7 +638,7 @@
                     </div>
                 </div>
 
-                {{-- Form Actions --}}
+                
                 <div class="flex gap-3 mt-6 pt-4 border-t">
                     <button type="submit" class="flex-1 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-semibold flex items-center justify-center gap-2">
                         <i data-lucide="plus-circle" class="w-5 h-5"></i> Add Unit
@@ -640,11 +650,11 @@
         </div>
     </div>
 
-    {{-- Edit Unit Modal --}}
+    
     <div id="editUnitModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden h-full w-full z-50 flex items-center justify-center p-4">
         <div class="relative bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
 
-            {{-- Modal Header --}}
+            
             <div class="bg-gradient-to-r from-blue-500 to-blue-700 p-6 rounded-t-lg">
                 <div class="flex justify-between items-center">
                     <div class="flex items-center gap-3">
@@ -663,11 +673,11 @@
                 </div>
             </div>
 
-            {{-- Form --}}
+            
             <form method="POST" id="editUnitForm" class="p-6">
-                @csrf @method('PUT')
+                <?php echo csrf_field(); ?> <?php echo method_field('PUT'); ?>
 
-                {{-- Section 1: Basic Information --}}
+                
                 <div class="mb-8">
                     <div class="flex items-center gap-2 mb-4">
                         <div class="p-2 bg-blue-100 rounded-lg"><i data-lucide="info" class="w-5 h-5 text-blue-600"></i></div>
@@ -709,7 +719,7 @@
                     </div>
                 </div>
 
-                {{-- Section 2: Vehicle Details --}}
+                
                 <div class="mb-8">
                     <div class="flex items-center gap-2 mb-4">
                         <div class="p-2 bg-green-100 rounded-lg"><i data-lucide="truck" class="w-5 h-5 text-green-600"></i></div>
@@ -730,7 +740,7 @@
                         </div>
                         <div class="space-y-2">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Year <span class="text-red-500">*</span></label>
-                            <input type="number" name="year" id="editYear" min="2000" max="{{ date('Y') }}"
+                            <input type="number" name="year" id="editYear" min="2000" max="<?php echo e(date('Y')); ?>"
                                 class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                         </div>
                         <div class="space-y-2">
@@ -760,7 +770,7 @@
                     </div>
                 </div>
 
-                {{-- Section 3: Financial Information --}}
+                
                 <div class="mb-8">
                     <div class="flex items-center gap-2 mb-4">
                         <div class="p-2 bg-purple-100 rounded-lg"><i data-lucide="dollar-sign" class="w-5 h-5 text-purple-600"></i></div>
@@ -798,14 +808,14 @@
                     </div>
                 </div>
 
-                {{-- Section 4: Driver Assignment --}}
+                
                 <div class="mb-8">
                     <div class="flex items-center gap-2 mb-4">
                         <div class="p-2 bg-blue-100 rounded-lg"><i data-lucide="users" class="w-5 h-5 text-blue-600"></i></div>
                         <h4 class="text-lg font-semibold text-gray-900">Driver Assignment</h4>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {{-- Primary Driver --}}
+                        
                         <div class="space-y-2">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Primary Driver</label>
                             <div class="relative">
@@ -825,18 +835,19 @@
                                 </button>
                                 <select id="edit_driver1" name="driver_id" class="hidden">
                                     <option value="">No Driver</option>
-                                    @foreach($all_drivers as $d)
-                                        <option value="{{ $d->id }}" data-name="{{ $d->full_name }}" data-license="{{ $d->license_number ?? '' }}">
-                                            {{ $d->full_name }} - {{ $d->license_number ?? 'No License' }}
+                                    <?php $__currentLoopData = $all_drivers; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $d): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <option value="<?php echo e($d->id); ?>" data-name="<?php echo e($d->full_name); ?>" data-license="<?php echo e($d->license_number ?? ''); ?>">
+                                            <?php echo e($d->full_name); ?> - <?php echo e($d->license_number ?? 'No License'); ?>
+
                                         </option>
-                                    @endforeach
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                 </select>
                                 <div id="edit_driver1_dropdown" class="absolute z-20 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto hidden"></div>
                             </div>
                             <p class="text-xs text-gray-500">Main driver assigned to this unit</p>
                         </div>
 
-                        {{-- Secondary Driver --}}
+                        
                         <div class="space-y-2">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Secondary Driver (Optional)</label>
                             <div class="relative">
@@ -856,18 +867,19 @@
                                 </button>
                                 <select id="edit_driver2" name="secondary_driver_id" class="hidden">
                                     <option value="">No Driver</option>
-                                    @foreach($all_drivers as $d)
-                                        <option value="{{ $d->id }}" data-name="{{ $d->full_name }}" data-license="{{ $d->license_number ?? '' }}">
-                                            {{ $d->full_name }} - {{ $d->license_number ?? 'No License' }}
+                                    <?php $__currentLoopData = $all_drivers; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $d): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <option value="<?php echo e($d->id); ?>" data-name="<?php echo e($d->full_name); ?>" data-license="<?php echo e($d->license_number ?? ''); ?>">
+                                            <?php echo e($d->full_name); ?> - <?php echo e($d->license_number ?? 'No License'); ?>
+
                                         </option>
-                                    @endforeach
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                 </select>
                                 <div id="edit_driver2_dropdown" class="absolute z-20 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto hidden"></div>
                             </div>
                             <p class="text-xs text-gray-500">Backup or relief driver (optional)</p>
                         </div>
 
-                        {{-- Remove All Drivers --}}
+                        
                         <div class="pt-2">
                             <button type="button" onclick="editUnitClearDriver('edit_driver1'); editUnitClearDriver('edit_driver2')"
                                 class="w-full bg-red-50 text-red-600 py-2 px-4 rounded-lg hover:bg-red-100 transition-colors flex items-center justify-center gap-2 border border-red-200">
@@ -878,7 +890,7 @@
                     </div>
                 </div>
 
-                {{-- Section 5: Coding Information --}}
+                
                 <div class="mb-8">
                     <div class="flex items-center gap-2 mb-4">
                         <div class="p-2 bg-indigo-100 rounded-lg"><i data-lucide="calendar" class="w-5 h-5 text-indigo-600"></i></div>
@@ -936,7 +948,7 @@
                     <div id="editCodingStatusDisplay" class="mt-4"></div>
                 </div>
 
-                {{-- Form Actions --}}
+                
                 <div class="flex gap-3 mt-6 pt-4 border-t">
                     <button type="submit" class="flex-1 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold flex items-center justify-center gap-2">
                         <i data-lucide="save" class="w-5 h-5"></i> Update Unit
@@ -948,10 +960,10 @@
         </div>
     </div>
 
-    {{-- Unit Details Modal --}}
-    <div id="unitDetailsModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
-        <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl mx-auto p-6 max-h-[90vh] overflow-y-auto">
-            {{-- Modal Header (blue gradient matching backup) --}}
+    
+    <div id="unitDetailsModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden h-full w-full z-50 flex items-center justify-center p-4">
+        <div class="relative bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            
             <div class="bg-gradient-to-r from-blue-500 to-blue-600 p-6 rounded-t-lg">
                 <div class="flex justify-between items-center">
                     <div class="flex items-center gap-3">
@@ -969,9 +981,9 @@
                 </div>
             </div>
 
-            {{-- Single dynamic content area (same as backup) --}}
+            
             <div id="unitDetailsContent" class="p-6">
-                {{-- Loading state --}}
+                
                 <div class="text-center py-8">
                     <i data-lucide="loader-2" class="w-8 h-8 mx-auto mb-4 text-gray-300 animate-spin"></i>
                     <p class="text-gray-500">Loading unit details...</p>
@@ -980,12 +992,12 @@
         </div>
     </div>
 
-@endsection
+<?php $__env->stopSection(); ?>
 
-@push('scripts')
+<?php $__env->startPush('scripts'); ?>
     <script>
         function editUnit(id) {
-            fetch('{{ route("units.details") }}?id=' + id, {
+            fetch('<?php echo e(route("units.details")); ?>?id=' + id, {
                 headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
             })
             .then(r => {
@@ -1182,7 +1194,7 @@
             `;
             if (typeof lucide !== 'undefined') lucide.createIcons();
 
-            fetch('{{ route("units.details") }}?id=' + id, {
+            fetch('<?php echo e(route("units.details")); ?>?id=' + id, {
                 headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
             })
             .then(r => {
@@ -1571,9 +1583,9 @@
             setTimeout(() => { if (typeof lucide !== 'undefined') lucide.createIcons(); }, 100);
         }
     </script>
-@endpush
+<?php $__env->stopPush(); ?>
 
-@push('scripts')
+<?php $__env->startPush('scripts'); ?>
 <script>
 // =============================================
 // ADD UNIT MODAL - Driver Searchable Dropdown
@@ -1750,4 +1762,6 @@ function resetAddUnitModal() {
     addUnitRenderGPS(); addUnitRenderDashcam();
 }
 </script>
-@endpush
+<?php $__env->stopPush(); ?>
+
+<?php echo $__env->make('layouts.app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\xampp\htdocs\eurotaxisystem\resources\views\units\index.blade.php ENDPATH**/ ?>
