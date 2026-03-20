@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Schema;
 use App\Models\Boundary;
 use Carbon\Carbon;
 
@@ -116,21 +117,38 @@ class BoundaryController extends Controller
     {
         $request->validate([
             'unit_id'         => 'required|exists:units,id',
+            'driver_id'       => 'nullable|exists:drivers,id',
             'boundary_amount' => 'required|numeric|min:0',
             'date'            => 'required|date',
             'status'          => 'required|in:paid,late,short,excess',
             'notes'           => 'nullable|string|max:500',
         ]);
 
-        Boundary::create([
+        $driverId = $request->driver_id;
+        if (empty($driverId)) {
+            $driverId = DB::table('units')->where('id', $request->unit_id)->value('driver_id');
+        }
+
+        if (empty($driverId)) {
+            return back()
+                ->withErrors(['driver_id' => 'Selected unit has no assigned driver. Please select a driver.'])
+                ->withInput();
+        }
+
+        $payload = [
             'unit_id'         => $request->unit_id,
-            'driver_id'       => $request->driver_id ?? null,
+            'driver_id'       => $driverId,
             'boundary_amount' => $request->boundary_amount,
             'date'            => $request->date,
             'status'          => $request->status,
             'notes'           => $request->notes,
-            'recorded_by'     => Auth::id(),
-        ]);
+        ];
+
+        if (Schema::hasColumn('boundaries', 'recorded_by')) {
+            $payload['recorded_by'] = Auth::id();
+        }
+
+        Boundary::create($payload);
 
         return redirect()->route('boundaries.index')
             ->with('success', 'Boundary record saved successfully.');
@@ -161,15 +179,27 @@ class BoundaryController extends Controller
 
         $request->validate([
             'unit_id'         => 'required|exists:units,id',
+            'driver_id'       => 'nullable|exists:drivers,id',
             'boundary_amount' => 'required|numeric|min:0',
             'date'            => 'required|date',
             'status'          => 'required|in:paid,late,short,excess',
             'notes'           => 'nullable|string|max:500',
         ]);
 
+        $driverId = $request->driver_id;
+        if (empty($driverId)) {
+            $driverId = DB::table('units')->where('id', $request->unit_id)->value('driver_id');
+        }
+
+        if (empty($driverId)) {
+            return back()
+                ->withErrors(['driver_id' => 'Selected unit has no assigned driver. Please select a driver.'])
+                ->withInput();
+        }
+
         $boundary->update([
             'unit_id'         => $request->unit_id,
-            'driver_id'       => $request->driver_id ?? null,
+            'driver_id'       => $driverId,
             'boundary_amount' => $request->boundary_amount,
             'date'            => $request->date,
             'status'          => $request->status,

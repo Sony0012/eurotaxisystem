@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Unit;
 use App\Models\Driver;
 use App\Models\User;
+use Carbon\Carbon;
 
 class UnitController extends Controller
 {
@@ -75,7 +76,7 @@ class UnitController extends Controller
             'purchase_date' => 'nullable|date',
             'purchase_cost' => 'nullable|numeric',
             'color' => 'nullable|string',
-            'unit_type' => 'required|in:new,old',
+            'unit_type' => 'required|in:new,old,rented',
             'fuel_status' => 'required|string',
             'coding_day' => 'nullable|string',
             'driver_id' => 'nullable|integer',
@@ -149,7 +150,7 @@ class UnitController extends Controller
             'purchase_date' => 'nullable|date',
             'purchase_cost' => 'nullable|numeric',
             'color' => 'nullable|string',
-            'unit_type' => 'required|in:new,old',
+            'unit_type' => 'required|in:new,old,rented',
             'fuel_status' => 'required|string',
             'coding_day' => 'nullable|string',
             'driver_id' => 'nullable|integer',
@@ -323,6 +324,132 @@ class UnitController extends Controller
             'maintenance_records' => $maintenance_records,
             'coding_day' => $coding_day,
         ]);
+    }
+
+    public function getDetailsHtml(Request $request)
+    {
+        $unit_id = (int) $request->input('id', 0);
+        if (!$unit_id) {
+            return response('Invalid ID', 400);
+        }
+
+        $unit = DB::table('units')->where('id', $unit_id)->first();
+        if (!$unit) {
+            return response('Unit not found', 404);
+        }
+
+        $assigned_drivers = [];
+        $driver_ids = array_filter([(int) ($unit->driver_id ?? 0), (int) ($unit->secondary_driver_id ?? 0)]);
+        if (!empty($driver_ids)) {
+            $assigned_drivers = DB::table('users as u')
+                ->join('drivers as d', 'u.id', '=', 'd.user_id')
+                ->whereIn('u.id', $driver_ids)
+                ->select('u.id', 'u.full_name', 'u.email', 'd.license_number', 'd.contact_number', 'd.license_expiry', 'd.hire_date', 'd.daily_boundary_target')
+                ->get()->toArray();
+        }
+
+        $roi = DB::table('boundaries')
+            ->where('unit_id', $unit_id)
+            ->selectRaw('
+                SUM(boundary_amount) as total_boundary,
+                SUM(CASE WHEN MONTH(date)=MONTH(CURDATE()) AND YEAR(date)=YEAR(CURDATE()) THEN boundary_amount ELSE 0 END) as monthly_boundary,
+                SUM(CASE WHEN status IN ("paid","excess") THEN boundary_amount ELSE 0 END) as paid_boundary
+            ')->first();
+
+        $maintenance_cost = DB::table('maintenance')
+            ->where('unit_id', $unit_id)
+            ->selectRaw('SUM(cost) as total, SUM(CASE WHEN MONTH(date_started)=MONTH(CURDATE()) AND YEAR(date_started)=YEAR(CURDATE()) THEN cost ELSE 0 END) as monthly')
+            ->first();
+
+        $total_investment = $unit->purchase_cost ?? 0;
+        $total_revenue = $roi->paid_boundary ?? 0;
+        $total_expenses = $maintenance_cost->total ?? 0;
+        $monthly_revenue = $roi->monthly_boundary ?? 0;
+        $roi_percentage = $total_investment > 0 ? (($total_revenue - $total_expenses) / $total_investment) * 100 : 0;
+        $payback_period = $monthly_revenue > 0 ? $total_investment / $monthly_revenue : 0;
+
+        $roi_data = [
+            'total_investment' => $total_investment,
+            'total_revenue' => $total_revenue,
+            'total_expenses' => $total_expenses,
+            'monthly_revenue' => $monthly_revenue,
+            'monthly_expenses' => $maintenance_cost->monthly ?? 0,
+            'roi_percentage' => round($roi_percentage, 2),
+            'payback_period' => round($payback_period, 2),
+            'monthly_boundary' => $roi->monthly_boundary ?? 0,
+            'total_boundary' => $roi->total_boundary ?? 0,
+        ];
+
+        $boundary_history = DB::table('boundaries as bh')
+            ->leftJoin('users as usr', 'bh.driver_id', '=', 'usr.id')
+            ->where('bh.unit_id', $unit_id)
+            ->select('bh.*', 'usr.full_name')
+            ->orderByDesc('bh.date')
+            ->limit(10)->get()->toArray();
+
+        $maintenance_records = DB::table('maintenance as mr')
+            ->where('mr.unit_id', $unit_id)
+            ->select('mr.*')
+            ->orderByDesc('mr.date_started')
+            ->limit(10)->get()->toArray();
+
+        $last_digit = substr($unit->plate_number ?? '', -1);
+        $coding_schedule = [
+            'Monday' => [1, 2],
+            'Tuesday' => [3, 4],
+            'Wednesday' => [5, 6],
+            'Thursday' => [7, 8],
+            'Friday' => [9, 0],
+        ];
+        $coding_day = 'Not Set';
+        foreach ($coding_schedule as $day => $endings) {
+            if (in_array((int) $last_digit, $endings)) {
+                $coding_day = $day;
+                break;
+            }
+        }
+
+        $next_coding_date = '';
+        $days_until_coding = 0;
+        if ($coding_day !== 'Not Set') {
+            $today = Carbon::today();
+            if ($today->format('l') === $coding_day) {
+                $next_coding_date = $today->format('M d, Y');
+                $days_until_coding = 0;
+            } else {
+                $target = Carbon::parse('next ' . $coding_day);
+                $next_coding_date = $target->format('M d, Y');
+                $days_until_coding = $today->diffInDays($target);
+            }
+        }
+
+        $location_info = [
+            'current_location' => data_get($unit, 'current_location', 'Unknown'),
+            'last_location_update' => data_get($unit, 'last_location_update', 'Never'),
+            'gps_enabled' => (bool) data_get($unit, 'gps_enabled', false),
+            'coordinates' => (data_get($unit, 'latitude') && data_get($unit, 'longitude')) ? (data_get($unit, 'latitude') . ', ' . data_get($unit, 'longitude')) : null,
+        ];
+
+        $dashcam_info = [
+            'dashcam_enabled' => (bool) data_get($unit, 'dashcam_enabled', false),
+            'dashcam_status' => data_get($unit, 'dashcam_status', 'Offline'),
+            'last_recording' => data_get($unit, 'last_recording', 'Never'),
+            'storage_used' => (float) data_get($unit, 'storage_used', 0),
+            'storage_total' => (float) data_get($unit, 'storage_total', 0),
+        ];
+
+        return view('units.partials.unit_details_modal', compact(
+            'unit',
+            'assigned_drivers',
+            'boundary_history',
+            'maintenance_records',
+            'roi_data',
+            'coding_day',
+            'next_coding_date',
+            'days_until_coding',
+            'location_info',
+            'dashcam_info'
+        ));
     }
 
     public function toggleStatus(Request $request)

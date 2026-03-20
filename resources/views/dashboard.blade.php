@@ -25,9 +25,9 @@
             </div>
         </div>
 
-        <div class="bg-white rounded-lg shadow card-hover">
+        <div class="bg-white rounded-lg shadow card-hover cursor-pointer hover:shadow-lg transition-shadow" onclick="showDailyBoundaryModal()">
             <div class="p-6">
-                <div class="flex items-center justify-between cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors" onclick="showDailyBoundaryModal()">
+                <div class="flex items-center justify-between">
                     <div>
                         <p class="text-sm font-medium text-gray-600">Daily Boundary Collection</p>
                         <p class="text-2xl font-bold text-gray-900" data-stat="today_boundary">{{ formatCurrency($stats['today_boundary']) }}</p>
@@ -40,9 +40,9 @@
             </div>
         </div>
 
-        <div class="bg-white rounded-lg shadow card-hover">
+        <div class="bg-white rounded-lg shadow card-hover cursor-pointer hover:shadow-lg transition-shadow" onclick="showNetIncomeModal()">
             <div class="p-6">
-                <div class="flex items-center justify-between cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors" onclick="showNetIncomeModal()">
+                <div class="flex items-center justify-between">
                     <div>
                         <p class="text-sm font-medium text-gray-600">Net Income Today</p>
                         <p class="text-2xl font-bold text-green-600" data-stat="net_income">{{ formatCurrency($stats['net_income']) }}</p>
@@ -55,9 +55,9 @@
             </div>
         </div>
 
-        <div class="bg-white rounded-lg shadow card-hover">
+        <div class="bg-white rounded-lg shadow card-hover cursor-pointer hover:shadow-lg transition-shadow" onclick="showMaintenanceUnitsModal()">
             <div class="p-6">
-                <div class="flex items-center justify-between cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors" onclick="showMaintenanceUnitsModal()">
+                <div class="flex items-center justify-between">
                     <div>
                         <p class="text-sm font-medium text-gray-600">Units Under Maintenance</p>
                         <p class="text-2xl font-bold text-gray-900" data-stat="maintenance_units">{{ $stats['maintenance_units'] }}</p>
@@ -73,9 +73,9 @@
 
     <!-- Quick Stats -->
     <div class="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div class="bg-white rounded-lg shadow card-hover">
+        <div class="bg-white rounded-lg shadow card-hover cursor-pointer hover:shadow-lg transition-shadow" onclick="showActiveDriversModal()">
             <div class="p-6">
-                <div class="flex items-center justify-between cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors" onclick="showActiveDriversModal()">
+                <div class="flex items-center justify-between">
                     <div>
                         <p class="text-sm text-gray-500">Active Drivers</p>
                         <p class="text-2xl font-bold text-gray-900" data-stat="active_drivers">{{ $stats['active_drivers'] }}</p>
@@ -101,9 +101,9 @@
             </div>
         </div>
 
-        <div class="bg-white rounded-lg shadow card-hover">
+        <div class="bg-white rounded-lg shadow card-hover cursor-pointer hover:shadow-lg transition-shadow" onclick="showCodingUnitsModal()">
             <div class="p-6">
-                <div class="flex items-center justify-between cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors" onclick="showCodingUnitsModal()">
+                <div class="flex items-center justify-between">
                     <div>
                         <p class="text-sm text-gray-500">Coding Units</p>
                         <p class="text-2xl font-bold text-gray-900" data-stat="coding_units">{{ $stats['coding_units'] }}</p>

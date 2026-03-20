@@ -2,296 +2,481 @@
 
 @section('title', 'Driver Management - Euro System')
 @section('page-heading', 'Driver Management')
-@section('page-subheading', 'Manage all registered drivers')
+@section('page-subheading', 'Centralized driver records, incentives, and performance analytics')
 
 @section('content')
-{{-- Expiring Licenses Alert --}}
-@if($expiring_licenses->count())
-<div class="mb-4 p-4 bg-orange-50 border border-orange-300 rounded-lg">
-    <p class="text-sm font-semibold text-orange-800 mb-2"><i data-lucide="alert-triangle" class="w-4 h-4 inline mr-1"></i>{{ $expiring_licenses->count() }} driver license(s) expiring within 30 days:</p>
-    <ul class="text-sm text-orange-700 list-disc list-inside">
-        @foreach($expiring_licenses as $el)
-        <li>{{ $el->full_name }} — {{ $el->license_number }} (expires {{ formatDate($el->license_expiry) }})</li>
-        @endforeach
-    </ul>
-</div>
-@endif
 
-{{-- Stats --}}
-<div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
-    <div class="bg-white rounded-lg shadow p-4 text-center">
-        <p class="text-2xl font-bold text-gray-900">{{ $stats['total'] }}</p>
-        <p class="text-xs text-gray-500 mt-1">Total Drivers</p>
-    </div>
-    <div class="bg-white rounded-lg shadow p-4 text-center">
-        <p class="text-2xl font-bold text-green-600">{{ $stats['available'] }}</p>
-        <p class="text-xs text-gray-500 mt-1">Available</p>
-    </div>
-    <div class="bg-white rounded-lg shadow p-4 text-center">
-        <p class="text-2xl font-bold text-blue-600">{{ $stats['assigned'] }}</p>
-        <p class="text-xs text-gray-500 mt-1">Assigned</p>
-    </div>
-    <div class="bg-white rounded-lg shadow p-4 text-center">
-        <p class="text-2xl font-bold text-yellow-600">{{ $stats['on_leave'] }}</p>
-        <p class="text-xs text-gray-500 mt-1">On Leave</p>
-    </div>
-</div>
-
-{{-- Search + Add --}}
-<div class="bg-white rounded-lg shadow p-4 mb-5">
-    <form method="GET" action="{{ route('driver-management.index') }}" class="flex gap-3">
-        <input type="text" name="search" value="{{ $search }}" placeholder="Search name, license, email..."
-            class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-yellow-500 focus:outline-none">
-        <button type="submit" class="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 text-sm flex items-center gap-2">
-            <i data-lucide="search" class="w-4 h-4"></i> Search
-        </button>
-        <button type="button" onclick="document.getElementById('addDriverModal').classList.remove('hidden')"
-            class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm flex items-center gap-2">
-            <i data-lucide="user-plus" class="w-4 h-4"></i> Add Driver
-        </button>
-    </form>
-</div>
-
-{{-- Table --}}
-<div class="bg-white rounded-lg shadow overflow-hidden">
-    <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200 text-sm">
-            <thead class="bg-gray-50">
-                <tr>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Driver</th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">License</th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Contact</th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Assigned Unit</th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Daily Target</th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-200">
-                @forelse($drivers as $d)
-                @php
-                    $expiringSoon = $d->license_expiry && $d->license_expiry <= date('Y-m-d', strtotime('+30 days'));
-                    $statusClass = match($d->driver_status ?? 'available') {
-                        'available' => 'bg-green-100 text-green-800',
-                        'assigned'  => 'bg-blue-100 text-blue-800',
-                        'on_leave'  => 'bg-yellow-100 text-yellow-800',
-                        'suspended' => 'bg-red-100 text-red-800',
-                        default     => 'bg-gray-100 text-gray-700',
-                    };
-                @endphp
-                <tr class="hover:bg-gray-50">
-                    <td class="px-4 py-3">
-                        <p class="font-semibold text-gray-900">{{ $d->full_name }}</p>
-                        <p class="text-xs text-gray-500">{{ $d->email }}</p>
-                    </td>
-                    <td class="px-4 py-3">
-                        <p class="text-gray-700">{{ $d->license_number }}</p>
-                        <p class="text-xs {{ $expiringSoon ? 'text-red-600 font-semibold' : 'text-gray-400' }}">
-                            Exp: {{ formatDate($d->license_expiry) }}
-                            @if($expiringSoon) ⚠️ @endif
-                        </p>
-                    </td>
-                    <td class="px-4 py-3 text-gray-600">{{ $d->contact_number ?? $d->phone ?? '—' }}</td>
-                    <td class="px-4 py-3">
-                        @if($d->unit_number)
-                        <span class="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full">{{ $d->unit_number }}</span>
-                        @else
-                        <span class="text-gray-400 text-xs">Unassigned</span>
-                        @endif
-                    </td>
-                    <td class="px-4 py-3 text-gray-600">{{ ucfirst($d->driver_type ?? '—') }}</td>
-                    <td class="px-4 py-3">
-                        <span class="px-2 py-1 text-xs rounded-full {{ $statusClass }}">
-                            {{ ucwords(str_replace('_', ' ', $d->driver_status ?? 'available')) }}
-                        </span>
-                    </td>
-                    <td class="px-4 py-3 text-gray-700">{{ formatCurrency($d->daily_boundary_target) }}</td>
-                    <td class="px-4 py-3">
-                        <div class="flex gap-2">
-                            <button onclick='openEditDriver(@json($d))' class="text-blue-600 hover:text-blue-900">
-                                <i data-lucide="edit" class="w-4 h-4"></i>
-                            </button>
-                            <form method="POST" action="{{ route('driver-management.destroy', $d->id) }}" onsubmit="return confirm('Delete this driver? This will also remove their user account.')">
-                                @csrf @method('DELETE')
-                                <button type="submit" class="text-red-600 hover:text-red-900"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-                            </form>
+    {{-- Search and Filters --}}
+    <div class="bg-white rounded-lg shadow p-6 mb-6">
+        <form method="GET" action="{{ route('driver-management.index') }}">
+            <div class="flex flex-col md:flex-row gap-4">
+                <div class="flex-1">
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i data-lucide="search" class="h-5 w-5 text-gray-400"></i>
                         </div>
-                    </td>
-                </tr>
-                @empty
-                <tr>
-                    <td colspan="8" class="px-4 py-12 text-center text-gray-400">
-                        <i data-lucide="users" class="w-12 h-12 mx-auto mb-3 text-gray-300"></i>
-                        <p>No drivers found.</p>
-                    </td>
-                </tr>
-                @endforelse
-            </tbody>
-        </table>
-    </div>
-    @if($pagination['total_pages'] > 1)
-    <div class="px-4 py-3 border-t flex justify-between text-sm text-gray-600">
-        <span>{{ $pagination['total_items'] }} total</span>
-        <div class="flex gap-2">
-            @if($pagination['has_prev'])<a href="?page={{ $pagination['prev_page'] }}&search={{ $search }}" class="px-3 py-1 bg-gray-100 rounded">← Prev</a>@endif
-            @if($pagination['has_next'])<a href="?page={{ $pagination['next_page'] }}&search={{ $search }}" class="px-3 py-1 bg-gray-100 rounded">Next →</a>@endif
-        </div>
-    </div>
-    @endif
-</div>
+                        <input type="text" name="search" value="{{ $search ?? '' }}"
+                            class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none"
+                            placeholder="Search by driver name, email, or license...">
+                    </div>
+                </div>
 
-{{-- Add Driver Modal --}}
-<div id="addDriverModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-    <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl p-6 max-h-[90vh] overflow-y-auto">
-        <div class="flex justify-between mb-4">
-            <h3 class="text-lg font-semibold">Add New Driver</h3>
-            <button onclick="document.getElementById('addDriverModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600"><i data-lucide="x" class="w-5 h-5"></i></button>
-        </div>
-        <form method="POST" action="{{ route('driver-management.store') }}">
-            @csrf
-            <div class="grid grid-cols-2 gap-3">
-                <div class="col-span-2">
-                    <label class="block text-xs font-medium text-gray-700 mb-1">Full Name *</label>
-                    <input type="text" name="full_name" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" required>
-                </div>
-                <div>
-                    <label class="block text-xs font-medium text-gray-700 mb-1">Email *</label>
-                    <input type="email" name="email" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" required>
-                </div>
-                <div>
-                    <label class="block text-xs font-medium text-gray-700 mb-1">Username *</label>
-                    <input type="text" name="username" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" required>
-                </div>
-                <div>
-                    <label class="block text-xs font-medium text-gray-700 mb-1">Password *</label>
-                    <input type="password" name="password" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" required>
-                </div>
-                <div>
-                    <label class="block text-xs font-medium text-gray-700 mb-1">Contact Number</label>
-                    <input type="text" name="contact_number" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
-                </div>
-                <div>
-                    <label class="block text-xs font-medium text-gray-700 mb-1">License No. *</label>
-                    <input type="text" name="license_number" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" required>
-                </div>
-                <div>
-                    <label class="block text-xs font-medium text-gray-700 mb-1">License Expiry *</label>
-                    <input type="date" name="license_expiry" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" required>
-                </div>
-                <div>
-                    <label class="block text-xs font-medium text-gray-700 mb-1">Hire Date</label>
-                    <input type="date" name="hire_date" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
-                </div>
-                <div>
-                    <label class="block text-xs font-medium text-gray-700 mb-1">Driver Type</label>
-                    <select name="driver_type" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
-                        <option value="regular">Regular</option>
-                        <option value="senior">Senior</option>
-                        <option value="trainee">Trainee</option>
+                <div class="md:w-48">
+                    <select name="status" class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none">
+                        <option value="">All Status</option>
+                        <option value="active" {{ ($status_filter ?? '') === 'active' ? 'selected' : '' }}>Active</option>
+                        <option value="inactive" {{ ($status_filter ?? '') === 'inactive' ? 'selected' : '' }}>Inactive</option>
                     </select>
                 </div>
-                <div>
-                    <label class="block text-xs font-medium text-gray-700 mb-1">Daily Boundary Target (₱)</label>
-                    <input type="number" name="daily_boundary_target" value="1100" step="0.01" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
+
+                <div class="flex gap-2">
+                    <button type="submit"
+                        class="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 flex items-center gap-2">
+                        <i data-lucide="search" class="w-4 h-4"></i> Search
+                    </button>
+                    <button type="button" onclick="openAddDriverModal()"
+                        class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-2">
+                        <i data-lucide="plus" class="w-4 h-4"></i> Add Driver
+                    </button>
                 </div>
-                <div>
-                    <label class="block text-xs font-medium text-gray-700 mb-1">Emergency Contact</label>
-                    <input type="text" name="emergency_contact" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
-                </div>
-                <div>
-                    <label class="block text-xs font-medium text-gray-700 mb-1">Emergency Phone</label>
-                    <input type="text" name="emergency_phone" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
-                </div>
-            </div>
-            <div class="flex gap-3 mt-4">
-                <button type="submit" class="flex-1 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm">Save Driver</button>
-                <button type="button" onclick="document.getElementById('addDriverModal').classList.add('hidden')" class="flex-1 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm">Cancel</button>
             </div>
         </form>
     </div>
-</div>
 
-{{-- Edit Driver Modal --}}
-<div id="editDriverModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-    <div class="bg-white rounded-lg shadow-xl w-full max-w-xl p-6 max-h-[90vh] overflow-y-auto">
-        <div class="flex justify-between mb-4">
-            <h3 class="text-lg font-semibold">Edit Driver</h3>
-            <button onclick="document.getElementById('editDriverModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+    {{-- Driver List Table --}}
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+            <h2 class="text-lg font-semibold text-gray-800">Drivers</h2>
         </div>
-        <form id="editDriverForm" method="POST">
-            @csrf @method('PUT')
-            <div class="grid grid-cols-2 gap-3">
-                <div class="col-span-2">
-                    <label class="block text-xs font-medium text-gray-700 mb-1">Full Name *</label>
-                    <input type="text" name="full_name" id="ed_full_name" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" required>
-                </div>
-                <div>
-                    <label class="block text-xs font-medium text-gray-700 mb-1">License No. *</label>
-                    <input type="text" name="license_number" id="ed_license" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" required>
-                </div>
-                <div>
-                    <label class="block text-xs font-medium text-gray-700 mb-1">License Expiry *</label>
-                    <input type="date" name="license_expiry" id="ed_expiry" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" required>
-                </div>
-                <div>
-                    <label class="block text-xs font-medium text-gray-700 mb-1">Contact Number</label>
-                    <input type="text" name="contact_number" id="ed_contact" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
-                </div>
-                <div>
-                    <label class="block text-xs font-medium text-gray-700 mb-1">Daily Target (₱)</label>
-                    <input type="number" name="daily_boundary_target" id="ed_target" step="0.01" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
-                </div>
-                <div>
-                    <label class="block text-xs font-medium text-gray-700 mb-1">Driver Type</label>
-                    <select name="driver_type" id="ed_type" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
-                        <option value="regular">Regular</option>
-                        <option value="senior">Senior</option>
-                        <option value="trainee">Trainee</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-xs font-medium text-gray-700 mb-1">Status</label>
-                    <select name="driver_status" id="ed_status" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
-                        <option value="available">Available</option>
-                        <option value="assigned">Assigned</option>
-                        <option value="on_leave">On Leave</option>
-                        <option value="suspended">Suspended</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-xs font-medium text-gray-700 mb-1">Emergency Contact</label>
-                    <input type="text" name="emergency_contact" id="ed_emergency_contact" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
-                </div>
-                <div>
-                    <label class="block text-xs font-medium text-gray-700 mb-1">Emergency Phone</label>
-                    <input type="text" name="emergency_phone" id="ed_emergency_phone" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
-                </div>
-            </div>
-            <div class="flex gap-3 mt-4">
-                <button type="submit" class="flex-1 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm">Update</button>
-                <button type="button" onclick="document.getElementById('editDriverModal').classList.add('hidden')" class="flex-1 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm">Cancel</button>
-            </div>
-        </form>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Driver Name</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Assigned Unit</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">License</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Incentive This Month</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Performance Rating</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    @forelse($drivers as $driver)
+                        <tr class="hover:bg-gray-50 cursor-pointer" onclick="openEditDriverModal({{ $driver->id }})">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium text-gray-900">{{ $driver->full_name }}</div>
+                                <div class="text-xs text-gray-500">{{ $driver->email }}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                @if(!empty($driver->assigned_unit))
+                                    {{ $driver->assigned_unit }}
+                                @else
+                                    <span class="text-gray-400">Unassigned</span>
+                                @endif
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                {{ $driver->license_number ?? 'N/A' }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $driver->is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                                    {{ $driver->is_active ? 'Active' : 'Inactive' }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                ₱{{ number_format($driver->monthly_incentive ?? 0, 2) }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                {{ $driver->performance_rating ?? 'Good' }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <button
+                                    type="button"
+                                    class="text-blue-600 hover:text-blue-900 mr-3"
+                                    onclick="event.stopPropagation(); openDriverDetails({{ $driver->id }})"
+                                >
+                                    <i data-lucide="eye" class="w-4 h-4"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="7" class="px-6 py-10 text-center text-gray-500">
+                                <i data-lucide="users" class="w-10 h-10 mx-auto mb-3 text-gray-300"></i>
+                                <p>No drivers found.</p>
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+        @if(isset($drivers) && method_exists($drivers, 'links'))
+        <div class="px-6 py-4 border-t border-gray-200">
+            {{ $drivers->withQueryString()->links() }}
+        </div>
+        @endif
     </div>
-</div>
+
+    {{-- Add/Edit Driver Modal --}}
+    <div id="addDriverModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden h-full w-full z-50 flex items-center justify-center p-4">
+        <div class="relative bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center p-6 border-b">
+                <h3 class="text-lg font-bold text-gray-900" id="driverModalTitle">Add Driver</h3>
+                <button type="button" onclick="closeAddDriverModal()" class="text-gray-400 hover:text-gray-600">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+
+            <form id="driverForm" method="POST" class="p-6 space-y-4">
+                @csrf
+                <input type="hidden" name="_method" id="driverFormMethod" value="POST">
+                <input type="hidden" name="driver_id" id="editDriverId" value="">
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Full Name *</label>
+                    <input type="text" name="full_name" id="driverFullName" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Contact Number</label>
+                        <input type="tel" name="contact_number" id="driverContact" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">License Number *</label>
+                        <input type="text" name="license_number" id="driverLicense" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">License Expiry *</label>
+                        <input type="date" name="license_expiry" id="driverLicenseExpiry" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Hire Date</label>
+                        <input type="date" name="hire_date" id="driverHireDate" value="{{ date('Y-m-d') }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Address</label>
+                    <textarea name="address" id="driverAddress" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"></textarea>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Emergency Contact</label>
+                        <input type="text" name="emergency_contact" id="driverEmergencyContact" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Emergency Phone</label>
+                        <input type="tel" name="emergency_phone" id="driverEmergencyPhone" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Daily Boundary Target</label>
+                    <input type="number" name="daily_boundary_target" id="driverBoundaryTarget" step="0.01" value="1100.00" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
+                </div>
+
+                <div class="flex items-center justify-between mt-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                        <select name="is_active" id="editIsActive" class="w-40 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
+                            <option value="1">Active</option>
+                            <option value="0">Inactive</option>
+                        </select>
+                    </div>
+                    <div class="flex gap-3">
+                        <button type="button" id="deleteDriverButton" onclick="confirmDeleteDriver()" class="hidden px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">Delete</button>
+                        <button type="button" onclick="closeAddDriverModal()" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400">Cancel</button>
+                        <button type="submit" class="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700">Save</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {{-- Driver Details Modal with Tabs --}}
+    <div id="driverDetailsModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden h-full w-full z-50 flex items-center justify-center p-4">
+        <div class="relative bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center p-6 border-b">
+                <div>
+                    <h3 class="text-lg font-bold text-gray-900" id="driverDetailsName">Driver Details</h3>
+                    <p class="text-sm text-gray-500" id="driverDetailsSubtitle"></p>
+                </div>
+                <button onclick="closeDriverDetails()" class="text-gray-400 hover:text-gray-600">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+
+            {{-- Tabs --}}
+            <div class="px-6 pt-4 border-b">
+                <nav class="-mb-px flex space-x-4" aria-label="Tabs">
+                    <button type="button" class="driver-tab active border-yellow-500 text-yellow-600 whitespace-nowrap py-2 px-3 border-b-2 text-sm font-medium" data-tab="basic">
+                        Basic Info
+                    </button>
+                    <button type="button" class="driver-tab border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-2 px-3 border-b-2 text-sm font-medium" data-tab="license">
+                        License & Documents
+                    </button>
+                    <button type="button" class="driver-tab border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-2 px-3 border-b-2 text-sm font-medium" data-tab="incentives">
+                        Incentives
+                    </button>
+                    <button type="button" class="driver-tab border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-2 px-3 border-b-2 text-sm font-medium" data-tab="performance">
+                        Performance
+                    </button>
+                    <button type="button" class="driver-tab border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-2 px-3 border-b-2 text-sm font-medium" data-tab="insights">
+                        Insights
+                    </button>
+                </nav>
+            </div>
+
+            {{-- Tab Panels --}}
+            <div class="p-6 space-y-6">
+                <div class="driver-tab-panel" data-tab-panel="basic">
+                    <h4 class="text-md font-semibold text-gray-800 mb-4">Personal & Employment Details</h4>
+                    <div id="basicInfoContent" class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-700">
+                        <p class="text-gray-400">Loading...</p>
+                    </div>
+                </div>
+
+                <div class="driver-tab-panel hidden" data-tab-panel="license">
+                    <h4 class="text-md font-semibold text-gray-800 mb-4">License Information</h4>
+                    <div id="licenseInfoContent" class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-700">
+                        <p class="text-gray-400">Loading...</p>
+                    </div>
+
+                    <div class="mt-6 border-t pt-4">
+                        <h5 class="text-sm font-semibold text-gray-800 mb-2">Upload Driver Documents</h5>
+                        <p class="text-xs text-gray-500 mb-3">Accepted file types: JPG, PNG, PDF. Uploads replace any existing document for the same type.</p>
+                        <form id="driverDocumentsForm" method="POST" enctype="multipart/form-data" class="space-y-3">
+                            @csrf
+                            <input type="hidden" name="_method" value="POST">
+                            <input type="hidden" name="driver_id" id="driverDocumentsDriverId" value="">
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-700 mb-1">Driver's License (Front)</label>
+                                    <input type="file" name="license_front" accept=".jpg,.jpeg,.png,.pdf" class="block w-full text-xs text-gray-700 border border-gray-300 rounded-lg cursor-pointer focus:outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-700 mb-1">Driver's License (Back)</label>
+                                    <input type="file" name="license_back" accept=".jpg,.jpeg,.png,.pdf" class="block w-full text-xs text-gray-700 border border-gray-300 rounded-lg cursor-pointer focus:outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-700 mb-1">NBI Clearance</label>
+                                    <input type="file" name="nbi_clearance" accept=".jpg,.jpeg,.png,.pdf" class="block w-full text-xs text-gray-700 border border-gray-300 rounded-lg cursor-pointer focus:outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-700 mb-1">Barangay Clearance</label>
+                                    <input type="file" name="barangay_clearance" accept=".jpg,.jpeg,.png,.pdf" class="block w-full text-xs text-gray-700 border border-gray-300 rounded-lg cursor-pointer focus:outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-700 mb-1">Medical Certificate</label>
+                                    <input type="file" name="medical_certificate" accept=".jpg,.jpeg,.png,.pdf" class="block w-full text-xs text-gray-700 border border-gray-300 rounded-lg cursor-pointer focus:outline-none">
+                                </div>
+                            </div>
+
+                            <div class="pt-2 flex justify-end">
+                                <button type="submit" class="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700">
+                                    Save Documents
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="driver-tab-panel hidden" data-tab-panel="incentives">
+                    <h4 class="text-md font-semibold text-gray-800 mb-4">Rule-based Incentives</h4>
+                    <p class="text-sm text-gray-600 mb-4">This section shows the breakdown of incentives based on rules like no damage, no absence, complete boundary payments, and no late return.</p>
+                    <div id="incentivesContent" class="text-sm text-gray-700">
+                        <p class="text-gray-400">Loading incentive data...</p>
+                    </div>
+                </div>
+
+                <div class="driver-tab-panel hidden" data-tab-panel="performance">
+                    <h4 class="text-md font-semibold text-gray-800 mb-4">Performance Analytics</h4>
+                    <div id="performanceContent" class="text-sm text-gray-700 space-y-2">
+                        <p class="text-gray-400">Loading performance data...</p>
+                    </div>
+                </div>
+
+                <div class="driver-tab-panel hidden" data-tab-panel="insights">
+                    <h4 class="text-md font-semibold text-gray-800 mb-4">System Insights & Recommendations</h4>
+                    <div id="insightsContent" class="text-sm text-gray-700 space-y-2">
+                        <p class="text-gray-400">Loading insights...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+@endsection
 
 @push('scripts')
 <script>
-function openEditDriver(d) {
-    const base = "{{ url('driver-management') }}";
-    document.getElementById('editDriverForm').action = base + '/' + d.id;
-    document.getElementById('ed_full_name').value        = d.full_name;
-    document.getElementById('ed_license').value          = d.license_number;
-    document.getElementById('ed_expiry').value           = d.license_expiry;
-    document.getElementById('ed_contact').value          = d.contact_number || '';
-    document.getElementById('ed_target').value           = d.daily_boundary_target;
-    document.getElementById('ed_type').value             = d.driver_type || 'regular';
-    document.getElementById('ed_status').value           = d.driver_status || 'available';
-    document.getElementById('ed_emergency_contact').value = d.emergency_contact || '';
-    document.getElementById('ed_emergency_phone').value  = d.emergency_phone || '';
-    document.getElementById('editDriverModal').classList.remove('hidden');
+function openAddDriverModal() {
+    document.getElementById('driverModalTitle').textContent = 'Add Driver';
+    document.getElementById('driverFormMethod').value = 'POST';
+    document.getElementById('driverForm').action = '{{ route('driver-management.store') }}';
+    document.getElementById('editDriverId').value = '';
+    document.getElementById('driverFullName').value = '';
+    document.getElementById('driverContact').value = '';
+    document.getElementById('driverLicense').value = '';
+    document.getElementById('driverLicenseExpiry').value = '';
+    document.getElementById('driverHireDate').value = '{{ date('Y-m-d') }}';
+    document.getElementById('driverAddress').value = '';
+    document.getElementById('driverEmergencyContact').value = '';
+    document.getElementById('driverEmergencyPhone').value = '';
+    document.getElementById('driverBoundaryTarget').value = '1100.00';
+    document.getElementById('editIsActive').value = '1';
+    document.getElementById('deleteDriverButton').classList.add('hidden');
+    document.getElementById('addDriverModal').classList.remove('hidden');
+    lucide.createIcons();
 }
+
+function openEditDriverModal(id) {
+    fetch('{{ route('driver-management.index') }}/' + id + '?format=json', {
+        headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
+    })
+    .then(r => r.json())
+    .then(data => {
+        document.getElementById('driverModalTitle').textContent = 'Edit Driver';
+        document.getElementById('driverFormMethod').value = 'PUT';
+        document.getElementById('driverForm').action = '{{ url('driver-management') }}/' + id;
+        document.getElementById('editDriverId').value = id;
+        document.getElementById('driverFullName').value = data.full_name || '';
+        document.getElementById('driverContact').value = data.contact_number || '';
+        document.getElementById('driverLicense').value = data.license_number || '';
+        document.getElementById('driverLicenseExpiry').value = data.license_expiry || '';
+        document.getElementById('driverHireDate').value = data.hire_date || '{{ date('Y-m-d') }}';
+        document.getElementById('driverAddress').value = data.address || '';
+        document.getElementById('driverEmergencyContact').value = data.emergency_contact || '';
+        document.getElementById('driverEmergencyPhone').value = data.emergency_phone || '';
+        document.getElementById('driverBoundaryTarget').value = data.daily_boundary_target || '1100.00';
+        document.getElementById('editIsActive').value = data.is_active ? '1' : '0';
+        document.getElementById('deleteDriverButton').classList.remove('hidden');
+        document.getElementById('addDriverModal').classList.remove('hidden');
+        lucide.createIcons();
+    })
+    .catch(() => {
+        // Fallback: just show empty edit modal
+        document.getElementById('driverModalTitle').textContent = 'Edit Driver';
+        document.getElementById('driverFormMethod').value = 'PUT';
+        document.getElementById('driverForm').action = '{{ url('driver-management') }}/' + id;
+        document.getElementById('editDriverId').value = id;
+        document.getElementById('deleteDriverButton').classList.remove('hidden');
+        document.getElementById('addDriverModal').classList.remove('hidden');
+        lucide.createIcons();
+    });
+}
+
+function closeAddDriverModal() {
+    document.getElementById('addDriverModal').classList.add('hidden');
+}
+
+function confirmDeleteDriver() {
+    const id = document.getElementById('editDriverId').value;
+    const name = document.getElementById('driverFullName').value || 'this driver';
+    if (!id) return;
+    if (confirm('Are you sure you want to delete ' + name + '?')) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '{{ url('driver-management') }}/' + id;
+        form.innerHTML = '@csrf' +
+                         '<input type="hidden" name="_method" value="DELETE">';
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+
+function openDriverDetails(id) {
+    const modal = document.getElementById('driverDetailsModal');
+    modal.classList.remove('hidden');
+
+    // Reset tab state
+    document.querySelectorAll('.driver-tab').forEach(btn => {
+        btn.classList.remove('border-yellow-500', 'text-yellow-600', 'active');
+        btn.classList.add('border-transparent', 'text-gray-500');
+    });
+    document.querySelectorAll('.driver-tab-panel').forEach(panel => {
+        panel.classList.add('hidden');
+    });
+    const firstTab = document.querySelector('.driver-tab[data-tab="basic"]');
+    const firstPanel = document.querySelector('.driver-tab-panel[data-tab-panel="basic"]');
+    if (firstTab && firstPanel) {
+        firstTab.classList.add('border-yellow-500', 'text-yellow-600', 'active');
+        firstTab.classList.remove('border-transparent', 'text-gray-500');
+        firstPanel.classList.remove('hidden');
+    }
+
+    document.getElementById('driverDocumentsDriverId').value = id;
+    document.getElementById('driverDocumentsForm').action = '{{ url('driver-management/upload-documents') }}/' + id;
+
+    // Fetch basic details
+    fetch('{{ route('driver-management.index') }}/' + id + '?format=json', {
+        headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
+    })
+    .then(r => r.json())
+    .then(data => {
+        document.getElementById('driverDetailsName').textContent = data.full_name || 'Driver Details';
+        document.getElementById('driverDetailsSubtitle').textContent = data.email || '';
+
+        document.getElementById('basicInfoContent').innerHTML = `
+            <div>
+                <p><span class="font-semibold">Full Name:</span> ${data.full_name || ''}</p>
+                <p><span class="font-semibold">Contact:</span> ${data.contact_number || 'N/A'}</p>
+                <p><span class="font-semibold">Address:</span> ${data.address || 'N/A'}</p>
+                <p><span class="font-semibold">Emergency Contact:</span> ${data.emergency_contact || 'N/A'}</p>
+                <p><span class="font-semibold">Emergency Phone:</span> ${data.emergency_phone || 'N/A'}</p>
+            </div>
+            <div>
+                <p><span class="font-semibold">Hire Date:</span> ${data.hire_date || 'N/A'}</p>
+                <p><span class="font-semibold">Daily Boundary Target:</span> ₱${data.daily_boundary_target || 'N/A'}</p>
+                <p><span class="font-semibold">Status:</span> ${data.is_active ? 'Active' : 'Inactive'}</p>
+            </div>
+        `;
+
+        document.getElementById('licenseInfoContent').innerHTML = `
+            <div>
+                <p><span class="font-semibold">License Number:</span> ${data.license_number || ''}</p>
+                <p><span class="font-semibold">License Expiry:</span> ${data.license_expiry || ''}</p>
+            </div>
+            <div>
+                <p class="text-xs text-gray-500">License status and reminders will be computed here (e.g., expiring soon).</p>
+            </div>
+        `;
+
+        lucide.createIcons();
+    })
+    .catch(() => {
+        document.getElementById('basicInfoContent').innerHTML = '<p class="text-red-500">Failed to load details.</p>';
+    });
+
+    lucide.createIcons();
+}
+
+function closeDriverDetails() {
+    document.getElementById('driverDetailsModal').classList.add('hidden');
+}
+
+// Tab switching
+document.querySelectorAll('.driver-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+        document.querySelectorAll('.driver-tab').forEach(t => {
+            t.classList.remove('border-yellow-500', 'text-yellow-600', 'active');
+            t.classList.add('border-transparent', 'text-gray-500');
+        });
+        document.querySelectorAll('.driver-tab-panel').forEach(p => p.classList.add('hidden'));
+
+        tab.classList.add('border-yellow-500', 'text-yellow-600', 'active');
+        tab.classList.remove('border-transparent', 'text-gray-500');
+
+        const target = tab.dataset.tab;
+        const panel = document.querySelector(`.driver-tab-panel[data-tab-panel="${target}"]`);
+        if (panel) panel.classList.remove('hidden');
+    });
+});
 </script>
 @endpush
-@endsection

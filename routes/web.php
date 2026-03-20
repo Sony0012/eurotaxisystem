@@ -60,12 +60,15 @@ Route::middleware('auth')->group(function () {
     // Dashboard
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
-    // Units Resource Routes
-    Route::resource('units', UnitController::class);
+    // Units - Specific routes MUST come before resource (to prevent /units/{id} catching them)
     Route::get('/units/details', [UnitController::class, 'getDetails'])->name('units.details');
+    Route::get('/units/details-html', [UnitController::class, 'getDetailsHtml'])->name('units.detailsHtml');
     Route::post('/units/toggle-status', [UnitController::class, 'toggleStatus'])->name('units.toggle-status');
     Route::get('/units/import', [UnitController::class, 'showImport'])->name('units.import');
     Route::post('/units/import', [UnitController::class, 'import'])->name('units.import.store');
+
+    // Units Resource Routes (after specific routes)
+    Route::resource('units', UnitController::class);
 
     // Boundaries Resource Routes
     Route::resource('boundaries', BoundaryController::class);

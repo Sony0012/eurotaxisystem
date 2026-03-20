@@ -17,19 +17,28 @@
 <?php $__env->startSection('content'); ?>
     <!-- Filters -->
     <div class="bg-white rounded-lg shadow p-6 mb-6">
-        <form method="GET" action="<?php echo e(route('boundaries.index')); ?>" class="flex flex-col md:flex-row gap-4">
+        <form method="GET" action="<?php echo e(route('boundaries.index')); ?>" class="flex flex-col lg:flex-row gap-4">
             <div class="flex-1">
                 <input type="text" name="search" value="<?php echo e($search); ?>"
                     class="block w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none"
                     placeholder="Search unit, plate, driver...">
             </div>
-            <div class="md:w-40">
+            <div class="lg:w-36">
                 <input type="date" name="date_from" value="<?php echo e($date_from); ?>"
                     class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:outline-none">
             </div>
-            <div class="md:w-40">
+            <div class="lg:w-36">
                 <input type="date" name="date_to" value="<?php echo e($date_to); ?>"
                     class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:outline-none">
+            </div>
+            <div class="lg:w-36">
+                <select name="status" class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:outline-none">
+                    <option value="">All Status</option>
+                    <option value="paid" <?php echo e(request('status') === 'paid' ? 'selected' : ''); ?>>Paid</option>
+                    <option value="short" <?php echo e(request('status') === 'short' ? 'selected' : ''); ?>>Short</option>
+                    <option value="late" <?php echo e(request('status') === 'late' ? 'selected' : ''); ?>>Late</option>
+                    <option value="excess" <?php echo e(request('status') === 'excess' ? 'selected' : ''); ?>>Excess</option>
+                </select>
             </div>
             <div class="flex gap-2">
                 <button type="submit"
@@ -45,19 +54,25 @@
     </div>
 
     <!-- Summary Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div class="bg-white rounded-lg shadow p-5">
+            <p class="text-sm text-gray-500">Today's Collection</p>
+            <p class="text-2xl font-bold text-green-600"><?php echo e(formatCurrency($totals->today_total ?? 0)); ?></p>
+            <p class="text-xs text-gray-400"><?php echo e(date('M d, Y')); ?></p>
+        </div>
         <div class="bg-white rounded-lg shadow p-5">
             <p class="text-sm text-gray-500">Total Collected</p>
-            <p class="text-2xl font-bold text-green-600"><?php echo e(formatCurrency($totals->total_amount ?? 0)); ?></p>
+            <p class="text-2xl font-bold text-blue-600"><?php echo e(formatCurrency($totals->total_amount ?? 0)); ?></p>
             <p class="text-xs text-gray-400"><?php echo e($totals->total_records ?? 0); ?> records</p>
         </div>
         <div class="bg-white rounded-lg shadow p-5">
-            <p class="text-sm text-gray-500">Paid Boundaries</p>
-            <p class="text-2xl font-bold text-blue-600"><?php echo e(formatCurrency($totals->paid_total ?? 0)); ?></p>
+            <p class="text-sm text-gray-500">Shortage</p>
+            <p class="text-2xl font-bold text-red-600"><?php echo e(formatCurrency($totals->total_shortage ?? 0)); ?></p>
+            <p class="text-xs text-gray-400">Deficit amount</p>
         </div>
         <div class="bg-white rounded-lg shadow p-5">
             <p class="text-sm text-gray-500">Period</p>
-            <p class="text-lg font-bold text-gray-900"><?php echo e(formatDate($date_from)); ?> – <?php echo e(formatDate($date_to)); ?></p>
+            <p class="text-base font-bold text-gray-900"><?php echo e(formatDate($date_from)); ?> – <?php echo e(formatDate($date_to)); ?></p>
         </div>
     </div>
 
@@ -70,13 +85,19 @@
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Unit</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Driver</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Boundary Amt</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actual Paid</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Shortage / Excess</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                     <?php $__empty_1 = true; $__currentLoopData = $boundaries; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $b): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                        <?php
+                            $actual = $b->actual_amount ?? $b->boundary_amount ?? 0;
+                            $diff = $actual - ($b->boundary_amount ?? 0);
+                        ?>
                         <tr class="hover:bg-gray-50">
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"><?php echo e(formatDate($b->date)); ?></td>
                             <td class="px-6 py-4 whitespace-nowrap">
@@ -85,12 +106,23 @@
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"><?php echo e($b->driver_name ?? '—'); ?></td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
-                                <?php echo e(formatCurrency($b->boundary_amount)); ?></td>
+                                <?php echo e(formatCurrency($b->boundary_amount ?? 0)); ?>
+
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                <?php echo e(formatCurrency($actual)); ?>
+
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold <?php echo e($diff >= 0 ? 'text-green-600' : 'text-red-600'); ?>">
+                                <?php echo e($diff >= 0 ? '+' : ''); ?><?php echo e(formatCurrency($diff)); ?>
+
+                            </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <span class="px-2 py-1 text-xs rounded-full
                                         <?php if($b->status === 'paid'): ?> bg-green-100 text-green-800
                                         <?php elseif($b->status === 'late'): ?> bg-yellow-100 text-yellow-800
                                         <?php elseif($b->status === 'short'): ?> bg-red-100 text-red-800
+                                        <?php elseif($b->status === 'excess'): ?> bg-blue-100 text-blue-800
                                         <?php else: ?> bg-gray-100 text-gray-800 <?php endif; ?>">
                                     <?php echo e(ucfirst($b->status)); ?>
 
@@ -108,7 +140,7 @@
                         </tr>
                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                         <tr>
-                            <td colspan="6" class="px-6 py-12 text-center text-gray-500">
+                            <td colspan="8" class="px-6 py-12 text-center text-gray-500">
                                 <i data-lucide="dollar-sign" class="w-12 h-12 mx-auto mb-4 text-gray-300"></i>
                                 <p>No boundary records found</p>
                             </td>
@@ -165,13 +197,20 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Amount (₱)</label>
-                        <input type="number" name="boundary_amount" step="0.01"
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Boundary Amount (₱) *</label>
+                        <input type="number" name="boundary_amount" step="0.01" id="boundaryAmt"
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:outline-none"
-                            required>
+                            oninput="computeShortage()" required>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Date</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Actual Amount Paid (₱)</label>
+                        <input type="number" name="actual_amount" step="0.01" id="actualAmt"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:outline-none"
+                            oninput="computeShortage()">
+                        <p id="shortageDisplay" class="text-xs mt-1 font-medium"></p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Date *</label>
                         <input type="date" name="date" value="<?php echo e(date('Y-m-d')); ?>"
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:outline-none"
                             required>
@@ -202,4 +241,27 @@
         </div>
     </div>
 <?php $__env->stopSection(); ?>
+
+<?php $__env->startPush('scripts'); ?>
+<script>
+function computeShortage() {
+    const boundary = parseFloat(document.getElementById('boundaryAmt')?.value) || 0;
+    const actual   = parseFloat(document.getElementById('actualAmt')?.value) || 0;
+    const display  = document.getElementById('shortageDisplay');
+    if (!display) return;
+    if (actual === 0) { display.textContent = ''; return; }
+    const diff = actual - boundary;
+    if (diff < 0) {
+        display.className = 'text-xs mt-1 font-medium text-red-600';
+        display.textContent = 'Shortage: ₱' + Math.abs(diff).toLocaleString('en-PH', {minimumFractionDigits:2});
+    } else if (diff > 0) {
+        display.className = 'text-xs mt-1 font-medium text-green-600';
+        display.textContent = 'Excess: +₱' + diff.toLocaleString('en-PH', {minimumFractionDigits:2});
+    } else {
+        display.className = 'text-xs mt-1 font-medium text-green-600';
+        display.textContent = 'Exact payment ✓';
+    }
+}
+</script>
+<?php $__env->stopPush(); ?>
 <?php echo $__env->make('layouts.app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\xampp\htdocs\eurotaxisystem\resources\views/boundaries/index.blade.php ENDPATH**/ ?>
