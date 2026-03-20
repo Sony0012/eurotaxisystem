@@ -1,11 +1,11 @@
-<div class="space-y-6">
-    <div class="bg-gradient-to-r from-blue-500 to-blue-600 p-6 rounded-lg text-white">
+<div class="space-y-4">
+    <div class="bg-gradient-to-r from-blue-500 to-blue-600 p-4 rounded-lg text-white">
         <div class="flex justify-between items-start">
             <div>
-                <h3 class="text-2xl font-bold">{{ $unit->unit_number }}</h3>
-                <p class="text-blue-100">{{ ($unit->make ?? '') . ' ' . ($unit->model ?? '') . ' (' . ($unit->year ?? '') . ')' }}</p>
-                <p class="text-blue-100">Plate: {{ $unit->plate_number }}</p>
-                <div class="flex items-center gap-2 mt-2">
+                <h3 class="text-xl font-bold">{{ $unit->unit_number }}</h3>
+                <p class="text-blue-100 text-sm">{{ ($unit->make ?? '') . ' ' . ($unit->model ?? '') . ' (' . ($unit->year ?? '') . ')' }}</p>
+                <p class="text-blue-100 text-sm">Plate: {{ $unit->plate_number }}</p>
+                <div class="flex items-center gap-2 mt-1">
                     <span class="px-2 py-1 bg-white bg-opacity-20 rounded-full text-xs font-medium">
                         {{ ucfirst($unit->status ?? '') }}
                     </span>
@@ -15,8 +15,8 @@
                 </div>
             </div>
             <div class="text-right">
-                <div class="text-2xl font-bold">₱{{ number_format((float) ($unit->boundary_rate ?? 0), 2) }}</div>
-                <p class="text-blue-100 text-sm">Daily Boundary Rate</p>
+                <div class="text-xl font-bold">₱{{ number_format((float) ($unit->boundary_rate ?? 0), 2) }}</div>
+                <p class="text-blue-100 text-xs">Daily Boundary Rate</p>
             </div>
         </div>
     </div>
@@ -52,11 +52,11 @@
 
     <div id="tabContent">
         <div id="overview-tab" class="tab-content">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                <div class="bg-white border border-gray-200 rounded-lg p-4">
-                    <div class="flex items-center gap-3">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-4">
+                <div class="bg-white border border-gray-200 rounded-lg p-3">
+                    <div class="flex items-center gap-2">
                         <div class="p-2 bg-blue-100 rounded-lg">
-                            <i data-lucide="users" class="w-5 h-5 text-blue-600"></i>
+                            <i data-lucide="users" class="w-4 h-4 text-blue-600"></i>
                         </div>
                         <div>
                             <p class="text-sm text-gray-600">Drivers</p>
@@ -64,41 +64,43 @@
                         </div>
                     </div>
                 </div>
-                <div class="bg-white border border-gray-200 rounded-lg p-4">
-                    <div class="flex items-center gap-3">
+                <div class="bg-white border border-gray-200 rounded-lg p-3">
+                    <div class="flex items-center gap-2">
                         <div class="p-2 bg-green-100 rounded-lg">
-                            <i data-lucide="calendar" class="w-5 h-5 text-green-600"></i>
+                            <i data-lucide="map-pin" class="w-4 h-4 text-green-600"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Status</p>
+                            <p class="text-lg font-bold">{{ ucfirst($unit->status ?? '') }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white border border-gray-200 rounded-lg p-3">
+                    <div class="flex items-center gap-2">
+                        <div class="p-2 bg-yellow-100 rounded-lg">
+                            <i data-lucide="droplet" class="w-4 h-4 text-yellow-600"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Fuel</p>
+                            <p class="text-lg font-bold">{{ ucfirst($unit->fuel_status ?? 'Full') }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white border border-gray-200 rounded-lg p-3">
+                    <div class="flex items-center gap-2">
+                        <div class="p-2 bg-purple-100 rounded-lg">
+                            <i data-lucide="calendar" class="w-4 h-4 text-purple-600"></i>
                         </div>
                         <div>
                             <p class="text-sm text-gray-600">Next Coding</p>
-                            <p class="text-lg font-bold">{{ ($days_until_coding ?? 0) == 0 ? 'Today' : ($days_until_coding . 'd') }}</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="bg-white border border-gray-200 rounded-lg p-4">
-                    <div class="flex items-center gap-3">
-                        <div class="p-2 bg-purple-100 rounded-lg">
-                            <i data-lucide="trending-up" class="w-5 h-5 text-purple-600"></i>
-                        </div>
-                        <div>
-                            <p class="text-sm text-gray-600">ROI</p>
-                            <p class="text-lg font-bold">{{ number_format((float) ($roi_data['roi_percentage'] ?? 0), 1) }}%</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="bg-white border border-gray-200 rounded-lg p-4">
-                    <div class="flex items-center gap-3">
-                        <div class="p-2 bg-orange-100 rounded-lg">
-                            <i data-lucide="wrench" class="w-5 h-5 text-orange-600"></i>
-                        </div>
-                        <div>
-                            <p class="text-sm text-gray-600">Maintenance</p>
-                            <p class="text-lg font-bold">{{ count($maintenance_records) }}</p>
+                            <p class="text-lg font-bold">{{ $next_coding_date ?? 'Not Set' }}</p>
                         </div>
                     </div>
                 </div>
             </div>
 
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="bg-white border border-gray-200 rounded-lg p-4">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="bg-white border border-gray-200 rounded-lg p-6">
                     <h4 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">

@@ -220,7 +220,8 @@
                                      data-id="{{ $unit['id'] }}"
                                      data-name="{{ $unit['unit_number'] }}"
                                      data-plate="{{ $unit['plate_number'] }}"
-                                     data-model="{{ $unit['make_model'] ?? '' }}">
+                                     data-model="{{ $unit['make_model'] ?? '' }}"
+                                     data-rate="{{ $unit['boundary_rate'] ?? 0 }}">
                                     <div class="font-medium text-xs">{{ $unit['unit_number'] }}</div>
                                     <div class="text-xs text-gray-500">{{ $unit['plate_number'] }} - {{ $unit['make_model'] ?? 'N/A' }}</div>
                                 </div>
@@ -309,7 +310,10 @@
                 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Actual Boundary</label>
-                    <input type="number" name="actual_boundary" id="actualBoundary" step="0.01" min="0" class="w-full px-2 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
+                    <input type="hidden" name="actual_boundary" id="actualBoundary" step="0.01" min="0">
+                    <div class="w-full px-2 py-1.5 border border-gray-300 rounded-lg bg-gray-50 text-gray-600 text-sm" id="actualBoundaryDisplay">
+                        Auto-filled based on boundary amount
+                    </div>
                 </div>
                 
                 <div>
@@ -657,6 +661,13 @@ function clearDriverSelection() {
 document.addEventListener('DOMContentLoaded', function() {
     initializeDriverDropdown();
     initializeUnitDropdown();
+    
+    // Sync actual boundary with boundary amount when changed
+    document.getElementById('boundaryAmount').addEventListener('input', function() {
+        const value = this.value || '0.00';
+        document.getElementById('actualBoundary').value = value;
+        document.getElementById('actualBoundaryDisplay').textContent = `₱${parseFloat(value).toFixed(2)}`;
+    });
 });
 
 // Unit dropdown functionality
@@ -691,10 +702,16 @@ function initializeUnitDropdown() {
                 const unitId = this.getAttribute('data-id');
                 const unitName = this.getAttribute('data-name');
                 const unitPlate = this.getAttribute('data-plate');
+                const unitRate = parseFloat(this.getAttribute('data-rate') || 0);
                 
                 document.getElementById('unitId').value = unitId;
                 unitDisplay.value = `${unitName} - ${unitPlate}`;
                 unitDropdown.classList.add('hidden');
+                
+                // Auto-fill boundary amount and actual boundary
+                document.getElementById('boundaryAmount').value = unitRate.toFixed(2);
+                document.getElementById('actualBoundary').value = unitRate.toFixed(2);
+                document.getElementById('actualBoundaryDisplay').textContent = `₱${unitRate.toFixed(2)}`;
                 
                 // Trigger change event
                 document.getElementById('unitId').dispatchEvent(new Event('change'));

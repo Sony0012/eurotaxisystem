@@ -1,4 +1,4 @@
-﻿
+
 
 <?php $__env->startSection('title', 'Unit Management - Euro System'); ?>
 <?php $__env->startSection('page-heading', 'Unit Management'); ?>
@@ -13,7 +13,7 @@
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <i data-lucide="search" class="h-5 w-5 text-gray-400"></i>
                     </div>
-                    <input type="text" name="search" value="<?php echo e($search); ?>"
+                    <input type="text" name="search" id="tableSearchInput" value="<?php echo e($search); ?>"
                         class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none"
                         placeholder="Search by unit number, plate, make, or model...">
                 </div>
@@ -37,23 +37,12 @@
                     class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-2">
                     <i data-lucide="plus" class="w-4 h-4"></i> Add Unit
                 </button>
-                <a href="<?php echo e(route('units.import')); ?>" 
-                   class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2">
-                    <i data-lucide="upload" class="w-4 h-4"></i> Import CSV
-                </a>
-                <a href="<?php echo e(route('units.import')); ?>" 
-                   class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 flex items-center gap-2">
-                    <i data-lucide="file-text" class="w-4 h-4"></i> Import Excel
-                </a>
             </div>
         </form>
     </div>
 
     <!-- Units Table -->
     <div class="bg-white rounded-lg shadow overflow-hidden">
-        <div class="px-6 py-4 border-b border-gray-200">
-            <h2 class="text-xl font-bold text-gray-900">Units Management - Euro System</h2>
-        </div>
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
@@ -62,17 +51,12 @@
                         </th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vehicle
                             Details</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Availability</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Assigned
                             Drivers</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status
                         </th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Boundary
                             Rate</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Devices
-                        </th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ROI</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions
                         </th>
                     </tr>
@@ -87,7 +71,7 @@
                             $purchase_cost = $unit->purchase_cost ?? 0;
                             $roi_achieved = $unit->roi_achieved ?? false;
                         ?>
-                        <tr class="hover:bg-gray-50 transition-colors">
+                        <tr class="hover:bg-gray-50 cursor-pointer" onclick="viewUnitDetails(<?php echo e($unit->id); ?>)">
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="space-y-1">
                                     <div class="text-sm font-bold text-gray-900"><?php echo e($unit->unit_number); ?></div>
@@ -113,20 +97,6 @@
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex items-center gap-2">
-                                    <span
-                                        class="px-2 py-1 text-xs rounded-full <?php echo e($is_available ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'); ?>">
-                                        <?php echo e($is_available ? 'Available' : 'Occupied'); ?>
-
-                                    </span>
-                                    <?php if($is_available): ?>
-                                        <i data-lucide="check-circle" class="w-4 h-4 text-green-600"></i>
-                                    <?php else: ?>
-                                        <i data-lucide="users" class="w-4 h-4 text-red-600"></i>
-                                    <?php endif; ?>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="space-y-1">
                                     <?php if($unit->driver_id && $primary_driver): ?>
                                         <?php $d1 = explode('|', $primary_driver); ?>
@@ -148,6 +118,7 @@
                                     <?php endif; ?>
                                 </div>
                             </td>
+
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <span class="px-2 py-1 text-xs rounded-full
                                         <?php if($unit->status === 'active'): ?> bg-green-100 text-green-800
@@ -163,60 +134,15 @@
                                 <?php echo e(formatCurrency($unit->boundary_rate)); ?>
 
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex flex-wrap gap-1">
-                                    <?php if($unit->gps_device_count > 0): ?>
-                                        <span
-                                            class="px-3 py-1 bg-green-100 text-green-800 rounded-full flex items-center gap-1 text-xs font-medium">
-                                            <i data-lucide="map-pin" class="w-3 h-3"></i> GPS: <?php echo e($unit->gps_device_count); ?>
 
-                                        </span>
-                                    <?php endif; ?>
-                                    <?php if($unit->dashcam_device_count > 0): ?>
-                                        <span
-                                            class="px-3 py-1 bg-orange-100 text-orange-800 rounded-full flex items-center gap-1 text-xs font-medium">
-                                            <i data-lucide="camera" class="w-3 h-3"></i> Cam: <?php echo e($unit->dashcam_device_count); ?>
-
-                                        </span>
-                                    <?php endif; ?>
-                                    <?php if(!$unit->gps_device_count && !$unit->dashcam_device_count): ?>
-                                        <span class="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-xs font-medium">No
-                                            Devices</span>
-                                    <?php endif; ?>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <?php if($purchase_cost > 0): ?>
-                                    <?php if($roi_achieved): ?>
-                                        <span class="text-green-600 flex items-center gap-1">
-                                            <i data-lucide="check-circle" class="w-4 h-4"></i> Achieved
-                                        </span>
-                                    <?php else: ?>
-                                        <?php $pct = $purchase_cost > 0 ? ($total_collected / $purchase_cost) * 100 : 0; ?>
-                                        <div class="text-gray-600">
-                                            <div class="flex items-center gap-1 text-xs">
-                                                <i data-lucide="trending-up" class="w-4 h-4"></i>
-                                                <?php echo e(number_format($pct, 1)); ?>%
-                                            </div>
-                                        </div>
-                                    <?php endif; ?>
-                                <?php else: ?>
-                                    <span class="text-gray-400 flex items-center gap-1"><i data-lucide="clock" class="w-4 h-4"></i>
-                                        No Cost Set</span>
-                                <?php endif; ?>
-                            </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="flex gap-2">
-                                    <button onclick="editUnit(<?php echo e($unit->id); ?>)"
+                                    <button onclick="event.stopPropagation(); editUnit(<?php echo e($unit->id); ?>)"
                                         class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg" title="Edit Unit">
                                         <i data-lucide="edit-2" class="w-4 h-4"></i>
                                     </button>
-                                    <button onclick="viewUnitDetails(<?php echo e($unit->id); ?>)"
-                                        class="p-2 text-green-600 hover:bg-green-50 rounded-lg" title="View Details">
-                                        <i data-lucide="eye" class="w-4 h-4"></i>
-                                    </button>
                                     <form method="POST" action="<?php echo e(route('units.destroy', $unit->id)); ?>"
-                                        onsubmit="return confirm('Delete unit <?php echo e($unit->unit_number); ?>?')">
+                                        onsubmit="return confirm('Delete unit <?php echo e($unit->unit_number); ?>?'); event.stopPropagation();">
                                         <?php echo csrf_field(); ?> <?php echo method_field('DELETE'); ?>
                                         <button type="submit" class="p-2 text-red-600 hover:bg-red-50 rounded-lg"
                                             title="Delete Unit">
@@ -228,7 +154,7 @@
                         </tr>
                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                         <tr>
-                            <td colspan="9" class="px-6 py-12 text-center text-gray-500">
+                            <td colspan="6" class="px-6 py-12 text-center text-gray-500">
                                 <i data-lucide="car" class="w-12 h-12 mx-auto mb-4 text-gray-300"></i>
                                 <p>No units found</p>
                             </td>
@@ -962,27 +888,27 @@
 
     
     <div id="unitDetailsModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
-        <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl mx-auto p-6 max-h-[90vh] overflow-y-auto">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[95vh] flex flex-col overflow-hidden">
             
-            <div class="bg-gradient-to-r from-blue-500 to-blue-600 p-6 rounded-t-lg">
+            <div class="bg-gradient-to-r from-blue-600 to-indigo-700 p-4 shrink-0">
                 <div class="flex justify-between items-center">
                     <div class="flex items-center gap-3">
-                        <div class="p-3 bg-white bg-opacity-20 rounded-lg">
-                            <i data-lucide="info" class="w-6 h-6 text-white"></i>
+                        <div class="p-2 bg-white bg-opacity-20 rounded-lg">
+                            <i data-lucide="info" class="w-5 h-5 text-white"></i>
                         </div>
                         <div>
-                            <h3 class="text-xl font-bold text-white">Unit Details</h3>
-                            <p class="text-blue-100">Complete unit information and management</p>
+                            <h3 class="text-lg font-bold text-white leading-tight">Unit Details</h3>
+                            <p class="text-sm text-blue-100 leading-tight">Complete unit information and management</p>
                         </div>
                     </div>
-                    <button onclick="closeUnitDetailsModal()" class="text-white hover:text-gray-200">
-                        <i data-lucide="x" class="w-6 h-6"></i>
+                    <button onclick="closeUnitDetailsModal()" class="text-white hover:text-gray-200 transition-colors">
+                        <i data-lucide="x" class="w-5 h-5"></i>
                     </button>
                 </div>
             </div>
 
             
-            <div id="unitDetailsContent" class="p-6">
+            <div id="unitDetailsContent" class="p-4 overflow-y-auto flex-1">
                 
                 <div class="text-center py-8">
                     <i data-lucide="loader-2" class="w-8 h-8 mx-auto mb-4 text-gray-300 animate-spin"></i>
@@ -1329,37 +1255,37 @@
                 const bndPrgW = invPerMonth > 0 ? Math.min(100, (mthBnd / invPerMonth) * 100).toFixed(1) : 0;
 
                 document.getElementById('unitDetailsContent').innerHTML = `
-                <div class="space-y-6">
+                <div class="space-y-3">
                     <!-- Unit Header -->
-                    <div class="bg-gradient-to-r from-blue-500 to-blue-600 p-6 rounded-lg text-white">
+                    <div class="bg-gradient-to-r from-blue-500 to-blue-600 p-2 rounded-lg text-white">
                         <div class="flex justify-between items-start">
                             <div>
-                                <h3 class="text-2xl font-bold">${unit.unit_number || ''}</h3>
-                                <p class="text-blue-100">${(unit.make || '') + ' ' + (unit.model || '') + ' (' + (unit.year || '') + ')'}</p>
-                                <p class="text-blue-100">Plate: ${unit.plate_number || ''}</p>
-                                <div class="flex items-center gap-2 mt-2">
-                                    <span class="px-2 py-1 bg-white bg-opacity-20 rounded-full text-xs font-medium">${unit.status ? unit.status.charAt(0).toUpperCase() + unit.status.slice(1) : ''}</span>
-                                    <span class="px-2 py-1 bg-white bg-opacity-20 rounded-full text-xs font-medium">${unit.unit_type ? unit.unit_type.charAt(0).toUpperCase() + unit.unit_type.slice(1) : 'Standard'}</span>
+                                <div class="flex items-center gap-2 mb-1">
+                                    <h3 class="text-base font-bold leading-none">${unit.unit_number || ''}</h3>
+                                    <span class="px-2 py-0.5 bg-white bg-opacity-20 rounded-full text-[10px] font-medium uppercase tracking-wider">${unit.status || ''}</span>
+                                    <span class="px-2 py-0.5 bg-white bg-opacity-20 rounded-full text-[10px] font-medium uppercase tracking-wider">${unit.unit_type || 'Standard'}</span>
                                 </div>
+                                <p class="text-xs text-blue-100">${(unit.make || '') + ' ' + (unit.model || '') + ' (' + (unit.year || '') + ')'}</p>
+                                <p class="text-xs text-blue-100">Plate: ${unit.plate_number || ''}</p>
                             </div>
                             <div class="text-right">
-                                <div class="text-2xl font-bold">₱${parseFloat(unit.boundary_rate || 0).toLocaleString('en-PH', {minimumFractionDigits:2})}</div>
-                                <p class="text-blue-100 text-sm">Daily Boundary Rate</p>
+                                <div class="text-base font-bold leading-none mb-1">₱${parseFloat(unit.boundary_rate || 0).toLocaleString('en-PH', {minimumFractionDigits:2})}</div>
+                                <p class="text-blue-100 text-[10px]">Daily Boundary Rate</p>
                             </div>
                         </div>
                     </div>
 
                     <!-- Tabs Navigation -->
                     <div class="border-b border-gray-200">
-                        <nav class="-mb-px flex space-x-4 overflow-x-auto">
-                            <button onclick="showTab('overview')" class="tab-btn py-2 px-1 border-b-2 border-blue-500 font-medium text-sm text-blue-600 whitespace-nowrap" data-tab="overview">Overview</button>
-                            <button onclick="showTab('drivers')" class="tab-btn py-2 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap" data-tab="drivers">Drivers</button>
-                            <button onclick="showTab('coding')" class="tab-btn py-2 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap" data-tab="coding">Coding</button>
-                            <button onclick="showTab('boundary')" class="tab-btn py-2 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap" data-tab="boundary">Boundary</button>
-                            <button onclick="showTab('maintenance')" class="tab-btn py-2 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap" data-tab="maintenance">Maintenance</button>
-                            <button onclick="showTab('roi')" class="tab-btn py-2 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap" data-tab="roi">ROI</button>
-                            <button onclick="showTab('location')" class="tab-btn py-2 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap" data-tab="location">Location</button>
-                            <button onclick="showTab('dashcam')" class="tab-btn py-2 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap" data-tab="dashcam">Dashcam</button>
+                        <nav class="-mb-px flex space-x-4 overflow-x-auto pb-2 scrollbar-thin">
+                            <button onclick="showTab('overview')" class="tab-btn py-1.5 px-1 border-b-2 border-blue-500 font-medium text-xs text-blue-600 whitespace-nowrap" data-tab="overview">Overview</button>
+                            <button onclick="showTab('drivers')" class="tab-btn py-1.5 px-1 border-b-2 border-transparent font-medium text-xs text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap" data-tab="drivers">Drivers</button>
+                            <button onclick="showTab('coding')" class="tab-btn py-1.5 px-1 border-b-2 border-transparent font-medium text-xs text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap" data-tab="coding">Coding</button>
+                            <button onclick="showTab('boundary')" class="tab-btn py-1.5 px-1 border-b-2 border-transparent font-medium text-xs text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap" data-tab="boundary">Boundary</button>
+                            <button onclick="showTab('maintenance')" class="tab-btn py-1.5 px-1 border-b-2 border-transparent font-medium text-xs text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap" data-tab="maintenance">Maintenance</button>
+                            <button onclick="showTab('roi')" class="tab-btn py-1.5 px-1 border-b-2 border-transparent font-medium text-xs text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap" data-tab="roi">ROI</button>
+                            <button onclick="showTab('location')" class="tab-btn py-1.5 px-1 border-b-2 border-transparent font-medium text-xs text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap" data-tab="location">Location</button>
+                            <button onclick="showTab('dashcam')" class="tab-btn py-1.5 px-1 border-b-2 border-transparent font-medium text-xs text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap" data-tab="dashcam">Dashcam</button>
                         </nav>
                     </div>
 
@@ -1367,30 +1293,30 @@
                     <div id="tabContent">
                         <!-- Overview Tab -->
                         <div id="overview-tab" class="tab-content">
-                            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                                <div class="bg-white border border-gray-200 rounded-lg p-4"><div class="flex items-center gap-3"><div class="p-2 bg-blue-100 rounded-lg"><i data-lucide="users" class="w-5 h-5 text-blue-600"></i></div><div><p class="text-sm text-gray-600">Drivers</p><p class="text-lg font-bold">${assignedDrivers.length}/2</p></div></div></div>
-                                <div class="bg-white border border-gray-200 rounded-lg p-4"><div class="flex items-center gap-3"><div class="p-2 bg-green-100 rounded-lg"><i data-lucide="calendar" class="w-5 h-5 text-green-600"></i></div><div><p class="text-sm text-gray-600">Next Coding</p><p class="text-lg font-bold">${daysUntilCoding === 0 ? 'Today' : daysUntilCoding + 'd'}</p></div></div></div>
-                                <div class="bg-white border border-gray-200 rounded-lg p-4"><div class="flex items-center gap-3"><div class="p-2 bg-purple-100 rounded-lg"><i data-lucide="trending-up" class="w-5 h-5 text-purple-600"></i></div><div><p class="text-sm text-gray-600">ROI</p><p class="text-lg font-bold">${roiPct.toFixed(1)}%</p></div></div></div>
-                                <div class="bg-white border border-gray-200 rounded-lg p-4"><div class="flex items-center gap-3"><div class="p-2 bg-orange-100 rounded-lg"><i data-lucide="wrench" class="w-5 h-5 text-orange-600"></i></div><div><p class="text-sm text-gray-600">Maintenance</p><p class="text-lg font-bold">${maint.length}</p></div></div></div>
+                            <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-3">
+                                <div class="bg-white border border-gray-200 rounded-lg p-2.5"><div class="flex items-center gap-2"><div class="p-1.5 bg-blue-100 rounded-lg"><i data-lucide="users" class="w-4 h-4 text-blue-600"></i></div><div><p class="text-xs text-gray-500">Drivers</p><p class="text-sm font-bold leading-tight">${assignedDrivers.length}/2</p></div></div></div>
+                                <div class="bg-white border border-gray-200 rounded-lg p-2.5"><div class="flex items-center gap-2"><div class="p-1.5 bg-green-100 rounded-lg"><i data-lucide="calendar" class="w-4 h-4 text-green-600"></i></div><div><p class="text-xs text-gray-500">Next Coding</p><p class="text-sm font-bold leading-tight">${daysUntilCoding === 0 ? 'Today' : daysUntilCoding + 'd'}</p></div></div></div>
+                                <div class="bg-white border border-gray-200 rounded-lg p-2.5"><div class="flex items-center gap-2"><div class="p-1.5 bg-purple-100 rounded-lg"><i data-lucide="trending-up" class="w-4 h-4 text-purple-600"></i></div><div><p class="text-xs text-gray-500">ROI</p><p class="text-sm font-bold leading-tight">${roiPct.toFixed(1)}%</p></div></div></div>
+                                <div class="bg-white border border-gray-200 rounded-lg p-2.5"><div class="flex items-center gap-2"><div class="p-1.5 bg-orange-100 rounded-lg"><i data-lucide="wrench" class="w-4 h-4 text-orange-600"></i></div><div><p class="text-xs text-gray-500">Maint</p><p class="text-sm font-bold leading-tight">${maint.length}</p></div></div></div>
                             </div>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div class="bg-white border border-gray-200 rounded-lg p-6">
-                                    <h4 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2"><i data-lucide="info" class="w-5 h-5"></i> Basic Information</h4>
-                                    <div class="space-y-3">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                <div class="bg-white border border-gray-200 rounded-lg p-3">
+                                    <h4 class="text-sm font-semibold text-gray-900 mb-2 flex items-center gap-1.5"><i data-lucide="info" class="w-4 h-4"></i> Basic Info</h4>
+                                    <div class="space-y-1.5 text-xs">
                                         <div class="flex justify-between"><span class="text-gray-600">Unit Number:</span><span class="font-medium">${unit.unit_number || ''}</span></div>
                                         <div class="flex justify-between"><span class="text-gray-600">Plate Number:</span><span class="font-medium">${unit.plate_number || ''}</span></div>
                                         <div class="flex justify-between"><span class="text-gray-600">Vehicle:</span><span class="font-medium">${(unit.make || '') + ' ' + (unit.model || '')}</span></div>
                                         <div class="flex justify-between"><span class="text-gray-600">Year:</span><span class="font-medium">${unit.year || ''}</span></div>
-                                        <div class="flex justify-between"><span class="text-gray-600">Status:</span><span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">${unit.status ? unit.status.charAt(0).toUpperCase() + unit.status.slice(1) : ''}</span></div>
-                                        <div class="flex justify-between"><span class="text-gray-600">Boundary Rate:</span><span class="font-medium">₱${parseFloat(unit.boundary_rate || 0).toLocaleString('en-PH', {minimumFractionDigits:2})}</span></div>
+                                        <div class="flex justify-between"><span class="text-gray-600">Status:</span><span class="px-2 py-0.5 text-xs rounded-full bg-green-100 text-green-800">${unit.status ? unit.status.charAt(0).toUpperCase() + unit.status.slice(1) : ''}</span></div>
+                                        <div class="flex justify-between"><span class="text-gray-500">Boundary:</span><span class="font-medium">₱${parseFloat(unit.boundary_rate || 0).toLocaleString('en-PH', {minimumFractionDigits:2})}</span></div>
                                     </div>
                                 </div>
-                                <div class="bg-white border border-gray-200 rounded-lg p-6">
-                                    <h4 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2"><i data-lucide="users" class="w-5 h-5"></i> Driver Assignment</h4>
-                                    <div class="space-y-3">
-                                        <div class="flex justify-between"><span class="text-gray-600">Assigned Drivers:</span><span class="font-medium">${assignedDrivers.length}/2</span></div>
-                                        <div class="flex justify-between"><span class="text-gray-600">Availability:</span><span class="px-2 py-1 text-xs rounded-full ${assignedDrivers.length >= 2 ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}">${assignedDrivers.length >= 2 ? 'Full' : 'Available'}</span></div>
-                                        ${driversOverviewHtml ? '<div class="mt-4 space-y-2">' + driversOverviewHtml + '</div>' : ''}
+                                <div class="bg-white border border-gray-200 rounded-lg p-3">
+                                    <h4 class="text-sm font-semibold text-gray-900 mb-2 flex items-center gap-1.5"><i data-lucide="users" class="w-4 h-4"></i> Assignment</h4>
+                                    <div class="space-y-1.5 text-xs">
+                                        <div class="flex justify-between"><span class="text-gray-500">Drivers:</span><span class="font-medium">${assignedDrivers.length}/2</span></div>
+                                        <div class="flex justify-between"><span class="text-gray-500">Status:</span><span class="px-1.5 py-0.5 rounded-full ${assignedDrivers.length >= 2 ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}">${assignedDrivers.length >= 2 ? 'Full' : 'Available'}</span></div>
+                                        ${driversOverviewHtml ? '<div class="mt-2 space-y-1.5">' + driversOverviewHtml + '</div>' : ''}
                                     </div>
                                 </div>
                             </div>
@@ -1406,28 +1332,27 @@
 
                         <!-- Coding Tab -->
                         <div id="coding-tab" class="tab-content hidden">
-                            <div class="bg-white border border-gray-200 rounded-lg p-6">
-                                <h4 class="text-lg font-semibold text-gray-900 mb-4">MMDA Coding Schedule</h4>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="bg-white border border-gray-200 rounded-lg p-4">
+                                <h4 class="text-base font-semibold text-gray-900 mb-3">MMDA Coding Schedule</h4>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
-                                        <h5 class="font-medium text-gray-900 mb-3">Current Coding Information</h5>
-                                        <div class="space-y-3">
-                                            <div class="flex justify-between"><span class="text-gray-600">Coding Day:</span><span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">${codingDay}</span></div>
+                                        <h5 class="font-medium text-sm text-gray-900 mb-2">Current Coding Information</h5>
+                                        <div class="space-y-2 text-sm">
+                                            <div class="flex justify-between"><span class="text-gray-600">Coding Day:</span><span class="px-2 py-0.5 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">${codingDay}</span></div>
                                             <div class="flex justify-between"><span class="text-gray-600">Last Digit:</span><span class="font-medium">${lastChar || '-'}</span></div>
                                             <div class="flex justify-between"><span class="text-gray-600">Next Coding:</span><span class="font-medium">${nextCodingDate || '-'}</span></div>
                                             <div class="flex justify-between"><span class="text-gray-600">Days Until Coding:</span><span class="font-medium ${daysUntilCoding === 0 ? 'text-red-600' : 'text-green-600'}">${daysUntilCoding === 0 ? 'Today' : daysUntilCoding + ' days'}</span></div>
-                                            <div class="flex justify-between"><span class="text-gray-600">Coding Time:</span><span class="font-medium">7:00 AM - 10:00 AM</span></div>
-                                            <div class="flex justify-between"><span class="text-gray-600">Coding Status:</span><span class="px-2 py-1 text-xs rounded-full ${daysUntilCoding === 0 ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}">${daysUntilCoding === 0 ? 'Coding Today' : 'No Coding'}</span></div>
+                                            <div class="flex justify-between"><span class="text-gray-600">Coding Status:</span><span class="px-2 py-0.5 text-xs rounded-full ${daysUntilCoding === 0 ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}">${daysUntilCoding === 0 ? 'Coding Today' : 'No Coding'}</span></div>
                                         </div>
                                     </div>
                                     <div>
-                                        <h5 class="font-medium text-gray-900 mb-3">MMDA Coding Schedule</h5>
-                                        <div class="space-y-2 text-sm">
-                                            <div class="flex justify-between p-2 bg-blue-50 rounded"><span>Monday</span><span class="font-medium">1, 2</span></div>
-                                            <div class="flex justify-between p-2 bg-green-50 rounded"><span>Tuesday</span><span class="font-medium">3, 4</span></div>
-                                            <div class="flex justify-between p-2 bg-yellow-50 rounded"><span>Wednesday</span><span class="font-medium">5, 6</span></div>
-                                            <div class="flex justify-between p-2 bg-orange-50 rounded"><span>Thursday</span><span class="font-medium">7, 8</span></div>
-                                            <div class="flex justify-between p-2 bg-red-50 rounded"><span>Friday</span><span class="font-medium">9, 0</span></div>
+                                        <h5 class="font-medium text-sm text-gray-900 mb-2">MMDA Coding Schedule</h5>
+                                        <div class="space-y-1 text-xs">
+                                            <div class="flex justify-between p-1.5 bg-blue-50 rounded"><span>Monday</span><span class="font-medium">1, 2</span></div>
+                                            <div class="flex justify-between p-1.5 bg-green-50 rounded"><span>Tuesday</span><span class="font-medium">3, 4</span></div>
+                                            <div class="flex justify-between p-1.5 bg-yellow-50 rounded"><span>Wednesday</span><span class="font-medium">5, 6</span></div>
+                                            <div class="flex justify-between p-1.5 bg-orange-50 rounded"><span>Thursday</span><span class="font-medium">7, 8</span></div>
+                                            <div class="flex justify-between p-1.5 bg-red-50 rounded"><span>Friday</span><span class="font-medium">9, 0</span></div>
                                         </div>
                                     </div>
                                 </div>
@@ -1761,6 +1686,51 @@ function resetAddUnitModal() {
     addUnitGPS = []; addUnitDashcam = [];
     addUnitRenderGPS(); addUnitRenderDashcam();
 }
+
+// Real-time table filtering
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('tableSearchInput');
+    const tableBody = document.querySelector('tbody.bg-white.divide-y.divide-gray-200');
+    
+    if (searchInput && tableBody) {
+        searchInput.addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const rows = tableBody.querySelectorAll('tr.cursor-pointer');
+            let visibleCount = 0;
+
+            rows.forEach(row => {
+                const text = row.innerText.toLowerCase();
+                if (text.includes(searchTerm)) {
+                    row.style.display = '';
+                    visibleCount++;
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+
+            // Handle "No units found" message
+            let emptyMsgRow = document.getElementById('clientEmptySearchRow');
+            if (visibleCount === 0 && rows.length > 0) {
+                if (!emptyMsgRow) {
+                    emptyMsgRow = document.createElement('tr');
+                    emptyMsgRow.id = 'clientEmptySearchRow';
+                    emptyMsgRow.innerHTML = `
+                        <td colspan="6" class="px-6 py-12 text-center text-gray-500">
+                            <i data-lucide="search" class="w-12 h-12 mx-auto mb-4 text-gray-300"></i>
+                            <p>No units match your search.</p>
+                        </td>
+                    `;
+                    tableBody.appendChild(emptyMsgRow);
+                    if (typeof lucide !== 'undefined') lucide.createIcons();
+                } else {
+                    emptyMsgRow.style.display = '';
+                }
+            } else if (emptyMsgRow) {
+                emptyMsgRow.style.display = 'none';
+            }
+        });
+    }
+});
 </script>
 <?php $__env->stopPush(); ?>
 
