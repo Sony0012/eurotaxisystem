@@ -4,11 +4,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'Euro System')</title>
+    
+    <!-- Base Asset URL -->
+    <meta name="asset-url" content="{{ asset('') }}">
+
+    <title>{{ config('app.name', 'Euro Taxi System') }}</title>
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type=number] { -moz-appearance: textfield; }
+    </style>
 
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -27,45 +37,7 @@
             // Notifications for header bell
             $headerNotifications = [];
             $headerNotificationCount = 0;
-            try {
-                $alertsResult = \DB::table('system_alerts')
-                    ->select('id', 'title', 'message', 'severity', 'created_at')
-                    ->where('is_resolved', false)
-                    ->orderByDesc('created_at')
-                    ->limit(5)
-                    ->get();
-                foreach ($alertsResult as $row) {
-                    $headerNotifications[] = [
-                        'type' => 'system',
-                        'id' => $row->id,
-                        'title' => $row->title,
-                        'message' => $row->message,
-                        'severity' => $row->severity,
-                        'created_at' => $row->created_at,
-                        'url' => route('dashboard'),
-                    ];
-                }
-                $casesResult = \DB::table('franchise_cases')
-                    ->select('id', 'case_no', 'applicant_name', 'expiry_date')
-                    ->whereNotNull('expiry_date')
-                    ->where('expiry_date', '>=', now())
-                    ->where('expiry_date', '<=', now()->addYear())
-                    ->orderBy('expiry_date')
-                    ->limit(10)
-                    ->get();
-                foreach ($casesResult as $row) {
-                    $headerNotifications[] = [
-                        'type' => 'case_expiry',
-                        'title' => 'Case Expiring Soon',
-                        'message' => 'Case ' . $row->case_no . ' - ' . $row->applicant_name . ' expires on ' . $row->expiry_date,
-                        'severity' => 'medium',
-                        'created_at' => $row->expiry_date,
-                        'url' => route('decision-management.index') . '?id=' . urlencode($row->id),
-                    ];
-                }
-                $headerNotificationCount = count($headerNotifications);
-            } catch (\Exception $e) {
-            }
+
         @endphp
 
         <!-- Main Layout -->
@@ -74,7 +46,7 @@
             <aside class="w-64 bg-white shadow-lg flex-shrink-0">
                 <div class="h-full flex flex-col">
                     <!-- Logo -->
-                    <div class="p-6 border-b">
+                    <div class="p-3 border-b">
                         <h1 class="text-2xl font-bold text-yellow-600">Euro System</h1>
                         <p class="text-xs text-gray-500 mt-1">Fleet Management</p>
                     </div>
@@ -142,7 +114,7 @@
                         </a>
 
                         <a href="{{ route('analytics.index') }}"
-                            class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 {{ request()->routeIs('analytics.*') ? 'bg-yellow-50 text-yellow-700 font-semibold' : '' }}">
+                            class="sidebar-item flex items-center gap-3 px-4 py-2 rounded-lg text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 {{ request()->routeIs('analytics.*') ? 'bg-yellow-50 text-yellow-700 font-semibold' : '' }}">
                             <i data-lucide="bar-chart" class="w-5 h-5"></i>
                             <span>Analytics</span>
                         </a>
@@ -185,7 +157,7 @@
             <!-- Main Content -->
             <main class="flex-1 flex flex-col overflow-hidden">
                 <!-- Top Bar -->
-                <header class="bg-white shadow-sm border-b px-6 py-4">
+                <header class="bg-white shadow-sm border-b px-6 py-2">
                     <div class="flex items-center justify-between">
                         <div>
                             <h2 class="text-2xl font-semibold text-gray-900">@yield('page-heading', 'Dashboard')</h2>
@@ -223,9 +195,12 @@
                                                     data-type="{{ $n['type'] }}" @if(isset($n['id'])) data-id="{{ $n['id'] }}"
                                                     @endif>
                                                     <a href="{{ $n['url'] ?? '#' }}" class="flex-1 flex gap-3 min-w-0">
+
                                                         <div class="mt-0.5 flex-shrink-0">
                                                             @if($n['type'] === 'case_expiry')
                                                                 <i data-lucide="file-warning" class="w-4 h-4 text-yellow-600"></i>
+                                                            @elseif($n['type'] === 'coding_today')
+                                                                <i data-lucide="car-front" class="w-4 h-4 text-blue-600"></i>
                                                             @else
                                                                 <i data-lucide="alert-circle" class="w-4 h-4 text-red-600"></i>
                                                             @endif
@@ -252,15 +227,15 @@
 
                             <!-- Date/Time -->
                             <div class="text-right">
-                                <p class="text-sm font-medium text-gray-900">{{ date('l, F j, Y') }}</p>
-                                <p class="text-xs text-gray-500">{{ date('h:i A') }}</p>
+                                <p class="text-[13px] font-medium text-gray-900">{{ date('l, F j, Y') }}</p>
+                                <p class="text-[11px] text-gray-500">{{ date('h:i A') }}</p>
                             </div>
                         </div>
                     </div>
                 </header>
 
                 <!-- Page Content -->
-                <div class="flex-1 overflow-y-auto p-6">
+                <div class="flex-1 overflow-y-auto p-4">
                     {{-- Flash Messages --}}
                     @foreach(['success', 'error', 'warning', 'info'] as $type)
                         @if(session($type))
@@ -383,24 +358,7 @@
             }
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            const bell = document.getElementById('notificationBell');
-            const dropdown = document.getElementById('notificationDropdown');
-            if (!bell || !dropdown) return;
 
-            bell.addEventListener('click', (e) => {
-                e.stopPropagation();
-                dropdown.classList.toggle('hidden');
-            });
-
-            document.addEventListener('click', () => {
-                if (!dropdown.classList.contains('hidden')) {
-                    dropdown.classList.add('hidden');
-                }
-            });
-
-            updateNotificationCount();
-        });
     </script>
 
     @stack('scripts')

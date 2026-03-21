@@ -6,21 +6,21 @@
 
 <?php $__env->startSection('content'); ?>
     <!-- Search and Filters -->
-    <div class="bg-white rounded-lg shadow p-6 mb-6">
-        <form method="GET" action="<?php echo e(route('units.index')); ?>" class="flex flex-col md:flex-row gap-4">
+    <div class="bg-white rounded-lg shadow p-2 mb-1">
+        <form method="GET" action="<?php echo e(route('units.index')); ?>" class="flex flex-col md:flex-row gap-2">
             <div class="flex-1">
                 <div class="relative">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <i data-lucide="search" class="h-5 w-5 text-gray-400"></i>
                     </div>
                     <input type="text" name="search" id="tableSearchInput" value="<?php echo e($search); ?>"
-                        class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none"
-                        placeholder="Search by unit number, plate, make, or model...">
+                        class="block w-full pl-10 pr-3 py-1 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none"
+                        placeholder="Search units...">
                 </div>
             </div>
             <div class="md:w-48">
                 <select name="status"
-                    class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none">
+                    class="block w-full px-3 py-1 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none">
                     <option value="">All Status</option>
                     <option value="active" <?php echo e($status_filter === 'active' ? 'selected' : ''); ?>>Active</option>
                     <option value="maintenance" <?php echo e($status_filter === 'maintenance' ? 'selected' : ''); ?>>Maintenance</option>
@@ -30,12 +30,12 @@
             </div>
             <div class="flex gap-2">
                 <button type="submit"
-                    class="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 flex items-center gap-2">
-                    <i data-lucide="search" class="w-4 h-4"></i> Search
+                    class="px-3 py-1 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 flex items-center gap-2 text-xs font-semibold">
+                    <i data-lucide="search" class="w-3.5 h-3.5"></i> Search
                 </button>
                 <button type="button" onclick="document.getElementById('addUnitModal').classList.remove('hidden')"
-                    class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-2">
-                    <i data-lucide="plus" class="w-4 h-4"></i> Add Unit
+                    class="px-3 py-1 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-2 text-xs font-semibold">
+                    <i data-lucide="plus" class="w-3.5 h-3.5"></i> Add Unit
                 </button>
             </div>
         </form>
@@ -45,20 +45,14 @@
     <div class="bg-white rounded-lg shadow overflow-hidden">
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
+                <thead class="bg-gray-50 border-b">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Unit Info
-                        </th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vehicle
-                            Details</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Assigned
-                            Drivers</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status
-                        </th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Boundary
-                            Rate</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions
-                        </th>
+                        <th class="px-6 py-1 text-left text-[11px] font-medium text-gray-500 uppercase tracking-wider">Unit Info</th>
+                        <th class="px-6 py-1 text-left text-[11px] font-medium text-gray-500 uppercase tracking-wider">Vehicle Details</th>
+                        <th class="px-6 py-1 text-left text-[11px] font-medium text-gray-500 uppercase tracking-wider">Assigned Drivers</th>
+                        <th class="px-6 py-1 text-left text-[11px] font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        <th class="px-6 py-1 text-left text-[11px] font-medium text-gray-500 uppercase tracking-wider">Boundary Rate</th>
+                        <th class="px-6 py-1 text-left text-[11px] font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
@@ -71,56 +65,55 @@
                             $purchase_cost = $unit->purchase_cost ?? 0;
                             $roi_achieved = $unit->roi_achieved ?? false;
                         ?>
-                        <tr class="hover:bg-gray-50 cursor-pointer" onclick="viewUnitDetails(<?php echo e($unit->id); ?>)">
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="space-y-1">
-                                    <div class="text-sm font-bold text-gray-900"><?php echo e($unit->unit_number); ?></div>
-                                    <div class="text-sm text-gray-500"><?php echo e($unit->plate_number); ?></div>
+                        <tr class="hover:bg-gray-50 cursor-pointer text-[13px]" onclick="viewUnitDetails(<?php echo e($unit->id); ?>)">
+                            <td class="px-6 py-1 whitespace-nowrap">
+                                <div class="space-y-0.5">
+                                    <div class="font-bold text-gray-900"><?php echo e($unit->unit_number); ?></div>
+                                    <div class="text-xs text-gray-500"><?php echo e($unit->plate_number); ?></div>
                                     <?php if($unit->color): ?>
-                                        <div class="text-xs text-gray-400">Color: <?php echo e($unit->color); ?></div>
+                                        <div class="text-[10px] text-gray-400">Color: <?php echo e($unit->color); ?></div>
                                     <?php endif; ?>
                                 </div>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="space-y-1">
-                                    <div class="text-sm font-medium text-gray-900"><?php echo e($unit->make); ?> <?php echo e($unit->model); ?></div>
-                                    <div class="text-sm text-gray-500"><?php echo e($unit->year); ?></div>
-                                    <div class="flex items-center gap-2 text-xs">
-                                        <span
-                                            class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full"><?php echo e(ucfirst($unit->unit_type ?? 'new')); ?></span>
-                                        <span class="px-2 py-1 bg-green-100 text-green-800 rounded-full">
-                                            <i data-lucide="droplet" class="w-3 h-3 inline"></i>
+                            <td class="px-6 py-1 whitespace-nowrap">
+                                <div class="space-y-0.5">
+                                    <div class="font-medium text-gray-900"><?php echo e($unit->make); ?> <?php echo e($unit->model); ?></div>
+                                    <div class="text-xs text-gray-500"><?php echo e($unit->year); ?></div>
+                                    <div class="flex items-center gap-2 text-[10px]">
+                                        <span class="px-1.5 py-0.5 bg-blue-100 text-blue-800 rounded-full"><?php echo e(ucfirst($unit->unit_type ?? 'new')); ?></span>
+                                        <span class="px-1.5 py-0.5 bg-green-100 text-green-800 rounded-full">
+                                            <i data-lucide="droplet" class="w-2.5 h-2.5 inline"></i>
                                             <?php echo e(ucfirst($unit->fuel_status ?? 'full')); ?>
 
                                         </span>
                                     </div>
                                 </div>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="space-y-1">
+                            <td class="px-6 py-1 whitespace-nowrap">
+                                <div class="space-y-0.5">
                                     <?php if($unit->driver_id && $primary_driver): ?>
                                         <?php $d1 = explode('|', $primary_driver); ?>
                                         <div class="flex items-center gap-2">
-                                            <span class="text-xs font-medium text-gray-900">Driver 1:</span>
-                                            <span class="text-xs text-gray-700"><?php echo e($d1[0] ?? ''); ?></span>
+                                            <span class="text-[11px] font-medium text-gray-900">D1:</span>
+                                            <span class="text-[11px] text-gray-700"><?php echo e($d1[0] ?? ''); ?></span>
                                         </div>
                                     <?php else: ?>
-                                        <div class="text-xs text-gray-400">No Driver 1</div>
+                                        <div class="text-[11px] text-gray-400">No D1</div>
                                     <?php endif; ?>
                                     <?php if($unit->secondary_driver_id && $secondary_driver): ?>
                                         <?php $d2 = explode('|', $secondary_driver); ?>
                                         <div class="flex items-center gap-2">
-                                            <span class="text-xs font-medium text-gray-900">Driver 2:</span>
-                                            <span class="text-xs text-gray-700"><?php echo e($d2[0] ?? ''); ?></span>
+                                            <span class="text-[11px] font-medium text-gray-900">D2:</span>
+                                            <span class="text-[11px] text-gray-700"><?php echo e($d2[0] ?? ''); ?></span>
                                         </div>
                                     <?php else: ?>
-                                        <div class="text-xs text-gray-400">No Driver 2</div>
+                                        <div class="text-[11px] text-gray-400">No D2</div>
                                     <?php endif; ?>
                                 </div>
                             </td>
 
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="px-2 py-1 text-xs rounded-full
+                            <td class="px-6 py-1 whitespace-nowrap">
+                                <span class="px-1.5 py-0.5 text-[10px] rounded-full
                                         <?php if($unit->status === 'active'): ?> bg-green-100 text-green-800
                                         <?php elseif($unit->status === 'maintenance'): ?> bg-yellow-100 text-yellow-800
                                         <?php elseif($unit->status === 'coding'): ?> bg-red-100 text-red-800
@@ -130,23 +123,23 @@
 
                                 </span>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            <td class="px-6 py-1 whitespace-nowrap font-medium text-gray-900">
                                 <?php echo e(formatCurrency($unit->boundary_rate)); ?>
 
                             </td>
 
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex gap-2">
+                            <td class="px-6 py-1 whitespace-nowrap">
+                                <div class="flex gap-1">
                                     <button onclick="event.stopPropagation(); editUnit(<?php echo e($unit->id); ?>)"
-                                        class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg" title="Edit Unit">
-                                        <i data-lucide="edit-2" class="w-4 h-4"></i>
+                                        class="p-1 text-blue-600 hover:bg-blue-50 rounded" title="Edit Unit">
+                                        <i data-lucide="edit-2" class="w-3.5 h-3.5"></i>
                                     </button>
                                     <form method="POST" action="<?php echo e(route('units.destroy', $unit->id)); ?>"
                                         onsubmit="return confirm('Delete unit <?php echo e($unit->unit_number); ?>?'); event.stopPropagation();">
                                         <?php echo csrf_field(); ?> <?php echo method_field('DELETE'); ?>
-                                        <button type="submit" class="p-2 text-red-600 hover:bg-red-50 rounded-lg"
+                                        <button type="submit" class="p-1 text-red-600 hover:bg-red-50 rounded"
                                             title="Delete Unit">
-                                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
                                         </button>
                                     </form>
                                 </div>
@@ -166,7 +159,7 @@
 
         <!-- Pagination -->
         <?php if($pagination['total_pages'] > 1): ?>
-            <div class="px-6 py-4 border-t border-gray-200">
+            <div class="px-6 py-2 border-t border-gray-200">
                 <div class="flex items-center justify-between">
                     <div class="text-sm text-gray-700">
                         Showing <?php echo e($pagination['total_items']); ?> results / Page <?php echo e($pagination['page']); ?> of
@@ -235,7 +228,7 @@
                         </div>
                         <h4 class="text-lg font-semibold text-gray-900">Basic Information</h4>
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="space-y-2">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Unit Number <span class="text-red-500">*</span></label>
                             <div class="relative">
@@ -260,16 +253,6 @@
                                     oninput="this.value = this.value.toUpperCase(); addUnitUpdateCoding()">
                             </div>
                         </div>
-                        <div class="space-y-2">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Status <span class="text-red-500">*</span></label>
-                            <select name="status" id="addUnitStatus" required
-                                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent">
-                                <option value="active">ðŸŸ¢ Active</option>
-                                <option value="maintenance">ðŸ”§ Maintenance</option>
-                                <option value="coding">ðŸ“ Coding</option>
-                                <option value="retired">âš« Retired</option>
-                            </select>
-                        </div>
                     </div>
                 </div>
 
@@ -281,7 +264,7 @@
                         </div>
                         <h4 class="text-lg font-semibold text-gray-900">Vehicle Details</h4>
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
                         <div class="space-y-2">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Make <span class="text-red-500">*</span></label>
                             <input type="text" name="make" required
@@ -308,25 +291,6 @@
                                 class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
                                 placeholder="e.g., White, Red, Blue">
                         </div>
-                        <div class="space-y-2">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Unit Type</label>
-                            <select name="unit_type"
-                                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent">
-                                <option value="new">ðŸ†• New</option>
-                                <option value="used">ðŸ“¦ Used</option>
-                                <option value="rented">ðŸ”„ Rented</option>
-                            </select>
-                        </div>
-                        <div class="space-y-2">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Fuel Status</label>
-                            <select name="fuel_status"
-                                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent">
-                                <option value="full">â›½ Full</option>
-                                <option value="half">â›½ Half</option>
-                                <option value="low">â›½ Low</option>
-                                <option value="empty">â›½ Empty</option>
-                            </select>
-                        </div>
                     </div>
                 </div>
 
@@ -345,9 +309,11 @@
                                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                     <span class="text-gray-500 text-sm">₱</span>
                                 </div>
-                                <input type="number" name="boundary_rate" id="addBoundaryRate" required step="0.01" value="1100.00"
+                                <input type="text" name="boundary_rate" id="addBoundaryRate" required value="1,100.00"
                                     class="w-full pl-8 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
-                                    onblur="this.value = parseFloat(this.value).toFixed(2)">
+                                    placeholder="0.00"
+                                    onfocus="unformatCurrencyInput(this)"
+                                    onblur="formatCurrencyInput(this)">
                             </div>
                             <p class="text-xs text-gray-500">Daily boundary collection target</p>
                         </div>
@@ -357,16 +323,23 @@
                                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                     <span class="text-gray-500 text-sm">₱</span>
                                 </div>
-                                <input type="number" name="purchase_cost" step="0.01" value="0.00"
+                                <input type="text" name="purchase_cost" id="addPurchaseCost" value="0.00"
                                     class="w-full pl-8 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
-                                    onblur="this.value = parseFloat(this.value || 0).toFixed(2)">
+                                    placeholder="0.00"
+                                    onfocus="unformatCurrencyInput(this)"
+                                    onblur="formatCurrencyInput(this)">
                             </div>
                             <p class="text-xs text-gray-500">Total purchase amount</p>
                         </div>
                         <div class="space-y-2">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Purchase Date</label>
-                            <input type="date" name="purchase_date"
-                                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent">
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i data-lucide="calendar" class="w-4 h-4 text-gray-400"></i>
+                                </div>
+                                <input type="date" name="purchase_date"
+                                    class="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent">
+                            </div>
                             <p class="text-xs text-gray-500">When the unit was purchased</p>
                         </div>
                     </div>
@@ -609,7 +582,7 @@
                         <div class="p-2 bg-blue-100 rounded-lg"><i data-lucide="info" class="w-5 h-5 text-blue-600"></i></div>
                         <h4 class="text-lg font-semibold text-gray-900">Basic Information</h4>
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="space-y-2">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Unit Number <span class="text-red-500">*</span></label>
                             <div class="relative">
@@ -632,69 +605,9 @@
                                     oninput="this.value = this.value.toUpperCase(); editUnitUpdateCoding()">
                             </div>
                         </div>
-                        <div class="space-y-2">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Status <span class="text-red-500">*</span></label>
-                            <select name="status" id="editStatus" required
-                                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                                <option value="active">ðŸŸ¢ Active</option>
-                                <option value="maintenance">ðŸ”§ Maintenance</option>
-                                <option value="coding">ðŸ“ Coding</option>
-                                <option value="retired">âš« Retired</option>
-                            </select>
-                        </div>
                     </div>
                 </div>
 
-                
-                <div class="mb-8">
-                    <div class="flex items-center gap-2 mb-4">
-                        <div class="p-2 bg-green-100 rounded-lg"><i data-lucide="truck" class="w-5 h-5 text-green-600"></i></div>
-                        <h4 class="text-lg font-semibold text-gray-900">Vehicle Details</h4>
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <div class="space-y-2">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Make <span class="text-red-500">*</span></label>
-                            <input type="text" name="make" id="editMake" required
-                                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                oninput="this.value = this.value.toUpperCase()">
-                        </div>
-                        <div class="space-y-2">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Model <span class="text-red-500">*</span></label>
-                            <input type="text" name="model" id="editModel" required
-                                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                oninput="this.value = this.value.toUpperCase()">
-                        </div>
-                        <div class="space-y-2">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Year <span class="text-red-500">*</span></label>
-                            <input type="number" name="year" id="editYear" min="2000" max="<?php echo e(date('Y')); ?>"
-                                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                        </div>
-                        <div class="space-y-2">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Color</label>
-                            <input type="text" name="color" id="editColor"
-                                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                        </div>
-                        <div class="space-y-2">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Unit Type</label>
-                            <select name="unit_type" id="editUnitType"
-                                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                                <option value="new">ðŸ†• New</option>
-                                <option value="used">ðŸ“¦ Used</option>
-                                <option value="rented">ðŸ”„ Rented</option>
-                            </select>
-                        </div>
-                        <div class="space-y-2">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Fuel Status</label>
-                            <select name="fuel_status" id="editFuelStatus"
-                                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                                <option value="full">â›½ Full</option>
-                                <option value="half">â›½ Half</option>
-                                <option value="low">â›½ Low</option>
-                                <option value="empty">â›½ Empty</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
 
                 
                 <div class="mb-8">
@@ -709,9 +622,11 @@
                                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                     <span class="text-gray-500 text-sm">₱</span>
                                 </div>
-                                <input type="number" name="boundary_rate" id="editBoundaryRate" step="0.01"
+                                <input type="text" name="boundary_rate" id="editBoundaryRate"
                                     class="w-full pl-8 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                    onblur="this.value = parseFloat(this.value || 0).toFixed(2)">
+                                    placeholder="0.00"
+                                    onfocus="unformatCurrencyInput(this)"
+                                    onblur="formatCurrencyInput(this)">
                             </div>
                             <p class="text-xs text-gray-500">Daily boundary collection target</p>
                         </div>
@@ -721,15 +636,23 @@
                                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                     <span class="text-gray-500 text-sm">₱</span>
                                 </div>
-                                <input type="number" name="purchase_cost" id="editPurchaseCost" step="0.01"
+                                <input type="text" name="purchase_cost" id="editPurchaseCost"
                                     class="w-full pl-8 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                    onblur="this.value = parseFloat(this.value || 0).toFixed(2)">
+                                    placeholder="0.00"
+                                    onfocus="unformatCurrencyInput(this)"
+                                    onblur="formatCurrencyInput(this)">
                             </div>
                         </div>
                         <div class="space-y-2">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Purchase Date</label>
-                            <input type="date" name="purchase_date" id="editPurchaseDate"
-                                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i data-lucide="calendar" class="w-4 h-4 text-gray-400"></i>
+                                </div>
+                                <input type="date" name="purchase_date" id="editPurchaseDate"
+                                    class="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            </div>
+                            <p class="text-xs text-gray-500">When the unit was purchased</p>
                         </div>
                     </div>
                 </div>
@@ -908,7 +831,7 @@
             </div>
 
             
-            <div id="unitDetailsContent" class="p-4 overflow-y-auto flex-1">
+            <div id="unitDetailsContent" class="p-2 overflow-y-auto flex-1">
                 
                 <div class="text-center py-8">
                     <i data-lucide="loader-2" class="w-8 h-8 mx-auto mb-4 text-gray-300 animate-spin"></i>
@@ -922,6 +845,20 @@
 
 <?php $__env->startPush('scripts'); ?>
     <script>
+        function formatCurrencyInput(input) {
+            let value = input.value.replace(/[^0-9.]/g, '');
+            if (value === '' || isNaN(parseFloat(value))) return;
+            let num = parseFloat(value);
+            input.value = num.toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+        }
+
+        function unformatCurrencyInput(input) {
+            input.value = input.value.replace(/,/g, '');
+        }
+
         function editUnit(id) {
             fetch('<?php echo e(route("units.details")); ?>?id=' + id, {
                 headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
@@ -941,24 +878,25 @@
                     alert('Unit not found. Please refresh the page and try again.');
                     return;
                 }
+                // Basic Info
+                if (document.getElementById('editUnitNumber')) document.getElementById('editUnitNumber').value = unit.unit_number || '';
+                if (document.getElementById('editPlateNumber')) document.getElementById('editPlateNumber').value = unit.plate_number || '';
 
-                // Basic info
-                document.getElementById('editUnitNumber').value = unit.unit_number || '';
-                document.getElementById('editPlateNumber').value = unit.plate_number || '';
-                document.getElementById('editStatus').value = unit.status || 'active';
 
-                // Vehicle
-                document.getElementById('editMake').value = unit.make || '';
-                document.getElementById('editModel').value = unit.model || '';
-                document.getElementById('editYear').value = unit.year || '';
-                document.getElementById('editColor').value = unit.color || '';
-                document.getElementById('editUnitType').value = unit.unit_type || 'new';
-                document.getElementById('editFuelStatus').value = unit.fuel_status || 'full';
+
 
                 // Financial
-                document.getElementById('editBoundaryRate').value = parseFloat(unit.boundary_rate || 0).toFixed(2);
-                document.getElementById('editPurchaseCost').value = parseFloat(unit.purchase_cost || 0).toFixed(2);
-                document.getElementById('editPurchaseDate').value = unit.purchase_date || '';
+                const brInput = document.getElementById('editBoundaryRate');
+                if (brInput) {
+                    brInput.value = unit.boundary_rate || '0.00';
+                    formatCurrencyInput(brInput);
+                }
+                const pcInput = document.getElementById('editPurchaseCost');
+                if (pcInput) {
+                    pcInput.value = unit.purchase_cost || '0.00';
+                    formatCurrencyInput(pcInput);
+                }
+                if (document.getElementById('editPurchaseDate')) document.getElementById('editPurchaseDate').value = unit.purchase_date || '';
 
                 // Drivers - set hidden selects and populate search inputs
                 const d1Val = unit.driver_id || '';
@@ -1255,68 +1193,68 @@
                 const bndPrgW = invPerMonth > 0 ? Math.min(100, (mthBnd / invPerMonth) * 100).toFixed(1) : 0;
 
                 document.getElementById('unitDetailsContent').innerHTML = `
-                <div class="space-y-3">
-                    <!-- Unit Header -->
+                <div class="space-y-2">
+                    <!-- Unit Header - Miniaturized -->
                     <div class="bg-gradient-to-r from-blue-500 to-blue-600 p-2 rounded-lg text-white">
                         <div class="flex justify-between items-start">
                             <div>
-                                <div class="flex items-center gap-2 mb-1">
-                                    <h3 class="text-base font-bold leading-none">${unit.unit_number || ''}</h3>
-                                    <span class="px-2 py-0.5 bg-white bg-opacity-20 rounded-full text-[10px] font-medium uppercase tracking-wider">${unit.status || ''}</span>
-                                    <span class="px-2 py-0.5 bg-white bg-opacity-20 rounded-full text-[10px] font-medium uppercase tracking-wider">${unit.unit_type || 'Standard'}</span>
+                                <div class="flex items-center gap-2 mb-0.5">
+                                    <h3 class="text-sm font-bold leading-none">${unit.unit_number || ''}</h3>
+                                    <span class="px-1.5 py-0.5 bg-white bg-opacity-20 rounded-full text-[9px] font-medium uppercase tracking-wider">${unit.status || ''}</span>
+                                    <span class="px-1.5 py-0.5 bg-white bg-opacity-20 rounded-full text-[9px] font-medium uppercase tracking-wider">${unit.unit_type || 'Standard'}</span>
                                 </div>
-                                <p class="text-xs text-blue-100">${(unit.make || '') + ' ' + (unit.model || '') + ' (' + (unit.year || '') + ')'}</p>
-                                <p class="text-xs text-blue-100">Plate: ${unit.plate_number || ''}</p>
+                                <p class="text-[10px] text-blue-100 leading-tight">${(unit.make || '') + ' ' + (unit.model || '') + ' (' + (unit.year || '') + ')'}</p>
+                                <p class="text-[10px] text-blue-100 leading-tight">Plate: ${unit.plate_number || ''}</p>
                             </div>
                             <div class="text-right">
-                                <div class="text-base font-bold leading-none mb-1">₱${parseFloat(unit.boundary_rate || 0).toLocaleString('en-PH', {minimumFractionDigits:2})}</div>
-                                <p class="text-blue-100 text-[10px]">Daily Boundary Rate</p>
+                                <div class="text-sm font-bold leading-none mb-0.5">₱${parseFloat(unit.boundary_rate || 0).toLocaleString('en-PH', {minimumFractionDigits:2})}</div>
+                                <p class="text-blue-100 text-[9px]">Daily Boundary Rate</p>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Tabs Navigation -->
+                    <!-- Tabs Navigation - Miniaturized -->
                     <div class="border-b border-gray-200">
-                        <nav class="-mb-px flex space-x-4 overflow-x-auto pb-2 scrollbar-thin">
-                            <button onclick="showTab('overview')" class="tab-btn py-1.5 px-1 border-b-2 border-blue-500 font-medium text-xs text-blue-600 whitespace-nowrap" data-tab="overview">Overview</button>
-                            <button onclick="showTab('drivers')" class="tab-btn py-1.5 px-1 border-b-2 border-transparent font-medium text-xs text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap" data-tab="drivers">Drivers</button>
-                            <button onclick="showTab('coding')" class="tab-btn py-1.5 px-1 border-b-2 border-transparent font-medium text-xs text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap" data-tab="coding">Coding</button>
-                            <button onclick="showTab('boundary')" class="tab-btn py-1.5 px-1 border-b-2 border-transparent font-medium text-xs text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap" data-tab="boundary">Boundary</button>
-                            <button onclick="showTab('maintenance')" class="tab-btn py-1.5 px-1 border-b-2 border-transparent font-medium text-xs text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap" data-tab="maintenance">Maintenance</button>
-                            <button onclick="showTab('roi')" class="tab-btn py-1.5 px-1 border-b-2 border-transparent font-medium text-xs text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap" data-tab="roi">ROI</button>
-                            <button onclick="showTab('location')" class="tab-btn py-1.5 px-1 border-b-2 border-transparent font-medium text-xs text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap" data-tab="location">Location</button>
-                            <button onclick="showTab('dashcam')" class="tab-btn py-1.5 px-1 border-b-2 border-transparent font-medium text-xs text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap" data-tab="dashcam">Dashcam</button>
+                        <nav class="-mb-px flex space-x-3 overflow-x-auto pb-1.5 scrollbar-thin">
+                            <button onclick="showTab('overview')" class="tab-btn py-1 px-0.5 border-b-2 border-blue-500 font-medium text-[11px] text-blue-600 whitespace-nowrap" data-tab="overview">Overview</button>
+                            <button onclick="showTab('drivers')" class="tab-btn py-1 px-0.5 border-b-2 border-transparent font-medium text-[11px] text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap" data-tab="drivers">Drivers</button>
+                            <button onclick="showTab('coding')" class="tab-btn py-1 px-0.5 border-b-2 border-transparent font-medium text-[11px] text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap" data-tab="coding">Coding</button>
+                            <button onclick="showTab('boundary')" class="tab-btn py-1 px-0.5 border-b-2 border-transparent font-medium text-[11px] text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap" data-tab="boundary">Boundary</button>
+                            <button onclick="showTab('maintenance')" class="tab-btn py-1 px-0.5 border-b-2 border-transparent font-medium text-[11px] text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap" data-tab="maintenance">Maintenance</button>
+                            <button onclick="showTab('roi')" class="tab-btn py-1.5 px-1 border-b-2 border-transparent font-medium text-[11px] text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap" data-tab="roi">ROI</button>
+                            <button onclick="showTab('location')" class="tab-btn py-1.5 px-1 border-b-2 border-transparent font-medium text-[11px] text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap" data-tab="location">Location</button>
+                            <button onclick="showTab('dashcam')" class="tab-btn py-1.5 px-1 border-b-2 border-transparent font-medium text-[11px] text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap" data-tab="dashcam">Dashcam</button>
                         </nav>
                     </div>
 
-                    <!-- Tab Content -->
-                    <div id="tabContent">
+                    <!-- Tab Content - Miniaturized and Fitted -->
+                    <div id="tabContent" style="min-height: 420px;">
                         <!-- Overview Tab -->
                         <div id="overview-tab" class="tab-content">
-                            <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-3">
-                                <div class="bg-white border border-gray-200 rounded-lg p-2.5"><div class="flex items-center gap-2"><div class="p-1.5 bg-blue-100 rounded-lg"><i data-lucide="users" class="w-4 h-4 text-blue-600"></i></div><div><p class="text-xs text-gray-500">Drivers</p><p class="text-sm font-bold leading-tight">${assignedDrivers.length}/2</p></div></div></div>
-                                <div class="bg-white border border-gray-200 rounded-lg p-2.5"><div class="flex items-center gap-2"><div class="p-1.5 bg-green-100 rounded-lg"><i data-lucide="calendar" class="w-4 h-4 text-green-600"></i></div><div><p class="text-xs text-gray-500">Next Coding</p><p class="text-sm font-bold leading-tight">${daysUntilCoding === 0 ? 'Today' : daysUntilCoding + 'd'}</p></div></div></div>
-                                <div class="bg-white border border-gray-200 rounded-lg p-2.5"><div class="flex items-center gap-2"><div class="p-1.5 bg-purple-100 rounded-lg"><i data-lucide="trending-up" class="w-4 h-4 text-purple-600"></i></div><div><p class="text-xs text-gray-500">ROI</p><p class="text-sm font-bold leading-tight">${roiPct.toFixed(1)}%</p></div></div></div>
-                                <div class="bg-white border border-gray-200 rounded-lg p-2.5"><div class="flex items-center gap-2"><div class="p-1.5 bg-orange-100 rounded-lg"><i data-lucide="wrench" class="w-4 h-4 text-orange-600"></i></div><div><p class="text-xs text-gray-500">Maint</p><p class="text-sm font-bold leading-tight">${maint.length}</p></div></div></div>
+                            <div class="grid grid-cols-1 md:grid-cols-4 gap-2 mb-2">
+                                <div class="bg-white border border-gray-200 rounded-lg p-2"><div class="flex items-center gap-1.5"><div class="p-1 bg-blue-100 rounded-md"><i data-lucide="users" class="w-3.5 h-3.5 text-blue-600"></i></div><div><p class="text-[10px] text-gray-500">Drivers</p><p class="text-xs font-bold leading-tight">${assignedDrivers.length}/2</p></div></div></div>
+                                <div class="bg-white border border-gray-200 rounded-lg p-2"><div class="flex items-center gap-1.5"><div class="p-1 bg-green-100 rounded-md"><i data-lucide="calendar" class="w-3.5 h-3.5 text-green-600"></i></div><div><p class="text-[10px] text-gray-500">Next Coding</p><p class="text-xs font-bold leading-tight">${daysUntilCoding === 0 ? 'Today' : daysUntilCoding + 'd'}</p></div></div></div>
+                                <div class="bg-white border border-gray-200 rounded-lg p-2"><div class="flex items-center gap-1.5"><div class="p-1 bg-purple-100 rounded-md"><i data-lucide="trending-up" class="w-3.5 h-3.5 text-purple-600"></i></div><div><p class="text-[10px] text-gray-500">ROI</p><p class="text-xs font-bold leading-tight">${roiPct.toFixed(1)}%</p></div></div></div>
+                                <div class="bg-white border border-gray-200 rounded-lg p-2"><div class="flex items-center gap-1.5"><div class="p-1 bg-orange-100 rounded-md"><i data-lucide="wrench" class="w-3.5 h-3.5 text-orange-600"></i></div><div><p class="text-[10px] text-gray-500">Maint</p><p class="text-xs font-bold leading-tight">${maint.length}</p></div></div></div>
                             </div>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                <div class="bg-white border border-gray-200 rounded-lg p-3">
-                                    <h4 class="text-sm font-semibold text-gray-900 mb-2 flex items-center gap-1.5"><i data-lucide="info" class="w-4 h-4"></i> Basic Info</h4>
-                                    <div class="space-y-1.5 text-xs">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                                <div class="bg-white border border-gray-200 rounded-lg p-2">
+                                    <h4 class="text-xs font-semibold text-gray-900 mb-1.5 flex items-center gap-1"><i data-lucide="info" class="w-3.5 h-3.5"></i> Basic Info</h4>
+                                    <div class="space-y-1 text-[11px]">
                                         <div class="flex justify-between"><span class="text-gray-600">Unit Number:</span><span class="font-medium">${unit.unit_number || ''}</span></div>
                                         <div class="flex justify-between"><span class="text-gray-600">Plate Number:</span><span class="font-medium">${unit.plate_number || ''}</span></div>
                                         <div class="flex justify-between"><span class="text-gray-600">Vehicle:</span><span class="font-medium">${(unit.make || '') + ' ' + (unit.model || '')}</span></div>
                                         <div class="flex justify-between"><span class="text-gray-600">Year:</span><span class="font-medium">${unit.year || ''}</span></div>
-                                        <div class="flex justify-between"><span class="text-gray-600">Status:</span><span class="px-2 py-0.5 text-xs rounded-full bg-green-100 text-green-800">${unit.status ? unit.status.charAt(0).toUpperCase() + unit.status.slice(1) : ''}</span></div>
+                                        <div class="flex justify-between"><span class="text-gray-600">Status:</span><span class="px-1.5 py-0.5 text-[10px] rounded-full bg-green-100 text-green-800">${unit.status ? unit.status.charAt(0).toUpperCase() + unit.status.slice(1) : ''}</span></div>
                                         <div class="flex justify-between"><span class="text-gray-500">Boundary:</span><span class="font-medium">₱${parseFloat(unit.boundary_rate || 0).toLocaleString('en-PH', {minimumFractionDigits:2})}</span></div>
                                     </div>
                                 </div>
-                                <div class="bg-white border border-gray-200 rounded-lg p-3">
-                                    <h4 class="text-sm font-semibold text-gray-900 mb-2 flex items-center gap-1.5"><i data-lucide="users" class="w-4 h-4"></i> Assignment</h4>
-                                    <div class="space-y-1.5 text-xs">
+                                <div class="bg-white border border-gray-200 rounded-lg p-2">
+                                    <h4 class="text-xs font-semibold text-gray-900 mb-1.5 flex items-center gap-1"><i data-lucide="users" class="w-3.5 h-3.5"></i> Assignment</h4>
+                                    <div class="space-y-1 text-[11px]">
                                         <div class="flex justify-between"><span class="text-gray-500">Drivers:</span><span class="font-medium">${assignedDrivers.length}/2</span></div>
-                                        <div class="flex justify-between"><span class="text-gray-500">Status:</span><span class="px-1.5 py-0.5 rounded-full ${assignedDrivers.length >= 2 ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}">${assignedDrivers.length >= 2 ? 'Full' : 'Available'}</span></div>
-                                        ${driversOverviewHtml ? '<div class="mt-2 space-y-1.5">' + driversOverviewHtml + '</div>' : ''}
+                                        <div class="flex justify-between"><span class="text-gray-500">Status:</span><span class="px-1 py-0.5 rounded-full text-[10px] ${assignedDrivers.length >= 2 ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}">${assignedDrivers.length >= 2 ? 'Full' : 'Available'}</span></div>
+                                        ${driversOverviewHtml ? '<div class="mt-1.5 space-y-1">' + driversOverviewHtml.replace(/p-3/g, 'p-1.5').replace(/text-sm/g, 'text-[10px]') + '</div>' : ''}
                                     </div>
                                 </div>
                             </div>
@@ -1324,35 +1262,35 @@
 
                         <!-- Drivers Tab -->
                         <div id="drivers-tab" class="tab-content hidden">
-                            <div class="bg-white border border-gray-200 rounded-lg p-6">
-                                <h4 class="text-lg font-semibold text-gray-900 mb-4">Assigned Drivers</h4>
-                                <div class="space-y-4">${driversTabHtml}</div>
+                            <div class="bg-white border border-gray-200 rounded-lg p-3">
+                                <h4 class="text-sm font-semibold text-gray-900 mb-2">Assigned Drivers</h4>
+                                <div class="space-y-2">${driversTabHtml.replace(/p-4/g, 'p-2').replace(/p-6/g, 'p-3').replace(/text-lg/g, 'text-base').replace(/text-sm/g, 'text-xs')}</div>
                             </div>
                         </div>
 
                         <!-- Coding Tab -->
                         <div id="coding-tab" class="tab-content hidden">
-                            <div class="bg-white border border-gray-200 rounded-lg p-4">
-                                <h4 class="text-base font-semibold text-gray-900 mb-3">MMDA Coding Schedule</h4>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="bg-white border border-gray-200 rounded-lg p-3">
+                                <h4 class="text-sm font-semibold text-gray-900 mb-2">MMDA Coding Schedule</h4>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                                     <div>
-                                        <h5 class="font-medium text-sm text-gray-900 mb-2">Current Coding Information</h5>
-                                        <div class="space-y-2 text-sm">
-                                            <div class="flex justify-between"><span class="text-gray-600">Coding Day:</span><span class="px-2 py-0.5 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">${codingDay}</span></div>
+                                        <h5 class="font-medium text-xs text-gray-900 mb-1.5">Current Coding Information</h5>
+                                        <div class="space-y-1 text-xs">
+                                            <div class="flex justify-between"><span class="text-gray-600">Coding Day:</span><span class="px-1.5 py-0.5 bg-blue-100 text-blue-800 rounded-full text-[10px] font-medium">${codingDay}</span></div>
                                             <div class="flex justify-between"><span class="text-gray-600">Last Digit:</span><span class="font-medium">${lastChar || '-'}</span></div>
                                             <div class="flex justify-between"><span class="text-gray-600">Next Coding:</span><span class="font-medium">${nextCodingDate || '-'}</span></div>
                                             <div class="flex justify-between"><span class="text-gray-600">Days Until Coding:</span><span class="font-medium ${daysUntilCoding === 0 ? 'text-red-600' : 'text-green-600'}">${daysUntilCoding === 0 ? 'Today' : daysUntilCoding + ' days'}</span></div>
-                                            <div class="flex justify-between"><span class="text-gray-600">Coding Status:</span><span class="px-2 py-0.5 text-xs rounded-full ${daysUntilCoding === 0 ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}">${daysUntilCoding === 0 ? 'Coding Today' : 'No Coding'}</span></div>
+                                            <div class="flex justify-between"><span class="text-gray-600">Coding Status:</span><span class="px-1.5 py-0.5 text-[10px] rounded-full ${daysUntilCoding === 0 ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}">${daysUntilCoding === 0 ? 'Coding Today' : 'No Coding'}</span></div>
                                         </div>
                                     </div>
                                     <div>
-                                        <h5 class="font-medium text-sm text-gray-900 mb-2">MMDA Coding Schedule</h5>
-                                        <div class="space-y-1 text-xs">
-                                            <div class="flex justify-between p-1.5 bg-blue-50 rounded"><span>Monday</span><span class="font-medium">1, 2</span></div>
-                                            <div class="flex justify-between p-1.5 bg-green-50 rounded"><span>Tuesday</span><span class="font-medium">3, 4</span></div>
-                                            <div class="flex justify-between p-1.5 bg-yellow-50 rounded"><span>Wednesday</span><span class="font-medium">5, 6</span></div>
-                                            <div class="flex justify-between p-1.5 bg-orange-50 rounded"><span>Thursday</span><span class="font-medium">7, 8</span></div>
-                                            <div class="flex justify-between p-1.5 bg-red-50 rounded"><span>Friday</span><span class="font-medium">9, 0</span></div>
+                                        <h5 class="font-medium text-xs text-gray-900 mb-1.5">MMDA Coding Schedule</h5>
+                                        <div class="space-y-0.5 text-[10px]">
+                                            <div class="flex justify-between p-1 bg-blue-50 rounded"><span>Monday</span><span class="font-medium">1, 2</span></div>
+                                            <div class="flex justify-between p-1 bg-green-50 rounded"><span>Tuesday</span><span class="font-medium">3, 4</span></div>
+                                            <div class="flex justify-between p-1 bg-yellow-50 rounded"><span>Wednesday</span><span class="font-medium">5, 6</span></div>
+                                            <div class="flex justify-between p-1 bg-orange-50 rounded"><span>Thursday</span><span class="font-medium">7, 8</span></div>
+                                            <div class="flex justify-between p-1 bg-red-50 rounded"><span>Friday</span><span class="font-medium">9, 0</span></div>
                                         </div>
                                     </div>
                                 </div>
@@ -1361,51 +1299,50 @@
 
                         <!-- Boundary Tab -->
                         <div id="boundary-tab" class="tab-content hidden">
-                            <div class="bg-white border border-gray-200 rounded-lg p-6">
-                                <h4 class="text-lg font-semibold text-gray-900 mb-4">Boundary Collection History</h4>
-                                ${boundaryRowsHtml ? `<div class="overflow-x-auto"><table class="min-w-full divide-y divide-gray-200"><thead class="bg-gray-50"><tr><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Driver</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">License</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th></tr></thead><tbody class="bg-white divide-y divide-gray-200">${boundaryRowsHtml}</tbody></table></div>` : '<div class="text-center py-8 text-gray-500"><i data-lucide="dollar-sign" class="w-12 h-12 mx-auto mb-4 text-gray-300"></i><p>No boundary collection history found</p></div>'}
+                            <div class="bg-white border border-gray-200 rounded-lg p-3">
+                                <h4 class="text-sm font-semibold text-gray-900 mb-2">Boundary Collection History</h4>
+                                ${boundaryRowsHtml ? `<div class="overflow-x-auto"><table class="min-w-full divide-y divide-gray-200"><thead class="bg-gray-50"><tr><th class="px-3 py-2 text-left text-[10px] font-medium text-gray-500 uppercase">Date</th><th class="px-3 py-2 text-left text-[10px] font-medium text-gray-500 uppercase">Driver</th><th class="px-3 py-2 text-left text-[10px] font-medium text-gray-500 uppercase">License</th><th class="px-3 py-2 text-left text-[10px] font-medium text-gray-500 uppercase">Amount</th></tr></thead><tbody class="bg-white divide-y divide-gray-200">${boundaryRowsHtml.replace(/px-6 py-4/g, 'px-3 py-1.5').replace(/text-sm/g, 'text-xs')}</tbody></table></div>` : '<div class="text-center py-6 text-gray-500"><i data-lucide="dollar-sign" class="w-10 h-10 mx-auto mb-2 text-gray-300"></i><p class="text-xs">No boundary history found</p></div>'}
                             </div>
                         </div>
 
                         <!-- Maintenance Tab -->
                         <div id="maintenance-tab" class="tab-content hidden">
-                            <div class="bg-white border border-gray-200 rounded-lg p-6">
-                                <h4 class="text-lg font-semibold text-gray-900 mb-4">Maintenance Records</h4>
-                                <div class="space-y-4">${maintHtml}</div>
+                            <div class="bg-white border border-gray-200 rounded-lg p-3">
+                                <h4 class="text-sm font-semibold text-gray-900 mb-2">Maintenance Records</h4>
+                                <div class="space-y-2">${maintHtml.replace(/p-4/g, 'p-2').replace(/p-6/g, 'p-3').replace(/text-lg/g, 'text-base').replace(/text-sm/g, 'text-xs')}</div>
                             </div>
                         </div>
 
-                        <!-- ROI Tab -->
+                        <!-- ROI Tab - Aggressively Miniaturized -->
                         <div id="roi-tab" class="tab-content hidden">
-                            <div class="space-y-6">
-                                <div class="bg-gradient-to-r from-purple-500 to-purple-600 p-6 rounded-lg text-white">
-                                    <h4 class="text-xl font-bold mb-4">ROI Analysis</h4>
-                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                        <div><p class="text-purple-100">Total Investment</p><p class="text-2xl font-bold">₱${parseFloat(roi.total_investment || 0).toLocaleString('en-PH', {minimumFractionDigits:2})}</p></div>
-                                        <div><p class="text-purple-100">Total Revenue</p><p class="text-2xl font-bold">₱${parseFloat(roi.total_revenue || 0).toLocaleString('en-PH', {minimumFractionDigits:2})}</p></div>
-                                        <div><p class="text-purple-100">Total Expenses</p><p class="text-2xl font-bold">₱${parseFloat(roi.total_expenses || 0).toLocaleString('en-PH', {minimumFractionDigits:2})}</p></div>
+                            <div class="space-y-3">
+                                <div class="bg-gradient-to-r from-purple-500 to-purple-600 p-3 rounded-lg text-white">
+                                    <h4 class="text-base font-bold mb-2">ROI Analysis</h4>
+                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+                                        <div><p class="text-purple-100 text-[10px]">Total Investment</p><p class="text-base font-bold">₱${parseFloat(roi.total_investment || 0).toLocaleString('en-PH', {minimumFractionDigits:2})}</p></div>
+                                        <div><p class="text-purple-100 text-[10px]">Total Revenue</p><p class="text-base font-bold">₱${parseFloat(roi.total_revenue || 0).toLocaleString('en-PH', {minimumFractionDigits:2})}</p></div>
+                                        <div><p class="text-purple-100 text-[10px]">Total Expenses</p><p class="text-base font-bold">₱${parseFloat(roi.total_expenses || 0).toLocaleString('en-PH', {minimumFractionDigits:2})}</p></div>
                                     </div>
                                 </div>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div class="bg-white border border-gray-200 rounded-lg p-6">
-                                        <h4 class="text-lg font-semibold text-gray-900 mb-4">ROI Metrics</h4>
-                                        <div class="space-y-4">
-                                            <div class="flex justify-between items-center"><span class="text-gray-600">ROI Percentage</span><span class="text-lg font-bold text-${roiColor}-600">${roiPct.toFixed(1)}%</span></div>
-                                            <div class="flex justify-between items-center"><span class="text-gray-600">Payback Period</span><span class="text-lg font-bold text-blue-600">${parseFloat(roi.payback_period || 0).toFixed(1)} months</span></div>
-                                            <div class="flex justify-between items-center"><span class="text-gray-600">Monthly Revenue</span><span class="text-lg font-bold text-green-600">₱${parseFloat(roi.monthly_revenue || roi.monthly_boundary || 0).toLocaleString('en-PH', {minimumFractionDigits:2})}</span></div>
-                                            <div class="flex justify-between items-center"><span class="text-gray-600">Monthly Expenses</span><span class="text-lg font-bold text-red-600">₱${parseFloat(roi.monthly_expenses || 0).toLocaleString('en-PH', {minimumFractionDigits:2})}</span></div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                    <div class="bg-white border border-gray-200 rounded-lg p-3">
+                                        <h4 class="text-xs font-semibold text-gray-900 mb-2">ROI Metrics</h4>
+                                        <div class="space-y-2 text-xs">
+                                            <div class="flex justify-between items-center"><span class="text-gray-600">ROI %</span><span class="font-bold text-${roiColor}-600">${roiPct.toFixed(1)}%</span></div>
+                                            <div class="flex justify-between items-center"><span class="text-gray-600">Payback</span><span class="font-bold text-blue-600">${parseFloat(roi.payback_period || 0).toFixed(1)} mths</span></div>
+                                            <div class="flex justify-between items-center"><span class="text-gray-600">Mth Rev</span><span class="font-bold text-green-600">₱${parseFloat(roi.monthly_revenue || roi.monthly_boundary || 0).toLocaleString('en-PH', {minimumFractionDigits:2})}</span></div>
                                         </div>
                                     </div>
-                                    <div class="bg-white border border-gray-200 rounded-lg p-6">
-                                        <h4 class="text-lg font-semibold text-gray-900 mb-4">ROI Progress</h4>
-                                        <div class="space-y-4">
+                                    <div class="bg-white border border-gray-200 rounded-lg p-3">
+                                        <h4 class="text-xs font-semibold text-gray-900 mb-2">ROI Progress</h4>
+                                        <div class="space-y-3">
                                             <div>
-                                                <div class="flex justify-between items-center mb-2"><span class="text-sm text-gray-600">ROI Achievement</span><span class="text-sm font-medium">${roiPct.toFixed(1)}%</span></div>
-                                                <div class="w-full bg-gray-200 rounded-full h-4"><div class="bg-gradient-to-r from-purple-500 to-purple-600 h-4 rounded-full" style="width:${roiPrgW}%"></div></div>
+                                                <div class="flex justify-between items-center mb-1"><span class="text-[10px] text-gray-600">Achievement</span><span class="text-[10px] font-medium">${roiPct.toFixed(1)}%</span></div>
+                                                <div class="w-full bg-gray-200 rounded-full h-2.5"><div class="bg-gradient-to-r from-purple-500 to-purple-600 h-2.5 rounded-full" style="width:${roiPrgW}%"></div></div>
                                             </div>
                                             <div>
-                                                <div class="flex justify-between items-center mb-2"><span class="text-sm text-gray-600">Base Boundary to Achieve ROI</span><span class="text-sm font-medium">₱${invPerMonth.toLocaleString('en-PH', {minimumFractionDigits:2})}/month</span></div>
-                                                <div class="w-full bg-gray-200 rounded-full h-4"><div class="bg-gradient-to-r from-green-500 to-green-600 h-4 rounded-full" style="width:${bndPrgW}%"></div></div>
+                                                <div class="flex justify-between items-center mb-1"><span class="text-[10px] text-gray-600">Monthly Target</span><span class="text-[10px] font-medium">₱${invPerMonth.toLocaleString('en-PH', {minimumFractionDigits:0})}</span></div>
+                                                <div class="w-full bg-gray-200 rounded-full h-2.5"><div class="bg-gradient-to-r from-green-500 to-green-600 h-2.5 rounded-full" style="width:${bndPrgW}%"></div></div>
                                             </div>
                                         </div>
                                     </div>
@@ -1415,53 +1352,35 @@
 
                         <!-- Location Tab -->
                         <div id="location-tab" class="tab-content hidden">
-                            <div class="bg-white border border-gray-200 rounded-lg p-6">
-                                <h4 class="text-lg font-semibold text-gray-900 mb-4">Location Information</h4>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="bg-white border border-gray-200 rounded-lg p-3">
+                                <h4 class="text-sm font-semibold text-gray-900 mb-2">Location Information</h4>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                                     <div>
-                                        <h5 class="font-medium text-gray-900 mb-3">Current Location</h5>
-                                        <div class="space-y-3">
-                                            <div class="flex justify-between"><span class="text-gray-600">Location:</span><span class="font-medium">${locInfo.current_location || 'Not Available'}</span></div>
-                                            <div class="flex justify-between"><span class="text-gray-600">Last Update:</span><span class="font-medium">${locInfo.last_location_update || 'Never'}</span></div>
-                                            <div class="flex justify-between"><span class="text-gray-600">GPS Status:</span><span class="px-2 py-1 text-xs rounded-full ${locInfo.gps_enabled ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">${locInfo.gps_enabled ? 'Enabled' : 'Disabled'}</span></div>
+                                        <h5 class="font-medium text-xs text-gray-900 mb-1.5">Current Location</h5>
+                                        <div class="space-y-1.5 text-xs">
+                                            <div class="flex justify-between"><span class="text-gray-600">Location:</span><span class="font-medium text-[10px]">${locInfo.current_location || 'Not Available'}</span></div>
+                                            <div class="flex justify-between"><span class="text-gray-600">Update:</span><span class="font-medium text-[10px]">${locInfo.last_location_update || 'Never'}</span></div>
+                                            <div class="flex justify-between"><span class="text-gray-600">GPS:</span><span class="px-1.5 py-0.5 text-[9px] rounded-full ${locInfo.gps_enabled ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">${locInfo.gps_enabled ? 'Enabled' : 'Disabled'}</span></div>
                                         </div>
                                     </div>
-                                    <div>
-                                        <h5 class="font-medium text-gray-900 mb-3">Map View</h5>
-                                        <div class="bg-gray-100 rounded-lg h-64 flex items-center justify-center"><div class="text-center text-gray-500"><i data-lucide="map" class="w-12 h-12 mx-auto mb-2"></i><p>Map integration coming soon</p></div></div>
-                                    </div>
+                                    <div class="bg-gray-100 rounded-lg h-24 flex items-center justify-center"><div class="text-center text-gray-500"><i data-lucide="map" class="w-8 h-8 mx-auto mb-1"></i><p class="text-[10px]">Map view coming soon</p></div></div>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Dashcam Tab -->
                         <div id="dashcam-tab" class="tab-content hidden">
-                            <div class="bg-white border border-gray-200 rounded-lg p-6">
-                                <h4 class="text-lg font-semibold text-gray-900 mb-4">Dashcam Information</h4>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="bg-white border border-gray-200 rounded-lg p-3">
+                                <h4 class="text-sm font-semibold text-gray-900 mb-2">Dashcam Information</h4>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                                     <div>
-                                        <h5 class="font-medium text-gray-900 mb-3">Device Status</h5>
-                                        <div class="space-y-3">
-                                            <div class="flex justify-between"><span class="text-gray-600">Dashcam Status:</span><span class="px-2 py-1 text-xs rounded-full ${dashcam.dashcam_enabled ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">${dashcam.dashcam_enabled ? 'Enabled' : 'Disabled'}</span></div>
-                                            <div class="flex justify-between"><span class="text-gray-600">Connection Status:</span><span class="px-2 py-1 text-xs rounded-full ${dashcam.dashcam_status === 'Online' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}">${dashcam.dashcam_status || 'Offline'}</span></div>
-                                            <div class="flex justify-between"><span class="text-gray-600">Last Recording:</span><span class="font-medium">${dashcam.last_recording || 'Never'}</span></div>
+                                        <div class="space-y-1.5 text-xs">
+                                            <div class="flex justify-between"><span class="text-gray-600">Status:</span><span class="px-1.5 py-0.5 text-[9px] rounded-full ${dashcam.dashcam_enabled ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">${dashcam.dashcam_enabled ? 'Enabled' : 'Disabled'}</span></div>
+                                            <div class="flex justify-between"><span class="text-gray-600">Connect:</span><span class="px-1.5 py-0.5 text-[9px] rounded-full ${dashcam.dashcam_status === 'Online' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}">${dashcam.dashcam_status || 'Offline'}</span></div>
+                                            <div class="flex justify-between"><span class="text-gray-600">Storage:</span><span class="font-medium text-[10px]">${parseFloat(dashcam.storage_used || 0).toFixed(1)} / ${parseFloat(dashcam.storage_total || 32).toFixed(0)} GB</span></div>
                                         </div>
                                     </div>
-                                    <div>
-                                        <h5 class="font-medium text-gray-900 mb-3">Storage Information</h5>
-                                        <div class="space-y-3">
-                                            <div class="flex justify-between"><span class="text-gray-600">Storage Used:</span><span class="font-medium">${parseFloat(dashcam.storage_used || 0).toFixed(2)} GB</span></div>
-                                            <div class="flex justify-between"><span class="text-gray-600">Total Storage:</span><span class="font-medium">${parseFloat(dashcam.storage_total || 32).toFixed(2)} GB</span></div>
-                                            <div>
-                                                <div class="flex justify-between items-center mb-2"><span class="text-sm text-gray-600">Storage Usage</span><span class="text-sm font-medium">${(dashcam.storage_total || 32) > 0 ? ((dashcam.storage_used || 0) / (dashcam.storage_total || 32) * 100).toFixed(1) : 0}%</span></div>
-                                                <div class="w-full bg-gray-200 rounded-full h-4"><div class="bg-gradient-to-r from-blue-500 to-blue-600 h-4 rounded-full" style="width:${(dashcam.storage_total || 32) > 0 ? Math.min(100, (dashcam.storage_used || 0) / (dashcam.storage_total || 32) * 100).toFixed(1) : 0}%"></div></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="mt-6">
-                                    <h5 class="font-medium text-gray-900 mb-3">Recent Recordings</h5>
-                                    <div class="bg-gray-100 rounded-lg h-32 flex items-center justify-center"><div class="text-center text-gray-500"><i data-lucide="video" class="w-8 h-8 mx-auto mb-2"></i><p>Video integration coming soon</p></div></div>
+                                    <div class="bg-gray-100 rounded-lg h-20 flex items-center justify-center"><div class="text-center text-gray-500"><i data-lucide="video" class="w-6 h-6 mx-auto mb-1"></i><p class="text-[10px]">Video placeholder</p></div></div>
                                 </div>
                             </div>
                         </div>

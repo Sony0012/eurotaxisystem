@@ -16,7 +16,7 @@ class UnitController extends Controller
         $search = $request->input('search', '');
         $status_filter = $request->input('status', '');
         $page = max(1, (int) $request->input('page', 1));
-        $limit = 10;
+        $limit = 5;
         $offset = ($page - 1) * $limit;
 
         $query = DB::table('units as u')
@@ -87,19 +87,24 @@ class UnitController extends Controller
 
     public function store(Request $request)
     {
+        $request->merge([
+            'boundary_rate' => str_replace(',', '', $request->boundary_rate),
+            'purchase_cost' => str_replace(',', '', $request->purchase_cost),
+        ]);
+
         $data = $request->validate([
             'unit_number' => 'required|string|unique:units,unit_number',
             'plate_number' => 'required|string|unique:units,plate_number',
             'make' => 'required|string',
             'model' => 'required|string',
             'year' => 'required|integer',
-            'status' => 'required|string',
+            'status' => 'sometimes|required|string',
             'boundary_rate' => 'required|numeric',
             'purchase_date' => 'nullable|date',
             'purchase_cost' => 'nullable|numeric',
             'color' => 'nullable|string',
-            'unit_type' => 'required|in:new,old,rented',
-            'fuel_status' => 'required|string',
+            'unit_type' => 'sometimes|required|in:new,old,rented',
+            'fuel_status' => 'sometimes|required|string',
             'coding_day' => 'nullable|string',
             'driver_id' => 'nullable|integer',
             'secondary_driver_id' => 'nullable|integer',
@@ -129,7 +134,7 @@ class UnitController extends Controller
         }
 
         // Auto set coding status
-        $status = $data['status'];
+        $status = $data['status'] ?? 'active';
         $coding_day = $data['coding_day'] ?? null;
         if ($coding_day && date('l') === $coding_day) {
             $status = 'coding';
@@ -146,8 +151,8 @@ class UnitController extends Controller
             'purchase_date' => $data['purchase_date'] ?? null,
             'purchase_cost' => $data['purchase_cost'] ?? 0,
             'color' => $data['color'] ?? null,
-            'unit_type' => $data['unit_type'],
-            'fuel_status' => $data['fuel_status'],
+            'unit_type' => $data['unit_type'] ?? 'new',
+            'fuel_status' => $data['fuel_status'] ?? 'full',
             'coding_day' => $coding_day,
             'driver_id' => $driver_id,
             'secondary_driver_id' => $secondary_driver_id,
@@ -161,19 +166,24 @@ class UnitController extends Controller
 
     public function update(Request $request, $id)
     {
+        $request->merge([
+            'boundary_rate' => str_replace(',', '', $request->boundary_rate),
+            'purchase_cost' => str_replace(',', '', $request->purchase_cost),
+        ]);
+
         $data = $request->validate([
             'unit_number' => 'required|string|unique:units,unit_number,' . $id,
             'plate_number' => 'required|string|unique:units,plate_number,' . $id,
-            'make' => 'required|string',
-            'model' => 'required|string',
-            'year' => 'required|integer',
-            'status' => 'required|string',
+            'make' => 'sometimes|required|string',
+            'model' => 'sometimes|required|string',
+            'year' => 'sometimes|required|integer',
+            'status' => 'sometimes|required|string',
             'boundary_rate' => 'required|numeric',
             'purchase_date' => 'nullable|date',
             'purchase_cost' => 'nullable|numeric',
             'color' => 'nullable|string',
-            'unit_type' => 'required|in:new,old,rented',
-            'fuel_status' => 'required|string',
+            'unit_type' => 'sometimes|required|in:new,old,rented',
+            'fuel_status' => 'sometimes|required|string',
             'coding_day' => 'nullable|string',
             'driver_id' => 'nullable|integer',
             'secondary_driver_id' => 'nullable|integer',
@@ -205,30 +215,33 @@ class UnitController extends Controller
         }
 
         // Auto set coding status
-        $status = $data['status'];
+        $status = $data['status'] ?? null;
         $coding_day = $data['coding_day'] ?? null;
         if ($coding_day && date('l') === $coding_day) {
             $status = 'coding';
         }
 
-        DB::table('units')->where('id', $id)->update([
+        $updateData = [
             'unit_number' => $data['unit_number'],
             'plate_number' => $data['plate_number'],
-            'make' => $data['make'],
-            'model' => $data['model'],
-            'year' => $data['year'],
-            'status' => $status,
             'boundary_rate' => $data['boundary_rate'],
             'purchase_date' => $data['purchase_date'] ?? null,
             'purchase_cost' => $data['purchase_cost'] ?? 0,
             'color' => $data['color'] ?? null,
-            'unit_type' => $data['unit_type'],
-            'fuel_status' => $data['fuel_status'],
             'coding_day' => $coding_day,
             'driver_id' => $driver_id,
             'secondary_driver_id' => $secondary_driver_id,
             'updated_at' => now(),
-        ]);
+        ];
+
+        if (isset($data['make'])) $updateData['make'] = $data['make'];
+        if (isset($data['model'])) $updateData['model'] = $data['model'];
+        if (isset($data['year'])) $updateData['year'] = $data['year'];
+        if ($status) $updateData['status'] = $status;
+        if (isset($data['unit_type'])) $updateData['unit_type'] = $data['unit_type'];
+        if (isset($data['fuel_status'])) $updateData['fuel_status'] = $data['fuel_status'];
+
+        DB::table('units')->where('id', $id)->update($updateData);
 
         return redirect()->route('units.index')->with('success', 'Unit updated successfully!');
     }

@@ -42,6 +42,7 @@ function updateNotificationCount() {
     const countSpan = document.querySelector('#notificationDropdown .border-b span.text-xs');
     const badge = document.querySelector('#notificationBell span');
     const count = list ? list.querySelectorAll('.notification-item').length : 0;
+    
     if (countSpan) countSpan.textContent = count + ' item(s)';
     if (badge) {
         if (count > 0) {
@@ -51,6 +52,20 @@ function updateNotificationCount() {
             badge.classList.add('hidden');
         }
     }
+
+    // Sound logic
+    const storedCount = sessionStorage.getItem('notif_count');
+    const storedCountNum = storedCount ? parseInt(storedCount, 10) : 0;
+    
+    if (count > 0 && count > storedCountNum) {
+        const assetUrlMeta = document.querySelector('meta[name="asset-url"]');
+        const assetBase = assetUrlMeta ? assetUrlMeta.getAttribute('content') : '/';
+        const audio = new Audio(assetBase + 'assets/sounds/notification.mp3');
+        audio.play().catch(e => console.log('Audio autoplay prevented'));
+    }
+    
+    // Always store the current count
+    sessionStorage.setItem('notif_count', count.toString());
 }
 
 function dismissNotification(button) {
