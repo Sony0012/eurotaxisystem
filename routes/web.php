@@ -18,6 +18,7 @@ use App\Http\Controllers\DecisionManagementController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\GitHubAuthController;
 use App\Http\Controllers\GitHubIntegrationController;
+use App\Http\Controllers\StaffController;
 
 // ─── Auth Routes ───────────────────────────────────────
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
@@ -64,10 +65,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/units/details', [UnitController::class, 'getDetails'])->name('units.details');
     Route::get('/units/details-html', [UnitController::class, 'getDetailsHtml'])->name('units.detailsHtml');
     Route::post('/units/toggle-status', [UnitController::class, 'toggleStatus'])->name('units.toggle-status');
-    Route::get('/units/import', [UnitController::class, 'showImport'])->name('units.import');
-    Route::post('/units/import', [UnitController::class, 'import'])->name('units.import.store');
-
-    // Units Resource Routes (after specific routes)
+    Route::get('/units/print', [UnitController::class, 'printPdf'])->name('units.print');
     Route::resource('units', UnitController::class);
 
     // Boundaries Resource Routes
@@ -109,6 +107,9 @@ Route::middleware('auth')->group(function () {
 
     // Unit Profitability
     Route::get('/unit-profitability', [UnitProfitabilityController::class, 'index'])->name('unit-profitability.index');
+
+    // Staff Records
+    Route::resource('staff', StaffController::class);
 
     // Decision Management Resource Routes
     Route::resource('decision-management', DecisionManagementController::class);

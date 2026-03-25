@@ -8,63 +8,63 @@
     <!-- Stats Grid -->
     <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
         <div class="bg-white rounded-lg shadow card-hover cursor-pointer hover:shadow-lg transition-shadow" onclick="showUnitsModal()">
-            <div class="p-6">
+            <div class="p-4">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-sm font-medium text-gray-600">Total Units</p>
-                        <p class="text-2xl font-bold text-gray-900" data-stat="active_units">{{ $stats['active_units'] }}</p>
+                        <p class="text-xs font-medium text-gray-600">Total Units</p>
+                        <p class="text-xl font-bold text-gray-900" data-stat="active_units">{{ $stats['active_units'] }}</p>
                         <p class="text-xs text-gray-500">
                             <span class="text-green-600">{{ $stats['roi_units'] }} ROI Achieved</span> •
                             {{ $stats['coding_units'] }} Coding
                         </p>
                     </div>
-                    <div class="p-3 bg-yellow-100 rounded-full">
-                        <i data-lucide="car" class="w-6 h-6 text-yellow-600"></i>
+                    <div class="p-2 bg-yellow-100 rounded-full">
+                        <i data-lucide="car" class="w-5 h-5 text-yellow-600"></i>
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="bg-white rounded-lg shadow card-hover cursor-pointer hover:shadow-lg transition-shadow" onclick="showDailyBoundaryModal()">
-            <div class="p-6">
+            <div class="p-4">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-sm font-medium text-gray-600">Daily Boundary Collection</p>
-                        <p class="text-2xl font-bold text-gray-900" data-stat="today_boundary">{{ formatCurrency($stats['today_boundary']) }}</p>
+                        <p class="text-xs font-medium text-gray-600">Daily Boundary Collection</p>
+                        <p class="text-xl font-bold text-gray-900" data-stat="today_boundary">{{ formatCurrency($stats['today_boundary']) }}</p>
                         <p class="text-xs text-gray-500">+8.5% from yesterday</p>
                     </div>
-                    <div class="p-3 bg-green-100 rounded-full">
-                        <i data-lucide="dollar-sign" class="w-6 h-6 text-green-600"></i>
+                    <div class="p-2 bg-green-100 rounded-full">
+                        <i data-lucide="dollar-sign" class="w-5 h-5 text-green-600"></i>
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="bg-white rounded-lg shadow card-hover cursor-pointer hover:shadow-lg transition-shadow" onclick="showNetIncomeModal()">
-            <div class="p-6">
+            <div class="p-4">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-sm font-medium text-gray-600">Net Income Today</p>
-                        <p class="text-2xl font-bold text-green-600" data-stat="net_income">{{ formatCurrency($stats['net_income']) }}</p>
+                        <p class="text-xs font-medium text-gray-600">Net Income Today</p>
+                        <p class="text-xl font-bold text-green-600" data-stat="net_income">{{ formatCurrency($stats['net_income']) }}</p>
                         <p class="text-xs text-gray-500">After all expenses</p>
                     </div>
-                    <div class="p-3 bg-green-100 rounded-full">
-                        <i data-lucide="trending-up" class="w-6 h-6 text-green-600"></i>
+                    <div class="p-2 bg-green-100 rounded-full">
+                        <i data-lucide="trending-up" class="w-5 h-5 text-green-600"></i>
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="bg-white rounded-lg shadow card-hover cursor-pointer hover:shadow-lg transition-shadow" onclick="showMaintenanceUnitsModal()">
-            <div class="p-6">
+            <div class="p-4">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-sm font-medium text-gray-600">Units Under Maintenance</p>
-                        <p class="text-2xl font-bold text-gray-900" data-stat="maintenance_units">{{ $stats['maintenance_units'] }}</p>
+                        <p class="text-xs font-medium text-gray-600">Units Under Maintenance</p>
+                        <p class="text-xl font-bold text-gray-900" data-stat="maintenance_units">{{ $stats['maintenance_units'] }}</p>
                         <p class="text-xs text-gray-500">2 preventive, 3 breakdown</p>
                     </div>
-                    <div class="p-3 bg-orange-100 rounded-full">
-                        <i data-lucide="wrench" class="w-6 h-6 text-orange-600"></i>
+                    <div class="p-2 bg-orange-100 rounded-full">
+                        <i data-lucide="wrench" class="w-5 h-5 text-orange-600"></i>
                     </div>
                 </div>
             </div>
@@ -72,44 +72,44 @@
     </div>
 
     <!-- Quick Stats -->
-    <div class="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
+    <div class="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div class="bg-white rounded-lg shadow card-hover cursor-pointer hover:shadow-lg transition-shadow" onclick="showActiveDriversModal()">
-            <div class="p-6">
+            <div class="p-4">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-sm text-gray-500">Active Drivers</p>
-                        <p class="text-2xl font-bold text-gray-900" data-stat="active_drivers">{{ $stats['active_drivers'] }}</p>
+                        <p class="text-xs text-gray-500">Active Drivers</p>
+                        <p class="text-xl font-bold text-gray-900" data-stat="active_drivers">{{ $stats['active_drivers'] }}</p>
                     </div>
-                    <div class="p-3 bg-blue-100 rounded-full">
-                        <i data-lucide="users" class="w-6 h-6 text-blue-600"></i>
+                    <div class="p-2 bg-blue-100 rounded-full">
+                        <i data-lucide="users" class="w-5 h-5 text-blue-600"></i>
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="bg-white rounded-lg shadow card-hover">
-            <div class="p-6">
+            <div class="p-4">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-sm text-gray-500">Avg. Daily Boundary/Unit</p>
-                        <p class="text-2xl font-bold text-gray-900" data-stat="avg_boundary">{{ formatCurrency($stats['avg_boundary']) }}</p>
+                        <p class="text-xs text-gray-500">Avg. Daily Boundary/Unit</p>
+                        <p class="text-xl font-bold text-gray-900" data-stat="avg_boundary">{{ formatCurrency($stats['avg_boundary']) }}</p>
                     </div>
-                    <div class="p-3 bg-green-100 rounded-full">
-                        <i data-lucide="dollar-sign" class="w-8 h-8 text-green-600"></i>
+                    <div class="p-2 bg-green-100 rounded-full">
+                        <i data-lucide="dollar-sign" class="w-6 h-6 text-green-600"></i>
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="bg-white rounded-lg shadow card-hover cursor-pointer hover:shadow-lg transition-shadow" onclick="showCodingUnitsModal()">
-            <div class="p-6">
+            <div class="p-4">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-sm text-gray-500">Coding Units</p>
-                        <p class="text-2xl font-bold text-gray-900" data-stat="coding_units">{{ $stats['coding_units'] }}</p>
+                        <p class="text-xs text-gray-500">Coding Units</p>
+                        <p class="text-xl font-bold text-gray-900" data-stat="coding_units">{{ $stats['coding_units'] }}</p>
                     </div>
-                    <div class="p-3 bg-purple-100 rounded-full">
-                        <i data-lucide="code" class="w-6 h-6 text-purple-600"></i>
+                    <div class="p-2 bg-purple-100 rounded-full">
+                        <i data-lucide="code" class="w-5 h-5 text-purple-600"></i>
                     </div>
                 </div>
             </div>
@@ -117,65 +117,65 @@
     </div>
 
     <!-- Main Analytics Grid -->
-    <div class="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="mt-4 grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div class="bg-white rounded-lg shadow">
-            <div class="p-6 border-b">
+            <div class="p-4 border-b">
                 <div class="flex items-center justify-between">
-                    <h3 class="text-lg font-semibold text-gray-900">Revenue Trend</h3>
+                    <h3 class="text-base font-semibold text-gray-900">Revenue Trend</h3>
                     <div class="flex gap-2">
-                        <button onclick="updateRevenueTrend('7')" id="btn-7days" class="px-3 py-1 text-sm rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors">
+                        <button onclick="updateRevenueTrend('7')" id="btn-7days" class="px-2 py-1 text-xs rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors">
                             Last 7 Days
                         </button>
-                        <button onclick="updateRevenueTrend('30')" id="btn-30days" class="px-3 py-1 text-sm rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300 transition-colors">
+                        <button onclick="updateRevenueTrend('30')" id="btn-30days" class="px-2 py-1 text-xs rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300 transition-colors">
                             Last 30 Days
                         </button>
-                        <button onclick="updateRevenueTrend('90')" id="btn-90days" class="px-3 py-1 text-sm rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300 transition-colors">
-                            Last 3 Months
+                        <button onclick="updateRevenueTrend('90')" id="btn-90days" class="px-2 py-1 text-xs rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300 transition-colors">
+                            Last 3
                         </button>
-                        <button onclick="updateRevenueTrend('365')" id="btn-365days" class="px-3 py-1 text-sm rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300 transition-colors">
-                            Last Year
+                        <button onclick="updateRevenueTrend('365')" id="btn-365days" class="px-2 py-1 text-xs rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300 transition-colors">
+                            Year
                         </button>
                     </div>
                 </div>
             </div>
-            <div class="p-6">
-                <canvas id="revenueTrendChart" width="400" height="250"></canvas>
+            <div class="p-4">
+                <canvas id="revenueTrendChart" width="400" height="200"></canvas>
             </div>
         </div>
 
         <div class="bg-white rounded-lg shadow">
-            <div class="p-6 border-b">
-                <h3 class="text-lg font-semibold text-gray-900">Unit Performance</h3>
+            <div class="p-4 border-b">
+                <h3 class="text-base font-semibold text-gray-900">Unit Performance</h3>
             </div>
-            <div class="p-6">
-                <canvas id="unitPerformanceChart" width="400" height="250"></canvas>
-            </div>
-        </div>
-
-        <div class="bg-white rounded-lg shadow">
-            <div class="p-6 border-b">
-                <h3 class="text-lg font-semibold text-gray-900">Expense Breakdown</h3>
-            </div>
-            <div class="p-6">
-                <canvas id="expenseBreakdownChart" width="400" height="250"></canvas>
+            <div class="p-4">
+                <canvas id="unitPerformanceChart" width="400" height="200"></canvas>
             </div>
         </div>
 
         <div class="bg-white rounded-lg shadow">
-            <div class="p-6 border-b">
-                <h3 class="text-lg font-semibold text-gray-900">Weekly Financial Overview</h3>
+            <div class="p-4 border-b">
+                <h3 class="text-base font-semibold text-gray-900">Expense Breakdown</h3>
             </div>
-            <div class="p-6">
-                <canvas id="weeklyChart" width="400" height="250"></canvas>
+            <div class="p-4">
+                <canvas id="expenseBreakdownChart" width="400" height="200"></canvas>
             </div>
         </div>
 
         <div class="bg-white rounded-lg shadow">
-            <div class="p-6 border-b">
-                <h3 class="text-lg font-semibold text-gray-900">Unit Status Distribution</h3>
+            <div class="p-4 border-b">
+                <h3 class="text-base font-semibold text-gray-900">Weekly Financial Overview</h3>
             </div>
-            <div class="p-6">
-                <canvas id="unitStatusChart" width="400" height="250"></canvas>
+            <div class="p-4">
+                <canvas id="weeklyChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow">
+            <div class="p-4 border-b">
+                <h3 class="text-base font-semibold text-gray-900">Unit Status Distribution</h3>
+            </div>
+            <div class="p-4">
+                <canvas id="unitStatusChart" width="400" height="200"></canvas>
             </div>
         </div>
     </div>
@@ -771,8 +771,8 @@
                             <i data-lucide="car" class="w-6 h-6 text-white"></i>
                         </div>
                         <div>
-                            <h3 class="text-xl font-bold text-white">Units Overview</h3>
-                            <p class="text-blue-100 text-xs font-medium">Complete fleet management dashboard</p>
+                            <h3 class="text-lg font-bold text-white leading-tight">Units Overview</h3>
+                            <p class="text-blue-100 text-[10px] font-medium mt-0.5">Fleet Management Dashboard</p>
                         </div>
                     </div>
                     <button onclick="hideUnitsModal()" class="text-white/80 hover:text-white hover:bg-white/20 p-2 rounded-lg transition-all duration-200 backdrop-blur-sm">
@@ -798,75 +798,53 @@
                         </button>
                     </div>
                 </div>
-                
-                <!-- Compact Filter Tags -->
-                <div class="flex items-center gap-2" id="filterTags">
-                    <button onclick="filterByStatus('all')" class="px-2 py-1 bg-white/20 backdrop-blur-sm border border-white/30 rounded-full text-white text-xs font-medium hover:bg-white/30 transition-colors filter-tag active" data-status="all">
-                        All Units
-                    </button>
-                    <button onclick="filterByStatus('active')" class="px-2 py-1 bg-white/20 backdrop-blur-sm border border-white/30 rounded-full text-white text-xs font-medium hover:bg-white/30 transition-colors filter-tag" data-status="active">
-                        Active
-                    </button>
-                    <button onclick="filterByStatus('maintenance')" class="px-2 py-1 bg-white/20 backdrop-blur-sm border border-white/30 rounded-full text-white text-xs font-medium hover:bg-white/30 transition-colors filter-tag" data-status="maintenance">
-                        Maintenance
-                    </button>
-                    <button onclick="filterByStatus('coding')" class="px-2 py-1 bg-white/20 backdrop-blur-sm border border-white/30 rounded-full text-white text-xs font-medium hover:bg-white/30 transition-colors filter-tag" data-status="coding">
-                        Coding
-                    </button>
-                    <button onclick="filterByStatus('retired')" class="px-2 py-1 bg-white/20 backdrop-blur-sm border border-white/30 rounded-full text-white text-xs font-medium hover:bg-white/30 transition-colors filter-tag" data-status="retired">
-                        Retired
-                    </button>
-                    <button onclick="filterByMonth('2026-05')" class="px-2 py-1 bg-white/20 backdrop-blur-sm border border-white/30 rounded-full text-white text-xs font-medium hover:bg-white/30 transition-colors filter-tag" data-month="2026-05">
-                        May 2026
-                    </button>
-                </div>
             </div>
             
             <div class="flex-1 overflow-hidden flex flex-col min-h-0">
                 <!-- Compact Summary Stats -->
-                <div class="bg-gradient-to-r from-gray-50 to-blue-50 p-4 border-b border-gray-200 flex-shrink-0">
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <div class="bg-white rounded-lg p-3 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                <div class="bg-gradient-to-r from-gray-50 to-blue-50 p-3 border-b border-gray-200 flex-shrink-0">
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        <div class="bg-white rounded-lg p-2 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
                             <div class="flex items-center gap-2">
-                                <div class="p-1.5 bg-blue-100 rounded">
-                                    <i data-lucide="car" class="w-4 h-4 text-blue-600"></i>
+                                <div class="p-1 bg-blue-100 rounded">
+                                    <i data-lucide="car" class="w-3.5 h-3.5 text-blue-600"></i>
                                 </div>
-                                <div>
-                                    <div class="text-lg font-bold text-blue-600" id="totalUnitsCount">0</div>
-                                    <div class="text-xs text-gray-600 uppercase tracking-wide font-medium">Total Units</div>
+                                <div class="flex-1">
+                                    <div class="text-base font-bold text-blue-600 leading-tight" id="totalUnitsCount">0</div>
+                                    <div class="text-[10px] text-gray-500 uppercase tracking-tight font-bold">Total</div>
                                 </div>
                             </div>
                         </div>
-                        <div class="bg-white rounded-lg p-3 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                        <div class="bg-white rounded-lg p-2 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
                             <div class="flex items-center gap-2">
-                                <div class="p-1.5 bg-green-100 rounded">
-                                    <i data-lucide="activity" class="w-4 h-4 text-green-600"></i>
+                                <div class="p-1 bg-green-100 rounded">
+                                    <i data-lucide="activity" class="w-3.5 h-3.5 text-green-600"></i>
                                 </div>
-                                <div>
-                                    <div class="text-lg font-bold text-green-600" id="activeUnitsCount">0</div>
-                                    <div class="text-xs text-gray-600 uppercase tracking-wide font-medium">Active</div>
+                                <div class="flex-1">
+                                    <div class="text-base font-bold text-green-600 leading-tight" id="activeUnitsCount">0</div>
+                                    <div class="text-[10px] text-gray-500 uppercase tracking-tight font-bold">Active</div>
                                 </div>
                             </div>
                         </div>
-                        <div class="bg-white rounded-lg p-3 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                        <div class="bg-white rounded-lg p-2 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
                             <div class="flex items-center gap-2">
-                                <div class="p-1.5 bg-yellow-100 rounded">
-                                    <i data-lucide="trending-up" class="w-4 h-4 text-yellow-600"></i>
+                                <div class="p-1 bg-yellow-100 rounded">
+                                    <i data-lucide="trending-up" class="w-3.5 h-3.5 text-yellow-600"></i>
                                 </div>
-                                <div>
-                                    <div class="text-lg font-bold text-yellow-600" id="roiUnitsCount">0</div>
-                                    <div class="text-xs text-gray-600 uppercase tracking-wide font-medium">ROI Achieved</div>
+                                <div class="flex-1">
+                                    <div class="text-base font-bold text-yellow-600 leading-tight" id="roiUnitsCount">0</div>
+                                    <div class="text-[10px] text-gray-500 uppercase tracking-tight font-bold">ROI</div>
                                 </div>
                             </div>
                         </div>
-                        <div class="bg-white rounded-lg p-3 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                        <div class="bg-white rounded-lg p-2 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
                             <div class="flex items-center gap-2">
-                                <div class="p-1.5 bg-purple-100 rounded">
-                                    <i data-lucide="pie-chart" class="w-4 h-4 text-purple-600"></i>
+                                <div class="p-1 bg-purple-100 rounded">
+                                    <i data-lucide="pie-chart" class="w-3.5 h-3.5 text-purple-600"></i>
                                 </div>
-                                <div>
-                                    <div class="text-lg font-bold text-purple-600" id="avgRoiCount">0%</div>
-                                    <div class="text-xs text-gray-600 uppercase tracking-wide font-medium">Avg ROI</div>
+                                <div class="flex-1">
+                                    <div class="text-base font-bold text-purple-600 leading-tight" id="avgRoiCount">0%</div>
+                                    <div class="text-[10px] text-gray-500 uppercase tracking-tight font-bold">Avg ROI</div>
                                 </div>
                             </div>
                         </div>
@@ -875,7 +853,7 @@
 
                 <!-- Enhanced Units Grid with Maximum Space -->
                 <div class="flex-1 overflow-y-auto p-4 bg-gray-50 min-h-0">
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 pb-4" id="unitsGrid">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 gap-4 pb-4" id="unitsGrid">
                         <!-- Enhanced Loading State -->
                         <div class="col-span-full text-center py-16">
                             <div class="inline-flex flex-col items-center">
@@ -2380,109 +2358,36 @@
             }
             
             grid.innerHTML = units.map(unit => `
-                <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden border-t-4 ${statusColors[unit.status] || 'border-gray-200'} hover:scale-102">
-                    <!-- Compact Card Header -->
-                    <div class="p-3 pb-2">
-                        <div class="flex items-start justify-between mb-2">
-                            <div class="flex-1 min-w-0">
-                                <div class="flex items-center gap-2 mb-2">
-                                    <div class="p-1.5 bg-gradient-to-r ${statusGradients[unit.status]} rounded-lg">
-                                        <i data-lucide="car" class="w-4 h-4 text-white"></i>
-                                    </div>
-                                    <div class="flex-1 min-w-0">
-                                        <h4 class="text-lg font-bold text-gray-900 truncate">${unit.unit_number}</h4>
-                                        <span class="px-2 py-0.5 text-xs font-bold rounded-full ${statusColors[unit.status] || 'bg-gray-100'} inline-flex items-center gap-1 mt-1">
-                                            ${statusIcons[unit.status] || ''}
-                                            <span>${unit.status.charAt(0).toUpperCase() + unit.status.slice(1)}</span>
-                                        </span>
-                                    </div>
-                                </div>
-                                ${unit.plate_number ? `
-                                    <div class="text-xs text-gray-500 truncate">
-                                        <i data-lucide="shield" class="w-3 h-3 inline mr-1"></i>
-                                        ${unit.plate_number}
-                                    </div>
-                                ` : ''}
+                <div class="bg-white rounded-lg shadow border-t-2 ${statusColors[unit.status] || 'border-gray-200'} hover:shadow-md transition-shadow">
+                    <div class="p-2">
+                        <!-- Summary Header -->
+                        <div class="flex items-center justify-between gap-2 mb-1.5">
+                            <div class="flex items-center gap-1.5 min-w-0">
+                                <i data-lucide="car" class="w-3 h-3 text-gray-400"></i>
+                                <h4 class="text-sm font-bold text-gray-900 truncate">${unit.unit_number}</h4>
                             </div>
-                        </div>
-                        
-                        <!-- Compact Financial Metrics -->
-                        <div class="bg-gray-50 rounded-lg p-3 mb-2">
-                            <div class="grid grid-cols-2 gap-2">
-                                <div class="text-center">
-                                    <div class="text-xs text-gray-500 uppercase tracking-wide font-medium mb-1">Daily</div>
-                                    <div class="text-sm font-bold text-gray-900">₱${unit.boundary_rate ? unit.boundary_rate.toLocaleString() : '0'}</div>
-                                </div>
-                                <div class="text-center">
-                                    <div class="text-xs text-gray-500 uppercase tracking-wide font-medium mb-1">Total</div>
-                                    <div class="text-sm font-bold text-green-600">₱${unit.total_boundary ? unit.total_boundary.toLocaleString() : '0'}</div>
-                                </div>
-                            </div>
-                            ${unit.today_boundary > 0 ? `
-                                <div class="text-xs text-center mt-1 text-blue-600 font-medium">
-                                    Today: ₱${unit.today_boundary.toLocaleString()}
-                                </div>
-                            ` : ''}
-                        </div>
-                        
-                        <!-- Compact Purchase Cost & ROI -->
-                        ${unit.purchase_cost ? `
-                            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-3 mb-2">
-                                <div class="flex items-center justify-between mb-2">
-                                    <div>
-                                        <div class="text-xs text-gray-500 uppercase tracking-wide font-medium mb-1">Cost</div>
-                                        <div class="text-sm font-bold text-gray-900">₱${unit.purchase_cost.toLocaleString()}</div>
-                                    </div>
-                                    <div class="text-right">
-                                        <div class="text-xs text-gray-500 uppercase tracking-wide font-medium mb-1">ROI</div>
-                                        <div class="text-lg font-bold ${unit.roi_percentage >= 100 ? 'text-green-600' : unit.roi_percentage >= 50 ? 'text-yellow-600' : 'text-gray-600'}">${unit.roi_percentage.toFixed(1)}%</div>
-                                    </div>
-                                </div>
-                                <div class="w-full bg-white rounded-full h-2 overflow-hidden shadow-inner">
-                                    <div class="h-full bg-gradient-to-r ${statusGradients[unit.status]} rounded-full transition-all duration-700 ease-out shadow-sm" style="width: ${Math.min(100, unit.roi_percentage)}%"></div>
-                                </div>
-                            </div>
-                        ` : ''}
-                        
-                        <!-- Driver Information -->
-                        ${unit.driver_name && unit.driver_name !== 'N/A' ? `
-                            <div class="flex items-center gap-2 mb-2 text-xs text-gray-600">
-                                <i data-lucide="user" class="w-3 h-3"></i>
-                                <span class="truncate">${unit.driver_name}</span>
-                            </div>
-                        ` : ''}
-                        
-                        <!-- Compact Performance Status -->
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center gap-2">
-                                <div class="w-1.5 h-1.5 rounded-full ${unit.roi_percentage >= 100 ? 'bg-green-500' : unit.roi_percentage >= 75 ? 'bg-yellow-500' : unit.roi_percentage >= 50 ? 'bg-orange-500' : 'bg-gray-400'} animate-pulse"></div>
-                                <span class="text-xs font-medium text-gray-600">
-                                    ${unit.performance_rating ? unit.performance_rating.charAt(0).toUpperCase() + unit.performance_rating.slice(1) : 'Growing'}
-                                </span>
-                            </div>
-                            <div class="text-xs text-gray-400">
-                                ${unit.roi_percentage >= 100 ? '✓ ROI Achieved' : 
-                                  unit.days_to_roi === 0 ? 'Almost there!' :
-                                  unit.days_to_roi === 999 ? 'No recent activity' :
-                                  unit.days_to_roi <= 30 ? `${unit.days_to_roi} days` :
-                                  unit.days_to_roi <= 60 ? `${unit.days_to_roi} days` :
-                                  unit.days_to_roi <= 90 ? `${unit.days_to_roi} days` :
-                                  unit.days_to_roi <= 180 ? `${unit.days_to_roi} days` :
-                                  `${unit.days_to_roi}+ days`}
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Compact Card Footer -->
-                    <div class="px-3 py-2 bg-gray-50 border-t border-gray-100">
-                        <div class="flex items-center justify-between text-xs text-gray-500">
-                            <span class="flex items-center gap-1">
-                                <i data-lucide="calendar" class="w-3 h-3"></i>
-                                ${unit.last_activity ? new Date(unit.last_activity).toLocaleDateString() : 'No activity'}
+                            <span class="px-1.5 py-0.5 text-[9px] font-bold rounded-full ${statusColors[unit.status] || 'bg-gray-100'} uppercase">
+                                ${unit.status}
                             </span>
-                            <span class="flex items-center gap-1">
-                                <i data-lucide="trending-up" class="w-3 h-3"></i>
-                                ${unit.roi_percentage >= 100 ? 'Profit' : 'Invest'}
+                        </div>
+                        
+                        <!-- Essential Stats -->
+                        <div class="grid grid-cols-2 gap-2 text-center py-1 bg-gray-50 rounded">
+                            <div>
+                                <div class="text-[8px] text-gray-500 uppercase font-bold tracking-tighter">Total Coll.</div>
+                                <div class="text-xs font-bold text-green-600">₱${unit.total_boundary ? unit.total_boundary.toLocaleString() : '0'}</div>
+                            </div>
+                            <div>
+                                <div class="text-[8px] text-gray-500 uppercase font-bold tracking-tighter">ROI</div>
+                                <div class="text-xs font-bold ${unit.roi_percentage >= 100 ? 'text-blue-600' : 'text-gray-900'}">${unit.roi_percentage.toFixed(1)}%</div>
+                            </div>
+                        </div>
+
+                        <!-- Mini Footer -->
+                        <div class="mt-1.5 flex items-center justify-between text-[8px] font-bold text-gray-400 uppercase tracking-tighter">
+                            <span>ID: ${unit.plate_number || 'N/A'}</span>
+                            <span class="${unit.today_boundary > 0 ? 'text-blue-500' : ''}">
+                                ${unit.today_boundary > 0 ? `+₱${unit.today_boundary.toLocaleString()}` : 'No Daily'}
                             </span>
                         </div>
                     </div>
@@ -2510,23 +2415,9 @@
             document.getElementById('roiUnitsCount').textContent = stats.roi_units || 0;
             document.getElementById('avgRoiCount').textContent = stats.avg_roi ? stats.avg_roi.toFixed(1) + '%' : '0%';
             
-            // Remove any existing data source indicator
-            const existingIndicator = grid.parentNode.querySelector('.data-source-indicator');
-            if (existingIndicator) {
-                existingIndicator.remove();
-            }
-            
-            // Add single data source indicator
-            const dataSourceIndicator = document.createElement('div');
-            dataSourceIndicator.className = 'data-source-indicator text-xs text-gray-400 text-center mb-2';
-            dataSourceIndicator.innerHTML = `
-                <i data-lucide="database" class="w-3 h-3 inline mr-1"></i>
-                Real Database Data • Last Updated: ${data.last_updated || 'Unknown'}
-            `;
-            
-            // Insert data source indicator before grid
-            const gridParent = grid.parentNode;
-            gridParent.insertBefore(dataSourceIndicator, grid);
+            // Remove any existing database data indicators to save space
+            const indicator = grid.parentNode.querySelector('.data-source-indicator');
+            if (indicator) indicator.remove();
             
             const statusColors = {
                 'active': 'bg-green-100 text-green-800 border-green-200',

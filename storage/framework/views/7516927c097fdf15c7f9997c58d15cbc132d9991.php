@@ -33,6 +33,10 @@
                     class="px-3 py-1 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 flex items-center gap-2 text-xs font-semibold">
                     <i data-lucide="search" class="w-3.5 h-3.5"></i> Search
                 </button>
+                <a href="<?php echo e(route('units.print')); ?>" target="_blank"
+                    class="px-3 py-1 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2 text-xs font-semibold">
+                    <i data-lucide="printer" class="w-3.5 h-3.5"></i> Print to PDF
+                </a>
                 <button type="button" onclick="document.getElementById('addUnitModal').classList.remove('hidden')"
                     class="px-3 py-1 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-2 text-xs font-semibold">
                     <i data-lucide="plus" class="w-3.5 h-3.5"></i> Add Unit

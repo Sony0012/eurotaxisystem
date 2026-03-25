@@ -12,6 +12,12 @@
     <meta http-equiv="Expires" content="0">
     
     <title>Eurotaxisystem - Login &amp; Register</title>
+
+    <!-- Favicon -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -782,7 +788,6 @@
                                         <i class="fas fa-user-tag"></i>
                                         <select name="role" id="regRole" required>
                                             <option value="">Select Role</option>
-                                            <option value="staff">Staff</option>
                                             <option value="secretary">Secretary</option>
                                             <option value="manager">Manager</option>
                                             <option value="dispatcher">Dispatcher</option>

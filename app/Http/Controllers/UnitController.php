@@ -58,10 +58,10 @@ class UnitController extends Controller
         $units = $query->orderBy('u.unit_number')->offset($offset)->limit($limit)->get();
 
         foreach ($units as $unit) {
-            $net_income = ($unit->total_collected ?? 0) - ($unit->maintenance_cost ?? 0);
-            $unit->roi_achieved = $unit->purchase_cost > 0 && $net_income >= $unit->purchase_cost;
-            $unit->primary_driver = $unit->driver1_name ? $unit->driver1_name . '|' : null;
-            $unit->secondary_driver = $unit->driver2_name ? $unit->driver2_name . '|' : null;
+            $net_income = (data_get($unit, 'total_collected', 0)) - (data_get($unit, 'maintenance_cost', 0));
+            $unit->roi_achieved = (data_get($unit, 'purchase_cost', 0)) > 0 && $net_income >= (data_get($unit, 'purchase_cost', 0));
+            $unit->primary_driver = data_get($unit, 'driver1_name') ? data_get($unit, 'driver1_name') . '|' : null;
+            $unit->secondary_driver = data_get($unit, 'driver2_name') ? data_get($unit, 'driver2_name') . '|' : null;
         }
 
         $total_pages = ceil($total_units / $limit);
@@ -585,5 +585,28 @@ class UnitController extends Controller
     {
         // For now, treat as CSV (you can install phpoffice/phpspreadsheet for full Excel support)
         $this->importCSV($file);
+    }
+
+    public function printPdf()
+    {
+        $units = DB::table('units as u')
+            ->leftJoin('users as usr1', 'u.driver_id', '=', 'usr1.id')
+            ->leftJoin('users as usr2', 'u.secondary_driver_id', '=', 'usr2.id')
+            ->select(
+                'u.*',
+                'usr1.full_name as driver1_name',
+                'usr2.full_name as driver2_name'
+            )
+            ->orderBy('u.unit_number')
+            ->get();
+
+        foreach ($units as $unit) {
+            $driverCount = 0;
+            if ($unit->driver1_name) $driverCount++;
+            if ($unit->driver2_name) $driverCount++;
+            $unit->driver_count = $driverCount;
+        }
+
+        return view('units.print', compact('units'));
     }
 }

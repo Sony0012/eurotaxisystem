@@ -12,6 +12,12 @@
 
     <title><?php echo e(config('app.name', 'Euro Taxi System')); ?></title>
 
+    <!-- Favicon -->
+    <link rel="apple-touch-icon" sizes="180x180" href="<?php echo e(asset('apple-touch-icon.png')); ?>">
+    <link rel="icon" type="image/png" sizes="32x32" href="<?php echo e(asset('favicon-32x32.png')); ?>">
+    <link rel="icon" type="image/png" sizes="16x16" href="<?php echo e(asset('favicon-16x16.png')); ?>">
+    <link rel="manifest" href="<?php echo e(asset('site.webmanifest')); ?>">
+
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -72,6 +78,12 @@
                             <span>Driver Management</span>
                         </a>
 
+                        <a href="<?php echo e(route('live-tracking.index')); ?>"
+                            class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 <?php echo e(request()->routeIs('live-tracking.*') ? 'bg-yellow-50 text-yellow-700 font-semibold' : ''); ?>">
+                            <i data-lucide="map-pin" class="w-5 h-5"></i>
+                            <span>Live Tracking</span>
+                        </a>
+
                         <a href="<?php echo e(route('decision-management.index')); ?>"
                             class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 <?php echo e(request()->routeIs('decision-management.*') ? 'bg-yellow-50 text-yellow-700 font-semibold' : ''); ?>">
                             <i data-lucide="file-text" class="w-5 h-5"></i>
@@ -120,16 +132,17 @@
                             <span>Analytics</span>
                         </a>
 
-                        <a href="<?php echo e(route('live-tracking.index')); ?>"
-                            class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 <?php echo e(request()->routeIs('live-tracking.*') ? 'bg-yellow-50 text-yellow-700 font-semibold' : ''); ?>">
-                            <i data-lucide="map-pin" class="w-5 h-5"></i>
-                            <span>Live Tracking</span>
-                        </a>
 
                         <a href="<?php echo e(route('unit-profitability.index')); ?>"
                             class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 <?php echo e(request()->routeIs('unit-profitability.*') ? 'bg-yellow-50 text-yellow-700 font-semibold' : ''); ?>">
                             <i data-lucide="trending-up" class="w-5 h-5"></i>
                             <span>Unit Profitability</span>
+                        </a>
+
+                        <a href="<?php echo e(route('staff.index')); ?>"
+                            class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 <?php echo e(request()->routeIs('staff.*') ? 'bg-yellow-50 text-yellow-700 font-semibold' : ''); ?>">
+                            <i data-lucide="user-cog" class="w-5 h-5"></i>
+                            <span>Staff Records</span>
                         </a>
                     </nav>
 
