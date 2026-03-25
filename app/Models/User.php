@@ -18,6 +18,9 @@ class User extends Authenticatable
         'username',
         'email',
         'full_name',
+        'first_name',
+        'middle_name',
+        'last_name',
         'role',
         'password',
         'password_hash',
@@ -27,6 +30,8 @@ class User extends Authenticatable
         'github_id',
         'github_token',
         'github_refresh_token',
+        'last_login',
+        'profile_image',
     ];
 
     protected $hidden = [
@@ -36,6 +41,7 @@ class User extends Authenticatable
 
     protected $casts = [
         'is_active' => 'boolean',
+        'last_login' => 'datetime',
     ];
 
 

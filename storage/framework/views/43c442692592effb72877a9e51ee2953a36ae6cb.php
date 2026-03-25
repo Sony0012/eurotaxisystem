@@ -8,45 +8,33 @@
         .unit-item:hover { background-color: #fefce8; }
         .unit-item.selected { background-color: #fef9c3; border-left: 3px solid #ca8a04; }
         .unit-panel { height: calc(100vh - 260px); min-height: 400px; overflow-y: auto; }
-        .map-container { height: calc(100vh - 260px); min-height: 400px; background-color: #f3f4f6; border-radius: 0.5rem; display: flex; align-items: center; justify-content: center; overflow: hidden; }
-        iframe.gps-frame { width: 100%; height: 100%; border: none; }
+        .map-container { 
+            height: calc(100vh - 260px); 
+            min-height: 500px; 
+            background-color: #f3f4f6; 
+            border-radius: 0.5rem; 
+            position: relative;
+            overflow: hidden; 
+        }
+        iframe.gps-frame { 
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 142.85%; 
+            height: 142.85%; 
+            border: none; 
+            transform: scale(0.7); 
+            transform-origin: top left;
+        }
     </style>
 <?php $__env->stopPush(); ?>
 
 <?php $__env->startSection('content'); ?>
-
-    
-    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-3">
-        <div class="bg-white rounded-lg shadow card-hover">
-            <div class="p-3 text-center">
-                <p class="text-xs text-gray-500">Total Units</p>
-                <p class="text-xl font-bold text-gray-900"><?php echo e($stats['total'] ?? 0); ?></p>
-            </div>
-        </div>
-        <div class="bg-white rounded-lg shadow card-hover">
-            <div class="p-3 text-center">
-                <p class="text-xs text-gray-500">With GPS Link</p>
-                <p class="text-xl font-bold text-green-600"><?php echo e($stats['active'] ?? 0); ?></p>
-            </div>
-        </div>
-        <div class="bg-white rounded-lg shadow card-hover">
-            <div class="p-3 text-center">
-                <p class="text-xs text-gray-500">No GPS Data</p>
-                <p class="text-xl font-bold text-gray-400"><?php echo e($stats['offline'] ?? 0); ?></p>
-            </div>
-        </div>
-        <div class="bg-white rounded-lg shadow card-hover">
-            <div class="p-3 text-center">
-                <p class="text-xs text-gray-500">Active Drivers</p>
-                <p class="text-xl font-bold text-blue-600"><?php echo e($tracked_units->where('current_driver', '!=', 'None')->count()); ?></p>
-            </div>
-        </div>
-    </div>
-
     
     <div class="bg-white rounded-lg shadow p-3 mb-3">
-        <div class="flex flex-col sm:flex-row gap-4">
-            <div class="flex-1">
+        <div class="flex flex-col lg:flex-row items-center gap-4">
+            
+            <div class="flex-1 w-full">
                 <div class="relative">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <i data-lucide="search" class="h-5 w-5 text-gray-400"></i>
@@ -56,7 +44,27 @@
                         placeholder="Search unit number...">
                 </div>
             </div>
-            <div class="sm:w-48">
+
+            
+            <div class="hidden sm:flex items-center gap-4 px-4 py-2 bg-gray-50 border border-gray-100 rounded-lg shrink-0">
+                <div class="flex flex-col items-center">
+                    <span class="text-[10px] text-gray-400 uppercase font-bold tracking-tight">Units</span>
+                    <span class="text-xs font-black text-gray-900"><?php echo e($stats['total'] ?? 0); ?></span>
+                </div>
+                <div class="w-px h-6 bg-gray-200"></div>
+                <div class="flex flex-col items-center">
+                    <span class="text-[10px] text-gray-400 uppercase font-bold tracking-tight">Linked</span>
+                    <span class="text-xs font-black text-green-600"><?php echo e($stats['active'] ?? 0); ?></span>
+                </div>
+                <div class="w-px h-6 bg-gray-200"></div>
+                <div class="flex flex-col items-center">
+                    <span class="text-[10px] text-gray-400 uppercase font-bold tracking-tight">Offline</span>
+                    <span class="text-xs font-black text-gray-400"><?php echo e($stats['offline'] ?? 0); ?></span>
+                </div>
+            </div>
+
+            
+            <div class="w-full lg:w-48">
                 <select id="statusFilterSelect" onchange="filterUnits()" class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none">
                     <option value="">All Units</option>
                     <option value="active" selected>With GPS Link</option>
@@ -67,7 +75,7 @@
     </div>
 
     
-    <div class="grid grid-cols-1 lg:grid-cols-4 gap-3">
+    <div class="grid grid-cols-1 lg:grid-cols-6 gap-3">
         
         
         <div class="lg:col-span-1">
@@ -115,7 +123,7 @@
         </div>
 
         
-        <div class="lg:col-span-3">
+        <div class="lg:col-span-5">
             <div class="bg-white rounded-lg shadow overflow-hidden h-full">
                 <div class="px-4 py-3 border-b bg-gray-50 flex justify-between items-center">
                     <h3 class="font-semibold text-gray-800 flex items-center gap-2">
@@ -125,7 +133,7 @@
                     <span id="mapTitle" class="text-sm font-medium text-gray-500">Select a unit</span>
                 </div>
                 <div class="map-container" id="mapViewer">
-                    <div class="text-center text-gray-400 flex flex-col items-center" id="mapPlaceholder">
+                    <div class="text-center text-gray-400 flex flex-col items-center justify-center h-full w-full" id="mapPlaceholder">
                         <i data-lucide="map-pin" class="w-12 h-12 mb-3 text-gray-300"></i>
                         <p class="text-lg font-medium">No Unit Selected</p>
                         <p class="text-sm mt-1">Select a unit from the list on the left to view its TracksolidPro location.</p>

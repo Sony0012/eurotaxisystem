@@ -19,6 +19,7 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\GitHubAuthController;
 use App\Http\Controllers\GitHubIntegrationController;
 use App\Http\Controllers\StaffController;
+use App\Http\Controllers\MyAccountController;
 
 // ─── Auth Routes ───────────────────────────────────────
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
@@ -26,6 +27,15 @@ Route::get('/register', [AuthController::class, 'showRegister'])->name('register
 Route::post('/login', [AuthController::class, 'login'])->name('login.submit');
 Route::post('/register', [AuthController::class, 'register'])->name('register.submit');
 Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
+
+// ─── My Account Routes ───────────────────────────────────
+Route::middleware(['auth'])->group(function () {
+    Route::get('/my-account', [MyAccountController::class, 'index'])->name('my-account');
+    Route::post('/my-account/update-profile', [MyAccountController::class, 'updateProfile'])->name('my-account.update-profile');
+    Route::post('/my-account/update-profile-image', [MyAccountController::class, 'updateProfileImage'])->name('my-account.update-profile-image');
+    Route::post('/my-account/change-password', [MyAccountController::class, 'changePassword'])->name('my-account.change-password');
+    Route::post('/my-account/forgot-password', [MyAccountController::class, 'forgotPassword'])->name('my-account.forgot-password');
+});
 
 // ─── GitHub OAuth Routes ───────────────────────────────
 Route::get('/auth/github', [GitHubAuthController::class, 'redirectToGitHub'])->name('auth.github');

@@ -13,10 +13,7 @@
     <title><?php echo e(config('app.name', 'Euro Taxi System')); ?></title>
 
     <!-- Favicon -->
-    <link rel="apple-touch-icon" sizes="180x180" href="<?php echo e(asset('apple-touch-icon.png')); ?>">
-    <link rel="icon" type="image/png" sizes="32x32" href="<?php echo e(asset('favicon-32x32.png')); ?>">
-    <link rel="icon" type="image/png" sizes="16x16" href="<?php echo e(asset('favicon-16x16.png')); ?>">
-    <link rel="manifest" href="<?php echo e(asset('site.webmanifest')); ?>">
+    <link rel="icon" type="image/png" href="<?php echo e(asset('favicon_euro_transparent.png')); ?>">
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -50,7 +47,7 @@
         <!-- Main Layout -->
         <div class="flex h-screen overflow-hidden">
             <!-- Sidebar -->
-            <aside class="w-64 bg-white shadow-lg flex-shrink-0">
+            <aside class="w-60 bg-white shadow-lg flex-shrink-0">
                 <div class="h-full flex flex-col">
                     <!-- Logo -->
                     <div class="p-4 border-b flex flex-col items-center">
@@ -59,106 +56,120 @@
                     </div>
 
                     <!-- Navigation -->
-                    <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
+                    <nav class="flex-1 p-4 space-y-1 overflow-y-auto">
                         <a href="<?php echo e(route('dashboard')); ?>"
-                            class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 <?php echo e(request()->routeIs('dashboard') ? 'bg-yellow-50 text-yellow-700 font-semibold' : ''); ?>">
-                            <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
-                            <span>Dashboard</span>
+                            class="sidebar-item flex items-center gap-2.5 px-4 py-2 rounded-lg text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 <?php echo e(request()->routeIs('dashboard') ? 'bg-yellow-50 text-yellow-700 font-semibold' : ''); ?>">
+                            <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+                            <span class="text-sm">Dashboard</span>
                         </a>
 
                         <a href="<?php echo e(route('units.index')); ?>"
-                            class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 <?php echo e(request()->routeIs('units.*') ? 'bg-yellow-50 text-yellow-700 font-semibold' : ''); ?>">
-                            <i data-lucide="car" class="w-5 h-5"></i>
-                            <span>Unit Management</span>
+                            class="sidebar-item flex items-center gap-2.5 px-4 py-2 rounded-lg text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 <?php echo e(request()->routeIs('units.*') ? 'bg-yellow-50 text-yellow-700 font-semibold' : ''); ?>">
+                            <i data-lucide="car" class="w-4 h-4"></i>
+                            <span class="text-sm">Unit Management</span>
                         </a>
 
                         <a href="<?php echo e(route('driver-management.index')); ?>"
-                            class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 <?php echo e(request()->routeIs('driver-management.*') ? 'bg-yellow-50 text-yellow-700 font-semibold' : ''); ?>">
-                            <i data-lucide="users" class="w-5 h-5"></i>
-                            <span>Driver Management</span>
+                            class="sidebar-item flex items-center gap-2.5 px-4 py-2 rounded-lg text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 <?php echo e(request()->routeIs('driver-management.*') ? 'bg-yellow-50 text-yellow-700 font-semibold' : ''); ?>">
+                            <i data-lucide="users" class="w-4 h-4"></i>
+                            <span class="text-sm">Driver Management</span>
                         </a>
 
                         <a href="<?php echo e(route('live-tracking.index')); ?>"
-                            class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 <?php echo e(request()->routeIs('live-tracking.*') ? 'bg-yellow-50 text-yellow-700 font-semibold' : ''); ?>">
-                            <i data-lucide="map-pin" class="w-5 h-5"></i>
-                            <span>Live Tracking</span>
+                            class="sidebar-item flex items-center gap-2.5 px-4 py-2 rounded-lg text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 <?php echo e(request()->routeIs('live-tracking.*') ? 'bg-yellow-50 text-yellow-700 font-semibold' : ''); ?>">
+                            <i data-lucide="map-pin" class="w-4 h-4"></i>
+                            <span class="text-sm">Live Tracking</span>
                         </a>
 
                         <a href="<?php echo e(route('decision-management.index')); ?>"
-                            class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 <?php echo e(request()->routeIs('decision-management.*') ? 'bg-yellow-50 text-yellow-700 font-semibold' : ''); ?>">
-                            <i data-lucide="file-text" class="w-5 h-5"></i>
-                            <span>Franchise</span>
+                            class="sidebar-item flex items-center gap-2.5 px-4 py-2 rounded-lg text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 <?php echo e(request()->routeIs('decision-management.*') ? 'bg-yellow-50 text-yellow-700 font-semibold' : ''); ?>">
+                            <i data-lucide="file-text" class="w-4 h-4"></i>
+                            <span class="text-sm">Franchise</span>
                         </a>
 
                         <a href="<?php echo e(route('boundaries.index')); ?>"
-                            class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 <?php echo e(request()->routeIs('boundaries.*') ? 'bg-yellow-50 text-yellow-700 font-semibold' : ''); ?>">
-                            <i data-lucide="dollar-sign" class="w-5 h-5"></i>
-                            <span>Boundaries</span>
+                            class="sidebar-item flex items-center gap-2.5 px-4 py-2 rounded-lg text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 <?php echo e(request()->routeIs('boundaries.*') ? 'bg-yellow-50 text-yellow-700 font-semibold' : ''); ?>">
+                            <i data-lucide="dollar-sign" class="w-4 h-4"></i>
+                            <span class="text-sm">Boundaries</span>
                         </a>
 
                         <a href="<?php echo e(route('maintenance.index')); ?>"
-                            class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 <?php echo e(request()->routeIs('maintenance.*') ? 'bg-yellow-50 text-yellow-700 font-semibold' : ''); ?>">
-                            <i data-lucide="wrench" class="w-5 h-5"></i>
-                            <span>Maintenance</span>
+                            class="sidebar-item flex items-center gap-2.5 px-4 py-2 rounded-lg text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 <?php echo e(request()->routeIs('maintenance.*') ? 'bg-yellow-50 text-yellow-700 font-semibold' : ''); ?>">
+                            <i data-lucide="wrench" class="w-4 h-4"></i>
+                            <span class="text-sm">Maintenance</span>
                         </a>
 
                         <a href="<?php echo e(route('coding.index')); ?>"
-                            class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 <?php echo e(request()->routeIs('coding.*') ? 'bg-yellow-50 text-yellow-700 font-semibold' : ''); ?>">
-                            <i data-lucide="calendar" class="w-5 h-5"></i>
-                            <span>Coding Management</span>
+                            class="sidebar-item flex items-center gap-2.5 px-4 py-2 rounded-lg text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 <?php echo e(request()->routeIs('coding.*') ? 'bg-yellow-50 text-yellow-700 font-semibold' : ''); ?>">
+                            <i data-lucide="calendar" class="w-4 h-4"></i>
+                            <span class="text-sm">Coding Management</span>
                         </a>
 
                         <a href="<?php echo e(route('driver-behavior.index')); ?>"
-                            class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 <?php echo e(request()->routeIs('driver-behavior.*') ? 'bg-yellow-50 text-yellow-700 font-semibold' : ''); ?>">
-                            <i data-lucide="alert-triangle" class="w-5 h-5"></i>
-                            <span>Driver Behavior</span>
+                            class="sidebar-item flex items-center gap-2.5 px-4 py-2 rounded-lg text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 <?php echo e(request()->routeIs('driver-behavior.*') ? 'bg-yellow-50 text-yellow-700 font-semibold' : ''); ?>">
+                            <i data-lucide="alert-triangle" class="w-4 h-4"></i>
+                            <span class="text-sm">Driver Behavior</span>
                         </a>
 
                         <a href="<?php echo e(route('office-expenses.index')); ?>"
-                            class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 <?php echo e(request()->routeIs('office-expenses.*') ? 'bg-yellow-50 text-yellow-700 font-semibold' : ''); ?>">
-                            <i data-lucide="receipt" class="w-5 h-5"></i>
-                            <span>Office Expenses</span>
+                            class="sidebar-item flex items-center gap-2.5 px-4 py-2 rounded-lg text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 <?php echo e(request()->routeIs('office-expenses.*') ? 'bg-yellow-50 text-yellow-700 font-semibold' : ''); ?>">
+                            <i data-lucide="receipt" class="w-4 h-4"></i>
+                            <span class="text-sm">Office Expenses</span>
                         </a>
 
                         <a href="<?php echo e(route('salary.index')); ?>"
-                            class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 <?php echo e(request()->routeIs('salary.*') ? 'bg-yellow-50 text-yellow-700 font-semibold' : ''); ?>">
-                            <i data-lucide="calculator" class="w-5 h-5"></i>
-                            <span>Salary Management</span>
+                            class="sidebar-item flex items-center gap-2.5 px-4 py-2 rounded-lg text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 <?php echo e(request()->routeIs('salary.*') ? 'bg-yellow-50 text-yellow-700 font-semibold' : ''); ?>">
+                            <i data-lucide="calculator" class="w-4 h-4"></i>
+                            <span class="text-sm">Salary Management</span>
                         </a>
 
                         <a href="<?php echo e(route('analytics.index')); ?>"
-                            class="sidebar-item flex items-center gap-3 px-4 py-2 rounded-lg text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 <?php echo e(request()->routeIs('analytics.*') ? 'bg-yellow-50 text-yellow-700 font-semibold' : ''); ?>">
-                            <i data-lucide="bar-chart" class="w-5 h-5"></i>
-                            <span>Analytics</span>
+                            class="sidebar-item flex items-center gap-2.5 px-4 py-2 rounded-lg text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 <?php echo e(request()->routeIs('analytics.*') ? 'bg-yellow-50 text-yellow-700 font-semibold' : ''); ?>">
+                            <i data-lucide="bar-chart" class="w-4 h-4"></i>
+                            <span class="text-sm">Analytics</span>
                         </a>
 
 
                         <a href="<?php echo e(route('unit-profitability.index')); ?>"
-                            class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 <?php echo e(request()->routeIs('unit-profitability.*') ? 'bg-yellow-50 text-yellow-700 font-semibold' : ''); ?>">
-                            <i data-lucide="trending-up" class="w-5 h-5"></i>
-                            <span>Unit Profitability</span>
+                            class="sidebar-item flex items-center gap-2.5 px-4 py-2 rounded-lg text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 <?php echo e(request()->routeIs('unit-profitability.*') ? 'bg-yellow-50 text-yellow-700 font-semibold' : ''); ?>">
+                            <i data-lucide="trending-up" class="w-4 h-4"></i>
+                            <span class="text-sm">Unit Profitability</span>
                         </a>
 
                         <a href="<?php echo e(route('staff.index')); ?>"
-                            class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 <?php echo e(request()->routeIs('staff.*') ? 'bg-yellow-50 text-yellow-700 font-semibold' : ''); ?>">
-                            <i data-lucide="user-cog" class="w-5 h-5"></i>
-                            <span>Staff Records</span>
+                            class="sidebar-item flex items-center gap-2.5 px-4 py-2 rounded-lg text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 <?php echo e(request()->routeIs('staff.*') ? 'bg-yellow-50 text-yellow-700 font-semibold' : ''); ?>">
+                            <i data-lucide="user-cog" class="w-4 h-4"></i>
+                            <span class="text-sm">Staff Records</span>
                         </a>
                     </nav>
 
                     <!-- User Menu -->
                     <div class="p-4 border-t">
-                        <div class="flex items-center gap-3 mb-3">
+                        <a href="<?php echo e(route('my-account')); ?>" 
+                           class="flex items-center gap-3 mb-3 p-2 rounded-lg hover:bg-gray-50 transition-colors group">
                             <div
-                                class="w-10 h-10 bg-yellow-600 rounded-full flex items-center justify-center text-white font-semibold">
-                                <?php echo e(strtoupper(substr(auth()->user()->full_name ?? 'U', 0, 1))); ?>
+                                class="w-10 h-10 bg-yellow-600 rounded-full flex items-center justify-center text-white font-semibold group-hover:bg-yellow-700 transition-colors overflow-hidden flex-shrink-0 border border-gray-100">
+                                <?php if(auth()->user()->profile_image): ?>
+                                    <?php
+                                        $imagePath = str_replace('resources/', '', auth()->user()->profile_image);
+                                        $isIcon = str_contains($imagePath, 'image/') && !str_contains($imagePath, 'storage/');
+                                    ?>
+                                    <?php if($isIcon): ?>
+                                        <img src="<?php echo e(asset($imagePath)); ?>" alt="Profile" class="w-full h-full object-cover">
+                                    <?php else: ?>
+                                        <img src="<?php echo e(asset('storage/' . auth()->user()->profile_image)); ?>" alt="Profile" class="w-full h-full object-cover">
+                                    <?php endif; ?>
+                                <?php else: ?>
+                                    <?php echo e(strtoupper(substr(auth()->user()->full_name ?? 'U', 0, 1))); ?>
 
+                                <?php endif; ?>
                             </div>
                             <div class="flex-1">
-                                <p class="text-sm font-medium text-gray-900"><?php echo e(auth()->user()->full_name ?? 'User'); ?></p>
+                                <p class="text-sm font-medium text-gray-900 group-hover:text-yellow-700 transition-colors"><?php echo e(auth()->user()->full_name ?? 'User'); ?></p>
                                 <p class="text-xs text-gray-500"><?php echo e(ucfirst(auth()->user()->role ?? 'user')); ?></p>
                             </div>
-                        </div>
+                            <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400 group-hover:text-yellow-600 transition-colors"></i>
+                        </a>
                         <a href="<?php echo e(route('logout')); ?>"
                             class="flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg w-full"
                             onclick="event.preventDefault(); if(confirm('Are you sure you want to logout?')) { window.location.href = '<?php echo e(route('logout')); ?>'; }">
