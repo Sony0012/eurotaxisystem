@@ -1017,6 +1017,98 @@
             }
         });
 
+        // Unit Status Distribution Chart
+        const unitStatusDistCtx = document.getElementById('unitStatusChart').getContext('2d');
+        const unitStatusDistData = @json($unit_status_distribution_data);
+        
+        // Debug: Log the data to console
+        console.log('Unit Status Distribution Data:', unitStatusDistData);
+        
+        // Check if data exists and has values
+        if (!unitStatusDistData || unitStatusDistData.length === 0 || unitStatusDistData.every(d => d.count === 0)) {
+            // Show placeholder data if no real data
+            const placeholderData = [
+                { status: 'Active', count: 5 },
+                { status: 'Under Maintenance', count: 2 },
+                { status: 'Coding', count: 1 },
+                { status: 'Retired', count: 0 }
+            ];
+            window.unitStatusDistChart = new Chart(unitStatusDistCtx, {
+                type: 'pie',
+                data: {
+                    labels: placeholderData.map(d => d.status),
+                    datasets: [{
+                        data: placeholderData.map(d => d.count),
+                        backgroundColor: [
+                            '#22c55e',
+                            '#3b82f6', 
+                            '#f59e0b',
+                            '#ef4444'
+                        ],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'right' },
+                        title: {
+                            display: true,
+                            text: 'Sample Data - Add units to see real data'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.parsed || 0;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                                    return label + ': ' + value + ' (' + percentage + '%)';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        } else {
+            // Real data exists - use it
+            window.unitStatusDistChart = new Chart(unitStatusDistCtx, {
+                type: 'pie',
+                data: {
+                    labels: unitStatusDistData.map(d => d.status),
+                    datasets: [{
+                        data: unitStatusDistData.map(d => d.count),
+                        backgroundColor: [
+                            '#22c55e',
+                            '#3b82f6', 
+                            '#f59e0b',
+                            '#ef4444'
+                        ],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'right' },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.parsed || 0;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                                    return label + ': ' + value + ' (' + percentage + '%)';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
         // Revenue Trend Period Selection
         function updateRevenueTrend(period) {
             // Update button styles
