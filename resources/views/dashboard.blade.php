@@ -1,8 +1,8 @@
 @extends('layouts.app')
 
-@section('title', 'Dashboard - Euro System')
-@section('page-heading', 'Dashboard Overview')
-@section('page-subheading', 'Real-time operational metrics and alerts')
+@section('title', 'Euro Taxi System | Professional Fleet Management Dashboard')
+@section('page-heading', 'Euro Taxi System')
+@section('page-subheading', 'Professional taxi fleet management and real-time tracking solutions')
 
 @section('content')
     <!-- Stats Grid -->

@@ -4,6 +4,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Euro Taxi System - Professional taxi fleet management system in the Philippines. Real-time tracking, driver management, and comprehensive taxi business solutions.">
+    <meta name="keywords" content="euro taxi, taxi system, fleet management, taxi business philippines, vehicle tracking, driver management, taxi dispatch, transportation system">
+    <meta name="author" content="Euro Taxi System">
+    <meta name="robots" content="index, follow">
+    <meta property="og:title" content="Euro Taxi System | Professional Taxi Fleet Management">
+    <meta property="og:description" content="Complete taxi fleet management system with real-time tracking and driver management in the Philippines">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ config('app.url', 'https://www.eurotaxisystem.site') }}">
+    <meta property="og:image" content="{{ asset('image/logo.png') }}">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Euro Taxi System | Taxi Fleet Management">
+    <meta name="twitter:description" content="Professional taxi fleet management system in the Philippines">
+    
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
     
@@ -394,7 +409,38 @@
             }
         }
 
+        // Initialize Lucide icons when DOM is ready
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.lucide && window.lucide.createIcons) {
+                window.lucide.createIcons();
+            }
+        });
+    </script>
 
+    <!-- Structured Data (JSON-LD) -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "Euro Taxi System",
+        "url": "https://www.eurotaxisystem.site",
+        "logo": "https://www.eurotaxisystem.site/{{ asset('image/logo.png') }}",
+        "description": "Professional taxi fleet management system in the Philippines with real-time tracking, driver management, and comprehensive business solutions.",
+        "address": {
+            "@type": "PostalAddress",
+            "addressCountry": "PH",
+            "addressRegion": "Philippines"
+        },
+        "contactPoint": {
+            "@type": "ContactPoint",
+            "telephone": "+63-XXX-XXXX-XXXX",
+            "contactType": "customer service",
+            "availableLanguage": ["English", "Filipino"]
+        },
+        "sameAs": [
+            "https://www.eurotaxisystem.site"
+        ]
+    }
     </script>
 
     @stack('scripts')
