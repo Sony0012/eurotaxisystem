@@ -24,6 +24,7 @@ class BoundaryController extends Controller
 
         // Build query joining units and drivers tables
         $query = DB::table('boundaries as b')
+            ->whereNull('b.deleted_at')
             ->leftJoin('units as u', 'b.unit_id', '=', 'u.id')
             ->leftJoin('drivers as d', 'b.driver_id', '=', 'd.id')
             ->leftJoin('users as usr', 'd.user_id', '=', 'usr.id')
@@ -225,7 +226,12 @@ class BoundaryController extends Controller
 
     public function edit($id) { return redirect()->route('boundaries.index'); }
     public function update(Request $request, $id) { return redirect()->route('boundaries.index'); }
-    public function destroy($id) { return redirect()->route('boundaries.index'); }
+    public function destroy($id)
+    {
+        $boundary = Boundary::findOrFail($id);
+        $boundary->delete();
+        return redirect()->route('boundaries.index')->with('success', 'Boundary record archived.');
+    }
     public function show($id) { return redirect()->route('boundaries.index'); }
     public function create() { return redirect()->route('boundaries.index'); }
 }

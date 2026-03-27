@@ -21,11 +21,13 @@ class AnalyticsController extends Controller
             
             // Get boundary collections
             $boundary = DB::table('boundaries')
+                ->whereNull('deleted_at')
                 ->whereBetween('date', [$startDate, $endDate])
                 ->sum('boundary_amount') ?? 0;
             
             // Get expenses
             $expenses = DB::table('expenses')
+                ->whereNull('deleted_at')
                 ->whereBetween('date', [$startDate, $endDate])
                 ->sum('amount') ?? 0;
             
@@ -41,6 +43,7 @@ class AnalyticsController extends Controller
 
         // Get unit idle analysis
         $unitIdleAnalysis = DB::table('units as u')
+            ->whereNull('u.deleted_at')
             ->leftJoin('maintenance as m', 'u.id', '=', 'm.unit_id')
             ->selectRaw('
                 u.unit_number,
@@ -53,7 +56,9 @@ class AnalyticsController extends Controller
 
         // Get driver performance
         $driverPerformance = DB::table('boundaries as b')
+            ->whereNull('b.deleted_at')
             ->join('users as u', 'b.driver_id', '=', 'u.id')
+            ->whereNull('u.deleted_at')
             ->selectRaw('
                 u.full_name,
                 COUNT(b.id) as days_worked,
@@ -69,6 +74,7 @@ class AnalyticsController extends Controller
 
         // Get expense trends
         $expenseTrends = DB::table('expenses')
+            ->whereNull('deleted_at')
             ->selectRaw('
                 DATE_FORMAT(date, "%Y-%m") as month,
                 SUM(amount) as total,
@@ -81,6 +87,7 @@ class AnalyticsController extends Controller
 
         // Get maintenance costs by type
         $maintenanceCosts = DB::table('maintenance')
+            ->whereNull('deleted_at')
             ->selectRaw('
                 maintenance_type,
                 SUM(cost) as total_cost,
@@ -93,19 +100,22 @@ class AnalyticsController extends Controller
             ->get();
 
         // Calculate total boundary and expenses
-        $total_boundary = DB::table('boundaries')->count();
+        $total_boundary = DB::table('boundaries')->whereNull('deleted_at')->count();
         $total_expenses = DB::table('expenses')
+            ->whereNull('deleted_at')
             ->whereBetween('date', [$date_from, $date_to])
             ->sum('amount') ?? 0;
         
         // Calculate net income and active drivers
         $net_income = 0; // Placeholder - would need revenue data to calculate
         $active_drivers = DB::table('users')
+            ->whereNull('deleted_at')
             ->where('role', 'driver')
             ->count();
         
         // Get top performing units
         $top_units = DB::table('units')
+            ->whereNull('deleted_at')
             ->leftJoin('users as d', 'units.driver_id', '=', 'd.id')
             ->select('units.*', 'd.full_name as driver_name')
             ->selectRaw('0 as total_collected, 0 as days_operated') // Placeholder values
@@ -115,6 +125,7 @@ class AnalyticsController extends Controller
         
         // Get daily trend data
         $daily_trend = DB::table('expenses')
+            ->whereNull('deleted_at')
             ->selectRaw('DATE(date) as date, SUM(amount) as total')
             ->whereBetween('date', [$date_from, $date_to])
             ->groupBy('date')
@@ -123,6 +134,7 @@ class AnalyticsController extends Controller
         
         // Get expense by category
         $expense_by_category = DB::table('expenses')
+            ->whereNull('deleted_at')
             ->selectRaw('category, SUM(amount) as total, COUNT(*) as count')
             ->whereBetween('date', [$date_from, $date_to])
             ->groupBy('category')

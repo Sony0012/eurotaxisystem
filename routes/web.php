@@ -20,6 +20,7 @@ use App\Http\Controllers\GitHubAuthController;
 use App\Http\Controllers\GitHubIntegrationController;
 use App\Http\Controllers\StaffController;
 use App\Http\Controllers\MyAccountController;
+use App\Http\Controllers\ArchiveController;
 
 // ─── Auth Routes ───────────────────────────────────────
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
@@ -139,4 +140,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/api/github/contributors', [GitHubIntegrationController::class, 'getContributors'])->name('github.contributors');
     Route::get('/api/github/workflow/{workflowId}', [GitHubIntegrationController::class, 'getWorkflowStatus'])->name('github.workflow-status');
     Route::post('/api/github/workflow/trigger', [GitHubIntegrationController::class, 'triggerWorkflow'])->name('github.trigger-workflow');
+
+    // Archive System
+    Route::get('/archive', [ArchiveController::class, 'index'])->name('archive.index');
+    Route::post('/archive/restore/{type}/{id}', [ArchiveController::class, 'restore'])->name('archive.restore');
+    Route::delete('/archive/force-delete/{type}/{id}', [ArchiveController::class, 'forceDelete'])->name('archive.forceDelete');
 });

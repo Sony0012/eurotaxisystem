@@ -27,10 +27,12 @@ class DashboardController extends Controller
 
         // Units with ROI achieved (calculated from real boundary data)
         $stats['roi_units'] = DB::table('units as u')
+            ->whereNull('u.deleted_at')
             ->where('u.purchase_cost', '>', 0)
             ->whereExists(function($query) {
                 $query->select(DB::raw(1))
                     ->from('boundaries as b')
+                    ->whereNull('b.deleted_at')
                     ->whereRaw('b.unit_id = u.id')
                     ->whereIn('b.status', ['paid', 'excess'])
                     ->groupBy('b.unit_id')
@@ -46,11 +48,13 @@ class DashboardController extends Controller
 
         // Today's boundary collected
         $stats['today_boundary'] = DB::table('boundaries')
+            ->whereNull('deleted_at')
             ->whereDate('date', now()->toDateString())
             ->sum('boundary_amount') ?? 0;
 
         // Today's expenses
         $stats['today_expenses'] = DB::table('expenses')
+            ->whereNull('deleted_at')
             ->whereDate('date', now()->toDateString())
             ->sum('amount') ?? 0;
 
@@ -60,16 +64,20 @@ class DashboardController extends Controller
         // Active drivers — drivers table uses driver_status column
         $stats['active_drivers'] = DB::table('drivers as d')
             ->join('users as u', 'd.user_id', '=', 'u.id')
+            ->whereNull('d.deleted_at')
+            ->whereNull('u.deleted_at')
             ->where('u.is_active', true)
             ->count();
 
         // Average boundary rate for active units
         $stats['avg_boundary'] = DB::table('units')
+            ->whereNull('deleted_at')
             ->where('status', 'active')
             ->avg('boundary_rate') ?? 0;
 
         // Maintenance cost this month — real column: date_started (not maintenance_date)
         $stats['monthly_maintenance'] = DB::table('maintenance')
+            ->whereNull('deleted_at')
             ->whereMonth('date_started', now()->month)
             ->whereYear('date_started', now()->year)
             ->where('status', 'completed')
@@ -86,7 +94,10 @@ class DashboardController extends Controller
         $period = $request->get('period', 30); // Default to 30 days
         $revenue_trend = collect(range($period - 1, 0))->map(function ($daysAgo) use ($period) {
             $date = now()->subDays($daysAgo)->toDateString();
-            $boundary = DB::table('boundaries')->whereDate('date', $date)->sum('boundary_amount') ?? 0;
+            $boundary = DB::table('boundaries')
+                ->whereNull('deleted_at')
+                ->whereDate('date', $date)
+                ->sum('boundary_amount') ?? 0;
             
             // Format label based on period
             if ($period <= 7) {

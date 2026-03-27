@@ -19,6 +19,7 @@ class OfficeExpenseController extends Controller
         $offset = ($page - 1) * $limit;
 
         $query = DB::table('expenses as e')
+            ->whereNull('e.deleted_at')
             ->leftJoin('users as u', 'e.recorded_by', '=', 'u.id')
             ->leftJoin('units as un', 'e.unit_id', '=', 'un.id')
             ->leftJoin('users as creator', 'e.created_by', '=', 'creator.id')
@@ -136,8 +137,9 @@ class OfficeExpenseController extends Controller
 
     public function destroy($id)
     {
-        DB::table('expenses')->where('id', $id)->delete();
-        return redirect()->route('office-expenses.index')->with('success', 'Expense deleted successfully');
+        $expense = Expense::findOrFail($id);
+        $expense->delete();
+        return redirect()->route('office-expenses.index')->with('success', 'Expense archived successfully');
     }
 
     public function approve(Request $request, $id)

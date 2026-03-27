@@ -21,6 +21,8 @@ class DriverManagementController extends Controller
         // units.driver_id references users.id (not drivers.id)
         $query = DB::table('drivers as d')
             ->join('users as u', 'd.user_id', '=', 'u.id')
+            ->whereNull('d.deleted_at')
+            ->whereNull('u.deleted_at')
             ->leftJoin('users as creator', 'd.created_by', '=', 'creator.id')
             ->leftJoin('users as editor', 'd.updated_by', '=', 'editor.id')
             ->select(
@@ -48,10 +50,10 @@ class DriverManagementController extends Controller
 
         // Stats
         $stats = [
-            'total'     => DB::table('drivers')->count(),
-            'available' => DB::table('drivers')->where('driver_status', 'available')->count(),
-            'assigned'  => DB::table('drivers')->where('driver_status', 'assigned')->count(),
-            'on_leave'  => DB::table('drivers')->where('driver_status', 'on_leave')->count(),
+            'total'     => DB::table('drivers')->whereNull('deleted_at')->count(),
+            'available' => DB::table('drivers')->whereNull('deleted_at')->where('driver_status', 'available')->count(),
+            'assigned'  => DB::table('drivers')->whereNull('deleted_at')->where('driver_status', 'assigned')->count(),
+            'on_leave'  => DB::table('drivers')->whereNull('deleted_at')->where('driver_status', 'on_leave')->count(),
         ];
 
         // Expiring licenses within 30 days
@@ -187,23 +189,29 @@ class DriverManagementController extends Controller
 
     public function destroy($id)
     {
-        $driver = DB::table('drivers')->where('id', $id)->first();
+        $driver = Driver::find($id);
         if ($driver) {
             DB::beginTransaction();
             try {
-                // Unassign from units
-                DB::table('units')->where('driver_id', $driver->user_id)->update(['driver_id' => null]);
-                DB::table('units')->where('secondary_driver_id', $driver->user_id)->update(['secondary_driver_id' => null]);
+                $user_id = $driver->user_id;
                 
-                // Delete driver and user records
-                DB::table('drivers')->where('id', $id)->delete();
-                DB::table('users')->where('id', $driver->user_id)->delete();
+                // Unassign from units
+                DB::table('units')->where('driver_id', $user_id)->update(['driver_id' => null]);
+                DB::table('units')->where('secondary_driver_id', $user_id)->update(['secondary_driver_id' => null]);
+                
+                // Delete driver and user records using Eloquent for soft deletes
+                $driver->delete();
+                
+                $user = User::find($user_id);
+                if ($user) {
+                    $user->delete();
+                }
                 
                 DB::commit();
-                return redirect()->route('driver-management.index')->with('success', 'Driver removed successfully');
+                return redirect()->route('driver-management.index')->with('success', 'Driver archived successfully');
             } catch (\Exception $e) {
                 DB::rollBack();
-                return redirect()->route('driver-management.index')->with('error', 'Failed to remove driver: ' . $e->getMessage());
+                return redirect()->route('driver-management.index')->with('error', 'Failed to archive driver: ' . $e->getMessage());
             }
         }
         return redirect()->route('driver-management.index')->with('error', 'Driver not found.');

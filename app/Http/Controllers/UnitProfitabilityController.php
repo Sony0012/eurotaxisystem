@@ -24,11 +24,12 @@ class UnitProfitabilityController extends Controller
             $params[] = $unit_filter;
             $types .= "s";
         }
+        $where_conditions[] = "u.deleted_at IS NULL";
 
-        $where_clause = !empty($where_conditions) ? "WHERE " . implode(' AND ', $where_conditions) : "";
+        $where_clause = "WHERE " . implode(' AND ', $where_conditions);
 
         // Get all units for dropdown
-        $units_dropdown = DB::table('units')->orderBy('unit_number')->get();
+        $units_dropdown = DB::table('units')->whereNull('deleted_at')->orderBy('unit_number')->get();
 
         // Get unit profitability data
         $sql = "SELECT 
@@ -48,9 +49,9 @@ class UnitProfitabilityController extends Controller
                 COALESCE(SUM(CASE WHEN e.date BETWEEN ? AND ? THEN e.amount ELSE 0 END), 0) as total_expenses,
                 COALESCE(COUNT(DISTINCT CASE WHEN e.date BETWEEN ? AND ? THEN e.id END), 0) as expense_days
             FROM units u
-            LEFT JOIN boundaries b ON u.id = b.unit_id
-            LEFT JOIN maintenance m ON u.id = m.unit_id
-            LEFT JOIN expenses e ON u.id = e.unit_id
+            LEFT JOIN boundaries b ON u.id = b.unit_id AND b.deleted_at IS NULL
+            LEFT JOIN maintenance m ON u.id = m.unit_id AND m.deleted_at IS NULL
+            LEFT JOIN expenses e ON u.id = e.unit_id AND e.deleted_at IS NULL
             $where_clause
             GROUP BY u.id, u.unit_number, u.plate_number, u.make, u.model, u.year, u.purchase_cost, u.boundary_rate
             ORDER BY u.unit_number";

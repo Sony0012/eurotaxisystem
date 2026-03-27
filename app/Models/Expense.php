@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Traits\TrackChanges;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Expense extends Model
 {
-    use TrackChanges;
+    use TrackChanges, SoftDeletes;
     protected $table = 'expenses';
 
     protected $fillable = [

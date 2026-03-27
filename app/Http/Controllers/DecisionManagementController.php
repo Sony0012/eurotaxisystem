@@ -35,7 +35,8 @@ class DecisionManagementController extends Controller
         }
 
         // Real columns: id, applicant_name, case_no, type_of_application, denomination, date_filed, expiry_date
-        $query = DB::table('franchise_cases');
+        $query = DB::table('franchise_cases')
+            ->whereNull('deleted_at');
 
         if ($search) {
             $query->where(function ($q) use ($search) {
@@ -165,8 +166,11 @@ class DecisionManagementController extends Controller
         if (Schema::hasTable('franchise_case_units')) {
             DB::table('franchise_case_units')->where('franchise_case_id', $id)->delete();
         }
-        DB::table('franchise_cases')->where('id', $id)->delete();
-        return redirect()->route('decision-management.index')->with('success', 'Case deleted successfully');
+        
+        $case = \App\Models\FranchiseCase::findOrFail($id);
+        $case->delete();
+        
+        return redirect()->route('decision-management.index')->with('success', 'Case archived successfully');
     }
 
     public function approve($id)

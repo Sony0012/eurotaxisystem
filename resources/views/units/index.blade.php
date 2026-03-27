@@ -136,10 +136,10 @@
                                         <i data-lucide="edit-2" class="w-3.5 h-3.5"></i>
                                     </button>
                                     <form method="POST" action="{{ route('units.destroy', $unit->id) }}"
-                                        onsubmit="return confirm('Delete unit {{ $unit->unit_number }}?'); event.stopPropagation();">
+                                        onsubmit="return confirm('Delete unit {{ $unit->unit_number }}?');">
                                         @csrf @method('DELETE')
-                                        <button type="submit" class="p-1 text-red-600 hover:bg-red-50 rounded"
-                                            title="Delete Unit">
+                                        <button type="submit" onclick="event.stopPropagation()"
+                                            class="p-1 text-red-600 hover:bg-red-50 rounded" title="Delete Unit">
                                             <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
                                         </button>
                                     </form>

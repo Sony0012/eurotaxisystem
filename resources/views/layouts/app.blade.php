@@ -168,6 +168,14 @@
                             <i data-lucide="user-cog" class="w-5 lg:w-4 h-5 lg:h-4"></i>
                             <span class="text-sm hidden lg:block">Staff Records</span>
                         </a>
+
+                        <hr class="my-2 border-gray-100 hidden lg:block">
+
+                        <a href="{{ route('archive.index') }}"
+                            class="sidebar-item flex items-center justify-center lg:justify-start lg:gap-2.5 px-0 lg:px-4 py-2 rounded-lg text-gray-700 hover:bg-red-50 hover:text-red-700 {{ request()->routeIs('archive.*') ? 'bg-red-50 text-red-700 font-semibold' : '' }}">
+                            <i data-lucide="archive" class="w-5 lg:w-4 h-5 lg:h-4"></i>
+                            <span class="text-sm hidden lg:block">Archive</span>
+                        </a>
                     </nav>
 
                     <!-- User Menu -->

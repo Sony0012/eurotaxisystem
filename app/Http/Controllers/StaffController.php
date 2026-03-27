@@ -73,6 +73,6 @@ class StaffController extends Controller
         $staff = \App\Models\Staff::findOrFail($id);
         $staff->delete();
 
-        return redirect()->route('staff.index')->with('success', 'Staff record deleted successfully.');
+        return redirect()->route('staff.index')->with('success', 'Staff record archived successfully.');
     }
 }

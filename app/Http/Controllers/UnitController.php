@@ -20,6 +20,7 @@ class UnitController extends Controller
         $offset = ($page - 1) * $limit;
 
         $query = DB::table('units as u')
+            ->whereNull('u.deleted_at')
             ->leftJoin('users as usr1', 'u.driver_id', '=', 'usr1.id')
             ->leftJoin('drivers as drv1', 'usr1.id', '=', 'drv1.user_id')
             ->leftJoin('users as usr2', 'u.secondary_driver_id', '=', 'usr2.id')
@@ -260,12 +261,15 @@ class UnitController extends Controller
         try {
             DB::table('gps_devices')->where('unit_id', $id)->delete();
             DB::table('dashcam_devices')->where('unit_id', $id)->delete();
-            DB::table('units')->where('id', $id)->delete();
+            
+            $unit = Unit::findOrFail($id);
+            $unit->delete(); // This now triggers soft delete
+            
             DB::commit();
-            return redirect()->route('units.index')->with('success', 'Unit deleted successfully!');
+            return redirect()->route('units.index')->with('success', 'Unit archived successfully!');
         } catch (\Exception $e) {
             DB::rollBack();
-            return redirect()->route('units.index')->with('error', 'Failed to delete unit: ' . $e->getMessage());
+            return redirect()->route('units.index')->with('error', 'Failed to archive unit: ' . $e->getMessage());
         }
     }
 

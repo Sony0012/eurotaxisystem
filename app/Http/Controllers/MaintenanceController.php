@@ -19,6 +19,7 @@ class MaintenanceController extends Controller
         $offset = ($page - 1) * $limit;
 
         $query = DB::table('maintenance')
+            ->whereNull('maintenance.deleted_at')
             ->join('units', 'maintenance.unit_id', '=', 'units.id')
             ->leftJoin('users as creator', 'maintenance.created_by', '=', 'creator.id')
             ->leftJoin('users as editor', 'maintenance.updated_by', '=', 'editor.id')
@@ -141,7 +142,8 @@ class MaintenanceController extends Controller
 
     public function destroy($id)
     {
-        DB::table('maintenance')->where('id', $id)->delete();
-        return redirect()->route('maintenance.index')->with('success', 'Record deleted.');
+        $maintenance = Maintenance::findOrFail($id);
+        $maintenance->delete();
+        return redirect()->route('maintenance.index')->with('success', 'Maintenance record archived.');
     }
 }
