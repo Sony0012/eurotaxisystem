@@ -1,0 +1,179 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+
+class CodingController extends Controller
+{
+    public function index(Request $request)
+    {
+        $page = (int)($request->input('page', 1));
+        $search = $request->input('search', '');
+        $date = $request->input('date', date('Y-m-d'));
+        $limit = 10;
+        $offset = ($page - 1) * $limit;
+
+        $query = DB::table('coding_rules as cr')
+            ->select('cr.*');
+
+        if (!empty($search)) {
+            $query->where(function ($q) use ($search) {
+                $q->where('cr.coding_day', 'like', DB::raw("CONCAT('%', ?, '%') COLLATE utf8mb4_unicode_ci"), [$search])
+                    ->orWhere('cr.restricted_plate_numbers', 'like', DB::raw("CONCAT('%', ?, '%') COLLATE utf8mb4_unicode_ci"), [$search])
+                    ->orWhere('cr.notes', 'like', DB::raw("CONCAT('%', ?, '%') COLLATE utf8mb4_unicode_ci"), [$search]);
+            });
+        }
+
+        $total = $query->count();
+        $rules = $query->orderBy('cr.coding_day', 'asc')->orderBy('cr.status', 'desc')->offset($offset)->limit($limit)->get();
+
+        $pagination = [
+            'page' => $page,
+            'total_pages' => ceil($total / $limit),
+            'total_items' => $total,
+            'has_prev' => $page > 1,
+            'has_next' => $page < ceil($total / $limit),
+            'prev_page' => $page - 1,
+            'next_page' => $page + 1,
+        ];
+
+        // Get units for dropdown
+        $units = DB::table('units')
+            ->select('id', 'unit_number', 'plate_number', 'coding_day', 'make', 'model')
+            ->orderBy('unit_number')
+            ->get();
+
+        // Get today's coding status
+        $today_name = date('l');
+        $today_units = DB::table('units as u')
+            ->leftJoin('users as usr1', 'u.driver_id', '=', 'usr1.id')
+            ->leftJoin('users as usr2', 'u.secondary_driver_id', '=', 'usr2.id')
+            ->where('u.coding_day', $today_name)
+            ->select('u.*', 'usr1.full_name as driver1_name', 'usr2.full_name as driver2_name')
+            ->orderBy('u.unit_number')
+            ->get();
+
+        // Get coding statistics
+        $stats = [
+            'total_rules' => DB::table('coding_rules')->count(),
+            'active_rules' => DB::table('coding_rules')->where('status', 'active')->count(),
+            'today_coding' => $today_units->count(),
+        ];
+
+        // Build coding calendar
+        $coding_calendar = [];
+        $all_units = DB::table('units')->select('unit_number', 'plate_number', 'coding_day')->get();
+        $days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+        
+        foreach ($days as $day) {
+            $coding_calendar[$day] = $all_units->filter(function($unit) use ($day) {
+                return $unit->coding_day === $day;
+            });
+        }
+
+        return view('coding.index', compact('rules', 'pagination', 'search', 'date', 'units', 'today_units', 'today_name', 'stats', 'coding_calendar'));
+    }
+
+    public function store(Request $request)
+    {
+        $data = $request->validate([
+            'coding_day' => 'required|string',
+            'restricted_plate_numbers' => 'required|string',
+            'coding_type' => 'required|string|in:full_ban,partial',
+            'allowed_areas' => 'nullable|string',
+            'time_start' => 'nullable|string',
+            'time_end' => 'nullable|string',
+            'notes' => 'nullable|string',
+            'status' => 'required|string|in:active,inactive',
+        ]);
+
+        if ($data['coding_day'] === '' || $data['restricted_plate_numbers'] === '') {
+            return back()->with('error', 'Please fill in Coding Day and Restricted Plate Numbers.');
+        }
+
+        if (!in_array($data['coding_day'], ['Monday','Tuesday','Wednesday','Thursday','Friday'], true)) {
+            return back()->with('error', 'Invalid Coding Day.');
+        }
+
+        if (!in_array($data['coding_type'], ['full_ban', 'partial'], true)) {
+            $data['coding_type'] = 'full_ban';
+        }
+
+        if (!in_array($data['status'], ['active', 'inactive'], true)) {
+            $data['status'] = 'active';
+        }
+
+        $time_start_db = $data['time_start'] !== '' ? $data['time_start'] : null;
+        $time_end_db = $data['time_end'] !== '' ? $data['time_end'] : null;
+
+        DB::table('coding_rules')->insert([
+            'coding_day' => $data['coding_day'],
+            'restricted_plate_numbers' => $data['restricted_plate_numbers'],
+            'coding_type' => $data['coding_type'],
+            'allowed_areas' => $data['allowed_areas'],
+            'time_start' => $time_start_db,
+            'time_end' => $time_end_db,
+            'notes' => $data['notes'],
+            'status' => $data['status'],
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        return redirect()->route('coding.index')->with('success', 'Coding rule added successfully');
+    }
+
+    public function update(Request $request, $id)
+    {
+        $data = $request->validate([
+            'coding_day' => 'required|string',
+            'restricted_plate_numbers' => 'required|string',
+            'coding_type' => 'required|string|in:full_ban,partial',
+            'allowed_areas' => 'nullable|string',
+            'time_start' => 'nullable|string',
+            'time_end' => 'nullable|string',
+            'notes' => 'nullable|string',
+            'status' => 'required|string|in:active,inactive',
+        ]);
+
+        $time_start_db = $data['time_start'] !== '' ? $data['time_start'] : null;
+        $time_end_db = $data['time_end'] !== '' ? $data['time_end'] : null;
+
+        DB::table('coding_rules')->where('id', $id)->update([
+            'coding_day' => $data['coding_day'],
+            'restricted_plate_numbers' => $data['restricted_plate_numbers'],
+            'coding_type' => $data['coding_type'],
+            'allowed_areas' => $data['allowed_areas'],
+            'time_start' => $time_start_db,
+            'time_end' => $time_end_db,
+            'notes' => $data['notes'],
+            'status' => $data['status'],
+            'updated_at' => now(),
+        ]);
+
+        return redirect()->route('coding.index')->with('success', 'Coding rule updated successfully');
+    }
+
+    public function destroy($id)
+    {
+        DB::table('coding_rules')->where('id', $id)->delete();
+        return redirect()->route('coding.index')->with('success', 'Coding rule deleted successfully');
+    }
+
+    public function updateCodingDay(Request $request)
+    {
+        $request->validate([
+            'unit_id' => 'required|integer',
+            'coding_day' => 'required|string',
+        ]);
+
+        DB::table('units')->where('id', $request->unit_id)->update([
+            'coding_day' => $request->coding_day,
+            'coding_updated_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        return redirect()->route('coding.index')->with('success', 'Coding day updated successfully');
+    }
+}
