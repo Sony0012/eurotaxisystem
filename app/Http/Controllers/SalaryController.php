@@ -15,7 +15,9 @@ class SalaryController extends Controller
         $search = $request->input('search', '');
 
         $query = DB::table('salaries as s')
+            ->whereNull('s.deleted_at')
             ->leftJoin('users as u', 's.employee_id', '=', 'u.id')
+            ->whereNull('u.deleted_at')
             ->select(
                 's.*',
                 'u.full_name as employee_name',
@@ -37,6 +39,7 @@ class SalaryController extends Controller
 
         // Fetch expenses for the current month
         $expense_records = DB::table('expenses')
+            ->whereNull('deleted_at')
             ->whereMonth('date', $currentMonth)
             ->whereYear('date', $currentYear)
             ->orderByDesc('date')
@@ -44,6 +47,7 @@ class SalaryController extends Controller
 
         // Calculate income from boundaries for net profit
         $total_income = DB::table('boundaries')
+            ->whereNull('deleted_at')
             ->whereMonth('date', $currentMonth)
             ->whereYear('date', $currentYear)
             ->sum('boundary_amount') ?? 0;
@@ -51,7 +55,7 @@ class SalaryController extends Controller
         // Calculate totals/summary
         $total_salaries = $salaries->sum('total_pay');
         $total_expenses = $expense_records->sum('amount');
-        $total_employees = DB::table('users')->where('is_active', 1)->count();
+        $total_employees = DB::table('users')->whereNull('deleted_at')->where('is_active', 1)->count();
         $net_profit = $total_income - ($total_salaries + $total_expenses);
 
         $summary = [
@@ -65,6 +69,7 @@ class SalaryController extends Controller
 
         // Get employees for dropdown
         $employees = DB::table('users')
+            ->whereNull('deleted_at')
             ->where('is_active', 1)
             ->whereIn('role', ['admin', 'staff', 'driver'])
             ->select('id', 'full_name', 'role')

@@ -41,10 +41,10 @@ class DashboardController extends Controller
             ->count();
 
         // Units under coding
-        $stats['coding_units'] = DB::table('units')->whereRaw('LOWER(status) = ?', ['coding'])->count();
+        $stats['coding_units'] = DB::table('units')->whereNull('deleted_at')->whereRaw('LOWER(status) = ?', ['coding'])->count();
 
         // Units under maintenance
-        $stats['maintenance_units'] = DB::table('units')->whereRaw('LOWER(status) = ?', ['maintenance'])->count();
+        $stats['maintenance_units'] = DB::table('units')->whereNull('deleted_at')->whereRaw('LOWER(status) = ?', ['maintenance'])->count();
 
         // Today's boundary collected
         $stats['today_boundary'] = DB::table('boundaries')
@@ -119,8 +119,8 @@ class DashboardController extends Controller
         // Weekly financial trend (last 7 days real data)
         $weekly_data = collect(range(6, 0))->map(function ($daysAgo) {
             $date = now()->subDays($daysAgo)->toDateString();
-            $boundary = DB::table('boundaries')->whereDate('date', $date)->sum('boundary_amount') ?? 0;
-            $expenses = DB::table('expenses')->whereDate('date', $date)->sum('amount') ?? 0;
+            $boundary = DB::table('boundaries')->whereNull('deleted_at')->whereDate('date', $date)->sum('boundary_amount') ?? 0;
+            $expenses = DB::table('expenses')->whereNull('deleted_at')->whereDate('date', $date)->sum('amount') ?? 0;
             return [
                 'day'      => now()->subDays($daysAgo)->format('D'),
                 'boundary' => (float) $boundary,
@@ -130,10 +130,10 @@ class DashboardController extends Controller
         })->values()->toArray();
 
         $unit_status_data = [
-            ['status' => 'Active',            'count' => DB::table('units')->whereRaw('LOWER(status) = ?', ['active'])->count()],
-            ['status' => 'Under Maintenance', 'count' => DB::table('units')->whereRaw('LOWER(status) = ?', ['maintenance'])->count()],
-            ['status' => 'Coding',            'count' => DB::table('units')->whereRaw('LOWER(status) = ?', ['coding'])->count()],
-            ['status' => 'Retired',           'count' => DB::table('units')->whereRaw('LOWER(status) = ?', ['retired'])->count()],
+            ['status' => 'Active',            'count' => DB::table('units')->whereNull('deleted_at')->whereRaw('LOWER(status) = ?', ['active'])->count()],
+            ['status' => 'Under Maintenance', 'count' => DB::table('units')->whereNull('deleted_at')->whereRaw('LOWER(status) = ?', ['maintenance'])->count()],
+            ['status' => 'Coding',            'count' => DB::table('units')->whereNull('deleted_at')->whereRaw('LOWER(status) = ?', ['coding'])->count()],
+            ['status' => 'Retired',           'count' => DB::table('units')->whereNull('deleted_at')->whereRaw('LOWER(status) = ?', ['retired'])->count()],
         ];
 
         // Unit status distribution for pie chart
@@ -141,7 +141,11 @@ class DashboardController extends Controller
 
         // Unit performance (top performing units)
         $unit_performance = DB::table('units as u')
-            ->leftJoin('boundaries as b', 'u.id', '=', 'b.unit_id')
+            ->whereNull('u.deleted_at')
+            ->leftJoin('boundaries as b', function($join) {
+                $join->on('u.id', '=', 'b.unit_id')
+                    ->whereNull('b.deleted_at');
+            })
             ->select('u.unit_number', DB::raw('COALESCE(SUM(b.boundary_amount), 0) as total_boundary'), 'u.boundary_rate')
             ->where('u.status', 'active')
             ->groupBy('u.id', 'u.unit_number', 'u.boundary_rate')
@@ -158,7 +162,8 @@ class DashboardController extends Controller
 
         // Expense breakdown by category
         $expense_breakdown = DB::table('expenses')
-            ->select('category', DB::raw('SUM(amount) as total'))
+            ->whereNull('deleted_at')
+                        ->select('category', DB::raw('SUM(amount) as total'))
             ->whereMonth('date', now()->month)
             ->whereYear('date', now()->year)
             ->groupBy('category')
@@ -173,8 +178,13 @@ class DashboardController extends Controller
 
         // Top Drivers (Performance recognition)
         $top_drivers = DB::table('drivers as d')
+            ->whereNull('d.deleted_at')
             ->join('users as u', 'd.user_id', '=', 'u.id')
-            ->leftJoin('boundaries as b', 'd.id', '=', 'b.driver_id')
+            ->whereNull('u.deleted_at')
+            ->leftJoin('boundaries as b', function($join) {
+                $join->on('d.id', '=', 'b.driver_id')
+                    ->whereNull('b.deleted_at');
+            })
             ->leftJoin('driver_behavior as db', 'd.id', '=', 'db.driver_id')
             ->select(
                 'u.full_name',
@@ -223,18 +233,20 @@ class DashboardController extends Controller
             ->count();
 
         // Units under coding
-        $stats['coding_units'] = DB::table('units')->whereRaw('LOWER(status) = ?', ['coding'])->count();
+        $stats['coding_units'] = DB::table('units')->whereNull('deleted_at')->whereRaw('LOWER(status) = ?', ['coding'])->count();
 
         // Units under maintenance
-        $stats['maintenance_units'] = DB::table('units')->whereRaw('LOWER(status) = ?', ['maintenance'])->count();
+        $stats['maintenance_units'] = DB::table('units')->whereNull('deleted_at')->whereRaw('LOWER(status) = ?', ['maintenance'])->count();
 
         // Today's boundary collected
         $stats['today_boundary'] = DB::table('boundaries')
+            ->whereNull('deleted_at')
             ->whereDate('date', now()->toDateString())
             ->sum('boundary_amount') ?? 0;
 
         // Today's expenses
         $stats['today_expenses'] = DB::table('expenses')
+            ->whereNull('deleted_at')
             ->whereDate('date', now()->toDateString())
             ->sum('amount') ?? 0;
 
@@ -244,16 +256,20 @@ class DashboardController extends Controller
         // Active drivers
         $stats['active_drivers'] = DB::table('drivers as d')
             ->join('users as u', 'd.user_id', '=', 'u.id')
+            ->whereNull('d.deleted_at')
+            ->whereNull('u.deleted_at')
             ->where('u.is_active', true)
             ->count();
 
         // Average boundary rate
         $stats['avg_boundary'] = DB::table('units')
+            ->whereNull('deleted_at')
             ->where('status', 'active')
             ->avg('boundary_rate') ?? 0;
 
         // Maintenance cost this month
         $stats['monthly_maintenance'] = DB::table('maintenance')
+            ->whereNull('deleted_at')
             ->whereMonth('date_started', now()->month)
             ->whereYear('date_started', now()->year)
             ->where('status', 'completed')
@@ -276,8 +292,8 @@ class DashboardController extends Controller
         // Weekly financial trend
         $weekly_data = collect(range(6, 0))->map(function ($daysAgo) {
             $date = now()->subDays($daysAgo)->toDateString();
-            $boundary = DB::table('boundaries')->whereDate('date', $date)->sum('boundary_amount') ?? 0;
-            $expenses = DB::table('expenses')->whereDate('date', $date)->sum('amount') ?? 0;
+            $boundary = DB::table('boundaries')->whereNull('deleted_at')->whereDate('date', $date)->sum('boundary_amount') ?? 0;
+            $expenses = DB::table('expenses')->whereNull('deleted_at')->whereDate('date', $date)->sum('amount') ?? 0;
             return [
                 'day'      => now()->subDays($daysAgo)->format('D'),
                 'boundary' => (float) $boundary,
@@ -287,16 +303,16 @@ class DashboardController extends Controller
         })->values()->toArray();
 
         $unit_status_data = [
-            ['status' => 'Active',            'count' => DB::table('units')->whereRaw('LOWER(status) = ?', ['active'])->count()],
-            ['status' => 'Under Maintenance', 'count' => DB::table('units')->whereRaw('LOWER(status) = ?', ['maintenance'])->count()],
-            ['status' => 'Coding',            'count' => DB::table('units')->whereRaw('LOWER(status) = ?', ['coding'])->count()],
-            ['status' => 'Retired',           'count' => DB::table('units')->whereRaw('LOWER(status) = ?', ['retired'])->count()],
+            ['status' => 'Active',            'count' => DB::table('units')->whereNull('deleted_at')->whereRaw('LOWER(status) = ?', ['active'])->count()],
+            ['status' => 'Under Maintenance', 'count' => DB::table('units')->whereNull('deleted_at')->whereRaw('LOWER(status) = ?', ['maintenance'])->count()],
+            ['status' => 'Coding',            'count' => DB::table('units')->whereNull('deleted_at')->whereRaw('LOWER(status) = ?', ['coding'])->count()],
+            ['status' => 'Retired',           'count' => DB::table('units')->whereNull('deleted_at')->whereRaw('LOWER(status) = ?', ['retired'])->count()],
         ];
 
         // Revenue trend (last 30 days)
         $revenue_trend = collect(range(29, 0))->map(function ($daysAgo) {
             $date = now()->subDays($daysAgo)->toDateString();
-            $boundary = DB::table('boundaries')->whereDate('date', $date)->sum('boundary_amount') ?? 0;
+            $boundary = DB::table('boundaries')->whereNull('deleted_at')->whereDate('date', $date)->sum('boundary_amount') ?? 0;
             return [
                 'date' => now()->subDays($daysAgo)->format('M j'),
                 'revenue' => (float) $boundary,
@@ -305,7 +321,11 @@ class DashboardController extends Controller
 
         // Unit performance (top performing units)
         $unit_performance = DB::table('units as u')
-            ->leftJoin('boundaries as b', 'u.id', '=', 'b.unit_id')
+            ->whereNull('u.deleted_at')
+            ->leftJoin('boundaries as b', function($join) {
+                $join->on('u.id', '=', 'b.unit_id')
+                    ->whereNull('b.deleted_at');
+            })
             ->select('u.unit_number', DB::raw('COALESCE(SUM(b.boundary_amount), 0) as total_boundary'), 'u.boundary_rate')
             ->where('u.status', 'active')
             ->groupBy('u.id', 'u.unit_number', 'u.boundary_rate')
@@ -322,7 +342,8 @@ class DashboardController extends Controller
 
         // Expense breakdown by category
         $expense_breakdown = DB::table('expenses')
-            ->select('category', DB::raw('SUM(amount) as total'))
+            ->whereNull('deleted_at')
+                        ->select('category', DB::raw('SUM(amount) as total'))
             ->whereMonth('date', now()->month)
             ->whereYear('date', now()->year)
             ->groupBy('category')
@@ -337,8 +358,13 @@ class DashboardController extends Controller
 
         // Top Drivers (Performance recognition)
         $top_drivers = DB::table('drivers as d')
+            ->whereNull('d.deleted_at')
             ->join('users as u', 'd.user_id', '=', 'u.id')
-            ->leftJoin('boundaries as b', 'd.id', '=', 'b.driver_id')
+            ->whereNull('u.deleted_at')
+            ->leftJoin('boundaries as b', function($join) {
+                $join->on('d.id', '=', 'b.driver_id')
+                    ->whereNull('b.deleted_at');
+            })
             ->leftJoin('driver_behavior as db', 'd.id', '=', 'db.driver_id')
             ->select(
                 'u.full_name',

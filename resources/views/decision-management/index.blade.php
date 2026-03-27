@@ -4,15 +4,6 @@
 
 @section('content')
 <div class="space-y-6">
-    <!-- Toolbar / Actions -->
-    <div class="flex justify-end">
-        <button type="button"
-                onclick="printDecisionCase()"
-                class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm text-gray-700 hover:bg-gray-100 shadow-sm">
-            <i data-lucide="printer" class="w-4 h-4"></i>
-            <span>Print</span>
-        </button>
-    </div>
 
     <div id="decisionPrintArea" class="space-y-6">
     <form method="POST" class="bg-white shadow rounded-lg p-6 space-y-6">
@@ -123,12 +114,18 @@
         </div>
 
         <div class="flex justify-end gap-2 mt-4">
+            <button type="button"
+                    onclick="printDecisionCase()"
+                    class="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm text-gray-700 hover:bg-gray-100 shadow-sm flex items-center gap-2">
+                <i data-lucide="printer" class="w-4 h-4"></i>
+                <span>Print</span>
+            </button>
             <a href="<?php echo base_url('decision-management'); ?>"
-               class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100">
+               class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 text-sm">
                Clear / New Case
             </a>
             <button type="submit"
-                    class="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 flex items-center gap-2">
+                    class="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 flex items-center gap-2 text-sm font-medium">
                 <i data-lucide="save" class="w-4 h-4"></i>
                 <span><?php echo $edit_case ? 'Update Case' : 'Save Case'; ?></span>
             </button>

@@ -66,6 +66,7 @@ class BoundaryController extends Controller
 
         // Get units for dropdowns
         $units = DB::table('units')
+            ->whereNull('deleted_at')
             ->where('status', '!=', 'retired')
             ->select('id', 'unit_number', 'plate_number', 'make', 'model', 'boundary_rate', 'coding_day', 'driver_id', 'secondary_driver_id')
             ->orderBy('unit_number')
@@ -82,11 +83,12 @@ class BoundaryController extends Controller
             SELECT d.id, d.user_id, u.full_name as name, 
                    COALESCE(ua.unit_number, 'No Assignment') as current_unit,
                    COALESCE(ua.plate_number, '') as current_plate,
-                   (SELECT COUNT(*) FROM units WHERE driver_id = d.id OR secondary_driver_id = d.id) as assigned_units_count
+                   (SELECT COUNT(*) FROM units WHERE (driver_id = d.id OR secondary_driver_id = d.id) AND deleted_at IS NULL) as assigned_units_count
             FROM drivers d 
             LEFT JOIN users u ON d.user_id = u.id 
-            LEFT JOIN units ua ON (d.user_id = ua.driver_id OR d.user_id = ua.secondary_driver_id)
+            LEFT JOIN units ua ON (d.user_id = ua.driver_id OR d.user_id = ua.secondary_driver_id) AND ua.deleted_at IS NULL
             WHERE u.role = 'driver' AND u.is_active = TRUE 
+            AND d.deleted_at IS NULL AND u.deleted_at IS NULL
             ORDER BY 
                 CASE WHEN ua.unit_number IS NOT NULL THEN 1 ELSE 0 END,
                 u.full_name
@@ -100,9 +102,10 @@ class BoundaryController extends Controller
                    ua.plate_number as current_plate
             FROM drivers d 
             LEFT JOIN users u ON d.user_id = u.id 
-            LEFT JOIN units ua ON (d.user_id = ua.driver_id OR d.user_id = ua.secondary_driver_id)
+            LEFT JOIN units ua ON (d.user_id = ua.driver_id OR d.user_id = ua.secondary_driver_id) AND ua.deleted_at IS NULL
             WHERE u.role = 'driver' AND u.is_active = TRUE 
             AND ua.unit_number IS NOT NULL
+            AND d.deleted_at IS NULL AND u.deleted_at IS NULL
             ORDER BY ua.unit_number, u.full_name
         ");
         $assigned_drivers = array_map(function($d) { return (array) $d; }, $assigned_drivers);

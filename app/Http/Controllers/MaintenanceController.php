@@ -21,6 +21,7 @@ class MaintenanceController extends Controller
         $query = DB::table('maintenance')
             ->whereNull('maintenance.deleted_at')
             ->join('units', 'maintenance.unit_id', '=', 'units.id')
+            ->whereNull('units.deleted_at')
             ->leftJoin('users as creator', 'maintenance.created_by', '=', 'creator.id')
             ->leftJoin('users as editor', 'maintenance.updated_by', '=', 'editor.id')
             ->select('maintenance.*', 'units.unit_number', 'units.plate_number', 'creator.full_name as creator_name', 'editor.full_name as editor_name');
@@ -47,7 +48,7 @@ class MaintenanceController extends Controller
 
         $total_pages = max(1, ceil($total / $limit));
 
-        $totals = DB::table('maintenance')->selectRaw('
+        $totals = DB::table('maintenance')->whereNull('deleted_at')->selectRaw('
             COUNT(*) as total_count,
             SUM(cost) as total_cost,
             SUM(CASE WHEN maintenance.status = "completed" THEN 1 ELSE 0 END) as completed_count,
@@ -55,7 +56,7 @@ class MaintenanceController extends Controller
             SUM(CASE WHEN maintenance.status = "in_progress" THEN 1 ELSE 0 END) as in_progress_count
         ')->first();
 
-        $units = DB::table('units')->where('status', '!=', 'retired')->orderBy('unit_number')->get();
+        $units = DB::table('units')->whereNull('deleted_at')->where('status', '!=', 'retired')->orderBy('unit_number')->get();
 
         $pagination = [
             'page' => $page,

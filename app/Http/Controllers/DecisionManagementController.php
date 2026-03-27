@@ -65,18 +65,20 @@ class DecisionManagementController extends Controller
 
         // Get statistics
         $stats = [
-            'total_cases' => DB::table('franchise_cases')->count(),
+            'total_cases' => DB::table('franchise_cases')->whereNull('deleted_at')->count(),
             'expiring_soon' => DB::table('franchise_cases')
+                ->whereNull('deleted_at')
                 ->whereNotNull('expiry_date')
                 ->whereRaw('expiry_date BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 30 DAY)')
                 ->count(),
             'expired' => DB::table('franchise_cases')
+                ->whereNull('deleted_at')
                 ->whereNotNull('expiry_date')
                 ->whereRaw('expiry_date < CURDATE()')
                 ->count(),
-            'pending' => DB::table('franchise_cases')->where('status', 'pending')->count(),
-            'approved' => DB::table('franchise_cases')->where('status', 'approved')->count(),
-            'rejected' => DB::table('franchise_cases')->where('status', 'rejected')->count(),
+            'pending' => DB::table('franchise_cases')->whereNull('deleted_at')->where('status', 'pending')->count(),
+            'approved' => DB::table('franchise_cases')->whereNull('deleted_at')->where('status', 'approved')->count(),
+            'rejected' => DB::table('franchise_cases')->whereNull('deleted_at')->where('status', 'rejected')->count(),
         ];
 
         $totalPages = (int) ceil($total / $limit);

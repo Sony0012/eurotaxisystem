@@ -44,7 +44,10 @@ class AnalyticsController extends Controller
         // Get unit idle analysis
         $unitIdleAnalysis = DB::table('units as u')
             ->whereNull('u.deleted_at')
-            ->leftJoin('maintenance as m', 'u.id', '=', 'm.unit_id')
+            ->leftJoin('maintenance as m', function($join) {
+                $join->on('u.id', '=', 'm.unit_id')
+                    ->whereNull('m.deleted_at');
+            })
             ->selectRaw('
                 u.unit_number,
                 COUNT(m.id) as breakdown_count,
