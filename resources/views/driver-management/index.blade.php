@@ -9,29 +9,41 @@
     {{-- Search and Filters --}}
     <div class="bg-white rounded-lg shadow p-2 mb-1">
         <form method="GET" action="{{ route('driver-management.index') }}" class="flex flex-col md:flex-row gap-2">
-            <div class="flex-1">
+            <div class="md:w-48">
                 <div class="relative">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <i data-lucide="search" class="h-5 w-5 text-gray-400"></i>
+                        <i data-lucide="arrow-up-z-a" class="h-4 w-4 text-gray-400"></i>
                     </div>
-                    <input type="text" name="search" id="tableSearchInput" value="{{ $search ?? '' }}"
-                        class="block w-full pl-10 pr-3 py-1 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none"
-                        placeholder="Search drivers...">
+                    <select name="sort" onchange="this.form.submit()"
+                        class="block w-full pl-9 pr-3 py-1 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none appearance-none">
+                        <option value="alphabetical" {{ ($sort ?? '') === 'alphabetical' ? 'selected' : '' }}>A-Z (Name)</option>
+                        <option value="newest" {{ ($sort ?? '') === 'newest' ? 'selected' : '' }}>Newest Joined</option>
+                        <option value="oldest" {{ ($sort ?? '') === 'oldest' ? 'selected' : '' }}>Oldest Joined</option>
+                        <option value="status" {{ ($sort ?? '') === 'status' ? 'selected' : '' }}>Status (Active first)</option>
+                    </select>
                 </div>
             </div>
+            <div class="flex-1">
+                <div class="relative group">
+                    <input type="text" name="search" id="tableSearchInput" value="{{ $search ?? '' }}"
+                        class="block w-full pl-3 pr-10 py-1 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none"
+                        placeholder="Search by driver name, email, or license...">
+                    <button type="submit" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-yellow-600 transition-colors">
+                        <i data-lucide="search" class="h-4 w-4"></i>
+                    </button>
+                </div>
+            </div>
+
             <div class="md:w-48">
                 <select name="status" onchange="this.form.submit()"
                     class="block w-full px-3 py-1 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none">
                     <option value="">All Status</option>
-                    <option value="active" {{ ($status_filter ?? '') === 'active' ? 'selected' : '' }}>Active</option>
-                    <option value="inactive" {{ ($status_filter ?? '') === 'inactive' ? 'selected' : '' }}>Inactive</option>
+                    <option value="active" {{ ($status_filter ?? '') === 'active' ? 'selected' : '' }}>Active Only</option>
+                    <option value="inactive" {{ ($status_filter ?? '') === 'inactive' ? 'selected' : '' }}>Inactive Only</option>
                 </select>
             </div>
+
             <div class="flex gap-2">
-                <button type="submit"
-                    class="px-3 py-1 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 flex items-center gap-2 text-xs font-semibold">
-                    <i data-lucide="search" class="w-3.5 h-3.5"></i> Search
-                </button>
                 <button type="button" onclick="openAddDriverModal()"
                     class="px-3 py-1 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-2 text-xs font-semibold whitespace-nowrap">
                     <i data-lucide="plus" class="w-3.5 h-3.5"></i> Add Driver
@@ -505,6 +517,47 @@ document.querySelectorAll('.driver-tab').forEach(tab => {
         const panel = document.querySelector(`.driver-tab-panel[data-tab-panel="${target}"]`);
         if (panel) panel.classList.remove('hidden');
     });
+    // Search functionality (Same as Unit Management)
+    const searchInput = document.getElementById('tableSearchInput');
+    if (searchInput) {
+        searchInput.addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const tableBody = document.querySelector('tbody');
+            const rows = tableBody.querySelectorAll('tr.cursor-pointer');
+            let visibleCount = 0;
+
+            rows.forEach(row => {
+                const text = row.innerText.toLowerCase();
+                if (text.includes(searchTerm)) {
+                    row.style.display = '';
+                    visibleCount++;
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+
+            // Handle "No drivers found" message
+            let emptyMsgRow = document.getElementById('clientEmptySearchRow');
+            if (visibleCount === 0 && rows.length > 0) {
+                if (!emptyMsgRow) {
+                    emptyMsgRow = document.createElement('tr');
+                    emptyMsgRow.id = 'clientEmptySearchRow';
+                    emptyMsgRow.innerHTML = `
+                        <td colspan="7" class="px-6 py-12 text-center text-gray-500">
+                            <i data-lucide="search" class="w-12 h-12 mx-auto mb-4 text-gray-300"></i>
+                            <p>No drivers match your search.</p>
+                        </td>
+                    `;
+                    tableBody.appendChild(emptyMsgRow);
+                    if (typeof lucide !== 'undefined') lucide.createIcons();
+                } else {
+                    emptyMsgRow.style.display = '';
+                }
+            } else if (emptyMsgRow) {
+                emptyMsgRow.style.display = 'none';
+            }
+        });
+    }
 });
 </script>
 @endpush

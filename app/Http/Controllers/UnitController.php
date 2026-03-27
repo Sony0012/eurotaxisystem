@@ -55,8 +55,26 @@ class UnitController extends Controller
             $query->where('u.status', $status_filter);
         }
 
+        $sort = $request->input('sort', 'alphabetical');
+        switch ($sort) {
+            case 'newest':
+                $query->orderBy('u.created_at', 'desc');
+                break;
+            case 'oldest':
+                $query->orderBy('u.created_at', 'asc');
+                break;
+            case 'vacant':
+                $query->orderByRaw('CASE WHEN u.driver_id IS NULL THEN 0 ELSE 1 END')
+                    ->orderBy('u.unit_number');
+                break;
+            case 'alphabetical':
+            default:
+                $query->orderBy('u.unit_number', 'asc');
+                break;
+        }
+
         $total_units = $query->count();
-        $units = $query->orderBy('u.unit_number')->offset($offset)->limit($limit)->get();
+        $units = $query->offset($offset)->limit($limit)->get();
 
         foreach ($units as $unit) {
             $net_income = (data_get($unit, 'total_collected', 0)) - (data_get($unit, 'maintenance_cost', 0));
@@ -83,7 +101,7 @@ class UnitController extends Controller
             ->select('u.id', 'u.full_name', 'd.contact_number', 'd.license_number')
             ->get();
 
-        return view('units.index', compact('units', 'pagination', 'search', 'status_filter', 'all_drivers'));
+        return view('units.index', compact('units', 'pagination', 'search', 'status_filter', 'all_drivers', 'sort'));
     }
 
     public function store(Request $request)

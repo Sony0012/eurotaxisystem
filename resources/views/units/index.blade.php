@@ -8,18 +8,32 @@
     <!-- Search and Filters -->
     <div class="bg-white rounded-lg shadow p-2 mb-1">
         <form method="GET" action="{{ route('units.index') }}" class="flex flex-col md:flex-row gap-2">
-            <div class="flex-1">
+            <div class="md:w-48">
                 <div class="relative">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <i data-lucide="search" class="h-5 w-5 text-gray-400"></i>
+                        <i data-lucide="arrow-up-z-a" class="h-4 w-4 text-gray-400"></i>
                     </div>
+                    <select name="sort" onchange="this.form.submit()"
+                        class="block w-full pl-9 pr-3 py-1 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none appearance-none">
+                        <option value="alphabetical" {{ ($sort ?? '') === 'alphabetical' ? 'selected' : '' }}>A-Z (Unit #)</option>
+                        <option value="newest" {{ ($sort ?? '') === 'newest' ? 'selected' : '' }}>Newest Added</option>
+                        <option value="oldest" {{ ($sort ?? '') === 'oldest' ? 'selected' : '' }}>Oldest Added</option>
+                        <option value="vacant" {{ ($sort ?? '') === 'vacant' ? 'selected' : '' }}>Vacant Units First</option>
+                    </select>
+                </div>
+            </div>
+            <div class="flex-1">
+                <div class="relative group">
                     <input type="text" name="search" id="tableSearchInput" value="{{ $search }}"
-                        class="block w-full pl-10 pr-3 py-1 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none"
+                        class="block w-full pl-3 pr-10 py-1 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none"
                         placeholder="Search units...">
+                    <button type="submit" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-yellow-600 transition-colors">
+                        <i data-lucide="search" class="h-4 w-4"></i>
+                    </button>
                 </div>
             </div>
             <div class="md:w-48">
-                <select name="status"
+                <select name="status" onchange="this.form.submit()"
                     class="block w-full px-3 py-1 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none">
                     <option value="">All Status</option>
                     <option value="active" {{ $status_filter === 'active' ? 'selected' : '' }}>Active</option>
@@ -29,10 +43,6 @@
                 </select>
             </div>
             <div class="flex gap-2">
-                <button type="submit"
-                    class="px-3 py-1 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 flex items-center gap-2 text-xs font-semibold">
-                    <i data-lucide="search" class="w-3.5 h-3.5"></i> Search
-                </button>
                 <a href="{{ route('units.print') }}" target="_blank"
                     class="px-3 py-1 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2 text-xs font-semibold">
                     <i data-lucide="printer" class="w-3.5 h-3.5"></i> Print to PDF

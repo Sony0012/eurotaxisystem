@@ -12,13 +12,14 @@ class DriverManagementController extends Controller
 {
     public function index(Request $request)
     {
-        $search = $request->input('search', '');
-        $page   = max(1, (int) $request->input('page', 1));
-        $limit  = 15;
-        $offset = ($page - 1) * $limit;
+        $search        = $request->input('search', '');
+        $status_filter = $request->input('status', '');
+        $sort          = $request->input('sort', 'alphabetical');
+        $page          = max(1, (int) $request->input('page', 1));
+        $limit         = 15;
+        $offset        = ($page - 1) * $limit;
 
-        // Build base query — no GROUP BY, use correlated subquery for unit assignment
-        // units.driver_id references users.id (not drivers.id)
+        // Build base query
         $query = DB::table('drivers as d')
             ->join('users as u', 'd.user_id', '=', 'u.id')
             ->whereNull('d.deleted_at')
@@ -44,8 +45,28 @@ class DriverManagementController extends Controller
             });
         }
 
+        if ($status_filter) {
+            $query->where('u.is_active', $status_filter === 'active' ? 1 : 0);
+        }
+
+        switch ($sort) {
+            case 'newest':
+                $query->orderBy('d.created_at', 'desc');
+                break;
+            case 'oldest':
+                $query->orderBy('d.created_at', 'asc');
+                break;
+            case 'status':
+                $query->orderBy('u.is_active', 'desc')->orderBy('u.full_name', 'asc');
+                break;
+            case 'alphabetical':
+            default:
+                $query->orderBy('u.full_name', 'asc');
+                break;
+        }
+
         $total       = $query->count();
-        $drivers     = $query->orderBy('u.full_name')->offset($offset)->limit($limit)->get();
+        $drivers     = $query->offset($offset)->limit($limit)->get();
         $total_pages = max(1, ceil($total / $limit));
 
         // Stats
@@ -74,7 +95,7 @@ class DriverManagementController extends Controller
         ];
 
         return view('driver-management.index', compact(
-            'drivers', 'search', 'pagination', 'stats', 'expiring_licenses'
+            'drivers', 'search', 'pagination', 'stats', 'expiring_licenses', 'status_filter', 'sort'
         ));
     }
 

@@ -41,11 +41,12 @@ class OfficeExpenseController extends Controller
         $expenses = $query->orderByDesc('e.date')->offset($offset)->limit($limit)->get();
 
         $totals = DB::table('expenses')
+            ->whereNull('deleted_at')
             ->whereBetween('date', [$date_from, $date_to])
             ->selectRaw('SUM(amount) as total_amount, COUNT(*) as total_count')
             ->first();
 
-        $categories = DB::table('expenses')->distinct()->pluck('category');
+        $categories = DB::table('expenses')->whereNull('deleted_at')->distinct()->pluck('category');
 
         // Calculate statistics
         $thisMonth = date('Y-m');
