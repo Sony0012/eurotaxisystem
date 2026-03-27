@@ -6,10 +6,14 @@
     RewriteCond %{HTTP:Authorization} .
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 
+    # SPECIFIC GOOGLE VERIFICATION EXCLUSION
+    RewriteCond %{REQUEST_URI} ^/google[a-z0-9]+\.html [NC]
+    RewriteRule ^ - [L]
+
     # MAINTENANCE MODE EXCLUSIONS (when enabled)
     # These allow maintenance assets to load even when maintenance is ON
     RewriteCond %{REQUEST_URI} ^(/public)?/maintenance\.html [NC,OR]
-    RewriteCond %{REQUEST_URI} \.(css|js|png|jpg|jpeg|gif|svg|ico|webp|json) [NC]
+    RewriteCond %{REQUEST_URI} \.(css|js|png|jpg|jpeg|gif|svg|ico|webp|json|html) [NC]
     RewriteRule ^ - [L]
 
     # MAINTENANCE MODE TOGGLE
