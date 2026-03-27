@@ -152,7 +152,7 @@
 
         <div class="bg-white rounded-lg shadow">
             <div class="p-4 border-b">
-                <h3 class="text-base font-semibold text-gray-900">Expense Breakdown</h3>
+                <h3 class="text-base font-semibold text-gray-900">Expense Breakdown & Distribution</h3>
             </div>
             <div class="p-4">
                 <canvas id="expenseBreakdownChart" width="400" height="200"></canvas>
@@ -174,6 +174,15 @@
             </div>
             <div class="p-4">
                 <canvas id="unitStatusDistributionChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow">
+            <div class="p-4 border-b">
+                <h3 class="text-base font-semibold text-gray-900">Top Performing Drivers</h3>
+            </div>
+            <div class="p-4">
+                <canvas id="topDriversChart" width="400" height="200"></canvas>
             </div>
         </div>
     </div>
@@ -871,8 +880,12 @@
 <?php $__env->startPush('scripts'); ?>
     <script src="<?php echo e(asset('js/realtime-dashboard.js')); ?>"></script>
     <script>
+        // Register Chart.js datalabels plugin
+        Chart.register(ChartDataLabels);
+        
         // Debug: Check if Chart.js is loaded
         console.log('Chart.js loaded:', typeof Chart !== 'undefined');
+        console.log('ChartDataLabels loaded:', typeof ChartDataLabels !== 'undefined');
         
         // Weekly Financial Chart
         try {
@@ -967,8 +980,8 @@
                         {
                             label: 'Target',
                             data: unitPerformanceData.map(d => d.target),
-                            backgroundColor: '#ef4444',
-                            borderColor: '#dc2626',
+                            backgroundColor: '#f59e0b', // Amber 500
+                            borderColor: '#d97706',     // Amber 600
                             borderWidth: 1
                         }
                     ]
@@ -991,8 +1004,22 @@
         // Expense Breakdown Chart
         try {
             const expenseBreakdownCtx = document.getElementById('expenseBreakdownChart').getContext('2d');
-            const expenseBreakdownData = <?php echo json_encode($expense_breakdown, 15, 512) ?>;
-            console.log('Expense Breakdown Data:', expenseBreakdownData);
+            let expenseBreakdownData = <?php echo json_encode($expense_breakdown, 15, 512) ?>;
+            
+            let isPlaceholder = false;
+            // Check if data exists and has values
+            if (!expenseBreakdownData || expenseBreakdownData.length === 0 || 
+                (Array.isArray(expenseBreakdownData) && expenseBreakdownData.every(d => d.amount === 0))) {
+                isPlaceholder = true;
+                expenseBreakdownData = [
+                    { category: 'Maintenance', amount: 4500 },
+                    { category: 'Fuel & Oil', amount: 3200 },
+                    { category: 'Salaries', amount: 8000 },
+                    { category: 'Parts', amount: 2100 },
+                    { category: 'Others', amount: 1200 }
+                ];
+            }
+
             window.expenseBreakdownChart = new Chart(expenseBreakdownCtx, {
                 type: 'doughnut',
                 data: {
@@ -1000,27 +1027,53 @@
                     datasets: [{
                         data: expenseBreakdownData.map(d => d.amount),
                         backgroundColor: [
-                            '#ef4444',
-                            '#f59e0b',
-                            '#10b981',
-                            '#3b82f6',
-                            '#8b5cf6',
-                            '#ec4899'
+                            '#ef4444', // Red
+                            '#f59e0b', // Amber
+                            '#10b981', // Emerald
+                            '#3b82f6', // Blue
+                            '#8b5cf6', // Violet
+                            '#ec4899'  // Pink
                         ],
-                        borderWidth: 2
+                        borderWidth: 2,
+                        hoverOffset: 25,
+                        borderRadius: 8
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    cutout: '70%',
                     plugins: {
-                        legend: { position: 'right' },
+                        legend: { 
+                            position: 'right',
+                            labels: {
+                                padding: 20,
+                                usePointStyle: true,
+                                font: { size: 12, weight: '600' }
+                            }
+                        },
+                        title: {
+                            display: isPlaceholder,
+                            text: '✨ Monthly Spending (Sample Mode)',
+                            color: '#94a3b8',
+                            font: {
+                                size: 14,
+                                weight: 'normal',
+                                style: 'italic'
+                            },
+                            padding: { bottom: 15 }
+                        },
                         tooltip: {
+                            backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                            padding: 15,
+                            cornerRadius: 12,
                             callbacks: {
                                 label: function(context) {
                                     const label = context.label || '';
                                     const value = context.parsed || 0;
-                                    return label + ': ₱' + value.toLocaleString();
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = ((value / total) * 100).toFixed(1);
+                                    return ` ${label}: ₱${value.toLocaleString()} (${percentage}%)`;
                                 }
                             }
                         }
@@ -1028,101 +1081,212 @@
                 }
             });
         } catch (error) {
-            console.error('Expense Breakdown Chart Error:', error);
+            console.error('Expense Chart Error:', error);
         }
+
+
+
+
+        // Top Drivers Chart
+        try {
+            const topDriversCtx = document.getElementById('topDriversChart').getContext('2d');
+            let topDriversData = <?php echo json_encode($top_drivers, 15, 512) ?>;
+            
+            let isPlaceholder = false;
+            if (!topDriversData || topDriversData.length === 0 || 
+                (Array.isArray(topDriversData) && topDriversData.every(d => d.score === 0))) {
+                isPlaceholder = true;
+                topDriversData = [
+                    { name: 'Bernardo Silva', score: 28, total: 42000 },
+                    { name: 'Kevin De Bruyne', score: 26, total: 39000 },
+                    { name: 'Erling Haaland', score: 25, total: 37500 },
+                    { name: 'Phil Foden', score: 22, total: 33000 },
+                    { name: 'Rodri Hernandez', score: 20, total: 30000 }
+                ];
+            }
+
+            // Custom Gradient for a premium feel
+            const gradient = topDriversCtx.createLinearGradient(0, 0, 400, 0);
+            gradient.addColorStop(0, '#10b981'); // Emerald 500
+            gradient.addColorStop(1, '#0ea5e9'); // Sky 500
+
+            window.topDriversChart = new Chart(topDriversCtx, {
+                type: 'bar',
+                data: {
+                    labels: topDriversData.map((d, i) => {
+                        const trophy = i === 0 ? '🏆 ' : '';
+                        const rank = i + 1;
+                        const suffix = rank === 1 ? 'st' : rank === 2 ? 'nd' : rank === 3 ? 'rd' : 'th';
+                        return `${trophy}${rank}${suffix} - ${d.name}`;
+                    }),
+                    datasets: [{
+                        label: 'Reliability Score',
+                        data: topDriversData.map(d => d.score),
+                        backgroundColor: gradient,
+                        borderColor: '#059669',
+                        borderWidth: 0,
+                        borderRadius: 20, // More rounded for a modern look
+                        barThickness: 32,
+                        hoverBackgroundColor: '#06d6a0',
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        title: {
+                            display: isPlaceholder,
+                            text: '✨ Elite Performance Board (Sample)',
+                            color: '#10b981',
+                            font: { 
+                                size: 14,
+                                weight: 'bold',
+                                style: 'italic'
+                            },
+                            padding: { bottom: 15 }
+                        },
+                        datalabels: {
+                            display: true,
+                            color: '#fff',
+                            anchor: 'end',
+                            align: 'start',
+                            offset: 10,
+                            font: { weight: 'bold', size: 12 },
+                            formatter: (value) => value > 0 ? value : ''
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(15, 23, 42, 0.95)', // Slate 900
+                            titleFont: { size: 14, weight: 'bold' },
+                            bodyFont: { size: 13 },
+                            padding: 15,
+                            cornerRadius: 12,
+                            displayColors: false,
+                            callbacks: {
+                                label: function(context) {
+                                    return ` ⭐ Reliability: ${context.parsed.x} clean service days`;
+                                },
+                                footer: (items) => {
+                                    const index = items[0].dataIndex;
+                                    const amount = topDriversData[index].total;
+                                    return ` 💰 Total Revenue: ₱${amount.toLocaleString()}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: { 
+                            beginAtZero: true,
+                            grid: { color: 'rgba(0,0,0,0.05)', drawBorder: false },
+                            ticks: { font: { size: 11, weight: '500' } }
+                        },
+                        y: {
+                            grid: { display: false, drawBorder: false },
+                            ticks: { 
+                                font: { size: 13, weight: '600' },
+                                color: '#334155'
+                            }
+                        }
+                    },
+                    animation: {
+                        duration: 2000,
+                        easing: 'easeOutQuart'
+                    }
+                }
+            });
+        } catch (error) {
+            console.error('Top Drivers Chart Error:', error);
+        }
+
+
+
 
         // Unit Status Distribution Chart
         try {
             const unitStatusDistCtx = document.getElementById('unitStatusDistributionChart').getContext('2d');
             const unitStatusDistData = <?php echo json_encode($unit_status_distribution_data, 15, 512) ?>;
-            
-            // Debug: Log the data to console
-            console.log('Unit Status Distribution Data:', unitStatusDistData);
         
-        // Check if data exists and has values
-        if (!unitStatusDistData || unitStatusDistData.length === 0 || unitStatusDistData.every(d => d.count === 0)) {
-            // Show placeholder data if no real data
-            const placeholderData = [
-                { status: 'Active', count: 5 },
-                { status: 'Under Maintenance', count: 2 },
-                { status: 'Coding', count: 1 },
-                { status: 'Retired', count: 0 }
+            const vibrantColors = [
+                '#10b981', // Emerald (Active)
+                '#3b82f6', // Blue (Maintenance)
+                '#f59e0b', // Amber (Coding)
+                '#ef4444'  // Red (Retired)
             ];
-            window.unitStatusDistChart = new Chart(unitStatusDistCtx, {
-                type: 'pie',
+
+            const chartConfig = {
+                type: 'doughnut',
                 data: {
-                    labels: placeholderData.map(d => d.status),
+                    labels: [],
                     datasets: [{
-                        data: placeholderData.map(d => d.count),
-                        backgroundColor: [
-                            '#22c55e',
-                            '#3b82f6', 
-                            '#f59e0b',
-                            '#ef4444'
-                        ],
-                        borderWidth: 2
+                        data: [],
+                        backgroundColor: vibrantColors,
+                        borderWidth: 2,
+                        hoverOffset: 20,
+                        borderRadius: 5
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    cutout: '70%',
                     plugins: {
-                        legend: { position: 'right' },
-                        title: {
-                            display: true,
-                            text: 'Sample Data - Add units to see real data'
+                        legend: { 
+                            position: 'right',
+                            labels: {
+                                padding: 20,
+                                usePointStyle: true,
+                                font: { size: 12, weight: '600' }
+                            }
                         },
                         tooltip: {
+                            backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                            padding: 12,
+                            cornerRadius: 10,
                             callbacks: {
                                 label: function(context) {
                                     const label = context.label || '';
                                     const value = context.parsed || 0;
                                     const total = context.dataset.data.reduce((a, b) => a + b, 0);
                                     const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
-                                    return label + ': ' + value + ' (' + percentage + '%)';
+                                    return ` ${label}: ${value} units (${percentage}%)`;
                                 }
+                            }
+                        },
+                        datalabels: {
+                            color: '#fff',
+                            font: { weight: 'bold', size: 13 },
+                            formatter: (value, ctx) => {
+                                const sum = ctx.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = sum > 0 ? ((value / sum) * 100).toFixed(0) : 0;
+                                return percentage > 5 ? percentage + '%' : '';
                             }
                         }
                     }
                 }
-            });
-        } else {
-            // Real data exists - use it
-            window.unitStatusDistChart = new Chart(unitStatusDistCtx, {
-                type: 'pie',
-                data: {
-                    labels: unitStatusDistData.map(d => d.status),
-                    datasets: [{
-                        data: unitStatusDistData.map(d => d.count),
-                        backgroundColor: [
-                            '#22c55e',
-                            '#3b82f6', 
-                            '#f59e0b',
-                            '#ef4444'
-                        ],
-                        borderWidth: 2
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { position: 'right' },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    const label = context.label || '';
-                                    const value = context.parsed || 0;
-                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                    const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
-                                    return label + ': ' + value + ' (' + percentage + '%)';
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-        }
+            };
+
+            if (!unitStatusDistData || unitStatusDistData.length === 0 || unitStatusDistData.every(d => d.count === 0)) {
+                const placeholderData = [
+                    { status: 'Active', count: 5 },
+                    { status: 'Maintenance', count: 2 },
+                    { status: 'Coding', count: 1 },
+                    { status: 'Retired', count: 0 }
+                ];
+                chartConfig.data.labels = placeholderData.map(d => d.status);
+                chartConfig.data.datasets[0].data = placeholderData.map(d => d.count);
+                chartConfig.options.plugins.title = {
+                    display: true,
+                    text: '✨ Fleet Status (Sample Mode)',
+                    color: '#94a3b8',
+                    font: { style: 'italic', size: 13 }
+                };
+            } else {
+                chartConfig.data.labels = unitStatusDistData.map(d => d.status);
+                chartConfig.data.datasets[0].data = unitStatusDistData.map(d => d.count);
+            }
+
+            window.unitStatusDistChart = new Chart(unitStatusDistCtx, chartConfig);
         } catch (error) {
             console.error('Unit Status Distribution Chart Error:', error);
         }

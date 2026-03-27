@@ -160,7 +160,33 @@ class DashboardController extends Controller
                 ];
             });
 
-        return view('dashboard', compact('stats', 'alerts', 'weekly_data', 'unit_status_data', 'unit_status_distribution_data', 'revenue_trend', 'unit_performance', 'expense_breakdown'));
+        // Top Drivers (Performance recognition)
+        $top_drivers = DB::table('drivers as d')
+            ->join('users as u', 'd.user_id', '=', 'u.id')
+            ->leftJoin('boundaries as b', 'd.id', '=', 'b.driver_id')
+            ->leftJoin('driver_behavior as db', 'd.id', '=', 'db.driver_id')
+            ->select(
+                'u.full_name',
+                DB::raw('COUNT(CASE WHEN b.status IN ("paid", "excess") THEN 1 END) as good_days'),
+                DB::raw('SUM(CASE WHEN b.status IN ("paid", "excess") THEN b.boundary_amount ELSE 0 END) as total_boundary'),
+                DB::raw('COUNT(db.id) as incident_count')
+            )
+            ->where('u.is_active', 1)
+            ->groupBy('d.id', 'u.full_name')
+            ->having('incident_count', '=', 0)
+            ->orderByDesc('good_days')
+            ->orderByDesc('total_boundary')
+            ->limit(5)
+            ->get()
+            ->map(function($driver) {
+                return [
+                    'name' => $driver->full_name,
+                    'score' => (int) $driver->good_days,
+                    'total' => (float) $driver->total_boundary
+                ];
+            });
+
+        return view('dashboard', compact('stats', 'alerts', 'weekly_data', 'unit_status_data', 'unit_status_distribution_data', 'revenue_trend', 'unit_performance', 'expense_breakdown', 'top_drivers'));
     }
 
     public function getRealTimeData()
@@ -298,6 +324,32 @@ class DashboardController extends Controller
                 ];
             });
 
+        // Top Drivers (Performance recognition)
+        $top_drivers = DB::table('drivers as d')
+            ->join('users as u', 'd.user_id', '=', 'u.id')
+            ->leftJoin('boundaries as b', 'd.id', '=', 'b.driver_id')
+            ->leftJoin('driver_behavior as db', 'd.id', '=', 'db.driver_id')
+            ->select(
+                'u.full_name',
+                DB::raw('COUNT(CASE WHEN b.status IN ("paid", "excess") THEN 1 END) as good_days'),
+                DB::raw('SUM(CASE WHEN b.status IN ("paid", "excess") THEN b.boundary_amount ELSE 0 END) as total_boundary'),
+                DB::raw('COUNT(db.id) as incident_count')
+            )
+            ->where('u.is_active', 1)
+            ->groupBy('d.id', 'u.full_name')
+            ->having('incident_count', '=', 0)
+            ->orderByDesc('good_days')
+            ->orderByDesc('total_boundary')
+            ->limit(5)
+            ->get()
+            ->map(function($driver) {
+                return [
+                    'name' => $driver->full_name,
+                    'score' => (int) $driver->good_days,
+                    'total' => (float) $driver->total_boundary
+                ];
+            });
+
         return response()->json([
             'success' => true,
             'stats' => $stats,
@@ -307,7 +359,8 @@ class DashboardController extends Controller
                 'unit_status_data' => $unit_status_data,
                 'revenue_trend' => $revenue_trend,
                 'unit_performance' => $unit_performance,
-                'expense_breakdown' => $expense_breakdown
+                'expense_breakdown' => $expense_breakdown,
+                'top_drivers' => $top_drivers
             ]
         ]);
     }
