@@ -125,6 +125,9 @@ class DashboardController extends Controller
             ['status' => 'Retired',           'count' => DB::table('units')->whereRaw('LOWER(status) = ?', ['retired'])->count()],
         ];
 
+        // Unit status distribution for pie chart
+        $unit_status_distribution_data = $unit_status_data;
+
         // Unit performance (top performing units)
         $unit_performance = DB::table('units as u')
             ->leftJoin('boundaries as b', 'u.id', '=', 'b.unit_id')
@@ -157,7 +160,7 @@ class DashboardController extends Controller
                 ];
             });
 
-        return view('dashboard', compact('stats', 'alerts', 'weekly_data', 'unit_status_data', 'revenue_trend', 'unit_performance', 'expense_breakdown'));
+        return view('dashboard', compact('stats', 'alerts', 'weekly_data', 'unit_status_data', 'unit_status_distribution_data', 'revenue_trend', 'unit_performance', 'expense_breakdown'));
     }
 
     public function getRealTimeData()
