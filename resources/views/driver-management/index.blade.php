@@ -7,102 +7,115 @@
 @section('content')
 
     {{-- Search and Filters --}}
-    <div class="bg-white rounded-lg shadow p-6 mb-6">
-        <form method="GET" action="{{ route('driver-management.index') }}">
-            <div class="flex flex-col md:flex-row gap-4">
-                <div class="flex-1">
-                    <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <i data-lucide="search" class="h-5 w-5 text-gray-400"></i>
-                        </div>
-                        <input type="text" name="search" value="{{ $search ?? '' }}"
-                            class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none"
-                            placeholder="Search by driver name, email, or license...">
+    <div class="bg-white rounded-lg shadow p-2 mb-1">
+        <form method="GET" action="{{ route('driver-management.index') }}" class="flex flex-col md:flex-row gap-2">
+            <div class="flex-1">
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i data-lucide="search" class="h-5 w-5 text-gray-400"></i>
                     </div>
+                    <input type="text" name="search" id="tableSearchInput" value="{{ $search ?? '' }}"
+                        class="block w-full pl-10 pr-3 py-1 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none"
+                        placeholder="Search drivers...">
                 </div>
-
-                <div class="md:w-48">
-                    <select name="status" class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none">
-                        <option value="">All Status</option>
-                        <option value="active" {{ ($status_filter ?? '') === 'active' ? 'selected' : '' }}>Active</option>
-                        <option value="inactive" {{ ($status_filter ?? '') === 'inactive' ? 'selected' : '' }}>Inactive</option>
-                    </select>
-                </div>
-
-                <div class="flex gap-2">
-                    <button type="submit"
-                        class="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 flex items-center gap-2">
-                        <i data-lucide="search" class="w-4 h-4"></i> Search
-                    </button>
-                    <button type="button" onclick="openAddDriverModal()"
-                        class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-2">
-                        <i data-lucide="plus" class="w-4 h-4"></i> Add Driver
-                    </button>
-                </div>
+            </div>
+            <div class="md:w-48">
+                <select name="status" onchange="this.form.submit()"
+                    class="block w-full px-3 py-1 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none">
+                    <option value="">All Status</option>
+                    <option value="active" {{ ($status_filter ?? '') === 'active' ? 'selected' : '' }}>Active</option>
+                    <option value="inactive" {{ ($status_filter ?? '') === 'inactive' ? 'selected' : '' }}>Inactive</option>
+                </select>
+            </div>
+            <div class="flex gap-2">
+                <button type="submit"
+                    class="px-3 py-1 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 flex items-center gap-2 text-xs font-semibold">
+                    <i data-lucide="search" class="w-3.5 h-3.5"></i> Search
+                </button>
+                <button type="button" onclick="openAddDriverModal()"
+                    class="px-3 py-1 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-2 text-xs font-semibold whitespace-nowrap">
+                    <i data-lucide="plus" class="w-3.5 h-3.5"></i> Add Driver
+                </button>
             </div>
         </form>
     </div>
 
     {{-- Driver List Table --}}
     <div class="bg-white rounded-lg shadow overflow-hidden">
-        <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-            <h2 class="text-lg font-semibold text-gray-800">Drivers</h2>
-        </div>
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
+                <thead class="bg-gray-50 border-b">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Driver Name</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Assigned Unit</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">License</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Incentive This Month</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Performance Rating</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        <th class="px-6 py-1 text-left text-[11px] font-medium text-gray-500 uppercase tracking-wider">Driver Name</th>
+                        <th class="px-6 py-1 text-left text-[11px] font-medium text-gray-500 uppercase tracking-wider">Assigned Unit</th>
+                        <th class="px-6 py-1 text-left text-[11px] font-medium text-gray-500 uppercase tracking-wider">License</th>
+                        <th class="px-6 py-1 text-left text-[11px] font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        <th class="px-6 py-1 text-left text-[11px] font-medium text-gray-500 uppercase tracking-wider">Incentive</th>
+                        <th class="px-6 py-1 text-left text-[11px] font-medium text-gray-500 uppercase tracking-wider">Rating</th>
+                        <th class="px-6 py-1 text-left text-[11px] font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                     @forelse($drivers as $driver)
                         <tr class="hover:bg-gray-50 cursor-pointer" onclick="openEditDriverModal({{ $driver->id }})">
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm font-medium text-gray-900">{{ $driver->full_name }}</div>
-                                <div class="text-xs text-gray-500">{{ $driver->email }}</div>
-                                <div class="text-[10px] text-gray-400 mt-1">
+                            <td class="px-6 py-1 whitespace-nowrap">
+                                <div class="text-xs font-medium text-gray-900">{{ $driver->full_name }}</div>
+                                <div class="text-[10px] text-gray-500">{{ $driver->email }}</div>
+                                <div class="text-[9px] text-gray-400">
                                     <span title="Input by {{ $driver->creator_name ?? 'System' }}">In: {{ $driver->creator_name ?? 'System' }}</span>
                                     @if(isset($driver->editor_name) && $driver->editor_name)
                                         <span class="ml-1" title="Last edit by {{ $driver->editor_name }}">Ed: {{ $driver->editor_name }}</span>
                                     @endif
                                 </div>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            <td class="px-6 py-1 whitespace-nowrap text-xs text-gray-900">
                                 @if(!empty($driver->assigned_unit))
                                     {{ $driver->assigned_unit }}
                                 @else
                                     <span class="text-gray-400">Unassigned</span>
                                 @endif
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            <td class="px-6 py-1 whitespace-nowrap text-xs text-gray-900">
                                 {{ $driver->license_number ?? 'N/A' }}
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $driver->is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                            <td class="px-6 py-1 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-[10px] leading-4 font-semibold rounded-full {{ $driver->is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
                                     {{ $driver->is_active ? 'Active' : 'Inactive' }}
                                 </span>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            <td class="px-6 py-1 whitespace-nowrap text-xs text-gray-900">
                                 ₱{{ number_format($driver->monthly_incentive ?? 0, 2) }}
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            <td class="px-6 py-1 whitespace-nowrap text-xs text-gray-900">
                                 {{ $driver->performance_rating ?? 'Good' }}
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                <button
-                                    type="button"
-                                    class="text-blue-600 hover:text-blue-900 mr-3"
-                                    onclick="event.stopPropagation(); openDriverDetails({{ $driver->id }})"
-                                >
-                                    <i data-lucide="eye" class="w-4 h-4"></i>
-                                </button>
+                            <td class="px-6 py-1 whitespace-nowrap text-xs font-medium">
+                                <div class="flex items-center gap-2">
+                                    <button
+                                        type="button"
+                                        class="text-blue-600 hover:text-blue-900"
+                                        onclick="event.stopPropagation(); openDriverDetails({{ $driver->id }})"
+                                        title="View Details"
+                                    >
+                                        <i data-lucide="eye" class="w-3.5 h-3.5"></i>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        class="text-indigo-600 hover:text-indigo-900"
+                                        onclick="event.stopPropagation(); openEditDriverModal({{ $driver->id }})"
+                                        title="Edit Driver"
+                                    >
+                                        <i data-lucide="edit-2" class="w-3.5 h-3.5"></i>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        class="text-red-600 hover:text-red-900"
+                                        onclick="event.stopPropagation(); deleteDriver({{ $driver->id }}, '{{ $driver->full_name }}')"
+                                        title="Delete Driver"
+                                    >
+                                        <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                                    </button>
+                                </div>
                             </td>
                         </tr>
                     @empty
@@ -385,6 +398,10 @@ function closeAddDriverModal() {
 function confirmDeleteDriver() {
     const id = document.getElementById('editDriverId').value;
     const name = document.getElementById('driverFullName').value || 'this driver';
+    deleteDriver(id, name);
+}
+
+function deleteDriver(id, name) {
     if (!id) return;
     if (confirm('Are you sure you want to delete ' + name + '?')) {
         const form = document.createElement('form');
