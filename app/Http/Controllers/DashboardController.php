@@ -78,20 +78,18 @@ class DashboardController extends Controller
             ->where('status', 'completed')
             ->sum('cost') ?? 0;
 
-        // Net income today (including daily maintenance/coding if any)
+        // Net income today (Calculation ignores coding fees as per user request)
         $todayMaintenance = DB::table('maintenance')
             ->whereNull('deleted_at')
             ->whereDate('date_started', now()->toDateString())
             ->where('status', 'completed')
             ->sum('cost') ?? 0;
             
-        $todayCoding = DB::table('coding_records')
-            ->whereNull('deleted_at')
-            ->whereDate('date', now()->toDateString())
-            ->where('status', 'completed')
-            ->sum('cost') ?? 0;
+        // Coding fees are excluded (assumed 0 as per user instruction)
+        $todayCoding = 0; 
 
-        $stats['net_income'] = $stats['today_boundary'] - ($stats['today_expenses'] + $todayMaintenance + $todayCoding);
+        $stats['total_expenses_today'] = $stats['today_expenses'] + $todayMaintenance;
+        $stats['net_income'] = $stats['today_boundary'] - $stats['total_expenses_today'];
 
         // Active drivers — drivers table uses driver_status column
         $stats['active_drivers'] = DB::table('drivers as d')

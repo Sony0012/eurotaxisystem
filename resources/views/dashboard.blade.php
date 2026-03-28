@@ -155,15 +155,15 @@
             </div>
         </div>
 
-        <div class="bg-white rounded-lg shadow card-hover">
+        <div class="bg-white rounded-lg shadow card-hover cursor-pointer hover:shadow-lg transition-shadow" onclick="showExpensesModal()">
             <div class="p-4">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-xs text-gray-500">Avg. Daily Boundary/Unit</p>
-                        <p class="text-xl font-bold text-gray-900" data-stat="avg_boundary">{{ formatCurrency($stats['avg_boundary']) }}</p>
+                        <p class="text-xs text-gray-500">Total Expenses Today</p>
+                        <p class="text-xl font-bold text-red-600" data-stat="total_expenses_today">{{ formatCurrency($stats['total_expenses_today']) }}</p>
                     </div>
-                    <div class="p-2 bg-green-100 rounded-full">
-                        <i data-lucide="dollar-sign" class="w-6 h-6 text-green-600"></i>
+                    <div class="p-2 bg-red-100 rounded-full">
+                        <i data-lucide="trending-down" class="w-6 h-6 text-red-600"></i>
                     </div>
                 </div>
             </div>
@@ -687,55 +687,13 @@
             </div>
             
             <!-- Search and Date Filter -->
-            <div class="flex items-center gap-3">
-                <div class="relative flex-1">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <i data-lucide="search" class="w-4 h-4 text-white/60"></i>
-                    </div>
-                    <input 
-                        type="text" 
-                        id="incomeSearchInput"
-                        placeholder="Search by description, category, or amount..."
-                        class="w-full pl-10 pr-4 py-2 bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent transition-all duration-200 text-sm"
-                        onkeyup="filterIncomeData()"
-                    >
-                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
-                        <button onclick="clearIncomeSearch()" class="text-white/60 hover:text-white transition-colors">
-                            <i data-lucide="x-circle" class="w-4 h-4"></i>
-                        </button>
-                    </div>
-                </div>
-                
-                <!-- Period Filter Buttons -->
-                <div class="flex bg-white/10 backdrop-blur-sm border border-white/30 rounded-lg p-1">
-                    <button 
-                        id="btn-today-income" 
-                        onclick="setIncomePeriod('today')"
-                        class="px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200 bg-white text-green-700"
-                    >
-                        Today
-                    </button>
-                    <button 
-                        id="btn-week-income" 
-                        onclick="setIncomePeriod('week')"
-                        class="px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200 text-white/70 hover:text-white hover:bg-white/10"
-                    >
-                        Weekly
-                    </button>
-                    <button 
-                        id="btn-month-income" 
-                        onclick="setIncomePeriod('month')"
-                        class="px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200 text-white/70 hover:text-white hover:bg-white/10"
-                    >
-                        Monthly
-                    </button>
-                    <button 
-                        id="btn-year-income" 
-                        onclick="setIncomePeriod('year')"
-                        class="px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200 text-white/70 hover:text-white hover:bg-white/10"
-                    >
-                        Yearly
-                    </button>
+            <!-- Centered Period Filters (Net Income) -->
+            <div class="mt-6 flex justify-center bg-black/10 rounded-xl p-1.5 backdrop-blur-sm border border-white/10">
+                <div class="flex gap-1 p-0.5 bg-black/20 rounded-lg shadow-inner">
+                    <button id="btn-today-income" onclick="setIncomePeriod('today')" class="px-3 py-1.5 text-xs font-black rounded-md transition-all duration-200">Today</button>
+                    <button id="btn-week-income" onclick="setIncomePeriod('week')" class="px-3 py-1.5 text-xs font-black rounded-md transition-all duration-200">Weekly</button>
+                    <button id="btn-month-income" onclick="setIncomePeriod('month')" class="px-3 py-1.5 text-xs font-black rounded-md transition-all duration-200">Monthly</button>
+                    <button id="btn-year-income" onclick="setIncomePeriod('year')" class="px-3 py-1.5 text-xs font-black rounded-md transition-all duration-200">Yearly</button>
                 </div>
             </div>
         </div>
@@ -830,6 +788,111 @@
                 </div>
             </div>
 
+        </div>
+    </div>
+</div>
+
+<!-- Total Expenses Details Modal (NEW) -->
+<div id="expensesModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-6xl h-[95vh] flex flex-col overflow-hidden border border-white/20">
+        <!-- Modal Header -->
+        <div class="p-6 border-b bg-gradient-to-r from-red-600 to-rose-700 flex-shrink-0 text-white">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <div class="p-2.5 bg-white/20 backdrop-blur-md rounded-xl border border-white/30 shadow-inner">
+                        <i data-lucide="trending-down" class="w-7 h-7"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-2xl font-black tracking-tight leading-none mb-1">Total Expenses Today</h3>
+                        <p class="text-red-100 text-[11px] font-bold uppercase tracking-widest opacity-80">Detailed expense records and computation</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <button onclick="window.print()" class="flex items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg font-black text-xs uppercase tracking-widest transition-all border border-white/20">
+                        <i data-lucide="printer" class="w-4 h-4"></i>
+                        Print Expenses
+                    </button>
+                    <button onclick="hideExpensesModal()" class="p-2 hover:bg-white/10 text-white rounded-full transition-colors">
+                        <i data-lucide="x" class="w-6 h-6"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Period Filters (Expenses Only) -->
+            <div class="mt-6 flex justify-center bg-black/10 rounded-xl p-1.5 backdrop-blur-sm border border-white/10">
+                <div class="flex gap-1 p-0.5 bg-black/20 rounded-lg shadow-inner">
+                    <button id="btn-today-expenses" onclick="setExpensesPeriod('today')" class="px-3 py-1.5 text-xs font-black rounded-md transition-all duration-200">Today</button>
+                    <button id="btn-week-expenses" onclick="setExpensesPeriod('week')" class="px-3 py-1.5 text-xs font-black rounded-md transition-all duration-200">Weekly</button>
+                    <button id="btn-month-expenses" onclick="setExpensesPeriod('month')" class="px-3 py-1.5 text-xs font-black rounded-md transition-all duration-200">Monthly</button>
+                    <button id="btn-year-expenses" onclick="setExpensesPeriod('year')" class="px-3 py-1.5 text-xs font-black rounded-md transition-all duration-200">Yearly</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="flex-1 overflow-hidden flex flex-col min-h-0">
+            <!-- Detailed Report Document (Expenses Focused) -->
+            <div class="bg-gray-50 p-4 border-b border-gray-200 flex-shrink-0 print-section overflow-y-auto max-h-[85vh]">
+                <div class="max-w-4xl mx-auto bg-white border border-gray-200 rounded-xl p-6 shadow-sm relative" id="expensesReport">
+                    <!-- Report Header (Print Only) -->
+                    <div class="text-center mb-10 print-only">
+                        <div class="flex flex-col items-center mb-4">
+                            <img src="{{ asset('image/logo.png') }}" alt="Euro Taxi Logo" class="h-16 w-auto mb-2">
+                        </div>
+                        <h4 class="text-4xl font-black uppercase tracking-[0.4em] text-gray-900 mb-2">Expense Statement</h4>
+                        <div class="text-base text-gray-600 uppercase font-black tracking-widest" id="expensesPeriodLabelPrint">Period: TODAY</div>
+                        <div class="text-[12px] text-gray-400 mt-3 font-bold tracking-[0.2em]">EURO TAXI MANAGEMENT SYSTEM • OFFICIAL EXPENSE RECORD</div>
+                        <div class="border-t-2 border-gray-100 mt-8 pt-2 h-0 border-dashed"></div>
+                    </div>
+                    
+                    <!-- Operating Expenses Section -->
+                    <div class="mb-6">
+                        <div class="flex justify-between items-center bg-red-900 text-white px-6 py-3 rounded-t-lg">
+                            <span class="text-[11px] uppercase font-black tracking-[0.1em]">Detailed Expenses Breakdown</span>
+                            <span class="text-xl font-black text-red-300" id="expensesTotalValue">₱0.00</span>
+                        </div>
+                        <div class="border-x border-b border-gray-100 rounded-b-lg p-0">
+                            <!-- Maintenance Breakdown -->
+                            <div class="border-b border-gray-100">
+                                <div class="bg-gray-50 px-6 py-1 border-b border-gray-100 flex justify-between text-[9px] font-black text-gray-400 uppercase tracking-widest">
+                                    <span>Maintenance & Repairs Itemized</span>
+                                    <span id="expensesMaintenanceTotal" class="text-orange-600 font-black text-[10px]">Total: ₱0.00</span>
+                                </div>
+                                <div id="expensesMaintenanceList" class="divide-y divide-gray-50 bg-white"></div>
+                            </div>
+
+                            <!-- Office Breakdown -->
+                            <div>
+                                <div class="bg-gray-50 px-6 py-1 border-b border-gray-100 flex justify-between text-[9px] font-black text-gray-400 uppercase tracking-widest">
+                                    <span>General Office Expenses Itemized</span>
+                                    <span id="expensesOfficeTotal" class="text-red-500 font-black text-[10px]">Total: ₱0.00</span>
+                                </div>
+                                <div id="expensesOfficeList" class="divide-y divide-gray-50 bg-white"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Computation Summary Box -->
+                    <div class="bg-gray-100 border-2 border-red-900 p-6 rounded-xl shadow-sm mb-6">
+                        <div class="flex justify-between items-end mb-2">
+                            <span class="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em]">Computation Summary</span>
+                            <div class="flex items-center gap-1">
+                                <i data-lucide="check-circle" class="w-3 h-3 text-red-600"></i>
+                                <span class="text-[9px] text-red-600 font-black italic uppercase tracking-wider">calculated</span>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center text-3xl font-black text-gray-900 tracking-tighter">
+                            <span>TOTAL OPERATING EXPENSES</span>
+                            <span class="text-red-700" id="finalExpensesTotal">₱0.00</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Report Footer (Print Only) -->
+                    <div class="text-center mt-8 pt-6 border-t border-gray-100 print-only">
+                        <p class="text-[10px] text-gray-400 font-black uppercase tracking-[0.2em] mb-1">Authenticated Expense Summary</p>
+                        <p class="text-[9px] text-gray-300 font-medium tracking-widest">TIMESTAMP: <span id="expensesTimestamp"></span></p>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -2527,15 +2590,13 @@
         }
         
         function displayIncomeData(data) {
-            const grid = document.getElementById('incomeGrid');
             const incomeData = data.income_data || [];
-            const stats = data.stats || {};
             
             // Store original data for filtering
             window.originalIncomeData = incomeData;
             
-            // Apply filtering instead of rendering raw data
-            filterIncomeData();
+            // Apply filtering directly via setIncomePeriod
+            setIncomePeriod(window.currentIncomePeriod || 'today');
             
             // Re-initialize Lucide icons
             if (typeof lucide !== 'undefined') {
@@ -2605,36 +2666,6 @@
             }
         }
         
-        function filterIncomeData() {
-            const searchTerm = document.getElementById('incomeSearchInput').value.toLowerCase();
-            const currentPeriod = window.currentIncomePeriod || 'today';
-            
-            let filteredData = window.originalIncomeData || [];
-            
-            // Apply period filter
-            filteredData = filterIncomeByPeriod(filteredData, currentPeriod);
-            
-            // Apply search filter
-            if (searchTerm) {
-                filteredData = filteredData.filter(item => {
-                    const searchableText = [
-                        item.description || '',
-                        item.category || '',
-                        item.type || '',
-                        item.source || '',
-                        item.reference || '',
-                        item.amount ? item.amount.toString() : '',
-                        item.date || ''
-                    ].join(' ').toLowerCase();
-                    
-                    return searchableText.includes(searchTerm);
-                });
-            }
-            
-            window.currentFilteredIncomeData = filteredData;
-            renderIncomeData(filteredData);
-            updateIncomeSummary(filteredData);
-        }
         
         function updateIncomeSummary(data) {
             let totalIncome = 0;
@@ -2741,6 +2772,118 @@
         function printReport() {
             window.print();
         }
+
+        // --- Expenses Modal Functions ---
+        function showExpensesModal() {
+            document.getElementById('expensesModal').classList.remove('hidden');
+            setExpensesPeriod('today');
+        }
+
+        function hideExpensesModal() {
+            document.getElementById('expensesModal').classList.add('hidden');
+        }
+
+        function setExpensesPeriod(period) {
+            window.currentExpensesPeriod = period;
+            
+            const periodLabels = {
+                'today': 'Period: TODAY',
+                'week': 'Period: THIS WEEK',
+                'month': 'Period: THIS MONTH',
+                'year': 'Period: THIS YEAR'
+            };
+            const labelText = periodLabels[period] || 'Period: Custom';
+            const labelElPrint = document.getElementById('expensesPeriodLabelPrint');
+            if (labelElPrint) labelElPrint.textContent = labelText;
+
+            // Update button styles
+            document.querySelectorAll('[id^="btn-"][id$="-expenses"]').forEach(btn => {
+                btn.classList.remove('bg-white', 'text-red-700');
+                btn.classList.add('text-white/70', 'hover:text-white', 'hover:bg-white/10');
+            });
+            
+            const activeBtn = document.getElementById('btn-' + period + '-expenses');
+            if (activeBtn) {
+                activeBtn.classList.remove('text-white/70', 'hover:text-white', 'hover:bg-white/10');
+                activeBtn.classList.add('bg-white', 'text-red-700');
+            }
+            
+            updateExpensesSummary(period);
+        }
+
+        async function updateExpensesSummary(period) {
+            try {
+                const response = await fetch('/get-income-breakdown');
+                const result = await response.json();
+                
+                if (result.success) {
+                    const filteredData = filterIncomeByPeriod(result.data, period);
+                    renderExpensesReport(filteredData);
+                }
+            } catch (error) {
+                console.error("Error fetching expenses data:", error);
+            }
+        }
+
+        function renderExpensesReport(data) {
+            const breakdown = {
+                maintenanceTotal: 0,
+                maintenanceItems: [],
+                officeTotal: 0,
+                officeItems: []
+            };
+
+            data.forEach(item => {
+                const amount = parseFloat(item.amount) || 0;
+                const description = item.description || 'No Description';
+                const date = (item.date || '').split(' ')[0];
+
+                if (item.type === 'maintenance') {
+                    breakdown.maintenanceTotal += amount;
+                    breakdown.maintenanceItems.push({ description, amount, date });
+                } else if (item.type === 'expense') {
+                    breakdown.officeTotal += amount;
+                    breakdown.officeItems.push({ description, amount, date });
+                }
+            });
+
+            const totalExpenses = breakdown.maintenanceTotal + breakdown.officeTotal;
+            const fmt = (num) => '₱' + num.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+
+            const safeSet = (id, val) => {
+                const el = document.getElementById(id);
+                if (el) el.textContent = val;
+            };
+
+            safeSet('expensesTotalValue', fmt(totalExpenses));
+            safeSet('expensesMaintenanceTotal', 'Total: ' + fmt(breakdown.maintenanceTotal));
+            safeSet('expensesOfficeTotal', 'Total: ' + fmt(breakdown.officeTotal));
+            safeSet('finalExpensesTotal', fmt(totalExpenses));
+            safeSet('expensesTimestamp', new Date().toLocaleString());
+
+            const renderList = (id, items) => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                
+                if (items.length > 0) {
+                    el.innerHTML = items.map(item => `
+                        <div class="px-6 py-2 flex justify-between items-center hover:bg-gray-50/50 transition-colors border-b border-gray-50 last:border-0">
+                            <div class="flex flex-col">
+                                <span class="text-[10px] font-black text-gray-800 tracking-tight leading-tight">${item.description}</span>
+                                <span class="text-[8px] text-gray-400 font-bold uppercase">${item.date}</span>
+                            </div>
+                            <span class="text-xs font-black text-red-500">${fmt(item.amount)}</span>
+                        </div>
+                    `).join('');
+                } else {
+                    el.innerHTML = '';
+                }
+            };
+
+            renderList('expensesMaintenanceList', breakdown.maintenanceItems);
+            renderList('expensesOfficeList', breakdown.officeItems);
+        }
+
         
         function filterIncomeByPeriod(data, period) {
             // Get local date in YYYY-MM-DD format
@@ -2802,7 +2945,7 @@
         function setIncomePeriod(period) {
             window.currentIncomePeriod = period;
             
-            // Update receipt label
+            // Update labels
             const periodLabels = {
                 'today': 'Period: TODAY',
                 'week': 'Period: THIS WEEK',
@@ -2810,8 +2953,6 @@
                 'year': 'Period: THIS YEAR'
             };
             const labelText = periodLabels[period] || 'Period: Custom';
-            const labelEl = document.getElementById('reportPeriodLabel');
-            if (labelEl) labelEl.textContent = labelText;
             const labelElPrint = document.getElementById('reportPeriodLabelPrint');
             if (labelElPrint) labelElPrint.textContent = labelText;
 
@@ -2821,20 +2962,15 @@
                 btn.classList.add('text-white/70', 'hover:text-white', 'hover:bg-white/10');
             });
             
-            // Highlight active button
             const activeBtn = document.getElementById('btn-' + period + '-income');
             if (activeBtn) {
                 activeBtn.classList.remove('text-white/70', 'hover:text-white', 'hover:bg-white/10');
                 activeBtn.classList.add('bg-white', 'text-green-700');
             }
             
-            // Re-apply filters
-            filterIncomeData();
-        }
-        
-        function clearIncomeSearch() {
-            document.getElementById('incomeSearchInput').value = '';
-            filterIncomeData();
+            // Re-apply filters directly
+            const filtered = filterIncomeByPeriod(window.originalIncomeData || [], period);
+            updateIncomeSummary(filtered);
         }
         
         function showIncomeError(message, debugInfo = null) {
