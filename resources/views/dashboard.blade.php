@@ -228,12 +228,14 @@
                         </button>
                     </div>
                 </div>
-                <input 
-                    type="date" 
-                    id="maintenanceDateFilter"
-                    class="px-3 py-2 bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent transition-all duration-200 text-sm"
-                    onchange="filterMaintenanceUnits()"
+                <button 
+                    id="maintenanceSortBtn"
+                    onclick="toggleMaintenanceSort()"
+                    class="flex items-center gap-2 px-3 py-2 bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg text-white hover:bg-white/30 transition-all duration-200 text-sm font-medium"
                 >
+                    <i data-lucide="arrow-down-narrow-wide" class="w-4 h-4" id="maintenanceSortIcon"></i>
+                    <span id="maintenanceSortText">Newest First</span>
+                </button>
             </div>
         </div>
         
@@ -608,13 +610,6 @@
                         Yearly
                     </button>
                 </div>
-                
-                <input 
-                    type="date" 
-                    id="incomeDateFilter"
-                    class="px-3 py-2 bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent transition-all duration-200 text-sm"
-                    onchange="filterIncomeData()"
-                >
             </div>
         </div>
         
@@ -822,21 +817,56 @@
                     </button>
                 </div>
                 
-                <!-- Compact Search Bar -->
-                <div class="relative mb-3">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <i data-lucide="search" class="w-4 h-4 text-white/60"></i>
+                <!-- Search and Filter Row -->
+                <div class="flex items-center gap-3 mb-3">
+                    <!-- Compact Search Bar -->
+                    <div class="relative flex-1">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i data-lucide="search" class="w-4 h-4 text-white/60"></i>
+                        </div>
+                        <input 
+                            type="text" 
+                            id="unitSearchInput"
+                            placeholder="Search units by number, status, or performance..."
+                            class="w-full pl-10 pr-4 py-2 bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent transition-all duration-200 text-sm"
+                            onkeyup="filterUnits()"
+                        >
+                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                            <button onclick="clearSearch()" class="text-white/60 hover:text-white transition-colors">
+                                <i data-lucide="x-circle" class="w-4 h-4"></i>
+                            </button>
+                        </div>
                     </div>
-                    <input 
-                        type="text" 
-                        id="unitSearchInput"
-                        placeholder="Search units by number, status, or performance..."
-                        class="w-full pl-10 pr-4 py-2 bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent transition-all duration-200 text-sm"
-                        onkeyup="filterUnits()"
-                    >
-                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
-                        <button onclick="clearSearch()" class="text-white/60 hover:text-white transition-colors">
-                            <i data-lucide="x-circle" class="w-4 h-4"></i>
+
+                    <!-- Status Filter Buttons -->
+                    <div class="flex bg-white/10 backdrop-blur-sm border border-white/30 rounded-lg p-1">
+                        <button 
+                            id="btn-all-units" 
+                            onclick="setUnitStatusFilter('all')"
+                            class="px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200 bg-white text-blue-700"
+                        >
+                            All
+                        </button>
+                        <button 
+                            id="btn-active-units" 
+                            onclick="setUnitStatusFilter('active')"
+                            class="px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200 text-white/70 hover:text-white hover:bg-white/10"
+                        >
+                            Active
+                        </button>
+                        <button 
+                            id="btn-maintenance-units" 
+                            onclick="setUnitStatusFilter('maintenance')"
+                            class="px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200 text-white/70 hover:text-white hover:bg-white/10"
+                        >
+                            Maintenance
+                        </button>
+                        <button 
+                            id="btn-coding-units" 
+                            onclick="setUnitStatusFilter('coding')"
+                            class="px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200 text-white/70 hover:text-white hover:bg-white/10"
+                        >
+                            Coding
                         </button>
                     </div>
                 </div>
@@ -1395,10 +1425,10 @@
             
             // Store original data for filtering
             window.originalMaintenanceData = units;
-            window.currentFilteredMaintenanceData = units;
+            window.maintenanceSortOrder = window.maintenanceSortOrder || 'desc';
             
             // Render maintenance units
-            renderMaintenanceUnits(units);
+            filterMaintenanceUnits();
             
             // Re-initialize Lucide icons
             if (typeof lucide !== 'undefined') {
@@ -1473,16 +1503,9 @@
         
         function filterMaintenanceUnits() {
             const searchTerm = document.getElementById('maintenanceSearchInput').value.toLowerCase();
-            const dateFilter = document.getElementById('maintenanceDateFilter').value;
+            const sortOrder = window.maintenanceSortOrder || 'desc';
             
-            let filteredUnits = window.originalMaintenanceData || [];
-            
-            // Apply date filter
-            if (dateFilter) {
-                filteredUnits = filteredUnits.filter(unit => {
-                    return unit.start_date === dateFilter;
-                });
-            }
+            let filteredUnits = [...(window.originalMaintenanceData || [])];
             
             // Apply search filter
             if (searchTerm) {
@@ -1500,14 +1523,42 @@
                     return searchableText.includes(searchTerm);
                 });
             }
+
+            // Apply Sort
+            filteredUnits.sort((a, b) => {
+                const dateA = new Date(a.start_date || '1970-01-01');
+                const dateB = new Date(b.start_date || '1970-01-01');
+                return sortOrder === 'desc' ? dateB - dateA : dateA - dateB;
+            });
             
             window.currentFilteredMaintenanceData = filteredUnits;
             renderMaintenanceUnits(filteredUnits);
         }
+
+        function toggleMaintenanceSort() {
+            window.maintenanceSortOrder = (window.maintenanceSortOrder === 'desc') ? 'asc' : 'desc';
+            
+            // Update UI
+            const icon = document.getElementById('maintenanceSortIcon');
+            const text = document.getElementById('maintenanceSortText');
+            
+            if (window.maintenanceSortOrder === 'desc') {
+                icon.setAttribute('data-lucide', 'arrow-down-narrow-wide');
+                text.textContent = 'Newest First';
+            } else {
+                icon.setAttribute('data-lucide', 'arrow-up-narrow-wide');
+                text.textContent = 'Oldest First';
+            }
+            
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+            
+            filterMaintenanceUnits();
+        }
         
         function clearMaintenanceSearch() {
             document.getElementById('maintenanceSearchInput').value = '';
-            document.getElementById('maintenanceDateFilter').value = '';
             filterMaintenanceUnits();
         }
         
@@ -2172,10 +2223,9 @@
             
             // Store original data for filtering
             window.originalIncomeData = incomeData;
-            window.currentFilteredIncomeData = incomeData;
             
-            // Render income data
-            renderIncomeData(incomeData);
+            // Apply filtering instead of rendering raw data
+            filterIncomeData();
             
             // Re-initialize Lucide icons
             if (typeof lucide !== 'undefined') {
@@ -2254,20 +2304,12 @@
         
         function filterIncomeData() {
             const searchTerm = document.getElementById('incomeSearchInput').value.toLowerCase();
-            const dateFilter = document.getElementById('incomeDateFilter').value;
             const currentPeriod = window.currentIncomePeriod || 'today';
             
             let filteredData = window.originalIncomeData || [];
             
             // Apply period filter
             filteredData = filterIncomeByPeriod(filteredData, currentPeriod);
-            
-            // Apply date filter
-            if (dateFilter) {
-                filteredData = filteredData.filter(item => {
-                    return item.date === dateFilter;
-                });
-            }
             
             // Apply search filter
             if (searchTerm) {
@@ -2288,11 +2330,40 @@
             
             window.currentFilteredIncomeData = filteredData;
             renderIncomeData(filteredData);
+            updateIncomeSummary(filteredData);
+        }
+        
+        function updateIncomeSummary(data) {
+            let totalIncome = 0;
+            let totalExpenses = 0;
+            
+            data.forEach(item => {
+                const amount = Math.abs(parseFloat(item.amount) || 0);
+                if (item.type === 'income') {
+                    totalIncome += amount;
+                } else {
+                    totalExpenses += amount;
+                }
+            });
+            
+            const netIncome = totalIncome - totalExpenses;
+            const profitMargin = totalIncome > 0 ? (netIncome / totalIncome) * 100 : 0;
+            
+            document.getElementById('totalIncomeCount').textContent = '₱' + totalIncome.toLocaleString();
+            document.getElementById('totalExpenseCount').textContent = '₱' + totalExpenses.toLocaleString();
+            document.getElementById('netIncomeCount').textContent = '₱' + netIncome.toLocaleString();
+            document.getElementById('profitMarginCount').textContent = profitMargin.toFixed(1) + '%';
         }
         
         function filterIncomeByPeriod(data, period) {
+            // Get local date in YYYY-MM-DD format
             const today = new Date();
-            const todayStr = today.toISOString().split('T')[0];
+            today.setHours(0, 0, 0, 0); // Set to local midnight
+            
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            const todayStr = `${year}-${month}-${day}`;
             
             switch(period) {
                 case 'today':
@@ -2303,27 +2374,30 @@
                     weekStart.setDate(today.getDate() - today.getDay());
                     const weekEnd = new Date(weekStart);
                     weekEnd.setDate(weekStart.getDate() + 6);
+                    weekEnd.setHours(23, 59, 59, 999);
                     
                     return data.filter(item => {
-                        const itemDate = new Date(item.date);
+                        const itemDate = new Date(item.date + 'T00:00:00'); // Force local interpretation
                         return itemDate >= weekStart && itemDate <= weekEnd;
                     });
                     
                 case 'month':
                     const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
                     const monthEnd = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+                    monthEnd.setHours(23, 59, 59, 999);
                     
                     return data.filter(item => {
-                        const itemDate = new Date(item.date);
+                        const itemDate = new Date(item.date + 'T00:00:00');
                         return itemDate >= monthStart && itemDate <= monthEnd;
                     });
                     
                 case 'year':
                     const yearStart = new Date(today.getFullYear(), 0, 1);
                     const yearEnd = new Date(today.getFullYear(), 11, 31);
+                    yearEnd.setHours(23, 59, 59, 999);
                     
                     return data.filter(item => {
-                        const itemDate = new Date(item.date);
+                        const itemDate = new Date(item.date + 'T00:00:00');
                         return itemDate >= yearStart && itemDate <= yearEnd;
                     });
                     
@@ -2348,16 +2422,12 @@
                 activeBtn.classList.add('bg-white', 'text-green-700');
             }
             
-            // Clear date filter when switching periods
-            document.getElementById('incomeDateFilter').value = '';
-            
             // Re-apply filters
             filterIncomeData();
         }
         
         function clearIncomeSearch() {
             document.getElementById('incomeSearchInput').value = '';
-            document.getElementById('incomeDateFilter').value = '';
             filterIncomeData();
         }
         
@@ -2843,22 +2913,38 @@
         }
         
         // Search and Filter Functions
+        window.currentUnitStatusFilter = 'all';
+
+        function setUnitStatusFilter(status) {
+            window.currentUnitStatusFilter = status;
+            
+            // Update UI
+            const statusBtns = ['all', 'active', 'maintenance', 'coding'];
+            statusBtns.forEach(s => {
+                const btn = document.getElementById('btn-' + s + '-units');
+                if (btn) {
+                    if (s === status) {
+                        btn.classList.remove('text-white/70', 'hover:text-white', 'hover:bg-white/10');
+                        btn.classList.add('bg-white', 'text-blue-700');
+                    } else {
+                        btn.classList.add('text-white/70', 'hover:text-white', 'hover:bg-white/10');
+                        btn.classList.remove('bg-white', 'text-blue-700');
+                    }
+                }
+            });
+            
+            filterUnits();
+        }
+
         function filterUnits() {
             const searchTerm = document.getElementById('unitSearchInput').value.toLowerCase();
-            const activeFilter = document.querySelector('.filter-tag.active');
+            const currentStatus = window.currentUnitStatusFilter || 'all';
             
             let filteredUnits = window.originalUnitsData || [];
             
             // Apply status filter
-            if (activeFilter) {
-                if (activeFilter.dataset.status) {
-                    filteredUnits = filteredUnits.filter(unit => unit.status === activeFilter.dataset.status);
-                } else if (activeFilter.dataset.month) {
-                    // Filter by month - get boundaries from that month
-                    filteredUnits = filteredUnits.filter(unit => {
-                        return unit.last_activity && unit.last_activity.includes(activeFilter.dataset.month);
-                    });
-                }
+            if (currentStatus !== 'all') {
+                filteredUnits = filteredUnits.filter(unit => (unit.status || '').toLowerCase() === currentStatus);
             }
             
             // Apply search filter
@@ -2938,7 +3024,7 @@
         
         function clearSearch() {
             document.getElementById('unitSearchInput').value = '';
-            filterUnits();
+            setUnitStatusFilter('all');
         }
     </script>
 @endpush
