@@ -62,4 +62,9 @@ class Unit extends Model
     {
         return $this->hasMany(Maintenance::class, 'unit_id');
     }
+
+    public function codingRecords()
+    {
+        return $this->hasMany(CodingRecord::class, 'unit_id');
+    }
 }

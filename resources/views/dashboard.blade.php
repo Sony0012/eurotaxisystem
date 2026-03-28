@@ -228,21 +228,31 @@
                         </button>
                     </div>
                 </div>
-                <button 
-                    id="maintenanceSortBtn"
-                    onclick="toggleMaintenanceSort()"
-                    class="flex items-center gap-2 px-3 py-2 bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg text-white hover:bg-white/30 transition-all duration-200 text-sm font-medium"
-                >
-                    <i data-lucide="arrow-down-narrow-wide" class="w-4 h-4" id="maintenanceSortIcon"></i>
-                    <span id="maintenanceSortText">Newest First</span>
-                </button>
+                <div class="flex items-center gap-1 bg-white/20 backdrop-blur-sm p-1 rounded-xl border border-white/30">
+                    <button onclick="setMaintenanceFilter('all')" id="mFilterAll" class="px-4 py-1.5 rounded-lg text-sm font-bold transition-all duration-200 bg-white text-orange-600 shadow-sm">
+                        All
+                    </button>
+                    <button onclick="setMaintenanceFilter('preventive')" id="mFilterPreventive" class="px-4 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 text-white hover:bg-white/10">
+                        Preventive
+                    </button>
+                    <button onclick="setMaintenanceFilter('corrective')" id="mFilterCorrective" class="px-4 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 text-white hover:bg-white/10">
+                        Corrective
+                    </button>
+                    <button onclick="setMaintenanceFilter('emergency')" id="mFilterEmergency" class="px-4 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 text-white hover:bg-white/10">
+                        Emergency
+                    </button>
+                    <button onclick="setMaintenanceFilter('complete')" id="mFilterComplete" class="px-4 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 text-white hover:bg-white/10">
+                        Complete
+                    </button>
+                </div>
             </div>
         </div>
         
         <div class="flex-1 overflow-hidden flex flex-col min-h-0">
             <!-- Summary Stats -->
             <div class="bg-gradient-to-r from-orange-50 to-amber-50 p-4 border-b border-orange-200 flex-shrink-0">
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="grid grid-cols-2 lg:grid-cols-5 gap-3">
+                    <!-- Total Maintenance -->
                     <div class="bg-white rounded-lg p-3 shadow-sm border border-orange-100 hover:shadow-md transition-shadow">
                         <div class="flex items-center gap-2">
                             <div class="p-1.5 bg-orange-100 rounded">
@@ -250,40 +260,55 @@
                             </div>
                             <div>
                                 <div class="text-lg font-bold text-orange-600" id="maintenanceUnitsCount">0</div>
-                                <div class="text-xs text-gray-600 uppercase tracking-wide font-medium">Maintenance</div>
+                                <div class="text-[10px] text-gray-600 uppercase tracking-wide font-bold">Maintenance</div>
                             </div>
                         </div>
                     </div>
+                    <!-- Preventive -->
                     <div class="bg-white rounded-lg p-3 shadow-sm border border-blue-100 hover:shadow-md transition-shadow">
                         <div class="flex items-center gap-2">
                             <div class="p-1.5 bg-blue-100 rounded">
-                                <i data-lucide="clock" class="w-4 h-4 text-blue-600"></i>
+                                <i data-lucide="shield-check" class="w-4 h-4 text-blue-600"></i>
                             </div>
                             <div>
-                                <div class="text-lg font-bold text-blue-600" id="avgMaintenanceDaysCount">0</div>
-                                <div class="text-xs text-gray-600 uppercase tracking-wide font-medium">Avg Days</div>
+                                <div class="text-lg font-bold text-blue-600" id="preventiveMaintenanceCount">0</div>
+                                <div class="text-[10px] text-gray-600 uppercase tracking-wide font-bold">Preventive</div>
                             </div>
                         </div>
                     </div>
+                    <!-- Corrective -->
+                    <div class="bg-white rounded-lg p-3 shadow-sm border border-amber-100 hover:shadow-md transition-shadow">
+                        <div class="flex items-center gap-2">
+                            <div class="p-1.5 bg-amber-100 rounded">
+                                <i data-lucide="tool" class="w-4 h-4 text-amber-600"></i>
+                            </div>
+                            <div>
+                                <div class="text-lg font-bold text-amber-600" id="correctiveMaintenanceCount">0</div>
+                                <div class="text-[10px] text-gray-600 uppercase tracking-wide font-bold">Corrective</div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Emergency -->
+                    <div class="bg-white rounded-lg p-3 shadow-sm border border-red-100 hover:shadow-md transition-shadow">
+                        <div class="flex items-center gap-2">
+                            <div class="p-1.5 bg-red-100 rounded">
+                                <i data-lucide="alert-triangle" class="w-4 h-4 text-red-600"></i>
+                            </div>
+                            <div>
+                                <div class="text-lg font-bold text-red-600" id="emergencyMaintenanceCount">0</div>
+                                <div class="text-[10px] text-gray-600 uppercase tracking-wide font-bold">Emergency</div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Completed -->
                     <div class="bg-white rounded-lg p-3 shadow-sm border border-green-100 hover:shadow-md transition-shadow">
                         <div class="flex items-center gap-2">
                             <div class="p-1.5 bg-green-100 rounded">
                                 <i data-lucide="check-circle" class="w-4 h-4 text-green-600"></i>
                             </div>
                             <div>
-                                <div class="text-lg font-bold text-green-600" id="completedMaintenanceCount">0</div>
-                                <div class="text-xs text-gray-600 uppercase tracking-wide font-medium">Completed</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="bg-white rounded-lg p-3 shadow-sm border border-purple-100 hover:shadow-md transition-shadow">
-                        <div class="flex items-center gap-2">
-                            <div class="p-1.5 bg-purple-100 rounded">
-                                <i data-lucide="alert-circle" class="w-4 h-4 text-purple-600"></i>
-                            </div>
-                            <div>
-                                <div class="text-lg font-bold text-purple-600" id="pendingMaintenanceCount">0</div>
-                                <div class="text-xs text-gray-600 uppercase tracking-wide font-medium">Pending</div>
+                                <div class="text-lg font-bold text-green-600" id="completedTotalCount">0</div>
+                                <div class="text-[10px] text-gray-600 uppercase tracking-wide font-bold">Complete</div>
                             </div>
                         </div>
                     </div>
@@ -454,7 +479,7 @@
                         id="codingSearchInput"
                         placeholder="Search by unit number, plate, or coding status..."
                         class="w-full pl-10 pr-4 py-2 bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent transition-all duration-200 text-sm"
-                        onkeyup="filterCodingUnits()"
+                        oninput="filterCodingUnits()"
                     >
                     <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
                         <button onclick="clearCodingSearch()" class="text-white/60 hover:text-white transition-colors">
@@ -462,12 +487,38 @@
                         </button>
                     </div>
                 </div>
-                <input 
-                    type="date" 
-                    id="codingDateFilter"
-                    class="px-3 py-2 bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent transition-all duration-200 text-sm"
-                    onchange="filterCodingUnits()"
-                >
+
+                <!-- Coding Period Filters -->
+                <div class="flex bg-white/10 backdrop-blur-sm border border-white/30 rounded-lg p-1">
+                    <button 
+                        id="btn-all-coding" 
+                        onclick="setCodingPeriod('all')"
+                        class="px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200 bg-white text-purple-700"
+                    >
+                        All
+                    </button>
+                    <button 
+                        id="btn-today-coding" 
+                        onclick="setCodingPeriod('today')"
+                        class="px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200 text-white/70 hover:text-white hover:bg-white/10"
+                    >
+                        Today
+                    </button>
+                    <button 
+                        id="btn-tomorrow-coding" 
+                        onclick="setCodingPeriod('tomorrow')"
+                        class="px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200 text-white/70 hover:text-white hover:bg-white/10"
+                    >
+                        Tomorrow
+                    </button>
+                    <button 
+                        id="btn-past-coding" 
+                        onclick="setCodingPeriod('past')"
+                        class="px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200 text-white/70 hover:text-white hover:bg-white/10"
+                    >
+                        Past
+                    </button>
+                </div>
             </div>
         </div>
         
@@ -492,8 +543,8 @@
                                 <i data-lucide="calendar" class="w-4 h-4 text-blue-600"></i>
                             </div>
                             <div>
-                                <div class="text-lg font-bold text-blue-600" id="avgCodingDaysCount">0</div>
-                                <div class="text-xs text-gray-600 uppercase tracking-wide font-medium">Avg Days</div>
+                                <div class="text-lg font-bold text-blue-600" id="todayCodingCount">0</div>
+                                <div class="text-xs text-gray-600 uppercase tracking-wide font-medium">Today's Coding</div>
                             </div>
                         </div>
                     </div>
@@ -503,8 +554,8 @@
                                 <i data-lucide="check-circle" class="w-4 h-4 text-green-600"></i>
                             </div>
                             <div>
-                                <div class="text-lg font-bold text-green-600" id="completedCodingCount">0</div>
-                                <div class="text-xs text-gray-600 uppercase tracking-wide font-medium">Completed</div>
+                                <div class="text-lg font-bold text-green-600" id="tomorrowCodingCount">0</div>
+                                <div class="text-xs text-gray-600 uppercase tracking-wide font-medium">Tomorrow's Coding</div>
                             </div>
                         </div>
                     </div>
@@ -514,8 +565,8 @@
                                 <i data-lucide="alert-circle" class="w-4 h-4 text-orange-600"></i>
                             </div>
                             <div>
-                                <div class="text-lg font-bold text-orange-600" id="pendingCodingCount">0</div>
-                                <div class="text-xs text-gray-600 uppercase tracking-wide font-medium">Pending</div>
+                                <div class="text-lg font-bold text-orange-600" id="pastCodingCount">0</div>
+                                <div class="text-xs text-gray-600 uppercase tracking-wide font-medium">Past Coding</div>
                             </div>
                         </div>
                     </div>
@@ -740,29 +791,29 @@
                             </div>
                             <div>
                                 <div class="text-lg font-bold text-green-600" id="totalBoundaryCount">0</div>
-                                <div class="text-xs text-gray-600 uppercase tracking-wide font-medium">Total Collections</div>
+                                <div class="text-xs text-gray-600 uppercase tracking-wide font-medium">Total Today</div>
                             </div>
                         </div>
                     </div>
                     <div class="bg-white rounded-lg p-3 shadow-sm border border-green-100 hover:shadow-md transition-shadow">
                         <div class="flex items-center gap-2">
                             <div class="p-1.5 bg-blue-100 rounded">
-                                <i data-lucide="car" class="w-4 h-4 text-blue-600"></i>
+                                <i data-lucide="history" class="w-4 h-4 text-blue-600"></i>
                             </div>
                             <div>
-                                <div class="text-lg font-bold text-blue-600" id="uniqueUnitsCount">0</div>
-                                <div class="text-xs text-gray-600 uppercase tracking-wide font-medium">Unique Units</div>
+                                <div class="text-lg font-bold text-blue-600" id="uniqueUnitsCount">₱0</div>
+                                <div class="text-xs text-gray-600 uppercase tracking-wide font-medium">Yesterday Total</div>
                             </div>
                         </div>
                     </div>
                     <div class="bg-white rounded-lg p-3 shadow-sm border border-green-100 hover:shadow-md transition-shadow">
                         <div class="flex items-center gap-2">
                             <div class="p-1.5 bg-purple-100 rounded">
-                                <i data-lucide="user" class="w-4 h-4 text-purple-600"></i>
+                                <i data-lucide="bar-chart-2" class="w-4 h-4 text-purple-600"></i>
                             </div>
                             <div>
-                                <div class="text-lg font-bold text-purple-600" id="uniqueDriversCount">0</div>
-                                <div class="text-xs text-gray-600 uppercase tracking-wide font-medium">Unique Drivers</div>
+                                <div class="text-lg font-bold text-purple-600" id="uniqueDriversCount">₱0</div>
+                                <div class="text-xs text-gray-600 uppercase tracking-wide font-medium">Monthly Total</div>
                             </div>
                         </div>
                     </div>
@@ -773,7 +824,7 @@
                             </div>
                             <div>
                                 <div class="text-lg font-bold text-yellow-600" id="totalBoundaryAmount">₱0</div>
-                                <div class="text-xs text-gray-600 uppercase tracking-wide font-medium">Total Amount</div>
+                                <div class="text-xs text-gray-600 uppercase tracking-wide font-medium">Yearly Total Amount</div>
                             </div>
                         </div>
                     </div>
@@ -890,22 +941,22 @@
                         <div class="bg-white rounded-lg p-2 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
                             <div class="flex items-center gap-2">
                                 <div class="p-1 bg-green-100 rounded">
-                                    <i data-lucide="activity" class="w-3.5 h-3.5 text-green-600"></i>
+                                    <i data-lucide="user-x" class="w-3.5 h-3.5 text-green-600"></i>
                                 </div>
                                 <div class="flex-1">
                                     <div class="text-base font-bold text-green-600 leading-tight" id="activeUnitsCount">0</div>
-                                    <div class="text-[10px] text-gray-500 uppercase tracking-tight font-bold">Active</div>
+                                    <div class="text-[10px] text-gray-500 uppercase tracking-tight font-bold">Vacant (No Driver)</div>
                                 </div>
                             </div>
                         </div>
                         <div class="bg-white rounded-lg p-2 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
                             <div class="flex items-center gap-2">
                                 <div class="p-1 bg-yellow-100 rounded">
-                                    <i data-lucide="trending-up" class="w-3.5 h-3.5 text-yellow-600"></i>
+                                    <i data-lucide="activity" class="w-3.5 h-3.5 text-yellow-600"></i>
                                 </div>
                                 <div class="flex-1">
                                     <div class="text-base font-bold text-yellow-600 leading-tight" id="roiUnitsCount">0</div>
-                                    <div class="text-[10px] text-gray-500 uppercase tracking-tight font-bold">ROI</div>
+                                    <div class="text-[10px] text-gray-500 uppercase tracking-tight font-bold">Active Units (With Driver)</div>
                                 </div>
                             </div>
                         </div>
@@ -1388,6 +1439,11 @@
         function showMaintenanceUnitsModal() {
             document.getElementById('maintenanceUnitsModal').classList.remove('hidden');
             document.body.style.overflow = 'hidden';
+            
+            // Set default filter to all
+            window.currentMaintenanceFilter = 'all';
+            updateMaintenanceFilterUI('all');
+            
             loadMaintenanceUnitsData();
         }
         
@@ -1397,7 +1453,10 @@
         }
         
         function loadMaintenanceUnitsData() {
-            fetch('/api/maintenance-units')
+            const filter = window.currentMaintenanceFilter || 'all';
+            const url = `/api/maintenance-units?filter=${filter}`;
+            
+            fetch(url)
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
@@ -1412,16 +1471,40 @@
                 });
         }
         
+        function setMaintenanceFilter(filter) {
+            window.currentMaintenanceFilter = filter;
+            updateMaintenanceFilterUI(filter);
+            loadMaintenanceUnitsData();
+        }
+        
+        function updateMaintenanceFilterUI(filter) {
+            const filters = ['all', 'preventive', 'corrective', 'emergency', 'complete'];
+            filters.forEach(f => {
+                const btn = document.getElementById('mFilter' + f.charAt(0).toUpperCase() + f.slice(1));
+                if (btn) {
+                    if (f === filter) {
+                        btn.classList.remove('text-white', 'hover:bg-white/10', 'font-medium');
+                        btn.classList.add('bg-white', 'text-orange-600', 'font-bold', 'shadow-sm');
+                    } else {
+                        btn.classList.add('text-white', 'hover:bg-white/10', 'font-medium');
+                        btn.classList.remove('bg-white', 'text-orange-600', 'font-bold', 'shadow-sm');
+                    }
+                }
+            });
+        }
+        
         function displayMaintenanceUnitsData(data) {
             const grid = document.getElementById('maintenanceGrid');
             const units = data.units || [];
             const stats = data.stats || {};
+            const filter = window.currentMaintenanceFilter || 'all';
             
-            // Update summary stats
+            // Update summary stats (Global Overview)
             document.getElementById('maintenanceUnitsCount').textContent = stats.total_maintenance || 0;
-            document.getElementById('avgMaintenanceDaysCount').textContent = stats.avg_maintenance_days || 0;
-            document.getElementById('completedMaintenanceCount').textContent = stats.completed_maintenance || 0;
-            document.getElementById('pendingMaintenanceCount').textContent = stats.pending_maintenance || 0;
+            document.getElementById('preventiveMaintenanceCount').textContent = stats.preventive_maintenance || 0;
+            document.getElementById('correctiveMaintenanceCount').textContent = stats.corrective_maintenance || 0;
+            document.getElementById('emergencyMaintenanceCount').textContent = stats.emergency_maintenance || 0;
+            document.getElementById('completedTotalCount').textContent = stats.completed_total || 0;
             
             // Store original data for filtering
             window.originalMaintenanceData = units;
@@ -1438,6 +1521,7 @@
         
         function renderMaintenanceUnits(units) {
             const grid = document.getElementById('maintenanceGrid');
+            const filter = window.currentMaintenanceFilter || 'all';
             
             if (units.length === 0) {
                 grid.innerHTML = `
@@ -1447,21 +1531,29 @@
                                 <i data-lucide="wrench" class="w-8 h-8 text-gray-400"></i>
                             </div>
                             <span class="text-xl text-gray-600 font-semibold mb-2">No maintenance units found</span>
-                            <p class="text-sm text-gray-400">Try adjusting your search or date filter</p>
+                            <p class="text-sm text-gray-400">Try adjusting your search or filter</p>
                         </div>
                     </div>
                 `;
                 return;
             }
             
-            grid.innerHTML = units.map(unit => `
-                <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden border-l-4 border-orange-500 hover:scale-102">
+            grid.innerHTML = units.map(unit => {
+                const isComplete = filter === 'complete';
+                const mainDate = isComplete ? (unit.end_date || unit.start_date) : unit.start_date;
+                const statusColor = isComplete ? 'border-green-500' : 'border-orange-500';
+                const typeColor = isComplete ? 'text-green-600' : 'text-orange-600';
+                const iconBg = isComplete ? 'bg-green-100' : 'bg-orange-100';
+                const iconColor = isComplete ? 'text-green-600' : 'text-orange-600';
+
+                return `
+                <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden border-l-4 ${statusColor} hover:scale-102">
                     <div class="p-4">
                         <!-- Header -->
                         <div class="flex items-start justify-between mb-3">
                             <div class="flex items-center gap-3">
-                                <div class="p-2 bg-orange-100 rounded-lg">
-                                    <i data-lucide="wrench" class="w-4 h-4 text-orange-600"></i>
+                                <div class="p-2 ${iconBg} rounded-lg">
+                                    <i data-lucide="wrench" class="w-4 h-4 ${iconColor}"></i>
                                 </div>
                                 <div>
                                     <h4 class="text-lg font-bold text-gray-900">${unit.unit_number}</h4>
@@ -1469,16 +1561,16 @@
                                 </div>
                             </div>
                             <div class="text-right">
-                                <div class="text-lg font-bold text-orange-600">${unit.maintenance_type || 'Unknown'}</div>
-                                <div class="text-xs text-gray-500">${unit.start_date || 'N/A'}</div>
+                                <div class="text-lg font-bold ${typeColor}">${unit.maintenance_type || 'Unknown'}</div>
+                                <div class="text-xs text-gray-500">${mainDate || 'N/A'}</div>
                             </div>
                         </div>
                         
                         <!-- Maintenance Details -->
                         <div class="bg-gray-50 rounded-lg p-3 mb-3">
                             <div class="flex items-center justify-between mb-2">
-                                <span class="text-sm font-medium text-gray-900">Status: ${unit.status || 'Unknown'}</span>
-                                <span class="text-xs text-gray-600">${unit.estimated_completion || 'N/A'}</span>
+                                <span class="text-sm font-medium text-gray-900">Status: ${unit.maintenance_status || 'Unknown'}</span>
+                                <span class="text-xs font-bold text-orange-600">${isComplete ? '₱' + (unit.maintenance_cost || 0).toLocaleString() : (unit.estimated_completion || 'N/A')}</span>
                             </div>
                             <div class="text-xs text-gray-600">
                                 <span class="font-medium">Description:</span> ${unit.description || 'No description available'}
@@ -1489,21 +1581,25 @@
                         <div class="flex items-center justify-between text-xs text-gray-500">
                             <span class="flex items-center gap-1">
                                 <i data-lucide="calendar" class="w-3 h-3"></i>
-                                ${unit.start_date || 'No start date'}
+                                ${isComplete ? 'Completed: ' + (unit.end_date || 'N/A') : 'Started: ' + (unit.start_date || 'N/A')}
                             </span>
                             <span class="flex items-center gap-1">
                                 <i data-lucide="check-circle" class="w-3 h-3"></i>
-                                ${unit.status || 'Unknown'}
+                                ${unit.maintenance_status || 'Unknown'}
                             </span>
                         </div>
                     </div>
                 </div>
-            `).join('');
+            `;}).join('');
+            
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
         }
         
         function filterMaintenanceUnits() {
             const searchTerm = document.getElementById('maintenanceSearchInput').value.toLowerCase();
-            const sortOrder = window.maintenanceSortOrder || 'desc';
+            const filter = window.currentMaintenanceFilter || 'all';
             
             let filteredUnits = [...(window.originalMaintenanceData || [])];
             
@@ -1514,9 +1610,10 @@
                         unit.unit_number || '',
                         unit.plate_number || '',
                         unit.maintenance_type || '',
-                        unit.status || '',
+                        unit.maintenance_status || '',
                         unit.description || '',
                         unit.start_date || '',
+                        unit.end_date || '',
                         unit.estimated_completion || ''
                     ].join(' ').toLowerCase();
                     
@@ -1524,36 +1621,19 @@
                 });
             }
 
-            // Apply Sort
+            // Apply Sort Newest First (Backend already sorts, but search needs re-render)
             filteredUnits.sort((a, b) => {
-                const dateA = new Date(a.start_date || '1970-01-01');
-                const dateB = new Date(b.start_date || '1970-01-01');
-                return sortOrder === 'desc' ? dateB - dateA : dateA - dateB;
+                const dateA = new Date((filter === 'complete' ? a.end_date : a.start_date) || '1970-01-01');
+                const dateB = new Date((filter === 'complete' ? b.end_date : b.start_date) || '1970-01-01');
+                return dateB - dateA;
             });
             
             window.currentFilteredMaintenanceData = filteredUnits;
             renderMaintenanceUnits(filteredUnits);
         }
 
+        // ToggleMaintenanceSort is now handled by buttons but keeping for compatibility if needed
         function toggleMaintenanceSort() {
-            window.maintenanceSortOrder = (window.maintenanceSortOrder === 'desc') ? 'asc' : 'desc';
-            
-            // Update UI
-            const icon = document.getElementById('maintenanceSortIcon');
-            const text = document.getElementById('maintenanceSortText');
-            
-            if (window.maintenanceSortOrder === 'desc') {
-                icon.setAttribute('data-lucide', 'arrow-down-narrow-wide');
-                text.textContent = 'Newest First';
-            } else {
-                icon.setAttribute('data-lucide', 'arrow-up-narrow-wide');
-                text.textContent = 'Oldest First';
-            }
-            
-            if (typeof lucide !== 'undefined') {
-                lucide.createIcons();
-            }
-            
             filterMaintenanceUnits();
         }
         
@@ -1951,10 +2031,8 @@
             const stats = data.stats || {};
             
             // Update summary stats
-            document.getElementById('codingUnitsCount').textContent = stats.total_coding || 0;
-            document.getElementById('avgCodingDaysCount').textContent = stats.avg_coding_days || 0;
-            document.getElementById('completedCodingCount').textContent = stats.completed_coding || 0;
-            document.getElementById('pendingCodingCount').textContent = stats.pending_coding || 0;
+            document.getElementById('codingUnitsCount').textContent = units.length || 0;
+            updateCodingSummary(units);
             
             // Store original data for filtering
             window.originalCodingUnitsData = units;
@@ -2002,8 +2080,8 @@
                                 </div>
                             </div>
                             <div class="text-right">
-                                <div class="text-lg font-bold text-purple-600">${unit.coding_type || 'Unknown'}</div>
-                                <div class="text-xs text-gray-500">${unit.start_date || 'N/A'}</div>
+                                <div class="text-lg font-bold text-purple-600">${unit.coding_type || 'Coding'}</div>
+                                <div class="text-xs text-gray-500">${unit.start_date ? unit.start_date : (unit.coding_day !== 'Unknown' ? 'Every ' + unit.coding_day : 'No date')}</div>
                             </div>
                         </div>
                         
@@ -2022,7 +2100,7 @@
                         <div class="flex items-center justify-between text-xs text-gray-500">
                             <span class="flex items-center gap-1">
                                 <i data-lucide="calendar" class="w-3 h-3"></i>
-                                ${unit.start_date || 'No start date'}
+                                ${unit.start_date ? unit.start_date : (unit.coding_day !== 'Unknown' ? 'Every ' + unit.coding_day : 'No start date')}
                             </span>
                             <span class="flex items-center gap-1">
                                 <i data-lucide="check-circle" class="w-3 h-3"></i>
@@ -2034,16 +2112,118 @@
             `).join('');
         }
         
+        function updateCodingSummary(units) {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const tomorrow = new Date(today);
+            tomorrow.setDate(today.getDate() + 1);
+            
+            const formatDate = (date) => {
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            };
+            
+            const todayStr = formatDate(today);
+            const tomorrowStr = formatDate(tomorrow);
+            
+            const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+            const todayDayName = dayNames[today.getDay()];
+            const tomorrowDayName = dayNames[tomorrow.getDay()];
+            
+            const counts = {
+                today: 0,
+                tomorrow: 0,
+                past: 0
+            };
+            
+            units.forEach(unit => {
+                const unitDate = unit.start_date;
+                const codingDay = unit.coding_day;
+                const isCompleted = unit.coding_status === 'completed';
+                
+                if (isCompleted || (unitDate && unitDate < todayStr)) {
+                    counts.past++;
+                } else if (unitDate === todayStr || (!unitDate && codingDay === todayDayName)) {
+                    counts.today++;
+                } else if (unitDate === tomorrowStr || (!unitDate && codingDay === tomorrowDayName)) {
+                    counts.tomorrow++;
+                }
+            });
+            
+            document.getElementById('todayCodingCount').textContent = counts.today;
+            document.getElementById('tomorrowCodingCount').textContent = counts.tomorrow;
+            document.getElementById('pastCodingCount').textContent = counts.past;
+        }
+        
+        window.currentCodingPeriod = 'all';
+
+        function setCodingPeriod(period) {
+            window.currentCodingPeriod = period;
+            
+            // Update UI
+            const periods = ['all', 'today', 'tomorrow', 'past'];
+            periods.forEach(p => {
+                const btn = document.getElementById('btn-' + p + '-coding');
+                if (btn) {
+                    if (p === period) {
+                        btn.classList.remove('text-white/70', 'hover:text-white', 'hover:bg-white/10');
+                        btn.classList.add('bg-white', 'text-purple-700');
+                    } else {
+                        btn.classList.add('text-white/70', 'hover:text-white', 'hover:bg-white/10');
+                        btn.classList.remove('bg-white', 'text-purple-700');
+                    }
+                }
+            });
+            
+            filterCodingUnits();
+        }
+
         function filterCodingUnits() {
             const searchTerm = document.getElementById('codingSearchInput').value.toLowerCase();
-            const dateFilter = document.getElementById('codingDateFilter').value;
+            const currentPeriod = window.currentCodingPeriod || 'all';
             
             let filteredUnits = window.originalCodingUnitsData || [];
+
+            // Get current dates
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
             
-            // Apply date filter
-            if (dateFilter) {
+            const tomorrow = new Date(today);
+            tomorrow.setDate(today.getDate() + 1);
+            
+            const formatDate = (date) => {
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            };
+            
+            const todayStr = formatDate(today);
+            const tomorrowStr = formatDate(tomorrow);
+            
+            const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+            const todayDayName = dayNames[today.getDay()];
+            const tomorrowDayName = dayNames[tomorrow.getDay()];
+            
+            // Apply period filter
+            if (currentPeriod !== 'all') {
                 filteredUnits = filteredUnits.filter(unit => {
-                    return unit.start_date === dateFilter;
+                    const unitDate = unit.start_date;
+                    const codingDay = unit.coding_day;
+                    const isCompleted = unit.coding_status === 'completed';
+                    
+                    if (currentPeriod === 'today') {
+                        return !isCompleted && (unitDate === todayStr || (!unitDate && codingDay === todayDayName));
+                    }
+                    if (currentPeriod === 'tomorrow') {
+                        return !isCompleted && (unitDate === tomorrowStr || (!unitDate && codingDay === tomorrowDayName));
+                    }
+                    if (currentPeriod === 'past') {
+                        return isCompleted || (unitDate && unitDate < todayStr);
+                    }
+                    return true;
                 });
             }
             
@@ -2070,7 +2250,6 @@
         
         function clearCodingSearch() {
             document.getElementById('codingSearchInput').value = '';
-            document.getElementById('codingDateFilter').value = '';
             filterCodingUnits();
         }
         
@@ -2586,19 +2765,24 @@
             const collections = data.collections || [];
             const stats = data.stats || {};
             
-            // Update summary stats
-            document.getElementById('totalBoundaryCount').textContent = stats.total_collections || 0;
-            document.getElementById('uniqueUnitsCount').textContent = stats.unique_units || 0;
-            document.getElementById('uniqueDriversCount').textContent = stats.unique_drivers || 0;
-            document.getElementById('totalBoundaryAmount').textContent = '₱' + (stats.total_amount || 0).toLocaleString();
+            // Update summary stats with new logic (amounts for Yesterday and Monthly)
+            document.getElementById('totalBoundaryCount').textContent = stats.total_today || 0;
+            document.getElementById('uniqueUnitsCount').textContent = '₱' + (stats.amount_yesterday || 0).toLocaleString();
+            document.getElementById('uniqueDriversCount').textContent = '₱' + (stats.amount_monthly || 0).toLocaleString();
+            document.getElementById('totalBoundaryAmount').textContent = '₱' + (stats.total_yearly_amount || 0).toLocaleString();
             
-            // Store original data for filtering
+            // Store original data for filtering and sync with date input
             window.originalBoundaryData = collections;
-            window.currentFilteredBoundaryData = collections;
+            
+            const dateInput = document.getElementById('boundaryDateFilter');
+            if (dateInput && stats.filter_date) {
+                dateInput.value = stats.filter_date;
+            }
+
             window.lastFetchedBoundaryDate = stats.filter_date;
             
-            // Render boundary collections
-            renderBoundaryCollections(collections);
+            // Re-apply current search filter starting from the new background data
+            filterBoundaryCollections();
             
             // Re-initialize Lucide icons
             if (typeof lucide !== 'undefined') {
@@ -2873,10 +3057,10 @@
             window.originalUnitsData = units;
             window.currentFilteredUnits = units;
             
-            // Update summary stats with real data
+            // Update summary stats with new logic (Vacant vs Active focus)
             document.getElementById('totalUnitsCount').textContent = stats.total_units || 0;
-            document.getElementById('activeUnitsCount').textContent = stats.active_units || 0;
-            document.getElementById('roiUnitsCount').textContent = stats.roi_units || 0;
+            document.getElementById('activeUnitsCount').textContent = stats.vacant_units || 0;
+            document.getElementById('roiUnitsCount').textContent = stats.active_units || 0;
             document.getElementById('avgRoiCount').textContent = stats.avg_roi ? stats.avg_roi.toFixed(1) + '%' : '0%';
             
             // Remove any existing database data indicators to save space
