@@ -1183,6 +1183,7 @@
 
                 const assignedDrivers = data.assigned_drivers || [];
                 const roi = data.roi_data || {};
+                const bHist = data.boundary_history || [];
                 const maint = data.maintenance_records || [];
                 const locInfo = data.location_info || {};
                 const dashcam = data.dashcam_info || {};
@@ -1236,14 +1237,12 @@
                                     <h5 class="font-semibold text-gray-900">${d.full_name || ''}</h5>
                                     <p class="text-sm text-gray-600">License: ${d.license_number || ''}</p>
                                     <p class="text-sm text-gray-600">Contact: ${d.contact_number || 'N/A'}</p>
-                                    <p class="text-sm text-gray-600">Email: ${d.email || 'N/A'}</p>
                                 </div>
                                 <span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">Active</span>
                             </div>
                             <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                                 <div><span class="text-gray-600">License Number:</span><p class="font-medium">${d.license_number || 'N/A'}</p></div>
                                 <div><span class="text-gray-600">Contact:</span><p class="font-medium">${d.contact_number || 'N/A'}</p></div>
-                                <div><span class="text-gray-600">Email:</span><p class="font-medium">${d.email || 'N/A'}</p></div>
                                 <div><span class="text-gray-600">Daily Target:</span><p class="font-medium">₱${parseFloat(d.daily_boundary_target || 1100).toLocaleString('en-PH', {minimumFractionDigits:2})}</p></div>
                                 <div><span class="text-gray-600">Hire Date:</span><p class="font-medium">${d.hire_date || 'Not set'}</p></div>
                                 <div><span class="text-gray-600">License Expiry:</span><p class="font-medium">${d.license_expiry || 'Not set'}</p></div>
@@ -1255,16 +1254,14 @@
                 }
 
                 let boundaryRowsHtml = '';
-                if (assignedDrivers.length > 0) {
-                    assignedDrivers.forEach(d => {
-                        if (d.last_boundary_date) {
-                            boundaryRowsHtml += `<tr>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${d.last_boundary_date}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${d.full_name || ''}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${d.license_number || ''}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-600">₱${parseFloat(d.boundary_amount || 0).toLocaleString('en-PH', {minimumFractionDigits:2})}</td>
-                            </tr>`;
-                        }
+                if (bHist.length > 0) {
+                    bHist.forEach(bh => {
+                        boundaryRowsHtml += `<tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${bh.date || ''}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${bh.full_name || 'N/A'}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${bh.remarks || '---'}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-600">₱${parseFloat(bh.boundary_amount || 0).toLocaleString('en-PH', {minimumFractionDigits:2})}</td>
+                        </tr>`;
                     });
                 }
 

@@ -610,7 +610,7 @@
                                     @csrf
                                     <div class="input-group">
                                         <i class="fas fa-envelope"></i>
-                                        <input type="email" name="email" id="loginEmail" placeholder="Email address"
+                                        <input type="text" name="email" id="loginEmail" placeholder="Email or Username"
                                             value="{{ old('email') }}" required>
                                     </div>
 

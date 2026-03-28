@@ -92,11 +92,8 @@ class MaintenanceController extends Controller
             'status' => 'required|string',
             'mechanic_name' => 'nullable|string|max:100',
             'parts_list' => 'nullable|string',
-            'total_cost' => 'required|numeric|min:0',
+            'cost' => 'required|numeric|min:0',
         ]);
-
-        $total_cost = $data['total_cost'];
-        unset($data['total_cost']);
 
         // Update unit status if maintenance is in progress
         if (!$data['date_completed']) {
@@ -104,10 +101,7 @@ class MaintenanceController extends Controller
         }
 
         // Use Eloquent to trigger TrackChanges trait
-        Maintenance::create(array_merge($data, [
-            'cost' => $total_cost,
-            'parts_list' => $data['parts_list'] ?? '',
-        ]));
+        Maintenance::create($data);
 
         return redirect()->route('maintenance.index')->with('success', 'Maintenance record added successfully');
     }
@@ -125,18 +119,12 @@ class MaintenanceController extends Controller
             'status' => 'required|string',
             'mechanic_name' => 'nullable|string|max:100',
             'parts_list' => 'nullable|string',
-            'total_cost' => 'required|numeric|min:0',
+            'cost' => 'required|numeric|min:0',
         ]);
-
-        $total_cost = $data['total_cost'];
-        unset($data['total_cost']);
 
         // Use Eloquent to trigger TrackChanges trait
         $maintenance = Maintenance::findOrFail($id);
-        $maintenance->update(array_merge($data, [
-            'cost' => $total_cost,
-            'parts_list' => $data['parts_list'] ?? '',
-        ]));
+        $maintenance->update($data);
 
         return redirect()->route('maintenance.index')->with('success', 'Maintenance record updated successfully');
     }

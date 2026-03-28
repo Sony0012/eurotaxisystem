@@ -88,8 +88,7 @@
                         <p class="text-xs font-medium text-gray-600">Total Units</p>
                         <p class="text-xl font-bold text-gray-900" data-stat="active_units">{{ $stats['active_units'] }}</p>
                         <p class="text-xs text-gray-500">
-                            <span class="text-green-600">{{ $stats['roi_units'] }} ROI Achieved</span> •
-                            {{ $stats['coding_units'] }} Coding
+                            <span class="text-green-600">{{ $stats['roi_units'] }} ROI Achieved</span>
                         </p>
                     </div>
                     <div class="p-2 bg-yellow-100 rounded-full">
@@ -2002,7 +2001,6 @@
                         <div class="bg-gray-50 rounded-lg p-3 mb-3">
                             <div class="flex items-center justify-between mb-2">
                                 <span class="text-sm font-medium text-gray-900">Contact: ${driver.phone || 'N/A'}</span>
-                                <span class="text-xs text-gray-600">${driver.email || 'N/A'}</span>
                             </div>
                             <div class="text-xs text-gray-600">
                                 <span class="font-medium">Address:</span> ${driver.address || 'No address available'}
@@ -2052,7 +2050,7 @@
                         driver.name || '',
                         driver.license_number || '',
                         driver.phone || '',
-                        driver.email || '',
+                        '', // email removed
                         driver.address || '',
                         driver.performance_rating || '',
                         driver.total_boundary ? driver.total_boundary.toString() : '',

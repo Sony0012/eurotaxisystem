@@ -197,7 +197,7 @@
                 </div>
                 <div>
                     <label class="block text-xs font-medium text-gray-700 mb-1">Parts Used</label>
-                    <textarea name="parts_used" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-yellow-500 focus:outline-none"></textarea>
+                    <textarea name="parts_list" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-yellow-500 focus:outline-none"></textarea>
                 </div>
             </div>
             <div class="flex gap-3 mt-4">
@@ -271,7 +271,7 @@
                 </div>
                 <div>
                     <label class="block text-xs font-medium text-gray-700 mb-1">Parts Used</label>
-                    <textarea name="parts_used" id="em_parts_used" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"></textarea>
+                    <textarea name="parts_list" id="em_parts_list" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"></textarea>
                 </div>
             </div>
             <div class="flex gap-3 mt-4">
@@ -295,7 +295,7 @@ function openEditMaint(r) {
     document.getElementById('em_mechanic_name').value   = r.mechanic_name || '';
     document.getElementById('em_date_started').value    = r.date_started;
     document.getElementById('em_date_completed').value  = r.date_completed || '';
-    document.getElementById('em_parts_used').value      = r.parts_used || '';
+    document.getElementById('em_parts_list').value      = r.parts_list || '';
     document.getElementById('editMaintenanceModal').classList.remove('hidden');
 }
 </script>

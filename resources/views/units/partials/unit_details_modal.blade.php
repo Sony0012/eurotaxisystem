@@ -193,7 +193,6 @@
                                         <h5 class="font-semibold text-gray-900">{{ $driver->full_name }}</h5>
                                         <p class="text-sm text-gray-600">License: {{ $driver->license_number }}</p>
                                         <p class="text-sm text-gray-600">Contact: {{ $driver->contact_number ?? 'N/A' }}</p>
-                                        <p class="text-sm text-gray-600">Email: {{ $driver->email ?? 'N/A' }}</p>
                                     </div>
                                     <div class="text-right">
                                         <span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">Active</span>
@@ -207,10 +206,6 @@
                                     <div>
                                         <span class="text-gray-600">Contact:</span>
                                         <p class="font-medium">{{ $driver->contact_number ?? 'N/A' }}</p>
-                                    </div>
-                                    <div>
-                                        <span class="text-gray-600">Email:</span>
-                                        <p class="font-medium">{{ $driver->email ?? 'N/A' }}</p>
                                     </div>
                                     <div>
                                         <span class="text-gray-600">Daily Target:</span>

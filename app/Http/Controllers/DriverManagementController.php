@@ -122,8 +122,6 @@ class DriverManagementController extends Controller
             }
             $suffix = time();
             $username = substr($baseSlug, 0, 12) . $suffix;
-            $email = $username . '@driver.local';
-
             // Generate a random password and hash it
             $rawPassword = bin2hex(random_bytes(4)); // 8 hex chars
             $password_hash = Hash::make($rawPassword);
@@ -131,9 +129,9 @@ class DriverManagementController extends Controller
             // Create user account using Eloquent
             $user = User::create([
                 'full_name' => $request->full_name,
-                'email' => $email,
                 'username' => $username,
                 'password' => $password_hash,
+                'password_hash' => $password_hash,
                 'role' => 'driver',
                 'is_active' => 1,
             ]);

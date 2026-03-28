@@ -27,7 +27,7 @@
                 <div class="relative group">
                     <input type="text" name="search" id="tableSearchInput" value="{{ $search ?? '' }}"
                         class="block w-full pl-3 pr-10 py-1 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none"
-                        placeholder="Search by driver name, email, or license...">
+                        placeholder="Search by driver name or license...">
                     <button type="submit" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-yellow-600 transition-colors">
                         <i data-lucide="search" class="h-4 w-4"></i>
                     </button>
@@ -72,7 +72,6 @@
                         <tr class="hover:bg-gray-50 cursor-pointer" onclick="openEditDriverModal({{ $driver->id }})">
                             <td class="px-6 py-1 whitespace-nowrap">
                                 <div class="text-xs font-medium text-gray-900">{{ $driver->full_name }}</div>
-                                <div class="text-[10px] text-gray-500">{{ $driver->email }}</div>
                                 <div class="text-[9px] text-gray-400">
                                     <span title="Input by {{ $driver->creator_name ?? 'System' }}">In: {{ $driver->creator_name ?? 'System' }}</span>
                                     @if(isset($driver->editor_name) && $driver->editor_name)
@@ -456,7 +455,6 @@ function openDriverDetails(id) {
     .then(r => r.json())
     .then(data => {
         document.getElementById('driverDetailsName').textContent = data.full_name || 'Driver Details';
-        document.getElementById('driverDetailsSubtitle').textContent = data.email || '';
 
         document.getElementById('basicInfoContent').innerHTML = `
             <div>
