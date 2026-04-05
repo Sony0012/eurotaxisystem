@@ -42,7 +42,7 @@ class CodingController extends Controller
         // Get units for dropdown
         $units = DB::table('units')
             ->select('id', 'unit_number', 'plate_number', 'coding_day', 'make', 'model')
-            ->orderBy('unit_number')
+            ->orderBy('plate_number')
             ->get();
 
         // Get today's coding status
@@ -52,7 +52,7 @@ class CodingController extends Controller
             ->leftJoin('users as usr2', 'u.secondary_driver_id', '=', 'usr2.id')
             ->where('u.coding_day', $today_name)
             ->select('u.*', 'usr1.full_name as driver1_name', 'usr2.full_name as driver2_name')
-            ->orderBy('u.unit_number')
+            ->orderBy('u.plate_number')
             ->get();
 
         // Get coding statistics

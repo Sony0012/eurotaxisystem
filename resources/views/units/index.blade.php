@@ -15,7 +15,7 @@
                     </div>
                     <select name="sort" onchange="this.form.submit()"
                         class="block w-full pl-9 pr-3 py-1 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none appearance-none">
-                        <option value="alphabetical" {{ ($sort ?? '') === 'alphabetical' ? 'selected' : '' }}>A-Z (Unit #)</option>
+                        <option value="alphabetical" {{ ($sort ?? '') === 'alphabetical' ? 'selected' : '' }}>A-Z (Plate #)</option>
                         <option value="newest" {{ ($sort ?? '') === 'newest' ? 'selected' : '' }}>Newest Added</option>
                         <option value="oldest" {{ ($sort ?? '') === 'oldest' ? 'selected' : '' }}>Oldest Added</option>
                         <option value="vacant" {{ ($sort ?? '') === 'vacant' ? 'selected' : '' }}>Vacant Units First</option>
@@ -26,7 +26,7 @@
                 <div class="relative group">
                     <input type="text" name="search" id="tableSearchInput" value="{{ $search }}"
                         class="block w-full pl-3 pr-10 py-1 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none"
-                        placeholder="Search units...">
+                        placeholder="Search plate numbers...">
                     <button type="submit" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-yellow-600 transition-colors">
                         <i data-lucide="search" class="h-4 w-4"></i>
                     </button>
@@ -61,7 +61,7 @@
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50 border-b">
                     <tr>
-                        <th class="px-6 py-1 text-left text-[11px] font-medium text-gray-500 uppercase tracking-wider">Unit Info</th>
+                        <th class="px-6 py-1 text-left text-[11px] font-medium text-gray-500 uppercase tracking-wider">Plate Number Info</th>
                         <th class="px-6 py-1 text-left text-[11px] font-medium text-gray-500 uppercase tracking-wider">Vehicle Details</th>
                         <th class="px-6 py-1 text-left text-[11px] font-medium text-gray-500 uppercase tracking-wider">Assigned Drivers</th>
                         <th class="px-6 py-1 text-left text-[11px] font-medium text-gray-500 uppercase tracking-wider">Status</th>
@@ -82,8 +82,8 @@
                         <tr class="hover:bg-gray-50 cursor-pointer text-[13px]" onclick="viewUnitDetails({{ $unit->id }})">
                             <td class="px-6 py-1 whitespace-nowrap">
                                 <div class="space-y-0.5">
-                                    <div class="font-bold text-gray-900">{{ $unit->unit_number }}</div>
-                                    <div class="text-xs text-gray-500">{{ $unit->plate_number }}</div>
+                                    <div class="font-bold text-gray-900">{{ $unit->plate_number }}</div>
+                                    <div class="text-[10px] text-gray-400"># {{ $unit->unit_number ?? 'N/A' }}</div>
                                     @if($unit->color)
                                         <div class="text-[10px] text-gray-400">Color: {{ $unit->color }}</div>
                                     @endif
@@ -146,7 +146,7 @@
                                         <i data-lucide="edit-2" class="w-3.5 h-3.5"></i>
                                     </button>
                                     <form method="POST" action="{{ route('units.destroy', $unit->id) }}"
-                                        onsubmit="return confirm('Delete unit {{ $unit->unit_number }}?');">
+                                        onsubmit="return confirm('Delete unit {{ $unit->plate_number }}?');">
                                         @csrf @method('DELETE')
                                         <button type="submit" onclick="event.stopPropagation()"
                                             class="p-1 text-red-600 hover:bg-red-50 rounded" title="Delete Unit">
@@ -237,19 +237,7 @@
                         </div>
                         <h4 class="text-lg font-semibold text-gray-900">Basic Information</h4>
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="space-y-2">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Unit Number <span class="text-red-500">*</span></label>
-                            <div class="relative">
-                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <i data-lucide="hash" class="w-5 h-5 text-gray-400"></i>
-                                </div>
-                                <input type="text" name="unit_number" required
-                                    class="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
-                                    placeholder="e.g., TAXI-001"
-                                    oninput="this.value = this.value.toUpperCase()">
-                            </div>
-                        </div>
+                    <div class="grid grid-cols-1 gap-6">
                         <div class="space-y-2">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Plate Number <span class="text-red-500">*</span></label>
                             <div class="relative">
@@ -588,17 +576,7 @@
                         <h4 class="text-lg font-semibold text-gray-900">Basic Information</h4>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="space-y-2">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Unit Number <span class="text-red-500">*</span></label>
-                            <div class="relative">
-                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <i data-lucide="hash" class="w-5 h-5 text-gray-400"></i>
-                                </div>
-                                <input type="text" name="unit_number" id="editUnitNumber" required
-                                    class="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                    oninput="this.value = this.value.toUpperCase()">
-                            </div>
-                        </div>
+                    <div class="grid grid-cols-1 gap-6">
                         <div class="space-y-2">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Plate Number <span class="text-red-500">*</span></label>
                             <div class="relative">
@@ -610,6 +588,7 @@
                                     oninput="this.value = this.value.toUpperCase(); editUnitUpdateCoding()">
                             </div>
                         </div>
+                    </div>
                         <div class="space-y-2">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Make <span class="text-red-500">*</span></label>
                             <input type="text" name="make" id="editMake" required
@@ -1299,12 +1278,12 @@
                         <div class="flex justify-between items-start">
                             <div>
                                 <div class="flex items-center gap-2 mb-0.5">
-                                    <h3 class="text-sm font-bold leading-none">${unit.unit_number || ''}</h3>
+                                    <h3 class="text-sm font-bold leading-none">${unit.plate_number || ''}</h3>
                                     <span class="px-1.5 py-0.5 bg-white bg-opacity-20 rounded-full text-[9px] font-medium uppercase tracking-wider">${unit.status || ''}</span>
                                     <span class="px-1.5 py-0.5 bg-white bg-opacity-20 rounded-full text-[9px] font-medium uppercase tracking-wider">${unit.unit_type || 'Standard'}</span>
                                 </div>
                                 <p class="text-[10px] text-blue-100 leading-tight">${(unit.make || '') + ' ' + (unit.model || '') + ' (' + (unit.year || '') + ')'}</p>
-                                <p class="text-[10px] text-blue-100 leading-tight">Plate: ${unit.plate_number || ''}</p>
+                                <p class="text-[10px] text-blue-100 leading-tight">Unit: ${unit.unit_number || ''}</p>
                             </div>
                             <div class="text-right">
                                 <div class="text-sm font-bold leading-none mb-0.5">₱${parseFloat(unit.boundary_rate || 0).toLocaleString('en-PH', {minimumFractionDigits:2})}</div>

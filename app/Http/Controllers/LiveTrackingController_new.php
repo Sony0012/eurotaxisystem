@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use DateTime;
+use Exception;
 
 class LiveTrackingController extends Controller
 {
@@ -17,7 +19,7 @@ class LiveTrackingController extends Controller
                 ->leftJoin('users as usr', 'd.user_id', '=', 'usr.id')
                 ->leftJoin('gps_tracking as g', 'u.id', '=', 'g.unit_id')
                 ->select('u.*', 'usr.full_name as driver_name', 'usr.phone as driver_phone', 'g.latitude', 'g.longitude', 'g.speed', 'g.heading', 'g.ignition_status', 'g.timestamp as last_update')
-                ->orderBy('u.unit_number')
+                ->orderBy('u.plate_number')
                 ->get();
 
             // Determine GPS status for each unit
@@ -82,8 +84,8 @@ class LiveTrackingController extends Controller
 
             return response()->json([
                 'unit_id' => $unit->id,
-                'unit_number' => $unit->unit_number,
                 'plate_number' => $unit->plate_number,
+                'unit_number' => $unit->unit_number,
                 'driver_name' => $unit->driver_name,
                 'driver_phone' => $unit->driver_phone,
                 'latitude' => $unit->latitude,

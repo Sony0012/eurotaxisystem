@@ -287,8 +287,8 @@
 
                             <!-- Date/Time -->
                             <div class="text-right">
-                                <p class="text-[13px] font-medium text-gray-900">{{ date('l, F j, Y') }}</p>
-                                <p class="text-[11px] text-gray-500">{{ date('h:i A') }}</p>
+                                <p id="header-date" class="text-[13px] font-medium text-gray-900">{{ date('l, F j, Y') }}</p>
+                                <p id="header-time" class="text-[11px] text-gray-500 transition-all duration-300">{{ date('h:i A') }}</p>
                             </div>
                         </div>
                     </div>
@@ -418,11 +418,31 @@
             }
         }
 
+        function updateHeaderClock() {
+            const now = new Date();
+            const dateEl = document.getElementById('header-date');
+            const timeEl = document.getElementById('header-time');
+            
+            if (dateEl && timeEl) {
+                // Friday, April 5, 2026
+                const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                dateEl.textContent = now.toLocaleDateString('en-US', dateOptions);
+                
+                // 09:23 AM
+                const timeOptions = { hour: '2-digit', minute: '2-digit', hour12: true };
+                timeEl.textContent = now.toLocaleTimeString('en-US', timeOptions);
+            }
+        }
+
         // Initialize Lucide icons when DOM is ready
         document.addEventListener('DOMContentLoaded', () => {
             if (window.lucide && window.lucide.createIcons) {
                 window.lucide.createIcons();
             }
+            
+            // Start header clock
+            updateHeaderClock();
+            setInterval(updateHeaderClock, 1000);
         });
     </script>
 

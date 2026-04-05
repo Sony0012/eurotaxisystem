@@ -129,8 +129,8 @@
             @foreach($units as $unit)
             <tr>
                 <td>
-                    <div class="unit-number">{{ $unit->unit_number }}</div>
-                    <div style="font-size: 9pt; color: #718096;">Plate: {{ $unit->plate_number }}</div>
+                    <div class="unit-number">{{ $unit->plate_number }}</div>
+                    <div style="font-size: 9pt; color: #718096;">Unit: {{ $unit->unit_number }}</div>
                     <div style="font-size: 8pt; color: #a0aec0;">{{ $unit->make }} {{ $unit->model }} ({{ $unit->year }})</div>
                 </td>
                 <td>{{ $unit->driver1_name ?? '---' }}</td>

@@ -50,11 +50,12 @@ class AnalyticsController extends Controller
             })
             ->selectRaw('
                 u.unit_number,
+                u.plate_number as unit,
                 COUNT(m.id) as breakdown_count,
                 SUM(CASE WHEN m.status = "completed" THEN DATEDIFF(m.date_completed, m.date_started) ELSE 0 END) as total_maintenance_days
             ')
             ->where('m.date_started', '>=', DB::raw('DATE_SUB(CURDATE(), INTERVAL 30 DAY)'))
-            ->groupBy('u.id', 'u.unit_number')
+            ->groupBy('u.id', 'u.unit_number', 'u.plate_number')
             ->get();
 
         // Get driver performance
@@ -121,8 +122,8 @@ class AnalyticsController extends Controller
             ->whereNull('deleted_at')
             ->leftJoin('users as d', 'units.driver_id', '=', 'd.id')
             ->select('units.*', 'd.full_name as driver_name')
-            ->selectRaw('0 as total_collected, 0 as days_operated') // Placeholder values
-            ->orderBy('units.unit_number')
+            ->addSelect(DB::raw('0 as total_collected, 0 as days_operated')) // Placeholder values
+            ->orderBy('units.plate_number')
             ->limit(5)
             ->get();
         

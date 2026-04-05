@@ -90,8 +90,8 @@
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div>
-                                    <div class="text-sm font-medium text-gray-900">{{ $boundary['unit_number'] }}</div>
-                                    <div class="text-sm text-gray-500">{{ $boundary['plate_number'] }}</div>
+                                    <div class="text-sm font-medium text-gray-900">{{ $boundary['plate_number'] }}</div>
+                                    <div class="text-sm text-gray-500">Unit: {{ $boundary['unit_number'] }}</div>
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
@@ -230,8 +230,8 @@
                                      data-rate="{{ $unit['boundary_rate'] ?? 0 }}"
                                      data-primary-driver="{{ $unit['driver_id'] }}"
                                      data-secondary-driver="{{ $unit['secondary_driver_id'] }}">
-                                    <div class="font-medium text-xs">{{ $unit['unit_number'] }}</div>
-                                    <div class="text-xs text-gray-500">{{ $unit['plate_number'] }} - {{ $unit['make_model'] ?? 'N/A' }}</div>
+                                    <div class="font-medium text-xs">{{ $unit['plate_number'] }}</div>
+                                    <div class="text-xs text-gray-500">Unit: {{ $unit['unit_number'] }} - {{ $unit['make_model'] ?? 'N/A' }}</div>
                                 </div>
                             @endforeach
                         </div>
@@ -270,7 +270,7 @@
                                          data-unit="{{ $driver['current_unit'] }}"
                                          data-plate="{{ $driver['current_plate'] }}">
                                         <div class="font-medium text-xs">{{ $driver['name'] }}</div>
-                                        <div class="text-xs text-gray-500">{{ $driver['current_plate'] }} - {{ $driver['current_unit'] }}</div>
+                                        <div class="text-xs text-gray-500">{{ $driver['current_plate'] }} (Unit: {{ $driver['current_unit'] }})</div>
                                     </div>
                                 @endforeach
                             </div>
@@ -464,7 +464,7 @@ function initializeUnitDropdown() {
                 const unitRate = parseFloat(this.getAttribute('data-rate') || 0);
                 
                 document.getElementById('unitId').value = unitId;
-                unitDisplay.value = `${unitName} - ${unitPlate}`;
+                unitDisplay.value = `${unitPlate} (Unit: ${unitName})`;
                 unitDropdown.classList.add('hidden');
                 
                 // Auto-fill boundary amount and actual boundary

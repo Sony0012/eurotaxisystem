@@ -104,7 +104,7 @@
                     <div>
                         <p class="text-xs font-medium text-gray-600">Daily Boundary Collection</p>
                         <p class="text-xl font-bold text-gray-900" data-stat="today_boundary">{{ formatCurrency($stats['today_boundary']) }}</p>
-                        <p class="text-xs text-gray-500">+8.5% from yesterday</p>
+                        <p class="text-xs text-gray-400 font-medium tracking-tight">Daily Target: <span data-stat="daily_target">{{ formatCurrency($stats['daily_target']) }}</span></p>
                     </div>
                     <div class="p-2 bg-green-100 rounded-full">
                         <i data-lucide="dollar-sign" class="w-5 h-5 text-green-600"></i>
@@ -119,7 +119,7 @@
                     <div>
                         <p class="text-xs font-medium text-gray-600">Net Income Today</p>
                         <p class="text-xl font-bold text-green-600" data-stat="net_income">{{ formatCurrency($stats['net_income']) }}</p>
-                        <p class="text-xs text-gray-500">After all expenses</p>
+                        <p class="text-xs text-gray-400 font-medium tracking-tight">After all expenses</p>
                     </div>
                     <div class="p-2 bg-green-100 rounded-full">
                         <i data-lucide="trending-up" class="w-5 h-5 text-green-600"></i>
@@ -134,7 +134,7 @@
                     <div>
                         <p class="text-xs font-medium text-gray-600">Units Under Maintenance</p>
                         <p class="text-xl font-bold text-gray-900" data-stat="maintenance_units">{{ $stats['maintenance_units'] }}</p>
-                        <p class="text-xs text-gray-500">2 preventive, 3 breakdown</p>
+                        <p class="text-xs text-gray-400 font-medium tracking-tight" data-stat="maintenance_subtitle">Units ongoing maintenance</p>
                     </div>
                     <div class="p-2 bg-orange-100 rounded-full">
                         <i data-lucide="wrench" class="w-5 h-5 text-orange-600"></i>
@@ -1726,8 +1726,8 @@
                                     <i data-lucide="wrench" class="w-4 h-4 ${iconColor}"></i>
                                 </div>
                                 <div>
-                                    <h4 class="text-lg font-bold text-gray-900">${unit.unit_number}</h4>
-                                    <span class="text-xs text-gray-500">${unit.plate_number || 'N/A'}</span>
+                                    <h4 class="text-lg font-bold text-gray-900">${unit.plate_number || 'N/A'}</h4>
+                                    <span class="text-xs text-gray-500">Unit: ${unit.unit_number || 'N/A'}</span>
                                 </div>
                             </div>
                             <div class="text-right">
@@ -1991,9 +1991,12 @@
                                     <span class="text-xs text-gray-500">${driver.license_number || 'N/A'}</span>
                                 </div>
                             </div>
-                            <div class="text-right">
-                                <div class="text-lg font-bold text-blue-600">${driver.assigned_units || 0}</div>
-                                <div class="text-xs text-gray-500">Units Assigned</div>
+                            <div class="text-right mt-1 flex flex-col items-end gap-1">
+                                ${driver.assigned_units > 0 
+                                    ? `<span class="px-2.5 py-1 text-xs font-bold text-green-700 bg-green-100 rounded-full border border-green-200">Assigned</span>
+                                       ${driver.plate_numbers ? `<span class="text-[10px] font-black text-gray-400 capitalize bg-gray-100 px-2 rounded-md">${driver.plate_numbers}</span>` : ''}`
+                                    : `<span class="px-2.5 py-1 text-xs font-bold text-red-700 bg-red-100 rounded-full border border-red-200">Unassigned</span>`
+                                }
                             </div>
                         </div>
                         
@@ -2279,8 +2282,8 @@
                                     <i data-lucide="code" class="w-4 h-4 text-purple-600"></i>
                                 </div>
                                 <div>
-                                    <h4 class="text-lg font-bold text-gray-900">${unit.unit_number}</h4>
-                                    <span class="text-xs text-gray-500">${unit.plate_number || 'N/A'}</span>
+                                    <h4 class="text-lg font-bold text-gray-900">${unit.plate_number || 'N/A'}</h4>
+                                    <span class="text-xs text-gray-500">Unit: ${unit.unit_number || 'N/A'}</span>
                                 </div>
                             </div>
                             <div class="text-right">
@@ -3185,7 +3188,8 @@
                                     <i data-lucide="car" class="w-4 h-4 text-green-600"></i>
                                 </div>
                                 <div>
-                                    <h4 class="text-lg font-bold text-gray-900">${collection.unit_number}</h4>
+                                    <h4 class="text-lg font-bold text-gray-900">${collection.plate_number}</h4>
+                                    <p class="text-xs text-gray-500">Unit: ${collection.unit_number}</p>
                                     <span class="text-xs text-gray-500">${collection.plate_number || 'N/A'}</span>
                                 </div>
                             </div>
@@ -3240,7 +3244,7 @@
             if (searchTerm) {
                 filteredCollections = filteredCollections.filter(collection => {
                     const searchableText = [
-                        collection.unit_number || '',
+                        collection.plate_number || '',
                         collection.plate_number || '',
                         collection.driver_name || '',
                         collection.boundary_amount ? collection.boundary_amount.toString() : '',
@@ -3379,7 +3383,8 @@
                         <div class="flex items-center justify-between gap-2 mb-1.5">
                             <div class="flex items-center gap-1.5 min-w-0">
                                 <i data-lucide="car" class="w-3 h-3 text-gray-400"></i>
-                                <h4 class="text-sm font-bold text-gray-900 truncate">${unit.unit_number}</h4>
+                                <h4 class="text-sm font-bold text-gray-900 truncate">${unit.plate_number}</h4>
+                                <p class="text-[10px] text-gray-500">Unit: ${unit.unit_number}</p>
                             </div>
                             <span class="px-1.5 py-0.5 text-[9px] font-bold rounded-full ${statusColors[unit.status] || 'bg-gray-100'} uppercase">
                                 ${unit.status}

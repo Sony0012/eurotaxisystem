@@ -2,8 +2,8 @@
     <table class="min-w-full divide-y divide-gray-200">
         <thead class="bg-gray-50">
             <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Unit Number</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Plate Number</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Unit Number</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Deleted At</th>
                 <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
             </tr>
@@ -11,8 +11,8 @@
         <tbody class="bg-white divide-y divide-gray-200">
             @forelse($items as $unit)
             <tr>
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $unit->unit_number }}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $unit->plate_number }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $unit->plate_number }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $unit->unit_number }}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $unit->deleted_at->format('M d, Y H:i') }}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <form action="{{ route('archive.restore', ['type' => 'unit', 'id' => $unit->id]) }}" method="POST" class="inline-block">

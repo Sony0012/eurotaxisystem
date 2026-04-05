@@ -169,7 +169,8 @@
                                 @endif
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                {{ $expense->unit_number ?? '-' }}
+                                {{ $expense->plate_number ?? '-' }}
+                                <div class="text-[10px] text-gray-500">Unit: {{ $expense->unit_number ?? 'N/A' }}</div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                 {{ $expense->reference_number ?? '-' }}
@@ -291,7 +292,7 @@
                     <select name="unit_id" id="expenseUnit" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
                         <option value="">No specific unit</option>
                         @foreach($units as $unit)
-                            <option value="{{ $unit->id }}">{{ $unit->unit_number }} - {{ $unit->plate_number }}</option>
+                            <option value="{{ $unit->id }}">{{ $unit->plate_number }} (Unit: {{ $unit->unit_number ?? 'N/A' }})</option>
                         @endforeach
                     </select>
                 </div>

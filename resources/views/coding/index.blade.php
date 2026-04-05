@@ -40,9 +40,9 @@
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Unit Number</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Plate Number</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Make / Model</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Plate Number</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Unit Number</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Make / Model</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Driver 1</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Driver 2</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
@@ -51,8 +51,8 @@
                 <tbody class="bg-white divide-y divide-gray-200">
                     @forelse($units as $unit)
                         <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4 whitespace-nowrap font-bold text-gray-900">{{ $unit->unit_number }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-gray-700">{{ $unit->plate_number }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap font-bold text-gray-900">{{ $unit->plate_number }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-gray-700">{{ $unit->unit_number }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-gray-600">{{ $unit->make }} {{ $unit->model }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm">{{ $unit->driver1_name ?? '—' }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm">{{ $unit->driver2_name ?? '—' }}</td>
@@ -92,8 +92,8 @@
                     <div class="space-y-1">
                         @forelse($day_units as $u)
                             <div class="text-xs p-2 bg-white rounded border text-gray-700">
-                                <div class="font-medium">{{ $u->unit_number }}</div>
-                                <div class="text-gray-500">{{ $u->plate_number }}</div>
+                                <div class="font-medium text-blue-600">{{ $u->plate_number }}</div>
+                                <div class="text-gray-500 text-[10px]">Unit: {{ $u->unit_number }}</div>
                             </div>
                         @empty
                             <p class="text-xs text-gray-400 italic">No units</p>

@@ -37,16 +37,20 @@
         })();
     </script>
     <style>
-        body {
+        * { box-sizing: border-box; }
+
+        html, body {
             margin: 0;
             padding: 0;
+            height: 100%;
             overflow: hidden;
+            background-color: #f9fafb;
         }
 
         .flip-container {
             perspective: 1500px;
             width: 100%;
-            height: 100vh;
+            height: 100%;
         }
 
         .flipper {
@@ -77,6 +81,8 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            overflow-y: auto;
+            padding: 1rem 0;
         }
 
         .front-face {
@@ -93,13 +99,17 @@
 
         .form-wrapper {
             width: 100%;
-            max-width: 280px;
-            padding: 0.875rem;
+            max-width: 320px;
+            padding: 1rem 1.2rem;
             position: relative;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 24px 48px -12px rgba(0, 0, 0, 0.05);
+            margin: auto;
         }
 
         .form-panel {
@@ -125,7 +135,7 @@
         .grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 1rem;
+            gap: 0.4rem;
             width: 100%;
         }
 
@@ -148,9 +158,17 @@
             color: #2563eb !important;
         }
 
-        .form-panel .mb-4 {
+        .form-panel .mb-4:not(.flex) {
             display: block !important;
             visibility: visible !important;
+        }
+
+        .flex.mb-4 button {
+            padding: 0 !important;
+            margin: 0 !important;
+            display: inline-block !important;
+            height: auto !important;
+            line-height: inherit !important;
         }
 
         .form-panel button {
@@ -160,18 +178,25 @@
 
         .input-group {
             position: relative;
-            margin-bottom: 0.75rem;
+            margin-bottom: 0.4rem;
+            width: 100%;
+        }
+
+        .input-icon-wrapper {
+            position: relative;
+            width: 100%;
         }
 
         .input-group input,
         .input-group select {
             width: 100%;
-            padding: 0.625rem 0.625rem 0.625rem 2.25rem;
+            padding: 0.45rem 0.5rem 0.45rem 2rem;
             border: 2px solid #e5e7eb;
             border-radius: 0.5rem;
-            font-size: 0.875rem;
-            transition: all 0.3s ease;
-            background: white;
+            font-size: 0.8rem;
+            transition: all 0.2s ease;
+            background: #ffffff;
+            color: #1f2937;
         }
 
         .input-group input:focus,
@@ -179,38 +204,45 @@
             outline: none;
             border-color: #3b82f6;
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            background: #ffffff;
         }
 
-        .input-group i {
+        .input-icon-wrapper i {
             position: absolute;
-            left: 0.625rem;
+            left: 0.7rem;
             top: 50%;
             transform: translateY(-50%);
-            color: #6b7280;
+            color: #9ca3af;
             font-size: 0.875rem;
+            pointer-events: none;
+            z-index: 10;
         }
 
-        /* ---- Password field with built-in eye toggle ---- */
-        .pw-group {
+        .pw-group,
+        .ph-phone-wrapper {
+            position: relative;
             display: flex;
             align-items: center;
             border: 2px solid #e5e7eb;
             border-radius: 0.5rem;
             background: white;
             transition: border-color 0.3s ease, box-shadow 0.3s ease;
-            margin-bottom: 0.75rem;
+            margin-bottom: 0.4rem;
+            width: 100%;
         }
 
-        .pw-group:focus-within {
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        .pw-group:focus-within,
+        .ph-phone-wrapper:focus-within {
+            border-color: #3b82f6 !important;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
         }
 
         .pw-group .pw-icon {
             flex-shrink: 0;
-            padding: 0 0.4rem 0 0.625rem;
-            color: #6b7280;
+            padding: 0 0.35rem 0 0.7rem;
+            color: #9ca3af;
             font-size: 0.875rem;
+            pointer-events: none;
         }
 
         .pw-group input {
@@ -220,44 +252,50 @@
             outline: none !important;
             box-shadow: none !important;
             background: transparent !important;
-            padding: 0.625rem 0.25rem !important;
-            font-size: 0.875rem;
+            padding: 0.45rem 2rem 0.45rem 0.25rem !important;
+            font-size: 0.8rem;
+            color: #1f2937;
         }
 
         .toggle-password {
+            position: absolute;
+            right: 0;
+            top: 0;
+            bottom: 0;
             flex-shrink: 0;
             background: none;
             border: none;
             cursor: pointer;
             color: #9ca3af;
             font-size: 0.875rem;
-            padding: 0 0.625rem;
+            padding: 0 0.65rem;
             display: none;
             align-items: center;
-            align-self: stretch;
+            justify-content: center;
             transition: color 0.2s ease;
+            z-index: 5;
         }
 
         .toggle-password:hover {
             color: #3b82f6;
         }
 
-        .pw-group input:not(:placeholder-shown) + .toggle-password {
+        .pw-group input:not(:placeholder-shown) ~ .toggle-password {
             display: flex;
         }
 
         .btn-primary {
             width: 100%;
-            padding: 1rem;
+            padding: 0.65rem;
             background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
             color: white;
             border: none;
             border-radius: 0.5rem;
-            font-size: 1rem;
+            font-size: 0.9375rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
-            margin-bottom: 1rem;
+            margin-bottom: 0.75rem;
         }
 
         .btn-primary:hover {
@@ -267,7 +305,7 @@
 
         .btn-secondary {
             width: 100%;
-            padding: 0.625rem;
+            padding: 0.6rem;
             background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
             color: white;
             border: none;
@@ -276,7 +314,7 @@
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
-            margin-bottom: 0.75rem;
+            margin-bottom: 0.5rem;
         }
 
         .btn-secondary:hover {
@@ -494,10 +532,12 @@
 
             .left-side {
                 height: 40vh;
+                flex-shrink: 0;
             }
 
             .right-side {
                 height: 60vh;
+                flex-shrink: 0;
             }
 
             .logo-container {
@@ -505,7 +545,7 @@
             }
 
             .logo-image {
-                max-height: 260px;
+                max-height: 200px;
             }
         }
 
@@ -535,7 +575,7 @@
     <div id="messageToast" class="message-toast"></div>
 
     <!-- Main Split Layout -->
-    <div class="split-layout flex h-screen">
+    <div class="split-layout flex" style="height:100vh; overflow:hidden;">
 
         <!-- Left Side - Static Image -->
         <div class="left-side w-full md:w-1/2 h-full relative overflow-hidden">
@@ -571,8 +611,8 @@
         </div>
 
         <!-- Right Side - 3D Flip Forms -->
-        <div class="right-side w-full md:w-1/2 h-full bg-gray-50">
-            <div class="flip-container">
+        <div class="right-side w-full md:w-1/2 bg-gray-50" style="height:100vh; overflow:hidden;">
+            <div class="flip-container" style="height:100%;">
                 <div class="flipper state-login" id="flipper">
 
                     <!-- Front Face - Login & Forgot -->
@@ -581,8 +621,8 @@
 
                             <!-- Login Panel -->
                             <div class="form-panel login-panel">
-                                <div class="text-center mb-8">
-                                    <h2 class="text-3xl font-bold text-gray-800 mb-2">Welcome Back</h2>
+                                <div class="text-center mb-5">
+                                    <h2 class="text-2xl font-bold text-gray-800 mb-1">Welcome Back</h2>
                                     <p class="text-gray-600">Sign in to your account</p>
                                 </div>
 
@@ -609,9 +649,11 @@
                                 <form id="loginForm" method="POST" action="{{ route('login.submit') }}">
                                     @csrf
                                     <div class="input-group">
-                                        <i class="fas fa-envelope"></i>
-                                        <input type="text" name="email" id="loginEmail" placeholder="Email or Username"
-                                            value="{{ old('email') }}" required>
+                                        <div class="input-icon-wrapper">
+                                            <i class="fas fa-envelope"></i>
+                                            <input type="text" name="email" id="loginEmail" placeholder="Email or Username"
+                                                value="{{ old('email') }}" required>
+                                        </div>
                                     </div>
 
                                     <div class="pw-group">
@@ -622,10 +664,10 @@
                                         </button>
                                     </div>
 
-                                    <div class="flex items-center justify-between mb-6">
+                                    <div class="flex items-center justify-between mb-4">
                                         <label class="flex items-center">
                                             <input type="checkbox" name="remember" id="remember" class="mr-2">
-                                            <span class="text-gray-600">Remember me</span>
+                                            <span class="text-gray-600 text-sm">Remember me</span>
                                         </label>
                                         <button type="button" onclick="setState('forgot')"
                                             class="text-blue-600 hover:underline text-sm">Forgot password?</button>
@@ -637,8 +679,8 @@
                                     </button>
                                 </form>
 
-                                <div class="text-center mt-8">
-                                    <p class="text-gray-600">
+                                <div class="text-center mt-4">
+                                    <p class="text-gray-600 text-sm">
                                         Don't have an account?
                                         <button type="button" onclick="setState('register')"
                                             class="text-blue-600 font-semibold hover:underline">
@@ -657,8 +699,8 @@
                                     </button>
                                 </div>
 
-                                <div class="text-center mb-8">
-                                    <h2 class="text-3xl font-bold text-gray-800 mb-2">Reset Password</h2>
+                                <div class="text-center mb-5">
+                                    <h2 class="text-2xl font-bold text-gray-800 mb-1">Reset Password</h2>
                                     <p class="text-gray-600">Choose your recovery method</p>
                                 </div>
 
@@ -676,9 +718,11 @@
                                 <form id="emailResetForm" style="display:none;">
                                     @csrf
                                     <div class="input-group">
-                                        <i class="fas fa-envelope"></i>
-                                        <input type="email" id="resetEmail" placeholder="Enter your email address"
-                                            required>
+                                        <div class="input-icon-wrapper">
+                                            <i class="fas fa-envelope"></i>
+                                            <input type="email" id="resetEmail" placeholder="Enter your email address"
+                                                required>
+                                        </div>
                                     </div>
                                     <button type="submit" class="btn-primary">
                                         <i class="fas fa-paper-plane mr-2"></i> Send Verification Link
@@ -688,9 +732,11 @@
                                 <form id="phoneResetForm" style="display:none;">
                                     @csrf
                                     <div class="input-group">
-                                        <i class="fas fa-phone"></i>
-                                        <input type="tel" id="resetPhone" placeholder="Enter your phone number"
-                                            required>
+                                        <div class="input-icon-wrapper">
+                                            <i class="fas fa-phone"></i>
+                                            <input type="tel" id="resetPhone" placeholder="Enter your phone number"
+                                                required>
+                                        </div>
                                     </div>
                                     <button type="submit" class="btn-primary">
                                         <i class="fas fa-paper-plane mr-2"></i> Send OTP
@@ -732,21 +778,25 @@
                                     <p class="text-center text-green-600 mb-4">✓ Verification successful! Set your new
                                         password.</p>
                                     <div class="input-group">
-                                        <i class="fas fa-lock"></i>
-                                        <input type="password" id="newPassword" placeholder="New password" required>
+                                        <div class="input-icon-wrapper">
+                                            <i class="fas fa-lock"></i>
+                                            <input type="password" id="newPassword" placeholder="New password" required>
+                                        </div>
                                     </div>
                                     <div class="input-group">
-                                        <i class="fas fa-lock"></i>
-                                        <input type="password" id="confirmNewPassword"
-                                            placeholder="Confirm new password" required>
+                                        <div class="input-icon-wrapper">
+                                            <i class="fas fa-lock"></i>
+                                            <input type="password" id="confirmNewPassword"
+                                                placeholder="Confirm new password" required>
+                                        </div>
                                     </div>
                                     <button type="submit" class="btn-primary">
                                         <i class="fas fa-save mr-2"></i> Update Password
                                     </button>
                                 </form>
 
-                                <div class="text-center mt-8">
-                                    <p class="text-gray-600">
+                                <div class="text-center mt-4">
+                                    <p class="text-gray-600 text-sm">
                                         Remember your password?
                                         <button type="button" onclick="setState('login')"
                                             class="text-blue-600 font-semibold hover:underline">
@@ -762,60 +812,122 @@
                     <div class="flip-face back-face">
                         <div class="form-wrapper">
                             <div class="form-panel register-panel">
-                                <div class="text-center mb-6">
-                                    <h2 class="text-2xl font-bold text-gray-800 mb-2">Create Account</h2>
-                                    <p class="text-gray-600">Join Eurotaxisystem today</p>
+                                <div class="text-center mb-3">
+                                    <h2 class="text-xl font-bold text-gray-800 mb-0.5">Create Account</h2>
+                                    <p class="text-gray-500 text-sm">Join Eurotaxisystem today</p>
                                 </div>
 
                                 <form id="registerForm" method="POST" action="{{ route('register') }}">
                                     @csrf
-                                    <div class="grid mb-4">
-                                        <div class="input-group">
-                                            <i class="fas fa-user"></i>
-                                            <input type="text" name="first_name" id="firstName" placeholder="First name"
-                                                maxlength="25" required>
-                                            <div id="firstNameError" class="text-red-500 text-xs mt-1 hidden"></div>
+                                    <!-- Row 1: First Name | Last Name -->
+                                    <div class="grid mb-1" style="grid-template-columns:1fr 1fr; gap:0.5rem;">
+                                        <div class="input-group" style="margin-bottom:0;">
+                                            <div class="input-icon-wrapper">
+                                                <i class="fas fa-user"></i>
+                                                <input type="text" name="first_name" id="firstName" placeholder="First name"
+                                                    maxlength="25" required>
+                                            </div>
+                                            <div id="firstNameError" class="text-red-600 text-[10px] leading-tight font-medium hidden"></div>
                                         </div>
-                                        <div class="input-group">
-                                            <i class="fas fa-user"></i>
-                                            <input type="text" name="last_name" id="lastName" placeholder="Last name"
-                                                maxlength="25" required>
-                                            <div id="lastNameError" class="text-red-500 text-xs mt-1 hidden"></div>
+                                        <div class="input-group" style="margin-bottom:0;">
+                                            <div class="input-icon-wrapper">
+                                                <i class="fas fa-user"></i>
+                                                <input type="text" name="last_name" id="lastName" placeholder="Last name"
+                                                    maxlength="25" required>
+                                            </div>
+                                            <div id="lastNameError" class="text-red-600 text-[10px] leading-tight font-medium hidden"></div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Row 2: Middle Name | Suffix -->
+                                    <div class="grid mb-1" style="grid-template-columns:1fr auto; gap:0.4rem; align-items:start;">
+                                        <div class="input-group" style="margin-bottom:0;">
+                                            <div class="input-icon-wrapper">
+                                                <i class="fas fa-user"></i>
+                                                <input type="text" name="middle_name" id="middleName" placeholder="Middle name (optional)"
+                                                    maxlength="25">
+                                            </div>
+                                            <div id="middleNameError" class="text-red-600 text-[10px] leading-tight font-medium hidden"></div>
+                                        </div>
+                                        <div class="input-group" style="margin-bottom:0; width:90px;">
+                                            <select name="suffix" id="regSuffix" style="text-align: center; padding-left: 0.5rem; width: 100%; border: 2px solid #e5e7eb; border-radius: 0.5rem; font-size: 0.8rem; background: #ffffff; color: #1f2937; padding-top: 0.45rem; padding-bottom: 0.45rem;">
+                                                <option value="" style="text-align: center;">Suffix</option>
+                                                <option value="N/A" style="text-align: center;">N/A</option>
+                                                <option value="Jr." style="text-align: center;">Jr.</option>
+                                                <option value="Sr." style="text-align: center;">Sr.</option>
+                                                <option value="II" style="text-align: center;">II</option>
+                                                <option value="III" style="text-align: center;">III</option>
+                                                <option value="IV" style="text-align: center;">IV</option>
+                                                <option value="V" style="text-align: center;">V</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <!-- Role -->
+                                    <div class="input-group">
+                                        <div class="input-icon-wrapper">
+                                            <i class="fas fa-user-tag"></i>
+                                            <select name="role" id="regRole" required>
+                                                <option value="">Select Role</option>
+                                                <option value="secretary">Secretary</option>
+                                                <option value="manager">Manager</option>
+                                                <option value="dispatcher">Dispatcher</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <!-- PH Phone Number -->
+                                    <div class="input-group">
+                                        <div class="ph-phone-wrapper" style="padding: 0.45rem 0.5rem;">
+                                            <span class="ph-prefix" style="color: #6b7280; margin-right: 0.4rem; font-size: 0.8rem;"><i class="fas fa-phone-alt"></i> (+63)</span>
+                                            <input type="tel" name="phone_number" id="phoneNumber"
+                                                placeholder="9XXXXXXXXX" maxlength="10" required
+                                                pattern="9[0-9]{9}" inputmode="numeric"
+                                                title="Must start with 9 and contain exactly 10 digits"
+                                                style="border: none; outline: none; flex: 1; padding: 0; background: transparent; font-size: 0.8rem; color: #1f2937;">
+                                        </div>
+                                        <div id="phoneError" class="text-red-600 text-[10px] leading-tight font-medium hidden"></div>
+                                    </div>
+
+
+                                    <!-- Email -->
+                                    <div class="input-group">
+                                        <div class="input-icon-wrapper">
+                                            <i class="fas fa-envelope"></i>
+                                            <input type="email" name="email" id="regEmail" placeholder="Gmail (e.g. you@gmail.com)"
+                                                required>
+                                        </div>
+                                        <div id="regEmailError" class="text-red-600 text-[10px] leading-tight font-medium hidden"></div>
+                                    </div>
+
+                                    <div class="input-group" style="margin-bottom: 0.3rem;">
+                                        <div class="pw-group" style="margin-bottom: 0.1rem;">
+                                            <i class="fas fa-lock pw-icon"></i>
+                                            <input type="password" name="password" id="regPassword" placeholder="Password" required minlength="6">
+                                            <button type="button" class="toggle-password" onclick="togglePassword('regPassword', this)" tabindex="-1">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                        </div>
+                                        <div class="password-strength-container hidden" id="pwStrengthContainer">
+                                            <div style="width: 100%; height: 3px; background: #e5e7eb; border-radius: 2px; overflow: hidden; display: flex;">
+                                                <div id="pwStrengthBar" style="width: 0%; height: 100%; transition: all 0.3s ease; border-radius: 2px;"></div>
+                                            </div>
+                                            <div style="display: flex; justify-content: space-between; margin-top: 1px;">
+                                                <div id="regPasswordError" class="text-red-600 text-[10px] leading-tight font-medium hidden mt-0.5" style="max-width: 80%;"></div>
+                                                <div id="pwStrengthText" class="text-[10px] font-medium leading-tight mt-0.5 text-right w-full"></div>
+                                            </div>
                                         </div>
                                     </div>
 
                                     <div class="input-group">
-                                        <i class="fas fa-user-tag"></i>
-                                        <select name="role" id="regRole" required>
-                                            <option value="">Select Role</option>
-                                            <option value="secretary">Secretary</option>
-                                            <option value="manager">Manager</option>
-                                            <option value="dispatcher">Dispatcher</option>
-                                        </select>
-                                    </div>
-
-
-                                    <div class="input-group">
-                                        <i class="fas fa-envelope"></i>
-                                        <input type="email" name="email" id="regEmail" placeholder="Gmail address (e.g. you@gmail.com)"
-                                            required>
-                                    </div>
-                                    <div id="regEmailError" class="text-red-500 text-xs mt-1 hidden"></div>
-
-                                    <div class="pw-group">
-                                        <i class="fas fa-lock pw-icon"></i>
-                                        <input type="password" name="password" id="regPassword" placeholder="Password" required>
-                                        <button type="button" class="toggle-password" onclick="togglePassword('regPassword', this)" tabindex="-1">
-                                            <i class="fas fa-eye"></i>
-                                        </button>
-                                    </div>
-
-                                    <div class="pw-group">
-                                        <i class="fas fa-lock pw-icon"></i>
-                                        <input type="password" name="password_confirmation" id="regPasswordConfirm" placeholder="Confirm password" required>
-                                        <button type="button" class="toggle-password" onclick="togglePassword('regPasswordConfirm', this)" tabindex="-1">
-                                            <i class="fas fa-eye"></i>
-                                        </button>
+                                        <div class="pw-group" style="margin-bottom: 0.1rem;">
+                                            <i class="fas fa-lock pw-icon"></i>
+                                            <input type="password" name="password_confirmation" id="regPasswordConfirm" placeholder="Confirm password" required>
+                                            <button type="button" class="toggle-password" onclick="togglePassword('regPasswordConfirm', this)" tabindex="-1">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                        </div>
+                                        <div id="regPasswordConfirmError" class="text-red-600 text-[10px] leading-tight font-medium hidden mt-0.5"></div>
                                     </div>
 
                                     <button type="submit" class="btn-secondary">
@@ -823,8 +935,8 @@
                                     </button>
                                 </form>
                                 
-                                <div class="text-center mt-6">
-                                    <p class="text-gray-600">
+                                <div class="text-center mt-3">
+                                    <p class="text-gray-600 text-sm">
                                         Already have an account?
                                         <button type="button" onclick="setState('login')"
                                             class="text-blue-600 font-semibold hover:underline">
@@ -1016,23 +1128,28 @@
                 firstNameInput.addEventListener('keydown', function(e) {
                     // Allow: backspace, delete, tab, escape, enter, arrows
                     if ([8, 46, 9, 27, 13, 37, 38, 39, 40].indexOf(e.keyCode) !== -1) return;
-                    // Block space (32) and anything not a letter
+                    // Block space (32) and anything not a letter (allowing ñ and Ñ)
                     if (e.keyCode === 32 || (e.keyCode < 65 || e.keyCode > 90)) {
+                        // Check if it's the 'ñ' or 'Ñ' key
+                        if (e.key === 'ñ' || e.key === 'Ñ') return;
                         e.preventDefault();
                     }
                 });
 
+                firstNameInput.addEventListener('paste', function(e) {
+                    e.preventDefault();
+                    const pasteData = (e.clipboardData || window.clipboardData).getData('text');
+                    const cleaned = pasteData.replace(/[^a-zA-ZñÑ]/g, '');
+                    document.execCommand('insertText', false, cleaned);
+                });
+
                 firstNameInput.addEventListener('input', function() {
-                    const val = this.value;
+                    let val = this.value.replace(/[^a-zA-ZñÑ]/g, '');
+                    if (this.value !== val) this.value = val;
+
                     const errorDiv = document.getElementById('firstNameError');
-                    const regex = /^[a-zA-Z]*$/; // Allow typing but validate
-                    
-                    if (!regex.test(val)) {
-                        errorDiv.textContent = 'Dapat mga letra lamang at bawal ang spacing o numbers.';
-                        errorDiv.classList.remove('hidden');
-                        this.classList.add('border-red-500');
-                    } else if (val.length > 25) {
-                        errorDiv.textContent = 'Hanggang 25 characters lamang.';
+                    if (val.length > 25) {
+                        errorDiv.textContent = 'Maximum of 25 characters only.';
                         errorDiv.classList.remove('hidden');
                         this.classList.add('border-red-500');
                     } else {
@@ -1054,33 +1171,128 @@
                         }
                         return;
                     }
-                    // Block numbers and special chars (anything not a letter)
+                    // Block numbers and special chars (allowing ñ and Ñ)
                     if (e.keyCode < 65 || e.keyCode > 90) {
+                        if (e.key === 'ñ' || e.key === 'Ñ') return;
                         e.preventDefault();
                     }
                 });
 
+                lastNameInput.addEventListener('paste', function(e) {
+                    e.preventDefault();
+                    const pasteData = (e.clipboardData || window.clipboardData).getData('text');
+                    let cleaned = pasteData.replace(/[^a-zA-ZñÑ ]/g, '');
+                    // Force only one space if present
+                    if (cleaned.includes(' ')) {
+                        const parts = cleaned.split(' ');
+                        cleaned = parts[0] + ' ' + parts.slice(1).join('').replace(/ /g, '');
+                    }
+                    document.execCommand('insertText', false, cleaned);
+                });
+
                 lastNameInput.addEventListener('input', function() {
-                    const val = this.value;
+                    let val = this.value.replace(/[^a-zA-ZñÑ ]/g, '');
+                    // Force only one space
+                    if (val.includes(' ')) {
+                        const parts = val.split(' ');
+                        val = parts[0] + ' ' + parts.slice(1).join('').replace(/ /g, '');
+                    }
+                    if (this.value !== val) this.value = val;
+
                     const errorDiv = document.getElementById('lastNameError');
-                    // Letters and max one space
-                    const regex = /^[a-zA-Z]+( [a-zA-Z]*)?$/;
-                    
-                    if (val === '') {
-                        errorDiv.classList.add('hidden');
-                        this.classList.remove('border-red-500');
-                    } else if (!regex.test(val)) {
-                        errorDiv.textContent = 'Dapat mga letra lamang at isang spacing lamang ang pinapayagan.';
-                        errorDiv.classList.remove('hidden');
-                        this.classList.add('border-red-500');
-                    } else if (val.length > 25) {
-                        errorDiv.textContent = 'Hanggang 25 characters lamang.';
+                    if (val.length > 25) {
+                        errorDiv.textContent = 'Maximum of 25 characters only.';
                         errorDiv.classList.remove('hidden');
                         this.classList.add('border-red-500');
                     } else {
                         errorDiv.classList.add('hidden');
                         this.classList.remove('border-red-500');
                     }
+                });
+            }
+
+            const middleNameInput = document.getElementById('middleName');
+            if (middleNameInput) {
+                middleNameInput.addEventListener('keydown', function(e) {
+                    if ([8, 46, 9, 27, 13, 37, 38, 39, 40].indexOf(e.keyCode) !== -1) return;
+                    // Allow one space (32)
+                    if (e.keyCode === 32) {
+                        if (this.value.includes(' ') || this.value.length === 0) {
+                            e.preventDefault();
+                        }
+                        return;
+                    }
+                    // Block numbers and special chars (allowing ñ and Ñ)
+                    if (e.keyCode < 65 || e.keyCode > 90) {
+                        if (e.key === 'ñ' || e.key === 'Ñ') return;
+                        e.preventDefault();
+                    }
+                });
+
+                middleNameInput.addEventListener('paste', function(e) {
+                    e.preventDefault();
+                    const pasteData = (e.clipboardData || window.clipboardData).getData('text');
+                    let cleaned = pasteData.replace(/[^a-zA-ZñÑ ]/g, '');
+                    // Force only one space if present
+                    if (cleaned.includes(' ')) {
+                        const parts = cleaned.split(' ');
+                        cleaned = parts[0] + ' ' + parts.slice(1).join('').replace(/ /g, '');
+                    }
+                    document.execCommand('insertText', false, cleaned);
+                });
+
+                middleNameInput.addEventListener('input', function() {
+                    let val = this.value.replace(/[^a-zA-ZñÑ ]/g, '');
+                    // Force only one space
+                    if (val.includes(' ')) {
+                        const parts = val.split(' ');
+                        val = parts[0] + ' ' + parts.slice(1).join('').replace(/ /g, '');
+                    }
+                    if (this.value !== val) this.value = val;
+
+                    const errorDiv = document.getElementById('middleNameError');
+                    if (val.length > 25) {
+                        errorDiv.textContent = 'Maximum of 25 characters only.';
+                        errorDiv.classList.remove('hidden');
+                        this.classList.add('border-red-500');
+                    } else {
+                        errorDiv.classList.add('hidden');
+                        this.classList.remove('border-red-500');
+                    }
+                });
+            }
+
+            const phoneInput = document.getElementById('phoneNumber');
+            if (phoneInput) {
+                phoneInput.addEventListener('keydown', function(e) {
+                    // Allow: backspace, delete, tab, escape, enter, arrow keys
+                    if ([46, 8, 9, 27, 13, 110, 190, 37, 38, 39, 40].indexOf(e.keyCode) !== -1) {
+                        return;
+                    }
+                    // Allow: Ctrl+A, Ctrl+C, Ctrl+V, Command+A
+                    if ((e.ctrlKey || e.metaKey) && (e.keyCode === 65 || e.keyCode === 67 || e.keyCode === 86)) {
+                        return;
+                    }
+                    // Ensure that it is a number and stop the keypress
+                    if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+                        e.preventDefault();
+                    }
+                });
+
+                phoneInput.addEventListener('paste', function(e) {
+                    e.preventDefault();
+                    const pasteData = (e.clipboardData || window.clipboardData).getData('text');
+                    const cleaned = pasteData.replace(/[^0-9]/g, '');
+                    document.execCommand('insertText', false, cleaned);
+                });
+
+                ['input', 'keyup'].forEach(function(evt) {
+                    phoneInput.addEventListener(evt, function(e) {
+                        const cleaned = this.value.replace(/[^0-9]/g, '');
+                        if (this.value !== cleaned) {
+                            this.value = cleaned;
+                        }
+                    });
                 });
             }
 
@@ -1142,14 +1354,111 @@
                 });
             }
 
+            const regPasswordInput = document.getElementById('regPassword');
+            const regPasswordConfirm = document.getElementById('regPasswordConfirm');
+
+            const pwRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9])[A-Za-z\d\D]{6,}$/;
+
+            function validatePasswordConfirm() {
+                if (!regPasswordConfirm) return;
+                const errDiv = document.getElementById('regPasswordConfirmError');
+                if (regPasswordConfirm.value.length === 0) {
+                    errDiv.classList.add('hidden');
+                    return;
+                }
+                if (regPasswordInput.value !== regPasswordConfirm.value) {
+                    errDiv.textContent = 'Passwords do not match.';
+                    errDiv.classList.remove('hidden');
+                } else {
+                    errDiv.classList.add('hidden');
+                }
+            }
+
+            if (regPasswordInput) {
+                // Initialize button as disabled
+                setTimeout(() => {
+                    const btn = document.querySelector('#registerForm button[type="submit"]');
+                    if(btn) {
+                        btn.disabled = true;
+                        btn.style.opacity = '0.5';
+                        btn.style.cursor = 'not-allowed';
+                    }
+                }, 100);
+
+                regPasswordInput.addEventListener('input', function() {
+                    const val = this.value;
+                    const errDiv = document.getElementById('regPasswordError');
+                    const strengthContainer = document.getElementById('pwStrengthContainer');
+                    const strengthBar = document.getElementById('pwStrengthBar');
+                    const strengthText = document.getElementById('pwStrengthText');
+                    
+                    if (val.length === 0) {
+                        strengthContainer.classList.add('hidden');
+                        errDiv.classList.add('hidden');
+                        return;
+                    }
+                    strengthContainer.classList.remove('hidden');
+
+                    let strength = 0;
+                    
+                    if (val.length >= 6) strength++;
+                    if (val.match(/[A-Z]/)) strength++;
+                    if (val.match(/[a-z]/)) strength++;
+                    if (val.match(/[0-9]/)) strength++;
+                    if (val.match(/[^A-Za-z0-9]/)) strength++;
+
+                    let percent = 0;
+                    let color = '';
+                    let text = '';
+
+                    if (strength <= 2) {
+                        percent = 33;
+                        color = '#ef4444'; // red
+                        text = 'Weak';
+                        strengthText.style.color = color;
+                        errDiv.textContent = 'Must have at least 6 chars, uppercase, lowercase, number, and symbol.';
+                        errDiv.classList.remove('hidden');
+                    } else if (strength === 3 || strength === 4) {
+                        percent = 66;
+                        color = '#eab308'; // yellow
+                        text = 'Medium';
+                        strengthText.style.color = color;
+                        errDiv.textContent = 'Must have at least 6 chars, uppercase, lowercase, number, and symbol.';
+                        errDiv.classList.remove('hidden');
+                    } else if (strength === 5) {
+                        percent = 100;
+                        color = '#22c55e'; // green
+                        text = 'Strong';
+                        strengthText.style.color = color;
+                        errDiv.classList.add('hidden');
+                        document.querySelector('#registerForm button[type="submit"]').disabled = false;
+                        document.querySelector('#registerForm button[type="submit"]').style.opacity = '1';
+                        document.querySelector('#registerForm button[type="submit"]').style.cursor = 'pointer';
+                    } else {
+                        document.querySelector('#registerForm button[type="submit"]').disabled = true;
+                        document.querySelector('#registerForm button[type="submit"]').style.opacity = '0.5';
+                        document.querySelector('#registerForm button[type="submit"]').style.cursor = 'not-allowed';
+                    }
+
+                    strengthBar.style.width = percent + '%';
+                    strengthBar.style.backgroundColor = color;
+                    strengthText.textContent = text;
+                    validatePasswordConfirm();
+                });
+            }
+
+            if (regPasswordConfirm) {
+                regPasswordConfirm.addEventListener('input', validatePasswordConfirm);
+            }
+
             const registerForm = document.getElementById('registerForm');
             if (registerForm) {
                 registerForm.addEventListener('submit', function(e) {
                     const fname = document.getElementById('firstName').value;
                     const lname = document.getElementById('lastName').value;
                     const emailVal = document.getElementById('regEmail').value.trim();
-                    const fRegex = /^[a-zA-Z]+$/;
-                    const lRegex = /^[a-zA-Z]+( [a-zA-Z]+)?$/;
+                    const fRegex = /^[a-zA-ZñÑ]+$/;
+                    const lRegex = /^[a-zA-ZñÑ]+( [a-zA-ZñÑ]+)?$/;
                     const gmailRegex = /^(?!.*\.{2})[a-zA-Z][a-zA-Z0-9.]{4,28}[a-zA-Z0-9]@gmail\.com$/i;
 
                     let hasError = false;
@@ -1175,9 +1484,27 @@
                         document.getElementById('regEmail').classList.remove('border-red-500');
                     }
 
+                    // Strict form check before dispatching
+                    const passwordVal = document.getElementById('regPassword').value;
+                    const confirmVal = document.getElementById('regPasswordConfirm').value;
+
+                    if (!pwRegex.test(passwordVal)) {
+                        hasError = true;
+                        const err = document.getElementById('regPasswordError');
+                        err.textContent = 'Password does not meet the strong criteria.';
+                        err.classList.remove('hidden');
+                    }
+
+                    if (passwordVal !== confirmVal) {
+                        hasError = true;
+                        const errC = document.getElementById('regPasswordConfirmError');
+                        errC.textContent = 'Passwords do not match.';
+                        errC.classList.remove('hidden');
+                    }
+
                     if (hasError) {
                         e.preventDefault();
-                        showToast('Pakitama ang mga error sa form.', 'error');
+                        showToast('Please correct the errors in the form.', 'error');
                     }
                 });
             }

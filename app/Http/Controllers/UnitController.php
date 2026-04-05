@@ -44,8 +44,8 @@ class UnitController extends Controller
 
         if (!empty($search)) {
             $query->where(function ($q) use ($search) {
-                $q->where('u.unit_number', 'like', DB::raw("CONCAT('%', ?, '%') COLLATE utf8mb4_unicode_ci"), [$search])
-                    ->orWhere('u.plate_number', 'like', DB::raw("CONCAT('%', ?, '%') COLLATE utf8mb4_unicode_ci"), [$search])
+                $q->where('u.plate_number', 'like', DB::raw("CONCAT('%', ?, '%') COLLATE utf8mb4_unicode_ci"), [$search])
+                    ->orWhere('u.unit_number', 'like', DB::raw("CONCAT('%', ?, '%') COLLATE utf8mb4_unicode_ci"), [$search])
                     ->orWhere('u.make', 'like', DB::raw("CONCAT('%', ?, '%') COLLATE utf8mb4_unicode_ci"), [$search])
                     ->orWhere('u.model', 'like', DB::raw("CONCAT('%', ?, '%') COLLATE utf8mb4_unicode_ci"), [$search]);
             });
@@ -65,11 +65,11 @@ class UnitController extends Controller
                 break;
             case 'vacant':
                 $query->orderByRaw('CASE WHEN u.driver_id IS NULL THEN 0 ELSE 1 END')
-                    ->orderBy('u.unit_number');
+                    ->orderBy('u.plate_number');
                 break;
             case 'alphabetical':
             default:
-                $query->orderBy('u.unit_number', 'asc');
+                $query->orderBy('u.plate_number', 'asc');
                 break;
         }
 
@@ -112,7 +112,7 @@ class UnitController extends Controller
         ]);
 
         $data = $request->validate([
-            'unit_number' => 'required|string|unique:units,unit_number',
+            'unit_number' => 'nullable|string|unique:units,unit_number',
             'plate_number' => 'required|string|unique:units,plate_number',
             'make' => 'required|string',
             'model' => 'required|string',
@@ -140,7 +140,7 @@ class UnitController extends Controller
                     $q->where('driver_id', $driver_id)->orWhere('secondary_driver_id', $driver_id);
                 })->first();
             if ($conflict) {
-                return back()->with('error', 'Selected primary driver is already assigned to unit ' . $conflict->unit_number . '.');
+                return back()->with('error', 'Selected primary driver is already assigned to unit ' . $conflict->plate_number . '.');
             }
         }
         if ($secondary_driver_id) {
@@ -149,7 +149,7 @@ class UnitController extends Controller
                     $q->where('driver_id', $secondary_driver_id)->orWhere('secondary_driver_id', $secondary_driver_id);
                 })->first();
             if ($conflict) {
-                return back()->with('error', 'Selected secondary driver is already assigned to unit ' . $conflict->unit_number . '.');
+                return back()->with('error', 'Selected secondary driver is already assigned to unit ' . $conflict->plate_number . '.');
             }
         }
 
@@ -162,7 +162,7 @@ class UnitController extends Controller
 
         // Use Eloquent to trigger TrackChanges trait
         Unit::create([
-            'unit_number' => $data['unit_number'],
+            'unit_number' => $data['unit_number'] ?? $data['plate_number'],
             'plate_number' => $data['plate_number'],
             'make' => $data['make'],
             'model' => $data['model'],
@@ -192,7 +192,7 @@ class UnitController extends Controller
         ]);
 
         $data = $request->validate([
-            'unit_number' => 'required|string|unique:units,unit_number,' . $id,
+            'unit_number' => 'nullable|string|unique:units,unit_number,' . $id,
             'plate_number' => 'required|string|unique:units,plate_number,' . $id,
             'make' => 'sometimes|required|string',
             'model' => 'sometimes|required|string',
@@ -221,7 +221,7 @@ class UnitController extends Controller
                     $q->where('driver_id', $driver_id)->orWhere('secondary_driver_id', $driver_id);
                 })->first();
             if ($conflict) {
-                return back()->with('error', 'Selected primary driver is already assigned to unit ' . $conflict->unit_number . '.');
+                return back()->with('error', 'Selected primary driver is already assigned to unit ' . $conflict->plate_number . '.');
             }
         }
         if ($secondary_driver_id) {
@@ -231,7 +231,7 @@ class UnitController extends Controller
                     $q->where('driver_id', $secondary_driver_id)->orWhere('secondary_driver_id', $secondary_driver_id);
                 })->first();
             if ($conflict) {
-                return back()->with('error', 'Selected secondary driver is already assigned to unit ' . $conflict->unit_number . '.');
+                return back()->with('error', 'Selected secondary driver is already assigned to unit ' . $conflict->plate_number . '.');
             }
         }
 
@@ -243,7 +243,7 @@ class UnitController extends Controller
         }
 
         $updateData = [
-            'unit_number' => $data['unit_number'],
+            'unit_number' => $data['unit_number'] ?? $data['plate_number'],
             'plate_number' => $data['plate_number'],
             'boundary_rate' => $data['boundary_rate'],
             'purchase_date' => $data['purchase_date'] ?? null,
@@ -624,7 +624,7 @@ class UnitController extends Controller
                 'usr1.full_name as driver1_name',
                 'usr2.full_name as driver2_name'
             )
-            ->orderBy('u.unit_number')
+            ->orderBy('u.plate_number')
             ->get();
 
         foreach ($units as $unit) {

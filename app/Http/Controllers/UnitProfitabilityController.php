@@ -20,7 +20,7 @@ class UnitProfitabilityController extends Controller
         $types = "";
 
         if (!empty($unit_filter)) {
-            $where_conditions[] = "u.unit_number = ?";
+            $where_conditions[] = "u.plate_number = ?";
             $params[] = $unit_filter;
             $types .= "s";
         }
@@ -29,7 +29,7 @@ class UnitProfitabilityController extends Controller
         $where_clause = "WHERE " . implode(' AND ', $where_conditions);
 
         // Get all units for dropdown
-        $units_dropdown = DB::table('units')->whereNull('deleted_at')->orderBy('unit_number')->get();
+        $units_dropdown = DB::table('units')->whereNull('deleted_at')->orderBy('plate_number')->get();
 
         // Get unit profitability data
         $sql = "SELECT 
@@ -53,8 +53,8 @@ class UnitProfitabilityController extends Controller
             LEFT JOIN maintenance m ON u.id = m.unit_id AND m.deleted_at IS NULL
             LEFT JOIN expenses e ON u.id = e.unit_id AND e.deleted_at IS NULL
             $where_clause
-            GROUP BY u.id, u.unit_number, u.plate_number, u.make, u.model, u.year, u.purchase_cost, u.boundary_rate
-            ORDER BY u.unit_number";
+            GROUP BY u.id, u.plate_number, u.unit_number, u.make, u.model, u.year, u.purchase_cost, u.boundary_rate
+            ORDER BY u.plate_number";
 
         // Build parameters array
         $all_params = array_merge(

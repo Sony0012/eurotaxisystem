@@ -2,9 +2,9 @@
     <div class="bg-gradient-to-r from-blue-500 to-blue-600 p-4 rounded-lg text-white">
         <div class="flex justify-between items-start">
             <div>
-                <h3 class="text-xl font-bold">{{ $unit->unit_number }}</h3>
+                <h3 class="text-xl font-bold">{{ $unit->plate_number }}</h3>
                 <p class="text-blue-100 text-sm">{{ ($unit->make ?? '') . ' ' . ($unit->model ?? '') . ' (' . ($unit->year ?? '') . ')' }}</p>
-                <p class="text-blue-100 text-sm">Plate: {{ $unit->plate_number }}</p>
+                <p class="text-blue-100 text-sm">Unit: {{ $unit->unit_number ?? 'N/A' }}</p>
                 <div class="flex items-center gap-2 mt-1">
                     <span class="px-2 py-1 bg-white bg-opacity-20 rounded-full text-xs font-medium">
                         {{ ucfirst($unit->status ?? '') }}
@@ -109,12 +109,12 @@
                     </h4>
                     <div class="space-y-3">
                         <div class="flex justify-between">
-                            <span class="text-gray-600">Unit Number:</span>
-                            <span class="font-medium">{{ $unit->unit_number }}</span>
-                        </div>
-                        <div class="flex justify-between">
                             <span class="text-gray-600">Plate Number:</span>
                             <span class="font-medium">{{ $unit->plate_number }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Unit Number:</span>
+                            <span class="font-medium">{{ $unit->unit_number ?? 'N/A' }}</span>
                         </div>
                         <div class="flex justify-between">
                             <span class="text-gray-600">Vehicle:</span>

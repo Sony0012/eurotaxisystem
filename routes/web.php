@@ -52,20 +52,6 @@ Route::get('/api/maintenance-units', [DashboardController::class, 'getMaintenanc
 Route::get('/api/active-drivers', [DashboardController::class, 'getActiveDrivers'])->middleware('auth');
 Route::get('/api/coding-units', [DashboardController::class, 'getCodingUnits'])->middleware('auth');
 
-// Auto Reload Route
-Route::get('/check-changes', function() {
-    $lastModifiedFile = storage_path('framework/cache/last-modified.txt');
-    $currentModified = filemtime($lastModifiedFile) ?? 0;
-    
-    // Update last modified time
-    file_put_contents($lastModifiedFile, time());
-    
-    return response()->json([
-        'changed' => false,
-        'timestamp' => $currentModified
-    ]);
-});
-
     // ─── Protected Routes ──────────────────────────────────
 Route::middleware('auth')->group(function () {
 

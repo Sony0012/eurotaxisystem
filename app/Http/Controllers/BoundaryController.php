@@ -41,8 +41,8 @@ class BoundaryController extends Controller
 
         if (!empty($search)) {
             $query->where(function ($q) use ($search) {
-                $q->where('u.unit_number', 'like', "%{$search}%")
-                  ->orWhere('u.plate_number', 'like', "%{$search}%")
+                $q->where('u.plate_number', 'like', "%{$search}%")
+                  ->orWhere('u.unit_number', 'like', "%{$search}%")
                   ->orWhere(DB::raw("CONCAT(usr.full_name, '')"), 'like', "%{$search}%");
             });
         }
@@ -69,7 +69,7 @@ class BoundaryController extends Controller
             ->whereNull('deleted_at')
             ->where('status', '!=', 'retired')
             ->select('id', 'unit_number', 'plate_number', 'make', 'model', 'boundary_rate', 'coding_day', 'driver_id', 'secondary_driver_id')
-            ->orderBy('unit_number')
+            ->orderBy('plate_number')
             ->get()
             ->map(function ($unit) {
                 $unitArray = (array) $unit;
@@ -90,7 +90,7 @@ class BoundaryController extends Controller
             WHERE u.role = 'driver' AND u.is_active = TRUE 
             AND d.deleted_at IS NULL AND u.deleted_at IS NULL
             ORDER BY 
-                CASE WHEN ua.unit_number IS NOT NULL THEN 1 ELSE 0 END,
+                CASE WHEN ua.plate_number IS NOT NULL THEN 1 ELSE 0 END,
                 u.full_name
         ");
         $all_drivers = array_map(function($d) { return (array) $d; }, $all_drivers);
@@ -104,9 +104,9 @@ class BoundaryController extends Controller
             LEFT JOIN users u ON d.user_id = u.id 
             LEFT JOIN units ua ON (d.user_id = ua.driver_id OR d.user_id = ua.secondary_driver_id) AND ua.deleted_at IS NULL
             WHERE u.role = 'driver' AND u.is_active = TRUE 
-            AND ua.unit_number IS NOT NULL
+            AND ua.plate_number IS NOT NULL
             AND d.deleted_at IS NULL AND u.deleted_at IS NULL
-            ORDER BY ua.unit_number, u.full_name
+            ORDER BY ua.plate_number, u.full_name
         ");
         $assigned_drivers = array_map(function($d) { return (array) $d; }, $assigned_drivers);
 
@@ -116,8 +116,8 @@ class BoundaryController extends Controller
             $unit_id = $unit['id'];
             $res = DB::select("
                 SELECT d.id, d.user_id, u.full_name as name, 
-                       ua.unit_number as current_unit,
-                       ua.plate_number as current_plate
+                       ua.plate_number as current_plate,
+                       ua.unit_number as current_unit
                 FROM drivers d 
                 LEFT JOIN users u ON d.user_id = u.id 
                 LEFT JOIN units ua ON (d.user_id = ua.driver_id OR d.user_id = ua.secondary_driver_id)

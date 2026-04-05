@@ -12,7 +12,7 @@
         <tbody class="bg-white divide-y divide-gray-200">
             @forelse($items as $m)
             <tr>
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $m->unit->unit_number ?? 'N/A' }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $m->unit->plate_number ?? 'N/A' }}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ Str::limit($m->description, 30) }}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ formatCurrency($m->cost) }}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $m->deleted_at->format('M d, Y H:i') }}</td>
