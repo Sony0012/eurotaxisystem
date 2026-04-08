@@ -1718,9 +1718,15 @@
                 firstNameInput.addEventListener('keydown', function(e) {
                     // Allow: backspace, delete, tab, escape, enter, arrows
                     if ([8, 46, 9, 27, 13, 37, 38, 39, 40].indexOf(e.keyCode) !== -1) return;
-                    // Block space (32) and anything not a letter (allowing ñ and Ñ)
-                    if (e.keyCode === 32 || (e.keyCode < 65 || e.keyCode > 90)) {
-                        // Check if it's the 'ñ' or 'Ñ' key
+                    // Allow one space (32)
+                    if (e.keyCode === 32) {
+                        if (this.value.includes(' ') || this.value.length === 0) {
+                            e.preventDefault();
+                        }
+                        return;
+                    }
+                    // Block anything not a letter (allowing ñ and Ñ)
+                    if (e.keyCode < 65 || e.keyCode > 90) {
                         if (e.key === 'ñ' || e.key === 'Ñ') return;
                         e.preventDefault();
                     }
@@ -1729,12 +1735,22 @@
                 firstNameInput.addEventListener('paste', function(e) {
                     e.preventDefault();
                     const pasteData = (e.clipboardData || window.clipboardData).getData('text');
-                    const cleaned = pasteData.replace(/[^a-zA-ZñÑ]/g, '');
+                    let cleaned = pasteData.replace(/[^a-zA-ZñÑ ]/g, '');
+                    // Force only one space if present
+                    if (cleaned.includes(' ')) {
+                        const parts = cleaned.split(' ');
+                        cleaned = parts[0] + ' ' + parts.slice(1).join('').replace(/ /g, '');
+                    }
                     document.execCommand('insertText', false, cleaned);
                 });
 
                 firstNameInput.addEventListener('input', function() {
-                    let val = this.value.replace(/[^a-zA-ZñÑ]/g, '');
+                    let val = this.value.replace(/[^a-zA-ZñÑ ]/g, '');
+                    // Force only one space
+                    if (val.includes(' ')) {
+                        const parts = val.split(' ');
+                        val = parts[0] + ' ' + parts.slice(1).join('').replace(/ /g, '');
+                    }
                     if (this.value !== val) this.value = val;
 
                     const errorDiv = document.getElementById('firstNameError');
