@@ -53,11 +53,11 @@
     <script src="https://unpkg.com/lucide@latest"></script>
 
     <!-- Custom CSS -->
-    <link href="{{ asset('assets/app.css') }}" rel="stylesheet">
+    <link href="{{ asset('assets/app.css') }}?v=1.2" rel="stylesheet">
     @stack('styles')
 
     <!-- Custom JS -->
-    <script src="{{ asset('assets/app.js') }}"></script>
+    <script src="{{ asset('assets/app.js') }}?v=1.2"></script>
 
     <!-- Chart.js for Dashboard -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
