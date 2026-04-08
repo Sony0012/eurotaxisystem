@@ -35,6 +35,9 @@ class User extends Authenticatable
         'github_refresh_token',
         'last_login',
         'profile_image',
+        'otp_code',
+        'otp_expires_at',
+        'verified_at',
     ];
 
     protected $hidden = [

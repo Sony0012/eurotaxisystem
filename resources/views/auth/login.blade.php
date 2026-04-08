@@ -357,10 +357,10 @@
         }
 
         .otp-input {
-            width: 50px;
-            height: 50px;
+            width: 42px;
+            height: 42px;
             text-align: center;
-            font-size: 1.5rem;
+            font-size: 1.25rem;
             font-weight: bold;
             border: 2px solid #e5e7eb;
             border-radius: 0.5rem;
@@ -734,9 +734,10 @@
                                     <div class="input-group">
                                         <div class="input-icon-wrapper">
                                             <i class="fas fa-phone"></i>
-                                            <input type="tel" id="resetPhone" placeholder="Enter your phone number"
-                                                required>
+                                            <input type="tel" id="resetPhone" placeholder="Enter your phone number (09XXXXXXXXX)"
+                                                maxlength="11" required pattern="[0-9]*" inputmode="numeric">
                                         </div>
+                                        <div id="resetPhoneError" class="text-red-600 text-[10px] leading-tight font-medium hidden mt-1"></div>
                                     </div>
                                     <button type="submit" class="btn-primary">
                                         <i class="fas fa-paper-plane mr-2"></i> Send OTP
@@ -744,12 +745,7 @@
                                 </form>
 
                                 <div id="otpSection" style="display:none;">
-                                    <div class="mb-4">
-                                        <button type="button" onclick="backToRecoveryOptions()"
-                                            class="flex items-center text-gray-600 hover:text-blue-600 transition-colors">
-                                            <i class="fas fa-arrow-left mr-2"></i> Back
-                                        </button>
-                                    </div>
+                                    <h4 class="text-center font-semibold mb-2">Verification Required</h4>
                                     <p class="text-center text-gray-600 mb-4">Enter 6-digit code sent to your phone</p>
                                     <div class="otp-inputs">
                                         @for($i = 0; $i < 6; $i++)
@@ -769,28 +765,39 @@
 
                                 <form id="newPasswordForm" style="display:none;">
                                     @csrf
-                                    <div class="mb-4">
-                                        <button type="button" onclick="backToRecoveryOptions()"
-                                            class="flex items-center text-gray-600 hover:text-blue-600 transition-colors">
-                                            <i class="fas fa-arrow-left mr-2"></i> Back
-                                        </button>
-                                    </div>
-                                    <p class="text-center text-green-600 mb-4">✓ Verification successful! Set your new
-                                        password.</p>
-                                    <div class="input-group">
-                                        <div class="input-icon-wrapper">
-                                            <i class="fas fa-lock"></i>
-                                            <input type="password" id="newPassword" placeholder="New password" required>
+                                    <p class="text-center text-green-600 mb-4 text-sm">✓ Verification successful! Set your new password.</p>
+                                    
+                                    <div class="input-group" style="margin-bottom: 0.3rem;">
+                                        <div class="pw-group" style="margin-bottom: 0.1rem;">
+                                            <i class="fas fa-lock pw-icon"></i>
+                                            <input type="password" id="newPassword" placeholder="New password" required minlength="6">
+                                            <button type="button" class="toggle-password" onclick="togglePassword('newPassword', this)" tabindex="-1">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                        </div>
+                                        <div class="password-strength-container hidden" id="resetPwStrengthContainer">
+                                            <div style="width: 100%; height: 3px; background: #e5e7eb; border-radius: 2px; overflow: hidden; display: flex;">
+                                                <div id="resetPwStrengthBar" style="width: 0%; height: 100%; transition: all 0.3s ease; border-radius: 2px;"></div>
+                                            </div>
+                                            <div style="display: flex; justify-content: space-between; margin-top: 1px;">
+                                                <div id="resetPwError" class="text-red-600 text-[10px] leading-tight font-medium hidden mt-0.5" style="max-width: 80%;"></div>
+                                                <div id="resetPwStrengthText" class="text-[10px] font-medium leading-tight mt-0.5 text-right w-full"></div>
+                                            </div>
                                         </div>
                                     </div>
+
                                     <div class="input-group">
-                                        <div class="input-icon-wrapper">
-                                            <i class="fas fa-lock"></i>
-                                            <input type="password" id="confirmNewPassword"
-                                                placeholder="Confirm new password" required>
+                                        <div class="pw-group" style="margin-bottom: 0.1rem;">
+                                            <i class="fas fa-lock pw-icon"></i>
+                                            <input type="password" id="confirmNewPassword" placeholder="Confirm password" required>
+                                            <button type="button" class="toggle-password" onclick="togglePassword('confirmNewPassword', this)" tabindex="-1">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
                                         </div>
+                                        <div id="resetConfirmError" class="text-red-600 text-[10px] leading-tight font-medium hidden mt-0.5"></div>
                                     </div>
-                                    <button type="submit" class="btn-primary">
+
+                                    <button type="submit" class="btn-primary mt-2">
                                         <i class="fas fa-save mr-2"></i> Update Password
                                     </button>
                                 </form>
@@ -1023,6 +1030,8 @@
         function selectRecoveryMethod(method) {
             document.getElementById('recoveryOptions').style.display = 'none';
             document.getElementById('forgotBackButton').style.setProperty('display', 'block', 'important');
+            // Clear inputs
+            document.querySelectorAll('.otp-input').forEach(i => i.value = '');
             if (method === 'email') {
                 document.getElementById('emailResetForm').style.display = 'block';
                 document.getElementById('phoneResetForm').style.display = 'none';
@@ -1039,6 +1048,11 @@
             document.getElementById('phoneResetForm').style.display = 'none';
             document.getElementById('otpSection').style.display = 'none';
             document.getElementById('newPasswordForm').style.display = 'none';
+            // Clear inputs and reset button
+            document.querySelectorAll('.otp-input').forEach(i => i.value = '');
+            const verifyBtn = document.querySelector('#otpSection .btn-primary');
+            if(verifyBtn) verifyBtn.innerHTML = '<i class="fas fa-check mr-2"></i> Verify OTP';
+            if(verifyBtn) verifyBtn.disabled = false;
         }
 
         function verifyOTP() {
@@ -1055,17 +1069,23 @@
 
         let countdownInterval;
         function startCountdown() {
+            if (countdownInterval) clearInterval(countdownInterval);
             let seconds = 120;
             const btn = document.getElementById('resendBtn');
             const span = document.getElementById('countdown');
             btn.disabled = true;
+            btn.classList.add('opacity-50', 'cursor-not-allowed');
+            
             countdownInterval = setInterval(() => {
                 seconds--;
                 span.textContent = seconds;
+                btn.innerHTML = `Resend OTP (${seconds}s)`;
+                
                 if (seconds <= 0) {
                     clearInterval(countdownInterval);
                     btn.disabled = false;
-                    span.textContent = '0';
+                    btn.classList.remove('opacity-50', 'cursor-not-allowed');
+                    btn.innerHTML = 'Resend OTP';
                 }
             }, 1000);
         }
@@ -1111,7 +1131,251 @@
                     if (next) next.focus();
                 }
             });
+            input.addEventListener('keydown', function(e) {
+                if(e.key === 'Backspace' && this.value === '') {
+                    const prev = document.querySelector(`.otp-input[data-index="${index - 1}"]`);
+                    if (prev) prev.focus();
+                }
+            });
         });
+
+        // ─── Forgot Password AJAX Handlers ──────────────────
+        let currentIdentifier = '';
+        let currentMethod = '';
+
+        // Email Reset Form
+        const emailResetForm = document.getElementById('emailResetForm');
+        if (emailResetForm) {
+            emailResetForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const email = document.getElementById('resetEmail').value;
+                currentIdentifier = email;
+                currentMethod = 'email';
+                
+                const btn = this.querySelector('button[type="submit"]');
+                const originalText = btn.innerHTML;
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Sending...';
+
+                fetch('{{ route("forgot-password.send-otp") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({ email: email })
+                })
+                .then(async res => {
+                    const data = await res.json();
+                    if (!res.ok) {
+                        throw new Error(data.message || 'An error occurred. Please try again.');
+                    }
+                    return data;
+                })
+                .then(data => {
+                    if (data.success) {
+                        showToast(data.message, 'success');
+                        emailResetForm.style.display = 'none';
+                        document.getElementById('otpSection').style.display = 'block';
+                        startCountdown();
+                    } else {
+                        showToast(data.message, 'error');
+                        btn.disabled = false;
+                        btn.innerHTML = originalText;
+                    }
+                })
+                .catch(err => {
+                    showToast(err.message, 'error');
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
+                });
+            });
+        }
+
+        // Phone Reset Form
+        const phoneResetForm = document.getElementById('phoneResetForm');
+        if (phoneResetForm) {
+            phoneResetForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const phone = document.getElementById('resetPhone').value;
+                currentIdentifier = phone;
+                currentMethod = 'phone';
+
+                const btn = this.querySelector('button[type="submit"]');
+                const originalText = btn.innerHTML;
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Sending...';
+
+                fetch('{{ route("forgot-password.send-sms-otp") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({ phone: phone })
+                })
+                .then(async res => {
+                    const data = await res.json();
+                    if (!res.ok) {
+                        throw new Error(data.message || 'An error occurred. Please try again.');
+                    }
+                    return data;
+                })
+                .then(data => {
+                    if (data.success) {
+                        showToast(data.message, 'success');
+                        phoneResetForm.style.display = 'none';
+                        document.getElementById('otpSection').style.display = 'block';
+                        startCountdown();
+                    } else {
+                        showToast(data.message, 'error');
+                        btn.disabled = false;
+                        btn.innerHTML = originalText;
+                    }
+                })
+                .catch(err => {
+                    showToast(err.message, 'error');
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
+                });
+            });
+        }
+
+        // Verify OTP Function (Updated)
+        function verifyOTP() {
+            const inputs = document.querySelectorAll('.otp-input');
+            let otp = '';
+            inputs.forEach(i => otp += i.value);
+            
+            if (otp.length === 6) {
+                const btn = document.querySelector('#otpSection .btn-primary');
+                const originalText = btn.innerHTML;
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Verifying...';
+
+                fetch('{{ route("forgot-password.verify-otp") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({ 
+                        identifier: currentIdentifier,
+                        otp: otp 
+                    })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        showToast(data.message, 'success');
+                        document.getElementById('otpSection').style.display = 'none';
+                        document.getElementById('newPasswordForm').style.display = 'block';
+                    } else {
+                        showToast(data.message, 'error');
+                        btn.disabled = false;
+                        btn.innerHTML = originalText;
+                    }
+                })
+                .catch(err => {
+                    showToast('Verification failed. Try again.', 'error');
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
+                });
+            } else {
+                showToast('Please enter the 6-digit OTP', 'error');
+            }
+        }
+
+        // Resend OTP Function (Updated)
+        function resendOTP() {
+            const btn = document.getElementById('resendBtn');
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+
+            const url = currentMethod === 'email' 
+                ? '{{ route("forgot-password.send-otp") }}' 
+                : '{{ route("forgot-password.send-sms-otp") }}';
+            
+            const body = currentMethod === 'email' 
+                ? { email: currentIdentifier } 
+                : { phone: currentIdentifier };
+
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify(body)
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    showToast(data.message, 'success');
+                    startCountdown();
+                } else {
+                    showToast(data.message, 'error');
+                    btn.disabled = false;
+                }
+            })
+            .catch(err => {
+                showToast('Failed to resend. Please try again.', 'error');
+                btn.disabled = false;
+            });
+        }
+
+        // New Password Form
+        const newPasswordForm = document.getElementById('newPasswordForm');
+        if (newPasswordForm) {
+            newPasswordForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const password = document.getElementById('newPassword').value;
+                const password_confirmation = document.getElementById('confirmNewPassword').value;
+                
+                const inputs = document.querySelectorAll('.otp-input');
+                let otp = '';
+                inputs.forEach(i => otp += i.value);
+
+                const btn = this.querySelector('button[type="submit"]');
+                const originalText = btn.innerHTML;
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Resetting...';
+
+                fetch('{{ route("forgot-password.reset") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({ 
+                        identifier: currentIdentifier,
+                        otp: otp,
+                        password: password,
+                        password_confirmation: password_confirmation
+                    })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        showToast(data.message, 'success');
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 2000);
+                    } else {
+                        showToast(data.message, 'error');
+                        btn.disabled = false;
+                        btn.innerHTML = originalText;
+                    }
+                })
+                .catch(err => {
+                    showToast('Reset failed. Try again.', 'error');
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
+                });
+            });
+        }
 
         // Remember Me event listeners
         document.addEventListener('DOMContentLoaded', function() {
@@ -1157,6 +1421,35 @@
                         this.classList.remove('border-red-500');
                     }
                     updateUsernamePreview();
+                });
+
+                firstNameInput.addEventListener('blur', function() {
+                    const val = this.value.trim();
+                    const errorDiv = document.getElementById('firstNameError');
+                    if (val.length === 0) return;
+
+                    fetch('{{ route("check-availability") }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({ first_name: val })
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (!data.available) {
+                            errorDiv.textContent = data.message;
+                            errorDiv.classList.remove('hidden');
+                            this.classList.add('border-red-500');
+                        } else {
+                            // Don't hide if validateEmailLive already found a format error
+                            if (!this.classList.contains('border-red-500') || errorDiv.textContent === 'This first name is already taken.') {
+                                errorDiv.classList.add('hidden');
+                                this.classList.remove('border-red-500');
+                            }
+                        }
+                    });
                 });
             }
 
@@ -1286,13 +1579,84 @@
                     document.execCommand('insertText', false, cleaned);
                 });
 
-                ['input', 'keyup'].forEach(function(evt) {
-                    phoneInput.addEventListener(evt, function(e) {
-                        const cleaned = this.value.replace(/[^0-9]/g, '');
-                        if (this.value !== cleaned) {
-                            this.value = cleaned;
+                phoneInput.addEventListener('input', function() {
+                    let val = this.value.replace(/[^0-9]/g, '');
+                    this.value = val;
+                    
+                    const errorDiv = document.getElementById('phoneError');
+                    if (val.length === 0) {
+                        errorDiv.classList.add('hidden');
+                        this.parentElement.style.borderColor = '#e5e7eb';
+                    } else if (val[0] !== '9') {
+                        errorDiv.textContent = 'Phone number must start with 9';
+                        errorDiv.classList.remove('hidden');
+                        this.parentElement.style.borderColor = '#ef4444';
+                    } else if (val.length < 10) {
+                        errorDiv.textContent = 'Phone number must be exactly 10 digits';
+                        errorDiv.classList.remove('hidden');
+                        this.parentElement.style.borderColor = '#ef4444';
+                    } else {
+                        errorDiv.classList.add('hidden');
+                        this.parentElement.style.borderColor = '#e5e7eb';
+                    }
+                });
+
+                phoneInput.addEventListener('blur', function() {
+                    const val = this.value.trim();
+                    const errorDiv = document.getElementById('phoneError');
+                    if (val.length < 10) return;
+
+                    fetch('{{ route("check-availability") }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({ phone: val })
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (!data.available) {
+                            errorDiv.textContent = data.message;
+                            errorDiv.classList.remove('hidden');
+                            this.parentElement.style.borderColor = '#ef4444';
+                        } else {
+                            errorDiv.classList.add('hidden');
+                            this.parentElement.style.borderColor = '#e5e7eb';
                         }
                     });
+                });
+            }
+
+            const resetPhoneInput = document.getElementById('resetPhone');
+            if (resetPhoneInput) {
+                resetPhoneInput.addEventListener('keydown', function(e) {
+                    if ([46, 8, 9, 27, 13, 110, 190, 37, 38, 39, 40].indexOf(e.keyCode) !== -1) return;
+                    if ((e.ctrlKey || e.metaKey) && (e.keyCode === 65 || e.keyCode === 67 || e.keyCode === 86)) return;
+                    if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+                        e.preventDefault();
+                    }
+                });
+                resetPhoneInput.addEventListener('input', function() {
+                    let val = this.value.replace(/[^0-9]/g, '');
+                    this.value = val;
+
+                    const errorDiv = document.getElementById('resetPhoneError');
+                    if (val.length === 0) {
+                        errorDiv.classList.add('hidden');
+                        this.parentElement.style.borderColor = '#e5e7eb';
+                    } else if (!val.startsWith('09')) {
+                        errorDiv.textContent = 'Phone number must start with 09';
+                        errorDiv.classList.remove('hidden');
+                        this.parentElement.style.borderColor = '#ef4444';
+                    } else if (val.length < 11) {
+                        errorDiv.textContent = 'Phone number must be exactly 11 digits';
+                        errorDiv.classList.remove('hidden');
+                        this.parentElement.style.borderColor = '#ef4444';
+                    } else {
+                        errorDiv.classList.add('hidden');
+                        this.parentElement.style.borderColor = '#e5e7eb';
+                    }
                 });
             }
 
@@ -1351,6 +1715,35 @@
                     const cleaned = this.value.replace(/[^a-zA-Z0-9.@]/g, '');
                     if (this.value !== cleaned) this.value = cleaned;
                     validateEmailLive(this.value.trim());
+                });
+
+                regEmailInput.addEventListener('blur', function() {
+                    const val = this.value.trim();
+                    const errorDiv = document.getElementById('regEmailError');
+                    if (val === '' || !val.includes('@')) return;
+
+                    fetch('{{ route("check-availability") }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({ email: val })
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (!data.available) {
+                            errorDiv.textContent = data.message;
+                            errorDiv.classList.remove('hidden');
+                            this.classList.add('border-red-500');
+                        } else {
+                            // Don't hide if validateEmailLive already found a format error
+                            if (!this.classList.contains('border-red-500') || errorDiv.textContent === 'This email is already registered.') {
+                                errorDiv.classList.add('hidden');
+                                this.classList.remove('border-red-500');
+                            }
+                        }
+                    });
                 });
             }
 
@@ -1449,6 +1842,76 @@
 
             if (regPasswordConfirm) {
                 regPasswordConfirm.addEventListener('input', validatePasswordConfirm);
+            }
+
+            // ─── Reset Password Form Strength & Confirm ─────────────────
+            const resetPwInput = document.getElementById('newPassword');
+            const resetPwConfirmInput = document.getElementById('confirmNewPassword');
+
+            function validateResetConfirm() {
+                if (!resetPwConfirmInput) return;
+                const errDiv = document.getElementById('resetConfirmError');
+                if (resetPwConfirmInput.value.length === 0) {
+                    errDiv.classList.add('hidden');
+                    return;
+                }
+                if (resetPwInput.value !== resetPwConfirmInput.value) {
+                    errDiv.textContent = 'Passwords do not match.';
+                    errDiv.classList.remove('hidden');
+                } else {
+                    errDiv.classList.add('hidden');
+                }
+            }
+
+            if (resetPwInput) {
+                resetPwInput.addEventListener('input', function() {
+                    const val = this.value;
+                    const errDiv = document.getElementById('resetPwError');
+                    const strengthContainer = document.getElementById('resetPwStrengthContainer');
+                    const strengthBar = document.getElementById('resetPwStrengthBar');
+                    const strengthText = document.getElementById('resetPwStrengthText');
+                    
+                    if (val.length === 0) {
+                        strengthContainer.classList.add('hidden');
+                        errDiv.classList.add('hidden');
+                        return;
+                    }
+                    strengthContainer.classList.remove('hidden');
+
+                    let strength = 0;
+                    if (val.length >= 6) strength++;
+                    if (val.match(/[A-Z]/)) strength++;
+                    if (val.match(/[a-z]/)) strength++;
+                    if (val.match(/[0-9]/)) strength++;
+                    if (val.match(/[^A-Za-z0-9]/)) strength++;
+
+                    let percent = 0;
+                    let color = '';
+                    let text = '';
+
+                    if (strength <= 2) {
+                        percent = 33; color = '#ef4444'; text = 'Weak';
+                        errDiv.textContent = 'Must have at least 6 chars, uppercase, lowercase, number, and symbol.';
+                        errDiv.classList.remove('hidden');
+                    } else if (strength === 3 || strength === 4) {
+                        percent = 66; color = '#eab308'; text = 'Medium';
+                        errDiv.textContent = 'Must have at least 6 chars, uppercase, lowercase, number, and symbol.';
+                        errDiv.classList.remove('hidden');
+                    } else if (strength === 5) {
+                        percent = 100; color = '#22c55e'; text = 'Strong';
+                        errDiv.classList.add('hidden');
+                    }
+
+                    strengthBar.style.width = percent + '%';
+                    strengthBar.style.backgroundColor = color;
+                    strengthText.textContent = text;
+                    strengthText.style.color = color;
+                    validateResetConfirm();
+                });
+            }
+
+            if (resetPwConfirmInput) {
+                resetPwConfirmInput.addEventListener('input', validateResetConfirm);
             }
 
             const registerForm = document.getElementById('registerForm');

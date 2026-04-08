@@ -104,7 +104,7 @@ class AuthController extends Controller
             'middle_name'  => $request->middle_name,
             'last_name'    => $request->last_name,
             'suffix'       => $request->suffix,
-            'phone_number' => '+63' . $request->phone_number,
+            'phone_number' => '0' . ltrim($request->phone_number, '0'),
             'email'        => $request->email,
             'username'     => $username,
             'password'     => Hash::make($request->password),
@@ -134,5 +134,198 @@ class AuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
         return redirect()->route('login');
+    }
+
+    /**
+     * Send Reset OTP via Email
+     */
+    public function sendResetOtp(Request $request)
+    {
+        $validator = \Validator::make($request->all(), [
+            'email' => 'required|email|exists:users,email'
+        ], [
+            'email.exists' => 'No account found with this email address.',
+            'email.email' => 'Please enter a valid email address.',
+            'email.required' => 'Email address is required.'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false, 
+                'message' => $validator->errors()->first('email')
+            ], 422);
+        }
+        
+        $user = User::where('email', $request->email)->first();
+        $otp = sprintf("%06d", mt_rand(1, 999999));
+        
+        $user->update([
+            'otp_code' => $otp,
+            'otp_expires_at' => now()->addMinutes(10)
+        ]);
+
+        $body = "<h2>Password Reset</h2>
+                 <p>Your OTP code for password reset is: <b>{$otp}</b></p>
+                 <p>This code will expire in 10 minutes.</p>";
+        
+        if (send_custom_email($request->email, "Password Reset OTP - Euro Taxi System", $body)) {
+            return response()->json(['success' => true, 'message' => 'OTP sent to your email.']);
+        }
+
+        return response()->json(['success' => false, 'message' => 'Service unavailable. Please try again later.'], 500);
+    }
+
+    /**
+     * Send Reset OTP via SMS
+     */
+    public function sendSmsResetOtp(Request $request)
+    {
+        $validator = \Validator::make($request->all(), [
+            'phone' => 'required|string|min:10|exists:users,phone_number'
+        ], [
+            'phone.exists' => 'This phone number is not registered in our system.',
+            'phone.required' => 'Phone number is required.',
+            'phone.min' => 'Please enter a valid phone number.'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false, 
+                'message' => $validator->errors()->first('phone')
+            ], 422);
+        }
+        
+        // Sanitize for DB search (09...)
+        $searchPhone = $request->phone;
+        if (str_starts_with($searchPhone, '+63')) {
+            $searchPhone = '0' . ltrim($searchPhone, '+63');
+        } elseif (!str_starts_with($searchPhone, '0')) {
+            $searchPhone = '0' . $searchPhone;
+        }
+
+        $user = User::where('phone_number', $searchPhone)->first();
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => 'This phone number is not registered in our system.'], 422);
+        }
+
+        $otp = sprintf("%06d", mt_rand(1, 999999));
+        
+        $user->update([
+            'otp_code' => $otp,
+            'otp_expires_at' => now()->addMinutes(10)
+        ]);
+
+        $message = "Your Euro Taxi reset code is: {$otp}. Valid for 10 mins.";
+        
+        // Sanitize for Semaphore (+63...)
+        $smsPhone = $searchPhone;
+        if (str_starts_with($smsPhone, '0')) {
+            $smsPhone = '+63' . ltrim($smsPhone, '0');
+        }
+        
+        if (send_sms_otp($smsPhone, $message, $otp)) {
+            return response()->json(['success' => true, 'message' => 'OTP sent to your phone.']);
+        }
+
+        return response()->json(['success' => false, 'message' => 'SMS service temporarily unavailable.'], 500);
+    }
+
+    /**
+     * Verify Reset OTP (Unified for Email/Phone)
+     */
+    public function verifyResetOtp(Request $request)
+    {
+        $request->validate([
+            'identifier' => 'required|string',
+            'otp' => 'required|string|size:6'
+        ]);
+
+        $identifier = $request->identifier;
+        if (!filter_var($identifier, FILTER_VALIDATE_EMAIL)) {
+            // Sanitize phone for DB lookup
+            $identifier = ltrim($identifier, '+63');
+            if (!str_starts_with($identifier, '0')) $identifier = '0' . $identifier;
+        }
+
+        $user = User::where(function($q) use ($identifier) {
+                        $q->where('email', $identifier)
+                          ->orWhere('phone_number', $identifier);
+                    })
+                    ->where('otp_code', $request->otp)
+                    ->where('otp_expires_at', '>', now())
+                    ->first();
+
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => 'Invalid or expired OTP.'], 400);
+        }
+
+        return response()->json(['success' => true, 'message' => 'OTP verified successfully.']);
+    }
+
+    /**
+     * Reset Password (Unified for Email/Phone)
+     */
+    public function resetPassword(Request $request)
+    {
+        $request->validate([
+            'identifier' => 'required|string',
+            'otp' => 'required|string|size:6',
+            'password' => 'required|string|min:6|confirmed'
+        ]);
+
+        $identifier = $request->identifier;
+        if (!filter_var($identifier, FILTER_VALIDATE_EMAIL)) {
+            $identifier = ltrim($identifier, '+63');
+            if (!str_starts_with($identifier, '0')) $identifier = '0' . $identifier;
+        }
+
+        $user = User::where(function($q) use ($identifier) {
+                        $q->where('email', $identifier)
+                          ->orWhere('phone_number', $identifier);
+                    })
+                    ->where('otp_code', $request->otp)
+                    ->where('otp_expires_at', '>', now())
+                    ->first();
+
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => 'Invalid or expired OTP.'], 400);
+        }
+
+        $user->update([
+            'password' => Hash::make($request->password),
+            'password_hash' => Hash::make($request->password),
+            'otp_code' => null,
+            'otp_expires_at' => null
+        ]);
+
+        return response()->json(['success' => true, 'message' => 'Password reset successfully!']);
+    }
+
+    /**
+     * Check if email or phone is already registered (AJAX)
+     */
+    public function checkAvailability(Request $request)
+    {
+        if ($request->has('email')) {
+            $exists = User::where('email', $request->email)->exists();
+            return response()->json(['available' => !$exists, 'message' => $exists ? 'This email is already registered.' : '']);
+        }
+
+        if ($request->has('phone')) {
+            $phone = $request->phone;
+            // standard sanitization for lookup
+            $phone = ltrim($phone, '+63');
+            if (!str_starts_with($phone, '0')) $phone = '0' . $phone;
+
+            $exists = User::where('phone_number', $phone)->exists();
+            return response()->json(['available' => !$exists, 'message' => $exists ? 'This phone number is already registered.' : '']);
+        }
+
+        if ($request->has('first_name')) {
+            $exists = User::where('first_name', $request->first_name)->exists();
+            return response()->json(['available' => !$exists, 'message' => $exists ? 'This first name is already taken.' : '']);
+        }
+
+        return response()->json(['error' => 'Invalid request'], 400);
     }
 }

@@ -38,6 +38,13 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/my-account/forgot-password', [MyAccountController::class, 'forgotPassword'])->name('my-account.forgot-password');
 });
 
+// ─── Forgot Password Routes ────────────────────────────
+Route::post('/forgot-password/send-otp', [AuthController::class, 'sendResetOtp'])->name('forgot-password.send-otp');
+Route::post('/forgot-password/send-sms-otp', [AuthController::class, 'sendSmsResetOtp'])->name('forgot-password.send-sms-otp');
+Route::post('/forgot-password/verify-otp', [AuthController::class, 'verifyResetOtp'])->name('forgot-password.verify-otp');
+Route::post('/forgot-password/reset', [AuthController::class, 'resetPassword'])->name('forgot-password.reset');
+Route::post('/check-availability', [AuthController::class, 'checkAvailability'])->name('check-availability');
+
 // ─── GitHub OAuth Routes ───────────────────────────────
 Route::get('/auth/github', [GitHubAuthController::class, 'redirectToGitHub'])->name('auth.github');
 Route::get('/auth/github/callback', [GitHubAuthController::class, 'handleGitHubCallback'])->name('auth.github.callback');
