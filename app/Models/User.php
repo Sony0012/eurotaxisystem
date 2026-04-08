@@ -27,6 +27,7 @@ class User extends Authenticatable
         'password',
         'password_hash',
         'is_active',
+        'is_verified',
         'phone',
         'phone_number',
         'address',
@@ -46,8 +47,9 @@ class User extends Authenticatable
     ];
 
     protected $casts = [
-        'is_active' => 'boolean',
-        'last_login' => 'datetime',
+        'is_active'   => 'boolean',
+        'is_verified' => 'boolean',
+        'last_login'  => 'datetime',
     ];
 
 
@@ -55,5 +57,10 @@ class User extends Authenticatable
     public function driver()
     {
         return $this->hasOne(Driver::class, 'user_id');
+    }
+
+    public function verifiedBrowsers()
+    {
+        return $this->hasMany(VerifiedBrowser::class, 'user_id');
     }
 }

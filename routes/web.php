@@ -26,6 +26,8 @@ use App\Http\Controllers\ArchiveController;
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
 Route::post('/login', [AuthController::class, 'login'])->name('login.submit');
+Route::post('/login/mfa/send', [AuthController::class, 'sendDeviceOtp'])->name('login.mfa.send');
+Route::post('/login/mfa/verify', [AuthController::class, 'verifyDeviceOtp'])->name('login.mfa.verify');
 Route::post('/register', [AuthController::class, 'register'])->name('register.submit');
 Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 
@@ -44,6 +46,8 @@ Route::post('/forgot-password/send-sms-otp', [AuthController::class, 'sendSmsRes
 Route::post('/forgot-password/verify-otp', [AuthController::class, 'verifyResetOtp'])->name('forgot-password.verify-otp');
 Route::post('/forgot-password/reset', [AuthController::class, 'resetPassword'])->name('forgot-password.reset');
 Route::post('/check-availability', [AuthController::class, 'checkAvailability'])->name('check-availability');
+Route::post('/register/verify-otp', [AuthController::class, 'verifyRegistrationOtp'])->name('register.verify-otp');
+Route::post('/register/resend-otp', [AuthController::class, 'resendRegistrationOtp'])->name('register.resend-otp');
 
 // ─── GitHub OAuth Routes ───────────────────────────────
 Route::get('/auth/github', [GitHubAuthController::class, 'redirectToGitHub'])->name('auth.github');

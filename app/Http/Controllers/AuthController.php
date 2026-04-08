@@ -5,7 +5,11 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Cookie;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Str;
 use App\Models\User;
+use App\Models\VerifiedBrowser;
 
 class AuthController extends Controller
 {
@@ -32,6 +36,14 @@ class AuthController extends Controller
             ->first();
 
         if ($user) {
+            // Block only accounts explicitly set to unverified (0 or false)
+            if ($user->is_verified !== null && !$user->is_verified) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Please verify your email address before logging in.',
+                ], 403);
+            }
+
             // Support both 'password' and legacy 'password_hash' column names
             $storedHash = $user->password ?? $user->password_hash ?? null;
 
@@ -41,16 +53,151 @@ class AuthController extends Controller
                     password_verify($request->password, $storedHash)
                 )
             ) {
+                // ─── NEW DEVICE CHECK ──────────────────
+                $browserCookie = $request->cookie('browser_id');
+                $isRecognized  = false;
+
+                if ($browserCookie) {
+                    $isRecognized = $user->verifiedBrowsers()
+                        ->where('browser_token', hash('sha256', $browserCookie))
+                        ->exists();
+                }
+
+                if (!$isRecognized) {
+                    // Save user ID in session temporarily, but DO NOT log in yet
+                    $request->session()->put('mfa_user_id', $user->id);
+                    $request->session()->put('mfa_remember', $request->boolean('remember'));
+
+                    return response()->json([
+                        'mfa_required' => true,
+                        'email'        => $user->email,
+                        'phone'        => $user->phone_number ?? $user->phone,
+                        'message'      => 'A new device was detected. Please verify your identity.'
+                    ]);
+                }
+
+                // Device is recognized, log in normally
                 Auth::login($user, $request->boolean('remember'));
                 $request->session()->regenerate();
+                
+                // Update last active on this device
+                $user->verifiedBrowsers()
+                    ->where('browser_token', hash('sha256', $browserCookie))
+                    ->update(['last_active_at' => now(), 'ip_address' => $request->ip()]);
+
+                if ($request->ajax() || $request->wantsJson()) {
+                    return response()->json([
+                        'success' => true,
+                        'redirect' => route('dashboard')
+                    ]);
+                }
+
                 return redirect()->intended(route('dashboard'))
                     ->with('success', 'Welcome back, ' . ($user->full_name ?? $user->name) . '!');
             }
         }
 
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid email or password.'
+            ], 401);
+        }
+
         return back()->withErrors([
             'email' => 'Invalid email or password.',
         ])->onlyInput('email');
+    }
+
+    public function sendDeviceOtp(Request $request)
+    {
+        $request->validate([
+            'method' => 'required|in:email,phone'
+        ]);
+
+        $userId = $request->session()->get('mfa_user_id');
+        if (!$userId) {
+            return response()->json(['success' => false, 'message' => 'Session expired. Please log in again.'], 401);
+        }
+
+        $user = User::find($userId);
+        $otp = str_pad(rand(0, 999999), 6, '0', STR_PAD_LEFT);
+        
+        $user->update([
+            'otp_code' => $otp,
+            'otp_expires_at' => now()->addMinutes(10)
+        ]);
+
+        require_once app_path('Helpers/MailerHelper.php');
+
+        if ($request->method === 'email') {
+            $emailBody = "
+                <div style='font-family:Arial,sans-serif;max-width:480px;margin:0 auto;padding:24px;background:#f9fafb;border-radius:12px;'>
+                    <h2 style='color:#1d4ed8;margin-bottom:8px;'>New Device Login Detected</h2>
+                    <p style='color:#374151;'>Hello <strong>{$user->first_name}</strong>,</p>
+                    <p style='color:#374151;'>A login attempt was made from a new device. Use the verification code below to authorize this browser:</p>
+                    <div style='background:#1d4ed8;color:#fff;font-size:2rem;font-weight:bold;letter-spacing:0.5rem;text-align:center;padding:18px;border-radius:8px;margin:20px 0;'>{$otp}</div>
+                    <p style='color:#6b7280;font-size:0.85rem;'>If this wasn't you, we recommend changing your password immediately.</p>
+                </div>
+            ";
+            send_custom_email($user->email, 'Eurotaxisystem — Device Verification Code', $emailBody);
+        } else {
+            // SMS logic
+            $phone = $user->phone_number ?? $user->phone;
+            if (!$phone) {
+                return response()->json(['success' => false, 'message' => 'No phone number found for this account.'], 422);
+            }
+            send_sms_otp($phone, $otp);
+        }
+
+        return response()->json(['success' => true, 'message' => 'Verification code sent!']);
+    }
+
+    public function verifyDeviceOtp(Request $request)
+    {
+        $request->validate([
+            'otp' => 'required|string|size:6'
+        ]);
+
+        $userId = $request->session()->get('mfa_user_id');
+        if (!$userId) {
+            return response()->json(['success' => false, 'message' => 'Session expired.'], 401);
+        }
+
+        $user = User::find($userId);
+
+        if ($user->otp_code !== $request->otp || now()->gt($user->otp_expires_at)) {
+            return response()->json(['success' => false, 'message' => 'Invalid or expired code.'], 422);
+        }
+
+        // ─── VERIFICATION SUCCESS ───────────────
+        
+        // 1. Generate unique device ID
+        $deviceId = Str::random(64);
+        
+        // 2. Save to database
+        $user->verifiedBrowsers()->create([
+            'browser_token' => hash('sha256', $deviceId),
+            'ip_address'    => $request->ip(),
+            'user_agent'    => $request->userAgent(),
+            'verified_at'   => now(),
+            'last_active_at'=> now(),
+        ]);
+
+        // 3. Clear OTP
+        $user->update(['otp_code' => null, 'otp_expires_at' => null]);
+
+        // 4. Log in
+        $remember = $request->session()->get('mfa_remember', false);
+        Auth::login($user, $remember);
+        $request->session()->forget(['mfa_user_id', 'mfa_remember']);
+        $request->session()->regenerate();
+
+        // 5. Return success with the cookie (expires in 1 year)
+        return response()->json([
+            'success' => true,
+            'redirect' => route('dashboard')
+        ])->cookie('browser_id', $deviceId, 60 * 24 * 365);
     }
 
     public function register(Request $request)
@@ -61,7 +208,7 @@ class AuthController extends Controller
             'last_name'     => ['required', 'string', 'max:25', 'regex:/^[a-zA-ZñÑ]+( [a-zA-ZñÑ]+)?$/'],
             'suffix'        => ['nullable', 'in:,N/A,Jr.,Sr.,II,III,IV,V'],
             'phone_number'  => ['required', 'string', 'regex:/^9[0-9]{9}$/'],
-            'email'         => ['required', 'email', 'unique:users,email', 'regex:/^(?!.*\.{2})[a-zA-Z][a-zA-Z0-9.]{4,28}[a-zA-Z0-9]@gmail\.com$/i'],
+            'email'         => ['required', 'email', 'unique:users,email', 'regex:/^(?=[^@]*[a-zA-Z])(?!\.)(?!.*\.{2})[a-zA-Z0-9][a-zA-Z0-9.]{4,28}[a-zA-Z0-9]@gmail\.com$/i'],
             'password'      => ['required', 'string', 'min:6', 'confirmed', 'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9])[A-Za-z\d\D]{6,}$/'],
             'role'          => 'required|in:staff,secretary,manager,dispatcher',
         ], [
@@ -82,10 +229,10 @@ class AuthController extends Controller
 
         // Generate username based on role and first name
         $rolePrefix = $request->role;
-        $firstName = strtolower(str_replace(' ', '', $request->first_name));
-        $username = $rolePrefix . '-' . $firstName;
-        
-        // Ensure unique username
+        $firstName  = strtolower(str_replace(' ', '', $request->first_name));
+        $username   = $rolePrefix . '-' . $firstName;
+
+        // Ensure unique username (check against existing DB users)
         $originalUsername = $username;
         $counter = 1;
         while (User::where('username', $username)->exists()) {
@@ -95,10 +242,17 @@ class AuthController extends Controller
 
         // Build the full display name
         $middleInitial = $request->middle_name ? ' ' . strtoupper(substr($request->middle_name, 0, 1)) . '.' : '';
-        $suffixPart = $request->suffix ? ' ' . $request->suffix : '';
-        $fullName = $request->first_name . $middleInitial . ' ' . $request->last_name . $suffixPart;
+        $suffixPart    = $request->suffix ? ' ' . $request->suffix : '';
+        $fullName      = $request->first_name . $middleInitial . ' ' . $request->last_name . $suffixPart;
 
-        $user = User::create([
+        require_once app_path('Helpers/MailerHelper.php');
+
+        // Generate OTP
+        $otp       = str_pad(rand(0, 999999), 6, '0', STR_PAD_LEFT);
+        $expiresAt = now()->addMinutes(10)->toDateTimeString();
+
+        // ─── Store everything in session — NO DATABASE WRITE YET ───────────
+        $request->session()->put('pending_registration', [
             'full_name'    => $fullName,
             'first_name'   => $request->first_name,
             'middle_name'  => $request->middle_name,
@@ -108,16 +262,140 @@ class AuthController extends Controller
             'email'        => $request->email,
             'username'     => $username,
             'password'     => Hash::make($request->password),
-            'password_hash' => Hash::make($request->password),
             'role'         => $request->role,
-            'is_active'    => true,
+            'otp_code'     => $otp,
+            'otp_expires_at' => $expiresAt,
         ]);
 
-        Auth::login($user);
-        $request->session()->regenerate();
+        // Send OTP email
+        $emailBody = "
+            <div style='font-family:Arial,sans-serif;max-width:480px;margin:0 auto;padding:24px;background:#f9fafb;border-radius:12px;'>
+                <h2 style='color:#1d4ed8;margin-bottom:8px;'>Eurotaxisystem &mdash; Verify Your Email</h2>
+                <p style='color:#374151;'>Hello <strong>{$request->first_name}</strong>,</p>
+                <p style='color:#374151;'>Use the code below to verify your email and complete registration:</p>
+                <div style='background:#1d4ed8;color:#fff;font-size:2rem;font-weight:bold;letter-spacing:0.5rem;text-align:center;padding:18px;border-radius:8px;margin:20px 0;'>{$otp}</div>
+                <p style='color:#6b7280;font-size:0.85rem;'>This code expires in <strong>10 minutes</strong>. Do not share it with anyone.</p>
+                <p style='color:#6b7280;font-size:0.85rem;'>If you did not register, you can safely ignore this email.</p>
+                <hr style='border:none;border-top:1px solid #e5e7eb;margin:20px 0;'>
+                <p style='color:#9ca3af;font-size:0.75rem;text-align:center;'>Eurotaxisystem &copy; 2025</p>
+            </div>
+        ";
 
-        return redirect()->route('dashboard')
-            ->with('success', 'Account created successfully!');
+        send_custom_email(
+            $request->email,
+            'Eurotaxisystem — Email Verification Code',
+            $emailBody
+        );
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Please check your email for the verification code.',
+                'email'   => $request->email,
+            ]);
+        }
+
+        return redirect()->route('login')
+            ->with('info', 'Please check your email for the verification code.');
+    }
+
+    /**
+     * Verify email OTP at registration — creates user only after success
+     */
+    public function verifyRegistrationOtp(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'otp'   => 'required|string|size:6',
+        ]);
+
+        $pending = $request->session()->get('pending_registration');
+
+        // Validate session data exists and matches
+        if (
+            !$pending ||
+            $pending['email'] !== $request->email ||
+            $pending['otp_code'] !== $request->otp
+        ) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid or expired code. Please try again.',
+            ], 422);
+        }
+
+        // Check expiry
+        if (now()->gt($pending['otp_expires_at'])) {
+            $request->session()->forget('pending_registration');
+            return response()->json([
+                'success' => false,
+                'message' => 'Your verification code has expired. Please register again.',
+            ], 422);
+        }
+
+        // ─── OTP confirmed — NOW create the user in the database ───────────
+        $user = User::create([
+            'full_name'    => $pending['full_name'],
+            'first_name'   => $pending['first_name'],
+            'middle_name'  => $pending['middle_name'],
+            'last_name'    => $pending['last_name'],
+            'suffix'       => $pending['suffix'],
+            'phone_number' => $pending['phone_number'],
+            'email'        => $pending['email'],
+            'username'     => $pending['username'],
+            'password'     => $pending['password'],
+            'password_hash'=> $pending['password'],
+            'role'         => $pending['role'],
+            'is_active'    => true,
+            'is_verified'  => true,
+        ]);
+
+        // Clear the session
+        $request->session()->forget('pending_registration');
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Email verified! Your account is now active. You can log in.',
+        ]);
+    }
+
+    /**
+     * Resend registration OTP — updates session only, no DB involved
+     */
+    public function resendRegistrationOtp(Request $request)
+    {
+        require_once app_path('Helpers/MailerHelper.php');
+
+        $request->validate(['email' => 'required|email']);
+
+        $pending = $request->session()->get('pending_registration');
+
+        if (!$pending || $pending['email'] !== $request->email) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No pending registration found. Please fill in the form again.',
+            ], 404);
+        }
+
+        // Generate new OTP and update session
+        $otp = str_pad(rand(0, 999999), 6, '0', STR_PAD_LEFT);
+        $pending['otp_code']       = $otp;
+        $pending['otp_expires_at'] = now()->addMinutes(10)->toDateTimeString();
+        $request->session()->put('pending_registration', $pending);
+
+        $firstName = $pending['first_name'];
+        $emailBody = "
+            <div style='font-family:Arial,sans-serif;max-width:480px;margin:0 auto;padding:24px;background:#f9fafb;border-radius:12px;'>
+                <h2 style='color:#1d4ed8;margin-bottom:8px;'>Eurotaxisystem &mdash; New Verification Code</h2>
+                <p style='color:#374151;'>Hello <strong>{$firstName}</strong>,</p>
+                <p style='color:#374151;'>Here is your new verification code:</p>
+                <div style='background:#1d4ed8;color:#fff;font-size:2rem;font-weight:bold;letter-spacing:0.5rem;text-align:center;padding:18px;border-radius:8px;margin:20px 0;'>{$otp}</div>
+                <p style='color:#6b7280;font-size:0.85rem;'>This code expires in <strong>10 minutes</strong>.</p>
+            </div>
+        ";
+
+        send_custom_email($pending['email'], 'Eurotaxisystem — New Verification Code', $emailBody);
+
+        return response()->json(['success' => true, 'message' => 'A new code has been sent to your email.']);
     }
 
     public function showRegister()

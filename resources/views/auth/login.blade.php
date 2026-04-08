@@ -395,19 +395,29 @@
 
         .message-toast {
             position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 1rem 1.5rem;
-            border-radius: 0.5rem;
+            top: 16px;
+            right: 16px;
+            max-width: 320px;
+            width: auto;
+            padding: 0.85rem 1.2rem;
+            border-radius: 0.6rem;
             color: white;
             font-weight: 500;
-            z-index: 10000;
-            transform: translateX(400px);
-            transition: transform 0.3s ease;
+            font-size: 0.875rem;
+            line-height: 1.4;
+            word-wrap: break-word;
+            z-index: 99999;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+            transform: translateY(-120px);
+            opacity: 0;
+            transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
+            pointer-events: none;
         }
 
         .message-toast.show {
-            transform: translateX(0);
+            transform: translateY(0);
+            opacity: 1;
+            pointer-events: auto;
         }
 
         .message-toast.success {
@@ -566,6 +576,60 @@
             border-top: 4px solid #3b82f6;
             border-radius: 50%;
             animation: spin 1s linear infinite;
+        }
+
+        /* MFA Modal Styles */
+        .mfa-modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 100000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .mfa-modal-overlay.show {
+            display: flex;
+            opacity: 1;
+        }
+        .mfa-modal-content {
+            background: white;
+            width: 100%;
+            max-width: 400px;
+            border-radius: 1.5rem;
+            padding: 2rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            transform: scale(0.9);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .mfa-modal-overlay.show .mfa-modal-content {
+            transform: scale(1);
+        }
+        .mfa-method-card {
+            border: 2px solid #f3f4f6;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        .mfa-method-card:hover {
+            border-color: #3b82f6;
+            background: #eff6ff;
+        }
+        .mfa-otp-input {
+            width: 45px;
+            height: 45px;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            border: 2px solid #e5e7eb;
+            border-radius: 0.75rem;
+        }
+        .mfa-otp-input:focus {
+            border-color: #3b82f6;
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
         }
     </style>
 </head>
@@ -857,15 +921,17 @@
                                             <div id="middleNameError" class="text-red-600 text-[10px] leading-tight font-medium hidden"></div>
                                         </div>
                                         <div class="input-group" style="margin-bottom:0; width:90px;">
-                                            <select name="suffix" id="regSuffix" style="text-align: center; padding-left: 0.5rem; width: 100%; border: 2px solid #e5e7eb; border-radius: 0.5rem; font-size: 0.8rem; background: #ffffff; color: #1f2937; padding-top: 0.45rem; padding-bottom: 0.45rem;">
-                                                <option value="" style="text-align: center;">Suffix</option>
-                                                <option value="N/A" style="text-align: center;">N/A</option>
-                                                <option value="Jr." style="text-align: center;">Jr.</option>
-                                                <option value="Sr." style="text-align: center;">Sr.</option>
-                                                <option value="II" style="text-align: center;">II</option>
-                                                <option value="III" style="text-align: center;">III</option>
-                                                <option value="IV" style="text-align: center;">IV</option>
-                                                <option value="V" style="text-align: center;">V</option>
+                                            <select name="suffix" id="regSuffix"
+                                                onchange="this.style.color = this.value ? '#1f2937' : '#9ca3af';"
+                                                style="text-align: center; padding-left: 0.5rem; width: 100%; border: 2px solid #e5e7eb; border-radius: 0.5rem; font-size: 0.8rem; background: #ffffff; color: #9ca3af; padding-top: 0.45rem; padding-bottom: 0.45rem;">
+                                                <option value="" disabled hidden selected style="color: #9ca3af;">Suffix</option>
+                                                <option value="N/A" style="color: #1f2937;">N/A</option>
+                                                <option value="Jr." style="color: #1f2937;">Jr.</option>
+                                                <option value="Sr." style="color: #1f2937;">Sr.</option>
+                                                <option value="II" style="color: #1f2937;">II</option>
+                                                <option value="III" style="color: #1f2937;">III</option>
+                                                <option value="IV" style="color: #1f2937;">IV</option>
+                                                <option value="V" style="color: #1f2937;">V</option>
                                             </select>
                                         </div>
                                     </div>
@@ -937,10 +1003,43 @@
                                         <div id="regPasswordConfirmError" class="text-red-600 text-[10px] leading-tight font-medium hidden mt-0.5"></div>
                                     </div>
 
-                                    <button type="submit" class="btn-secondary">
+                                    <button type="submit" id="createAccountBtn" class="btn-secondary">
                                         <i class="fas fa-user-plus mr-2"></i> Create Account
                                     </button>
                                 </form>
+
+                                {{-- Email Verification OTP Section (shown after successful registration) --}}
+                                <div id="regOtpSection" style="display:none;">
+                                    <div class="text-center mb-4">
+                                        <div style="width:56px;height:56px;background:linear-gradient(135deg,#3b82f6,#1d4ed8);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;">
+                                            <i class="fas fa-envelope-open-text text-white text-xl"></i>
+                                        </div>
+                                        <h3 class="font-bold text-gray-800 text-lg mb-1">Verify Your Email</h3>
+                                        <p class="text-gray-500 text-sm">We sent a 6-digit code to</p>
+                                        <p class="text-blue-600 font-semibold text-sm" id="regOtpEmailDisplay"></p>
+                                    </div>
+
+                                    <div class="otp-inputs">
+                                        @for($i = 0; $i < 6; $i++)
+                                            <input type="text" class="otp-input reg-otp-input" maxlength="1" data-index="{{ $i }}">
+                                        @endfor
+                                    </div>
+
+                                    <button type="button" onclick="verifyRegOTP()" id="regVerifyBtn" class="btn-primary mb-3">
+                                        <i class="fas fa-check mr-2"></i> Verify & Activate
+                                    </button>
+
+                                    <div class="text-center">
+                                        <button type="button" id="regResendBtn" class="resend-btn" onclick="resendRegOTP()" disabled>
+                                            Resend Code (<span id="regCountdown">120</span>s)
+                                        </button>
+                                    </div>
+
+                                    <p class="text-center text-gray-500 text-xs mt-3">
+                                        Wrong email?
+                                        <button type="button" onclick="cancelRegOtp()" class="text-blue-600 font-semibold hover:underline">Go back</button>
+                                    </p>
+                                </div>
                                 
                                 <div class="text-center mt-3">
                                     <p class="text-gray-600 text-sm">
@@ -960,8 +1059,231 @@
         </div>
     </div>
 
+    <!-- MFA Verification Modal -->
+    <div id="mfaModal" class="mfa-modal-overlay">
+        <div class="mfa-modal-content">
+            <!-- Step 1: Selection -->
+            <div id="mfaStepSelect">
+                <div class="text-center mb-6">
+                    <div class="w-16 h-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-shield-alt text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900">Verify Your Identity</h3>
+                    <p class="text-gray-500 mt-2">A new device was detected. Choose where to receive your verification code.</p>
+                </div>
+
+                <div class="space-y-3 mb-6">
+                    <div onclick="sendMfaOtp('email')" class="mfa-method-card p-4 rounded-xl flex items-center gap-4">
+                        <div class="w-10 h-10 bg-blue-50 text-blue-500 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div class="flex-1">
+                            <p class="font-semibold text-gray-800">Email Address</p>
+                            <p class="text-xs text-gray-500" id="mfaEmailMask">••••••••@gmail.com</p>
+                        </div>
+                        <i class="fas fa-chevron-right text-gray-400"></i>
+                    </div>
+
+                    <div onclick="sendMfaOtp('phone')" class="mfa-method-card p-4 rounded-xl flex items-center gap-4">
+                        <div class="w-10 h-10 bg-green-50 text-green-500 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-phone-alt"></i>
+                        </div>
+                        <div class="flex-1">
+                            <p class="font-semibold text-gray-800">Phone Number</p>
+                            <p class="text-xs text-gray-500" id="mfaPhoneMask">+63 •••• ••• ••00</p>
+                        </div>
+                        <i class="fas fa-chevron-right text-gray-400"></i>
+                    </div>
+                </div>
+
+                <button onclick="closeMfaModal()" class="w-full text-gray-500 text-sm hover:underline">Cancel login</button>
+            </div>
+
+            <!-- Step 2: OTP Entry -->
+            <div id="mfaStepOtp" style="display: none;">
+                <div class="text-center mb-6">
+                    <button onclick="showMfaStep('select')" class="absolute top-6 left-6 text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-arrow-left"></i>
+                    </button>
+                    <div class="w-16 h-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-key text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900">Enter Code</h3>
+                    <p class="text-gray-500 mt-2">Check your <span id="mfaTargetDesc">email</span> for the 6-digit code.</p>
+                </div>
+
+                <div class="flex gap-2 justify-center mb-8">
+                    @for($i = 0; $i < 6; $i++)
+                        <input type="text" class="mfa-otp-input" maxlength="1" data-mfa-index="{{ $i }}">
+                    @endfor
+                </div>
+
+                <button onclick="verifyMfaOtp()" id="mfaVerifyBtn" class="btn-primary w-full py-3">
+                    Verify & Sign In
+                </button>
+
+                <div class="text-center mt-6">
+                    <p id="mfaTimer" class="text-xs text-gray-400">Code expires in 10:00</p>
+                    <button onclick="resendMfaOtp()" id="mfaResendBtn" class="mt-2 text-sm text-blue-600 font-semibold hover:underline" style="display: none;">
+                        Resend Code
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         let currentState = 'login';
+        let mfaMethod = '';
+
+        // Added MFA Functions
+        function showMfaModal(data) {
+            const modal = document.getElementById('mfaModal');
+            document.getElementById('mfaEmailMask').textContent = maskEmail(data.email);
+            document.getElementById('mfaPhoneMask').textContent = maskPhone(data.phone || '');
+            
+            showMfaStep('select');
+            modal.style.display = 'flex';
+            setTimeout(() => modal.classList.add('show'), 10);
+        }
+
+        function closeMfaModal() {
+            const modal = document.getElementById('mfaModal');
+            modal.classList.remove('show');
+            setTimeout(() => modal.style.display = 'none', 300);
+        }
+
+        function showMfaStep(step) {
+            document.getElementById('mfaStepSelect').style.display = step === 'select' ? 'block' : 'none';
+            document.getElementById('mfaStepOtp').style.display = step === 'otp' ? 'block' : 'none';
+            if (step === 'otp') {
+                document.querySelectorAll('.mfa-otp-input').forEach(i => i.value = '');
+                setTimeout(() => document.querySelector('.mfa-otp-input[data-mfa-index="0"]').focus(), 100);
+            }
+        }
+
+        function maskEmail(email) {
+            if (!email) return 'No email available';
+            const parts = email.split('@');
+            const name = parts[0];
+            return name.substring(0, 2) + "••••••••@" + parts[1];
+        }
+
+        function maskPhone(phone) {
+            if (!phone) return 'No phone available';
+            return "+63 •••• ••• ••" + phone.slice(-2);
+        }
+
+        function sendMfaOtp(method) {
+            mfaMethod = method;
+            document.getElementById('mfaTargetDesc').textContent = method;
+            
+            const btn = event.currentTarget;
+            const originalHTML = btn.innerHTML;
+            btn.style.pointerEvents = 'none';
+            btn.innerHTML += ' <i class="fas fa-spinner fa-spin ml-auto"></i>';
+
+            fetch('{{ route("login.mfa.send") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify({ method: method })
+            })
+            .then(async res => {
+                if (res.status === 419) {
+                    throw new Error('Session expired. Page will refresh.');
+                }
+                return res.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    showToast(data.message, 'success');
+                    showMfaStep('otp');
+                } else {
+                    showToast(data.message, 'error');
+                }
+            })
+            .catch(error => {
+                showToast(error.message || 'Failed to send code.', 'error');
+                if (error.message.includes('Session expired')) {
+                    setTimeout(() => window.location.reload(), 2000);
+                }
+            })
+            .finally(() => {
+                btn.style.pointerEvents = 'auto';
+                btn.innerHTML = originalHTML;
+            });
+        }
+
+        function verifyMfaOtp() {
+            const inputs = document.querySelectorAll('.mfa-otp-input');
+            let otp = '';
+            inputs.forEach(i => otp += i.value);
+
+            if (otp.length !== 6) {
+                showToast('Please enter the 6-digit code.', 'error');
+                return;
+            }
+
+            const btn = document.getElementById('mfaVerifyBtn');
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Verifying...';
+
+            fetch('{{ route("login.mfa.verify") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify({ otp: otp })
+            })
+            .then(async res => {
+                if (res.status === 419) {
+                    throw new Error('Session expired. Page will refresh.');
+                }
+                return res.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    showToast('Identity verified! Signing in...', 'success');
+                    setTimeout(() => {
+                        window.location.href = data.redirect;
+                    }, 1000);
+                } else {
+                    showToast(data.message, 'error');
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
+                }
+            })
+            .catch(error => {
+                showToast(error.message || 'Verification failed.', 'error');
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+                if (error.message.includes('Session expired')) {
+                    setTimeout(() => window.location.reload(), 2000);
+                }
+            });
+        }
+
+        // Auto-advance OTP inputs
+        document.querySelectorAll('.mfa-otp-input').forEach((input, index) => {
+            input.addEventListener('input', function() {
+                this.value = this.value.replace(/[^0-9]/g, '');
+                if (this.value.length === 1) {
+                    const next = document.querySelector(`.mfa-otp-input[data-mfa-index="${index + 1}"]`);
+                    if (next) next.focus();
+                }
+            });
+            input.addEventListener('keydown', function(e) {
+                if (e.key === 'Backspace' && this.value === '') {
+                    const prev = document.querySelector(`.mfa-otp-input[data-mfa-index="${index - 1}"]`);
+                    if (prev) prev.focus();
+                }
+            });
+        });
 
         // Remember Me functionality
         function saveRememberMe() {
@@ -1162,15 +1484,14 @@
                     headers: {
                         'Content-Type': 'application/json',
                         'Accept': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                     },
                     body: JSON.stringify({ email: email })
                 })
                 .then(async res => {
                     const data = await res.json();
-                    if (!res.ok) {
-                        throw new Error(data.message || 'An error occurred. Please try again.');
-                    }
+                    if (res.status === 419) throw new Error('Session expired. Page will refresh.');
+                    if (!res.ok) throw new Error(data.message || 'An error occurred. Please try again.');
                     return data;
                 })
                 .then(data => {
@@ -1189,6 +1510,7 @@
                     showToast(err.message, 'error');
                     btn.disabled = false;
                     btn.innerHTML = originalText;
+                    if (err.message.includes('Session expired')) setTimeout(() => window.location.reload(), 2000);
                 });
             });
         }
@@ -1212,15 +1534,14 @@
                     headers: {
                         'Content-Type': 'application/json',
                         'Accept': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                     },
                     body: JSON.stringify({ phone: phone })
                 })
                 .then(async res => {
                     const data = await res.json();
-                    if (!res.ok) {
-                        throw new Error(data.message || 'An error occurred. Please try again.');
-                    }
+                    if (res.status === 419) throw new Error('Session expired. Page will refresh.');
+                    if (!res.ok) throw new Error(data.message || 'An error occurred. Please try again.');
                     return data;
                 })
                 .then(data => {
@@ -1239,6 +1560,7 @@
                     showToast(err.message, 'error');
                     btn.disabled = false;
                     btn.innerHTML = originalText;
+                    if (err.message.includes('Session expired')) setTimeout(() => window.location.reload(), 2000);
                 });
             });
         }
@@ -1259,14 +1581,18 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                     },
                     body: JSON.stringify({ 
                         identifier: currentIdentifier,
                         otp: otp 
                     })
                 })
-                .then(res => res.json())
+                .then(async res => {
+                    const data = await res.json();
+                    if (res.status === 419) throw new Error('Session expired. Page will refresh.');
+                    return data;
+                })
                 .then(data => {
                     if (data.success) {
                         showToast(data.message, 'success');
@@ -1279,9 +1605,10 @@
                     }
                 })
                 .catch(err => {
-                    showToast('Verification failed. Try again.', 'error');
+                    showToast(err.message || 'Verification failed. Try again.', 'error');
                     btn.disabled = false;
                     btn.innerHTML = originalText;
+                    if (err.message && err.message.includes('Session expired')) setTimeout(() => window.location.reload(), 2000);
                 });
             } else {
                 showToast('Please enter the 6-digit OTP', 'error');
@@ -1306,11 +1633,15 @@
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                 },
                 body: JSON.stringify(body)
             })
-            .then(res => res.json())
+            .then(async res => {
+                const data = await res.json();
+                if (res.status === 419) throw new Error('Session expired. Page will refresh.');
+                return data;
+            })
             .then(data => {
                 if (data.success) {
                     showToast(data.message, 'success');
@@ -1321,8 +1652,9 @@
                 }
             })
             .catch(err => {
-                showToast('Failed to resend. Please try again.', 'error');
+                showToast(err.message || 'Failed to resend. Please try again.', 'error');
                 btn.disabled = false;
+                if (err.message && err.message.includes('Session expired')) setTimeout(() => window.location.reload(), 2000);
             });
         }
 
@@ -1347,7 +1679,7 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                     },
                     body: JSON.stringify({ 
                         identifier: currentIdentifier,
@@ -1356,7 +1688,11 @@
                         password_confirmation: password_confirmation
                     })
                 })
-                .then(res => res.json())
+                .then(async res => {
+                    const data = await res.json();
+                    if (res.status === 419) throw new Error('Session expired. Page will refresh.');
+                    return data;
+                })
                 .then(data => {
                     if (data.success) {
                         showToast(data.message, 'success');
@@ -1370,9 +1706,10 @@
                     }
                 })
                 .catch(err => {
-                    showToast('Reset failed. Try again.', 'error');
+                    showToast(err.message || 'Reset failed. Try again.', 'error');
                     btn.disabled = false;
                     btn.innerHTML = originalText;
+                    if (err.message && err.message.includes('Session expired')) setTimeout(() => window.location.reload(), 2000);
                 });
             });
         }
@@ -1432,7 +1769,7 @@
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                         },
                         body: JSON.stringify({ first_name: val })
                     })
@@ -1610,7 +1947,7 @@
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                         },
                         body: JSON.stringify({ phone: val })
                     })
@@ -1662,7 +1999,7 @@
 
             const regEmailInput = document.getElementById('regEmail');
             if (regEmailInput) {
-                const gmailRegex = /^(?!.*\.{2})[a-zA-Z][a-zA-Z0-9.]{4,28}[a-zA-Z0-9]@gmail\.com$/i;
+                const gmailRegex = /^(?=[^@]*[a-zA-Z])(?!\.)(?!.*\.{2})[a-zA-Z0-9][a-zA-Z0-9.]{4,28}[a-zA-Z0-9]@gmail\.com$/i;
                 const errorDiv = document.getElementById('regEmailError');
 
                 function validateEmailLive(val) {
@@ -1671,47 +2008,57 @@
                         regEmailInput.classList.remove('border-red-500');
                         return;
                     }
-                    // Check first character: must be a letter
-                    if (/^[0-9]/.test(val)) {
+                    if (/^[0-9]+$/.test(val.split('@')[0])) {
+                        errorDiv.textContent = 'Gmail username must contain at least one letter.';
+                        errorDiv.classList.remove('hidden');
                         regEmailInput.classList.add('border-red-500');
                         return;
                     }
-                    // Once @ is typed, validate the full gmail format
                     if (val.includes('@')) {
                         if (!gmailRegex.test(val)) {
+                            // Specific error messages
+                            const uname = val.split('@')[0];
+                            if (uname.length < 6) {
+                                errorDiv.textContent = 'Gmail username must be at least 6 characters.';
+                            } else if (uname.length > 30) {
+                                errorDiv.textContent = 'Gmail username must not exceed 30 characters.';
+                            } else if (/\.{2}/.test(uname)) {
+                                errorDiv.textContent = 'Gmail username cannot have consecutive dots.';
+                            } else if (/^\.|\.$/.test(uname)) {
+                                errorDiv.textContent = 'Gmail username cannot start or end with a dot.';
+                            } else if (!val.endsWith('@gmail.com')) {
+                                errorDiv.textContent = 'Only Gmail addresses are accepted (e.g. you@gmail.com).';
+                            } else {
+                                errorDiv.textContent = 'Please enter a valid Gmail address.';
+                            }
+                            errorDiv.classList.remove('hidden');
                             regEmailInput.classList.add('border-red-500');
                         } else {
+                            errorDiv.classList.add('hidden');
                             regEmailInput.classList.remove('border-red-500');
                         }
                         return;
                     }
-                    // Username part only (no @ yet): just keep green/neutral
+                    // Still typing username part (no @ yet)
                     errorDiv.classList.add('hidden');
                     regEmailInput.classList.remove('border-red-500');
                 }
 
-                // Block spaces and disallowed characters while typing
+                // Only allow: letters, digits, dot, and @. Block everything else.
                 regEmailInput.addEventListener('keydown', function(e) {
-                    // Allow: backspace, delete, tab, escape, enter, arrow keys
                     if ([8, 46, 9, 27, 13, 37, 38, 39, 40].indexOf(e.keyCode) !== -1) return;
-                    // Block spacebar always
-                    if (e.keyCode === 32) { e.preventDefault(); return; }
-                    // Allow Ctrl/Cmd combos (copy, paste, etc.)
-                    if (e.ctrlKey || e.metaKey) return;
-                    // Block number as first character
-                    if (this.value.length === 0 && /^[0-9]$/.test(e.key)) {
-                        e.preventDefault();
-                        this.classList.add('border-red-500');
-                        return;
-                    }
-                    // Only allow letters, numbers, dot, @
+                    if (e.keyCode === 32) { e.preventDefault(); return; } // block space
+                    if (e.ctrlKey || e.metaKey) return; // allow ctrl+c/v etc.
+                    // Only allow a-z, A-Z, 0-9, dot, @
                     if (!/^[a-zA-Z0-9.@]$/.test(e.key)) {
                         e.preventDefault();
+                        return;
                     }
                 });
 
-                // Strip disallowed characters on paste/autocomplete + live validate
+                // Strip any disallowed chars on paste / autocomplete, then validate
                 regEmailInput.addEventListener('input', function() {
+                    // Only allow letters, numbers, dot, @ — strip everything else
                     const cleaned = this.value.replace(/[^a-zA-Z0-9.@]/g, '');
                     if (this.value !== cleaned) this.value = cleaned;
                     validateEmailLive(this.value.trim());
@@ -1719,14 +2066,22 @@
 
                 regEmailInput.addEventListener('blur', function() {
                     const val = this.value.trim();
-                    const errorDiv = document.getElementById('regEmailError');
                     if (val === '' || !val.includes('@')) return;
 
+                    // First check format
+                    if (!gmailRegex.test(val)) {
+                        errorDiv.textContent = 'Only Gmail addresses are accepted (e.g. you@gmail.com).';
+                        errorDiv.classList.remove('hidden');
+                        this.classList.add('border-red-500');
+                        return;
+                    }
+
+                    // Then check if already registered
                     fetch('{{ route("check-availability") }}', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                         },
                         body: JSON.stringify({ email: val })
                     })
@@ -1737,8 +2092,8 @@
                             errorDiv.classList.remove('hidden');
                             this.classList.add('border-red-500');
                         } else {
-                            // Don't hide if validateEmailLive already found a format error
-                            if (!this.classList.contains('border-red-500') || errorDiv.textContent === 'This email is already registered.') {
+                            if (!regEmailInput.classList.contains('border-red-500') ||
+                                errorDiv.textContent === 'This email is already registered.') {
                                 errorDiv.classList.add('hidden');
                                 this.classList.remove('border-red-500');
                             }
@@ -1910,55 +2265,232 @@
                 });
             }
 
-            if (resetPwConfirmInput) {
-                resetPwConfirmInput.addEventListener('input', validateResetConfirm);
+            if (resetPwConfirmInput) { resetPwConfirmInput.addEventListener('input', validateResetConfirm); }
+
+            // ─── Registration AJAX + OTP Verification ────────────────────
+            let regUserEmail = '';
+            let regCountdownInterval;
+
+            function startRegCountdown() {
+                if (regCountdownInterval) clearInterval(regCountdownInterval);
+                let seconds = 120;
+                const btn = document.getElementById('regResendBtn');
+                const span = document.getElementById('regCountdown');
+                btn.disabled = true;
+                btn.innerHTML = `Resend Code (${seconds}s)`;
+
+                regCountdownInterval = setInterval(() => {
+                    seconds--;
+                    btn.innerHTML = `Resend Code (${seconds}s)`;
+                    if (seconds <= 0) {
+                        clearInterval(regCountdownInterval);
+                        btn.disabled = false;
+                        btn.innerHTML = 'Resend Code';
+                    }
+                }, 1000);
             }
+
+            // Expose to global scope so onclick="..." HTML attributes can call them
+            window.cancelRegOtp = function() {
+                document.getElementById('regOtpSection').style.display = 'none';
+                document.getElementById('registerForm').style.display = 'block';
+                // ─── Do NOT clear the form inputs so user keeps their data ───
+                document.querySelectorAll('.reg-otp-input').forEach(i => i.value = '');
+                const verifyBtn = document.getElementById('regVerifyBtn');
+                if (verifyBtn) {
+                    verifyBtn.innerHTML = '<i class="fas fa-check mr-2"></i> Verify & Activate';
+                    verifyBtn.disabled = false;
+                }
+                if (regCountdownInterval) clearInterval(regCountdownInterval);
+                // Re-enable create account button in case it was disabled
+                const createBtn = document.getElementById('createAccountBtn');
+                if (createBtn) { createBtn.disabled = false; createBtn.innerHTML = '<i class="fas fa-user-plus mr-2"></i> Create Account'; }
+            };
+
+            window.verifyRegOTP = function() {
+                const inputs = document.querySelectorAll('.reg-otp-input');
+                let otp = '';
+                inputs.forEach(i => otp += i.value);
+
+                if (otp.length !== 6) {
+                    showToast('Please enter the 6-digit code.', 'error');
+                    return;
+                }
+
+                const btn = document.getElementById('regVerifyBtn');
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Verifying...';
+
+                fetch('{{ route("register.verify-otp") }}', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json', 
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') 
+                    },
+                    body: JSON.stringify({ email: regUserEmail, otp: otp })
+                })
+                .then(async res => {
+                    const data = await res.json();
+                    if (!res.ok) throw new Error(data.message || 'Verification failed.');
+                    return data;
+                })
+                .then(data => {
+                    if (data.success) {
+                        showToast(data.message, 'success');
+                        if (regCountdownInterval) clearInterval(regCountdownInterval);
+                        setTimeout(() => { window.location.href = '{{ route("login") }}'; }, 2500);
+                    } else {
+                        showToast(data.message, 'error');
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fas fa-check mr-2"></i> Verify & Activate';
+                        document.querySelectorAll('.reg-otp-input').forEach(i => i.value = '');
+                        document.querySelector('.reg-otp-input')?.focus();
+                    }
+                })
+                .catch(err => {
+                    showToast(err.message, 'error');
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-check mr-2"></i> Verify & Activate';
+                });
+            };
+
+            window.resendRegOTP = function() {
+                fetch('{{ route("register.resend-otp") }}', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json', 
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') 
+                    },
+                    body: JSON.stringify({ email: regUserEmail })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        showToast(data.message, 'success');
+                        startRegCountdown();
+                        document.querySelectorAll('.reg-otp-input').forEach(i => i.value = '');
+                        document.querySelector('.reg-otp-input')?.focus();
+                    } else {
+                        showToast(data.message, 'error');
+                    }
+                });
+            };
+
+            // OTP input auto-advance for registration OTP boxes
+            document.querySelectorAll('.reg-otp-input').forEach((input, index) => {
+                input.addEventListener('input', function() {
+                    this.value = this.value.replace(/[^0-9]/g, '');
+                    if (this.value.length === 1) {
+                        const next = document.querySelector(`.reg-otp-input[data-index="${index + 1}"]`);
+                        if (next) next.focus();
+                    }
+                });
+                input.addEventListener('keydown', function(e) {
+                    if (e.key === 'Backspace' && this.value === '') {
+                        const prev = document.querySelector(`.reg-otp-input[data-index="${index - 1}"]`);
+                        if (prev) prev.focus();
+                    }
+                });
+            });
 
             const registerForm = document.getElementById('registerForm');
             if (registerForm) {
                 registerForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+
                     const fname = document.getElementById('firstName').value;
                     const lname = document.getElementById('lastName').value;
                     const emailVal = document.getElementById('regEmail').value.trim();
                     const fRegex = /^[a-zA-ZñÑ]+$/;
                     const lRegex = /^[a-zA-ZñÑ]+( [a-zA-ZñÑ]+)?$/;
-                    const gmailRegex = /^(?!.*\.{2})[a-zA-Z][a-zA-Z0-9.]{4,28}[a-zA-Z0-9]@gmail\.com$/i;
+                    const gmailRegex = /^(?=[^@]*[a-zA-Z])(?!\.)(?!.*\.{2})[a-zA-Z0-9][a-zA-Z0-9.]{4,28}[a-zA-Z0-9]@gmail\.com$/i;
 
                     let hasError = false;
 
-                    if (!fRegex.test(fname) || fname.length > 25) {
+                    // ── Required field: First Name ──────────────────
+                    if (fname.trim() === '') {
+                        hasError = true;
+                        const errEl = document.getElementById('firstNameError');
+                        errEl.textContent = 'First name is required.';
+                        errEl.classList.remove('hidden');
+                        document.getElementById('firstName').classList.add('border-red-500');
+                    } else if (!fRegex.test(fname) || fname.length > 25) {
                         hasError = true;
                         document.getElementById('firstNameError').classList.remove('hidden');
                         document.getElementById('firstName').classList.add('border-red-500');
                     }
 
-                    if (!lRegex.test(lname) || lname.length > 25) {
+                    // ── Required field: Last Name ───────────────────
+                    if (lname.trim() === '') {
+                        hasError = true;
+                        const lErrEl = document.getElementById('lastNameError');
+                        lErrEl.textContent = 'Last name is required.';
+                        lErrEl.classList.remove('hidden');
+                        document.getElementById('lastName').classList.add('border-red-500');
+                    } else if (!lRegex.test(lname) || lname.length > 25) {
                         hasError = true;
                         document.getElementById('lastNameError').classList.remove('hidden');
                         document.getElementById('lastName').classList.add('border-red-500');
                     }
 
-                    if (!gmailRegex.test(emailVal)) {
+                    // ── Required field: Role ────────────────────────
+                    const roleVal = document.getElementById('regRole').value;
+                    if (!roleVal) {
                         hasError = true;
-                        document.getElementById('regEmailError').classList.remove('hidden');
+                        showToast('Please select a role.', 'error');
+                    }
+
+                    // ── Required field: Phone ───────────────────────
+                    const phoneVal = document.getElementById('phoneNumber').value.trim();
+                    const phoneErrEl = document.getElementById('phoneError');
+                    if (phoneVal === '') {
+                        hasError = true;
+                        phoneErrEl.textContent = 'Phone number is required.';
+                        phoneErrEl.classList.remove('hidden');
+                        document.querySelector('.ph-phone-wrapper').style.borderColor = '#ef4444';
+                    }
+
+                    // ── Required field: Email ───────────────────────
+                    if (emailVal === '') {
+                        hasError = true;
+                        const eErrDiv = document.getElementById('regEmailError');
+                        eErrDiv.textContent = 'Email address is required.';
+                        eErrDiv.classList.remove('hidden');
+                        document.getElementById('regEmail').classList.add('border-red-500');
+                    } else if (!gmailRegex.test(emailVal)) {
+                        hasError = true;
+                        const errDiv = document.getElementById('regEmailError');
+                        errDiv.textContent = 'Only Gmail addresses are accepted (e.g. you@gmail.com).';
+                        errDiv.classList.remove('hidden');
                         document.getElementById('regEmail').classList.add('border-red-500');
                     } else {
                         document.getElementById('regEmailError').classList.add('hidden');
                         document.getElementById('regEmail').classList.remove('border-red-500');
                     }
 
-                    // Strict form check before dispatching
                     const passwordVal = document.getElementById('regPassword').value;
                     const confirmVal = document.getElementById('regPasswordConfirm').value;
 
-                    if (!pwRegex.test(passwordVal)) {
+                    // ── Required field: Password ────────────────────
+                    if (passwordVal === '') {
+                        hasError = true;
+                        const err = document.getElementById('regPasswordError');
+                        err.textContent = 'Password is required.';
+                        err.classList.remove('hidden');
+                    } else if (!pwRegex.test(passwordVal)) {
                         hasError = true;
                         const err = document.getElementById('regPasswordError');
                         err.textContent = 'Password does not meet the strong criteria.';
                         err.classList.remove('hidden');
                     }
 
-                    if (passwordVal !== confirmVal) {
+                    // ── Required field: Confirm Password ────────────
+                    if (confirmVal === '') {
+                        hasError = true;
+                        const errC = document.getElementById('regPasswordConfirmError');
+                        errC.textContent = 'Please confirm your password.';
+                        errC.classList.remove('hidden');
+                    } else if (passwordVal !== confirmVal) {
                         hasError = true;
                         const errC = document.getElementById('regPasswordConfirmError');
                         errC.textContent = 'Passwords do not match.';
@@ -1966,12 +2498,61 @@
                     }
 
                     if (hasError) {
-                        e.preventDefault();
                         showToast('Please correct the errors in the form.', 'error');
+                        return;
                     }
+
+                    // AJAX submit
+                    const btn = document.getElementById('createAccountBtn');
+                    const originalText = btn.innerHTML;
+                    btn.disabled = true;
+                    btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Creating Account...';
+
+                    const formData = new FormData(this);
+
+                    fetch('{{ route("register") }}', {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        },
+                        body: formData
+                    })
+                    .then(async res => {
+                        const data = await res.json();
+                        if (res.status === 419) throw new Error('Session expired. Page will refresh.');
+                        if (!res.ok) {
+                            // Laravel validation errors
+                            const messages = data.errors
+                                ? Object.values(data.errors).flat().join(' ')
+                                : (data.message || 'Registration failed.');
+                            throw new Error(messages);
+                        }
+                        return data;
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            regUserEmail = data.email;
+                            document.getElementById('regOtpEmailDisplay').textContent = data.email;
+                            registerForm.style.display = 'none';
+                            document.getElementById('regOtpSection').style.display = 'block';
+                            document.querySelector('.reg-otp-input')?.focus();
+                            startRegCountdown();
+                            showToast(data.message, 'success');
+                        } else {
+                            showToast(data.message || 'Registration failed.', 'error');
+                            btn.disabled = false;
+                            btn.innerHTML = originalText;
+                        }
+                    })
+                    .catch(err => {
+                        showToast(err.message, 'error');
+                        btn.disabled = false;
+                        btn.innerHTML = originalText;
+                    });
                 });
             }
-            
+
             if (rememberCheckbox) {
                 rememberCheckbox.addEventListener('change', saveRememberMe);
             }
@@ -1994,7 +2575,62 @@
             }
             
             if (loginForm) {
-                loginForm.addEventListener('submit', saveRememberMe);
+                loginForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    saveRememberMe();
+
+                    const email = document.getElementById('loginEmail').value;
+                    const password = document.getElementById('loginPassword').value;
+                    const remember = document.getElementById('remember').checked;
+
+                    const btn = this.querySelector('button[type="submit"]');
+                    const originalText = btn.innerHTML;
+                    btn.disabled = true;
+                    btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Signing In...';
+
+                    fetch(this.action, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({ email, password, remember })
+                    })
+                    .then(async res => {
+                        const data = await res.json();
+                        if (res.status === 419) {
+                            throw new Error('Session expired. Page will refresh to update your security token.');
+                        }
+                        if (res.status === 403 || res.status === 401) {
+                            throw new Error(data.message);
+                        }
+                        return data;
+                    })
+                    .then(data => {
+                        if (data.mfa_required) {
+                            showMfaModal(data);
+                            btn.disabled = false;
+                            btn.innerHTML = originalText;
+                        } else if (data.success) {
+                            showToast('Login successful!', 'success');
+                            window.location.href = data.redirect;
+                        } else {
+                            showToast(data.message || 'Login failed.', 'error');
+                            btn.disabled = false;
+                            btn.innerHTML = originalText;
+                        }
+                    })
+                    .catch(error => {
+                        showToast(error.message || 'An error occurred.', 'error');
+                        btn.disabled = false;
+                        btn.innerHTML = originalText;
+                        
+                        if (error.message.includes('Session expired')) {
+                            setTimeout(() => window.location.reload(), 2000);
+                        }
+                    });
+                });
             }
         });
 
