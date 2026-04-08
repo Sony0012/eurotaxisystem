@@ -27,16 +27,16 @@ if (!function_exists('send_custom_email')) {
             // Server settings
             $mail->SMTPDebug = SMTP::DEBUG_OFF; // Set to DEBUG_SERVER for troubleshooting
             $mail->isSMTP();
-            $mail->Host = env('MAIL_HOST', 'smtp.gmail.com');
+            $mail->Host = env('MAIL_HOST', 'smtp.hostinger.com');
             $mail->SMTPAuth = true;
             $mail->Username = env('MAIL_USERNAME');
             $mail->Password = env('MAIL_PASSWORD');
-            $mail->SMTPSecure = env('MAIL_ENCRYPTION', PHPMailer::ENCRYPTION_STARTTLS);
-            $mail->Port = env('MAIL_PORT', 587);
+            $mail->SMTPSecure = env('MAIL_ENCRYPTION', PHPMailer::ENCRYPTION_SMTPS);
+            $mail->Port = env('MAIL_PORT', 465);
 
             // Anti-Spam Headers
             $mail->CharSet = 'UTF-8';
-            $mail->setFrom(env('MAIL_FROM_ADDRESS', 'noreply@eurotaxisystem.site'), env('MAIL_FROM_NAME', 'Eurotaxisystem'));
+            $mail->setFrom(env('MAIL_FROM_ADDRESS', 'noreply@eurotaxisystem.site'), env('MAIL_FROM_NAME', 'Euro Taxi System'));
             $mail->addAddress($to);
             $mail->addReplyTo(env('MAIL_FROM_ADDRESS', 'support@eurotaxisystem.site'), env('MAIL_FROM_NAME', 'Support'));
 
@@ -50,9 +50,11 @@ if (!function_exists('send_custom_email')) {
             $mail->addCustomHeader('X-Priority', '3');
             $mail->addCustomHeader('X-Mailer', 'EurotaxisystemPHPMailer');
 
+            \Log::info("Attempting to send email to: {$to} using Host: {$mail->Host}, Port: {$mail->Port}");
+
             return $mail->send();
         } catch (Exception $e) {
-            \Log::error("Mail Error: {$mail->ErrorInfo}");
+            \Log::error("Mail Error to {$to}: {$mail->ErrorInfo} | Exception: {$e->getMessage()}");
             return false;
         }
     }
