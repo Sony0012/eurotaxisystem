@@ -216,12 +216,58 @@
             </div>
         </div>
 
-        <div class="bg-white rounded-lg shadow">
-            <div class="p-4 border-b">
-                <h3 class="text-base font-semibold text-gray-900">Unit Performance</h3>
+        <div class="bg-white rounded-lg shadow-lg border border-gray-100 overflow-hidden">
+            <div class="p-4 border-b bg-gray-50/50 flex justify-between items-center">
+                <div class="flex items-center gap-2">
+                    <div class="p-1.5 bg-blue-100 rounded-lg">
+                        <i data-lucide="bar-chart-3" class="w-4 h-4 text-blue-600"></i>
+                    </div>
+                    <h3 class="text-base font-bold text-gray-900">Unit Performance</h3>
+                </div>
+                <span class="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-full uppercase tracking-wider">Top 10 Performers</span>
             </div>
-            <div class="p-4">
-                <canvas id="unitPerformanceChart" width="400" height="200"></canvas>
+            <div class="grid grid-cols-1 lg:grid-cols-3">
+                <div class="lg:col-span-2 p-4">
+                    <div style="height: 320px;">
+                        <canvas id="unitPerformanceChart"></canvas>
+                    </div>
+                </div>
+                <!-- Executive Insight Panel -->
+                <div class="bg-gray-50 p-6 border-l border-gray-100 flex flex-col justify-center">
+                    <h4 class="text-xs font-black text-gray-400 uppercase tracking-widest mb-4">Executive Insights</h4>
+                    <div class="space-y-6">
+                        <div>
+                            <p class="text-[10px] text-gray-400 font-bold uppercase mb-1">Fleet Health</p>
+                            <div class="flex items-end gap-2">
+                                <p class="text-2xl font-black text-gray-900">82%</p>
+                                <p class="text-xs font-bold text-green-600 mb-1 flex items-center">
+                                    <i data-lucide="trending-up" class="w-3 h-3 mr-0.5"></i> +2.4%
+                                </p>
+                            </div>
+                            <p class="text-[11px] text-gray-500 mt-1 leading-relaxed">Most units are meeting over 80% of their monthly boundary targets.</p>
+                        </div>
+                        
+                        <div class="pt-4 border-t border-gray-200">
+                            <p class="text-[10px] text-gray-400 font-bold uppercase mb-1">Top Performer</p>
+                            <p class="text-sm font-black text-gray-900" id="insightTopPlate">--</p>
+                            <p class="text-[11px] text-gray-500 mt-1">Consistency in daily collections makes this your most reliable asset.</p>
+                        </div>
+
+                        <div class="pt-4 border-t border-gray-200">
+                            <p class="text-[10px] text-gray-400 font-bold uppercase mb-2">Legend</p>
+                            <div class="space-y-2">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-2.5 h-2.5 rounded bg-blue-500"></div>
+                                    <span class="text-[11px] font-bold text-gray-600 uppercase">Actual Collection</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <div class="w-2.5 h-2.5 rounded border border-amber-500 bg-amber-500/20"></div>
+                                    <span class="text-[11px] font-bold text-gray-600 uppercase">Monthly Target</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -1246,43 +1292,99 @@
             console.error('Revenue Trend Chart Error:', error);
         }
 
-        // Unit Performance Chart
+        // Unit Performance Chart - Modernized Horizontal Enterprise View
         try {
             const unitPerformanceCtx = document.getElementById('unitPerformanceChart').getContext('2d');
             const unitPerformanceData = @json($unit_performance);
-            console.log('Unit Performance Data:', unitPerformanceData);
+            
+            // Create sleek gradients for a premium feel
+            const actualGradient = unitPerformanceCtx.createLinearGradient(0, 0, 400, 0);
+            actualGradient.addColorStop(0, '#3b82f6'); // Blue 500
+            actualGradient.addColorStop(1, '#60a5fa'); // Blue 400
+            
+            const targetGradient = unitPerformanceCtx.createLinearGradient(0, 0, 400, 0);
+            targetGradient.addColorStop(0, '#f59e0b'); // Amber 500
+            targetGradient.addColorStop(1, '#fbbf24'); // Amber 400
+
             window.unitPerformanceChart = new Chart(unitPerformanceCtx, {
                 type: 'bar',
                 data: {
                     labels: unitPerformanceData.map(d => d.unit),
                     datasets: [
                         {
-                            label: 'Actual Performance',
+                            label: 'Actual Collected',
                             data: unitPerformanceData.map(d => d.performance),
-                            backgroundColor: '#3b82f6',
+                            backgroundColor: actualGradient,
                             borderColor: '#2563eb',
-                            borderWidth: 1
+                            borderWidth: 0,
+                            borderRadius: 6,
+                            barThickness: 12,
                         },
                         {
-                            label: 'Target',
+                            label: 'Monthly Target (30 Days)',
                             data: unitPerformanceData.map(d => d.target),
-                            backgroundColor: '#f59e0b', // Amber 500
-                            borderColor: '#d97706',     // Amber 600
-                            borderWidth: 1
+                            backgroundColor: 'rgba(245, 158, 11, 0.15)', // Subtle target indicator
+                            borderColor: '#f59e0b',
+                            borderWidth: 1,
+                            borderRadius: 6,
+                            barThickness: 12,
+                            borderDash: [5, 5] // Dashed look for target
                         }
                     ]
                 },
                 options: {
+                    indexAxis: 'y', // Switch to horizontal for better Plate Number readability
                     responsive: true,
                     maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false // Using custom legend in sidebar instead
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                            padding: 12,
+                            cornerRadius: 10,
+                            titleFont: { size: 14, weight: 'bold' },
+                            callbacks: {
+                                label: function(context) {
+                                    const val = context.parsed.x || 0;
+                                    return ` ₱${val.toLocaleString()}`;
+                                },
+                                footer: (items) => {
+                                    const index = items[0].dataIndex;
+                                    const data = unitPerformanceData[index];
+                                    const diff = data.performance - data.target;
+                                    const pct = ((data.performance / data.target) * 100).toFixed(1);
+                                    return ` Achievement: ${pct}% of target\n Variance: ₱${diff.toLocaleString()}`;
+                                }
+                            }
+                        }
+                    },
                     scales: {
-                        y: { 
+                        x: {
                             beginAtZero: true,
-                            ticks: { callback: function (value) { return '₱' + value.toLocaleString(); } }
+                            grid: { color: 'rgba(0,0,0,0.03)', drawBorder: false },
+                            ticks: { 
+                                callback: function (value) { return '₱' + value.toLocaleString(); },
+                                font: { size: 10 }
+                            }
+                        },
+                        y: {
+                            grid: { display: false, drawBorder: false },
+                            ticks: { 
+                                font: { size: 11, weight: '700' },
+                                color: '#334155'
+                            }
                         }
                     }
                 }
             });
+
+            // Update Executive Insight: Top Performer
+            if (unitPerformanceData && unitPerformanceData.length > 0) {
+                const topUnit = unitPerformanceData[0]; // Data is sorted by performance descending
+                document.getElementById('insightTopPlate').textContent = topUnit.unit;
+            }
         } catch (error) {
             console.error('Unit Performance Chart Error:', error);
         }
@@ -1727,7 +1829,6 @@
                                 </div>
                                 <div>
                                     <h4 class="text-lg font-bold text-gray-900">${unit.plate_number || 'N/A'}</h4>
-                                    <span class="text-xs text-gray-500">Unit: ${unit.unit_number || 'N/A'}</span>
                                 </div>
                             </div>
                             <div class="text-right">
@@ -1777,7 +1878,6 @@
             if (searchTerm) {
                 filteredUnits = filteredUnits.filter(unit => {
                     const searchableText = [
-                        unit.unit_number || '',
                         unit.plate_number || '',
                         unit.maintenance_type || '',
                         unit.maintenance_status || '',
@@ -2283,7 +2383,6 @@
                                 </div>
                                 <div>
                                     <h4 class="text-lg font-bold text-gray-900">${unit.plate_number || 'N/A'}</h4>
-                                    <span class="text-xs text-gray-500">Unit: ${unit.unit_number || 'N/A'}</span>
                                 </div>
                             </div>
                             <div class="text-right">
@@ -2438,7 +2537,6 @@
             if (searchTerm) {
                 filteredUnits = filteredUnits.filter(unit => {
                     const searchableText = [
-                        unit.unit_number || '',
                         unit.plate_number || '',
                         unit.coding_type || '',
                         unit.status || '',
@@ -3189,7 +3287,6 @@
                                 </div>
                                 <div>
                                     <h4 class="text-lg font-bold text-gray-900">${collection.plate_number}</h4>
-                                    <p class="text-xs text-gray-500">Unit: ${collection.unit_number}</p>
                                     <span class="text-xs text-gray-500">${collection.plate_number || 'N/A'}</span>
                                 </div>
                             </div>
@@ -3384,7 +3481,6 @@
                             <div class="flex items-center gap-1.5 min-w-0">
                                 <i data-lucide="car" class="w-3 h-3 text-gray-400"></i>
                                 <h4 class="text-sm font-bold text-gray-900 truncate">${unit.plate_number}</h4>
-                                <p class="text-[10px] text-gray-500">Unit: ${unit.unit_number}</p>
                             </div>
                             <span class="px-1.5 py-0.5 text-[9px] font-bold rounded-full ${statusColors[unit.status] || 'bg-gray-100'} uppercase">
                                 ${unit.status}
@@ -3507,7 +3603,6 @@
             if (searchTerm) {
                 filteredUnits = filteredUnits.filter(unit => {
                     const searchableText = [
-                        unit.unit_number || '',
                         unit.plate_number || '',
                         unit.status || '',
                         unit.driver_name || '',

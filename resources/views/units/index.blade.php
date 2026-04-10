@@ -36,9 +36,12 @@
                 <select name="status" onchange="this.form.submit()"
                     class="block w-full px-3 py-1 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none">
                     <option value="">All Status</option>
-                    <option value="active" {{ $status_filter === 'active' ? 'selected' : '' }}>Active</option>
-                    <option value="maintenance" {{ $status_filter === 'maintenance' ? 'selected' : '' }}>Maintenance</option>
-                    <option value="coding" {{ $status_filter === 'coding' ? 'selected' : '' }}>Coding</option>
+                    <option value="active" {{ $status_filter === 'active' ? 'selected' : '' }}>Active Units</option>
+                    <option value="available" {{ $status_filter === 'available' ? 'selected' : '' }}>Available (No Driver)</option>
+                    <option value="1_2" {{ $status_filter === '1_2' ? 'selected' : '' }}>1/2 Driver (Solo)</option>
+                    <option value="2_2" {{ $status_filter === '2_2' ? 'selected' : '' }}>2/2 Driver (Shared)</option>
+                    <option value="maintenance" {{ $status_filter === 'maintenance' ? 'selected' : '' }}>In Maintenance</option>
+                    <option value="coding" {{ $status_filter === 'coding' ? 'selected' : '' }}>In Coding</option>
                     <option value="retired" {{ $status_filter === 'retired' ? 'selected' : '' }}>Retired</option>
                 </select>
             </div>
@@ -83,7 +86,6 @@
                             <td class="px-6 py-1 whitespace-nowrap">
                                 <div class="space-y-0.5">
                                     <div class="font-bold text-gray-900">{{ $unit->plate_number }}</div>
-                                    <div class="text-[10px] text-gray-400"># {{ $unit->unit_number ?? 'N/A' }}</div>
                                     @if($unit->color)
                                         <div class="text-[10px] text-gray-400">Color: {{ $unit->color }}</div>
                                     @endif
@@ -95,10 +97,6 @@
                                     <div class="text-xs text-gray-500">{{ $unit->year }}</div>
                                     <div class="flex items-center gap-2 text-[10px]">
                                         <span class="px-1.5 py-0.5 bg-blue-100 text-blue-800 rounded-full">{{ ucfirst($unit->unit_type ?? 'new') }}</span>
-                                        <span class="px-1.5 py-0.5 bg-green-100 text-green-800 rounded-full">
-                                            <i data-lucide="droplet" class="w-2.5 h-2.5 inline"></i>
-                                            {{ ucfirst($unit->fuel_status ?? 'full') }}
-                                        </span>
                                     </div>
                                 </div>
                             </td>
@@ -288,17 +286,7 @@
                                 class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
                                 placeholder="e.g., White, Red, Blue">
                         </div>
-                        <div class="space-y-2">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Fuel Status</label>
-                            <select name="fuel_status"
-                                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent">
-                                <option value="full">Full Tank</option>
-                                <option value="3/4">3/4 Tank</option>
-                                <option value="1/2">1/2 Tank</option>
-                                <option value="1/4">1/4 Tank</option>
-                                <option value="empty">Empty</option>
-                            </select>
-                        </div>
+
                     </div>
                 </div>
 
@@ -576,7 +564,6 @@
                         <h4 class="text-lg font-semibold text-gray-900">Basic Information</h4>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="grid grid-cols-1 gap-6">
                         <div class="space-y-2">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Plate Number <span class="text-red-500">*</span></label>
                             <div class="relative">
@@ -588,7 +575,6 @@
                                     oninput="this.value = this.value.toUpperCase(); editUnitUpdateCoding()">
                             </div>
                         </div>
-                    </div>
                         <div class="space-y-2">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Make <span class="text-red-500">*</span></label>
                             <input type="text" name="make" id="editMake" required
@@ -611,17 +597,7 @@
                             <input type="text" name="color" id="editColor"
                                 class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                         </div>
-                        <div class="space-y-2">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Fuel Status</label>
-                            <select name="fuel_status" id="editFuelStatus"
-                                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                                <option value="full">Full Tank</option>
-                                <option value="3/4">3/4 Tank</option>
-                                <option value="1/2">1/2 Tank</option>
-                                <option value="1/4">1/4 Tank</option>
-                                <option value="empty">Empty</option>
-                            </select>
-                        </div>
+
                         <div class="space-y-2">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Status</label>
                             <select name="status" id="editStatus"
@@ -944,7 +920,6 @@
                     return;
                 }
                 // Basic Info
-                if (document.getElementById('editUnitNumber')) document.getElementById('editUnitNumber').value = unit.unit_number || '';
                 if (document.getElementById('editPlateNumber')) document.getElementById('editPlateNumber').value = unit.plate_number || '';
                 if (document.getElementById('editMake')) document.getElementById('editMake').value = unit.make || '';
                 if (document.getElementById('editModel')) document.getElementById('editModel').value = unit.model || '';
@@ -1283,7 +1258,6 @@
                                     <span class="px-1.5 py-0.5 bg-white bg-opacity-20 rounded-full text-[9px] font-medium uppercase tracking-wider">${unit.unit_type || 'Standard'}</span>
                                 </div>
                                 <p class="text-[10px] text-blue-100 leading-tight">${(unit.make || '') + ' ' + (unit.model || '') + ' (' + (unit.year || '') + ')'}</p>
-                                <p class="text-[10px] text-blue-100 leading-tight">Unit: ${unit.unit_number || ''}</p>
                             </div>
                             <div class="text-right">
                                 <div class="text-sm font-bold leading-none mb-0.5">₱${parseFloat(unit.boundary_rate || 0).toLocaleString('en-PH', {minimumFractionDigits:2})}</div>
@@ -1320,7 +1294,6 @@
                                 <div class="bg-white border border-gray-200 rounded-lg p-2">
                                     <h4 class="text-xs font-semibold text-gray-900 mb-1.5 flex items-center gap-1"><i data-lucide="info" class="w-3.5 h-3.5"></i> Basic Info</h4>
                                     <div class="space-y-1 text-[11px]">
-                                        <div class="flex justify-between"><span class="text-gray-600">Unit Number:</span><span class="font-medium">${unit.unit_number || ''}</span></div>
                                         <div class="flex justify-between"><span class="text-gray-600">Plate Number:</span><span class="font-medium">${unit.plate_number || ''}</span></div>
                                         <div class="flex justify-between"><span class="text-gray-600">Vehicle:</span><span class="font-medium">${(unit.make || '') + ' ' + (unit.model || '')}</span></div>
                                         <div class="flex justify-between"><span class="text-gray-600">Year:</span><span class="font-medium">${unit.year || ''}</span></div>

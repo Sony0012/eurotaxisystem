@@ -11,7 +11,7 @@
         <tbody class="bg-white divide-y divide-gray-200">
             @forelse($items as $driver)
             <tr>
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $driver->user->full_name ?? 'N/A' }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $driver->full_name ?? 'N/A' }}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $driver->license_number }}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $driver->deleted_at->format('M d, Y H:i') }}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">

@@ -4,7 +4,6 @@
             <div>
                 <h3 class="text-xl font-bold">{{ $unit->plate_number }}</h3>
                 <p class="text-blue-100 text-sm">{{ ($unit->make ?? '') . ' ' . ($unit->model ?? '') . ' (' . ($unit->year ?? '') . ')' }}</p>
-                <p class="text-blue-100 text-sm">Unit: {{ $unit->unit_number ?? 'N/A' }}</p>
                 <div class="flex items-center gap-2 mt-1">
                     <span class="px-2 py-1 bg-white bg-opacity-20 rounded-full text-xs font-medium">
                         {{ ucfirst($unit->status ?? '') }}
@@ -77,17 +76,6 @@
                 </div>
                 <div class="bg-white border border-gray-200 rounded-lg p-3">
                     <div class="flex items-center gap-2">
-                        <div class="p-2 bg-yellow-100 rounded-lg">
-                            <i data-lucide="droplet" class="w-4 h-4 text-yellow-600"></i>
-                        </div>
-                        <div>
-                            <p class="text-sm text-gray-600">Fuel</p>
-                            <p class="text-lg font-bold">{{ ucfirst($unit->fuel_status ?? 'Full') }}</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="bg-white border border-gray-200 rounded-lg p-3">
-                    <div class="flex items-center gap-2">
                         <div class="p-2 bg-purple-100 rounded-lg">
                             <i data-lucide="calendar" class="w-4 h-4 text-purple-600"></i>
                         </div>
@@ -111,10 +99,6 @@
                         <div class="flex justify-between">
                             <span class="text-gray-600">Plate Number:</span>
                             <span class="font-medium">{{ $unit->plate_number }}</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-gray-600">Unit Number:</span>
-                            <span class="font-medium">{{ $unit->unit_number ?? 'N/A' }}</span>
                         </div>
                         <div class="flex justify-between">
                             <span class="text-gray-600">Vehicle:</span>

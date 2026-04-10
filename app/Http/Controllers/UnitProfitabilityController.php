@@ -34,7 +34,6 @@ class UnitProfitabilityController extends Controller
         // Get unit profitability data
         $sql = "SELECT 
                 u.id,
-                u.unit_number,
                 u.plate_number,
                 COALESCE(u.make, 'Unknown') as make,
                 COALESCE(u.model, 'Unknown') as model,
@@ -53,7 +52,7 @@ class UnitProfitabilityController extends Controller
             LEFT JOIN maintenance m ON u.id = m.unit_id AND m.deleted_at IS NULL
             LEFT JOIN expenses e ON u.id = e.unit_id AND e.deleted_at IS NULL
             $where_clause
-            GROUP BY u.id, u.plate_number, u.unit_number, u.make, u.model, u.year, u.purchase_cost, u.boundary_rate
+            GROUP BY u.id, u.plate_number, u.make, u.model, u.year, u.purchase_cost, u.boundary_rate
             ORDER BY u.plate_number";
 
         // Build parameters array

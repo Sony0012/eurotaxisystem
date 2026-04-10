@@ -109,13 +109,12 @@
                 <div class="unit-panel flex-1" id="unitList">
                     @forelse($tracked_units as $unit)
                         <div class="unit-item p-4 border-b {{ $unit->gps_status === 'offline' ? 'opacity-70' : '' }}"
-                            data-unit-id="{{ $unit->id }}" data-unit-number="{{ $unit->unit_number }}"
+                            data-unit-id="{{ $unit->id }}"
                             data-plate-number="{{ $unit->plate_number }}" data-status="{{ $unit->gps_status }}"
                             data-link="{{ $unit->gps_link ?? '' }}" onclick="selectUnit(this)">
                             <div class="flex items-center justify-between">
                                 <div>
                                     <div class="font-bold text-gray-900 text-sm">{{ $unit->plate_number }}</div>
-                                    <div class="text-[10px] text-gray-500">Unit: {{ $unit->unit_number }}</div>
                                     <div class="text-xs text-gray-500 mt-1">
                                         <i data-lucide="user" class="inline w-3 h-3"></i> {{ $unit->current_driver ?? 'None' }}
                                     </div>
@@ -190,7 +189,7 @@
             // Add to clicked
             el.classList.add('selected');
 
-            const plateNum = el.dataset.plateNumber || el.dataset.unitNumber;
+            const plateNum = el.dataset.plateNumber;
             const iframe = document.getElementById('gpsIframe');
             const placeholder = document.getElementById('mapPlaceholder');
             const title = document.getElementById('mapTitle');
@@ -206,7 +205,7 @@
                     iframe.src = link;
                 }
 
-                title.textContent = "Viewing Unit: " + plateNum;
+                title.textContent = "Viewing Plate: " + plateNum;
             } else {
                 // Unit has no link
                 iframe.classList.add('hidden');
@@ -228,10 +227,9 @@
 
             document.querySelectorAll('.unit-item').forEach(el => {
                 const plateNum = (el.dataset.plateNumber || '').toLowerCase();
-                const unitNum = (el.dataset.unitNumber || '').toLowerCase();
                 const unitStatus = el.dataset.status;
 
-                const matchSearch = !search || plateNum.includes(search) || unitNum.includes(search);
+                const matchSearch = !search || plateNum.includes(search);
                 const matchStatus = !status || unitStatus === status;
 
                 el.style.display = (matchSearch && matchStatus) ? '' : 'none';

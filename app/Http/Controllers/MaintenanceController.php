@@ -24,11 +24,11 @@ class MaintenanceController extends Controller
             ->whereNull('units.deleted_at')
             ->leftJoin('users as creator', 'maintenance.created_by', '=', 'creator.id')
             ->leftJoin('users as editor', 'maintenance.updated_by', '=', 'editor.id')
-            ->select('maintenance.*', 'units.unit_number', 'units.plate_number', 'creator.full_name as creator_name', 'editor.full_name as editor_name');
+            ->select('maintenance.*', 'units.plate_number', 'creator.full_name as creator_name', 'editor.full_name as editor_name');
 
         if ($search) {
             $query->where(function ($q) use ($search) {
-                $q->where('units.unit_number', 'like', DB::raw("CONCAT('%', ?, '%') COLLATE utf8mb4_unicode_ci"), [$search])
+                $q->where('units.plate_number', 'like', DB::raw("CONCAT('%', ?, '%') COLLATE utf8mb4_unicode_ci"), [$search])
                     ->orWhere('units.plate_number', 'like', DB::raw("CONCAT('%', ?, '%') COLLATE utf8mb4_unicode_ci"), [$search])
                     ->orWhere('maintenance.description', 'like', DB::raw("CONCAT('%', ?, '%') COLLATE utf8mb4_unicode_ci"), [$search])
                     ->orWhere('maintenance.mechanic_name', 'like', DB::raw("CONCAT('%', ?, '%') COLLATE utf8mb4_unicode_ci"), [$search]);
@@ -56,7 +56,7 @@ class MaintenanceController extends Controller
             SUM(CASE WHEN maintenance.status = "in_progress" THEN 1 ELSE 0 END) as in_progress_count
         ')->first();
 
-        $units = DB::table('units')->whereNull('deleted_at')->where('status', '!=', 'retired')->orderBy('unit_number')->get();
+        $units = DB::table('units')->whereNull('deleted_at')->where('status', '!=', 'retired')->orderBy('plate_number')->get();
 
         $pagination = [
             'page' => $page,

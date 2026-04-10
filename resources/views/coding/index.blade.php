@@ -20,7 +20,7 @@
                     class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:outline-none">
             </div>
             <div class="flex-1">
-                <input type="text" name="search" value="{{ $search }}" placeholder="Search unit or plate..."
+                <input type="text" name="search" value="{{ $search }}" placeholder="Search plate..."
                     class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:outline-none">
             </div>
             <button type="submit" class="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700">
@@ -41,7 +41,6 @@
                 <thead class="bg-gray-50">
                     <tr>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Plate Number</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Unit Number</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Make / Model</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Driver 1</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Driver 2</th>
@@ -52,7 +51,6 @@
                     @forelse($units as $unit)
                         <tr class="hover:bg-gray-50">
                             <td class="px-6 py-4 whitespace-nowrap font-bold text-gray-900">{{ $unit->plate_number }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-gray-700">{{ $unit->unit_number }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-gray-600">{{ $unit->make }} {{ $unit->model }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm">{{ $unit->driver1_name ?? '—' }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm">{{ $unit->driver2_name ?? '—' }}</td>
@@ -93,7 +91,6 @@
                         @forelse($day_units as $u)
                             <div class="text-xs p-2 bg-white rounded border text-gray-700">
                                 <div class="font-medium text-blue-600">{{ $u->plate_number }}</div>
-                                <div class="text-gray-500 text-[10px]">Unit: {{ $u->unit_number }}</div>
                             </div>
                         @empty
                             <p class="text-xs text-gray-400 italic">No units</p>

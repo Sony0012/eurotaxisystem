@@ -41,10 +41,21 @@ class DashboardController extends Controller
             })
             ->count();
 
-        // Units under coding (Today only from coding_records)
-        $stats['coding_units'] = DB::table('coding_records')
+        // Units under coding (Today only - Automated via plate ending + manual records)
+        $todayDay = now()->format('l');
+        $todayManualCodingIds = DB::table('coding_records')
             ->whereNull('deleted_at')
             ->whereDate('date', now()->toDateString())
+            ->pluck('unit_id')
+            ->toArray();
+
+        $stats['coding_units'] = DB::table('units')
+            ->whereNull('deleted_at')
+            ->get()
+            ->filter(function($unit) use ($todayDay, $todayManualCodingIds) {
+                $plateCodingDay = $this->getCodingDay($unit->plate_number);
+                return ($plateCodingDay === $todayDay || in_array($unit->id, $todayManualCodingIds));
+            })
             ->count();
 
         // Units under maintenance
@@ -102,17 +113,14 @@ class DashboardController extends Controller
         $stats['total_expenses_today'] = $stats['today_expenses'] + $todayMaintenance;
         $stats['net_income'] = $stats['today_boundary'] - $stats['total_expenses_today'];
 
-        // Active drivers — drivers table uses driver_status column
+        // Active drivers — counts drivers who are currently assigned to a unit
         $stats['active_drivers'] = DB::table('drivers as d')
-            ->join('users as u', 'd.user_id', '=', 'u.id')
             ->whereNull('d.deleted_at')
-            ->whereNull('u.deleted_at')
-            ->where('u.is_active', true)
             ->whereExists(function($query) {
                 $query->select(DB::raw(1))
                     ->from('units')
-                    ->whereRaw('units.driver_id = u.id')
-                    ->orWhereRaw('units.secondary_driver_id = u.id');
+                    ->whereRaw('units.driver_id = d.id')
+                    ->orWhereRaw('units.secondary_driver_id = d.id');
             })
             ->count();
 
@@ -168,11 +176,28 @@ class DashboardController extends Controller
             ];
         })->values()->toArray();
 
+        $allUnitsForStats = DB::table('units')->whereNull('deleted_at')->get();
+        $codingUnitsCount = $allUnitsForStats->filter(function($unit) use ($todayDay, $todayManualCodingIds) {
+            $plateCodingDay = $this->getCodingDay($unit->plate_number);
+            return ($plateCodingDay === $todayDay || in_array($unit->id, $todayManualCodingIds));
+        })->count();
+
+        $maintenanceUnitsCount = $allUnitsForStats->filter(function($unit) {
+            return strtolower($unit->status) === 'maintenance';
+        })->count();
+
+        $retiredUnitsCount = $allUnitsForStats->filter(function($unit) {
+            return strtolower($unit->status) === 'retired';
+        })->count();
+
+        // Active units are those that are NOT coding, NOT maintenance, and NOT retired
+        $activeUnitsCount = $allUnitsForStats->count() - $codingUnitsCount - $maintenanceUnitsCount - $retiredUnitsCount;
+
         $unit_status_data = [
-            ['status' => 'Active',            'count' => DB::table('units')->whereNull('deleted_at')->whereRaw('LOWER(status) = ?', ['active'])->count()],
-            ['status' => 'Under Maintenance', 'count' => DB::table('units')->whereNull('deleted_at')->whereRaw('LOWER(status) = ?', ['maintenance'])->count()],
-            ['status' => 'Coding',            'count' => DB::table('units')->whereNull('deleted_at')->whereRaw('LOWER(status) = ?', ['coding'])->count()],
-            ['status' => 'Retired',           'count' => DB::table('units')->whereNull('deleted_at')->whereRaw('LOWER(status) = ?', ['retired'])->count()],
+            ['status' => 'Active',            'count' => $activeUnitsCount],
+            ['status' => 'Under Maintenance', 'count' => $maintenanceUnitsCount],
+            ['status' => 'Coding',            'count' => $codingUnitsCount],
+            ['status' => 'Retired',           'count' => $retiredUnitsCount],
         ];
 
         // Unit status distribution for pie chart
@@ -185,15 +210,15 @@ class DashboardController extends Controller
                 $join->on('u.id', '=', 'b.unit_id')
                     ->whereNull('b.deleted_at');
             })
-            ->select('u.unit_number', 'u.plate_number', DB::raw('COALESCE(SUM(b.boundary_amount), 0) as total_boundary'), 'u.boundary_rate')
+            ->select('u.plate_number', DB::raw('COALESCE(SUM(b.boundary_amount), 0) as total_boundary'), 'u.boundary_rate')
             ->where('u.status', 'active')
-            ->groupBy('u.id', 'u.unit_number', 'u.plate_number', 'u.boundary_rate')
+            ->groupBy('u.id', 'u.plate_number', 'u.boundary_rate')
             ->orderByDesc('total_boundary')
             ->limit(10)
             ->get()
             ->map(function($unit) {
                 return [
-                    'unit' => $unit->unit_number,
+                    'unit' => $unit->plate_number,
                     'performance' => (float) $unit->total_boundary,
                     'target' => (float) $unit->boundary_rate * 30, // Monthly target
                 ];
@@ -218,22 +243,19 @@ class DashboardController extends Controller
         // Top Drivers (Performance recognition)
         $top_drivers = DB::table('drivers as d')
             ->whereNull('d.deleted_at')
-            ->join('users as u', 'd.user_id', '=', 'u.id')
-            ->whereNull('u.deleted_at')
             ->leftJoin('boundaries as b', function($join) {
                 $join->on('d.id', '=', 'b.driver_id')
                     ->whereNull('b.deleted_at');
             })
             ->leftJoin('driver_behavior as db', 'd.id', '=', 'db.driver_id')
             ->select(
-                'u.full_name',
+                DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')) as full_name"),
                 DB::raw('COUNT(CASE WHEN b.status IN ("paid", "excess") THEN 1 END) as good_days'),
                 DB::raw('SUM(CASE WHEN b.status IN ("paid", "excess") THEN b.boundary_amount ELSE 0 END) as total_boundary'),
                 DB::raw('COUNT(db.id) as incident_count')
             )
-            ->where('u.is_active', 1)
-            ->groupBy('d.id', 'u.full_name')
-            ->having('incident_count', '=', 0)
+            ->whereIn('d.driver_status', ['available', 'assigned'])
+            ->groupBy('d.id', 'd.first_name', 'd.last_name')
             ->orderByDesc('good_days')
             ->orderByDesc('total_boundary')
             ->limit(5)
@@ -273,11 +295,19 @@ class DashboardController extends Controller
             })
             ->count();
 
-        // Units under coding (Today only from coding_records)
-        $stats['coding_units'] = DB::table('coding_records')
+        // Units under coding (Today only - Automated via plate ending + manual records)
+        $todayDay = now()->format('l');
+        $todayManualCodingIds = DB::table('coding_records')
             ->whereNull('deleted_at')
             ->whereDate('date', now()->toDateString())
-            ->count();
+            ->pluck('unit_id')
+            ->toArray();
+
+        $allUnitsForStats = DB::table('units')->whereNull('deleted_at')->get();
+        $stats['coding_units'] = $allUnitsForStats->filter(function($unit) use ($todayDay, $todayManualCodingIds) {
+            $plateCodingDay = $this->getCodingDay($unit->plate_number);
+            return ($plateCodingDay === $todayDay || in_array($unit->id, $todayManualCodingIds));
+        })->count();
 
         // Units under maintenance
         $stats['maintenance_units'] = DB::table('units')->whereNull('deleted_at')->whereRaw('LOWER(status) = ?', ['maintenance'])->count();
@@ -320,17 +350,14 @@ class DashboardController extends Controller
         // Net income today (Calculation ignores coding fees as per user request)
         $stats['net_income'] = $stats['today_boundary'] - ($stats['today_expenses'] + $todayMaintenance);
 
-        // Active drivers — drivers table uses driver_status column
+        // Active drivers — counts drivers who are currently assigned to a unit
         $stats['active_drivers'] = DB::table('drivers as d')
-            ->join('users as u', 'd.user_id', '=', 'u.id')
             ->whereNull('d.deleted_at')
-            ->whereNull('u.deleted_at')
-            ->where('u.is_active', true)
             ->whereExists(function($query) {
                 $query->select(DB::raw(1))
                     ->from('units')
-                    ->whereRaw('units.driver_id = u.id')
-                    ->orWhereRaw('units.secondary_driver_id = u.id');
+                    ->whereRaw('units.driver_id = d.id')
+                    ->orWhereRaw('units.secondary_driver_id = d.id');
             })
             ->count();
 
@@ -381,12 +408,23 @@ class DashboardController extends Controller
             ];
         })->values()->toArray();
 
-        // Unit status distribution data
+        // Unit status distribution data (Using synchronized logic)
+        $maintenanceUnitsCount = $allUnitsForStats->filter(function($unit) {
+            return strtolower($unit->status) === 'maintenance';
+        })->count();
+
+        $retiredUnitsCount = $allUnitsForStats->filter(function($unit) {
+            return strtolower($unit->status) === 'retired';
+        })->count();
+
+        $codingUnitsCount = $stats['coding_units'];
+        $activeUnitsCount = $allUnitsForStats->count() - $codingUnitsCount - $maintenanceUnitsCount - $retiredUnitsCount;
+
         $unit_status_data = [
-            ['status' => 'Active',            'count' => DB::table('units')->whereNull('deleted_at')->whereRaw('LOWER(status) = ?', ['active'])->count()],
-            ['status' => 'Under Maintenance', 'count' => DB::table('units')->whereNull('deleted_at')->whereRaw('LOWER(status) = ?', ['maintenance'])->count()],
-            ['status' => 'Coding',            'count' => DB::table('units')->whereNull('deleted_at')->whereRaw('LOWER(status) = ?', ['coding'])->count()],
-            ['status' => 'Retired',           'count' => DB::table('units')->whereNull('deleted_at')->whereRaw('LOWER(status) = ?', ['retired'])->count()],
+            ['status' => 'Active',            'count' => $activeUnitsCount],
+            ['status' => 'Under Maintenance', 'count' => $maintenanceUnitsCount],
+            ['status' => 'Coding',            'count' => $codingUnitsCount],
+            ['status' => 'Retired',           'count' => $retiredUnitsCount],
         ];
 
         // Revenue trend (last 30 days)
@@ -409,15 +447,15 @@ class DashboardController extends Controller
                 $join->on('u.id', '=', 'b.unit_id')
                     ->whereNull('b.deleted_at');
             })
-            ->select('u.unit_number', 'u.plate_number', DB::raw('COALESCE(SUM(b.boundary_amount), 0) as total_boundary'), 'u.boundary_rate')
+            ->select('u.plate_number', DB::raw('COALESCE(SUM(b.boundary_amount), 0) as total_boundary'), 'u.boundary_rate')
             ->where('u.status', 'active')
-            ->groupBy('u.id', 'u.unit_number', 'u.plate_number', 'u.boundary_rate')
+            ->groupBy('u.id', 'u.plate_number', 'u.boundary_rate')
             ->orderByDesc('total_boundary')
             ->limit(10)
             ->get()
             ->map(function($unit) {
                 return [
-                    'unit' => $unit->unit_number,
+                    'unit' => $unit->plate_number,
                     'performance' => (float) $unit->total_boundary,
                     'target' => (float) $unit->boundary_rate * 30, // Monthly target
                 ];
@@ -443,36 +481,35 @@ class DashboardController extends Controller
         if ($expense_breakdown->isEmpty() || $expense_breakdown->every(fn($d) => $d['amount'] == 0)) {
             $expense_breakdown = collect([
                 ['category' => 'Maintenance', 'amount' => 4500],
-                ['category' => 'Fuel & Oil', 'amount' => 3200],
+                ['category' => 'Repairs', 'amount' => 3200],
                 ['category' => 'Salaries', 'amount' => 8000],
                 ['category' => 'Parts', 'amount' => 2100],
                 ['category' => 'Others', 'amount' => 1200]
             ]);
         }
 
-        // Top Drivers
+        // Top Drivers (Performance recognition)
         $top_drivers = DB::table('drivers as d')
             ->whereNull('d.deleted_at')
-            ->join('users as u', 'd.user_id', '=', 'u.id')
-            ->whereNull('u.deleted_at')
             ->leftJoin('boundaries as b', function($join) {
-                $join->on('d.id', '=', 'b.driver_id')->whereNull('b.deleted_at');
+                $join->on('d.id', '=', 'b.driver_id')
+                    ->whereNull('b.deleted_at');
             })
             ->leftJoin('driver_behavior as db', 'd.id', '=', 'db.driver_id')
             ->select(
-                'u.full_name',
+                DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')) as full_name"),
                 DB::raw('COUNT(CASE WHEN b.status IN ("paid", "excess") THEN 1 END) as good_days'),
                 DB::raw('SUM(CASE WHEN b.status IN ("paid", "excess") THEN b.boundary_amount ELSE 0 END) as total_boundary'),
                 DB::raw('COUNT(db.id) as incident_count')
             )
-            ->where('u.is_active', 1)
-            ->groupBy('d.id', 'u.full_name')
+            ->whereIn('d.driver_status', ['available', 'assigned'])
+            ->groupBy('d.id', 'd.first_name', 'd.last_name')
             ->having('incident_count', '=', 0)
             ->orderByDesc('good_days')
             ->orderByDesc('total_boundary')
             ->limit(5)
             ->get()
-                ->map(function($driver) {
+            ->map(function($driver) {
                 return [
                     'name' => $driver->full_name,
                     'score' => (int) $driver->good_days,
@@ -545,26 +582,34 @@ class DashboardController extends Controller
         try {
             // Get all units with complete real information
             // Get IDs of units that have a coding record today
+            // Get IDs of units that have a coding record today OR match today's plate ending
             $todayCodingUnitIds = DB::table('coding_records')
                 ->whereDate('date', now()->toDateString())
                 ->whereNull('deleted_at')
                 ->pluck('unit_id')
                 ->toArray();
+            
+            $todayDay = now()->format('l'); // Friday, etc.
 
             $units = DB::table('units')
                 ->whereNull('deleted_at')
-                ->select('id', 'unit_number', 'status', 'boundary_rate', 'purchase_cost', 'plate_number', 'driver_id')
+                ->select('id', 'status', 'boundary_rate', 'purchase_cost', 'plate_number', 'driver_id')
                 ->orderBy('plate_number')
                 ->get()
-                ->map(function($unit) use ($todayCodingUnitIds) {
+                ->map(function($unit) use ($todayCodingUnitIds, $todayDay) {
                     $isCodingToday = in_array($unit->id, $todayCodingUnitIds);
                     
                     // Force 'coding' status ONLY if it has a record today.
                     // If it's marked as coding in DB but has no record today, treat as 'active' for this view.
                     $displayStatus = strtolower($unit->status);
-                    if ($isCodingToday) {
+                    
+                    // Automation: Identify if it should be coding based on plate number
+                    $plateCodingDay = $this->getCodingDay($unit->plate_number);
+                    $shouldBeCodingToday = ($plateCodingDay === $todayDay);
+
+                    if ($isCodingToday || $shouldBeCodingToday) {
                         $displayStatus = 'coding';
-                    } elseif ($displayStatus === 'coding') {
+                    } elseif ($displayStatus === 'coding' && !$shouldBeCodingToday) {
                         $displayStatus = 'active';
                     }
                     
@@ -584,19 +629,15 @@ class DashboardController extends Controller
                     // Get driver information
                     $driverName = 'No Driver';
                     if ($unit->driver_id) {
-                        $driver = DB::table('drivers as d')
-                            ->join('users as u', 'd.user_id', '=', 'u.id')
-                            ->where('d.id', $unit->driver_id)
-                            ->whereNull('d.deleted_at')
-                            ->whereNull('u.deleted_at')
-                            ->select('u.full_name', 'u.name', 'u.first_name', 'u.last_name')
+                        $driver = DB::table('drivers')
+                            ->where('id', $unit->driver_id)
+                            ->whereNull('deleted_at')
+                            ->select('first_name', 'last_name', 'nickname')
                             ->first();
                         
                         if ($driver) {
-                            // Try different name fields in order of preference
-                            $driverName = $driver->full_name ?: 
-                                         ($driver->name ?: 
-                                         (trim($driver->first_name . ' ' . $driver->last_name) ?: 'Unknown'));
+                            $driverName = trim(($driver->first_name ?? '') . ' ' . ($driver->last_name ?? ''));
+                            if (empty($driverName)) $driverName = $driver->nickname ?? 'Unknown';
                         }
                     }
                     
@@ -679,7 +720,6 @@ class DashboardController extends Controller
                     
                     return [
                         'id' => $unit->id,
-                        'unit_number' => $unit->unit_number,
                         'plate_number' => $unit->plate_number,
                         'status' => $displayStatus,
                         'boundary_rate' => (float) $unit->boundary_rate,
@@ -763,15 +803,14 @@ class DashboardController extends Controller
             $collections = DB::table('boundaries as b')
                 ->leftJoin('units as u', 'b.unit_id', '=', 'u.id')
                 ->leftJoin('drivers as d', 'u.driver_id', '=', 'd.id')
-                ->leftJoin('users as du', 'd.user_id', '=', 'du.id')
                 ->select([
                     'b.id',
                     'b.unit_id',
-                    'b.boundary_amount',
                     'b.date',
-                    'u.unit_number',
                     'u.plate_number',
-                    'du.full_name as driver_name',
+                    'd.first_name',
+                    'd.last_name',
+                    'd.nickname',
                     'd.id as driver_id'
                 ])
                 ->whereNull('b.deleted_at')
@@ -779,36 +818,20 @@ class DashboardController extends Controller
                 ->orderBy('b.id', 'desc')
                 ->get()
                 ->map(function($collection) {
-                    // Handle driver name properly with multiple fallbacks
-                    $driverName = $collection->driver_name;
-                    if (empty($driverName)) {
-                        // Try to get alternative name fields if full_name is empty
-                        $altDriver = DB::table('drivers as d')
-                            ->join('users as u', 'd.user_id', '=', 'u.id')
-                            ->where('d.id', $collection->driver_id)
-                            ->select('u.name', 'u.first_name', 'u.last_name')
-                            ->first();
-                        
-                        if ($altDriver) {
-                            $driverName = $altDriver->name ?: 
-                                        (trim($altDriver->first_name . ' ' . $altDriver->last_name) ?: 'Unknown Driver');
-                        } else {
-                            $driverName = 'No Driver Assigned';
-                        }
-                    }
+                    $driverName = trim(($collection->first_name ?? '') . ' ' . ($collection->last_name ?? ''));
+                    if (empty($driverName)) $driverName = $collection->nickname ?? 'No Driver Assigned';
                     
                     return [
                         'id' => $collection->id,
                         'unit_id' => $collection->unit_id,
-                        'unit_number' => $collection->unit_number,
                         'plate_number' => $collection->plate_number,
                         'driver_name' => $driverName,
                         'driver_id' => $collection->driver_id,
-                        'boundary_amount' => (float) $collection->boundary_amount,
+                        'boundary_amount' => (float) ($collection->boundary_amount ?? 0),
                         'date' => $collection->date,
-                        'time' => 'N/A', // Default value since time column doesn't exist
-                        'location' => 'Main Office', // Default value since location column doesn't exist
-                        'status' => 'verified' // Default value since status column doesn't exist
+                        'time' => 'N/A', 
+                        'location' => 'Main Office', 
+                        'status' => 'verified' 
                     ];
                 });
 
@@ -872,13 +895,13 @@ class DashboardController extends Controller
                     return [
                         'id' => $item->id,
                         'type' => 'income',
-                        'description' => 'Boundary Collection - ' . $item->unit_number,
+                        'description' => 'Boundary Collection - ' . $item->plate_number,
                         'category' => 'Boundary Income',
                         'amount' => (float) $item->boundary_amount,
                         'date' => $item->date,
-                        'source' => $item->unit_number,
+                        'source' => $item->plate_number,
                         'reference' => 'Boundary #' . $item->id,
-                        'unit_number' => $item->unit_number,
+                        'plate_number' => $item->plate_number,
                         'driver_name' => $item->driver_name
                     ];
                 });
@@ -1057,7 +1080,7 @@ class DashboardController extends Controller
                     ->whereNull('u.deleted_at');
 
                 if ($hasMaintenances) {
-                    // Join with a subquery to get ONLY the latest maintenance ID for each unit
+                    // Use a LEFT JOIN instead of an INNER/WHERE-based join for strict filtering in "all" view
                     $latestM = DB::table('maintenance')
                         ->select('unit_id', DB::raw('MAX(id) as latest_id'))
                         ->whereNull('deleted_at')
@@ -1067,39 +1090,32 @@ class DashboardController extends Controller
                         $join->on('u.id', '=', 'latest_m.unit_id');
                     })->leftJoin('maintenance as m', 'latest_m.latest_id', '=', 'm.id');
 
-                    // STRICT TYPE FILTERING based on user request
-                    if ($filter === 'preventive') {
-                        $unitsQuery->where('m.maintenance_type', 'LIKE', '%preventive%');
-                    } elseif ($filter === 'corrective') {
-                        $unitsQuery->where('m.maintenance_type', 'LIKE', '%corrective%');
-                    } elseif ($filter === 'emergency') {
-                        $unitsQuery->where('m.maintenance_type', 'LIKE', '%emergency%');
-                    } elseif ($filter === 'all') {
-                        // User specified: Corrective, Preventive, Emergency
-                        $unitsQuery->where(function($q) {
-                            $q->where('m.maintenance_type', 'LIKE', '%corrective%')
-                              ->orWhere('m.maintenance_type', 'LIKE', '%preventive%')
-                              ->orWhere('m.maintenance_type', 'LIKE', '%emergency%');
-                        });
+                    // If NO filter is applied (all), we show ALL maintenance units
+                    if ($filter !== 'all') {
+                        if ($filter === 'preventive') {
+                            $unitsQuery->where('m.maintenance_type', 'LIKE', '%preventive%');
+                        } elseif ($filter === 'corrective') {
+                            $unitsQuery->where('m.maintenance_type', 'LIKE', '%corrective%');
+                        } elseif ($filter === 'emergency') {
+                            $unitsQuery->where('m.maintenance_type', 'LIKE', '%emergency%');
+                        }
                     }
                 }
             }
 
             if ($hasDrivers) {
                 $unitsQuery
-                    ->leftJoin('drivers as d', 'u.driver_id', '=', 'd.id')
-                    ->leftJoin('users as du', 'd.user_id', '=', 'du.id');
+                    ->leftJoin('drivers as d', 'u.driver_id', '=', 'd.id');
             }
 
             $select = [
                 'u.id',
                 'u.plate_number',
-                'u.plate_number',
                 'u.status',
                 'u.purchase_cost',
                 'u.boundary_rate',
                 'u.created_at',
-                $hasDrivers ? 'du.name as driver_name' : DB::raw('NULL as driver_name'),
+                $hasDrivers ? DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')) as driver_name") : DB::raw('NULL as driver_name'),
                 $hasMaintenances ? 'm.id as maintenance_id' : DB::raw('NULL as maintenance_id'),
                 $hasMaintenances ? 'm.maintenance_type' : DB::raw('NULL as maintenance_type'),
                 $hasMaintenances ? 'm.description' : DB::raw('NULL as description'),
@@ -1126,7 +1142,6 @@ class DashboardController extends Controller
                     $endDate = data_get($unit, 'end_date');
                     return [
                         'id' => $unit->id,
-                        'unit_number' => $unit->unit_number,
                         'plate_number' => $unit->plate_number,
                         'status' => $unit->status,
                         'driver_name' => $unit->driver_name,
@@ -1226,14 +1241,14 @@ class DashboardController extends Controller
             $select = [
                 'd.id',
                 'd.user_id',
-                'u.full_name as name',
-                'u.email',
+                DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')) as name"),
+                DB::raw('NULL as email'),
                 DB::raw('COUNT(DISTINCT unit.id) as assigned_units'),
                 DB::raw('COALESCE(SUM(b.boundary_amount), 0) as total_boundary'),
                 DB::raw('COALESCE(AVG(b.boundary_amount), 0) as avg_boundary'),
                 DB::raw('GROUP_CONCAT(DISTINCT unit.plate_number) as plate_numbers'),
             ];
-            $groupBy = ['d.id', 'd.user_id', 'u.full_name', 'u.email'];
+            $groupBy = ['d.id', 'd.user_id', 'd.first_name', 'd.last_name'];
 
             if (Schema::hasColumn('drivers', 'hire_date')) {
                 $select[] = 'd.hire_date';
@@ -1256,8 +1271,7 @@ class DashboardController extends Controller
                 $select[] = 'd.phone';
                 $groupBy[] = 'd.phone';
             } else {
-                $select[] = 'u.phone';
-                $groupBy[] = 'u.phone';
+                $select[] = DB::raw('NULL as phone');
             }
 
             if (Schema::hasColumn('drivers', 'address')) {
@@ -1268,10 +1282,9 @@ class DashboardController extends Controller
             }
 
             $query = DB::table('drivers as d')
-                ->join('users as u', 'd.user_id', '=', 'u.id')
                 ->leftJoin('units as unit', function($join) {
-                    $join->on('u.id', '=', 'unit.driver_id')
-                         ->orOn('u.id', '=', 'unit.secondary_driver_id');
+                    $join->on('d.id', '=', 'unit.driver_id')
+                         ->orOn('d.id', '=', 'unit.secondary_driver_id');
                 })
                 ->leftJoin('boundaries as b', function($join) {
                     $join->on('unit.id', '=', 'b.unit_id')
@@ -1279,7 +1292,6 @@ class DashboardController extends Controller
                 })
                 ->select($select)
                 ->whereNull('d.deleted_at')
-                ->whereNull('u.deleted_at')
                 ->whereNull('unit.deleted_at');
 
             if (Schema::hasColumn('drivers', 'status')) {
@@ -1288,7 +1300,7 @@ class DashboardController extends Controller
 
             $activeDrivers = $query
                 ->groupBy($groupBy)
-                ->orderBy('u.full_name', 'asc')
+                ->orderBy('d.first_name', 'asc')
                 ->get()
                 ->map(function($driver) {
                     $avgBoundary = (float) ($driver->avg_boundary ?? 0);
@@ -1383,13 +1395,12 @@ class DashboardController extends Controller
         try {
             $hasMaintenances = Schema::hasTable('maintenance');
             $hasDrivers = Schema::hasTable('drivers');
-
             $unitsQuery = DB::table('units as u')->whereNull('u.deleted_at');
+            $today = now()->format('l');
 
             if ($hasDrivers) {
                 $unitsQuery
-                    ->leftJoin('drivers as d', 'u.driver_id', '=', 'd.id')
-                    ->leftJoin('users as du', 'd.user_id', '=', 'du.id');
+                    ->leftJoin('drivers as d', 'u.driver_id', '=', 'd.id');
             }
 
             if ($hasMaintenances) {
@@ -1410,12 +1421,11 @@ class DashboardController extends Controller
             $select = [
                 'u.id',
                 'u.plate_number',
-                'u.plate_number',
                 'u.status',
                 'u.purchase_cost',
                 'u.boundary_rate',
                 'u.created_at',
-                $hasDrivers ? 'du.name as driver_name' : DB::raw('NULL as driver_name'),
+                $hasDrivers ? DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')) as driver_name") : DB::raw('NULL as driver_name'),
                 'c.id as coding_id',
                 DB::raw("'Coding' as coding_type"),
                 'c.description',
@@ -1425,23 +1435,15 @@ class DashboardController extends Controller
                 'c.cost as coding_cost',
             ];
 
-            $codingUnits = $unitsQuery
-                ->select($select)
-                ->where(function($q) {
-                    $q->where('u.status', '=', 'coding');
-                    $q->orWhere(function($sq) {
-                        $sq->whereNotNull('c.id')
-                           ->where('c.status', '=', 'completed')
-                           ->whereDate('c.updated_at', now()->toDateString());
-                    });
-                })
-                ->when($hasCodingRecords ?? false, function ($q) {
-                    $q->orderBy('c.date', 'desc');
-                }, function ($q) {
-                    $q->orderBy('u.id', 'desc');
-                })
-                ->get()
-                ->map(function($unit) {
+            $allUnits = $unitsQuery->select($select)->get();
+            
+            $codingUnits = $allUnits->filter(function($unit) use ($today) {
+                $plateCodingDay = $this->getCodingDay($unit->plate_number);
+                $isManualCoding = ($unit->status === 'coding' || ($unit->coding_id && $unit->coding_status !== 'completed'));
+                return ($plateCodingDay === $today || $isManualCoding);
+            })->values();
+
+            $codingUnits = $codingUnits->map(function($unit) {
                     $startDate = data_get($unit, 'start_date');
                     $endDate = data_get($unit, 'end_date');
                     
@@ -1450,7 +1452,6 @@ class DashboardController extends Controller
 
                     return [
                         'id' => $unit->id,
-                        'unit_number' => $unit->unit_number,
                         'plate_number' => $unit->plate_number,
                         'status' => $unit->status,
                         'driver_name' => $unit->driver_name,

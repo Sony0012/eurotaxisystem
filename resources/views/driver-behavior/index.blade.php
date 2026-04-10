@@ -165,7 +165,7 @@
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="text-sm">
                                     <div class="font-medium">{{ $incident->plate_number ?? 'N/A' }}</div>
-                                    <div class="text-gray-500">Unit: {{ $incident->unit_number ?? '' }}</div>
+                                    <div class="text-gray-500">{{ $incident->plate_number ?? '' }}</div>
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
@@ -248,7 +248,7 @@
                             <select name="unit_id" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
                                 <option value="">Select Unit</option>
                                 @foreach($units as $unit)
-                                    <option value="{{ $unit->id }}">{{ $unit->plate_number }} (Unit: {{ $unit->unit_number ?? 'N/A' }})</option>
+                                    <option value="{{ $unit->id }}">{{ $unit->plate_number }}</option>
                                 @endforeach
                             </select>
                         </div>

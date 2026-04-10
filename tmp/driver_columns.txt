@@ -1,0 +1,1 @@
+id, user_id, license_number, license_expiry, contact_number, address, emergency_contact, emergency_phone, hire_date, daily_boundary_target, created_at, updated_at, driver_type, driver_status, created_by, updated_by, deleted_at

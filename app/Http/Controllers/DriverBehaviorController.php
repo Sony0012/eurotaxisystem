@@ -20,14 +20,13 @@ class DriverBehaviorController extends Controller
         $query = DB::table('driver_behavior as db')
             ->leftJoin('units as u', 'db.unit_id', '=', 'u.id')
             ->leftJoin('drivers as d', 'db.driver_id', '=', 'd.id')
-            ->leftJoin('users as usr', 'd.user_id', '=', 'usr.id')
-            ->select('db.*', 'u.unit_number', 'u.plate_number', 'usr.full_name as driver_name')
+            ->select('db.*', 'u.plate_number', DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')) as driver_name"))
             ->orderByDesc('db.timestamp');
 
         if (!empty($search)) {
             $query->where(function ($q) use ($search) {
-                $q->where('usr.full_name', 'like', DB::raw("CONCAT('%', ?, '%') COLLATE utf8mb4_unicode_ci"), [$search])
-                  ->orWhere('u.unit_number', 'like', DB::raw("CONCAT('%', ?, '%') COLLATE utf8mb4_unicode_ci"), [$search])
+                $q->where(DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,''))"), 'like', "%{$search}%")
+                  ->orWhere('u.plate_number', 'like', DB::raw("CONCAT('%', ?, '%') COLLATE utf8mb4_unicode_ci"), [$search])
                   ->orWhere('db.incident_type', 'like', DB::raw("CONCAT('%', ?, '%') COLLATE utf8mb4_unicode_ci"), [$search])
                   ->orWhere('db.description', 'like', DB::raw("CONCAT('%', ?, '%') COLLATE utf8mb4_unicode_ci"), [$search]);
             });
@@ -54,20 +53,19 @@ class DriverBehaviorController extends Controller
             'next_page' => $page + 1,
         ];
 
-        // Get drivers for dropdown (active users with driver role)
-        $drivers = DB::table('users as u')
-            ->join('drivers as d', 'u.id', '=', 'd.user_id')
-            ->where('u.is_active', 1)
-            ->where('u.role', 'driver')
-            ->select('d.id', 'u.full_name')
-            ->orderBy('u.full_name')
+        // Get drivers for dropdown
+        $drivers = DB::table('drivers')
+            ->whereNull('deleted_at')
+            ->whereIn('driver_status', ['available', 'assigned'])
+            ->select('id', DB::raw("CONCAT(COALESCE(first_name,''), ' ', COALESCE(last_name,'')) as full_name"))
+            ->orderBy('last_name')
             ->get();
 
         // Get units for dropdown
         $units = DB::table('units')
             ->where('status', 'active')
-            ->select('id', 'unit_number', 'plate_number')
-            ->orderBy('unit_number')
+            ->select('id', 'plate_number')
+            ->orderBy('plate_number')
             ->get();
 
         return view('driver-behavior.index', compact(

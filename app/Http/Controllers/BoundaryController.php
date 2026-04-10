@@ -27,14 +27,12 @@ class BoundaryController extends Controller
             ->whereNull('b.deleted_at')
             ->leftJoin('units as u', 'b.unit_id', '=', 'u.id')
             ->leftJoin('drivers as d', 'b.driver_id', '=', 'd.id')
-            ->leftJoin('users as usr', 'd.user_id', '=', 'usr.id')
             ->leftJoin('users as creator', 'b.created_by', '=', 'creator.id')
             ->leftJoin('users as editor', 'b.updated_by', '=', 'editor.id')
             ->select(
                 'b.*',
-                'u.unit_number',
                 'u.plate_number',
-                'usr.full_name as driver_name',
+                DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')) as driver_name"),
                 'creator.full_name as creator_name',
                 'editor.full_name as editor_name'
             );
@@ -42,8 +40,7 @@ class BoundaryController extends Controller
         if (!empty($search)) {
             $query->where(function ($q) use ($search) {
                 $q->where('u.plate_number', 'like', "%{$search}%")
-                  ->orWhere('u.unit_number', 'like', "%{$search}%")
-                  ->orWhere(DB::raw("CONCAT(usr.full_name, '')"), 'like', "%{$search}%");
+                  ->orWhere(DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,''))"), 'like', "%{$search}%");
             });
         }
 
@@ -68,7 +65,7 @@ class BoundaryController extends Controller
         $units = DB::table('units')
             ->whereNull('deleted_at')
             ->where('status', '!=', 'retired')
-            ->select('id', 'unit_number', 'plate_number', 'make', 'model', 'boundary_rate', 'coding_day', 'driver_id', 'secondary_driver_id')
+            ->select('id', 'plate_number', 'make', 'model', 'boundary_rate', 'coding_day', 'driver_id', 'secondary_driver_id')
             ->orderBy('plate_number')
             ->get()
             ->map(function ($unit) {
@@ -80,33 +77,29 @@ class BoundaryController extends Controller
 
         // Get all drivers with their current unit assignments
         $all_drivers = DB::select("
-            SELECT d.id, d.user_id, u.full_name as name, 
-                   COALESCE(ua.unit_number, 'No Assignment') as current_unit,
+            SELECT d.id, CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')) as name, 
+                   COALESCE(ua.plate_number, 'No Assignment') as current_unit,
                    COALESCE(ua.plate_number, '') as current_plate,
                    (SELECT COUNT(*) FROM units WHERE (driver_id = d.id OR secondary_driver_id = d.id) AND deleted_at IS NULL) as assigned_units_count
             FROM drivers d 
-            LEFT JOIN users u ON d.user_id = u.id 
-            LEFT JOIN units ua ON (d.user_id = ua.driver_id OR d.user_id = ua.secondary_driver_id) AND ua.deleted_at IS NULL
-            WHERE u.role = 'driver' AND u.is_active = TRUE 
-            AND d.deleted_at IS NULL AND u.deleted_at IS NULL
+            LEFT JOIN units ua ON (d.id = ua.driver_id OR d.id = ua.secondary_driver_id) AND ua.deleted_at IS NULL
+            WHERE d.deleted_at IS NULL
             ORDER BY 
                 CASE WHEN ua.plate_number IS NOT NULL THEN 1 ELSE 0 END,
-                u.full_name
+                d.last_name, d.first_name
         ");
         $all_drivers = array_map(function($d) { return (array) $d; }, $all_drivers);
 
         // Assigned drivers
         $assigned_drivers = DB::select("
-            SELECT d.id, d.user_id, u.full_name as name, 
-                   ua.unit_number as current_unit,
+            SELECT d.id, CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')) as name, 
+                   ua.plate_number as current_unit,
                    ua.plate_number as current_plate
             FROM drivers d 
-            LEFT JOIN users u ON d.user_id = u.id 
-            LEFT JOIN units ua ON (d.user_id = ua.driver_id OR d.user_id = ua.secondary_driver_id) AND ua.deleted_at IS NULL
-            WHERE u.role = 'driver' AND u.is_active = TRUE 
-            AND ua.plate_number IS NOT NULL
-            AND d.deleted_at IS NULL AND u.deleted_at IS NULL
-            ORDER BY ua.plate_number, u.full_name
+            LEFT JOIN units ua ON (d.id = ua.driver_id OR d.id = ua.secondary_driver_id) AND ua.deleted_at IS NULL
+            WHERE ua.plate_number IS NOT NULL
+            AND d.deleted_at IS NULL
+            ORDER BY ua.plate_number, d.last_name, d.first_name
         ");
         $assigned_drivers = array_map(function($d) { return (array) $d; }, $assigned_drivers);
 
@@ -115,15 +108,13 @@ class BoundaryController extends Controller
         foreach ($units as $unit) {
             $unit_id = $unit['id'];
             $res = DB::select("
-                SELECT d.id, d.user_id, u.full_name as name, 
+                SELECT d.id, CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')) as name, 
                        ua.plate_number as current_plate,
-                       ua.unit_number as current_unit
+                       ua.plate_number as current_unit
                 FROM drivers d 
-                LEFT JOIN users u ON d.user_id = u.id 
-                LEFT JOIN units ua ON (d.user_id = ua.driver_id OR d.user_id = ua.secondary_driver_id)
-                WHERE u.role = 'driver' AND u.is_active = TRUE 
-                AND ua.id = ?
-                ORDER BY u.full_name
+                LEFT JOIN units ua ON (d.id = ua.driver_id OR d.id = ua.secondary_driver_id)
+                WHERE ua.id = ? AND d.deleted_at IS NULL
+                ORDER BY d.last_name, d.first_name
             ", [$unit_id]);
             $unit_drivers[$unit_id] = array_map(function($d) { return (array) $d; }, $res);
         }

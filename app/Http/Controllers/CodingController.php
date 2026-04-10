@@ -41,17 +41,21 @@ class CodingController extends Controller
 
         // Get units for dropdown
         $units = DB::table('units')
-            ->select('id', 'unit_number', 'plate_number', 'coding_day', 'make', 'model')
+            ->select('id', 'plate_number', 'coding_day', 'make', 'model')
             ->orderBy('plate_number')
             ->get();
 
         // Get today's coding status
         $today_name = date('l');
         $today_units = DB::table('units as u')
-            ->leftJoin('users as usr1', 'u.driver_id', '=', 'usr1.id')
-            ->leftJoin('users as usr2', 'u.secondary_driver_id', '=', 'usr2.id')
+            ->leftJoin('drivers as drv1', 'u.driver_id', '=', 'drv1.id')
+            ->leftJoin('drivers as drv2', 'u.secondary_driver_id', '=', 'drv2.id')
             ->where('u.coding_day', $today_name)
-            ->select('u.*', 'usr1.full_name as driver1_name', 'usr2.full_name as driver2_name')
+            ->select(
+                'u.*', 
+                DB::raw("CONCAT(COALESCE(drv1.first_name,''), ' ', COALESCE(drv1.last_name,'')) as driver1_name"),
+                DB::raw("CONCAT(COALESCE(drv2.first_name,''), ' ', COALESCE(drv2.last_name,'')) as driver2_name")
+            )
             ->orderBy('u.plate_number')
             ->get();
 
@@ -64,7 +68,7 @@ class CodingController extends Controller
 
         // Build coding calendar
         $coding_calendar = [];
-        $all_units = DB::table('units')->select('unit_number', 'plate_number', 'coding_day')->get();
+        $all_units = DB::table('units')->select('plate_number', 'coding_day')->get();
         $days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
         
         foreach ($days as $day) {

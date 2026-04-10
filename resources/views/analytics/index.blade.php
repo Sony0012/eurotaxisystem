@@ -259,7 +259,6 @@
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="text-sm font-medium text-gray-900">{{ $u->plate_number }}</div>
-                                <div class="text-xs text-gray-500">Unit: {{ $u->unit_number }}</div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-green-600">
                                 {{ formatCurrency($u->total_collected) }}</td>

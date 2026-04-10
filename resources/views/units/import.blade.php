@@ -10,10 +10,10 @@
     <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6">
         <h3 class="text-lg font-bold text-blue-900 mb-3">📋 Import Instructions</h3>
         <div class="space-y-2 text-sm text-blue-800">
-            <p>• <strong>CSV Format:</strong> unit_number, plate_number, make, model, status</p>
+            <p>• <strong>CSV Format:</strong> plate_number, make, model, status</p>
             <p>• <strong>Excel Format:</strong> Same column order as CSV</p>
             <p>• <strong>File Size:</strong> Maximum 10MB</p>
-            <p>• <strong>Required Columns:</strong> Unit Number, Plate Number, Make, Model</p>
+            <p>• <strong>Required Columns:</strong> Plate Number, Make, Model</p>
             <p>• <strong>Optional:</strong> Status (defaults to 'active' if not provided)</p>
         </div>
     </div>
@@ -60,10 +60,10 @@
         <h3 class="text-lg font-bold text-gray-900 mb-3">📝 Sample CSV Format</h3>
         <div class="bg-white border border-gray-200 rounded p-4">
             <code class="text-sm">
-                unit_number,plate_number,make,model,status<br>
-                TX-001,ABC-123,Toyota,Vios,active<br>
-                TX-002,DEF-456,Honda,City,maintenance<br>
-                TX-003,GHI-789,Nissan,Sentra,coding
+                plate_number,make,model,status<br>
+                ABC-123,Toyota,Vios,active<br>
+                DEF-456,Honda,City,maintenance<br>
+                GHI-789,Nissan,Sentra,coding
             </code>
         </div>
     </div>

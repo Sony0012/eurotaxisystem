@@ -28,7 +28,7 @@
 {{-- Filter + Add --}}
 <div class="bg-white rounded-lg shadow p-4 mb-5">
     <form method="GET" action="{{ route('maintenance.index') }}" class="flex flex-wrap gap-3">
-        <input type="text" name="search" value="{{ $search }}" placeholder="Search unit or mechanic..."
+        <input type="text" name="search" value="{{ $search }}" placeholder="Search plate or mechanic..."
             class="flex-1 min-w-[150px] px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-yellow-500 focus:outline-none">
         <select name="status" class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-yellow-500 focus:outline-none">
             <option value="">All Status</option>
@@ -75,7 +75,6 @@
                 <tr class="hover:bg-gray-50">
                     <td class="px-4 py-3">
                         <p class="font-semibold text-gray-900">{{ $r->plate_number }}</p>
-                        <p class="text-xs text-gray-500">Unit: {{ $r->unit_number ?? 'N/A' }}</p>
                     </td>
                     <td class="px-4 py-3">
                         <span class="px-2 py-1 text-xs rounded-full
@@ -148,7 +147,7 @@
                     <select name="unit_id" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-yellow-500 focus:outline-none" required>
                         <option value="">Select unit...</option>
                         @foreach($units as $u)
-                        <option value="{{ $u->id }}">{{ $u->plate_number }} (Unit: {{ $u->unit_number }})</option>
+                        <option value="{{ $u->id }}">{{ $u->plate_number }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -222,7 +221,7 @@
                     <label class="block text-xs font-medium text-gray-700 mb-1">Unit *</label>
                     <select name="unit_id" id="em_unit_id" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-yellow-500 focus:outline-none" required>
                         @foreach($units as $u)
-                        <option value="{{ $u->id }}">{{ $u->plate_number }} (Unit: {{ $u->unit_number }})</option>
+                        <option value="{{ $u->id }}">{{ $u->plate_number }}</option>
                         @endforeach
                     </select>
                 </div>

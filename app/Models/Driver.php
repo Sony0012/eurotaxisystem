@@ -13,6 +13,9 @@ class Driver extends Model
 
     protected $fillable = [
         'user_id',
+        'first_name',
+        'last_name',
+        'nickname',
         'license_number',
         'contact_number',
         'license_expiry',
@@ -26,6 +29,11 @@ class Driver extends Model
         'created_by',
         'updated_by',
     ];
+
+    public function getFullNameAttribute()
+    {
+        return trim(($this->first_name ?? '') . ' ' . ($this->last_name ?? '')) ?: 'N/A';
+    }
 
     public function user()
     {

@@ -21,11 +21,13 @@ class UnitController extends Controller
 
         $query = DB::table('units as u')
             ->whereNull('u.deleted_at')
-            ->leftJoin('users as usr1', 'u.driver_id', '=', 'usr1.id')
-            ->leftJoin('drivers as drv1', 'usr1.id', '=', 'drv1.user_id')
-            ->leftJoin('users as usr2', 'u.secondary_driver_id', '=', 'usr2.id')
-            ->leftJoin('drivers as drv2', 'usr2.id', '=', 'drv2.user_id')
-            ->select('u.*', 'usr1.full_name as driver1_name', 'usr2.full_name as driver2_name')
+            ->leftJoin('drivers as drv1', 'u.driver_id', '=', 'drv1.id')
+            ->leftJoin('drivers as drv2', 'u.secondary_driver_id', '=', 'drv2.id')
+            ->select(
+                'u.*', 
+                DB::raw("CONCAT(COALESCE(drv1.first_name,''), ' ', COALESCE(drv1.last_name,''), '|', COALESCE(drv1.contact_number, '')) as primary_driver"),
+                DB::raw("CONCAT(COALESCE(drv2.first_name,''), ' ', COALESCE(drv2.last_name,''), '|', COALESCE(drv2.contact_number, '')) as secondary_driver")
+            )
             ->addSelect([
                 'total_collected' => DB::table('boundaries')
                     ->whereColumn('unit_id', 'u.id')
@@ -45,14 +47,26 @@ class UnitController extends Controller
         if (!empty($search)) {
             $query->where(function ($q) use ($search) {
                 $q->where('u.plate_number', 'like', DB::raw("CONCAT('%', ?, '%') COLLATE utf8mb4_unicode_ci"), [$search])
-                    ->orWhere('u.unit_number', 'like', DB::raw("CONCAT('%', ?, '%') COLLATE utf8mb4_unicode_ci"), [$search])
                     ->orWhere('u.make', 'like', DB::raw("CONCAT('%', ?, '%') COLLATE utf8mb4_unicode_ci"), [$search])
                     ->orWhere('u.model', 'like', DB::raw("CONCAT('%', ?, '%') COLLATE utf8mb4_unicode_ci"), [$search]);
             });
         }
 
         if (!empty($status_filter)) {
-            $query->where('u.status', $status_filter);
+            if ($status_filter === 'available') {
+                $query->whereNull('u.driver_id')
+                      ->whereNull('u.secondary_driver_id');
+            } elseif ($status_filter === '1_2') {
+                $query->where(function($q) {
+                    $q->whereNotNull('u.driver_id')->whereNull('u.secondary_driver_id')
+                      ->orWhereNull('u.driver_id')->whereNotNull('u.secondary_driver_id');
+                });
+            } elseif ($status_filter === '2_2') {
+                $query->whereNotNull('u.driver_id')
+                      ->whereNotNull('u.secondary_driver_id');
+            } else {
+                $query->where('u.status', $status_filter);
+            }
         }
 
         $sort = $request->input('sort', 'alphabetical');
@@ -79,8 +93,6 @@ class UnitController extends Controller
         foreach ($units as $unit) {
             $net_income = (data_get($unit, 'total_collected', 0)) - (data_get($unit, 'maintenance_cost', 0));
             $unit->roi_achieved = (data_get($unit, 'purchase_cost', 0)) > 0 && $net_income >= (data_get($unit, 'purchase_cost', 0));
-            $unit->primary_driver = data_get($unit, 'driver1_name') ? data_get($unit, 'driver1_name') . '|' : null;
-            $unit->secondary_driver = data_get($unit, 'driver2_name') ? data_get($unit, 'driver2_name') . '|' : null;
         }
 
         $total_pages = ceil($total_units / $limit);
@@ -95,10 +107,9 @@ class UnitController extends Controller
         ];
 
         // Drivers list for add/edit modal
-        $all_drivers = DB::table('users as u')
-            ->join('drivers as d', 'u.id', '=', 'd.user_id')
-            ->where('u.is_active', true)
-            ->select('u.id', 'u.full_name', 'd.contact_number', 'd.license_number')
+        $all_drivers = DB::table('drivers')
+            ->whereNull('deleted_at')
+            ->select('id', DB::raw("CONCAT(COALESCE(first_name,''), ' ', COALESCE(last_name,'')) as full_name"), 'contact_number', 'license_number')
             ->get();
 
         return view('units.index', compact('units', 'pagination', 'search', 'status_filter', 'all_drivers', 'sort'));
@@ -112,7 +123,6 @@ class UnitController extends Controller
         ]);
 
         $data = $request->validate([
-            'unit_number' => 'nullable|string|unique:units,unit_number',
             'plate_number' => 'required|string|unique:units,plate_number',
             'make' => 'required|string',
             'model' => 'required|string',
@@ -123,7 +133,6 @@ class UnitController extends Controller
             'purchase_cost' => 'nullable|numeric',
             'color' => 'nullable|string',
             'unit_type' => 'sometimes|required|in:new,old,rented',
-            'fuel_status' => 'sometimes|required|string',
             'coding_day' => 'nullable|string',
             'driver_id' => 'nullable|integer',
             'secondary_driver_id' => 'nullable|integer',
@@ -161,8 +170,7 @@ class UnitController extends Controller
         }
 
         // Use Eloquent to trigger TrackChanges trait
-        Unit::create([
-            'unit_number' => $data['unit_number'] ?? $data['plate_number'],
+        $newUnit = Unit::create([
             'plate_number' => $data['plate_number'],
             'make' => $data['make'],
             'model' => $data['model'],
@@ -173,13 +181,16 @@ class UnitController extends Controller
             'purchase_cost' => $data['purchase_cost'] ?? 0,
             'color' => $data['color'] ?? null,
             'unit_type' => $data['unit_type'] ?? 'new',
-            'fuel_status' => $data['fuel_status'] ?? 'full',
             'coding_day' => $coding_day,
             'driver_id' => $driver_id,
             'secondary_driver_id' => $secondary_driver_id,
             'gps_link' => $request->input('gps_link') ?: null,
             'coding_updated_at' => now(),
         ]);
+
+        // Sync driver boundary target
+        if ($driver_id) $this->syncDriverBoundaryTarget($driver_id, $newUnit);
+        if ($secondary_driver_id) $this->syncDriverBoundaryTarget($secondary_driver_id, $newUnit);
 
         return redirect()->route('units.index')->with('success', 'Unit added successfully!');
     }
@@ -192,7 +203,6 @@ class UnitController extends Controller
         ]);
 
         $data = $request->validate([
-            'unit_number' => 'nullable|string|unique:units,unit_number,' . $id,
             'plate_number' => 'required|string|unique:units,plate_number,' . $id,
             'make' => 'sometimes|required|string',
             'model' => 'sometimes|required|string',
@@ -203,7 +213,6 @@ class UnitController extends Controller
             'purchase_cost' => 'nullable|numeric',
             'color' => 'nullable|string',
             'unit_type' => 'sometimes|required|in:new,old,rented',
-            'fuel_status' => 'sometimes|required|string',
             'coding_day' => 'nullable|string',
             'driver_id' => 'nullable|integer',
             'secondary_driver_id' => 'nullable|integer',
@@ -243,7 +252,6 @@ class UnitController extends Controller
         }
 
         $updateData = [
-            'unit_number' => $data['unit_number'] ?? $data['plate_number'],
             'plate_number' => $data['plate_number'],
             'boundary_rate' => $data['boundary_rate'],
             'purchase_date' => $data['purchase_date'] ?? null,
@@ -261,11 +269,31 @@ class UnitController extends Controller
         if (isset($data['year'])) $updateData['year'] = $data['year'];
         if ($status) $updateData['status'] = $status;
         if (isset($data['unit_type'])) $updateData['unit_type'] = $data['unit_type'];
-        if (isset($data['fuel_status'])) $updateData['fuel_status'] = $data['fuel_status'];
 
-        // Use Eloquent to trigger TrackChanges trait
+        // Cache old drivers to clean up their targets if removed/replaced
         $unit = Unit::findOrFail($id);
+        $old_p_driver = $unit->driver_id;
+        $old_s_driver = $unit->secondary_driver_id;
+
         $unit->update($updateData);
+
+        // Cleanup old primary driver if removed or replaced
+        if ($old_p_driver && $old_p_driver != $driver_id) {
+            DB::table('drivers')->where('id', $old_p_driver)->update(['daily_boundary_target' => 0]);
+        }
+        // Sync new primary driver
+        if ($driver_id) {
+            $this->syncDriverBoundaryTarget($driver_id, $unit);
+        }
+
+        // Cleanup old secondary driver if removed or replaced
+        if ($old_s_driver && $old_s_driver != $secondary_driver_id) {
+            DB::table('drivers')->where('id', $old_s_driver)->update(['daily_boundary_target' => 0]);
+        }
+        // Sync new secondary driver
+        if ($secondary_driver_id) {
+            $this->syncDriverBoundaryTarget($secondary_driver_id, $unit);
+        }
         
         // Remove 'updated_at' from manual array since Eloquent handles it
         if (isset($updateData['updated_at'])) unset($updateData['updated_at']);
@@ -312,10 +340,9 @@ class UnitController extends Controller
         $assigned_drivers = [];
         $driver_ids = array_filter([(int) ($unit->driver_id ?? 0), (int) ($unit->secondary_driver_id ?? 0)]);
         if (!empty($driver_ids)) {
-            $assigned_drivers = DB::table('users as u')
-                ->leftJoin('drivers as d', 'u.id', '=', 'd.user_id')
-                ->whereIn('u.id', $driver_ids)
-                ->select('u.id', 'u.full_name', 'u.email', 'd.license_number', 'd.contact_number', 'd.license_expiry', 'd.hire_date', 'd.daily_boundary_target')
+            $assigned_drivers = DB::table('drivers as d')
+                ->whereIn('d.id', $driver_ids)
+                ->select('d.id', DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')) as full_name"), 'd.license_number', 'd.contact_number', 'd.license_expiry', 'd.hire_date', 'd.daily_boundary_target')
                 ->get()->toArray();
         }
 
@@ -355,9 +382,9 @@ class UnitController extends Controller
 
         // Boundary history (last 10 records from boundaries table)
         $boundary_history = DB::table('boundaries as bh')
-            ->leftJoin('users as usr', 'bh.driver_id', '=', 'usr.id')
+            ->leftJoin('drivers as d', 'bh.driver_id', '=', 'd.id')
             ->where('bh.unit_id', $unit_id)
-            ->select('bh.*', 'usr.full_name')
+            ->select('bh.*', DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')) as full_name"))
             ->orderByDesc('bh.date')
             ->limit(10)->get()->toArray();
 
@@ -437,10 +464,9 @@ class UnitController extends Controller
         $assigned_drivers = [];
         $driver_ids = array_filter([(int) ($unit->driver_id ?? 0), (int) ($unit->secondary_driver_id ?? 0)]);
         if (!empty($driver_ids)) {
-            $assigned_drivers = DB::table('users as u')
-                ->join('drivers as d', 'u.id', '=', 'd.user_id')
-                ->whereIn('u.id', $driver_ids)
-                ->select('u.id', 'u.full_name', 'u.email', 'd.license_number', 'd.contact_number', 'd.license_expiry', 'd.hire_date', 'd.daily_boundary_target')
+            $assigned_drivers = DB::table('drivers as d')
+                ->whereIn('d.id', $driver_ids)
+                ->select('d.id', DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')) as full_name"), 'd.license_number', 'd.contact_number', 'd.license_expiry', 'd.hire_date', 'd.daily_boundary_target')
                 ->get()->toArray();
         }
 
@@ -477,9 +503,9 @@ class UnitController extends Controller
         ];
 
         $boundary_history = DB::table('boundaries as bh')
-            ->leftJoin('users as usr', 'bh.driver_id', '=', 'usr.id')
+            ->leftJoin('drivers as d', 'bh.driver_id', '=', 'd.id')
             ->where('bh.unit_id', $unit_id)
-            ->select('bh.*', 'usr.full_name')
+            ->select('bh.*', DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')) as full_name"))
             ->orderByDesc('bh.date')
             ->limit(10)->get()->toArray();
 
@@ -594,13 +620,12 @@ class UnitController extends Controller
         $headers = array_shift($csvData);
         
         foreach ($csvData as $row) {
-            if (count($row) >= 4) {
+            if (count($row) >= 3) {
                 DB::table('units')->insert([
-                    'unit_number' => $row[0] ?? '',
-                    'plate_number' => $row[1] ?? '',
-                    'make' => $row[2] ?? '',
-                    'model' => $row[3] ?? '',
-                    'status' => $row[4] ?? 'active',
+                    'plate_number' => $row[0] ?? '',
+                    'make' => $row[1] ?? '',
+                    'model' => $row[2] ?? '',
+                    'status' => $row[3] ?? 'active',
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]);
@@ -617,12 +642,12 @@ class UnitController extends Controller
     public function printPdf()
     {
         $units = DB::table('units as u')
-            ->leftJoin('users as usr1', 'u.driver_id', '=', 'usr1.id')
-            ->leftJoin('users as usr2', 'u.secondary_driver_id', '=', 'usr2.id')
+            ->leftJoin('drivers as drv1', 'u.driver_id', '=', 'drv1.id')
+            ->leftJoin('drivers as drv2', 'u.secondary_driver_id', '=', 'drv2.id')
             ->select(
                 'u.*',
-                'usr1.full_name as driver1_name',
-                'usr2.full_name as driver2_name'
+                DB::raw("CONCAT(COALESCE(drv1.first_name,''), ' ', COALESCE(drv1.last_name,'')) as driver1_name"),
+                DB::raw("CONCAT(COALESCE(drv2.first_name,''), ' ', COALESCE(drv2.last_name,'')) as driver2_name")
             )
             ->orderBy('u.plate_number')
             ->get();
@@ -635,5 +660,55 @@ class UnitController extends Controller
         }
 
         return view('units.print', compact('units'));
+    }
+
+    private function syncDriverBoundaryTarget($user_id, $unit)
+    {
+        if (!$user_id || !$unit) return;
+
+        $year = (int) $unit->year;
+        $customRate = (float) $unit->boundary_rate;
+        $coding_day = $unit->coding_day;
+        
+        $today = date('l');
+        $is_coding = $coding_day && (strtolower($today) === strtolower($coding_day));
+        
+        $final = 0;
+
+        // Fetch matching rule for the year
+        $rule = \App\Models\BoundaryRule::where('start_year', '<=', $year)
+            ->where('end_year', '>=', $year)
+            ->first();
+
+        // Determine Base Rate
+        // Use unit's custom boundary_rate as priority, fallback to rule's regular_rate, then 1100
+        $base = $customRate > 0 ? $customRate : ($rule ? (float)$rule->regular_rate : 1100);
+
+        if ($is_coding) {
+            if ($rule) {
+                if ($rule->coding_is_fixed) {
+                    $final = (float) $rule->coding_rate;
+                } else {
+                    // Logic: rule->coding_rate might be a pre-calculated 50% or we use base / 2
+                    // To be safe and automated, we use rule->coding_rate if it exists and > 0
+                    $final = (float) $rule->coding_rate > 0 ? (float) $rule->coding_rate : ($base / 2);
+                }
+            } else {
+                $final = $base / 2;
+            }
+        } elseif ($today === 'Saturday') {
+            $discount = $rule ? (float)$rule->sat_discount : 100;
+            $final = $base - $discount;
+        } elseif ($today === 'Sunday') {
+            $discount = $rule ? (float)$rule->sun_discount : 200;
+            $final = $base - $discount;
+        } else {
+            $final = $base;
+        }
+
+        DB::table('drivers')->where('id', $user_id)->update([
+            'daily_boundary_target' => $final,
+            'updated_at' => now(),
+        ]);
     }
 }

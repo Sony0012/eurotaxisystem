@@ -15,7 +15,6 @@ class SalaryController extends Controller
         $search = $request->input('search', '');
 
         $query = DB::table('salaries as s')
-            ->whereNull('s.deleted_at')
             ->leftJoin('users as u', 's.employee_id', '=', 'u.id')
             ->whereNull('u.deleted_at')
             ->select(
@@ -71,7 +70,7 @@ class SalaryController extends Controller
         $employees = DB::table('users')
             ->whereNull('deleted_at')
             ->where('is_active', 1)
-            ->whereIn('role', ['admin', 'staff', 'driver'])
+            ->whereIn('role', ['admin', 'staff'])
             ->select('id', 'full_name', 'role')
             ->orderBy('full_name')
             ->get();

@@ -12,7 +12,6 @@ class Unit extends Model
     protected $table = 'units';
 
     protected $fillable = [
-        'unit_number',
         'plate_number',
         'make',
         'model',
@@ -23,7 +22,6 @@ class Unit extends Model
         'purchase_cost',
         'color',
         'unit_type',
-        'fuel_status',
         'coding_day',
         'driver_id',
         'secondary_driver_id',
@@ -45,12 +43,12 @@ class Unit extends Model
 
     public function primaryDriver()
     {
-        return $this->belongsTo(User::class, 'driver_id');
+        return $this->belongsTo(Driver::class, 'driver_id');
     }
 
     public function secondaryDriver()
     {
-        return $this->belongsTo(User::class, 'secondary_driver_id');
+        return $this->belongsTo(Driver::class, 'secondary_driver_id');
     }
 
     public function boundaries()
@@ -66,5 +64,23 @@ class Unit extends Model
     public function codingRecords()
     {
         return $this->hasMany(CodingRecord::class, 'unit_id');
+    }
+
+    protected static function booted()
+    {
+        static::saving(function ($unit) {
+            // Auto-assign boundary rate based on year model if not manually overridden
+            // Or always sync if year changed
+            if ($unit->isDirty('year')) {
+                $year = (int) $unit->year;
+                $rule = \App\Models\BoundaryRule::where('start_year', '<=', $year)
+                    ->where('end_year', '>=', $year)
+                    ->first();
+                
+                if ($rule) {
+                    $unit->boundary_rate = $rule->regular_rate;
+                }
+            }
+        });
     }
 }

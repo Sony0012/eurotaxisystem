@@ -20,7 +20,7 @@
                     name="search"
                     value="{{ $search }}"
                     class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none"
-                    placeholder="Search by unit, plate, or driver..."
+                    placeholder="Search by plate number or driver..."
                 >
             </div>
         </div>
@@ -49,13 +49,23 @@
             </select>
         </div>
         
-        <button type="button"
-            onclick="addBoundary()"
-            class="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 flex items-center gap-2"
-        >
-            <i data-lucide="plus" class="w-4 h-4"></i>
-            Add Boundary
-        </button>
+        <div class="flex gap-2">
+            <a href="{{ route('boundary-rules.index') }}"
+                class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-300 flex items-center gap-2 border border-gray-200 transition-all font-semibold"
+                title="Manage Year-Based Pricing Rules"
+            >
+                <i data-lucide="settings" class="w-4 h-4"></i>
+                Pricing Rules
+            </a>
+            
+            <button type="button"
+                onclick="addBoundary()"
+                class="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 flex items-center gap-2 shadow-sm font-bold"
+            >
+                <i data-lucide="plus" class="w-4 h-4"></i>
+                Add Boundary
+            </button>
+        </div>
     </form>
 </div>
 
@@ -66,7 +76,7 @@
             <thead class="bg-gray-50">
                 <tr>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Unit</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Plate Number</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Driver</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Boundary</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actual</th>
@@ -89,10 +99,7 @@
                                 {{ formatDate($boundary['date']) }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <div>
-                                    <div class="text-sm font-medium text-gray-900">{{ $boundary['plate_number'] }}</div>
-                                    <div class="text-sm text-gray-500">Unit: {{ $boundary['unit_number'] }}</div>
-                                </div>
+                                <div class="text-sm font-medium text-gray-900">{{ $boundary['plate_number'] }}</div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="text-sm text-gray-900">{{ $boundary['driver_name'] ?? 'Unassigned' }}</div>
@@ -224,14 +231,14 @@
                             @foreach ($units as $unit)
                                 <div class="unit-option px-2 py-1 hover:bg-yellow-50 cursor-pointer border-b border-gray-100 last:border-b-0"
                                      data-id="{{ $unit['id'] }}"
-                                     data-name="{{ $unit['unit_number'] }}"
+                                     data-name="{{ $unit['plate_number'] }}"
                                      data-plate="{{ $unit['plate_number'] }}"
                                      data-model="{{ $unit['make_model'] ?? '' }}"
                                      data-rate="{{ $unit['boundary_rate'] ?? 0 }}"
                                      data-primary-driver="{{ $unit['driver_id'] }}"
                                      data-secondary-driver="{{ $unit['secondary_driver_id'] }}">
                                     <div class="font-medium text-xs">{{ $unit['plate_number'] }}</div>
-                                    <div class="text-xs text-gray-500">Unit: {{ $unit['unit_number'] }} - {{ $unit['make_model'] ?? 'N/A' }}</div>
+                                    <div class="text-xs text-gray-500">{{ $unit['make_model'] ?? 'N/A' }}</div>
                                 </div>
                             @endforeach
                         </div>
@@ -265,12 +272,11 @@
                                 @foreach ($all_drivers as $driver)
                                     <div class="driver-option px-2 py-1 hover:bg-yellow-50 cursor-pointer border-b border-gray-100 last:border-b-0"
                                          data-id="{{ $driver['id'] }}"
-                                         data-user-id="{{ $driver['user_id'] }}"
                                          data-name="{{ $driver['name'] }}"
                                          data-unit="{{ $driver['current_unit'] }}"
                                          data-plate="{{ $driver['current_plate'] }}">
                                         <div class="font-medium text-xs">{{ $driver['name'] }}</div>
-                                        <div class="text-xs text-gray-500">{{ $driver['current_plate'] }} (Unit: {{ $driver['current_unit'] }})</div>
+                                        <div class="text-xs text-gray-500">{{ $driver['current_plate'] }}</div>
                                     </div>
                                 @endforeach
                             </div>
@@ -464,7 +470,7 @@ function initializeUnitDropdown() {
                 const unitRate = parseFloat(this.getAttribute('data-rate') || 0);
                 
                 document.getElementById('unitId').value = unitId;
-                unitDisplay.value = `${unitPlate} (Unit: ${unitName})`;
+                unitDisplay.value = `${unitPlate}`;
                 unitDropdown.classList.add('hidden');
                 
                 // Auto-fill boundary amount and actual boundary
@@ -579,7 +585,7 @@ function filterDrivers(searchTerm) {
         const driverName = option.getAttribute('data-name').toLowerCase();
         const driverUnit = (option.getAttribute('data-unit') || '').toLowerCase();
         const driverPlate = (option.getAttribute('data-plate') || '').toLowerCase();
-        const driverUserId = option.getAttribute('data-user-id');
+        const driverIdAttr = option.getAttribute('data-id');
         
         if (driverName.includes(searchTerm) || driverUnit.includes(searchTerm) || driverPlate.includes(searchTerm)) {
             option.style.display = 'block';
@@ -591,7 +597,7 @@ function filterDrivers(searchTerm) {
             }
             
             // Match via primary or secondary driver ID for strict suggestion
-            const isSuggested = driverUserId && (driverUserId == primaryId || driverUserId == secondaryId);
+            const isSuggested = driverIdAttr && (driverIdAttr == primaryId || driverIdAttr == secondaryId);
 
             if (isSuggested) {
                 option.style.order = '-1';
@@ -671,7 +677,7 @@ function editBoundary(id) {
         if (unitOption && unitDisplay) {
             const unitName = unitOption.getAttribute('data-name');
             const unitPlate = unitOption.getAttribute('data-plate');
-            unitDisplay.value = `${unitName} - ${unitPlate}`;
+            unitDisplay.value = `${unitPlate}`;
             
             const pId = unitOption.getAttribute('data-primary-driver');
             const sId = unitOption.getAttribute('data-secondary-driver');

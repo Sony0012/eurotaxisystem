@@ -16,11 +16,11 @@ class LiveTrackingController extends Controller
             // Get all units with their latest GPS data
             $tracked_units = DB::table('units as u')
                 ->leftJoin('drivers as d', 'u.driver_id', '=', 'd.id')
-                ->leftJoin('users as usr', 'd.user_id', '=', 'usr.id')
                 ->leftJoin('gps_tracking as g', 'u.id', '=', 'g.unit_id')
                 ->select(
-                    'u.id', 'u.unit_number', 'u.plate_number', 'u.make', 'u.model', 'u.status', 'u.gps_link',
-                    'usr.full_name as current_driver', 'usr.phone as driver_phone',
+                    'u.id', 'u.plate_number', 'u.make', 'u.model', 'u.status', 'u.gps_link',
+                    DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')) as current_driver"), 
+                    'd.contact_number as driver_phone',
                     'g.latitude', 'g.longitude', 'g.speed', 'g.heading', 'g.ignition_status', 'g.timestamp as last_update'
                 )
                 ->orderBy('u.plate_number')
@@ -90,11 +90,11 @@ class LiveTrackingController extends Controller
         try {
             $units = DB::table('units as u')
                 ->leftJoin('drivers as d', 'u.driver_id', '=', 'd.id')
-                ->leftJoin('users as usr', 'd.user_id', '=', 'usr.id')
                 ->leftJoin('gps_tracking as g', 'u.id', '=', 'g.unit_id')
                 ->select(
-                    'u.id', 'u.unit_number', 'u.plate_number', 'u.gps_link', 'u.status',
-                    'usr.full_name as driver_name', 'usr.phone as driver_phone',
+                    'u.id', 'u.plate_number', 'u.gps_link', 'u.status',
+                    DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')) as driver_name"), 
+                    'd.contact_number as driver_phone',
                     'g.latitude', 'g.longitude', 'g.speed', 'g.heading', 'g.ignition_status', 'g.timestamp as last_update'
                 )
                 ->orderBy('u.plate_number')

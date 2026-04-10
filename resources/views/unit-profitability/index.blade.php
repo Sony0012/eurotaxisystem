@@ -25,7 +25,7 @@
                     <option value="">All Units</option>
                     @foreach($units as $unit)
                         <option value="{{ $unit->id }}" {{ ($selected_unit ?? '') == $unit->id ? 'selected' : '' }}>
-                            {{ $unit->plate_number }} (Unit: {{ $unit->unit_number }})
+                            {{ $unit->plate_number }}
                         </option>
                     @endforeach
                 </select>
@@ -103,7 +103,6 @@
                         <tr class="hover:bg-gray-50">
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="text-sm font-medium text-gray-900">{{ $item->plate_number }}</div>
-                                <div class="text-[10px] text-gray-500">Unit: {{ $item->unit_number }}</div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                 {{ $item->make ?? '' }} {{ $item->model ?? '' }}
@@ -158,7 +157,7 @@
                     <div class="px-5 py-3 flex items-center justify-between">
                         <div>
                             <p class="text-sm font-semibold text-gray-800">{{ $unit->plate_number }}</p>
-                            <p class="text-[10px] text-gray-500">Unit: {{ $unit->unit_number }} | {{ $unit->make ?? '' }} {{ $unit->model ?? '' }}</p>
+                            <p class="text-[10px] text-gray-500">{{ $unit->make ?? '' }} {{ $unit->model ?? '' }}</p>
                         </div>
                         <div class="text-right">
                             <p class="text-sm font-bold text-green-600">{{ formatCurrency($unit->net_income ?? 0) }}</p>
@@ -187,7 +186,7 @@
                     <div class="px-5 py-3 flex items-center justify-between">
                         <div>
                             <p class="text-sm font-semibold text-gray-800">{{ $unit->plate_number }}</p>
-                            <p class="text-[10px] text-gray-500">Unit: {{ $unit->unit_number }} | {{ $unit->make ?? '' }} {{ $unit->model ?? '' }}</p>
+                            <p class="text-[10px] text-gray-500">{{ $unit->make ?? '' }} {{ $unit->model ?? '' }}</p>
                         </div>
                         <div class="text-right">
                             <p class="text-sm font-bold {{ ($unit->net_income ?? 0) >= 0 ? 'text-yellow-600' : 'text-red-600' }}">{{ formatCurrency($unit->net_income ?? 0) }}</p>

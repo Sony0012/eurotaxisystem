@@ -162,9 +162,20 @@
                 <input type="hidden" name="_method" id="driverFormMethod" value="POST">
                 <input type="hidden" name="driver_id" id="editDriverId" value="">
 
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">First Name *</label>
+                        <input type="text" name="first_name" id="driverFirstName" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Last Name *</label>
+                        <input type="text" name="last_name" id="driverLastName" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
+                    </div>
+                </div>
+
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Full Name *</label>
-                    <input type="text" name="full_name" id="driverFullName" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Nickname</label>
+                    <input type="text" name="nickname" id="driverNickname" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -206,8 +217,13 @@
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Daily Boundary Target</label>
-                    <input type="number" name="daily_boundary_target" id="driverBoundaryTarget" step="0.01" value="1100.00" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
+                    <label class="block text-sm font-medium text-gray-700 mb-1 flex justify-between items-center">
+                        Daily Boundary Target
+                        <span id="codingBoundaryAlert" class="text-[10px] text-red-600 font-bold hidden"></span>
+                    </label>
+                    <input type="number" name="daily_boundary_target" id="driverBoundaryTarget" step="0.01" 
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500" 
+                        placeholder="Please dispatch to appear boundary">
                 </div>
 
                 <div class="flex items-center justify-between mt-4">
@@ -346,12 +362,15 @@
 
 @push('scripts')
 <script>
+window.boundaryRules = @json($boundary_rules ?? []);
 function openAddDriverModal() {
     document.getElementById('driverModalTitle').textContent = 'Add Driver';
     document.getElementById('driverFormMethod').value = 'POST';
     document.getElementById('driverForm').action = '{{ route('driver-management.store') }}';
     document.getElementById('editDriverId').value = '';
-    document.getElementById('driverFullName').value = '';
+    document.getElementById('driverFirstName').value = '';
+    document.getElementById('driverLastName').value = '';
+    document.getElementById('driverNickname').value = '';
     document.getElementById('driverContact').value = '';
     document.getElementById('driverLicense').value = '';
     document.getElementById('driverLicenseExpiry').value = '';
@@ -359,7 +378,18 @@ function openAddDriverModal() {
     document.getElementById('driverAddress').value = '';
     document.getElementById('driverEmergencyContact').value = '';
     document.getElementById('driverEmergencyPhone').value = '';
-    document.getElementById('driverBoundaryTarget').value = '1100.00';
+    const targetInput = document.getElementById('driverBoundaryTarget');
+    const codingAlert = document.getElementById('codingBoundaryAlert');
+    
+    targetInput.value = '';
+    targetInput.placeholder = 'Please dispatch to appear boundary';
+    if (codingAlert) {
+        codingAlert.classList.remove('hidden');
+        codingAlert.classList.remove('text-red-600');
+        codingAlert.classList.add('text-gray-500');
+        codingAlert.textContent = '(Pending Dispatch)';
+    }
+
     document.getElementById('editIsActive').value = '1';
     document.getElementById('deleteDriverButton').classList.add('hidden');
     document.getElementById('addDriverModal').classList.remove('hidden');
@@ -376,7 +406,9 @@ function openEditDriverModal(id) {
         document.getElementById('driverFormMethod').value = 'PUT';
         document.getElementById('driverForm').action = '{{ url('driver-management') }}/' + id;
         document.getElementById('editDriverId').value = id;
-        document.getElementById('driverFullName').value = data.full_name || '';
+        document.getElementById('driverFirstName').value = data.first_name || '';
+        document.getElementById('driverLastName').value = data.last_name || '';
+        document.getElementById('driverNickname').value = data.nickname || '';
         document.getElementById('driverContact').value = data.contact_number || '';
         document.getElementById('driverLicense').value = data.license_number || '';
         document.getElementById('driverLicenseExpiry').value = data.license_expiry || '';
@@ -384,7 +416,72 @@ function openEditDriverModal(id) {
         document.getElementById('driverAddress').value = data.address || '';
         document.getElementById('driverEmergencyContact').value = data.emergency_contact || '';
         document.getElementById('driverEmergencyPhone').value = data.emergency_phone || '';
-        document.getElementById('driverBoundaryTarget').value = data.daily_boundary_target || '1100.00';
+        
+        // Dynamic Boundary Automation (Rule-Based)
+        const targetInput = document.getElementById('driverBoundaryTarget');
+        const codingAlert = document.getElementById('codingBoundaryAlert');
+        
+        if (data.assigned_boundary_rate) {
+            const year = parseInt(data.assigned_unit_year) || 0;
+            const customRate = parseFloat(data.assigned_boundary_rate) || 0; 
+            const today = new Intl.DateTimeFormat('en-US', { weekday: 'long' }).format(new Date());
+            const isCoding = data.assigned_coding_day && data.assigned_coding_day.toLowerCase() === today.toLowerCase();
+            
+            let finalVal = 0;
+            let statusText = '';
+            
+            // Priority 1: Use unit's custom boundary_rate if it exists (> 0)
+            if (customRate > 0) {
+                if (isCoding) { finalVal = customRate / 2; statusText = '(Coding Day - 50% of Custom Rate)'; }
+                else if (today === 'Saturday') { finalVal = customRate - 100; statusText = '(Saturday - 100 Discount)'; }
+                else if (today === 'Sunday') { finalVal = customRate - 200; statusText = '(Sunday - 200 Discount)'; }
+                else finalVal = customRate;
+            } 
+            // Priority 2: Fallback to Dynamic Year Brackets from Database
+            let ruleMatch = null;
+            if (window.boundaryRules) {
+                ruleMatch = window.boundaryRules.find(r => year >= r.start_year && year <= r.end_year);
+            }
+
+            if (ruleMatch) {
+                if (isCoding) {
+                    finalVal = parseFloat(ruleMatch.coding_rate);
+                    statusText = ruleMatch.coding_is_fixed ? `(Coding Day - Fixed ${finalVal})` : `(Coding Day - 50% Applied)`;
+                } else if (today === 'Saturday') {
+                    finalVal = parseFloat(ruleMatch.regular_rate) - parseFloat(ruleMatch.sat_discount);
+                    statusText = `(Saturday - ${parseFloat(ruleMatch.sat_discount)} Discount)`;
+                } else if (today === 'Sunday') {
+                    finalVal = parseFloat(ruleMatch.regular_rate) - parseFloat(ruleMatch.sun_discount);
+                    statusText = `(Sunday - ${parseFloat(ruleMatch.sun_discount)} Discount)`;
+                } else {
+                    finalVal = parseFloat(ruleMatch.regular_rate);
+                }
+            } else {
+                // Final Fallback for other years if any
+                const base = parseFloat(data.assigned_boundary_rate) || 1100;
+                finalVal = isCoding ? (base / 2) : base;
+                if (isCoding) statusText = '(Coding Day - 50% Applied)';
+            }
+            
+            targetInput.value = finalVal.toFixed(2);
+            targetInput.placeholder = '0.00';
+            
+            if (statusText) {
+                codingAlert.classList.remove('hidden');
+                codingAlert.textContent = statusText;
+                codingAlert.className = isCoding ? 'text-[10px] text-red-600 font-bold' : 'text-[10px] text-blue-600 font-bold';
+            } else {
+                codingAlert.classList.add('hidden');
+            }
+        } else {
+            targetInput.value = '';
+            targetInput.placeholder = 'Please dispatch to appear boundary';
+            if (codingAlert) {
+                codingAlert.classList.remove('hidden');
+                codingAlert.className = 'text-[10px] text-gray-500 font-bold';
+                codingAlert.textContent = '(Pending Dispatch)';
+            }
+        }
         document.getElementById('editIsActive').value = data.is_active ? '1' : '0';
         document.getElementById('deleteDriverButton').classList.remove('hidden');
         document.getElementById('addDriverModal').classList.remove('hidden');
@@ -408,7 +505,9 @@ function closeAddDriverModal() {
 
 function confirmDeleteDriver() {
     const id = document.getElementById('editDriverId').value;
-    const name = document.getElementById('driverFullName').value || 'this driver';
+    const firstName = document.getElementById('driverFirstName').value || '';
+    const lastName = document.getElementById('driverLastName').value || '';
+    const name = (firstName + ' ' + lastName).trim() || 'this driver';
     deleteDriver(id, name);
 }
 
@@ -458,7 +557,9 @@ function openDriverDetails(id) {
 
         document.getElementById('basicInfoContent').innerHTML = `
             <div>
-                <p><span class="font-semibold">Full Name:</span> ${data.full_name || ''}</p>
+                <p><span class="font-semibold">First Name:</span> ${data.first_name || ''}</p>
+                <p><span class="font-semibold">Last Name:</span> ${data.last_name || ''}</p>
+                <p><span class="font-semibold">Nickname:</span> ${data.nickname || 'N/A'}</p>
                 <p><span class="font-semibold">Contact:</span> ${data.contact_number || 'N/A'}</p>
                 <p><span class="font-semibold">Address:</span> ${data.address || 'N/A'}</p>
                 <p><span class="font-semibold">Emergency Contact:</span> ${data.emergency_contact || 'N/A'}</p>

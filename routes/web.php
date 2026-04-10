@@ -21,6 +21,7 @@ use App\Http\Controllers\GitHubIntegrationController;
 use App\Http\Controllers\StaffController;
 use App\Http\Controllers\MyAccountController;
 use App\Http\Controllers\ArchiveController;
+use App\Http\Controllers\BoundarySettingsController;
 
 // ─── Auth Routes ───────────────────────────────────────
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
@@ -142,4 +143,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/archive', [ArchiveController::class, 'index'])->name('archive.index');
     Route::post('/archive/restore/{type}/{id}', [ArchiveController::class, 'restore'])->name('archive.restore');
     Route::delete('/archive/force-delete/{type}/{id}', [ArchiveController::class, 'forceDelete'])->name('archive.forceDelete');
+
+    // ─── System Settings - Boundary Rules ───────────────────
+    Route::get('/boundary-rules', [BoundarySettingsController::class, 'index'])->name('boundary-rules.index');
+    Route::post('/boundary-rules', [BoundarySettingsController::class, 'store'])->name('boundary-rules.store');
+    Route::put('/boundary-rules/{id}', [BoundarySettingsController::class, 'update'])->name('boundary-rules.update');
+    Route::delete('/boundary-rules/{id}', [BoundarySettingsController::class, 'destroy'])->name('boundary-rules.destroy');
 });

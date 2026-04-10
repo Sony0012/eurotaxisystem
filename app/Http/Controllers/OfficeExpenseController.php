@@ -24,7 +24,7 @@ class OfficeExpenseController extends Controller
             ->leftJoin('units as un', 'e.unit_id', '=', 'un.id')
             ->leftJoin('users as creator', 'e.created_by', '=', 'creator.id')
             ->leftJoin('users as editor', 'e.updated_by', '=', 'editor.id')
-            ->select('e.*', 'u.full_name as recorded_by_name', 'un.unit_number', 'creator.full_name as creator_name', 'editor.full_name as editor_name')
+            ->select('e.*', 'u.full_name as recorded_by_name', 'un.plate_number', 'creator.full_name as creator_name', 'editor.full_name as editor_name')
             ->whereBetween('e.date', [$date_from, $date_to]);
 
         if (!empty($search)) {
@@ -79,8 +79,8 @@ class OfficeExpenseController extends Controller
         // Get units for dropdown
         $units = DB::table('units')
             ->where('status', 'active')
-            ->select('id', 'unit_number', 'plate_number')
-            ->orderBy('unit_number')
+            ->select('id', 'plate_number')
+            ->orderBy('plate_number')
             ->get();
 
         return view('office-expenses.index', compact('expenses', 'pagination', 'search', 'category', 'date_from', 'date_to', 'totals', 'categories', 'stats', 'units'));

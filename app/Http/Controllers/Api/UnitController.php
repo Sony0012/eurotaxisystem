@@ -16,7 +16,6 @@ class UnitController extends Controller
         $units = Unit::all()->map(function($unit) {
             return [
                 'id' => $unit->id,
-                'unit_number' => $unit->unit_number,
                 'plate_number' => $unit->plate_number,
                 'status' => $unit->status,
                 'boundary_rate' => $unit->boundary_rate,

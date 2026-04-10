@@ -49,29 +49,28 @@ class AnalyticsController extends Controller
                     ->whereNull('m.deleted_at');
             })
             ->selectRaw('
-                u.unit_number,
                 u.plate_number as unit,
                 COUNT(m.id) as breakdown_count,
                 SUM(CASE WHEN m.status = "completed" THEN DATEDIFF(m.date_completed, m.date_started) ELSE 0 END) as total_maintenance_days
             ')
             ->where('m.date_started', '>=', DB::raw('DATE_SUB(CURDATE(), INTERVAL 30 DAY)'))
-            ->groupBy('u.id', 'u.unit_number', 'u.plate_number')
+            ->groupBy('u.id', 'u.plate_number')
             ->get();
 
         // Get driver performance
         $driverPerformance = DB::table('boundaries as b')
             ->whereNull('b.deleted_at')
-            ->join('users as u', 'b.driver_id', '=', 'u.id')
-            ->whereNull('u.deleted_at')
+            ->join('drivers as d', 'b.driver_id', '=', 'd.id')
+            ->whereNull('d.deleted_at')
             ->selectRaw('
-                u.full_name,
+                CONCAT(COALESCE(d.first_name,\'\'), \' \', COALESCE(d.last_name,\'\')) as full_name,
                 COUNT(b.id) as days_worked,
                 SUM(b.boundary_amount) as total_collected,
                 AVG(b.boundary_amount) as avg_daily,
                 SUM(b.excess) - SUM(b.shortage) as net_excess
             ')
             ->whereBetween('b.date', [$date_from, $date_to])
-            ->groupBy('u.id', 'u.full_name')
+            ->groupBy('d.id')
             ->orderByDesc('avg_daily')
             ->limit(10)
             ->get();
@@ -112,16 +111,16 @@ class AnalyticsController extends Controller
         
         // Calculate net income and active drivers
         $net_income = 0; // Placeholder - would need revenue data to calculate
-        $active_drivers = DB::table('users')
+        $active_drivers = DB::table('drivers')
             ->whereNull('deleted_at')
-            ->where('role', 'driver')
+            ->whereIn('driver_status', ['available', 'assigned'])
             ->count();
         
         // Get top performing units
         $top_units = DB::table('units')
             ->whereNull('deleted_at')
-            ->leftJoin('users as d', 'units.driver_id', '=', 'd.id')
-            ->select('units.*', 'd.full_name as driver_name')
+            ->leftJoin('drivers as d', 'units.driver_id', '=', 'd.id')
+            ->select('units.*', DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')) as driver_name"))
             ->addSelect(DB::raw('0 as total_collected, 0 as days_operated')) // Placeholder values
             ->orderBy('units.plate_number')
             ->limit(5)
