@@ -102,7 +102,11 @@
                                 <div class="text-sm font-medium text-gray-900">{{ $boundary['plate_number'] }}</div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-900">{{ $boundary['driver_name'] ?? 'Unassigned' }}</div>
+                                <div class="text-sm text-gray-900">{{ $boundary['driver_name'] ?? 'Unassigned' }}
+                                    @if(!empty($boundary['is_extra_driver']))
+                                        <span class="ml-1 px-1.5 py-0.5 bg-orange-100 text-orange-700 text-[9px] font-bold rounded border border-orange-300 uppercase tracking-tight">Extra Driver</span>
+                                    @endif
+                                </div>
                                 <div class="text-[10px] text-gray-500 mt-1">
                                     <span title="Input by {{ $boundary['creator_name'] ?? 'System' }}">In: {{ $boundary['creator_name'] ?? 'System' }}</span>
                                     @if(isset($boundary['editor_name']) && $boundary['editor_name'])
@@ -110,8 +114,18 @@
                                     @endif
                                 </div>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                {{ formatCurrency($boundary['boundary_amount']) }}
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex flex-col">
+                                    <span class="text-sm text-gray-900 font-bold">{{ formatCurrency($boundary['boundary_amount']) }}</span>
+                                    @if(isset($boundary['rate_label']) && ($boundary['rate_type'] ?? 'regular') !== 'regular')
+                                        <span class="text-[9px] font-black uppercase tracking-tighter px-1 rounded-sm mt-0.5 w-fit
+                                            @if($boundary['rate_type'] === 'coding') bg-red-100 text-red-600 border border-red-200
+                                            @elseif($boundary['rate_type'] === 'discount') bg-blue-100 text-blue-600 border border-blue-200
+                                            @else bg-gray-100 text-gray-500 @endif">
+                                            {{ $boundary['rate_label'] }}
+                                        </span>
+                                    @endif
+                                </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                 {{ formatCurrency($boundary['actual_boundary'] ?? 0) }}
@@ -233,10 +247,12 @@
                                      data-id="{{ $unit['id'] }}"
                                      data-name="{{ $unit['plate_number'] }}"
                                      data-plate="{{ $unit['plate_number'] }}"
+                                     data-year="{{ $unit['year'] ?? 0 }}"
                                      data-model="{{ $unit['make_model'] ?? '' }}"
                                      data-rate="{{ $unit['boundary_rate'] ?? 0 }}"
-                                     data-primary-driver="{{ $unit['driver_id'] }}"
-                                     data-secondary-driver="{{ $unit['secondary_driver_id'] }}">
+                                     data-coding-day="{{ $unit['coding_day'] ?? '' }}"
+                                     data-primary-id="{{ $unit['driver_id'] }}"
+                                     data-secondary-id="{{ $unit['secondary_driver_id'] }}">
                                     <div class="font-medium text-xs">{{ $unit['plate_number'] }}</div>
                                     <div class="text-xs text-gray-500">{{ $unit['make_model'] ?? 'N/A' }}</div>
                                 </div>
@@ -274,7 +290,8 @@
                                          data-id="{{ $driver['id'] }}"
                                          data-name="{{ $driver['name'] }}"
                                          data-unit="{{ $driver['current_unit'] }}"
-                                         data-plate="{{ $driver['current_plate'] }}">
+                                         data-plate="{{ $driver['current_plate'] }}"
+                                         data-shortage="{{ $driver['net_shortage'] ?? 0 }}">
                                         <div class="font-medium text-xs">{{ $driver['name'] }}</div>
                                         <div class="text-xs text-gray-500">{{ $driver['current_plate'] }}</div>
                                     </div>
@@ -284,22 +301,59 @@
                         </div>
                     </div>
                 </div>
-                
+
+                {{-- Extra Driver Alert --}}
+                <div id="extraDriverAlert" class="hidden mt-1 px-3 py-2 bg-orange-50 border border-orange-300 rounded-lg flex items-start gap-2">
+                    <span class="text-orange-500 mt-0.5">⚠️</span>
+                    <div>
+                        <p class="text-xs font-bold text-orange-700">Extra Driver Detected</p>
+                        <p class="text-[11px] text-orange-600">This driver is not regularly assigned to this unit. The record will be marked as <strong>Extra Driver</strong>.</p>
+                    </div>
+                </div>
+
+                {{-- Past Shortage Alert --}}
+                <div id="shortageBalanceAlert" class="hidden mt-1 px-3 py-2 bg-red-50 border border-red-300 rounded-lg">
+                    <div class="flex items-start gap-2 mb-1">
+                        <span class="text-red-500 mt-0.5">🚨</span>
+                        <div class="flex-1">
+                            <p class="text-xs font-bold text-red-700">Past Balance Due</p>
+                            <p class="text-[11px] text-red-600">This driver has an unpaid balance of <strong id="shortageBalanceAmount">₱0.00</strong> from previous shortages.</p>
+                        </div>
+                    </div>
+                    <button type="button" onclick="payFullBalance()" 
+                            class="w-full py-1 bg-red-600 text-white text-[10px] uppercase font-bold rounded hover:bg-red-700 transition-colors shadow-sm">
+                        Pay Full Balance & Clear Debt
+                    </button>
+                    <input type="hidden" id="rawShortageAmount" value="0">
+                </div>
+
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Date *</label>
                     <input type="date" name="date" id="date" required value="{{ date('Y-m-d') }}" class="w-full px-2 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
                 </div>
                 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Boundary Amount *</label>
-                    <input type="number" name="boundary_amount" id="boundaryAmount" required step="0.01" min="0" class="w-full px-2 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Target Boundary Amount *</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <span class="text-gray-500 text-xs">₱</span>
+                        </div>
+                        <input type="number" name="boundary_amount" id="boundaryAmount" required step="0.01" min="0" 
+                               readonly tabindex="-1"
+                               class="w-full pl-7 px-2 py-1.5 border border-gray-300 rounded-lg bg-gray-50 text-gray-500 cursor-not-allowed focus:ring-0 focus:border-gray-300"
+                               title="This target is inherited from Unit Management (adjusted for date)">
+                    </div>
                 </div>
                 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Actual Boundary</label>
-                    <input type="hidden" name="actual_boundary" id="actualBoundary" step="0.01" min="0">
-                    <div class="w-full px-2 py-1.5 border border-gray-300 rounded-lg bg-gray-50 text-gray-600 text-sm" id="actualBoundaryDisplay">
-                        Auto-filled based on boundary amount
+                    <label class="block text-sm font-medium text-gray-700 mb-1 font-bold">Actual Boundary Collected *</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <span class="text-blue-600 font-bold text-xs">₱</span>
+                        </div>
+                        <input type="number" name="actual_boundary" id="actualBoundary" required step="0.01" min="0" 
+                               class="w-full pl-7 px-2 py-1.5 border-2 border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-bold text-blue-800"
+                               placeholder="0.00">
                     </div>
                 </div>
                 
@@ -420,21 +474,6 @@ function calculateAdjustedBoundary(baseRate, codingDay, dateStr) {
     return Math.max(0, adjustedRate);
 }
 
-// Old Searchable Driver Dropdown Functions removed
-
-// Initialize driver dropdown when page loads
-document.addEventListener('DOMContentLoaded', function() {
-    initializeDriverDropdown();
-    initializeUnitDropdown();
-    
-    // Sync actual boundary with boundary amount when changed
-    document.getElementById('boundaryAmount').addEventListener('input', function() {
-        const value = this.value || '0.00';
-        document.getElementById('actualBoundary').value = value;
-        document.getElementById('actualBoundaryDisplay').textContent = `₱${parseFloat(value).toFixed(2)}`;
-    });
-});
-
 // Unit dropdown functionality
 function initializeUnitDropdown() {
     const unitDisplay = document.getElementById('unitDisplay');
@@ -461,26 +500,39 @@ function initializeUnitDropdown() {
             }
         });
         
-        // Handle unit selection
+        // Handle unit selection - use mousedown to fire before document click hide
         unitOptions.forEach(option => {
-            option.addEventListener('click', function() {
+            option.addEventListener('mousedown', function(e) {
+                e.preventDefault(); // Prevent focus loss
                 const unitId = this.getAttribute('data-id');
                 const unitName = this.getAttribute('data-name');
                 const unitPlate = this.getAttribute('data-plate');
-                const unitRate = parseFloat(this.getAttribute('data-rate') || 0);
-                
-                document.getElementById('unitId').value = unitId;
-                unitDisplay.value = `${unitPlate}`;
-                unitDropdown.classList.add('hidden');
-                
-                // Auto-fill boundary amount and actual boundary
-                document.getElementById('boundaryAmount').value = unitRate.toFixed(2);
-                document.getElementById('actualBoundary').value = unitRate.toFixed(2);
-                document.getElementById('actualBoundaryDisplay').textContent = `₱${unitRate.toFixed(2)}`;
                 
                 // Store primary and secondary driver IDs for suggestion
-                const primaryId = this.getAttribute('data-primary-driver');
-                const secondaryId = this.getAttribute('data-secondary-driver');
+                const primaryId = this.getAttribute('data-primary-id');
+                const secondaryId = this.getAttribute('data-secondary-id');
+                const plate = this.getAttribute('data-plate');
+                const year = this.getAttribute('data-year');
+                const customRate = this.getAttribute('data-rate');
+
+                document.getElementById('unitId').value = unitId;
+                unitDisplay.value = unitPlate;
+                unitDropdown.classList.add('hidden');
+
+                // Reset extra driver alert when unit changes
+                const alertBox = document.getElementById('extraDriverAlert');
+                if (alertBox) alertBox.classList.add('hidden');
+                document.getElementById('driverId').value = '';
+                document.getElementById('driverDisplay').value = '';
+
+                // Auto-calculate suggested rate
+                const suggestedRate = calculateAutomatedRate(year, plate, customRate);
+                const boundaryInput = document.getElementById('boundaryAmount');
+                if (boundaryInput) {
+                    boundaryInput.value = suggestedRate;
+                    document.getElementById('actualBoundary').value = suggestedRate;
+                }
+
                 unitDisplay.setAttribute('data-primary-id', primaryId || '');
                 unitDisplay.setAttribute('data-secondary-id', secondaryId || '');
 
@@ -551,19 +603,60 @@ function initializeDriverDropdown() {
         
         // Handle driver selection
         driverOptions.forEach(option => {
-            option.addEventListener('click', function() {
+            option.addEventListener('mousedown', function(e) {
+                e.preventDefault();
                 const driverId = this.getAttribute('data-id');
                 const driverName = this.getAttribute('data-name');
-                
+                const shortage = parseFloat(this.getAttribute('data-shortage') || 0);
+
                 document.getElementById('driverId').value = driverId;
                 driverDisplay.value = driverName;
                 driverDropdown.classList.add('hidden');
+
+                // Check if extra driver (not assigned to selected unit)
+                const unitIdInput = document.getElementById('unitId');
+                const unitOption = document.querySelector(`.unit-option[data-id="${unitIdInput.value}"]`);
+                const primaryId = unitOption ? unitOption.getAttribute('data-primary-id') : '';
+                const secondaryId = unitOption ? unitOption.getAttribute('data-secondary-id') : '';
                 
-                // Trigger change event
+                const extraAlert = document.getElementById('extraDriverAlert');
+                if (driverId && driverId !== 'all' && primaryId && driverId !== primaryId && driverId !== secondaryId) {
+                    extraAlert.classList.remove('hidden');
+                } else {
+                    extraAlert.classList.add('hidden');
+                }
+
+                // Handle Shortage Balance Alert
+                const shortageAlert = document.getElementById('shortageBalanceAlert');
+                const shortageAmountSpan = document.getElementById('shortageBalanceAmount');
+                const rawShortageInput = document.getElementById('rawShortageAmount');
+
+                if (shortage > 0) {
+                    shortageAlert.classList.remove('hidden');
+                    shortageAmountSpan.textContent = "₱" + shortage.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                    rawShortageInput.value = shortage;
+                } else {
+                    shortageAlert.classList.add('hidden');
+                    rawShortageInput.value = 0;
+                }
+
                 document.getElementById('driverId').dispatchEvent(new Event('change'));
             });
         });
     }
+}
+
+function payFullBalance() {
+    const dailyTarget = parseFloat(document.getElementById('boundaryAmount').value || 0);
+    const pastShortage = parseFloat(document.getElementById('rawShortageAmount').value || 0);
+    const actualCollectedInput = document.getElementById('actualBoundary');
+
+    const totalToPay = dailyTarget + pastShortage;
+    actualCollectedInput.value = totalToPay.toFixed(2);
+    
+    // Visual feedback/confirmation
+    actualCollectedInput.classList.add('ring-4', 'ring-green-400');
+    setTimeout(() => actualCollectedInput.classList.remove('ring-4', 'ring-green-400'), 1000);
 }
 
 function filterDrivers(searchTerm) {
@@ -640,18 +733,22 @@ function addBoundary() {
     document.getElementById('modalTitle').textContent = 'Add Boundary Record';
     document.getElementById('formAction').value = 'add_boundary';
     document.getElementById('boundaryForm').reset();
-    
+
     const unitDisplay = document.getElementById('unitDisplay');
     if (unitDisplay) {
         unitDisplay.value = '';
         unitDisplay.removeAttribute('data-primary-id');
         unitDisplay.removeAttribute('data-secondary-id');
     }
-    
-    document.getElementById('date').value = new Date().toISOString().split('T')[0];
+
+    // Hide alerts on fresh open
+    const extraAlert = document.getElementById('extraDriverAlert');
+    const shortageAlert = document.getElementById('shortageBalanceAlert');
+    if (extraAlert) extraAlert.classList.add('hidden');
+    if (shortageAlert) shortageAlert.classList.add('hidden');
+
+    document.getElementById('date').value = new Date().toLocaleDateString('en-CA');
     document.getElementById('boundaryModal').classList.remove('hidden');
-    
-    // Set to POST action empty base (which routes to store)
     lucide.createIcons();
 }
 
@@ -692,8 +789,8 @@ function editBoundary(id) {
             document.getElementById('driverDisplay').value = name;
         }
         
-        // Make boundary amount editable for editing
-        document.getElementById('boundaryAmount').readOnly = false;
+        // Keep boundary amount read-only as per source-of-truth requirement
+        document.getElementById('boundaryAmount').readOnly = true;
         
         document.getElementById('boundaryModal').classList.remove('hidden');
         lucide.createIcons();
@@ -704,7 +801,86 @@ function editBoundary(id) {
 
 function closeModal() {
     document.getElementById('boundaryModal').classList.add('hidden');
-    document.getElementById('boundaryAmount').readOnly = false;
 }
+
+window.boundaryRules = @json($boundary_rules ?? []);
+
+function calculateAutomatedRate(year, plate, customRate) {
+    const rules = window.boundaryRules;
+    const yr = parseInt(year) || 0;
+    const rate = parseFloat(customRate) || 0;
+
+    // Find rule for the year
+    const rule = rules.find(r => yr >= r.start_year && yr <= r.end_year);
+    
+    // Base rate
+    const base = rate > 0 ? rate : (rule ? parseFloat(rule.regular_rate) : 1100);
+    
+    // Detect coding day
+    const codingDay = deriveCodingDay(plate);
+    const today = new Date().toLocaleDateString('en-US', { weekday: 'long' });
+    
+    if (codingDay && today === codingDay) {
+        if (rule && rule.coding_rate > 0) return parseFloat(rule.coding_rate);
+        return base / 2;
+    }
+    
+    if (today === 'Saturday') {
+        const disc = rule ? parseFloat(rule.sat_discount) : 100;
+        return base - disc;
+    }
+    
+    if (today === 'Sunday') {
+        const disc = rule ? parseFloat(rule.sun_discount) : 200;
+        return base - disc;
+    }
+    
+    return base;
+}
+
+function deriveCodingDay(plate) {
+    if (!plate) return null;
+    const cleanPlate = plate.toString().trim();
+    let lastChar = cleanPlate.slice(-1);
+    
+    if (isNaN(parseInt(lastChar))) {
+        // Find last numeric char
+        const matches = cleanPlate.match(/\d/g);
+        if (matches) lastChar = matches[matches.length - 1];
+        else return null;
+    }
+    
+    const lastDigit = parseInt(lastChar);
+    const mapping = {
+        'Monday': [1, 2],
+        'Tuesday': [3, 4],
+        'Wednesday': [5, 6],
+        'Thursday': [7, 8],
+        'Friday': [9, 0]
+    };
+    
+    for (const [day, digits] of Object.entries(mapping)) {
+        if (digits.includes(lastDigit)) return day;
+    }
+    return null;
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
+    initializeUnitDropdown();
+    initializeDriverDropdown();
+    
+    // Sync actual boundary with boundary amount when changed
+    const amtInput = document.getElementById('boundaryAmount');
+    if (amtInput) {
+        amtInput.addEventListener('input', function() {
+            const val = this.value || '0.00';
+            const actualInput = document.getElementById('actualBoundary');
+            if (actualInput) actualInput.value = val;
+        });
+    }
+});
 </script>
 @endpush

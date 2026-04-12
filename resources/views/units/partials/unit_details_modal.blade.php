@@ -14,8 +14,12 @@
                 </div>
             </div>
             <div class="text-right">
-                <div class="text-xl font-bold">₱{{ number_format((float) ($unit->boundary_rate ?? 0), 2) }}</div>
-                <p class="text-blue-100 text-xs">Daily Boundary Rate</p>
+                @php
+                    $displayRate = isset($unit->current_pricing['rate']) ? $unit->current_pricing['rate'] : ($unit->boundary_rate ?? 0);
+                    $rateLabel = isset($unit->current_pricing['label']) ? $unit->current_pricing['label'] : 'Daily Boundary Rate';
+                @endphp
+                <div class="text-xl font-bold">₱{{ number_format((float) $displayRate, 2) }}</div>
+                <p class="text-blue-100 text-xs">{{ $rateLabel }}</p>
             </div>
         </div>
     </div>
@@ -115,8 +119,8 @@
                             </span>
                         </div>
                         <div class="flex justify-between">
-                            <span class="text-gray-600">Boundary Rate:</span>
-                            <span class="font-medium">₱{{ number_format((float) ($unit->boundary_rate ?? 0), 2) }}</span>
+                            <span class="text-gray-600">Active Rate (Today):</span>
+                            <span class="font-bold text-blue-600">₱{{ number_format((float) $displayRate, 2) }}</span>
                         </div>
                         <div class="pt-3 border-t border-gray-100 mt-3">
                             <div class="grid grid-cols-2 gap-2">
@@ -308,7 +312,7 @@
                                             {{ $bh->full_name ?? 'N/A' }}
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-600">
-                                            ₱{{ number_format((float) ($bh->boundary_amount ?? 0), 2) }}
+                                            ₱{{ number_format((float) ($bh->actual_boundary ?? 0), 2) }}
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                             {{ ucfirst($bh->status ?? '') }}
@@ -446,52 +450,71 @@
 
         <div id="location-tab" class="tab-content hidden">
             <div class="bg-white border border-gray-200 rounded-lg p-6">
-                <h4 class="text-lg font-semibold text-gray-900 mb-4">Location Information</h4>
+                <div class="flex justify-between items-center mb-4">
+                    <h4 class="text-lg font-semibold text-gray-900">Real-Time Location</h4>
+                    <button onclick="refreshUnitMap({{ $unit->id }})" class="flex items-center gap-1.5 text-xs font-bold text-blue-600 hover:text-blue-800 transition-colors">
+                        <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+                        REFRESH GPS
+                    </button>
+                </div>
+                
                 <div class="space-y-4">
-                    {{-- Info Row --}}
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div class="flex justify-between bg-gray-50 rounded-lg px-4 py-3">
-                            <span class="text-gray-600 text-sm">Location:</span>
-                            <span class="font-medium text-sm">{{ $location_info['current_location'] }}</span>
-                        </div>
-                        <div class="flex justify-between bg-gray-50 rounded-lg px-4 py-3">
-                            <span class="text-gray-600 text-sm">Last Update:</span>
-                            <span class="font-medium text-sm">{{ $location_info['last_location_update'] }}</span>
-                        </div>
-                        <div class="flex justify-between bg-gray-50 rounded-lg px-4 py-3 items-center">
-                            <span class="text-gray-600 text-sm">GPS Status:</span>
-                            <span class="px-2 py-1 text-xs rounded-full {{ ($location_info['gps_enabled'] || !empty($unit->gps_link)) ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
-                                {{ ($location_info['gps_enabled'] || !empty($unit->gps_link)) ? 'Enabled' : 'Disabled' }}
-                            </span>
-                        </div>
-                    </div>
-
-                    {{-- Map Viewer --}}
-                    <div class="relative rounded-lg overflow-hidden border border-gray-200" style="height: 380px; background: #f3f4f6;">
-                        @if(!empty($unit->gps_link))
-                            <iframe
-                                src="{{ $unit->gps_link }}"
-                                style="position:absolute; top:0; left:0; width:142.85%; height:142.85%; border:none; transform:scale(0.7); transform-origin:top left;"
-                                allowfullscreen
-                            ></iframe>
-                        @else
-                            <div class="flex flex-col items-center justify-center h-full text-gray-400">
-                                <i data-lucide="link-2-off" class="w-12 h-12 mb-3 text-gray-300"></i>
-                                <p class="text-base font-medium text-gray-600">No GPS Link</p>
-                                <p class="text-sm mt-1 text-gray-400">This unit does not have a TracksolidPro share link connected.</p>
-                                <a href="{{ route('units.index') }}" class="mt-4 inline-flex items-center gap-1 text-blue-600 text-sm hover:underline">
-                                    <i data-lucide="settings" class="w-4 h-4"></i> Manage Unit Settings
-                                </a>
+                    {{-- Info Cards Row --}}
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+                        <div class="bg-gray-50 rounded-lg p-3 border border-gray-100">
+                            <span class="text-[10px] text-gray-400 uppercase font-black tracking-widest block mb-1">Status</span>
+                            <div id="detail-gps-status-badge">
+                                <span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-gray-100 text-gray-400">CONNECTING...</span>
                             </div>
-                        @endif
+                        </div>
+                        <div class="bg-gray-50 rounded-lg p-3 border border-gray-100">
+                            <span class="text-[10px] text-gray-400 uppercase font-black tracking-widest block mb-1">Speed</span>
+                            <div class="flex items-baseline gap-1">
+                                <span id="detail-gps-speed" class="text-lg font-black text-gray-800">0.0</span>
+                                <span class="text-[10px] text-gray-400 font-bold">KM/H</span>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 rounded-lg p-3 border border-gray-100">
+                            <span class="text-[10px] text-gray-400 uppercase font-black tracking-widest block mb-1">Engine</span>
+                            <div id="detail-gps-ignition" class="flex items-center gap-1.5 text-sm font-bold text-gray-400">
+                                <i data-lucide="zap" class="w-4 h-4"></i>
+                                <span>OFFLINE</span>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 rounded-lg p-3 border border-gray-100">
+                            <span class="text-[10px] text-gray-400 uppercase font-black tracking-widest block mb-1">Last Sync</span>
+                            <span id="detail-gps-time" class="text-xs font-bold text-gray-700 block mt-1">N/A</span>
+                        </div>
                     </div>
 
-                    @if(!empty($location_info['coordinates']))
-                        <div class="flex justify-between bg-gray-50 rounded-lg px-4 py-3">
-                            <span class="text-gray-600 text-sm">Coordinates:</span>
-                            <span class="font-medium text-sm">{{ $location_info['coordinates'] }}</span>
+                    {{-- Map Container --}}
+                    <div class="relative rounded-xl overflow-hidden border border-gray-200 shadow-inner" style="height: 400px; background: #f8fafc;">
+                        <div id="unitDetailMap" class="w-full h-full z-0"></div>
+                        
+                        {{-- Loading Overlay --}}
+                        <div id="mapLoader" class="absolute inset-0 bg-white/80 backdrop-blur-[1px] z-10 flex flex-col items-center justify-center transition-opacity duration-300">
+                            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-2"></div>
+                            <p class="text-xs font-bold text-gray-500 uppercase tracking-widest">Fetching GPS Data...</p>
                         </div>
-                    @endif
+
+                        {{-- Error Overlay --}}
+                        <div id="mapError" class="hidden absolute inset-0 bg-gray-50 z-20 flex flex-col items-center justify-center p-6 text-center">
+                            <i data-lucide="map-pin-off" class="w-12 h-12 text-gray-300 mb-3"></i>
+                            <h5 class="text-gray-800 font-bold mb-1">GPS Connection Error</h5>
+                            <p id="mapErrorMessage" class="text-sm text-gray-500 max-w-xs mb-4">We couldn't retrieve the live location for this unit.</p>
+                            <a href="https://tracksolidpro.com/" target="_blank" class="px-4 py-2 bg-blue-600 text-white text-xs font-bold rounded-lg hover:bg-blue-700 transition-colors">
+                                OPEN TRACKSOLID PORTAL
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between items-center text-[11px] text-gray-400 px-1">
+                        <div class="flex items-center gap-1.5">
+                            <i data-lucide="info" class="w-3.5 h-3.5"></i>
+                            <span>Powered by Tracksolid Pro IoT Platform</span>
+                        </div>
+                        <div id="detail-gps-coords" class="font-mono">Coordinates: --, --</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -564,6 +587,9 @@
 </div>
 
 <script>
+let detailMap = null;
+let detailMarker = null;
+
 function showTab(tabName) {
     document.querySelectorAll('.tab-content').forEach(tab => {
         tab.classList.add('hidden');
@@ -576,5 +602,93 @@ function showTab(tabName) {
     const activeBtn = document.querySelector('[data-tab="' + tabName + '"]');
     activeBtn.classList.remove('border-transparent', 'text-gray-500');
     activeBtn.classList.add('border-blue-500', 'text-blue-600');
+    
+    // Trigger map load if location tab
+    if (tabName === 'location') {
+        setTimeout(() => {
+            initUnitDetailMap({{ $unit->id }});
+        }, 300);
+    }
+}
+
+function initUnitDetailMap(unitId) {
+    if (!detailMap) {
+        detailMap = L.map('unitDetailMap', {
+            zoomControl: true,
+            attributionControl: false
+        }).setView([14.5995, 120.9842], 13);
+        
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19
+        }).addTo(detailMap);
+    }
+    
+    // Ensure map takes full container size if it was hidden
+    detailMap.invalidateSize();
+    
+    refreshUnitMap(unitId);
+}
+
+async function refreshUnitMap(unitId) {
+    const loader = document.getElementById('mapLoader');
+    const errorOverlay = document.getElementById('mapError');
+    
+    loader.classList.remove('opacity-0');
+    loader.style.display = 'flex';
+    errorOverlay.classList.add('hidden');
+    
+    try {
+        const response = await fetch(`/live-tracking/unit/${unitId}`);
+        const result = await response.json();
+        
+        if (result.success && result.data) {
+            const data = result.data;
+            const pos = [data.latitude, data.longitude];
+            
+            // Update Marker
+            if (!detailMarker) {
+                detailMarker = L.marker(pos).addTo(detailMap);
+            } else {
+                detailMarker.setLatLng(pos);
+            }
+            
+            detailMap.setView(pos, 16);
+            
+            // Update UI Labels
+            document.getElementById('detail-gps-speed').textContent = data.speed.toFixed(1);
+            document.getElementById('detail-gps-time').textContent = data.last_update || 'Just now';
+            document.getElementById('detail-gps-coords').textContent = `Coordinates: ${data.coordinates}`;
+            
+            // Status Badge
+            const statusBadge = document.getElementById('detail-gps-status-badge');
+            let badgeClass = 'bg-gray-100 text-gray-400';
+            if (data.status === 'moving') badgeClass = 'bg-green-100 text-green-700 border border-green-200';
+            if (data.status === 'idle') badgeClass = 'bg-yellow-100 text-yellow-700 border border-yellow-200';
+            if (data.status === 'stopped') badgeClass = 'bg-blue-100 text-blue-700 border border-blue-200';
+            
+            statusBadge.innerHTML = `<span class="px-2 py-0.5 text-[10px] font-black uppercase rounded-full ${badgeClass}">${data.status}</span>`;
+            
+            // Ignition
+            const ignitionIcon = document.getElementById('detail-gps-ignition');
+            if (data.ignition) {
+                ignitionIcon.className = 'flex items-center gap-1.5 text-sm font-bold text-green-600';
+                ignitionIcon.innerHTML = '<i data-lucide="zap" class="w-4 h-4 fill-green-600"></i><span>ENGINE ON</span>';
+            } else {
+                ignitionIcon.className = 'flex items-center gap-1.5 text-sm font-bold text-gray-400';
+                ignitionIcon.innerHTML = '<i data-lucide="zap-off" class="w-4 h-4"></i><span>ENGINE OFF</span>';
+            }
+            
+            lucide.createIcons();
+        } else {
+            throw new Error(result.error || 'Failed to fetch GPS data');
+        }
+    } catch (err) {
+        console.error('GPS Error:', err);
+        errorOverlay.classList.remove('hidden');
+        document.getElementById('mapErrorMessage').textContent = err.message;
+    } finally {
+        loader.classList.add('opacity-0');
+        setTimeout(() => { loader.style.display = 'none'; }, 300);
+    }
 }
 </script>

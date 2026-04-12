@@ -6,15 +6,19 @@ use App\Models\Driver;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
+use App\Traits\CalculatesBoundary;
+
 class DriverManagementController extends Controller
 {
+    use CalculatesBoundary;
+
     public function index(Request $request)
     {
         $search        = $request->input('search', '');
         $status_filter = $request->input('status', '');
         $sort          = $request->input('sort', 'alphabetical');
         $page          = max(1, (int) $request->input('page', 1));
-        $limit         = 15;
+        $limit         = 10;
         $offset        = ($page - 1) * $limit;
 
         // Build base query — no users JOIN needed, names are in drivers table
@@ -37,15 +41,17 @@ class DriverManagementController extends Controller
                 DB::raw("(SELECT boundary_rate FROM units WHERE (driver_id = d.id OR secondary_driver_id = d.id) AND deleted_at IS NULL LIMIT 1) as assigned_boundary_rate"),
                 DB::raw("(SELECT coding_day FROM units WHERE (driver_id = d.id OR secondary_driver_id = d.id) AND deleted_at IS NULL LIMIT 1) as assigned_coding_day"),
                 DB::raw("(SELECT year FROM units WHERE (driver_id = d.id OR secondary_driver_id = d.id) AND deleted_at IS NULL LIMIT 1) as assigned_unit_year"),
-                DB::raw("(SELECT COALESCE(SUM(boundary_amount * 0.05), 0) FROM boundaries WHERE driver_id = d.id AND status IN ('paid', 'excess') AND MONTH(date) = MONTH(CURRENT_DATE()) AND YEAR(date) = YEAR(CURRENT_DATE()) AND deleted_at IS NULL) as monthly_incentive"),
+                DB::raw("(SELECT COALESCE(SUM(actual_boundary * 0.05), 0) FROM boundaries WHERE driver_id = d.id AND status IN ('paid', 'excess') AND MONTH(date) = MONTH(CURRENT_DATE()) AND YEAR(date) = YEAR(CURRENT_DATE()) AND deleted_at IS NULL) as monthly_incentive"),
                 DB::raw("(SELECT CASE
                     WHEN COUNT(*) >= 25 THEN 'Excellent'
                     WHEN COUNT(*) >= 15 THEN 'Good'
                     WHEN COUNT(*) >= 5  THEN 'Average'
                     ELSE 'Growing'
-                END FROM boundaries WHERE driver_id = d.id AND status IN ('paid', 'excess') AND date >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY) AND deleted_at IS NULL) as performance_rating"),
+                END FROM boundaries WHERE driver_id = d.id AND status IN ('paid', 'excess', 'shortage') AND date >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY) AND deleted_at IS NULL) as performance_rating"),
                 // is_active derived from driver_status
-                DB::raw("CASE WHEN d.driver_status IN ('available','assigned') THEN 1 ELSE 0 END as is_active")
+                DB::raw("CASE WHEN d.driver_status IN ('available','assigned') THEN 1 ELSE 0 END as is_active"),
+                // Net unpaid shortage: sum of all shortages minus sum of all excess
+                DB::raw("(SELECT GREATEST(0, COALESCE(SUM(shortage),0) - COALESCE(SUM(excess),0)) FROM boundaries WHERE driver_id = d.id AND deleted_at IS NULL) as net_shortage")
             );
 
         if ($search) {
@@ -60,8 +66,18 @@ class DriverManagementController extends Controller
         if ($status_filter) {
             if ($status_filter === 'active') {
                 $query->whereIn('d.driver_status', ['available', 'assigned']);
-            } else {
+            } elseif ($status_filter === 'inactive') {
                 $query->whereNotIn('d.driver_status', ['available', 'assigned']);
+            } elseif ($status_filter === 'no_unit') {
+                $query->whereNotExists(function($q) {
+                    $q->select(DB::raw(1))
+                      ->from('units')
+                      ->whereNull('deleted_at')
+                      ->where(function($q2) {
+                          $q2->whereColumn('units.driver_id', 'd.id')
+                             ->orWhereColumn('units.secondary_driver_id', 'd.id');
+                      });
+                });
             }
         }
 
@@ -84,6 +100,29 @@ class DriverManagementController extends Controller
         $total       = $query->count();
         $drivers     = $query->offset($offset)->limit($limit)->get();
         $total_pages = max(1, ceil($total / $limit));
+
+        $rules = DB::table('boundary_rules')->get();
+
+        foreach ($drivers as $driver) {
+            if (!empty($driver->assigned_plate) || !empty($driver->assigned_unit)) {
+                // Smart Pricing Calculation
+                $pricing = $this->getCurrentPricing([
+                    'year' => $driver->assigned_unit_year,
+                    'boundary_rate' => $driver->assigned_boundary_rate,
+                    'plate_number' => $driver->assigned_plate,
+                    'coding_day' => $driver->assigned_coding_day,
+                    'daily_boundary_target' => $driver->daily_boundary_target
+                ], $rules);
+
+                $driver->current_target = $pricing['rate'];
+                $driver->target_label = $pricing['label'];
+                $driver->target_type = $pricing['type'];
+            } else {
+                $driver->current_target = 0;
+                $driver->target_label = null;
+                $driver->target_type = null;
+            }
+        }
 
         // Stats
         $stats = [
@@ -113,6 +152,12 @@ class DriverManagementController extends Controller
             'next_page'   => $page + 1,
         ];
 
+        if ($request->ajax()) {
+            return view('driver-management.partials._drivers_table', compact(
+                'drivers', 'pagination', 'search', 'status_filter', 'sort'
+            ))->render();
+        }
+
         $boundary_rules = \App\Models\BoundaryRule::all();
 
         return view('driver-management.index', compact(
@@ -129,22 +174,41 @@ class DriverManagementController extends Controller
                 'd.*',
                 DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')) as full_name"),
                 DB::raw("(SELECT plate_number FROM units WHERE (driver_id = d.id OR secondary_driver_id = d.id) AND deleted_at IS NULL LIMIT 1) as assigned_unit"),
+                DB::raw("(SELECT plate_number FROM units WHERE (driver_id = d.id OR secondary_driver_id = d.id) AND deleted_at IS NULL LIMIT 1) as assigned_plate"),
                 DB::raw("(SELECT boundary_rate FROM units WHERE (driver_id = d.id OR secondary_driver_id = d.id) AND deleted_at IS NULL LIMIT 1) as assigned_boundary_rate"),
                 DB::raw("(SELECT coding_day FROM units WHERE (driver_id = d.id OR secondary_driver_id = d.id) AND deleted_at IS NULL LIMIT 1) as assigned_coding_day"),
                 DB::raw("(SELECT year FROM units WHERE (driver_id = d.id OR secondary_driver_id = d.id) AND deleted_at IS NULL LIMIT 1) as assigned_unit_year"),
-                DB::raw("(SELECT COALESCE(SUM(boundary_amount * 0.05), 0) FROM boundaries WHERE driver_id = d.id AND status IN ('paid', 'excess') AND MONTH(date) = MONTH(CURRENT_DATE()) AND YEAR(date) = YEAR(CURRENT_DATE()) AND deleted_at IS NULL) as monthly_incentive"),
+                DB::raw("(SELECT COALESCE(SUM(actual_boundary * 0.05), 0) FROM boundaries WHERE driver_id = d.id AND status IN ('paid', 'excess') AND MONTH(date) = MONTH(CURRENT_DATE()) AND YEAR(date) = YEAR(CURRENT_DATE()) AND deleted_at IS NULL) as monthly_incentive"),
                 DB::raw("(SELECT CASE
                     WHEN COUNT(*) >= 25 THEN 'Excellent'
                     WHEN COUNT(*) >= 15 THEN 'Good'
                     WHEN COUNT(*) >= 5  THEN 'Average'
                     ELSE 'Growing'
-                END FROM boundaries WHERE driver_id = d.id AND status IN ('paid', 'excess') AND date >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY) AND deleted_at IS NULL) as performance_rating")
+                END FROM boundaries WHERE driver_id = d.id AND status IN ('paid', 'excess', 'shortage') AND date >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY) AND deleted_at IS NULL) as performance_rating")
             )
             ->first();
 
-        if (!$driver) {
-            return response()->json(['error' => 'Driver not found'], 404);
+        if (!empty($driver->assigned_plate) || !empty($driver->assigned_unit)) {
+            $driver->current_pricing = $this->getCurrentPricing([
+                'year' => $driver->assigned_unit_year,
+                'boundary_rate' => $driver->assigned_boundary_rate,
+                'plate_number' => $driver->assigned_plate,
+                'coding_day' => $driver->assigned_coding_day,
+                'daily_boundary_target' => $driver->daily_boundary_target
+            ]);
+        } else {
+            $driver->current_pricing = null;
         }
+
+        // Recent performance logs for the modal tab
+        $driver->recent_performance = DB::table('boundaries as b')
+            ->where('b.driver_id', $id)
+            ->whereNull('b.deleted_at')
+            ->leftJoin('units as u', 'b.unit_id', '=', 'u.id')
+            ->select('b.date', 'b.actual_boundary', 'b.boundary_amount', 'b.status', 'b.shortage', 'u.plate_number')
+            ->orderByDesc('b.date')
+            ->limit(10)
+            ->get();
 
         return response()->json($driver);
     }
@@ -161,7 +225,7 @@ class DriverManagementController extends Controller
             'emergency_contact'     => 'required|string|max:100',
             'emergency_phone'       => 'required|string|max:20',
             'hire_date'             => 'required|date',
-            'daily_boundary_target' => 'required|numeric|min:0',
+            'daily_boundary_target' => 'nullable|numeric|min:0',
         ]);
 
         Driver::create([
@@ -175,7 +239,7 @@ class DriverManagementController extends Controller
             'emergency_contact'     => $request->emergency_contact,
             'emergency_phone'       => $request->emergency_phone,
             'hire_date'             => $request->hire_date,
-            'daily_boundary_target' => $request->daily_boundary_target,
+            'daily_boundary_target' => $request->daily_boundary_target ?? 0,
             'driver_type'           => $request->driver_type ?? 'regular',
             'driver_status'         => 'available',
         ]);
@@ -198,7 +262,7 @@ class DriverManagementController extends Controller
             'emergency_contact'     => 'required|string|max:100',
             'emergency_phone'       => 'required|string|max:20',
             'hire_date'             => 'required|date',
-            'daily_boundary_target' => 'required|numeric|min:0',
+            'daily_boundary_target' => 'nullable|numeric|min:0',
             'driver_type'           => 'nullable|in:regular,senior,trainee',
             'driver_status'         => 'nullable|in:available,assigned,on_leave,suspended',
         ]);
@@ -214,7 +278,7 @@ class DriverManagementController extends Controller
             'emergency_contact'     => $request->emergency_contact,
             'emergency_phone'       => $request->emergency_phone,
             'hire_date'             => $request->hire_date,
-            'daily_boundary_target' => $request->daily_boundary_target,
+            'daily_boundary_target' => $request->daily_boundary_target ?? 0,
             'driver_type'           => $request->driver_type ?? 'regular',
             'driver_status'         => $request->driver_status ?? 'available',
         ]);

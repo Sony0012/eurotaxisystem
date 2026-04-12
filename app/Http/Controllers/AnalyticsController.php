@@ -23,7 +23,7 @@ class AnalyticsController extends Controller
             $boundary = DB::table('boundaries')
                 ->whereNull('deleted_at')
                 ->whereBetween('date', [$startDate, $endDate])
-                ->sum('boundary_amount') ?? 0;
+                ->sum('actual_boundary') ?? 0;
             
             // Get expenses
             $expenses = DB::table('expenses')
@@ -65,8 +65,8 @@ class AnalyticsController extends Controller
             ->selectRaw('
                 CONCAT(COALESCE(d.first_name,\'\'), \' \', COALESCE(d.last_name,\'\')) as full_name,
                 COUNT(b.id) as days_worked,
-                SUM(b.boundary_amount) as total_collected,
-                AVG(b.boundary_amount) as avg_daily,
+                SUM(b.actual_boundary) as total_collected,
+                AVG(b.actual_boundary) as avg_daily,
                 SUM(b.excess) - SUM(b.shortage) as net_excess
             ')
             ->whereBetween('b.date', [$date_from, $date_to])

@@ -110,6 +110,9 @@ function updateMapAndList(units) {
     
     // 3. Dynamically Sort the Sidebar List
     sortUnitList();
+
+    // 4. Re-apply Search Filters (Persistence Fix)
+    filterUnitsItems();
 }
 
 function sortUnitList() {
@@ -508,16 +511,22 @@ window.toggleFollow = function(unitId) {
 };
 
 function filterUnitsItems() {
-    const search = document.getElementById('unitSearchInput').value.toLowerCase();
+    const search = document.getElementById('unitSearchInput').value.toLowerCase().trim();
     const status = document.getElementById('statusFilterSelect').value;
 
     document.querySelectorAll('.unit-item').forEach(el => {
         const plateNum = (el.dataset.plateNumber || '').toLowerCase();
+        const driverName = (el.dataset.driverName || '').toLowerCase();
+        const secondaryDriver = (el.dataset.secondaryDriver || '').toLowerCase();
         const unitStatus = el.dataset.status;
 
-        const matchSearch = !search || plateNum.includes(search);
-        let matchStatus = true;
+        // Search in plate number OR primary driver OR secondary driver
+        const matchSearch = !search || 
+                           plateNum.includes(search) || 
+                           driverName.includes(search) || 
+                           secondaryDriver.includes(search);
         
+        let matchStatus = true;
         if (status === 'active') {
             matchStatus = ['moving', 'idle', 'stopped'].includes(unitStatus);
         } else if (status === 'offline') {
@@ -525,5 +534,11 @@ function filterUnitsItems() {
         }
 
         el.style.display = (matchSearch && matchStatus) ? '' : 'none';
+        
+        // Add visual indicator if hidden by status but matches search
+        if (search && !matchStatus && matchSearch) {
+            // Optional: we can force show it if it matches search even if status differs
+            // but for now we follow the user's logic of strict filtering.
+        }
     });
 }

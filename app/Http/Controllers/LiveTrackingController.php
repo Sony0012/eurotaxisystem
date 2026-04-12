@@ -123,6 +123,62 @@ class LiveTrackingController extends Controller
         }
     }
 
+    // ─── AJAX: Single Unit Location ────────────────────────
+    public function getUnitLocation($id)
+    {
+        try {
+            $unit = DB::table('units')->where('id', $id)->first();
+            if (!$unit || !$unit->imei) {
+                return response()->json(['success' => false, 'error' => 'Vehicle has no GPS IMEI registered.']);
+            }
+
+            // Fetch live record for this specific IMEI
+            $liveData = $this->tracksolid->getLocations([$unit->imei]);
+            
+            if (!$liveData || empty($liveData)) {
+                return response()->json(['success' => false, 'error' => 'No signal retrieved from GPS provider.']);
+            }
+
+            $gps = $liveData[0]; // Result for the requested IMEI
+            
+            // Determine Status
+            $status = 'offline';
+            $lastUpdate = $gps['gpsTime'] ?? null;
+            $speed = (float)($gps['speed'] ?? 0);
+            $ignition = ($gps['accStatus'] ?? 0) == 1;
+
+            if ($lastUpdate) {
+                $lastUpdateTs = strtotime($lastUpdate . ' UTC');
+                $diff = time() - $lastUpdateTs;
+                if ($diff < 3600) { // Within 1 hour
+                    if ($ignition) {
+                        $status = $speed > 2 ? 'moving' : 'idle';
+                    } else {
+                        $status = 'stopped';
+                    }
+                }
+            }
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'plate_number'    => $unit->plate_number,
+                    'status'          => $status,
+                    'latitude'        => (float)$gps['lat'],
+                    'longitude'       => (float)$gps['lng'],
+                    'speed'           => $speed,
+                    'ignition'        => $ignition,
+                    'last_update'     => $lastUpdate,
+                    'heading'         => $gps['direction'] ?? 0,
+                    'coordinates'     => $gps['lat'] . ', ' . $gps['lng']
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
+        }
+    }
+
     // ─── AJAX: All Units (for auto-refresh) ────────────────
     public function getUnitsLive()
     {

@@ -6,6 +6,26 @@
 
 @section('content')
 
+<style>
+    @keyframes shortage-blink {
+        0% { opacity: 1; }
+        50% { opacity: 0.7; }
+        100% { opacity: 1; }
+    }
+    @keyframes shortage-text-pulse {
+        0% { color: #dc2626; }
+        50% { color: #991b1b; }
+        100% { color: #dc2626; }
+    }
+    .shortage-blink {
+        animation: shortage-blink 1.5s infinite ease-in-out;
+    }
+    .shortage-text-blink {
+        animation: shortage-blink 1.5s infinite ease-in-out, shortage-text-pulse 1.5s infinite ease-in-out;
+        font-weight: 800 !important;
+    }
+</style>
+
     {{-- Search and Filters --}}
     <div class="bg-white rounded-lg shadow p-2 mb-1">
         <form method="GET" action="{{ route('driver-management.index') }}" class="flex flex-col md:flex-row gap-2">
@@ -40,6 +60,7 @@
                     <option value="">All Status</option>
                     <option value="active" {{ ($status_filter ?? '') === 'active' ? 'selected' : '' }}>Active Only</option>
                     <option value="inactive" {{ ($status_filter ?? '') === 'inactive' ? 'selected' : '' }}>Inactive Only</option>
+                    <option value="no_unit" {{ ($status_filter ?? '') === 'no_unit' ? 'selected' : '' }}>Available (No Unit)</option>
                 </select>
             </div>
 
@@ -52,99 +73,9 @@
         </form>
     </div>
 
-    {{-- Driver List Table --}}
-    <div class="bg-white rounded-lg shadow overflow-hidden">
-        <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50 border-b">
-                    <tr>
-                        <th class="px-6 py-1 text-left text-[11px] font-medium text-gray-500 uppercase tracking-wider">Driver Name</th>
-                        <th class="px-6 py-1 text-left text-[11px] font-medium text-gray-500 uppercase tracking-wider">Assigned Unit</th>
-                        <th class="px-6 py-1 text-left text-[11px] font-medium text-gray-500 uppercase tracking-wider">License</th>
-                        <th class="px-6 py-1 text-left text-[11px] font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                        <th class="px-6 py-1 text-left text-[11px] font-medium text-gray-500 uppercase tracking-wider">Incentive</th>
-                        <th class="px-6 py-1 text-left text-[11px] font-medium text-gray-500 uppercase tracking-wider">Rating</th>
-                        <th class="px-6 py-1 text-left text-[11px] font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                    </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
-                    @forelse($drivers as $driver)
-                        <tr class="hover:bg-gray-50 cursor-pointer" onclick="openEditDriverModal({{ $driver->id }})">
-                            <td class="px-6 py-1 whitespace-nowrap">
-                                <div class="text-xs font-medium text-gray-900">{{ $driver->full_name }}</div>
-                                <div class="text-[9px] text-gray-400">
-                                    <span title="Input by {{ $driver->creator_name ?? 'System' }}">In: {{ $driver->creator_name ?? 'System' }}</span>
-                                    @if(isset($driver->editor_name) && $driver->editor_name)
-                                        <span class="ml-1" title="Last edit by {{ $driver->editor_name }}">Ed: {{ $driver->editor_name }}</span>
-                                    @endif
-                                </div>
-                            </td>
-                            <td class="px-6 py-1 whitespace-nowrap text-xs text-gray-900">
-                                @if(!empty($driver->assigned_unit))
-                                    {{ $driver->assigned_unit }}
-                                @else
-                                    <span class="text-gray-400">Unassigned</span>
-                                @endif
-                            </td>
-                            <td class="px-6 py-1 whitespace-nowrap text-xs text-gray-900">
-                                {{ $driver->license_number ?? 'N/A' }}
-                            </td>
-                            <td class="px-6 py-1 whitespace-nowrap">
-                                <span class="px-2 inline-flex text-[10px] leading-4 font-semibold rounded-full {{ $driver->is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
-                                    {{ $driver->is_active ? 'Active' : 'Inactive' }}
-                                </span>
-                            </td>
-                            <td class="px-6 py-1 whitespace-nowrap text-xs text-gray-900">
-                                ₱{{ number_format($driver->monthly_incentive ?? 0, 2) }}
-                            </td>
-                            <td class="px-6 py-1 whitespace-nowrap text-xs text-gray-900">
-                                {{ $driver->performance_rating ?? 'Good' }}
-                            </td>
-                            <td class="px-6 py-1 whitespace-nowrap text-xs font-medium">
-                                <div class="flex items-center gap-2">
-                                    <button
-                                        type="button"
-                                        class="text-blue-600 hover:text-blue-900"
-                                        onclick="event.stopPropagation(); openDriverDetails({{ $driver->id }})"
-                                        title="View Details"
-                                    >
-                                        <i data-lucide="eye" class="w-3.5 h-3.5"></i>
-                                    </button>
-                                    <button
-                                        type="button"
-                                        class="text-indigo-600 hover:text-indigo-900"
-                                        onclick="event.stopPropagation(); openEditDriverModal({{ $driver->id }})"
-                                        title="Edit Driver"
-                                    >
-                                        <i data-lucide="edit-2" class="w-3.5 h-3.5"></i>
-                                    </button>
-                                    <button
-                                        type="button"
-                                        class="text-red-600 hover:text-red-900"
-                                        onclick="event.stopPropagation(); deleteDriver({{ $driver->id }}, '{{ $driver->full_name }}')"
-                                        title="Delete Driver"
-                                    >
-                                        <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="7" class="px-6 py-10 text-center text-gray-500">
-                                <i data-lucide="users" class="w-10 h-10 mx-auto mb-3 text-gray-300"></i>
-                                <p>No drivers found.</p>
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-        @if(isset($drivers) && method_exists($drivers, 'links'))
-        <div class="px-6 py-4 border-t border-gray-200">
-            {{ $drivers->withQueryString()->links() }}
-        </div>
-        @endif
+    {{-- Driver List Container --}}
+    <div id="driversTableContainer" class="bg-white rounded-lg shadow overflow-hidden">
+        @include('driver-management.partials._drivers_table')
     </div>
 
     {{-- Add/Edit Driver Modal --}}
@@ -164,66 +95,68 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">First Name *</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">First Name <span class="text-red-500">*</span></label>
                         <input type="text" name="first_name" id="driverFirstName" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Last Name *</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Last Name <span class="text-red-500">*</span></label>
                         <input type="text" name="last_name" id="driverLastName" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
                     </div>
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Nickname</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Nickname (Optional)</label>
                     <input type="text" name="nickname" id="driverNickname" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Contact Number</label>
-                        <input type="tel" name="contact_number" id="driverContact" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Contact Number <span class="text-red-500">*</span></label>
+                        <input type="tel" name="contact_number" id="driverContact" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">License Number *</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">License Number <span class="text-red-500">*</span></label>
                         <input type="text" name="license_number" id="driverLicense" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">License Expiry *</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">License Expiry <span class="text-red-500">*</span></label>
                         <input type="date" name="license_expiry" id="driverLicenseExpiry" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Hire Date</label>
-                        <input type="date" name="hire_date" id="driverHireDate" value="{{ date('Y-m-d') }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Hire Date <span class="text-red-500">*</span></label>
+                        <input type="date" name="hire_date" id="driverHireDate" required value="{{ date('Y-m-d') }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
                     </div>
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Address</label>
-                    <textarea name="address" id="driverAddress" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"></textarea>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Address <span class="text-red-500">*</span></label>
+                    <textarea name="address" id="driverAddress" required rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"></textarea>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Emergency Contact</label>
-                        <input type="text" name="emergency_contact" id="driverEmergencyContact" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Emergency Contact <span class="text-red-500">*</span></label>
+                        <input type="text" name="emergency_contact" id="driverEmergencyContact" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Emergency Phone</label>
-                        <input type="tel" name="emergency_phone" id="driverEmergencyPhone" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Emergency Phone <span class="text-red-500">*</span></label>
+                        <input type="tel" name="emergency_phone" id="driverEmergencyPhone" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
                     </div>
                 </div>
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1 flex justify-between items-center">
                         Daily Boundary Target
+                        <span id="unitDerivedLabel" class="text-[10px] text-gray-500 font-bold hidden"></span>
                         <span id="codingBoundaryAlert" class="text-[10px] text-red-600 font-bold hidden"></span>
                     </label>
-                    <input type="number" name="daily_boundary_target" id="driverBoundaryTarget" step="0.01" 
-                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500" 
-                        placeholder="Please dispatch to appear boundary">
+                    <input type="number" name="daily_boundary_target" id="driverBoundaryTarget" step="0.01" readonly
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-500 focus:outline-none cursor-not-allowed" 
+                        placeholder="N/A (Managed via Unit Management)">
+                    <p class="mt-1 text-[10px] text-gray-400 italic">This target is automatically synchronized from Unit Management.</p>
                 </div>
 
                 <div class="flex items-center justify-between mt-4">
@@ -380,9 +313,12 @@ function openAddDriverModal() {
     document.getElementById('driverEmergencyPhone').value = '';
     const targetInput = document.getElementById('driverBoundaryTarget');
     const codingAlert = document.getElementById('codingBoundaryAlert');
+    targetInput.value = '0';
+    if (document.getElementById('unitDerivedLabel')) {
+        const derivedLabel = document.getElementById('unitDerivedLabel');
+        derivedLabel.classList.add('hidden');
+    }
     
-    targetInput.value = '';
-    targetInput.placeholder = 'Please dispatch to appear boundary';
     if (codingAlert) {
         codingAlert.classList.remove('hidden');
         codingAlert.classList.remove('text-red-600');
@@ -417,70 +353,36 @@ function openEditDriverModal(id) {
         document.getElementById('driverEmergencyContact').value = data.emergency_contact || '';
         document.getElementById('driverEmergencyPhone').value = data.emergency_phone || '';
         
-        // Dynamic Boundary Automation (Rule-Based)
+        // Dynamic Boundary Automation (Sync with Controller Trait)
         const targetInput = document.getElementById('driverBoundaryTarget');
         const codingAlert = document.getElementById('codingBoundaryAlert');
         
-        if (data.assigned_boundary_rate) {
-            const year = parseInt(data.assigned_unit_year) || 0;
-            const customRate = parseFloat(data.assigned_boundary_rate) || 0; 
-            const today = new Intl.DateTimeFormat('en-US', { weekday: 'long' }).format(new Date());
-            const isCoding = data.assigned_coding_day && data.assigned_coding_day.toLowerCase() === today.toLowerCase();
+        if (data.current_pricing) {
+            targetInput.value = data.current_pricing.rate.toFixed(2);
             
-            let finalVal = 0;
-            let statusText = '';
-            
-            // Priority 1: Use unit's custom boundary_rate if it exists (> 0)
-            if (customRate > 0) {
-                if (isCoding) { finalVal = customRate / 2; statusText = '(Coding Day - 50% of Custom Rate)'; }
-                else if (today === 'Saturday') { finalVal = customRate - 100; statusText = '(Saturday - 100 Discount)'; }
-                else if (today === 'Sunday') { finalVal = customRate - 200; statusText = '(Sunday - 200 Discount)'; }
-                else finalVal = customRate;
-            } 
-            // Priority 2: Fallback to Dynamic Year Brackets from Database
-            let ruleMatch = null;
-            if (window.boundaryRules) {
-                ruleMatch = window.boundaryRules.find(r => year >= r.start_year && year <= r.end_year);
-            }
-
-            if (ruleMatch) {
-                if (isCoding) {
-                    finalVal = parseFloat(ruleMatch.coding_rate);
-                    statusText = ruleMatch.coding_is_fixed ? `(Coding Day - Fixed ${finalVal})` : `(Coding Day - 50% Applied)`;
-                } else if (today === 'Saturday') {
-                    finalVal = parseFloat(ruleMatch.regular_rate) - parseFloat(ruleMatch.sat_discount);
-                    statusText = `(Saturday - ${parseFloat(ruleMatch.sat_discount)} Discount)`;
-                } else if (today === 'Sunday') {
-                    finalVal = parseFloat(ruleMatch.regular_rate) - parseFloat(ruleMatch.sun_discount);
-                    statusText = `(Sunday - ${parseFloat(ruleMatch.sun_discount)} Discount)`;
-                } else {
-                    finalVal = parseFloat(ruleMatch.regular_rate);
+            // Show inheritance label if assigned
+            const derivedLabel = document.getElementById('unitDerivedLabel');
+            if (data.assigned_unit) {
+                if (derivedLabel) {
+                    derivedLabel.textContent = `(Inherited from ${data.assigned_unit})`;
+                    derivedLabel.classList.remove('hidden');
                 }
             } else {
-                // Final Fallback for other years if any
-                const base = parseFloat(data.assigned_boundary_rate) || 1100;
-                finalVal = isCoding ? (base / 2) : base;
-                if (isCoding) statusText = '(Coding Day - 50% Applied)';
+                if (derivedLabel) derivedLabel.classList.add('hidden');
             }
-            
-            targetInput.value = finalVal.toFixed(2);
-            targetInput.placeholder = '0.00';
-            
-            if (statusText) {
+
+            if (data.current_pricing.label && data.current_pricing.type !== 'regular') {
                 codingAlert.classList.remove('hidden');
-                codingAlert.textContent = statusText;
-                codingAlert.className = isCoding ? 'text-[10px] text-red-600 font-bold' : 'text-[10px] text-blue-600 font-bold';
+                codingAlert.textContent = data.current_pricing.label;
+                codingAlert.className = data.current_pricing.type === 'coding' ? 'text-[11px] text-red-600 font-bold' : 'text-[11px] text-blue-600 font-bold';
             } else {
                 codingAlert.classList.add('hidden');
             }
         } else {
-            targetInput.value = '';
-            targetInput.placeholder = 'Please dispatch to appear boundary';
-            if (codingAlert) {
-                codingAlert.classList.remove('hidden');
-                codingAlert.className = 'text-[10px] text-gray-500 font-bold';
-                codingAlert.textContent = '(Pending Dispatch)';
-            }
+            targetInput.value = data.daily_boundary_target || '0.00';
+            const derivedLabel = document.getElementById('unitDerivedLabel');
+            if (derivedLabel) derivedLabel.classList.add('hidden');
+            codingAlert.classList.add('hidden');
         }
         document.getElementById('editIsActive').value = data.is_active ? '1' : '0';
         document.getElementById('deleteDriverButton').classList.remove('hidden');
@@ -567,7 +469,8 @@ function openDriverDetails(id) {
             </div>
             <div>
                 <p><span class="font-semibold">Hire Date:</span> ${data.hire_date || 'N/A'}</p>
-                <p><span class="font-semibold">Daily Boundary Target:</span> ₱${data.daily_boundary_target || 'N/A'}</p>
+                <p><span class="font-semibold">Daily Boundary Target:</span> ₱${data.current_pricing ? data.current_pricing.rate.toFixed(2) : data.daily_boundary_target}</p>
+                ${data.current_pricing && data.current_pricing.type !== 'regular' ? `<p class="text-[10px] text-blue-600 font-bold">${data.current_pricing.label}</p>` : ''}
                 <p><span class="font-semibold">Status:</span> ${data.is_active ? 'Active' : 'Inactive'}</p>
                 <div class="mt-4 pt-2 border-t border-gray-100">
                     <p class="text-[10px] text-gray-400 uppercase font-bold tracking-wider">Record Credit</p>
@@ -595,68 +498,292 @@ function openDriverDetails(id) {
 
     lucide.createIcons();
 }
+</script>
 
-function closeDriverDetails() {
-    document.getElementById('driverDetailsModal').classList.add('hidden');
-}
+@push('scripts')
+<script>
+    window.boundaryRules = @json($boundary_rules ?? []);
+    function openAddDriverModal() {
+        document.getElementById('driverModalTitle').textContent = 'Add Driver';
+        document.getElementById('driverFormMethod').value = 'POST';
+        document.getElementById('driverForm').action = '{{ route('driver-management.store') }}';
+        document.getElementById('editDriverId').value = '';
+        document.getElementById('driverFirstName').value = '';
+        document.getElementById('driverLastName').value = '';
+        document.getElementById('driverNickname').value = '';
+        document.getElementById('driverContact').value = '';
+        document.getElementById('driverLicense').value = '';
+        document.getElementById('driverLicenseExpiry').value = '';
+        document.getElementById('driverHireDate').value = '{{ date('Y-m-d') }}';
+        document.getElementById('driverAddress').value = '';
+        document.getElementById('driverEmergencyContact').value = '';
+        document.getElementById('driverEmergencyPhone').value = '';
+        const targetInput = document.getElementById('driverBoundaryTarget');
+        const codingAlert = document.getElementById('codingBoundaryAlert');
+        
+        targetInput.value = '';
+        targetInput.placeholder = 'Please dispatch to appear boundary';
+        if (codingAlert) {
+            codingAlert.classList.remove('hidden');
+            codingAlert.classList.remove('text-red-600');
+            codingAlert.classList.add('text-gray-500');
+            codingAlert.textContent = '(Pending Dispatch)';
+        }
 
-// Tab switching
-document.querySelectorAll('.driver-tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-        document.querySelectorAll('.driver-tab').forEach(t => {
-            t.classList.remove('border-yellow-500', 'text-yellow-600', 'active');
-            t.classList.add('border-transparent', 'text-gray-500');
-        });
-        document.querySelectorAll('.driver-tab-panel').forEach(p => p.classList.add('hidden'));
+        document.getElementById('editIsActive').value = '1';
+        document.getElementById('deleteDriverButton').classList.add('hidden');
+        document.getElementById('addDriverModal').classList.remove('hidden');
+        lucide.createIcons();
+    }
 
-        tab.classList.add('border-yellow-500', 'text-yellow-600', 'active');
-        tab.classList.remove('border-transparent', 'text-gray-500');
-
-        const target = tab.dataset.tab;
-        const panel = document.querySelector(`.driver-tab-panel[data-tab-panel="${target}"]`);
-        if (panel) panel.classList.remove('hidden');
-    });
-    // Search functionality (Same as Unit Management)
-    const searchInput = document.getElementById('tableSearchInput');
-    if (searchInput) {
-        searchInput.addEventListener('input', function(e) {
-            const searchTerm = e.target.value.toLowerCase();
-            const tableBody = document.querySelector('tbody');
-            const rows = tableBody.querySelectorAll('tr.cursor-pointer');
-            let visibleCount = 0;
-
-            rows.forEach(row => {
-                const text = row.innerText.toLowerCase();
-                if (text.includes(searchTerm)) {
-                    row.style.display = '';
-                    visibleCount++;
+    function openEditDriverModal(id) {
+        fetch('{{ route('driver-management.index') }}/' + id + '?format=json', {
+            headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
+        })
+        .then(r => r.json())
+        .then(data => {
+            document.getElementById('driverModalTitle').textContent = 'Edit Driver';
+            document.getElementById('driverFormMethod').value = 'PUT';
+            document.getElementById('driverForm').action = '{{ url('driver-management') }}/' + id;
+            document.getElementById('editDriverId').value = id;
+            document.getElementById('driverFirstName').value = data.first_name || '';
+            document.getElementById('driverLastName').value = data.last_name || '';
+            document.getElementById('driverNickname').value = data.nickname || '';
+            document.getElementById('driverContact').value = data.contact_number || '';
+            document.getElementById('driverLicense').value = data.license_number || '';
+            document.getElementById('driverLicenseExpiry').value = data.license_expiry || '';
+            document.getElementById('driverHireDate').value = data.hire_date || '{{ date('Y-m-d') }}';
+            document.getElementById('driverAddress').value = data.address || '';
+            document.getElementById('driverEmergencyContact').value = data.emergency_contact || '';
+            document.getElementById('driverEmergencyPhone').value = data.emergency_phone || '';
+            
+            const targetInput = document.getElementById('driverBoundaryTarget');
+            const codingAlert = document.getElementById('codingBoundaryAlert');
+            
+            if (data.current_pricing) {
+                targetInput.value = data.current_pricing.rate.toFixed(2);
+                targetInput.placeholder = '0.00';
+                
+                if (data.current_pricing.label && data.current_pricing.type !== 'regular') {
+                    codingAlert.classList.remove('hidden');
+                    codingAlert.textContent = data.current_pricing.label;
+                    codingAlert.className = data.current_pricing.type === 'coding' ? 'text-[11px] text-red-600 font-bold' : 'text-[11px] text-blue-600 font-bold';
                 } else {
-                    row.style.display = 'none';
+                    codingAlert.classList.add('hidden');
                 }
-            });
-
-            // Handle "No drivers found" message
-            let emptyMsgRow = document.getElementById('clientEmptySearchRow');
-            if (visibleCount === 0 && rows.length > 0) {
-                if (!emptyMsgRow) {
-                    emptyMsgRow = document.createElement('tr');
-                    emptyMsgRow.id = 'clientEmptySearchRow';
-                    emptyMsgRow.innerHTML = `
-                        <td colspan="7" class="px-6 py-12 text-center text-gray-500">
-                            <i data-lucide="search" class="w-12 h-12 mx-auto mb-4 text-gray-300"></i>
-                            <p>No drivers match your search.</p>
-                        </td>
-                    `;
-                    tableBody.appendChild(emptyMsgRow);
-                    if (typeof lucide !== 'undefined') lucide.createIcons();
-                } else {
-                    emptyMsgRow.style.display = '';
-                }
-            } else if (emptyMsgRow) {
-                emptyMsgRow.style.display = 'none';
+            } else {
+                targetInput.value = data.daily_boundary_target || '';
+                targetInput.placeholder = 'Enter boundary target...';
+                codingAlert.classList.add('hidden');
             }
+            document.getElementById('editIsActive').value = data.is_active ? '1' : '0';
+            document.getElementById('deleteDriverButton').classList.remove('hidden');
+            document.getElementById('addDriverModal').classList.remove('hidden');
+            lucide.createIcons();
         });
     }
-});
+
+    function closeAddDriverModal() {
+        document.getElementById('addDriverModal').classList.add('hidden');
+    }
+
+    function confirmDeleteDriver() {
+        const id = document.getElementById('editDriverId').value;
+        const firstName = document.getElementById('driverFirstName').value || '';
+        const lastName = document.getElementById('driverLastName').value || '';
+        const name = (firstName + ' ' + lastName).trim() || 'this driver';
+        deleteDriver(id, name);
+    }
+
+    function deleteDriver(id, name) {
+        if (!id) return;
+        if (confirm('Are you sure you want to delete ' + name + '?')) {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '{{ url('driver-management') }}/' + id;
+            form.innerHTML = '@csrf' +
+                            '<input type="hidden" name="_method" value="DELETE">';
+            document.body.appendChild(form);
+            form.submit();
+        }
+    }
+
+    function openDriverDetails(id) {
+        const modal = document.getElementById('driverDetailsModal');
+        modal.classList.remove('hidden');
+
+        document.querySelectorAll('.driver-tab').forEach(btn => {
+            btn.classList.remove('border-yellow-500', 'text-yellow-600', 'active');
+            btn.classList.add('border-transparent', 'text-gray-500');
+        });
+        document.querySelectorAll('.driver-tab-panel').forEach(panel => { panel.classList.add('hidden'); });
+        
+        const firstTab = document.querySelector('.driver-tab[data-tab="basic"]');
+        const firstPanel = document.querySelector('.driver-tab-panel[data-tab-panel="basic"]');
+        if (firstTab && firstPanel) {
+            firstTab.classList.add('border-yellow-500', 'text-yellow-600', 'active');
+            firstPanel.classList.remove('hidden');
+        }
+
+        document.getElementById('driverDocumentsDriverId').value = id;
+        document.getElementById('driverDocumentsForm').action = '{{ url('driver-management/upload-documents') }}/' + id;
+
+        fetch('{{ route('driver-management.index') }}/' + id + '?format=json', {
+            headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
+        })
+        .then(r => r.json())
+        .then(data => {
+            document.getElementById('driverDetailsName').textContent = data.full_name || 'Driver Details';
+            document.getElementById('driverDetailsSubtitle').textContent = data.assigned_unit ? `Assigned to ${data.assigned_unit}` : 'Not currently assigned';
+
+            document.getElementById('basicInfoContent').innerHTML = `
+                <div>
+                    <p><span class="font-semibold text-gray-500">First Name:</span> ${data.first_name || ''}</p>
+                    <p><span class="font-semibold text-gray-500">Last Name:</span> ${data.last_name || ''}</p>
+                    <p><span class="font-semibold text-gray-500">Nickname:</span> ${data.nickname || 'N/A'}</p>
+                    <p><span class="font-semibold text-gray-500">Contact:</span> ${data.contact_number || 'N/A'}</p>
+                    <p><span class="font-semibold text-gray-500">Address:</span> ${data.address || 'N/A'}</p>
+                    <p><span class="font-semibold text-gray-500">Emergency Contact:</span> ${data.emergency_contact || 'N/A'}</p>
+                    <p><span class="font-semibold text-gray-500">Emergency Phone:</span> ${data.emergency_phone || 'N/A'}</p>
+                </div>
+                <div>
+                    <p><span class="font-semibold text-gray-500">Hire Date:</span> ${data.hire_date || 'N/A'}</p>
+                    <p><span class="font-semibold text-gray-500">Standard Rate:</span> ₱${data.assigned_boundary_rate ? parseFloat(data.assigned_boundary_rate).toLocaleString() : '0.00'}</p>
+                    <p><span class="font-semibold text-gray-500">Active Target:</span> ₱${data.current_pricing ? data.current_pricing.rate.toFixed(2) : '0.00'}</p>
+                    ${data.current_pricing && data.current_pricing.label ? `<p class="text-[10px] text-blue-600 font-bold">${data.current_pricing.label}</p>` : ''}
+                    <p><span class="font-semibold text-gray-500">Status:</span> 
+                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${data.is_active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}">
+                            ${data.is_active ? 'Active' : 'Inactive'}
+                        </span>
+                    </p>
+                </div>
+            `;
+
+            document.getElementById('licenseInfoContent').innerHTML = `
+                <div>
+                    <p><span class="font-semibold text-gray-500">License Number:</span> ${data.license_number || ''}</p>
+                    <p><span class="font-semibold text-gray-500">License Expiry:</span> ${data.license_expiry || ''}</p>
+                </div>
+                <div class="bg-blue-50 p-3 rounded-lg border border-blue-100">
+                    <p class="text-[11px] text-blue-700 font-medium">Auto-Status Detection</p>
+                    <p class="text-xs text-blue-600 mt-1">Based on expiry date: No active issues detected.</p>
+                </div>
+            `;
+
+            // Performance Tab
+            let performanceHtml = `
+                <div class="flex items-center justify-between mb-4 bg-gray-50 p-3 rounded-lg">
+                    <div>
+                        <p class="text-xs text-gray-400 uppercase font-bold tracking-wider">Performance Rating</p>
+                        <p class="text-lg font-bold text-yellow-600">${data.performance_rating || 'N/A'}</p>
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-xs text-left">
+                        <thead class="bg-gray-100 text-gray-600 font-bold">
+                            <tr>
+                                <th class="p-2">Date</th>
+                                <th class="p-2">Unit</th>
+                                <th class="p-2">Target</th>
+                                <th class="p-2">Actual</th>
+                                <th class="p-2">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>`;
+            
+            if (data.recent_performance && data.recent_performance.length > 0) {
+                data.recent_performance.forEach(log => {
+                    const statusClass = log.status === 'paid' ? 'text-green-600' : (log.status === 'shortage' ? 'text-red-600' : 'text-blue-600');
+                    performanceHtml += `
+                        <tr class="border-b border-gray-50">
+                            <td class="p-2">${new Date(log.date).toLocaleDateString('en-US', {month: 'short', day: 'numeric', year: 'numeric'})}</td>
+                            <td class="p-2 font-bold">${log.plate_number || 'N/A'}</td>
+                            <td class="p-2">₱${parseFloat(log.boundary_amount || 0).toLocaleString()}</td>
+                            <td class="p-2 font-bold">₱${parseFloat(log.actual_boundary || 0).toLocaleString()}</td>
+                            <td class="p-2 font-bold ${statusClass}">${log.status.toUpperCase()}</td>
+                        </tr>`;
+                });
+            } else {
+                performanceHtml += '<tr><td colspan="5" class="p-4 text-center text-gray-400">No recent performance records found.</td></tr>';
+            }
+            performanceHtml += '</tbody></table></div>';
+            document.getElementById('performanceContent').innerHTML = performanceHtml;
+
+            // Insights Content
+            document.getElementById('insightsContent').innerHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                    <div class="p-3 bg-green-50 rounded-lg border border-green-100">
+                        <p class="text-[10px] text-green-600 font-bold uppercase">Monthly Incentive</p>
+                        <p class="text-lg font-bold text-green-700">₱${parseFloat(data.monthly_incentive || 0).toLocaleString()}</p>
+                    </div>
+                </div>
+                <div class="space-y-3">
+                    <div class="p-3 border rounded-lg">
+                        <p class="text-xs font-bold text-gray-700 mb-1">Incentive Eligibility</p>
+                        <p class="text-xs text-gray-500">This driver receives 5% of all collections as a performance bonus. Current payout is based on the ${new Date().toLocaleString('en-US', {month: 'long'})} performance period.</p>
+                    </div>
+                </div>
+            `;
+
+            lucide.createIcons();
+        });
+    }
+
+    function closeDriverDetails() {
+        document.getElementById('driverDetailsModal').classList.add('hidden');
+    }
+
+    document.querySelectorAll('.driver-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            document.querySelectorAll('.driver-tab').forEach(t => {
+                t.classList.remove('border-yellow-500', 'text-yellow-600', 'active');
+                t.classList.add('border-transparent', 'text-gray-500');
+            });
+            document.querySelectorAll('.driver-tab-panel').forEach(p => p.classList.add('hidden'));
+            tab.classList.add('border-yellow-500', 'text-yellow-600', 'active');
+            const panel = document.querySelector(`.driver-tab-panel[data-tab-panel="${tab.dataset.tab}"]`);
+            if (panel) panel.classList.remove('hidden');
+        });
+    });
+
+    let searchTimer;
+    const searchInput = document.getElementById('tableSearchInput');
+    const statusFilter = document.querySelector('select[name="status"]');
+    const sortFilter = document.querySelector('select[name="sort"]');
+    const tableContainer = document.getElementById('driversTableContainer');
+
+    function performSearch(page = 1) {
+        const query = searchInput.value;
+        const status = statusFilter.value;
+        const sort = sortFilter.value;
+
+        tableContainer.style.opacity = '0.5';
+        tableContainer.style.pointerEvents = 'none';
+
+        fetch(`{{ route('driver-management.index') }}?search=${encodeURIComponent(query)}&status=${status}&sort=${sort}&page=${page}`, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(response => response.text())
+        .then(html => {
+            tableContainer.innerHTML = html;
+            tableContainer.style.opacity = '1';
+            tableContainer.style.pointerEvents = 'auto';
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        });
+    }
+
+    if (searchInput) {
+        searchInput.addEventListener('input', () => {
+            clearTimeout(searchTimer);
+            searchTimer = setTimeout(() => performSearch(1), 300);
+        });
+    }
+    if (statusFilter) statusFilter.addEventListener('change', () => performSearch(1));
+    if (sortFilter) sortFilter.addEventListener('change', () => performSearch(1));
+
+    window.changePage = function(page) {
+        performSearch(page);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
 </script>
 @endpush

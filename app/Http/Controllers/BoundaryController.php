@@ -8,15 +8,18 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Boundary;
 use Carbon\Carbon;
 
+use App\Traits\CalculatesBoundary;
+
 class BoundaryController extends Controller
 {
+    use CalculatesBoundary;
     /**
      * Display a listing of boundary records.
      */
     public function index(Request $request)
     {
         $search        = $request->get('search', '');
-        $date_filter   = $request->get('date', '');
+        $date_filter   = $request->get('date', date('Y-m-d')); // Default to today
         $status_filter = $request->get('status', '');
         $page          = max(1, (int) $request->get('page', 1));
         $limit         = 10;
@@ -32,6 +35,8 @@ class BoundaryController extends Controller
             ->select(
                 'b.*',
                 'u.plate_number',
+                'u.year as unit_year',
+                'u.coding_day as unit_coding_day',
                 DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')) as driver_name"),
                 'creator.full_name as creator_name',
                 'editor.full_name as editor_name'
@@ -65,7 +70,7 @@ class BoundaryController extends Controller
         $units = DB::table('units')
             ->whereNull('deleted_at')
             ->where('status', '!=', 'retired')
-            ->select('id', 'plate_number', 'make', 'model', 'boundary_rate', 'coding_day', 'driver_id', 'secondary_driver_id')
+            ->select('id', 'plate_number', 'make', 'model', 'year', 'boundary_rate', 'coding_day', 'driver_id', 'secondary_driver_id')
             ->orderBy('plate_number')
             ->get()
             ->map(function ($unit) {
@@ -80,7 +85,8 @@ class BoundaryController extends Controller
             SELECT d.id, CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')) as name, 
                    COALESCE(ua.plate_number, 'No Assignment') as current_unit,
                    COALESCE(ua.plate_number, '') as current_plate,
-                   (SELECT COUNT(*) FROM units WHERE (driver_id = d.id OR secondary_driver_id = d.id) AND deleted_at IS NULL) as assigned_units_count
+                   (SELECT COUNT(*) FROM units WHERE (driver_id = d.id OR secondary_driver_id = d.id) AND deleted_at IS NULL) as assigned_units_count,
+                   (SELECT GREATEST(0, COALESCE(SUM(shortage),0) - COALESCE(SUM(excess),0)) FROM boundaries WHERE driver_id = d.id AND deleted_at IS NULL) as net_shortage
             FROM drivers d 
             LEFT JOIN units ua ON (d.id = ua.driver_id OR d.id = ua.secondary_driver_id) AND ua.deleted_at IS NULL
             WHERE d.deleted_at IS NULL
@@ -133,14 +139,64 @@ class BoundaryController extends Controller
         ];
 
         // Ensure we pass $boundaries as array as backup ui expects arrays for json encoding
+        $boundary_rules = DB::table('boundary_rules')->get();
         $boundariesArray = [];
-        foreach($boundaries as $b) {
-            $boundariesArray[] = (array) $b;
+        foreach ($boundaries as $b) {
+            $recordDate = Carbon::parse($b->date);
+            $dayOfWeek = $recordDate->format('l');
+            
+            // Temporary override to simulate date-specific pricing
+            // We use our trait but we have to handle the "today" override if needed
+            // Actually, we can just pass the day if we modify the trait, but for now 
+            // since the trait uses date('l'), we'll check if it's the record's coding day manually or 
+            // we simulate it.
+            
+            $pricing = $this->getCurrentPricing([
+                'year' => $b->unit_year,
+                'plate_number' => $b->plate_number,
+                'boundary_rate' => $b->boundary_amount, // Use the target recorded
+                'coding_day' => $b->unit_coding_day
+            ], $boundary_rules);
+
+            // Re-calculate specifically for the record's day if it's not today
+            if ($dayOfWeek === 'Saturday') {
+                $rule = $boundary_rules->where('start_year', '<=', $b->unit_year)->where('end_year', '>=', $b->unit_year)->first();
+                $pricing['label'] = 'Saturday Discount';
+                $pricing['type'] = 'discount';
+            } elseif ($dayOfWeek === 'Sunday') {
+                $pricing['label'] = 'Sunday Discount';
+                $pricing['type'] = 'discount';
+            } else {
+                // Coding check for that day
+                $cDay = $pricing['coding_day'] ?? null;
+                if ($cDay && strtolower($dayOfWeek) === strtolower($cDay)) {
+                    $pricing['label'] = 'Coding Rate';
+                    $pricing['type'] = 'coding';
+                } else {
+                    $pricing['label'] = 'Regular Rate';
+                    $pricing['type'] = 'regular';
+                }
+            }
+
+            $item = (array) $b;
+            $item['rate_label'] = $pricing['label'];
+            $item['rate_type'] = $pricing['type'];
+            $boundariesArray[] = $item;
         }
 
         return view('boundaries.index', compact(
-            'boundariesArray', 'pagination', 'search',
-            'date_filter', 'status_filter', 'units', 'all_drivers', 'assigned_drivers', 'unit_drivers'
+            'boundaries', 
+            'pagination', 
+            'page', 
+            'search', 
+            'date_filter',
+            'status_filter', 
+            'units', 
+            'all_drivers', 
+            'assigned_drivers',
+            'unit_drivers',
+            'boundary_rules',
+            'boundariesArray'
         ));
     }
 
@@ -169,6 +225,12 @@ class BoundaryController extends Controller
                     $excess   = max(0, $actual_boundary - $boundary_amount);
                     $status   = $shortage > 0 ? 'shortage' : ($excess > 0 ? 'excess' : 'paid');
 
+                    $unit = \App\Models\Unit::find($unit_id);
+                    $is_extra_driver = false;
+                    if ($unit && $unit->driver_id !== $driver_id && $unit->secondary_driver_id !== $driver_id) {
+                        $is_extra_driver = true;
+                    }
+
                     Boundary::create([
                         'unit_id'         => $unit_id,
                         'driver_id'       => $driver_id,
@@ -179,6 +241,7 @@ class BoundaryController extends Controller
                         'excess'          => $excess,
                         'status'          => $status,
                         'notes'           => $notes,
+                        'is_extra_driver' => $is_extra_driver,
                     ]);
                     return redirect()->route('boundaries.index')->with('success', 'Boundary record added successfully');
                 }

@@ -9,8 +9,12 @@ use App\Models\Driver;
 use App\Models\User;
 use Carbon\Carbon;
 
+use App\Traits\CalculatesBoundary;
+
 class UnitController extends Controller
 {
+    use CalculatesBoundary;
+
     public function index(Request $request)
     {
         $search = $request->input('search', '');
@@ -31,8 +35,8 @@ class UnitController extends Controller
             ->addSelect([
                 'total_collected' => DB::table('boundaries')
                     ->whereColumn('unit_id', 'u.id')
-                    ->whereIn('status', ['paid', 'excess'])
-                    ->selectRaw('COALESCE(SUM(boundary_amount), 0)'),
+                    ->whereIn('status', ['paid', 'excess', 'shortage'])
+                    ->selectRaw('COALESCE(SUM(actual_boundary), 0)'),
                 'maintenance_cost' => DB::table('maintenance')
                     ->whereColumn('unit_id', 'u.id')
                     ->selectRaw('COALESCE(SUM(cost), 0)'),
@@ -46,9 +50,9 @@ class UnitController extends Controller
 
         if (!empty($search)) {
             $query->where(function ($q) use ($search) {
-                $q->where('u.plate_number', 'like', DB::raw("CONCAT('%', ?, '%') COLLATE utf8mb4_unicode_ci"), [$search])
-                    ->orWhere('u.make', 'like', DB::raw("CONCAT('%', ?, '%') COLLATE utf8mb4_unicode_ci"), [$search])
-                    ->orWhere('u.model', 'like', DB::raw("CONCAT('%', ?, '%') COLLATE utf8mb4_unicode_ci"), [$search]);
+                $q->where('u.plate_number', 'like', "%{$search}%")
+                    ->orWhere('u.make', 'like', "%{$search}%")
+                    ->orWhere('u.model', 'like', "%{$search}%");
             });
         }
 
@@ -90,9 +94,18 @@ class UnitController extends Controller
         $total_units = $query->count();
         $units = $query->offset($offset)->limit($limit)->get();
 
+        // Fetch all boundary rules once to avoid N+1
+        $boundary_rules = DB::table('boundary_rules')->get();
+
         foreach ($units as $unit) {
             $net_income = (data_get($unit, 'total_collected', 0)) - (data_get($unit, 'maintenance_cost', 0));
             $unit->roi_achieved = (data_get($unit, 'purchase_cost', 0)) > 0 && $net_income >= (data_get($unit, 'purchase_cost', 0));
+
+            // Smart Pricing Automation
+            $pricing = $this->getCurrentPricing($unit, $boundary_rules);
+            $unit->current_rate = $pricing['rate'];
+            $unit->rate_label = $pricing['label'];
+            $unit->rate_type = $pricing['type'];
         }
 
         $total_pages = ceil($total_units / $limit);
@@ -107,12 +120,22 @@ class UnitController extends Controller
         ];
 
         // Drivers list for add/edit modal
-        $all_drivers = DB::table('drivers')
-            ->whereNull('deleted_at')
-            ->select('id', DB::raw("CONCAT(COALESCE(first_name,''), ' ', COALESCE(last_name,'')) as full_name"), 'contact_number', 'license_number')
+        $all_drivers = DB::table('drivers as d')
+            ->whereNull('d.deleted_at')
+            ->select(
+                'd.id', 
+                DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')) as full_name"), 
+                'd.contact_number', 
+                'd.license_number',
+                DB::raw("(SELECT id FROM units WHERE (driver_id = d.id OR secondary_driver_id = d.id) AND deleted_at IS NULL LIMIT 1) as assigned_unit_id")
+            )
             ->get();
 
-        return view('units.index', compact('units', 'pagination', 'search', 'status_filter', 'all_drivers', 'sort'));
+        if ($request->ajax()) {
+            return view('units.partials._units_table', compact('units', 'pagination', 'search', 'status_filter', 'sort'))->render();
+        }
+
+        return view('units.index', compact('units', 'pagination', 'search', 'status_filter', 'all_drivers', 'sort', 'boundary_rules'));
     }
 
     public function store(Request $request)
@@ -350,9 +373,9 @@ class UnitController extends Controller
         $roi = DB::table('boundaries')
             ->where('unit_id', $unit_id)
             ->selectRaw('
-                SUM(boundary_amount) as total_boundary,
-                SUM(CASE WHEN MONTH(date)=MONTH(CURDATE()) AND YEAR(date)=YEAR(CURDATE()) THEN boundary_amount ELSE 0 END) as monthly_boundary,
-                SUM(CASE WHEN status IN ("paid","excess") THEN boundary_amount ELSE 0 END) as paid_boundary
+                SUM(actual_boundary) as total_boundary,
+                SUM(CASE WHEN MONTH(date)=MONTH(CURDATE()) AND YEAR(date)=YEAR(CURDATE()) THEN actual_boundary ELSE 0 END) as monthly_boundary,
+                SUM(actual_boundary) as paid_boundary
             ')->first();
 
         $maintenance_cost = DB::table('maintenance')
@@ -368,6 +391,7 @@ class UnitController extends Controller
         $roi_percentage = $total_investment > 0 ? (($total_revenue - $total_expenses) / $total_investment) * 100 : 0;
         $payback_period = $monthly_revenue > 0 ? $total_investment / $monthly_revenue : 0;
 
+        $unit->current_pricing = $this->getCurrentPricing($unit);
         $roi_data = [
             'total_investment' => $total_investment,
             'total_revenue' => $total_revenue,
@@ -473,9 +497,9 @@ class UnitController extends Controller
         $roi = DB::table('boundaries')
             ->where('unit_id', $unit_id)
             ->selectRaw('
-                SUM(boundary_amount) as total_boundary,
-                SUM(CASE WHEN MONTH(date)=MONTH(CURDATE()) AND YEAR(date)=YEAR(CURDATE()) THEN boundary_amount ELSE 0 END) as monthly_boundary,
-                SUM(CASE WHEN status IN ("paid","excess") THEN boundary_amount ELSE 0 END) as paid_boundary
+                SUM(actual_boundary) as total_boundary,
+                SUM(CASE WHEN MONTH(date)=MONTH(CURDATE()) AND YEAR(date)=YEAR(CURDATE()) THEN actual_boundary ELSE 0 END) as monthly_boundary,
+                SUM(actual_boundary) as paid_boundary
             ')->first();
 
         $maintenance_cost = DB::table('maintenance')
@@ -662,52 +686,16 @@ class UnitController extends Controller
         return view('units.print', compact('units'));
     }
 
-    private function syncDriverBoundaryTarget($user_id, $unit)
+    private function syncDriverBoundaryTarget($driver_id, $unit)
     {
-        if (!$user_id || !$unit) return;
+        if (!$driver_id || !$unit) return;
 
-        $year = (int) $unit->year;
-        $customRate = (float) $unit->boundary_rate;
-        $coding_day = $unit->coding_day;
-        
-        $today = date('l');
-        $is_coding = $coding_day && (strtolower($today) === strtolower($coding_day));
-        
-        $final = 0;
+        // Simplify: Just sync the BASE boundary rate of the unit.
+        // The smart pricing (coding/weekend) is handled dynamically in the view/trait.
+        $baseRate = (float) $unit->boundary_rate;
 
-        // Fetch matching rule for the year
-        $rule = \App\Models\BoundaryRule::where('start_year', '<=', $year)
-            ->where('end_year', '>=', $year)
-            ->first();
-
-        // Determine Base Rate
-        // Use unit's custom boundary_rate as priority, fallback to rule's regular_rate, then 1100
-        $base = $customRate > 0 ? $customRate : ($rule ? (float)$rule->regular_rate : 1100);
-
-        if ($is_coding) {
-            if ($rule) {
-                if ($rule->coding_is_fixed) {
-                    $final = (float) $rule->coding_rate;
-                } else {
-                    // Logic: rule->coding_rate might be a pre-calculated 50% or we use base / 2
-                    // To be safe and automated, we use rule->coding_rate if it exists and > 0
-                    $final = (float) $rule->coding_rate > 0 ? (float) $rule->coding_rate : ($base / 2);
-                }
-            } else {
-                $final = $base / 2;
-            }
-        } elseif ($today === 'Saturday') {
-            $discount = $rule ? (float)$rule->sat_discount : 100;
-            $final = $base - $discount;
-        } elseif ($today === 'Sunday') {
-            $discount = $rule ? (float)$rule->sun_discount : 200;
-            $final = $base - $discount;
-        } else {
-            $final = $base;
-        }
-
-        DB::table('drivers')->where('id', $user_id)->update([
-            'daily_boundary_target' => $final,
+        DB::table('drivers')->where('id', $driver_id)->update([
+            'daily_boundary_target' => $baseRate,
             'updated_at' => now(),
         ]);
     }

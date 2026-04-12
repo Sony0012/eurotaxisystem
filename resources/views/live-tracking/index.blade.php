@@ -120,6 +120,8 @@
                         <div class="unit-item p-2.5 border-b border-gray-100 {{ $unit->gps_status === 'offline' ? 'opacity-70' : '' }}"
                             data-unit-id="{{ $unit->id }}"
                             data-plate-number="{{ $unit->plate_number }}" 
+                            data-driver-name="{{ $unit->driver_name ?? '' }}"
+                            data-secondary-driver="{{ $unit->secondary_driver ?? '' }}"
                             data-status="{{ $unit->gps_status }}"
                             onclick="selectUnit(this)">
                             

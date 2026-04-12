@@ -40,8 +40,8 @@ class UnitProfitabilityController extends Controller
                 COALESCE(u.year, 0) as year,
                 COALESCE(u.purchase_cost, 0) as purchase_cost,
                 COALESCE(u.boundary_rate, 0) as boundary_rate,
-                COALESCE(SUM(CASE WHEN b.date BETWEEN ? AND ? THEN b.boundary_amount ELSE 0 END), 0) as total_boundary,
-                COALESCE(SUM(CASE WHEN b.date BETWEEN ? AND ? THEN COALESCE(b.actual_boundary, b.boundary_amount, 0) ELSE 0 END), 0) as total_actual_boundary,
+                COALESCE(SUM(CASE WHEN b.date BETWEEN ? AND ? THEN b.actual_boundary ELSE 0 END), 0) as total_boundary,
+                COALESCE(SUM(CASE WHEN b.date BETWEEN ? AND ? THEN b.boundary_amount ELSE 0 END), 0) as total_target_boundary,
                 COALESCE(COUNT(DISTINCT CASE WHEN b.date BETWEEN ? AND ? THEN b.id END), 0) as boundary_days,
                 COALESCE(SUM(CASE WHEN m.date_started BETWEEN ? AND ? THEN m.cost ELSE 0 END), 0) as total_maintenance,
                 COALESCE(COUNT(DISTINCT CASE WHEN m.date_started BETWEEN ? AND ? THEN m.id END), 0) as maintenance_days,
@@ -57,8 +57,8 @@ class UnitProfitabilityController extends Controller
 
         // Build parameters array
         $all_params = array_merge(
-            [$date_from, $date_to], // boundary dates
-            [$date_from, $date_to], // actual boundary dates  
+            [$date_from, $date_to], // total_boundary (actual)
+            [$date_from, $date_to], // total_target_boundary
             [$date_from, $date_to], // boundary days
             [$date_from, $date_to], // maintenance dates
             [$date_from, $date_to], // maintenance days
@@ -72,11 +72,11 @@ class UnitProfitabilityController extends Controller
         // Calculate additional metrics
         foreach ($profitability as &$unit) {
             $unit->net_income = $unit->total_boundary - $unit->total_maintenance - $unit->total_expenses;
-            $unit->profit_margin = $unit->total_boundary > 0 ? ($unit->net_income / $unit->total_boundary) * 100 : 0;
+            $unit->profit_margin = $unit->total_boundary > 0 ? (($unit->net_income / $unit->total_boundary) * 100) : 0;
             $unit->maintenance_cost = $unit->total_maintenance;
             $unit->other_expenses = $unit->total_expenses;
-            $unit->roi_percentage = $unit->purchase_cost > 0 ? ($unit->net_income / $unit->purchase_cost) * 100 : 0;
-            $unit->payback_period = $unit->total_boundary > 0 ? $unit->purchase_cost / $unit->total_boundary : 0;
+            $unit->roi_percentage = $unit->purchase_cost > 0 ? (($unit->net_income / $unit->purchase_cost) * 100) : 0;
+            $unit->payback_period = $unit->total_boundary > 0 ? ($unit->purchase_cost / $unit->total_boundary) : 0;
             $unit->roi_achieved = $unit->purchase_cost > 0 && $unit->net_income >= $unit->purchase_cost ? 1 : 0;
         }
 

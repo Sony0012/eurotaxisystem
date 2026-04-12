@@ -4,6 +4,14 @@
 @section('page-heading', 'Unit Management')
 @section('page-subheading', 'Manage your fleet of taxi units')
 
+@push('styles')
+    <!-- Leaflet CSS for Map -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        #unitDetailMap { z-index: 1; }
+    </style>
+@endpush
+
 @section('content')
     <!-- Search and Filters -->
     <div class="bg-white rounded-lg shadow p-2 mb-1">
@@ -58,146 +66,9 @@
         </form>
     </div>
 
-    <!-- Units Table -->
-    <div class="bg-white rounded-lg shadow overflow-hidden">
-        <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50 border-b">
-                    <tr>
-                        <th class="px-6 py-1 text-left text-[11px] font-medium text-gray-500 uppercase tracking-wider">Plate Number Info</th>
-                        <th class="px-6 py-1 text-left text-[11px] font-medium text-gray-500 uppercase tracking-wider">Vehicle Details</th>
-                        <th class="px-6 py-1 text-left text-[11px] font-medium text-gray-500 uppercase tracking-wider">Assigned Drivers</th>
-                        <th class="px-6 py-1 text-left text-[11px] font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                        <th class="px-6 py-1 text-left text-[11px] font-medium text-gray-500 uppercase tracking-wider">Boundary Rate</th>
-                        <th class="px-6 py-1 text-left text-[11px] font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                    </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
-                    @forelse($units as $unit)
-                        @php
-                            $is_available = (!$unit->driver_id && !$unit->secondary_driver_id) && $unit->status === 'active';
-                            $primary_driver = $unit->primary_driver ?? null;
-                            $secondary_driver = $unit->secondary_driver ?? null;
-                            $total_collected = $unit->total_collected ?? 0;
-                            $purchase_cost = $unit->purchase_cost ?? 0;
-                            $roi_achieved = $unit->roi_achieved ?? false;
-                        @endphp
-                        <tr class="hover:bg-gray-50 cursor-pointer text-[13px]" onclick="viewUnitDetails({{ $unit->id }})">
-                            <td class="px-6 py-1 whitespace-nowrap">
-                                <div class="space-y-0.5">
-                                    <div class="font-bold text-gray-900">{{ $unit->plate_number }}</div>
-                                    @if($unit->color)
-                                        <div class="text-[10px] text-gray-400">Color: {{ $unit->color }}</div>
-                                    @endif
-                                </div>
-                            </td>
-                            <td class="px-6 py-1 whitespace-nowrap">
-                                <div class="space-y-0.5">
-                                    <div class="font-medium text-gray-900">{{ $unit->make }} {{ $unit->model }}</div>
-                                    <div class="text-xs text-gray-500">{{ $unit->year }}</div>
-                                    <div class="flex items-center gap-2 text-[10px]">
-                                        <span class="px-1.5 py-0.5 bg-blue-100 text-blue-800 rounded-full">{{ ucfirst($unit->unit_type ?? 'new') }}</span>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="px-6 py-1 whitespace-nowrap">
-                                <div class="space-y-0.5">
-                                    @if($unit->driver_id && $primary_driver)
-                                        @php $d1 = explode('|', $primary_driver); @endphp
-                                        <div class="flex items-center gap-2">
-                                            <span class="text-[11px] font-medium text-gray-900">D1:</span>
-                                            <span class="text-[11px] text-gray-700">{{ $d1[0] ?? '' }}</span>
-                                        </div>
-                                    @else
-                                        <div class="text-[11px] text-gray-400">No D1</div>
-                                    @endif
-                                    @if($unit->secondary_driver_id && $secondary_driver)
-                                        @php $d2 = explode('|', $secondary_driver); @endphp
-                                        <div class="flex items-center gap-2">
-                                            <span class="text-[11px] font-medium text-gray-900">D2:</span>
-                                            <span class="text-[11px] text-gray-700">{{ $d2[0] ?? '' }}</span>
-                                        </div>
-                                    @else
-                                        <div class="text-[11px] text-gray-400">No D2</div>
-                                    @endif
-                                </div>
-                            </td>
-
-                            <td class="px-6 py-1 whitespace-nowrap">
-                                <span class="px-1.5 py-0.5 text-[10px] rounded-full
-                                        @if($unit->status === 'active') bg-green-100 text-green-800
-                                        @elseif($unit->status === 'maintenance') bg-yellow-100 text-yellow-800
-                                        @elseif($unit->status === 'coding') bg-red-100 text-red-800
-                                        @else bg-gray-100 text-gray-800
-                                        @endif">
-                                    {{ ucfirst($unit->status) }}
-                                </span>
-                            </td>
-                            <td class="px-6 py-1 whitespace-nowrap font-medium text-gray-900">
-                                {{ formatCurrency($unit->boundary_rate) }}
-                            </td>
-
-                            <td class="px-6 py-1 whitespace-nowrap">
-                                <div class="flex gap-1">
-                                    <button onclick="event.stopPropagation(); editUnit({{ $unit->id }})"
-                                        class="p-1 text-blue-600 hover:bg-blue-50 rounded" title="Edit Unit">
-                                        <i data-lucide="edit-2" class="w-3.5 h-3.5"></i>
-                                    </button>
-                                    <form method="POST" action="{{ route('units.destroy', $unit->id) }}"
-                                        onsubmit="return confirm('Delete unit {{ $unit->plate_number }}?');">
-                                        @csrf @method('DELETE')
-                                        <button type="submit" onclick="event.stopPropagation()"
-                                            class="p-1 text-red-600 hover:bg-red-50 rounded" title="Delete Unit">
-                                            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-                                        </button>
-                                    </form>
-                                </div>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="6" class="px-6 py-12 text-center text-gray-500">
-                                <i data-lucide="car" class="w-12 h-12 mx-auto mb-4 text-gray-300"></i>
-                                <p>No units found</p>
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Pagination -->
-        @if($pagination['total_pages'] > 1)
-            <div class="px-6 py-2 border-t border-gray-200">
-                <div class="flex items-center justify-between">
-                    <div class="text-sm text-gray-700">
-                        Showing {{ $pagination['total_items'] }} results / Page {{ $pagination['page'] }} of
-                        {{ $pagination['total_pages'] }}
-                    </div>
-                    <div class="flex items-center gap-2">
-                        @if($pagination['has_prev'])
-                            <a href="?page={{ $pagination['prev_page'] }}&search={{ urlencode($search) }}&status={{ urlencode($status_filter) }}"
-                                class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                                <i data-lucide="chevron-left" class="w-4 h-4"></i>
-                            </a>
-                        @endif
-                        @for($i = max(1, $pagination['page'] - 2); $i <= min($pagination['total_pages'], $pagination['page'] + 2); $i++)
-                            <a href="?page={{ $i }}&search={{ urlencode($search) }}&status={{ urlencode($status_filter) }}"
-                                class="relative inline-flex items-center px-4 py-2 border text-sm font-medium
-                                           {{ $i === $pagination['page'] ? 'z-10 bg-yellow-50 border-yellow-500 text-yellow-600' : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50' }}">
-                                {{ $i }}
-                            </a>
-                        @endfor
-                        @if($pagination['has_next'])
-                            <a href="?page={{ $pagination['next_page'] }}&search={{ urlencode($search) }}&status={{ urlencode($status_filter) }}"
-                                class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                                <i data-lucide="chevron-right" class="w-4 h-4"></i>
-                            </a>
-                        @endif
-                    </div>
-                </div>
-            </div>
-        @endif
+    <!-- Units Table Container -->
+    <div id="unitsTableContainer" class="bg-white rounded-lg shadow overflow-hidden">
+        @include('units.partials._units_table')
     </div>
 
     {{-- Add Unit Modal --}}
@@ -306,10 +177,9 @@
                                     <span class="text-gray-500 text-sm">₱</span>
                                 </div>
                                 <input type="text" name="boundary_rate" id="addBoundaryRate" required value="1,100.00"
-                                    class="w-full pl-8 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
-                                    placeholder="0.00"
-                                    onfocus="unformatCurrencyInput(this)"
-                                    onblur="formatCurrencyInput(this)">
+                                    readonly tabindex="-1"
+                                    class="w-full pl-8 pr-4 py-3 border-2 border-gray-300 rounded-lg bg-gray-50 text-gray-500 cursor-not-allowed focus:outline-none"
+                                    placeholder="0.00">
                             </div>
                             <p class="text-xs text-gray-500">Daily boundary collection target</p>
                         </div>
@@ -371,7 +241,7 @@
                                 <select id="add_driver1" name="driver_id" class="hidden">
                                     <option value="">Select Primary Driver</option>
                                     @foreach($all_drivers as $driver)
-                                        <option value="{{ $driver->id }}" data-name="{{ $driver->full_name }}" data-license="{{ $driver->license_number ?? '' }}">
+                                        <option value="{{ $driver->id }}" data-name="{{ $driver->full_name }}" data-license="{{ $driver->license_number ?? '' }}" data-assigned-unit="{{ $driver->assigned_unit_id }}">
                                             {{ $driver->full_name }} - {{ $driver->license_number ?? 'No License' }}
                                         </option>
                                     @endforeach
@@ -402,7 +272,7 @@
                                 <select id="add_driver2" name="secondary_driver_id" class="hidden">
                                     <option value="">Select Secondary Driver</option>
                                     @foreach($all_drivers as $driver)
-                                        <option value="{{ $driver->id }}" data-name="{{ $driver->full_name }}" data-license="{{ $driver->license_number ?? '' }}">
+                                        <option value="{{ $driver->id }}" data-name="{{ $driver->full_name }}" data-license="{{ $driver->license_number ?? '' }}" data-assigned-unit="{{ $driver->assigned_unit_id }}">
                                             {{ $driver->full_name }} - {{ $driver->license_number ?? 'No License' }}
                                         </option>
                                     @endforeach
@@ -504,16 +374,16 @@
                     </div>
                     <div class="grid grid-cols-1 gap-6">
                         <div class="space-y-2">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Device IMEI <span class="text-red-500">*</span></label>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Device IMEI (Optional)</label>
                             <div class="relative">
                                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                     <i data-lucide="hash" class="w-5 h-5 text-gray-400"></i>
                                 </div>
-                                <input type="text" name="imei" id="addImei" required
+                                <input type="text" name="imei" id="addImei"
                                     class="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent font-mono"
                                     placeholder="Enter 15-digit IMEI">
                             </div>
-                            <p class="text-xs text-gray-500">Kuhanin ang IMEI sa mismong device o sa Tracksolid Pro app.</p>
+                            <p class="text-xs text-gray-500">Retrieve the IMEI from the physical device label or the Tracksolid Pro application.</p>
                         </div>
                     </div>
                 </div>
@@ -635,10 +505,9 @@
                                     <span class="text-gray-500 text-sm">₱</span>
                                 </div>
                                 <input type="text" name="boundary_rate" id="editBoundaryRate"
-                                    class="w-full pl-8 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                    placeholder="0.00"
-                                    onfocus="unformatCurrencyInput(this)"
-                                    onblur="formatCurrencyInput(this)">
+                                    readonly tabindex="-1"
+                                    class="w-full pl-8 pr-4 py-3 border-2 border-gray-300 rounded-lg bg-gray-50 text-gray-500 cursor-not-allowed focus:outline-none"
+                                    placeholder="0.00">
                             </div>
                             <p class="text-xs text-gray-500">Daily boundary collection target</p>
                         </div>
@@ -697,7 +566,7 @@
                                 <select id="edit_driver1" name="driver_id" class="hidden">
                                     <option value="">No Driver</option>
                                     @foreach($all_drivers as $d)
-                                        <option value="{{ $d->id }}" data-name="{{ $d->full_name }}" data-license="{{ $d->license_number ?? '' }}">
+                                        <option value="{{ $d->id }}" data-name="{{ $d->full_name }}" data-license="{{ $d->license_number ?? '' }}" data-assigned-unit="{{ $d->assigned_unit_id }}">
                                             {{ $d->full_name }} - {{ $d->license_number ?? 'No License' }}
                                         </option>
                                     @endforeach
@@ -728,7 +597,7 @@
                                 <select id="edit_driver2" name="secondary_driver_id" class="hidden">
                                     <option value="">No Driver</option>
                                     @foreach($all_drivers as $d)
-                                        <option value="{{ $d->id }}" data-name="{{ $d->full_name }}" data-license="{{ $d->license_number ?? '' }}">
+                                        <option value="{{ $d->id }}" data-name="{{ $d->full_name }}" data-license="{{ $d->license_number ?? '' }}" data-assigned-unit="{{ $d->assigned_unit_id }}">
                                             {{ $d->full_name }} - {{ $d->license_number ?? 'No License' }}
                                         </option>
                                     @endforeach
@@ -817,12 +686,12 @@
                     </div>
                     <div class="grid grid-cols-1 gap-6">
                         <div class="space-y-2">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Device IMEI <span class="text-red-500">*</span></label>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Device IMEI (Optional)</label>
                             <div class="relative">
                                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                     <i data-lucide="hash" class="w-5 h-5 text-gray-400"></i>
                                 </div>
-                                <input type="text" name="imei" id="editImei" required
+                                <input type="text" name="imei" id="editImei"
                                     class="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent font-mono"
                                     placeholder="Enter 15-digit IMEI">
                             </div>
@@ -874,6 +743,58 @@
         </div>
     </div>
 
+@push('scripts')
+<script>
+    let searchTimer;
+    const searchInput = document.querySelector('input[name="search"]');
+    const statusFilter = document.querySelector('select[name="status"]');
+    const sortFilter = document.querySelector('select[name="sort"]');
+    const tableContainer = document.getElementById('unitsTableContainer');
+
+    function performSearch(page = 1) {
+        const query = searchInput.value;
+        const status = statusFilter.value;
+        const sort = sortFilter.value;
+
+        // Visual feedback
+        tableContainer.style.opacity = '0.5';
+        tableContainer.style.pointerEvents = 'none';
+
+        fetch(`{{ route('units.index') }}?search=${encodeURIComponent(query)}&status=${status}&sort=${sort}&page=${page}`, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.text())
+        .then(html => {
+            tableContainer.innerHTML = html;
+            tableContainer.style.opacity = '1';
+            tableContainer.style.pointerEvents = 'auto';
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        })
+        .catch(error => {
+            console.error('Search failed:', error);
+            tableContainer.style.opacity = '1';
+            tableContainer.style.pointerEvents = 'auto';
+        });
+    }
+
+    searchInput.addEventListener('input', () => {
+        clearTimeout(searchTimer);
+        searchTimer = setTimeout(() => performSearch(1), 300);
+    });
+
+    statusFilter.addEventListener('change', () => performSearch(1));
+    sortFilter.addEventListener('change', () => performSearch(1));
+
+    window.changePage = function(page) {
+        performSearch(page);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+</script>
+    <!-- Leaflet JS for Map -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+@endpush
 @endsection
 
 @push('scripts')
@@ -893,6 +814,7 @@
         }
 
         function editUnit(id) {
+            window.currentEditingUnitId = id;
             fetch('{{ route("units.details") }}?id=' + id, {
                 headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
             })
@@ -998,6 +920,9 @@
 
             let html = '';
             options.forEach(opt => {
+                const assigned = opt.getAttribute('data-assigned-unit') || '';
+                if (assigned && String(assigned) !== String(window.currentEditingUnitId)) return;
+
                 const name = opt.getAttribute('data-name') || '';
                 const license = opt.getAttribute('data-license') || '';
                 if (!query || name.toLowerCase().includes(query) || license.toLowerCase().includes(query)) {
@@ -1196,7 +1121,7 @@
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${bh.date || ''}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${bh.full_name || 'N/A'}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${bh.remarks || '---'}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-600">₱${parseFloat(bh.boundary_amount || 0).toLocaleString('en-PH', {minimumFractionDigits:2})}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-600">₱${parseFloat(bh.actual_boundary || 0).toLocaleString('en-PH', {minimumFractionDigits:2})}</td>
                         </tr>`;
                     });
                 }
@@ -1524,6 +1449,9 @@ function addUnitFilterDrivers(driverType) {
 
     let html = '';
     options.forEach(opt => {
+        const assigned = opt.getAttribute('data-assigned-unit') || '';
+        if (assigned) return;
+
         const name = opt.getAttribute('data-name') || '';
         const license = opt.getAttribute('data-license') || '';
         const display = name + ' - ' + license;
@@ -1547,6 +1475,75 @@ function addUnitClearDriver(driverType) {
     document.getElementById(driverType).value = '';
     document.getElementById(driverType + '_search').value = '';
 }
+
+window.boundaryRules = @json($boundary_rules ?? []);
+
+function getRateByYear(year, plate = '') {
+    if (!year) return 1100;
+    const rules = window.boundaryRules;
+    const matches = rules.filter(r => year >= r.start_year && year <= r.end_year);
+    const rule = matches.length > 0 ? matches[0] : null;
+    
+    // Base rate
+    const base = rule ? rule.regular_rate : 1100;
+    
+    // Check coding if plate provided
+    if (plate) {
+        const codingDay = deriveCodingDay(plate);
+        const today = new Date().toLocaleDateString('en-US', { weekday: 'long' });
+        if (codingDay && today === codingDay) {
+            return (rule && rule.coding_rate > 0) ? rule.coding_rate : (base / 2);
+        }
+    }
+    
+    return base;
+}
+
+function deriveCodingDay(plate) {
+    if (!plate) return null;
+    const cleanPlate = plate.toString().trim();
+    let lastChar = cleanPlate.slice(-1);
+    
+    if (isNaN(parseInt(lastChar))) {
+        const matches = cleanPlate.match(/\d/g);
+        if (matches) lastChar = matches[matches.length - 1];
+        else return null;
+    }
+    
+    const lastDigit = parseInt(lastChar);
+    const mapping = {
+        'Monday': [1, 2],
+        'Tuesday': [3, 4],
+        'Wednesday': [5, 6],
+        'Thursday': [7, 8],
+        'Friday': [9, 0]
+    };
+    
+    for (const [day, digits] of Object.entries(mapping)) {
+        if (digits.includes(lastDigit)) return day;
+    }
+    return null;
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const addYearInput = document.querySelector('input[name="year"]');
+    if (addYearInput) {
+        addYearInput.addEventListener('input', function() {
+            const rate = getRateByYear(this.value);
+            const rateInput = document.getElementById('addBoundaryRate');
+            if (rateInput) rateInput.value = parseFloat(rate).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        });
+    }
+
+    const editYearInput = document.getElementById('editYear');
+    if (editYearInput) {
+        editYearInput.addEventListener('input', function() {
+            const rate = getRateByYear(this.value);
+            const rateInput = document.getElementById('editBoundaryRate');
+            if (rateInput) rateInput.value = parseFloat(rate).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        });
+    }
+});
 
 // =============================================
 // ADD UNIT MODAL - Auto Coding Calculation

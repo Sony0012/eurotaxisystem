@@ -35,9 +35,9 @@ class DashboardController extends Controller
                     ->from('boundaries as b')
                     ->whereNull('b.deleted_at')
                     ->whereRaw('b.unit_id = u.id')
-                    ->whereIn('b.status', ['paid', 'excess'])
+                    ->whereIn('b.status', ['paid', 'excess', 'shortage'])
                     ->groupBy('b.unit_id')
-                    ->havingRaw('SUM(b.boundary_amount) >= u.purchase_cost');
+                    ->havingRaw('SUM(b.actual_boundary) >= u.purchase_cost');
             })
             ->count();
 
@@ -65,7 +65,7 @@ class DashboardController extends Controller
         $stats['today_boundary'] = DB::table('boundaries')
             ->whereNull('deleted_at')
             ->whereDate('date', now()->toDateString())
-            ->sum('boundary_amount') ?? 0;
+            ->sum('actual_boundary') ?? 0;
 
         // Today's expenses
         $stats['today_expenses'] = DB::table('expenses')
@@ -144,7 +144,7 @@ class DashboardController extends Controller
             $boundary = DB::table('boundaries')
                 ->whereNull('deleted_at')
                 ->whereDate('date', $date)
-                ->sum('boundary_amount') ?? 0;
+                ->sum('actual_boundary') ?? 0;
             
             // Format label based on period
             if ($period <= 7) {
@@ -166,7 +166,7 @@ class DashboardController extends Controller
         // Weekly financial trend (last 7 days real data)
         $weekly_data = collect(range(6, 0))->map(function ($daysAgo) {
             $date = now()->subDays($daysAgo)->toDateString();
-            $boundary = DB::table('boundaries')->whereNull('deleted_at')->whereDate('date', $date)->sum('boundary_amount') ?? 0;
+            $boundary = DB::table('boundaries')->whereNull('deleted_at')->whereDate('date', $date)->sum('actual_boundary') ?? 0;
             $expenses = DB::table('expenses')->whereNull('deleted_at')->whereDate('date', $date)->sum('amount') ?? 0;
             return [
                 'day'      => now()->subDays($daysAgo)->format('D'),
@@ -210,7 +210,7 @@ class DashboardController extends Controller
                 $join->on('u.id', '=', 'b.unit_id')
                     ->whereNull('b.deleted_at');
             })
-            ->select('u.plate_number', DB::raw('COALESCE(SUM(b.boundary_amount), 0) as total_boundary'), 'u.boundary_rate')
+            ->select('u.plate_number', DB::raw('COALESCE(SUM(b.actual_boundary), 0) as total_boundary'), 'u.boundary_rate')
             ->where('u.status', 'active')
             ->groupBy('u.id', 'u.plate_number', 'u.boundary_rate')
             ->orderByDesc('total_boundary')
@@ -250,8 +250,8 @@ class DashboardController extends Controller
             ->leftJoin('driver_behavior as db', 'd.id', '=', 'db.driver_id')
             ->select(
                 DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')) as full_name"),
-                DB::raw('COUNT(CASE WHEN b.status IN ("paid", "excess") THEN 1 END) as good_days'),
-                DB::raw('SUM(CASE WHEN b.status IN ("paid", "excess") THEN b.boundary_amount ELSE 0 END) as total_boundary'),
+                DB::raw('COUNT(CASE WHEN b.status IN ("paid", "excess", "shortage") THEN 1 END) as good_days'),
+                DB::raw('SUM(b.actual_boundary) as total_boundary'),
                 DB::raw('COUNT(db.id) as incident_count')
             )
             ->whereIn('d.driver_status', ['available', 'assigned'])
@@ -289,9 +289,9 @@ class DashboardController extends Controller
                     ->from('boundaries as b')
                     ->whereNull('b.deleted_at')
                     ->whereRaw('b.unit_id = u.id')
-                    ->whereIn('b.status', ['paid', 'excess'])
+                    ->whereIn('b.status', ['paid', 'excess', 'shortage'])
                     ->groupBy('b.unit_id')
-                    ->havingRaw('SUM(b.boundary_amount) >= u.purchase_cost');
+                    ->havingRaw('SUM(b.actual_boundary) >= u.purchase_cost');
             })
             ->count();
 
@@ -316,7 +316,7 @@ class DashboardController extends Controller
         $stats['today_boundary'] = DB::table('boundaries')
             ->whereNull('deleted_at')
             ->whereDate('date', now()->toDateString())
-            ->sum('boundary_amount') ?? 0;
+            ->sum('actual_boundary') ?? 0;
 
         // Today's expenses (General office/misc expenses)
         $stats['today_expenses'] = DB::table('expenses')
@@ -395,7 +395,7 @@ class DashboardController extends Controller
             $boundary = DB::table('boundaries')
                 ->whereNull('deleted_at')
                 ->whereDate('date', $date)
-                ->sum('boundary_amount') ?? 0;
+                ->sum('actual_boundary') ?? 0;
             $expenses = DB::table('expenses')
                 ->whereNull('deleted_at')
                 ->whereDate('date', $date)
@@ -433,7 +433,7 @@ class DashboardController extends Controller
             $boundary = DB::table('boundaries')
                 ->whereNull('deleted_at')
                 ->whereDate('date', $date)
-                ->sum('boundary_amount') ?? 0;
+                ->sum('actual_boundary') ?? 0;
             return [
                 'date' => now()->subDays($daysAgo)->format('M j'),
                 'revenue' => (float) $boundary,
@@ -447,7 +447,7 @@ class DashboardController extends Controller
                 $join->on('u.id', '=', 'b.unit_id')
                     ->whereNull('b.deleted_at');
             })
-            ->select('u.plate_number', DB::raw('COALESCE(SUM(b.boundary_amount), 0) as total_boundary'), 'u.boundary_rate')
+            ->select('u.plate_number', DB::raw('COALESCE(SUM(b.actual_boundary), 0) as total_boundary'), 'u.boundary_rate')
             ->where('u.status', 'active')
             ->groupBy('u.id', 'u.plate_number', 'u.boundary_rate')
             ->orderByDesc('total_boundary')
@@ -498,8 +498,8 @@ class DashboardController extends Controller
             ->leftJoin('driver_behavior as db', 'd.id', '=', 'db.driver_id')
             ->select(
                 DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')) as full_name"),
-                DB::raw('COUNT(CASE WHEN b.status IN ("paid", "excess") THEN 1 END) as good_days'),
-                DB::raw('SUM(CASE WHEN b.status IN ("paid", "excess") THEN b.boundary_amount ELSE 0 END) as total_boundary'),
+                DB::raw('COUNT(CASE WHEN b.status IN ("paid", "excess", "shortage") THEN 1 END) as good_days'),
+                DB::raw('SUM(b.actual_boundary) as total_boundary'),
                 DB::raw('COUNT(db.id) as incident_count')
             )
             ->whereIn('d.driver_status', ['available', 'assigned'])
@@ -552,7 +552,7 @@ class DashboardController extends Controller
             $boundary = DB::table('boundaries')
                 ->whereNull('deleted_at')
                 ->whereDate('date', $date)
-                ->sum('boundary_amount') ?? 0;
+                ->sum('actual_boundary') ?? 0;
             
             // Format label based on period
             if ($period <= 7) {
@@ -617,14 +617,14 @@ class DashboardController extends Controller
                     $totalBoundary = DB::table('boundaries')
                         ->whereNull('deleted_at')
                         ->where('unit_id', $unit->id)
-                        ->sum('boundary_amount') ?? 0;
+                        ->sum('actual_boundary') ?? 0;
                     
                     // Get today's boundary for real-time data
                     $todayBoundary = DB::table('boundaries')
                         ->whereNull('deleted_at')
                         ->where('unit_id', $unit->id)
                         ->whereDate('date', now()->toDateString())
-                        ->sum('boundary_amount') ?? 0;
+                        ->sum('actual_boundary') ?? 0;
                     
                     // Get driver information
                     $driverName = 'No Driver';
@@ -660,7 +660,7 @@ class DashboardController extends Controller
                             ->where('boundary_amount', '>', 0)
                             ->whereNull('deleted_at')
                             ->whereDate('date', '>=', now()->subDays(30)->toDateString())
-                            ->sum('boundary_amount') ?? 0;
+                            ->sum('actual_boundary') ?? 0;
                         
                         // Method 2: Calculate based on last 10 days average
                         $last10DaysBoundary = DB::table('boundaries')
@@ -668,7 +668,7 @@ class DashboardController extends Controller
                             ->where('boundary_amount', '>', 0)
                             ->whereNull('deleted_at')
                             ->whereDate('date', '>=', now()->subDays(10)->toDateString())
-                            ->sum('boundary_amount') ?? 0;
+                            ->sum('actual_boundary') ?? 0;
                         
                         // Method 3: Calculate based on last 7 days average
                         $last7DaysBoundary = DB::table('boundaries')
@@ -676,7 +676,7 @@ class DashboardController extends Controller
                             ->where('boundary_amount', '>', 0)
                             ->whereNull('deleted_at')
                             ->whereDate('date', '>=', now()->subDays(7)->toDateString())
-                            ->sum('boundary_amount') ?? 0;
+                            ->sum('actual_boundary') ?? 0;
                         
                         // Choose the most reliable method
                         $dailyAverage = 0;
@@ -802,10 +802,12 @@ class DashboardController extends Controller
             // Get boundary collections for the specific date with complete information
             $collections = DB::table('boundaries as b')
                 ->leftJoin('units as u', 'b.unit_id', '=', 'u.id')
-                ->leftJoin('drivers as d', 'u.driver_id', '=', 'd.id')
+                ->leftJoin('drivers as d', 'b.driver_id', '=', 'd.id')
                 ->select([
                     'b.id',
                     'b.unit_id',
+                    'b.actual_boundary',
+                    'b.boundary_amount',
                     'b.date',
                     'u.plate_number',
                     'd.first_name',
@@ -827,7 +829,7 @@ class DashboardController extends Controller
                         'plate_number' => $collection->plate_number,
                         'driver_name' => $driverName,
                         'driver_id' => $collection->driver_id,
-                        'boundary_amount' => (float) ($collection->boundary_amount ?? 0),
+                        'boundary_amount' => (float) ($collection->actual_boundary ?? 0),
                         'date' => $collection->date,
                         'time' => 'N/A', 
                         'location' => 'Main Office', 
@@ -843,9 +845,9 @@ class DashboardController extends Controller
 
             $stats = [
                 'total_today' => DB::table('boundaries')->whereNull('deleted_at')->whereDate('date', $today)->count(),
-                'amount_yesterday' => DB::table('boundaries')->whereNull('deleted_at')->whereDate('date', $yesterday)->sum('boundary_amount'),
-                'amount_monthly' => DB::table('boundaries')->whereNull('deleted_at')->whereMonth('date', $month)->whereYear('date', $year)->sum('boundary_amount'),
-                'total_yearly_amount' => DB::table('boundaries')->whereNull('deleted_at')->whereYear('date', $year)->sum('boundary_amount'),
+                'amount_yesterday' => DB::table('boundaries')->whereNull('deleted_at')->whereDate('date', $yesterday)->sum('actual_boundary'),
+                'amount_monthly' => DB::table('boundaries')->whereNull('deleted_at')->whereMonth('date', $month)->whereYear('date', $year)->sum('actual_boundary'),
+                'total_yearly_amount' => DB::table('boundaries')->whereNull('deleted_at')->whereYear('date', $year)->sum('actual_boundary'),
                 'filter_date' => $date
             ];
 
@@ -875,14 +877,14 @@ class DashboardController extends Controller
             // Get income data from boundaries
             $incomeData = DB::table('boundaries as b')
                 ->leftJoin('units as u', 'b.unit_id', '=', 'u.id')
-                ->leftJoin('drivers as d', 'u.driver_id', '=', 'd.id')
+                ->leftJoin('drivers as d', 'b.driver_id', '=', 'd.id')
                 ->leftJoin('users as du', 'd.user_id', '=', 'du.id')
                 ->select([
                     'b.id',
                     'b.unit_id',
+                    'b.actual_boundary',
                     'b.boundary_amount',
                     'b.date',
-                    'u.plate_number',
                     'u.plate_number',
                     'du.name as driver_name',
                     'd.id as driver_id'
@@ -897,7 +899,7 @@ class DashboardController extends Controller
                         'type' => 'income',
                         'description' => 'Boundary Collection - ' . $item->plate_number,
                         'category' => 'Boundary Income',
-                        'amount' => (float) $item->boundary_amount,
+                        'amount' => (float) $item->actual_boundary,
                         'date' => $item->date,
                         'source' => $item->plate_number,
                         'reference' => 'Boundary #' . $item->id,
@@ -1244,8 +1246,8 @@ class DashboardController extends Controller
                 DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')) as name"),
                 DB::raw('NULL as email'),
                 DB::raw('COUNT(DISTINCT unit.id) as assigned_units'),
-                DB::raw('COALESCE(SUM(b.boundary_amount), 0) as total_boundary'),
-                DB::raw('COALESCE(AVG(b.boundary_amount), 0) as avg_boundary'),
+                DB::raw('COALESCE(SUM(b.actual_boundary), 0) as total_boundary'),
+                DB::raw('COALESCE(AVG(b.actual_boundary), 0) as avg_boundary'),
                 DB::raw('GROUP_CONCAT(DISTINCT unit.plate_number) as plate_numbers'),
             ];
             $groupBy = ['d.id', 'd.user_id', 'd.first_name', 'd.last_name'];

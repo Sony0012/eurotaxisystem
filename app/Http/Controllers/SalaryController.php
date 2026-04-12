@@ -49,7 +49,7 @@ class SalaryController extends Controller
             ->whereNull('deleted_at')
             ->whereMonth('date', $currentMonth)
             ->whereYear('date', $currentYear)
-            ->sum('boundary_amount') ?? 0;
+            ->sum('actual_boundary') ?? 0;
 
         // Calculate totals/summary
         $total_salaries = $salaries->sum('total_pay');
