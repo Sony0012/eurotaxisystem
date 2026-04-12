@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\UnitController;
 use App\Http\Controllers\BoundaryController;
@@ -31,6 +32,7 @@ Route::post('/login/mfa/send', [AuthController::class, 'sendDeviceOtp'])->name('
 Route::post('/login/mfa/verify', [AuthController::class, 'verifyDeviceOtp'])->name('login.mfa.verify');
 Route::post('/register', [AuthController::class, 'register'])->name('register.submit');
 Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
+
 
 // ─── My Account Routes ───────────────────────────────────
 Route::middleware(['auth'])->group(function () {
@@ -113,6 +115,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/live-tracking', [LiveTrackingController::class, 'index'])->name('live-tracking.index');
     Route::get('/live-tracking/unit/{id}', [LiveTrackingController::class, 'getUnitLocation'])->name('live-tracking.unit-location');
     Route::get('/live-tracking/units-live', [LiveTrackingController::class, 'getUnitsLive'])->name('live-tracking.units-live');
+    Route::get('/live-tracking/unit-mileage/{id}', [LiveTrackingController::class, 'getUnitMileage'])->name('live-tracking.mileage');
 
     // Unit Profitability
     Route::get('/unit-profitability', [UnitProfitabilityController::class, 'index'])->name('unit-profitability.index');

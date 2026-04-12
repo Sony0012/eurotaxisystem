@@ -2,186 +2,318 @@
 
 namespace App\Services;
 
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 
 class TracksolidService
 {
-    private string $apiUrl;
-    private string $appKey;
-    private string $appSecret;
-    private string $username;
-    private string $password;
+    protected $appKey;
+    protected $appSecret;
+    protected $username;
+    protected $password;
+    protected $apiUrl;
+    protected $drift;
 
     public function __construct()
     {
-        $this->apiUrl    = rtrim(config('tracksolid.api_url'), '/');
-        $this->appKey    = config('tracksolid.app_key');
-        $this->appSecret = config('tracksolid.app_secret');
-        $this->username  = config('tracksolid.username');
-        $this->password  = config('tracksolid.password');
+        $this->appKey = config('services.tracksolid.app_key');
+        $this->appSecret = config('services.tracksolid.app_secret');
+        $this->username = config('services.tracksolid.username');
+        $this->password = config('services.tracksolid.password');
+        $this->apiUrl = config('services.tracksolid.api_url', 'https://hk-open.tracksolidpro.com/route/rest');
+        $this->drift = (int)config('services.tracksolid.drift', 0);
     }
 
-    // ─── Signature Generation ──────────────────────────────
+    /**
+     * Get synchronized timestamp
+     */
+    protected function getTimestamp()
+    {
+        // Official docs: "timestamp must be GMT (UTC) time"
+        // Asia/Hong_Kong +8h offset was causing illegal timestamp (Error 1001).
+        return gmdate('Y-m-d H:i:s', time() + $this->drift);
+    }
 
     /**
-     * Generate the MD5 signature required by every TracksolidPro API call.
-     * Formula (from official API v2.7.14):
-     *   UPPERCASE( MD5( appSecret + key1value1key2value2... + appSecret ) )
-     * Parameters are sorted alphabetically, 'sign' is excluded.
+     * Get Access Token from API or Cache
      */
-    private function generateSign(array $params): string
+    public function getAccessToken($forceRefresh = false)
     {
-        ksort($params);
-        $str = $this->appSecret;
-        foreach ($params as $k => $v) {
-            $str .= $k . $v;
+        $cacheKey = 'tracksolid_access_token_' . $this->username;
+        
+        if ($forceRefresh) {
+            Cache::forget($cacheKey);
         }
-        $str .= $this->appSecret;
+        
+        if (Cache::has($cacheKey)) {
+            return Cache::get($cacheKey);
+        }
 
-        return strtoupper(md5($str));
-    }
-
-    // ─── Common Parameters ─────────────────────────────────
-
-    private function commonParams(string $method): array
-    {
-        return [
-            'method'       => $method,
-            'app_key'      => $this->appKey,
-            'timestamp'    => gmdate('Y-m-d H:i:s'),   // UTC as required by spec
-            'format'       => 'json',
-            'v'            => '1.0',                    // API v1.0 enables signature verification
-            'sign_method'  => 'md5',
+        $params = [
+            'method'      => 'jimi.oauth.token.get',
+            'app_key'     => $this->appKey,
+            'timestamp'   => $this->getTimestamp(),
+            'format'      => 'json',
+            'v'           => '0.9', // v=0.9 skips sign verification but still requires sign_method
+            'sign_method' => 'md5',
+            'expires_in'  => 7200,
+            'user_id'     => $this->username,
+            'user_pwd_md5'=> strlen($this->password) === 32 ? $this->password : md5($this->password),
         ];
-    }
 
-    // ─── Access Token ──────────────────────────────────────
+        // Ensure sign is null or omitted for v=0.9
+        // $params['sign'] = $this->generateSignature($params);
 
-    /**
-     * Retrieve an access token, cached for 100 minutes (tokens valid ~2 hours).
-     */
-    public function getAccessToken(): ?string
-    {
-        return Cache::remember('tracksolid_access_token', now()->addMinutes(100), function () {
-            return $this->fetchAccessToken();
-        });
-    }
+        try {
+            $response = Http::asForm()->post($this->apiUrl, $params);
+            $body = $response->body();
+            $data = $response->json();
 
-    private function fetchAccessToken(): ?string
-    {
-        if (!$this->appKey || $this->appKey === 'your_app_key_here') {
-            Log::warning('TracksolidPro: API credentials not configured in .env');
+            if (isset($data['code']) && $data['code'] == 0 && isset($data['result']['accessToken'])) {
+                $token = $data['result']['accessToken'];
+                $expiresIn = $data['result']['expiresIn'] ?? 3600;
+                
+                // Cache token slightly shorter than its actual expiry
+                Cache::put($cacheKey, $token, $expiresIn - 60);
+                
+                return $token;
+            }
+
+            Log::error('Tracksolid API Token Error: ' . json_encode($data));
+            return null;
+
+        } catch (\Exception $e) {
+            Log::error('Tracksolid API Exception (Token): ' . $e->getMessage());
             return null;
         }
-
-        $params = $this->commonParams('jimi.oauth.token.get');
-        $params['user_id']      = $this->username;
-        // Spec requires LOWERCASE md5 of the password
-        $params['user_pwd_md5'] = md5($this->password);
-        $params['expires_in']   = 7200;
-
-        $params['sign'] = $this->generateSign($params);
-
-        try {
-            $response = Http::timeout(10)->post($this->apiUrl, $params);
-            $data     = $response->json();
-
-            if (isset($data['result']['accessToken'])) {
-                return $data['result']['accessToken'];
-            }
-
-            Log::error('TracksolidPro token error: ' . json_encode($data));
-        } catch (\Exception $e) {
-            Log::error('TracksolidPro token exception: ' . $e->getMessage());
-        }
-
-        return null;
     }
 
-    // ─── Real-time Location ────────────────────────────────
+    /**
+     * Generate Signature as per Jimi IoT Specification
+     * md5(appSecret + [sorted params keyvalue] + appSecret)
+     */
+    protected function generateSignature(array $params)
+    {
+        // 1. Sort parameters by key alphabetically
+        ksort($params);
+
+        // 2. Concatenate keys and values
+        $rawString = '';
+        foreach ($params as $key => $value) {
+            if ($key !== 'sign' && !is_null($value) && $value !== '') {
+                $rawString .= $key . $value;
+            }
+        }
+
+        // 3. Wrap with appSecret and MD5
+        $signature = strtoupper(md5($this->appSecret . $rawString . $this->appSecret));
+
+        return $signature;
+    }
 
     /**
-     * Fetch the latest GPS location for one or more device IMEIs.
-     *
-     * @param  string|array  $imeis
-     * @return array  Keyed by IMEI → ['lat','lng','speed','heading','status','acc','last_update']
+     * Get Location for specific IMEIs
      */
-    public function getDeviceLocations(string|array $imeis): array
+    public function getLocations(array $imeis)
     {
         $token = $this->getAccessToken();
-        if (!$token) {
-            return [];
-        }
+        if (!$token) return null;
 
-        $imeiStr = is_array($imeis) ? implode(',', $imeis) : $imeis;
+        $params = [
+            'method'       => 'jimi.device.location.get',
+            'app_key'      => $this->appKey,
+            'access_token' => $token,
+            'timestamp'    => $this->getTimestamp(),
+            'format'       => 'json',
+            'v'            => '1.0',
+            'sign_method'  => 'md5',
+            'imeis'        => implode(',', $imeis),
+        ];
 
-        $params = $this->commonParams('jimi.device.location.get');
-        $params['access_token'] = $token;
-        $params['imeis']        = $imeiStr;
-        // Use GOOGLE map type so lat/lng are GPS-calibrated for maps
-        $params['map_type']     = 'GOOGLE';
-
-        $params['sign'] = $this->generateSign($params);
+        $params['sign'] = $this->generateSignature($params);
 
         try {
-            $response = Http::timeout(10)->post($this->apiUrl, $params);
-            $data     = $response->json();
+            $response = Http::asForm()->post($this->apiUrl, $params);
+            $data = $response->json();
 
-            if (!isset($data['result']) || !is_array($data['result'])) {
-                Log::error('TracksolidPro location error: ' . json_encode($data));
-                return [];
+            if (isset($data['code']) && $data['code'] == 0) {
+                return $data['result'];
             }
 
-            $locations = [];
-            foreach ($data['result'] as $device) {
-                $imei = $device['imei'] ?? '';
-                if (!$imei) continue;
-
-                // API spec: status 0=offline, 1=online; accStatus 0=ACC OFF, 1=ACC ON
-                $online    = (int)($device['status']    ?? 0);
-                $accStatus = (int)($device['accStatus'] ?? 0);
-                $speed     = (float)($device['speed']   ?? 0);
-
-                $locations[$imei] = [
-                    'lat'         => (float)($device['lat']  ?? 0),
-                    'lng'         => (float)($device['lng']  ?? 0),
-                    'speed'       => $speed,
-                    'heading'     => (int)($device['course'] ?? 0),
-                    'status'      => $this->parseStatus($online, $accStatus, $speed),
-                    'acc'         => $accStatus === 1,
-                    'last_update' => $device['gpsTime'] ?? now()->toDateTimeString(),
-                    'mileage'     => (float)($device['currentMileage'] ?? 0),
-                ];
-            }
-
-            return $locations;
+            Log::error('Tracksolid API Location Error: ' . json_encode($data));
+            return null;
 
         } catch (\Exception $e) {
-            Log::error('TracksolidPro location exception: ' . $e->getMessage());
-            return [];
+            Log::error('Tracksolid API Exception (Location): ' . $e->getMessage());
+            return null;
         }
     }
 
     /**
-     * Determine a human-readable status.
+     * Get Location for all devices under account
      */
-    private function parseStatus(int $online, int $accStatus, float $speed): string
+    public function getAllLocations($retry = true)
     {
-        if (!$online) return 'offline';
-        if (!$accStatus) return 'idle';
-        return $speed > 0 ? 'active' : 'idle';
+        $token = $this->getAccessToken();
+        if (!$token) return null;
+
+        $params = [
+            'method'       => 'jimi.user.device.location.list',
+            'app_key'      => $this->appKey,
+            'access_token' => $token,
+            'timestamp'    => $this->getTimestamp(),
+            'format'       => 'json',
+            'v'            => '1.0',
+            'sign_method'  => 'md5',
+            'target'       => $this->username,
+        ];
+
+        $params['sign'] = $this->generateSignature($params);
+
+        try {
+            $response = Http::asForm()->post($this->apiUrl, $params);
+            $data = $response->json();
+
+            if (isset($data['code'])) {
+                if ($data['code'] == 0) {
+                    return $data['result'];
+                }
+                
+                // Auto-Healing: Handle Invalid Token Errors (1004, 10006, etc)
+                if (in_array($data['code'], [1004, 10006, 10011]) && $retry) {
+                    Log::warning("Tracksolid API Token Expired [Code {$data['code']}]. Auto-refreshing token.");
+                    $this->getAccessToken(true); // Force refresh
+                    return $this->getAllLocations(false); // Retry once
+                }
+            }
+
+            Log::error('Tracksolid API All Locations Error: ' . json_encode($data));
+            return null;
+
+        } catch (\Exception $e) {
+            Log::error('Tracksolid API Exception (All Locations): ' . $e->getMessage());
+            return null;
+        }
     }
 
-    // ─── Single Device ─────────────────────────────────────
+    /**
+     * Get Device List (Metadata)
+     * returns imei, deviceName, etc.
+     */
+    public function getDevices($page = 1, $pageSize = 100)
+    {
+        $token = $this->getAccessToken();
+        if (!$token) return null;
+
+        $params = [
+            'method'       => 'jimi.user.device.list',
+            'app_key'      => $this->appKey,
+            'access_token' => $token,
+            'timestamp'    => $this->getTimestamp(),
+            'format'       => 'json',
+            'v'            => '1.0',
+            'sign_method'  => 'md5',
+            'target'       => $this->username,
+            'page'         => $page,
+            'pageSize'     => $pageSize,
+        ];
+
+        $params['sign'] = $this->generateSignature($params);
+
+        try {
+            $response = Http::asForm()->post($this->apiUrl, $params);
+            $data = $response->json();
+
+            if (isset($data['code']) && $data['code'] == 0) {
+                return $data['result'];
+            }
+
+            Log::error('Tracksolid API Device List Error: ' . json_encode($data));
+            return null;
+
+        } catch (\Exception $e) {
+            Log::error('Tracksolid API Exception (Device List): ' . $e->getMessage());
+            return null;
+        }
+    }
 
     /**
-     * Convenience method to get location for a single IMEI.
+     * Get Mileage for specific devices and time range
+     * Format: yyyy-MM-dd HH:mm:ss
      */
-    public function getDeviceLocation(string $imei): ?array
+    public function getMileage(string $imeis, string $beginTime, string $endTime)
     {
-        $results = $this->getDeviceLocations($imei);
-        return $results[$imei] ?? null;
+        $token = $this->getAccessToken();
+        if (!$token) return null;
+
+        $params = [
+            'method'       => 'jimi.device.track.mileage',
+            'app_key'      => $this->appKey,
+            'access_token' => $token,
+            'timestamp'    => $this->getTimestamp(),
+            'format'       => 'json',
+            'v'            => '1.0',
+            'sign_method'  => 'md5',
+            'imeis'        => $imeis,
+            'begin_time'   => $beginTime,
+            'end_time'     => $endTime,
+        ];
+
+        $params['sign'] = $this->generateSignature($params);
+
+        try {
+            $response = Http::asForm()->post($this->apiUrl, $params);
+            $data = $response->json();
+
+            if (isset($data['code']) && $data['code'] == 0) {
+                return $data['result'];
+            }
+
+            Log::error('Tracksolid API Mileage Error: ' . json_encode($data));
+            return null;
+
+        } catch (\Exception $e) {
+            Log::error('Tracksolid API Exception (Mileage): ' . $e->getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Get Device Details (includes activationTime)
+     */
+    public function getDeviceDetail(string $imei)
+    {
+        $token = $this->getAccessToken();
+        if (!$token) return null;
+
+        $params = [
+            'method'       => 'jimi.track.device.detail',
+            'app_key'      => $this->appKey,
+            'access_token' => $token,
+            'timestamp'    => $this->getTimestamp(),
+            'format'       => 'json',
+            'v'            => '1.0',
+            'sign_method'  => 'md5',
+            'imei'         => $imei,
+        ];
+
+        $params['sign'] = $this->generateSignature($params);
+
+        try {
+            $response = Http::asForm()->post($this->apiUrl, $params);
+            $data = $response->json();
+
+            if (isset($data['code']) && $data['code'] == 0) {
+                return $data['result'];
+            }
+
+            Log::error('Tracksolid API Device Detail Error: ' . json_encode($data));
+            return null;
+
+        } catch (\Exception $e) {
+            Log::error('Tracksolid API Exception (Device Detail): ' . $e->getMessage());
+            return null;
+        }
     }
 }

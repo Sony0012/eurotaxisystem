@@ -26,6 +26,7 @@ class Unit extends Model
         'driver_id',
         'secondary_driver_id',
         'gps_link',
+        'imei',
         'dashcam_enabled',
         'latitude',
         'longitude',

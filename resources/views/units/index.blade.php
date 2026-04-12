@@ -489,31 +489,31 @@
                     <div id="addCodingStatusDisplay" class="mt-4"></div>
                 </div>
 
-                {{-- Section 6: TracksolidPro GPS Link --}}
+                {{-- Section 6: Tracksolid Pro GPS Integration --}}
                 <div class="mb-8">
                     <div class="flex items-center gap-2 mb-4">
                         <div class="p-2 bg-indigo-100 rounded-lg">
-                            <i data-lucide="map" class="w-5 h-5 text-indigo-600"></i>
+                            <i data-lucide="satellite" class="w-5 h-5 text-indigo-600"></i>
                         </div>
-                        <h4 class="text-lg font-semibold text-gray-900">GPS Tracking Map Link</h4>
+                        <h4 class="text-lg font-semibold text-gray-900">GPS Integration (Tracksolid Pro)</h4>
                     </div>
                     <div class="p-4 bg-indigo-50 rounded-lg border border-indigo-200 mb-4">
                         <p class="text-sm text-indigo-800">
-                            <strong>Paano kunin ang link:</strong> Sa TracksolidPro, i-click ang taxi -> Share -> kopyahin ang link at i-paste dito.
+                            <strong>Tracksolid Pro IMEI:</strong> Enter the 15-digit IMEI of the GPS device. This will connect the unit to the real-time tracking system.
                         </p>
                     </div>
                     <div class="grid grid-cols-1 gap-6">
                         <div class="space-y-2">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">TracksolidPro Share Link</label>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Device IMEI <span class="text-red-500">*</span></label>
                             <div class="relative">
                                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <i data-lucide="link" class="w-5 h-5 text-gray-400"></i>
+                                    <i data-lucide="hash" class="w-5 h-5 text-gray-400"></i>
                                 </div>
-                                <input type="text" name="gps_link" id="addGpsLink" 
+                                <input type="text" name="imei" id="addImei" required
                                     class="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent font-mono"
-                                    placeholder="https://tracksolidpro.com/share/map?id=...">
+                                    placeholder="Enter 15-digit IMEI">
                             </div>
-                            <p class="text-xs text-gray-500">Iwanang blangko kung walang GPS link ang unit na ito.</p>
+                            <p class="text-xs text-gray-500">Kuhanin ang IMEI sa mismong device o sa Tracksolid Pro app.</p>
                         </div>
                     </div>
                 </div>
@@ -807,34 +807,26 @@
                     <div id="editCodingStatusDisplay" class="mt-4"></div>
                 </div>
 
-                {{-- Section 6: TracksolidPro GPS Link --}}
+                {{-- Section 6: Tracksolid Pro GPS Integration --}}
                 <div class="mb-8">
                     <div class="flex items-center gap-2 mb-4">
                         <div class="p-2 bg-teal-100 rounded-lg">
-                            <i data-lucide="map" class="w-5 h-5 text-teal-600"></i>
+                            <i data-lucide="satellite" class="w-5 h-5 text-teal-600"></i>
                         </div>
-                        <h4 class="text-lg font-semibold text-gray-900">GPS Tracking Map Link</h4>
-                    </div>
-                    <div class="p-4 bg-teal-50 rounded-lg border border-teal-200 mb-4">
-                        <p class="text-sm text-teal-800">
-                            <strong>Paano kunin ang link:</strong> Sa TracksolidPro, i-click ang taxi -> Share -> kopyahin ang link at i-paste dito.
-                        </p>
+                        <h4 class="text-lg font-semibold text-gray-900">GPS Integration (Tracksolid Pro)</h4>
                     </div>
                     <div class="grid grid-cols-1 gap-6">
                         <div class="space-y-2">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">TracksolidPro Share Link</label>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Device IMEI <span class="text-red-500">*</span></label>
                             <div class="relative">
                                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <i data-lucide="link" class="w-5 h-5 text-gray-400"></i>
+                                    <i data-lucide="hash" class="w-5 h-5 text-gray-400"></i>
                                 </div>
-                                <input type="text" name="gps_link" id="editGpsLink" 
+                                <input type="text" name="imei" id="editImei" required
                                     class="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent font-mono"
-                                    placeholder="https://tracksolidpro.com/share/map?id=...">
+                                    placeholder="Enter 15-digit IMEI">
                             </div>
-                            <p class="text-xs text-gray-500">Iwanang blangko kung walang GPS link ang unit na ito.</p>
-                        </div>
-                        <div class="flex flex-col justify-center">
-                            <p id="editGpsLinkStatus" class="text-sm text-gray-500"></p>
+                            <p class="text-xs text-gray-500">Changing this will update the real-time tracking for this unit.</p>
                         </div>
                     </div>
                 </div>
@@ -927,7 +919,7 @@
                 if (document.getElementById('editColor')) document.getElementById('editColor').value = unit.color || '';
                 if (document.getElementById('editStatus')) document.getElementById('editStatus').value = unit.status || 'active';
                 if (document.getElementById('editUnitType')) document.getElementById('editUnitType').value = unit.unit_type || 'new';
-                if (document.getElementById('editFuelStatus')) document.getElementById('editFuelStatus').value = unit.fuel_status || 'full';
+                if (document.getElementById('editImei')) document.getElementById('editImei').value = unit.imei || '';
                 
                 // Financial
                 const brInput = document.getElementById('editBoundaryRate');
@@ -971,18 +963,8 @@
                     document.getElementById('editDaysUntilCoding').value = '';
                 }
 
-                // GPS Link
-                const linkInput = document.getElementById('editGpsLink');
-                const linkStatus = document.getElementById('editGpsLinkStatus');
-                if (linkInput) {
-                    linkInput.value = unit.gps_link || '';
-                }
-                if (linkStatus) {
-                    linkStatus.textContent = unit.gps_link
-                        ? '✅ GPS Map Link is set'
-                        : '⚠️ No GPS Map Link yet.';
-                    linkStatus.className = 'text-sm ' + (unit.gps_link ? 'text-teal-700' : 'text-yellow-600');
-                }
+                // IMEI Mapping
+                if (document.getElementById('editImei')) document.getElementById('editImei').value = unit.imei || '';
 
                 // Set form action
                 document.getElementById('editUnitForm').action = '/units/' + id;
@@ -1429,16 +1411,25 @@
                                         </div>
                                     </div>
 
-                                    {{-- Map Viewer --}}
-                                    <div class="relative rounded-lg overflow-hidden border border-gray-200 bg-gray-100" style="height: 320px;">
-                                        ${unit.gps_link 
-                                            ? `<iframe src="${unit.gps_link}" style="position:absolute; top:0; left:0; width:142.85%; height:142.85%; border:none; transform:scale(0.7); transform-origin:top left;" allowfullscreen></iframe>`
-                                            : `<div class="flex flex-col items-center justify-center h-full text-gray-400">
-                                                <i data-lucide="link-2-off" class="w-10 h-10 mb-2 text-gray-300"></i>
-                                                <p class="text-xs font-medium text-gray-600">No GPS Link</p>
-                                                <p class="text-[10px] mt-1 text-gray-400">Manage GPS link in Unit Settings</p>
-                                               </div>`
-                                        }
+                                    {{-- Tracking Status Display --}}
+                                    <div id="unitDetailMapContainer" class="relative rounded-lg overflow-hidden border border-gray-200 bg-gray-50 flex flex-col items-center justify-center p-6 text-center" style="height: 320px;">
+                                        <div class="mb-4 p-4 bg-indigo-100 rounded-full">
+                                            <i data-lucide="satellite" class="w-12 h-12 text-indigo-600"></i>
+                                        </div>
+                                        <h4 class="text-sm font-bold text-gray-900 mb-1">Tracksolid Pro Enterprise</h4>
+                                        <p class="text-xs text-gray-500 mb-4 px-4">This unit is tracked via real-time API using IMEI identification.</p>
+                                        
+                                        <div class="w-full max-w-xs space-y-2 mb-6">
+                                            <div class="flex justify-between items-center bg-white p-2 border border-gray-200 rounded text-xs">
+                                                <span class="text-gray-500">Device IMEI:</span>
+                                                <span class="font-mono font-bold text-indigo-700">${unit.imei || 'Not Set'}</span>
+                                            </div>
+                                        </div>
+
+                                        <a href="/live-tracking?unit=${unit.id}" class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-lg transition-colors">
+                                            <i data-lucide="map-pin" class="w-4 h-4"></i>
+                                            View on Live Tracking Map
+                                        </a>
                                     </div>
 
                                     ${locInfo.coordinates ? `

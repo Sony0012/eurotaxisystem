@@ -4,9 +4,16 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Services\TracksolidService;
 
 class LiveTrackingController extends Controller
 {
+    protected $tracksolid;
+
+    public function __construct(TracksolidService $tracksolid)
+    {
+        $this->tracksolid = $tracksolid;
+    }
     // ─── Main Page ─────────────────────────────────────────
 
     // ─── Main Page ─────────────────────────────────────────
@@ -15,38 +22,65 @@ class LiveTrackingController extends Controller
         try {
             // Get all units with their latest GPS data
             $tracked_units = DB::table('units as u')
-                ->leftJoin('drivers as d', 'u.driver_id', '=', 'd.id')
+                ->leftJoin('drivers as d1', 'u.driver_id', '=', 'd1.id')
+                ->leftJoin('drivers as d2', 'u.secondary_driver_id', '=', 'd2.id')
                 ->leftJoin('gps_tracking as g', 'u.id', '=', 'g.unit_id')
                 ->select(
-                    'u.id', 'u.plate_number', 'u.make', 'u.model', 'u.status', 'u.gps_link',
-                    DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')) as current_driver"), 
-                    'd.contact_number as driver_phone',
+                    'u.id', 'u.plate_number', 'u.make', 'u.model', 'u.status', 'u.imei',
+                    DB::raw("TRIM(CONCAT(COALESCE(d1.first_name,''), ' ', COALESCE(d1.last_name,''))) as driver_name"),
+                    DB::raw("TRIM(CONCAT(COALESCE(d2.first_name,''), ' ', COALESCE(d2.last_name,''))) as secondary_driver"),
+                    'd1.contact_number as driver_phone',
                     'g.latitude', 'g.longitude', 'g.speed', 'g.heading', 'g.ignition_status', 'g.timestamp as last_update'
                 )
                 ->orderBy('u.plate_number')
                 ->get();
 
+            // Fetch live data from Tracksolid Pro API
+            $liveData = $this->tracksolid->getAllLocations();
+            $liveMap = $liveData ? collect($liveData)->keyBy('imei') : collect();
+            $apiActive = !is_null($liveData);
+
+            // Merge API data with local records
+            foreach ($tracked_units as $unit) {
+                if ($unit->imei && isset($liveMap[$unit->imei])) {
+                    $gps = $liveMap[$unit->imei];
+                    $unit->latitude = $gps['lat'] ?? $unit->latitude;
+                    $unit->longitude = $gps['lng'] ?? $unit->longitude;
+                    $unit->speed = $gps['speed'] ?? $unit->speed;
+                    $unit->heading = $gps['direction'] ?? $unit->heading;
+                    $unit->ignition_status = ($gps['accStatus'] ?? 0) == 1;
+                    $unit->last_update = $gps['gpsTime'] ?? $unit->last_update;
+                    
+                    // Update local cache table for history/others
+                    DB::table('gps_tracking')->updateOrInsert(
+                        ['unit_id' => $unit->id],
+                        [
+                            'latitude' => $unit->latitude,
+                            'longitude' => $unit->longitude,
+                            'speed' => $unit->speed,
+                            'heading' => $unit->heading,
+                            'ignition_status' => $unit->ignition_status,
+                            'timestamp' => $unit->last_update,
+                            'updated_at' => now()
+                        ]
+                    );
+                }
+            }
+
             // Determine GPS status for each unit
             foreach ($tracked_units as $unit) {
                 $status = 'offline';
-                $lastUpdate = $unit->last_update ? new \DateTime($unit->last_update) : null;
-                
-                if ($lastUpdate) {
-                    $now = new \DateTime();
-                    $diff = $now->getTimestamp() - $lastUpdate->getTimestamp();
+                if ($unit->last_update) {
+                    $lastUpdateTs = strtotime($unit->last_update . ' UTC');
+                    $diff = time() - $lastUpdateTs;
                     
                     if ($diff < 300) { // Less than 5 minutes
                         if ($unit->ignition_status) {
-                            $status = $unit->speed > 0 ? 'active' : 'idle';
+                            $status = $unit->speed > 2 ? 'active' : 'idle'; // Speed > 2 to account for GPS jitter
                         } else {
-                            $status = 'idle';
+                            $status = 'stopped';
                         }
-                    } else {
-                        $status = 'offline';
                     }
-                } elseif (!empty($unit->gps_link)) {
-                    // Fallback to if link exists
-                    $status = 'active';
                 }
                 
                 $unit->gps_status = $status;
@@ -57,6 +91,7 @@ class LiveTrackingController extends Controller
                 'total'     => $tracked_units->count(),
                 'active'    => $tracked_units->where('gps_status', 'active')->count(),
                 'idle'      => $tracked_units->where('gps_status', 'idle')->count(),
+                'stopped'   => $tracked_units->where('gps_status', 'stopped')->count(),
                 'offline'   => $tracked_units->where('gps_status', 'offline')->count(),
                 'avg_speed' => $tracked_units->avg('speed') ?? 0
             ];
@@ -76,11 +111,15 @@ class LiveTrackingController extends Controller
                 ->limit(5)
                 ->get();
 
-            return view('live-tracking.index', compact('tracked_units', 'alerts', 'maintenanceAlerts', 'stats'));
+            return view('live-tracking.index', compact('tracked_units', 'alerts', 'maintenanceAlerts', 'stats', 'apiActive'));
 
         } catch (\Exception $e) {
-            \Log::error('Live Tracking Error: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'Error loading tracking data.');
+            \Log::error('Live Tracking Error: ' . $e->getMessage(), [
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return redirect()->back()->with('error', 'Error loading tracking data: ' . $e->getMessage());
         }
     }
 
@@ -89,53 +128,138 @@ class LiveTrackingController extends Controller
     {
         try {
             $units = DB::table('units as u')
-                ->leftJoin('drivers as d', 'u.driver_id', '=', 'd.id')
-                ->leftJoin('gps_tracking as g', 'u.id', '=', 'g.unit_id')
+                ->leftJoin('drivers as d1', 'u.driver_id', '=', 'd1.id')
+                ->leftJoin('drivers as d2', 'u.secondary_driver_id', '=', 'd2.id')
                 ->select(
-                    'u.id', 'u.plate_number', 'u.gps_link', 'u.status',
-                    DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')) as driver_name"), 
-                    'd.contact_number as driver_phone',
-                    'g.latitude', 'g.longitude', 'g.speed', 'g.heading', 'g.ignition_status', 'g.timestamp as last_update'
+                    'u.id', 'u.plate_number', 'u.imei', 'u.status',
+            DB::raw("TRIM(CONCAT(COALESCE(d1.first_name,''), ' ', COALESCE(d1.last_name,''))) as driver_name"),
+            DB::raw("TRIM(CONCAT(COALESCE(d2.first_name,''), ' ', COALESCE(d2.last_name,''))) as secondary_driver"),
+                    'd1.contact_number as driver_phone'
                 )
                 ->orderBy('u.plate_number')
                 ->get();
 
-            $result = $units->map(function ($unit) {
+            // Fetch live records from API
+            $liveData = $this->tracksolid->getAllLocations();
+            $liveMap = $liveData ? collect($liveData)->keyBy('imei') : collect();
+
+            $result = $units->map(function ($unit) use ($liveMap) {
+                $gps = $liveMap[$unit->imei] ?? null;
+                
                 // Determine Status
                 $status = 'offline';
-                $lastUpdate = $unit->last_update ? new \DateTime($unit->last_update) : null;
-                
-                if ($lastUpdate) {
-                    $now = new \DateTime();
-                    $diff = $now->getTimestamp() - $lastUpdate->getTimestamp();
-                    if ($diff < 300) {
-                        $status = ($unit->ignition_status && $unit->speed > 0) ? 'active' : 'idle';
+                $lastUpdate = null;
+                $lat = null;
+                $lng = null;
+                $speed = 0;
+                $ignition = false;
+
+                if ($gps) {
+                    $lat = $gps['lat'];
+                    $lng = $gps['lng'];
+                    $speed = (float)($gps['speed'] ?? 0);
+                    $ignition = ($gps['accStatus'] ?? 0) == 1;
+                    $lastUpdate = $gps['gpsTime'] ?? null;
+
+                    if ($lastUpdate) {
+                        $lastUpdateTs = strtotime($lastUpdate . ' UTC');
+                        $diff = time() - $lastUpdateTs;
+                        if ($diff < 3600) { // Within 1 hour
+                            if ($ignition) {
+                                $status = $speed > 2 ? 'moving' : 'idle';
+                            } else {
+                                $status = 'stopped';
+                            }
+                        }
                     }
-                } elseif (!empty($unit->gps_link)) {
-                    $status = 'active';
+                }
+                
+                $offlineDuration = '';
+                if ($status === 'offline' && isset($diff)) {
+                    $hours = floor($diff / 3600);
+                    $minutes = floor(($diff % 3600) / 60);
+                    if ($hours > 0) {
+                        $offlineDuration = "{$hours}h {$minutes}m";
+                    } else {
+                        $offlineDuration = "{$minutes}m";
+                    }
                 }
 
                 return [
                     'unit_id'         => $unit->id,
-                    'unit_number'     => $unit->unit_number,
                     'plate_number'    => $unit->plate_number,
                     'driver_name'     => $unit->driver_name ?? 'None',
+                    'secondary_driver'=> $unit->secondary_driver,
                     'gps_status'      => $status,
-                    'speed'           => $unit->speed ?? 0,
-                    'ignition_status' => (bool)$unit->ignition_status,
-                    'last_update'     => $unit->last_update,
-                    'gps_link'        => $unit->gps_link
+                    'speed'           => $speed,
+                    'ignition_status' => $ignition,
+                    'last_update'     => $lastUpdate,
+                    'offline_display' => $offlineDuration,
+                    'latitude'        => $lat,
+                    'longitude'       => $lng,
+                    'angle'           => $gps['direction'] ?? 0,
+                    'odo'             => $gps['currentMileage'] ?? 0,
+                    'daily_dist'      => 0 // Handled in sync below
                 ];
             });
 
+            // 1. Fetch all existing tracking records in one query for optimization
+            $trackingData = DB::table('gps_tracking')
+                ->whereIn('unit_id', $result->pluck('unit_id'))
+                ->get()
+                ->keyBy('unit_id');
+
+            $today = now()->timezone('Asia/Manila')->format('Y-m-d');
+            $gps_data = $result->toArray();
+
+            foreach ($gps_data as &$unitData) {
+                $tracking = $trackingData->get($unitData['unit_id']);
+                
+                $currentOdo = (float)($unitData['odo'] ?? 0);
+                $startMileage = $currentOdo;
+                $startDate = $today;
+
+                if ($tracking) {
+                    if ($tracking->daily_start_date === $today) {
+                        $startMileage = (float)($tracking->daily_start_mileage ?? $currentOdo);
+                        $startDate = $tracking->daily_start_date;
+                    } else {
+                        $startMileage = $currentOdo;
+                        $startDate = $today;
+                    }
+                }
+
+                $realtimeDist = max(0, $currentOdo - $startMileage);
+                $unitData['daily_dist'] = round($realtimeDist, 2);
+
+                // Update DB only if coordinates are valid
+                if ($unitData['latitude'] !== null && $unitData['longitude'] !== null) {
+                    DB::table('gps_tracking')->updateOrInsert(
+                        ['unit_id' => $unitData['unit_id']],
+                        [
+                            'latitude'            => $unitData['latitude'],
+                            'longitude'           => $unitData['longitude'],
+                            'speed'               => $unitData['speed'],
+                            'heading'             => $unitData['angle'],
+                            'ignition_status'     => $unitData['ignition_status'],
+                            'odo'                 => $currentOdo,
+                            'daily_start_mileage' => $startMileage,
+                            'daily_start_date'    => $startDate,
+                            'updated_at'          => now()
+                        ]
+                    );
+                }
+            }
+
             return response()->json([
                 'success' => true,
-                'units' => $result,
+                'units' => $gps_data,
                 'stats' => [
-                    'total'   => $result->count(),
-                    'active'  => $result->where('gps_status', 'active')->count(),
-                    'idle'    => $result->where('gps_status', 'idle')->count(),
-                    'offline' => $result->where('gps_status', 'offline')->count()
+                    'total'   => count($gps_data),
+                    'moving'  => collect($gps_data)->where('gps_status', 'moving')->count(),
+                    'idle'    => collect($gps_data)->where('gps_status', 'idle')->count(),
+                    'stopped' => collect($gps_data)->where('gps_status', 'stopped')->count(),
+                    'offline' => collect($gps_data)->where('gps_status', 'offline')->count()
                 ]
             ]);
 
@@ -144,31 +268,66 @@ class LiveTrackingController extends Controller
         }
     }
 
-    // ─── AJAX: Single Unit ─────────────────────────────────
-    public function getUnitLocation($id)
+    // ─── AJAX: Unit Mileage (24h/Daily) ───────────────────
+    public function getUnitMileage($id)
     {
         try {
-            $unit = DB::table('units as u')
-                ->leftJoin('gps_tracking as g', 'u.id', '=', 'g.unit_id')
-                ->select('u.*', 'g.latitude', 'g.longitude', 'g.speed', 'g.heading', 'g.ignition_status', 'g.timestamp as last_update')
-                ->where('u.id', $id)
-                ->first();
+            $unit = DB::table('units')->where('id', $id)->first();
+            if (!$unit || !$unit->imei) {
+                return response()->json(['success' => false, 'error' => 'IMEI not found']);
+            }
 
-            if (!$unit) {
-                return response()->json(['success' => false, 'error' => 'Unit not found']);
+            // Calculate start of day (00:00:00 UTC)
+            // Tracksolid API uses UTC
+            $beginTime = gmdate('Y-m-d 00:00:00'); 
+            $endTime = gmdate('Y-m-d H:i:s');
+
+            $mileageData = $this->tracksolid->getMileage($unit->imei, $beginTime, $endTime);
+            
+            // The API returns an array of mileage per day or summary
+            // For one device and today, we look for the sum or matching record
+            $totalDistanceMeters = 0;
+            if ($mileageData && is_array($mileageData)) {
+                foreach ($mileageData as $record) {
+                    // The API returns 'distance' in meters for each segment
+                    $totalDistanceMeters += (float)($record['distance'] ?? 0);
+                }
+            }
+            
+            // Convert to Kilometers
+            $totalDistance = $totalDistanceMeters / 1000;
+
+            // Get device details for activation time
+            $detail = $this->tracksolid->getDeviceDetail($unit->imei);
+            $ageMonths = null;
+            if ($detail && isset($detail['activationTime'])) {
+                $activationDate = new \DateTime($detail['activationTime']);
+                $now = new \DateTime();
+                $diff = $now->diff($activationDate);
+                // Calculate total months
+                $ageMonths = ($diff->y * 12) + $diff->m + ($diff->d / 30);
+                $ageMonths = round($ageMonths, 1);
+            }
+
+            // Hybrid Sync: Correct the local baseline using the API data
+            $realtimeTracking = DB::table('gps_tracking')->where('unit_id', $unit->id)->first();
+            if ($realtimeTracking && $totalDistance > 0) {
+                // Corrected Baseline = Current ODO - Distance Traveled Today (from API)
+                $currentOdo = (float)($realtimeTracking->odo ?? 0);
+                if ($currentOdo > 0) {
+                    $correctedBaseline = $currentOdo - $totalDistance;
+                    DB::table('gps_tracking')->where('unit_id', $unit->id)->update([
+                        'daily_start_mileage' => $correctedBaseline,
+                        'daily_start_date'    => now()->timezone('Asia/Manila')->format('Y-m-d')
+                    ]);
+                }
             }
 
             return response()->json([
                 'success' => true,
-                'data' => [
-                    'unit_id'         => $unit->id,
-                    'gps_link'        => $unit->gps_link,
-                    'latitude'        => $unit->latitude,
-                    'longitude'       => $unit->longitude,
-                    'speed'           => $unit->speed ?? 0,
-                    'ignition_status' => (bool)$unit->ignition_status,
-                    'status'          => (!empty($unit->last_update) && (time() - strtotime($unit->last_update)) < 300) ? 'active' : 'offline'
-                ]
+                'mileage' => round($totalDistance, 2),
+                'age'     => $ageMonths,
+                'unit'    => $unit->plate_number
             ]);
 
         } catch (\Exception $e) {
