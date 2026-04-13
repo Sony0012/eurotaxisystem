@@ -38,7 +38,12 @@ class AppServiceProvider extends ServiceProvider
         }
 
         // Global Notifications for Franchise Expirations
-        \Illuminate\Support\Facades\View::composer('*', function ($view) {
+        // Global Notifications for Franchise Expirations and Maintenance
+        \Illuminate\Support\Facades\View::composer('layouts.app', function ($view) {
+            if (!auth()->check()) {
+                return;
+            }
+
             try {
                 $expiringFranchise = [];
                 $cases = \Illuminate\Support\Facades\DB::table('franchise_cases')
@@ -69,6 +74,28 @@ class AppServiceProvider extends ServiceProvider
                 }
                 
                 $view->with('expiringFranchise', $expiringFranchise);
+
+                // Global Notifications for Maintenance Today
+                $todayMaintenance = \Illuminate\Support\Facades\DB::table('maintenance')
+                    ->join('units', 'maintenance.unit_id', '=', 'units.id')
+                    ->whereNull('maintenance.deleted_at')
+                    ->where('maintenance.date_started', date('Y-m-d'))
+                    ->where('maintenance.status', '!=', 'completed')
+                    ->select('maintenance.id', 'units.plate_number', 'maintenance.maintenance_type')
+                    ->get();
+
+                $maintNotifs = [];
+                foreach($todayMaintenance as $tm) {
+                    $maintNotifs[] = [
+                        'type' => 'maintenance_today',
+                        'title' => 'Maintenance Today',
+                        'message' => "Unit {$tm->plate_number} is scheduled for " . ucfirst($tm->maintenance_type) . " maintenance today.",
+                        'url' => route('maintenance.index', ['search' => $tm->plate_number])
+                    ];
+                }
+
+                $view->with('maintNotifs', $maintNotifs);
+
             } catch (\Exception $e) {
                 // If DB is missing during initial setup, silently ignore
             }

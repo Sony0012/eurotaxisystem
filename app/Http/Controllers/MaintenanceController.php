@@ -36,10 +36,10 @@ class MaintenanceController extends Controller
 
         if ($search) {
             $query->where(function ($q) use ($search) {
-                $q->where('units.plate_number', 'like', DB::raw("CONCAT('%', ?, '%') COLLATE utf8mb4_unicode_ci"), [$search])
-                    ->orWhere('maintenance.description', 'like', DB::raw("CONCAT('%', ?, '%') COLLATE utf8mb4_unicode_ci"), [$search])
-                    ->orWhere('maintenance.mechanic_name', 'like', DB::raw("CONCAT('%', ?, '%') COLLATE utf8mb4_unicode_ci"), [$search])
-                    ->orWhere(DB::raw('CONCAT(drivers.first_name, " ", drivers.last_name)'), 'like', DB::raw("CONCAT('%', ?, '%') COLLATE utf8mb4_unicode_ci"), [$search]);
+                $q->where('units.plate_number', 'like', "%{$search}%")
+                    ->orWhere('maintenance.description', 'like', "%{$search}%")
+                    ->orWhere('maintenance.mechanic_name', 'like', "%{$search}%")
+                    ->orWhere(DB::raw('CONCAT(drivers.first_name, " ", drivers.last_name)'), 'like', "%{$search}%");
             });
         }
 
@@ -83,24 +83,7 @@ class MaintenanceController extends Controller
             'next_page' => $page + 1,
         ];
 
-        // Maintenance Today Notifications
-        $todayMaintenance = DB::table('maintenance')
-            ->join('units', 'maintenance.unit_id', '=', 'units.id')
-            ->whereNull('maintenance.deleted_at')
-            ->where('maintenance.date_started', date('Y-m-d'))
-            ->where('maintenance.status', '!=', 'completed')
-            ->select('maintenance.id', 'units.plate_number', 'maintenance.maintenance_type')
-            ->get();
-
-        $maintNotifs = [];
-        foreach($todayMaintenance as $tm) {
-            $maintNotifs[] = [
-                'type' => 'maintenance_today',
-                'title' => 'Maintenance Today',
-                'message' => "Unit {$tm->plate_number} is scheduled for " . ucfirst($tm->maintenance_type) . " maintenance today.",
-                'url' => route('maintenance.index', ['search' => $tm->plate_number])
-            ];
-        }
+        // MaintNotifs is now handled globally in AppServiceProvider
 
         return view('maintenance.index', compact(
             'records',
@@ -112,8 +95,7 @@ class MaintenanceController extends Controller
             'units',
             'drivers',
             'staff',
-            'spare_parts',
-            'maintNotifs'
+            'spare_parts'
         ));
     }
 
