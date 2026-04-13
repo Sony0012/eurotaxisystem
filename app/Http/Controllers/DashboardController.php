@@ -41,22 +41,35 @@ class DashboardController extends Controller
             })
             ->count();
 
-        // Units under coding (Today only - Automated via plate ending + manual records)
-        $todayDay = now()->format('l');
-        $todayManualCodingIds = DB::table('coding_records')
-            ->whereNull('deleted_at')
-            ->whereDate('date', now()->toDateString())
-            ->pluck('unit_id')
-            ->toArray();
+        // Units under coding (Today only - Automated via plate ending)
+        $todayDay = now()->timezone('Asia/Manila')->format('l');
+        $allFleetForCoding = DB::table('units')->whereNull('deleted_at')->get();
+        
+        $codingUnitsCount = $allFleetForCoding->filter(function($unit) use ($todayDay) {
+            $codingDay = $unit->coding_day ?: $this->getCodingDay($unit->plate_number);
+            return $codingDay === $todayDay;
+        })->count();
 
-        $stats['coding_units'] = DB::table('units')
-            ->whereNull('deleted_at')
-            ->get()
-            ->filter(function($unit) use ($todayDay, $todayManualCodingIds) {
-                $plateCodingDay = $this->getCodingDay($unit->plate_number);
-                return ($plateCodingDay === $todayDay || in_array($unit->id, $todayManualCodingIds));
-            })
-            ->count();
+        $stats['coding_units'] = $codingUnitsCount;
+
+        // Auto-generate notification if count > 0 and no alert yet for today
+        if ($codingUnitsCount > 0) {
+            $alertExists = DB::table('system_alerts')
+                ->where('alert_type', 'coding_notice')
+                ->whereDate('created_at', now()->toDateString())
+                ->exists();
+            
+            if (!$alertExists) {
+                DB::table('system_alerts')->insert([
+                    'alert_type' => 'coding_notice',
+                    'severity' => 'info',
+                    'message' => "Today's Coding: There are {$codingUnitsCount} units restricted today ({$todayDay}).",
+                    'is_resolved' => false,
+                    'created_at' => now(),
+                    'updated_at' => now()
+                ]);
+            }
+        }
 
         // Units under maintenance
         $stats['maintenance_units'] = DB::table('units')->whereNull('deleted_at')->whereRaw('LOWER(status) = ?', ['maintenance'])->count();
@@ -1512,17 +1525,15 @@ class DashboardController extends Controller
     private function getCodingDay($plateNumber)
     {
         if (empty($plateNumber)) return 'Unknown';
-        $lastDigit = substr(trim($plateNumber), -1);
-        if (!is_numeric($lastDigit)) return 'Unknown';
+        $lastDigit = @substr(preg_replace('/[^0-9]/', '', $plateNumber), -1);
+        if ($lastDigit === false || $lastDigit === '') return 'Unknown';
         
-        $mapping = [
-            '1' => 'Monday', '2' => 'Monday',
-            '3' => 'Tuesday', '4' => 'Tuesday',
-            '5' => 'Wednesday', '6' => 'Wednesday',
-            '7' => 'Thursday', '8' => 'Thursday',
-            '9' => 'Friday', '0' => 'Friday'
-        ];
+        if ($lastDigit == 1 || $lastDigit == 2) return 'Monday';
+        if ($lastDigit == 3 || $lastDigit == 4) return 'Tuesday';
+        if ($lastDigit == 5 || $lastDigit == 6) return 'Wednesday';
+        if ($lastDigit == 7 || $lastDigit == 8) return 'Thursday';
+        if ($lastDigit == 9 || $lastDigit == 0) return 'Friday';
         
-        return $mapping[$lastDigit] ?? 'Unknown';
+        return 'Unknown';
     }
 }
