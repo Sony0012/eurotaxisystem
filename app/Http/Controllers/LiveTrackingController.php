@@ -330,7 +330,7 @@ class LiveTrackingController extends Controller
                                 'location_name' => $address, // Use accurate address
                                 'latitude' => $unitData['latitude'],
                                 'longitude' => $unitData['longitude'],
-                                'violation_time' => now()
+                                'violation_time' => $unitData['last_update'] ? \Carbon\Carbon::parse($unitData['last_update'])->timezone('Asia/Manila') : now()->timezone('Asia/Manila')
                             ]);
                         }
                     }
