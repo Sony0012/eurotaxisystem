@@ -587,8 +587,7 @@ class DashboardController extends Controller
     public function getUnitsOverview()
     {
         try {
-            // Get all units with complete real information
-            $todayDay = now()->format('l'); 
+            $todayDay = now()->format('l');
 
             $units = DB::table('units')
                 ->whereNull('deleted_at')
