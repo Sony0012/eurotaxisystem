@@ -12,6 +12,13 @@
 @section('page-subheading', "Today: {{ $today_name }} — Managing number coding restrictions")
 
 @section('content')
+    <div class="mb-6 flex justify-end">
+        <a href="{{ route('coding.violations') }}" class="px-4 py-2 bg-red-600 text-white font-black text-xs uppercase tracking-widest rounded-xl shadow-sm hover:bg-red-700 transition-all flex items-center gap-2">
+            <i data-lucide="history" class="w-4 h-4"></i>
+            Violation History
+        </a>
+    </div>
+
     <!-- Date Filter -->
     <div class="bg-white rounded-lg shadow p-6 mb-6">
         <form method="GET" action="{{ route('coding.index') }}" class="flex flex-col md:flex-row gap-4">

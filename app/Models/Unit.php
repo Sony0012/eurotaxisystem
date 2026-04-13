@@ -67,6 +67,11 @@ class Unit extends Model
         return $this->hasMany(CodingRecord::class, 'unit_id');
     }
 
+    public function codingViolations()
+    {
+        return $this->hasMany(CodingViolation::class, 'unit_id');
+    }
+
     protected static function booted()
     {
         static::saving(function ($unit) {

@@ -180,4 +180,31 @@ class CodingController extends Controller
 
         return redirect()->route('coding.index')->with('success', 'Coding day updated successfully');
     }
+
+    public function violations(Request $request)
+    {
+        $page = (int)($request->input('page', 1));
+        $limit = 15;
+        $offset = ($page - 1) * $limit;
+
+        $query = DB::table('coding_violations as cv')
+            ->join('units as u', 'cv.unit_id', '=', 'u.id')
+            ->select('cv.*', 'u.plate_number', 'u.make', 'u.model')
+            ->orderByDesc('cv.violation_time');
+
+        $total = $query->count();
+        $violations = $query->offset($offset)->limit($limit)->get();
+
+        $pagination = [
+            'page' => $page,
+            'total_pages' => ceil($total / $limit),
+            'total_items' => $total,
+            'has_prev' => $page > 1,
+            'has_next' => $page < ceil($total / $limit),
+            'prev_page' => $page - 1,
+            'next_page' => $page + 1,
+        ];
+
+        return view('coding.violations', compact('violations', 'pagination'));
+    }
 }

@@ -5,14 +5,18 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Services\TracksolidService;
+use App\Services\CodingService;
+use App\Models\CodingViolation;
 
 class LiveTrackingController extends Controller
 {
     protected $tracksolid;
+    protected $coding;
 
-    public function __construct(TracksolidService $tracksolid)
+    public function __construct(TracksolidService $tracksolid, CodingService $coding)
     {
         $this->tracksolid = $tracksolid;
+        $this->coding = $coding;
     }
     // ─── Main Page ─────────────────────────────────────────
 
@@ -287,6 +291,33 @@ class LiveTrackingController extends Controller
 
                 $realtimeDist = max(0, $currentOdo - $startMileage);
                 $unitData['daily_dist'] = round($realtimeDist, 2);
+
+                // --- NEW: MMDA Coding Violation Check ---
+                $unitData['violation'] = null;
+                if ($unitData['latitude'] !== null && $unitData['longitude'] !== null) {
+                    $violation = $this->coding->checkViolation($unitData['plate_number'], $unitData['latitude'], $unitData['longitude']);
+                    
+                    if ($violation) {
+                        $unitData['violation'] = $violation;
+                        
+                        // Database Logging with 30-minute cool-down
+                        $recentViolation = CodingViolation::where('unit_id', $unitData['unit_id'])
+                            ->where('violation_type', $violation['type'])
+                            ->where('violation_time', '>=', now()->subMinutes(30))
+                            ->first();
+                            
+                        if (!$recentViolation) {
+                            CodingViolation::create([
+                                'unit_id' => $unitData['unit_id'],
+                                'violation_type' => $violation['type'],
+                                'location_name' => $violation['location'],
+                                'latitude' => $unitData['latitude'],
+                                'longitude' => $unitData['longitude'],
+                                'violation_time' => now()
+                            ]);
+                        }
+                    }
+                }
 
                 // Update DB only if coordinates are valid
                 if ($unitData['latitude'] !== null && $unitData['longitude'] !== null) {
