@@ -3,155 +3,156 @@
 @section('page-heading', 'Franchise Decision Management')
 
 @section('content')
-<div class="space-y-6">
 
-    <!-- Add/Edit Case Modal -->
-    <div id="caseModal" class="<?php echo $edit_case ? 'flex' : 'hidden'; ?> fixed inset-0 z-50 items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto print:static print:bg-white print:block">
-        <div class="relative w-full max-w-7xl bg-white rounded-xl shadow-2xl overflow-hidden my-8 print:shadow-none print:my-0">
-            <!-- Modal Header -->
-            <div class="flex items-center justify-between p-4 border-b bg-gradient-to-r from-yellow-500 to-yellow-600 text-white print:hidden">
-                <h2 class="text-xl font-bold flex items-center gap-2">
-                    <i data-lucide="<?php echo $edit_case ? 'edit' : 'plus-circle'; ?>" class="w-5 h-5"></i>
-                    <?php echo $edit_case ? 'Edit Franchise Case' : 'New Franchise Case'; ?>
-                </h2>
-                <button type="button" onclick="closeCaseModal()" class="p-1 hover:bg-white/20 rounded-lg transition-colors cursor-pointer" title="Close">
-                    <i data-lucide="x" class="w-6 h-6"></i>
-                </button>
-            </div>
-            
-            <!-- Modal Body -->
-            <div class="p-6 max-h-[80vh] overflow-y-auto print:max-h-none print:overflow-visible">
-                <div id="decisionPrintArea">
-                    <form method="POST" class="space-y-6">
-                        <input type="hidden" name="action" value="save_case">
-                        <input type="hidden" name="case_id" value="<?php echo $edit_case['id'] ?? 0; ?>">
+<!-- Add/Edit Case Modal (Moved out of flow) -->
+<div id="caseModal" class="<?php echo $edit_case ? 'flex' : 'hidden'; ?> fixed inset-0 z-50 items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto print:static print:bg-white print:block">
+    <div class="relative w-full max-w-7xl bg-white rounded-xl shadow-2xl overflow-hidden my-8 print:shadow-none print:my-0">
+        <!-- Modal Header -->
+        <div class="flex items-center justify-between p-4 border-b bg-gradient-to-r from-yellow-500 to-yellow-600 text-white print:hidden">
+            <h2 class="text-xl font-bold flex items-center gap-2">
+                <i data-lucide="<?php echo $edit_case ? 'edit' : 'plus-circle'; ?>" class="w-5 h-5"></i>
+                <?php echo $edit_case ? 'Edit Franchise Case' : 'New Franchise Case'; ?>
+            </h2>
+            <button type="button" onclick="closeCaseModal()" class="p-1 hover:bg-white/20 rounded-lg transition-colors cursor-pointer" title="Close">
+                <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+        </div>
+        
+        <!-- Modal Body -->
+        <div class="p-6 max-h-[80vh] overflow-y-auto print:max-h-none print:overflow-visible">
+            <div id="decisionPrintArea">
+                <form method="POST" class="space-y-6">
+                    <input type="hidden" name="action" value="save_case">
+                    <input type="hidden" name="case_id" value="<?php echo $edit_case['id'] ?? 0; ?>">
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Name of Applicant</label>
-                                <input type="text" name="applicant_name"
-                                       value="<?php echo htmlspecialchars($edit_case['applicant_name'] ?? ''); ?>"
-                                       class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
-                            </div>
-
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">CASE NO.</label>
-                                <input type="text" name="case_no"
-                                       value="<?php echo htmlspecialchars($edit_case['case_no'] ?? ''); ?>"
-                                       class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
-                            </div>
-
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Type of Application</label>
-                                <input type="text" name="type_of_application"
-                                       value="<?php echo htmlspecialchars($edit_case['type_of_application'] ?? ''); ?>"
-                                       class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
-                            </div>
-
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Denomination</label>
-                                <input type="text" name="denomination"
-                                       value="<?php echo htmlspecialchars($edit_case['denomination'] ?? ''); ?>"
-                                       class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
-                            </div>
-
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Date Filed</label>
-                                <input type="date" name="date_filed"
-                                       value="<?php echo htmlspecialchars($edit_case['date_filed'] ?? ''); ?>"
-                                       class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
-                            </div>
-
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Expiry Date</label>
-                                <input type="date" name="expiry_date"
-                                       value="<?php echo htmlspecialchars($edit_case['expiry_date'] ?? ''); ?>"
-                                       class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
-                            </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Name of Applicant</label>
+                            <input type="text" name="applicant_name"
+                                   value="<?php echo htmlspecialchars($edit_case['applicant_name'] ?? ''); ?>"
+                                   class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
                         </div>
 
-                        <div class="mt-6">
-                            <h3 class="text-lg font-semibold text-gray-800 mb-3">Units (maximum 20)</h3>
-                            <div class="overflow-x-auto border rounded-lg">
-                                <table class="min-w-full text-sm">
-                                    <thead class="bg-gray-100">
-                                        <tr>
-                                            <th class="px-3 py-2 text-left font-medium text-gray-600">#</th>
-                                            <th class="px-3 py-2 text-left font-medium text-gray-600">MAKE</th>
-                                            <th class="px-3 py-2 text-left font-medium text-gray-600">MOTOR NO.</th>
-                                            <th class="px-3 py-2 text-left font-medium text-gray-600">CHASIS NO.</th>
-                                            <th class="px-3 py-2 text-left font-medium text-gray-600">PLATE NO.</th>
-                                            <th class="px-3 py-2 text-left font-medium text-gray-600">YEAR MODEL</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php
-                                        $existing_units = $edit_units ?? [];
-                                        for ($i = 0; $i < 20; $i++):
-                                            $u = $existing_units[$i] ?? null;
-                                        ?>
-                                        <tr class="<?php echo $i % 2 === 0 ? 'bg-white' : 'bg-gray-50'; ?>">
-                                            <td class="px-3 py-2 text-gray-500"><?php echo $i + 1; ?></td>
-                                            <td class="px-3 py-2">
-                                                <input type="text"
-                                                       name="units[<?php echo $i; ?>][make]"
-                                                       value="<?php echo htmlspecialchars($u['make'] ?? ''); ?>"
-                                                       class="w-full px-2 py-1 border rounded focus:ring-1 focus:ring-yellow-500 focus:border-yellow-500">
-                                            </td>
-                                            <td class="px-3 py-2">
-                                                <input type="text"
-                                                       name="units[<?php echo $i; ?>][motor_no]"
-                                                       value="<?php echo htmlspecialchars($u['motor_no'] ?? ''); ?>"
-                                                       class="w-full px-2 py-1 border rounded focus:ring-1 focus:ring-yellow-500 focus:border-yellow-500">
-                                            </td>
-                                            <td class="px-3 py-2">
-                                                <input type="text"
-                                                       name="units[<?php echo $i; ?>][chasis_no]"
-                                                       value="<?php echo htmlspecialchars($u['chasis_no'] ?? ''); ?>"
-                                                       class="w-full px-2 py-1 border rounded focus:ring-1 focus:ring-yellow-500 focus:border-yellow-500">
-                                            </td>
-                                            <td class="px-3 py-2">
-                                                <input type="text"
-                                                       name="units[<?php echo $i; ?>][plate_no]"
-                                                       value="<?php echo htmlspecialchars($u['plate_no'] ?? ''); ?>"
-                                                       class="w-full px-2 py-1 border rounded focus:ring-1 focus:ring-yellow-500 focus:border-yellow-500">
-                                            </td>
-                                            <td class="px-3 py-2">
-                                                <input type="text"
-                                                       name="units[<?php echo $i; ?>][year_model]"
-                                                       value="<?php echo htmlspecialchars($u['year_model'] ?? ''); ?>"
-                                                       class="w-full px-2 py-1 border rounded focus:ring-1 focus:ring-yellow-500 focus:border-yellow-500">
-                                            </td>
-                                        </tr>
-                                        <?php endfor; ?>
-                                    </tbody>
-                                </table>
-                            </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">CASE NO.</label>
+                            <input type="text" name="case_no"
+                                   value="<?php echo htmlspecialchars($edit_case['case_no'] ?? ''); ?>"
+                                   class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
                         </div>
 
-                        <div class="flex justify-end gap-2 mt-4 pt-4 border-t print:hidden">
-                            <button type="button"
-                                    onclick="printDecisionCase()"
-                                    class="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm text-gray-700 hover:bg-gray-100 shadow-sm flex items-center gap-2 mr-auto border-dashed">
-                                <i data-lucide="printer" class="w-4 h-4"></i>
-                                <span>Print Form</span>
-                            </button>
-                            <button type="button"
-                                    onclick="closeCaseModal()"
-                                    class="px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-gray-200">
-                               Cancel
-                            </button>
-                            <button type="submit"
-                                    class="px-5 py-2 bg-gradient-to-r from-yellow-500 to-yellow-600 text-white rounded-lg hover:from-yellow-600 hover:to-yellow-700 flex items-center gap-2 text-sm font-bold shadow-md">
-                                <i data-lucide="save" class="w-4 h-4"></i>
-                                <span><?php echo $edit_case ? 'Update Case' : 'Save Franchise Case'; ?></span>
-                            </button>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Type of Application</label>
+                            <input type="text" name="type_of_application"
+                                   value="<?php echo htmlspecialchars($edit_case['type_of_application'] ?? ''); ?>"
+                                   class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
                         </div>
-                    </form>
-                </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Denomination</label>
+                            <input type="text" name="denomination"
+                                   value="<?php echo htmlspecialchars($edit_case['denomination'] ?? ''); ?>"
+                                   class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Date Filed</label>
+                            <input type="date" name="date_filed"
+                                   value="<?php echo htmlspecialchars($edit_case['date_filed'] ?? ''); ?>"
+                                   class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Expiry Date</label>
+                            <input type="date" name="expiry_date"
+                                   value="<?php echo htmlspecialchars($edit_case['expiry_date'] ?? ''); ?>"
+                                   class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
+                        </div>
+                    </div>
+
+                    <div class="mt-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-3">Units (maximum 20)</h3>
+                        <div class="overflow-x-auto border rounded-lg">
+                            <table class="min-w-full text-sm">
+                                <thead class="bg-gray-100">
+                                    <tr>
+                                        <th class="px-3 py-2 text-left font-medium text-gray-600">#</th>
+                                        <th class="px-3 py-2 text-left font-medium text-gray-600">MAKE</th>
+                                        <th class="px-3 py-2 text-left font-medium text-gray-600">MOTOR NO.</th>
+                                        <th class="px-3 py-2 text-left font-medium text-gray-600">CHASIS NO.</th>
+                                        <th class="px-3 py-2 text-left font-medium text-gray-600">PLATE NO.</th>
+                                        <th class="px-3 py-2 text-left font-medium text-gray-600">YEAR MODEL</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php
+                                    $existing_units = $edit_units ?? [];
+                                    for ($i = 0; $i < 20; $i++):
+                                        $u = $existing_units[$i] ?? null;
+                                    ?>
+                                    <tr class="<?php echo $i % 2 === 0 ? 'bg-white' : 'bg-gray-50'; ?>">
+                                        <td class="px-3 py-2 text-gray-500"><?php echo $i + 1; ?></td>
+                                        <td class="px-3 py-2">
+                                            <input type="text"
+                                                   name="units[<?php echo $i; ?>][make]"
+                                                   value="<?php echo htmlspecialchars($u['make'] ?? ''); ?>"
+                                                   class="w-full px-2 py-1 border rounded focus:ring-1 focus:ring-yellow-500 focus:border-yellow-500">
+                                        </td>
+                                        <td class="px-3 py-2">
+                                            <input type="text"
+                                                   name="units[<?php echo $i; ?>][motor_no]"
+                                                   value="<?php echo htmlspecialchars($u['motor_no'] ?? ''); ?>"
+                                                   class="w-full px-2 py-1 border rounded focus:ring-1 focus:ring-yellow-500 focus:border-yellow-500">
+                                        </td>
+                                        <td class="px-3 py-2">
+                                            <input type="text"
+                                                   name="units[<?php echo $i; ?>][chasis_no]"
+                                                   value="<?php echo htmlspecialchars($u['chasis_no'] ?? ''); ?>"
+                                                   class="w-full px-2 py-1 border rounded focus:ring-1 focus:ring-yellow-500 focus:border-yellow-500">
+                                        </td>
+                                        <td class="px-3 py-2">
+                                            <input type="text"
+                                                   name="units[<?php echo $i; ?>][plate_no]"
+                                                   value="<?php echo htmlspecialchars($u['plate_no'] ?? ''); ?>"
+                                                   class="w-full px-2 py-1 border rounded focus:ring-1 focus:ring-yellow-500 focus:border-yellow-500">
+                                        </td>
+                                        <td class="px-3 py-2">
+                                            <input type="text"
+                                                   name="units[<?php echo $i; ?>][year_model]"
+                                                   value="<?php echo htmlspecialchars($u['year_model'] ?? ''); ?>"
+                                                   class="w-full px-2 py-1 border rounded focus:ring-1 focus:ring-yellow-500 focus:border-yellow-500">
+                                        </td>
+                                    </tr>
+                                    <?php endfor; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end gap-2 mt-4 pt-4 border-t print:hidden">
+                        <button type="button"
+                                onclick="printDecisionCase()"
+                                class="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm text-gray-700 hover:bg-gray-100 shadow-sm flex items-center gap-2 mr-auto border-dashed">
+                            <i data-lucide="printer" class="w-4 h-4"></i>
+                            <span>Print Form</span>
+                        </button>
+                        <button type="button"
+                                onclick="closeCaseModal()"
+                                class="px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-gray-200">
+                           Cancel
+                        </button>
+                        <button type="submit"
+                                class="px-5 py-2 bg-gradient-to-r from-yellow-500 to-yellow-600 text-white rounded-lg hover:from-yellow-600 hover:to-yellow-700 flex items-center gap-2 text-sm font-bold shadow-md">
+                            <i data-lucide="save" class="w-4 h-4"></i>
+                            <span><?php echo $edit_case ? 'Update Case' : 'Save Franchise Case'; ?></span>
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
+</div>
+
+<div class="pt-2"> <!-- Subtle padding for alignment -->
 
     <div class="bg-white shadow rounded-lg p-6">
         <div class="flex flex-col md:flex-row justify-between md:items-center mb-6 gap-4">
