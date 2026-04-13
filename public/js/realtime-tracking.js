@@ -26,8 +26,8 @@ function initMap() {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map);
 
-    // MMDA Restricted Zones Overlay
-    const restrictedZonesGroup = L.layerGroup().addTo(map);
+    // MMDA Restricted Zones Logic (Visual lines removed as per user request)
+    const restrictedZonesGroup = L.layerGroup(); // Not added to map
     drawRestrictedZones(restrictedZonesGroup);
 
     L.control.zoom({

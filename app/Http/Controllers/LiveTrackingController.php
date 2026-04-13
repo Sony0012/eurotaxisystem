@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use App\Services\TracksolidService;
 use App\Services\CodingService;
 use App\Models\CodingViolation;
@@ -307,10 +308,26 @@ class LiveTrackingController extends Controller
                             ->first();
                             
                         if (!$recentViolation) {
+                            // Fetch human-readable address for accuracy
+                            $address = $violation['location']; // Default to road name
+                            try {
+                                $response = Http::timeout(3)->withHeaders(['User-Agent' => 'EuroTaxiSystem/1.0'])
+                                    ->get("https://nominatim.openstreetmap.org/reverse", [
+                                        'lat' => $unitData['latitude'],
+                                        'lon' => $unitData['longitude'],
+                                        'format' => 'json'
+                                    ]);
+                                if ($response->successful()) {
+                                    $address = $response->json()['display_name'] ?? $address;
+                                }
+                            } catch (\Exception $e) {
+                                // Fallback to road name if geocoding fails
+                            }
+
                             CodingViolation::create([
                                 'unit_id' => $unitData['unit_id'],
                                 'violation_type' => $violation['type'],
-                                'location_name' => $violation['location'],
+                                'location_name' => $address, // Use accurate address
                                 'latitude' => $unitData['latitude'],
                                 'longitude' => $unitData['longitude'],
                                 'violation_time' => now()
