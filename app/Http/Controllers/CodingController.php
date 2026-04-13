@@ -184,13 +184,24 @@ class CodingController extends Controller
     public function violations(Request $request)
     {
         $page = (int)($request->input('page', 1));
+        $date = $request->input('date');
+        $search = $request->input('search');
         $limit = 15;
         $offset = ($page - 1) * $limit;
 
         $query = DB::table('coding_violations as cv')
             ->join('units as u', 'cv.unit_id', '=', 'u.id')
-            ->select('cv.*', 'u.plate_number', 'u.make', 'u.model')
-            ->orderByDesc('cv.violation_time');
+            ->select('cv.*', 'u.plate_number', 'u.make', 'u.model');
+
+        if (!empty($date)) {
+            $query->whereDate('cv.violation_time', $date);
+        }
+
+        if (!empty($search)) {
+            $query->where('u.plate_number', 'like', "%{$search}%");
+        }
+
+        $query->orderByDesc('cv.violation_time');
 
         $total = $query->count();
         $violations = $query->offset($offset)->limit($limit)->get();
@@ -205,6 +216,6 @@ class CodingController extends Controller
             'next_page' => $page + 1,
         ];
 
-        return view('coding.violations', compact('violations', 'pagination'));
+        return view('coding.violations', compact('violations', 'pagination', 'date', 'search'));
     }
 }
