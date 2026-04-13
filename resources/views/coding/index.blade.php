@@ -9,9 +9,16 @@
 
 @section('title', 'Coding Management - Euro System')
 @section('page-heading', 'Coding Schedule Management')
-@section('page-subheading', "Today: {{ $today_name }} — Managing number coding restrictions")
+@section('page-subheading', "Today: $today_name — Managing number coding restrictions")
 
 @section('content')
+    <style>
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #eab308; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #ca8a04; }
+    </style>
+
     <!-- Date Filter & Actions -->
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-6">
         <form method="GET" action="{{ route('coding.index') }}" class="flex flex-col md:flex-row gap-4 items-center">
@@ -35,75 +42,88 @@
         </form>
     </div>
 
-    <!-- Today's Coding Units -->
-    <div class="bg-white rounded-lg shadow mb-6">
-        <div class="px-6 py-4 border-b flex items-center gap-2">
-            <i data-lucide="calendar" class="w-5 h-5 text-yellow-600"></i>
-            <h3 class="text-lg font-semibold text-gray-900">Coding Today ({{ $today_name }})</h3>
-            <span class="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full">{{ $units->count() }} units</span>
+    <!-- Weekly Coding Calendar (Moved to Top) -->
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 mb-6 overflow-hidden">
+        <div class="px-6 py-4 border-b bg-gray-50/50 flex justify-between items-center">
+            <h3 class="font-black text-gray-800 text-sm flex items-center gap-2">
+                <i data-lucide="calendar-range" class="w-4 h-4 text-yellow-600"></i>
+                Weekly Coding Calendar
+            </h3>
         </div>
-        <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
+        <div class="p-6 grid grid-cols-1 md:grid-cols-5 gap-4">
+            @foreach($coding_calendar as $day => $day_units)
+                <div class="border rounded-2xl p-4 transition-all {{ $day === $today_name ? 'border-yellow-400 bg-yellow-50/30' : 'border-gray-100 bg-white' }}">
+                    <div class="flex items-center justify-between mb-4">
+                        <h4 class="font-black text-gray-800 text-sm tracking-tight">{{ $day }}</h4>
+                        <div class="flex items-center gap-1">
+                            <span class="px-2 py-0.5 bg-gray-100 text-gray-500 text-[10px] font-black rounded-full">{{ $day_units->count() }}</span>
+                            @if($day === $today_name)
+                                <span class="px-2 py-0.5 bg-yellow-400 text-white text-[8px] font-black rounded-full shadow-sm">TODAY</span>
+                            @endif
+                        </div>
+                    </div>
+                    <!-- Restricted List Visibility: Maximum 2 units visible, then scroll -->
+                    <div class="space-y-2 max-h-[120px] overflow-y-auto pr-1 custom-scrollbar">
+                        @forelse($day_units as $u)
+                            <div class="text-[11px] p-2 bg-white rounded-xl border border-gray-50 shadow-sm text-gray-700 font-bold text-center hover:border-blue-400 transition-colors cursor-default">
+                                <div class="text-blue-600 uppercase">{{ $u->plate_number }}</div>
+                            </div>
+                        @empty
+                            <div class="text-[10px] text-gray-300 italic text-center py-2">No units</div>
+                        @endforelse
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    </div>
+
+    <!-- Today's Coding Units -->
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="px-6 py-4 border-b bg-gray-50/50 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <i data-lucide="calendar-check" class="w-5 h-5 text-yellow-600"></i>
+                <h3 class="text-sm font-black text-gray-800 uppercase tracking-widest">Coding Today ({{ $today_name }})</h3>
+                <span class="px-3 py-1 bg-yellow-100 text-yellow-800 text-[10px] font-black rounded-full">{{ $units->count() }} units</span>
+            </div>
+        </div>
+        
+        <!-- Table Scroll: Maximum 5 units visible (approx 450px) -->
+        <div class="max-h-[450px] overflow-y-auto custom-scrollbar">
+            <table class="min-w-full divide-y divide-gray-100">
+                <thead class="bg-gray-50/50 sticky top-0 z-10 backdrop-blur-sm">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Plate Number</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Make / Model</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Driver 1</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Driver 2</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                        <th class="px-6 py-4 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Plate Number</th>
+                        <th class="px-6 py-4 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Make / Model</th>
+                        <th class="px-6 py-4 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Driver 1</th>
+                        <th class="px-6 py-4 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Driver 2</th>
+                        <th class="px-6 py-4 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Status</th>
                     </tr>
                 </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
+                <tbody class="bg-white divide-y divide-gray-50">
                     @forelse($units as $unit)
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4 whitespace-nowrap font-bold text-gray-900">{{ $unit->plate_number }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-gray-600">{{ $unit->make }} {{ $unit->model }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm">{{ $unit->driver1_name ?? '—' }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm">{{ $unit->driver2_name ?? '—' }}</td>
+                        <tr class="hover:bg-gray-50/50 transition-colors group">
+                            <td class="px-6 py-4 whitespace-nowrap font-black text-gray-900 group-hover:text-blue-600 transition-colors">{{ $unit->plate_number }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-xs font-bold text-gray-500">{{ $unit->make }} {{ $unit->model }}</td>
+                            <td class="px-6 py-2 whitespace-nowrap text-xs text-gray-400">{{ $unit->driver1_name ?? '—' }}</td>
+                            <td class="px-6 py-2 whitespace-nowrap text-xs text-gray-400">{{ $unit->driver2_name ?? '—' }}</td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="px-2 py-1 text-xs rounded-full bg-red-100 text-red-800">Coding</span>
+                                <span class="px-3 py-1 text-[9px] font-black uppercase tracking-widest rounded-full bg-red-50 text-red-600 border border-red-100 animate-pulse">
+                                    Coding
+                                </span>
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="px-6 py-12 text-center text-gray-500">
-                                <i data-lucide="check-circle" class="w-12 h-12 mx-auto mb-4 text-green-300"></i>
-                                <p>No units on coding today</p>
+                            <td colspan="5" class="px-6 py-20 text-center">
+                                <div class="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4 border border-green-100">
+                                    <i data-lucide="shield-check" class="w-8 h-8 text-green-500"></i>
+                                </div>
+                                <p class="text-sm font-black text-gray-400 uppercase tracking-widest">No units on coding today</p>
                             </td>
                         </tr>
                     @endforelse
                 </tbody>
             </table>
-        </div>
-    </div>
-
-    <!-- Weekly Coding Calendar -->
-    <div class="bg-white rounded-lg shadow">
-        <div class="px-6 py-4 border-b">
-            <h3 class="text-lg font-semibold text-gray-900">Weekly Coding Calendar</h3>
-        </div>
-        <div class="p-6 grid grid-cols-1 md:grid-cols-5 gap-4">
-            @foreach($coding_calendar as $day => $day_units)
-                <div class="border rounded-lg p-4 {{ $day === $today_name ? 'border-yellow-500 bg-yellow-50' : '' }}">
-                    <div class="flex items-center gap-2 mb-3">
-                        <h4 class="font-semibold text-gray-800">{{ $day }}</h4>
-                        <span
-                            class="px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded-full">{{ $day_units->count() }}</span>
-                        @if($day === $today_name)
-                            <span class="px-2 py-0.5 bg-yellow-100 text-yellow-800 text-xs rounded-full">TODAY</span>
-                        @endif
-                    </div>
-                    <div class="space-y-1">
-                        @forelse($day_units as $u)
-                            <div class="text-xs p-2 bg-white rounded border text-gray-700">
-                                <div class="font-medium text-blue-600">{{ $u->plate_number }}</div>
-                            </div>
-                        @empty
-                            <p class="text-xs text-gray-400 italic">No units</p>
-                        @endforelse
-                    </div>
-                </div>
-            @endforeach
         </div>
     </div>
 @endsection
