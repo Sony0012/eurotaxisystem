@@ -173,7 +173,7 @@ foreach ($cases as $c) {
 }
 ?>
     <div class="bg-white shadow rounded-lg p-6">
-        <div class="flex flex-col xl:flex-row items-start xl:items-center justify-between gap-6 mb-8 bg-white p-1 rounded-2xl">
+        <div class="flex flex-col xl:flex-row items-start xl:items-center justify-between gap-6 mb-8 bg-white p-2 rounded-2xl pr-4">
             <!-- Left Side: Title & Stats -->
             <div class="flex flex-col lg:flex-row lg:items-center gap-6">
                 <div>
@@ -184,7 +184,7 @@ foreach ($cases as $c) {
                 <!-- Compact Internal Stats Row -->
                 <div class="flex items-center gap-1.5 bg-gray-50/80 p-1 rounded-2xl border border-gray-100 shadow-inner">
                     <div class="flex items-center gap-2 px-3 py-1.5 bg-white rounded-xl shadow-sm border border-gray-100">
-                        <div class="w-1.5 h-1.5 rounded-full bg-blue-500 shadow-[0_0_5px_rgba(59,130,246,0.5)]"></div>
+                        <div class="w-1.5 h-1.5 rounded-full bg-blue-500 shadow-[0_0_5px_rgba(59,130,246,0.3)]"></div>
                         <span class="text-[9px] font-black text-gray-400 uppercase tracking-tight">Total</span>
                         <span class="text-xs font-black text-gray-800" id="stat-total-cases"><?php echo $totalCount; ?></span>
                     </div>
@@ -198,18 +198,18 @@ foreach ($cases as $c) {
                         <span class="text-[9px] font-black text-gray-400 uppercase tracking-tight">Soon</span>
                         <span class="text-xs font-black text-orange-600"><?php echo $expiringSoonCount; ?></span>
                     </div>
-                    <div class="flex items-center gap-2 px-3 py-1.5 bg-white rounded-xl shadow-sm border border-red-100">
-                        <div class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></div>
-                        <span class="text-[9px] font-black text-gray-400 uppercase tracking-tight">Expired</span>
+                    <div class="flex items-center gap-2 px-3 py-1.5 bg-white rounded-xl shadow-sm border border-red-500/10">
+                        <div class="w-1.5 h-1.5 rounded-full bg-red-600 animate-pulse"></div>
+                        <span class="text-[9px] font-black text-gray-400 uppercase tracking-tight text-red-600/60">Expired</span>
                         <span class="text-xs font-black text-red-600"><?php echo $expiredCount; ?></span>
                     </div>
                 </div>
             </div>
             
-            <!-- Right Side: Search & Actions -->
-            <div class="flex flex-wrap items-center gap-3 w-full xl:w-auto">
+            <!-- Right Side: Search & Actions (Pushed to far right) -->
+            <div class="flex flex-wrap items-center gap-3 w-full xl:w-auto xl:ml-auto">
                 <!-- Advanced Search Bar -->
-                <div class="relative flex-grow sm:flex-grow-0 sm:min-w-[280px]">
+                <div class="relative flex-grow sm:flex-grow-0 sm:min-w-[300px]">
                     <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
                     <input type="text" id="franchiseSearch" 
                            placeholder="Search Case #, Applicant, Plate..." 
@@ -230,9 +230,9 @@ foreach ($cases as $c) {
                     <i data-lucide="filter" class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"></i>
                 </div>
 
-                <button onclick="openCaseModal()" class="px-5 py-2.5 bg-gradient-to-r from-yellow-500 to-yellow-600 text-white rounded-xl hover:from-yellow-600 hover:to-yellow-700 flex items-center gap-2 text-sm font-bold shadow-md transition-all shrink-0">
+                <button onclick="openCaseModal()" class="px-5 py-2.5 bg-gradient-to-r from-yellow-500 to-yellow-600 text-white rounded-xl hover:from-yellow-600 hover:to-yellow-700 flex items-center gap-2 text-sm font-black shadow-lg shadow-yellow-500/20 transition-all shrink-0">
                     <i data-lucide="plus-circle" class="w-5 h-5"></i>
-                    <span>New Case</span>
+                    <span>NEW CASE</span>
                 </button>
             </div>
         </div>
