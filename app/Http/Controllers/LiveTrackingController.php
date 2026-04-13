@@ -46,9 +46,9 @@ class LiveTrackingController extends Controller
                     $gps = $liveMap[$unit->imei];
                     $unit->latitude = $gps['lat'] ?? $unit->latitude;
                     $unit->longitude = $gps['lng'] ?? $unit->longitude;
-                    $unit->speed = $gps['speed'] ?? $unit->speed;
-                    $unit->heading = $gps['direction'] ?? $unit->heading;
                     $unit->ignition_status = ($gps['accStatus'] ?? 0) == 1;
+                    $unit->speed = $unit->ignition_status ? ($gps['speed'] ?? $unit->speed) : 0;
+                    $unit->heading = $gps['direction'] ?? $unit->heading;
                     $unit->last_update = $gps['gpsTime'] ?? $unit->last_update;
                     
                     // Update local cache table for history/others
@@ -144,8 +144,8 @@ class LiveTrackingController extends Controller
             // Determine Status
             $status = 'offline';
             $lastUpdate = $gps['gpsTime'] ?? null;
-            $speed = (float)($gps['speed'] ?? 0);
             $ignition = ($gps['accStatus'] ?? 0) == 1;
+            $speed = $ignition ? (float)($gps['speed'] ?? 0) : 0;
 
             if ($lastUpdate) {
                 $lastUpdateTs = strtotime($lastUpdate . ' UTC');
@@ -213,8 +213,8 @@ class LiveTrackingController extends Controller
                 if ($gps) {
                     $lat = $gps['lat'];
                     $lng = $gps['lng'];
-                    $speed = (float)($gps['speed'] ?? 0);
                     $ignition = ($gps['accStatus'] ?? 0) == 1;
+                    $speed = $ignition ? (float)($gps['speed'] ?? 0) : 0;
                     $lastUpdate = $gps['gpsTime'] ?? null;
 
                     if ($lastUpdate) {
