@@ -80,16 +80,21 @@
     </style>
 @section('content')
     <!-- Stats Grid -->
-    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
         <div class="bg-white rounded-lg shadow card-hover cursor-pointer hover:shadow-lg transition-shadow" onclick="showUnitsModal()">
             <div class="p-4">
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-xs font-medium text-gray-600">Total Units</p>
                         <p class="text-xl font-bold text-gray-900" data-stat="active_units">{{ $stats['active_units'] }}</p>
-                        <p class="text-xs text-gray-500">
-                            <span class="text-green-600">{{ $stats['roi_units'] }} ROI Achieved</span>
-                        </p>
+                        <div class="flex flex-col gap-1 mt-1">
+                            <p class="text-[10px] text-gray-500 font-bold">
+                                <span class="text-green-600">{{ $stats['roi_units'] }} ROI Achieved</span>
+                            </p>
+                            <p class="text-[10px] text-red-600 font-black animate-pulse uppercase tracking-tight" onclick="event.stopPropagation(); window.location.href='{{ route('coding.index') }}'">
+                                <span data-stat="coding_units">{{ $stats['coding_units'] }}</span> Units Coding Today ({{ now()->timezone('Asia/Manila')->format('l') }})
+                            </p>
+                        </div>
                     </div>
                     <div class="p-2 bg-yellow-100 rounded-full">
                         <i data-lucide="car" class="w-5 h-5 text-yellow-600"></i>
@@ -143,19 +148,6 @@
             </div>
         </div>
 
-        <div class="bg-white rounded-lg shadow card-hover cursor-pointer hover:shadow-lg transition-shadow" onclick="window.location.href='{{ route('coding.index') }}'">
-            <div class="p-4">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-xs font-medium text-gray-600">Coding Units Today</p>
-                        <p class="text-xl font-bold text-red-600 animate-pulse" data-stat="coding_units">{{ $stats['coding_units'] }}</p>
-                        <p class="text-xs text-gray-400 font-medium tracking-tight">Restricted today ({{ now()->timezone('Asia/Manila')->format('l') }})</p>
-                    </div>
-                    <div class="p-2 bg-red-100 rounded-full">
-                        <i data-lucide="alert-triangle" class="w-5 h-5 text-red-600"></i>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
 

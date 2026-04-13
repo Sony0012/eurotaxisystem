@@ -588,8 +588,16 @@ class DashboardController extends Controller
     {
         try {
             // Get all units with complete real information
-            // Get IDs of units that have a coding record today
-            // Get IDs of units that have a coding record today OR match today's plate ending
+            $todayDay = now()->format('l'); 
+
+            $units = DB::table('units')
+                ->whereNull('deleted_at')
+                ->select('id', 'status', 'boundary_rate', 'purchase_cost', 'plate_number', 'driver_id')
+                ->orderBy('plate_number')
+                ->get()
+                ->map(function($unit) use ($todayDay) {
+                    $displayStatus = strtolower($unit->status);
+                    
                     // Automation: Identify if it should be coding based on plate number
                     $plateCodingDay = $this->getCodingDay($unit->plate_number);
                     $shouldBeCodingToday = ($plateCodingDay === $todayDay);
