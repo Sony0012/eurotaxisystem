@@ -12,27 +12,26 @@
 @section('page-subheading', "Today: {{ $today_name }} — Managing number coding restrictions")
 
 @section('content')
-    <div class="mb-6 flex justify-end">
-        <a href="{{ route('coding.violations') }}" class="px-4 py-2 bg-red-600 text-white font-black text-xs uppercase tracking-widest rounded-xl shadow-sm hover:bg-red-700 transition-all flex items-center gap-2">
-            <i data-lucide="history" class="w-4 h-4"></i>
-            Violation History
-        </a>
-    </div>
-
-    <!-- Date Filter -->
-    <div class="bg-white rounded-lg shadow p-6 mb-6">
-        <form method="GET" action="{{ route('coding.index') }}" class="flex flex-col md:flex-row gap-4">
-            <div class="md:w-48">
-                <input type="date" name="date" value="{{ $date }}"
-                    class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:outline-none">
+    <!-- Date Filter & Actions -->
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-6">
+        <form method="GET" action="{{ route('coding.index') }}" class="flex flex-col md:flex-row gap-4 items-center">
+            <div class="w-full md:w-48">
+                <input type="date" name="date" value="{{ $date }}" onchange="this.form.submit()"
+                    class="block w-full px-4 py-2 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:outline-none text-sm font-bold text-gray-700">
             </div>
-            <div class="flex-1">
-                <input type="text" name="search" value="{{ $search }}" placeholder="Search plate..."
-                    class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:outline-none">
+            <div class="flex-1 w-full">
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i data-lucide="search" class="h-4 w-4 text-gray-400"></i>
+                    </div>
+                    <input type="text" name="search" value="{{ $search }}" placeholder="Search plate..."
+                        class="block w-full pl-10 pr-3 py-2 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:outline-none text-sm font-bold text-gray-700">
+                </div>
             </div>
-            <button type="submit" class="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700">
-                <i data-lucide="search" class="w-4 h-4 inline mr-1"></i> Filter
-            </button>
+            <a href="{{ route('coding.violations') }}" class="w-full md:w-auto px-6 py-2 bg-red-600 text-white font-black text-xs uppercase tracking-widest rounded-xl shadow-sm hover:bg-red-700 transition-all flex items-center justify-center gap-2">
+                <i data-lucide="history" class="w-4 h-4"></i>
+                Violation History
+            </a>
         </form>
     </div>
 
