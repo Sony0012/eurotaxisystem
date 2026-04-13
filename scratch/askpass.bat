@@ -1,1 +1,0 @@
-@echo @Admineuro2026

@@ -1,1 +1,0 @@
-id, name, username, email, password_hash, full_name, first_name, middle_name, last_name, suffix, phone_number, otp_code, otp_expires_at, verified_at, is_verified, role, is_active, phone, address, created_at, updated_at, password, remember_token, last_login, profile_image, deleted_at

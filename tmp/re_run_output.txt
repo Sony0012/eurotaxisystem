@@ -1,3 +1,0 @@
-﻿Psy Shell v0.12.21 (PHP 8.2.12 ΓÇö cli) by Justin Hileman
-New PHP manual is available (latest: 3.0.4). Update with `doc --update-manual`
-

@@ -20,3 +20,5 @@ yarn-error.log
 /deploy_to_hostinger.md
 /hostinger_deploy.php
 /deploy.bat
+/deployer.cjs
+/tmp/
