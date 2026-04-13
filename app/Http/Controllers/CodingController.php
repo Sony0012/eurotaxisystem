@@ -62,21 +62,9 @@ class CodingController extends Controller
 
         $all_fleet = $today_units_query->get();
 
-        // Map coding day automatically based on plate if null
-        $mapPlateToDay = function($plate) {
-            $lastDigit = @substr(preg_replace('/[^0-9]/', '', $plate), -1);
-            if ($lastDigit === false || $lastDigit === '') return 'Unknown';
-            if ($lastDigit == 1 || $lastDigit == 2) return 'Monday';
-            if ($lastDigit == 3 || $lastDigit == 4) return 'Tuesday';
-            if ($lastDigit == 5 || $lastDigit == 6) return 'Wednesday';
-            if ($lastDigit == 7 || $lastDigit == 8) return 'Thursday';
-            if ($lastDigit == 9 || $lastDigit == 0) return 'Friday';
-            return 'Unknown';
-        };
-
         foreach ($all_fleet as $u) {
             if (empty($u->coding_day)) {
-                $u->coding_day = $mapPlateToDay($u->plate_number);
+                $u->coding_day = $this->deriveCodingDay($u->plate_number);
             }
         }
 
@@ -241,5 +229,35 @@ class CodingController extends Controller
         ];
 
         return view('coding.violations', compact('violations', 'pagination', 'date', 'search'));
+    public function suggestions(Request $request)
+    {
+        $q = $request->input('q');
+        if (empty($q)) return response()->json([]);
+
+        $units = DB::table('units')
+            ->where('plate_number', 'like', "%{$q}%")
+            ->select('plate_number', 'coding_day')
+            ->limit(10)
+            ->get();
+
+        foreach ($units as $u) {
+            if (empty($u->coding_day)) {
+                $u->coding_day = $this->deriveCodingDay($u->plate_number);
+            }
+        }
+
+        return response()->json($units);
+    }
+
+    private function deriveCodingDay($plate)
+    {
+        $lastDigit = @substr(preg_replace('/[^0-9]/', '', $plate), -1);
+        if ($lastDigit === false || $lastDigit === '') return 'Unknown';
+        if ($lastDigit == 1 || $lastDigit == 2) return 'Monday';
+        if ($lastDigit == 3 || $lastDigit == 4) return 'Tuesday';
+        if ($lastDigit == 5 || $lastDigit == 6) return 'Wednesday';
+        if ($lastDigit == 7 || $lastDigit == 8) return 'Thursday';
+        if ($lastDigit == 9 || $lastDigit == 0) return 'Friday';
+        return 'Unknown';
     }
 }

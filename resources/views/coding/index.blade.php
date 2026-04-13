@@ -27,12 +27,21 @@
                     class="block w-full px-4 py-2 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:outline-none text-sm font-bold text-gray-700">
             </div>
             <div class="flex-1 w-full">
-                <div class="relative">
+                <div class="relative" id="searchContainer">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <i data-lucide="search" class="h-4 w-4 text-gray-400"></i>
                     </div>
-                    <input type="text" name="search" value="{{ $search }}" placeholder="Search plate..."
+                    <input type="text" name="search" id="plateSearch" autocomplete="off" value="{{ $search }}" placeholder="Search plate..."
                         class="block w-full pl-10 pr-3 py-2 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:outline-none text-sm font-bold text-gray-700">
+                    
+                    <!-- Industry Standard Suggestions Dropdown -->
+                    <div id="suggestionsDropdown" class="hidden absolute z-50 mt-2 w-full bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+                        <div id="suggestionsList" class="max-h-60 overflow-y-auto custom-scrollbar"></div>
+                        <div id="noResults" class="hidden p-4 text-center">
+                            <i data-lucide="search-x" class="w-8 h-8 mx-auto mb-2 text-gray-300"></i>
+                            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Not Found</p>
+                        </div>
+                    </div>
                 </div>
             </div>
             <a href="{{ route('coding.violations') }}" class="w-full md:w-auto px-6 py-2 bg-red-600 text-white font-black text-xs uppercase tracking-widest rounded-xl shadow-sm hover:bg-red-700 transition-all flex items-center justify-center gap-2">
@@ -41,6 +50,93 @@
             </a>
         </form>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('plateSearch');
+            const dropdown = document.getElementById('suggestionsDropdown');
+            const list = document.getElementById('suggestionsList');
+            const noResults = document.getElementById('noResults');
+            let debounceTimer;
+
+            searchInput.addEventListener('input', function() {
+                clearTimeout(debounceTimer);
+                const query = this.value.trim();
+
+                if (query.length < 2) {
+                    dropdown.classList.add('hidden');
+                    return;
+                }
+
+                debounceTimer = setTimeout(() => {
+                    fetchSuggestions(query);
+                }, 300);
+            });
+
+            async function fetchSuggestions(query) {
+                try {
+                    const response = await fetch(`{{ route('coding.suggestions') }}?q=${encodeURIComponent(query)}`);
+                    const data = await response.json();
+
+                    renderSuggestions(data);
+                } catch (error) {
+                    console.error('Error fetching suggestions:', error);
+                }
+            }
+
+            function renderSuggestions(items) {
+                list.innerHTML = '';
+                dropdown.classList.remove('hidden');
+
+                if (items.length === 0) {
+                    list.classList.add('hidden');
+                    noResults.classList.remove('hidden');
+                    return;
+                }
+
+                list.classList.remove('hidden');
+                noResults.classList.add('hidden');
+
+                items.forEach(item => {
+                    const div = document.createElement('div');
+                    div.className = 'px-4 py-3 hover:bg-gray-50 cursor-pointer flex items-center justify-between border-b border-gray-50 last:border-0 transition-colors group';
+                    
+                    const dayColors = {
+                        'Monday': 'bg-red-100 text-red-600 border-red-200',
+                        'Tuesday': 'bg-blue-100 text-blue-600 border-blue-200',
+                        'Wednesday': 'bg-yellow-100 text-yellow-600 border-yellow-200',
+                        'Thursday': 'bg-orange-100 text-orange-600 border-orange-200',
+                        'Friday': 'bg-purple-100 text-purple-600 border-purple-200'
+                    };
+                    const colorClass = dayColors[item.coding_day] || 'bg-gray-100 text-gray-600 border-gray-200';
+
+                    div.innerHTML = `
+                        <div class="font-black text-gray-800 group-hover:text-blue-600 transition-colors uppercase tracking-tight">${item.plate_number}</div>
+                        <div class="px-2 py-0.5 ${colorClass} text-[9px] font-black rounded-full border border-gray-100 uppercase tracking-widest">${item.coding_day}</div>
+                    `;
+
+                    div.addEventListener('click', () => {
+                        searchInput.value = item.plate_number;
+                        searchInput.form.submit();
+                    });
+
+                    list.appendChild(div);
+                });
+                
+                // Refresh Lucide icons if needed
+                if(window.lucide) {
+                    lucide.createIcons();
+                }
+            }
+
+            // Close dropdown on click outside
+            document.addEventListener('click', function(e) {
+                if (!document.getElementById('searchContainer').contains(e.target)) {
+                    dropdown.classList.add('hidden');
+                }
+            });
+        });
+    </script>
 
     <!-- Weekly Coding Calendar (Moved to Top) -->
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 mb-6 overflow-hidden">

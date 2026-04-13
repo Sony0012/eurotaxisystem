@@ -90,6 +90,7 @@ Route::middleware('auth')->group(function () {
     // Coding Management
     Route::get('/coding', [CodingController::class, 'index'])->name('coding.index');
     Route::get('/coding/violations', [CodingController::class, 'violations'])->name('coding.violations');
+    Route::get('/coding/suggestions', [CodingController::class, 'suggestions'])->name('coding.suggestions');
     Route::resource('coding-rules', CodingController::class)->except(['show', 'edit']);
     Route::post('/coding/update-day', [CodingController::class, 'updateCodingDay'])->name('coding.update-day');
 
