@@ -160,3 +160,13 @@ Route::middleware('auth')->group(function () {
     Route::post('/spare-parts', [SparePartController::class, 'store'])->name('spare-parts.store');
     Route::delete('/spare-parts/{id}', [SparePartController::class, 'destroy'])->name('spare-parts.destroy');
 });
+
+// ─── Temporary System Sync Route ───────────────────────────
+Route::get('/force-sync-db-2026', function() {
+    try {
+        Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+        return "<h1>Migration Success!</h1><pre>" . Illuminate\Support\Facades\Artisan::output() . "</pre><br><a href='/'>Go to Dashboard</a>";
+    } catch (\Exception $e) {
+        return "<h1>Migration Failed!</h1><pre>" . $e->getMessage() . "</pre>";
+    }
+});
