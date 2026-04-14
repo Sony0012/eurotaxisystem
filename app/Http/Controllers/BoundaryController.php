@@ -214,7 +214,6 @@ class BoundaryController extends Controller
             $boundary_amount = (float) $request->input('boundary_amount', 0);
             $actual_boundary = (float) $request->input('actual_boundary', 0);
             $notes           = $request->input('notes', '');
-            $reset_schedule  = $request->has('reset_schedule');
             $vehicle_damaged = $request->has('vehicle_damaged');
             $needs_maintenance_half = $request->has('needs_maintenance_half');
             $needs_maintenance_zero = $request->has('needs_maintenance_zero');
@@ -250,9 +249,12 @@ class BoundaryController extends Controller
                         
                         // Legacy safety check (in case past_cutoff wasn't manually overridden but deadline passed)
                         if (!$past_cutoff) {
-                            if (!$unit->shift_deadline_at || $reset_schedule) {
-                                $rounded_hour = $now->minute >= 30 ? $now->copy()->addHour()->startOfHour() : $now->copy()->startOfHour();
-                                $current_deadline = $rounded_hour;
+                            if (!$unit->shift_deadline_at) {
+                                // Default anchor if missing - should be 10 AM next cycle
+                                $current_deadline = Carbon::parse($date)->hour(10)->minute(0)->second(0);
+                                if ($now->greaterThan($current_deadline)) {
+                                     $has_incentive = false;
+                                }
                             } else {
                                 $current_deadline = Carbon::parse($unit->shift_deadline_at);
                                 if ($now->greaterThan($current_deadline)) {
@@ -260,7 +262,7 @@ class BoundaryController extends Controller
                                 }
                             }
                         } else {
-                            $current_deadline = $unit->shift_deadline_at ? Carbon::parse($unit->shift_deadline_at) : $now->copy();
+                            $current_deadline = $unit->shift_deadline_at ? Carbon::parse($unit->shift_deadline_at) : Carbon::parse($date)->hour(10);
                         }
 
                         if ($unit->driver_id !== $driver_id && $unit->secondary_driver_id !== $driver_id) {

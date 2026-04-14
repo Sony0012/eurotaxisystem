@@ -417,14 +417,6 @@
 
                         <div class="h-px bg-gray-100 my-1 mx-2"></div>
 
-                        <label class="flex items-center gap-3 cursor-pointer p-2 rounded hover:bg-gray-50 transition-colors">
-                            <input type="checkbox" name="reset_schedule" value="1" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
-                            <div class="flex flex-col">
-                                <span class="text-sm font-bold text-gray-800 leading-none mb-0.5">Set New Boundary Schedule</span>
-                                <span class="text-[10px] text-gray-500 leading-tight">Change shifting time to right now. Prevents late violation for current driver.</span>
-                            </div>
-                        </label>
-
                         <div class="h-px bg-gray-100 my-1 mx-2"></div>
 
                         <label class="flex items-center gap-3 cursor-pointer p-2 rounded hover:bg-gray-50 transition-colors">
