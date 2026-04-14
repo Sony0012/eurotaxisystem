@@ -229,6 +229,12 @@ class DriverBehaviorController extends Controller
             ->where('has_incentive', true)
             ->update(['incentive_released_at' => $release_date]);
 
+        // Mark all violations for this driver as released
+        DB::table('driver_behavior')
+            ->where('driver_id', $driver_id)
+            ->whereNull('incentive_released_at')
+            ->update(['incentive_released_at' => $release_date]);
+
         $driver = DB::table('drivers')->find($driver_id);
         $name = trim(($driver->first_name ?? '') . ' ' . ($driver->last_name ?? ''));
 
