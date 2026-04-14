@@ -315,16 +315,31 @@ class BoundaryController extends Controller
                             $update_data['shift_deadline_at'] = null; // Clears the anchor so it auto-learns again next time
                             $update_data['status'] = 'maintenance'; // Automatically flag the unit status
                             
+                            $hours_driven = 0;
+                            $hourly_rate = 0;
+                            $comp_note = "";
+                            
+                            if ($unit->last_swapping_at) {
+                                $swap_time = \Carbon\Carbon::parse($unit->last_swapping_at);
+                                $hours_driven = max(0, $swap_time->diffInMinutes($now) / 60);
+                                $hourly_rate = $unit->boundary_rate / 24;
+                                $comp_note = sprintf("%.2f hrs x ₱%.2f/hr", $hours_driven, $hourly_rate);
+                            }
+
                             $repair_desc = $needs_maintenance_half 
-                                ? 'Automatic entry: Reported broken down during boundary turnover (Half Boundary).'
-                                : 'Automatic entry: Reported broken down immediately upon deployment (No Boundary).';
+                                ? "Automatic entry: Reported broken down during boundary turnover (Half Boundary).\nComputation: " . $comp_note
+                                : "Automatic entry: Reported broken down immediately upon deployment (No Boundary).";
+                            
+                            if ($needs_maintenance_zero && $hours_driven >= 2) {
+                                $repair_desc .= "\nNote: Driver claimed 'No Boundary' but unit was out for " . number_format($hours_driven, 2) . " hrs.";
+                            }
                             
                             $dispatcher_notes = trim($request->input('notes', ''));
                             if (!empty($dispatcher_notes)) {
                                 $repair_desc .= "\n\nDispatcher Notes:\n" . $dispatcher_notes;
                             }
 
-                            $notes = trim($notes . " [Unit Sent to Maintenance - Shift Schedule Paused (" . ($needs_maintenance_half ? "Half Boundary" : "No Boundary") . ")]");
+                            $notes = trim($notes . " [Unit Breakdown: " . $comp_note . " - Schedule Paused]");
 
                             // Automatically create a Pending Maintenance record
                             \App\Models\Maintenance::create([
@@ -339,14 +354,20 @@ class BoundaryController extends Controller
                             ]);
 
                             // Auto-log to Driver Performance
+                            $behavior_desc = $needs_maintenance_half
+                                ? "Auto-logged [Breakdown]: Unit broke down after " . number_format($hours_driven, 2) . " hrs on shift."
+                                : "Auto-logged [Breakdown]: Unit broke down immediately upon deployment (< 2 hrs).";
+                                
+                            if ($needs_maintenance_zero && $hours_driven >= 2) {
+                                $behavior_desc = "Auto-logged [Breakdown]: Unit broke down after " . number_format($hours_driven, 2) . " hrs. No boundary collected.";
+                            }
+
                             DB::table('driver_behavior')->insert([
                                 'unit_id'       => $unit_id,
                                 'driver_id'     => $driver_id,
                                 'incident_type' => 'other',
-                                'severity'      => $needs_maintenance_half ? 'medium' : 'high',
-                                'description'   => $needs_maintenance_half
-                                    ? 'Auto-logged [Breakdown]: Unit broke down mid-shift. Driver completed partial run (Half Boundary).'
-                                    : 'Auto-logged [Breakdown]: Unit broke down immediately upon deployment. No boundary collected (No Boundary).',
+                                'severity'      => ($needs_maintenance_half || ($needs_maintenance_zero && $hours_driven >= 2)) ? 'medium' : 'low',
+                                'description'   => $behavior_desc,
                                 'latitude'      => 0,
                                 'longitude'     => 0,
                                 'video_url'     => '',

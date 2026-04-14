@@ -275,7 +275,8 @@
                                      data-primary-id="{{ $unit['driver_id'] }}"
                                      data-secondary-id="{{ $unit['secondary_driver_id'] }}"
                                      data-expected-id="{{ $unit['current_turn_driver_id'] }}"
-                                     data-deadline="{{ $unit['shift_deadline_at'] }}">
+                                     data-deadline="{{ $unit['shift_deadline_at'] }}"
+                                     data-swapped-at="{{ $unit['last_swapping_at'] }}">
                                     <div class="font-medium text-xs">{{ $unit['plate_number'] }}</div>
                                     <div class="text-xs text-gray-500">{{ $unit['make_model'] ?? 'N/A' }}</div>
                                 </div>
@@ -444,6 +445,18 @@
                                 <span class="text-[10px] text-red-500 leading-tight">Automatic violation: Voids driver incentive due to vehicle damage.</span>
                             </div>
                         </label>
+
+                        <!-- Calculation Transparency Box -->
+                        <div id="breakdownComputationDraft" class="hidden mt-2 p-2 bg-blue-50 border border-blue-100 rounded-lg">
+                            <div class="flex items-center gap-2 mb-1">
+                                <i data-lucide="calculator" class="w-3 h-3 text-blue-600"></i>
+                                <span class="text-[10px] font-bold text-blue-700 uppercase tracking-wider">Breakdown Computation</span>
+                            </div>
+                            <div id="breakdownMathDisplay" class="text-[11px] text-blue-800 font-medium leading-tight whitespace-pre-line">
+                                <!-- Injected calculation here -->
+                            </div>
+                            <input type="hidden" id="calculatedHours" name="hours_driven">
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1273,8 +1286,74 @@ function updateShiftInfo(unitElement) {
         badgeContainer.innerHTML = '<span class="px-1.5 py-0.5 bg-blue-100 text-blue-700 text-[9px] font-bold rounded-full border border-blue-300 uppercase tracking-tighter">NEW PATTERN</span>';
     }
 
+    const swappedAt = unitElement.getAttribute('data-swapped-at');
+    document.getElementById('boundaryModal').setAttribute('data-current-swap', swappedAt || '');
+
     shiftInfoGroup.classList.remove('hidden');
     if (typeof lucide !== 'undefined') lucide.createIcons();
+    
+    // Refresh computation if any breakdown check is already active
+    updateBreakdownComputation();
+}
+
+function updateBreakdownComputation() {
+    const modal = document.getElementById('boundaryModal');
+    const swappedAt = modal.getAttribute('data-current-swap');
+    const dailyRate = parseFloat(document.getElementById('boundaryAmount').dataset.originalTarget || 0);
+    
+    const amtInput = document.getElementById('boundaryAmount');
+    const actInput = document.getElementById('actualBoundary');
+    const mathDisplay = document.getElementById('breakdownMathDisplay');
+    const compBox = document.getElementById('breakdownComputationDraft');
+    
+    const halfCheck = document.getElementById('needsMaintenanceHalfCheck');
+    const zeroCheck = document.getElementById('needsMaintenanceZeroCheck');
+
+    if (!halfCheck || !zeroCheck || (!halfCheck.checked && !zeroCheck.checked)) {
+        if (compBox) compBox.classList.add('hidden');
+        if (amtInput && amtInput.dataset.originalTarget && !modal.classList.contains('is-editing')) {
+             // Reset to original if unchecked (only if adding new, not editing)
+             // But we handle this via applyMaintenanceLogic wrapper for safety
+        }
+        return;
+    }
+
+    if (!swappedAt) {
+        mathDisplay.innerText = "No handover timestamp found.\nUsing standard rules.";
+        compBox.classList.remove('hidden');
+        return;
+    }
+
+    const swapDate = new Date(swappedAt);
+    const now = new Date();
+    const diffMs = now - swapDate;
+    const rawHours = diffMs / (1000 * 60 * 60);
+    const hoursDriven = Math.max(0, rawHours).toFixed(2);
+    const hourlyRate = (dailyRate / 24);
+    const prorated = (hourlyRate * parseFloat(hoursDriven)).toFixed(2);
+
+    compBox.classList.remove('hidden');
+    document.getElementById('calculatedHours').value = hoursDriven;
+
+    if (zeroCheck.checked) {
+        if (parseFloat(hoursDriven) < 2) {
+            mathDisplay.innerHTML = `<span class="flex justify-between"><span>Driven:</span> <span class="font-bold text-green-700">${hoursDriven} hrs (< 2hr)</span></span>
+                                     <span class="flex justify-between border-t border-blue-100 mt-1 pt-1"><span>Target:</span> <span class="font-bold text-green-700">₱0.00 (No Boundary)</span></span>`;
+            amtInput.value = '0.00';
+            actInput.value = '0.00';
+        } else {
+            mathDisplay.innerHTML = `<span class="flex justify-between"><span>Driven:</span> <span class="font-bold text-red-600">${hoursDriven} hrs (> 2hr)</span></span>
+                                     <span class="flex justify-between border-t border-blue-100 mt-1 pt-1"><span>Target (Hourly):</span> <span class="font-bold text-red-700">₱${parseFloat(prorated).toLocaleString()}</span></span>`;
+            amtInput.value = prorated;
+            actInput.value = prorated;
+        }
+    } else if (halfCheck.checked) {
+        mathDisplay.innerHTML = `<span class="flex justify-between"><span>Driven:</span> <span class="font-bold">${hoursDriven} hrs</span></span>
+                                 <span class="flex justify-between"><span>Rate:</span> <span>₱${hourlyRate.toFixed(2)}/hr</span></span>
+                                 <span class="flex justify-between border-t border-blue-100 mt-1 pt-1"><span>Hourly Target:</span> <span class="font-bold text-blue-700">₱${parseFloat(prorated).toLocaleString()}</span></span>`;
+        amtInput.value = prorated;
+        actInput.value = prorated;
+    }
 }
 
 function triggerDriverAlerts(driverId, shortage) {
@@ -1325,10 +1404,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     function applyMaintenanceLogic(triggerElem) {
         if (!amtInput || !amtInput.dataset.originalTarget) return;
-        const actInput = document.getElementById('actualBoundary');
-        let original = parseFloat(amtInput.dataset.originalTarget);
-        let currentAmt = parseFloat(amtInput.value) || 0;
-        let actVal = parseFloat(actInput.value) || 0;
         
         // Ensure mutual exclusivity
         if (triggerElem === needsMaintenanceHalfCheck && needsMaintenanceHalfCheck.checked) {
@@ -1337,19 +1412,14 @@ document.addEventListener('DOMContentLoaded', function() {
             if(needsMaintenanceHalfCheck) needsMaintenanceHalfCheck.checked = false;
         }
 
-        let isMatchingTarget = Math.abs(currentAmt - actVal) < 0.01;
-
-        if (needsMaintenanceZeroCheck && needsMaintenanceZeroCheck.checked) {
-            amtInput.value = '0.00';
-            if (isMatchingTarget) actInput.value = '0.00';
-        } else if (needsMaintenanceHalfCheck && needsMaintenanceHalfCheck.checked) {
-            let half = (original / 2).toFixed(2);
-            amtInput.value = half;
-            if (isMatchingTarget) actInput.value = half;
+        if (!needsMaintenanceHalfCheck.checked && !needsMaintenanceZeroCheck.checked) {
+            // Revert to original
+            let original = parseFloat(amtInput.dataset.originalTarget);
+            amtInput.value = original.toFixed(2);
+            document.getElementById('actualBoundary').value = original.toFixed(2);
+            document.getElementById('breakdownComputationDraft').classList.add('hidden');
         } else {
-            let full = original.toFixed(2);
-            amtInput.value = full;
-            if (isMatchingTarget) actInput.value = full;
+            updateBreakdownComputation();
         }
     }
 
