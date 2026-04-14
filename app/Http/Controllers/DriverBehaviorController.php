@@ -221,15 +221,13 @@ class DriverBehaviorController extends Controller
         $driver_id   = $request->input('driver_id');
         $release_date = now()->timezone('Asia/Manila')->toDateString();
 
-        // Mark all unreleased counted boundaries for this driver as released
+        // Mark ALL unreleased boundaries for this driver as released (Clears shortages/late/absent)
         DB::table('boundaries')
             ->where('driver_id', $driver_id)
             ->whereNull('incentive_released_at')
-            ->where('counted_for_incentive', true)
-            ->where('has_incentive', true)
             ->update(['incentive_released_at' => $release_date]);
 
-        // Mark all violations for this driver as released
+        // Mark ALL violations for this driver as released (Clears traffic/damage/accidents)
         DB::table('driver_behavior')
             ->where('driver_id', $driver_id)
             ->whereNull('incentive_released_at')
