@@ -423,16 +423,16 @@
                         <label class="flex items-center gap-3 cursor-pointer p-2 rounded hover:bg-gray-50 transition-colors">
                             <input type="checkbox" name="needs_maintenance_half" id="needsMaintenanceHalfCheck" value="1" class="rounded border-gray-300 text-yellow-600 focus:ring-yellow-500 needs-maintenance-opt">
                             <div class="flex flex-col">
-                                <span class="text-sm font-bold text-gray-800 leading-none mb-0.5">Broke Down During Shift (Half Boundary)</span>
-                                <span class="text-[10px] text-gray-500 leading-tight">Vehicle broke down mid-shift. Halves target boundary and pauses schedule.</span>
+                                <span class="text-sm font-bold text-gray-800 leading-none mb-0.5">Broke Down During Shift (Prorated Hourly)</span>
+                                <span class="text-[10px] text-gray-500 leading-tight">Accurate computation based on actual hours driven since handover.</span>
                             </div>
                         </label>
 
                         <label class="flex items-center gap-3 cursor-pointer p-2 rounded hover:bg-gray-50 transition-colors">
                             <input type="checkbox" name="needs_maintenance_zero" id="needsMaintenanceZeroCheck" value="1" class="rounded border-gray-300 text-orange-600 focus:ring-orange-500 needs-maintenance-opt">
                             <div class="flex flex-col">
-                                <span class="text-sm font-bold text-gray-800 leading-none mb-0.5">Broke Down Immediately (No Boundary)</span>
-                                <span class="text-[10px] text-gray-500 leading-tight">Vehicle broke down upon deployment. Sets target boundary to 0 and pauses schedule.</span>
+                                <span class="text-sm font-bold text-gray-800 leading-none mb-0.5">Broke Down Immediately (< 2 hrs)</span>
+                                <span class="text-[10px] text-gray-500 leading-tight">Vehicle broke down within 2 hours of deployment. Sets target boundary to 0.</span>
                             </div>
                         </label>
 
@@ -1084,6 +1084,8 @@ function addBoundary() {
         pastCutoffCheckbox.checked = new Date().getHours() >= 10;
     }
 
+    document.getElementById('boundaryModal').classList.remove('is-editing');
+    document.getElementById('breakdownComputationDraft').classList.add('hidden');
     document.getElementById('boundaryModal').classList.remove('hidden');
     lucide.createIcons();
 }
@@ -1120,6 +1122,10 @@ function editBoundary(id) {
             const sId = unitOption.getAttribute('data-secondary-driver');
             unitDisplay.setAttribute('data-primary-id', pId || '');
             unitDisplay.setAttribute('data-secondary-id', sId || '');
+            
+            // Critical for computation box
+            const swappedAt = unitOption.getAttribute('data-swapped-at');
+            document.getElementById('boundaryModal').setAttribute('data-current-swap', swappedAt || '');
         }
 
         // Set Driver Display (guaranteed to fill required field even if inactive)
@@ -1150,13 +1156,17 @@ function editBoundary(id) {
         if (notesLc.includes('vehicle damaged') && damagedEl) {
             damagedEl.checked = true;
         }
-        if ((notesLc.includes('half boundary') || notesLc.includes('broke down during')) && halfMaintEl) {
+        if ((notesLc.includes('half boundary') || notesLc.includes('broke down during') || notesLc.includes('hrs x')) && halfMaintEl) {
             halfMaintEl.checked = true;
         }
         if ((notesLc.includes('no boundary') || notesLc.includes('immediately')) && notesLc.includes('maintenance') && zeroMaintEl) {
             zeroMaintEl.checked = true;
         }
         
+        // Refresh breakdown calculation display
+        updateBreakdownComputation();
+
+        document.getElementById('boundaryModal').classList.add('is-editing');
         document.getElementById('boundaryModal').classList.remove('hidden');
         lucide.createIcons();
     } else {
