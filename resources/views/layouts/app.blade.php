@@ -82,13 +82,24 @@
                     'message' => $alert->message,
                     'type' => 'violation_alert', // Custom type for special handling
                     'severity' => $alert->type, // e.g., 'danger', 'warning'
-                    'url' => route('driver-behavior.index') 
+                    'url' => route('driver-behavior.index'),
+                    'time' => \Carbon\Carbon::parse($alert->created_at)->diffForHumans()
                 ];
             }
             
             // 2. Merge specialized notifications from views if they exist (BOTTOM)
-            if(isset($maintNotifs)) { $headerNotifications = array_merge($headerNotifications, $maintNotifs); }
-            if(isset($expiringFranchise)) { $headerNotifications = array_merge($headerNotifications, $expiringFranchise); }
+            if(isset($maintNotifs)) {
+                foreach($maintNotifs as $n) {
+                    $n['time'] = $n['time'] ?? 'Today';
+                    $headerNotifications[] = $n;
+                }
+            }
+            if(isset($expiringFranchise)) {
+                foreach($expiringFranchise as $n) {
+                    $n['time'] = $n['time'] ?? 'Now';
+                    $headerNotifications[] = $n;
+                }
+            }
             
             $headerNotificationCount = count($headerNotifications);
         @endphp
@@ -297,8 +308,10 @@
                                                         <div class="flex-1 min-w-0">
                                                             <p class="text-xs font-semibold text-gray-800 truncate">
                                                                 {{ $n['title'] }}</p>
-                                                            <p class="text-xs text-gray-600 mt-0.5 line-clamp-2">{{ $n['message'] }}
-                                                            </p>
+                                                            <p class="text-xs text-gray-600 mt-0.5 line-clamp-2">{{ $n['message'] }}</p>
+                                                            @if(isset($n['time']))
+                                                                <p class="text-[10px] text-gray-400 mt-1 font-medium">{{ $n['time'] }}</p>
+                                                            @endif
                                                         </div>
                                                     </a>
                                                     <button type="button"

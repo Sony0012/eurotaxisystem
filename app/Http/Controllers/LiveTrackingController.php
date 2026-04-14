@@ -402,6 +402,10 @@ class LiveTrackingController extends Controller
                     ->orderByDesc('created_at')
                     ->limit(10)
                     ->get()
+                    ->map(function($alert) {
+                        $alert->formatted_time = \Carbon\Carbon::parse($alert->created_at)->diffForHumans();
+                        return $alert;
+                    })
             ]);
 
         } catch (\Exception $e) {
