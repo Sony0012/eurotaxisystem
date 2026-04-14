@@ -312,15 +312,23 @@ class DriverBehaviorController extends Controller
             ->whereNull('incentive_released_at')
             ->count();
 
-        // Violations this period
-        $violations = DB::table('driver_behavior')
+        // Violations this period (Two-Source Verification for Absolute Accuracy)
+        $behavior_violations = DB::table('driver_behavior')
             ->where('driver_id', $driver_id)
             ->whereNull('incentive_released_at')
-            ->where(function($q) {
-                $q->where('severity', '!=', 'low')
-                  ->orWhere('is_driver_fault', true);
-            })
             ->count();
+
+        $boundary_violations = DB::table('boundaries')
+            ->where('driver_id', $driver_id)
+            ->where(function($q) {
+                $q->where('shortage', '>', 0)
+                  ->orWhere('has_incentive', false)
+                  ->orWhere('is_absent', true);
+            })
+            ->whereNull('incentive_released_at')
+            ->count();
+
+        $violations = $behavior_violations + $boundary_violations;
 
         $required_days = 20;
         $eligible = $valid_days >= $required_days && $violations === 0;

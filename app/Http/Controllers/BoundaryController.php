@@ -237,6 +237,12 @@ class BoundaryController extends Controller
                     $expected_driver_id = $unit ? $unit->current_turn_driver_id : $driver_id;
                     $has_incentive = true;
 
+                    $is_absent = $request->has('is_absent');
+                    if ($is_absent) {
+                        $has_incentive = false;
+                        $notes = trim($notes . " [Automatic Violation: Absent / No Show]");
+                    }
+
                     // Manual strict 10 AM Cut-off override from form
                     $past_cutoff = $request->has('past_cutoff');
                     if ($past_cutoff) {
@@ -248,7 +254,7 @@ class BoundaryController extends Controller
                         $now = now();
                         
                         // Legacy safety check (in case past_cutoff wasn't manually overridden but deadline passed)
-                        if (!$past_cutoff) {
+                        if (!$past_cutoff && !$is_absent) {
                             if (!$unit->shift_deadline_at) {
                                 // Default anchor if missing - should be 10 AM next cycle
                                 $current_deadline = Carbon::parse($date)->hour(10)->minute(0)->second(0);
@@ -402,9 +408,47 @@ class BoundaryController extends Controller
                         'notes'           => $notes,
                         'is_extra_driver' => $is_extra_driver,
                         'vehicle_damaged' => $vehicle_damaged,
+                        'is_absent'       => $is_absent,
                         'has_incentive'   => $has_incentive,
                         'created_by'      => Auth::id(),
                     ]);
+
+                    // --- AUTOMATIC VIOLATION LOGGING TO CENTRAL FEED ---
+                    $now_ts = now();
+                    if ($past_cutoff) {
+                        DB::table('driver_behavior')->insert([
+                            'unit_id'       => $unit_id,
+                            'driver_id'     => $driver_id,
+                            'incident_type' => 'late_boundary',
+                            'severity'      => 'medium',
+                            'description'   => 'Auto-logged [Late]: Boundary turned in past the 10:00 AM cutoff.',
+                            'timestamp'     => $now_ts,
+                            'created_at'    => $now_ts,
+                        ]);
+                    }
+                    if ($shortage > 0) {
+                        DB::table('driver_behavior')->insert([
+                            'unit_id'       => $unit_id,
+                            'driver_id'     => $driver_id,
+                            'incident_type' => 'short_boundary',
+                            'severity'      => 'low',
+                            'description'   => 'Auto-logged [Shortage]: Boundary payment was ₱' . number_format($shortage, 2) . ' short.',
+                            'timestamp'     => $now_ts,
+                            'created_at'    => $now_ts,
+                        ]);
+                    }
+                    if ($is_absent) {
+                        DB::table('driver_behavior')->insert([
+                            'unit_id'       => $unit_id,
+                            'driver_id'     => $driver_id,
+                            'incident_type' => 'other',
+                            'severity'      => 'medium',
+                            'description'   => 'Auto-logged [Absent]: Pilot is marked as Absent / No Show for this shift.',
+                            'timestamp'     => $now_ts,
+                            'created_at'    => $now_ts,
+                        ]);
+                    }
+
                     return redirect()->route('boundaries.index')->with('success', 'Boundary record added successfully');
                 }
             } else {
@@ -434,6 +478,10 @@ class BoundaryController extends Controller
 
                 $has_incentive = true;
 
+                if ($is_absent) {
+                    $has_incentive = false;
+                    $clean_notes .= " [Automatic Violation: Absent / No Show]";
+                }
                 if ($past_cutoff) {
                     $has_incentive = false;
                     $clean_notes .= " [Automatic Violation: Late Boundary (Past 10:00 AM)]";
@@ -455,13 +503,6 @@ class BoundaryController extends Controller
                 $excess   = max(0, $actual_boundary - $boundary_amount);
                 $status   = $shortage > 0 ? 'shortage' : ($excess > 0 ? 'excess' : 'paid');
 
-                $boundary = Boundary::find($id);
-                if ($boundary) {
-                    // Update legacy check - if deadline passed but not overridden by past_cutoff
-                    if (!$past_cutoff && $boundary->unit && $boundary->unit->shift_deadline_at) {
-                        $deadline = Carbon::parse($boundary->unit->shift_deadline_at);
-                        $boundary_time = Carbon::parse($boundary->created_at);
-                        if ($boundary_time->greaterThan($deadline)) {
                             $has_incentive = false; // Kept late status from original stamp
                         }
                     }

@@ -418,6 +418,14 @@
 
                         <div class="h-px bg-gray-100 my-1 mx-2"></div>
 
+                        <label class="flex items-center gap-3 cursor-pointer p-2 rounded hover:bg-red-50 transition-colors group">
+                            <input type="checkbox" name="is_absent" id="is_absent" value="1" class="rounded border-gray-300 text-red-600 focus:ring-red-500">
+                            <div class="flex flex-col">
+                                <span class="text-sm font-bold text-gray-800 group-hover:text-red-700 leading-none mb-0.5 transition-colors">Absent / No Show</span>
+                                <span class="text-[10px] text-red-600 leading-tight">Pilot did not show up or check in for the shift. Voids incentive & logs violation.</span>
+                            </div>
+                        </label>
+
                         <div class="h-px bg-gray-100 my-1 mx-2"></div>
 
                         <label class="flex items-center gap-3 cursor-pointer p-2 rounded hover:bg-gray-50 transition-colors">
@@ -1144,16 +1152,21 @@ function editBoundary(id) {
         
         // Uncheck all first
         const pastCutoffEl = document.getElementById('past_cutoff');
+        const absentEl = document.getElementById('is_absent');
         const damagedEl = document.querySelector('input[name="vehicle_damaged"]');
         const halfMaintEl = document.getElementById('needsMaintenanceHalfCheck');
         const zeroMaintEl = document.getElementById('needsMaintenanceZeroCheck');
         
         if (pastCutoffEl) pastCutoffEl.checked = false;
+        if (absentEl) absentEl.checked = false;
         if (damagedEl) damagedEl.checked = false;
         if (halfMaintEl) halfMaintEl.checked = false;
         if (zeroMaintEl) zeroMaintEl.checked = false;
 
         // Re-check based on existing data
+        if (boundary.is_absent || notesLc.includes('absent')) {
+            if (absentEl) absentEl.checked = true;
+        }
         if (notesLc.includes('past 10:00 am') && pastCutoffEl) {
             pastCutoffEl.checked = true;
         }
