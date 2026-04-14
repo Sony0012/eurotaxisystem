@@ -261,6 +261,7 @@ class LiveTrackingController extends Controller
                     'longitude'       => $lng,
                     'angle'           => $gps['direction'] ?? 0,
                     'odo'             => $gps['currentMileage'] ?? 0,
+                    'u_status'        => $unit->status,
                     'daily_dist'      => 0 // Handled in sync below
                 ];
             });
@@ -299,7 +300,7 @@ class LiveTrackingController extends Controller
                 if ($unitData['latitude'] !== null && $unitData['longitude'] !== null) {
                     $violation = $this->coding->checkViolation($unitData['plate_number'], $unitData['latitude'], $unitData['longitude']);
                     
-                    if ($violation) {
+                    if ($violation && ($unitData['u_status'] ?? '') !== 'maintenance') {
                         $unitData['violation'] = $violation;
                         
                         // Strict Date/Time normalization for Manila
