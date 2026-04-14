@@ -315,7 +315,8 @@
                                          data-name="{{ $driver['name'] }}"
                                          data-unit="{{ $driver['current_unit'] }}"
                                          data-plate="{{ $driver['current_plate'] }}"
-                                         data-shortage="{{ $driver['net_shortage'] ?? 0 }}">
+                                         data-shortage="{{ $driver['net_shortage'] ?? 0 }}"
+                                         data-debt="{{ $driver['active_debt_balance'] ?? 0 }}">
                                         <div class="font-medium text-xs">{{ $driver['name'] }}</div>
                                         <div class="text-xs text-gray-500">{{ $driver['current_plate'] }}</div>
                                     </div>
@@ -396,6 +397,27 @@
                                class="w-full pl-7 px-2 py-1.5 border-2 border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-bold text-blue-800"
                                placeholder="0.00">
                     </div>
+                </div>
+                
+                {{-- Driver Debt Payment --}}
+                <div id="debtPaymentGroup" class="hidden mt-2 p-3 bg-red-50 border border-red-200 rounded-lg">
+                    <div class="flex items-start justify-between mb-2">
+                        <div>
+                            <p class="text-[10px] uppercase font-black tracking-widest text-red-600">Active Debt / Liability</p>
+                            <p class="text-xs text-red-500 font-medium tracking-tight">Driver has unfulfilled debt of <strong id="debtBalanceDisplay">₱0.00</strong>.</p>
+                        </div>
+                        <i data-lucide="alert-octagon" class="text-red-400 w-5 h-5"></i>
+                    </div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">Deduct Debt Installment</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <span class="text-red-600 font-bold text-xs">₱</span>
+                        </div>
+                        <input type="number" name="debt_payment_amount" id="debtPaymentAmount" step="0.01" min="0" value="0.00"
+                               class="w-full pl-7 px-2 py-1.5 border-2 border-red-200 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 font-bold text-red-800"
+                               placeholder="0.00">
+                    </div>
+                    <input type="hidden" id="rawDebtBalance" value="0">
                 </div>
                 
                 <div>
@@ -531,6 +553,17 @@
                 <p id="vb_diffAmount" class="text-lg font-black"></p>
             </div>
 
+            <div id="vb_debtRow" class="mb-5 p-4 rounded-xl border bg-red-50 border-red-200 hidden">
+                <p class="text-[10px] font-black text-red-500 uppercase tracking-widest mb-1">Debt Installment Paid</p>
+                <div class="flex justify-between items-center">
+                    <p id="vb_debtPaid" class="text-lg font-black text-red-700"></p>
+                    <div class="text-right">
+                        <p class="text-[9px] font-bold text-red-400 uppercase tracking-wider">Remaining Balance</p>
+                        <p id="vb_debtRemaining" class="text-xs font-bold text-red-600"></p>
+                    </div>
+                </div>
+            </div>
+
             {{-- Exception Details (parsed from system flags) --}}
             <div id="vb_exceptionsRow" class="mb-5 hidden">
                 <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Exception Details</p>
@@ -610,6 +643,17 @@ function openViewBoundary(id) {
         document.getElementById('vb_diffAmount').innerText = '₱' + excess.toLocaleString('en-PH', {minimumFractionDigits: 2});
     } else {
         diffRow.className = 'mb-5 p-4 rounded-xl border hidden';
+    }
+
+    // Debt Installment
+    const debtRow = document.getElementById('vb_debtRow');
+    const debtPaid = parseFloat(r.debt_payment_amount || 0);
+    if (debtPaid > 0) {
+        debtRow.classList.remove('hidden');
+        document.getElementById('vb_debtPaid').innerText = '₱' + debtPaid.toLocaleString('en-PH', {minimumFractionDigits: 2});
+        document.getElementById('vb_debtRemaining').innerText = '₱' + parseFloat(r.debt_balance_snapshot || 0).toLocaleString('en-PH', {minimumFractionDigits: 2});
+    } else {
+        debtRow.classList.add('hidden');
     }
 
     // Parse and display exception flags + clean user notes
@@ -945,6 +989,7 @@ function initializeDriverDropdown() {
                 const driverId = this.getAttribute('data-id');
                 const driverName = this.getAttribute('data-name');
                 const shortage = parseFloat(this.getAttribute('data-shortage') || 0);
+                const debt = parseFloat(this.getAttribute('data-debt') || 0);
 
                 document.getElementById('driverId').value = driverId;
                 driverDisplay.value = driverName;
@@ -975,6 +1020,20 @@ function initializeDriverDropdown() {
                 } else {
                     shortageAlert.classList.add('hidden');
                     rawShortageInput.value = 0;
+                }
+
+                // New Debt Logic
+                const debtGroup = document.getElementById('debtPaymentGroup');
+                if (debt > 0) {
+                    if (debtGroup) debtGroup.classList.remove('hidden');
+                    const debtDisplay = document.getElementById('debtBalanceDisplay');
+                    if (debtDisplay) debtDisplay.textContent = "₱" + debt.toLocaleString(undefined, {minimumFractionDigits: 2});
+                    const rawDebt = document.getElementById('rawDebtBalance');
+                    if (rawDebt) rawDebt.value = debt;
+                } else {
+                    if (debtGroup) debtGroup.classList.add('hidden');
+                    const debtInput = document.getElementById('debtPaymentAmount');
+                    if (debtInput) debtInput.value = '0.00';
                 }
 
                 document.getElementById('driverId').dispatchEvent(new Event('change'));
@@ -1277,8 +1336,9 @@ function updateShiftInfo(unitElement) {
         
         // Trigger alerts check
         const shortage = parseFloat(driverOption ? driverOption.getAttribute('data-shortage') : 0);
+        const debt = parseFloat(driverOption ? driverOption.getAttribute('data-debt') : 0);
         if (typeof triggerDriverAlerts === 'function') {
-            triggerDriverAlerts(expectedId, shortage);
+            triggerDriverAlerts(expectedId, shortage, debt);
         }
     }
 
@@ -1383,7 +1443,7 @@ function updateBreakdownComputation() {
     }
 }
 
-function triggerDriverAlerts(driverId, shortage) {
+function triggerDriverAlerts(driverId, shortage, debt) {
     const unitId = document.getElementById('unitId').value;
     const unitOption = document.querySelector(`.unit-option[data-id="${unitId}"]`);
     const primaryId = unitOption ? unitOption.getAttribute('data-primary-id') : '';
@@ -1405,6 +1465,20 @@ function triggerDriverAlerts(driverId, shortage) {
         if (rawInput) rawInput.value = shortage;
     } else {
         if (shortageAlert) shortageAlert.classList.add('hidden');
+    }
+
+    // New Debt Logic
+    const debtGroup = document.getElementById('debtPaymentGroup');
+    if (debt > 0) {
+        if (debtGroup) debtGroup.classList.remove('hidden');
+        const debtDisplay = document.getElementById('debtBalanceDisplay');
+        if (debtDisplay) debtDisplay.textContent = "₱" + debt.toLocaleString(undefined, {minimumFractionDigits: 2});
+        const rawDebt = document.getElementById('rawDebtBalance');
+        if (rawDebt) rawDebt.value = debt;
+    } else {
+        if (debtGroup) debtGroup.classList.add('hidden');
+        const debtInput = document.getElementById('debtPaymentAmount');
+        if (debtInput) debtInput.value = '0.00';
     }
 }
 

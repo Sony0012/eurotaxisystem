@@ -86,7 +86,8 @@ class BoundaryController extends Controller
                    COALESCE(ua.plate_number, 'No Assignment') as current_unit,
                    COALESCE(ua.plate_number, '') as current_plate,
                    (SELECT COUNT(*) FROM units WHERE (driver_id = d.id OR secondary_driver_id = d.id) AND deleted_at IS NULL) as assigned_units_count,
-                   (SELECT GREATEST(0, COALESCE(SUM(shortage),0) - COALESCE(SUM(excess),0)) FROM boundaries WHERE driver_id = d.id AND deleted_at IS NULL) as net_shortage
+                   (SELECT GREATEST(0, COALESCE(SUM(shortage),0) - COALESCE(SUM(excess),0)) FROM boundaries WHERE driver_id = d.id AND deleted_at IS NULL) as net_shortage,
+                   (SELECT COALESCE(SUM(balance),0) FROM driver_debts WHERE driver_id = d.id AND status = 'pending') as active_debt_balance
             FROM drivers d 
             LEFT JOIN units ua ON (d.id = ua.driver_id OR d.id = ua.secondary_driver_id) AND ua.deleted_at IS NULL
             WHERE d.deleted_at IS NULL
@@ -213,6 +214,7 @@ class BoundaryController extends Controller
             $date            = $request->input('date', date('Y-m-d'));
             $boundary_amount = (float) $request->input('boundary_amount', 0);
             $actual_boundary = (float) $request->input('actual_boundary', 0);
+            $debt_payment_amount = (float) $request->input('debt_payment_amount', 0);
             $notes           = $request->input('notes', '');
             $vehicle_damaged = $request->has('vehicle_damaged');
             $needs_maintenance_half = $request->has('needs_maintenance_half');
@@ -395,6 +397,43 @@ class BoundaryController extends Controller
                         $unit->update($update_data);
                     }
 
+                    // --- AUTOMATIC DEBT DEDUCTION (FIFO) ---
+                    $debt_balance_snapshot = 0;
+                    if ($debt_payment_amount > 0) {
+                        $remaining_payment = $debt_payment_amount;
+                        $active_debts = DB::table('driver_debts')
+                            ->where('driver_id', $driver_id)
+                            ->where('status', 'pending')
+                            ->orderBy('created_at', 'asc')
+                            ->get();
+
+                        foreach ($active_debts as $debt) {
+                            if ($remaining_payment <= 0) break;
+
+                            $pay_this_debt = min($remaining_payment, $debt->balance);
+                            $new_balance = $debt->balance - $pay_this_debt;
+                            $new_paid = $debt->paid_amount + $pay_this_debt;
+                            
+                            $update_debt = [
+                                'paid_amount' => $new_paid,
+                                'balance' => $new_balance,
+                            ];
+
+                            if ($new_balance <= 0) {
+                                $update_debt['status'] = 'paid';
+                            }
+
+                            DB::table('driver_debts')->where('id', $debt->id)->update($update_debt);
+                            $remaining_payment -= $pay_this_debt;
+                        }
+                    }
+
+                    // Snapshot remaining total balance
+                    $debt_balance_snapshot = DB::table('driver_debts')
+                        ->where('driver_id', $driver_id)
+                        ->where('status', 'pending')
+                        ->sum('balance');
+
                     Boundary::create([
                         'unit_id'         => $unit_id,
                         'driver_id'       => $driver_id,
@@ -402,6 +441,8 @@ class BoundaryController extends Controller
                         'date'            => $date,
                         'boundary_amount' => $boundary_amount,
                         'actual_boundary' => $actual_boundary,
+                        'debt_payment_amount' => $debt_payment_amount,
+                        'debt_balance_snapshot' => $debt_balance_snapshot,
                         'shortage'        => $shortage,
                         'excess'          => $excess,
                         'status'          => $status,

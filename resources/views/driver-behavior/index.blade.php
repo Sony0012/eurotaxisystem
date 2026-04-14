@@ -538,52 +538,56 @@
                 </div>
 
                 {{-- Section: Accident Details (Conditional) --}}
-                <div id="accidentSection" class="hidden p-4 bg-purple-50 rounded-xl border border-purple-100">
-                    <div class="flex items-center gap-2 mb-3">
-                        <i data-lucide="car-crash" class="w-4 h-4 text-purple-600"></i>
-                        <p class="text-[10px] font-black text-purple-700 uppercase tracking-widest">Accident / Damage Details</p>
+                {{-- Section: Comprehensive Accident Details (Conditional) --}}
+                <div id="accidentSection" class="hidden p-5 bg-gradient-to-b from-gray-50 to-white rounded-2xl border border-gray-200 shadow-sm mt-5">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-gray-100 pb-4 mb-5">
+                        <div class="flex items-center gap-3">
+                            <div class="p-2 bg-red-100 rounded-xl"><i data-lucide="car-crash" class="w-5 h-5 text-red-600"></i></div>
+                            <div>
+                                <h4 class="font-black text-sm text-gray-800 uppercase tracking-widest">Comprehensive Accident Report</h4>
+                                <p class="text-[10px] text-gray-500 font-medium">Track third parties, damages, and automated debt collection.</p>
+                            </div>
+                        </div>
+                        <label class="flex items-center gap-3 cursor-pointer mt-3 md:mt-0 p-3 bg-red-50 rounded-xl border border-red-200 shadow-sm transition-all hover:bg-red-100">
+                            <input type="checkbox" name="is_driver_fault" id="faultCheck" value="1" onchange="toggleLiabilityInfo(this.checked)" class="w-5 h-5 accent-red-600 rounded">
+                            <div>
+                                <p class="text-xs font-black text-red-700 uppercase">Driver is At Fault</p>
+                                <p class="text-[9px] text-red-600 font-bold uppercase tracking-widest">Create Auto Debt Record</p>
+                            </div>
+                        </label>
                     </div>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="col-span-2">
-                            <label class="block text-xs font-bold text-gray-700 mb-1.5">Third Party Name</label>
-                            <input type="text" name="third_party_name" placeholder="Name of person/entity involved"
-                                class="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-sm font-medium focus:ring-2 focus:ring-purple-400 focus:outline-none">
+
+                    {{-- Parties Involved --}}
+                    <div class="mb-6">
+                        <div class="flex justify-between items-end mb-3">
+                            <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest"><span class="text-blue-500 mr-1">■</span> Involved Parties / Vehicles</p>
+                            <button type="button" onclick="addPartyRow()" class="text-[10px] font-black uppercase tracking-widest text-blue-600 hover:text-blue-700 flex items-center gap-1.5"><i data-lucide="plus-circle" class="w-3.5 h-3.5"></i> Add Party</button>
                         </div>
+                        <div id="partiesContainer" class="space-y-3">
+                            <!-- JS will inject party rows here -->
+                        </div>
+                    </div>
+
+                    {{-- Damages Checklist --}}
+                    <div class="mb-4">
+                        <div class="flex justify-between items-end mb-3">
+                            <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest"><span class="text-purple-500 mr-1">■</span> Damages & Repair Checklist</p>
+                            <button type="button" onclick="addDamageRow()" class="text-[10px] font-black uppercase tracking-widest text-purple-600 hover:text-purple-700 flex items-center gap-1.5"><i data-lucide="plus-circle" class="w-3.5 h-3.5"></i> Add Damage Item</button>
+                        </div>
+                        <div id="damagesContainer" class="space-y-3">
+                            <!-- JS will inject damage rows here -->
+                        </div>
+                    </div>
+
+                    {{-- Liability Total --}}
+                    <div id="liabilitySection" class="hidden p-4 bg-gradient-to-r from-red-50 to-white rounded-xl border-l-4 border-l-red-500 border-y border-y-gray-100 border-r border-r-gray-100 mt-5 items-center justify-between shadow-sm">
                         <div>
-                            <label class="block text-xs font-bold text-gray-700 mb-1.5">Third Party Vehicle / Plate</label>
-                            <input type="text" name="third_party_vehicle" placeholder="ABC 1234 / Honda Civic"
-                                class="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-sm font-medium focus:ring-2 focus:ring-purple-400 focus:outline-none">
+                            <p class="text-[10px] font-black text-red-600 uppercase tracking-widest flex items-center gap-1.5"><i data-lucide="alert-triangle" class="w-3.5 h-3.5"></i> Driver Liability Triggered</p>
+                            <p class="text-xs text-gray-600 font-medium mt-0.5">This total will be automatically converted strictly into manageable boundary installments.</p>
                         </div>
-                        <div class="flex items-end">
-                            <label class="flex items-center gap-2.5 cursor-pointer p-3 bg-white rounded-xl border border-gray-200 w-full">
-                                <input type="checkbox" name="is_driver_fault" id="faultCheck" value="1"
-                                    onchange="toggleFaultFields(this.checked)"
-                                    class="w-4 h-4 accent-red-500 rounded">
-                                <div>
-                                    <p class="text-xs font-black text-gray-700">Driver is at Fault</p>
-                                    <p class="text-[10px] text-red-500 font-medium">Will charge driver for all damages</p>
-                                </div>
-                            </label>
-                        </div>
-                        <div id="damageFields" class="col-span-2 hidden grid grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-xs font-bold text-gray-700 mb-1.5">Our Unit Damage Cost (₱)</label>
-                                <input type="number" name="own_unit_damage_cost" step="0.01" min="0" id="ownDamage" oninput="computeTotal()"
-                                    placeholder="0.00" class="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-sm font-medium focus:ring-2 focus:ring-purple-400 focus:outline-none">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-gray-700 mb-1.5">Third Party Damage Cost (₱)</label>
-                                <input type="number" name="third_party_damage_cost" step="0.01" min="0" id="thirdDamage" oninput="computeTotal()"
-                                    placeholder="0.00" class="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-sm font-medium focus:ring-2 focus:ring-purple-400 focus:outline-none">
-                            </div>
-                            <div class="col-span-2 p-3 bg-red-50 rounded-xl border border-red-100 flex items-center justify-between">
-                                <div>
-                                    <p class="text-[10px] font-black text-red-600 uppercase tracking-widest">Total Charge to Driver</p>
-                                    <p class="text-xl font-black text-red-700" id="totalChargeDisplay">₱0.00</p>
-                                </div>
-                                <input type="hidden" name="total_charge_to_driver" id="totalChargeInput" value="0">
-                                <i data-lucide="alert-octagon" class="w-8 h-8 text-red-300"></i>
-                            </div>
+                        <div class="text-right">
+                            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Total Grand Charge</p>
+                            <p class="text-2xl font-black text-red-700 font-mono tracking-tight" id="grandTotalDisplay">₱0.00</p>
                         </div>
                     </div>
                 </div>
@@ -630,37 +634,129 @@ document.getElementById('incidentModal').addEventListener('click', function(e) {
     if (e.target === this) closeIncidentModal();
 });
 
-// ─── Show/hide accident fields ────────────────────────
+// ─── Dynamic Incident Fields ────────────────────────
+const spareParts = {!! json_encode($spare_parts) !!};
+let partyCount = 0;
+let damageCount = 0;
+
 function handleTypeChange(type) {
     const accidentTypes = ['Accident', 'Vehicle Damage'];
     const section = document.getElementById('accidentSection');
     if (accidentTypes.includes(type)) {
         section.classList.remove('hidden');
+        if(partyCount === 0) addPartyRow();
+        if(damageCount === 0) addDamageRow();
         if(window.lucide) lucide.createIcons();
     } else {
         section.classList.add('hidden');
     }
 }
 
-function toggleFaultFields(checked) {
-    const fields = document.getElementById('damageFields');
-    if (checked) {
-        fields.classList.remove('hidden');
-        fields.style.display = 'grid';
-        if(window.lucide) lucide.createIcons();
-    } else {
-        fields.classList.add('hidden');
-        document.getElementById('totalChargeInput').value = 0;
-        document.getElementById('totalChargeDisplay').textContent = '₱0.00';
-    }
+function addPartyRow() {
+    const container = document.getElementById('partiesContainer');
+    const row = document.createElement('div');
+    row.className = 'grid grid-cols-1 md:grid-cols-4 gap-3 p-3 bg-white border border-gray-100 rounded-xl items-end relative group';
+    row.innerHTML = `
+        <div>
+            <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Name / Entity</label>
+            <input type="text" name="involved_parties[${partyCount}][name]" class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-xs" placeholder="e.g. Juan Cruz">
+        </div>
+        <div>
+            <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Vehicle</label>
+            <input type="text" name="involved_parties[${partyCount}][vehicle_type]" class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-xs" placeholder="Motorcycle, SUV...">
+        </div>
+        <div>
+            <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Plate Number</label>
+            <input type="text" name="involved_parties[${partyCount}][plate_number]" class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-xs" placeholder="ABC 123">
+        </div>
+        <div>
+            <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Contact (Opt)</label>
+            <input type="text" name="involved_parties[${partyCount}][contact_info]" class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-xs" placeholder="09...">
+        </div>
+        <button type="button" onclick="this.remove()" class="absolute -top-2 -right-2 bg-white text-gray-400 hover:text-red-500 rounded-full border border-gray-100 shadow-sm p-1 opacity-0 group-hover:opacity-100 transition-opacity">
+            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+    `;
+    container.appendChild(row);
+    partyCount++;
 }
 
-function computeTotal() {
-    const own   = parseFloat(document.getElementById('ownDamage').value) || 0;
-    const third = parseFloat(document.getElementById('thirdDamage').value) || 0;
-    const total = own + third;
-    document.getElementById('totalChargeDisplay').textContent = '₱' + total.toLocaleString('en-PH', {minimumFractionDigits: 2});
-    document.getElementById('totalChargeInput').value = total.toFixed(2);
+function addDamageRow() {
+    const container = document.getElementById('damagesContainer');
+    const row = document.createElement('div');
+    row.className = 'grid grid-cols-1 md:grid-cols-6 gap-3 p-3 bg-white border border-gray-100 rounded-xl items-end relative group damage-row';
+    
+    let options = '<option value="">Custom Part / Labor</option>';
+    spareParts.forEach(p => {
+        options += `<option value="${p.id}" data-price="${p.price}">${p.name} (₱${parseFloat(p.price).toLocaleString()})</option>`;
+    });
+
+    row.innerHTML = `
+        <div class="col-span-2">
+            <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Part / Service Selection</label>
+            <select name="damages[${damageCount}][spare_part_id]" class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-xs spart-select" onchange="syncPartData(this, ${damageCount})">
+                ${options}
+            </select>
+        </div>
+        <div class="col-span-2">
+            <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Specific Damage Description</label>
+            <input type="text" name="damages[${damageCount}][part_name]" id="dmg_name_${damageCount}" class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-xs" placeholder="Description..." required>
+        </div>
+        <div>
+            <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Unit Price</label>
+            <input type="number" step="0.01" min="0" name="damages[${damageCount}][unit_price]" id="dmg_price_${damageCount}" class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-xs dmg-price" value="0" oninput="calculateGrandTotal()">
+        </div>
+        <div class="relative flex gap-2 w-full">
+            <div class="flex-1">
+                <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Qty</label>
+                <input type="number" min="1" name="damages[${damageCount}][qty]" class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-xs dmg-qty" value="1" oninput="calculateGrandTotal()">
+            </div>
+            <button type="button" onclick="this.parentElement.parentElement.remove(); calculateGrandTotal();" class="absolute -top-7 -right-3 bg-white text-gray-400 hover:text-red-500 rounded-full border border-gray-100 shadow-sm p-1 opacity-0 group-[.damage-row:hover]:opacity-100 transition-opacity">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+        </div>
+    `;
+    container.appendChild(row);
+    damageCount++;
+}
+
+function syncPartData(selectElement, index) {
+    const selected = selectElement.options[selectElement.selectedIndex];
+    const nameInput = document.getElementById('dmg_name_' + index);
+    const priceInput = document.getElementById('dmg_price_' + index);
+    
+    if (selectElement.value) {
+        nameInput.value = selected.text.split(' (₱')[0];
+        nameInput.readOnly = true;
+        nameInput.classList.add('bg-gray-100');
+        priceInput.value = selected.dataset.price;
+    } else {
+        nameInput.value = '';
+        nameInput.readOnly = false;
+        nameInput.classList.remove('bg-gray-100');
+    }
+    calculateGrandTotal();
+}
+
+function calculateGrandTotal() {
+    let total = 0;
+    document.querySelectorAll('.damage-row').forEach(row => {
+        const p = parseFloat(row.querySelector('.dmg-price').value) || 0;
+        const q = parseInt(row.querySelector('.dmg-qty').value) || 0;
+        total += (p * q);
+    });
+    document.getElementById('grandTotalDisplay').textContent = '₱' + total.toLocaleString('en-PH', {minimumFractionDigits: 2});
+}
+
+function toggleLiabilityInfo(isFault) {
+    const liabSec = document.getElementById('liabilitySection');
+    if(isFault) {
+        liabSec.classList.remove('hidden');
+        liabSec.classList.add('flex');
+    } else {
+        liabSec.classList.add('hidden');
+        liabSec.classList.remove('flex');
+    }
 }
 
 // ─── Profile Search ───────────────────────────────────
