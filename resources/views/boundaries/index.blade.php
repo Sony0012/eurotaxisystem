@@ -1126,6 +1126,10 @@ function editBoundary(id) {
             // Critical for computation box
             const swappedAt = unitOption.getAttribute('data-swapped-at');
             document.getElementById('boundaryModal').setAttribute('data-current-swap', swappedAt || '');
+
+            // Set original target from unit rate for calculations
+            const unitRate = unitOption.getAttribute('data-rate');
+            document.getElementById('boundaryAmount').dataset.originalTarget = unitRate;
         }
 
         // Set Driver Display (guaranteed to fill required field even if inactive)
