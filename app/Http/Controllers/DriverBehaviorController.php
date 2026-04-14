@@ -328,31 +328,39 @@ class DriverBehaviorController extends Controller
         // Compute next payout Sunday
         $now = Carbon::now('Asia/Manila');
         
+        // Find the unit ID for staggering dual drivers
+        $unitId = $unit->id ?? 0;
+
         if ($is_dual) {
-            // Dual Driver: 2-month cycle. 
-            // We use fixed bi-monthly windows: Jan-Feb (Pay Mar), Mar-Apr (Pay May), May-Jun (Pay Jul), etc.
-            // Payout happens in ODD months (1, 3, 5, 7, 9, 11) on the 1st Sunday.
+            // Dual Driver: 2-month cycle staggered by Unit ID.
+            // Split dual drivers into 2 groups so they don't all pay on the same month.
+            // Group A (Odd Unit ID): Pays in ODD months (Jan, Mar, May, Jul, Sep, Nov)
+            // Group B (Even Unit ID): Pays in EVEN months (Feb, Apr, Jun, Aug, Oct, Dec)
+            
+            $isOddUnit = ($unitId % 2 !== 0);
             $currentMonth = $now->month;
-            if ($currentMonth % 2 === 0) {
-                // We are in an EVEN month (e.g., April) -> Payout is next month (May)
-                $targetMonth = $now->copy()->addMonth()->startOfMonth();
-            } else {
-                // We are in an ODD month (e.g., May)
-                // Check if 1st Sunday of THIS month has passed
+            
+            // Determine if THIS month is the payout month for this unit
+            $isPayoutMonth = ($isOddUnit && ($currentMonth % 2 !== 0)) || (!$isOddUnit && ($currentMonth % 2 === 0));
+            
+            if ($isPayoutMonth) {
+                // Check if the 1st Sunday of THIS month has already passed
                 $firstSunday = $now->copy()->startOfMonth();
                 while ($firstSunday->dayOfWeek !== Carbon::SUNDAY) { $firstSunday->addDay(); }
                 
                 if ($now->gt($firstSunday->endOfDay())) {
-                    // Already past this month's 1st Sunday -> Next payout is 2 months from now
+                    // Passed -> Next payout is in 2 months
                     $targetMonth = $now->copy()->addMonths(2)->startOfMonth();
                 } else {
-                    // Today is before or is the 1st Sunday of this ODD month 
+                    // Not passed -> Payout is THIS month
                     $targetMonth = $now->copy()->startOfMonth();
                 }
+            } else {
+                // Not the payout month -> Payout is NEXT month
+                $targetMonth = $now->copy()->addMonth()->startOfMonth();
             }
         } else {
-            // Solo Driver: Monthly cycle. 
-            // Payout is the 1st Sunday of the very next month (or this month if not yet passed).
+            // Solo Driver: Strictly 1 month cycle. Payout is every 1st Sunday.
             $firstSunday = $now->copy()->startOfMonth();
             while ($firstSunday->dayOfWeek !== Carbon::SUNDAY) { $firstSunday->addDay(); }
             
