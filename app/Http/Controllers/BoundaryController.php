@@ -292,9 +292,9 @@ class BoundaryController extends Controller
                             DB::table('driver_behavior')->insert([
                                 'unit_id'       => $unit_id,
                                 'driver_id'     => $driver_id,
-                                'incident_type' => 'vehicle_damage',
+                                'incident_type' => 'other',
                                 'severity'      => 'high',
-                                'description'   => 'Auto-logged: Driver returned unit with damage reported during boundary turnover.',
+                                'description'   => 'Auto-logged [Damage]: Driver returned unit with damage reported during boundary turnover.',
                                 'latitude'      => 0,
                                 'longitude'     => 0,
                                 'video_url'     => '',
@@ -335,11 +335,11 @@ class BoundaryController extends Controller
                             DB::table('driver_behavior')->insert([
                                 'unit_id'       => $unit_id,
                                 'driver_id'     => $driver_id,
-                                'incident_type' => 'vehicle_breakdown',
+                                'incident_type' => 'other',
                                 'severity'      => $needs_maintenance_half ? 'medium' : 'high',
                                 'description'   => $needs_maintenance_half
-                                    ? 'Auto-logged: Unit broke down mid-shift. Driver completed partial run (Half Boundary).'
-                                    : 'Auto-logged: Unit broke down immediately upon deployment. No boundary collected (No Boundary).',
+                                    ? 'Auto-logged [Breakdown]: Unit broke down mid-shift. Driver completed partial run (Half Boundary).'
+                                    : 'Auto-logged [Breakdown]: Unit broke down immediately upon deployment. No boundary collected (No Boundary).',
                                 'latitude'      => 0,
                                 'longitude'     => 0,
                                 'video_url'     => '',
