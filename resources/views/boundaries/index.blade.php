@@ -1365,22 +1365,19 @@ function updateShiftInfo(unitElement) {
         const diffMins = Math.floor((absDiff % (1000 * 60 * 60)) / (1000 * 60));
         
         if (isPast) {
-            // Only show "LATE RETURN" if the deadline lapsed within the last 24 hours.
-            // Anything older than that means the schedule is stale/hasn't been updated —
-            // not that the driver is literally returning late right now.
             const STALE_THRESHOLD_HRS = 24;
             if (diffHours < STALE_THRESHOLD_HRS) {
-                // Genuinely late for this shift
+                // Genuinely late for this shift (within last 24hrs)
                 shiftTimerLabel.innerHTML = `<span class="flex flex-col"><span class="text-red-600 font-black">LATE RETURN: ${diffHours}h ${diffMins}m Ago</span><span class="text-gray-400">Shifting Time: <strong>${absoluteTimeStr}</strong></span></span>`;
                 shiftInfoGroup.classList.add('border-red-200', 'bg-red-50');
-                shiftInfoGroup.classList.remove('border-green-200', 'bg-green-50');
+                shiftInfoGroup.classList.remove('border-green-200', 'bg-green-50', 'border-orange-200', 'bg-orange-50');
                 badgeContainer.innerHTML = '<span class="px-1.5 py-0.5 bg-red-100 text-red-700 text-[9px] font-bold rounded-full border border-red-300 uppercase tracking-tighter shadow-sm animate-pulse">NO INCENTIVE</span>';
             } else {
-                // Old/stale schedule — just record normally, use "Past 10:00 AM Cut-off" checkbox if needed
-                shiftTimerLabel.innerHTML = `<span class="flex flex-col"><span class="text-orange-600 font-black">Schedule Overdue</span><span class="text-gray-400">Last Deadline: <strong>${absoluteTimeStr}</strong> (${diffHours}h ago)</span><span class="text-orange-500 text-[9px]">Use checkbox below if late submission</span></span>`;
-                shiftInfoGroup.classList.add('border-orange-200', 'bg-orange-50');
-                shiftInfoGroup.classList.remove('border-red-200', 'bg-red-50', 'border-green-200', 'bg-green-50');
-                badgeContainer.innerHTML = '<span class="px-1.5 py-0.5 bg-orange-100 text-orange-700 text-[9px] font-bold rounded-full border border-orange-300 uppercase tracking-tighter shadow-sm">OVERDUE SCHEDULE</span>';
+                // Stale schedule — show neutral, no alarming labels
+                shiftTimerLabel.innerHTML = `<span class="flex flex-col"><span class="text-gray-600 font-bold">Shifting Time: <strong>${absoluteTimeStr}</strong></span></span>`;
+                shiftInfoGroup.classList.add('border-gray-200', 'bg-gray-50');
+                shiftInfoGroup.classList.remove('border-red-200', 'bg-red-50', 'border-green-200', 'bg-green-50', 'border-orange-200', 'bg-orange-50');
+                badgeContainer.innerHTML = '';
             }
         } else {
             shiftTimerLabel.innerHTML = `<span class="flex flex-col"><span class="text-green-600 font-bold">${diffHours}h ${diffMins}m remaining</span><span class="text-gray-400 mt-0.5">Shifting Time: <strong>${absoluteTimeStr}</strong></span></span>`;
