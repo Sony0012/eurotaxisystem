@@ -10,6 +10,7 @@ use App\Models\Boundary;
 use App\Models\Maintenance;
 use App\Models\FranchiseCase;
 use App\Models\Staff;
+use Illuminate\Support\Facades\DB;
 
 class ArchiveController extends Controller
 {
@@ -22,6 +23,14 @@ class ArchiveController extends Controller
         $archivedMaintenance = Maintenance::with('unit')->onlyTrashed()->get();
         $archivedFranchiseCases = FranchiseCase::onlyTrashed()->get();
         $archivedStaff = Staff::onlyTrashed()->get();
+        $archivedIncidents = \App\Models\DriverBehavior::onlyTrashed()
+            ->leftJoin('units as u', 'driver_behavior.unit_id', '=', 'u.id')
+            ->leftJoin('drivers as d', 'driver_behavior.driver_id', '=', 'd.id')
+            ->select(
+                'driver_behavior.*',
+                'u.plate_number',
+                DB::raw("TRIM(CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,''))) as driver_name")
+            )->get();
 
         return view('archive.index', compact(
             'archivedUnits',
@@ -30,7 +39,8 @@ class ArchiveController extends Controller
             'archivedBoundaries',
             'archivedMaintenance',
             'archivedFranchiseCases',
-            'archivedStaff'
+            'archivedStaff',
+            'archivedIncidents'
         ));
     }
 
@@ -70,6 +80,7 @@ class ArchiveController extends Controller
             'maintenance' => Maintenance::class,
             'franchise_case' => FranchiseCase::class,
             'staff' => Staff::class,
+            'incident' => \App\Models\DriverBehavior::class,
             default => null,
         };
     }

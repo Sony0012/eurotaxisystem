@@ -69,6 +69,10 @@ Route::get('/api/coding-units', [DashboardController::class, 'getCodingUnits'])-
 
     // ─── Protected Routes ──────────────────────────────────
 Route::middleware('auth')->group(function () {
+    // ─── NEW: Incident Management (High Priority Routes) ────────────────
+    Route::get('/api/incidents/{id}/details', [DriverBehaviorController::class, 'show'])->name('driver-behavior.show');
+    Route::match(['post', 'put'], '/api/incidents/{id}/update', [DriverBehaviorController::class, 'update'])->name('driver-behavior.update');
+    Route::match(['post', 'delete'], '/api/incidents/{id}/archive', [DriverBehaviorController::class, 'destroy'])->name('driver-behavior.archive');
 
     // Dashboard
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
@@ -96,11 +100,13 @@ Route::middleware('auth')->group(function () {
     Route::resource('coding-rules', CodingController::class)->except(['show', 'edit']);
     Route::post('/coding/update-day', [CodingController::class, 'updateCodingDay'])->name('coding.update-day');
 
-    // Driver Behavior Resource Routes
-    Route::resource('driver-behavior', DriverBehaviorController::class)->except(['edit','update','show']);
+    // Driver Behavior Dashboard & Incidents
     Route::get('/driver-behavior/statistics', [DriverBehaviorController::class, 'getStatistics'])->name('driver-behavior.statistics');
     Route::get('/driver-behavior/driver/{id}', [DriverBehaviorController::class, 'getDriverPerformance'])->name('driver-behavior.driver-performance');
     Route::post('/driver-behavior/release-incentive', [DriverBehaviorController::class, 'releaseIncentive'])->name('driver-behavior.release-incentive');
+    
+    Route::get('/driver-behavior', [DriverBehaviorController::class, 'index'])->name('driver-behavior.index');
+    Route::post('/driver-behavior', [DriverBehaviorController::class, 'store'])->name('driver-behavior.store');
 
     // Driver Management Resource Routes
     Route::resource('driver-management', DriverManagementController::class);

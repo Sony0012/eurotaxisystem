@@ -36,26 +36,13 @@ class DriverBehaviorController extends Controller
         $limit           = 15;
         $offset          = ($page - 1) * $limit;
 
-        // ── Unified incident feed: driver_behavior + coding_violations ──
-        $query = DB::table('driver_behavior as db')
-            ->leftJoin('units as u', 'db.unit_id', '=', 'u.id')
-            ->leftJoin('drivers as d', 'db.driver_id', '=', 'd.id')
+        // ── Unified incident feed: driver_behavior with eager loading ──
+        $query = \App\Models\DriverBehavior::query()
+            ->with(['involvedParties', 'partsEstimates.part'])
+            ->leftJoin('units as u', 'driver_behavior.unit_id', '=', 'u.id')
+            ->leftJoin('drivers as d', 'driver_behavior.driver_id', '=', 'd.id')
             ->select(
-                'db.id',
-                'db.incident_type',
-                'db.severity',
-                'db.description',
-                'db.timestamp',
-                'db.incident_date',
-                'db.third_party_name',
-                'db.third_party_vehicle',
-                'db.own_unit_damage_cost',
-                'db.third_party_damage_cost',
-                'db.is_driver_fault',
-                'db.total_charge_to_driver',
-                'db.charge_status',
-                'db.video_url',
-                'db.created_at',
+                'driver_behavior.*',
                 'u.plate_number',
                 DB::raw("TRIM(CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,''))) as driver_name"),
                 DB::raw("'manual' as source")
@@ -65,28 +52,29 @@ class DriverBehaviorController extends Controller
             $query->where(function ($q) use ($search) {
                 $q->where(DB::raw("TRIM(CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')))"), 'like', "%{$search}%")
                   ->orWhere('u.plate_number', 'like', "%{$search}%")
-                  ->orWhere('db.incident_type', 'like', "%{$search}%")
-                  ->orWhere('db.description', 'like', "%{$search}%");
+                  ->orWhere('driver_behavior.incident_type', 'like', "%{$search}%")
+                  ->orWhere('driver_behavior.description', 'like', "%{$search}%");
             });
         }
 
         if (!empty($type_filter)) {
-            $query->where('db.incident_type', $type_filter);
+            $query->where('driver_behavior.incident_type', $type_filter);
         }
 
         if (!empty($severity_filter)) {
-            $query->where('db.severity', $severity_filter);
+            $query->where('driver_behavior.severity', $severity_filter);
         }
 
         if (!empty($date_from)) {
-            $query->whereDate('db.timestamp', '>=', $date_from);
+            $query->whereDate('driver_behavior.timestamp', '>=', $date_from);
         }
         if (!empty($date_to)) {
-            $query->whereDate('db.timestamp', '<=', $date_to);
+            $query->whereDate('driver_behavior.timestamp', '<=', $date_to);
         }
 
         $total     = $query->count();
-        $incidents = $query->orderByDesc('db.timestamp')->offset($offset)->limit($limit)->get();
+        $incidents = $query->orderByDesc('driver_behavior.timestamp')->offset($offset)->limit($limit)->get();
+
 
         $pagination = [
             'page'        => $page,
@@ -108,14 +96,22 @@ class DriverBehaviorController extends Controller
         $incentive_summary = $this->getIncentiveSummary();
 
         // ── Dropdowns ─────────────────────────────────────────────────
-        $drivers = DB::table('drivers')->whereNull('deleted_at')
-            ->select('id', DB::raw("TRIM(CONCAT(COALESCE(first_name,''), ' ', COALESCE(last_name,''))) as full_name"))
-            ->orderBy('last_name')->get();
+        $drivers = DB::table('drivers as d')
+            ->leftJoin('units as u', function($j) {
+                $j->on('d.id', '=', 'u.driver_id')->orOn('d.id', '=', 'u.secondary_driver_id');
+            })
+            ->whereNull('d.deleted_at')
+            ->select('d.id', 
+                DB::raw("TRIM(CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,''))) as full_name"),
+                'u.plate_number as current_plate'
+            )
+            ->orderBy('d.last_name')->get();
 
         $units = DB::table('units')->whereNull('deleted_at')->where('status', '!=', 'retired')
-            ->select('id', 'plate_number')->orderBy('plate_number')->get();
+            ->select('id', 'plate_number', 'driver_id', 'secondary_driver_id')
+            ->orderBy('plate_number')->get();
 
-        $spare_parts = DB::table('spare_parts')->orderBy('name')->get();
+        $spare_parts = \App\Models\SparePart::orderBy('name')->get();
 
         return view('driver-behavior.index', compact(
             'incidents', 'search', 'type_filter', 'severity_filter',
@@ -145,107 +141,100 @@ class DriverBehaviorController extends Controller
             'latitude'               => 'nullable|numeric',
             'longitude'              => 'nullable|numeric',
             'video_url'              => 'nullable|string',
-            'involved_parties'       => 'nullable|array',
-            'damages'                => 'nullable|array',
         ]);
+
+        // Validate dynamic arrays without strict structure since they can be totally empty
+        $parties = $request->input('parties', []);
+        $parts = $request->input('parts', []);
+        $cause = $request->input('cause_of_incident');
 
         $isFault = (bool)($data['is_driver_fault'] ?? false);
         $isAccident = in_array($data['incident_type'], ['Vehicle Damage', 'Accident']);
 
-        // Auto-compute total charge if not manually specified
-        if ($isFault && $isAccident) {
-            $data['total_charge_to_driver'] = ($data['own_unit_damage_cost'] ?? 0)
-                + ($data['third_party_damage_cost'] ?? 0);
+        // Auto-compute damages from parts list and other costs
+        $computedOwnUnitDamage = 0;
+        $totalCharge = 0;
+        
+        foreach ($parts as $partData) {
+            $qty = (int)($partData['quantity'] ?? 0);
+            $price = (float)($partData['unit_price'] ?? 0);
+            $isCharged = (bool)($partData['is_charged_to_driver'] ?? false);
+            
+            $itemTotal = ($qty * $price);
+            $computedOwnUnitDamage += $itemTotal;
+            
+            if ($isCharged) {
+                $totalCharge += $itemTotal;
+            }
         }
 
-        $incidentId = DB::table('driver_behavior')->insertGetId([
+        // If parts were uploaded, it overrides the manual own_unit damage
+        if (count($parts) > 0) {
+            $data['own_unit_damage_cost'] = $computedOwnUnitDamage;
+        }
+
+        // Add third party damage to total charge if driver is at fault
+        if ($isFault && $isAccident) {
+            $totalCharge += ($data['third_party_damage_cost'] ?? 0);
+        }
+        
+        $data['total_charge_to_driver'] = $totalCharge;
+
+        // 1. Create main behavior record using Eloquent
+        $behavior = \App\Models\DriverBehavior::create([
             'unit_id'                 => $data['unit_id'],
             'driver_id'               => $data['driver_id'],
             'incident_type'           => $data['incident_type'],
+            'cause_of_incident'       => $cause,
             'severity'                => $data['severity'],
             'description'             => $data['description'],
-            'incident_date'           => $data['incident_date'] ?? now()->timezone('Asia/Manila')->toDateString(),
-            'third_party_name'        => $data['third_party_name'] ?? null,
-            'third_party_vehicle'     => $data['third_party_vehicle'] ?? null,
+            'third_party_name'        => collect($parties)->pluck('name')->filter()->implode(', ') ?: null, // Keep legacy synced
+            'third_party_vehicle'     => collect($parties)->pluck('vehicle_type')->filter()->implode(', ') ?: null, // Keep legacy synced
             'own_unit_damage_cost'    => $data['own_unit_damage_cost'] ?? 0,
             'third_party_damage_cost' => $data['third_party_damage_cost'] ?? 0,
             'is_driver_fault'         => $isFault,
-            'total_charge_to_driver'  => $data['total_charge_to_driver'] ?? 0,
-            'charge_status'           => ($data['total_charge_to_driver'] ?? 0) > 0 ? 'pending' : 'none',
+            'total_charge_to_driver'  => $totalCharge,
+            'total_paid'              => 0,
+            'remaining_balance'       => $totalCharge,
+            'charge_status'           => $totalCharge > 0 ? 'pending' : 'none',
             'latitude'                => $data['latitude'] ?? 0,
             'longitude'               => $data['longitude'] ?? 0,
             'video_url'               => $data['video_url'] ?? '',
             'timestamp'               => now()->timezone('Asia/Manila'),
-            'created_at'              => now(),
-            'updated_at'              => now(),
+            'incident_date'           => $data['incident_date'] ?? now()->timezone('Asia/Manila')->toDateString(),
         ]);
 
-        $grandTotalDamageCost = 0;
-
-        // 1. Process Advanced Involved Parties
-        if (!empty($data['involved_parties']) && is_array($data['involved_parties'])) {
-            foreach ($data['involved_parties'] as $party) {
-                if (empty($party['name']) && empty($party['plate_number'])) continue;
-                DB::table('incident_involved_parties')->insert([
-                    'incident_id'  => $incidentId,
-                    'name'         => $party['name'] ?? null,
-                    'vehicle_type' => $party['vehicle_type'] ?? null,
-                    'plate_number' => $party['plate_number'] ?? null,
-                    'contact_info' => $party['contact_info'] ?? null,
-                    'created_at'   => now(),
-                    'updated_at'   => now(),
+        // 2. Insert dynamic Involved Parties
+        foreach ($parties as $p) {
+            if (!empty($p['name']) || !empty($p['plate_number'])) {
+                \App\Models\IncidentInvolvedParty::create([
+                    'driver_behavior_id' => $behavior->id,
+                    'name'               => $p['name'] ?? null,
+                    'vehicle_type'       => $p['vehicle_type'] ?? null,
+                    'plate_number'       => $p['plate_number'] ?? null,
                 ]);
             }
         }
 
-        // 2. Process Detailed Damages Checklist
-        if (!empty($data['damages']) && is_array($data['damages'])) {
-            foreach ($data['damages'] as $dmg) {
-                if (empty($dmg['part_name']) && empty($dmg['spare_part_id'])) continue;
-                
-                $unitPrice = floatval($dmg['unit_price'] ?? 0);
-                $qty = intval($dmg['qty'] ?? 1);
-                $totalCost = $unitPrice * $qty;
-                $grandTotalDamageCost += $totalCost;
-
-                DB::table('incident_damages')->insert([
-                    'incident_id'   => $incidentId,
-                    'spare_part_id' => $dmg['spare_part_id'] ?? null,
-                    'part_name'     => $dmg['part_name'] ?? 'Unknown Part',
-                    'unit_price'    => $unitPrice,
-                    'qty'           => $qty,
-                    'total_cost'    => $totalCost,
-                    'type'          => $dmg['type'] ?? 'own_unit',
-                    'created_at'    => now(),
-                    'updated_at'    => now(),
+        // 3. Insert dynamic Parts Estimates
+        foreach ($parts as $partData) {
+            $qty = (int)($partData['quantity'] ?? 0);
+            $price = (float)($partData['unit_price'] ?? 0);
+            $isCharged = (bool)($partData['is_charged_to_driver'] ?? false);
+            
+            if ($qty > 0 && $price >= 0) {
+                \App\Models\IncidentPartsEstimate::create([
+                    'driver_behavior_id' => $behavior->id,
+                    'spare_part_id'      => !empty($partData['spare_part_id']) ? $partData['spare_part_id'] : null,
+                    'custom_part_name'   => $partData['custom_part_name'] ?? null,
+                    'quantity'           => $qty,
+                    'unit_price'         => $price,
+                    'total_price'        => $qty * $price,
+                    'is_charged_to_driver' => $isCharged,
                 ]);
             }
         }
 
-        // 3. Fallback to basic cost if no detailed parts were entered but fault was checked
-        if ($grandTotalDamageCost == 0 && $isFault) {
-            $grandTotalDamageCost = ($data['own_unit_damage_cost'] ?? 0) + ($data['third_party_damage_cost'] ?? 0);
-        }
-
-        // 4. Create Driver Debt if at fault
-        if ($isFault && $grandTotalDamageCost > 0) {
-            DB::table('driver_behavior')->where('id', $incidentId)->update([
-                'total_charge_to_driver' => $grandTotalDamageCost,
-                'charge_status' => 'pending'
-            ]);
-
-            DB::table('driver_debts')->insert([
-                'driver_id'    => $data['driver_id'],
-                'incident_id'  => $incidentId,
-                'total_amount' => $grandTotalDamageCost,
-                'paid_amount'  => 0,
-                'balance'      => $grandTotalDamageCost,
-                'status'       => 'pending',
-                'created_by'   => auth()->id() ?? null,
-                'created_at'   => now(),
-                'updated_at'   => now(),
-            ]);
-        }
 
         // If driver at fault → void incentive for any boundary on incident date
         if ($isFault && !empty($data['incident_date'])) {
@@ -279,11 +268,91 @@ class DriverBehaviorController extends Controller
             ->with('success', 'Incident recorded successfully.');
     }
 
-    // ─── DELETE ─────────────────────────────────────────────────────────
+    // ─── SHOW: Get Incident Details (JSON) ──────────────────────────────
+    public function show($id)
+    {
+        try {
+            $incident = \App\Models\DriverBehavior::with(['driver', 'unit', 'involvedParties', 'partsEstimates'])
+                ->findOrFail($id);
+            
+            // Map for JS compatibility
+            $incident->driver_name  = trim(($incident->driver->first_name ?? '') . ' ' . ($incident->driver->last_name ?? ''));
+            $incident->plate_number = $incident->unit->plate_number ?? 'N/A';
+            
+            return response()->json($incident);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Incident not found'], 404);
+        }
+    }
+
+    // ─── UPDATE: Update Incident ────────────────────────────────────────
+    public function update(Request $request, $id)
+    {
+        $incident = \App\Models\DriverBehavior::findOrFail($id);
+        
+        $data = $request->validate([
+            'incident_type'          => 'required|string',
+            'severity'               => 'required|string',
+            'description'            => 'required|string',
+            'incident_date'          => 'nullable|date',
+            'is_driver_fault'        => 'nullable|boolean',
+            'total_charge_to_driver' => 'nullable|numeric|min:0',
+        ]);
+
+        $prevFault = $incident->is_driver_fault;
+        $prevDate  = $incident->incident_date;
+
+        $isFault = (bool)($data['is_driver_fault'] ?? false);
+
+        $incident->update([
+            'incident_type'          => $data['incident_type'],
+            'severity'               => $data['severity'],
+            'description'            => $data['description'],
+            'is_driver_fault'        => $isFault,
+            'total_charge_to_driver' => $data['total_charge_to_driver'] ?? 0,
+            'remaining_balance'      => $data['total_charge_to_driver'] ?? 0, // Reset for simplicity in this edit flow
+            'incident_date'          => $data['incident_date'] ?? $incident->incident_date,
+        ]);
+
+        // Logic check: If fault changed or date changed, update boundaries
+        if ($isFault != $prevFault || $incident->incident_date != $prevDate) {
+            // Restore previous date incentive if it was fault and now not
+            if ($prevFault) {
+                DB::table('boundaries')
+                    ->where('driver_id', $incident->driver_id)
+                    ->whereDate('date', $prevDate)
+                    ->update(['has_incentive' => true, 'counted_for_incentive' => true]);
+            }
+            
+            // Void new date if it's now fault
+            if ($isFault) {
+                DB::table('boundaries')
+                    ->where('driver_id', $incident->driver_id)
+                    ->whereDate('date', $incident->incident_date)
+                    ->update(['has_incentive' => false, 'counted_for_incentive' => false]);
+            }
+        }
+
+        if ($request->ajax()) {
+            return response()->json(['success' => true, 'message' => 'Incident updated successfully.']);
+        }
+
+        return redirect()->route('driver-behavior.index', ['tab' => 'incidents'])
+            ->with('success', 'Incident updated successfully.');
+    }
+
+    // ─── DELETE (SOFT DELETE TO ARCHIVE) ───────────────────────────────
     public function destroy($id)
     {
-        DB::table('driver_behavior')->where('id', $id)->delete();
-        return redirect()->route('driver-behavior.index')->with('success', 'Incident deleted.');
+        $behavior = \App\Models\DriverBehavior::findOrFail($id);
+        $behavior->delete();
+        
+        if (request()->ajax()) {
+            return response()->json(['success' => true, 'message' => 'Incident moved to Archive.']);
+        }
+        
+        return redirect()->route('driver-behavior.index', ['tab' => 'incidents'])
+            ->with('success', 'Incident moved to Archive.');
     }
 
     // ─── RELEASE INCENTIVE ───────────────────────────────────────────────
@@ -532,6 +601,11 @@ class DriverBehaviorController extends Controller
                 ->whereNull('incentive_released_at')
                 ->count();
 
+            $total_debt = DB::table('driver_behavior')
+                ->where('driver_id', $d->id)
+                ->where('charge_status', 'pending')
+                ->sum('remaining_balance');
+
             $boundaries = DB::table('boundaries')
                 ->where('driver_id', $d->id)
                 ->whereNull('incentive_released_at')
@@ -557,6 +631,7 @@ class DriverBehaviorController extends Controller
                 'boundaries'  => $boundaries,
                 'shortages'   => $shortages,
                 'charges'     => $charges,
+                'total_debt'  => $total_debt,
                 'incentive'   => $incentive,
             ];
         }

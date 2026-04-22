@@ -87,7 +87,8 @@ class BoundaryController extends Controller
                    COALESCE(ua.plate_number, '') as current_plate,
                    (SELECT COUNT(*) FROM units WHERE (driver_id = d.id OR secondary_driver_id = d.id) AND deleted_at IS NULL) as assigned_units_count,
                    (SELECT GREATEST(0, COALESCE(SUM(shortage),0) - COALESCE(SUM(excess),0)) FROM boundaries WHERE driver_id = d.id AND deleted_at IS NULL) as net_shortage,
-                   (SELECT COALESCE(SUM(balance),0) FROM driver_debts WHERE driver_id = d.id AND status = 'pending') as active_debt_balance
+                   (SELECT COUNT(*) FROM driver_behavior WHERE driver_id = d.id AND is_driver_fault = 1 AND charge_status = 'pending' AND remaining_balance > 0) as has_accident_debt,
+                   (SELECT COALESCE(SUM(remaining_balance), 0) FROM driver_behavior WHERE driver_id = d.id AND is_driver_fault = 1 AND charge_status = 'pending' AND remaining_balance > 0) as total_accident_debt
             FROM drivers d 
             LEFT JOIN units ua ON (d.id = ua.driver_id OR d.id = ua.secondary_driver_id) AND ua.deleted_at IS NULL
             WHERE d.deleted_at IS NULL
@@ -214,7 +215,6 @@ class BoundaryController extends Controller
             $date            = $request->input('date', date('Y-m-d'));
             $boundary_amount = (float) $request->input('boundary_amount', 0);
             $actual_boundary = (float) $request->input('actual_boundary', 0);
-            $debt_payment_amount = (float) $request->input('debt_payment_amount', 0);
             $notes           = $request->input('notes', '');
             $vehicle_damaged = $request->has('vehicle_damaged');
             $needs_maintenance_half = $request->has('needs_maintenance_half');
@@ -397,52 +397,16 @@ class BoundaryController extends Controller
                         $unit->update($update_data);
                     }
 
-                    // --- AUTOMATIC DEBT DEDUCTION (FIFO) ---
-                    $debt_balance_snapshot = 0;
-                    if ($debt_payment_amount > 0) {
-                        $remaining_payment = $debt_payment_amount;
-                        $active_debts = DB::table('driver_debts')
-                            ->where('driver_id', $driver_id)
-                            ->where('status', 'pending')
-                            ->orderBy('created_at', 'asc')
-                            ->get();
+                    $damage_payment = (float) $request->input('damage_payment', 0);
 
-                        foreach ($active_debts as $debt) {
-                            if ($remaining_payment <= 0) break;
-
-                            $pay_this_debt = min($remaining_payment, $debt->balance);
-                            $new_balance = $debt->balance - $pay_this_debt;
-                            $new_paid = $debt->paid_amount + $pay_this_debt;
-                            
-                            $update_debt = [
-                                'paid_amount' => $new_paid,
-                                'balance' => $new_balance,
-                            ];
-
-                            if ($new_balance <= 0) {
-                                $update_debt['status'] = 'paid';
-                            }
-
-                            DB::table('driver_debts')->where('id', $debt->id)->update($update_debt);
-                            $remaining_payment -= $pay_this_debt;
-                        }
-                    }
-
-                    // Snapshot remaining total balance
-                    $debt_balance_snapshot = DB::table('driver_debts')
-                        ->where('driver_id', $driver_id)
-                        ->where('status', 'pending')
-                        ->sum('balance');
-
-                    Boundary::create([
+                    $boundary = Boundary::create([
                         'unit_id'         => $unit_id,
                         'driver_id'       => $driver_id,
                         'expected_driver_id' => $expected_driver_id,
                         'date'            => $date,
                         'boundary_amount' => $boundary_amount,
                         'actual_boundary' => $actual_boundary,
-                        'debt_payment_amount' => $debt_payment_amount,
-                        'debt_balance_snapshot' => $debt_balance_snapshot,
+                        'damage_payment'  => $damage_payment,
                         'shortage'        => $shortage,
                         'excess'          => $excess,
                         'status'          => $status,
@@ -454,8 +418,37 @@ class BoundaryController extends Controller
                         'created_by'      => Auth::id(),
                     ]);
 
+                    // --- AUTOMATIC DEBT DEDUCTION LOGIC ---
+                    if ($damage_payment > 0) {
+                        $remaining_to_pay = $damage_payment;
+                        
+                        // Get all at-fault pending charges for this driver, oldest first
+                        $pending_debts = \App\Models\DriverBehavior::where('driver_id', $driver_id)
+                            ->where('is_driver_fault', 1)
+                            ->where('charge_status', 'pending')
+                            ->where('remaining_balance', '>', 0)
+                            ->orderBy('timestamp', 'asc')
+                            ->get();
+                            
+                        foreach ($pending_debts as $debt) {
+                            if ($remaining_to_pay <= 0) break;
+                            
+                            $to_deduct = min($remaining_to_pay, $debt->remaining_balance);
+                            $debt->total_paid += $to_deduct;
+                            $debt->remaining_balance -= $to_deduct;
+                            
+                            if ($debt->remaining_balance <= 0) {
+                                $debt->charge_status = 'paid';
+                            }
+                            
+                            $debt->save();
+                            $remaining_to_pay -= $to_deduct;
+                        }
+                    }
+
                     // --- AUTOMATIC VIOLATION LOGGING TO CENTRAL FEED ---
                     $now_ts = now();
+
                     if ($past_cutoff) {
                         DB::table('driver_behavior')->insert([
                             'unit_id'       => $unit_id,
@@ -503,6 +496,7 @@ class BoundaryController extends Controller
             $actual_boundary = (float) $request->input('actual_boundary', 0);
             $notes           = $request->input('notes', '');
             
+            $is_absent = $request->has('is_absent');
             $past_cutoff = $request->has('past_cutoff');
             $vehicle_damaged = $request->has('vehicle_damaged');
             $needs_maintenance_half = $request->has('needs_maintenance_half');
@@ -512,56 +506,58 @@ class BoundaryController extends Controller
             $is_valid_amount = $needs_maintenance_zero ? ($boundary_amount >= 0) : ($boundary_amount > 0);
             
             if ($id > 0 && $is_valid_amount) {
+                $boundary = Boundary::find($id);
+                if (!$boundary) {
+                    return back()->with('error', 'Boundary record not found');
+                }
+
                 // Strip existing system-generated tags from notes to prevent duplicates on edit
                 $clean_notes = preg_replace('/\[Automatic Violation:.*?\]/i', '', $notes);
                 $clean_notes = preg_replace('/\[Unit Sent to Maintenance.*?\]/i', '', $clean_notes);
                 $clean_notes = trim($clean_notes);
-                $boundary = Boundary::find($id);
-                if ($boundary) {
-                    $is_absent = $request->has('is_absent');
-                    $has_incentive = true;
 
-                    if ($is_absent) {
-                        $has_incentive = false;
-                        $clean_notes .= " [Automatic Violation: Absent / No Show]";
-                    }
-                    if ($past_cutoff) {
-                        $has_incentive = false;
-                        $clean_notes .= " [Automatic Violation: Late Boundary (Past 10:00 AM)]";
-                    }
-                    if ($vehicle_damaged) {
-                        $has_incentive = false;
-                        $clean_notes .= " [Automatic Violation: Vehicle Damaged]";
-                    }
-                    if ($needs_maintenance_half) {
-                        $clean_notes .= " [Unit Sent to Maintenance - Shift Schedule Paused (Half Boundary)]";
-                    }
-                    if ($needs_maintenance_zero) {
-                        $clean_notes .= " [Unit Sent to Maintenance - Shift Schedule Paused (No Boundary)]";
-                    }
-                    
-                    $clean_notes = trim($clean_notes);
+                $has_incentive = true;
 
-                    $shortage = max(0, $boundary_amount - $actual_boundary);
-                    $excess   = max(0, $actual_boundary - $boundary_amount);
-                    $status   = $shortage > 0 ? 'shortage' : ($excess > 0 ? 'excess' : 'paid');
-
-                    // Retain false if previously set to false by other automatic checks like past 10AM
-                    if (!$boundary->has_incentive) {
-                        $has_incentive = false;
-                    }
-
-                    $boundary->update([
-                        'boundary_amount' => $boundary_amount,
-                        'actual_boundary' => $actual_boundary,
-                        'shortage'        => $shortage,
-                        'excess'          => $excess,
-                        'status'          => $status,
-                        'notes'           => $clean_notes,
-                        'has_incentive'   => $has_incentive,
-                        'vehicle_damaged' => $vehicle_damaged ? 1 : 0,
-                    ]);
+                if ($is_absent) {
+                    $has_incentive = false;
+                    $clean_notes .= " [Automatic Violation: Absent / No Show]";
                 }
+                if ($past_cutoff) {
+                    $has_incentive = false;
+                    $clean_notes .= " [Automatic Violation: Late Boundary (Past 10:00 AM)]";
+                }
+                if ($vehicle_damaged) {
+                    $has_incentive = false;
+                    $clean_notes .= " [Automatic Violation: Vehicle Damaged]";
+                }
+                if ($needs_maintenance_half) {
+                    $clean_notes .= " [Unit Sent to Maintenance - Shift Schedule Paused (Half Boundary)]";
+                }
+                if ($needs_maintenance_zero) {
+                    $clean_notes .= " [Unit Sent to Maintenance - Shift Schedule Paused (No Boundary)]";
+                }
+                
+                $clean_notes = trim($clean_notes);
+
+                $shortage = max(0, $boundary_amount - $actual_boundary);
+                $excess   = max(0, $actual_boundary - $boundary_amount);
+                $status   = $shortage > 0 ? 'shortage' : ($excess > 0 ? 'excess' : 'paid');
+
+                if (!$boundary->has_incentive) {
+                    $has_incentive = false; // Kept late status from original stamp
+                }
+
+                $boundary->update([
+                    'boundary_amount' => $boundary_amount,
+                    'actual_boundary' => $actual_boundary,
+                    'shortage'        => $shortage,
+                    'excess'          => $excess,
+                    'status'          => $status,
+                    'notes'           => $clean_notes,
+                    'has_incentive'   => $has_incentive,
+                    'vehicle_damaged' => $vehicle_damaged ? 1 : 0,
+                ]);
+
                 return redirect()->route('boundaries.index')->with('success', 'Boundary record updated successfully');
             } else {
                 return back()->with('error', 'Please fill in all required fields (Target amount must be valid)');

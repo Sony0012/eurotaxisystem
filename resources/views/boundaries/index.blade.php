@@ -80,6 +80,7 @@
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Driver</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Boundary</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actual</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hulog (Debt)</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                 </tr>
@@ -87,7 +88,7 @@
             <tbody class="bg-white divide-y divide-gray-200">
                 @if (empty($boundariesArray))
                     <tr>
-                        <td colspan="7" class="px-6 py-12 text-center text-gray-500">
+                        <td colspan="8" class="px-6 py-12 text-center text-gray-500">
                             <i data-lucide="dollar-sign" class="w-12 h-12 mx-auto mb-4 text-gray-300"></i>
                             <p>No boundary records found</p>
                         </td>
@@ -131,8 +132,18 @@
                                     @endif
                                 </div>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-bold">
                                 {{ formatCurrency($boundary['actual_boundary'] ?? 0) }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                @if(($boundary['damage_payment'] ?? 0) > 0)
+                                    <div class="text-sm font-black text-red-600">
+                                        {{ formatCurrency($boundary['damage_payment']) }}
+                                    </div>
+                                    <span class="text-[9px] font-bold text-red-400 uppercase tracking-tighter">Debt Payment</span>
+                                @else
+                                    <span class="text-gray-300 text-xs">—</span>
+                                @endif
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 @php
@@ -316,7 +327,8 @@
                                          data-unit="{{ $driver['current_unit'] }}"
                                          data-plate="{{ $driver['current_plate'] }}"
                                          data-shortage="{{ $driver['net_shortage'] ?? 0 }}"
-                                         data-debt="{{ $driver['active_debt_balance'] ?? 0 }}">
+                                         data-has-accident-debt="{{ ($driver['has_accident_debt'] ?? 0) > 0 ? 'true' : 'false' }}"
+                                         data-accident-debt-amount="{{ $driver['total_accident_debt'] ?? 0 }}">
                                         <div class="font-medium text-xs">{{ $driver['name'] }}</div>
                                         <div class="text-xs text-gray-500">{{ $driver['current_plate'] }}</div>
                                     </div>
@@ -399,27 +411,28 @@
                     </div>
                 </div>
                 
-                {{-- Driver Debt Payment --}}
-                <div id="debtPaymentGroup" class="hidden mt-2 p-3 bg-red-50 border border-red-200 rounded-lg">
-                    <div class="flex items-start justify-between mb-2">
-                        <div>
-                            <p class="text-[10px] uppercase font-black tracking-widest text-red-600">Active Debt / Liability</p>
-                            <p class="text-xs text-red-500 font-medium tracking-tight">Driver has unfulfilled debt of <strong id="debtBalanceDisplay">₱0.00</strong>.</p>
+                <div id="damagePaymentContainer" class="hidden mt-3 p-3 bg-red-50 border border-red-200 rounded-xl space-y-2">
+                    <div class="flex items-center gap-2">
+                        <div class="p-1.5 bg-red-100 rounded-lg">
+                            <i data-lucide="alert-circle" class="w-4 h-4 text-red-600"></i>
                         </div>
-                        <i data-lucide="alert-octagon" class="text-red-400 w-5 h-5"></i>
-                    </div>
-                    <label class="block text-xs font-bold text-gray-700 mb-1">Deduct Debt Installment</label>
-                    <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <span class="text-red-600 font-bold text-xs">₱</span>
+                        <div class="flex flex-col">
+                            <span class="text-[10px] font-black text-red-400 uppercase tracking-widest">Pending Accident Debt</span>
+                            <span id="accidentDebtBalanceLabel" class="text-sm font-black text-red-700 leading-tight">₱0.00</span>
                         </div>
-                        <input type="number" name="debt_payment_amount" id="debtPaymentAmount" step="0.01" min="0" value="0.00"
-                               class="w-full pl-7 px-2 py-1.5 border-2 border-red-200 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 font-bold text-red-800"
-                               placeholder="0.00">
                     </div>
-                    <input type="hidden" id="rawDebtBalance" value="0">
+
+                    <div>
+                        <label class="block text-[10px] font-black text-red-700 uppercase mb-1.5">Damage Payment (Hulog)</label>
+                        <div class="relative">
+                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-red-400 font-bold font-mono">₱</span>
+                            <input type="number" name="damage_payment" id="damage_payment" step="0.01" min="0" value="0"
+                                class="w-full pl-7 pr-3 py-2 bg-white border border-red-200 rounded-lg text-sm font-black text-red-900 focus:ring-2 focus:ring-red-500 focus:outline-none" placeholder="0.00">
+                        </div>
+                        <p class="text-[9px] text-red-500 font-bold mt-1 uppercase tracking-tighter italic leading-tight">* This amount will be deducted from the oldest pending accident debt.</p>
+                    </div>
                 </div>
-                
+
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Notes</label>
                     <textarea name="notes" id="notes" rows="2" class="w-full px-2 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"></textarea>
@@ -548,20 +561,16 @@
                 </div>
             </div>
 
+            <div id="vb_damagePaymentRow" class="mb-5 p-4 rounded-xl border bg-red-50 border-red-200 hidden">
+                <p class="text-[10px] font-black text-red-600 uppercase tracking-widest mb-1">Damage Payment (Hulog)</p>
+                <p id="vb_damagePayment" class="text-lg font-black text-red-700"></p>
+                <p class="text-[9px] text-red-500 font-bold uppercase tracking-tighter italic">* Deducted from accident debt</p>
+            </div>
+
+
             <div id="vb_differenceRow" class="mb-5 p-4 rounded-xl border hidden">
                 <p class="text-[10px] font-black uppercase tracking-widest mb-1" id="vb_diffLabel"></p>
                 <p id="vb_diffAmount" class="text-lg font-black"></p>
-            </div>
-
-            <div id="vb_debtRow" class="mb-5 p-4 rounded-xl border bg-red-50 border-red-200 hidden">
-                <p class="text-[10px] font-black text-red-500 uppercase tracking-widest mb-1">Debt Installment Paid</p>
-                <div class="flex justify-between items-center">
-                    <p id="vb_debtPaid" class="text-lg font-black text-red-700"></p>
-                    <div class="text-right">
-                        <p class="text-[9px] font-bold text-red-400 uppercase tracking-wider">Remaining Balance</p>
-                        <p id="vb_debtRemaining" class="text-xs font-bold text-red-600"></p>
-                    </div>
-                </div>
             </div>
 
             {{-- Exception Details (parsed from system flags) --}}
@@ -625,6 +634,16 @@ function openViewBoundary(id) {
     document.getElementById('vb_actualBoundary').innerText = '₱' + parseFloat(r.actual_boundary || 0).toLocaleString('en-PH', {minimumFractionDigits: 2});
     document.getElementById('vb_rateLabel').innerText = r.rate_label || '';
 
+    // Damage Payment (Hulog)
+    const damageRow = document.getElementById('vb_damagePaymentRow');
+    const damagePayment = parseFloat(r.damage_payment || 0);
+    if (damagePayment > 0) {
+        damageRow.classList.remove('hidden');
+        document.getElementById('vb_damagePayment').innerText = '₱' + damagePayment.toLocaleString('en-PH', {minimumFractionDigits: 2});
+    } else {
+        damageRow.classList.add('hidden');
+    }
+
     // Shortage / Excess
     const diffRow = document.getElementById('vb_differenceRow');
     const shortage = parseFloat(r.shortage || 0);
@@ -643,17 +662,6 @@ function openViewBoundary(id) {
         document.getElementById('vb_diffAmount').innerText = '₱' + excess.toLocaleString('en-PH', {minimumFractionDigits: 2});
     } else {
         diffRow.className = 'mb-5 p-4 rounded-xl border hidden';
-    }
-
-    // Debt Installment
-    const debtRow = document.getElementById('vb_debtRow');
-    const debtPaid = parseFloat(r.debt_payment_amount || 0);
-    if (debtPaid > 0) {
-        debtRow.classList.remove('hidden');
-        document.getElementById('vb_debtPaid').innerText = '₱' + debtPaid.toLocaleString('en-PH', {minimumFractionDigits: 2});
-        document.getElementById('vb_debtRemaining').innerText = '₱' + parseFloat(r.debt_balance_snapshot || 0).toLocaleString('en-PH', {minimumFractionDigits: 2});
-    } else {
-        debtRow.classList.add('hidden');
     }
 
     // Parse and display exception flags + clean user notes
@@ -778,10 +786,11 @@ document.getElementById('unitId').addEventListener('change', function() {
     const dateInput = document.getElementById('date');
     
     if (rate) {
-        // Calculate adjusted boundary based on date and coding day
-        const adjustedBoundary = calculateAdjustedBoundary(rate, codingDay, dateInput.value);
-        document.getElementById('boundaryAmount').value = adjustedBoundary;
-        document.getElementById('actualBoundary').value = adjustedBoundary;
+        // Source of Truth: Get the smart rate based on year, plate, and date selected
+        const suggestedRate = getSmartTargetRate(selectedOption.getAttribute('data-year'), selectedOption.getAttribute('data-plate'), rate, dateInput.value);
+        document.getElementById('boundaryAmount').value = suggestedRate;
+        document.getElementById('boundaryAmount').dataset.originalTarget = suggestedRate;
+        document.getElementById('actualBoundary').value = suggestedRate;
     }
     
     // Clear driver display and reset dropdown to show new unit's drivers
@@ -805,37 +814,54 @@ document.getElementById('date').addEventListener('change', function() {
     const codingDay = selectedOption.getAttribute('data-coding-day');
     
     if (rate) {
-        // Recalculate adjusted boundary based on new date
-        const adjustedBoundary = calculateAdjustedBoundary(rate, codingDay, this.value);
-        document.getElementById('boundaryAmount').value = adjustedBoundary;
-        document.getElementById('actualBoundary').value = adjustedBoundary;
+        // Source of Truth: Recalculate smart rate based on new date
+        const suggestedRate = getSmartTargetRate(selectedOption.getAttribute('data-year'), selectedOption.getAttribute('data-plate'), rate, this.value);
+        document.getElementById('boundaryAmount').value = suggestedRate;
+        document.getElementById('boundaryAmount').dataset.originalTarget = suggestedRate;
+        document.getElementById('actualBoundary').value = suggestedRate;
+        
+        // Refresh breakdown if active
+        updateBreakdownComputation();
     }
 });
 
-function calculateAdjustedBoundary(baseRate, codingDay, dateStr) {
-    if (!dateStr || !baseRate) return baseRate;
+function getSmartTargetRate(year, plate, customRate, dateStr) {
+    const rules = window.boundaryRules || [];
+    const yr = parseInt(year) || 0;
+    const rate = parseFloat(customRate) || 0;
+    const date = dateStr ? new Date(dateStr) : new Date();
     
-    const date = new Date(dateStr);
+    // Find rule for the year
+    const rule = rules.find(r => yr >= r.start_year && yr <= r.end_year);
+    
+    // Base rate priority: Custom -> Rule -> Default
+    const base = rate > 0 ? rate : (rule ? parseFloat(rule.regular_rate) : 1100);
+    
+    // Day of week
     const dayOfWeek = date.getDay(); // 0 = Sunday, 6 = Saturday
-    const dayName = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'][dayOfWeek];
+    const dayName = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][dayOfWeek];
     
-    let adjustedRate = baseRate;
+    // Detect coding day
+    const codingDay = deriveCodingDay(plate);
     
-    // Check if it's coding day
-    if (codingDay && codingDay.toLowerCase() === dayName) {
-        adjustedRate = baseRate * 0.5; // 50% on coding day
-    }
-    // Check for Saturday adjustments
-    else if (dayOfWeek === 6) { // Saturday
-        adjustedRate = baseRate - 100;
-    }
-    // Check for Sunday adjustments
-    else if (dayOfWeek === 0) { // Sunday
-        adjustedRate = baseRate - 200;
+    // 1. Coding Day Check (Overrides weekends)
+    if (codingDay && dayName.toLowerCase() === codingDay.toLowerCase()) {
+        if (rule && rule.coding_rate > 0) return parseFloat(rule.coding_rate).toFixed(2);
+        return (base / 2).toFixed(2);
     }
     
-    // Ensure boundary doesn't go below zero
-    return Math.max(0, adjustedRate);
+    // 2. Weekend Check
+    if (dayOfWeek === 6) { // Saturday
+        const disc = rule ? parseFloat(rule.sat_discount) : 100;
+        return (base - disc).toFixed(2);
+    }
+    if (dayOfWeek === 0) { // Sunday
+        const disc = rule ? parseFloat(rule.sun_discount) : 200;
+        return (base - disc).toFixed(2);
+    }
+    
+    // 3. Regular Day
+    return base.toFixed(2);
 }
 
 // Unit dropdown functionality
@@ -889,8 +915,8 @@ function initializeUnitDropdown() {
                 document.getElementById('driverId').value = '';
                 document.getElementById('driverDisplay').value = '';
 
-                // Auto-calculate suggested rate
-                const suggestedRate = calculateAutomatedRate(year, plate, customRate);
+                // Source of Truth: Get the smart rate
+                const suggestedRate = getSmartTargetRate(year, plate, customRate, document.getElementById('date').value);
                 const boundaryInput = document.getElementById('boundaryAmount');
                 if (boundaryInput) {
                     boundaryInput.value = suggestedRate;
@@ -989,7 +1015,6 @@ function initializeDriverDropdown() {
                 const driverId = this.getAttribute('data-id');
                 const driverName = this.getAttribute('data-name');
                 const shortage = parseFloat(this.getAttribute('data-shortage') || 0);
-                const debt = parseFloat(this.getAttribute('data-debt') || 0);
 
                 document.getElementById('driverId').value = driverId;
                 driverDisplay.value = driverName;
@@ -1022,18 +1047,18 @@ function initializeDriverDropdown() {
                     rawShortageInput.value = 0;
                 }
 
-                // New Debt Logic
-                const debtGroup = document.getElementById('debtPaymentGroup');
-                if (debt > 0) {
-                    if (debtGroup) debtGroup.classList.remove('hidden');
-                    const debtDisplay = document.getElementById('debtBalanceDisplay');
-                    if (debtDisplay) debtDisplay.textContent = "₱" + debt.toLocaleString(undefined, {minimumFractionDigits: 2});
-                    const rawDebt = document.getElementById('rawDebtBalance');
-                    if (rawDebt) rawDebt.value = debt;
+                // Toggle Damage Payment field visibility based on accident debt
+                const hasAccidentDebt = this.getAttribute('data-has-accident-debt') === 'true';
+                const accidentDebtAmount = parseFloat(this.getAttribute('data-accident-debt-amount') || 0);
+                const damageContainer = document.getElementById('damagePaymentContainer');
+                const debtLabel = document.getElementById('accidentDebtBalanceLabel');
+
+                if (hasAccidentDebt && accidentDebtAmount > 0) {
+                    damageContainer.classList.remove('hidden');
+                    if (debtLabel) debtLabel.textContent = "₱" + accidentDebtAmount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
                 } else {
-                    if (debtGroup) debtGroup.classList.add('hidden');
-                    const debtInput = document.getElementById('debtPaymentAmount');
-                    if (debtInput) debtInput.value = '0.00';
+                    damageContainer.classList.add('hidden');
+                    document.getElementById('damage_payment').value = 0;
                 }
 
                 document.getElementById('driverId').dispatchEvent(new Event('change'));
@@ -1140,8 +1165,10 @@ function addBoundary() {
     // Hide alerts on fresh open
     const extraAlert = document.getElementById('extraDriverAlert');
     const shortageAlert = document.getElementById('shortageBalanceAlert');
+    const damageContainer = document.getElementById('damagePaymentContainer');
     if (extraAlert) extraAlert.classList.add('hidden');
     if (shortageAlert) shortageAlert.classList.add('hidden');
+    if (damageContainer) damageContainer.classList.add('hidden');
 
     document.getElementById('date').value = new Date().toLocaleDateString('en-CA');
 
@@ -1171,7 +1198,19 @@ function editBoundary(id) {
         document.getElementById('date').value = boundary.date;
         document.getElementById('boundaryAmount').value = boundary.boundary_amount;
         document.getElementById('actualBoundary').value = boundary.actual_boundary || '';
+        document.getElementById('damage_payment').value = boundary.damage_payment || 0;
         document.getElementById('notes').value = boundary.notes || '';
+        
+        // Handle Damage Payment Visibility for Edit
+        const damageContainer = document.getElementById('damagePaymentContainer');
+        const driverOption = document.querySelector(`.driver-option[data-id="${boundary.driver_id}"]`);
+        const hasAccidentDebt = driverOption && driverOption.getAttribute('data-has-accident-debt') === 'true';
+        
+        if (hasAccidentDebt || (parseFloat(boundary.damage_payment || 0) > 0)) {
+            if (damageContainer) damageContainer.classList.remove('hidden');
+        } else {
+            if (damageContainer) damageContainer.classList.add('hidden');
+        }
         
         // Hide alerts on fresh open
         const extraAlert = document.getElementById('extraDriverAlert');
@@ -1256,38 +1295,7 @@ function closeModal() {
 
 window.boundaryRules = @json($boundary_rules ?? []);
 
-function calculateAutomatedRate(year, plate, customRate) {
-    const rules = window.boundaryRules;
-    const yr = parseInt(year) || 0;
-    const rate = parseFloat(customRate) || 0;
-
-    // Find rule for the year
-    const rule = rules.find(r => yr >= r.start_year && yr <= r.end_year);
-    
-    // Base rate
-    const base = rate > 0 ? rate : (rule ? parseFloat(rule.regular_rate) : 1100);
-    
-    // Detect coding day
-    const codingDay = deriveCodingDay(plate);
-    const today = new Date().toLocaleDateString('en-US', { weekday: 'long' });
-    
-    if (codingDay && today === codingDay) {
-        if (rule && rule.coding_rate > 0) return parseFloat(rule.coding_rate);
-        return base / 2;
-    }
-    
-    if (today === 'Saturday') {
-        const disc = rule ? parseFloat(rule.sat_discount) : 100;
-        return base - disc;
-    }
-    
-    if (today === 'Sunday') {
-        const disc = rule ? parseFloat(rule.sun_discount) : 200;
-        return base - disc;
-    }
-    
-    return base;
-}
+// Legacy calculateAutomatedRate function replaced by getSmartTargetRate for accuracy and date-sync.
 
 function deriveCodingDay(plate) {
     if (!plate) return null;
@@ -1336,9 +1344,8 @@ function updateShiftInfo(unitElement) {
         
         // Trigger alerts check
         const shortage = parseFloat(driverOption ? driverOption.getAttribute('data-shortage') : 0);
-        const debt = parseFloat(driverOption ? driverOption.getAttribute('data-debt') : 0);
         if (typeof triggerDriverAlerts === 'function') {
-            triggerDriverAlerts(expectedId, shortage, debt);
+            triggerDriverAlerts(expectedId, shortage);
         }
     }
 
@@ -1398,9 +1405,14 @@ function updateBreakdownComputation() {
 
     if (!halfCheck || !zeroCheck || (!halfCheck.checked && !zeroCheck.checked)) {
         if (compBox) compBox.classList.add('hidden');
-        if (amtInput && amtInput.dataset.originalTarget && !modal.classList.contains('is-editing')) {
-             // Reset to original if unchecked (only if adding new, not editing)
-             // But we handle this via applyMaintenanceLogic wrapper for safety
+        
+        // ROBUST RESET: Always return to original suggested rate if unselected
+        if (amtInput && amtInput.dataset.originalTarget) {
+             const original = parseFloat(amtInput.dataset.originalTarget).toFixed(2);
+             if (amtInput.value !== original) {
+                 amtInput.value = original;
+                 if (actInput) actInput.value = original;
+             }
         }
         return;
     }
@@ -1415,35 +1427,45 @@ function updateBreakdownComputation() {
     const now = new Date();
     const diffMs = now - swapDate;
     const rawHours = diffMs / (1000 * 60 * 60);
-    const hoursDriven = Math.max(0, rawHours).toFixed(2);
+    const hoursDriven = Math.max(0, rawHours);
+    
+    // SMART CAP: A shift is max 24 hours. Anything beyond is a backlog, but for a 
+    // single daily boundary record, we cap the prorated charge to one full day.
+    const cappedHours = Math.min(24, hoursDriven);
+    const hoursDisplay = hoursDriven > 24 ? `24.00 (Capped from ${hoursDriven.toFixed(2)})` : hoursDriven.toFixed(2);
+    
     const hourlyRate = (dailyRate / 24);
-    const prorated = (hourlyRate * parseFloat(hoursDriven)).toFixed(2);
+    let prorated = hourlyRate * cappedHours;
+    
+    // FINAL SAFETY CAP: Never exceed the original daily target
+    if (prorated > dailyRate) prorated = dailyRate;
+    const proratedStr = prorated.toFixed(2);
 
     compBox.classList.remove('hidden');
-    document.getElementById('calculatedHours').value = hoursDriven;
+    document.getElementById('calculatedHours').value = cappedHours.toFixed(2);
 
     if (zeroCheck.checked) {
-        if (parseFloat(hoursDriven) < 5) {
-            mathDisplay.innerHTML = `<span class="flex justify-between"><span>Driven:</span> <span class="font-bold text-green-700">${hoursDriven} hrs (< 5hr)</span></span>
+        if (cappedHours < 5) {
+            mathDisplay.innerHTML = `<span class="flex justify-between"><span>Driven:</span> <span class="font-bold text-green-700">${hoursDisplay} hrs (< 5hr)</span></span>
                                      <span class="flex justify-between border-t border-blue-100 mt-1 pt-1"><span>Target:</span> <span class="font-bold text-green-700">₱0.00 (No Boundary)</span></span>`;
             amtInput.value = '0.00';
             actInput.value = '0.00';
         } else {
-            mathDisplay.innerHTML = `<span class="flex justify-between"><span>Driven:</span> <span class="font-bold text-red-600">${hoursDriven} hrs (> 5hr)</span></span>
-                                     <span class="flex justify-between border-t border-blue-100 mt-1 pt-1"><span>Target (Hourly):</span> <span class="font-bold text-red-700">₱${parseFloat(prorated).toLocaleString()}</span></span>`;
-            amtInput.value = prorated;
-            actInput.value = prorated;
+            mathDisplay.innerHTML = `<span class="flex justify-between"><span>Driven:</span> <span class="font-bold text-red-600">${hoursDisplay} hrs (> 5hr)</span></span>
+                                     <span class="flex justify-between border-t border-blue-100 mt-1 pt-1"><span>Target (Hourly):</span> <span class="font-bold text-red-700">₱${parseFloat(proratedStr).toLocaleString()}</span></span>`;
+            amtInput.value = proratedStr;
+            actInput.value = proratedStr;
         }
     } else if (halfCheck.checked) {
-        mathDisplay.innerHTML = `<span class="flex justify-between"><span>Driven:</span> <span class="font-bold">${hoursDriven} hrs</span></span>
+        mathDisplay.innerHTML = `<span class="flex justify-between"><span>Driven:</span> <span class="font-bold">${hoursDisplay} hrs</span></span>
                                  <span class="flex justify-between"><span>Rate:</span> <span>₱${hourlyRate.toFixed(2)}/hr</span></span>
-                                 <span class="flex justify-between border-t border-blue-100 mt-1 pt-1"><span>Hourly Target:</span> <span class="font-bold text-blue-700">₱${parseFloat(prorated).toLocaleString()}</span></span>`;
-        amtInput.value = prorated;
-        actInput.value = prorated;
+                                 <span class="flex justify-between border-t border-blue-100 mt-1 pt-1"><span>Hourly Target:</span> <span class="font-bold text-blue-700">₱${parseFloat(proratedStr).toLocaleString()}</span></span>`;
+        amtInput.value = proratedStr;
+        actInput.value = proratedStr;
     }
 }
 
-function triggerDriverAlerts(driverId, shortage, debt) {
+function triggerDriverAlerts(driverId, shortage) {
     const unitId = document.getElementById('unitId').value;
     const unitOption = document.querySelector(`.unit-option[data-id="${unitId}"]`);
     const primaryId = unitOption ? unitOption.getAttribute('data-primary-id') : '';
@@ -1465,20 +1487,6 @@ function triggerDriverAlerts(driverId, shortage, debt) {
         if (rawInput) rawInput.value = shortage;
     } else {
         if (shortageAlert) shortageAlert.classList.add('hidden');
-    }
-
-    // New Debt Logic
-    const debtGroup = document.getElementById('debtPaymentGroup');
-    if (debt > 0) {
-        if (debtGroup) debtGroup.classList.remove('hidden');
-        const debtDisplay = document.getElementById('debtBalanceDisplay');
-        if (debtDisplay) debtDisplay.textContent = "₱" + debt.toLocaleString(undefined, {minimumFractionDigits: 2});
-        const rawDebt = document.getElementById('rawDebtBalance');
-        if (rawDebt) rawDebt.value = debt;
-    } else {
-        if (debtGroup) debtGroup.classList.add('hidden');
-        const debtInput = document.getElementById('debtPaymentAmount');
-        if (debtInput) debtInput.value = '0.00';
     }
 }
 

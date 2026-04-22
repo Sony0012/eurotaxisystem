@@ -5,43 +5,77 @@
 
 @section('content')
 <style>
-    .tab-btn { @apply px-5 py-2.5 text-xs font-black uppercase tracking-widest rounded-xl transition-all; }
-    .tab-btn.active { @apply bg-yellow-500 text-white shadow-md; }
-    .tab-btn:not(.active) { @apply bg-white text-gray-500 border border-gray-200 hover:bg-gray-50; }
+    .tab-btn { @apply px-5 py-2.5 text-xs font-black uppercase tracking-widest rounded-xl transition-all duration-300 flex items-center hover:scale-105 active:scale-95; }
+    .tab-btn.active { @apply bg-yellow-500 text-white shadow-lg shadow-yellow-200; }
+    .tab-btn:not(.active) { @apply bg-white text-gray-500 border border-gray-100 hover:bg-gray-50 hover:text-yellow-600 hover:shadow-md hover:border-yellow-200; }
     .incident-tag { @apply px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-widest border; }
-    .stat-card { @apply bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex items-center gap-4; }
+    .stat-card-premium { @apply transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl cursor-default; }
     .custom-scroll::-webkit-scrollbar { width: 4px; }
     .custom-scroll::-webkit-scrollbar-thumb { background: #eab308; border-radius: 99px; }
+    
+    .search-dropdown {
+        display: none;
+        position: absolute;
+        z-index: 50;
+        width: 100%;
+        margin-top: 0.25rem;
+        background-color: white;
+        border: 1px solid #d1d5db;
+        border-radius: 0.5rem;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        max-height: 10rem;
+        overflow-y: auto;
+        flex-direction: column;
+    }
+    .search-dropdown:not(.hidden) { display: flex; }
+    .search-option { padding: 0.5rem 0.75rem; cursor: pointer; border-bottom: 1px solid #f3f4f6; }
+    .search-option:last-child { border-bottom: none; }
+    .search-option:hover { background-color: #fefce8; }
 </style>
 
-{{-- ════════ HEADER STATS ════════ --}}
+{{-- ════════ HEADER STATS (COMPACT) ════════ --}}
 <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-    <div class="stat-card col-span-1">
-        <div class="p-3 bg-red-100 rounded-xl"><i data-lucide="activity" class="w-5 h-5 text-red-600"></i></div>
-        <div>
-            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Total Incidents</p>
-            <p class="text-2xl font-black text-gray-800">{{ $stats['incidents_period'] ?? 0 }}</p>
+    {{-- 1. VIOLATORS --}}
+    <div class="stat-card-premium relative overflow-hidden bg-gradient-to-br from-orange-500 to-amber-600 rounded-2xl p-4 text-white shadow-lg shadow-orange-100 group">
+        <div class="absolute right-[-5px] top-[-5px] opacity-10 transition-transform group-hover:scale-110 duration-500">
+            <i data-lucide="users" class="w-16 h-16"></i>
+        </div>
+        <div class="relative z-10 flex flex-col items-center text-center">
+            <p class="text-2xl font-black tracking-tighter leading-none">{{ $stats['total_violators'] ?? 0 }}</p>
+            <p class="text-[9px] font-black uppercase tracking-[0.1em] opacity-80 mt-1">Violators</p>
         </div>
     </div>
-    <div class="stat-card col-span-1">
-        <div class="p-3 bg-orange-100 rounded-xl"><i data-lucide="users" class="w-5 h-5 text-orange-600"></i></div>
-        <div>
-            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Violators</p>
-            <p class="text-2xl font-black text-gray-800">{{ $stats['total_violators'] ?? 0 }}</p>
+
+    {{-- 2. TOTAL VIOLATIONS --}}
+    <div class="stat-card-premium relative overflow-hidden bg-gradient-to-br from-red-500 to-rose-600 rounded-2xl p-4 text-white shadow-lg shadow-red-100 group">
+        <div class="absolute right-[-5px] top-[-5px] opacity-10 transition-transform group-hover:scale-110 duration-500">
+            <i data-lucide="activity" class="w-16 h-16"></i>
+        </div>
+        <div class="relative z-10 flex flex-col items-center text-center">
+            <p class="text-2xl font-black tracking-tighter leading-none">{{ $stats['incidents_period'] ?? 0 }}</p>
+            <p class="text-[9px] font-black uppercase tracking-[0.1em] opacity-80 mt-1">Total Violations</p>
         </div>
     </div>
-    <div class="stat-card col-span-1">
-        <div class="p-3 bg-purple-100 rounded-xl"><i data-lucide="banknote" class="w-5 h-5 text-purple-600"></i></div>
-        <div>
-            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Total Charges</p>
-            <p class="text-2xl font-black text-gray-800">₱{{ number_format($stats['total_charges'] ?? 0, 0) }}</p>
+
+    {{-- 3. TOTAL CHARGES --}}
+    <div class="stat-card-premium relative overflow-hidden bg-gradient-to-br from-purple-600 to-indigo-700 rounded-2xl p-4 text-white shadow-lg shadow-purple-100 group">
+        <div class="absolute right-[-5px] top-[-5px] opacity-10 transition-transform group-hover:scale-110 duration-500">
+            <i data-lucide="banknote" class="w-16 h-16"></i>
+        </div>
+        <div class="relative z-10 flex flex-col items-center text-center">
+            <p class="text-xl font-black tracking-tighter leading-none">₱{{ number_format($stats['total_charges'] ?? 0, 0) }}</p>
+            <p class="text-[9px] font-black uppercase tracking-[0.1em] opacity-80 mt-1">Total Charges</p>
         </div>
     </div>
-    <div class="stat-card col-span-1 border-yellow-200 bg-yellow-50/30">
-        <div class="p-3 bg-yellow-100 rounded-xl"><i data-lucide="trophy" class="w-5 h-5 text-yellow-600"></i></div>
-        <div>
-            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Eligible Incentive</p>
-            <p class="text-2xl font-black text-yellow-600">{{ count($incentive_summary['eligible'] ?? []) }}</p>
+
+    {{-- 4. ELIGIBLE INCENTIVE --}}
+    <div class="stat-card-premium relative overflow-hidden bg-gradient-to-br from-yellow-500 to-orange-500 rounded-2xl p-4 text-white shadow-lg shadow-yellow-100 group">
+        <div class="absolute right-[-5px] top-[-5px] opacity-10 transition-transform group-hover:scale-110 duration-500">
+            <i data-lucide="trophy" class="w-16 h-16"></i>
+        </div>
+        <div class="relative z-10 flex flex-col items-center text-center">
+            <p class="text-2xl font-black tracking-tighter leading-none">{{ count($incentive_summary['eligible'] ?? []) }}</p>
+            <p class="text-[9px] font-black uppercase tracking-[0.1em] opacity-80 mt-1">Eligible Incentive</p>
         </div>
     </div>
 </div>
@@ -65,7 +99,7 @@
         <i data-lucide="user-circle" class="w-3.5 h-3.5 inline mr-1"></i> Driver Profiles
     </button>
     <div class="flex-1"></div>
-    <button onclick="openIncidentModal()" class="px-5 py-2.5 bg-red-600 text-white font-black text-xs uppercase tracking-widest rounded-xl hover:bg-red-700 transition-all flex items-center gap-2 shadow-sm">
+    <button onclick="openIncidentModal()" class="px-5 py-2.5 bg-red-600 text-white font-black text-xs uppercase tracking-widest rounded-xl hover:bg-red-700 hover:scale-105 hover:shadow-xl hover:shadow-red-200 transition-all active:scale-95 flex items-center gap-2 shadow-sm">
         <i data-lucide="plus" class="w-4 h-4"></i> Record Incident
     </button>
 </div>
@@ -78,8 +112,8 @@
 
 {{-- ════════════════════════════════════════
      TAB 1: INCIDENT LOG
-════════════════════════════════════════ --}}
-<div id="tab-incidents" class="{{ ($tab ?? 'incidents') === 'incidents' ? '' : 'hidden' }}">
+     ════════════════════════════════════════ --}}
+<div id="tab-incidents" class="tab-content {{ ($tab ?? 'incidents') === 'incidents' ? '' : 'hidden' }}">
 
     {{-- Filters --}}
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-4">
@@ -138,11 +172,8 @@
                         <th class="px-5 py-3.5 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Date / Time</th>
                         <th class="px-5 py-3.5 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Driver</th>
                         <th class="px-5 py-3.5 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Unit</th>
-                        <th class="px-5 py-3.5 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Incident Type</th>
-                        <th class="px-5 py-3.5 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Severity</th>
-                        <th class="px-5 py-3.5 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Description</th>
-                        <th class="px-5 py-3.5 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Charge</th>
-                        <th class="px-5 py-3.5 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Incentive</th>
+                        <th class="px-5 py-3.5 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Incident Description & Charges</th>
+                        <th class="px-5 py-3.5 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Incentive Status</th>
                         <th class="px-5 py-3.5 text-right text-[10px] font-black text-gray-400 uppercase tracking-widest">Actions</th>
                     </tr>
                 </thead>
@@ -180,45 +211,59 @@
                         <td class="px-5 py-3.5 whitespace-nowrap">
                             <span class="text-xs font-black text-blue-600 uppercase">{{ $inc->plate_number ?? '—' }}</span>
                         </td>
-                        <td class="px-5 py-3.5 whitespace-nowrap">
-                            <span class="incident-tag {{ $tc }}">{{ $inc->incident_type }}</span>
-                        </td>
-                        <td class="px-5 py-3.5 whitespace-nowrap">
-                            <span class="incident-tag {{ $sc }}">{{ ucfirst($inc->severity) }}</span>
-                        </td>
-                        <td class="px-5 py-3.5 max-w-[220px]">
-                            <p class="text-xs text-gray-600 line-clamp-2">{{ $inc->description }}</p>
-                            @if($isAccident && $inc->third_party_name)
-                                <p class="text-[10px] text-purple-600 font-bold mt-0.5">3rd Party: {{ $inc->third_party_name }} {{ $inc->third_party_vehicle ? "({$inc->third_party_vehicle})" : '' }}</p>
+                        <td class="px-5 py-3.5 max-w-[450px]">
+                            {{-- Unified Tags Row --}}
+                            <div class="flex flex-wrap gap-1.5 mb-2">
+                                {{-- Driver Fault Status --}}
+                                @if($inc->is_driver_fault)
+                                    <span class="px-2 py-0.5 bg-red-500 text-white text-[9px] font-black uppercase tracking-widest rounded-full shadow-sm shadow-red-100">Driver at Fault</span>
+                                @else
+                                    <span class="px-2 py-0.5 bg-blue-500 text-white text-[9px] font-black uppercase tracking-widest rounded-full shadow-sm shadow-blue-100">Not at Fault</span>
+                                @endif
+
+                                {{-- Charge Info --}}
+                                @if($inc->total_charge_to_driver > 0)
+                                    <span class="px-2 py-0.5 bg-purple-600 text-white text-[9px] font-black uppercase tracking-widest rounded-full shadow-sm shadow-purple-100">
+                                        Amount: ₱{{ number_format($inc->total_charge_to_driver, 2) }}
+                                    </span>
+                                @endif
+                            </div>
+
+                            {{-- Cause --}}
+                            @if($inc->cause_of_incident)
+                                <div class="mb-1.5">
+                                    <span class="text-[9px] font-black text-orange-600 bg-orange-50 px-1.5 py-0.5 rounded-full border border-orange-100 uppercase tracking-widest">Cause: {{ $inc->cause_of_incident }}</span>
+                                </div>
                             @endif
-                            @if($inc->is_driver_fault)
-                                <span class="text-[9px] font-black text-red-600 bg-red-50 px-1.5 py-0.5 rounded-full border border-red-100">DRIVER FAULT</span>
-                            @endif
+
+                            <p class="text-xs text-gray-800 font-medium leading-relaxed">{{ $inc->description }}</p>
                         </td>
-                        <td class="px-5 py-3.5 whitespace-nowrap">
-                            @if($inc->total_charge_to_driver > 0)
-                                <div class="text-xs font-black text-red-600">₱{{ number_format($inc->total_charge_to_driver, 2) }}</div>
-                                <span class="text-[9px] font-black uppercase px-1.5 py-0.5 rounded-full
-                                    {{ $inc->charge_status === 'paid' ? 'bg-green-100 text-green-700' : ( $inc->charge_status === 'waived' ? 'bg-gray-100 text-gray-500' : 'bg-orange-100 text-orange-700') }}">
-                                    {{ ucfirst($inc->charge_status ?? 'pending') }}</span>
-                            @else
-                                <span class="text-gray-300 text-xs">—</span>
-                            @endif
-                        </td>
+
                         <td class="px-5 py-3.5 whitespace-nowrap">
                             @if(in_array($inc->severity, ['high','critical']) || $inc->is_driver_fault)
-                                <span class="text-[9px] font-black text-red-600 bg-red-50 px-1.5 py-0.5 rounded-full border border-red-100">VOID</span>
+                                <div class="text-[10px] font-black text-red-500 uppercase tracking-widest leading-tight">VOID</div>
+                                <div class="text-[8px] text-gray-400 font-medium uppercase">Performance Impacted</div>
                             @else
-                                <span class="text-[9px] font-black text-green-600 bg-green-50 px-1.5 py-0.5 rounded-full border border-green-100">OK</span>
+                                <div class="text-[10px] font-black text-green-500 uppercase tracking-widest leading-tight">ELIGIBLE</div>
+                                <div class="text-[8px] text-gray-400 font-medium uppercase">Active Cycle</div>
                             @endif
-                        </td>
                         <td class="px-5 py-3.5 whitespace-nowrap text-right">
-                            <form method="POST" action="{{ route('driver-behavior.destroy', $inc->id) }}" class="inline" onsubmit="return confirm('Delete this incident record?')">
-                                @csrf @method('DELETE')
-                                <button type="submit" class="p-1.5 rounded-lg text-red-400 hover:bg-red-50 hover:text-red-600 transition-colors">
-                                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                            <div class="flex justify-end items-center gap-2">
+                                {{-- Edit Button --}}
+                                <button type="button" 
+                                    onclick="IncidentManager.openEdit({{ $inc->id }})"
+                                    class="p-2 text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded-xl transition-all duration-300 group/edit cursor-pointer" 
+                                    title="Edit Incident">
+                                    <i data-lucide="edit-3" class="w-4 h-4 group-hover/edit:scale-110 transition-transform"></i>
                                 </button>
-                            </form>
+                                {{-- Archive Button --}}
+                                <button type="button" 
+                                    onclick="IncidentManager.archive({{ $inc->id }})"
+                                    class="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all duration-300 group/delete cursor-pointer" 
+                                    title="Archive Record">
+                                    <i data-lucide="trash-2" class="w-4 h-4 group-hover/delete:scale-110 pointer-events-none"></i>
+                                </button>
+                            </div>
                         </td>
                     </tr>
                     @empty
@@ -253,8 +298,8 @@
 
 {{-- ════════════════════════════════════════
      TAB 2: INCENTIVE DASHBOARD
-════════════════════════════════════════ --}}
-<div id="tab-incentives" class="{{ ($tab ?? '') === 'incentives' ? '' : 'hidden' }}">
+     ════════════════════════════════════════ --}}
+<div id="tab-incentives" class="tab-content {{ ($tab ?? '') === 'incentives' ? '' : 'hidden' }}">
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
         <div class="bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl p-5 text-white shadow-lg">
             <i data-lucide="trophy" class="w-6 h-6 mb-2 opacity-80"></i>
@@ -385,8 +430,8 @@
 
 {{-- ════════════════════════════════════════
      TAB 3: DRIVER PROFILES
-════════════════════════════════════════ --}}
-<div id="tab-profiles" class="{{ ($tab ?? '') === 'profiles' ? '' : 'hidden' }}">
+     ════════════════════════════════════════ --}}
+<div id="tab-profiles" class="tab-content {{ ($tab ?? '') === 'profiles' ? '' : 'hidden' }}">
     <div class="mb-4">
         <input type="text" id="profileSearch" placeholder="Search driver name..."
             class="w-full md:w-80 px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-medium focus:ring-2 focus:ring-yellow-500 focus:outline-none shadow-sm"
@@ -448,6 +493,11 @@
                     <span class="text-[10px] text-gray-400">{{ $inc['violations'] }} violation(s)</span>
                     <span class="text-[10px] font-bold text-gray-500">Next: {{ $inc['next_payout_date'] }}</span>
                 </div>
+                @if($profile['total_debt'] > 0)
+                <div class="mt-2 flex items-center gap-1.5 text-[10px] font-bold text-red-600 bg-red-50 px-2 py-1 rounded-lg border border-red-100">
+                    <i data-lucide="alert-circle" class="w-3 h-3 text-red-500"></i> Pending Debt: ₱{{ number_format($profile['total_debt'], 2) }}
+                </div>
+                @endif
                 @if($profile['shortages'] > 0)
                 <div class="mt-2 flex items-center gap-1.5 text-[10px] font-bold text-orange-600">
                     <i data-lucide="trending-down" class="w-3 h-3"></i> Total Shortage: ₱{{ number_format($profile['shortages'], 2) }}
@@ -460,145 +510,244 @@
 </div>
 
 {{-- ════════════════════════════════════════
-     RECORD INCIDENT MODAL (PREMIUM)
-════════════════════════════════════════ --}}
-<div id="incidentModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden overflow-y-auto z-[100] flex items-start justify-center py-6 px-4">
-    <div class="w-full max-w-2xl bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden">
+     RECORD INCIDENT MODAL (PREMIUM & FUNCTIONAL)
+     ════════════════════════════════════════ --}}
+<div id="incidentModal" class="fixed inset-0 bg-black/60 backdrop-blur-md hidden z-[100] flex items-center justify-center p-4">
+    <div class="w-full max-w-2xl bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in fade-in zoom-in duration-300">
         {{-- Modal Header --}}
-        <div class="px-6 py-5 border-b border-gray-100 bg-gradient-to-r from-gray-900 to-gray-800 text-white flex items-center justify-between">
+        <div class="px-8 py-6 bg-gray-900 text-white flex items-center justify-between shadow-lg z-10">
             <div>
-                <h3 class="font-black text-base">Record Driver Incident</h3>
-                <p class="text-xs text-gray-400 mt-0.5">All fields marked * are required</p>
+                <h3 class="text-xl font-black tracking-tight leading-none">Record Driver Incident</h3>
+                <p class="text-[10px] text-gray-400 font-bold mt-2 uppercase tracking-[0.2em]">Deployment & Damage Assessment System</p>
             </div>
-            <button onclick="closeIncidentModal()" class="p-2 rounded-xl bg-white/10 hover:bg-white/20 transition-all">
-                <i data-lucide="x" class="w-4 h-4"></i>
+            <button onclick="closeIncidentModal()" class="p-2.5 rounded-2xl bg-white/10 hover:bg-white/20 transition-all active:scale-95 border border-white/10">
+                <i data-lucide="x" class="w-5 h-5 text-white"></i>
             </button>
         </div>
 
-        <form method="POST" action="{{ route('driver-behavior.store') }}" id="incidentForm" class="max-h-[80vh] overflow-y-auto custom-scroll">
+        <form method="POST" action="{{ route('driver-behavior.store') }}" id="incidentForm" class="flex flex-col flex-1 overflow-hidden">
             @csrf
-            <div class="p-6 space-y-5">
-
+            
+            {{-- Scrollable Body --}}
+            <div class="flex-1 overflow-y-auto custom-scroll px-8 py-8 space-y-8 bg-gray-50/30">
+                
                 {{-- Section: Basic Info --}}
-                <div class="p-4 bg-gray-50 rounded-xl border border-gray-100">
-                    <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-3">Basic Information</p>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-bold text-gray-700 mb-1.5">Unit *</label>
-                            <select name="unit_id" required class="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-sm font-medium focus:ring-2 focus:ring-yellow-500 focus:outline-none">
-                                <option value="">Select Unit</option>
+                <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm space-y-5">
+                    <div class="flex items-center gap-3 mb-1">
+                        <div class="w-1.5 h-5 bg-yellow-500 rounded-full"></div>
+                        <p class="text-[11px] font-black text-gray-400 uppercase tracking-widest">Incident Registry</p>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-5">
+                        <div class="relative">
+                            <label class="block text-[10px] font-black text-gray-500 uppercase mb-2 ml-1">Fleet Unit / Plate Number *</label>
+                            <input type="text" id="unitSearchDisplay" placeholder="Type Plate #..." required
+                                class="w-full px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-2xl text-sm font-bold focus:ring-4 focus:ring-yellow-500/10 focus:border-yellow-500 focus:outline-none transition-all placeholder:text-gray-300" autocomplete="off">
+                            <input type="hidden" name="unit_id" id="incidentUnitId" required>
+                            <div id="unitSearchDropdown" class="search-dropdown hidden">
                                 @foreach($units as $u)
-                                    <option value="{{ $u->id }}">{{ $u->plate_number }}</option>
+                                    <div class="search-option unit-search-option" 
+                                        data-id="{{ $u->id }}" 
+                                        data-name="{{ $u->plate_number }}"
+                                        data-driver-id="{{ $u->driver_id }}">
+                                        <div class="font-black text-xs text-gray-900">{{ $u->plate_number }}</div>
+                                    </div>
                                 @endforeach
-                            </select>
+                            </div>
                         </div>
-                        <div>
-                            <label class="block text-xs font-bold text-gray-700 mb-1.5">Driver *</label>
-                            <select name="driver_id" required class="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-sm font-medium focus:ring-2 focus:ring-yellow-500 focus:outline-none">
-                                <option value="">Select Driver</option>
+                        <div class="relative">
+                            <label class="block text-[10px] font-black text-gray-500 uppercase mb-2 ml-1">Assignee Driver *</label>
+                            <input type="text" id="driverSearchDisplay" placeholder="Search Driver..." required
+                                class="w-full px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-2xl text-sm font-bold focus:ring-4 focus:ring-yellow-500/10 focus:border-yellow-500 focus:outline-none transition-all placeholder:text-gray-300" autocomplete="off">
+                            <input type="hidden" name="driver_id" id="incidentDriverId" required>
+                            <div id="driverSearchDropdown" class="search-dropdown hidden">
                                 @foreach($drivers as $d)
-                                    <option value="{{ $d->id }}">{{ $d->full_name }}</option>
+                                    <div class="search-option driver-search-option" data-id="{{ $d->id }}" data-name="{{ $d->full_name }}">
+                                        <div class="font-black text-xs text-gray-900">{{ $d->full_name }}</div>
+                                        <div class="text-[9px] text-gray-400 font-black uppercase tracking-tighter mt-1">{{ $d->current_plate ?? 'Floating / Unassigned' }}</div>
+                                    </div>
                                 @endforeach
-                            </select>
+                            </div>
                         </div>
-                        <div>
-                            <label class="block text-xs font-bold text-gray-700 mb-1.5">Incident Type *</label>
-                            <select name="incident_type" required id="incidentTypeSelect"
-                                onchange="handleTypeChange(this.value)"
-                                class="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-sm font-medium focus:ring-2 focus:ring-yellow-500 focus:outline-none">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-5">
+                        <div class="col-span-2 sm:col-span-1">
+                            <label class="block text-[10px] font-black text-gray-500 uppercase mb-2 ml-1">Incident Classification *</label>
+                            <select name="incident_type" required id="incidentTypeSelect" onchange="handleTypeChange(this.value)"
+                                class="w-full px-4 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl text-sm font-bold focus:ring-4 focus:ring-yellow-500/10 focus:border-yellow-500 focus:outline-none transition-all">
                                 <option value="">Select Type</option>
                                 @foreach(App\Http\Controllers\DriverBehaviorController::$incidentTypes as $type => $meta)
                                     <option value="{{ $type }}">{{ $type }}</option>
                                 @endforeach
                             </select>
                         </div>
-                        <div>
-                            <label class="block text-xs font-bold text-gray-700 mb-1.5">Severity *</label>
-                            <select name="severity" required class="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-sm font-medium focus:ring-2 focus:ring-yellow-500 focus:outline-none">
-                                <option value="">Select</option>
+                        <div class="col-span-2 sm:col-span-1">
+                            <label class="block text-[10px] font-black text-gray-500 uppercase mb-2 ml-1">Severity / Priority *</label>
+                            <select name="severity" required id="severitySelect"
+                                class="w-full px-4 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl text-sm font-bold focus:ring-4 focus:ring-yellow-500/10 focus:border-yellow-500 focus:outline-none transition-all">
                                 <option value="low">Low</option>
-                                <option value="medium">Medium</option>
+                                <option value="medium" selected>Medium</option>
                                 <option value="high">High</option>
                                 <option value="critical">Critical</option>
                             </select>
                         </div>
-                        <div class="col-span-2">
-                            <label class="block text-xs font-bold text-gray-700 mb-1.5">Date of Incident *</label>
-                            <input type="date" name="incident_date" value="{{ date('Y-m-d') }}" required
-                                class="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-sm font-medium focus:ring-2 focus:ring-yellow-500 focus:outline-none">
+                        <div class="col-span-2 sm:col-span-1">
+                            <label class="block text-[10px] font-black text-gray-500 uppercase mb-2 ml-1">Occurrence Date *</label>
+                            <div class="relative">
+                                <input type="date" name="incident_date" value="{{ date('Y-m-d') }}" required
+                                    class="w-full px-4 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl text-sm font-bold focus:ring-4 focus:ring-yellow-500/10 focus:border-yellow-500 focus:outline-none transition-all">
+                                <i data-lucide="calendar" class="w-4 h-4 absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 {{-- Section: Narrative --}}
-                <div class="p-4 bg-gray-50 rounded-xl border border-gray-100">
-                    <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-3">Incident Narrative</p>
-                    <textarea name="description" required rows="4" placeholder="Describe what happened. Who was involved, where, when, what were the circumstances..."
-                        class="w-full px-3 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-medium focus:ring-2 focus:ring-yellow-500 focus:outline-none resize-none"></textarea>
+                <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm space-y-4">
+                    <div class="flex items-center gap-3 mb-1">
+                        <div class="w-1.5 h-5 bg-orange-500 rounded-full"></div>
+                        <p class="text-[11px] font-black text-gray-400 uppercase tracking-widest">Incident Narrative</p>
+                    </div>
+                    <textarea name="description" required rows="3" placeholder="Provide a detailed report of the incident..."
+                        class="w-full px-5 py-4 bg-gray-50 border border-gray-200 rounded-2xl text-sm font-medium focus:ring-4 focus:ring-orange-500/5 focus:border-orange-500 focus:outline-none resize-none transition-all placeholder:text-gray-300"></textarea>
                 </div>
 
-                {{-- Section: Accident Details (Conditional) --}}
-                {{-- Section: Comprehensive Accident Details (Conditional) --}}
-                <div id="accidentSection" class="hidden p-5 bg-gradient-to-b from-gray-50 to-white rounded-2xl border border-gray-200 shadow-sm mt-5">
-                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-gray-100 pb-4 mb-5">
-                        <div class="flex items-center gap-3">
-                            <div class="p-2 bg-red-100 rounded-xl"><i data-lucide="car-crash" class="w-5 h-5 text-red-600"></i></div>
-                            <div>
-                                <h4 class="font-black text-sm text-gray-800 uppercase tracking-widest">Comprehensive Accident Report</h4>
-                                <p class="text-[10px] text-gray-500 font-medium">Track third parties, damages, and automated debt collection.</p>
+                {{-- Section: Financial Charges (MAINTENANCE STYLE) --}}
+                <div class="p-8 bg-purple-50/50 rounded-[2.5rem] border border-purple-100 space-y-8 ring-1 ring-purple-100/50">
+                    <div class="flex items-center gap-4">
+                        <div class="p-3 bg-purple-600 rounded-2xl shadow-xl shadow-purple-600/20">
+                            <i data-lucide="calculator" class="w-5 h-5 text-white"></i>
+                        </div>
+                        <div>
+                            <p class="text-[11px] font-black text-purple-700 uppercase tracking-[0.2em]">Damage & Cost Assessment</p>
+                            <p class="text-[9px] text-purple-400 font-bold uppercase mt-1">Itemized Repair Tracking</p>
+                        </div>
+                    </div>
+
+                    {{-- Conditional Accident Details (Shared) --}}
+                    <div id="accidentDetailsSection" class="hidden space-y-5 animate-in slide-in-from-top duration-300">
+                        <div id="partiesContainer" class="space-y-3">
+                            {{-- Parties Injected Here --}}
+                        </div>
+                        <button type="button" onclick="addPartyRow()" class="w-full py-4 border-2 border-dashed border-purple-200 text-purple-400 hover:text-purple-600 text-[10px] font-black uppercase rounded-2xl hover:bg-white hover:border-purple-400 transition-all group flex items-center justify-center gap-3">
+                            <i data-lucide="user-plus" class="w-4 h-4 transition-transform group-hover:scale-110"></i>
+                            Record Involved Third Party
+                        </button>
+                    </div>
+
+                    {{-- 1. SPARE PARTS SELECTION (MAINTENANCE STYLE) --}}
+                    <div class="bg-white p-6 rounded-3xl border border-purple-100 shadow-sm space-y-4">
+                        <div class="flex justify-between items-center">
+                            <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Spare Parts Selection</label>
+                            <button type="button" onclick="openQuickAddPart()" class="text-[9px] font-black text-purple-600 hover:text-purple-800 uppercase tracking-widest">+ New Part</button>
+                        </div>
+                        
+                        <div class="relative">
+                            <i data-lucide="search" class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-gray-300"></i>
+                            <input type="text" id="incidentPartSearch" placeholder="Type to search parts..."
+                                class="w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl text-sm font-bold focus:ring-4 focus:ring-purple-500/10 focus:border-purple-400 focus:outline-none transition-all placeholder:text-gray-300">
+                            
+                            <div id="incidentPartDropdown" class="search-dropdown hidden max-h-60 overflow-y-auto">
+                                @foreach($spare_parts as $p)
+                                    <div class="search-option part-search-option group" data-id="{{ $p->id }}" data-name="{{ $p->name }}" data-price="{{ $p->price }}">
+                                        <div class="flex justify-between items-center w-full">
+                                            <div class="font-black text-xs text-gray-900">{{ $p->name }}</div>
+                                            <div class="text-[10px] font-black text-purple-600">₱{{ number_format($p->price, 2) }}</div>
+                                        </div>
+                                    </div>
+                                @endforeach
                             </div>
                         </div>
-                        <label class="flex items-center gap-3 cursor-pointer mt-3 md:mt-0 p-3 bg-red-50 rounded-xl border border-red-200 shadow-sm transition-all hover:bg-red-100">
-                            <input type="checkbox" name="is_driver_fault" id="faultCheck" value="1" onchange="toggleLiabilityInfo(this.checked)" class="w-5 h-5 accent-red-600 rounded">
+
+                        <div id="partsCartContainer" class="space-y-3 min-h-[50px]">
+                            <div class="text-center py-4 text-gray-300 italic text-[10px] uppercase tracking-widest">No parts selected yet.</div>
+                        </div>
+
+                        <div class="flex justify-between items-center pt-3 border-t border-gray-50">
+                            <span class="text-[9px] font-black text-gray-400 uppercase">Total Parts Value:</span>
+                            <span id="partsTotalLabel" class="text-xs font-black text-gray-900 tracking-tight">₱0.00</span>
+                        </div>
+                    </div>
+
+                    {{-- 2. ADDITIONAL SERVICE / OTHER COSTS (MAINTENANCE STYLE) --}}
+                    <div class="bg-white p-6 rounded-3xl border border-purple-100 shadow-sm space-y-4">
+                        <div class="flex justify-between items-center">
+                            <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Additional Service / Other Costs</label>
+                            <button type="button" onclick="addServiceRow()" class="px-4 py-2 bg-orange-50 text-orange-600 text-[9px] font-black uppercase tracking-widest rounded-xl hover:bg-orange-100 transition-all flex items-center gap-2">
+                                <i data-lucide="plus-circle" class="w-3 h-3"></i> Add Service
+                            </button>
+                        </div>
+                        
+                        <div id="servicesContainer" class="space-y-3 min-h-[50px]">
+                            {{-- Rows injected by JS --}}
+                            <div class="text-center py-4 text-gray-300 italic text-[10px] uppercase tracking-widest">No services recorded.</div>
+                        </div>
+                    </div>
+
+                    {{-- Settlement & Fault Section --}}
+                    <div class="space-y-4">
+                        <div id="thirdPartyCostRow" class="hidden animate-in fade-in duration-300">
+                             <div class="bg-white/40 p-5 rounded-3xl border border-purple-100/50">
+                                <label class="block text-[10px] font-black text-purple-700 uppercase mb-2.5 ml-1">Third Party Damage Settlement (₱)</label>
+                                <input type="number" name="third_party_damage_cost" step="0.01" min="0" id="thirdDamage" oninput="computeTotal()"
+                                    placeholder="0.00" class="w-full px-5 py-3.5 bg-white border border-purple-100 rounded-2xl text-sm font-black text-purple-600 focus:ring-4 focus:ring-purple-500/10 focus:border-purple-500 focus:outline-none transition-all placeholder:text-purple-200">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-5">
+                            {{-- Grand Total Cost (Green - Maintenance Style) --}}
+                            <div class="bg-green-600 p-6 rounded-[2.5rem] shadow-xl shadow-green-600/20 relative overflow-hidden group">
+                                <div class="absolute right-[-10px] top-[-10px] opacity-10">
+                                    <i data-lucide="calculator" class="w-16 h-16 text-white"></i>
+                                </div>
+                                <p class="text-[10px] font-black text-white/60 uppercase tracking-widest mb-2">Grand Total Cost</p>
+                                <p class="text-3xl font-black text-white tracking-tighter" id="totalDamageLabel">₱0.00</p>
+                                <p class="text-[8px] text-green-100/50 font-bold uppercase mt-2">Sum of all parts & services</p>
+                            </div>
+
+                            {{-- Driver Liability (Red - Premium Style) --}}
+                            <div class="bg-red-600 p-6 rounded-[2.5rem] shadow-xl shadow-red-600/20 relative overflow-hidden group">
+                                <div class="absolute right-[-10px] top-[-10px] opacity-10">
+                                    <i data-lucide="alert-triangle" class="w-16 h-16 text-white"></i>
+                                </div>
+                                <p class="text-[10px] font-black text-white/60 uppercase tracking-widest mb-2 font-sans">Total Driver Liability</p>
+                                <p class="text-3xl font-black text-white tracking-tighter" id="driverChargeLabel">₱0.00</p>
+                                <input type="hidden" name="total_charge_to_driver" id="totalChargeValue" value="0">
+                                <p class="text-[8px] text-red-100/50 font-bold uppercase mt-2">Deductible Balance</p>
+                            </div>
+                        </div>
+
+                        {{-- Liability Acknowledgement --}}
+                        <label class="flex items-center gap-4 cursor-pointer p-6 bg-white rounded-[2rem] border border-red-100 hover:bg-red-50 hover:border-red-200 transition-all group select-none shadow-sm">
+                            <div class="relative flex items-center justify-center">
+                                <input type="checkbox" name="is_driver_fault" id="faultCheck" value="1" onchange="computeTotal()"
+                                    class="w-7 h-7 accent-red-600 rounded-2xl cursor-pointer transition-transform group-hover:scale-110 border-2 border-red-200">
+                            </div>
                             <div>
-                                <p class="text-xs font-black text-red-700 uppercase">Driver is At Fault</p>
-                                <p class="text-[9px] text-red-600 font-bold uppercase tracking-widest">Create Auto Debt Record</p>
+                                <p class="text-xs font-black text-gray-800 uppercase tracking-wider">Driver is at Fault</p>
+                                <p class="text-[9px] text-red-500 font-bold uppercase mt-1 tracking-widest leading-relaxed">Checking this will include Third-Party costs in Driver's balance.</p>
                             </div>
                         </label>
                     </div>
+                </div>
 
-                    {{-- Parties Involved --}}
-                    <div class="mb-6">
-                        <div class="flex justify-between items-end mb-3">
-                            <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest"><span class="text-blue-500 mr-1">■</span> Involved Parties / Vehicles</p>
-                            <button type="button" onclick="addPartyRow()" class="text-[10px] font-black uppercase tracking-widest text-blue-600 hover:text-blue-700 flex items-center gap-1.5"><i data-lucide="plus-circle" class="w-3.5 h-3.5"></i> Add Party</button>
-                        </div>
-                        <div id="partiesContainer" class="space-y-3">
-                            <!-- JS will inject party rows here -->
-                        </div>
+                {{-- Section: Cause (Conditional) --}}
+                <div id="causeSection" class="hidden space-y-4 bg-orange-50/30 p-6 rounded-3xl border border-orange-100">
+                    <div class="flex items-center gap-3">
+                        <i data-lucide="alert-circle" class="w-4 h-4 text-orange-600"></i>
+                        <label class="block text-[11px] font-black text-orange-700 uppercase tracking-widest">Root Cause Analysis</label>
                     </div>
-
-                    {{-- Damages Checklist --}}
-                    <div class="mb-4">
-                        <div class="flex justify-between items-end mb-3">
-                            <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest"><span class="text-purple-500 mr-1">■</span> Damages & Repair Checklist</p>
-                            <button type="button" onclick="addDamageRow()" class="text-[10px] font-black uppercase tracking-widest text-purple-600 hover:text-purple-700 flex items-center gap-1.5"><i data-lucide="plus-circle" class="w-3.5 h-3.5"></i> Add Damage Item</button>
-                        </div>
-                        <div id="damagesContainer" class="space-y-3">
-                            <!-- JS will inject damage rows here -->
-                        </div>
-                    </div>
-
-                    {{-- Liability Total --}}
-                    <div id="liabilitySection" class="hidden p-4 bg-gradient-to-r from-red-50 to-white rounded-xl border-l-4 border-l-red-500 border-y border-y-gray-100 border-r border-r-gray-100 mt-5 items-center justify-between shadow-sm">
-                        <div>
-                            <p class="text-[10px] font-black text-red-600 uppercase tracking-widest flex items-center gap-1.5"><i data-lucide="alert-triangle" class="w-3.5 h-3.5"></i> Driver Liability Triggered</p>
-                            <p class="text-xs text-gray-600 font-medium mt-0.5">This total will be automatically converted strictly into manageable boundary installments.</p>
-                        </div>
-                        <div class="text-right">
-                            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Total Grand Charge</p>
-                            <p class="text-2xl font-black text-red-700 font-mono tracking-tight" id="grandTotalDisplay">₱0.00</p>
-                        </div>
-                    </div>
+                    <input type="text" name="cause_of_incident" id="causeInput" placeholder="e.g. Brake failure, Sleepy, Reckless..."
+                        class="w-full px-5 py-4 bg-white border border-orange-100 rounded-2xl text-sm font-bold text-orange-900 focus:ring-4 focus:ring-orange-500/10 focus:border-orange-400 focus:outline-none transition-all placeholder:text-orange-200">
                 </div>
             </div>
 
-            {{-- Modal Footer --}}
-            <div class="px-6 py-4 border-t border-gray-100 bg-gray-50/50 flex gap-3">
-                <button type="submit" class="flex-1 py-2.5 bg-gray-900 text-white font-black text-xs uppercase tracking-widest rounded-xl hover:bg-gray-800 transition-all shadow-sm">
-                    Save Incident Record
+            <div class="px-8 py-7 bg-white border-t border-gray-100 flex gap-4 shadow-[0_-10px_20px_rgba(0,0,0,0.02)]">
+                <button type="submit" class="flex-1 py-4.5 bg-gray-900 text-white font-black text-xs uppercase tracking-[0.2em] rounded-[1.25rem] hover:bg-gray-800 shadow-2xl shadow-gray-900/30 transition-all active:scale-[0.98] flex items-center justify-center gap-3">
+                     <i data-lucide="save" class="w-4 h-4"></i> Commit Incident Record
                 </button>
-                <button type="button" onclick="closeIncidentModal()" class="px-6 py-2.5 bg-white border border-gray-200 text-gray-600 font-black text-xs uppercase tracking-widest rounded-xl hover:bg-gray-50 transition-all">
+                <button type="button" onclick="closeIncidentModal()" class="px-8 py-4.5 bg-white border border-gray-200 text-gray-500 font-black text-xs uppercase tracking-[0.2em] rounded-[1.25rem] hover:bg-gray-50 hover:text-gray-800 transition-all active:scale-[0.98]">
                     Cancel
                 </button>
             </div>
@@ -606,171 +755,496 @@
     </div>
 </div>
 
+{{-- ════════════════════════════════════════
+     EDIT INCIDENT MODAL
+     ════════════════════════════════════════ --}}
+<div id="editIncidentModal" class="fixed inset-0 bg-black/60 backdrop-blur-md hidden z-[101] flex items-center justify-center p-4">
+    <div class="w-full max-w-xl bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in fade-in zoom-in duration-300">
+        {{-- Modal Header --}}
+        <div class="px-8 py-6 bg-blue-600 text-white flex items-center justify-between shadow-lg z-10">
+            <div>
+                <h3 class="text-xl font-black tracking-tight leading-none">Edit Incident Record</h3>
+                <p class="text-[10px] text-blue-100 font-bold mt-2 uppercase tracking-[0.2em]">Update incident details & charges</p>
+            </div>
+            <button onclick="closeEditIncidentModal()" class="p-2.5 rounded-2xl bg-white/10 hover:bg-white/20 transition-all active:scale-95 border border-white/10">
+                <i data-lucide="x" class="w-5 h-5 text-white"></i>
+            </button>
+        </div>
+
+        <form method="POST" id="editIncidentForm" class="flex flex-col flex-1 overflow-hidden">
+            @csrf
+            @method('PUT')
+            
+            <div class="flex-1 overflow-y-auto custom-scroll px-8 py-8 space-y-6">
+                {{-- Driver & Unit Info (Read Only) --}}
+                <div class="bg-gray-50 p-4 rounded-2xl border border-gray-100 flex items-center justify-between">
+                    <div>
+                        <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Driver & Unit</p>
+                        <p id="editInfoDisplay" class="text-sm font-black text-gray-800 italic uppercase">Loading...</p>
+                    </div>
+                    <i data-lucide="info" class="w-5 h-5 text-blue-500 opacity-30"></i>
+                </div>
+
+                <div class="grid grid-cols-2 gap-5">
+                    <div>
+                        <label class="block text-[10px] font-black text-gray-500 uppercase mb-2 ml-1">Classification</label>
+                        <select name="incident_type" id="edit_incident_type" required
+                            class="w-full px-4 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl text-sm font-bold focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:outline-none transition-all">
+                            @foreach(App\Http\Controllers\DriverBehaviorController::$incidentTypes as $type => $meta)
+                                <option value="{{ $type }}">{{ $type }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-black text-gray-500 uppercase mb-2 ml-1">Severity</label>
+                        <select name="severity" id="edit_severity" required
+                            class="w-full px-4 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl text-sm font-bold focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:outline-none transition-all">
+                            <option value="low">Low</option>
+                            <option value="medium">Medium</option>
+                            <option value="high">High</option>
+                            <option value="critical">Critical</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-[10px] font-black text-gray-500 uppercase mb-2 ml-1">Occurrence Date</label>
+                    <input type="date" name="incident_date" id="edit_incident_date" required
+                        class="w-full px-4 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl text-sm font-bold focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:outline-none transition-all">
+                </div>
+
+                <div>
+                    <label class="block text-[10px] font-black text-gray-500 uppercase mb-2 ml-1">Narrative Description</label>
+                    <textarea name="description" id="edit_description" required rows="3"
+                        class="w-full px-4 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl text-sm font-bold focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:outline-none transition-all resize-none"></textarea>
+                </div>
+
+                <div class="grid grid-cols-2 gap-5 pt-2">
+                    <div>
+                        <label class="block text-[10px] font-black text-gray-500 uppercase mb-2 ml-1">Total Charge (₱)</label>
+                        <div class="relative">
+                            <input type="number" step="0.01" name="total_charge_to_driver" id="edit_total_charge" required
+                                class="w-full pl-9 pr-4 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl text-sm font-black text-red-600 focus:ring-4 focus:ring-red-500/10 focus:border-red-500 focus:outline-none transition-all">
+                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold">₱</span>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-black text-gray-500 uppercase mb-2 ml-1">Driver Liability</label>
+                        <label class="flex items-center gap-3 p-3.5 bg-gray-50 border border-gray-100 rounded-2xl cursor-pointer hover:bg-gray-100 transition-all">
+                            <input type="checkbox" name="is_driver_fault" id="edit_is_driver_fault" value="1" class="w-5 h-5 rounded-lg border-gray-300 text-red-600 focus:ring-red-500">
+                            <span class="text-xs font-black text-gray-700 uppercase">At Fault</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Modal Footer --}}
+            <div class="px-8 py-6 bg-gray-50 border-t border-gray-100 flex gap-3">
+                <button type="button" id="editModalArchiveBtn"
+                    class="p-4 bg-red-50 text-red-500 font-black text-xs uppercase tracking-widest rounded-2xl border border-red-100 hover:bg-red-100 transition-all active:scale-95"
+                    title="Archive Record">
+                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                </button>
+                <button type="button" onclick="closeEditIncidentModal()"
+                    class="px-6 py-4 bg-white text-gray-500 font-black text-xs uppercase tracking-widest rounded-2xl border border-gray-200 hover:bg-gray-100 transition-all active:scale-95">
+                    Cancel
+                </button>
+                <button type="submit"
+                    class="flex-1 px-6 py-4 bg-blue-600 text-white font-black text-xs uppercase tracking-widest rounded-2xl shadow-lg shadow-blue-200 hover:bg-blue-700 hover:shadow-blue-300 transition-all active:scale-95 flex items-center justify-center gap-2">
+                    <i data-lucide="check-circle" class="w-4 h-4"></i>
+                    Update Record
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{{-- Quick Add Part Modal (Same as Maintenance) --}}
+<div id="quickAddPartModal" class="hidden fixed inset-0 z-[9999] flex items-center justify-center bg-black bg-opacity-40 backdrop-blur-sm transition-all">
+    <div class="bg-white rounded-3xl shadow-[0_0_100px_rgba(0,0,0,0.5)] w-full max-w-sm p-8 animate-in zoom-in duration-200">
+        <div class="flex items-center gap-3 mb-6">
+            <div class="p-2 bg-blue-100 rounded-xl">
+                <i data-lucide="package-plus" class="w-5 h-5 text-blue-600"></i>
+            </div>
+            <h4 class="text-lg font-black text-gray-900 uppercase tracking-tight">Quick Add Part</h4>
+        </div>
+        
+        <div class="space-y-5">
+            <input type="hidden" id="quickPartId">
+            <div>
+                <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Part Name / Service Description</label>
+                <input type="text" id="quickPartName" placeholder="e.g. Brake Pads, Side Mirror..."
+                    class="w-full px-5 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl text-sm font-black focus:ring-4 focus:ring-blue-500/10 focus:border-blue-400 focus:outline-none transition-all placeholder:text-gray-300">
+            </div>
+            <div>
+                <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Standard Price (₱)</label>
+                <input type="number" id="quickPartPrice" placeholder="0.00"
+                    class="w-full px-5 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl text-sm font-black focus:ring-4 focus:ring-blue-500/10 focus:border-blue-400 focus:outline-none transition-all placeholder:text-gray-300">
+            </div>
+            
+            <div class="flex gap-3 pt-3">
+                <button type="button" onclick="window.saveQuickPart()" class="flex-1 py-4 bg-blue-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-700 shadow-lg shadow-blue-600/20 transition-all active:scale-95">Save to Catalog</button>
+                <button type="button" onclick="window.closeQuickAddPart()" class="flex-1 py-4 bg-gray-100 text-gray-500 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-gray-200 transition-all active:scale-95">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @endsection
 
 @push('scripts')
 <script>
-// ─── Tab Switching ───────────────────────────────────
-function switchTab(name) {
-    ['incidents','incentives','profiles'].forEach(t => {
-        document.getElementById('tab-' + t).classList.add('hidden');
-        document.getElementById('tab-btn-' + t).classList.remove('active');
-    });
-    document.getElementById('tab-' + name).classList.remove('hidden');
-    document.getElementById('tab-btn-' + name).classList.add('active');
-    history.replaceState(null, '', '?tab=' + name);
-}
-
-// ─── Incident Modal ───────────────────────────────────
-function openIncidentModal() {
-    document.getElementById('incidentModal').classList.remove('hidden');
+// ─── Global Scoping & Initialization ───
+window.switchTab = function(name) {
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-' + name)?.classList.remove('hidden');
+    document.getElementById('tab-btn-' + name)?.classList.add('active');
     if(window.lucide) lucide.createIcons();
-}
-function closeIncidentModal() {
-    document.getElementById('incidentModal').classList.add('hidden');
-}
-// Close on backdrop click
-document.getElementById('incidentModal').addEventListener('click', function(e) {
-    if (e.target === this) closeIncidentModal();
-});
+};
 
-// ─── Dynamic Incident Fields ────────────────────────
-const spareParts = {!! json_encode($spare_parts) !!};
-let partyCount = 0;
-let damageCount = 0;
-
-function handleTypeChange(type) {
-    const accidentTypes = ['Accident', 'Vehicle Damage'];
-    const section = document.getElementById('accidentSection');
-    if (accidentTypes.includes(type)) {
-        section.classList.remove('hidden');
-        if(partyCount === 0) addPartyRow();
-        if(damageCount === 0) addDamageRow();
-        if(window.lucide) lucide.createIcons();
-    } else {
-        section.classList.add('hidden');
-    }
-}
-
-function addPartyRow() {
-    const container = document.getElementById('partiesContainer');
-    const row = document.createElement('div');
-    row.className = 'grid grid-cols-1 md:grid-cols-4 gap-3 p-3 bg-white border border-gray-100 rounded-xl items-end relative group';
-    row.innerHTML = `
-        <div>
-            <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Name / Entity</label>
-            <input type="text" name="involved_parties[${partyCount}][name]" class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-xs" placeholder="e.g. Juan Cruz">
-        </div>
-        <div>
-            <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Vehicle</label>
-            <input type="text" name="involved_parties[${partyCount}][vehicle_type]" class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-xs" placeholder="Motorcycle, SUV...">
-        </div>
-        <div>
-            <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Plate Number</label>
-            <input type="text" name="involved_parties[${partyCount}][plate_number]" class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-xs" placeholder="ABC 123">
-        </div>
-        <div>
-            <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Contact (Opt)</label>
-            <input type="text" name="involved_parties[${partyCount}][contact_info]" class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-xs" placeholder="09...">
-        </div>
-        <button type="button" onclick="this.remove()" class="absolute -top-2 -right-2 bg-white text-gray-400 hover:text-red-500 rounded-full border border-gray-100 shadow-sm p-1 opacity-0 group-hover:opacity-100 transition-opacity">
-            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-        </button>
-    `;
-    container.appendChild(row);
-    partyCount++;
-}
-
-function addDamageRow() {
-    const container = document.getElementById('damagesContainer');
-    const row = document.createElement('div');
-    row.className = 'grid grid-cols-1 md:grid-cols-6 gap-3 p-3 bg-white border border-gray-100 rounded-xl items-end relative group damage-row';
+window.openIncidentModal = function() {
+    const modal = document.getElementById('incidentModal');
+    if (!modal) return;
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    if(window.lucide) lucide.createIcons();
     
-    let options = '<option value="">Custom Part / Labor</option>';
-    spareParts.forEach(p => {
-        options += `<option value="${p.id}" data-price="${p.price}">${p.name} (₱${parseFloat(p.price).toLocaleString()})</option>`;
-    });
+    // Always re-init to ensure fresh state
+    initializeSearchDropdowns();
+    initPartSearch();
+};
 
-    row.innerHTML = `
-        <div class="col-span-2">
-            <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Part / Service Selection</label>
-            <select name="damages[${damageCount}][spare_part_id]" class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-xs spart-select" onchange="syncPartData(this, ${damageCount})">
-                ${options}
-            </select>
-        </div>
-        <div class="col-span-2">
-            <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Specific Damage Description</label>
-            <input type="text" name="damages[${damageCount}][part_name]" id="dmg_name_${damageCount}" class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-xs" placeholder="Description..." required>
-        </div>
-        <div>
-            <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Unit Price</label>
-            <input type="number" step="0.01" min="0" name="damages[${damageCount}][unit_price]" id="dmg_price_${damageCount}" class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-xs dmg-price" value="0" oninput="calculateGrandTotal()">
-        </div>
-        <div class="relative flex gap-2 w-full">
-            <div class="flex-1">
-                <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Qty</label>
-                <input type="number" min="1" name="damages[${damageCount}][qty]" class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-xs dmg-qty" value="1" oninput="calculateGrandTotal()">
+window.closeIncidentModal = function() {
+    const modal = document.getElementById('incidentModal');
+    if (!modal) return;
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+};
+
+window.openQuickAddPart = function() {
+    const modal = document.getElementById('quickAddPartModal');
+    if (!modal) return;
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    if(window.lucide) lucide.createIcons();
+};
+
+window.closeQuickAddPart = function() {
+    const modal = document.getElementById('quickAddPartModal');
+    if (!modal) return;
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+    document.getElementById('quickPartName').value = '';
+    document.getElementById('quickPartPrice').value = '';
+};
+
+// ─── Constants & State ───
+let partsCatalog = @json($spare_parts ?? []);
+let incidentPartsCart = [];
+let incidentServices = [];
+let partyIndex = 0;
+
+// ─── Searchable Dropdowns (Unit/Driver) ───
+function initializeSearchDropdowns() {
+    const searchConfig = [
+        { display: 'unitSearchDisplay', hidden: 'incidentUnitId', dropdown: 'unitSearchDropdown', options: 'unit-search-option' },
+        { display: 'driverSearchDisplay', hidden: 'incidentDriverId', dropdown: 'driverSearchDropdown', options: 'driver-search-option' }
+    ];
+
+    searchConfig.forEach(({ display, hidden, dropdown, options }) => {
+        const dInput = document.getElementById(display);
+        const hInput = document.getElementById(hidden);
+        const drop = document.getElementById(dropdown);
+        if (!dInput || !drop) return;
+
+        drop.onmousedown = (e) => {
+            const opt = e.target.closest('.' + options);
+            if (!opt) return;
+            
+            hInput.value = opt.dataset.id;
+            dInput.value = opt.dataset.name;
+            drop.classList.add('hidden');
+            drop.classList.remove('flex');
+
+            // Robust Unit -> Driver Auto-fill
+            if (options === 'unit-search-option') {
+                const driverHidden = document.getElementById('incidentDriverId');
+                const driverDisplay = document.getElementById('driverSearchDisplay');
+                const drvId = opt.dataset.driverId;
+
+                if (drvId && drvId !== 'null' && drvId !== '' && drvId !== '0') {
+                    const driverOpt = document.querySelector(`.driver-search-option[data-id="${drvId}"]`);
+                    if (driverOpt && driverHidden && driverDisplay) {
+                        driverHidden.value = drvId;
+                        driverDisplay.value = driverOpt.dataset.name;
+                        driverDisplay.dispatchEvent(new Event('input'));
+                    }
+                } else {
+                    if (driverHidden) driverHidden.value = '';
+                    if (driverDisplay) driverDisplay.value = '';
+                }
+            }
+        };
+
+        dInput.onfocus = () => { filterDropdown(dInput, options); drop.classList.remove('hidden'); drop.classList.add('flex'); };
+        dInput.oninput = () => { filterDropdown(dInput, options); drop.classList.remove('hidden'); drop.classList.add('flex'); };
+        dInput.onblur = () => { setTimeout(() => { if (drop) { drop.classList.add('hidden'); drop.classList.remove('flex'); } }, 200); };
+    });
+}
+
+function filterDropdown(input, optClass) {
+    const q = input.value.toLowerCase().trim();
+    document.querySelectorAll('.' + optClass).forEach(opt => {
+        const text = opt.innerText.toLowerCase();
+        opt.style.display = (!q || text.includes(q)) ? 'block' : 'none';
+    });
+}
+
+// ─── Spare Parts & Catalog Management ───
+window.saveQuickPart = async function() {
+    const name = document.getElementById('quickPartName').value;
+    const price = document.getElementById('quickPartPrice').value;
+    if(!name || !price) return alert('Please fill in both name and price.');
+    
+    try {
+        const res = await fetch("{{ route('spare-parts.store') }}", {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+            body: JSON.stringify({ name, price })
+        });
+        const result = await res.json();
+        if(result.success) {
+            partsCatalog.push(result.data);
+            addPartToIncidentCart({
+                id: result.data.id,
+                name: result.data.name,
+                price: parseFloat(result.data.price) || 0,
+                qty: 1,
+                isCharged: true
+            });
+            refreshPartSearchDropdown();
+            window.closeQuickAddPart();
+        }
+    } catch(e) { alert('Failed to save part to catalog.'); }
+};
+
+function refreshPartSearchDropdown() {
+    const dropdown = document.getElementById('incidentPartDropdown');
+    if(!dropdown) return;
+    dropdown.innerHTML = partsCatalog.map(p => `
+        <div class="search-option part-search-option group" data-id="${p.id}" data-name="${p.name}" data-price="${p.price}">
+            <div class="flex justify-between items-center w-full">
+                <div class="font-black text-xs text-gray-900">${p.name}</div>
+                <div class="text-[10px] font-black text-purple-600">₱${parseFloat(p.price).toFixed(2)}</div>
             </div>
-            <button type="button" onclick="this.parentElement.parentElement.remove(); calculateGrandTotal();" class="absolute -top-7 -right-3 bg-white text-gray-400 hover:text-red-500 rounded-full border border-gray-100 shadow-sm p-1 opacity-0 group-[.damage-row:hover]:opacity-100 transition-opacity">
-                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-            </button>
         </div>
-    `;
-    container.appendChild(row);
-    damageCount++;
+    `).join('');
 }
 
-function syncPartData(selectElement, index) {
-    const selected = selectElement.options[selectElement.selectedIndex];
-    const nameInput = document.getElementById('dmg_name_' + index);
-    const priceInput = document.getElementById('dmg_price_' + index);
-    
-    if (selectElement.value) {
-        nameInput.value = selected.text.split(' (₱')[0];
-        nameInput.readOnly = true;
-        nameInput.classList.add('bg-gray-100');
-        priceInput.value = selected.dataset.price;
-    } else {
-        nameInput.value = '';
-        nameInput.readOnly = false;
-        nameInput.classList.remove('bg-gray-100');
+function initPartSearch() {
+    const input = document.getElementById('incidentPartSearch');
+    const dropdown = document.getElementById('incidentPartDropdown');
+    if(!input || !dropdown) return;
+
+    input.onfocus = () => { refreshPartSearchDropdown(); dropdown.classList.remove('hidden'); };
+    input.oninput = () => { 
+        const q = input.value.toLowerCase();
+        dropdown.querySelectorAll('.part-search-option').forEach(opt => {
+            opt.style.display = opt.dataset.name.toLowerCase().includes(q) ? 'block' : 'none';
+        });
+        dropdown.classList.remove('hidden');
+    };
+    dropdown.onmousedown = (e) => {
+        const opt = e.target.closest('.part-search-option');
+        if (!opt) return;
+        addPartToIncidentCart({ id: opt.dataset.id, name: opt.dataset.name, price: parseFloat(opt.dataset.price) || 0, qty: 1, isCharged: true });
+        input.value = ''; dropdown.classList.add('hidden');
+    };
+    input.onblur = () => { setTimeout(() => dropdown.classList.add('hidden'), 200); };
+}
+
+function addPartToIncidentCart(part) {
+    const existing = incidentPartsCart.find(p => p.id === part.id);
+    if(existing) existing.qty++;
+    else incidentPartsCart.push(part);
+    refreshPartsCart();
+}
+
+function refreshPartsCart() {
+    const container = document.getElementById('partsCartContainer');
+    if(!container) return;
+    if(incidentPartsCart.length === 0) {
+        container.innerHTML = `<div class="text-center py-4 text-gray-300 italic text-[10px] uppercase tracking-widest">No parts selected yet.</div>`;
+        document.getElementById('partsTotalLabel').textContent = '₱0.00';
+        computeTotal(); return;
     }
-    calculateGrandTotal();
+    let partsTotal = 0;
+    container.innerHTML = incidentPartsCart.map((p, i) => {
+        const sub = p.price * p.qty; partsTotal += sub;
+        return `<div class="flex items-center gap-4 bg-gray-50/50 p-4 rounded-2xl border border-gray-100 animate-in slide-in-from-right duration-200">
+            <input type="hidden" name="parts[${i}][spare_part_id]" value="${p.id}">
+            <input type="hidden" name="parts[${i}][unit_price]" value="${p.price}">
+            <div class="flex-1"><p class="text-[10px] font-black text-gray-800 uppercase">${p.name}</p></div>
+            <div class="w-16"><input type="number" name="parts[${i}][quantity]" value="${p.qty}" onchange="window.updatePartQty(${i}, this.value)" class="w-full text-center py-2 bg-white border border-gray-100 rounded-xl text-[10px] font-black"></div>
+            <div class="w-24 text-right"><p class="text-[10px] font-black text-gray-900">₱${sub.toLocaleString()}</p></div>
+            <div class="flex items-center"><label class="relative inline-flex items-center cursor-pointer"><input type="checkbox" name="parts[${i}][is_charged_to_driver]" value="1" ${p.isCharged ? 'checked' : ''} onchange="window.togglePartCharge(${i}, this.checked)" class="sr-only peer"><div class="w-8 h-4 bg-gray-200 rounded-full peer peer-checked:bg-red-500 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:after:translate-x-4"></div></label></div>
+            <button type="button" onclick="window.removePartFromIncident(${i})" class="text-gray-300 hover:text-red-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div>`;
+    }).join('');
+    document.getElementById('partsTotalLabel').innerText = '₱' + partsTotal.toLocaleString('en-PH', {minimumFractionDigits: 2});
+    if(window.lucide) lucide.createIcons();
+    computeTotal();
 }
 
-function calculateGrandTotal() {
-    let total = 0;
-    document.querySelectorAll('.damage-row').forEach(row => {
-        const p = parseFloat(row.querySelector('.dmg-price').value) || 0;
-        const q = parseInt(row.querySelector('.dmg-qty').value) || 0;
-        total += (p * q);
-    });
-    document.getElementById('grandTotalDisplay').textContent = '₱' + total.toLocaleString('en-PH', {minimumFractionDigits: 2});
-}
+window.updatePartQty = (i, val) => { incidentPartsCart[i].qty = parseInt(val) || 1; refreshPartsCart(); };
+window.togglePartCharge = (i, val) => { incidentPartsCart[i].isCharged = val; computeTotal(); };
+window.removePartFromIncident = (i) => { incidentPartsCart.splice(i, 1); refreshPartsCart(); };
 
-function toggleLiabilityInfo(isFault) {
-    const liabSec = document.getElementById('liabilitySection');
-    if(isFault) {
-        liabSec.classList.remove('hidden');
-        liabSec.classList.add('flex');
-    } else {
-        liabSec.classList.add('hidden');
-        liabSec.classList.remove('flex');
+// ─── Service Costs Logic ───
+window.addServiceRow = () => { incidentServices.push({ description: '', price: 0, isCharged: true }); refreshServices(); };
+function refreshServices() {
+    const container = document.getElementById('servicesContainer');
+    if(!container || incidentServices.length === 0) {
+        if(container) container.innerHTML = `<div class="text-center py-4 text-gray-300 italic text-[10px] uppercase tracking-widest">No services recorded.</div>`;
+        computeTotal(); return;
     }
+    const startIndex = incidentPartsCart.length;
+    container.innerHTML = incidentServices.map((s, i) => {
+        const fullIndex = startIndex + i;
+        return `<div class="flex items-center gap-4 bg-white p-4.5 rounded-2xl border border-orange-100 shadow-sm animate-in zoom-in duration-200">
+            <div class="flex-1"><p class="text-[8px] font-black text-orange-400 uppercase tracking-widest">Description</p><input type="text" name="parts[${fullIndex}][custom_part_name]" value="${s.description}" oninput="window.updateServiceDesc(${i}, this.value)" class="w-full text-xs font-bold border-none bg-transparent p-0 focus:ring-0"></div>
+            <div class="w-24 border-l border-orange-50 pl-4"><p class="text-[8px] font-black text-orange-400 uppercase tracking-widest">Price</p><input type="number" name="parts[${fullIndex}][unit_price]" value="${s.price || ''}" oninput="window.updateServicePrice(${i}, this.value)" class="w-full text-xs font-black text-orange-600 border-none bg-transparent p-0 focus:ring-0"></div>
+            <div class="flex items-center pt-3"><label class="relative inline-flex items-center cursor-pointer"><input type="checkbox" name="parts[${fullIndex}][is_charged_to_driver]" value="1" ${s.isCharged ? 'checked' : ''} onchange="window.toggleServiceCharge(${i}, this.checked)" class="sr-only peer"><div class="w-8 h-4 bg-gray-200 rounded-full peer peer-checked:bg-red-500 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:after:translate-x-4"></div></label></div>
+            <button type="button" onclick="window.removeService(${i})" class="text-orange-200 hover:text-red-500 pt-3"><i data-lucide="x-circle" class="w-5 h-5"></i></button></div>`;
+    }).join('');
+    if(window.lucide) lucide.createIcons();
+    computeTotal();
 }
+window.updateServiceDesc = (i, val) => { incidentServices[i].description = val; };
+window.updateServicePrice = (i, val) => { incidentServices[i].price = parseFloat(val) || 0; computeTotal(); };
+window.toggleServiceCharge = (i, val) => { incidentServices[i].isCharged = val; computeTotal(); };
+window.removeService = (i) => { incidentServices.splice(i, 1); refreshServices(); };
 
-// ─── Profile Search ───────────────────────────────────
-function filterProfiles(query) {
-    const q = query.toLowerCase().trim();
-    document.querySelectorAll('.profile-card').forEach(card => {
-        const name = card.dataset.name || '';
-        card.style.display = (!q || name.includes(q)) ? '' : 'none';
-    });
+// ─── Financial Calculations ───
+function computeTotal() {
+    let grandTotal = 0, driverCharge = 0;
+    incidentPartsCart.forEach(p => { const sub = p.price * p.qty; grandTotal += sub; if (p.isCharged) driverCharge += sub; });
+    incidentServices.forEach(s => { grandTotal += s.price; if (s.isCharged) driverCharge += s.price; });
+    const tDamage = parseFloat(document.getElementById('thirdDamage')?.value) || 0;
+    if (document.getElementById('faultCheck')?.checked) { grandTotal += tDamage; driverCharge += tDamage; } else { grandTotal += tDamage; }
+    document.getElementById('totalDamageLabel').textContent = '₱' + grandTotal.toLocaleString('en-PH', {minimumFractionDigits: 2});
+    document.getElementById('driverChargeLabel').textContent = '₱' + driverCharge.toLocaleString('en-PH', {minimumFractionDigits: 2});
+    document.getElementById('totalChargeValue').value = driverCharge;
 }
+window.computeTotal = computeTotal;
 
-// ─── Keyboard escape ────────────────────────────────
-document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') closeIncidentModal();
+// ─── Incident Manager (Edit/Archive Actions) ───
+window.IncidentManager = {
+    openEdit: async function(id) {
+        try {
+            const res = await fetch(`/api/incidents/${id}/details`, {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            });
+            const data = await res.json();
+            if (data.error) throw new Error(data.error);
+
+            // Populate Modal
+            document.getElementById('edit_incident_type').value = data.incident_type;
+            document.getElementById('edit_severity').value = data.severity;
+            document.getElementById('edit_incident_date').value = data.incident_date || data.timestamp.split(' ')[0];
+            document.getElementById('edit_description').value = data.description;
+            document.getElementById('edit_total_charge').value = data.total_charge_to_driver;
+            document.getElementById('edit_is_driver_fault').checked = !!data.is_driver_fault;
+            document.getElementById('editInfoDisplay').textContent = `${data.driver_name} • ${data.plate_number}`;
+            
+            // Set Form action
+            const form = document.getElementById('editIncidentForm');
+            form.action = `/api/incidents/${id}/update`;
+            
+            // Set Archive button for this specific ID
+            const archiveBtn = document.getElementById('editModalArchiveBtn');
+            if (archiveBtn) {
+                archiveBtn.onclick = () => this.archive(id);
+            }
+
+            // Show Modal
+            const modal = document.getElementById('editIncidentModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            if(window.lucide) lucide.createIcons();
+        } catch (e) {
+            console.error(e);
+            alert('Failed to fetch incident details: ' + e.message);
+        }
+    },
+
+    archive: async function(id) {
+        if (!confirm('Are you sure you want to move this incident to Archive?')) return;
+        try {
+            const res = await fetch(`/api/incidents/${id}/archive`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+            const result = await res.json();
+            if (result.success) {
+                window.location.reload();
+            } else {
+                alert(result.message || 'Failed to archive record.');
+            }
+        } catch (e) {
+            console.error(e);
+            alert('Error connecting to server.');
+        }
+    }
+};
+
+window.closeEditIncidentModal = function() {
+    const modal = document.getElementById('editIncidentModal');
+    if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+};
+
+// Handle Edit Form Submission via AJAX
+document.addEventListener('DOMContentLoaded', () => {
+    const editForm = document.getElementById('editIncidentForm');
+    if (editForm) {
+        editForm.onsubmit = async (e) => {
+            e.preventDefault();
+            const formData = new FormData(editForm);
+            
+            // Manual check for checkbox because FormData might omit if unchecked or use "on"
+            if (!formData.has('is_driver_fault')) {
+                formData.append('is_driver_fault', '0');
+            }
+
+            try {
+                const res = await fetch(editForm.action, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: formData
+                });
+                const result = await res.json();
+                if (result.success) {
+                    window.location.reload();
+                } else {
+                    alert(result.message || 'Failed to update record.');
+                }
+            } catch (e) {
+                console.error(e);
+                alert('Error updating record.');
+            }
+        };
+    }
 });
 </script>
 @endpush
+
