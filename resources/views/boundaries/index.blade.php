@@ -1027,7 +1027,15 @@ function initializeDriverDropdown() {
                 const secondaryId = unitOption ? unitOption.getAttribute('data-secondary-id') : '';
                 
                 const extraAlert = document.getElementById('extraDriverAlert');
-                if (driverId && driverId !== 'all' && primaryId && driverId !== primaryId && driverId !== secondaryId) {
+                // Show extra driver alert if:
+                // - a real driver is selected (not 'all')
+                // - AND they are NOT the primary or secondary driver of this unit
+                // - OR the unit has no assigned driver at all (any assignment is 'extra')
+                const isExtra = driverId && driverId !== 'all' && (
+                    !primaryId || // no assigned driver
+                    (driverId !== primaryId && driverId !== secondaryId) // not a regular driver
+                );
+                if (isExtra) {
                     extraAlert.classList.remove('hidden');
                 } else {
                     extraAlert.classList.add('hidden');
@@ -1373,11 +1381,9 @@ function updateShiftInfo(unitElement) {
                 shiftInfoGroup.classList.remove('border-green-200', 'bg-green-50', 'border-orange-200', 'bg-orange-50');
                 badgeContainer.innerHTML = '<span class="px-1.5 py-0.5 bg-red-100 text-red-700 text-[9px] font-bold rounded-full border border-red-300 uppercase tracking-tighter shadow-sm animate-pulse">NO INCENTIVE</span>';
             } else {
-                // Stale schedule — show neutral, no alarming labels
-                shiftTimerLabel.innerHTML = `<span class="flex flex-col"><span class="text-gray-600 font-bold">Shifting Time: <strong>${absoluteTimeStr}</strong></span></span>`;
-                shiftInfoGroup.classList.add('border-gray-200', 'bg-gray-50');
-                shiftInfoGroup.classList.remove('border-red-200', 'bg-red-50', 'border-green-200', 'bg-green-50', 'border-orange-200', 'bg-orange-50');
-                badgeContainer.innerHTML = '';
+                // Stale schedule (>24h) — hide the shift info block entirely, no confusing labels
+                shiftInfoGroup.classList.add('hidden');
+                return; // Exit early, don't show the block
             }
         } else {
             shiftTimerLabel.innerHTML = `<span class="flex flex-col"><span class="text-green-600 font-bold">${diffHours}h ${diffMins}m remaining</span><span class="text-gray-400 mt-0.5">Shifting Time: <strong>${absoluteTimeStr}</strong></span></span>`;
