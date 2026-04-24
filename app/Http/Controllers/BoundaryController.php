@@ -298,11 +298,9 @@ class BoundaryController extends Controller
                             $next_turn_driver_id = $unit->driver_id;
                         }
 
-                        // Strict Deadline Pivot Logic: Always advance by at least 24h for next shift.
-                        $next_deadline = $current_deadline->copy()->addHours(24);
-                        while ($next_deadline->lessThanOrEqualTo($now)) {
-                            $next_deadline->addHours(24);
-                        }
+                        // Dynamic Shifting: The next deadline is exactly 24 hours from THIS turnover moment.
+                        // This prevents shifting-time drift from penalizing the next driver.
+                        $next_deadline = $now->copy()->addHours(24);
 
                         if ($vehicle_damaged) {
                             $has_incentive = false;
