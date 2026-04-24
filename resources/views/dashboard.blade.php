@@ -180,11 +180,11 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-xs font-medium text-gray-600 uppercase tracking-widest">Coding Units Today</p>
-                        <p class="text-xl font-bold text-red-600 animate-pulse" data-stat="coding_units">{{ $stats['coding_units'] }}</p>
-                        <p class="text-[10px] text-gray-400 font-black tracking-tight mt-1 uppercase">Restricted today ({{ now()->timezone('Asia/Manila')->format('l') }})</p>
+                        <p class="text-xl font-bold text-blue-600 animate-pulse" data-stat="coding_units">{{ $stats['coding_units'] }}</p>
+                        <p class="text-[10px] text-gray-400 font-black tracking-tight mt-1 uppercase">Unit coding today ({{ now()->timezone('Asia/Manila')->format('l') }})</p>
                     </div>
-                    <div class="p-2 bg-red-100 rounded-full">
-                        <i data-lucide="alert-triangle" class="w-5 h-5 text-red-600"></i>
+                    <div class="p-2 bg-blue-100 rounded-full">
+                        <i data-lucide="calendar" class="w-5 h-5 text-blue-600"></i>
                     </div>
                 </div>
             </div>

@@ -9,7 +9,7 @@
 
 @section('title', 'Coding Management - Euro System')
 @section('page-heading', 'Coding Schedule Management')
-@section('page-subheading', "Today: $today_name — Managing number coding restrictions")
+@section('page-subheading', "Today: $today_name — Managing number coding days")
 
 @section('content')
     <style>
@@ -156,7 +156,7 @@
                             @endif
                         </div>
                     </div>
-                    <!-- Restricted List Visibility: Maximum 2 units visible, then scroll -->
+                    <!-- Coding List Visibility: Maximum 2 units visible, then scroll -->
                     <div class="space-y-2 max-h-[120px] overflow-y-auto pr-1 custom-scrollbar">
                         @forelse($day_units as $u)
                             <div class="text-[11px] p-2 bg-white rounded-xl border border-gray-50 shadow-sm text-gray-700 font-bold text-center hover:border-blue-400 transition-colors cursor-default">

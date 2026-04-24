@@ -62,8 +62,8 @@ class DashboardController extends Controller
             if (!$alertExists) {
                 DB::table('system_alerts')->insert([
                     'type' => 'coding_notice',
-                    'title' => "Today's Coding Units",
-                    'message' => "There are {$codingUnitsCount} units restricted today ({$todayDay}).",
+                    'title' => "Today's Unit Coding",
+                    'message' => "There are {$codingUnitsCount} units on coding today ({$todayDay}).",
                     'is_resolved' => false,
                     'created_at' => now(),
                     'updated_at' => now()
