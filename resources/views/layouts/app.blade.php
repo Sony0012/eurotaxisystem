@@ -27,7 +27,12 @@
 
     <title>{{ config('app.name', 'Euro Taxi System') }}</title>
 
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='gold' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' style='stop-color:%23FFD700;stop-opacity:1'/><stop offset='50%' style='stop-color:%23FFEA00;stop-opacity:1'/><stop offset='100%' style='stop-color:%23B8860B;stop-opacity:1'/></linearGradient></defs><circle cx='50' cy='50' r='48' fill='white'/><text x='50%' y='68%' dominant-baseline='middle' text-anchor='middle' style='fill:url(%23gold);font-family:Arial,sans-serif;font-size:80px;font-weight:900;'>€</text></svg>">
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="{{ asset('favicon_euro_transparent.png') }}?v=1.5">
+    <link rel="icon" type="image/png" href="{{ asset('favicon_euro_transparent.png') }}?v=1.5">
+    <link rel="apple-touch-icon" href="{{ asset('favicon_euro_transparent.png') }}?v=1.5">
+    <link rel="manifest" href="{{ asset('manifest.json') }}?v=1.5">
+    <link rel="manifest" href="/public/manifest.json?v=1.5">
 
     <!-- Tailwind CSS -->
     <script>
