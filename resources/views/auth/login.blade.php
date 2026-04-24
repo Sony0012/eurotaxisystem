@@ -653,18 +653,14 @@
 
                 <!-- Icons -->
                 <div class="flex-1 flex items-start justify-center px-8 pt-16">
-                    <div class="flex justify-center gap-8">
+                    <div class="flex justify-center gap-16">
                         <div class="text-center icon-animate-1">
                             <i class="fas fa-users text-3xl mb-2 text-white text-shadow-light"></i>
-                            <p class="text-sm text-white text-shadow-light">200+ Drivers</p>
-                        </div>
-                        <div class="text-center icon-animate-2">
-                            <i class="fas fa-route text-3xl mb-2 text-white text-shadow-light"></i>
-                            <p class="text-sm text-white text-shadow-light">10K+ Trips</p>
+                            <p class="text-sm text-white text-shadow-light">{{ $driversCount ?? '0' }} Drivers</p>
                         </div>
                         <div class="text-center icon-animate-3">
                             <i class="fas fa-car text-3xl mb-2 text-white text-shadow-light"></i>
-                            <p class="text-sm text-white text-shadow-light">94 Units</p>
+                            <p class="text-sm text-white text-shadow-light">{{ $unitsCount ?? '0' }} Units</p>
                         </div>
                     </div>
                 </div>

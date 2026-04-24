@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
 use App\Models\User;
 use App\Models\VerifiedBrowser;
+use App\Models\Unit;
+use App\Models\Driver;
 
 class AuthController extends Controller
 {
@@ -18,7 +20,11 @@ class AuthController extends Controller
         if (Auth::check()) {
             return redirect()->route('dashboard');
         }
-        return view('auth.login');
+
+        $unitsCount = Unit::count();
+        $driversCount = Driver::count();
+
+        return view('auth.login', compact('unitsCount', 'driversCount'));
     }
 
     public function login(Request $request)
