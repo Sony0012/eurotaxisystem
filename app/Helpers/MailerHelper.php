@@ -31,7 +31,16 @@ if (!function_exists('send_custom_email')) {
             $mail->SMTPAuth = true;
             $mail->Username = config('mail.mailers.smtp.username');
             $mail->Password = config('mail.mailers.smtp.password');
-            $mail->SMTPSecure = config('mail.mailers.smtp.encryption', PHPMailer::ENCRYPTION_SMTPS);
+            // Encryption Handling
+            $encryption = config('mail.mailers.smtp.encryption', 'ssl');
+            if ($encryption === 'tls') {
+                $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+            } elseif ($encryption === 'ssl') {
+                $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+            } else {
+                $mail->SMTPSecure = $encryption; // Fallback to raw string
+            }
+            
             $mail->Port = config('mail.mailers.smtp.port', 465);
 
             // Hostinger/Shared Hosting SSL Fix
