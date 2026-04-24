@@ -74,14 +74,6 @@
                         <div class="flex items-center gap-2">
                             <button
                                 type="button"
-                                class="text-blue-600 hover:text-blue-900"
-                                onclick="event.stopPropagation(); openDriverDetails({{ $driver->id }})"
-                                title="View Details"
-                            >
-                                <i data-lucide="eye" class="w-3.5 h-3.5"></i>
-                            </button>
-                            <button
-                                type="button"
                                 class="text-indigo-600 hover:text-indigo-900"
                                 onclick="event.stopPropagation(); openEditDriverModal({{ $driver->id }})"
                                 title="Edit Driver"
