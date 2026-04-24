@@ -159,7 +159,7 @@
             </div>
             <div class="w-40">
                 <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Type</label>
-                <select name="type" class="w-full px-3 py-2 bg-gray-50 border border-gray-100 rounded-xl text-sm font-medium focus:ring-2 focus:ring-yellow-500 focus:outline-none">
+                <select name="type" onchange="this.form.submit()" class="w-full px-3 py-2 bg-gray-50 border border-gray-100 rounded-xl text-sm font-medium focus:ring-2 focus:ring-yellow-500 focus:outline-none">
                     <option value="">All Types</option>
                     @foreach(App\Http\Controllers\DriverBehaviorController::$incidentTypes as $type => $meta)
                         <option value="{{ $type }}" {{ $type_filter === $type ? 'selected' : '' }}>{{ $type }}</option>
@@ -168,7 +168,7 @@
             </div>
             <div class="w-36">
                 <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Severity</label>
-                <select name="severity" class="w-full px-3 py-2 bg-gray-50 border border-gray-100 rounded-xl text-sm font-medium focus:ring-2 focus:ring-yellow-500 focus:outline-none">
+                <select name="severity" onchange="this.form.submit()" class="w-full px-3 py-2 bg-gray-50 border border-gray-100 rounded-xl text-sm font-medium focus:ring-2 focus:ring-yellow-500 focus:outline-none">
                     <option value="">All</option>
                     <option value="critical" {{ $severity_filter === 'critical' ? 'selected' : '' }}>Critical</option>
                     <option value="high" {{ $severity_filter === 'high' ? 'selected' : '' }}>High</option>
@@ -178,18 +178,14 @@
             </div>
             <div class="w-36">
                 <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">From</label>
-                <input type="date" name="date_from" value="{{ $date_from }}"
+                <input type="date" name="date_from" value="{{ $date_from }}" onchange="this.form.submit()"
                     class="w-full px-3 py-2 bg-gray-50 border border-gray-100 rounded-xl text-sm font-medium focus:ring-2 focus:ring-yellow-500 focus:outline-none">
             </div>
             <div class="w-36">
                 <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">To</label>
-                <input type="date" name="date_to" value="{{ $date_to }}"
+                <input type="date" name="date_to" value="{{ $date_to }}" onchange="this.form.submit()"
                     class="w-full px-3 py-2 bg-gray-50 border border-gray-100 rounded-xl text-sm font-medium focus:ring-2 focus:ring-yellow-500 focus:outline-none">
             </div>
-            <button type="submit" class="px-5 py-2 bg-yellow-500 text-white font-black text-xs uppercase tracking-widest rounded-xl hover:bg-yellow-600 transition-all">
-                Filter
-            </button>
-            <a href="{{ route('driver-behavior.index') }}" class="px-4 py-2 bg-gray-100 text-gray-600 font-black text-xs uppercase tracking-widest rounded-xl hover:bg-gray-200 transition-all">Clear</a>
         </form>
     </div>
 
