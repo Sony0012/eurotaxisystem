@@ -364,20 +364,27 @@
                     <input type="hidden" id="rawShortageAmount" value="0">
                 </div>
 
-                {{-- Shift Turn & Incentive Info --}}
-                <div id="shiftInfoGroup" class="hidden mt-2 p-2 rounded-lg border flex flex-col gap-1 transition-all duration-300">
-                    <div class="flex items-center justify-between">
-                        <span class="text-[10px] uppercase font-black tracking-widest text-gray-400">Current Turn</span>
+                {{-- Shift Status (user-friendly redesign) --}}
+                <div id="shiftInfoGroup" class="hidden mt-2 rounded-xl border transition-all duration-300 overflow-hidden">
+                    {{-- Header --}}
+                    <div class="px-3 py-2 flex items-center justify-between border-b bg-gray-50/70" id="shiftInfoHeader">
+                        <span class="text-[10px] uppercase font-black tracking-widest text-gray-400">Shift Status</span>
                         <div id="incentiveStatusBadge"></div>
                     </div>
-                    <div class="flex items-center gap-2">
-                        <div class="p-1.5 bg-yellow-100 rounded-lg">
-                            <i data-lucide="refresh-cw" class="w-3.5 h-3.5 text-yellow-600" id="turnIcon"></i>
+                    {{-- Expected Driver Row --}}
+                    <div class="px-3 py-2.5 flex items-start gap-3" id="shiftInfoBody">
+                        <div class="p-1.5 rounded-lg mt-0.5 shrink-0" id="shiftIconWrap">
+                            <i data-lucide="user-check" class="w-3.5 h-3.5" id="shiftIcon"></i>
                         </div>
-                        <div class="flex flex-col">
-                            <span id="expectedDriverName" class="text-sm font-bold text-gray-900 leading-tight">Driver Name</span>
-                            <span id="shiftTimer" class="text-[10px] text-gray-500 font-medium tracking-tight">Shift started 0h ago</span>
+                        <div class="flex flex-col gap-0.5 w-full">
+                            <span id="shiftMainLabel" class="text-[11px] font-black text-gray-800 leading-tight"></span>
+                            <span id="shiftTimer" class="text-[10px] text-gray-500 font-medium leading-snug"></span>
                         </div>
+                    </div>
+                    {{-- Extra Driver Notice (shown when selected driver ≠ expected driver) --}}
+                    <div id="shiftExtraNotice" class="hidden px-3 py-2 border-t bg-orange-50 flex items-start gap-2">
+                        <span class="text-orange-500 text-sm mt-0.5">⚠️</span>
+                        <p id="shiftExtraText" class="text-[10px] text-orange-700 font-bold leading-snug"></p>
                     </div>
                 </div>
 
@@ -1079,6 +1086,11 @@ function initializeDriverDropdown() {
                 }
 
                 document.getElementById('driverId').dispatchEvent(new Event('change'));
+
+                // Refresh shift status notice (extra driver vs expected driver)
+                if (typeof refreshShiftStatusForDriver === 'function') {
+                    refreshShiftStatusForDriver(this.getAttribute('data-id'));
+                }
             });
         });
     }
@@ -1338,78 +1350,116 @@ function deriveCodingDay(plate) {
 }
 
 function updateShiftInfo(unitElement) {
-    const expectedId = unitElement.getAttribute('data-expected-id') || '0';
-    const deadline = unitElement.getAttribute('data-deadline');
-    
-    const shiftInfoGroup = document.getElementById('shiftInfoGroup');
-    const driverNameLabel = document.getElementById('expectedDriverName');
-    const shiftTimerLabel = document.getElementById('shiftTimer');
-    const badgeContainer = document.getElementById('incentiveStatusBadge');
-    
-    // Find expected driver name
-    const driverOption = document.querySelector(`.driver-option[data-id="${expectedId}"]`);
-    const expectedName = driverOption ? driverOption.getAttribute('data-name') : 'Unknown Driver';
-    
-    // Auto-select expected driver
+    const expectedId    = unitElement.getAttribute('data-expected-id') || '0';
+    const deadline      = unitElement.getAttribute('data-deadline');
+
+    const shiftInfoGroup  = document.getElementById('shiftInfoGroup');
+    const mainLabel       = document.getElementById('shiftMainLabel');
+    const shiftTimer      = document.getElementById('shiftTimer');
+    const badgeContainer  = document.getElementById('incentiveStatusBadge');
+    const shiftIconWrap   = document.getElementById('shiftIconWrap');
+    const shiftIcon       = document.getElementById('shiftIcon');
+    const extraNotice     = document.getElementById('shiftExtraNotice');
+    const extraText       = document.getElementById('shiftExtraText');
+
+    // Store expected ID on the modal so refreshShiftStatusForDriver can read it later
+    document.getElementById('boundaryModal').setAttribute('data-expected-id', expectedId);
+
+    // Lookup expected driver name
+    const driverOption  = document.querySelector(`.driver-option[data-id="${expectedId}"]`);
+    const expectedName  = (driverOption && expectedId !== '0') ? driverOption.getAttribute('data-name') : null;
+
+    // Auto-select expected driver (pre-fill form)
     if (expectedId && expectedId !== '0') {
-        document.getElementById('driverId').value = expectedId;
+        document.getElementById('driverId').value   = expectedId;
         document.getElementById('driverDisplay').value = expectedName;
-        
-        // Trigger alerts check
         const shortage = parseFloat(driverOption ? driverOption.getAttribute('data-shortage') : 0);
-        if (typeof triggerDriverAlerts === 'function') {
-            triggerDriverAlerts(expectedId, shortage);
-        }
+        if (typeof triggerDriverAlerts === 'function') triggerDriverAlerts(expectedId, shortage);
     }
 
-    // Calculate precision time based on STRICT DEADLINE
+    // --- Build shift timing info ---
     if (deadline) {
-        const deadlineDate = new Date(deadline);
-        // Format absolute shifting time (e.g., 2:00 PM)
+        const deadlineDate  = new Date(deadline);
         const formatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
-        const absoluteTimeStr = deadlineDate.toLocaleTimeString('en-US', formatOptions);
+        const absoluteStr   = deadlineDate.toLocaleTimeString('en-US', formatOptions);
+        const now           = new Date();
+        const diffMs        = deadlineDate - now;
+        const isPast        = diffMs < 0;
+        const absDiff       = Math.abs(diffMs);
+        const diffHours     = Math.floor(absDiff / (1000 * 60 * 60));
+        const diffMins      = Math.floor((absDiff % (1000 * 60 * 60)) / (1000 * 60));
 
-        const now = new Date();
-        const diffMs = deadlineDate - now;
-        const isPast = diffMs < 0;
-        const absDiff = Math.abs(diffMs);
-        
-        const diffHours = Math.floor(absDiff / (1000 * 60 * 60));
-        const diffMins = Math.floor((absDiff % (1000 * 60 * 60)) / (1000 * 60));
-        
         if (isPast) {
-            const STALE_THRESHOLD_HRS = 24;
-            if (diffHours < STALE_THRESHOLD_HRS) {
-                // Genuinely late for this shift (within last 24hrs)
-                shiftTimerLabel.innerHTML = `<span class="flex flex-col"><span class="text-red-600 font-black">LATE RETURN: ${diffHours}h ${diffMins}m Ago</span><span class="text-gray-400">Shifting Time: <strong>${absoluteTimeStr}</strong></span></span>`;
-                shiftInfoGroup.classList.add('border-red-200', 'bg-red-50');
-                shiftInfoGroup.classList.remove('border-green-200', 'bg-green-50', 'border-orange-200', 'bg-orange-50');
-                // Removed red "NO INCENTIVE" badge per user request. Late return is just a note, not an incentive void.
-                badgeContainer.innerHTML = '<span class="px-1.5 py-0.5 bg-green-100 text-green-700 text-[9px] font-bold rounded-full border border-green-300 uppercase tracking-tighter shadow-sm">INCENTIVE ELIGIBLE</span>';
-            } else {
-                // Stale schedule (>24h) — hide the shift info block entirely, no confusing labels
+            if (diffHours >= 24) {
+                // Stale: hide entirely
                 shiftInfoGroup.classList.add('hidden');
-                return; // Exit early, don't show the block
+                return;
             }
+            // Late return — still eligible, just informational
+            mainLabel.textContent = expectedName ? `${expectedName} — Shift Deadline Passed` : 'Shift Deadline Passed';
+            shiftTimer.innerHTML  = `<span class="text-amber-600 font-bold">Overdue by ${diffHours}h ${diffMins}m</span> &nbsp;·&nbsp; Deadline was ${absoluteStr}`;
+            shiftIconWrap.className = 'p-1.5 rounded-lg mt-0.5 shrink-0 bg-amber-100';
+            shiftIcon.className     = 'w-3.5 h-3.5 text-amber-600';
+            shiftIcon.setAttribute('data-lucide', 'clock-4');
+            shiftInfoGroup.className = shiftInfoGroup.className.replace(/border-\S+/g, '').trim();
+            shiftInfoGroup.classList.add('border-amber-200', 'bg-amber-50/30');
+            badgeContainer.innerHTML = '<span class="px-1.5 py-0.5 bg-green-100 text-green-700 text-[9px] font-bold rounded-full border border-green-300 uppercase tracking-tighter shadow-sm">Incentive Eligible</span>';
         } else {
-            shiftTimerLabel.innerHTML = `<span class="flex flex-col"><span class="text-green-600 font-bold">${diffHours}h ${diffMins}m remaining</span><span class="text-gray-400 mt-0.5">Shifting Time: <strong>${absoluteTimeStr}</strong></span></span>`;
-            shiftInfoGroup.classList.add('border-green-200', 'bg-green-50');
-            shiftInfoGroup.classList.remove('border-red-200', 'bg-red-50');
-            badgeContainer.innerHTML = '<span class="px-1.5 py-0.5 bg-green-100 text-green-700 text-[9px] font-bold rounded-full border border-green-300 uppercase tracking-tighter shadow-sm">INCENTIVE ELIGIBLE</span>';
+            // Shift still active
+            mainLabel.textContent = expectedName ? `${expectedName} — On Shift` : 'Driver On Shift';
+            shiftTimer.innerHTML  = `<span class="text-green-600 font-bold">${diffHours}h ${diffMins}m remaining</span> &nbsp;·&nbsp; Returns by ${absoluteStr}`;
+            shiftIconWrap.className = 'p-1.5 rounded-lg mt-0.5 shrink-0 bg-green-100';
+            shiftIcon.className     = 'w-3.5 h-3.5 text-green-600';
+            shiftIcon.setAttribute('data-lucide', 'user-check');
+            shiftInfoGroup.className = shiftInfoGroup.className.replace(/border-\S+/g, '').trim();
+            shiftInfoGroup.classList.add('border-green-200', 'bg-green-50/20');
+            badgeContainer.innerHTML = '<span class="px-1.5 py-0.5 bg-green-100 text-green-700 text-[9px] font-bold rounded-full border border-green-300 uppercase tracking-tighter shadow-sm">Incentive Eligible</span>';
         }
     } else {
-        shiftTimerLabel.innerHTML = '<span class="text-gray-500">Shift schedule not yet initialized</span>';
-        badgeContainer.innerHTML = '<span class="px-1.5 py-0.5 bg-blue-100 text-blue-700 text-[9px] font-bold rounded-full border border-blue-300 uppercase tracking-tighter">NEW PATTERN</span>';
+        // No deadline set — first time or schedule cleared
+        mainLabel.textContent = expectedName ? `${expectedName} — New Shift` : 'No Schedule Yet';
+        shiftTimer.innerHTML  = '<span class="text-gray-400 italic">Shift schedule not yet set for this unit.</span>';
+        shiftIconWrap.className = 'p-1.5 rounded-lg mt-0.5 shrink-0 bg-blue-100';
+        shiftIcon.className     = 'w-3.5 h-3.5 text-blue-600';
+        shiftIcon.setAttribute('data-lucide', 'calendar-plus');
+        shiftInfoGroup.className = shiftInfoGroup.className.replace(/border-\S+/g, '').trim();
+        shiftInfoGroup.classList.add('border-blue-200', 'bg-blue-50/20');
+        badgeContainer.innerHTML = '<span class="px-1.5 py-0.5 bg-blue-100 text-blue-700 text-[9px] font-bold rounded-full border border-blue-300 uppercase tracking-tighter">New Pattern</span>';
     }
+
+    // Hide extra notice initially — will be shown by refreshShiftStatusForDriver if needed
+    if (extraNotice) extraNotice.classList.add('hidden');
 
     const swappedAt = unitElement.getAttribute('data-swapped-at');
     document.getElementById('boundaryModal').setAttribute('data-current-swap', swappedAt || '');
 
     shiftInfoGroup.classList.remove('hidden');
     if (typeof lucide !== 'undefined') lucide.createIcons();
-    
-    // Refresh computation if any breakdown check is already active
     updateBreakdownComputation();
+}
+
+// Called whenever the dispatcher changes the driver selection
+function refreshShiftStatusForDriver(selectedDriverId) {
+    const modal       = document.getElementById('boundaryModal');
+    const expectedId  = modal.getAttribute('data-expected-id') || '0';
+    const extraNotice = document.getElementById('shiftExtraNotice');
+    const extraText   = document.getElementById('shiftExtraText');
+
+    if (!extraNotice || !extraText) return;
+
+    const shiftInfoGroup = document.getElementById('shiftInfoGroup');
+    if (shiftInfoGroup.classList.contains('hidden')) return; // Nothing to update
+
+    const isExtra = selectedDriverId && selectedDriverId !== 'all' && expectedId !== '0' && String(selectedDriverId) !== String(expectedId);
+
+    if (isExtra) {
+        const expectedOption = document.querySelector(`.driver-option[data-id="${expectedId}"]`);
+        const expectedName   = expectedOption ? expectedOption.getAttribute('data-name') : 'the expected driver';
+        extraText.textContent = `${expectedName} hasn't submitted their boundary yet. This record will be filed under the selected driver as Extra Driver.`;
+        extraNotice.classList.remove('hidden');
+    } else {
+        extraNotice.classList.add('hidden');
+    }
 }
 
 function updateBreakdownComputation() {
