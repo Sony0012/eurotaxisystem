@@ -14,7 +14,7 @@
         <tbody class="bg-white divide-y divide-gray-200">
             @forelse($drivers as $driver)
                 @php $has_shortage = isset($driver->net_shortage) && $driver->net_shortage > 0; @endphp
-                <tr class="cursor-pointer {{ $has_shortage ? 'bg-red-50 hover:bg-red-100' : 'hover:bg-gray-50' }}" onclick="openEditDriverModal({{ $driver->id }})">
+                <tr class="cursor-pointer {{ $has_shortage ? 'bg-red-50 hover:bg-red-100' : 'hover:bg-gray-50' }}" onclick="openDriverDetails({{ $driver->id }})">
                     <td class="px-6 py-1 whitespace-nowrap">
                         <div class="flex items-center gap-1.5">
                             <div class="text-xs font-medium {{ $has_shortage ? 'text-red-700 shortage-text-blink' : 'text-gray-900' }}">{{ $driver->full_name }}</div>
