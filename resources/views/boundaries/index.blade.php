@@ -1390,20 +1390,44 @@ function updateShiftInfo(unitElement) {
         const diffMins      = Math.floor((absDiff % (1000 * 60 * 60)) / (1000 * 60));
 
         if (isPast) {
-            if (diffHours >= 24) {
-                // Stale: hide entirely
-                shiftInfoGroup.classList.add('hidden');
-                return;
+            const diffDays = Math.floor(diffHours / 24);
+            const remHours = diffHours % 24;
+
+            let overdueTxt, borderColor, bgColor, iconColor, iconBg, iconName, badgeHtml;
+
+            if (diffHours < 24) {
+                // < 1 day overdue — amber warning
+                overdueTxt   = `Overdue by ${diffHours}h ${diffMins}m`;
+                borderColor  = 'border-amber-200';  bgColor = 'bg-amber-50/30';
+                iconBg       = 'bg-amber-100';       iconColor = 'text-amber-600';
+                iconName     = 'clock-4';
+                badgeHtml    = '<span class="px-1.5 py-0.5 bg-green-100 text-green-700 text-[9px] font-bold rounded-full border border-green-300 uppercase tracking-tighter shadow-sm">Incentive Eligible</span>';
+            } else if (diffHours < 48) {
+                // 1–2 days — orange alert
+                overdueTxt   = `⚠️ Missing for 1 day ${remHours}h — Last boundary was yesterday`;
+                borderColor  = 'border-orange-300'; bgColor = 'bg-orange-50';
+                iconBg       = 'bg-orange-100';      iconColor = 'text-orange-600';
+                iconName     = 'alert-triangle';
+                badgeHtml    = '<span class="px-1.5 py-0.5 bg-orange-100 text-orange-700 text-[9px] font-bold rounded-full border border-orange-300 uppercase tracking-tighter shadow-sm animate-pulse">CHECK UNIT</span>';
+            } else {
+                // 2+ days — red danger
+                overdueTxt   = `🚨 NO BOUNDARY FOR ${diffDays} DAYS ${remHours}h — Possible Missing/Runaway Unit!`;
+                borderColor  = 'border-red-400';    bgColor = 'bg-red-50';
+                iconBg       = 'bg-red-100';         iconColor = 'text-red-600';
+                iconName     = 'siren';
+                badgeHtml    = '<span class="px-1.5 py-0.5 bg-red-100 text-red-700 text-[9px] font-bold rounded-full border border-red-400 uppercase tracking-tighter shadow-sm animate-pulse">MISSING UNIT</span>';
             }
-            // Late return — still eligible, just informational
-            mainLabel.textContent = expectedName ? `${expectedName} — Shift Deadline Passed` : 'Shift Deadline Passed';
-            shiftTimer.innerHTML  = `<span class="text-amber-600 font-bold">Overdue by ${diffHours}h ${diffMins}m</span> &nbsp;·&nbsp; Deadline was ${absoluteStr}`;
-            shiftIconWrap.className = 'p-1.5 rounded-lg mt-0.5 shrink-0 bg-amber-100';
-            shiftIcon.className     = 'w-3.5 h-3.5 text-amber-600';
-            shiftIcon.setAttribute('data-lucide', 'clock-4');
+
+            mainLabel.textContent = expectedName
+                ? `${expectedName} — Shift Deadline Passed`
+                : 'Last Driver — Shift Deadline Passed';
+            shiftTimer.innerHTML  = `<span class="${iconColor} font-bold">${overdueTxt}</span><br><span class="text-gray-400 text-[9px]">Deadline was ${absoluteStr}</span>`;
+            shiftIconWrap.className = `p-1.5 rounded-lg mt-0.5 shrink-0 ${iconBg}`;
+            shiftIcon.className     = `w-3.5 h-3.5 ${iconColor}`;
+            shiftIcon.setAttribute('data-lucide', iconName);
             shiftInfoGroup.className = shiftInfoGroup.className.replace(/border-\S+/g, '').trim();
-            shiftInfoGroup.classList.add('border-amber-200', 'bg-amber-50/30');
-            badgeContainer.innerHTML = '<span class="px-1.5 py-0.5 bg-green-100 text-green-700 text-[9px] font-bold rounded-full border border-green-300 uppercase tracking-tighter shadow-sm">Incentive Eligible</span>';
+            shiftInfoGroup.classList.add(borderColor, bgColor);
+            badgeContainer.innerHTML = badgeHtml;
         } else {
             // Shift still active
             mainLabel.textContent = expectedName ? `${expectedName} — On Shift` : 'Driver On Shift';
