@@ -696,19 +696,50 @@ class UnitController extends Controller
                 $unit->last_boundary_date = $lastDate->format('M d, Y g:i A');
                 $unit->days_inactive = max(0, $lastDate->diffInDays(now()));
                 
-                // Identify the last driver who held the unit from the boundary record
-                if ($lastBoundary->driver_id) {
-                    $lastDriver = DB::table('drivers')
-                        ->where('id', $lastBoundary->driver_id)
-                        ->select('first_name', 'last_name', 'contact_number')
+                // Identify the SUSPECT driver (The one who took the unit AFTER the last boundary)
+                $lastBoundaryDriverId = $lastBoundary->driver_id;
+                $suspectDriverId = null;
+
+                // Priority 1: If it's a 2/2 Sharing unit, swap based on last boundary
+                if ($unit->driver_id && $unit->secondary_driver_id) {
+                    if ($lastBoundaryDriverId == $unit->driver_id) {
+                        $suspectDriverId = $unit->secondary_driver_id;
+                    } else {
+                        $suspectDriverId = $unit->driver_id;
+                    }
+                } 
+                // Priority 2: If it's a Solo unit, the assigned driver is the suspect
+                else if ($unit->driver_id || $unit->secondary_driver_id) {
+                    $suspectDriverId = $unit->driver_id ?? $unit->secondary_driver_id;
+                }
+                // Priority 3: If it's Vacant, nobody is assigned
+                else {
+                    $suspectDriverId = null;
+                }
+
+                if ($suspectDriverId) {
+                    $suspect = DB::table('drivers')
+                        ->where('id', $suspectDriverId)
+                        ->select('id', 'first_name', 'last_name', 'contact_number')
                         ->first();
-                    $unit->last_known_driver = $lastDriver 
-                        ? trim($lastDriver->first_name . ' ' . $lastDriver->last_name)
+                    
+                    $unit->suspect_driver = $suspect 
+                        ? trim($suspect->first_name . ' ' . $suspect->last_name)
                         : 'Unknown';
-                    $unit->last_driver_contact = $lastDriver->contact_number ?? null;
+                    $unit->suspect_contact = $suspect->contact_number ?? null;
+                    $unit->is_vacant = false;
                 } else {
-                    $unit->last_known_driver = 'Not recorded';
-                    $unit->last_driver_contact = null;
+                    $unit->suspect_driver = 'NO ASSIGNED DRIVER';
+                    $unit->suspect_contact = null;
+                    $unit->is_vacant = true;
+                }
+
+                // Keep last driver info for reference context
+                if ($lastBoundaryDriverId) {
+                    $lastD = DB::table('drivers')->where('id', $lastBoundaryDriverId)->select('first_name', 'last_name')->first();
+                    $unit->last_known_driver = $lastD ? trim($lastD->first_name . ' ' . $lastD->last_name) : 'Unknown';
+                } else {
+                    $unit->last_known_driver = 'None';
                 }
             } else {
                 $unit->last_boundary_date = null;

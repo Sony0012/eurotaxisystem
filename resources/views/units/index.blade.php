@@ -883,10 +883,15 @@
                         : `<span class="text-[9px] px-1.5 py-0.5 bg-orange-100 text-orange-700 rounded font-bold uppercase tracking-wide">⚠️ Auto-Detected</span>`;
                     const borderColor = unit.is_surveillance ? 'border-red-500' : 'border-orange-400';
                     
-                    const suspectDisplay = unit.suspect_driver || 'Unknown';
-                    const contactDisplay = unit.suspect_contact 
-                        ? `<a href="tel:${unit.suspect_contact}" class="text-blue-600 font-semibold hover:underline">${unit.suspect_contact}</a>`
-                        : `<span class="text-gray-400 italic">No contact</span>`;
+                    const suspectDisplay = unit.is_vacant 
+                        ? `<span class="bg-gray-200 text-gray-600 px-1.5 py-0.5 rounded font-bold italic tracking-tight">NO ASSIGNED DRIVER</span>`
+                        : `<span class="font-black text-gray-900">${unit.suspect_driver || 'Unknown'}</span>`;
+                    
+                    const contactDisplay = unit.is_vacant 
+                        ? `<span class="text-gray-400 italic">--</span>`
+                        : (unit.suspect_contact 
+                            ? `<a href="tel:${unit.suspect_contact}" class="text-blue-600 font-semibold hover:underline">${unit.suspect_contact}</a>`
+                            : `<span class="text-gray-400 italic">No contact</span>`);
 
                     html += `
                         <div class="bg-white border-l-4 ${borderColor} shadow-sm rounded-lg p-3">
@@ -900,8 +905,8 @@
                                     
                                     <div class="mt-2 bg-gray-50 rounded p-2 border border-gray-100 space-y-1">
                                         <div class="flex items-center gap-1.5 text-[11px]">
-                                            <span class="text-red-500 font-bold w-24 flex-shrink-0 uppercase">SUSPECT:</span>
-                                            <span class="font-black text-gray-900">${suspectDisplay}</span>
+                                            <span class="${unit.is_vacant ? 'text-gray-400' : 'text-red-500'} font-bold w-24 flex-shrink-0 uppercase">SUSPECT:</span>
+                                            ${suspectDisplay}
                                         </div>
                                         <div class="flex items-center gap-1.5 text-[11px]">
                                             <span class="text-gray-400 w-24 flex-shrink-0">Contact # :</span>
