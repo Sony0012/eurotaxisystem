@@ -78,9 +78,8 @@ class Unit extends Model
     protected static function booted()
     {
         static::saving(function ($unit) {
-            // Auto-assign boundary rate based on year model if not manually overridden
-            // Or always sync if year changed
-            if ($unit->isDirty('year')) {
+            // Auto-assign boundary rate based on year model ONLY if the rate wasn't also manually changed
+            if ($unit->isDirty('year') && !$unit->isDirty('boundary_rate')) {
                 $year = (int) $unit->year;
                 $rule = \App\Models\BoundaryRule::where('start_year', '<=', $year)
                     ->where('end_year', '>=', $year)

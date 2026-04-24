@@ -387,15 +387,14 @@
                 </div>
                 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Target Boundary Amount *</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1 font-bold">Target Boundary Amount *</label>
                     <div class="relative">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <span class="text-gray-500 text-xs">₱</span>
                         </div>
                         <input type="number" name="boundary_amount" id="boundaryAmount" required step="0.01" min="0" 
-                               readonly tabindex="-1"
-                               class="w-full pl-7 px-2 py-1.5 border border-gray-300 rounded-lg bg-gray-50 text-gray-500 cursor-not-allowed focus:ring-0 focus:border-gray-300"
-                               title="This target is inherited from Unit Management (adjusted for date)">
+                               class="w-full pl-7 px-2 py-1.5 border-2 border-yellow-200 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 font-bold"
+                               title="Target boundary for this shift. Defaults to unit rate (adjusted for day).">
                     </div>
                 </div>
                 
@@ -1250,8 +1249,8 @@ function editBoundary(id) {
         const driverDisplay = document.getElementById('driverDisplay');
         driverDisplay.value = boundary.driver_name || 'Unknown Driver';
 
-        // Keep boundary amount read-only as per source-of-truth requirement
-        document.getElementById('boundaryAmount').readOnly = true;
+        // Allow editing boundary amount if needed
+        document.getElementById('boundaryAmount').readOnly = false;
 
         // Parse existing exception rules from notes
         const notesLc = (boundary.notes || '').toLowerCase();
@@ -1513,13 +1512,19 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeUnitDropdown();
     initializeDriverDropdown();
     
-    // Sync actual boundary with boundary amount when changed
+    // Sync manual target changes with dataset and actual boundary
     const amtInput = document.getElementById('boundaryAmount');
     if (amtInput) {
         amtInput.addEventListener('input', function() {
             const val = this.value || '0.00';
+            // Update originalTarget so maintenance math uses this as the new base
+            this.dataset.originalTarget = val;
+            
             const actualInput = document.getElementById('actualBoundary');
             if (actualInput) actualInput.value = val;
+            
+            // Re-run breakdown math if active to use the new base
+            updateBreakdownComputation();
         });
     }
 

@@ -185,9 +185,10 @@
                                     <span class="text-gray-500 text-sm">₱</span>
                                 </div>
                                 <input type="text" name="boundary_rate" id="addBoundaryRate" required value="1,100.00"
-                                    readonly tabindex="-1"
-                                    class="w-full pl-8 pr-4 py-3 border-2 border-gray-300 rounded-lg bg-gray-50 text-gray-500 cursor-not-allowed focus:outline-none"
-                                    placeholder="0.00">
+                                    class="w-full pl-8 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                                    placeholder="0.00"
+                                    onfocus="unformatCurrencyInput(this)"
+                                    onblur="formatCurrencyInput(this)">
                             </div>
                             <p class="text-xs text-gray-500">Daily boundary collection target</p>
                         </div>
@@ -520,9 +521,10 @@
                                     <span class="text-gray-500 text-sm">₱</span>
                                 </div>
                                 <input type="text" name="boundary_rate" id="editBoundaryRate"
-                                    readonly tabindex="-1"
-                                    class="w-full pl-8 pr-4 py-3 border-2 border-gray-300 rounded-lg bg-gray-50 text-gray-500 cursor-not-allowed focus:outline-none"
-                                    placeholder="0.00">
+                                    class="w-full pl-8 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    placeholder="0.00"
+                                    onfocus="unformatCurrencyInput(this)"
+                                    onblur="formatCurrencyInput(this)">
                             </div>
                             <p class="text-xs text-gray-500">Daily boundary collection target</p>
                         </div>
@@ -1662,11 +1664,7 @@ function addUnitUpdateCoding() {
         }
     }
 
-    // Boundary rate by coding day
-    const rates = { Monday:1200, Tuesday:1100, Wednesday:1150, Thursday:1050, Friday:1300 };
-    if (codingDay && rates[codingDay]) {
-        document.getElementById('addBoundaryRate').value = rates[codingDay].toFixed(2);
-    }
+
 
     document.getElementById('addCodingDay').value = codingDay || '';
     document.getElementById('addNextCodingDate').value = codingDay ? nextDate.toLocaleDateString('en-US') : '';
