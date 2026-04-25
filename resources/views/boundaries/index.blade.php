@@ -75,14 +75,13 @@
         <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">
                 <tr>
-                    <th class="px-3 py-3 text-left text-[10px] font-bold text-gray-400 uppercase tracking-wider w-24">Date</th>
-                    <th class="px-3 py-3 text-left text-[10px] font-bold text-gray-400 uppercase tracking-wider">Unit</th>
-                    <th class="px-3 py-3 text-left text-[10px] font-bold text-gray-400 uppercase tracking-wider">Driver</th>
-                    <th class="px-3 py-3 text-left text-[10px] font-bold text-gray-400 uppercase tracking-wider">Boundary</th>
-                    <th class="px-3 py-3 text-left text-[10px] font-bold text-gray-400 uppercase tracking-wider">Actual</th>
-                    <th class="px-3 py-3 text-left text-[10px] font-bold text-gray-400 uppercase tracking-wider">Hulog</th>
-                    <th class="px-3 py-3 text-left text-[10px] font-bold text-gray-400 uppercase tracking-wider">Status</th>
-                    <th class="px-3 py-3 text-left text-[10px] font-bold text-gray-400 uppercase tracking-wider">Actions</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Plate Number</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Driver</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Boundary</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actual</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                 </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
@@ -97,89 +96,85 @@
                     @foreach ($boundariesArray as $boundary)
                         <tr class="hover:bg-yellow-50 cursor-pointer transition-all border-l-4 border-transparent hover:border-yellow-400 group"
                             onclick="openViewBoundary({{ $boundary['id'] }})">
-                            <td class="px-3 py-4 whitespace-nowrap text-xs text-gray-900 group-hover:text-yellow-700 font-medium transition-colors">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 group-hover:text-yellow-700 font-medium transition-colors">
                                 {{ formatDate($boundary['date']) }}
                             </td>
-                            <td class="px-3 py-4 whitespace-nowrap">
+                            <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="flex items-center gap-1.5">
-                                    <span class="text-xs font-black text-yellow-700 uppercase tracking-tight">{{ $boundary['plate_number'] }}</span>
+                                    <span class="text-sm font-bold text-gray-900 group-hover:text-yellow-700 transition-colors">{{ $boundary['plate_number'] }}</span>
                                     <i data-lucide="external-link" class="w-3 h-3 text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity"></i>
                                 </div>
                             </td>
-                            <td class="px-3 py-4 whitespace-nowrap">
-                                <div class="text-xs font-bold text-gray-800">{{ $boundary['driver_name'] ?? 'Unassigned' }}
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900">{{ $boundary['driver_name'] ?? 'Unassigned' }}
                                     @if(!empty($boundary['is_extra_driver']))
-                                        <span class="ml-1 px-1 py-0.5 bg-orange-100 text-orange-700 text-[8px] font-black rounded border border-orange-200 uppercase tracking-tighter">Extra</span>
+                                        <span class="ml-1 px-1.5 py-0.5 bg-orange-100 text-orange-700 text-[9px] font-bold rounded border border-orange-300 uppercase tracking-tight">Extra Driver</span>
                                     @endif
                                 </div>
-                                <div class="text-[9px] text-gray-400 mt-0.5 font-bold uppercase tracking-tighter flex gap-2">
-                                    <span title="Input by {{ $boundary['creator_name'] ?? 'System' }}">In: {{ explode(' ', $boundary['creator_name'] ?? 'System')[0] }}</span>
+                                <div class="text-[10px] text-gray-500 mt-1">
+                                    <span title="Input by {{ $boundary['creator_name'] ?? 'System' }}">In: {{ $boundary['creator_name'] ?? 'System' }}</span>
                                     @if(isset($boundary['editor_name']) && $boundary['editor_name'])
-                                        <span title="Last edit by {{ $boundary['editor_name'] }}">Ed: {{ explode(' ', $boundary['editor_name'])[0] }}</span>
+                                        <span class="ml-2" title="Last edit by {{ $boundary['editor_name'] }}">Ed: {{ $boundary['editor_name'] }}</span>
                                     @endif
                                 </div>
                             </td>
-                            <td class="px-3 py-4 whitespace-nowrap">
+                            <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="flex flex-col">
-                                    <span class="text-xs text-gray-900 font-black">{{ formatCurrency($boundary['boundary_amount']) }}</span>
+                                    <span class="text-sm text-gray-900 font-bold">{{ formatCurrency($boundary['boundary_amount']) }}</span>
                                     @if(isset($boundary['rate_label']) && ($boundary['rate_type'] ?? 'regular') !== 'regular')
-                                        <span class="text-[8px] font-black uppercase tracking-tighter px-1 rounded shadow-sm mt-0.5 w-fit
-                                            @if($boundary['rate_type'] === 'coding') bg-red-500 text-white
-                                            @elseif($boundary['rate_type'] === 'discount') bg-blue-500 text-white
+                                        <span class="text-[9px] font-black uppercase tracking-tighter px-1 rounded-sm mt-0.5 w-fit
+                                            @if($boundary['rate_type'] === 'coding') bg-red-100 text-red-600 border border-red-200
+                                            @elseif($boundary['rate_type'] === 'discount') bg-blue-100 text-blue-600 border border-blue-200
                                             @else bg-gray-100 text-gray-500 @endif">
                                             {{ $boundary['rate_label'] }}
                                         </span>
                                     @endif
                                 </div>
                             </td>
-                            <td class="px-3 py-4 whitespace-nowrap text-xs text-gray-900 font-black">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-bold">
                                 {{ formatCurrency($boundary['actual_boundary'] ?? 0) }}
                             </td>
-                            <td class="px-3 py-4 whitespace-nowrap">
-                                @if(($boundary['damage_payment'] ?? 0) > 0)
-                                    <div class="text-xs font-black text-red-600">
-                                        {{ formatCurrency($boundary['damage_payment']) }}
-                                    </div>
-                                @else
-                                    <span class="text-gray-300 text-[10px] tracking-widest">—</span>
-                                @endif
-                            </td>
-                            <td class="px-3 py-4 whitespace-nowrap">
+                            <td class="px-6 py-4 whitespace-nowrap">
                                 @php
                                     $statusClass = 'bg-yellow-100 text-yellow-800';
-                                    if ($boundary['status'] === 'paid') $statusClass = 'bg-green-100 text-green-700 border-green-200';
-                                    if ($boundary['status'] === 'shortage') $statusClass = 'bg-red-100 text-red-700 border-red-200';
-                                    if ($boundary['status'] === 'excess') $statusClass = 'bg-blue-100 text-blue-700 border-blue-200';
+                                    if ($boundary['status'] === 'paid') $statusClass = 'bg-green-100 text-green-800';
+                                    if ($boundary['status'] === 'shortage') $statusClass = 'bg-red-100 text-red-800';
+                                    if ($boundary['status'] === 'excess') $statusClass = 'bg-blue-100 text-blue-800';
                                 @endphp
-                                <span class="px-2 py-0.5 inline-flex text-[9px] font-black uppercase tracking-widest rounded border {{ $statusClass }}">
-                                    {{ $boundary['status'] }}
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $statusClass }}">
+                                    {{ ucfirst($boundary['status']) }}
                                 </span>
                                 @if (isset($boundary['has_incentive']))
                                     <div class="mt-1">
                                         @if ($boundary['has_incentive'])
-                                            <span class="px-1.5 py-0.5 bg-green-500 text-white text-[8px] font-black rounded uppercase tracking-tighter">Incentive</span>
+                                            <span class="px-1.5 py-0.5 bg-green-100 text-green-700 text-[9px] font-bold rounded border border-green-200 uppercase tracking-tight" title="Incentive eligible">Incentive Earned</span>
                                         @else
                                             @php
                                                 $notes_lc = strtolower($boundary['notes'] ?? '');
                                                 $is_damage_case = str_contains($notes_lc, 'vehicle damaged') || str_contains($notes_lc, 'maintenance') || str_contains($notes_lc, 'breakdown');
                                             @endphp
                                             @if ($is_damage_case)
-                                                <span class="px-1.5 py-0.5 bg-red-100 text-red-700 text-[8px] font-black rounded border border-red-200 uppercase tracking-tighter">No Inc.</span>
+                                                <span class="px-1.5 py-0.5 bg-red-100 text-red-700 text-[9px] font-bold rounded border border-red-200 uppercase tracking-tight" title="No incentive due to vehicle damage or breakdown">No Incentive</span>
                                             @else
-                                                <span class="px-1.5 py-0.5 bg-red-100 text-red-700 text-[8px] font-black rounded border border-red-200 uppercase tracking-tighter">Late Turn</span>
+                                                <span class="px-1.5 py-0.5 bg-red-100 text-red-700 text-[9px] font-bold rounded border border-red-200 uppercase tracking-tight" title="Recorded after the shift deadline — Late Turn">Late Turn / No Incentive</span>
                                             @endif
                                         @endif
                                     </div>
                                 @endif
+                                @if ($boundary['shortage'] > 0)
+                                    <div class="text-xs text-red-600 mt-1">Shortage: {{ formatCurrency($boundary['shortage']) }}</div>
+                                @elseif ($boundary['excess'] > 0)
+                                    <div class="text-xs text-blue-600 mt-1">Excess: {{ formatCurrency($boundary['excess']) }}</div>
+                                @endif
                             </td>
-                            <td class="px-3 py-4 whitespace-nowrap text-sm font-medium" onclick="event.stopPropagation()">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium" onclick="event.stopPropagation()">
                                 <button
                                     type="button"
                                     onclick="editBoundary({{ $boundary['id'] }})"
-                                    class="text-yellow-600 hover:text-yellow-900 p-1.5 rounded-lg hover:bg-yellow-100 transition shadow-sm border border-yellow-200 bg-white"
+                                    class="text-yellow-600 hover:text-yellow-900 p-1 rounded hover:bg-yellow-100 transition"
                                     title="Edit Boundary"
                                 >
-                                    <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
+                                    <i data-lucide="edit" class="w-4 h-4"></i>
                                 </button>
                             </td>
                         </tr>
@@ -411,27 +406,6 @@
                     </div>
                 </div>
                 
-                <div id="damagePaymentContainer" class="hidden mt-3 p-3 bg-red-50 border border-red-200 rounded-xl space-y-2">
-                    <div class="flex items-center gap-2">
-                        <div class="p-1.5 bg-red-100 rounded-lg">
-                            <i data-lucide="alert-circle" class="w-4 h-4 text-red-600"></i>
-                        </div>
-                        <div class="flex flex-col">
-                            <span class="text-[10px] font-black text-red-400 uppercase tracking-widest">Pending Accident Debt</span>
-                            <span id="accidentDebtBalanceLabel" class="text-sm font-black text-red-700 leading-tight">₱0.00</span>
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="block text-[10px] font-black text-red-700 uppercase mb-1.5">Damage Payment (Hulog)</label>
-                        <div class="relative">
-                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-red-400 font-bold font-mono">₱</span>
-                            <input type="number" name="damage_payment" id="damage_payment" step="0.01" min="0" value="0"
-                                class="w-full pl-7 pr-3 py-2 bg-white border border-red-200 rounded-lg text-sm font-black text-red-900 focus:ring-2 focus:ring-red-500 focus:outline-none" placeholder="0.00">
-                        </div>
-                        <p class="text-[9px] text-red-500 font-bold mt-1 uppercase tracking-tighter italic leading-tight">* This amount will be deducted from the oldest pending accident debt.</p>
-                    </div>
-                </div>
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Notes</label>
@@ -571,11 +545,6 @@
                 </div>
             </div>
 
-            <div id="vb_damagePaymentRow" class="mb-5 p-4 rounded-xl border bg-red-50 border-red-200 hidden">
-                <p class="text-[10px] font-black text-red-600 uppercase tracking-widest mb-1">Damage Payment (Hulog)</p>
-                <p id="vb_damagePayment" class="text-lg font-black text-red-700"></p>
-                <p class="text-[9px] text-red-500 font-bold uppercase tracking-tighter italic">* Deducted from accident debt</p>
-            </div>
 
 
             <div id="vb_differenceRow" class="mb-5 p-4 rounded-xl border hidden">
@@ -644,15 +613,6 @@ function openViewBoundary(id) {
     document.getElementById('vb_actualBoundary').innerText = '₱' + parseFloat(r.actual_boundary || 0).toLocaleString('en-PH', {minimumFractionDigits: 2});
     document.getElementById('vb_rateLabel').innerText = r.rate_label || '';
 
-    // Damage Payment (Hulog)
-    const damageRow = document.getElementById('vb_damagePaymentRow');
-    const damagePayment = parseFloat(r.damage_payment || 0);
-    if (damagePayment > 0) {
-        damageRow.classList.remove('hidden');
-        document.getElementById('vb_damagePayment').innerText = '₱' + damagePayment.toLocaleString('en-PH', {minimumFractionDigits: 2});
-    } else {
-        damageRow.classList.add('hidden');
-    }
 
     // Shortage / Excess
     const diffRow = document.getElementById('vb_differenceRow');
