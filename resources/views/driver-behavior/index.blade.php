@@ -306,15 +306,46 @@
         </div>
         {{-- Pagination --}}
         @if($pagination['total_pages'] > 1)
-        <div class="px-5 py-3 border-t border-gray-50 flex items-center justify-between">
-            <p class="text-xs text-gray-400 font-medium">{{ $pagination['total_items'] }} total incidents</p>
-            <div class="flex gap-1">
+        <div class="px-5 py-4 border-t border-gray-50 flex items-center justify-between">
+            <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between font-bold text-[10px] text-gray-400 uppercase tracking-widest">
+                <div>
+                    <p>Showing <span class="text-gray-900">{{ min($pagination['total_items'], ($pagination['page'] - 1) * 10 + 1) }}</span> to <span class="text-gray-900">{{ min($pagination['total_items'], $pagination['page'] * 10) }}</span> of <span class="text-gray-900">{{ $pagination['total_items'] }}</span> incidents</p>
+                </div>
+                <div>
+                    <nav class="relative z-0 inline-flex rounded-xl shadow-sm -space-x-px" aria-label="Pagination">
+                        @if($pagination['has_prev'])
+                            <a href="{{ request()->fullUrlWithQuery(['page' => $pagination['prev_page']]) }}" class="relative inline-flex items-center px-2 py-2 rounded-l-xl border border-gray-200 bg-white text-gray-400 hover:bg-gray-50">
+                                <i data-lucide="chevron-left" class="w-4 h-4"></i>
+                            </a>
+                        @endif
+
+                        @php
+                            $start = max(1, $pagination['page'] - 2);
+                            $end = min($pagination['total_pages'], $pagination['page'] + 2);
+                        @endphp
+
+                        @for($i = $start; $i <= $end; $i++)
+                            <a href="{{ request()->fullUrlWithQuery(['page' => $i]) }}" 
+                               class="relative inline-flex items-center px-4 py-2 border text-[11px] font-black {{ $i === $pagination['page'] ? 'z-10 bg-yellow-500 border-yellow-500 text-white shadow-lg shadow-yellow-500/20' : 'bg-white border-gray-200 text-gray-500 hover:bg-gray-50' }}">
+                                {{ $i }}
+                            </a>
+                        @endfor
+
+                        @if($pagination['has_next'])
+                            <a href="{{ request()->fullUrlWithQuery(['page' => $pagination['next_page']]) }}" class="relative inline-flex items-center px-2 py-2 rounded-r-xl border border-gray-200 bg-white text-gray-400 hover:bg-gray-50">
+                                <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                            </a>
+                        @endif
+                    </nav>
+                </div>
+            </div>
+            {{-- Mobile simple pagination --}}
+            <div class="flex-1 flex justify-between sm:hidden">
                 @if($pagination['has_prev'])
-                    <a href="{{ request()->fullUrlWithQuery(['page' => $pagination['prev_page']]) }}" class="px-3 py-1.5 text-xs font-black bg-gray-100 rounded-lg hover:bg-yellow-100">‹ Prev</a>
+                    <a href="{{ request()->fullUrlWithQuery(['page' => $pagination['prev_page']]) }}" class="relative inline-flex items-center px-4 py-2 border border-gray-200 text-xs font-bold rounded-xl text-gray-700 bg-white hover:bg-gray-50">Previous</a>
                 @endif
-                <span class="px-3 py-1.5 text-xs font-black bg-yellow-500 text-white rounded-lg">{{ $pagination['page'] }}</span>
                 @if($pagination['has_next'])
-                    <a href="{{ request()->fullUrlWithQuery(['page' => $pagination['next_page']]) }}" class="px-3 py-1.5 text-xs font-black bg-gray-100 rounded-lg hover:bg-yellow-100">Next ›</a>
+                    <a href="{{ request()->fullUrlWithQuery(['page' => $pagination['next_page']]) }}" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-200 text-xs font-bold rounded-xl text-gray-700 bg-white hover:bg-gray-50">Next</a>
                 @endif
             </div>
         </div>
