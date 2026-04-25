@@ -365,22 +365,17 @@
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
                         <div id="addPartDropdown" class="search-dropdown hidden">
                             @foreach($spare_parts as $p)
-                            @php $isUnavailable = ($p->stock_quantity ?? 0) <= 0; @endphp
-                            <div class="search-option part-option {{ $isUnavailable ? 'opacity-40 cursor-not-allowed pointer-events-none bg-gray-50' : '' }}" 
-                                data-id="{{ $p->id }}" data-name="{{ $p->name }}" data-price="{{ $p->price }}" data-stock="{{ $p->stock_quantity ?? 0 }}">
+                            @php $isOut = ($p->stock_quantity ?? 0) <= 0; @endphp
+                            <div class="search-option part-option {{ $isOut ? 'opacity-50 grayscale cursor-not-allowed' : '' }}" 
+                                data-id="{{ $p->id }}" data-name="{{ $p->name }}" data-price="{{ $p->price }}" data-qty="{{ $p->stock_quantity ?? 0 }}">
                                 <div class="flex justify-between items-center">
-                                    <div>
-                                        <div class="font-medium text-xs {{ $isUnavailable ? 'text-gray-400' : 'text-gray-900' }}">{{ $p->name }}</div>
-                                        <div class="text-[9px] {{ $isUnavailable ? 'text-red-400' : 'text-gray-400' }}">
-                                            Stock: {{ $p->stock_quantity ?? 0 }}
+                                    <div class="flex-1">
+                                        <div class="font-medium text-xs text-gray-900">{{ $p->name }}</div>
+                                        <div class="text-[9px] {{ $isOut ? 'text-red-500 font-bold' : 'text-gray-400' }}">
+                                            {{ $isOut ? '⚠️ Unavailable / Out of Stock' : 'Stock: ' . ($p->stock_quantity ?? 0) }}
                                         </div>
                                     </div>
-                                    <div class="text-right">
-                                        <div class="text-[10px] font-bold {{ $isUnavailable ? 'text-gray-400' : 'text-blue-600' }}">₱{{ number_format($p->price, 2) }}</div>
-                                        @if($isUnavailable)
-                                            <span class="text-[8px] font-black uppercase text-red-500">Unavailable</span>
-                                        @endif
-                                    </div>
+                                    <div class="text-[10px] font-bold {{ $isOut ? 'text-gray-400' : 'text-blue-600' }}">₱{{ number_format($p->price, 2) }}</div>
                                 </div>
                             </div>
                             @endforeach
@@ -573,22 +568,17 @@
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
                         <div id="editPartDropdown" class="search-dropdown hidden">
                             @foreach($spare_parts as $p)
-                            @php $isUnavailable = ($p->stock_quantity ?? 0) <= 0; @endphp
-                            <div class="search-option part-option {{ $isUnavailable ? 'opacity-40 cursor-not-allowed pointer-events-none bg-gray-50' : '' }}" 
-                                data-id="{{ $p->id }}" data-name="{{ $p->name }}" data-price="{{ $p->price }}" data-stock="{{ $p->stock_quantity ?? 0 }}">
+                            @php $isOut = ($p->stock_quantity ?? 0) <= 0; @endphp
+                            <div class="search-option part-option {{ $isOut ? 'opacity-50 grayscale cursor-not-allowed' : '' }}" 
+                                data-id="{{ $p->id }}" data-name="{{ $p->name }}" data-price="{{ $p->price }}" data-qty="{{ $p->stock_quantity ?? 0 }}">
                                 <div class="flex justify-between items-center">
-                                    <div>
-                                        <div class="font-medium text-xs {{ $isUnavailable ? 'text-gray-400' : 'text-gray-900' }}">{{ $p->name }}</div>
-                                        <div class="text-[9px] {{ $isUnavailable ? 'text-red-400' : 'text-gray-400' }}">
-                                            Stock: {{ $p->stock_quantity ?? 0 }}
+                                    <div class="flex-1">
+                                        <div class="font-medium text-xs text-gray-900">{{ $p->name }}</div>
+                                        <div class="text-[9px] {{ $isOut ? 'text-red-500 font-bold' : 'text-gray-400' }}">
+                                            {{ $isOut ? '⚠️ Unavailable / Out of Stock' : 'Stock: ' . ($p->stock_quantity ?? 0) }}
                                         </div>
                                     </div>
-                                    <div class="text-right">
-                                        <div class="text-[10px] font-bold {{ $isUnavailable ? 'text-gray-400' : 'text-blue-600' }}">₱{{ number_format($p->price, 2) }}</div>
-                                        @if($isUnavailable)
-                                            <span class="text-[8px] font-black uppercase text-red-500">Unavailable</span>
-                                        @endif
-                                    </div>
+                                    <div class="text-[10px] font-bold {{ $isOut ? 'text-gray-400' : 'text-blue-600' }}">₱{{ number_format($p->price, 2) }}</div>
                                 </div>
                             </div>
                             @endforeach
@@ -1829,15 +1819,20 @@ function refreshPartDropdowns() {
     const html = partsCatalog.map(p => {
         const safeName = p.name.replace(/'/g, "\\'").replace(/"/g, '&quot;');
         const safeSupplier = (p.supplier || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+        const isOut = (p.stock_quantity || 0) <= 0;
+
         return `
-            <div class="search-option part-option group" data-id="${p.id}" data-name="${safeName}" data-price="${p.price}" data-qty="${p.stock_quantity || 0}" data-supplier="${safeSupplier}">
+            <div class="search-option part-option group ${isOut ? 'opacity-50 grayscale cursor-not-allowed' : ''}" 
+                data-id="${p.id}" data-name="${safeName}" data-price="${p.price}" data-qty="${p.stock_quantity || 0}" data-supplier="${safeSupplier}">
                 <div class="flex justify-between items-center">
                     <div class="flex-1">
                         <div class="font-medium text-xs text-gray-900">${p.name}</div>
-                        <div class="text-[9px] text-gray-400 uppercase tracking-tighter">${p.supplier || 'No Supplier'} · Stock: ${p.stock_quantity || 0}</div>
+                        <div class="text-[9px] uppercase tracking-tighter ${isOut ? 'text-red-500 font-bold' : 'text-gray-400'}">
+                            ${isOut ? '⚠️ Unavailable / Out of Stock' : (p.supplier || 'No Supplier') + ' · Stock: ' + (p.stock_quantity || 0)}
+                        </div>
                     </div>
                     <div class="flex items-center gap-2">
-                        <div class="text-[10px] font-bold text-blue-600">₱${parseFloat(p.price).toFixed(2)}</div>
+                        <div class="text-[10px] font-bold ${isOut ? 'text-gray-400' : 'text-blue-600'}">₱${parseFloat(p.price).toFixed(2)}</div>
                         <button onclick="editPartFromDropdown(${p.id}, '${safeName}', ${p.price}, ${p.stock_quantity || 0}, '${safeSupplier}', event)" 
                             class="p-1 opacity-10 sm:opacity-0 group-hover:opacity-100 hover:bg-yellow-100 rounded text-yellow-600 transition">
                             <i data-lucide="pencil" class="w-3 h-3"></i>
@@ -1848,8 +1843,8 @@ function refreshPartDropdowns() {
         `;
     }).join('');
     
-    addDropdown.innerHTML = html;
-    editDropdown.innerHTML = html;
+    if (addDropdown) addDropdown.innerHTML = html;
+    if (editDropdown) editDropdown.innerHTML = html;
     
     // Re-init listeners
     initPartSelectors();
@@ -1876,6 +1871,10 @@ function initPartSelectors() {
 
         options.forEach(opt => {
             opt.onclick = () => {
+                // Prevent selection if out of stock
+                if (parseInt(opt.dataset.qty) <= 0) {
+                    return;
+                }
                 const part = { id: parseInt(opt.dataset.id), name: opt.dataset.name, price: parseFloat(opt.dataset.price) };
                 addPartToCart(part, type);
                 input.value = '';
