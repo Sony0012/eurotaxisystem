@@ -161,7 +161,7 @@
         <!-- Main Layout -->
         <div class="flex h-screen overflow-hidden">
             <!-- Sidebar -->
-            <aside class="w-16 lg:w-60 bg-white shadow-lg flex-shrink-0 transition-all duration-300 overflow-x-hidden">
+            <aside id="sidebar" class="w-16 lg:w-60 bg-white shadow-lg flex-shrink-0 transition-all duration-300 z-40 overflow-x-hidden">
                 <div class="h-full flex flex-col">
                     <!-- Logo -->
                     <div class="p-2 lg:p-4 border-b flex flex-col items-center">
@@ -311,11 +311,16 @@
                 <!-- Top Bar -->
                 <header class="bg-white shadow-sm border-b px-6 py-2">
                     <div class="flex items-center justify-between">
-                        <div>
-                            <h2 class="text-2xl font-semibold text-gray-900">@yield('page-heading', 'Dashboard')</h2>
-                            @hasSection('page-subheading')
-                                <p class="text-sm text-gray-500 mt-1">@yield('page-subheading')</p>
-                            @endif
+                        <div class="flex items-center gap-3">
+                            <button id="sidebarToggle" class="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors focus:outline-none">
+                                <i data-lucide="menu" class="w-6 h-6"></i>
+                            </button>
+                            <div>
+                                <h2 class="text-2xl font-semibold text-gray-900">@yield('page-heading', 'Dashboard')</h2>
+                                @hasSection('page-subheading')
+                                    <p class="text-sm text-gray-500 mt-1">@yield('page-subheading')</p>
+                                @endif
+                            </div>
                         </div>
 
                         <div class="flex items-center gap-4">
@@ -541,6 +546,37 @@
             // Start header clock
             updateHeaderClock();
             setInterval(updateHeaderClock, 1000);
+
+            // Sidebar Toggle Logic
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const sidebar = document.getElementById('sidebar');
+            if(sidebarToggle && sidebar) {
+                // Pre-select text elements that collapse
+                const texts = sidebar.querySelectorAll('.hidden.lg\\:block');
+                
+                sidebarToggle.addEventListener('click', () => {
+                    const isDesktop = window.innerWidth >= 1024;
+                    if (isDesktop) {
+                        sidebar.classList.toggle('lg:w-60');
+                        sidebar.classList.toggle('lg:w-16');
+                        texts.forEach(el => el.classList.toggle('lg:block'));
+                    } else {
+                        sidebar.classList.toggle('w-16');
+                        sidebar.classList.toggle('w-60');
+                        sidebar.classList.toggle('absolute');
+                        sidebar.classList.toggle('h-full');
+                        
+                        texts.forEach(el => {
+                            el.classList.toggle('hidden');
+                            if(!el.classList.contains('hidden')) {
+                                el.style.display = 'block';
+                            } else {
+                                el.style.display = '';
+                            }
+                        });
+                    }
+                });
+            }
         });
     </script>
 
