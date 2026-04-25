@@ -665,11 +665,9 @@
         <!-- LEFT HALF: Large Branding -->
         <div class="branding-side" style="position:relative;z-index:10;width:50%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:3rem;">
             <!-- Logo -->
-            <div class="logo-bounce" style="margin-bottom:1.5rem;">
-                <img src="{{ asset('uploads/logo.png') }}" alt="Eurotaxi Inc." style="width:220px;max-width:100%;filter:drop-shadow(0 0 30px rgba(59,130,246,0.55));object-fit:contain;">
+            <div class="logo-bounce" style="margin-bottom:1rem;">
+                <img src="{{ asset('uploads/logo.png') }}" alt="Eurotaxi Inc." style="width:380px;max-width:100%;filter:drop-shadow(0 0 40px rgba(59,130,246,0.55));object-fit:contain;">
             </div>
-            <!-- Company Name -->
-            <h1 style="color:#fff;font-size:2.8rem;font-weight:800;font-family:'Inter',sans-serif;letter-spacing:-0.02em;margin:0 0 0.4rem;text-align:center;text-shadow:0 2px 16px rgba(0,0,0,0.4);">Eurotaxi <span style="color:#60a5fa;">Inc.</span></h1>
             <p style="color:#bfdbfe;font-size:0.95rem;font-weight:500;letter-spacing:0.18em;text-transform:uppercase;margin:0 0 2.5rem;font-family:'Inter',sans-serif;">Fleet Management System</p>
 
             <!-- Stats Pills -->
