@@ -701,7 +701,7 @@
                         </lottie-player>
                         <div style="text-align: center; margin-top: -15px;">
                             <p style="color:#fff;font-weight:800;font-size:2.2rem;margin:0;line-height:1;text-shadow:0 2px 10px rgba(0,0,0,0.5);">{{ $unitsCount ?? '0' }}</p>
-                            <p style="color:#6ee7b7;font-size:0.85rem;font-weight:700;text-transform:uppercase;letter-spacing:0.15em;margin:0; margin-top: 5px;">Taxi Units</p>
+                            <p style="color:#93c5fd;font-size:0.85rem;font-weight:700;text-transform:uppercase;letter-spacing:0.15em;margin:0; margin-top: 5px;">Taxi Units</p>
                         </div>
                     </div>
                 </div>
