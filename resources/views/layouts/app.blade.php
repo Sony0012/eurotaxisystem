@@ -77,7 +77,7 @@
                 $headerNotifications[] = [
                     'id' => 'surveillance_' . $fu->id,
                     'title' => '🚨 Flagged: ' . $fu->plate_number,
-                    'message' => 'This unit is currently flagged as Missing/Surveillance.',
+                    'message' => 'This unit is currently flagged as At Risk.',
                     'type' => 'surveillance',
                     'url' => route('units.index') . '?open_flagged=1',
                     'time' => 'Action Required',

@@ -492,7 +492,7 @@
                             <select name="status" id="editStatus"
                                 class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                                 <option value="active">Active</option>
-                                <option value="surveillance">Surveillance / Missing</option>
+                                <option value="surveillance">At Risk</option>
                                 <option value="maintenance">Maintenance</option>
                                 <option value="coding">Coding</option>
                                 <option value="retired">Retired</option>
@@ -775,7 +775,7 @@
                             <i data-lucide="siren" class="w-5 h-5 text-white"></i>
                         </div>
                         <div>
-                            <h3 class="text-lg font-bold text-white leading-tight">Flagged Units (Missing/Surveillance)</h3>
+                            <h3 class="text-lg font-bold text-white leading-tight">Flagged Units (At Risk)</h3>
                             <p class="text-sm text-red-100 leading-tight">Units that are under monitoring and their inactive days</p>
                         </div>
                     </div>
@@ -866,7 +866,7 @@
                         <div class="text-center py-12">
                             <i data-lucide="check-circle" class="w-16 h-16 mx-auto mb-4 text-green-500"></i>
                             <h4 class="text-lg font-bold text-gray-900">All Clear!</h4>
-                            <p class="text-gray-500">There are no units currently flagged as missing or under surveillance.</p>
+                            <p class="text-gray-500">There are no units currently flagged as At Risk.</p>
                         </div>
                     `;
                     if (typeof lucide !== 'undefined') lucide.createIcons();
@@ -1402,7 +1402,7 @@
                                     <h3 class="text-sm font-bold leading-none">${unit.plate_number || ''}</h3>
                                     <span class="px-1.5 py-0.5 bg-white bg-opacity-20 rounded-full text-[9px] font-medium uppercase tracking-wider">${unit.status || ''}</span>
                                     <span class="px-1.5 py-0.5 bg-white bg-opacity-20 rounded-full text-[9px] font-medium uppercase tracking-wider">${unit.unit_type || 'Standard'}</span>
-                                    ${unit.status === 'surveillance' ? `<span class="px-1.5 py-0.5 bg-red-500 text-white rounded-full text-[9px] font-bold uppercase tracking-wider animate-pulse">🚨 Under Surveillance</span>` : ''}
+                                    ${unit.status === 'surveillance' ? `<span class="px-1.5 py-0.5 bg-red-500 text-white rounded-full text-[9px] font-bold uppercase tracking-wider animate-pulse">🚨 At Risk</span>` : ''}
                                 </div>
                                 <p class="text-[10px] text-blue-100 leading-tight">${(unit.make || '') + ' ' + (unit.model || '') + ' (' + (unit.year || '') + ')'}</p>
                             </div>
