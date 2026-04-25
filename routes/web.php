@@ -172,6 +172,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/spare-parts', [SparePartController::class, 'index'])->name('spare-parts.index');
     Route::post('/spare-parts', [SparePartController::class, 'store'])->name('spare-parts.store');
     Route::delete('/spare-parts/{id}', [SparePartController::class, 'destroy'])->name('spare-parts.destroy');
+
+    // ─── Supplier Management ─────────────────────────────
+    Route::get('/suppliers', [SupplierController::class, 'index'])->name('suppliers.index');
+    Route::post('/suppliers', [SupplierController::class, 'store'])->name('suppliers.store');
+    Route::delete('/suppliers/{id}', [SupplierController::class, 'destroy'])->name('suppliers.destroy');
 });
 
 // ─── Temporary System Sync Route ───────────────────────────

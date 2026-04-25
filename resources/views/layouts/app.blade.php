@@ -80,7 +80,8 @@
                     'message' => 'This unit is currently flagged as Missing/Surveillance.',
                     'type' => 'surveillance',
                     'url' => route('units.index') . '?open_flagged=1',
-                    'time' => 'Action Required'
+                    'time' => 'Action Required',
+                    'timestamp' => \Carbon\Carbon::parse($fu->updated_at ?? now())
                 ];
             }
             
@@ -104,7 +105,8 @@
                     'type' => 'violation_alert', 
                     'severity' => $alert->type, 
                     'url' => $targetUrl,
-                    'time' => \Carbon\Carbon::parse($alert->created_at)->diffForHumans()
+                    'time' => \Carbon\Carbon::parse($alert->created_at)->diffForHumans(),
+                    'timestamp' => \Carbon\Carbon::parse($alert->created_at)
                 ];
             }
             
@@ -121,8 +123,39 @@
                     $headerNotifications[] = $n;
                 }
             }
+            if(isset($stockNotifs)) {
+                foreach($stockNotifs as $n) {
+                    $n['time'] = $n['time'] ?? 'Critical';
+                    $headerNotifications[] = $n;
+                }
+            }
 
             $headerNotificationCount = count($headerNotifications);
+
+            // Sort logic: "Action Required" items first, then others by recency
+            // We'll use a custom property 'priority' (0 for standard, 1 for Action Required/High)
+            foreach($headerNotifications as &$notif) {
+                if (isset($notif['time'])) {
+                    $t = strtoupper($notif['time']);
+                    $notif['priority'] = ($t === 'ACTION REQUIRED' || $t === 'REORDER NOW' || $t === 'NOW' || $t === 'CRITICAL') ? 1 : 0;
+                } else {
+                    $notif['priority'] = 0;
+                }
+            }
+            unset($notif);
+
+            usort($headerNotifications, function($a, $b) {
+                // Priority descending (1 first)
+                if ($a['priority'] !== $b['priority']) {
+                    return $b['priority'] - $a['priority'];
+                }
+                
+                // Secondary sort: Recency (Newest first)
+                $timeA = isset($a['timestamp']) ? $a['timestamp']->timestamp : 0;
+                $timeB = isset($b['timestamp']) ? $b['timestamp']->timestamp : 0;
+                
+                return $timeB - $timeA;
+            });
         @endphp
 
         <!-- Main Layout -->
@@ -322,6 +355,8 @@
                                                                 <i data-lucide="car-front" class="w-4 h-4 text-blue-600"></i>
                                                             @elseif($n['type'] === 'violation_alert')
                                                                 <i data-lucide="shield-alert" class="w-4 h-4 text-red-600"></i>
+                                                            @elseif($n['type'] === 'low_stock')
+                                                                <i data-lucide="package-search" class="w-4 h-4 text-yellow-600"></i>
                                                             @else
                                                                 <i data-lucide="alert-circle" class="w-4 h-4 text-red-600"></i>
                                                             @endif

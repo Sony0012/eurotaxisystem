@@ -7,6 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class SparePart extends Model
 {
-    protected $fillable = ['name', 'price'];
+    protected $fillable = ['name', 'price', 'stock_quantity', 'supplier'];
     use HasFactory;
 }

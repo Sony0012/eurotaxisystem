@@ -72,6 +72,16 @@ class MaintenanceController extends Controller
             ->get();
         $staff = DB::table('staff')->whereNull('deleted_at')->where('role', 'Mechanic')->orderBy('name')->get();
         $spare_parts = DB::table('spare_parts')->orderBy('name')->get();
+        $suppliers = DB::table('suppliers')->whereNull('deleted_at')->orderBy('name')->get();
+
+        // Stock Purchase History from Expenses
+        $purchaseHistory = DB::table('expenses')
+            ->where('category', 'Maintenance Supplies')
+            ->whereNull('deleted_at')
+            ->orderByDesc('date')
+            ->orderByDesc('created_at')
+            ->limit(50)
+            ->get();
 
         $pagination = [
             'page' => $page,
@@ -95,7 +105,9 @@ class MaintenanceController extends Controller
             'units',
             'drivers',
             'staff',
-            'spare_parts'
+            'spare_parts',
+            'suppliers',
+            'purchaseHistory'
         ));
     }
 
