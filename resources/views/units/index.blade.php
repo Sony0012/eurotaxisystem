@@ -1563,7 +1563,16 @@
 
                         <div id="maintenance-tab" class="tab-content hidden">
                             <div class="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm">
-                                <h4 class="text-sm font-black text-gray-900 mb-4 uppercase tracking-widest">Maintenance Records</h4>
+                                <div class="flex justify-between items-center mb-6 border-b border-gray-50 pb-4">
+                                    <h4 class="text-xs font-black text-gray-900 uppercase tracking-widest flex items-center gap-2">
+                                        <i data-lucide="wrench" class="w-4 h-4 text-orange-600"></i>
+                                        Maintenance History
+                                    </h4>
+                                    <div class="text-right">
+                                        <p class="text-[10px] text-gray-400 font-black uppercase tracking-widest leading-none mb-1">Total Unit Expenses</p>
+                                        <p class="text-xl font-black text-orange-600">₱${parseFloat(roi.total_expenses || 0).toLocaleString('en-PH', {minimumFractionDigits:2})}</p>
+                                    </div>
+                                </div>
                                 <div class="space-y-4">${maintHtml.replace(/p-4/g, 'p-4').replace(/p-6/g, 'p-6')}</div>
                             </div>
                         </div>
