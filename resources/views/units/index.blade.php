@@ -1390,7 +1390,8 @@
                 const roiPrgW = Math.min(100, Math.max(0, roiPct)).toFixed(1);
                 const invPerMonth = parseFloat(roi.total_investment || 0) / 12;
                 const mthBnd = parseFloat(roi.monthly_revenue || roi.monthly_boundary || 0);
-                const bndPrgW = invPerMonth > 0 ? Math.min(100, (mthBnd / invPerMo                document.getElementById('unitDetailsContent').innerHTML = `
+                const bndPrgW = invPerMonth > 0 ? Math.min(100, (mthBnd / invPerMonth) * 100).toFixed(1) : 0;
+                document.getElementById('unitDetailsContent').innerHTML = `
                 <div class="space-y-4">
                     <!-- Unit Header -->
                     <div class="bg-gradient-to-r from-blue-600 to-indigo-700 p-4 rounded-xl text-white shadow-lg">
@@ -1400,7 +1401,7 @@
                                     <h3 class="text-xl font-black leading-none tracking-tight">${unit.plate_number || ''}</h3>
                                     <span class="px-2 py-0.5 bg-white bg-opacity-20 rounded-full text-[10px] font-black uppercase tracking-widest border border-white border-opacity-30">${unit.status || ''}</span>
                                     <span class="px-2 py-0.5 bg-white bg-opacity-20 rounded-full text-[10px] font-black uppercase tracking-widest border border-white border-opacity-30">${unit.unit_type || 'Standard'}</span>
-                                    ${unit.status === 'surveillance' ? `<span class="px-2 py-0.5 bg-red-500 text-white rounded-full text-[10px] font-black uppercase tracking-widest animate-pulse">🚨 Under Surveillance</span>` : ''}
+                                    ${unit.status === 'surveillance' ? `<span class="px-2 py-0.5 bg-red-500 text-white rounded-full text-[10px] font-black uppercase tracking-widest animate-pulse">🚨 At Risk</span>` : ''}
                                 </div>
                                 <p class="text-xs text-blue-100 font-medium tracking-wide">${(unit.make || '') + ' ' + (unit.model || '') + ' (' + (unit.year || '') + ')'}</p>
                             </div>
@@ -1466,7 +1467,7 @@
                                         <div class="flex justify-between items-center"><span class="text-gray-400 font-bold uppercase tracking-tight">Plate Number</span><span class="font-black text-gray-900 bg-gray-50 px-2 py-1 rounded">${unit.plate_number || ''}</span></div>
                                         <div class="flex justify-between items-center"><span class="text-gray-400 font-bold uppercase tracking-tight">Vehicle</span><span class="font-black text-gray-700">${(unit.make || '') + ' ' + (unit.model || '')}</span></div>
                                         <div class="flex justify-between items-center"><span class="text-gray-400 font-bold uppercase tracking-tight">Year</span><span class="font-black text-gray-700">${unit.year || ''}</span></div>
-                                        <div class="flex justify-between items-center"><span class="text-gray-400 font-bold uppercase tracking-tight">Status</span><span class="px-3 py-1 text-[10px] font-black uppercase rounded-full bg-green-50 text-green-600 border border-green-100">${unit.status ? unit.status.charAt(0).toUpperCase() + unit.status.slice(1) : ''}</span></div>
+                                        <div class="flex justify-between items-center"><span class="text-gray-400 font-bold uppercase tracking-tight">Status</span><span class="px-3 py-1 text-[10px] font-black uppercase rounded-full bg-green-50 text-green-600 border border-green-100">${unit.status === 'surveillance' ? 'AT RISK' : (unit.status ? unit.status.charAt(0).toUpperCase() + unit.status.slice(1) : '')}</span></div>
                                         
                                         <div class="pt-4 border-t border-gray-50 mt-4 space-y-2">
                                             <div class="flex justify-between items-center"><span class="text-[9px] text-gray-400 font-black uppercase tracking-widest">Created By</span><span class="text-[11px] font-bold text-gray-600">${unit.created_by_name || 'System'} - ${unit.created_at_fmt || 'N/A'}</span></div>

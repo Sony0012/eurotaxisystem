@@ -12,7 +12,7 @@
                         {{ ucfirst($unit->unit_type ?? 'Standard') }}
                     </span>
                     @if(($unit->status ?? '') === 'surveillance')
-                        <span class="px-2 py-0.5 bg-red-500 text-white rounded-full text-[10px] font-black uppercase tracking-widest animate-pulse">🚨 Under Surveillance</span>
+                        <span class="px-2 py-0.5 bg-red-500 text-white rounded-full text-[10px] font-black uppercase tracking-widest animate-pulse">🚨 At Risk</span>
                     @endif
                 </div>
                 <p class="text-xs text-blue-100 font-medium tracking-wide">{{ ($unit->make ?? '') . ' ' . ($unit->model ?? '') . ' (' . ($unit->year ?? '') . ')' }}</p>

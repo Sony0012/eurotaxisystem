@@ -71,7 +71,7 @@
                                 @elseif($unit->status === 'coding') bg-red-100 text-red-800
                                 @else bg-gray-100 text-gray-800
                                 @endif">
-                            {{ ucfirst($unit->status) }}
+                            {{ $unit->status === 'surveillance' ? 'At Risk' : ucfirst($unit->status) }}
                         </span>
                     </td>
                     <td class="px-6 py-1 whitespace-nowrap">
