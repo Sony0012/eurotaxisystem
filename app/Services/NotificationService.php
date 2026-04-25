@@ -76,6 +76,23 @@ class NotificationService
                 ];
             }
 
+            // 6. Recent Driver Behavior Incidents (Excluding coding duplicates)
+            $recentIncidents = DB::table('driver_behavior as db')
+                ->join('drivers as d', 'db.driver_id', '=', 'd.id')
+                ->where('db.incident_type', '!=', 'Coding Violation')
+                ->where('db.created_at', '>=', $now->copy()->subDays(3))
+                ->select('db.*', DB::raw("CONCAT(d.first_name, ' ', d.last_name) as driver_name"))
+                ->orderByDesc('db.created_at')
+                ->limit(10)
+                ->get();
+            foreach ($recentIncidents as $ri) {
+                $headerNotifications[] = [
+                    'type' => 'driver_incident', 'title' => 'Driver Incident: ' . ($ri->incident_type ?: 'Warning'),
+                    'message' => "{$ri->driver_name}: {$ri->description}", 'url' => route('driver-behavior.index'),
+                    'time' => Carbon::parse($ri->created_at)->diffForHumans(), 'timestamp' => Carbon::parse($ri->created_at)
+                ];
+            }
+
             // --- SORTING ---
             usort($headerNotifications, function($a, $b) {
                 $prioA = (isset($a['time']) && in_array(strtoupper($a['time']), ['ACTION REQUIRED', 'REORDER NOW', 'NOW', 'CRITICAL'])) ? 1 : 0;
