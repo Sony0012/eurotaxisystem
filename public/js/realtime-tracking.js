@@ -44,8 +44,7 @@ function initMap() {
 
 function startTracking() {
     updateFleetData();
-    // Poll every 20 seconds (safer for API rate limits)
-    updateInterval = setInterval(updateFleetData, 20000);
+    updateInterval = setInterval(updateFleetData, 5000); // Updated to 5 seconds for faster real-time tracking
 }
 
 async function updateFleetData() {
