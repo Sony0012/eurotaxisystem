@@ -111,19 +111,19 @@
                 </div>
 
                 <div class="lg:w-48">
-                    <select name="category" class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none">
+                    <select name="category" onchange="this.form.submit()" class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none">
                         <option value="">All Categories</option>
-                        <option value="Utilities" {{ ($category_filter ?? '') === 'Utilities' ? 'selected' : '' }}>Utilities</option>
-                        <option value="Supplies" {{ ($category_filter ?? '') === 'Supplies' ? 'selected' : '' }}>Supplies</option>
-                        <option value="Repairs" {{ ($category_filter ?? '') === 'Repairs' ? 'selected' : '' }}>Repairs</option>
-                        <option value="Communications" {{ ($category_filter ?? '') === 'Communications' ? 'selected' : '' }}>Communications</option>
-                        <option value="Transportation" {{ ($category_filter ?? '') === 'Transportation' ? 'selected' : '' }}>Transportation</option>
-                        <option value="Other" {{ ($category_filter ?? '') === 'Other' ? 'selected' : '' }}>Other</option>
+                        <option value="Utilities" {{ ($category ?? '') === 'Utilities' ? 'selected' : '' }}>Utilities</option>
+                        <option value="Supplies" {{ ($category ?? '') === 'Supplies' ? 'selected' : '' }}>Supplies</option>
+                        <option value="Repairs" {{ ($category ?? '') === 'Repairs' ? 'selected' : '' }}>Repairs</option>
+                        <option value="Communications" {{ ($category ?? '') === 'Communications' ? 'selected' : '' }}>Communications</option>
+                        <option value="Transportation" {{ ($category ?? '') === 'Transportation' ? 'selected' : '' }}>Transportation</option>
+                        <option value="Other" {{ ($category ?? '') === 'Other' ? 'selected' : '' }}>Other</option>
                     </select>
                 </div>
 
                 <div class="lg:w-40">
-                    <select name="status" class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none">
+                    <select name="status" onchange="this.form.submit()" class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none">
                         <option value="">All Status</option>
                         <option value="pending" {{ ($status_filter ?? '') === 'pending' ? 'selected' : '' }}>Pending</option>
                         <option value="approved" {{ ($status_filter ?? '') === 'approved' ? 'selected' : '' }}>Approved</option>
@@ -132,9 +132,6 @@
                 </div>
 
                 <div class="flex gap-2">
-                    <button type="submit" class="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 flex items-center gap-2">
-                        <i data-lucide="search" class="w-4 h-4"></i> Filter
-                    </button>
                     <button type="button" onclick="openAddExpenseModal()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-2">
                         <i data-lucide="plus" class="w-4 h-4"></i> Add Expense
                     </button>
