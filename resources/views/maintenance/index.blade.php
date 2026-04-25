@@ -2390,6 +2390,14 @@ function clearPurchaseHistoryFilter() {
 
 // Ensure total is calculated initially when modal is opened
 document.addEventListener('DOMContentLoaded', () => {
+    const dateInput = document.getElementById('purchaseHistoryDateFilter');
+    if(dateInput) {
+        // Set to local timezone's current date formatted as YYYY-MM-DD
+        const now = new Date();
+        const offset = now.getTimezoneOffset() * 60000;
+        const localISOTime = (new Date(now - offset)).toISOString().split('T')[0];
+        dateInput.value = localISOTime;
+    }
     filterPurchaseHistory();
 });
 </script>
