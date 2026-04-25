@@ -548,27 +548,27 @@
             filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3));
         }
 
-        @media (max-width: 768px) {
-            .split-layout {
-                flex-direction: column;
+        @media (max-width: 1024px) {
+            .split-container {
+                flex-direction: column !important;
+                overflow-y: auto !important;
             }
-
-            .left-side {
-                height: 40vh;
-                flex-shrink: 0;
+            .branding-side, .auth-side {
+                width: 100% !important;
+                height: auto !important;
+                min-height: auto !important;
             }
-
-            .right-side {
-                height: 60vh;
-                flex-shrink: 0;
+            .branding-side {
+                padding: 4rem 2rem 2rem !important;
             }
-
-            .logo-container {
-                max-width: 260px;
+            .auth-side {
+                padding: 1rem 1rem 4rem !important;
             }
-
             .logo-image {
-                max-height: 200px;
+                max-width: 160px;
+            }
+            h1 {
+                font-size: 2rem !important;
             }
         }
 
@@ -652,7 +652,7 @@
     <div id="messageToast" class="message-toast"></div>
 
     <!-- Full Screen Layout -->
-    <div style="position:relative;height:100vh;width:100vw;overflow:hidden;display:flex;">
+    <div class="split-container" style="position:relative;min-height:100vh;width:100vw;display:flex;overflow-x:hidden;">
 
         <!-- Full Screen Background Image -->
         <img src="{{ asset('uploads/1000053201.jpg') }}" alt="Eurotaxisystem" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;">
@@ -661,7 +661,7 @@
         <div style="position:absolute;inset:0;z-index:1;background:linear-gradient(105deg,rgba(8,12,35,0.88) 0%,rgba(12,20,55,0.85) 45%,rgba(20,40,100,0.65) 70%,rgba(30,58,138,0.45) 100%);"></div>
 
         <!-- LEFT HALF: Large Branding -->
-        <div style="position:relative;z-index:10;width:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:3rem;">
+        <div class="branding-side" style="position:relative;z-index:10;width:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:3rem;min-height:100vh;">
             <!-- Logo -->
             <div class="logo-bounce" style="margin-bottom:1.5rem;">
                 <img src="{{ asset('uploads/logo.png') }}" alt="Eurotaxi Inc." style="width:220px;max-width:100%;filter:drop-shadow(0 0 30px rgba(59,130,246,0.55));object-fit:contain;">
@@ -693,7 +693,7 @@
         </div>
 
         <!-- RIGHT HALF: Login Card -->
-        <div style="position:relative;z-index:10;width:50%;display:flex;align-items:center;justify-content:center;padding:2rem;">
+        <div class="auth-side" style="position:relative;z-index:10;width:50%;display:flex;align-items:center;justify-content:center;padding:2rem;min-height:100vh;">
             <div class="flip-container" style="width:100%;max-width:430px;perspective:1500px;">
                 <div class="flipper state-login" id="flipper" style="position:relative;width:100%;transform-style:preserve-3d;transition:transform 0.8s cubic-bezier(0.4,0,0.2,1);">
 
