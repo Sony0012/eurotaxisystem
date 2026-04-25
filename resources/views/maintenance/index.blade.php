@@ -2276,13 +2276,15 @@ async function refreshPurchaseHistory() {
                 return;
             }
             tbody.innerHTML = json.data.map(ph => {
-                const date = new Date(ph.date).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' });
-                const time = new Date(ph.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+                const dateObj = new Date(ph.date);
+                const dateStr = dateObj.toISOString().split('T')[0];
+                const dateFormatted = dateObj.toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' });
+                const timeStr = new Date(ph.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
                 return `
-                    <tr class="hover:bg-gray-50 transition">
+                    <tr class="hover:bg-gray-50 transition purchase-history-row" data-date="${dateStr}" data-amount="${ph.amount}">
                         <td class="px-4 py-4 whitespace-nowrap">
-                            <div class="text-xs font-bold text-gray-600">${date}</div>
-                            <div class="text-[9px] text-gray-400">${time}</div>
+                            <div class="text-xs font-bold text-gray-600">${dateFormatted}</div>
+                            <div class="text-[9px] text-gray-400">${timeStr}</div>
                         </td>
                         <td class="px-4 py-4">
                             <div class="text-sm font-black text-gray-800 tracking-tight">${ph.description}</div>
@@ -2294,6 +2296,9 @@ async function refreshPurchaseHistory() {
                     </tr>
                 `;
             }).join('');
+            
+            // Re-apply filter and update total
+            filterPurchaseHistory();
         }
     } catch (e) { console.error(e); }
 }
