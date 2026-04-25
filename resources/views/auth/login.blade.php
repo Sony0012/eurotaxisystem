@@ -670,23 +670,6 @@
             </div>
             <p style="color:#bfdbfe;font-size:0.95rem;font-weight:500;letter-spacing:0.18em;text-transform:uppercase;margin:0 0 2.5rem;font-family:'Inter',sans-serif;">Fleet Management System</p>
 
-            <!-- Stats Pills -->
-            <div style="display:flex;gap:1rem;">
-                <div class="icon-animate-1" style="display:flex;align-items:center;gap:0.6rem;background:rgba(255,255,255,0.1);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.2);border-radius:50px;padding:0.6rem 1.4rem;">
-                    <i class="fas fa-users" style="color:#60a5fa;font-size:1rem;"></i>
-                    <div>
-                        <p style="color:#fff;font-weight:700;font-size:1.1rem;margin:0;line-height:1;">{{ $driversCount ?? '0' }}</p>
-                        <p style="color:#93c5fd;font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;margin:0;">Drivers</p>
-                    </div>
-                </div>
-                <div class="icon-animate-3" style="display:flex;align-items:center;gap:0.6rem;background:rgba(255,255,255,0.1);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.2);border-radius:50px;padding:0.6rem 1.4rem;">
-                    <i class="fas fa-car" style="color:#34d399;font-size:1rem;"></i>
-                    <div>
-                        <p style="color:#fff;font-weight:700;font-size:1.1rem;margin:0;line-height:1;">{{ $unitsCount ?? '0' }}</p>
-                        <p style="color:#6ee7b7;font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;margin:0;">Units</p>
-                    </div>
-                </div>
-            </div>
 
             <!-- Bottom copyright -->
             <p style="position:absolute;bottom:1.5rem;color:rgba(147,197,253,0.5);font-size:0.7rem;font-family:'Inter',sans-serif;">&copy; {{ date('Y') }} Eurotaxi Inc. All rights reserved.</p>
