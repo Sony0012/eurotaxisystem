@@ -301,7 +301,7 @@
                     </div>
                 </div>
                 <div>
-                    <label class="block text-xs font-medium text-gray-700 mb-1">Description</label>
+                    <label class="block text-xs font-medium text-gray-700 mb-1">Description (Optional)</label>
                     <textarea name="description" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-yellow-500 focus:outline-none"></textarea>
                 </div>
                 <div class="grid grid-cols-2 gap-3">
@@ -493,8 +493,8 @@
                 </div>
                 <div class="grid grid-cols-1 gap-3">
                     <div>
-                        <label class="block text-xs font-medium text-gray-700 mb-1">Service / Reported Issue *</label>
-                        <textarea name="description" id="em_description" required rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-yellow-500 focus:outline-none bg-gray-50"></textarea>
+                        <label class="block text-xs font-medium text-gray-700 mb-1">Service / Reported Issue (Optional)</label>
+                        <textarea name="description" id="em_description" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-yellow-500 focus:outline-none bg-gray-50"></textarea>
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-blue-700 mb-1">Dispatcher Notes (Optional)</label>
