@@ -131,6 +131,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/live-tracking/unit/{id}', [LiveTrackingController::class, 'getUnitLocation'])->name('live-tracking.unit-location');
     Route::get('/live-tracking/units-live', [LiveTrackingController::class, 'getUnitsLive'])->name('live-tracking.units-live');
     Route::get('/live-tracking/unit-mileage/{id}', [LiveTrackingController::class, 'getUnitMileage'])->name('live-tracking.mileage');
+    Route::post('/live-tracking/send-command', [LiveTrackingController::class, 'sendCommand'])->name('live-tracking.send-command');
 
     // Unit Profitability
     Route::get('/unit-profitability', [UnitProfitabilityController::class, 'index'])->name('unit-profitability.index');

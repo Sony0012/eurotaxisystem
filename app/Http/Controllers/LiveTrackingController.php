@@ -472,4 +472,43 @@ class LiveTrackingController extends Controller
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
+    /**
+     * AJAX: Send Command to Device (One-Click Engine Control)
+     */
+    public function sendCommand(Request $request)
+    {
+        try {
+            $unitId = $request->input('id');
+            $commandType = $request->input('command'); // 'off' or 'on'
+            
+            $unit = DB::table('units')->where('id', $unitId)->first();
+            if (!$unit || !$unit->imei) {
+                return response()->json(['success' => false, 'error' => 'Unit or IMEI not found.']);
+            }
+
+            // Command logic: RELAY,1# (Off), RELAY,0# (On)
+            $content = ($commandType === 'off') ? 'RELAY,1#' : 'RELAY,0#';
+            
+            $response = app(\App\Services\TracksolidService::class)->sendCommand($unit->imei, $content);
+
+            if ($response['success']) {
+                // Log action in system alerts for audit trail
+                DB::table('system_alerts')->insert([
+                    'title'       => ($commandType === 'off' ? '🛑 Engine Immobilized: ' : '🟢 Engine Restored: ') . $unit->plate_number,
+                    'message'     => ($commandType === 'off' ? 'Remote shutdown command successful.' : 'Engine power restoration successful.'),
+                    'type'        => $commandType === 'off' ? 'danger' : 'success',
+                    'is_resolved' => false,
+                    'created_at'  => now(),
+                    'updated_at'  => now()
+                ]);
+
+                return response()->json(['success' => true, 'message' => 'Command sent successfully!']);
+            }
+
+            return response()->json(['success' => false, 'error' => $response['error']]);
+
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
+        }
+    }
 }
