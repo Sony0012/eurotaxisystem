@@ -706,21 +706,29 @@
     <!-- Inventory Management Modal -->
     <div id="partsModal" class="hidden fixed inset-0 z-[60] flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm transition-all">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl p-8 max-h-[90vh] flex flex-col">
-            <div class="flex justify-between items-center mb-6">
+            <div class="flex justify-between items-center mb-4">
                 <div>
                     <h3 class="text-xl font-bold text-gray-900">Spare Parts Catalog</h3>
                     <p class="text-xs text-gray-500">Manage names and default prices for your inventory</p>
                 </div>
-                <div class="flex items-center gap-4">
+                <div class="flex items-center gap-2">
                     <button onclick="openSuppliersModal()" class="px-4 py-1.5 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 text-[10px] font-black uppercase tracking-widest transition flex items-center gap-2">
                         <i data-lucide="users" class="w-3 h-3"></i> Manage Suppliers
+                    </button>
+                    {{-- Minimize/Restore toggle --}}
+                    <button id="btnMinimizePartsForm" onclick="togglePartsForm()"
+                        title="Minimize form"
+                        class="p-2 hover:bg-yellow-50 rounded-full transition text-gray-400 hover:text-yellow-600">
+                        <i id="iconMinimize" data-lucide="chevron-up" class="w-5 h-5 transition-transform duration-300"></i>
                     </button>
                     <button onclick="closePartsModal()" class="p-2 hover:bg-gray-100 rounded-full transition text-gray-400 hover:text-gray-600">
                         <i data-lucide="x" class="w-6 h-6"></i>
                     </button>
                 </div>
             </div>
-            
+
+            {{-- Collapsible form section --}}
+            <div id="partsFormSection">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4 p-4 bg-blue-50 rounded-xl border border-blue-100">
                 <input type="hidden" id="newPartId">
                 <input type="hidden" id="newPartCurrentStock" value="0">
@@ -764,6 +772,7 @@
 
             {{-- Inline modal toast (appears above the parts table) --}}
             <div id="partsModalToast" class="hidden mb-3 p-3 rounded-xl border flex items-center gap-3 text-sm font-bold shadow-sm"></div>
+            </div>{{-- /partsFormSection --}}
 
             <div class="flex-1 overflow-y-auto pr-2 custom-scrollbar">
                 <table class="min-w-full divide-y divide-gray-100">
@@ -1227,7 +1236,37 @@ function refreshOtherCosts(type) {
 }
 
 // --- Master Parts Catalog ---
+let _partsFormMinimized = false;
+
+function togglePartsForm() {
+    const section = document.getElementById('partsFormSection');
+    const icon    = document.getElementById('iconMinimize');
+    _partsFormMinimized = !_partsFormMinimized;
+    if (_partsFormMinimized) {
+        section.style.maxHeight = '0';
+        section.style.overflow  = 'hidden';
+        section.style.marginBottom = '0';
+        icon.style.transform = 'rotate(180deg)';
+        document.getElementById('btnMinimizePartsForm').title = 'Restore form';
+    } else {
+        section.style.maxHeight = '';
+        section.style.overflow  = '';
+        section.style.marginBottom = '';
+        icon.style.transform = 'rotate(0deg)';
+        document.getElementById('btnMinimizePartsForm').title = 'Minimize form';
+    }
+}
+
 function openPartsModal() {
+    // Always restore form on open
+    _partsFormMinimized = false;
+    const section = document.getElementById('partsFormSection');
+    section.style.maxHeight = '';
+    section.style.overflow  = '';
+    section.style.marginBottom = '';
+    const icon = document.getElementById('iconMinimize');
+    if (icon) { icon.style.transform = 'rotate(0deg)'; }
+
     document.getElementById('partsModal').classList.remove('hidden');
     refreshPartsTable();
 }
