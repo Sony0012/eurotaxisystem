@@ -398,15 +398,7 @@ class LiveTrackingController extends Controller
                     'stopped' => collect($gps_data)->where('gps_status', 'stopped')->count(),
                     'offline' => collect($gps_data)->where('gps_status', 'offline')->count()
                 ],
-                'alerts' => DB::table('system_alerts')
-                    ->where('is_resolved', false)
-                    ->orderByDesc('created_at')
-                    ->limit(10)
-                    ->get()
-                    ->map(function($alert) {
-                        $alert->formatted_time = \Carbon\Carbon::parse($alert->created_at)->diffForHumans();
-                        return $alert;
-                    })
+                'alerts' => app(\App\Services\NotificationService::class)->getGlobalNotifications()
             ]);
 
         } catch (\Exception $e) {
