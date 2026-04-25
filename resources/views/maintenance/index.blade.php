@@ -365,10 +365,22 @@
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
                         <div id="addPartDropdown" class="search-dropdown hidden">
                             @foreach($spare_parts as $p)
-                            <div class="search-option part-option" data-id="{{ $p->id }}" data-name="{{ $p->name }}" data-price="{{ $p->price }}">
+                            @php $isUnavailable = ($p->stock_quantity ?? 0) <= 0; @endphp
+                            <div class="search-option part-option {{ $isUnavailable ? 'opacity-40 cursor-not-allowed pointer-events-none bg-gray-50' : '' }}" 
+                                data-id="{{ $p->id }}" data-name="{{ $p->name }}" data-price="{{ $p->price }}" data-stock="{{ $p->stock_quantity ?? 0 }}">
                                 <div class="flex justify-between items-center">
-                                    <div class="font-medium text-xs text-gray-900">{{ $p->name }}</div>
-                                    <div class="text-[10px] font-bold text-blue-600">₱{{ number_format($p->price, 2) }}</div>
+                                    <div>
+                                        <div class="font-medium text-xs {{ $isUnavailable ? 'text-gray-400' : 'text-gray-900' }}">{{ $p->name }}</div>
+                                        <div class="text-[9px] {{ $isUnavailable ? 'text-red-400' : 'text-gray-400' }}">
+                                            Stock: {{ $p->stock_quantity ?? 0 }}
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="text-[10px] font-bold {{ $isUnavailable ? 'text-gray-400' : 'text-blue-600' }}">₱{{ number_format($p->price, 2) }}</div>
+                                        @if($isUnavailable)
+                                            <span class="text-[8px] font-black uppercase text-red-500">Unavailable</span>
+                                        @endif
+                                    </div>
                                 </div>
                             </div>
                             @endforeach
@@ -561,10 +573,22 @@
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
                         <div id="editPartDropdown" class="search-dropdown hidden">
                             @foreach($spare_parts as $p)
-                            <div class="search-option part-option" data-id="{{ $p->id }}" data-name="{{ $p->name }}" data-price="{{ $p->price }}">
+                            @php $isUnavailable = ($p->stock_quantity ?? 0) <= 0; @endphp
+                            <div class="search-option part-option {{ $isUnavailable ? 'opacity-40 cursor-not-allowed pointer-events-none bg-gray-50' : '' }}" 
+                                data-id="{{ $p->id }}" data-name="{{ $p->name }}" data-price="{{ $p->price }}" data-stock="{{ $p->stock_quantity ?? 0 }}">
                                 <div class="flex justify-between items-center">
-                                    <div class="font-medium text-xs text-gray-900">{{ $p->name }}</div>
-                                    <div class="text-[10px] font-bold text-blue-600">₱{{ number_format($p->price, 2) }}</div>
+                                    <div>
+                                        <div class="font-medium text-xs {{ $isUnavailable ? 'text-gray-400' : 'text-gray-900' }}">{{ $p->name }}</div>
+                                        <div class="text-[9px] {{ $isUnavailable ? 'text-red-400' : 'text-gray-400' }}">
+                                            Stock: {{ $p->stock_quantity ?? 0 }}
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="text-[10px] font-bold {{ $isUnavailable ? 'text-gray-400' : 'text-blue-600' }}">₱{{ number_format($p->price, 2) }}</div>
+                                        @if($isUnavailable)
+                                            <span class="text-[8px] font-black uppercase text-red-500">Unavailable</span>
+                                        @endif
+                                    </div>
                                 </div>
                             </div>
                             @endforeach
@@ -1578,8 +1602,8 @@ function refreshPartsTable() {
                     <div class="text-[10px] font-bold text-gray-500 uppercase tracking-tighter">${p.supplier || 'Unspecified'}</div>
                 </td>
                 <td class="px-4 py-3 text-center">
-                    <span class="px-2 py-0.5 rounded text-[10px] font-black uppercase ${ (parseInt(p.stock_quantity) || 0) <= 0 ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-700' }">
-                        ${(parseInt(p.stock_quantity) || 0) <= 0 ? 'Out of Stock' : p.stock_quantity}
+                    <span class="px-2 py-0.5 rounded text-[10px] font-black uppercase ${ (p.stock_quantity || 0) <= 0 ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-700' }">
+                        ${p.stock_quantity || 0}
                     </span>
                 </td>
                 <td class="px-4 py-3 text-sm font-bold text-blue-600">₱${(parseFloat(p.price) || 0).toFixed(2)}</td>
@@ -1810,12 +1834,7 @@ function refreshPartDropdowns() {
                 <div class="flex justify-between items-center">
                     <div class="flex-1">
                         <div class="font-medium text-xs text-gray-900">${p.name}</div>
-                        <div class="text-[9px] text-gray-400 uppercase tracking-tighter">
-                            ${p.supplier || 'No Supplier'} · 
-                            ${(parseInt(p.stock_quantity) || 0) <= 0 
-                                ? '<span class="text-red-600 font-black px-1.5 py-0.5 bg-red-50 rounded">UNAVAILABLE</span>' 
-                                : '<span class="font-bold text-gray-500">Stock: ' + p.stock_quantity + '</span>'}
-                        </div>
+                        <div class="text-[9px] text-gray-400 uppercase tracking-tighter">${p.supplier || 'No Supplier'} · Stock: ${p.stock_quantity || 0}</div>
                     </div>
                     <div class="flex items-center gap-2">
                         <div class="text-[10px] font-bold text-blue-600">₱${parseFloat(p.price).toFixed(2)}</div>
