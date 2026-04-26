@@ -44,7 +44,8 @@ function initMap() {
 
 function startTracking() {
     updateFleetData();
-    updateInterval = setInterval(updateFleetData, 5000); // Updated to 5 seconds for faster real-time tracking
+    // Poll every 20 seconds (safer for API rate limits)
+    updateInterval = setInterval(updateFleetData, 20000);
 }
 
 async function updateFleetData() {
@@ -241,20 +242,6 @@ function updateListItemUI(unit) {
             if (zapIcon) zapIcon.classList.replace('text-green-500', 'text-gray-300');
             if (engineText) engineText.textContent = 'Engine OFF';
         }
-    }
-    
-    // --- NEW: One-Click Quick Command in Sidebar ---
-    const sidebarCommand = item.querySelector('.sidebar-quick-command');
-    if (!sidebarCommand) {
-        const btn = document.createElement('button');
-        btn.className = 'sidebar-quick-command ml-2 p-1.5 rounded-lg bg-gray-50 hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors border border-gray-100';
-        btn.setAttribute('onclick', `sendRemoteCommand(${unit.unit_id}, '${unit.ignition_status ? 'off' : 'on'}')`);
-        btn.innerHTML = `<i data-lucide="power" class="w-4 h-4"></i>`;
-        engineContainer.appendChild(btn);
-        if (typeof lucide !== 'undefined') lucide.createIcons();
-    } else {
-        sidebarCommand.setAttribute('onclick', `sendRemoteCommand(${unit.unit_id}, '${unit.ignition_status ? 'off' : 'on'}')`);
-        sidebarCommand.className = `sidebar-quick-command ml-2 p-1.5 rounded-lg transition-colors border ${unit.ignition_status ? 'bg-gray-50 hover:bg-red-50 text-gray-400 hover:text-red-500 border-gray-100' : 'bg-green-50 text-green-600 border-green-100'}`;
     }
     
     // Update opacity for offline
@@ -473,20 +460,6 @@ function updateMarker(unit) {
                         ${followingUnitId == unit.unit_id ? 'Following' : 'Follow Unit'}
                     </button>
                 </div>
-
-                <!-- NEW: ONE-CLICK ENGINE CONTROL -->
-                <div class="grid grid-cols-2 gap-2 mt-4 pt-4 border-t border-gray-100">
-                    <button onclick="sendRemoteCommand(${unit.unit_id}, 'off')" 
-                            class="flex items-center justify-center gap-2 py-3 px-2 bg-red-600 hover:bg-red-700 text-white rounded-xl transition-all shadow-lg active:scale-95 group">
-                        <i data-lucide="power" class="w-4 h-4 group-hover:rotate-12 transition-transform"></i>
-                        <span class="text-[10px] font-black uppercase tracking-tighter">Kill Engine</span>
-                    </button>
-                    <button onclick="sendRemoteCommand(${unit.unit_id}, 'on')" 
-                            class="flex items-center justify-center gap-2 py-3 px-2 bg-green-600 hover:bg-green-700 text-white rounded-xl transition-all shadow-lg active:scale-95 group">
-                        <i data-lucide="zap" class="w-4 h-4 group-hover:scale-110 transition-transform"></i>
-                        <span class="text-[10px] font-black uppercase tracking-tighter">Restore Power</span>
-                    </button>
-                </div>
             </div>
         </div>
     `;
@@ -668,49 +641,3 @@ function drawRestrictedZones(group) {
         }).addTo(group).bindTooltip(`${name} Restricted Road`);
     }
 }
-
-// --- NEW: ONE-CLICK REMOTE COMMAND HANDLER ---
-window.sendRemoteCommand = async function(unitId, commandType) {
-    const action = commandType === 'off' ? 'SHUT DOWN ENGINE' : 'RESTORE ENGINE POWER';
-    const btn = event.currentTarget; // Capture the clicked button
-    
-    // Quick confirm without password (as requested)
-    if (!confirm(`Are you sure you want to ${action} for this unit?`)) return;
-
-    // Visual feedback & Anti-Spam (Disable Button)
-    const originalContent = btn.innerHTML;
-    btn.disabled = true;
-    btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin text-white"></i>`;
-    if (typeof lucide !== 'undefined') lucide.createIcons();
-    
-    toastr.info(`Sending ${commandType === 'off' ? 'Kill' : 'Restore'} command...`, 'Remote Control');
-
-    try {
-        const response = await fetch('/live-tracking/send-command', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            },
-            body: JSON.stringify({ id: unitId, command: commandType })
-        });
-
-        const data = await response.json();
-
-        if (data.success) {
-            toastr.success(data.message, 'Success');
-            // Force refresh data to show engine status change
-            updateFleetData();
-        } else {
-            toastr.error(data.error || 'Failed to send command', 'Error');
-        }
-    } catch (e) {
-        console.error('Command UI Error:', e);
-        toastr.error('Connection error. Please try again.', 'Error');
-    } finally {
-        // Restore button state
-        btn.disabled = false;
-        btn.innerHTML = originalContent;
-        if (typeof lucide !== 'undefined') lucide.createIcons();
-    }
-};
