@@ -72,6 +72,31 @@
         max-height: 200px;
         overflow-y: auto;
     }
+    .modern-table-sep {
+        border-collapse: separate;
+        border-spacing: 0 0.6rem;
+    }
+    .modern-row {
+        background-color: white;
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+        transition: all 0.2s ease-in-out;
+    }
+    .modern-row:hover {
+        box-shadow: 0 10px 15px -3px rgba(234, 179, 8, 0.2), 0 4px 6px -2px rgba(234, 179, 8, 0.1);
+        transform: translateY(-2px);
+    }
+    .modern-row td:first-child {
+        border-top-left-radius: 0.75rem;
+        border-bottom-left-radius: 0.75rem;
+        border-left: 4px solid transparent;
+    }
+    .modern-row:hover td:first-child {
+        border-left-color: #eab308;
+    }
+    .modern-row td:last-child {
+        border-top-right-radius: 0.75rem;
+        border-bottom-right-radius: 0.75rem;
+    }
 </style>
 {{-- Stats --}}
 <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
@@ -128,25 +153,24 @@
 </div>
 
 {{-- Table --}}
-<div class="bg-white rounded-lg shadow overflow-hidden">
-    <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200 text-sm">
-            <thead class="bg-gray-50">
-                <tr>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Unit / Driver</th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Mechanic</th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date Started</th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date Done</th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Cost</th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-200">
-                @forelse($records as $r)
-                <tr class="hover:bg-yellow-50 cursor-pointer transition-all border-l-4 border-transparent hover:border-yellow-400 group"
-                    onclick="openViewMaint({{ $r->id }})">
+<div class="overflow-x-auto pb-4">
+    <table class="min-w-full text-sm modern-table-sep">
+        <thead>
+            <tr>
+                <th class="px-4 py-2 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Unit / Driver</th>
+                <th class="px-4 py-2 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Type</th>
+                <th class="px-4 py-2 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Mechanic</th>
+                <th class="px-4 py-2 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Date Started</th>
+                <th class="px-4 py-2 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Date Done</th>
+                <th class="px-4 py-2 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Cost</th>
+                <th class="px-4 py-2 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Status</th>
+                <th class="px-4 py-2 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @forelse($records as $r)
+            <tr class="modern-row cursor-pointer group"
+                onclick="openViewMaint({{ $r->id }})">
                     <td class="px-4 py-3">
                         <div class="flex items-center gap-2">
                            <p class="font-bold text-gray-900 group-hover:text-yellow-700 transition-colors">{{ $r->plate_number }}</p>
@@ -298,13 +322,13 @@
         </table>
     </div>
     @if($pagination['total_pages'] > 1)
-    <div class="px-4 py-3 border-t flex items-center justify-between">
+    <div class="px-4 py-3 flex items-center justify-between">
         <div class="flex-1 flex justify-between sm:hidden">
             @if($pagination['has_prev'])
-                <a href="?page={{ $pagination['prev_page'] }}&search={{ urlencode($search) }}&status={{ urlencode($status) }}&type={{ urlencode($type) }}" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-xs font-bold rounded-md text-gray-700 bg-white hover:bg-gray-50">Previous</a>
+                <a href="?page={{ $pagination['prev_page'] }}&search={{ urlencode($search) }}&status={{ urlencode($status) }}&type={{ urlencode($type) }}" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-xs font-bold rounded-xl text-gray-700 bg-white hover:bg-gray-50">Previous</a>
             @endif
             @if($pagination['has_next'])
-                <a href="?page={{ $pagination['next_page'] }}&search={{ urlencode($search) }}&status={{ urlencode($status) }}&type={{ urlencode($type) }}" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-xs font-bold rounded-md text-gray-700 bg-white hover:bg-gray-50">Next</a>
+                <a href="?page={{ $pagination['next_page'] }}&search={{ urlencode($search) }}&status={{ urlencode($status) }}&type={{ urlencode($type) }}" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-xs font-bold rounded-xl text-gray-700 bg-white hover:bg-gray-50">Next</a>
             @endif
         </div>
         <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between font-bold text-[10px] text-gray-500 uppercase tracking-widest">
@@ -312,9 +336,9 @@
                 <p>Showing <span class="text-gray-900">{{ min($pagination['total_items'], ($pagination['page'] - 1) * 10 + 1) }}</span> to <span class="text-gray-900">{{ min($pagination['total_items'], $pagination['page'] * 10) }}</span> of <span class="text-gray-900">{{ $pagination['total_items'] }}</span> records</p>
             </div>
             <div>
-                <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                <nav class="relative z-0 inline-flex rounded-xl shadow-sm -space-x-px" aria-label="Pagination">
                     @if($pagination['has_prev'])
-                        <a href="?page={{ $pagination['prev_page'] }}&search={{ urlencode($search) }}&status={{ urlencode($status) }}&type={{ urlencode($type) }}" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-gray-400 hover:bg-gray-50">
+                        <a href="?page={{ $pagination['prev_page'] }}&search={{ urlencode($search) }}&status={{ urlencode($status) }}&type={{ urlencode($type) }}" class="relative inline-flex items-center px-2 py-2 rounded-l-xl border border-gray-300 bg-white text-gray-400 hover:bg-gray-50">
                             <i data-lucide="chevron-left" class="w-4 h-4"></i>
                         </a>
                     @endif
@@ -326,13 +350,13 @@
 
                     @for($i = $start; $i <= $end; $i++)
                         <a href="?page={{ $i }}&search={{ urlencode($search) }}&status={{ urlencode($status) }}&type={{ urlencode($type) }}" 
-                           class="relative inline-flex items-center px-4 py-2 border text-[11px] font-black {{ $i === $pagination['page'] ? 'z-10 bg-green-50 border-green-500 text-green-600' : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50' }}">
+                           class="relative inline-flex items-center px-4 py-2 border text-[11px] font-black {{ $i === $pagination['page'] ? 'z-10 bg-yellow-50 border-yellow-500 text-yellow-600' : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50' }}">
                             {{ $i }}
                         </a>
                     @endfor
 
                     @if($pagination['has_next'])
-                        <a href="?page={{ $pagination['next_page'] }}&search={{ urlencode($search) }}&status={{ urlencode($status) }}&type={{ urlencode($type) }}" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-gray-400 hover:bg-gray-50">
+                        <a href="?page={{ $pagination['next_page'] }}&search={{ urlencode($search) }}&status={{ urlencode($status) }}&type={{ urlencode($type) }}" class="relative inline-flex items-center px-2 py-2 rounded-r-xl border border-gray-300 bg-white text-gray-400 hover:bg-gray-50">
                             <i data-lucide="chevron-right" class="w-4 h-4"></i>
                         </a>
                     @endif
