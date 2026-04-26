@@ -19,6 +19,67 @@
         .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #ca8a04; }
     </style>
 
+    <!-- Today's Focus Metrics -->
+    @php
+        $totalFleetActive = \App\Models\Unit::where('status', '!=', 'Inactive')->count();
+        $totalFleetActive = $totalFleetActive > 0 ? $totalFleetActive : \App\Models\Unit::count();
+        $codingTodayCount = isset($today_units) ? $today_units->count() : ($coding_calendar[$today_name]->count() ?? 0);
+        $onRoadCount = max(0, $totalFleetActive - $codingTodayCount);
+        
+        // Basic simulation/check for units on coding day that might be marked 'Available' (on road)
+        $violationsCount = \App\Models\Unit::where('coding_day', $today_name)->where('status', 'Available')->count();
+    @endphp
+
+    <div class="mb-6 mt-2">
+        <h2 class="text-sm font-black text-gray-800 uppercase tracking-widest mb-4 flex items-center gap-2">
+            <i data-lucide="target" class="w-4 h-4 text-blue-600"></i> Today's Focus
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!-- Metric 1: Total Coding Today -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex items-center gap-4 relative overflow-hidden group hover:shadow-md transition-shadow cursor-default">
+                <div class="absolute -right-4 -top-4 w-24 h-24 bg-red-50 rounded-full blur-xl group-hover:bg-red-100 transition-colors pointer-events-none"></div>
+                <div class="w-14 h-14 rounded-full bg-red-50 border border-red-100 flex items-center justify-center shrink-0 relative z-10">
+                    <i data-lucide="ban" class="w-6 h-6 text-red-500"></i>
+                </div>
+                <div class="relative z-10">
+                    <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Total Coding Today</p>
+                    <p class="text-3xl font-black text-gray-800 tabular-nums leading-none">{{ $codingTodayCount }}</p>
+                </div>
+            </div>
+
+            <!-- Metric 2: On-Road Units -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex items-center gap-4 relative overflow-hidden group hover:shadow-md transition-shadow cursor-default">
+                <div class="absolute -right-4 -top-4 w-24 h-24 bg-emerald-50 rounded-full blur-xl group-hover:bg-emerald-100 transition-colors pointer-events-none"></div>
+                <div class="w-14 h-14 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center shrink-0 relative z-10">
+                    <i data-lucide="navigation" class="w-6 h-6 text-emerald-500"></i>
+                </div>
+                <div class="relative z-10">
+                    <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-0.5">On-Road Units</p>
+                    <p class="text-3xl font-black text-gray-800 tabular-nums leading-none">{{ $onRoadCount }}</p>
+                </div>
+            </div>
+
+            <!-- Metric 3: Garage/Coding Alert -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex items-center gap-4 relative overflow-hidden group hover:shadow-md transition-shadow cursor-default">
+                <div class="absolute -right-4 -top-4 w-24 h-24 {{ $violationsCount > 0 ? 'bg-orange-50' : 'bg-gray-50' }} rounded-full blur-xl group-hover:bg-orange-100 transition-colors pointer-events-none"></div>
+                <div class="w-14 h-14 rounded-full {{ $violationsCount > 0 ? 'bg-orange-50 border border-orange-200' : 'bg-gray-50 border border-gray-100' }} flex items-center justify-center shrink-0 relative z-10 transition-colors">
+                    <i data-lucide="alert-triangle" class="w-6 h-6 {{ $violationsCount > 0 ? 'text-orange-500 animate-pulse' : 'text-gray-400' }}"></i>
+                </div>
+                <div class="relative z-10">
+                    <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Garage/Coding Alert</p>
+                    @if($violationsCount > 0)
+                        <div class="flex items-end gap-2">
+                            <p class="text-3xl font-black text-orange-600 tabular-nums leading-none">{{ $violationsCount }}</p>
+                            <span class="text-[9px] font-bold text-orange-500 uppercase tracking-widest mb-1 animate-pulse">On Road!</span>
+                        </div>
+                    @else
+                        <p class="text-lg font-black text-gray-500 leading-tight mt-1">All Safe</p>
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Date Filter & Actions -->
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-6">
         <form method="GET" action="{{ route('coding.index') }}" class="flex flex-col md:flex-row gap-4 items-center">
@@ -215,7 +276,21 @@
                     <!-- Coding List Visibility: Maximum 2 units visible, then scroll -->
                     <div class="space-y-2 max-h-[120px] overflow-y-auto pr-1 custom-scrollbar relative z-10">
                         @forelse($day_units as $u)
-                            <div class="text-[11px] px-3 py-1.5 bg-blue-50/80 backdrop-blur-sm rounded-full border border-blue-100 shadow-sm text-blue-700 font-black text-center hover:bg-blue-100 hover:shadow-md hover:border-blue-300 hover:scale-[1.02] transition-all cursor-pointer">
+                            @php
+                                $type = strtolower($u->unit_type ?? 'sedan');
+                                $pillClass = 'bg-blue-50/80 border-blue-100 text-blue-700 hover:bg-blue-100 hover:border-blue-300';
+                                $iconName = 'car';
+                                
+                                if (str_contains($type, 'suv')) {
+                                    $pillClass = 'bg-emerald-50/80 border-emerald-100 text-emerald-700 hover:bg-emerald-100 hover:border-emerald-300';
+                                    $iconName = 'car-front';
+                                } elseif (str_contains($type, 'van')) {
+                                    $pillClass = 'bg-purple-50/80 border-purple-100 text-purple-700 hover:bg-purple-100 hover:border-purple-300';
+                                    $iconName = 'bus-front';
+                                }
+                            @endphp
+                            <div title="{{ ucfirst($type) }} - {{ $u->make }} {{ $u->model }}" class="text-[11px] flex justify-center items-center gap-1.5 px-3 py-1.5 {{ $pillClass }} backdrop-blur-sm rounded-full border shadow-sm font-black text-center hover:shadow-md hover:scale-[1.02] transition-all cursor-pointer group">
+                                <i data-lucide="{{ $iconName }}" class="w-3.5 h-3.5 opacity-70 group-hover:opacity-100 transition-opacity"></i>
                                 <span class="uppercase tracking-widest">{{ $u->plate_number }}</span>
                             </div>
                         @empty
