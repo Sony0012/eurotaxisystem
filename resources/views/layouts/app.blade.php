@@ -64,8 +64,98 @@
 
     @auth
         @php
-            $headerNotifications = $globalNotifications ?? [];
-            $headerNotificationCount = $globalNotificationCount ?? 0;
+            // Notifications for header bell
+            $headerNotifications = [];
+            
+            // 1. HIGHEST PRIORITY: Manually flagged 'Surveillance' units
+            $flaggedUnits = DB::table('units')
+                ->whereNull('deleted_at')
+                ->where('status', 'surveillance')
+                ->get();
+                
+            foreach($flaggedUnits as $fu) {
+                $headerNotifications[] = [
+                    'id' => 'surveillance_' . $fu->id,
+                    'title' => '🚨 Flagged: ' . $fu->plate_number,
+                    'message' => 'This unit is currently flagged as At Risk.',
+                    'type' => 'surveillance',
+                    'url' => route('units.index') . '?open_flagged=1',
+                    'time' => 'Action Required',
+                    'timestamp' => \Carbon\Carbon::parse($fu->updated_at ?? now())
+                ];
+            }
+            
+            // 2. Fetch System Alerts from DB (REAL-TIME VIOLATIONS)
+            $dbAlerts = DB::table('system_alerts')
+                ->where('is_resolved', false)
+                ->orderByDesc('created_at')
+                ->limit(15)
+                ->get();
+
+            foreach($dbAlerts as $alert) {
+                // If it's a missing unit alert, send to units index with open_flagged parameter
+                $targetUrl = ($alert->type === 'missing_unit') 
+                    ? route('units.index') . '?open_flagged=1' 
+                    : route('driver-behavior.index');
+
+                $headerNotifications[] = [
+                    'id' => $alert->id,
+                    'title' => $alert->title,
+                    'message' => $alert->message,
+                    'type' => 'violation_alert', 
+                    'severity' => $alert->type, 
+                    'url' => $targetUrl,
+                    'time' => \Carbon\Carbon::parse($alert->created_at)->diffForHumans(),
+                    'timestamp' => \Carbon\Carbon::parse($alert->created_at)
+                ];
+            }
+            
+            // 3. Merge specialized notifications from views if they exist
+            if(isset($maintNotifs)) {
+                foreach($maintNotifs as $n) {
+                    $n['time'] = $n['time'] ?? 'Today';
+                    $headerNotifications[] = $n;
+                }
+            }
+            if(isset($expiringFranchise)) {
+                foreach($expiringFranchise as $n) {
+                    $n['time'] = $n['time'] ?? 'Now';
+                    $headerNotifications[] = $n;
+                }
+            }
+            if(isset($stockNotifs)) {
+                foreach($stockNotifs as $n) {
+                    $n['time'] = $n['time'] ?? 'Critical';
+                    $headerNotifications[] = $n;
+                }
+            }
+
+            $headerNotificationCount = count($headerNotifications);
+
+            // Sort logic: "Action Required" items first, then others by recency
+            // We'll use a custom property 'priority' (0 for standard, 1 for Action Required/High)
+            foreach($headerNotifications as &$notif) {
+                if (isset($notif['time'])) {
+                    $t = strtoupper($notif['time']);
+                    $notif['priority'] = ($t === 'ACTION REQUIRED' || $t === 'REORDER NOW' || $t === 'NOW' || $t === 'CRITICAL') ? 1 : 0;
+                } else {
+                    $notif['priority'] = 0;
+                }
+            }
+            unset($notif);
+
+            usort($headerNotifications, function($a, $b) {
+                // Priority descending (1 first)
+                if ($a['priority'] !== $b['priority']) {
+                    return $b['priority'] - $a['priority'];
+                }
+                
+                // Secondary sort: Recency (Newest first)
+                $timeA = isset($a['timestamp']) ? $a['timestamp']->timestamp : 0;
+                $timeB = isset($b['timestamp']) ? $b['timestamp']->timestamp : 0;
+                
+                return $timeB - $timeA;
+            });
         @endphp
 
         <!-- Main Layout -->
@@ -303,7 +393,7 @@
                 </header>
 
                 <!-- Page Content -->
-                <div class="flex-1 overflow-y-auto p-4">
+                <div class="flex-1 overflow-y-auto @yield('main-padding', 'p-4')">
                     {{-- Flash Messages --}}
                     @foreach(['success', 'error', 'warning', 'info'] as $type)
                         @if(session($type))
