@@ -234,7 +234,7 @@
 
 <!-- Boundary Modal -->
 <div id="boundaryModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4 transition-all">
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[95vh] flex flex-col overflow-hidden">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[95vh] flex flex-col overflow-hidden">
         {{-- Header (Deep Navy matching Unit Details) --}}
         <div class="bg-slate-800 p-5 shrink-0">
             <div class="flex justify-between items-start">
