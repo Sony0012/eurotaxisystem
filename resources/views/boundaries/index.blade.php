@@ -508,7 +508,7 @@
                 <button type="button" onclick="closeModal()" class="px-5 py-2.5 text-sm font-bold text-gray-600 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 focus:ring-4 focus:ring-gray-100 transition-all shadow-sm">
                     Cancel
                 </button>
-                <button type="submit" class="px-6 py-2.5 text-sm font-black text-slate-900 bg-yellow-500 rounded-xl hover:bg-yellow-400 focus:ring-4 focus:ring-yellow-100 transition-all shadow-sm">
+                <button type="submit" class="px-6 py-2.5 text-sm font-black text-white bg-yellow-500 rounded-xl hover:bg-yellow-400 focus:ring-4 focus:ring-yellow-100 transition-all shadow-sm">
                     Save Record
                 </button>
             </div>
