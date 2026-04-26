@@ -65,23 +65,14 @@
 {{-- ════════ HEADER STATS (COMPACT) ════════ --}}
 <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
 
-    {{-- 1. VIOLATIONS --}}
+    {{-- 1. VIOLATIONS TODAY --}}
     <div class="stat-card-premium relative overflow-hidden bg-gradient-to-br from-red-600 to-rose-700 rounded-2xl p-4 text-white shadow-lg shadow-red-100 group">
         <div class="absolute right-[-5px] top-[-5px] opacity-10 transition-transform group-hover:scale-110 duration-500">
             <i data-lucide="alert-circle" class="w-16 h-16"></i>
         </div>
         <div class="relative z-10 flex flex-col items-center text-center">
-            <div id="todayViolationsView">
-                <p class="text-3xl font-black tracking-tighter leading-none">{{ $stats['violations_today'] ?? 0 }}</p>
-                <p class="text-[9px] font-black uppercase tracking-[0.1em] opacity-80 mt-1">Violations Today</p>
-            </div>
-            <div id="periodViolationsView" class="hidden">
-                <p class="text-3xl font-black tracking-tighter leading-none">{{ $stats['incidents_period'] ?? 0 }}</p>
-                <p class="text-[9px] font-black uppercase tracking-[0.1em] opacity-80 mt-1">Violations in Period</p>
-            </div>
-            <button type="button" onclick="toggleCard('todayViolationsView', 'periodViolationsView', 'toggleViolationsText')" class="mt-2 px-2 py-1 bg-white/10 hover:bg-white/20 rounded-lg text-[7px] font-black uppercase tracking-widest transition-all">
-                <span id="toggleViolationsText">View Period total</span>
-            </button>
+            <p class="text-3xl font-black tracking-tighter leading-none">{{ $stats['violations_today'] ?? 0 }}</p>
+            <p class="text-[9px] font-black uppercase tracking-[0.1em] opacity-80 mt-1">Violations Today</p>
         </div>
     </div>
 
@@ -91,41 +82,19 @@
             <i data-lucide="users" class="w-16 h-16"></i>
         </div>
         <div class="relative z-10 flex flex-col items-center text-center">
-            <div id="totalViolatorsView">
-                <p class="text-3xl font-black tracking-tighter leading-none">{{ $stats['total_violators'] ?? 0 }}</p>
-                <p class="text-[9px] font-black uppercase tracking-[0.1em] opacity-80 mt-1">Total Violators</p>
-            </div>
-            <div id="todayViolatorsView" class="hidden text-center">
-                <p class="text-3xl font-black tracking-tighter leading-none">{{ $stats['violators_today'] ?? 0 }}</p>
-                <p class="text-[9px] font-black uppercase tracking-[0.1em] opacity-80 mt-1">Today Violators</p>
-            </div>
-            <button type="button" onclick="toggleCard('totalViolatorsView', 'todayViolatorsView', 'toggleViolatorsCountText')" class="mt-2 px-2 py-1 bg-white/10 hover:bg-white/20 rounded-lg text-[7px] font-black uppercase tracking-widest transition-all">
-                <span id="toggleViolatorsCountText">View Today</span>
-            </button>
+            <p class="text-3xl font-black tracking-tighter leading-none">{{ $stats['total_violators'] ?? 0 }}</p>
+             <p class="text-[9px] font-black uppercase tracking-[0.1em] opacity-80 mt-1">Total Violators</p>
         </div>
     </div>
 
-    {{-- 3. MONTHLY TOTAL CHARGES --}}
+    {{-- 3. TOTAL CHARGES --}}
     <div class="stat-card-premium relative overflow-hidden bg-gradient-to-br from-purple-600 to-indigo-700 rounded-2xl p-4 text-white shadow-lg shadow-purple-100 group">
         <div class="absolute right-[-5px] top-[-5px] opacity-10 transition-transform group-hover:scale-110 duration-500">
             <i data-lucide="banknote" class="w-16 h-16"></i>
         </div>
         <div class="relative z-10 flex flex-col items-center text-center">
-            {{-- Current Month View --}}
-            <div id="currentMonthCharge">
-                <p class="text-xl font-black tracking-tighter leading-none">₱{{ number_format($stats['monthly_total_charges'] ?? 0, 0) }}</p>
-                <p class="text-[9px] font-black uppercase tracking-[0.1em] opacity-80 mt-1">Monthly Total Charge</p>
-            </div>
-            {{-- Last Month View (Hidden by default) --}}
-            <div id="lastMonthCharge" class="hidden">
-                <p class="text-xl font-black tracking-tighter leading-none">₱{{ number_format($stats['last_month_total_charges'] ?? 0, 0) }}</p>
-                <p class="text-[9px] font-black uppercase tracking-[0.1em] opacity-80 mt-1">Total Monthly Last Month</p>
-            </div>
-            
-            {{-- Toggle Button --}}
-            <button type="button" onclick="toggleCard('currentMonthCharge', 'lastMonthCharge', 'toggleChargeText')" class="mt-2 px-2 py-1 bg-white/10 hover:bg-white/20 rounded-lg text-[7px] font-black uppercase tracking-widest transition-all">
-                <span id="toggleChargeText">View last month</span>
-            </button>
+            <p class="text-xl font-black tracking-tighter leading-none">₱{{ number_format($stats['total_charges'] ?? 0, 0) }}</p>
+            <p class="text-[9px] font-black uppercase tracking-[0.1em] opacity-80 mt-1">Total Charges</p>
         </div>
     </div>
 
@@ -135,17 +104,8 @@
             <i data-lucide="trophy" class="w-16 h-16"></i>
         </div>
         <div class="relative z-10 flex flex-col items-center text-center">
-            <div id="eligibleNowView">
-                <p class="text-3xl font-black tracking-tighter leading-none">{{ count($incentive_summary['eligible'] ?? []) }}</p>
-                <p class="text-[9px] font-black uppercase tracking-[0.1em] opacity-80 mt-1">Eligible Incentive</p>
-            </div>
-            <div id="eligibleLastMonthView" class="hidden">
-                <p class="text-3xl font-black tracking-tighter leading-none">{{ $stats['last_month_eligible_count'] ?? 0 }}</p>
-                <p class="text-[9px] font-black uppercase tracking-[0.1em] opacity-80 mt-1">Last Month Eligible</p>
-            </div>
-            <button type="button" onclick="toggleCard('eligibleNowView', 'eligibleLastMonthView', 'toggleIncentiveText')" class="mt-2 px-2 py-1 bg-white/10 hover:bg-white/20 rounded-lg text-[7px] font-black uppercase tracking-widest transition-all">
-                <span id="toggleIncentiveText">View last month</span>
-            </button>
+            <p class="text-3xl font-black tracking-tighter leading-none">{{ count($incentive_summary['eligible'] ?? []) }}</p>
+            <p class="text-[9px] font-black uppercase tracking-[0.1em] opacity-80 mt-1">Eligible Incentive</p>
         </div>
     </div>
 </div>
@@ -1041,25 +1001,6 @@ let partsCatalog = @json($spare_parts ?? []);
 let incidentPartsCart = [];
 let incidentServices = [];
 let partyIndex = 0;
-
-function toggleCard(view1Id, view2Id, textId) {
-    const view1 = document.getElementById(view1Id);
-    const view2 = document.getElementById(view2Id);
-    const textLabel = document.getElementById(textId);
-
-    if (view1.classList.contains('hidden')) {
-        view1.classList.remove('hidden');
-        view2.classList.add('hidden');
-        textLabel.textContent = textLabel.dataset.orig || 'View Period total';
-    } else {
-        // Save original text if not saved
-        if (!textLabel.dataset.orig) textLabel.dataset.orig = textLabel.textContent;
-        
-        view1.classList.add('hidden');
-        view2.classList.remove('hidden');
-        textLabel.textContent = 'View current';
-    }
-}
 
 // ─── Searchable Dropdowns (Unit/Driver) ───
 function initializeSearchDropdowns() {
