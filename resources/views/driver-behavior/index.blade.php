@@ -707,9 +707,22 @@
                             
                             <div id="incidentPartDropdown" class="search-dropdown hidden max-h-60 overflow-y-auto">
                                 @foreach($spare_parts as $p)
-                                    <div class="search-option part-search-option group" data-id="{{ $p->id }}" data-name="{{ $p->name }}" data-price="{{ $p->price }}">
-                                        <div class="flex justify-between items-center w-full">
-                                            <div class="font-black text-xs text-gray-900">{{ $p->name }}</div>
+                                    @php $isAvailable = ($p->stock_quantity ?? 0) > 0; @endphp
+                                    <div class="search-option part-search-option group {{ !$isAvailable ? 'opacity-60 cursor-not-allowed bg-gray-50' : '' }}" 
+                                        data-id="{{ $p->id }}" 
+                                        data-name="{{ $p->name }}" 
+                                        data-price="{{ $p->price }}"
+                                        data-available="{{ $isAvailable ? '1' : '0' }}">
+                                        <div class="flex justify-between items-start w-full">
+                                            <div>
+                                                <div class="font-black text-xs {{ $isAvailable ? 'text-gray-900' : 'text-gray-400' }}">{{ $p->name }}</div>
+                                                <div class="flex items-center gap-2 mt-1">
+                                                    <span class="text-[9px] font-black px-1.5 py-0.5 rounded {{ $isAvailable ? 'bg-green-100 text-green-700' : 'bg-red-500 text-white shadow-sm' }}">
+                                                        {{ $isAvailable ? 'STOCK: ' . $p->stock_quantity : 'UNAVAILABLE' }}
+                                                    </span>
+                                                    <span class="text-[9px] text-gray-400 font-bold uppercase tracking-tighter italic">Supplier: {{ $p->supplier ?? 'Unknown' }}</span>
+                                                </div>
+                                            </div>
                                             <div class="text-[10px] font-black text-purple-600">₱{{ number_format($p->price, 2) }}</div>
                                         </div>
                                     </div>
@@ -1089,14 +1102,26 @@ window.saveQuickPart = async function() {
 function refreshPartSearchDropdown() {
     const dropdown = document.getElementById('incidentPartDropdown');
     if(!dropdown) return;
-    dropdown.innerHTML = partsCatalog.map(p => `
-        <div class="search-option part-search-option group" data-id="${p.id}" data-name="${p.name}" data-price="${p.price}">
-            <div class="flex justify-between items-center w-full">
-                <div class="font-black text-xs text-gray-900">${p.name}</div>
-                <div class="text-[10px] font-black text-purple-600">₱${parseFloat(p.price).toFixed(2)}</div>
+    dropdown.innerHTML = partsCatalog.map(p => {
+        const isAvailable = (parseInt(p.stock_quantity) || 0) > 0;
+        return `
+            <div class="search-option part-search-option group ${!isAvailable ? 'opacity-60 cursor-not-allowed bg-gray-50' : ''}" 
+                data-id="${p.id}" data-name="${p.name}" data-price="${p.price}" data-available="${isAvailable ? '1' : '0'}">
+                <div class="flex justify-between items-start w-full">
+                    <div>
+                        <div class="font-black text-xs ${isAvailable ? 'text-gray-900' : 'text-gray-400'}">${p.name}</div>
+                        <div class="flex items-center gap-2 mt-1">
+                            <span class="text-[9px] font-black px-1.5 py-0.5 rounded ${isAvailable ? 'bg-green-100 text-green-700' : 'bg-red-500 text-white shadow-sm'}">
+                                ${isAvailable ? 'STOCK: ' + p.stock_quantity : 'UNAVAILABLE'}
+                            </span>
+                            <span class="text-[9px] text-gray-400 font-bold uppercase tracking-tighter italic">Supplier: ${p.supplier || 'Unknown'}</span>
+                        </div>
+                    </div>
+                    <div class="text-[10px] font-black text-purple-600">₱${parseFloat(p.price).toFixed(2)}</div>
+                </div>
             </div>
-        </div>
-    `).join('');
+        `;
+    }).join('');
 }
 
 function initPartSearch() {
@@ -1115,6 +1140,13 @@ function initPartSearch() {
     dropdown.onmousedown = (e) => {
         const opt = e.target.closest('.part-search-option');
         if (!opt) return;
+        
+        // Anti-Unavailable Lock
+        if (opt.dataset.available === '0') {
+            e.preventDefault();
+            return;
+        }
+
         addPartToIncidentCart({ id: opt.dataset.id, name: opt.dataset.name, price: parseFloat(opt.dataset.price) || 0, qty: 1, isCharged: true });
         input.value = ''; dropdown.classList.add('hidden');
     };
