@@ -226,7 +226,7 @@
                         $sc  = $sevColors[$inc->severity] ?? 'bg-gray-100 text-gray-600 border-gray-200';
                         $isAccident = in_array($inc->incident_type, ['Accident','Vehicle Damage']);
                     @endphp
-                    <tr class="hover:bg-gray-50/50 transition-colors group cursor-pointer" onclick="IncidentManager.openView({{ $inc->id }})">
+                    <tr class="hover:bg-gray-50/50 transition-colors group">
                         <td class="px-5 py-3.5 whitespace-nowrap">
                             <div class="text-xs font-bold text-gray-800">{{ \Carbon\Carbon::parse($inc->timestamp)->timezone('Asia/Manila')->format('M d, Y') }}</div>
                             <div class="text-[10px] text-gray-400 font-medium">{{ \Carbon\Carbon::parse($inc->timestamp)->timezone('Asia/Manila')->format('h:i A') }}</div>
@@ -273,8 +273,7 @@
                                 <div class="text-[10px] font-black text-green-500 uppercase tracking-widest leading-tight">ELIGIBLE</div>
                                 <div class="text-[8px] text-gray-400 font-medium uppercase">Active Cycle</div>
                             @endif
-                        </td>
-                        <td class="px-5 py-3.5 whitespace-nowrap text-right" onclick="event.stopPropagation()">
+                        <td class="px-5 py-3.5 whitespace-nowrap text-right">
                             <div class="flex justify-end items-center gap-2">
                                 {{-- Edit Button --}}
                                 <button type="button" 
@@ -814,122 +813,6 @@
 </div>
 
 {{-- ════════════════════════════════════════
-     VIEW INCIDENT MODAL (PREMIUM DETAILS)
-     ════════════════════════════════════════ --}}
-<div id="viewIncidentModal" class="fixed inset-0 bg-black/70 backdrop-blur-lg hidden z-[101] flex items-center justify-center p-4">
-    <div class="w-full max-w-4xl bg-white rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in fade-in zoom-in duration-300">
-        {{-- Modal Header --}}
-        <div class="px-10 py-8 bg-gray-900 text-white flex items-center justify-between shadow-lg z-10">
-            <div class="flex items-center gap-5">
-                <div id="viewIncidentIcon" class="w-14 h-14 rounded-2xl flex items-center justify-center bg-white/10 border border-white/10 group-hover:scale-110 transition-transform">
-                    <i data-lucide="info" class="w-7 h-7 text-white"></i>
-                </div>
-                <div>
-                    <h3 class="text-2xl font-black tracking-tight leading-none" id="viewIncidentType">Incident Details</h3>
-                    <p class="text-[10px] text-gray-400 font-bold mt-2 uppercase tracking-[0.2em]" id="viewIncidentDateMeta">Transaction & Safety Verification</p>
-                </div>
-            </div>
-            <button onclick="document.getElementById('viewIncidentModal').classList.add('hidden')" class="p-3.5 rounded-2xl bg-white/10 hover:bg-white/20 transition-all active:scale-95 border border-white/10">
-                <i data-lucide="x" class="w-6 h-6 text-white"></i>
-            </button>
-        </div>
-
-        {{-- Scrollable Detail Content --}}
-        <div class="flex-1 overflow-y-auto custom-scroll px-10 py-10 space-y-10 bg-gray-50/50">
-            
-            {{-- Quick Overview Grid --}}
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div class="bg-white p-4 rounded-3xl border border-gray-100 shadow-sm">
-                    <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Driver</p>
-                    <p class="text-sm font-black text-gray-800" id="viewDriverName">—</p>
-                </div>
-                <div class="bg-white p-4 rounded-3xl border border-gray-100 shadow-sm">
-                    <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Unit Number</p>
-                    <p class="text-sm font-black text-blue-600 uppercase" id="viewPlateNumber">—</p>
-                </div>
-                <div class="bg-white p-4 rounded-3xl border border-gray-100 shadow-sm">
-                    <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Severity</p>
-                    <span id="viewSeverityBadge" class="text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest">Low</span>
-                </div>
-                <div class="bg-white p-4 rounded-3xl border border-gray-100 shadow-sm">
-                    <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Fault Status</p>
-                    <span id="viewFaultBadge" class="text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest">Not at Fault</span>
-                </div>
-            </div>
-
-            {{-- Description Section --}}
-            <div class="bg-white p-8 rounded-[2rem] border border-gray-100 shadow-sm">
-                <div class="flex items-center gap-3 mb-4">
-                    <div class="w-1.5 h-6 bg-yellow-500 rounded-full"></div>
-                    <h4 class="text-xs font-black text-gray-400 uppercase tracking-widest">Narrative Description</h4>
-                </div>
-                <p id="viewDescription" class="text-sm font-bold text-gray-700 leading-relaxed italic">No description provided.</p>
-                
-                <div id="viewCauseRow" class="mt-6 pt-6 border-t border-gray-50 hidden">
-                    <span class="text-[10px] font-black text-orange-600 bg-orange-50 px-3 py-1.5 rounded-full border border-orange-100 uppercase tracking-widest" id="viewCause">Cause: —</span>
-                </div>
-            </div>
-
-            {{-- Financial Breakdown Section --}}
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {{-- Left: Itemized Parts & Services --}}
-                <div class="space-y-6">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-xl bg-purple-100 flex items-center justify-center text-purple-600">
-                            <i data-lucide="package" class="w-5 h-5"></i>
-                        </div>
-                        <h4 class="text-xs font-black text-gray-400 uppercase tracking-widest">Maintenance Assessment</h4>
-                    </div>
-                    <div class="space-y-3" id="viewPartsList">
-                        {{-- Injected by JS --}}
-                    </div>
-                </div>
-
-                {{-- Right: Third Party & Totals --}}
-                <div class="space-y-6">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center text-blue-600">
-                            <i data-lucide="shield-alert" class="w-5 h-5"></i>
-                        </div>
-                        <h4 class="text-xs font-black text-gray-400 uppercase tracking-widest">External Liabilities</h4>
-                    </div>
-                    <div id="viewPartiesList" class="space-y-3">
-                        {{-- Injected by JS --}}
-                    </div>
-
-                    <div class="mt-10 p-6 bg-gray-900 rounded-3xl shadow-xl space-y-4">
-                         <div class="flex justify-between items-center text-white/50 text-[10px] uppercase font-black tracking-widest">
-                            <span>Third Party Settlement:</span>
-                            <span id="viewThirdPartyCost" class="text-white">₱0.00</span>
-                        </div>
-                        <div class="flex justify-between items-center text-white/50 text-[10px] uppercase font-black tracking-widest border-t border-white/5 pt-4">
-                            <span>Grand Total Damage:</span>
-                            <span id="viewGrandTotal" class="text-xl text-white font-black">₱0.00</span>
-                        </div>
-                        <div class="flex justify-between items-center bg-red-600 p-4 rounded-2xl">
-                            <span class="text-white/80 text-[10px] uppercase font-black tracking-widest">Driver Liability:</span>
-                            <span id="viewDriverLiability" class="text-xl text-white font-black">₱0.00</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        {{-- Footer --}}
-        <div class="px-10 py-8 bg-white border-t border-gray-100 flex justify-between items-center shadow-[0_-10px_20px_rgba(0,0,0,0.02)]">
-            <div id="viewIncentiveMeta" class="text-[10px] font-black uppercase tracking-widest">
-                {{-- Status Meta Here --}}
-            </div>
-            <div class="flex gap-4">
-                <button onclick="document.getElementById('viewIncidentModal').classList.add('hidden')" class="px-8 py-4 bg-gray-50 border border-gray-200 text-gray-500 font-black text-xs uppercase tracking-[0.2em] rounded-2xl hover:bg-gray-100 hover:text-gray-800 transition-all active:scale-[0.98]">
-                    Close Detail
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-{{-- ════════════════════════════════════════
      EDIT INCIDENT MODAL
      ════════════════════════════════════════ --}}
 <div id="editIncidentModal" class="fixed inset-0 bg-black/60 backdrop-blur-md hidden z-[101] flex items-center justify-center p-4">
@@ -1050,21 +933,9 @@
                 <input type="text" id="quickPartName" placeholder="e.g. Brake Pads, Side Mirror..."
                     class="w-full px-5 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl text-sm font-black focus:ring-4 focus:ring-blue-500/10 focus:border-blue-400 focus:outline-none transition-all placeholder:text-gray-300">
             </div>
-            <div class="grid grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Price (₱)</label>
-                    <input type="number" id="quickPartPrice" placeholder="0.00"
-                        class="w-full px-5 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl text-sm font-black focus:ring-4 focus:ring-blue-500/10 focus:border-blue-400 focus:outline-none transition-all placeholder:text-gray-300">
-                </div>
-                <div>
-                    <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Initial Stock</label>
-                    <input type="number" id="quickPartStock" value="10"
-                        class="w-full px-5 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl text-sm font-black focus:ring-4 focus:ring-blue-500/10 focus:border-blue-400 focus:outline-none transition-all placeholder:text-gray-300">
-                </div>
-            </div>
             <div>
-                <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Supplier Name</label>
-                <input type="text" id="quickPartSupplier" placeholder="e.g. ABC Auto Parts"
+                <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Standard Price (₱)</label>
+                <input type="number" id="quickPartPrice" placeholder="0.00"
                     class="w-full px-5 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl text-sm font-black focus:ring-4 focus:ring-blue-500/10 focus:border-blue-400 focus:outline-none transition-all placeholder:text-gray-300">
             </div>
             
@@ -1189,18 +1060,15 @@ function filterDropdown(input, optClass) {
 
 // ─── Spare Parts & Catalog Management ───
 window.saveQuickPart = async function() {
-    const name         = document.getElementById('quickPartName').value;
-    const price        = document.getElementById('quickPartPrice').value;
-    const qty_to_add   = document.getElementById('quickPartStock').value;
-    const supplier     = document.getElementById('quickPartSupplier').value;
-
+    const name = document.getElementById('quickPartName').value;
+    const price = document.getElementById('quickPartPrice').value;
     if(!name || !price) return alert('Please fill in both name and price.');
     
     try {
         const res = await fetch("{{ route('spare-parts.store') }}", {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-            body: JSON.stringify({ name, price, qty_to_add, supplier })
+            body: JSON.stringify({ name, price })
         });
         const result = await res.json();
         if(result.success) {
@@ -1221,30 +1089,14 @@ window.saveQuickPart = async function() {
 function refreshPartSearchDropdown() {
     const dropdown = document.getElementById('incidentPartDropdown');
     if(!dropdown) return;
-    dropdown.innerHTML = partsCatalog.map(p => {
-        const isUnavailable = (parseInt(p.stock_quantity) || 0) <= 0;
-        return `
-            <div class="search-option part-search-option group ${isUnavailable ? 'opacity-60 cursor-not-allowed bg-red-50/10' : ''}" 
-                 data-id="${p.id}" 
-                 data-name="${p.name}" 
-                 data-price="${p.price}"
-                 data-unavailable="${isUnavailable}">
-                <div class="flex justify-between items-center w-full">
-                    <div class="flex flex-col">
-                        <div class="font-black text-xs text-gray-900">${p.name}</div>
-                        <div class="flex items-center gap-2 mt-1">
-                            <span class="text-[9px] font-black ${isUnavailable ? 'text-red-500' : 'text-green-600'} uppercase">Stock: ${p.stock_quantity || 0}</span>
-                            ${p.supplier ? `<span class="text-[9px] font-bold text-gray-400 capitalize opacity-70">• ${p.supplier}</span>` : ''}
-                        </div>
-                    </div>
-                    <div class="flex flex-col items-end">
-                        <div class="text-[10px] font-black text-purple-600">₱${parseFloat(p.price).toFixed(2)}</div>
-                        ${isUnavailable ? '<span class="text-[8px] font-black text-red-500 uppercase mt-0.5">OUT OF STOCK</span>' : ''}
-                    </div>
-                </div>
+    dropdown.innerHTML = partsCatalog.map(p => `
+        <div class="search-option part-search-option group" data-id="${p.id}" data-name="${p.name}" data-price="${p.price}">
+            <div class="flex justify-between items-center w-full">
+                <div class="font-black text-xs text-gray-900">${p.name}</div>
+                <div class="text-[10px] font-black text-purple-600">₱${parseFloat(p.price).toFixed(2)}</div>
             </div>
-        `;
-    }).join('');
+        </div>
+    `).join('');
 }
 
 function initPartSearch() {
@@ -1263,12 +1115,6 @@ function initPartSearch() {
     dropdown.onmousedown = (e) => {
         const opt = e.target.closest('.part-search-option');
         if (!opt) return;
-
-        if (opt.dataset.unavailable === 'true') {
-            alert('❌ THIS PART IS CURRENTLY UNAVAILABLE.\n\nThe item is out of stock. Please restock via the Inventory Management system before assigning it to an incident.');
-            return;
-        }
-
         addPartToIncidentCart({ id: opt.dataset.id, name: opt.dataset.name, price: parseFloat(opt.dataset.price) || 0, qty: 1, isCharged: true });
         input.value = ''; dropdown.classList.add('hidden');
     };
@@ -1276,24 +1122,9 @@ function initPartSearch() {
 }
 
 function addPartToIncidentCart(part) {
-    const catalogItem = partsCatalog.find(p => p.id == part.id);
-    const stock = catalogItem ? (parseInt(catalogItem.stock_quantity) || 0) : 999;
-
     const existing = incidentPartsCart.find(p => p.id === part.id);
-    if(existing) {
-        if (existing.qty >= stock) {
-            alert(`⚠️ STOCK LIMIT REACHED: You cannot add more than ${stock} units for this part.`);
-            return;
-        }
-        existing.qty++;
-    }
-    else {
-        if (stock < 1) {
-            alert(`⚠️ OUT OF STOCK: This part is currently unavailable.`);
-            return;
-        }
-        incidentPartsCart.push(part);
-    }
+    if(existing) existing.qty++;
+    else incidentPartsCart.push(part);
     refreshPartsCart();
 }
 
@@ -1311,10 +1142,7 @@ function refreshPartsCart() {
         return `<div class="flex items-center gap-4 bg-gray-50/50 p-4 rounded-2xl border border-gray-100 animate-in slide-in-from-right duration-200">
             <input type="hidden" name="parts[${i}][spare_part_id]" value="${p.id}">
             <input type="hidden" name="parts[${i}][unit_price]" value="${p.price}">
-            <div class="flex-1">
-                <p class="text-[10px] font-black text-gray-800 uppercase">${p.name}</p>
-                <p class="text-[8px] font-bold text-gray-400">#${p.id}</p>
-            </div>
+            <div class="flex-1"><p class="text-[10px] font-black text-gray-800 uppercase">${p.name}</p></div>
             <div class="w-16"><input type="number" name="parts[${i}][quantity]" value="${p.qty}" onchange="window.updatePartQty(${i}, this.value)" class="w-full text-center py-2 bg-white border border-gray-100 rounded-xl text-[10px] font-black"></div>
             <div class="w-24 text-right"><p class="text-[10px] font-black text-gray-900">₱${sub.toLocaleString()}</p></div>
             <div class="flex items-center"><label class="relative inline-flex items-center cursor-pointer"><input type="checkbox" name="parts[${i}][is_charged_to_driver]" value="1" ${p.isCharged ? 'checked' : ''} onchange="window.togglePartCharge(${i}, this.checked)" class="sr-only peer"><div class="w-8 h-4 bg-gray-200 rounded-full peer peer-checked:bg-red-500 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:after:translate-x-4"></div></label></div>
@@ -1325,19 +1153,7 @@ function refreshPartsCart() {
     computeTotal();
 }
 
-window.updatePartQty = (i, val) => { 
-    const part = incidentPartsCart[i];
-    const catalogItem = partsCatalog.find(p => p.id == part.id);
-    const stock = catalogItem ? (parseInt(catalogItem.stock_quantity) || 0) : 999;
-    
-    let newVal = parseInt(val) || 1;
-    if (newVal > stock) {
-        alert(`⚠️ ONLY ${stock} UNITS AVAILABLE: Reverting quantity.`);
-        newVal = stock;
-    }
-    incidentPartsCart[i].qty = newVal; 
-    refreshPartsCart(); 
-};
+window.updatePartQty = (i, val) => { incidentPartsCart[i].qty = parseInt(val) || 1; refreshPartsCart(); };
 window.togglePartCharge = (i, val) => { incidentPartsCart[i].isCharged = val; computeTotal(); };
 window.removePartFromIncident = (i) => { incidentPartsCart.splice(i, 1); refreshPartsCart(); };
 
@@ -1379,106 +1195,8 @@ function computeTotal() {
 }
 window.computeTotal = computeTotal;
 
-// ─── Incident Manager (View/Edit/Archive Actions) ───
+// ─── Incident Manager (Edit/Archive Actions) ───
 window.IncidentManager = {
-    openView: async function(id) {
-        try {
-            const res = await fetch(`/api/incidents/${id}/details`, {
-                headers: { 'X-Requested-With': 'XMLHttpRequest' }
-            });
-            const data = await res.json();
-            if (data.error) throw new Error(data.error);
-
-            // Populate Text Info
-            document.getElementById('viewIncidentType').textContent = data.incident_type;
-            document.getElementById('viewIncidentDateMeta').textContent = `Reported on ${new Date(data.timestamp).toLocaleDateString()} at ${new Date(data.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
-            document.getElementById('viewDriverName').textContent = data.driver_name;
-            document.getElementById('viewPlateNumber').textContent = data.plate_number;
-            document.getElementById('viewDescription').textContent = data.description || 'No description recorded.';
-            
-            // Cause
-            const causeRow = document.getElementById('viewCauseRow');
-            if (data.cause_of_incident) {
-                causeRow.classList.remove('hidden');
-                document.getElementById('viewCause').textContent = `Cause: ${data.cause_of_incident}`;
-            } else {
-                causeRow.classList.add('hidden');
-            }
-
-            // Badges (Severity)
-            const sevBadge = document.getElementById('viewSeverityBadge');
-            sevBadge.textContent = data.severity;
-            sevBadge.className = `text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest ${
-                data.severity === 'critical' ? 'bg-red-500 text-white' : 
-                data.severity === 'high' ? 'bg-orange-500 text-white' : 
-                data.severity === 'medium' ? 'bg-yellow-100 text-yellow-700' : 'bg-blue-100 text-blue-700'
-            }`;
-
-            // Badges (Fault)
-            const faultBadge = document.getElementById('viewFaultBadge');
-            faultBadge.textContent = data.is_driver_fault ? 'Driver at Fault' : 'Not at Fault';
-            faultBadge.className = `text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest ${
-                data.is_driver_fault ? 'bg-red-600 text-white shadow-lg shadow-red-200' : 'bg-green-500 text-white shadow-lg shadow-green-200'
-            }`;
-
-            // Financials
-            document.getElementById('viewThirdPartyCost').textContent = `₱${parseFloat(data.third_party_damage_cost || 0).toLocaleString()}`;
-            document.getElementById('viewDriverLiability').textContent = `₱${parseFloat(data.total_charge_to_driver || 0).toLocaleString()}`;
-            
-            let totalDamage = 0;
-            // Parts/Services
-            const partsList = document.getElementById('viewPartsList');
-            if (data.parts_estimates && data.parts_estimates.length > 0) {
-                partsList.innerHTML = data.parts_estimates.map(p => {
-                    const price = parseFloat(p.total_price || 0);
-                    totalDamage += price;
-                    return `
-                        <div class="flex items-center justify-between p-4 bg-white rounded-2xl border border-gray-50 shadow-sm">
-                            <div class="flex items-center gap-3">
-                                <div class="w-2 h-2 rounded-full ${p.is_charged_to_driver ? 'bg-red-500' : 'bg-blue-400'}"></div>
-                                <span class="text-[10px] font-black text-gray-800 uppercase tracking-tight">${p.spare_part_id ? '(Catalog) ' : ''}${p.custom_part_name || 'Generic Part'}</span>
-                            </div>
-                            <span class="text-xs font-black text-gray-900">₱${price.toLocaleString()}</span>
-                        </div>
-                    `;
-                }).join('');
-            } else {
-                partsList.innerHTML = '<div class="text-[10px] font-black text-gray-300 uppercase italic p-5 border-2 border-dashed border-gray-50 rounded-2xl text-center">No itemized repairs recorded.</div>';
-            }
-
-            // Involved Parties
-            const partiesList = document.getElementById('viewPartiesList');
-            if (data.involved_parties && data.involved_parties.length > 0) {
-                partiesList.innerHTML = data.involved_parties.map(p => `
-                    <div class="flex items-center justify-between p-4 bg-blue-50/50 rounded-2xl border border-blue-100">
-                        <div class="flex items-center gap-3">
-                            <i data-lucide="user" class="w-3.5 h-3.5 text-blue-500"></i>
-                            <span class="text-[10px] font-black text-blue-900 uppercase tracking-tighter">${p.name || 'Anonymous Party'}</span>
-                        </div>
-                        <span class="text-[10px] font-black text-blue-600 uppercase">${p.plate_number || 'No Plate'}</span>
-                    </div>
-                `).join('');
-            } else {
-                partiesList.innerHTML = '<div class="text-[10px] font-black text-gray-300 uppercase italic p-5 border-2 border-dashed border-gray-50 rounded-2xl text-center">No third parties involved.</div>';
-            }
-
-            // Grand Total
-            totalDamage += parseFloat(data.third_party_damage_cost || 0);
-            document.getElementById('viewGrandTotal').textContent = `₱${totalDamage.toLocaleString()}`;
-
-            // Show Modal
-            const modal = document.getElementById('viewIncidentModal');
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-            
-            if(window.lucide) lucide.createIcons();
-
-        } catch (e) {
-            console.error(e);
-            alert('Failed to fetch incident details.');
-        }
-    },
-
     openEdit: async function(id) {
         try {
             const res = await fetch(`/api/incidents/${id}/details`, {
