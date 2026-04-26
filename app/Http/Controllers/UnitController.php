@@ -475,8 +475,10 @@ class UnitController extends Controller
         // Add detailed parts and cost breakdown for each maintenance record
         foreach ($maintenance_records as &$record) {
             $parts = DB::table('maintenance_parts')
-                ->where('maintenance_id', $record->id)
-                ->orderBy('part_name')
+                ->leftJoin('spare_parts', 'maintenance_parts.part_id', '=', 'spare_parts.id')
+                ->where('maintenance_parts.maintenance_id', $record->id)
+                ->select('maintenance_parts.*', 'spare_parts.supplier')
+                ->orderBy('maintenance_parts.part_name')
                 ->get();
             
             $record->parts_details = $parts;
