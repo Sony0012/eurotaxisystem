@@ -20,9 +20,9 @@ class CodingController extends Controller
 
         if (!empty($search)) {
             $query->where(function ($q) use ($search) {
-                $q->where('cr.coding_day', 'like', DB::raw("CONCAT('%', ?, '%') COLLATE utf8mb4_unicode_ci"), [$search])
-                    ->orWhere('cr.restricted_plate_numbers', 'like', DB::raw("CONCAT('%', ?, '%') COLLATE utf8mb4_unicode_ci"), [$search])
-                    ->orWhere('cr.notes', 'like', DB::raw("CONCAT('%', ?, '%') COLLATE utf8mb4_unicode_ci"), [$search]);
+                $q->whereRaw("cr.coding_day like CONCAT('%', ?, '%') COLLATE utf8mb4_unicode_ci", [$search])
+                    ->orWhereRaw("cr.restricted_plate_numbers like CONCAT('%', ?, '%') COLLATE utf8mb4_unicode_ci", [$search])
+                    ->orWhereRaw("cr.notes like CONCAT('%', ?, '%') COLLATE utf8mb4_unicode_ci", [$search]);
             });
         }
 
@@ -41,7 +41,7 @@ class CodingController extends Controller
 
         // Get units for dropdown
         $units = DB::table('units')
-            ->select('id', 'plate_number', 'coding_day', 'make', 'model')
+            ->select('id', 'plate_number', 'coding_day', 'make', 'model', 'status')
             ->orderBy('plate_number')
             ->get();
 
@@ -72,11 +72,19 @@ class CodingController extends Controller
             return $u->coding_day === $today_name;
         });
 
+        // New Metrics calculation for the "Today's Focus" section
+        $total_fleet_count = DB::table('units')->where('status', '!=', 'Inactive')->count();
+        $coding_today_count = $today_units->count();
+        $on_road_count = max(0, $total_fleet_count - $coding_today_count);
+        $violations_count = $all_fleet->where('coding_day', $today_name)->where('status', 'Available')->count();
+
         // Get coding statistics
         $stats = [
             'total_rules' => DB::table('coding_rules')->count(),
             'active_rules' => DB::table('coding_rules')->where('status', 'active')->count(),
-            'today_coding' => $today_units->count(),
+            'today_coding' => $coding_today_count,
+            'on_road' => $on_road_count,
+            'violations' => $violations_count,
             'today_violators' => DB::table('coding_violations')
                 ->whereDate('violation_time', now()->timezone('Asia/Manila')->toDateString())
                 ->distinct('unit_id')
