@@ -1089,7 +1089,6 @@ window.saveQuickPart = async function() {
 function refreshPartSearchDropdown() {
     const dropdown = document.getElementById('incidentPartDropdown');
     if(!dropdown) return;
-<<<<<<< HEAD
     dropdown.innerHTML = partsCatalog.map(p => {
         const isUnavailable = (parseInt(p.stock_quantity) || 0) <= 0;
         return `
@@ -1113,16 +1112,9 @@ function refreshPartSearchDropdown() {
                         ${isUnavailable ? '<span class="text-[8px] font-black text-red-500 uppercase mt-0.5">OUT OF STOCK</span>' : ''}
                     </div>
                 </div>
-=======
-    dropdown.innerHTML = partsCatalog.map(p => `
-        <div class="search-option part-search-option group" data-id="${p.id}" data-name="${p.name}" data-price="${p.price}">
-            <div class="flex justify-between items-center w-full">
-                <div class="font-black text-xs text-gray-900">${p.name}</div>
-                <div class="text-[10px] font-black text-purple-600">₱${parseFloat(p.price).toFixed(2)}</div>
->>>>>>> 4c1cdd2bd3520c10d18124eac3f2800181361d3d
             </div>
-        </div>
-    `).join('');
+        `;
+    }).join('');
 }
 
 function initPartSearch() {
@@ -1150,9 +1142,23 @@ function initPartSearch() {
 }
 
 function addPartToIncidentCart(part) {
+    const catalogItem = partsCatalog.find(p => p.id == part.id);
+    const stock = catalogItem ? (parseInt(catalogItem.stock_quantity) || 0) : 999;
+
     const existing = incidentPartsCart.find(p => p.id === part.id);
-    if(existing) existing.qty++;
-    else incidentPartsCart.push(part);
+    if (existing) {
+        if (existing.qty >= stock) {
+            alert(`⚠️ STOCK LIMIT REACHED: You cannot add more than ${stock} units for this part.`);
+            return;
+        }
+        existing.qty++;
+    } else {
+        if (stock < 1) {
+            alert(`⚠️ OUT OF STOCK: This part is currently unavailable.`);
+            return;
+        }
+        incidentPartsCart.push(part);
+    }
     refreshPartsCart();
 }
 
@@ -1181,7 +1187,15 @@ function refreshPartsCart() {
     computeTotal();
 }
 
-window.updatePartQty = (i, val) => { incidentPartsCart[i].qty = parseInt(val) || 1; refreshPartsCart(); };
+window.updatePartQty = (i, val) => { 
+    const part = incidentPartsCart[i];
+    const catalogItem = partsCatalog.find(p => p.id == part.id);
+    const stock = catalogItem ? (parseInt(catalogItem.stock_quantity) || 0) : 999;
+    let newVal = parseInt(val) || 1;
+    if (newVal > stock) { alert(`⚠️ ONLY ${stock} UNITS AVAILABLE.`); newVal = stock; }
+    incidentPartsCart[i].qty = newVal; 
+    refreshPartsCart(); 
+};
 window.togglePartCharge = (i, val) => { incidentPartsCart[i].isCharged = val; computeTotal(); };
 window.removePartFromIncident = (i) => { incidentPartsCart.splice(i, 1); refreshPartsCart(); };
 
