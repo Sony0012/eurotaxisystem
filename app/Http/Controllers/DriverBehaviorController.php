@@ -565,14 +565,31 @@ class DriverBehaviorController extends Controller
             ->whereDate('timestamp', now()->format('Y-m-d'))
             ->count();
 
+        // [NEW] Monthly calculations for the "Monthly Total Charge" card
+        $tz = 'Asia/Manila';
+        $currentMonthStart = now()->timezone($tz)->startOfMonth();
+        $currentMonthEnd   = now()->timezone($tz)->endOfMonth();
+        $lastMonthStart    = now()->timezone($tz)->subMonth()->startOfMonth();
+        $lastMonthEnd      = now()->timezone($tz)->subMonth()->endOfMonth();
+
+        $monthlyTotalCharges = DB::table('driver_behavior')
+            ->whereBetween('timestamp', [$currentMonthStart, $currentMonthEnd])
+            ->sum('total_charge_to_driver');
+            
+        $lastMonthTotalCharges = DB::table('driver_behavior')
+            ->whereBetween('timestamp', [$lastMonthStart, $lastMonthEnd])
+            ->sum('total_charge_to_driver');
+
         return [
-            'incidents_period'  => (clone $base)->count(),
-            'violations_today'  => $violationsToday,
-            'by_severity'       => $bySev,
-            'incident_types'    => $byType,
-            'total_violators'   => $totalViolators,
-            'total_charges'     => $totalCharges,
-            'pending_charges'   => $pendingCharges,
+            'incidents_period'        => (clone $base)->count(),
+            'violations_today'        => $violationsToday,
+            'by_severity'             => $bySev,
+            'incident_types'          => $byType,
+            'total_violators'         => $totalViolators,
+            'total_charges'           => $totalCharges,
+            'monthly_total_charges'   => $monthlyTotalCharges,
+            'last_month_total_charges'=> $lastMonthTotalCharges,
+            'pending_charges'         => $pendingCharges,
         ];
     }
 

@@ -87,14 +87,28 @@
         </div>
     </div>
 
-    {{-- 3. TOTAL CHARGES --}}
+    {{-- 3. MONTHLY TOTAL CHARGES --}}
     <div class="stat-card-premium relative overflow-hidden bg-gradient-to-br from-purple-600 to-indigo-700 rounded-2xl p-4 text-white shadow-lg shadow-purple-100 group">
         <div class="absolute right-[-5px] top-[-5px] opacity-10 transition-transform group-hover:scale-110 duration-500">
             <i data-lucide="banknote" class="w-16 h-16"></i>
         </div>
         <div class="relative z-10 flex flex-col items-center text-center">
-            <p class="text-xl font-black tracking-tighter leading-none">₱{{ number_format($stats['total_charges'] ?? 0, 0) }}</p>
-            <p class="text-[9px] font-black uppercase tracking-[0.1em] opacity-80 mt-1">Total Charges</p>
+            {{-- Current Month View --}}
+            <div id="currentMonthCharge">
+                <p class="text-xl font-black tracking-tighter leading-none">₱{{ number_format($stats['monthly_total_charges'] ?? 0, 0) }}</p>
+                <p class="text-[9px] font-black uppercase tracking-[0.1em] opacity-80 mt-1">Monthly Total Charge</p>
+            </div>
+            {{-- Last Month View (Hidden by default) --}}
+            <div id="lastMonthCharge" class="hidden">
+                <p class="text-xl font-black tracking-tighter leading-none">₱{{ number_format($stats['last_month_total_charges'] ?? 0, 0) }}</p>
+                <p class="text-[9px] font-black uppercase tracking-[0.1em] opacity-80 mt-1">Total Monthly Last Month</p>
+            </div>
+            
+            {{-- Toggle Button --}}
+            <button type="button" onclick="toggleMonthlyCharge()" class="mt-3 px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded-xl text-[8px] font-black uppercase tracking-[0.2em] transition-all active:scale-95 border border-white/5 flex items-center gap-1.5">
+                <i data-lucide="arrow-left-right" class="w-2.5 h-2.5"></i>
+                <span id="toggleChargeText">View last month</span>
+            </button>
         </div>
     </div>
 
@@ -1001,6 +1015,22 @@ let partsCatalog = @json($spare_parts ?? []);
 let incidentPartsCart = [];
 let incidentServices = [];
 let partyIndex = 0;
+
+function toggleMonthlyCharge() {
+    const currentView = document.getElementById('currentMonthCharge');
+    const lastView = document.getElementById('lastMonthCharge');
+    const toggleText = document.getElementById('toggleChargeText');
+
+    if (currentView.classList.contains('hidden')) {
+        currentView.classList.remove('hidden');
+        lastView.classList.add('hidden');
+        toggleText.textContent = 'View last month';
+    } else {
+        currentView.classList.add('hidden');
+        lastView.classList.remove('hidden');
+        toggleText.textContent = 'View current month';
+    }
+}
 
 // ─── Searchable Dropdowns (Unit/Driver) ───
 function initializeSearchDropdowns() {
