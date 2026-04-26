@@ -100,21 +100,43 @@
 </style>
 {{-- Stats --}}
 <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
-    <div class="bg-white rounded-lg shadow p-4 text-center">
-        <p class="text-2xl font-bold text-gray-900">{{ $totals->total_count ?? 0 }}</p>
-        <p class="text-xs text-gray-500 mt-1">Total Records</p>
+    <!-- Card 1: Total Records -->
+    <div class="relative overflow-hidden bg-white rounded-2xl shadow-sm border border-gray-100 p-5 text-center group hover:shadow-md hover:-translate-y-0.5 transition-all duration-300">
+        <div class="absolute -right-4 -bottom-4 opacity-[0.03] group-hover:opacity-[0.06] transition-opacity duration-500">
+            <i data-lucide="folder-open" class="w-28 h-28 text-gray-900"></i>
+        </div>
+        <p class="text-3xl font-black text-gray-800 tracking-tighter relative z-10">{{ $totals->total_count ?? 0 }}</p>
+        <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1 relative z-10">Total Records</p>
     </div>
-    <div class="bg-white rounded-lg shadow p-4 text-center">
-        <p class="text-2xl font-bold text-yellow-600">{{ $totals->pending_count ?? 0 }}</p>
-        <p class="text-xs text-gray-500 mt-1">Pending</p>
+
+    <!-- Card 2: Pending -->
+    <div class="relative overflow-hidden bg-gradient-to-br from-yellow-50/80 to-white rounded-2xl shadow-sm border border-yellow-100/50 p-5 text-center group hover:shadow-md hover:shadow-yellow-100/50 hover:-translate-y-0.5 transition-all duration-300">
+        <div class="absolute -right-4 -bottom-4 opacity-[0.04] group-hover:opacity-[0.08] transition-opacity duration-500">
+            <i data-lucide="clock" class="w-28 h-28 text-yellow-600"></i>
+        </div>
+        <div class="absolute top-0 right-0 w-32 h-32 bg-yellow-400/5 blur-2xl rounded-full scale-150 group-hover:bg-yellow-400/10 transition-colors duration-500"></div>
+        <p class="text-3xl font-black text-yellow-600 tracking-tighter relative z-10 drop-shadow-sm">{{ $totals->pending_count ?? 0 }}</p>
+        <p class="text-[10px] font-black text-yellow-700/60 uppercase tracking-widest mt-1 relative z-10">Pending</p>
     </div>
-    <div class="bg-white rounded-lg shadow p-4 text-center">
-        <p class="text-2xl font-bold text-blue-600">{{ $totals->in_progress_count ?? 0 }}</p>
-        <p class="text-xs text-gray-500 mt-1">In Progress</p>
+
+    <!-- Card 3: Active Work -->
+    <div class="relative overflow-hidden bg-gradient-to-br from-blue-50/80 to-white rounded-2xl shadow-sm border border-blue-100/50 p-5 text-center group hover:shadow-md hover:shadow-blue-100/50 hover:-translate-y-0.5 transition-all duration-300">
+        <div class="absolute -right-4 -bottom-4 opacity-[0.04] group-hover:opacity-[0.08] transition-opacity duration-500">
+            <i data-lucide="wrench" class="w-28 h-28 text-blue-600"></i>
+        </div>
+        <div class="absolute top-0 right-0 w-32 h-32 bg-blue-400/5 blur-2xl rounded-full scale-150 group-hover:bg-blue-400/10 transition-colors duration-500"></div>
+        <p class="text-3xl font-black text-blue-600 tracking-tighter relative z-10 drop-shadow-sm">{{ $totals->in_progress_count ?? 0 }}</p>
+        <p class="text-[10px] font-black text-blue-700/60 uppercase tracking-widest mt-1 relative z-10">Active Work</p>
     </div>
-    <div class="bg-white rounded-lg shadow p-4 text-center">
-        <p class="text-2xl font-bold text-green-600">{{ formatCurrency($totals->total_cost ?? 0) }}</p>
-        <p class="text-xs text-gray-500 mt-1">Total Cost</p>
+
+    <!-- Card 4: Total Cost -->
+    <div class="relative overflow-hidden bg-gradient-to-br from-green-50/80 to-white rounded-2xl shadow-sm border border-green-100/50 p-5 text-center group hover:shadow-md hover:shadow-green-100/50 hover:-translate-y-0.5 transition-all duration-300">
+        <div class="absolute -right-2 -bottom-8 opacity-[0.04] group-hover:opacity-[0.08] transition-opacity duration-500">
+            <span class="text-[120px] font-black text-green-700 leading-none font-serif">₱</span>
+        </div>
+        <div class="absolute top-0 right-0 w-32 h-32 bg-green-400/10 blur-2xl rounded-full scale-150 group-hover:bg-green-400/20 transition-colors duration-500"></div>
+        <p class="text-2xl font-black text-green-700 tracking-tighter relative z-10 drop-shadow-sm">{{ formatCurrency($totals->total_cost ?? 0) }}</p>
+        <p class="text-[10px] font-black text-green-700/60 uppercase tracking-widest mt-1 relative z-10">Total Cost</p>
     </div>
 </div>
 
