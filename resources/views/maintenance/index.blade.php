@@ -646,9 +646,8 @@
                     <p class="text-[10px] text-gray-400 mt-2 px-1 italic">Calculated sum of all parts and additional services above.</p>
                 </div>
             </div>
-                </div>
-            </div>
-            <div class="p-4 border-t flex justify-end gap-3 shadow-inner bg-gray-50 shrink-0">
+        </div>
+        <div class="p-4 border-t flex justify-end gap-3 shadow-inner bg-gray-50 shrink-0">
                 <button type="button" onclick="document.getElementById('addMaintenanceModal').classList.add('hidden')" class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 text-sm font-bold transition-all">
                     Cancel
                 </button>
@@ -868,9 +867,8 @@
                     </div>
                 </div>
             </div>
-                </div>
-            </div>
-            <div class="p-4 border-t flex justify-end gap-3 shadow-inner bg-gray-50 shrink-0">
+        </div>
+        <div class="p-4 border-t flex justify-end gap-3 shadow-inner bg-gray-50 shrink-0">
                 <button type="button" onclick="document.getElementById('editMaintenanceModal').classList.add('hidden')" class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 text-sm font-bold transition-all">
                     Cancel
                 </button>
