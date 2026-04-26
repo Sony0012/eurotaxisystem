@@ -61,7 +61,7 @@ class MaintenanceController extends Controller
             SUM(cost) as total_cost,
             SUM(CASE WHEN maintenance.status = "completed" THEN 1 ELSE 0 END) as completed_count,
             SUM(CASE WHEN maintenance.status = "pending" THEN 1 ELSE 0 END) as pending_count,
-            SUM(CASE WHEN maintenance.status = "in_progress" THEN 1 ELSE 0 END) as in_progress_count
+            SUM(CASE WHEN maintenance.status IN ("in_progress", "in_shop", "testing") THEN 1 ELSE 0 END) as in_progress_count
         ')->first();
 
         $units = DB::table('units')->whereNull('deleted_at')->where('status', '!=', 'retired')->orderBy('plate_number')->get();
@@ -162,7 +162,7 @@ class MaintenanceController extends Controller
         // Update unit status based on maintenance completion
         if ($data['status'] === 'completed' && $data['date_completed']) {
             DB::table('units')->where('id', $data['unit_id'])->update(['status' => 'active', 'updated_at' => now()]);
-        } else if (in_array($data['status'], ['pending', 'in_progress'])) {
+        } else if (in_array($data['status'], ['pending', 'in_progress', 'in_shop', 'testing'])) {
             DB::table('units')->where('id', $data['unit_id'])->update(['status' => 'maintenance', 'updated_at' => now()]);
         }
 
@@ -268,7 +268,7 @@ class MaintenanceController extends Controller
             // Update unit status based on maintenance completion
             if ($data['status'] === 'completed' && $data['date_completed']) {
                 DB::table('units')->where('id', $data['unit_id'])->update(['status' => 'active', 'updated_at' => now()]);
-            } else if (in_array($data['status'], ['pending', 'in_progress'])) {
+            } else if (in_array($data['status'], ['pending', 'in_progress', 'in_shop', 'testing'])) {
                 DB::table('units')->where('id', $data['unit_id'])->update(['status' => 'maintenance', 'updated_at' => now()]);
             }
 
@@ -397,27 +397,19 @@ class MaintenanceController extends Controller
         $maint = Maintenance::findOrFail($id);
 
         DB::transaction(function () use ($maint) {
-            if ($maint->status === 'in_progress') {
-                // Revert back to pending
-                $maint->update([
-                    'status'     => 'pending',
-                    'updated_by' => Auth::id(),
-                ]);
+            // Workflow: pending -> in_shop -> testing -> pending
+            if ($maint->status === 'pending') {
+                $maint->update(['status' => 'in_shop', 'date_completed' => null, 'updated_by' => Auth::id()]);
+            } elseif ($maint->status === 'in_shop' || $maint->status === 'in_progress') {
+                $maint->update(['status' => 'testing', 'date_completed' => null, 'updated_by' => Auth::id()]);
             } else {
-                // Mark as in_progress
-                $maint->update([
-                    'status'       => 'in_progress',
-                    'date_completed' => null,
-                    'updated_by'   => Auth::id(),
-                ]);
-                // Unit remains in maintenance status while ongoing
-                DB::table('units')->where('id', $maint->unit_id)->update([
-                    'status'     => 'maintenance',
-                    'updated_at' => now(),
-                ]);
+                // If it's testing, revert back to pending to allow restarting the loop if needed
+                $maint->update(['status' => 'pending', 'updated_by' => Auth::id()]);
             }
+            
+            DB::table('units')->where('id', $maint->unit_id)->update(['status' => 'maintenance', 'updated_at' => now()]);
         });
 
-        return back()->with('success', $maint->status === 'in_progress' ? 'Marked as In Progress.' : 'Reverted to Pending.');
+        return back()->with('success', 'Maintenance stage updated.');
     }
 }
