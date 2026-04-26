@@ -98,6 +98,32 @@
         border-bottom-right-radius: 0.75rem;
     }
 </style>
+
+@php
+    if(!function_exists('renderSparkline')) {
+        function renderSparkline($data, $colorClass) {
+            if(empty($data)) return '';
+            $max = max($data) > 0 ? max($data) : 1;
+            $min = min($data);
+            if ($max == $min) { $max = $min + 1; }
+            $height = 16; 
+            $width = 60; 
+            $points = [];
+            $step = $width / (count($data) - 1);
+            
+            foreach($data as $i => $val) {
+                $x = $i * $step;
+                $y = $height - ((($val - $min) / ($max - $min)) * $height);
+                $points[] = "{$x},{$y}";
+            }
+            $pointsStr = implode(' ', $points);
+            return '<svg class="w-14 h-4 opacity-80" viewBox="-2 -2 ' . ($width+4) . ' ' . ($height+4) . '" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <polyline points="'.$pointsStr.'" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="'.$colorClass.'"/>
+            </svg>';
+        }
+    }
+@endphp
+
 {{-- Stats --}}
 <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
     <!-- Card 1: Total Records -->
@@ -107,6 +133,10 @@
         </div>
         <p class="text-3xl font-black text-gray-800 tracking-tighter relative z-10">{{ $totals->total_count ?? 0 }}</p>
         <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1 relative z-10">Total Records</p>
+        <div class="flex items-center justify-center gap-2 mt-3 relative z-10">
+            {!! renderSparkline($trends['total'] ?? [], 'text-gray-400') !!}
+            <span class="text-[8px] font-black text-gray-400 uppercase tracking-widest">7D Trend</span>
+        </div>
     </div>
 
     <!-- Card 2: Pending -->
@@ -117,6 +147,10 @@
         <div class="absolute top-0 right-0 w-32 h-32 bg-yellow-400/5 blur-2xl rounded-full scale-150 group-hover:bg-yellow-400/10 transition-colors duration-500"></div>
         <p class="text-3xl font-black text-yellow-600 tracking-tighter relative z-10 drop-shadow-sm">{{ $totals->pending_count ?? 0 }}</p>
         <p class="text-[10px] font-black text-yellow-700/60 uppercase tracking-widest mt-1 relative z-10">Pending</p>
+        <div class="flex items-center justify-center gap-2 mt-3 relative z-10">
+            {!! renderSparkline($trends['pending'] ?? [], 'text-yellow-500') !!}
+            <span class="text-[8px] font-black text-yellow-600/70 uppercase tracking-widest">7D Trend</span>
+        </div>
     </div>
 
     <!-- Card 3: Active Work -->
@@ -127,6 +161,10 @@
         <div class="absolute top-0 right-0 w-32 h-32 bg-blue-400/5 blur-2xl rounded-full scale-150 group-hover:bg-blue-400/10 transition-colors duration-500"></div>
         <p class="text-3xl font-black text-blue-600 tracking-tighter relative z-10 drop-shadow-sm">{{ $totals->in_progress_count ?? 0 }}</p>
         <p class="text-[10px] font-black text-blue-700/60 uppercase tracking-widest mt-1 relative z-10">Active Work</p>
+        <div class="flex items-center justify-center gap-2 mt-3 relative z-10">
+            {!! renderSparkline($trends['active'] ?? [], 'text-blue-500') !!}
+            <span class="text-[8px] font-black text-blue-600/70 uppercase tracking-widest">7D Trend</span>
+        </div>
     </div>
 
     <!-- Card 4: Total Cost -->
@@ -137,6 +175,10 @@
         <div class="absolute top-0 right-0 w-32 h-32 bg-green-400/10 blur-2xl rounded-full scale-150 group-hover:bg-green-400/20 transition-colors duration-500"></div>
         <p class="text-2xl font-black text-green-700 tracking-tighter relative z-10 drop-shadow-sm">{{ formatCurrency($totals->total_cost ?? 0) }}</p>
         <p class="text-[10px] font-black text-green-700/60 uppercase tracking-widest mt-1 relative z-10">Total Cost</p>
+        <div class="flex items-center justify-center gap-2 mt-3 relative z-10">
+            {!! renderSparkline($trends['cost'] ?? [], 'text-green-500') !!}
+            <span class="text-[8px] font-black text-green-600/70 uppercase tracking-widest">7D Trend</span>
+        </div>
     </div>
 </div>
 
