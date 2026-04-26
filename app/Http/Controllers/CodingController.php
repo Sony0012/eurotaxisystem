@@ -47,36 +47,42 @@ class CodingController extends Controller
 
         // Get today's coding status
         $today_name = now()->timezone('Asia/Manila')->format('l');
-        $today_units_query = DB::table('units as u')
+        
+        // 1. Get the FULL fleet for the calendar and overall stats (unfiltered)
+        $full_fleet = DB::table('units as u')
             ->leftJoin('drivers as drv1', 'u.driver_id', '=', 'drv1.id')
             ->leftJoin('drivers as drv2', 'u.secondary_driver_id', '=', 'drv2.id')
             ->select(
                 'u.*', 
                 DB::raw("CONCAT(COALESCE(drv1.first_name,''), ' ', COALESCE(drv1.last_name,'')) as driver1_name"),
                 DB::raw("CONCAT(COALESCE(drv2.first_name,''), ' ', COALESCE(drv2.last_name,'')) as driver2_name")
-            );
+            )
+            ->get();
 
-        if (!empty($search)) {
-            $today_units_query->where('u.plate_number', 'like', "%{$search}%");
-        }
-
-        $all_fleet = $today_units_query->get();
-
-        foreach ($all_fleet as $u) {
+        foreach ($full_fleet as $u) {
             if (empty($u->coding_day)) {
                 $u->coding_day = $this->deriveCodingDay($u->plate_number);
             }
         }
 
-        $today_units = $all_fleet->filter(function($u) use ($today_name) {
-            return $u->coding_day === $today_name;
+        // 2. Handle Search for the Table specifically
+        $today_units = $full_fleet->filter(function($u) use ($today_name, $search) {
+            // Filter by coding day first
+            $is_coding_today = $u->coding_day === $today_name;
+            
+            // If there's a search query, only keep those that match the plate number
+            if (!empty($search)) {
+                return $is_coding_today && stripos($u->plate_number, $search) !== false;
+            }
+            
+            return $is_coding_today;
         });
 
-        // New Metrics calculation for the "Today's Focus" section
-        $total_fleet_count = DB::table('units')->where('status', '!=', 'Inactive')->count();
-        $coding_today_count = $today_units->count();
+        // Metrics calculation for the "Today's Focus" section (Always based on FULL fleet)
+        $total_fleet_count = $full_fleet->where('status', '!=', 'Inactive')->count();
+        $coding_today_count = $full_fleet->where('coding_day', $today_name)->count();
         $on_road_count = max(0, $total_fleet_count - $coding_today_count);
-        $violations_count = $all_fleet->where('coding_day', $today_name)->where('status', 'Available')->count();
+        $violations_count = $full_fleet->where('coding_day', $today_name)->where('status', 'Available')->count();
 
         // Get coding statistics
         $stats = [
@@ -91,12 +97,12 @@ class CodingController extends Controller
                 ->count('unit_id'),
         ];
 
-        // Build coding calendar
+        // Build coding calendar (Always based on FULL fleet)
         $coding_calendar = [];
         $days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
         
         foreach ($days as $day) {
-            $coding_calendar[$day] = $all_fleet->filter(function($u) use ($day) {
+            $coding_calendar[$day] = $full_fleet->filter(function($u) use ($day) {
                 return $u->coding_day === $day;
             });
         }
