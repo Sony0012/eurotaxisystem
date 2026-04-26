@@ -101,7 +101,8 @@
         <select name="status" onchange="this.form.submit()" class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-yellow-500 focus:outline-none">
             <option value="">All Status</option>
             <option value="pending" @selected($status=='pending')>Pending</option>
-            <option value="in_progress" @selected($status=='in_progress')>In Progress</option>
+            <option value="in_shop" @selected($status=='in_shop' || $status=='in_progress')>In Shop</option>
+            <option value="testing" @selected($status=='testing')>Testing</option>
             <option value="completed" @selected($status=='completed')>Completed</option>
             <option value="cancelled" @selected($status=='cancelled')>Cancelled</option>
         </select>
@@ -161,27 +162,98 @@
                         @endif
                     </td>
                     <td class="px-4 py-3">
-                        <span class="px-2 py-1 text-xs rounded-full
-                            {{ $r->maintenance_type === 'emergency' ? 'bg-red-100 text-red-800' : ($r->maintenance_type === 'corrective' ? 'bg-orange-100 text-orange-800' : 'bg-blue-100 text-blue-800') }}">
-                            {{ ucfirst($r->maintenance_type) }}
-                        </span>
+                        @if($r->maintenance_type === 'emergency')
+                            <span class="inline-flex items-center gap-1 px-2 py-1 text-[10px] font-black rounded-lg bg-red-600 text-white uppercase tracking-wider shadow-sm">
+                                🚨 Emergency
+                            </span>
+                        @elseif($r->maintenance_type === 'corrective')
+                            <span class="inline-flex items-center gap-1 px-2 py-1 text-[10px] font-black rounded-lg bg-orange-100 text-orange-800 uppercase tracking-wider border border-orange-200">
+                                🔧 Corrective
+                            </span>
+                        @else
+                            <span class="inline-flex items-center gap-1 px-2 py-1 text-[10px] font-black rounded-lg bg-blue-100 text-blue-800 uppercase tracking-wider border border-blue-200">
+                                🛡️ Preventive
+                            </span>
+                        @endif
                     </td>
-                    <td class="px-4 py-3 text-gray-600">
-                        {{ $r->mechanic_name ?? '—' }}
-                        <div class="text-[10px] text-gray-400 mt-0.5">
-                            <span title="Input by {{ $r->creator_name ?? 'System' }}">In: {{ $r->creator_name ?? 'System' }}</span>
+                    <td class="px-4 py-3">
+                        @if(!$r->mechanic_name || $r->mechanic_name === '—')
+                            <button onclick="openEditMaint(document.querySelector('button[data-id=\'{{ $r->id }}\']')); event.stopPropagation();" data-id="{{ $r->id }}" class="flex items-center gap-1.5 px-2 py-1 border border-dashed border-gray-300 rounded-lg text-[10px] font-bold text-gray-500 hover:text-blue-600 hover:border-blue-400 hover:bg-blue-50 transition w-max">
+                                <i data-lucide="user-plus" class="w-3 h-3"></i> Assign Mechanic
+                            </button>
+                        @else
+                            <div class="flex flex-col gap-1.5">
+                                @foreach(array_filter(array_map('trim', explode(',', $r->mechanic_name))) as $mech)
+                                    @php
+                                        $initials = collect(explode(' ', $mech))->map(function($n) { return substr($n, 0, 1); })->take(2)->implode('');
+                                    @endphp
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-6 h-6 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-[10px] font-black uppercase shrink-0 shadow-sm border border-blue-200">
+                                            {{ $initials }}
+                                        </div>
+                                        <span class="text-xs font-bold text-gray-700 truncate max-w-[140px]" title="{{ $mech }}">{{ $mech }}</span>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @endif
+                        <div class="text-[9px] text-gray-400 mt-1.5 font-bold tracking-tight">
+                            <span title="Input by {{ $r->creator_name ?? 'System' }}">In: <span class="uppercase text-gray-500">{{ $r->creator_name ?? 'System' }}</span></span>
                             @if(isset($r->editor_name) && $r->editor_name)
-                                <span class="ml-1" title="Last edit by {{ $r->editor_name }}">Ed: {{ $r->editor_name }}</span>
+                                <span class="ml-1" title="Last edit by {{ $r->editor_name }}">Ed: <span class="uppercase text-gray-500">{{ $r->editor_name }}</span></span>
                             @endif
                         </div>
                     </td>
                     <td class="px-4 py-3 text-gray-600">{{ formatDate($r->date_started) }}</td>
                     <td class="px-4 py-3 text-gray-600">{{ $r->date_completed ? formatDate($r->date_completed) : '—' }}</td>
                     <td class="px-4 py-3 font-semibold text-gray-900">{{ formatCurrency($r->cost) }}</td>
-                    <td class="px-4 py-3">
-                        <span class="px-2 py-1 text-xs rounded-full {{ statusBadge($r->status ?? 'pending') }}">
-                            {{ ucwords(str_replace('_', ' ', $r->status ?? 'pending')) }}
-                        </span>
+                    <td class="px-4 py-3 min-w-[240px]">
+                        @php
+                            $s = $r->status ?? 'pending';
+                            $step = $s === 'cancelled' ? 0 : ($s === 'completed' ? 4 : ($s === 'testing' ? 3 : (in_array($s, ['in_shop', 'in_progress']) ? 2 : 1)));
+                        @endphp
+                        @if($step === 0)
+                            <span class="px-2 py-1 text-xs rounded-full bg-red-100 text-red-800 font-black uppercase tracking-widest">Cancelled</span>
+                        @else
+                            <div class="flex items-center w-full mt-1.5">
+                                <!-- Pending -->
+                                <div class="flex flex-col items-center relative flex-1 group cursor-help" title="Pending">
+                                    <div class="w-5 h-5 rounded-full {{ $step >= 1 ? 'bg-yellow-500' : 'bg-gray-200' }} z-10 flex items-center justify-center shadow-sm">
+                                        @if($step > 1) <i data-lucide="check" class="w-3 h-3 text-white"></i> @endif
+                                    </div>
+                                    <div class="absolute top-2.5 left-1/2 w-full h-0.5 {{ $step >= 2 ? 'bg-blue-500' : 'bg-gray-200' }} -z-0"></div>
+                                    <span class="text-[9px] font-black mt-1.5 {{ $step >= 1 ? 'text-yellow-600' : 'text-gray-400' }} uppercase tracking-wider">Pending</span>
+                                </div>
+                                
+                                <!-- In Shop -->
+                                <div class="flex flex-col items-center relative flex-1 group cursor-help" title="In Shop">
+                                    <div class="absolute top-2.5 right-1/2 w-full h-0.5 {{ $step >= 2 ? 'bg-blue-500' : 'bg-gray-200' }} -z-0"></div>
+                                    <div class="w-5 h-5 rounded-full {{ $step >= 2 ? 'bg-blue-500' : 'bg-gray-200' }} z-10 flex items-center justify-center shadow-sm">
+                                         @if($step > 2) <i data-lucide="check" class="w-3 h-3 text-white"></i> @endif
+                                    </div>
+                                    <div class="absolute top-2.5 left-1/2 w-full h-0.5 {{ $step >= 3 ? 'bg-purple-500' : 'bg-gray-200' }} -z-0"></div>
+                                    <span class="text-[9px] font-black mt-1.5 {{ $step >= 2 ? 'text-blue-600' : 'text-gray-400' }} uppercase tracking-wider text-center leading-none">In Shop</span>
+                                </div>
+                                
+                                <!-- Testing -->
+                                <div class="flex flex-col items-center relative flex-1 group cursor-help" title="Testing">
+                                    <div class="absolute top-2.5 right-1/2 w-full h-0.5 {{ $step >= 3 ? 'bg-purple-500' : 'bg-gray-200' }} -z-0"></div>
+                                    <div class="w-5 h-5 rounded-full {{ $step >= 3 ? 'bg-purple-500' : 'bg-gray-200' }} z-10 flex items-center justify-center shadow-sm">
+                                         @if($step > 3) <i data-lucide="check" class="w-3 h-3 text-white"></i> @endif
+                                    </div>
+                                    <div class="absolute top-2.5 left-1/2 w-full h-0.5 {{ $step >= 4 ? 'bg-green-500' : 'bg-gray-200' }} -z-0"></div>
+                                    <span class="text-[9px] font-black mt-1.5 {{ $step >= 3 ? 'text-purple-600' : 'text-gray-400' }} uppercase tracking-wider">Testing</span>
+                                </div>
+
+                                <!-- Completed -->
+                                <div class="flex flex-col items-center relative flex-1 group cursor-help" title="Completed">
+                                    <div class="absolute top-2.5 right-1/2 w-full h-0.5 {{ $step >= 4 ? 'bg-green-500' : 'bg-gray-200' }} -z-0"></div>
+                                    <div class="w-5 h-5 rounded-full {{ $step >= 4 ? 'bg-green-500' : 'bg-gray-200' }} z-10 flex items-center justify-center shadow-sm">
+                                         @if($step == 4) <i data-lucide="check" class="w-3 h-3 text-white"></i> @endif
+                                    </div>
+                                    <span class="text-[9px] font-black mt-1.5 {{ $step >= 4 ? 'text-green-600' : 'text-gray-400' }} uppercase tracking-wider text-center leading-none">Done</span>
+                                </div>
+                            </div>
+                        @endif
                     </td>
                     <td class="px-4 py-3" onclick="event.stopPropagation()">
                         <div class="flex gap-2">
@@ -194,14 +266,14 @@
                                 </button>
                             </form>
 
-                            {{-- Toggle In Progress (only for non-completed records) --}}
-                            @if(!$r->date_completed)
+                            {{-- Advance Maintenance Stage (only for non-completed records) --}}
+                            @if(!$r->date_completed && $r->status !== 'cancelled')
                             <form method="POST" action="{{ route('maintenance.toggle-in-progress', $r->id) }}">
                                 @csrf
                                 <button type="submit"
-                                    title="{{ $r->status === 'in_progress' ? 'Revert to Pending' : 'Mark as In Progress / Ongoing' }}"
-                                    class="{{ $r->status === 'in_progress' ? 'text-gray-500 hover:text-gray-800 hover:bg-gray-100' : 'text-blue-500 hover:text-blue-800 hover:bg-blue-50' }} p-1 rounded transition">
-                                    <i data-lucide="{{ $r->status === 'in_progress' ? 'pause-circle' : 'play-circle' }}" class="w-4 h-4"></i>
+                                    title="Advance Stage (Pending -> In Shop -> Testing)"
+                                    class="text-blue-500 hover:text-blue-800 hover:bg-blue-50 p-1 rounded transition">
+                                    <i data-lucide="fast-forward" class="w-4 h-4"></i>
                                 </button>
                             </form>
                             @endif
@@ -329,7 +401,8 @@
                         <label class="block text-xs font-medium text-gray-700 mb-1">Status *</label>
                         <select name="status" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-yellow-500 focus:outline-none" required>
                             <option value="pending">Pending</option>
-                            <option value="in_progress">In Progress</option>
+                            <option value="in_shop">In Shop</option>
+                            <option value="testing">Testing</option>
                             <option value="completed">Completed</option>
                             <option value="cancelled">Cancelled</option>
                         </select>
@@ -527,7 +600,9 @@
                         <label class="block text-xs font-medium text-gray-700 mb-1">Status *</label>
                         <select name="status" id="em_status" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
                             <option value="pending">Pending</option>
-                            <option value="in_progress">In Progress</option>
+                            <option value="in_shop">In Shop</option>
+                            <option value="in_progress" class="hidden">In Progress (Legacy)</option>
+                            <option value="testing">Testing</option>
                             <option value="completed">Completed</option>
                             <option value="cancelled">Cancelled</option>
                         </select>
