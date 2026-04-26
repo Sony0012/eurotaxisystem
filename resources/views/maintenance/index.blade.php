@@ -1144,19 +1144,27 @@
         </div>
     </div>
     <!-- Purchase History Modal -->
-    <div id="purchaseHistoryModal" class="hidden fixed inset-0 z-[80] flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl p-8 max-h-[85vh] flex flex-col">
-            <div class="flex justify-between items-center mb-6">
-                <div>
-                    <h3 class="text-xl font-bold text-gray-900">Stock Purchase History</h3>
-                    <p class="text-xs text-gray-400 uppercase font-bold tracking-widest mt-1">Logs from Office Expenses</p>
+    <div id="purchaseHistoryModal" class="hidden fixed inset-0 z-[80] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-6xl h-[95vh] flex flex-col overflow-hidden">
+            {{-- Modal Header (Deep Navy matching Unit Details) --}}
+            <div class="bg-slate-800 p-4 shrink-0">
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center gap-3">
+                        <div class="p-2 bg-white bg-opacity-20 rounded-lg">
+                            <i data-lucide="history" class="w-5 h-5 text-white"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-white leading-tight">Stock Purchase History</h3>
+                            <p class="text-sm text-blue-100 leading-tight">Logs from Office Expenses</p>
+                        </div>
+                    </div>
+                    <button onclick="closePurchaseHistoryModal()" class="text-white hover:text-gray-200 transition-colors">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
                 </div>
-                <button onclick="closePurchaseHistoryModal()" class="p-2 hover:bg-gray-50 rounded-full transition text-gray-400">
-                    <i data-lucide="x" class="w-6 h-6"></i>
-                </button>
             </div>
 
-            <div class="flex-1 overflow-y-auto pr-2 custom-scrollbar">
+            <div class="p-6 overflow-y-auto flex-1 custom-scrollbar">
                 <table class="min-w-full divide-y divide-gray-100">
                     <thead class="bg-gray-50 sticky top-0">
                         <tr>
@@ -1191,8 +1199,8 @@
                 </table>
             </div>
             
-            <div class="mt-6 flex justify-end pt-4 border-t border-gray-100">
-                <button onclick="closePurchaseHistoryModal()" class="px-6 py-2 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 text-sm font-black uppercase tracking-widest transition">
+            <div class="p-4 border-t flex justify-end shadow-inner bg-gray-50 shrink-0">
+                <button onclick="closePurchaseHistoryModal()" class="px-5 py-2 bg-gray-900 text-white rounded-lg hover:bg-black text-sm font-bold transition">
                     Close
                 </button>
             </div>
