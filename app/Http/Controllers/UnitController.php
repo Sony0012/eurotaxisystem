@@ -21,7 +21,8 @@ class UnitController extends Controller
         $search = $request->input('search', '');
         $status_filter = $request->input('status', '');
         $page = max(1, (int) $request->input('page', 1));
-        $limit = 5;
+        $view_mode = $request->input('view', 'table');
+        $limit = $view_mode === 'grid' ? 8 : 5;
         $offset = ($page - 1) * $limit;
 
         $query = DB::table('units as u')
@@ -107,18 +108,32 @@ class UnitController extends Controller
                 break;
         }
 
+        // Get today's coding status globally (matching Coding Management exactly)
+        $today_name = now()->timezone('Asia/Manila')->format('l');
+        $all_units_for_coding = DB::table('units')->select('plate_number', 'coding_day')->get();
+        $coding_today_count = 0;
+        foreach ($all_units_for_coding as $cu) {
+            $c_day = $cu->coding_day;
+            if (empty($c_day)) {
+                $lastDigit = @substr(preg_replace('/[^0-9]/', '', $cu->plate_number), -1);
+                if ($lastDigit == 1 || $lastDigit == 2) $c_day = 'Monday';
+                elseif ($lastDigit == 3 || $lastDigit == 4) $c_day = 'Tuesday';
+                elseif ($lastDigit == 5 || $lastDigit == 6) $c_day = 'Wednesday';
+                elseif ($lastDigit == 7 || $lastDigit == 8) $c_day = 'Thursday';
+                elseif ($lastDigit === '9' || $lastDigit === '0') $c_day = 'Friday';
+            }
+            if ($c_day === $today_name) {
+                $coding_today_count++;
+            }
+        }
+
         // Calculate Contextual Stats (Unpaginated but Filtered)
         $stats = [
             'total'    => $query->count(),
-            'on_road'  => (clone $query)->where('u.status', 'active')
-                            ->where(function($q) {
-                                $q->whereNotNull('u.driver_id')->orWhereNotNull('u.secondary_driver_id');
-                            })->count(),
-            'garage'   => (clone $query)->where('u.status', 'active')
-                            ->whereNull('u.driver_id')->whereNull('u.secondary_driver_id')
-                            ->count(),
+            'on_road'  => (clone $query)->where('u.status', 'active')->count(),
+            'garage'   => (clone $query)->where('u.status', 'at_risk')->count(),
             'workshop' => (clone $query)->where('u.status', 'maintenance')->count(),
-            'coding'   => (clone $query)->where('u.status', 'coding')->count(),
+            'coding'   => $coding_today_count,
         ];
 
         $total_units = $stats['total'];
@@ -854,22 +869,36 @@ class UnitController extends Controller
         $search = $request->input('search', '');
         $status_filter = $request->input('status', '');
 
+        // Get today's coding status globally (matching Coding Management exactly)
+        $today_name = now()->timezone('Asia/Manila')->format('l');
+        $all_units_for_coding = DB::table('units')->select('plate_number', 'coding_day')->get();
+        $coding_today_count = 0;
+        foreach ($all_units_for_coding as $cu) {
+            $c_day = $cu->coding_day;
+            if (empty($c_day)) {
+                $lastDigit = @substr(preg_replace('/[^0-9]/', '', $cu->plate_number), -1);
+                if ($lastDigit == 1 || $lastDigit == 2) $c_day = 'Monday';
+                elseif ($lastDigit == 3 || $lastDigit == 4) $c_day = 'Tuesday';
+                elseif ($lastDigit == 5 || $lastDigit == 6) $c_day = 'Wednesday';
+                elseif ($lastDigit == 7 || $lastDigit == 8) $c_day = 'Thursday';
+                elseif ($lastDigit === '9' || $lastDigit === '0') $c_day = 'Friday';
+            }
+            if ($c_day === $today_name) {
+                $coding_today_count++;
+            }
+        }
+
         // Base query for both global and filtered
         $baseQuery = DB::table('units')->whereNull('deleted_at');
 
         // Helper to calculate stats from a query
-        $getStats = function($q) {
+        $getStats = function($q) use ($coding_today_count) {
             return [
                 'total'    => (clone $q)->count(),
-                'on_road'  => (clone $q)->where('status', 'active')
-                                ->where(function($sub) {
-                                    $sub->whereNotNull('driver_id')->orWhereNotNull('secondary_driver_id');
-                                })->count(),
-                'garage'   => (clone $q)->where('status', 'active')
-                                ->whereNull('driver_id')->whereNull('secondary_driver_id')
-                                ->count(),
+                'on_road'  => (clone $q)->where('status', 'active')->count(),
+                'garage'   => (clone $q)->where('status', 'at_risk')->count(),
                 'workshop' => (clone $q)->where('status', 'maintenance')->count(),
-                'coding'   => (clone $q)->where('status', 'coding')->count(),
+                'coding'   => $coding_today_count, // Global coding count always matches Coding Management
             ];
         };
 
