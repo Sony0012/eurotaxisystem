@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Expense;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\ActivityLogController;
 
 class OfficeExpenseController extends Controller
 {
@@ -186,6 +187,8 @@ class OfficeExpenseController extends Controller
             }
         }
 
+        ActivityLogController::log('Created Office Expense', "Category: {$request->category}\nDescription: {$finalDescription}\nAmount: ₱" . number_format($request->amount, 2));
+
         return redirect()->route('office-expenses.index')->with('success', 'Expense added successfully');
     }
 
@@ -215,13 +218,19 @@ class OfficeExpenseController extends Controller
             'updated_by' => auth()->id(),
         ]);
 
+        ActivityLogController::log('Updated Office Expense', "Record #{$id}\nCategory: {$expense->category}\nNew Amount: ₱" . number_format($expense->amount, 2));
+
         return redirect()->route('office-expenses.index')->with('success', 'Expense updated successfully');
     }
 
     public function destroy($id)
     {
         $expense = Expense::findOrFail($id);
+        $desc = $expense->description;
         $expense->delete();
+        
+        ActivityLogController::log('Archived Office Expense', "Expense: {$desc} moved to archive.");
+
         return redirect()->route('office-expenses.index')->with('success', 'Expense archived successfully');
     }
 
@@ -235,6 +244,8 @@ class OfficeExpenseController extends Controller
             'approved_at' => now(),
         ]);
 
+        ActivityLogController::log('Approved Office Expense', "Expense #{$id} ({$expense->category}) has been approved.");
+
         return redirect()->route('office-expenses.index')->with('success', 'Expense approved successfully');
     }
 
@@ -247,6 +258,8 @@ class OfficeExpenseController extends Controller
             'approved_by' => auth()->id(),
             'approved_at' => now(),
         ]);
+
+        ActivityLogController::log('Rejected Office Expense', "Expense #{$id} ({$expense->category}) has been rejected.");
 
         return redirect()->route('office-expenses.index')->with('success', 'Expense rejected successfully');
     }

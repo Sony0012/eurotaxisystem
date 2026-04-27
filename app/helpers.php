@@ -207,3 +207,12 @@ if (!function_exists('send_sms_otp')) {
         }
     }
 }
+if (!function_exists('system_log')) {
+    /**
+     * Centralized system logging helper.
+     */
+    function system_log(string $action, string $notes = null): void
+    {
+        \App\Http\Controllers\ActivityLogController::log($action, $notes);
+    }
+}

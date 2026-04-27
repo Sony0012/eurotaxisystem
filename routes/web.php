@@ -15,6 +15,7 @@ use App\Http\Controllers\SalaryController;
 use App\Http\Controllers\AnalyticsController;
 use App\Http\Controllers\LiveTrackingController;
 use App\Http\Controllers\UnitProfitabilityController;
+use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\DecisionManagementController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\GitHubAuthController;
@@ -24,6 +25,8 @@ use App\Http\Controllers\MyAccountController;
 use App\Http\Controllers\ArchiveController;
 use App\Http\Controllers\BoundarySettingsController;
 use App\Http\Controllers\SparePartController;
+use App\Http\Controllers\SuperAdminController;
+use App\Http\Controllers\SupplierController;
 
 // ─── Auth Routes ───────────────────────────────────────
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
@@ -68,7 +71,7 @@ Route::get('/api/active-drivers', [DashboardController::class, 'getActiveDrivers
 Route::get('/api/coding-units', [DashboardController::class, 'getCodingUnits'])->middleware('auth');
 
     // ─── Protected Routes ──────────────────────────────────
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'page_access'])->group(function () {
     // ─── NEW: Incident Management (High Priority Routes) ────────────────
     Route::get('/api/incidents/{id}/details', [DriverBehaviorController::class, 'show'])->name('driver-behavior.show');
     Route::match(['post', 'put'], '/api/incidents/{id}/update', [DriverBehaviorController::class, 'update'])->name('driver-behavior.update');
@@ -127,6 +130,9 @@ Route::middleware('auth')->group(function () {
     // Analytics
     Route::get('/analytics', [AnalyticsController::class, 'index'])->name('analytics.index');
 
+    // Activity Logs
+    Route::get('/activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');
+
     // Live Tracking
     Route::get('/live-tracking', [LiveTrackingController::class, 'index'])->name('live-tracking.index');
     Route::get('/live-tracking/unit/{id}', [LiveTrackingController::class, 'getUnitLocation'])->name('live-tracking.unit-location');
@@ -136,6 +142,7 @@ Route::middleware('auth')->group(function () {
 
     // Unit Profitability
     Route::get('/unit-profitability', [UnitProfitabilityController::class, 'index'])->name('unit-profitability.index');
+    Route::get('/unit-profitability/details', [UnitProfitabilityController::class, 'getDetails'])->name('unit-profitability.details');
 
     // Staff Records
     Route::resource('staff', StaffController::class);
@@ -183,6 +190,20 @@ Route::middleware('auth')->group(function () {
     Route::get('/suppliers', [SupplierController::class, 'index'])->name('suppliers.index');
     Route::post('/suppliers', [SupplierController::class, 'store'])->name('suppliers.store');
     Route::delete('/suppliers/{id}', [SupplierController::class, 'destroy'])->name('suppliers.destroy');
+});
+
+// ─── Super Admin Routes (Owner Only) ─────────────────────────────────────────
+Route::middleware(['auth', 'super_admin'])->prefix('super-admin')->name('super-admin.')->group(function () {
+    Route::get('/', [SuperAdminController::class, 'index'])->name('index');
+    Route::post('/approve/{id}', [SuperAdminController::class, 'approveUser'])->name('approve');
+    Route::post('/reject/{id}', [SuperAdminController::class, 'rejectUser'])->name('reject');
+    Route::post('/toggle-active/{id}', [SuperAdminController::class, 'toggleActive'])->name('toggle-active');
+    Route::post('/page-access/{id}', [SuperAdminController::class, 'updatePageAccess'])->name('page-access');
+    Route::get('/login-history', [SuperAdminController::class, 'loginHistory'])->name('login-history');
+    Route::delete('/users/{id}', [SuperAdminController::class, 'deleteUser'])->name('delete-user');
+    Route::post('/users/{id}/restore', [SuperAdminController::class, 'restoreUser'])->name('restore-user');
+    Route::post('/users/{id}/reset-password', [SuperAdminController::class, 'resetPassword'])->name('reset-password');
+    Route::post('/users/{id}/update-role', [SuperAdminController::class, 'updateRole'])->name('update-role');
 });
 
 // ─── Temporary System Sync Route ───────────────────────────

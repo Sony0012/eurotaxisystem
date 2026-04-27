@@ -362,6 +362,24 @@
                     <input type="hidden" id="rawShortageAmount" value="0">
                 </div>
 
+                {{-- NEW: Accident Debt Alert --}}
+                <div id="damagePaymentContainer" class="hidden px-4 py-3 bg-red-50 border border-red-200 rounded-xl shadow-sm">
+                    <div class="flex items-start gap-3 mb-3">
+                        <span class="text-red-500 mt-0.5"><i data-lucide="alert-triangle" class="w-5 h-5"></i></span>
+                        <div class="flex-1">
+
+                            <p class="text-sm font-black text-red-800">Accident Damage Debt</p>
+                            <p class="text-xs font-medium text-red-700 mt-0.5">This driver has an outstanding accident debt of <strong id="accidentDebtBalanceLabel" class="font-black text-red-900">₱0.00</strong>.</p>
+                        </div>
+                    </div>
+                    <button type="button" onclick="payFullDebt()" 
+                            class="w-full py-2 bg-red-700 hover:bg-red-800 text-white text-xs font-black uppercase tracking-widest rounded-lg transition-colors shadow-sm focus:ring-2 focus:ring-red-600 focus:ring-offset-1">
+                        Apply Damage Payment & Clear Accident Debt
+                    </button>
+                    <input type="hidden" id="rawAccidentDebtAmount" value="0">
+                </div>
+
+
                 {{-- Shift Status --}}
                 <div id="shiftInfoGroup" class="hidden rounded-xl border border-gray-200 transition-all duration-300 overflow-hidden shadow-sm">
                     <div class="px-4 py-2.5 flex items-center justify-between border-b border-gray-100 bg-gray-50" id="shiftInfoHeader">
@@ -415,6 +433,31 @@
                         </div>
                     </div>
                 </div>
+
+                {{-- NEW: Damage Payment Input (Hidden unless debt exists) --}}
+                <div id="damageInputWrapper" class="hidden rounded-xl border border-red-200 p-4 bg-red-50/30">
+                    <div class="flex items-center gap-2 mb-3">
+                        <i data-lucide="shield-alert" class="w-4 h-4 text-red-500"></i>
+                        <span class="text-[11px] font-black text-red-600 uppercase tracking-widest">Damage/Incident Payment</span>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Charge towards Accident Debt</label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                                    <span class="text-red-600 font-black">₱</span>
+                                </div>
+                                <input type="number" name="damage_payment" id="damage_payment" step="0.01" min="0" value="0"
+                                       class="w-full pl-8 px-3 py-2.5 border border-red-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 font-black text-red-800 shadow-sm transition-all"
+                                       placeholder="0.00">
+                            </div>
+                        </div>
+                        <div class="flex items-end pb-1 text-[11px] text-red-700 font-medium italic">
+                            Amount entered here will be deducted from the driver's outstanding accident balance.
+                        </div>
+                    </div>
+                </div>
+
 
                 <div>
                     <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-1.5">Notes</label>
@@ -1050,9 +1093,18 @@ function initializeDriverDropdown() {
                 if (hasAccidentDebt && accidentDebtAmount > 0) {
                     damageContainer.classList.remove('hidden');
                     if (debtLabel) debtLabel.textContent = "₱" + accidentDebtAmount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                    document.getElementById('rawAccidentDebtAmount').value = accidentDebtAmount;
+                    
+                    // Show the input wrapper too
+                    const inputWrapper = document.getElementById('damageInputWrapper');
+                    if (inputWrapper) inputWrapper.classList.remove('hidden');
                 } else {
                     damageContainer.classList.add('hidden');
                     document.getElementById('damage_payment').value = 0;
+                    document.getElementById('rawAccidentDebtAmount').value = 0;
+                    
+                    const inputWrapper = document.getElementById('damageInputWrapper');
+                    if (inputWrapper) inputWrapper.classList.add('hidden');
                 }
 
                 document.getElementById('driverId').dispatchEvent(new Event('change'));
@@ -1077,6 +1129,19 @@ function payFullBalance() {
     // Visual feedback/confirmation
     actualCollectedInput.classList.add('ring-4', 'ring-green-400');
     setTimeout(() => actualCollectedInput.classList.remove('ring-4', 'ring-green-400'), 1000);
+}
+
+function payFullDebt() {
+    const debtAmount = parseFloat(document.getElementById('rawAccidentDebtAmount').value || 0);
+    const damagePaymentInput = document.getElementById('damage_payment');
+
+    if (damagePaymentInput) {
+        damagePaymentInput.value = debtAmount.toFixed(2);
+        
+        // Visual feedback
+        damagePaymentInput.classList.add('ring-4', 'ring-red-400', 'bg-red-50');
+        setTimeout(() => damagePaymentInput.classList.remove('ring-4', 'ring-red-400', 'bg-red-50'), 1000);
+    }
 }
 
 function filterDrivers(searchTerm) {
@@ -1165,9 +1230,11 @@ function addBoundary() {
     const extraAlert = document.getElementById('extraDriverAlert');
     const shortageAlert = document.getElementById('shortageBalanceAlert');
     const damageContainer = document.getElementById('damagePaymentContainer');
+    const damageInputWrapper = document.getElementById('damageInputWrapper');
     if (extraAlert) extraAlert.classList.add('hidden');
     if (shortageAlert) shortageAlert.classList.add('hidden');
     if (damageContainer) damageContainer.classList.add('hidden');
+    if (damageInputWrapper) damageInputWrapper.classList.add('hidden');
 
     document.getElementById('date').value = new Date().toLocaleDateString('en-CA');
 

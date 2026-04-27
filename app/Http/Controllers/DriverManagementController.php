@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 use App\Traits\CalculatesBoundary;
+use App\Http\Controllers\ActivityLogController;
 
 class DriverManagementController extends Controller
 {
@@ -416,6 +417,8 @@ class DriverManagementController extends Controller
             'driver_status'         => 'available',
         ]);
 
+        ActivityLogController::log('Created Driver Record', "Driver: {$request->first_name} {$request->last_name}\nLicense: {$request->license_number}\nStatus: Available");
+
         return redirect()->route('driver-management.index')
             ->with('success', "Driver {$request->first_name} {$request->last_name} added successfully!");
     }
@@ -455,6 +458,8 @@ class DriverManagementController extends Controller
             'driver_status'         => $request->driver_status ?? 'available',
         ]);
 
+        ActivityLogController::log('Updated Driver Record', "Driver: {$driver_instance->first_name} {$driver_instance->last_name}\nUpdated details and status to " . ucfirst($driver_instance->driver_status));
+
         return redirect()->route('driver-management.index')->with('success', 'Driver updated successfully');
     }
 
@@ -465,7 +470,11 @@ class DriverManagementController extends Controller
             // Unassign from units before soft-deleting
             DB::table('units')->where('driver_id', $driver->id)->update(['driver_id' => null]);
             DB::table('units')->where('secondary_driver_id', $driver->id)->update(['secondary_driver_id' => null]);
+            $name = $driver->first_name . ' ' . $driver->last_name;
             $driver->delete();
+            
+            ActivityLogController::log('Archived Driver', "Driver: {$name} moved to archive.");
+
             return redirect()->route('driver-management.index')->with('success', 'Driver archived successfully');
         }
         return redirect()->route('driver-management.index')->with('error', 'Driver not found.');

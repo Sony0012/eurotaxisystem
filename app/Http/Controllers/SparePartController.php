@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\SparePart;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\ActivityLogController;
 
 class SparePartController extends Controller
 {
@@ -113,6 +114,13 @@ class SparePartController extends Controller
             ? "✅ Stock added! +{$qtyToAdd} pcs of {$part->name} — Purchase recorded in Office Expenses."
             : ($qtyToAdd === 0 ? "Part details updated successfully." : "Stock updated.");
 
+        // Record Activity
+        $action = isset($data['id']) ? 'Updated Spare Part' : 'Created Spare Part';
+        $logNotes = "Part: {$part->name}\nPrice: ₱" . number_format($part->price, 2);
+        if ($qtyToAdd > 0) $logNotes .= "\nStock Added: +{$qtyToAdd} units (New total: {$part->stock_quantity})";
+        if ($expenseId) $logNotes .= "\nOffice Expense recorded: #{$expenseId}";
+        ActivityLogController::log($action, $logNotes);
+
         return response()->json([
             'success'          => true,
             'message'          => $msg,
@@ -139,7 +147,10 @@ class SparePartController extends Controller
     public function destroy($id)
     {
         $part = SparePart::findOrFail($id);
+        $name = $part->name;
         $part->delete();
+
+        ActivityLogController::log('Archived Spare Part', "Part: {$name} moved to archive.");
 
         return response()->json([
             'success' => true,
@@ -155,6 +166,8 @@ class SparePartController extends Controller
         $part = SparePart::withTrashed()->findOrFail($id);
         $part->restore();
 
+        ActivityLogController::log('Restored Spare Part', "Part: {$part->name} restored from archive.");
+
         return response()->json([
             'success' => true,
             'message' => 'Part restored from archive successfully'
@@ -167,7 +180,10 @@ class SparePartController extends Controller
     public function forceDelete($id)
     {
         $part = SparePart::withTrashed()->findOrFail($id);
+        $name = $part->name;
         $part->forceDelete();
+
+        ActivityLogController::log('Permanently Deleted Spare Part', "Part: {$name} was permanently removed from unique system records.");
 
         return response()->json([
             'success' => true,

@@ -501,7 +501,7 @@
             $inc = $profile['incentive'];
             $eligible = $inc['eligible'];
         @endphp
-        <div class="profile-card bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-all" data-name="{{ strtolower($profile['name']) }}">
+        <div class="profile-card bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-all cursor-pointer" data-name="{{ strtolower($profile['name']) }}" onclick="openDriverDetails({{ $profile['id'] }})">
             {{-- Card Header --}}
             <div class="p-5 border-b border-gray-50 flex items-center gap-3 {{ $eligible ? 'bg-gradient-to-r from-green-50 to-emerald-50' : 'bg-gray-50/50' }}">
                 <div class="w-11 h-11 rounded-xl {{ $eligible ? 'bg-green-500' : 'bg-gray-300' }} flex items-center justify-center text-white font-black text-lg shadow-sm flex-shrink-0">
@@ -960,10 +960,13 @@
     </div>
 </div>
 
+@include('partials._driver_details_modal')
+
 @endsection
 
 @push('scripts')
 <script>
+@include('partials._driver_details_scripts')
 // ─── Global Scoping & Initialization ───
 window.switchTab = function(name) {
     document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));

@@ -181,11 +181,17 @@ class DashboardController extends Controller
             ->whereDate('date', now()->toDateString())
             ->sum('actual_boundary') ?? 0;
 
-        // Today's expenses
-        $stats['today_expenses'] = DB::table('expenses')
+        // Today's expenses (General + Salaries)
+        $generalExpensesToday = DB::table('expenses')
             ->whereNull('deleted_at')
             ->whereDate('date', now()->toDateString())
             ->sum('amount') ?? 0;
+
+        $salariesToday = DB::table('salaries')
+            ->whereDate('pay_date', now()->toDateString())
+            ->sum('total_salary') ?? 0;
+
+        $stats['today_expenses'] = $generalExpensesToday + $salariesToday;
 
         // Dynamic daily target (Sum of boundary rates for all active taxis)
         $stats['daily_target'] = DB::table('units')
@@ -420,17 +426,43 @@ class DashboardController extends Controller
         // Units under maintenance
         $stats['maintenance_units'] = DB::table('units')->whereNull('deleted_at')->whereRaw('LOWER(status) = ?', ['maintenance'])->count();
 
-        // Today's boundary collected
-        $stats['today_boundary'] = DB::table('boundaries')
-            ->whereNull('deleted_at')
-            ->whereDate('date', now()->toDateString())
-            ->sum('actual_boundary') ?? 0;
+        // Enhanced Net Income with filtering support
+        $filter = request('net_income_filter', 'today');
+        $income = 0;
+        $expense = 0;
 
-        // Today's expenses (General office/misc expenses)
-        $stats['today_expenses'] = DB::table('expenses')
-            ->whereNull('deleted_at')
-            ->whereDate('date', now()->toDateString())
-            ->sum('amount') ?? 0;
+        if ($filter === 'month') {
+            $income = DB::table('boundaries')->whereNull('deleted_at')->whereMonth('date', now()->month)->whereYear('date', now()->year)->sum('actual_boundary') ?? 0;
+            $genEx = DB::table('expenses')->whereNull('deleted_at')->whereMonth('date', now()->month)->whereYear('date', now()->year)->sum('amount') ?? 0;
+            $mntEx = DB::table('maintenance')->whereNull('deleted_at')->whereMonth('date_started', now()->month)->whereYear('date_started', now()->year)->where('status', '!=', 'cancelled')->sum('cost') ?? 0;
+            $salEx = DB::table('salaries')->whereMonth('pay_date', now()->month)->whereYear('pay_date', now()->year)->sum('total_salary') ?? 0;
+            $expense = $genEx + $mntEx + $salEx;
+        } elseif ($filter === 'year') {
+            $income = DB::table('boundaries')->whereNull('deleted_at')->whereYear('date', now()->year)->sum('actual_boundary') ?? 0;
+            $genEx = DB::table('expenses')->whereNull('deleted_at')->whereYear('date', now()->year)->sum('amount') ?? 0;
+            $mntEx = DB::table('maintenance')->whereNull('deleted_at')->whereYear('date_started', now()->year)->where('status', '!=', 'cancelled')->sum('cost') ?? 0;
+            $salEx = DB::table('salaries')->whereYear('pay_date', now()->year)->sum('total_salary') ?? 0;
+            $expense = $genEx + $mntEx + $salEx;
+        } else {
+            // Default Today
+            $stats['today_boundary'] = DB::table('boundaries')
+                ->whereNull('deleted_at')
+                ->whereDate('date', now()->toDateString())
+                ->sum('actual_boundary') ?? 0;
+
+            $stats['today_expenses'] = DB::table('expenses')
+                ->whereNull('deleted_at')
+                ->whereDate('date', now()->toDateString())
+                ->sum('amount') ?? 0;
+
+            $income = $stats['today_boundary'];
+            $genEx = $stats['today_expenses'];
+            $mntEx = DB::table('maintenance')->whereNull('deleted_at')->whereDate('date_started', now()->toDateString())->where('status', '!=', 'cancelled')->sum('cost') ?? 0;
+            $salEx = DB::table('salaries')->whereDate('pay_date', now()->toDateString())->sum('total_salary') ?? 0;
+            $expense = $genEx + $mntEx + $salEx;
+        }
+
+        $stats['net_income'] = $income - $expense;
 
         // Dynamic daily target
         $stats['daily_target'] = DB::table('units')
@@ -441,22 +473,6 @@ class DashboardController extends Controller
         if ($stats['daily_target'] <= 0) {
             $stats['daily_target'] = 2500;
         }
-
-        // Maintenance & Coding expenses for Net Income accuracy
-        $todayMaintenance = DB::table('maintenance')
-            ->whereNull('deleted_at')
-            ->whereDate('date_started', now()->toDateString())
-            ->where('status', '!=', 'cancelled')
-            ->sum('cost') ?? 0;
-            
-        $todayCoding = DB::table('coding_records')
-            ->whereNull('deleted_at')
-            ->whereDate('date', now()->toDateString())
-            ->where('status', 'completed')
-            ->sum('cost') ?? 0;
-
-        // Net income today (Calculation ignores coding fees as per user request)
-        $stats['net_income'] = $stats['today_boundary'] - ($stats['today_expenses'] + $todayMaintenance);
 
         // Active drivers — counts drivers who are currently assigned to a unit
         $stats['active_drivers'] = DB::table('drivers as d')
@@ -1023,35 +1039,68 @@ class DashboardController extends Controller
                 }
 
                 if ($expenseTable) {
-                    $expenseData = DB::table($expenseTable . ' as oe')
-                        ->leftJoin('users as u', 'oe.user_id', '=', 'u.id')
-                        ->select([
-                            'oe.id',
-                            'oe.expense_type',
-                            'oe.amount',
-                            'oe.description',
-                            'oe.date',
-                            'oe.user_id',
-                            'u.name as user_name'
-                        ])
-                        ->whereNull('oe.deleted_at')
-                        ->orderBy('oe.date', 'desc')
-                        ->orderBy('oe.id', 'desc')
-                        ->get()
-                        ->map(function($item) {
-                            return [
-                                'id' => $item->id,
-                                'type' => 'expense',
-                                'description' => $item->description ?: $item->expense_type,
-                                'category' => $item->expense_type,
-                                'amount' => (float) $item->amount,
-                                'date' => $item->date,
-                                'source' => $item->user_name,
-                                'reference' => 'Expense #' . $item->id,
-                                'expense_type' => $item->expense_type,
-                                'user_name' => $item->user_name
-                            ];
-                        });
+                    if ($expenseTable === 'expenses') {
+                        // The 'expenses' table has different column names
+                        $expenseData = DB::table('expenses as oe')
+                            ->leftJoin('users as u', 'oe.created_by', '=', 'u.id')
+                            ->select([
+                                'oe.id',
+                                'oe.category as expense_type',
+                                'oe.amount',
+                                'oe.description',
+                                'oe.date',
+                                'oe.created_by as user_id',
+                                'u.name as user_name'
+                            ])
+                            ->whereNull('oe.deleted_at')
+                            ->orderBy('oe.date', 'desc')
+                            ->orderBy('oe.id', 'desc')
+                            ->get()
+                            ->map(function($item) {
+                                return [
+                                    'id' => $item->id,
+                                    'type' => 'expense',
+                                    'description' => $item->description ?: $item->expense_type,
+                                    'category' => $item->expense_type,
+                                    'amount' => (float) $item->amount,
+                                    'date' => $item->date,
+                                    'source' => $item->user_name ?: 'Office / System',
+                                    'reference' => 'Expense #' . $item->id,
+                                    'expense_type' => $item->expense_type,
+                                    'user_name' => $item->user_name ?: 'System Admin'
+                                ];
+                            });
+                    } else {
+                        $expenseData = DB::table($expenseTable . ' as oe')
+                            ->leftJoin('users as u', 'oe.user_id', '=', 'u.id')
+                            ->select([
+                                'oe.id',
+                                'oe.expense_type',
+                                'oe.amount',
+                                'oe.description',
+                                'oe.date',
+                                'oe.user_id',
+                                'u.name as user_name'
+                            ])
+                            ->whereNull('oe.deleted_at')
+                            ->orderBy('oe.date', 'desc')
+                            ->orderBy('oe.id', 'desc')
+                            ->get()
+                            ->map(function($item) {
+                                return [
+                                    'id' => $item->id,
+                                    'type' => 'expense',
+                                    'description' => $item->description ?: $item->expense_type,
+                                    'category' => $item->expense_type,
+                                    'amount' => (float) $item->amount,
+                                    'date' => $item->date,
+                                    'source' => $item->user_name,
+                                    'reference' => 'Expense #' . $item->id,
+                                    'expense_type' => $item->expense_type,
+                                    'user_name' => $item->user_name
+                                ];
+                            });
+                    }
                 }
             } catch (\Exception $expenseError) {
                 Log::error('Error loading expense data: ' . $expenseError->getMessage());
@@ -1102,16 +1151,45 @@ class DashboardController extends Controller
                     ];
                 });
 
+            // Add Salaries as expenses
+            $salaryExpenses = DB::table('salaries as s')
+                ->leftJoin('users as u', function($join) {
+                    $join->on('s.employee_id', '=', 'u.id')->where('s.source', '=', 'user');
+                })
+                ->leftJoin('staff as st', function($join) {
+                    $join->on('s.employee_id', '=', 'st.id')->where('s.source', '=', 'staff');
+                })
+                ->select('s.*', DB::raw('COALESCE(u.full_name, st.name) as employee_name'))
+                ->get()
+                ->map(function($item) {
+                    return [
+                        'id' => $item->id,
+                        'type' => 'salary',
+                        'description' => 'Salary Payment - ' . $item->employee_name,
+                        'category' => 'Payroll',
+                        'amount' => (float) $item->total_salary,
+                        'date' => $item->pay_date,
+                        'source' => 'Finance',
+                        'reference' => 'SAL-#' . $item->id,
+                        'expense_type' => 'Salary',
+                        'user_name' => 'System'
+                    ];
+                });
+
             // Combine all financial data
             $allData = $incomeData->concat($expenseData)
                 ->concat($maintenanceExpenses)
                 ->concat($codingExpenses)
+                ->concat($salaryExpenses)
                 ->sortByDesc('date')
                 ->values();
 
             // Calculate statistics
             $totalIncome = $incomeData->sum('amount');
-            $totalExpenses = $expenseData->sum('amount') + $maintenanceExpenses->sum('amount') + $codingExpenses->sum('amount');
+            $totalExpenses = $expenseData->sum('amount') + 
+                            $maintenanceExpenses->sum('amount') + 
+                            $codingExpenses->sum('amount') + 
+                            $salaryExpenses->sum('amount');
             $netIncome = $totalIncome - $totalExpenses;
             $profitMargin = $totalIncome > 0 ? (($netIncome / $totalIncome) * 100) : 0;
 

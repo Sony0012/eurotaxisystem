@@ -10,6 +10,7 @@ use App\Models\User;
 use Carbon\Carbon;
 
 use App\Traits\CalculatesBoundary;
+use App\Http\Controllers\ActivityLogController;
 
 class UnitController extends Controller
 {
@@ -253,6 +254,8 @@ class UnitController extends Controller
         if ($driver_id) $this->syncDriverBoundaryTarget($driver_id, $newUnit);
         if ($secondary_driver_id) $this->syncDriverBoundaryTarget($secondary_driver_id, $newUnit);
 
+        ActivityLogController::log('Created Unit', "Unit: {$newUnit->plate_number}\nCategory: {$newUnit->make} {$newUnit->model} ({$newUnit->year})\nStatus: " . ucfirst($newUnit->status));
+
         return redirect()->route('units.index')->with('success', 'Unit added successfully!');
     }
 
@@ -361,6 +364,8 @@ class UnitController extends Controller
         // Remove 'updated_at' from manual array since Eloquent handles it
         if (isset($updateData['updated_at'])) unset($updateData['updated_at']);
 
+        ActivityLogController::log('Updated Unit', "Unit: {$unit->plate_number}\nCategory: {$unit->make} {$unit->model}\nStatus: " . ucfirst($unit->status));
+
         return redirect()->route('units.index')->with('success', 'Unit updated successfully!');
     }
 
@@ -372,8 +377,11 @@ class UnitController extends Controller
             DB::table('dashcam_devices')->where('unit_id', $id)->delete();
             
             $unit = Unit::findOrFail($id);
+            $plate = $unit->plate_number;
             $unit->delete(); // This now triggers soft delete
             
+            ActivityLogController::log('Archived Unit', "Unit: {$plate} moved to archive system.");
+
             DB::commit();
             return redirect()->route('units.index')->with('success', 'Unit archived successfully!');
         } catch (\Exception $e) {
@@ -416,6 +424,7 @@ class UnitController extends Controller
             ->selectRaw('
                 SUM(actual_boundary) as total_boundary,
                 SUM(CASE WHEN MONTH(date)=MONTH(CURDATE()) AND YEAR(date)=YEAR(CURDATE()) THEN actual_boundary ELSE 0 END) as monthly_boundary,
+                SUM(CASE WHEN MONTH(date)=MONTH(CURDATE()) AND YEAR(date)=YEAR(CURDATE()) THEN boundary_amount ELSE 0 END) as monthly_expected_boundary,
                 SUM(actual_boundary) as paid_boundary
             ')->first();
 
@@ -431,6 +440,10 @@ class UnitController extends Controller
         $total_revenue = $roi->paid_boundary ?? 0;
         $total_expenses = $maintenance_cost->total ?? 0;
         $monthly_revenue = $roi->monthly_boundary ?? 0;
+        
+        // NEW: Theoretical full-month target (accounts for coding/weekends for every day of the month)
+        $monthly_theoretical = $this->getMonthlyExpectedTarget($unit);
+        
         $roi_percentage = $total_investment > 0 ? (($total_revenue - $total_expenses) / $total_investment) * 100 : 0;
         $payback_period = $monthly_revenue > 0 ? $total_investment / $monthly_revenue : 0;
 
@@ -439,7 +452,8 @@ class UnitController extends Controller
             'total_investment' => $total_investment,
             'total_revenue' => $total_revenue,
             'total_expenses' => $total_expenses,
-            'monthly_revenue' => $monthly_revenue,
+            'actual_monthly_revenue' => $monthly_revenue,
+            'monthly_theoretical_target' => $monthly_theoretical,
             'monthly_expenses' => $maintenance_cost->monthly ?? 0,
             'roi_percentage' => round($roi_percentage, 2),
             'payback_period' => round($payback_period, 2),

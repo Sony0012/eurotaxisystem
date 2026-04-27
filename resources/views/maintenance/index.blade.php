@@ -1212,9 +1212,28 @@
                 </div>
             </div>
 
-            <div class="p-6 overflow-y-auto flex-1 custom-scrollbar">
+            <div class="flex flex-col md:flex-row gap-4 mb-6">
+                {{-- Daily Total Box --}}
+                <div class="flex-1 bg-green-50 border border-green-100 p-4 rounded-2xl shadow-sm">
+                    <p class="text-[10px] font-black text-green-600 uppercase tracking-widest mb-1">Total for Selected Date</p>
+                    <h4 id="dailyPurchaseTotal" class="text-2xl font-black text-gray-900 tracking-tighter">₱0.00</h4>
+                </div>
+                {{-- Monthly Total Box --}}
+                <div class="flex-1 bg-blue-50 border border-blue-100 p-4 rounded-2xl shadow-sm">
+                    <p class="text-[10px] font-black text-blue-600 uppercase tracking-widest mb-1">Total for this Month</p>
+                    <h4 id="monthlyPurchaseTotal" class="text-2xl font-black text-gray-900 tracking-tighter">₱0.00</h4>
+                </div>
+                {{-- Date Filter Input --}}
+                <div class="flex-none flex flex-col justify-center">
+                    <label class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Validate Date</label>
+                    <input type="date" id="historyDateFilter" value="{{ date('Y-m-d') }}" onchange="refreshPurchaseHistory(this.value)"
+                        class="px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-black focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:outline-none transition-all">
+                </div>
+            </div>
+
+            <div class="flex-1 overflow-y-auto pr-2 custom-scrollbar">
                 <table class="min-w-full divide-y divide-gray-100">
-                    <thead class="bg-gray-50 sticky top-0">
+                    <thead class="bg-gray-50 sticky top-0 z-10">
                         <tr>
                             <th class="px-4 py-2 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Date</th>
                             <th class="px-4 py-2 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Description</th>
@@ -2476,35 +2495,75 @@ function closePurchaseHistoryModal() {
     document.getElementById('purchaseHistoryModal').classList.add('hidden');
 }
 
-async function refreshPurchaseHistory() {
+async function refreshPurchaseHistory(customDate = null) {
     try {
         const res = await fetch("{{ route('spare-parts.history') }}");
         const json = await res.json();
         if (json.success) {
             const tbody = document.getElementById('purchaseHistoryTableBody');
-            if (json.data.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="3" class="px-4 py-12 text-center text-gray-400"><p class="text-sm">No purchase records found.</p></td></tr>';
-                return;
+            const dailyTotalEl = document.getElementById('dailyPurchaseTotal');
+            const monthlyTotalEl = document.getElementById('monthlyPurchaseTotal');
+            const filterDate = customDate || document.getElementById('historyDateFilter').value;
+            const currentMonth = new Date().getMonth();
+            const currentYear = new Date().getFullYear();
+
+            let dailyTotal = 0;
+            let monthlyTotal = 0;
+            let displayedRecords = 0;
+
+            tbody.innerHTML = '';
+
+            json.data.forEach(ph => {
+                const phDate = new Date(ph.date);
+                const recYear = phDate.getFullYear();
+                const recMonth = phDate.getMonth();
+                const amount = parseFloat(ph.amount) || 0;
+
+                // Accrue Monthly Total (Current month)
+                if (recYear === currentYear && recMonth === currentMonth) {
+                    monthlyTotal += amount;
+                }
+
+                // Filtering by Date
+                const rowDateStr = ph.date.substring(0, 10);
+                const isDateMatch = (rowDateStr === filterDate);
+                
+                if (isDateMatch) {
+                    dailyTotal += amount;
+                    displayedRecords++;
+                    
+                    const dateDisplay = phDate.toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' });
+                    const timeDisplay = new Date(ph.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+                    
+                    tbody.innerHTML += `
+                        <tr class="hover:bg-gray-50 transition border-b border-gray-50">
+                            <td class="px-4 py-4 whitespace-nowrap">
+                                <div class="text-xs font-black text-gray-600">${dateDisplay}</div>
+                                <div class="text-[9px] text-gray-400">${timeDisplay}</div>
+                            </td>
+                            <td class="px-4 py-4">
+                                <div class="text-sm font-black text-gray-800 tracking-tight italic uppercase">${ph.description}</div>
+                                <div class="text-[9px] text-blue-500 font-bold bg-blue-50 px-2 py-0.5 rounded-md inline-block mt-1">INVENTORY SYNC</div>
+                            </td>
+                            <td class="px-4 py-4 text-right">
+                                <div class="text-sm font-black text-green-600">₱${amount.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}</div>
+                            </td>
+                        </tr>
+                    `;
+                }
+            });
+
+            if (displayedRecords === 0) {
+                tbody.innerHTML = `<tr><td colspan="3" class="px-4 py-16 text-center text-gray-400">
+                    <i data-lucide="calendar-x" class="w-12 h-12 mx-auto mb-3 opacity-20"></i>
+                    <p class="text-xs font-black uppercase tracking-widest italic">No purchases recorded for ${new Date(filterDate).toLocaleDateString('en-US', {month:'long', day:'numeric'})}</p>
+                </td></tr>`;
+                lucide.createIcons();
             }
-            tbody.innerHTML = json.data.map(ph => {
-                const date = new Date(ph.date).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' });
-                const time = new Date(ph.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
-                return `
-                    <tr class="hover:bg-gray-50 transition">
-                        <td class="px-4 py-4 whitespace-nowrap">
-                            <div class="text-xs font-bold text-gray-600">${date}</div>
-                            <div class="text-[9px] text-gray-400">${time}</div>
-                        </td>
-                        <td class="px-4 py-4">
-                            <div class="text-sm font-black text-gray-800 tracking-tight">${ph.description}</div>
-                            <div class="text-[10px] text-blue-500 font-bold uppercase">Maintenance Supplies</div>
-                        </td>
-                        <td class="px-4 py-4 text-right">
-                            <div class="text-sm font-black text-green-600">₱${parseFloat(ph.amount).toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}</div>
-                        </td>
-                    </tr>
-                `;
-            }).join('');
+
+            // Update Summaries
+            dailyTotalEl.textContent = '₱' + dailyTotal.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
+            monthlyTotalEl.textContent = '₱' + monthlyTotal.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
         }
     } catch (e) { console.error(e); }
 }

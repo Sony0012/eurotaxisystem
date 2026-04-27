@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Boundary;
 use Carbon\Carbon;
+use App\Http\Controllers\ActivityLogController;
 
 use App\Traits\CalculatesBoundary;
 
@@ -509,6 +510,10 @@ class BoundaryController extends Controller
                         ]);
                     }
 
+                    $plate = DB::table('units')->where('id', $unit_id)->value('plate_number');
+                    $driverName = DB::table('drivers')->where('id', $driver_id)->select(DB::raw("CONCAT(first_name, ' ', last_name) as name"))->value('name');
+                    ActivityLogController::log('Boundary Remittance', "Unit: {$plate}\nDriver: {$driverName}\nDate: {$date}\nCollected: ₱" . number_format($actual_boundary, 2) . "\nStatus: " . ucfirst($status));
+
                     return redirect()->route('boundaries.index')->with('success', 'Boundary record added successfully');
                 }
             } else {
@@ -599,6 +604,10 @@ class BoundaryController extends Controller
                     ]);
                 }
 
+                $plate = DB::table('units')->where('id', $boundary->unit_id)->value('plate_number');
+                $driverName = DB::table('drivers')->where('id', $boundary->driver_id)->select(DB::raw("CONCAT(first_name, ' ', last_name) as name"))->value('name');
+                ActivityLogController::log('Updated Boundary Record', "Unit: {$plate}\nDriver: {$driverName}\nNew Amount: ₱" . number_format($actual_boundary, 2) . " (" . ucfirst($status) . ")");
+
                 return redirect()->route('boundaries.index')->with('success', 'Boundary record updated successfully');
             } else {
                 return back()->with('error', 'Please fill in all required fields (Target amount must be valid)');
@@ -613,7 +622,12 @@ class BoundaryController extends Controller
     public function destroy($id)
     {
         $boundary = Boundary::findOrFail($id);
+        $plate = DB::table('units')->where('id', $boundary->unit_id)->value('plate_number');
+        $date = $boundary->date;
         $boundary->delete();
+
+        ActivityLogController::log('Archived Boundary Record', "Unit: {$plate}\nDate: {$date}");
+
         return redirect()->route('boundaries.index')->with('success', 'Boundary record archived.');
     }
     public function show($id) { return redirect()->route('boundaries.index'); }

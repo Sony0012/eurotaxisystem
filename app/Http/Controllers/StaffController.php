@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Http\Controllers\ActivityLogController;
 
 class StaffController extends Controller
 {
@@ -49,6 +50,8 @@ class StaffController extends Controller
 
         \App\Models\Staff::create($data);
 
+        ActivityLogController::log('Created Staff Record', "Name: {$data['name']}\nRole: {$data['role']}");
+
         return redirect()->route('staff.index')->with('success', 'Staff record added successfully.');
     }
 
@@ -65,13 +68,17 @@ class StaffController extends Controller
 
         $staff->update($data);
 
+        ActivityLogController::log('Updated Staff Record', "Name: {$staff->name}\nRole: {$staff->role}");
+
         return redirect()->route('staff.index')->with('success', 'Staff record updated successfully.');
     }
 
     public function destroy($id)
     {
-        $staff = \App\Models\Staff::findOrFail($id);
+        $name = $staff->name;
         $staff->delete();
+
+        ActivityLogController::log('Archived Staff Record', "Staff: {$name} moved to archive.");
 
         return redirect()->route('staff.index')->with('success', 'Staff record archived successfully.');
     }

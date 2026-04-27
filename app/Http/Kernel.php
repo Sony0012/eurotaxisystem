@@ -62,7 +62,9 @@ class Kernel extends HttpKernel
         'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
         'password.confirm' => \Illuminate\Auth\Middleware\RequirePassword::class,
         'signed' => \App\Http\Middleware\ValidateSignature::class,
-        'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
-        'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
+        'throttle'        => \Illuminate\Routing\Middleware\ThrottleRequests::class,
+        'verified'        => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
+        'super_admin'     => \App\Http\Middleware\SuperAdminMiddleware::class,
+        'page_access'     => \App\Http\Middleware\PageAccessMiddleware::class,
     ];
 }

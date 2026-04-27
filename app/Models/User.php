@@ -39,6 +39,10 @@ class User extends Authenticatable
         'otp_code',
         'otp_expires_at',
         'verified_at',
+        'approval_status',
+        'approved_by',
+        'approved_at',
+        'allowed_pages',
     ];
 
     protected $hidden = [
@@ -47,10 +51,78 @@ class User extends Authenticatable
     ];
 
     protected $casts = [
-        'is_active'   => 'boolean',
-        'is_verified' => 'boolean',
-        'last_login'  => 'datetime',
+        'is_active'      => 'boolean',
+        'is_verified'    => 'boolean',
+        'last_login'     => 'datetime',
+        'approved_at'    => 'datetime',
+        'allowed_pages'  => 'array',
     ];
+
+    public function isSuperAdmin(): bool
+    {
+        return $this->role === 'super_admin';
+    }
+
+    /**
+     * Local request cache to speed up multiple permission checks in one page load.
+     */
+    protected static array $permissionCache = [];
+
+    /**
+     * Check if the user has access to a specific route pattern.
+     */
+    public function hasAccessTo(string $pattern): bool
+    {
+        // 1. Super admins bypass all checks
+        if ($this->role === 'super_admin') {
+            return true;
+        }
+
+        // 2. Always allowed routes (never restricted)
+        $alwaysAllowed = [
+            'dashboard',
+            'login',
+            'logout',
+            'register',
+            'my-account',
+            'my-account.*',
+            'notifications.dismiss',
+        ];
+
+        foreach ($alwaysAllowed as $p) {
+            if (\Illuminate\Support\Str::is($p, $pattern) || $pattern === $p) {
+                return true;
+            }
+        }
+
+        // 3. Get allowed pages
+        // Handle casted array or raw JSON string
+        $pages = $this->allowed_pages;
+        if (is_string($pages)) {
+            $pages = json_decode($pages, true);
+        }
+
+        // 4. Default to full access if no restrictions are defined (null)
+        // Note: Empty array [] means restricted to nothing (blocked).
+        if ($pages === null) {
+            return true;
+        }
+
+        if (!is_array($pages)) {
+            return false;
+        }
+
+        // 5. Check against the user's allowed_pages list
+        foreach ($pages as $allowed) {
+            // Check direct match or wildcard match
+            if ($allowed === $pattern || \Illuminate\Support\Str::is($allowed, $pattern)) {
+                return true;
+            }
+        }
+
+        // 6. Access denied
+        return false;
+    }
 
     /**
      * Get the user's full name capitalized.

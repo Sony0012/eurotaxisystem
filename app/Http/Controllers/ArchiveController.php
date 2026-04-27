@@ -52,7 +52,10 @@ class ArchiveController extends Controller
         }
 
         $item = $model::withTrashed()->findOrFail($id);
+        $name = $item->plate_number ?? ($item->full_name ?? ($item->name ?? ($item->case_no ?? ($item->description ?? ("ID# " . $item->id)))));
         $item->restore();
+
+        system_log("Restored " . ucfirst($type), "Item: {$name} was restored from the system archive.");
 
         return back()->with('success', ucfirst($type) . ' restored successfully.');
     }
@@ -65,7 +68,10 @@ class ArchiveController extends Controller
         }
 
         $item = $model::withTrashed()->findOrFail($id);
+        $name = $item->plate_number ?? ($item->full_name ?? ($item->name ?? ($item->case_no ?? ($item->description ?? ("ID# " . $item->id)))));
         $item->forceDelete();
+
+        system_log("Permanently Deleted " . ucfirst($type), "Item: {$name} was permanently wiped from the database.");
 
         return back()->with('success', ucfirst($type) . ' permanently deleted.');
     }

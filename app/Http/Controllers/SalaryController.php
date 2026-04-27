@@ -15,23 +15,39 @@ class SalaryController extends Controller
         $search = $request->input('search', '');
 
         $query = DB::table('salaries as s')
-            ->leftJoin('users as u', 's.employee_id', '=', 'u.id')
-            ->whereNull('u.deleted_at')
+            ->leftJoin('users as u', function($join) {
+                $join->on('s.employee_id', '=', 'u.id')
+                     ->where('s.source', '=', 'user');
+            })
+            ->leftJoin('staff as st', function($join) {
+                $join->on('s.employee_id', '=', 'st.id')
+                     ->where('s.source', '=', 'staff');
+            })
+            ->where(function($q) {
+                $q->whereNull('u.deleted_at')
+                  ->orWhereNull('st.deleted_at');
+            })
             ->select(
                 's.*',
-                'u.full_name as employee_name',
-                'u.email',
+                DB::raw('COALESCE(u.full_name, st.name) as employee_name'),
+                DB::raw('COALESCE(u.email, st.phone) as email'),
                 's.employee_type as position',
                 's.total_salary as total_pay'
-            )
-            ->where('s.month', $currentMonth)
-            ->where('s.year', $currentYear);
+            );
 
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('u.full_name', 'like', DB::raw("CONCAT('%', ?, '%') COLLATE utf8mb4_unicode_ci"), [$search])
-                    ->orWhere('s.employee_type', 'like', DB::raw("CONCAT('%', ?, '%') COLLATE utf8mb4_unicode_ci"), [$search]);
+                    ->orWhere('s.employee_type', 'like', DB::raw("CONCAT('%', ?, '%') COLLATE utf8mb4_unicode_ci"), [$search])
+                    ->orWhere('st.name', 'like', DB::raw("CONCAT('%', ?, '%') COLLATE utf8mb4_unicode_ci"), [$search]);
             });
+        }
+
+        if ($request->filled('date')) {
+            $query->whereDate('s.pay_date', $request->date);
+        } else {
+            $query->where('s.month', $currentMonth)
+                  ->where('s.year', $currentYear);
         }
 
         $salaries = $query->orderBy('u.full_name')->get();
@@ -54,7 +70,20 @@ class SalaryController extends Controller
         // Calculate totals/summary
         $total_salaries = $salaries->sum('total_pay');
         $total_expenses = $expense_records->sum('amount');
-        $total_employees = DB::table('users')->whereNull('deleted_at')->where('is_active', 1)->count();
+        // Calculate totals/summary (Unified count of Users + Staff, excluding Drivers and Developer)
+        $user_count = DB::table('users')
+            ->whereNull('deleted_at')
+            ->where('is_active', 1)
+            ->where('role', '!=', 'developer')
+            ->count();
+
+        $staff_count = DB::table('staff')
+            ->whereNull('deleted_at')
+            ->where('status', 'active')
+            ->where('role', '!=', 'driver')
+            ->count();
+
+        $total_employees = $user_count + $staff_count;
         $net_profit = $total_income - ($total_salaries + $total_expenses);
 
         $summary = [
@@ -66,13 +95,20 @@ class SalaryController extends Controller
             'avg_expense' => $total_employees > 0 ? $total_expenses / $total_employees : 0,
         ];
 
-        // Get employees for dropdown
+        // Get employees for dropdown (Combine Admin/Web Staff and General Staff)
         $employees = DB::table('users')
             ->whereNull('deleted_at')
             ->where('is_active', 1)
-            ->whereIn('role', ['admin', 'staff'])
-            ->select('id', 'full_name', 'role')
-            ->orderBy('full_name')
+            ->whereIn('role', ['admin', 'staff', 'office_staff', 'mechanic']) // broadened roles
+            ->select('id', 'full_name as name', 'role', DB::raw("'user' as source"))
+            ->union(
+                DB::table('staff')
+                    ->whereNull('deleted_at')
+                    ->where('status', 'active')
+                    ->where('role', '!=', 'driver')
+                    ->select('id', 'name', 'role', DB::raw("'staff' as source"))
+            )
+            ->orderBy('name')
             ->get();
 
         return view('salary.index', compact('salaries', 'expense_records', 'summary', 'search', 'employees'));
@@ -81,7 +117,7 @@ class SalaryController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'employee_id' => 'required|integer',
+            'employee_raw' => 'required|string', // Expecting "source_id", e.g., "user_5" or "staff_2"
             'employee_type' => 'required|string',
             'basic_salary' => 'required|numeric|min:0',
             'overtime_pay' => 'nullable|numeric|min:0',
@@ -95,8 +131,13 @@ class SalaryController extends Controller
 
         $total_salary = $data['basic_salary'] + $data['overtime_pay'] + $data['holiday_pay'] + $data['night_differential'] + $data['allowance'];
 
+        $parts = explode('_', $data['employee_raw'], 2);
+        $source = count($parts) == 2 ? $parts[0] : 'user';
+        $employee_id = count($parts) == 2 ? $parts[1] : $data['employee_raw'];
+
         DB::table('salaries')->insert([
-            'employee_id' => $data['employee_id'],
+            'employee_id' => $employee_id,
+            'source' => $source,
             'employee_type' => $data['employee_type'],
             'basic_salary' => $data['basic_salary'],
             'overtime_pay' => $data['overtime_pay'],
@@ -111,6 +152,12 @@ class SalaryController extends Controller
             'created_at' => now(),
             'updated_at' => now(),
         ]);
+
+        $employeeName = $source === 'user' 
+            ? DB::table('users')->where('id', $employee_id)->value('full_name')
+            : DB::table('staff')->where('id', $employee_id)->value('name');
+
+        system_log('Processed Salary', "Employee: {$employeeName}\nTotal: ₱" . number_format($total_salary, 2) . "\nPeriod: {$data['month']}/{$data['year']}\nSource: " . ucfirst($source));
 
         return redirect()->route('salary.index')->with('success', 'Salary record added successfully');
     }
@@ -141,11 +188,19 @@ class SalaryController extends Controller
             'updated_at' => now(),
         ]);
 
+        $salary = DB::table('salaries')->where('id', $id)->first();
+        $employeeName = $salary->source === 'user' 
+            ? DB::table('users')->where('id', $salary->employee_id)->value('full_name')
+            : DB::table('staff')->where('id', $salary->employee_id)->value('name');
+
+        system_log('Updated Salary Record', "Employee: {$employeeName}\nRecord #{$id}\nNew Total: ₱" . number_format($total_salary, 2));
+
         return redirect()->route('salary.index')->with('success', 'Salary record updated successfully');
     }
 
     public function destroy($id)
     {
+        system_log('Deleted Salary Record', "Record #{$id} was removed from the system.");
         DB::table('salaries')->where('id', $id)->delete();
         return redirect()->route('salary.index')->with('success', 'Salary record deleted successfully');
     }
@@ -156,11 +211,16 @@ class SalaryController extends Controller
         $year = $request->input('year', date('Y'));
 
         $records = DB::table('salaries as s')
-            ->leftJoin('users as u', 's.employee_id', '=', 'u.id')
-            ->select('s.*', 'u.full_name')
+            ->leftJoin('users as u', function($join) {
+                $join->on('s.employee_id', '=', 'u.id')->where('s.source', '=', 'user');
+            })
+            ->leftJoin('staff as st', function($join) {
+                $join->on('s.employee_id', '=', 'st.id')->where('s.source', '=', 'staff');
+            })
+            ->select('s.*', DB::raw('COALESCE(u.full_name, st.name) as full_name'))
             ->where('s.month', $month)
             ->where('s.year', $year)
-            ->orderBy('u.full_name')
+            ->orderBy('full_name')
             ->get();
 
         $totals = [

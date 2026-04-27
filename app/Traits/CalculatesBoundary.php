@@ -7,10 +7,10 @@ use Illuminate\Support\Facades\DB;
 trait CalculatesBoundary
 {
     /**
-     * Calculate the effective boundary rate for a unit or driver based on current date, 
+     * Calculate the effective boundary rate for a unit or driver based on a given date, 
      * year brackets, and coding rules.
      */
-    public function getCurrentPricing($unit_data, $rules = null)
+    public function getCurrentPricing($unit_data, $rules = null, $date = null)
     {
         if (!$rules) {
             $rules = DB::table('boundary_rules')->get();
@@ -26,8 +26,9 @@ trait CalculatesBoundary
             $coding_day = $this->deriveCodingDay($plate);
         }
         
-        $today = date('l');
-        $is_coding = $coding_day && (strtolower($today) === strtolower($coding_day));
+        $timestamp = $date ? strtotime($date) : time();
+        $dayName = date('l', $timestamp);
+        $is_coding = $coding_day && (strtolower($dayName) === strtolower($coding_day));
         
         // Find matching rule by year
         $rule = $rules->where('start_year', '<=', $year)->where('end_year', '>=', $year)->first();
@@ -46,12 +47,12 @@ trait CalculatesBoundary
             }
             $label = 'Coding Rate';
             $type = 'coding';
-        } elseif ($today === 'Saturday') {
+        } elseif ($dayName === 'Saturday') {
             $discount = $rule ? (float)$rule->sat_discount : 100;
             $final = $base - $discount;
             $label = 'Saturday Discount';
             $type = 'discount';
-        } elseif ($today === 'Sunday') {
+        } elseif ($dayName === 'Sunday') {
             $discount = $rule ? (float)$rule->sun_discount : 200;
             $final = $base - $discount;
             $label = 'Sunday Discount';
@@ -65,6 +66,28 @@ trait CalculatesBoundary
             'base' => $base,
             'coding_day' => $coding_day
         ];
+    }
+
+    /**
+     * Calculate the theoretical maximum expected boundary for a full month
+     * taking into account coding and weekends for every single day.
+     */
+    public function getMonthlyExpectedTarget($unit_data, $month = null, $year = null)
+    {
+        $month = $month ?: date('m');
+        $year = $year ?: date('Y');
+        $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $month, $year);
+        
+        $rules = DB::table('boundary_rules')->get();
+        $totalTarget = 0;
+
+        for ($day = 1; $day <= $daysInMonth; $day++) {
+            $date = sprintf('%04d-%02d-%02d', $year, $month, $day);
+            $pricing = $this->getCurrentPricing($unit_data, $rules, $date);
+            $totalTarget += $pricing['rate'];
+        }
+
+        return $totalTarget;
     }
 
     /**

@@ -1651,8 +1651,13 @@
 
                 const roiPrgW = Math.min(100, Math.max(0, roiPct)).toFixed(1);
                 const invPerMonth = parseFloat(roi.total_investment || 0) / 12;
-                const mthBnd = parseFloat(roi.monthly_revenue || roi.monthly_boundary || 0);
-                const bndPrgW = invPerMonth > 0 ? Math.min(100, (mthBnd / invPerMonth) * 100).toFixed(1) : 0;
+                const mthBnd = parseFloat(roi.actual_monthly_revenue || roi.monthly_revenue || roi.monthly_boundary || 0);
+                const mthExp = parseFloat(roi.monthly_theoretical_target || 0);
+                
+                // Primary: Operational Efficiency (Actual Collection vs Theoretical Month Max)
+                // Fallback: Financial Target (Actual Collection vs Investment/12)
+                const targetAmount = mthExp > 0 ? mthExp : invPerMonth;
+                const bndPrgW = targetAmount > 0 ? Math.min(100, (mthBnd / targetAmount) * 100).toFixed(1) : 0;
 
                 document.getElementById('unitDetailsContent').innerHTML = `
                 <div class="space-y-6">
@@ -1911,7 +1916,7 @@
                                             </div>
                                             <div class="flex justify-between items-center">
                                                 <span class="text-gray-400 font-bold uppercase text-[10px] tracking-widest">Avg Monthly Revenue</span>
-                                                <span class="text-2xl font-black text-green-600">₱${parseFloat(roi.monthly_revenue || roi.monthly_boundary || 0).toLocaleString('en-PH', {minimumFractionDigits:2})}</span>
+                                                <span class="text-2xl font-black text-green-600">₱${mthBnd.toLocaleString('en-PH', {minimumFractionDigits:2})}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -1930,7 +1935,7 @@
                                             <div>
                                                 <div class="flex justify-between items-center mb-2">
                                                     <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Monthly Target Efficiency</span>
-                                                    <span class="text-sm font-black text-green-600">₱${invPerMonth.toLocaleString('en-PH', {minimumFractionDigits:0})} Target</span>
+                                                    <span class="text-sm font-black text-green-600">₱${targetAmount.toLocaleString('en-PH', {minimumFractionDigits:0})} Target</span>
                                                 </div>
                                                 <div class="w-full bg-gray-100 rounded-full h-4 p-1 shadow-inner">
                                                     <div class="bg-gradient-to-r from-green-400 to-emerald-600 h-2 rounded-full shadow-sm" style="width:${bndPrgW}%"></div>
@@ -2088,7 +2093,7 @@
                                         <div class="space-y-2 text-xs">
                                             <div class="flex justify-between items-center"><span class="text-gray-600">ROI %</span><span class="font-bold text-${roiColor}-600">${roiPct.toFixed(1)}%</span></div>
                                             <div class="flex justify-between items-center"><span class="text-gray-600">Payback</span><span class="font-bold text-blue-600">${parseFloat(roi.payback_period || 0).toFixed(1)} mths</span></div>
-                                            <div class="flex justify-between items-center"><span class="text-gray-600">Mth Rev</span><span class="font-bold text-green-600">₱${parseFloat(roi.monthly_revenue || roi.monthly_boundary || 0).toLocaleString('en-PH', {minimumFractionDigits:2})}</span></div>
+                                            <div class="flex justify-between items-center"><span class="text-gray-600">Mth Rev</span><span class="font-bold text-green-600">₱${mthBnd.toLocaleString('en-PH', {minimumFractionDigits:2})}</span></div>
                                         </div>
                                     </div>
                                     <div class="bg-white border border-gray-200 rounded-lg p-3">
@@ -2099,7 +2104,7 @@
                                                 <div class="w-full bg-gray-200 rounded-full h-2.5"><div class="bg-gradient-to-r from-purple-500 to-purple-600 h-2.5 rounded-full" style="width:${roiPrgW}%"></div></div>
                                             </div>
                                             <div>
-                                                <div class="flex justify-between items-center mb-1"><span class="text-[10px] text-gray-600">Monthly Target</span><span class="text-[10px] font-medium">₱${invPerMonth.toLocaleString('en-PH', {minimumFractionDigits:0})}</span></div>
+                                                <div class="flex justify-between items-center mb-1"><span class="text-[10px] text-gray-600">Monthly Target</span><span class="text-[10px] font-medium">₱${targetAmount.toLocaleString('en-PH', {minimumFractionDigits:0})}</span></div>
                                                 <div class="w-full bg-gray-200 rounded-full h-2.5"><div class="bg-gradient-to-r from-green-500 to-green-600 h-2.5 rounded-full" style="width:${bndPrgW}%"></div></div>
                                             </div>
                                         </div>

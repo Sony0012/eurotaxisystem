@@ -12,6 +12,8 @@ use App\Models\User;
 use App\Models\VerifiedBrowser;
 use App\Models\Unit;
 use App\Models\Driver;
+use App\Models\LoginAudit;
+
 
 class AuthController extends Controller
 {
@@ -42,13 +44,26 @@ class AuthController extends Controller
             ->first();
 
         if ($user) {
+            // Block pending or rejected accounts
+            if (in_array($user->approval_status ?? 'approved', ['pending', 'rejected'])) {
+                LoginAudit::log('failed_login', $user, 'Login blocked: account ' . ($user->approval_status) . '.');
+                return response()->json([
+                    'success' => false,
+                    'message' => $user->approval_status === 'pending'
+                        ? 'Your account is pending approval by the system owner. Kindly wait or contact Robert Garcia.'
+                        : 'Your account registration has been rejected. Please contact the system owner.',
+                ], 403);
+            }
+
             // Block only accounts explicitly set to unverified (0 or false)
             if ($user->is_verified !== null && !$user->is_verified) {
+                LoginAudit::log('failed_login', $user, 'Login blocked: email not verified.');
                 return response()->json([
                     'success' => false,
                     'message' => 'Please verify your email address before logging in.',
                 ], 403);
             }
+
 
             // Support both 'password' and legacy 'password_hash' column names
             $storedHash = $user->password ?? $user->password_hash ?? null;
@@ -86,6 +101,10 @@ class AuthController extends Controller
                 Auth::login($user, $request->boolean('remember'));
                 $request->session()->regenerate();
                 
+                // Track last login and log audit
+                $user->update(['last_login' => now()]);
+                LoginAudit::log('login', $user);
+
                 // Update last active on this device
                 $user->verifiedBrowsers()
                     ->where('browser_token', hash('sha256', $browserCookie))
@@ -102,6 +121,9 @@ class AuthController extends Controller
                     ->with('success', 'Welcome back, ' . ($user->full_name ?? $user->name) . '!');
             }
         }
+
+        // Log failed login attempt
+        LoginAudit::log('failed_login', null, 'Failed login for: ' . ($request->email ?? 'unknown'));
 
         if ($request->ajax() || $request->wantsJson()) {
             return response()->json([
@@ -195,11 +217,13 @@ class AuthController extends Controller
         // 3. Clear OTP
         $user->update(['otp_code' => null, 'otp_expires_at' => null]);
 
-        // 4. Log in
+        // 4. Log in and audit
         $remember = $request->session()->get('mfa_remember', false);
         Auth::login($user, $remember);
         $request->session()->forget(['mfa_user_id', 'mfa_remember']);
         $request->session()->regenerate();
+        $user->update(['last_login' => now()]);
+        LoginAudit::log('login', $user, 'Login via MFA device verification.');
 
         // 5. Return success with the cookie (expires in 1 year)
         return response()->json([
@@ -349,20 +373,22 @@ class AuthController extends Controller
         }
 
         // ─── OTP confirmed — NOW create the user in the database ───────────
+        // New accounts are PENDING until approved by Super Admin
         $user = User::create([
-            'full_name'    => $pending['full_name'],
-            'first_name'   => $pending['first_name'],
-            'middle_name'  => $pending['middle_name'],
-            'last_name'    => $pending['last_name'],
-            'suffix'       => $pending['suffix'],
-            'phone_number' => $pending['phone_number'],
-            'email'        => $pending['email'],
-            'username'     => $pending['username'],
-            'password'     => $pending['password'],
-            'password_hash'=> $pending['password'],
-            'role'         => $pending['role'],
-            'is_active'    => true,
-            'is_verified'  => true,
+            'full_name'       => $pending['full_name'],
+            'first_name'      => $pending['first_name'],
+            'middle_name'     => $pending['middle_name'],
+            'last_name'       => $pending['last_name'],
+            'suffix'          => $pending['suffix'],
+            'phone_number'    => $pending['phone_number'],
+            'email'           => $pending['email'],
+            'username'        => $pending['username'],
+            'password'        => $pending['password'],
+            'password_hash'   => $pending['password'],
+            'role'            => $pending['role'],
+            'is_active'       => false,           // inactive until approved
+            'is_verified'     => true,             // email verified
+            'approval_status' => 'pending',        // awaiting Super Admin approval
         ]);
 
         // Clear the session
@@ -370,7 +396,7 @@ class AuthController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Email verified! Your account is now active. You can log in.',
+            'message' => 'Email verified! Your account is pending approval by the system owner. You will be notified once approved.',
         ]);
     }
 
@@ -426,6 +452,10 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
+        $user = Auth::user();
+        if ($user) {
+            LoginAudit::log('logout', $user);
+        }
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();

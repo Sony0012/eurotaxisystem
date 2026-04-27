@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use App\Http\Controllers\ActivityLogController;
 
 class DecisionManagementController extends Controller
 {
@@ -197,6 +198,8 @@ class DecisionManagementController extends Controller
             }
         }
 
+        ActivityLogController::log(($caseId > 0 ? 'Updated Franchise Case' : 'Created Franchise Case'), "Case No: {$request->case_no}\nApplicant: {$request->applicant_name}\nType: {$request->type_of_application}");
+
         return redirect()->route('decision-management.index')->with('success', $message);
     }
 
@@ -213,8 +216,11 @@ class DecisionManagementController extends Controller
         }
         
         $case = \App\Models\FranchiseCase::findOrFail($id);
+        $caseNo = $case->case_no;
         $case->delete();
         
+        ActivityLogController::log('Archived Franchise Case', "Case No: {$caseNo} moved to archive.");
+
         return redirect()->route('decision-management.index')->with('success', 'Case archived successfully');
     }
 
@@ -225,6 +231,9 @@ class DecisionManagementController extends Controller
             'updated_at' => now(),
         ]);
 
+        $caseNo = DB::table('franchise_cases')->where('id', $id)->value('case_no');
+        ActivityLogController::log('Approved Franchise Case', "Case No: {$caseNo} has been approved.");
+
         return redirect()->route('decision-management.index')->with('success', 'Case approved successfully');
     }
 
@@ -234,6 +243,9 @@ class DecisionManagementController extends Controller
             'status' => 'rejected',
             'updated_at' => now(),
         ]);
+
+        $caseNo = DB::table('franchise_cases')->where('id', $id)->value('case_no');
+        ActivityLogController::log('Rejected Franchise Case', "Case No: {$caseNo} has been rejected.");
 
         return redirect()->route('decision-management.index')->with('success', 'Case rejected successfully');
     }

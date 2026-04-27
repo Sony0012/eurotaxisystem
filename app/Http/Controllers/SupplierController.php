@@ -33,6 +33,8 @@ class SupplierController extends Controller
             $supplier = Supplier::create($data);
         }
 
+        system_log((isset($data['id']) ? 'Updated Supplier' : 'Created Supplier'), "Supplier: {$supplier->name}\nContact: {$supplier->contact_person}");
+
         return response()->json([
             'success' => true,
             'message' => 'Supplier saved successfully',
@@ -43,7 +45,10 @@ class SupplierController extends Controller
     public function destroy($id)
     {
         $supplier = Supplier::findOrFail($id);
+        $name = $supplier->name;
         $supplier->delete();
+
+        system_log('Archived Supplier', "Supplier: {$name} moved to archive.");
 
         return response()->json([
             'success' => true,

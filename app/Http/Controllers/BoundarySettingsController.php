@@ -29,6 +29,8 @@ class BoundarySettingsController extends Controller
 
         BoundaryRule::create($request->all());
 
+        system_log('Created Boundary Rule', "Rule: {$request->name}\nRange: {$request->start_year}-{$request->end_year}\nRegular Rate: ₱" . number_format($request->regular_rate, 2));
+
         return redirect()->route('boundary-rules.index')->with('success', 'Boundary rule added successfully!');
     }
 
@@ -49,13 +51,17 @@ class BoundarySettingsController extends Controller
 
         $rule->update($request->all());
 
+        system_log('Updated Boundary Rule', "Rule: {$rule->name}\nUpdated pricing configuration.");
+
         return redirect()->route('boundary-rules.index')->with('success', 'Boundary rule updated successfully!');
     }
 
     public function destroy($id)
     {
-        $rule = BoundaryRule::findOrFail($id);
+        $name = $rule->name;
         $rule->delete();
+
+        system_log('Deleted Boundary Rule', "Rule: {$name} was removed from system configuration.");
 
         return redirect()->route('boundary-rules.index')->with('success', 'Boundary rule deleted successfully!');
     }

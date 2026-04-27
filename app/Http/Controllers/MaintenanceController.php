@@ -6,6 +6,7 @@ use App\Models\Maintenance;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\ActivityLogController;
 
 class MaintenanceController extends Controller
 {
@@ -234,6 +235,9 @@ class MaintenanceController extends Controller
                 }
             }
 
+            $plate = DB::table('units')->where('id', $maintenance->unit_id)->value('plate_number');
+            ActivityLogController::log('Created Maintenance Record', "Unit: {$plate}\nType: " . ucwords($maintenance->maintenance_type) . "\nCost: ₱" . number_format($maintenance->cost, 2) . "\nParts used: " . ($maintenance->parts_list ?: 'None'));
+
             return redirect()->route('maintenance.index')->with('success', 'Maintenance record added successfully');
         });
     }
@@ -344,6 +348,9 @@ class MaintenanceController extends Controller
                 }
             }
 
+            $plate = DB::table('units')->where('id', $maintenance->unit_id)->value('plate_number');
+            ActivityLogController::log('Updated Maintenance Record', "Unit: {$plate}\nType: " . ucwords($maintenance->maintenance_type) . "\nRefreshed details and parts.");
+
             return redirect()->route('maintenance.index')->with('success', 'Maintenance record updated successfully');
         });
     }
@@ -375,7 +382,12 @@ class MaintenanceController extends Controller
                 }
             }
 
+            $plate = DB::table('units')->where('id', $maintenance->unit_id)->value('plate_number');
+            $type = $maintenance->maintenance_type;
             $maintenance->delete();
+
+            ActivityLogController::log('Archived Maintenance Record', "Unit: {$plate}\nType: " . ucwords($type) . "\nRecord archived and stock returned.");
+
             return redirect()->route('maintenance.index')->with('success', 'Maintenance record archived and stock returned.');
         });
     }
@@ -415,6 +427,11 @@ class MaintenanceController extends Controller
         });
 
         $statusMessage = $maint->date_completed ? 'Maintenance marked as completed.' : 'Maintenance marked as incomplete.';
+        
+        $plate = DB::table('units')->where('id', $maint->unit_id)->value('plate_number');
+        $statusLabel = $maint->status === 'completed' ? 'Completed' : 'Pending';
+        ActivityLogController::log('Toggled Maintenance Status', "Unit: {$plate}\nStatus changed to: {$statusLabel}");
+
         return back()->with('success', $statusMessage);
     }
 

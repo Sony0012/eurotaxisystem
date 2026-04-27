@@ -93,7 +93,63 @@ class UnitProfitabilityController extends Controller
 
         $units = $units_dropdown;
         $selected_unit = $unit_filter;
+        $full_profitability = $profitability; // Keep original for summary sections
 
-        return view('unit-profitability.index', compact('profitability', 'units', 'overview', 'date_from', 'date_to', 'selected_unit'));
+        // Manual Pagination (10 per page)
+        $currentPage = \Illuminate\Pagination\Paginator::resolveCurrentPage() ?: 1;
+        $perPage = 10;
+        $currentItems = array_slice($profitability, ($currentPage - 1) * $perPage, $perPage);
+        $profitability = new \Illuminate\Pagination\LengthAwarePaginator(
+            $currentItems, 
+            count($profitability), 
+            $perPage, 
+            $currentPage, 
+            ['path' => \Illuminate\Pagination\Paginator::resolveCurrentPath(), 'query' => $request->query()]
+        );
+
+        return view('unit-profitability.index', compact('profitability', 'full_profitability', 'units', 'overview', 'date_from', 'date_to', 'selected_unit'));
+    }
+
+    public function getDetails(Request $request)
+    {
+        $unit_id = $request->unit_id;
+        $date_from = $request->date_from ?? date('Y-m-01');
+        $date_to = $request->date_to ?? date('Y-m-d');
+
+        $unit = \DB::table('units')->where('id', $unit_id)->first();
+        if (!$unit) {
+            return response()->json(['error' => 'Unit not found'], 404);
+        }
+
+        // Fetch Boundaries (Revenue) - uses 'date' column
+        $boundaries = \DB::table('boundaries')
+            ->where('unit_id', $unit_id)
+            ->whereNull('deleted_at')
+            ->whereBetween('date', [$date_from, $date_to])
+            ->orderBy('date', 'desc')
+            ->get();
+
+        // Fetch Maintenances (Expenses) - table is 'maintenance', column is 'date_started'
+        $maintenances = \DB::table('maintenance')
+            ->where('unit_id', $unit_id)
+            ->whereNull('deleted_at')
+            ->whereBetween('date_started', [$date_from, $date_to])
+            ->orderBy('date_started', 'desc')
+            ->get();
+
+        // Fetch Other Expenses - table is 'expenses', column is 'date'
+        $expenses = \DB::table('expenses')
+            ->where('unit_id', $unit_id)
+            ->whereNull('deleted_at')
+            ->whereBetween('date', [$date_from, $date_to])
+            ->orderBy('date', 'desc')
+            ->get();
+
+        return response()->json([
+            'unit' => $unit,
+            'boundaries' => $boundaries,
+            'maintenances' => $maintenances,
+            'expenses' => $expenses,
+        ]);
     }
 }

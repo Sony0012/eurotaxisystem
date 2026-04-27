@@ -116,10 +116,18 @@
         <div onclick="showNetIncomeModal()" class="card-hover cursor-pointer group relative overflow-hidden rounded-2xl shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl" style="background: linear-gradient(135deg, #14532d 0%, #16a34a 60%, #4ade80 100%);">
             <div class="absolute inset-0 opacity-10" style="background: radial-gradient(circle at 80% 20%, #fff 0%, transparent 60%);"></div>
             <div class="relative p-5 flex items-center justify-between">
-                <div>
-                    <p class="text-green-200 text-xs font-semibold uppercase tracking-widest mb-1">Net Income Today</p>
-                    <p class="text-white text-2xl font-black leading-none mb-1" data-stat="net_income">{{ formatCurrency($stats['net_income']) }}</p>
-                    <p class="text-green-200 text-xs font-medium">After all expenses</p>
+                <div class="flex-1">
+                    <p class="text-green-200 text-[10px] font-black uppercase tracking-widest mb-1" id="netIncomeLabel">Net Income Today</p>
+                    <p class="text-white text-2xl font-black leading-none mb-2" data-stat="net_income">{{ formatCurrency($stats['net_income']) }}</p>
+                    
+                    <div class="flex gap-1.5 pt-1">
+                        <button onclick="event.stopPropagation(); updateNetIncomeStat('today', this)" 
+                            class="net-income-btn px-2.5 py-1 text-[8px] font-black uppercase tracking-widest bg-white text-green-900 rounded-lg transition-all active:scale-95 shadow-lg shadow-black/10">Today</button>
+                        <button onclick="event.stopPropagation(); updateNetIncomeStat('month', this)" 
+                            class="net-income-btn px-2.5 py-1 text-[8px] font-black uppercase tracking-widest bg-white/20 text-white rounded-lg hover:bg-white/30 transition-all active:scale-95">Month</button>
+                        <button onclick="event.stopPropagation(); updateNetIncomeStat('year', this)" 
+                            class="net-income-btn px-2.5 py-1 text-[8px] font-black uppercase tracking-widest bg-white/20 text-white rounded-lg hover:bg-white/30 transition-all active:scale-95">Year</button>
+                    </div>
                 </div>
                 <div class="p-3 rounded-2xl" style="background: rgba(255,255,255,0.15); backdrop-filter: blur(8px);">
                     <i data-lucide="trending-up" class="w-7 h-7 text-white"></i>
@@ -3554,6 +3562,40 @@
             filterUnits();
         }
         
+        window.currentNetIncomeFilter = 'today';
+
+        function updateNetIncomeStat(filter, btn) {
+            window.currentNetIncomeFilter = filter;
+            
+            // Update UI buttons
+            document.querySelectorAll('.net-income-btn').forEach(b => {
+                b.classList.remove('bg-white', 'text-green-900', 'shadow-lg', 'shadow-black/10');
+                b.classList.add('bg-white/20', 'text-white');
+            });
+            
+            btn.classList.remove('bg-white/20', 'text-white');
+            btn.classList.add('bg-white', 'text-green-900', 'shadow-lg', 'shadow-black/10');
+            
+            // Update Label
+            const labels = { 'today': 'Net Income Today', 'month': 'Net Income Monthly', 'year': 'Net Income Yearly' };
+            document.getElementById('netIncomeLabel').textContent = labels[filter];
+
+            // Immediate Refresh
+            refreshDashboard();
+        }
+
+        function refreshDashboard() {
+            const filter = window.currentNetIncomeFilter || 'today';
+            fetch(`{{ url('/api/dashboard/realtime') }}?net_income_filter=${filter}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.stats) {
+                        updateDashboardStats(data.stats);
+                    }
+                })
+                .catch(err => console.error('Error refreshing stats:', err));
+        }
+
         function clearSearch() {
             document.getElementById('unitSearchInput').value = '';
             setUnitStatusFilter('all');
