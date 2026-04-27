@@ -3,19 +3,19 @@
      Matching the user-provided screenshot aesthetic.
      ═══════════════════════════════════════════════════════════════ --}}
 
-<div class="overflow-x-auto bg-white">
-    <table class="min-w-full divide-y divide-gray-100">
-        <thead class="bg-gray-50/50 border-b border-gray-100">
+<div class="overflow-x-auto bg-gray-50/50 px-4 py-3">
+    <table class="min-w-full text-sm modern-table-sep">
+        <thead>
             <tr>
-                <th class="px-6 py-4 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Plate Number Info</th>
-                <th class="px-6 py-4 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Vehicle Details</th>
-                <th class="px-6 py-4 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Assigned Drivers</th>
-                <th class="px-6 py-4 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Status</th>
-                <th class="px-6 py-4 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Boundary Rate</th>
-                <th class="px-6 py-4 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Actions</th>
+                <th class="px-6 py-3 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Plate Number Info</th>
+                <th class="px-6 py-3 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Vehicle Details</th>
+                <th class="px-6 py-3 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Assigned Drivers</th>
+                <th class="px-6 py-3 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Status</th>
+                <th class="px-6 py-3 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Boundary Rate</th>
+                <th class="px-6 py-3 text-center text-[10px] font-black text-gray-400 uppercase tracking-widest">Actions</th>
             </tr>
         </thead>
-        <tbody class="divide-y divide-gray-50">
+        <tbody>
             @forelse($units as $unit)
                 @php
                     $primary_driver = $unit->primary_driver ?? null;
@@ -42,7 +42,7 @@
                 @endphp
                 
                 {{-- Main Data Row --}}
-                <tr class="hover:bg-blue-50/30 transition-colors cursor-pointer group" onclick="viewUnitDetails({{ $unit->id }})">
+                <tr class="modern-row cursor-pointer group" onclick="viewUnitDetails({{ $unit->id }})">
                     {{-- Plate Number Info --}}
                     <td class="px-6 py-5 whitespace-nowrap">
                         <div class="flex flex-col">
@@ -116,18 +116,31 @@
                     </td>
 
                     {{-- Actions --}}
-                    <td class="px-6 py-5 whitespace-nowrap">
-                        <div class="flex items-center gap-2">
-                            <button onclick="event.stopPropagation(); editUnit({{ $unit->id }})" 
-                                class="w-8 h-8 flex items-center justify-center bg-blue-50 text-blue-600 rounded-lg border border-blue-100 hover:bg-blue-600 hover:text-white transition-all shadow-sm">
-                                <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
+                    <td class="px-6 py-5 whitespace-nowrap text-center relative">
+                        <button type="button"
+                            class="p-2 text-gray-400 hover:text-gray-800 hover:bg-gray-200 rounded-full transition-colors focus:outline-none inline-flex items-center justify-center"
+                            onclick="toggleUnitDropdown('unit-dropdown-{{ $unit->id }}', event)"
+                            title="Actions">
+                            <i data-lucide="more-vertical" class="w-5 h-5"></i>
+                        </button>
+
+                        <div id="unit-dropdown-{{ $unit->id }}"
+                            class="unit-action-dropdown hidden absolute right-4 mt-1 w-40 bg-white rounded-lg shadow-xl border border-gray-100 z-50 overflow-hidden">
+                            {{-- Edit --}}
+                            <button type="button"
+                                class="w-full text-left px-4 py-2.5 text-xs font-bold text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors flex items-center gap-2"
+                                onclick="event.stopPropagation(); document.getElementById('unit-dropdown-{{ $unit->id }}').classList.add('hidden'); editUnit({{ $unit->id }})">
+                                <i data-lucide="edit-2" class="w-4 h-4"></i> Edit Unit
                             </button>
+                            {{-- Archive --}}
                             <form method="POST" action="{{ route('units.destroy', $unit->id) }}"
-                                onsubmit="return confirm('Delete unit {{ $unit->plate_number }}?');" class="inline m-0 p-0">
+                                onsubmit="return confirm('Archive unit {{ $unit->plate_number }}? It will be moved to the Archive page.');"
+                                class="m-0 p-0">
                                 @csrf @method('DELETE')
-                                <button type="submit" onclick="event.stopPropagation()"
-                                    class="w-8 h-8 flex items-center justify-center bg-red-50 text-red-600 rounded-lg border border-red-100 hover:bg-red-600 hover:text-white transition-all shadow-sm">
-                                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                                <button type="submit"
+                                    onclick="event.stopPropagation()"
+                                    class="w-full text-left px-4 py-2.5 text-xs font-bold text-amber-600 hover:bg-amber-50 transition-colors flex items-center gap-2 border-t border-gray-50">
+                                    <i data-lucide="archive" class="w-4 h-4"></i> Archive Unit
                                 </button>
                             </form>
                         </div>
@@ -136,8 +149,8 @@
 
                 {{-- Maintenance Bar Row (Sub-Row) --}}
                 @if($has_maintenance_data)
-                    <tr class="hover:bg-blue-50/10 transition-colors" onclick="viewUnitDetails({{ $unit->id }})">
-                        <td colspan="6" class="px-6 pb-5 pt-0 border-none">
+                    <tr class="modern-row" onclick="viewUnitDetails({{ $unit->id }})" style="cursor:pointer">
+                        <td colspan="6" class="px-6 pb-4 pt-0" style="border-radius: 0 0 0.75rem 0.75rem">
                             @include('units.partials._maintenance_health_bar', ['unit' => $unit])
                         </td>
                     </tr>
@@ -169,7 +182,7 @@
                 </button>
             @endif
             @for($i = max(1, $pagination['page'] - 2); $i <= min($pagination['total_pages'], $pagination['page'] + 2); $i++)
-                <button onclick="changePage({{ $i }})" class="w-10 h-10 rounded-xl border text-[11px] font-black transition-all {{ $i === $pagination['page'] ? 'bg-yellow-500 border-yellow-500 text-white shadow-md shadow-yellow-200' : 'bg-white border-gray-200 text-gray-500 hover:bg-gray-50' }}">
+                <button onclick="changePage({{ $i }})" class="w-10 h-10 rounded-xl border text-[11px] font-black transition-all {{ $i === $pagination['page'] ? 'bg-blue-600 border-blue-600 text-white shadow-md' : 'bg-white border-gray-200 text-gray-500 hover:bg-gray-50' }}">
                     {{ $i }}
                 </button>
             @endfor
@@ -181,3 +194,28 @@
         </div>
     </div>
 @endif
+
+<script>
+    window.toggleUnitDropdown = function(id, event) {
+        event.stopPropagation();
+
+        // Close all other unit dropdowns
+        document.querySelectorAll('.unit-action-dropdown').forEach(el => {
+            if (el.id !== id) el.classList.add('hidden');
+        });
+
+        // Toggle this dropdown
+        const dropdown = document.getElementById(id);
+        if (dropdown) dropdown.classList.toggle('hidden');
+    };
+
+    // Attach document-level close listener only once
+    if (!window.unitDropdownListenerAdded) {
+        document.addEventListener('click', function () {
+            document.querySelectorAll('.unit-action-dropdown').forEach(el => {
+                el.classList.add('hidden');
+            });
+        });
+        window.unitDropdownListenerAdded = true;
+    }
+</script>
