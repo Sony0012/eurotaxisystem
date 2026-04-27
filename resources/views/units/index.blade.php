@@ -11,6 +11,33 @@
     <style>
         #unitDetailMap { z-index: 1; }
 
+        /* ── Modern Table — Separated Rounded Rows (matching Maintenance page) ── */
+        .modern-table-sep {
+            border-collapse: separate;
+            border-spacing: 0 0.55rem;
+        }
+        .modern-row {
+            background-color: white;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+            transition: all 0.2s ease-in-out;
+        }
+        .modern-row:hover {
+            box-shadow: 0 10px 15px -3px rgba(234, 179, 8, 0.18), 0 4px 6px -2px rgba(234, 179, 8, 0.08);
+            transform: translateY(-1px);
+        }
+        .modern-row td:first-child {
+            border-top-left-radius: 0.75rem;
+            border-bottom-left-radius: 0.75rem;
+            border-left: 4px solid transparent;
+        }
+        .modern-row:hover td:first-child {
+            border-left-color: #eab308;
+        }
+        .modern-row td:last-child {
+            border-top-right-radius: 0.75rem;
+            border-bottom-right-radius: 0.75rem;
+        }
+
         /* ── Live Status Dots ─────────────────────────────────── */
         .status-dot {
             display: inline-flex;
@@ -170,20 +197,20 @@
 
             <span class="text-gray-600 select-none">·</span>
 
-            <!-- On Road -->
+            <!-- Active Units -->
             <div class="flex items-center gap-2 px-3 py-1 rounded-full bg-green-500/20 hover:bg-green-500/30 transition-all cursor-default select-none">
                 <div class="w-2 h-2 rounded-full bg-green-400 animate-pulse shadow-[0_0_6px_rgba(74,222,128,0.8)]"></div>
-                <span class="text-[11px] font-bold text-green-300">On Road</span>
+                <span class="text-[11px] font-bold text-green-300">Active Units</span>
                 <span id="qs-onroad" class="text-[13px] font-black text-green-400 tabular-nums">{{ $stats['on_road'] ?? '—' }}</span>
             </div>
 
             <span class="text-gray-600 select-none">·</span>
 
-            <!-- Garage / Vacant -->
-            <div class="flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/20 hover:bg-blue-500/30 transition-all cursor-default select-none">
-                <div class="w-2 h-2 rounded-full bg-blue-400 animate-pulse shadow-[0_0_6px_rgba(96,165,250,0.8)]"></div>
-                <span class="text-[11px] font-bold text-blue-300">Garage</span>
-                <span id="qs-garage" class="text-[13px] font-black text-blue-400 tabular-nums">{{ $stats['garage'] ?? '—' }}</span>
+            <!-- At Risk -->
+            <div class="flex items-center gap-2 px-3 py-1 rounded-full bg-orange-500/20 hover:bg-orange-500/30 transition-all cursor-default select-none">
+                <div class="w-2 h-2 rounded-full bg-orange-400 animate-pulse shadow-[0_0_6px_rgba(251,146,60,0.8)]"></div>
+                <span class="text-[11px] font-bold text-orange-300">At Risk</span>
+                <span id="qs-garage" class="text-[13px] font-black text-orange-400 tabular-nums">{{ $stats['garage'] ?? '—' }}</span>
             </div>
 
             <span class="text-gray-600 select-none">·</span>
@@ -191,7 +218,7 @@
             <!-- Workshop / Maintenance -->
             <div class="flex items-center gap-2 px-3 py-1 rounded-full bg-yellow-500/20 hover:bg-yellow-500/30 transition-all cursor-default select-none">
                 <div class="w-2 h-2 rounded-full bg-yellow-400 animate-pulse shadow-[0_0_6px_rgba(250,204,21,0.8)]"></div>
-                <span class="text-[11px] font-bold text-yellow-300">Workshop</span>
+                <span class="text-[11px] font-bold text-yellow-300">Maintenance</span>
                 <span id="qs-workshop" class="text-[13px] font-black text-yellow-400 tabular-nums">{{ $stats['workshop'] ?? '—' }}</span>
             </div>
 
@@ -561,34 +588,34 @@
     </div>
 
     {{-- Edit Unit Modal --}}
-    <div id="editUnitModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden h-full w-full z-50 flex items-center justify-center p-4">
-        <div class="relative bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-
-            {{-- Modal Header --}}
-            <div class="bg-gradient-to-r from-blue-500 to-blue-700 p-6 rounded-t-lg">
+    <div id="editUnitModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-6xl h-[95vh] flex flex-col overflow-hidden">
+            {{-- Modal Header (Deep Navy matching Unit Details) --}}
+            <div class="bg-slate-800 p-4 shrink-0">
                 <div class="flex justify-between items-center">
                     <div class="flex items-center gap-3">
-                        <div class="p-3 bg-white bg-opacity-20 rounded-lg">
-                            <i data-lucide="edit-2" class="w-6 h-6 text-white"></i>
+                        <div class="p-2 bg-white bg-opacity-20 rounded-lg">
+                            <i data-lucide="edit-2" class="w-5 h-5 text-white"></i>
                         </div>
                         <div>
-                            <h3 class="text-2xl font-bold text-white">Edit Unit</h3>
-                            <p class="text-blue-100 text-sm">Update vehicle information and settings</p>
+                            <h3 class="text-lg font-bold text-white leading-tight">Edit Unit</h3>
+                            <p class="text-sm text-blue-100 leading-tight">Update vehicle information and settings</p>
                         </div>
                     </div>
-                    <button onclick="closeEditUnitModal()"
-                        class="text-white hover:bg-white hover:bg-opacity-20 rounded-lg p-2 transition-colors">
-                        <i data-lucide="x" class="w-6 h-6"></i>
+                    <button type="button" onclick="closeEditUnitModal()" class="text-white hover:text-gray-200 transition-colors">
+                        <i data-lucide="x" class="w-5 h-5"></i>
                     </button>
                 </div>
             </div>
 
             {{-- Form --}}
-            <form method="POST" id="editUnitForm" class="p-6">
+            <form method="POST" id="editUnitForm" class="flex flex-col flex-1 overflow-hidden">
                 @csrf @method('PUT')
-
-                {{-- Section 1: Basic Information --}}
-                <div class="mb-8">
+                
+                {{-- Scrolling Content Area --}}
+                <div class="p-6 flex-1 overflow-y-auto custom-scrollbar">
+                    {{-- Section 1: Basic Information --}}
+                    <div class="mb-8">
                     <div class="flex items-center gap-2 mb-4">
                         <div class="p-2 bg-blue-100 rounded-lg"><i data-lucide="info" class="w-5 h-5 text-blue-600"></i></div>
                         <h4 class="text-lg font-semibold text-gray-900">Basic Information</h4>
@@ -869,13 +896,17 @@
                         </div>
                     </div>
                 </div>
+                </div> {{-- End Scrolling Content Area --}}
 
-                <div class="flex gap-3 mt-6 pt-4 border-t">
-                    <button type="submit" class="flex-1 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold flex items-center justify-center gap-2">
-                        <i data-lucide="save" class="w-5 h-5"></i> Update Unit
-                    </button>
+                {{-- Fixed Footer --}}
+                <div class="p-4 border-t flex justify-end gap-3 shadow-inner bg-gray-50 shrink-0">
                     <button type="button" onclick="closeEditUnitModal()"
-                        class="flex-1 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-semibold">Cancel</button>
+                        class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 text-sm font-bold transition-all">
+                        Cancel
+                    </button>
+                    <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-bold shadow-lg shadow-blue-200/50 transition-all flex items-center gap-2">
+                        <i data-lucide="save" class="w-4 h-4"></i> Update Unit
+                    </button>
                 </div>
             </form>
         </div>
@@ -1651,13 +1682,8 @@
 
                 const roiPrgW = Math.min(100, Math.max(0, roiPct)).toFixed(1);
                 const invPerMonth = parseFloat(roi.total_investment || 0) / 12;
-                const mthBnd = parseFloat(roi.actual_monthly_revenue || roi.monthly_revenue || roi.monthly_boundary || 0);
-                const mthExp = parseFloat(roi.monthly_theoretical_target || 0);
-                
-                // Primary: Operational Efficiency (Actual Collection vs Theoretical Month Max)
-                // Fallback: Financial Target (Actual Collection vs Investment/12)
-                const targetAmount = mthExp > 0 ? mthExp : invPerMonth;
-                const bndPrgW = targetAmount > 0 ? Math.min(100, (mthBnd / targetAmount) * 100).toFixed(1) : 0;
+                const mthBnd = parseFloat(roi.monthly_revenue || roi.monthly_boundary || 0);
+                const bndPrgW = invPerMonth > 0 ? Math.min(100, (mthBnd / invPerMonth) * 100).toFixed(1) : 0;
 
                 document.getElementById('unitDetailsContent').innerHTML = `
                 <div class="space-y-6">
@@ -1916,7 +1942,7 @@
                                             </div>
                                             <div class="flex justify-between items-center">
                                                 <span class="text-gray-400 font-bold uppercase text-[10px] tracking-widest">Avg Monthly Revenue</span>
-                                                <span class="text-2xl font-black text-green-600">₱${mthBnd.toLocaleString('en-PH', {minimumFractionDigits:2})}</span>
+                                                <span class="text-2xl font-black text-green-600">₱${parseFloat(roi.monthly_revenue || roi.monthly_boundary || 0).toLocaleString('en-PH', {minimumFractionDigits:2})}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -1935,7 +1961,7 @@
                                             <div>
                                                 <div class="flex justify-between items-center mb-2">
                                                     <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Monthly Target Efficiency</span>
-                                                    <span class="text-sm font-black text-green-600">₱${targetAmount.toLocaleString('en-PH', {minimumFractionDigits:0})} Target</span>
+                                                    <span class="text-sm font-black text-green-600">₱${invPerMonth.toLocaleString('en-PH', {minimumFractionDigits:0})} Target</span>
                                                 </div>
                                                 <div class="w-full bg-gray-100 rounded-full h-4 p-1 shadow-inner">
                                                     <div class="bg-gradient-to-r from-green-400 to-emerald-600 h-2 rounded-full shadow-sm" style="width:${bndPrgW}%"></div>
@@ -2093,7 +2119,7 @@
                                         <div class="space-y-2 text-xs">
                                             <div class="flex justify-between items-center"><span class="text-gray-600">ROI %</span><span class="font-bold text-${roiColor}-600">${roiPct.toFixed(1)}%</span></div>
                                             <div class="flex justify-between items-center"><span class="text-gray-600">Payback</span><span class="font-bold text-blue-600">${parseFloat(roi.payback_period || 0).toFixed(1)} mths</span></div>
-                                            <div class="flex justify-between items-center"><span class="text-gray-600">Mth Rev</span><span class="font-bold text-green-600">₱${mthBnd.toLocaleString('en-PH', {minimumFractionDigits:2})}</span></div>
+                                            <div class="flex justify-between items-center"><span class="text-gray-600">Mth Rev</span><span class="font-bold text-green-600">₱${parseFloat(roi.monthly_revenue || roi.monthly_boundary || 0).toLocaleString('en-PH', {minimumFractionDigits:2})}</span></div>
                                         </div>
                                     </div>
                                     <div class="bg-white border border-gray-200 rounded-lg p-3">
@@ -2104,7 +2130,7 @@
                                                 <div class="w-full bg-gray-200 rounded-full h-2.5"><div class="bg-gradient-to-r from-purple-500 to-purple-600 h-2.5 rounded-full" style="width:${roiPrgW}%"></div></div>
                                             </div>
                                             <div>
-                                                <div class="flex justify-between items-center mb-1"><span class="text-[10px] text-gray-600">Monthly Target</span><span class="text-[10px] font-medium">₱${targetAmount.toLocaleString('en-PH', {minimumFractionDigits:0})}</span></div>
+                                                <div class="flex justify-between items-center mb-1"><span class="text-[10px] text-gray-600">Monthly Target</span><span class="text-[10px] font-medium">₱${invPerMonth.toLocaleString('en-PH', {minimumFractionDigits:0})}</span></div>
                                                 <div class="w-full bg-gray-200 rounded-full h-2.5"><div class="bg-gradient-to-r from-green-500 to-green-600 h-2.5 rounded-full" style="width:${bndPrgW}%"></div></div>
                                             </div>
                                         </div>
