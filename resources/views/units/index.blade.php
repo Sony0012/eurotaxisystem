@@ -250,31 +250,34 @@
     </div>
 
     {{-- Add Unit Modal --}}
-    <div id="addUnitModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden h-full w-full z-50 flex items-center justify-center p-4">
-        <div class="relative bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+    <div id="addUnitModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl h-[90vh] flex flex-col overflow-hidden">
 
-            {{-- Modal Header --}}
-            <div class="bg-gradient-to-r from-yellow-500 to-yellow-600 p-6 rounded-t-lg">
+            {{-- Modal Header (Dark Navy matching Add Driver) --}}
+            <div class="bg-slate-800 p-4 shrink-0">
                 <div class="flex justify-between items-center">
                     <div class="flex items-center gap-3">
-                        <div class="p-3 bg-white bg-opacity-20 rounded-lg">
-                            <i data-lucide="car" class="w-6 h-6 text-white"></i>
+                        <div class="p-2 bg-white bg-opacity-20 rounded-lg">
+                            <i data-lucide="car" class="w-5 h-5 text-white"></i>
                         </div>
                         <div>
-                            <h3 class="text-2xl font-bold text-white">Add New Unit</h3>
-                            <p class="text-yellow-100 text-sm">Enter vehicle information and add devices</p>
+                            <h3 class="text-lg font-bold text-white leading-tight">Add New Unit</h3>
+                            <p class="text-sm text-blue-100 leading-tight">Enter vehicle information and add devices</p>
                         </div>
                     </div>
                     <button onclick="document.getElementById('addUnitModal').classList.add('hidden'); resetAddUnitModal()"
-                        class="text-white hover:bg-white hover:bg-opacity-20 rounded-lg p-2 transition-colors">
-                        <i data-lucide="x" class="w-6 h-6"></i>
+                        class="text-white hover:text-gray-200 transition-colors">
+                        <i data-lucide="x" class="w-5 h-5"></i>
                     </button>
                 </div>
             </div>
 
             {{-- Form --}}
-            <form method="POST" action="{{ route('units.store') }}" id="addUnitForm" class="p-6">
+            <form method="POST" action="{{ route('units.store') }}" id="addUnitForm" class="flex flex-col flex-1 overflow-hidden">
                 @csrf
+
+                {{-- Scrollable Content Area --}}
+                <div class="p-6 flex-1 overflow-y-auto space-y-8 custom-scrollbar">
 
                 {{-- Section 1: Basic Information --}}
                 <div class="mb-8">
@@ -292,7 +295,7 @@
                                     <i data-lucide="credit-card" class="w-5 h-5 text-gray-400"></i>
                                 </div>
                                 <input type="text" name="plate_number" id="addPlateNumber" required
-                                    class="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                                    class="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                     placeholder="e.g., ABC 123"
                                     oninput="this.value = this.value.toUpperCase(); addUnitUpdateCoding()">
                             </div>
@@ -312,21 +315,21 @@
                         <div class="space-y-2">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Make <span class="text-red-500">*</span></label>
                             <input type="text" name="make" required
-                                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                 placeholder="e.g., Toyota, Honda, Nissan"
                                 oninput="this.value = this.value.toUpperCase()">
                         </div>
                         <div class="space-y-2">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Model <span class="text-red-500">*</span></label>
                             <input type="text" name="model" required
-                                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                 placeholder="e.g., Vios, Civic, Sentra"
                                 oninput="this.value = this.value.toUpperCase()">
                         </div>
                         <div class="space-y-2">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Year <span class="text-red-500">*</span></label>
                             <input type="number" name="year" required min="2000" max="{{ date('Y') }}" value="{{ date('Y') }}"
-                                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                 placeholder="e.g., 2023">
                         </div>
                         <div class="space-y-2">
@@ -363,7 +366,7 @@
                                     <span class="text-gray-500 text-sm">₱</span>
                                 </div>
                                 <input type="text" name="boundary_rate" id="addBoundaryRate" required value="1,100.00"
-                                    class="w-full pl-8 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                                    class="w-full pl-8 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                     placeholder="0.00"
                                     onfocus="unformatCurrencyInput(this)"
                                     onblur="formatCurrencyInput(this)">
@@ -377,7 +380,7 @@
                                     <span class="text-gray-500 text-sm">₱</span>
                                 </div>
                                 <input type="text" name="purchase_cost" id="addPurchaseCost" value="0.00"
-                                    class="w-full pl-8 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                                    class="w-full pl-8 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                     placeholder="0.00"
                                     onfocus="unformatCurrencyInput(this)"
                                     onblur="formatCurrencyInput(this)">
@@ -391,7 +394,7 @@
                                     <i data-lucide="calendar" class="w-4 h-4 text-gray-400"></i>
                                 </div>
                                 <input type="date" name="purchase_date"
-                                    class="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent">
+                                    class="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                             </div>
                             <p class="text-xs text-gray-500">When the unit was purchased</p>
                         </div>
@@ -416,7 +419,7 @@
                                 </div>
                                 <input type="text" id="add_driver1_search" autocomplete="off"
                                     placeholder="Start typing to search drivers..."
-                                    class="w-full pl-10 pr-10 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                                    class="w-full pl-10 pr-10 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                     onkeyup="addUnitFilterDrivers('add_driver1')"
                                     onfocus="addUnitShowDropdown('add_driver1')"
                                     onblur="setTimeout(()=>addUnitHideDropdown('add_driver1'), 200)"
@@ -447,7 +450,7 @@
                                 </div>
                                 <input type="text" id="add_driver2_search" autocomplete="off"
                                     placeholder="Start typing to search drivers..."
-                                    class="w-full pl-10 pr-10 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                                    class="w-full pl-10 pr-10 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                     onkeyup="addUnitFilterDrivers('add_driver2')"
                                     onfocus="addUnitShowDropdown('add_driver2')"
                                     onblur="setTimeout(()=>addUnitHideDropdown('add_driver2'), 200)"
@@ -575,13 +578,17 @@
                     </div>
                 </div>
 
-                {{-- Form Actions --}}
-                <div class="flex gap-3 mt-6 pt-4 border-t">
-                    <button type="submit" class="flex-1 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-semibold flex items-center justify-center gap-2">
-                        <i data-lucide="plus-circle" class="w-5 h-5"></i> Add Unit
-                    </button>
+                </div>{{-- End Scrollable Content --}}
+
+                {{-- Fixed Footer (matching Add Driver) --}}
+                <div class="p-4 border-t flex justify-end gap-3 shadow-inner bg-gray-50 shrink-0">
                     <button type="button" onclick="document.getElementById('addUnitModal').classList.add('hidden'); resetAddUnitModal()"
-                        class="flex-1 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-semibold">Cancel</button>
+                        class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 text-sm font-bold transition-all">
+                        Cancel
+                    </button>
+                    <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-bold shadow-lg shadow-blue-200/50 transition-all flex items-center gap-2">
+                        <i data-lucide="plus-circle" class="w-4 h-4"></i> Add Unit
+                    </button>
                 </div>
             </form>
         </div>
