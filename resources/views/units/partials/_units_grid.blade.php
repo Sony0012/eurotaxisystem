@@ -100,19 +100,36 @@
                     <span class="text-[9px] font-black text-gray-400 uppercase tracking-tighter leading-none mb-1">Serial Info</span>
                     <span class="text-xs font-bold text-gray-800">{{ $unit->motor_no ? substr($unit->motor_no, -8) : 'N/A' }}</span>
                 </div>
-                <div class="flex gap-2">
-                    <button onclick="event.stopPropagation(); editUnit({{ $unit->id }})" 
-                        class="w-9 h-9 flex items-center justify-center bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-600 hover:text-white transition-all border border-blue-100 shadow-sm active:scale-95">
-                        <i data-lucide="edit-3" class="w-4 h-4"></i>
+
+                {{-- Three-dots dropdown --}}
+                <div class="relative">
+                    <button type="button"
+                        class="p-2 text-gray-400 hover:text-gray-800 hover:bg-gray-100 rounded-full transition-colors focus:outline-none"
+                        onclick="toggleUnitDropdown('grid-unit-dropdown-{{ $unit->id }}', event)"
+                        title="Actions">
+                        <i data-lucide="more-vertical" class="w-5 h-5"></i>
                     </button>
-                    <form method="POST" action="{{ route('units.destroy', $unit->id) }}"
-                        onsubmit="return confirm('Delete unit {{ $unit->plate_number }}?');" class="inline m-0 p-0">
-                        @csrf @method('DELETE')
-                        <button type="submit" onclick="event.stopPropagation()"
-                            class="w-9 h-9 flex items-center justify-center bg-red-50 text-red-600 rounded-xl hover:bg-red-600 hover:text-white transition-all border border-red-100 shadow-sm active:scale-95">
-                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+
+                    <div id="grid-unit-dropdown-{{ $unit->id }}"
+                        class="unit-action-dropdown hidden absolute right-0 bottom-10 w-40 bg-white rounded-lg shadow-xl border border-gray-100 z-50 overflow-hidden">
+                        {{-- Edit --}}
+                        <button type="button"
+                            class="w-full text-left px-4 py-2.5 text-xs font-bold text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors flex items-center gap-2"
+                            onclick="event.stopPropagation(); document.getElementById('grid-unit-dropdown-{{ $unit->id }}').classList.add('hidden'); editUnit({{ $unit->id }})">
+                            <i data-lucide="edit-2" class="w-4 h-4"></i> Edit Unit
                         </button>
-                    </form>
+                        {{-- Archive --}}
+                        <form method="POST" action="{{ route('units.destroy', $unit->id) }}"
+                            onsubmit="return confirm('Archive unit {{ $unit->plate_number }}? It will be moved to the Archive page.');"
+                            class="m-0 p-0">
+                            @csrf @method('DELETE')
+                            <button type="submit"
+                                onclick="event.stopPropagation()"
+                                class="w-full text-left px-4 py-2.5 text-xs font-bold text-amber-600 hover:bg-amber-50 transition-colors flex items-center gap-2 border-t border-gray-50">
+                                <i data-lucide="archive" class="w-4 h-4"></i> Archive Unit
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
