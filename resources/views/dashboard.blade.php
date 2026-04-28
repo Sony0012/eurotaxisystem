@@ -107,7 +107,7 @@
                     <p class="text-emerald-200 text-xs font-medium">Target: <span class="text-white font-bold" data-stat="daily_target">{{ formatCurrency($stats['daily_target']) }}</span></p>
                 </div>
                 <div class="p-3 rounded-2xl" style="background: rgba(255,255,255,0.15); backdrop-filter: blur(8px);">
-                    <i data-lucide="dollar-sign" class="w-7 h-7 text-white"></i>
+                    <i data-lucide="banknote" class="w-7 h-7 text-white"></i>
                 </div>
             </div>
         </div>
@@ -116,18 +116,10 @@
         <div onclick="showNetIncomeModal()" class="card-hover cursor-pointer group relative overflow-hidden rounded-2xl shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl" style="background: linear-gradient(135deg, #14532d 0%, #16a34a 60%, #4ade80 100%);">
             <div class="absolute inset-0 opacity-10" style="background: radial-gradient(circle at 80% 20%, #fff 0%, transparent 60%);"></div>
             <div class="relative p-5 flex items-center justify-between">
-                <div class="flex-1">
-                    <p class="text-green-200 text-[10px] font-black uppercase tracking-widest mb-1" id="netIncomeLabel">Net Income Today</p>
-                    <p class="text-white text-2xl font-black leading-none mb-2" data-stat="net_income">{{ formatCurrency($stats['net_income']) }}</p>
-                    
-                    <div class="flex gap-1.5 pt-1">
-                        <button onclick="event.stopPropagation(); updateNetIncomeStat('today', this)" 
-                            class="net-income-btn px-2.5 py-1 text-[8px] font-black uppercase tracking-widest bg-white text-green-900 rounded-lg transition-all active:scale-95 shadow-lg shadow-black/10">Today</button>
-                        <button onclick="event.stopPropagation(); updateNetIncomeStat('month', this)" 
-                            class="net-income-btn px-2.5 py-1 text-[8px] font-black uppercase tracking-widest bg-white/20 text-white rounded-lg hover:bg-white/30 transition-all active:scale-95">Month</button>
-                        <button onclick="event.stopPropagation(); updateNetIncomeStat('year', this)" 
-                            class="net-income-btn px-2.5 py-1 text-[8px] font-black uppercase tracking-widest bg-white/20 text-white rounded-lg hover:bg-white/30 transition-all active:scale-95">Year</button>
-                    </div>
+                <div>
+                    <p class="text-green-200 text-xs font-semibold uppercase tracking-widest mb-1">Net Income Today</p>
+                    <p class="text-white text-2xl font-black leading-none mb-1" data-stat="net_income">{{ formatCurrency($stats['net_income']) }}</p>
+                    <p class="text-green-200 text-xs font-medium">After all expenses</p>
                 </div>
                 <div class="p-3 rounded-2xl" style="background: rgba(255,255,255,0.15); backdrop-filter: blur(8px);">
                     <i data-lucide="trending-up" class="w-7 h-7 text-white"></i>
@@ -771,7 +763,7 @@
         <div class="flex-1 overflow-hidden flex flex-col min-h-0">
             <!-- Detailed Report Document (Integrated) -->
             <div class="bg-gray-50 p-4 border-b border-gray-200 flex-shrink-0 print-section overflow-y-auto max-h-[85vh]">
-                <div class="max-w-4xl mx-auto bg-white border border-gray-200 rounded-xl p-6 shadow-sm relative" id="incomeReport">
+                <div class="max-w-5xl mx-auto bg-white border border-gray-200 rounded-xl p-6 shadow-sm relative" id="incomeReport">
                     <!-- Report Header (Print Only) -->
                     <div class="text-center mb-10 print-only">
                         <div class="flex flex-col items-center mb-4">
@@ -831,24 +823,7 @@
                         </div>
                     </div>
                     
-                    <!-- Computation Summary Box -->
-                    <div class="bg-gray-100 border-2 border-gray-900 p-6 rounded-xl shadow-sm mb-6">
-                        <div class="flex justify-between items-end mb-2">
-                            <span class="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em]">Computation Summary</span>
-                            <div class="flex items-center gap-1">
-                                <i data-lucide="shield-check" class="w-3 h-3 text-green-600"></i>
-                                <span class="text-[9px] text-green-600 font-black italic uppercase tracking-wider">verified</span>
-                            </div>
-                        </div>
-                        <div class="flex justify-between items-center text-3xl font-black text-gray-900 tracking-tighter">
-                            <span>NET INCOME</span>
-                            <span class="text-emerald-700" id="reportNetIncome">₱0.00</span>
-                        </div>
-                        <div class="flex justify-between text-[10px] mt-4 pt-3 border-t border-gray-300 text-gray-500 font-black">
-                            <span class="uppercase tracking-widest">Efficiency Profit Margin</span>
-                            <span class="text-gray-900 font-black" id="reportProfitMargin">0.0%</span>
-                        </div>
-                    </div>
+                    
                     
                     <!-- Report Footer (Print Only) -->
                     <div class="text-center mt-8 pt-6 border-t border-gray-100 print-only">
@@ -878,7 +853,7 @@
                     </div>
                 </div>
                 <div class="flex items-center gap-3">
-                    <button onclick="window.print()" class="flex items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg font-black text-xs uppercase tracking-widest transition-all border border-white/20">
+                    <button onclick="printExpensesNewTab()" class="flex items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg font-black text-xs uppercase tracking-widest transition-all border border-white/20">
                         <i data-lucide="printer" class="w-4 h-4"></i>
                         Print Expenses
                     </button>
@@ -902,11 +877,11 @@
         <div class="flex-1 overflow-hidden flex flex-col min-h-0">
             <!-- Detailed Report Document (Expenses Focused) -->
             <div class="bg-gray-50 p-4 border-b border-gray-200 flex-shrink-0 print-section overflow-y-auto max-h-[85vh]">
-                <div class="max-w-4xl mx-auto bg-white border border-gray-200 rounded-xl p-6 shadow-sm relative" id="expensesReport">
+                <div class="max-w-5xl mx-auto bg-white border border-gray-200 rounded-xl p-6 shadow-sm relative" id="expensesReport">
                     <!-- Report Header (Print Only) -->
                     <div class="text-center mb-10 print-only">
                         <div class="flex flex-col items-center mb-4">
-                            <img src="{{ asset('image/logo.png') }}" alt="Euro Taxi Logo" class="h-16 w-auto mb-2">
+                            <img src="{{ asset('image/logo.png') }}" alt="Euro Taxi Logo" class="h-16 w-auto mb-2" style="height:64px; width:auto;">
                         </div>
                         <h4 class="text-4xl font-black uppercase tracking-[0.4em] text-gray-900 mb-2">Expense Statement</h4>
                         <div class="text-base text-gray-600 uppercase font-black tracking-widest" id="expensesPeriodLabelPrint">Period: TODAY</div>
@@ -941,21 +916,8 @@
                         </div>
                     </div>
                     
-                    <!-- Computation Summary Box -->
-                    <div class="bg-gray-100 border-2 border-red-900 p-6 rounded-xl shadow-sm mb-6">
-                        <div class="flex justify-between items-end mb-2">
-                            <span class="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em]">Computation Summary</span>
-                            <div class="flex items-center gap-1">
-                                <i data-lucide="check-circle" class="w-3 h-3 text-red-600"></i>
-                                <span class="text-[9px] text-red-600 font-black italic uppercase tracking-wider">calculated</span>
-                            </div>
-                        </div>
-                        <div class="flex justify-between items-center text-3xl font-black text-gray-900 tracking-tighter">
-                            <span>TOTAL OPERATING EXPENSES</span>
-                            <span class="text-red-700" id="finalExpensesTotal">₱0.00</span>
-                        </div>
-                    </div>
                     
+
                     <!-- Report Footer (Print Only) -->
                     <div class="text-center mt-8 pt-6 border-t border-gray-100 print-only">
                         <p class="text-[10px] text-gray-400 font-black uppercase tracking-[0.2em] mb-1">Authenticated Expense Summary</p>
@@ -2738,17 +2700,32 @@
                 if (!el) return;
                 
                 if (items.length > 0) {
-                    el.innerHTML = items.map(item => `
-                        <div class="px-6 py-2 flex justify-between items-center hover:bg-gray-50/50 transition-colors border-b border-gray-50 last:border-0">
-                            <div class="flex flex-col">
-                                <span class="text-[10px] font-black text-gray-800 tracking-tight leading-tight">${item.description}</span>
-                                <span class="text-[8px] text-gray-400 font-bold uppercase">${item.date}</span>
-                            </div>
-                            <span class="text-xs font-black ${id === 'revenueDetailList' ? 'text-emerald-600' : 'text-red-500'}">${fmt(item.amount)}</span>
-                        </div>
-                    `).join('');
+                    el.innerHTML = `
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-gray-50/50 border-b border-gray-100 text-[8px] uppercase tracking-widest text-gray-400">
+                                    <th class="px-6 py-2 font-bold w-1/4">Date</th>
+                                    <th class="px-6 py-2 font-bold w-1/2">Description</th>
+                                    <th class="px-6 py-2 font-bold text-right w-1/4">Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-50">
+                                ${items.map(item => `
+                                    <tr class="hover:bg-gray-50/50 transition-colors">
+                                        <td class="px-6 py-2 text-[9px] text-gray-400 font-bold uppercase whitespace-nowrap">${item.date}</td>
+                                        <td class="px-6 py-2 text-[10px] font-black text-gray-800 tracking-tight">${item.description}</td>
+                                        <td class="px-6 py-2 text-xs font-black ${id === 'revenueDetailList' ? 'text-emerald-600' : 'text-red-500'} text-right whitespace-nowrap">${fmt(item.amount)}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    `;
                 } else {
-                    el.innerHTML = '';
+                    el.innerHTML = `
+                        <div class="px-6 py-4 text-center text-[10px] font-bold text-gray-400 uppercase tracking-widest border-b border-gray-50">
+                            No records found
+                        </div>
+                    `;
                 }
             };
 
@@ -2764,7 +2741,56 @@
         }
 
         function printReport() {
-            window.print();
+            const content = document.getElementById('incomeReport').innerHTML;
+            const periodLabel = document.getElementById('reportPeriodLabelPrint');
+            const period = periodLabel ? periodLabel.textContent : 'TODAY';
+
+            const win = window.open('', '_blank');
+            if (!win) {
+                window.print();
+                return;
+            }
+
+            win.document.write(`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial Report &mdash; ${period}</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: #fff; font-family: 'Segoe UI', system-ui, sans-serif; padding: 40px; color: #111; }
+        h1 { text-align: center; font-size: 24px; font-weight: 900; text-transform: uppercase; letter-spacing: .15em; margin-bottom: 4px; }
+        .subtitle { text-align: center; font-size: 11px; color: #64748b; font-weight: 700; letter-spacing: .15em; text-transform: uppercase; margin-bottom: 32px; }
+        .section-header { display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; border-radius: 6px 6px 0 0; }
+        .sub-header { display: flex; justify-content: space-between; background: #f8f8f8; padding: 6px 20px; border-left: 1px solid #eee; border-right: 1px solid #eee; font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: .12em; color: #94a3b8; }
+        table { width: 100%; border-collapse: collapse; border: 1px solid #f0f0f0; border-top: none; margin-bottom: 24px; }
+        thead tr { background: #f8fafc; border-bottom: 1px solid #e2e8f0; }
+        thead th { padding: 8px 20px; font-size: 8px; text-transform: uppercase; letter-spacing: .12em; color: #94a3b8; font-weight: 700; text-align: left; }
+        thead th:last-child { text-align: right; }
+        tbody tr { border-bottom: 1px solid #f8f8f8; }
+        td { padding: 8px 20px; font-size: 11px; color: #1e293b; }
+        td:last-child { text-align: right; font-weight: 900; white-space: nowrap; }
+        .no-records { padding: 16px 20px; text-align: center; font-size: 10px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: .1em; border: 1px solid #f0f0f0; border-top: none; margin-bottom: 24px; }
+        .footer { text-align: center; margin-top: 40px; padding-top: 16px; border-top: 1px solid #e2e8f0; font-size: 9px; color: #94a3b8; }
+        img { max-height: 64px !important; width: auto !important; display: block; margin: 0 auto 8px auto; }
+        .print-only { display: block !important; }
+        @media print { body { padding: 20px; } }
+    </style>
+</head>
+<body>
+    <h1>Financial Report</h1>
+    <p class="subtitle">Euro Taxi Management System &mdash; ${period}</p>
+    ${content}
+    <div class="footer">
+        <p>Authenticated Financial Statement &mdash; Generated: ${new Date().toLocaleString()}</p>
+    </div>
+</body>
+</html>`);
+
+            win.document.close();
+            win.focus();
+            setTimeout(() => { win.print(); }, 300);
         }
 
         // --- Expenses Modal Functions ---
@@ -2819,6 +2845,63 @@
             }
         }
 
+        function printExpensesNewTab() {
+            const content = document.getElementById('expensesReport').innerHTML;
+            const periodLabel = document.getElementById('expensesPeriodLabelPrint');
+            const period = periodLabel ? periodLabel.textContent : 'TODAY';
+
+            const win = window.open('', '_blank');
+            if (!win) {
+                window.print();
+                return;
+            }
+
+            win.document.write(`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expense Statement &mdash; ${period}</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: #fff; font-family: 'Segoe UI', system-ui, sans-serif; padding: 40px; color: #111; }
+        h1 { text-align: center; font-size: 24px; font-weight: 900; text-transform: uppercase; letter-spacing: .15em; margin-bottom: 4px; }
+        .subtitle { text-align: center; font-size: 11px; color: #64748b; font-weight: 700; letter-spacing: .15em; text-transform: uppercase; margin-bottom: 32px; }
+        .section-header { display: flex; justify-content: space-between; align-items: center; background: #7f1d1d; color: white; padding: 10px 20px; border-radius: 6px 6px 0 0; }
+        .section-header span { font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: .08em; }
+        .sub-header { display: flex; justify-content: space-between; background: #f8f8f8; padding: 6px 20px; border-left: 1px solid #eee; border-right: 1px solid #eee; font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: .12em; color: #94a3b8; }
+        .sub-total { color: #dc2626; }
+        table { width: 100%; border-collapse: collapse; border: 1px solid #f0f0f0; border-top: none; margin-bottom: 24px; }
+        thead tr { background: #f8fafc; border-bottom: 1px solid #e2e8f0; }
+        thead th { padding: 8px 20px; font-size: 8px; text-transform: uppercase; letter-spacing: .12em; color: #94a3b8; font-weight: 700; text-align: left; }
+        thead th:last-child { text-align: right; }
+        tbody tr { border-bottom: 1px solid #f8f8f8; }
+        tbody tr:hover { background: #fafafa; }
+        td { padding: 8px 20px; font-size: 11px; color: #1e293b; }
+        td.date { color: #94a3b8; font-weight: 700; font-size: 9px; text-transform: uppercase; }
+        td.amount { text-align: right; font-weight: 900; color: #dc2626; white-space: nowrap; }
+        .no-records { padding: 16px 20px; text-align: center; font-size: 10px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: .1em; border: 1px solid #f0f0f0; border-top: none; margin-bottom: 24px; }
+        .footer { text-align: center; margin-top: 40px; padding-top: 16px; border-top: 1px solid #e2e8f0; font-size: 9px; color: #94a3b8; }
+        img { max-height: 64px !important; width: auto !important; display: block; margin: 0 auto 8px auto; }
+        .print-only { display: block !important; }
+        @media print { body { padding: 20px; } }
+    </style>
+</head>
+<body>
+    <h1>Expense Statement</h1>
+    <p class="subtitle">Euro Taxi Management System &mdash; ${period}</p>
+    ${content}
+    <div class="footer">
+        <p>Authenticated Expense Summary &mdash; Generated: ${new Date().toLocaleString()}</p>
+    </div>
+</body>
+</html>`);
+
+            win.document.close();
+            win.focus();
+            setTimeout(() => { win.print(); }, 300);
+        }
+
         function renderExpensesReport(data) {
             const breakdown = {
                 maintenanceTotal: 0,
@@ -2860,17 +2943,32 @@
                 if (!el) return;
                 
                 if (items.length > 0) {
-                    el.innerHTML = items.map(item => `
-                        <div class="px-6 py-2 flex justify-between items-center hover:bg-gray-50/50 transition-colors border-b border-gray-50 last:border-0">
-                            <div class="flex flex-col">
-                                <span class="text-[10px] font-black text-gray-800 tracking-tight leading-tight">${item.description}</span>
-                                <span class="text-[8px] text-gray-400 font-bold uppercase">${item.date}</span>
-                            </div>
-                            <span class="text-xs font-black text-red-500">${fmt(item.amount)}</span>
-                        </div>
-                    `).join('');
+                    el.innerHTML = `
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-gray-50/50 border-b border-gray-100 text-[8px] uppercase tracking-widest text-gray-400">
+                                    <th class="px-6 py-2 font-bold w-1/4">Date</th>
+                                    <th class="px-6 py-2 font-bold w-1/2">Description</th>
+                                    <th class="px-6 py-2 font-bold text-right w-1/4">Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-50">
+                                ${items.map(item => `
+                                    <tr class="hover:bg-gray-50/50 transition-colors">
+                                        <td class="px-6 py-2 text-[9px] text-gray-400 font-bold uppercase whitespace-nowrap">${item.date}</td>
+                                        <td class="px-6 py-2 text-[10px] font-black text-gray-800 tracking-tight">${item.description}</td>
+                                        <td class="px-6 py-2 text-xs font-black text-red-500 text-right whitespace-nowrap">${fmt(item.amount)}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    `;
                 } else {
-                    el.innerHTML = '';
+                    el.innerHTML = `
+                        <div class="px-6 py-4 text-center text-[10px] font-bold text-gray-400 uppercase tracking-widest border-b border-gray-50">
+                            No records found
+                        </div>
+                    `;
                 }
             };
 
@@ -3562,40 +3660,6 @@
             filterUnits();
         }
         
-        window.currentNetIncomeFilter = 'today';
-
-        function updateNetIncomeStat(filter, btn) {
-            window.currentNetIncomeFilter = filter;
-            
-            // Update UI buttons
-            document.querySelectorAll('.net-income-btn').forEach(b => {
-                b.classList.remove('bg-white', 'text-green-900', 'shadow-lg', 'shadow-black/10');
-                b.classList.add('bg-white/20', 'text-white');
-            });
-            
-            btn.classList.remove('bg-white/20', 'text-white');
-            btn.classList.add('bg-white', 'text-green-900', 'shadow-lg', 'shadow-black/10');
-            
-            // Update Label
-            const labels = { 'today': 'Net Income Today', 'month': 'Net Income Monthly', 'year': 'Net Income Yearly' };
-            document.getElementById('netIncomeLabel').textContent = labels[filter];
-
-            // Immediate Refresh
-            refreshDashboard();
-        }
-
-        function refreshDashboard() {
-            const filter = window.currentNetIncomeFilter || 'today';
-            fetch(`{{ url('/api/dashboard/realtime') }}?net_income_filter=${filter}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.stats) {
-                        updateDashboardStats(data.stats);
-                    }
-                })
-                .catch(err => console.error('Error refreshing stats:', err));
-        }
-
         function clearSearch() {
             document.getElementById('unitSearchInput').value = '';
             setUnitStatusFilter('all');
