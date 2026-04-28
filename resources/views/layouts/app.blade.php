@@ -159,9 +159,9 @@
         @endphp
 
         <!-- Main Layout -->
-        <div class="flex h-screen overflow-hidden">
+        <div class="flex h-screen overflow-hidden" id="appLayout">
             <!-- Sidebar -->
-            <aside class="w-16 lg:w-60 bg-white shadow-lg flex-shrink-0 transition-all duration-300 overflow-x-hidden">
+            <aside id="appSidebar" class="w-16 lg:w-60 bg-white shadow-lg flex-shrink-0 transition-all duration-300 overflow-x-hidden">
                 <div class="h-full flex flex-col">
                     <!-- Logo -->
                     <div class="p-2 lg:p-4 border-b flex flex-col items-center">
@@ -354,7 +354,7 @@
             </aside>
 
             <!-- Main Content -->
-            <main class="flex-1 flex flex-col overflow-hidden">
+            <main id="appMainContent" class="flex-1 flex flex-col overflow-hidden">
                 <!-- Top Bar -->
                 <header class="bg-white shadow-sm border-b px-6 py-2">
                     <div class="flex items-center justify-between">
@@ -440,7 +440,7 @@
                 </header>
 
                 <!-- Page Content -->
-                <div class="flex-1 overflow-y-auto @yield('main-padding', 'p-4')">
+                <div id="appContentArea" class="flex-1 overflow-y-auto @yield('main-padding', 'p-4')">
                     {{-- Flash Messages --}}
                     @foreach(['success', 'error', 'warning', 'info'] as $type)
                         @if(session($type))
