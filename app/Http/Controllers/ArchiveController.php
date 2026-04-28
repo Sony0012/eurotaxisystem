@@ -10,6 +10,7 @@ use App\Models\Boundary;
 use App\Models\Maintenance;
 use App\Models\FranchiseCase;
 use App\Models\Staff;
+
 use Illuminate\Support\Facades\DB;
 
 class ArchiveController extends Controller
@@ -31,6 +32,8 @@ class ArchiveController extends Controller
                 'u.plate_number',
                 DB::raw("TRIM(CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,''))) as driver_name")
             )->get();
+
+
 
         return view('archive.index', compact(
             'archivedUnits',
@@ -87,6 +90,7 @@ class ArchiveController extends Controller
             'franchise_case' => FranchiseCase::class,
             'staff' => Staff::class,
             'incident' => \App\Models\DriverBehavior::class,
+
             default => null,
         };
     }
