@@ -199,14 +199,35 @@
     window.toggleUnitDropdown = function(id, event) {
         event.stopPropagation();
 
-        // Close all other unit dropdowns
+        // Close all other unit dropdowns and reset their row z-index
         document.querySelectorAll('.unit-action-dropdown').forEach(el => {
             if (el.id !== id) el.classList.add('hidden');
+            const row = el.closest('tr');
+            if (row) {
+                row.style.zIndex = '';
+                row.style.position = '';
+            }
         });
 
         // Toggle this dropdown
         const dropdown = document.getElementById(id);
-        if (dropdown) dropdown.classList.toggle('hidden');
+        if (dropdown) {
+            const isHidden = dropdown.classList.contains('hidden');
+            const row = dropdown.closest('tr');
+            if (isHidden) {
+                dropdown.classList.remove('hidden');
+                if (row) {
+                    row.style.position = 'relative';
+                    row.style.zIndex = '50';
+                }
+            } else {
+                dropdown.classList.add('hidden');
+                if (row) {
+                    row.style.zIndex = '';
+                    row.style.position = '';
+                }
+            }
+        }
     };
 
     // Attach document-level close listener only once
@@ -214,6 +235,11 @@
         document.addEventListener('click', function () {
             document.querySelectorAll('.unit-action-dropdown').forEach(el => {
                 el.classList.add('hidden');
+                const row = el.closest('tr');
+                if (row) {
+                    row.style.zIndex = '';
+                    row.style.position = '';
+                }
             });
         });
         window.unitDropdownListenerAdded = true;
