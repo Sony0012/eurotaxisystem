@@ -4,6 +4,33 @@
 @section('page-subheading', 'Manage automated boundary targets based on vehicle year models.')
 
 @section('content')
+<style>
+    .modern-table-sep {
+        border-collapse: separate;
+        border-spacing: 0 0.75rem;
+    }
+    .modern-row {
+        background-color: white;
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+        transition: all 0.2s ease-in-out;
+    }
+    .modern-row:hover {
+        box-shadow: 0 10px 15px -3px rgba(234, 179, 8, 0.2), 0 4px 6px -2px rgba(234, 179, 8, 0.1);
+        transform: translateY(-2px);
+    }
+    .modern-row td:first-child {
+        border-top-left-radius: 0.75rem;
+        border-bottom-left-radius: 0.75rem;
+        border-left: 4px solid transparent;
+    }
+    .modern-row:hover td:first-child {
+        border-left-color: #eab308;
+    }
+    .modern-row td:last-child {
+        border-top-right-radius: 0.75rem;
+        border-bottom-right-radius: 0.75rem;
+    }
+</style>
 <div class="space-y-6">
     <!-- Action Bar -->
     <div class="bg-white rounded-lg shadow p-6 mb-6">
@@ -26,28 +53,28 @@
     </div>
 
     <!-- Rules Table -->
-    <div class="bg-white rounded-lg shadow overflow-hidden">
-        <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
+    <div class="overflow-x-auto">
+        <table class="min-w-full modern-table-sep">
+            <thead>
                 <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Bracket Name</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Year Range</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider text-center">Regular Rate</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider text-center">Sat Disc</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider text-center">Sun Disc</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider text-center">Coding Rate</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider text-right">Actions</th>
+                    <th class="px-6 py-1 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Bracket Name</th>
+                    <th class="px-6 py-1 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Year Range</th>
+                    <th class="px-6 py-1 text-center text-[10px] font-black text-gray-400 uppercase tracking-widest">Regular Rate</th>
+                    <th class="px-6 py-1 text-center text-[10px] font-black text-gray-400 uppercase tracking-widest">Sat Disc</th>
+                    <th class="px-6 py-1 text-center text-[10px] font-black text-gray-400 uppercase tracking-widest">Sun Disc</th>
+                    <th class="px-6 py-1 text-center text-[10px] font-black text-gray-400 uppercase tracking-widest">Coding Rate</th>
+                    <th class="px-6 py-1 text-center text-[10px] font-black text-gray-400 uppercase tracking-widest">Actions</th>
                 </tr>
             </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
+            <tbody>
                 @forelse($rules as $rule)
-                <tr class="hover:bg-gray-50">
+                <tr class="modern-row group transition-all duration-300">
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         <div class="flex items-center gap-3">
                             <div class="p-1.5 bg-yellow-50 rounded text-yellow-600">
                                 <i data-lucide="shield-check" class="w-4 h-4"></i>
                             </div>
-                            <span class="font-medium">{{ $rule->name }}</span>
+                            <span class="font-medium group-hover:text-yellow-700 transition-colors">{{ $rule->name }}</span>
                         </div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
@@ -66,19 +93,13 @@
                             </span>
                         </div>
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <div class="flex justify-end gap-3 text-yellow-600">
-                            <button onclick="openEditRuleModal({{ json_encode($rule) }})" class="hover:text-yellow-900" title="Edit Rule">
-                                <i data-lucide="edit" class="w-4 h-4"></i>
-                            </button>
-                            <form action="{{ route('boundary-rules.destroy', $rule->id) }}" method="POST" onsubmit="return confirm('Archive this pricing rule?');" class="inline">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="text-red-500 hover:text-red-700" title="Delete Rule">
-                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
-                                </button>
-                            </form>
-                        </div>
+                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                        <button type="button"
+                            class="px-4 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-600 hover:text-white transition-all duration-200 flex items-center gap-2 font-bold shadow-sm group mx-auto"
+                            onclick="openEditRuleModal({{ json_encode($rule) }})">
+                            <i data-lucide="edit-2" class="w-4 h-4 group-hover:scale-110 transition-transform"></i>
+                            <span>Edit Bracket</span>
+                        </button>
                     </td>
                 </tr>
                 @empty
@@ -98,77 +119,110 @@
 </div>
 
 <!-- Add/Edit Modal -->
-<div id="ruleModal" class="fixed inset-0 z-[100] hidden overflow-y-auto">
-    <div class="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity"></div>
-    <div class="flex min-h-screen items-center justify-center p-4">
-        <div class="relative w-full max-w-lg transform rounded-2xl bg-white shadow-2xl transition-all">
-            <!-- Header -->
-            <div class="flex items-center justify-between border-b px-6 py-4">
-                <h3 id="ruleModalTitle" class="text-xl font-bold text-gray-900">Add Pricing Bracket</h3>
-                <button onclick="closeRuleModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
-                    <i data-lucide="x" class="w-6 h-6"></i>
+<div id="ruleModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden z-[100] flex items-center justify-center p-4 transition-all">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[95vh] flex flex-col overflow-hidden">
+        <!-- Header (Deep Navy) -->
+        <div class="bg-slate-800 p-5 shrink-0">
+            <div class="flex justify-between items-start">
+                <div class="flex items-center gap-3">
+                    <div class="p-2.5 bg-white/10 rounded-xl">
+                        <i data-lucide="settings-2" class="w-6 h-6 text-yellow-500"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-black text-white tracking-wide" id="ruleModalTitle">Add Pricing Bracket</h3>
+                        <p class="text-xs font-medium text-slate-300 mt-0.5">Configure default rates for different vehicle year ranges.</p>
+                    </div>
+                </div>
+                <button onclick="closeRuleModal()" type="button" class="text-slate-400 hover:text-white bg-slate-700/50 hover:bg-slate-700 p-2 rounded-full transition-colors">
+                    <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
             </div>
+        </div>
 
-            <!-- Form -->
-            <form id="ruleForm" method="POST" class="p-6 space-y-4">
+        <!-- Form -->
+        <form id="ruleForm" method="POST" class="flex flex-col flex-1 min-h-0">
+            <div class="p-6 overflow-y-auto flex-1 space-y-5">
                 @csrf
                 <input type="hidden" name="_method" id="ruleFormMethod" value="POST">
                 <input type="hidden" id="editRuleId">
 
-                <div class="space-y-1">
-                    <label class="block text-sm font-bold text-gray-700 uppercase tracking-wider">Bracket Description</label>
-                    <input type="text" name="name" id="ruleName" required placeholder="e.g., Standard Models" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-1.5">Bracket Description <span class="text-red-500">*</span></label>
+                    <input type="text" name="name" id="ruleName" required placeholder="e.g., Standard Models" class="w-full px-3 py-2.5 border border-gray-300 rounded-xl bg-white focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-sm font-bold shadow-sm">
                 </div>
 
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="space-y-1">
-                        <label class="block text-sm font-bold text-gray-700 uppercase tracking-wider">Start Year</label>
-                        <input type="number" name="start_year" id="ruleStartYear" required min="2000" max="2099" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-1.5">Start Year <span class="text-red-500">*</span></label>
+                        <input type="number" name="start_year" id="ruleStartYear" required min="2000" max="2099" class="w-full px-3 py-2.5 border border-gray-300 rounded-xl bg-white focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-sm font-bold shadow-sm">
                     </div>
-                    <div class="space-y-1">
-                        <label class="block text-sm font-bold text-gray-700 uppercase tracking-wider">End Year</label>
-                        <input type="number" name="end_year" id="ruleEndYear" required min="2000" max="2099" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
-                    </div>
-                </div>
-
-                <div class="space-y-1">
-                    <label class="block text-sm font-bold text-gray-700 uppercase tracking-wider">Regular Daily Rate (₱)</label>
-                    <input type="number" name="regular_rate" id="ruleRegularRate" required step="0.01" min="0" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 font-bold">
-                </div>
-
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="space-y-1">
-                        <label class="block text-sm font-bold text-gray-700 uppercase tracking-wider">Sat Discount (₱)</label>
-                        <input type="number" name="sat_discount" id="ruleSatDiscount" required step="0.01" min="0" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500">
-                    </div>
-                    <div class="space-y-1">
-                        <label class="block text-sm font-bold text-gray-700 uppercase tracking-wider">Sun Discount (₱)</label>
-                        <input type="number" name="sun_discount" id="ruleSunDiscount" required step="0.01" min="0" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-1.5">End Year <span class="text-red-500">*</span></label>
+                        <input type="number" name="end_year" id="ruleEndYear" required min="2000" max="2099" class="w-full px-3 py-2.5 border border-gray-300 rounded-xl bg-white focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-sm font-bold shadow-sm">
                     </div>
                 </div>
 
-                <div class="grid grid-cols-2 gap-4 pt-2">
-                    <div class="space-y-1">
-                        <label class="block text-sm font-bold text-gray-700 uppercase tracking-wider">Coding Rate (₱)</label>
-                        <input type="number" name="coding_rate" id="ruleCodingRate" required step="0.01" min="0" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-1.5">Regular Daily Rate <span class="text-red-500">*</span></label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                            <span class="text-gray-500 font-black">₱</span>
+                        </div>
+                        <input type="number" name="regular_rate" id="ruleRegularRate" required step="0.01" min="0" class="w-full pl-8 px-3 py-2.5 border border-gray-300 rounded-xl bg-white focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-base font-black text-gray-900 shadow-sm">
                     </div>
-                    <div class="space-y-1">
-                        <label class="block text-sm font-bold text-gray-700 uppercase tracking-wider">Coding Logic</label>
-                        <select name="coding_is_fixed" id="ruleCodingIsFixed" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div>
+                        <label class="block text-xs font-bold text-red-600 uppercase tracking-widest mb-1.5">Sat Discount <span class="text-red-500">*</span></label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                                <span class="text-red-500 font-black">₱</span>
+                            </div>
+                            <input type="number" name="sat_discount" id="ruleSatDiscount" required step="0.01" min="0" class="w-full pl-8 px-3 py-2.5 border border-red-200 rounded-xl bg-white focus:ring-2 focus:ring-red-500 focus:border-red-500 text-base font-black text-red-700 shadow-sm">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-red-600 uppercase tracking-widest mb-1.5">Sun Discount <span class="text-red-500">*</span></label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                                <span class="text-red-500 font-black">₱</span>
+                            </div>
+                            <input type="number" name="sun_discount" id="ruleSunDiscount" required step="0.01" min="0" class="w-full pl-8 px-3 py-2.5 border border-red-200 rounded-xl bg-white focus:ring-2 focus:ring-red-500 focus:border-red-500 text-base font-black text-red-700 shadow-sm">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div>
+                        <label class="block text-xs font-bold text-purple-600 uppercase tracking-widest mb-1.5">Coding Rate <span class="text-red-500">*</span></label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                                <span class="text-purple-500 font-black">₱</span>
+                            </div>
+                            <input type="number" name="coding_rate" id="ruleCodingRate" required step="0.01" min="0" class="w-full pl-8 px-3 py-2.5 border border-purple-200 rounded-xl bg-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-base font-black text-purple-700 shadow-sm">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-purple-600 uppercase tracking-widest mb-1.5">Coding Logic <span class="text-red-500">*</span></label>
+                        <select name="coding_is_fixed" id="ruleCodingIsFixed" class="w-full px-3 py-2.5 border border-purple-200 rounded-xl bg-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-sm font-bold text-purple-900 shadow-sm">
                             <option value="0">50% Calculation</option>
                             <option value="1">Fixed Amount</option>
                         </select>
                     </div>
                 </div>
+            </div>
 
-                <!-- Footer -->
-                <div class="flex gap-3 justify-end pt-4 border-t">
-                    <button type="button" onclick="closeRuleModal()" class="px-6 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-semibold transition-colors">Cancel</button>
-                    <button type="submit" class="px-8 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg font-bold shadow-md transform transition-all hover:scale-[1.02]">Save Settings</button>
-                </div>
-            </form>
-        </div>
+            <!-- Footer -->
+            <div class="bg-gray-50 px-6 py-4 border-t border-gray-200 flex justify-end gap-3 shrink-0">
+                <button type="button" onclick="closeRuleModal()" class="px-5 py-2.5 text-sm font-bold text-gray-600 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 focus:ring-4 focus:ring-gray-100 transition-all shadow-sm">
+                    Cancel
+                </button>
+                <button type="submit" class="px-6 py-2.5 text-sm font-black text-white bg-yellow-500 rounded-xl hover:bg-yellow-400 focus:ring-4 focus:ring-yellow-100 transition-all shadow-sm">
+                    Save Settings
+                </button>
+            </div>
+        </form>
     </div>
 </div>
 
@@ -202,6 +256,8 @@
     function closeRuleModal() {
         document.getElementById('ruleModal').classList.add('hidden');
     }
+
+
 </script>
 @endpush
 @endsection
