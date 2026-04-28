@@ -15,16 +15,32 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function initMap() {
-    // Default center (e.g., Manila/Philippines)
+    // Default center — Metro Manila
     const defaultCenter = [14.5995, 120.9842];
-    
+
+    // Luzon bounding box (SW → NE)
+    // Covers all of Luzon including Batanes in the north,
+    // Mindoro/Palawan border in the south.
+    const luzonBounds = L.latLngBounds(
+        L.latLng(11.8, 116.5),   // SW: just below Mindoro
+        L.latLng(20.9, 127.5)    // NE: Batanes + east coast
+    );
+
     map = L.map('mapViewer', {
-        zoomControl: false
+        zoomControl:          false,
+        minZoom:              8,              // zoom 8 ≈ all of Luzon visible
+        maxZoom:              19,
+        maxBounds:            luzonBounds,
+        maxBoundsViscosity:   1.0,            // hard pan lock at Luzon edges
     }).setView(defaultCenter, 12);
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    // Store globally so the blade JS can resize & switch tiles
+    window.liveMap = map;
+
+    window.defaultTileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(map);
+    });
+    window.defaultTileLayer.addTo(map);
 
     // MMDA Restricted Zones Logic (Visual lines removed as per user request)
     const restrictedZonesGroup = L.layerGroup(); // Not added to map
@@ -337,6 +353,21 @@ function updateMarker(unit) {
     if (markers[unit.unit_id]) {
         markers[unit.unit_id].setLatLng([unit.latitude, unit.longitude]);
         markers[unit.unit_id].setIcon(carIcon);
+
+        // Keep popup in view as unit moves — re-trigger autoPan if near viewport edge
+        if (markers[unit.unit_id].isPopupOpen()) {
+            const pt  = map.latLngToContainerPoint(markers[unit.unit_id].getLatLng());
+            const sz  = map.getSize();
+            const POPUP_RIGHT_EDGE = 380; // offset(170) + popup width(300) - buffer
+            const EDGE_PAD = 60;
+            const nearEdge = pt.x < EDGE_PAD
+                          || pt.x > sz.x - POPUP_RIGHT_EDGE
+                          || pt.y < EDGE_PAD
+                          || pt.y > sz.y - EDGE_PAD;
+            if (nearEdge) {
+                markers[unit.unit_id].openPopup(); // re-triggers autoPan
+            }
+        }
     } else {
         const marker = L.marker([unit.latitude, unit.longitude], { icon: carIcon }).addTo(map);
         marker.on('click', function() {
@@ -459,8 +490,11 @@ function updateMarker(unit) {
     } else {
         markers[unit.unit_id].bindPopup(popupContent, {
             className: 'pro-popup',
-            maxWidth: 320,
-            offset: [0, -10]
+            maxWidth: 300,
+            offset: [220, 200],         // 220px right so marker stays visible, 200px down to vertically centre
+            autoPan: true,
+            autoPanPaddingTopLeft:     L.point(60, 140), // extra top room
+            autoPanPaddingBottomRight: L.point(60,  60),
         });
     }
 
