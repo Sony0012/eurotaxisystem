@@ -501,7 +501,7 @@
             $inc = $profile['incentive'];
             $eligible = $inc['eligible'];
         @endphp
-        <div class="profile-card bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-all cursor-pointer" data-name="{{ strtolower($profile['name']) }}" onclick="openDriverDetails({{ $profile['id'] }})">
+        <div class="profile-card bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-all" data-name="{{ strtolower($profile['name']) }}">
             {{-- Card Header --}}
             <div class="p-5 border-b border-gray-50 flex items-center gap-3 {{ $eligible ? 'bg-gradient-to-r from-green-50 to-emerald-50' : 'bg-gray-50/50' }}">
                 <div class="w-11 h-11 rounded-xl {{ $eligible ? 'bg-green-500' : 'bg-gray-300' }} flex items-center justify-center text-white font-black text-lg shadow-sm flex-shrink-0">
@@ -569,8 +569,8 @@
 {{-- ════════════════════════════════════════
      RECORD INCIDENT MODAL (PREMIUM & FUNCTIONAL)
      ════════════════════════════════════════ --}}
-<div id="incidentModal" class="fixed inset-0 bg-black/60 backdrop-blur-md hidden z-[100] flex items-center justify-center p-4">
-    <div class="w-full max-w-2xl bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in fade-in zoom-in duration-300">
+<div id="incidentModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden z-[100] flex items-center justify-center p-4">
+    <div class="w-full max-w-6xl bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col h-[95vh] animate-in fade-in zoom-in duration-300">
         {{-- Modal Header --}}
         <div class="px-8 py-6 bg-gray-900 text-white flex items-center justify-between shadow-lg z-10">
             <div>
@@ -765,26 +765,26 @@
                             </div>
                         </div>
 
-                        <div class="grid grid-cols-2 gap-5">
+                        <div class="flex flex-wrap gap-6 justify-center">
                             {{-- Grand Total Cost (Green - Maintenance Style) --}}
-                            <div class="bg-green-600 p-6 rounded-[2.5rem] shadow-xl shadow-green-600/20 relative overflow-hidden group">
+                            <div class="flex-1 min-w-[280px] max-w-[320px] bg-green-600 p-5 rounded-3xl shadow-xl shadow-green-600/20 relative overflow-hidden group">
                                 <div class="absolute right-[-10px] top-[-10px] opacity-10">
-                                    <i data-lucide="calculator" class="w-16 h-16 text-white"></i>
+                                    <i data-lucide="calculator" class="w-12 h-12 text-white"></i>
                                 </div>
-                                <p class="text-[10px] font-black text-white/60 uppercase tracking-widest mb-2">Grand Total Cost</p>
-                                <p class="text-3xl font-black text-white tracking-tighter" id="totalDamageLabel">₱0.00</p>
-                                <p class="text-[8px] text-green-100/50 font-bold uppercase mt-2">Sum of all parts & services</p>
+                                <p class="text-[11px] font-black text-white uppercase tracking-widest mb-1">Grand Total Cost</p>
+                                <p class="text-2xl font-black text-white tracking-tighter" id="totalDamageLabel">₱0.00</p>
+                                <p class="text-[8px] text-green-100 font-bold uppercase mt-1.5 opacity-60">Sum of all parts & services</p>
                             </div>
 
                             {{-- Driver Liability (Red - Premium Style) --}}
-                            <div class="bg-red-600 p-6 rounded-[2.5rem] shadow-xl shadow-red-600/20 relative overflow-hidden group">
+                            <div class="flex-1 min-w-[280px] max-w-[320px] bg-red-600 p-5 rounded-3xl shadow-xl shadow-red-600/20 relative overflow-hidden group">
                                 <div class="absolute right-[-10px] top-[-10px] opacity-10">
-                                    <i data-lucide="alert-triangle" class="w-16 h-16 text-white"></i>
+                                    <i data-lucide="alert-triangle" class="w-12 h-12 text-white"></i>
                                 </div>
-                                <p class="text-[10px] font-black text-white/60 uppercase tracking-widest mb-2 font-sans">Total Driver Liability</p>
-                                <p class="text-3xl font-black text-white tracking-tighter" id="driverChargeLabel">₱0.00</p>
+                                <p class="text-[11px] font-black text-white uppercase tracking-widest mb-1 font-sans">Total Driver Liability</p>
+                                <p class="text-2xl font-black text-white tracking-tighter" id="driverChargeLabel">₱0.00</p>
                                 <input type="hidden" name="total_charge_to_driver" id="totalChargeValue" value="0">
-                                <p class="text-[8px] text-red-100/50 font-bold uppercase mt-2">Deductible Balance</p>
+                                <p class="text-[8px] text-red-100 font-bold uppercase mt-1.5 opacity-60">Deductible Balance</p>
                             </div>
                         </div>
 
@@ -813,12 +813,12 @@
                 </div>
             </div>
 
-            <div class="px-8 py-7 bg-white border-t border-gray-100 flex gap-4 shadow-[0_-10px_20px_rgba(0,0,0,0.02)]">
-                <button type="submit" class="flex-1 py-4.5 bg-gray-900 text-white font-black text-xs uppercase tracking-[0.2em] rounded-[1.25rem] hover:bg-gray-800 shadow-2xl shadow-gray-900/30 transition-all active:scale-[0.98] flex items-center justify-center gap-3">
-                     <i data-lucide="save" class="w-4 h-4"></i> Commit Incident Record
-                </button>
-                <button type="button" onclick="closeIncidentModal()" class="px-8 py-4.5 bg-white border border-gray-200 text-gray-500 font-black text-xs uppercase tracking-[0.2em] rounded-[1.25rem] hover:bg-gray-50 hover:text-gray-800 transition-all active:scale-[0.98]">
+            <div class="px-8 py-7 bg-white border-t border-gray-100 flex justify-end gap-4 shadow-[0_-10px_20px_rgba(0,0,0,0.02)]">
+                <button type="button" onclick="closeIncidentModal()" class="px-10 py-5 bg-white border border-gray-200 text-gray-500 font-black text-xs uppercase tracking-[0.2em] rounded-[1.25rem] hover:bg-gray-50 hover:text-gray-800 transition-all active:scale-[0.98]">
                     Cancel
+                </button>
+                <button type="submit" class="px-16 py-5 bg-gray-900 text-white font-black text-xs uppercase tracking-[0.2em] rounded-[1.25rem] hover:bg-gray-800 shadow-2xl shadow-gray-900/30 transition-all active:scale-[0.98] flex items-center justify-center gap-3">
+                     <i data-lucide="save" class="w-4 h-4"></i> Commit Incident Record
                 </button>
             </div>
         </form>
@@ -828,8 +828,8 @@
 {{-- ════════════════════════════════════════
      EDIT INCIDENT MODAL
      ════════════════════════════════════════ --}}
-<div id="editIncidentModal" class="fixed inset-0 bg-black/60 backdrop-blur-md hidden z-[101] flex items-center justify-center p-4">
-    <div class="w-full max-w-xl bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in fade-in zoom-in duration-300">
+<div id="editIncidentModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden z-[101] flex items-center justify-center p-4">
+    <div class="w-full max-w-6xl bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col h-[95vh] animate-in fade-in zoom-in duration-300">
         {{-- Modal Header --}}
         <div class="px-8 py-6 bg-blue-600 text-white flex items-center justify-between shadow-lg z-10">
             <div>
@@ -909,18 +909,19 @@
             </div>
 
             {{-- Modal Footer --}}
-            <div class="px-8 py-6 bg-gray-50 border-t border-gray-100 flex gap-3">
+            <div class="px-8 py-6 bg-gray-50 border-t border-gray-100 flex justify-end gap-3">
                 <button type="button" id="editModalArchiveBtn"
-                    class="p-4 bg-red-50 text-red-500 font-black text-xs uppercase tracking-widest rounded-2xl border border-red-100 hover:bg-red-100 transition-all active:scale-95"
+                    class="p-5 bg-red-50 text-red-500 font-black text-xs uppercase tracking-widest rounded-2xl border border-red-100 hover:bg-red-100 transition-all active:scale-95"
                     title="Archive Record">
                     <i data-lucide="trash-2" class="w-4 h-4"></i>
                 </button>
+                <div class="flex-1"></div>
                 <button type="button" onclick="closeEditIncidentModal()"
-                    class="px-6 py-4 bg-white text-gray-500 font-black text-xs uppercase tracking-widest rounded-2xl border border-gray-200 hover:bg-gray-100 transition-all active:scale-95">
+                    class="px-10 py-5 bg-white text-gray-500 font-black text-xs uppercase tracking-widest rounded-2xl border border-gray-200 hover:bg-gray-100 transition-all active:scale-95">
                     Cancel
                 </button>
                 <button type="submit"
-                    class="flex-1 px-6 py-4 bg-blue-600 text-white font-black text-xs uppercase tracking-widest rounded-2xl shadow-lg shadow-blue-200 hover:bg-blue-700 hover:shadow-blue-300 transition-all active:scale-95 flex items-center justify-center gap-2">
+                    class="px-16 py-5 bg-blue-600 text-white font-black text-xs uppercase tracking-widest rounded-2xl shadow-lg shadow-blue-200 hover:bg-blue-700 hover:shadow-blue-300 transition-all active:scale-95 flex items-center justify-center gap-2">
                     <i data-lucide="check-circle" class="w-4 h-4"></i>
                     Update Record
                 </button>
@@ -960,13 +961,10 @@
     </div>
 </div>
 
-@include('partials._driver_details_modal')
-
 @endsection
 
 @push('scripts')
 <script>
-@include('partials._driver_details_scripts')
 // ─── Global Scoping & Initialization ───
 window.switchTab = function(name) {
     document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
