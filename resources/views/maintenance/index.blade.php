@@ -125,71 +125,48 @@
 @endphp
 
 {{-- Stats --}}
-<div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
     <!-- Card 1: Total Records -->
-    <div class="relative overflow-hidden bg-white rounded-2xl shadow-sm border border-gray-100 border-l-[6px] border-l-blue-800 p-5 text-center group hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300">
-        <div class="absolute -right-4 -bottom-4 opacity-[0.03] group-hover:opacity-[0.06] transition-opacity duration-500">
-            <i data-lucide="folder-open" class="w-28 h-28 text-gray-900"></i>
-        </div>
-        <div class="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center mb-3 mx-auto shadow-[0_0_15px_rgba(30,58,138,0.2)] transition-transform group-hover:scale-110 duration-300">
+    <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-blue-800 flex items-center gap-4">
+        <div class="p-3 bg-blue-50 rounded-lg">
             <i data-lucide="folder-open" class="w-6 h-6 text-blue-800"></i>
         </div>
-        <p class="text-3xl font-black text-gray-800 tracking-tighter relative z-10">{{ $totals->total_count ?? 0 }}</p>
-        <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1 relative z-10">Total Records</p>
-        <div class="flex items-center justify-center gap-2 mt-3 relative z-10">
-            {!! renderSparkline($trends['total'] ?? [], 'text-gray-400') !!}
-            <span class="text-[8px] font-black text-gray-400 uppercase tracking-widest">7D Trend</span>
+        <div class="min-w-0">
+            <div class="text-xl font-black text-gray-900 tracking-tight truncate tabular-nums">{{ $totals->total_count ?? 0 }}</div>
+            <div class="text-[10px] font-black text-gray-400 uppercase tracking-widest truncate">Total Records</div>
         </div>
     </div>
 
     <!-- Card 2: Pending -->
-    <div class="relative overflow-hidden bg-gradient-to-br from-yellow-50/80 to-white rounded-2xl shadow-sm border border-yellow-100/50 border-l-[6px] border-l-orange-500 p-5 text-center group hover:shadow-xl hover:shadow-yellow-100/50 hover:-translate-y-1.5 transition-all duration-300">
-        <div class="absolute -right-4 -bottom-4 opacity-[0.04] group-hover:opacity-[0.08] transition-opacity duration-500">
-            <i data-lucide="clock" class="w-28 h-28 text-yellow-600"></i>
+    <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-orange-500 flex items-center gap-4">
+        <div class="p-3 bg-yellow-50 rounded-lg">
+            <i data-lucide="clock" class="w-6 h-6 text-orange-600"></i>
         </div>
-        <div class="absolute top-0 right-0 w-32 h-32 bg-yellow-400/5 blur-2xl rounded-full scale-150 group-hover:bg-yellow-400/10 transition-colors duration-500"></div>
-        <div class="w-12 h-12 rounded-full bg-yellow-50 flex items-center justify-center mb-3 mx-auto shadow-[0_0_15px_rgba(234,179,8,0.25)] transition-transform group-hover:scale-110 duration-300">
-            <i data-lucide="clock" class="w-6 h-6 text-yellow-600"></i>
-        </div>
-        <p class="text-3xl font-black text-yellow-600 tracking-tighter relative z-10 drop-shadow-sm">{{ $totals->pending_count ?? 0 }}</p>
-        <p class="text-[10px] font-black text-yellow-700/60 uppercase tracking-widest mt-1 relative z-10">Pending</p>
-        <div class="flex items-center justify-center gap-2 mt-3 relative z-10">
-            {!! renderSparkline($trends['pending'] ?? [], 'text-yellow-500') !!}
-            <span class="text-[8px] font-black text-yellow-600/70 uppercase tracking-widest">7D Trend</span>
+        <div class="min-w-0">
+            <div class="text-xl font-black text-orange-600 tracking-tight truncate tabular-nums">{{ $totals->pending_count ?? 0 }}</div>
+            <div class="text-[10px] font-black text-gray-400 uppercase tracking-widest truncate">Pending</div>
         </div>
     </div>
 
     <!-- Card 3: Active Work -->
-    <div class="relative overflow-hidden bg-gradient-to-br from-blue-50/80 to-white rounded-2xl shadow-sm border border-blue-100/50 border-l-[6px] border-l-indigo-500 p-5 text-center group hover:shadow-xl hover:shadow-blue-100/50 hover:-translate-y-1.5 transition-all duration-300">
-        <div class="absolute -right-4 -bottom-4 opacity-[0.04] group-hover:opacity-[0.08] transition-opacity duration-500">
-            <i data-lucide="wrench" class="w-28 h-28 text-blue-600"></i>
-        </div>
-        <div class="absolute top-0 right-0 w-32 h-32 bg-blue-400/5 blur-2xl rounded-full scale-150 group-hover:bg-blue-400/10 transition-colors duration-500"></div>
-        <div class="w-12 h-12 rounded-full bg-indigo-50 flex items-center justify-center mb-3 mx-auto shadow-[0_0_15px_rgba(79,70,229,0.25)] transition-transform group-hover:scale-110 duration-300">
+    <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-indigo-500 flex items-center gap-4">
+        <div class="p-3 bg-indigo-50 rounded-lg">
             <i data-lucide="wrench" class="w-6 h-6 text-indigo-600"></i>
         </div>
-        <p class="text-3xl font-black text-blue-600 tracking-tighter relative z-10 drop-shadow-sm">{{ $totals->in_progress_count ?? 0 }}</p>
-        <p class="text-[10px] font-black text-blue-700/60 uppercase tracking-widest mt-1 relative z-10">Active Work</p>
-        <div class="flex items-center justify-center gap-2 mt-3 relative z-10">
-            {!! renderSparkline($trends['active'] ?? [], 'text-blue-500') !!}
-            <span class="text-[8px] font-black text-blue-600/70 uppercase tracking-widest">7D Trend</span>
+        <div class="min-w-0">
+            <div class="text-xl font-black text-indigo-600 tracking-tight truncate tabular-nums">{{ $totals->in_progress_count ?? 0 }}</div>
+            <div class="text-[10px] font-black text-gray-400 uppercase tracking-widest truncate">Active Work</div>
         </div>
     </div>
 
     <!-- Card 4: Total Cost -->
-    <div class="relative overflow-hidden bg-gradient-to-br from-green-50/80 to-white rounded-2xl shadow-sm border border-green-100/50 border-l-[6px] border-l-emerald-500 p-5 text-center group hover:shadow-xl hover:shadow-green-100/50 hover:-translate-y-1.5 transition-all duration-300">
-        <div class="absolute -right-2 -bottom-8 opacity-[0.04] group-hover:opacity-[0.08] transition-opacity duration-500">
-            <span class="text-[120px] font-black text-green-700 leading-none font-serif">₱</span>
+    <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-emerald-500 flex items-center gap-4">
+        <div class="p-3 bg-green-50 rounded-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 text-emerald-600"><path d="M7 12h5a3 3 0 0 0 0-6H7v12"/><path d="M5 9h11"/><path d="M5 11h11"/></svg>
         </div>
-        <div class="absolute top-0 right-0 w-32 h-32 bg-green-400/10 blur-2xl rounded-full scale-150 group-hover:bg-green-400/20 transition-colors duration-500"></div>
-        <div class="w-12 h-12 rounded-full bg-green-50 flex items-center justify-center mb-3 mx-auto shadow-[0_0_15px_rgba(16,185,129,0.25)] transition-transform group-hover:scale-110 duration-300">
-            <i data-lucide="banknote" class="w-6 h-6 text-green-700"></i>
-        </div>
-        <p class="text-2xl font-black text-green-700 tracking-tighter relative z-10 drop-shadow-sm">{{ formatCurrency($totals->total_cost ?? 0) }}</p>
-        <p class="text-[10px] font-black text-green-700/60 uppercase tracking-widest mt-1 relative z-10">Total Cost</p>
-        <div class="flex items-center justify-center gap-2 mt-3 relative z-10">
-            {!! renderSparkline($trends['cost'] ?? [], 'text-green-500') !!}
-            <span class="text-[8px] font-black text-green-600/70 uppercase tracking-widest">7D Trend</span>
+        <div class="min-w-0">
+            <div class="text-xl font-black text-emerald-600 tracking-tight truncate tabular-nums">{{ formatCurrency($totals->total_cost ?? 0) }}</div>
+            <div class="text-[10px] font-black text-gray-400 uppercase tracking-widest truncate">Total Cost</div>
         </div>
     </div>
 </div>
@@ -1212,28 +1189,9 @@
                 </div>
             </div>
 
-            <div class="flex flex-col md:flex-row gap-4 mb-6">
-                {{-- Daily Total Box --}}
-                <div class="flex-1 bg-green-50 border border-green-100 p-4 rounded-2xl shadow-sm">
-                    <p class="text-[10px] font-black text-green-600 uppercase tracking-widest mb-1">Total for Selected Date</p>
-                    <h4 id="dailyPurchaseTotal" class="text-2xl font-black text-gray-900 tracking-tighter">₱0.00</h4>
-                </div>
-                {{-- Monthly Total Box --}}
-                <div class="flex-1 bg-blue-50 border border-blue-100 p-4 rounded-2xl shadow-sm">
-                    <p class="text-[10px] font-black text-blue-600 uppercase tracking-widest mb-1">Total for this Month</p>
-                    <h4 id="monthlyPurchaseTotal" class="text-2xl font-black text-gray-900 tracking-tighter">₱0.00</h4>
-                </div>
-                {{-- Date Filter Input --}}
-                <div class="flex-none flex flex-col justify-center">
-                    <label class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Validate Date</label>
-                    <input type="date" id="historyDateFilter" value="{{ date('Y-m-d') }}" onchange="refreshPurchaseHistory(this.value)"
-                        class="px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-black focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:outline-none transition-all">
-                </div>
-            </div>
-
-            <div class="flex-1 overflow-y-auto pr-2 custom-scrollbar">
+            <div class="p-6 overflow-y-auto flex-1 custom-scrollbar">
                 <table class="min-w-full divide-y divide-gray-100">
-                    <thead class="bg-gray-50 sticky top-0 z-10">
+                    <thead class="bg-gray-50 sticky top-0">
                         <tr>
                             <th class="px-4 py-2 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Date</th>
                             <th class="px-4 py-2 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Description</th>
@@ -2495,75 +2453,35 @@ function closePurchaseHistoryModal() {
     document.getElementById('purchaseHistoryModal').classList.add('hidden');
 }
 
-async function refreshPurchaseHistory(customDate = null) {
+async function refreshPurchaseHistory() {
     try {
         const res = await fetch("{{ route('spare-parts.history') }}");
         const json = await res.json();
         if (json.success) {
             const tbody = document.getElementById('purchaseHistoryTableBody');
-            const dailyTotalEl = document.getElementById('dailyPurchaseTotal');
-            const monthlyTotalEl = document.getElementById('monthlyPurchaseTotal');
-            const filterDate = customDate || document.getElementById('historyDateFilter').value;
-            const currentMonth = new Date().getMonth();
-            const currentYear = new Date().getFullYear();
-
-            let dailyTotal = 0;
-            let monthlyTotal = 0;
-            let displayedRecords = 0;
-
-            tbody.innerHTML = '';
-
-            json.data.forEach(ph => {
-                const phDate = new Date(ph.date);
-                const recYear = phDate.getFullYear();
-                const recMonth = phDate.getMonth();
-                const amount = parseFloat(ph.amount) || 0;
-
-                // Accrue Monthly Total (Current month)
-                if (recYear === currentYear && recMonth === currentMonth) {
-                    monthlyTotal += amount;
-                }
-
-                // Filtering by Date
-                const rowDateStr = ph.date.substring(0, 10);
-                const isDateMatch = (rowDateStr === filterDate);
-                
-                if (isDateMatch) {
-                    dailyTotal += amount;
-                    displayedRecords++;
-                    
-                    const dateDisplay = phDate.toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' });
-                    const timeDisplay = new Date(ph.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
-                    
-                    tbody.innerHTML += `
-                        <tr class="hover:bg-gray-50 transition border-b border-gray-50">
-                            <td class="px-4 py-4 whitespace-nowrap">
-                                <div class="text-xs font-black text-gray-600">${dateDisplay}</div>
-                                <div class="text-[9px] text-gray-400">${timeDisplay}</div>
-                            </td>
-                            <td class="px-4 py-4">
-                                <div class="text-sm font-black text-gray-800 tracking-tight italic uppercase">${ph.description}</div>
-                                <div class="text-[9px] text-blue-500 font-bold bg-blue-50 px-2 py-0.5 rounded-md inline-block mt-1">INVENTORY SYNC</div>
-                            </td>
-                            <td class="px-4 py-4 text-right">
-                                <div class="text-sm font-black text-green-600">₱${amount.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}</div>
-                            </td>
-                        </tr>
-                    `;
-                }
-            });
-
-            if (displayedRecords === 0) {
-                tbody.innerHTML = `<tr><td colspan="3" class="px-4 py-16 text-center text-gray-400">
-                    <i data-lucide="calendar-x" class="w-12 h-12 mx-auto mb-3 opacity-20"></i>
-                    <p class="text-xs font-black uppercase tracking-widest italic">No purchases recorded for ${new Date(filterDate).toLocaleDateString('en-US', {month:'long', day:'numeric'})}</p>
-                </td></tr>`;
-                lucide.createIcons();
+            if (json.data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3" class="px-4 py-12 text-center text-gray-400"><p class="text-sm">No purchase records found.</p></td></tr>';
+                return;
             }
-
-            // Update Summaries
-            dailyTotalEl.textContent = '₱' + dailyTotal.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
-            monthlyTotalEl.textContent = '₱' + monthlyTotal.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
+            tbody.innerHTML = json.data.map(ph => {
+                const date = new Date(ph.date).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' });
+                const time = new Date(ph.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+                return `
+                    <tr class="hover:bg-gray-50 transition">
+                        <td class="px-4 py-4 whitespace-nowrap">
+                            <div class="text-xs font-bold text-gray-600">${date}</div>
+                            <div class="text-[9px] text-gray-400">${time}</div>
+                        </td>
+                        <td class="px-4 py-4">
+                            <div class="text-sm font-black text-gray-800 tracking-tight">${ph.description}</div>
+                            <div class="text-[10px] text-blue-500 font-bold uppercase">Maintenance Supplies</div>
+                        </td>
+                        <td class="px-4 py-4 text-right">
+                            <div class="text-sm font-black text-green-600">₱${parseFloat(ph.amount).toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}</div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
         }
     } catch (e) { console.error(e); }
 }
