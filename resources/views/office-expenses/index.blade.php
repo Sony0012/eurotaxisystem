@@ -6,76 +6,91 @@
 
 @section('content')
 
+<style>
+    .modern-table-sep {
+        border-collapse: separate;
+        border-spacing: 0 0.6rem;
+    }
+    .modern-row {
+        background-color: white;
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+        transition: all 0.2s ease-in-out;
+    }
+    .modern-row:hover {
+        box-shadow: 0 10px 15px -3px rgba(234, 179, 8, 0.2), 0 4px 6px -2px rgba(234, 179, 8, 0.1);
+        transform: translateY(-2px);
+    }
+    .modern-row td:first-child {
+        border-top-left-radius: 0.75rem;
+        border-bottom-left-radius: 0.75rem;
+        border-left: 4px solid transparent;
+    }
+    .modern-row:hover td:first-child {
+        border-left-color: #eab308;
+    }
+    .modern-row td:last-child {
+        border-top-right-radius: 0.75rem;
+        border-bottom-right-radius: 0.75rem;
+    }
+</style>
+
     {{-- Statistics Cards --}}
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 mb-8">
-        {{-- Today --}}
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 card-hover relative overflow-hidden group min-w-0">
-            <div class="absolute top-0 right-0 w-16 h-16 bg-orange-50 rounded-full -mr-6 -mt-6 transition-transform group-hover:scale-110"></div>
-            <div class="relative">
-                <div class="flex items-center justify-between mb-2">
-                    <p class="text-[9px] font-black text-gray-400 uppercase tracking-wider truncate">Total Today</p>
-                    <i data-lucide="clock" class="h-4 w-4 text-orange-500"></i>
-                </div>
-                <h3 class="text-base sm:text-lg font-black text-orange-600 truncate tabular-nums">{{ formatCurrency($stats['today'] ?? 0) }}</h3>
-                <div class="flex items-center gap-1 mt-1">
-                    <span class="w-1 h-1 rounded-full bg-orange-400 animate-pulse"></span>
-                    <p class="text-[9px] text-gray-400 font-bold uppercase transition-colors group-hover:text-orange-500">Live</p>
-                </div>
+    <div class="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+        {{-- Total Today --}}
+        <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-orange-500 flex items-center gap-4">
+            <div class="p-3 bg-orange-50 rounded-lg">
+                <i data-lucide="clock" class="w-6 h-6 text-orange-600"></i>
+            </div>
+            <div class="min-w-0">
+                <div class="text-xl font-black text-gray-900 tracking-tight truncate tabular-nums">{{ formatCurrency($stats['today'] ?? 0) }}</div>
+                <div class="text-[10px] font-black text-gray-400 uppercase tracking-widest truncate">Total Today</div>
             </div>
         </div>
 
         {{-- This Month --}}
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 card-hover relative overflow-hidden group min-w-0">
-            <div class="absolute top-0 right-0 w-16 h-16 bg-red-50 rounded-full -mr-6 -mt-6 transition-transform group-hover:scale-110"></div>
-            <div class="relative">
-                <div class="flex items-center justify-between mb-2">
-                    <p class="text-[9px] font-black text-gray-400 uppercase tracking-wider truncate">This Month</p>
-                    <i data-lucide="calendar-days" class="h-4 w-4 text-red-500"></i>
-                </div>
-                <h3 class="text-base sm:text-lg font-black text-red-600 truncate tabular-nums">{{ formatCurrency($stats['this_month'] ?? 0) }}</h3>
-                <p class="text-[9px] text-gray-400 font-bold uppercase mt-1 transition-colors group-hover:text-red-500">M-T-D</p>
+        <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-rose-500 flex items-center gap-4">
+            <div class="p-3 bg-rose-50 rounded-lg">
+                <i data-lucide="calendar" class="w-6 h-6 text-rose-600"></i>
+            </div>
+            <div class="min-w-0">
+                <div class="text-xl font-black text-gray-900 tracking-tight truncate tabular-nums">{{ formatCurrency($stats['this_month'] ?? 0) }}</div>
+                <div class="text-[10px] font-black text-gray-400 uppercase tracking-widest truncate">This Month</div>
             </div>
         </div>
 
         {{-- Last Month --}}
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 card-hover relative overflow-hidden group min-w-0">
-            <div class="absolute top-0 right-0 w-16 h-16 bg-gray-50 rounded-full -mr-6 -mt-6 transition-transform group-hover:scale-110"></div>
-            <div class="relative">
-                <div class="flex items-center justify-between mb-2">
-                    <p class="text-[9px] font-black text-gray-400 uppercase tracking-wider truncate">Last Month</p>
-                    <i data-lucide="history" class="h-4 w-4 text-gray-400"></i>
-                </div>
-                <h3 class="text-base sm:text-lg font-black text-gray-600 truncate tabular-nums">{{ formatCurrency($stats['last_month'] ?? 0) }}</h3>
-                <p class="text-[9px] text-gray-400 font-bold uppercase mt-1">Previous</p>
+        <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-purple-500 flex items-center gap-4">
+            <div class="p-3 bg-purple-50 rounded-lg">
+                <i data-lucide="history" class="w-6 h-6 text-purple-600"></i>
+            </div>
+            <div class="min-w-0">
+                <div class="text-xl font-black text-gray-900 tracking-tight truncate tabular-nums">{{ formatCurrency($stats['last_month'] ?? 0) }}</div>
+                <div class="text-[10px] font-black text-gray-400 uppercase tracking-widest truncate">Last Month</div>
             </div>
         </div>
 
-        {{-- Monthly Change --}}
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 card-hover relative overflow-hidden group min-w-0">
+        {{-- Trend --}}
+        <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-indigo-500 flex items-center gap-4">
             @php $change = $stats['monthly_change'] ?? 0; @endphp
-            <div class="absolute top-0 right-0 w-16 h-16 {{ $change < 0 ? 'bg-green-50' : 'bg-rose-50' }} rounded-full -mr-6 -mt-6 transition-transform group-hover:scale-110"></div>
-            <div class="relative">
-                <div class="flex items-center justify-between mb-2">
-                    <p class="text-[9px] font-black text-gray-400 uppercase tracking-wider truncate">Trend</p>
-                    <i data-lucide="{{ $change < 0 ? 'trending-down' : 'trending-up' }}" class="h-4 w-4 {{ $change < 0 ? 'text-green-500' : 'text-rose-500' }}"></i>
-                </div>
-                <h3 class="text-base sm:text-lg font-black {{ $change < 0 ? 'text-green-600' : 'text-rose-600' }} truncate">
+            <div class="p-3 bg-indigo-50 rounded-lg">
+                <i data-lucide="{{ $change < 0 ? 'trending-down' : 'trending-up' }}" class="w-6 h-6 text-indigo-600"></i>
+            </div>
+            <div class="min-w-0">
+                <div class="text-xl font-black {{ $change < 0 ? 'text-green-600' : 'text-rose-600' }} tracking-tight truncate tabular-nums">
                     {{ $change > 0 ? '+' : '' }}{{ $change }}%
-                </h3>
-                <p class="text-[9px] text-gray-400 font-bold uppercase mt-1">{{ $change < 0 ? 'Saved' : 'Added' }}</p>
+                </div>
+                <div class="text-[10px] font-black text-gray-400 uppercase tracking-widest truncate">Trend</div>
             </div>
         </div>
 
-        {{-- Total Records --}}
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 card-hover relative overflow-hidden group min-w-0">
-            <div class="absolute top-0 right-0 w-16 h-16 bg-yellow-50 rounded-full -mr-6 -mt-6 transition-transform group-hover:scale-110"></div>
-            <div class="relative">
-                <div class="flex items-center justify-between mb-2">
-                    <p class="text-[9px] font-black text-gray-400 uppercase tracking-wider truncate">History</p>
-                    <i data-lucide="layers" class="h-4 w-4 text-yellow-600"></i>
-                </div>
-                <h3 class="text-base sm:text-lg font-black text-yellow-600 truncate tabular-nums">{{ $stats['total_records'] ?? 0 }}</h3>
-                <p class="text-[9px] text-gray-400 font-bold uppercase mt-1">Entries</p>
+        {{-- History --}}
+        <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-teal-500 flex items-center gap-4">
+            <div class="p-3 bg-teal-50 rounded-lg">
+                <i data-lucide="layers" class="w-6 h-6 text-teal-600"></i>
+            </div>
+            <div class="min-w-0">
+                <div class="text-xl font-black text-gray-900 tracking-tight truncate tabular-nums">{{ $stats['total_records'] ?? 0 }}</div>
+                <div class="text-[10px] font-black text-gray-400 uppercase tracking-widest truncate">History</div>
             </div>
         </div>
     </div>
@@ -161,23 +176,21 @@
     </div>
 
     {{-- Expenses Table --}}
-    <div class="bg-white rounded-lg shadow overflow-hidden">
-        <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
+    <div class="overflow-x-auto pb-4">
+        <table class="min-w-full modern-table-sep">
+                <thead>
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Category</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Details</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Reference</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                        <th class="px-6 py-3 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Date</th>
+                        <th class="px-6 py-3 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Category</th>
+                        <th class="px-6 py-3 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Details</th>
+                        <th class="px-6 py-3 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Reference</th>
+                        <th class="px-6 py-3 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Amount</th>
+                        <th class="px-6 py-3 text-center text-[10px] font-black text-gray-400 uppercase tracking-widest">Actions</th>
                     </tr>
                 </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
+                <tbody class="bg-transparent">
                     @forelse($expenses as $expense)
-                        <tr class="hover:bg-gray-50">
+                        <tr class="modern-row group">
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                 {{ \Carbon\Carbon::parse($expense->date)->format('M d, Y') }}
                             </td>
@@ -239,41 +252,18 @@
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-red-600">
                                 {{ formatCurrency($expense->amount) }}
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="px-2 py-1 text-xs font-medium rounded-full
-                                    @if($expense->status === 'approved') bg-green-100 text-green-800
-                                    @elseif($expense->status === 'rejected') bg-red-100 text-red-800
-                                    @else bg-yellow-100 text-yellow-800
-                                    @endif">
-                                    {{ ucfirst($expense->status) }}
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                <button type="button" onclick="openEditExpenseModal({{ $expense->id }})" class="text-blue-600 hover:text-blue-900 mr-2">
-                                    <i data-lucide="edit" class="w-4 h-4"></i>
+                            <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                                <button type="button"
+                                    class="px-4 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-600 hover:text-white transition-all duration-200 flex items-center gap-2 font-bold shadow-sm group mx-auto"
+                                    onclick="openEditExpenseModal({{ $expense->id }})">
+                                    <i data-lucide="edit-2" class="w-4 h-4 group-hover:scale-110 transition-transform"></i>
+                                    <span>Edit Expense</span>
                                 </button>
-                                @if($expense->status === 'pending')
-                                    <form method="POST" action="{{ route('office-expenses.approve', $expense->id) }}" class="inline">
-                                        @csrf
-                                        <button type="submit" class="text-green-600 hover:text-green-900 mr-2">Approve</button>
-                                    </form>
-                                    <form method="POST" action="{{ route('office-expenses.reject', $expense->id) }}" class="inline">
-                                        @csrf
-                                        <button type="submit" class="text-red-600 hover:text-red-900 mr-2">Reject</button>
-                                    </form>
-                                @endif
-                                <form method="POST" action="{{ route('office-expenses.destroy', $expense->id) }}" class="inline"
-                                    onsubmit="return confirm('Delete this expense?')">
-                                    @csrf @method('DELETE')
-                                    <button type="submit" class="text-red-600 hover:text-red-900">
-                                        <i data-lucide="trash-2" class="w-4 h-4"></i>
-                                    </button>
-                                </form>
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="px-6 py-12 text-center text-gray-500">
+                            <td colspan="6" class="px-6 py-12 text-center text-gray-500">
                                 <i data-lucide="dollar-sign" class="w-12 h-12 mx-auto mb-4 text-gray-300"></i>
                                 <p>No expenses recorded yet.</p>
                             </td>
@@ -281,39 +271,41 @@
                     @endforelse
                 </tbody>
             </table>
-        </div>
         @if(isset($expenses) && method_exists($expenses, 'links'))
-        <div class="px-6 py-4 border-t">
+        <div class="px-6 py-4">
             {{ $expenses->withQueryString()->links() }}
         </div>
         @endif
     </div>
 
     {{-- Add/Edit Expense Modal --}}
-    <div id="expenseModal" class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm hidden h-full w-full z-50 flex items-center justify-center p-4 transition-all duration-300">
-        <div class="relative bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col scale-95 transition-transform duration-300" id="modalContainer">
-            <div class="flex justify-between items-center p-5 border-b bg-gray-50/50">
-                <div class="flex items-center gap-3">
-                    <div class="p-2 bg-yellow-500 rounded-xl text-white">
-                        <i data-lucide="receipt" class="w-5 h-5"></i>
+    <div id="expenseModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden h-full w-full z-50 flex items-center justify-center p-4 transition-all duration-300">
+        <div class="relative bg-white rounded-2xl shadow-2xl max-w-5xl w-full h-[95vh] overflow-hidden flex flex-col scale-95 transition-transform duration-300" id="modalContainer">
+            {{-- Modal Header (Deep Navy) --}}
+            <div class="bg-slate-800 p-5 shrink-0">
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center gap-3">
+                        <div class="p-2.5 bg-white/20 rounded-xl flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 text-yellow-500"><path d="M7 12h5a3 3 0 0 0 0-6H7v12"/><path d="M5 9h11"/><path d="M5 11h11"/></svg>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-black text-white tracking-wide" id="expenseModalTitle">New Expense</h3>
+                            <p class="text-xs font-medium text-slate-300 mt-0.5 uppercase tracking-widest">Company Fund Management</p>
+                        </div>
                     </div>
-                    <div>
-                        <h3 class="text-lg font-black text-gray-900 tracking-tight" id="expenseModalTitle">New Expense</h3>
-                        <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Company Fund Management</p>
-                    </div>
+                    <button onclick="closeExpenseModal()" class="text-slate-400 hover:text-white bg-slate-700/50 hover:bg-slate-700 p-2 rounded-full transition-colors">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
                 </div>
-                <button onclick="closeExpenseModal()" class="p-2 hover:bg-gray-100 rounded-full transition-colors">
-                    <i data-lucide="x" class="w-5 h-5 text-gray-400"></i>
-                </button>
             </div>
 
-            <form id="expenseForm" method="POST" class="overflow-y-auto">
+            <form id="expenseForm" method="POST" class="flex flex-col flex-1 overflow-hidden">
                 @csrf
                 <input type="hidden" name="_method" id="expenseFormMethod" value="POST">
                 
-                <div class="p-6 space-y-6">
-                    {{-- Row 1: Date & Amount --}}
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5 items-end">
+                <div class="p-8 overflow-y-auto flex-1 space-y-8 custom-scrollbar">
+                    {{-- Row 1: Date, Category, Amount --}}
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div class="space-y-1.5">
                             <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Expense Date *</label>
                             <div class="relative">
@@ -323,106 +315,104 @@
                             </div>
                         </div>
 
-                        {{-- Hidden for Spare Parts Sync to avoid double entries --}}
+                        <div class="space-y-1.5 relative">
+                            <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Expense Category *</label>
+                            <div class="relative" id="customSelectWrapper">
+                                <button type="button" onclick="toggleCustomSelect()" id="customSelectTrigger"
+                                    class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none font-bold text-sm flex items-center justify-between group transition-all">
+                                    <span id="selectedCategoryLabel">-- Choose Specific Category --</span>
+                                    <i data-lucide="chevron-down" id="customSelectArrow" class="w-4 h-4 text-gray-400 group-hover:text-yellow-600 transition-transform"></i>
+                                </button>
+                                <input type="hidden" name="category" id="expenseCategory" required>
+
+                                {{-- Custom Dropdown Menu --}}
+                                <div id="customSelectMenu" class="hidden absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 rounded-2xl shadow-2xl z-[100] max-h-[300px] overflow-y-auto animate-in fade-in zoom-in-95 duration-200 py-2">
+                                    <div class="px-3 pb-2 sticky top-0 bg-white border-b border-gray-50 mb-1 pt-1">
+                                        <div class="relative">
+                                            <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-3 h-3 text-gray-400"></i>
+                                            <input type="text" id="catSearch" placeholder="Search categories..." onkeyup="filterCategories(this.value)"
+                                                class="w-full pl-8 pr-3 py-1.5 bg-gray-50 border border-transparent rounded-lg focus:bg-white focus:border-yellow-200 focus:outline-none text-xs font-bold">
+                                        </div>
+                                    </div>
+                                    <div id="catItemsContainer">
+                                        <div class="px-4 py-1.5 text-[9px] font-black text-gray-400 uppercase tracking-widest bg-gray-50/50">Utilities & Bills</div>
+                                        <div class="cat-item px-5 py-2.5 hover:bg-yellow-50 cursor-pointer text-sm font-bold text-gray-700 transition-colors flex items-center gap-2" onclick="selectCategory('Electricity (Meralco)')">
+                                            <i data-lucide="zap" class="w-3 h-3 text-blue-500"></i> Electricity (Meralco)
+                                        </div>
+                                        <div class="cat-item px-5 py-2.5 hover:bg-yellow-50 cursor-pointer text-sm font-bold text-gray-700 transition-colors flex items-center gap-2" onclick="selectCategory('Water (Maynilad)')">
+                                            <i data-lucide="droplets" class="w-3 h-3 text-cyan-500"></i> Water (Maynilad)
+                                        </div>
+                                        <div class="cat-item px-5 py-2.5 hover:bg-yellow-50 cursor-pointer text-sm font-bold text-gray-700 transition-colors flex items-center gap-2" onclick="selectCategory('Internet & WiFi')">
+                                            <i data-lucide="wifi" class="w-3 h-3 text-indigo-500"></i> Internet & WiFi
+                                        </div>
+                                        <div class="cat-item px-5 py-2.5 hover:bg-yellow-50 cursor-pointer text-sm font-bold text-gray-700 transition-colors flex items-center gap-2" onclick="selectCategory('Communications')">
+                                            <i data-lucide="phone" class="w-3 h-3 text-sky-500"></i> Communications
+                                        </div>
+
+                                        <div class="px-4 py-1.5 text-[9px] font-black text-gray-400 uppercase tracking-widest bg-gray-50/50 mt-1">Materials & Supplies</div>
+                                        <div class="cat-item px-5 py-2.5 hover:bg-yellow-50 cursor-pointer text-sm font-bold text-gray-700 transition-colors flex items-center gap-2" onclick="selectCategory('Office Supplies')">
+                                            <i data-lucide="file-text" class="w-3 h-3 text-purple-500"></i> Office Supplies (Paper, Ink)
+                                        </div>
+                                        <div class="cat-item px-5 py-2.5 hover:bg-yellow-50 cursor-pointer text-sm font-bold text-gray-700 transition-colors flex items-center gap-2" onclick="selectCategory('Pantry & Cleaning')">
+                                            <i data-lucide="coffee" class="w-3 h-3 text-pink-500"></i> Pantry & Cleaning
+                                        </div>
+
+                                        <div class="px-4 py-1.5 text-[9px] font-black text-gray-400 uppercase tracking-widest bg-gray-50/50 mt-1">Facility & Infrastructure</div>
+                                        <div class="cat-item px-5 py-2.5 hover:bg-yellow-50 cursor-pointer text-sm font-bold text-gray-700 transition-colors flex items-center gap-2" onclick="selectCategory('Building Repairs')">
+                                            <i data-lucide="hammer" class="w-3 h-3 text-orange-500"></i> Building Repairs
+                                        </div>
+                                        <div class="cat-item px-5 py-2.5 hover:bg-yellow-50 cursor-pointer text-sm font-bold text-gray-700 transition-colors flex items-center gap-2" onclick="selectCategory('Construction Materials')">
+                                            <i data-lucide="brick-wall" class="w-3 h-3 text-amber-500"></i> Construction Materials
+                                        </div>
+                                        <div class="cat-item px-5 py-2.5 hover:bg-yellow-50 cursor-pointer text-sm font-bold text-gray-700 transition-colors flex items-center gap-2" onclick="selectCategory('Office Equipment')">
+                                            <i data-lucide="monitor" class="w-3 h-3 text-yellow-500"></i> Office Furniture & Eqpt
+                                        </div>
+
+                                        <div class="px-4 py-1.5 text-[9px] font-black text-amber-600 uppercase tracking-widest bg-amber-50/50 mt-1">Fleet Inventory & Parts</div>
+                                        <div class="cat-item px-5 py-2.5 hover:bg-amber-50 cursor-pointer text-sm font-black text-amber-700 transition-colors flex items-center gap-2" onclick="selectCategory('Spare Parts Purchase')">
+                                            <i data-lucide="package-search" class="w-3.5 h-3.5 text-amber-500"></i> Spare Parts Purchase
+                                        </div>
+
+                                        <div class="px-4 py-1.5 text-[9px] font-black text-gray-400 uppercase tracking-widest bg-gray-50/50 mt-1">Administrative & Govt</div>
+                                        <div class="cat-item px-5 py-2.5 hover:bg-yellow-50 cursor-pointer text-sm font-bold text-gray-700 transition-colors flex items-center gap-2" onclick="selectCategory('Govt Permits & Fees')">
+                                            <i data-lucide="landmark" class="w-3 h-3 text-teal-500"></i> Business Permits & Taxes
+                                        </div>
+                                        <div class="cat-item px-5 py-2.5 hover:bg-yellow-50 cursor-pointer text-sm font-bold text-gray-700 transition-colors flex items-center gap-2" onclick="selectCategory('LTO & Registration')">
+                                            <i data-lucide="clipboard-list" class="w-3 h-3 text-emerald-500"></i> LTO Registration
+                                        </div>
+                                        <div class="cat-item px-5 py-2.5 hover:bg-yellow-50 cursor-pointer text-sm font-bold text-gray-700 transition-colors flex items-center gap-2" onclick="selectCategory('Insurance')">
+                                            <i data-lucide="shield-check" class="w-3 h-3 text-blue-500"></i> Insurance (TPL/Comp)
+                                        </div>
+                                        <div class="cat-item px-5 py-2.5 hover:bg-yellow-50 cursor-pointer text-sm font-bold text-gray-700 transition-colors flex items-center gap-2" onclick="selectCategory('Staff Meals & Incentives')">
+                                            <i data-lucide="utensils" class="w-3 h-3 text-violet-500"></i> Staff Meals
+                                        </div>
+
+                                        <div class="px-4 py-1.5 text-[9px] font-black text-gray-400 uppercase tracking-widest bg-gray-50/50 mt-1">Misc</div>
+                                        <div class="cat-item px-5 py-2.5 hover:bg-green-50 cursor-pointer text-sm font-bold text-emerald-700 transition-colors flex items-center gap-2" onclick="selectCategory('Petty Cash')">
+                                            <i data-lucide="coins" class="w-3 h-3 text-green-500"></i> Petty Cash
+                                        </div>
+                                        <div id="otherCatItem" class="cat-item px-5 py-2.5 hover:bg-rose-50 cursor-pointer text-sm font-black text-rose-600 transition-colors flex items-center gap-2 border-t border-rose-50" onclick="selectCategory('Other')">
+                                            <i data-lucide="plus-circle" class="w-3 h-3 text-rose-500"></i> -- OTHERS (CUSTOM) --
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="space-y-1.5" id="topAmountGroup">
                             <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Amount (PHP) *</label>
                             <div class="relative">
-                                <span class="absolute left-4 top-1/2 -translate-y-1/2 font-black text-gray-400 text-sm">₱</span>
+                                <span class="absolute left-4 top-1/2 -translate-y-1/2 flex items-center justify-center pointer-events-none">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5 text-gray-400"><path d="M7 12h5a3 3 0 0 0 0-6H7v12"/><path d="M5 9h11"/><path d="M5 11h11"/></svg>
+                                </span>
                                 <input type="number" name="amount" id="expenseAmount" step="0.01" min="0" required placeholder="0.00"
                                     class="w-full pl-9 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none font-black text-sm text-red-600">
                             </div>
                         </div>
                     </div>
 
-                    {{-- Row 2: Category --}}
-                    <div class="space-y-1.5 relative">
-                        <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Expense Category *</label>
-                        
-                        {{-- Custom Dropdown Trigger --}}
-                        <div class="relative" id="customSelectWrapper">
-                            <button type="button" onclick="toggleCustomSelect()" id="customSelectTrigger"
-                                class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none font-bold text-sm flex items-center justify-between group transition-all">
-                                <span id="selectedCategoryLabel">-- Choose Specific Category --</span>
-                                <i data-lucide="chevron-down" id="customSelectArrow" class="w-4 h-4 text-gray-400 group-hover:text-yellow-600 transition-transform"></i>
-                            </button>
-                            <input type="hidden" name="category" id="expenseCategory" required>
-
-                            {{-- Custom Dropdown Menu --}}
-                            <div id="customSelectMenu" class="hidden absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 rounded-2xl shadow-2xl z-[100] max-h-[300px] overflow-y-auto animate-in fade-in zoom-in-95 duration-200 py-2">
-                                <div class="px-3 pb-2 sticky top-0 bg-white border-b border-gray-50 mb-1 pt-1">
-                                    <div class="relative">
-                                        <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-3 h-3 text-gray-400"></i>
-                                        <input type="text" id="catSearch" placeholder="Search categories..." onkeyup="filterCategories(this.value)"
-                                            class="w-full pl-8 pr-3 py-1.5 bg-gray-50 border border-transparent rounded-lg focus:bg-white focus:border-yellow-200 focus:outline-none text-xs font-bold">
-                                    </div>
-                                </div>
-                                <div id="catItemsContainer">
-                                    <div class="px-4 py-1.5 text-[9px] font-black text-gray-400 uppercase tracking-widest bg-gray-50/50">Utilities & Bills</div>
-                                    <div class="cat-item px-5 py-2.5 hover:bg-yellow-50 cursor-pointer text-sm font-bold text-gray-700 transition-colors flex items-center gap-2" onclick="selectCategory('Electricity (Meralco)')">
-                                        <i data-lucide="zap" class="w-3 h-3 text-blue-500"></i> Electricity (Meralco)
-                                    </div>
-                                    <div class="cat-item px-5 py-2.5 hover:bg-yellow-50 cursor-pointer text-sm font-bold text-gray-700 transition-colors flex items-center gap-2" onclick="selectCategory('Water (Maynilad)')">
-                                        <i data-lucide="droplets" class="w-3 h-3 text-cyan-500"></i> Water (Maynilad)
-                                    </div>
-                                    <div class="cat-item px-5 py-2.5 hover:bg-yellow-50 cursor-pointer text-sm font-bold text-gray-700 transition-colors flex items-center gap-2" onclick="selectCategory('Internet & WiFi')">
-                                        <i data-lucide="wifi" class="w-3 h-3 text-indigo-500"></i> Internet & WiFi
-                                    </div>
-                                    <div class="cat-item px-5 py-2.5 hover:bg-yellow-50 cursor-pointer text-sm font-bold text-gray-700 transition-colors flex items-center gap-2" onclick="selectCategory('Communications')">
-                                        <i data-lucide="phone" class="w-3 h-3 text-sky-500"></i> Communications
-                                    </div>
-
-                                    <div class="px-4 py-1.5 text-[9px] font-black text-gray-400 uppercase tracking-widest bg-gray-50/50 mt-1">Materials & Supplies</div>
-                                    <div class="cat-item px-5 py-2.5 hover:bg-yellow-50 cursor-pointer text-sm font-bold text-gray-700 transition-colors flex items-center gap-2" onclick="selectCategory('Office Supplies')">
-                                        <i data-lucide="file-text" class="w-3 h-3 text-purple-500"></i> Office Supplies (Paper, Ink)
-                                    </div>
-                                    <div class="cat-item px-5 py-2.5 hover:bg-yellow-50 cursor-pointer text-sm font-bold text-gray-700 transition-colors flex items-center gap-2" onclick="selectCategory('Pantry & Cleaning')">
-                                        <i data-lucide="coffee" class="w-3 h-3 text-pink-500"></i> Pantry & Cleaning
-                                    </div>
-
-                                    <div class="px-4 py-1.5 text-[9px] font-black text-gray-400 uppercase tracking-widest bg-gray-50/50 mt-1">Facility & Infrastructure</div>
-                                    <div class="cat-item px-5 py-2.5 hover:bg-yellow-50 cursor-pointer text-sm font-bold text-gray-700 transition-colors flex items-center gap-2" onclick="selectCategory('Building Repairs')">
-                                        <i data-lucide="hammer" class="w-3 h-3 text-orange-500"></i> Building Repairs
-                                    </div>
-                                    <div class="cat-item px-5 py-2.5 hover:bg-yellow-50 cursor-pointer text-sm font-bold text-gray-700 transition-colors flex items-center gap-2" onclick="selectCategory('Construction Materials')">
-                                        <i data-lucide="brick-wall" class="w-3 h-3 text-amber-500"></i> Construction Materials
-                                    </div>
-                                    <div class="cat-item px-5 py-2.5 hover:bg-yellow-50 cursor-pointer text-sm font-bold text-gray-700 transition-colors flex items-center gap-2" onclick="selectCategory('Office Equipment')">
-                                        <i data-lucide="monitor" class="w-3 h-3 text-yellow-500"></i> Office Furniture & Eqpt
-                                    </div>
-
-                                    <div class="px-4 py-1.5 text-[9px] font-black text-amber-600 uppercase tracking-widest bg-amber-50/50 mt-1">Fleet Inventory & Parts</div>
-                                    <div class="cat-item px-5 py-2.5 hover:bg-amber-50 cursor-pointer text-sm font-black text-amber-700 transition-colors flex items-center gap-2" onclick="selectCategory('Spare Parts Purchase')">
-                                        <i data-lucide="package-search" class="w-3.5 h-3.5 text-amber-500"></i> Spare Parts Purchase
-                                    </div>
-
-                                    <div class="px-4 py-1.5 text-[9px] font-black text-gray-400 uppercase tracking-widest bg-gray-50/50 mt-1">Administrative & Govt</div>
-                                    <div class="cat-item px-5 py-2.5 hover:bg-yellow-50 cursor-pointer text-sm font-bold text-gray-700 transition-colors flex items-center gap-2" onclick="selectCategory('Govt Permits & Fees')">
-                                        <i data-lucide="landmark" class="w-3 h-3 text-teal-500"></i> Business Permits & Taxes
-                                    </div>
-                                    <div class="cat-item px-5 py-2.5 hover:bg-yellow-50 cursor-pointer text-sm font-bold text-gray-700 transition-colors flex items-center gap-2" onclick="selectCategory('LTO & Registration')">
-                                        <i data-lucide="clipboard-list" class="w-3 h-3 text-emerald-500"></i> LTO Registration
-                                    </div>
-                                    <div class="cat-item px-5 py-2.5 hover:bg-yellow-50 cursor-pointer text-sm font-bold text-gray-700 transition-colors flex items-center gap-2" onclick="selectCategory('Insurance')">
-                                        <i data-lucide="shield-check" class="w-3 h-3 text-blue-500"></i> Insurance (TPL/Comp)
-                                    </div>
-                                    <div class="cat-item px-5 py-2.5 hover:bg-yellow-50 cursor-pointer text-sm font-bold text-gray-700 transition-colors flex items-center gap-2" onclick="selectCategory('Staff Meals & Incentives')">
-                                        <i data-lucide="utensils" class="w-3 h-3 text-violet-500"></i> Staff Meals
-                                    </div>
-
-                                    <div class="px-4 py-1.5 text-[9px] font-black text-gray-400 uppercase tracking-widest bg-gray-50/50 mt-1">Misc</div>
-                                    <div class="cat-item px-5 py-2.5 hover:bg-green-50 cursor-pointer text-sm font-bold text-emerald-700 transition-colors flex items-center gap-2" onclick="selectCategory('Petty Cash')">
-                                        <i data-lucide="coins" class="w-3 h-3 text-green-500"></i> Petty Cash
-                                    </div>
-                                    <div id="otherCatItem" class="cat-item px-5 py-2.5 hover:bg-rose-50 cursor-pointer text-sm font-black text-rose-600 transition-colors flex items-center gap-2 border-t border-rose-50" onclick="selectCategory('Other')">
-                                        <i data-lucide="plus-circle" class="w-3 h-3 text-rose-500"></i> -- OTHERS (CUSTOM) --
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {{-- Inventory Link Section (Visible only for Spare Parts Purchase) --}}
-                    <div id="inventorySyncSection" class="hidden space-y-5 p-5 bg-amber-50/50 border border-amber-100 rounded-2xl animate-in fade-in slide-in-from-top-2 duration-300">
+                    {{-- Inventory Link Section --}}
+                    <div id="inventorySyncSection" class="hidden space-y-5 p-6 bg-amber-50/50 border border-amber-100 rounded-2xl animate-in fade-in slide-in-from-top-2 duration-300">
                         <div class="flex items-center gap-2 mb-1">
                             <div class="p-1.5 bg-amber-500 rounded-lg text-white">
                                 <i data-lucide="package" class="w-3.5 h-3.5"></i>
@@ -430,21 +420,13 @@
                             <h4 class="text-[10px] font-black text-amber-600 uppercase tracking-widest">Inventory Stock Sync</h4>
                         </div>
                         
-                        <div class="space-y-4">
-                            {{-- Dropdown vs New Part Toggle --}}
-                            <div class="flex items-center justify-between px-1">
-                                <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Select Item or Register New</label>
-                                <button type="button" onclick="toggleNewPartRegistration()" id="regNewPartBtn"
-                                    class="text-[9px] font-black text-rose-600 bg-rose-50 px-2 py-1 rounded-lg hover:bg-rose-100 transition-all border border-rose-100">
-                                    + REGISTER NEW ITEM
-                                </button>
-                            </div>
-
-                            <div id="existingPartGroup" class="space-y-1.5 animate-in fade-in duration-300">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div id="existingPartGroup" class="space-y-1.5">
+                                <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Select Part to Restock</label>
                                 <div class="relative" id="partSelectWrapper">
                                     <button type="button" onclick="togglePartSelect()" 
                                         class="w-full px-4 py-3 bg-white border border-amber-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:outline-none flex items-center justify-between transition-all group">
-                                        <span id="selectedPartLabel" class="text-sm font-bold text-gray-400">-- Select Existing Part to Restock --</span>
+                                        <span id="selectedPartLabel" class="text-sm font-bold text-gray-400">-- Select Existing Part --</span>
                                         <i data-lucide="chevron-down" id="partSelectArrow" class="w-4 h-4 text-gray-400 transition-transform duration-300"></i>
                                     </button>
 
@@ -469,68 +451,71 @@
                                     </div>
                                 </div>
                                 <input type="hidden" name="spare_part_id" id="expenseSparePartId">
+                                <button type="button" onclick="toggleNewPartRegistration()" id="regNewPartBtn"
+                                    class="text-[9px] font-black text-rose-600 bg-rose-50 px-2 py-1 rounded-lg hover:bg-rose-100 transition-all border border-rose-100 mt-2">
+                                    + REGISTER NEW ITEM
+                                </button>
                             </div>
 
-                            {{-- Register New Part Field (Expanded View) --}}
-                            <div id="newPartGroup" class="hidden space-y-4 bg-rose-50/50 p-4 rounded-xl border border-rose-100 animate-in slide-in-from-top-2 duration-300">
-                                <div class="flex items-center gap-2 mb-1">
-                                    <i data-lucide="sparkles" class="w-4 h-4 text-rose-500"></i>
-                                    <span class="text-[10px] font-black text-rose-600 uppercase tracking-widest">New Inventory Registration</span>
-                                </div>
-                                
+                            <div id="newPartGroup" class="hidden space-y-1.5 bg-rose-50/50 p-4 rounded-xl border border-rose-100">
+                                <label class="text-[10px] font-black text-rose-600 uppercase tracking-widest ml-1">New Part Name *</label>
+                                <input type="text" name="new_part_name" id="expenseNewPartName" placeholder="e.g. Clutch Disc (Genuine)"
+                                    class="w-full px-4 py-2.5 bg-white border border-rose-200 rounded-xl focus:ring-2 focus:ring-rose-500 focus:outline-none font-black text-sm text-rose-700">
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-4">
                                 <div class="space-y-1.5">
-                                    <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Part Name *</label>
-                                    <input type="text" name="new_part_name" id="expenseNewPartName" placeholder="e.g. Clutch Disc (Genuine), Brake Pads, etc."
-                                        class="w-full px-4 py-2.5 bg-white border border-rose-200 rounded-xl focus:ring-2 focus:ring-rose-500 focus:outline-none font-black text-sm text-rose-700">
+                                    <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Quantity *</label>
+                                    <input type="number" name="quantity" id="expenseQuantity" min="1" placeholder="0" oninput="calcInventoryTotal()"
+                                        class="w-full px-4 py-2.5 bg-white border border-amber-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:outline-none font-black text-sm">
                                 </div>
-                                <p class="text-[9px] text-rose-500 font-bold uppercase ml-1">This will be added to your inventory list</p>
+                                <div class="space-y-1.5">
+                                    <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1 flex items-center justify-between">
+                                        <span>Unit Price *</span>
+                                        <span id="priceEditBadge" class="hidden text-[8px] bg-rose-500 text-white px-1.5 py-0.5 rounded">MODIFIED</span>
+                                    </label>
+                                    <input type="number" name="unit_price" id="expenseUnitPrice" step="0.01" min="0" placeholder="0.00" oninput="calcInventoryTotal(); markAsModified();"
+                                        class="w-full px-4 py-2.5 bg-white border border-amber-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:outline-none font-black text-sm">
+                                </div>
                             </div>
                         </div>
+                    </div>
 
-                        <div class="grid grid-cols-2 gap-4">
-                            <div class="space-y-1.5">
-                                <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Quantity *</label>
-                                <input type="number" name="quantity" id="expenseQuantity" min="1" placeholder="0" oninput="calcInventoryTotal()"
-                                    class="w-full px-4 py-2.5 bg-white border border-amber-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:outline-none font-black text-sm">
-                            </div>
-                            <div class="space-y-1.5">
-                                <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1 flex items-center justify-between">
-                                    <span>Unit Price *</span>
-                                    <span id="priceEditBadge" class="hidden text-[8px] bg-rose-500 text-white px-1.5 py-0.5 rounded animate-pulse">MODIFIED</span>
-                                </label>
-                                <input type="number" name="unit_price" id="expenseUnitPrice" step="0.01" min="0" placeholder="0.00" oninput="calcInventoryTotal(); markAsModified();"
-                                    class="w-full px-4 py-2.5 bg-white border border-amber-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:outline-none font-black text-sm">
-                            </div>
-                        </div>
+                    {{-- Row 2: Description --}}
+                    <div class="space-y-1.5">
+                        <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Description / Details *</label>
+                        <textarea name="description" id="expenseDescription" required rows="3"
+                            class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none font-medium text-sm"
+                            placeholder="Example: WiFi Bill for April 2024, or 5 Reams of A4 Bond Paper..."></textarea>
+                    </div>
 
-                        {{-- Consolidated Supplier Dropdown --}}
-                        <div id="supplierDisplayGroup" class="space-y-1.5 pt-1">
-                            <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1 flex items-center justify-between">
-                                <span class="flex items-center gap-1">
-                                    <i data-lucide="building-2" class="w-3 h-3 text-amber-500"></i> Supplier / Store Name *
-                                </span>
-                                <span id="editModeBadge" class="hidden text-[8px] bg-amber-500 text-white px-1.5 py-0.5 rounded animate-pulse">MODIFIED</span>
+                    {{-- Row 3: Vendor & Reference --}}
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div id="supplierDisplayGroup" class="space-y-1.5">
+                            <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1 flex items-center gap-1">
+                                <i data-lucide="building-2" class="w-3 h-3 text-yellow-500"></i> Vendor / Store Name
+                                <span id="editModeBadge" class="hidden text-[8px] bg-yellow-500 text-white px-1.5 py-0.5 rounded">MODIFIED</span>
                             </label>
                             
                             <div class="relative" id="supplierSelectWrapper">
                                 <button type="button" onclick="toggleSupplierSelect()" 
-                                    class="w-full px-4 py-3 bg-white border border-amber-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:outline-none flex items-center justify-between transition-all group">
+                                    class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none flex items-center justify-between transition-all group">
                                     <span id="selectedSupplierLabel" class="text-sm font-bold text-gray-400">-- Choose or Type Supplier --</span>
                                     <i data-lucide="chevron-down" id="supplierSelectArrow" class="w-4 h-4 text-gray-400 transition-transform duration-300"></i>
                                 </button>
 
-                                <div id="supplierSelectMenu" class="hidden absolute left-0 right-0 top-full mt-2 bg-white border border-amber-100 rounded-2xl shadow-2xl z-[100] animate-in fade-in slide-in-from-top-2 duration-300 overflow-hidden">
-                                    <div class="p-3 border-b border-amber-50 bg-amber-50/30">
+                                <div id="supplierSelectMenu" class="hidden absolute left-0 right-0 top-full mt-2 bg-white border border-gray-100 rounded-2xl shadow-2xl z-[100] animate-in fade-in slide-in-from-top-2 duration-300 overflow-hidden">
+                                    <div class="p-3 border-b border-gray-50 bg-gray-50/30">
                                         <div class="relative">
-                                            <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-amber-400"></i>
+                                            <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400"></i>
                                             <input type="text" id="supSearch" oninput="filterSuppliers(this.value)" placeholder="Search supplier..." 
-                                                class="w-full pl-9 pr-4 py-2 bg-white border border-amber-100 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-amber-500 font-bold">
+                                                class="w-full pl-9 pr-4 py-2 bg-white border border-gray-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-yellow-500 font-bold">
                                         </div>
                                     </div>
                                     <div class="max-h-48 overflow-y-auto custom-scrollbar p-2 space-y-1" id="supplierListContainer">
                                         @foreach($suppliers as $s)
                                             <button type="button" onclick="selectSupplier('{{ $s->name }}')" 
-                                                class="sup-item w-full px-4 py-2.5 text-left text-sm font-bold text-gray-600 hover:bg-amber-50 hover:text-amber-600 rounded-xl transition-all flex items-center gap-2">
+                                                class="sup-item w-full px-4 py-2.5 text-left text-sm font-bold text-gray-600 hover:bg-yellow-50 hover:text-yellow-600 rounded-xl transition-all flex items-center gap-2">
                                                 <i data-lucide="building" class="w-3.5 h-3.5 opacity-40"></i>
                                                 {{ $s->name }}
                                             </button>
@@ -544,10 +529,10 @@
                                 </div>
                             </div>
 
-                            <div id="newSupplierField" class="hidden space-y-1.5 animate-in slide-in-from-top-2 duration-300 pt-2">
+                            <div id="newSupplierField" class="hidden mt-2">
                                 <div class="relative">
                                     <i data-lucide="edit-3" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-rose-500"></i>
-                                    <input type="text" id="expenseNewSupplier" placeholder="Type new supplier name here..."
+                                    <input type="text" id="expenseNewSupplier" placeholder="Type new supplier name..."
                                         oninput="updateSyncSupplierValue(this.value)"
                                         class="w-full pl-10 pr-4 py-2.5 bg-rose-50 border border-rose-300 rounded-xl focus:ring-2 focus:ring-rose-500 focus:outline-none font-black text-sm text-rose-700">
                                 </div>
@@ -556,85 +541,64 @@
                             <input type="hidden" name="vendor_name" id="syncSupplierHidden">
                             <input type="hidden" name="update_master" id="updateMasterHidden" value="0">
                         </div>
-                        
-                        <p class="text-[9px] text-amber-600 font-bold uppercase ml-1 flex items-center gap-1">
-                            <i data-lucide="info" class="w-3 h-3"></i> Adding this expense will automatically increase inventory stock.
-                        </p>
-                    </div>
 
-                    {{-- Custom Category Input (Hidden by default) --}}
-                    <div id="customCategoryGroup" class="space-y-1.5 hidden animate-in slide-in-from-top-2 duration-300">
-                        <label class="text-[11px] font-black text-rose-600 uppercase tracking-widest ml-1 flex items-center gap-1">
-                            <i data-lucide="plus-circle" class="w-3 h-3"></i> Specify Custom Category *
-                        </label>
-                        <input type="text" name="custom_category" id="expenseCustomCategory" placeholder="e.g. Franchise Fees, Legal Support, etc."
-                            class="w-full px-4 py-2.5 bg-rose-50 border border-rose-100 rounded-xl focus:ring-2 focus:ring-rose-500 focus:border-rose-500 focus:outline-none font-bold text-sm">
-                        <p class="text-[9px] text-gray-400 font-bold uppercase ml-1">This will be used as the new category name</p>
-                    </div>
-
-                    {{-- Row 3: Description --}}
-                    <div class="space-y-1.5">
-                        <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Description / Details *</label>
-                        <textarea name="description" id="expenseDescription" required rows="3"
-                            class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none font-medium text-sm"
-                            placeholder="Example: WiFi Bill for April 2024, or 5 Reams of A4 Bond Paper..."></textarea>
-                    </div>
-
-                    {{-- Supplier Selection (Hidden for Spare Parts Sync to avoid double input) --}}
-                    <div id="standardVendorOnly" class="space-y-1.5 mb-5">
-                        <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Vendor / Store Name</label>
-                        <div class="relative">
-                            <i data-lucide="building" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
-                            <input type="text" name="vendor_name" id="expenseVendor" placeholder="e.g. Meralco, Pandayan, PLDT"
-                                class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none font-bold text-sm">
+                        <div class="space-y-1.5">
+                            <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1 flex items-center gap-1">
+                                <i data-lucide="hash" class="w-3.5 h-3.5 text-yellow-500"></i> Reference No. (Invoice)
+                            </label>
+                            <div class="relative">
+                                <i data-lucide="tag" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-300"></i>
+                                <input type="text" name="reference_number" id="expenseReference" placeholder="e.g. SINV-12345"
+                                    class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none font-black text-sm uppercase">
+                            </div>
                         </div>
                     </div>
 
-                    {{-- Reference No (Always Visible) --}}
-                    <div class="space-y-1.5 mb-5">
-                        <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1 flex items-center gap-1">
-                            <i data-lucide="hash" class="w-3.5 h-3.5 text-yellow-500"></i> Reference No. (Invoice)
-                        </label>
-                        <div class="relative">
-                            <i data-lucide="tag" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-300"></i>
-                            <input type="text" name="reference_number" id="expenseReference" placeholder="e.g. SINV-12345, OR-9876, etc."
-                                class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none font-black text-sm uppercase">
-                        </div>
-                    </div>
-
-                    {{-- Row 5: Payment Method --}}
+                    {{-- Row 4: Payment Method --}}
                     <div class="space-y-1.5">
                         <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Payment Method</label>
-                        <div class="grid grid-cols-3 gap-3">
-                            <label class="relative cursor-pointer">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <label class="relative cursor-pointer group">
                                 <input type="radio" name="payment_method" value="Cash" class="peer sr-only" checked id="pmCash">
-                                <div class="p-3 text-center border-2 border-gray-100 rounded-xl peer-checked:border-yellow-500 peer-checked:bg-yellow-50 transition-all hover:bg-gray-50">
-                                    <i data-lucide="banknote" class="w-4 h-4 mx-auto mb-1 text-gray-400 peer-checked:text-yellow-600"></i>
-                                    <span class="text-[10px] font-black uppercase text-gray-500">Cash</span>
+                                <div class="p-4 flex items-center gap-3 border-2 border-gray-100 rounded-2xl peer-checked:border-yellow-500 peer-checked:bg-yellow-50 transition-all hover:bg-gray-50">
+                                    <div class="p-2 bg-gray-100 rounded-xl text-gray-400 peer-checked:bg-yellow-500 peer-checked:text-white transition-colors">
+                                        <i data-lucide="banknote" class="w-5 h-5"></i>
+                                    </div>
+                                    <span class="text-sm font-black uppercase text-gray-500 peer-checked:text-yellow-700 tracking-wider">Cash</span>
                                 </div>
                             </label>
-                            <label class="relative cursor-pointer">
+                            <label class="relative cursor-pointer group">
                                 <input type="radio" name="payment_method" value="Check" class="peer sr-only" id="pmCheck">
-                                <div class="p-3 text-center border-2 border-gray-100 rounded-xl peer-checked:border-yellow-500 peer-checked:bg-yellow-50 transition-all hover:bg-gray-50">
-                                    <i data-lucide="wallet" class="w-4 h-4 mx-auto mb-1 text-gray-400 peer-checked:text-yellow-600"></i>
-                                    <span class="text-[10px] font-black uppercase text-gray-500">Check</span>
+                                <div class="p-4 flex items-center gap-3 border-2 border-gray-100 rounded-2xl peer-checked:border-yellow-500 peer-checked:bg-yellow-50 transition-all hover:bg-gray-50">
+                                    <div class="p-2 bg-gray-100 rounded-xl text-gray-400 peer-checked:bg-yellow-500 peer-checked:text-white transition-colors">
+                                        <i data-lucide="wallet" class="w-5 h-5"></i>
+                                    </div>
+                                    <span class="text-sm font-black uppercase text-gray-500 peer-checked:text-yellow-700 tracking-wider">Check</span>
                                 </div>
                             </label>
-                            <label class="relative cursor-pointer">
+                            <label class="relative cursor-pointer group">
                                 <input type="radio" name="payment_method" value="Transfer" class="peer sr-only" id="pmTransfer">
-                                <div class="p-3 text-center border-2 border-gray-100 rounded-xl peer-checked:border-yellow-500 peer-checked:bg-yellow-50 transition-all hover:bg-gray-50">
-                                    <i data-lucide="cpu" class="w-4 h-4 mx-auto mb-1 text-gray-400 peer-checked:text-yellow-600"></i>
-                                    <span class="text-[10px] font-black uppercase text-gray-500">Transfer</span>
+                                <div class="p-4 flex items-center gap-3 border-2 border-gray-100 rounded-2xl peer-checked:border-yellow-500 peer-checked:bg-yellow-50 transition-all hover:bg-gray-50">
+                                    <div class="p-2 bg-gray-100 rounded-xl text-gray-400 peer-checked:bg-yellow-500 peer-checked:text-white transition-colors">
+                                        <i data-lucide="cpu" class="w-5 h-5"></i>
+                                    </div>
+                                    <span class="text-sm font-black uppercase text-gray-500 peer-checked:text-yellow-700 tracking-wider">Transfer</span>
                                 </div>
                             </label>
                         </div>
                     </div>
                 </div>
 
-                {{-- Form Footer --}}
-                <div class="p-6 bg-gray-50 border-t flex gap-4">
-                    <button type="submit" class="flex-1 bg-yellow-600 text-white font-black uppercase tracking-widest text-xs py-4 rounded-2xl hover:bg-yellow-700 shadow-lg shadow-yellow-200 transition-all active:scale-95">Save Expense</button>
-                    <button type="button" onclick="closeExpenseModal()" class="flex-1 bg-white border border-gray-200 text-gray-500 font-black uppercase tracking-widest text-xs py-4 rounded-2xl hover:bg-gray-50 transition-all">Cancel</button>
+                {{-- Form Footer (Standardized with Maintenance) --}}
+                <div class="p-4 border-t flex justify-end gap-3 shadow-inner bg-gray-50 shrink-0">
+                    <button type="button" onclick="closeExpenseModal()" 
+                        class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 text-sm font-bold transition-all">
+                        Cancel
+                    </button>
+                    <button type="submit" 
+                        class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-bold shadow-lg shadow-green-200/50 transition-all flex items-center gap-2">
+                        <i data-lucide="check" class="w-4 h-4"></i> Save Expense
+                    </button>
                 </div>
             </form>
         </div>
@@ -680,7 +644,6 @@ function openAddExpenseModal() {
     document.getElementById('regNewPartBtn').classList.replace('bg-gray-100', 'bg-rose-50');
     document.getElementById('regNewPartBtn').classList.replace('text-gray-600', 'text-rose-600');
     
-    document.getElementById('standardVendorOnly').classList.remove('hidden');
     document.getElementById('syncSupplierHidden').value = '';
     document.getElementById('selectedSupplierLabel').textContent = '-- Choose or Type Supplier --';
     document.getElementById('selectedSupplierLabel').classList.remove('text-gray-900');
@@ -702,7 +665,6 @@ function openAddExpenseModal() {
     document.getElementById('selectedCategoryLabel').classList.add('text-gray-400');
     document.getElementById('expenseDescription').value = '';
     document.getElementById('expenseReference').value = '';
-    document.getElementById('expenseVendor').value = '';
     document.getElementById('pmCash').checked = true;
     
     const modal = document.getElementById('expenseModal');
@@ -742,22 +704,27 @@ function openEditExpenseModal(id) {
         const inventorySection = document.getElementById('inventorySyncSection');
         if (data.category === 'Spare Parts Purchase') {
             inventorySection.classList.remove('hidden');
-            document.getElementById('standardVendorOnly').classList.add('hidden');
             document.getElementById('expenseSparePartId').value = data.spare_part_id || '';
             document.getElementById('expenseQuantity').value = data.quantity || '';
             document.getElementById('expenseUnitPrice').value = data.unit_price || '';
             document.getElementById('expenseAmount').readOnly = true;
             document.getElementById('expenseAmount').classList.add('bg-gray-100');
+            document.getElementById('topAmountGroup').classList.add('hidden');
         } else {
             inventorySection.classList.add('hidden');
             document.getElementById('expenseAmount').readOnly = false;
             document.getElementById('expenseAmount').classList.remove('bg-gray-100');
+            document.getElementById('topAmountGroup').classList.remove('hidden');
         }
 
         document.getElementById('expenseDescription').value = data.description || '';
         document.getElementById('expenseAmount').value = data.amount || '';
         document.getElementById('expenseReference').value = data.reference_number || '';
-        document.getElementById('expenseVendor').value = data.vendor_name || '';
+        
+        // Supplier Handling
+        document.getElementById('syncSupplierHidden').value = data.vendor_name || '';
+        document.getElementById('selectedSupplierLabel').textContent = data.vendor_name || '-- Choose or Type Supplier --';
+        if(data.vendor_name) document.getElementById('selectedSupplierLabel').classList.add('text-gray-900');
         
         // Select correct radio
         const pm = data.payment_method || 'Cash';
@@ -825,17 +792,6 @@ function selectCategory(val) {
     // Toggle Inventory Section vs Standard Vendor Section
     if (val === 'Spare Parts Purchase') {
         inventorySection.classList.remove('hidden');
-        document.getElementById('standardVendorOnly').classList.add('hidden');
-        document.getElementById('topAmountGroup').classList.add('hidden');
-        document.getElementById('expenseVendor').disabled = true; // Disable original to use the sync one
-        amountInput.readOnly = true;
-        amountInput.classList.add('bg-gray-100');
-        if(!descInput.value) descInput.value = 'Inventory Stock Restock';
-    } else {
-        inventorySection.classList.add('hidden');
-        document.getElementById('standardVendorOnly').classList.remove('hidden');
-        document.getElementById('topAmountGroup').classList.remove('hidden');
-        document.getElementById('expenseVendor').disabled = false;
         amountInput.readOnly = false;
         amountInput.classList.remove('bg-gray-100');
     }
@@ -1001,7 +957,6 @@ function selectSupplier(val, userAction = true) {
         label.classList.add('text-gray-900');
         newSupplierField.classList.add('hidden');
         hiddenSupplier.value = val;
-        document.getElementById('expenseVendor').value = val;
         if(userAction) markAsModified();
     }
     
@@ -1084,28 +1039,27 @@ function updateSyncSupplierValue(val) {
 function updatePartDetails(select) {
     const val = select.value;
     const option = select.options[select.selectedIndex];
-    const syncSupplierName = document.getElementById('syncSupplierName');
+    if (!val || val === 'new') return;
+    
     const syncSupplierHidden = document.getElementById('syncSupplierHidden');
     const unitPriceInput = document.getElementById('expenseUnitPrice');
-
-    if (!val || val === 'new') return;
 
     unitPriceInput.value = option.dataset.price;
     
     const supplier = option.dataset.supplier || 'Unspecified Supplier';
-    syncSupplierName.value = supplier;
     syncSupplierHidden.value = supplier;
-    document.getElementById('expenseVendor').value = supplier;
 
     document.getElementById('expenseDescription').value = "PURCHASED: " + option.text.split(' (Stock:')[0];
     calcInventoryTotal();
 }
 
-// Update the hidden vendor field when typing in the supplier field (for other modes)
-document.getElementById('syncSupplierName').oninput = function() {
-    document.getElementById('syncSupplierHidden').value = this.value;
-    document.getElementById('expenseVendor').value = this.value;
-};
+// Update the hidden vendor field when typing in the new supplier field
+const newSupInput = document.getElementById('expenseNewSupplier');
+if (newSupInput) {
+    newSupInput.oninput = function() {
+        document.getElementById('syncSupplierHidden').value = this.value;
+    };
+}
 
 function calcInventoryTotal() {
     const qty = document.getElementById('expenseQuantity').value || 0;
@@ -1116,7 +1070,6 @@ function calcInventoryTotal() {
 
 function updateSyncSupplierValue(val) {
     document.getElementById('syncSupplierHidden').value = val;
-    document.getElementById('expenseVendor').value = val;
 }
 
 // Modify form submission to handle custom category
