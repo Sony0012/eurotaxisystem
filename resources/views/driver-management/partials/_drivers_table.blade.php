@@ -1,6 +1,6 @@
-<div class="overflow-x-auto bg-white">
-    <table class="min-w-full divide-y divide-gray-100">
-        <thead class="bg-gray-50/80 border-b border-gray-100">
+<div class="overflow-x-auto pb-4">
+    <table class="min-w-full text-sm modern-table-sep">
+        <thead>
             <tr>
                 <th class="px-6 py-4 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest w-1/4">Driver Profile</th>
                 <th class="px-6 py-4 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Assigned Unit</th>
@@ -11,10 +11,10 @@
                 <th class="px-6 py-4 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest text-right">Actions</th>
             </tr>
         </thead>
-        <tbody class="divide-y divide-gray-50">
+        <tbody>
             @forelse($drivers as $driver)
                 @php $has_shortage = isset($driver->net_shortage) && $driver->net_shortage > 0; @endphp
-                <tr class="cursor-pointer transition-all duration-200 {{ $has_shortage ? 'bg-red-50/30 hover:bg-red-100/50' : 'hover:bg-slate-100/80' }} group" onclick="openDriverDetails({{ $driver->id }})">
+                <tr class="modern-row cursor-pointer group {{ $has_shortage ? 'shortage-row' : '' }}" onclick="openDriverDetails({{ $driver->id }})">
                     
                     {{-- Driver Profile --}}
                     <td class="px-6 py-5">
@@ -118,8 +118,8 @@
                             <button type="button" class="w-full text-left px-4 py-2.5 text-xs font-bold text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors flex items-center gap-2" onclick="event.stopPropagation(); document.getElementById('dropdown-{{ $driver->id }}').classList.add('hidden'); openEditDriverModal({{ $driver->id }})">
                                 <i data-lucide="edit-2" class="w-4 h-4"></i> Edit Driver
                             </button>
-                            <button type="button" class="w-full text-left px-4 py-2.5 text-xs font-bold text-red-600 hover:bg-red-50 transition-colors flex items-center gap-2 border-t border-gray-50" onclick="event.stopPropagation(); document.getElementById('dropdown-{{ $driver->id }}').classList.add('hidden'); deleteDriver({{ $driver->id }}, '{{ $driver->full_name }}')">
-                                <i data-lucide="trash-2" class="w-4 h-4"></i> Delete
+                            <button type="button" class="w-full text-left px-4 py-2.5 text-xs font-bold text-orange-600 hover:bg-orange-50 transition-colors flex items-center gap-2 border-t border-gray-50" onclick="event.stopPropagation(); document.getElementById('dropdown-{{ $driver->id }}').classList.add('hidden'); archiveDriver({{ $driver->id }}, '{{ $driver->full_name }}')">
+                                <i data-lucide="archive" class="w-4 h-4"></i> Archive
                             </button>
                         </div>
                     </td>
@@ -142,32 +142,26 @@
 </div>
 
 @if($pagination['total_pages'] > 1)
-    <div class="px-6 py-2 border-t border-gray-200">
-        <div class="flex items-center justify-between">
-            <div class="text-sm text-gray-700">
-                Showing {{ $pagination['total_items'] }} results / Page {{ $pagination['page'] }} of {{ $pagination['total_pages'] }}
-            </div>
-            <div class="flex items-center gap-2">
-                @if($pagination['has_prev'])
-                    <a href="javascript:void(0)" onclick="changePage({{ $pagination['prev_page'] }})"
-                        class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                        <i data-lucide="chevron-left" class="w-4 h-4"></i>
-                    </a>
-                @endif
-                @for($i = max(1, $pagination['page'] - 2); $i <= min($pagination['total_pages'], $pagination['page'] + 2); $i++)
-                    <a href="javascript:void(0)" onclick="changePage({{ $i }})"
-                        class="relative inline-flex items-center px-4 py-2 border text-sm font-medium
-                                    {{ $i === $pagination['page'] ? 'z-10 bg-yellow-50 border-yellow-500 text-yellow-600' : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50' }}">
-                        {{ $i }}
-                    </a>
-                @endfor
-                @if($pagination['has_next'])
-                    <a href="javascript:void(0)" onclick="changePage({{ $pagination['next_page'] }})"
-                        class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                        <i data-lucide="chevron-right" class="w-4 h-4"></i>
-                    </a>
-                @endif
-            </div>
+    <div class="px-8 py-6 bg-gray-50/50 border-t border-gray-100 flex flex-col md:flex-row items-center justify-between gap-4">
+        <div class="text-[11px] font-bold text-gray-400 uppercase tracking-widest">
+            Showing <span class="text-gray-900">{{ $pagination['total_items'] }}</span> results / Page <span class="text-gray-900">{{ $pagination['page'] }}</span> of <span class="text-gray-900">{{ $pagination['total_pages'] }}</span>
+        </div>
+        <div class="flex items-center gap-1.5">
+            @if($pagination['has_prev'])
+                <button onclick="changePage({{ $pagination['prev_page'] }})" class="p-2.5 rounded-xl border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 transition-all active:scale-90 shadow-sm">
+                    <i data-lucide="chevron-left" class="w-5 h-5"></i>
+                </button>
+            @endif
+            @for($i = max(1, $pagination['page'] - 2); $i <= min($pagination['total_pages'], $pagination['page'] + 2); $i++)
+                <button onclick="changePage({{ $i }})" class="w-10 h-10 rounded-xl border text-[11px] font-black transition-all {{ $i === $pagination['page'] ? 'bg-blue-600 border-blue-600 text-white shadow-md' : 'bg-white border-gray-200 text-gray-500 hover:bg-gray-50' }}">
+                    {{ $i }}
+                </button>
+            @endfor
+            @if($pagination['has_next'])
+                <button onclick="changePage({{ $pagination['next_page'] }})" class="p-2.5 rounded-xl border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 transition-all active:scale-90 shadow-sm">
+                    <i data-lucide="chevron-right" class="w-5 h-5"></i>
+                </button>
+            @endif
         </div>
     </div>
 @endif
@@ -177,17 +171,36 @@
     window.toggleDriverDropdown = function(id, event) {
         event.stopPropagation(); // Prevent row click (which opens details)
         
-        // Close all other dropdowns
+        // Close all other dropdowns and reset their row z-index
         document.querySelectorAll('.driver-action-dropdown').forEach(el => {
             if (el.id !== id) {
                 el.classList.add('hidden');
+            }
+            const row = el.closest('tr');
+            if (row) {
+                row.style.zIndex = '';
+                row.style.position = '';
             }
         });
         
         // Toggle the target dropdown
         const dropdown = document.getElementById(id);
         if (dropdown) {
-            dropdown.classList.toggle('hidden');
+            const isHidden = dropdown.classList.contains('hidden');
+            const row = dropdown.closest('tr');
+            if (isHidden) {
+                dropdown.classList.remove('hidden');
+                if (row) {
+                    row.style.position = 'relative';
+                    row.style.zIndex = '50';
+                }
+            } else {
+                dropdown.classList.add('hidden');
+                if (row) {
+                    row.style.zIndex = '';
+                    row.style.position = '';
+                }
+            }
         }
     };
 
@@ -196,6 +209,11 @@
         document.addEventListener('click', function() {
             document.querySelectorAll('.driver-action-dropdown').forEach(el => {
                 el.classList.add('hidden');
+                const row = el.closest('tr');
+                if (row) {
+                    row.style.zIndex = '';
+                    row.style.position = '';
+                }
             });
         });
         window.driverDropdownListenerAdded = true;
