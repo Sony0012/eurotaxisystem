@@ -137,6 +137,11 @@
                 </tbody>
             </table>
         </div>
+        @if($profitability->hasPages())
+        <div class="px-6 py-4 border-t border-gray-200">
+            {{ $profitability->appends(request()->query())->links() }}
+        </div>
+        @endif
     </div>
 
     {{-- Top Performers & Needs Attention --}}
@@ -151,7 +156,7 @@
             </div>
             <div class="divide-y divide-gray-100">
                 @php
-                    $topPerformers = collect($profitability)->filter(fn($u) => ($u->profit_margin ?? 0) >= 40)->sortByDesc('profit_margin')->take(5);
+                    $topPerformers = collect($full_profitability)->filter(fn($u) => ($u->profit_margin ?? 0) >= 40)->sortByDesc('profit_margin')->take(5);
                 @endphp
                 @forelse($topPerformers as $unit)
                     <div class="px-5 py-3 flex items-center justify-between">
@@ -180,7 +185,7 @@
             </div>
             <div class="divide-y divide-gray-100">
                 @php
-                    $needsAttention = collect($profitability)->filter(fn($u) => ($u->profit_margin ?? 0) < 40)->sortBy('profit_margin')->take(5);
+                    $needsAttention = collect($full_profitability)->filter(fn($u) => ($u->profit_margin ?? 0) < 40)->sortBy('profit_margin')->take(5);
                 @endphp
                 @forelse($needsAttention as $unit)
                     <div class="px-5 py-3 flex items-center justify-between">
