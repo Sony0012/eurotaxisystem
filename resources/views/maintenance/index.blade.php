@@ -127,47 +127,59 @@
 {{-- Stats --}}
 <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
     <!-- Card 1: Total Records -->
-    <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-blue-800 flex items-center gap-4">
-        <div class="p-3 bg-blue-50 rounded-lg">
-            <i data-lucide="folder-open" class="w-6 h-6 text-blue-800"></i>
+    <div class="bg-gradient-to-br from-blue-50 to-indigo-50/70 p-4 rounded-xl shadow-sm border-l-4 border-blue-700 relative overflow-hidden flex items-center justify-between">
+        <div class="flex items-center gap-4 relative z-10">
+            <div class="p-3 bg-blue-100 rounded-lg shadow-sm">
+                <i data-lucide="folder-open" class="w-6 h-6 text-blue-700"></i>
+            </div>
+            <div class="min-w-0">
+                <div class="text-xl font-black text-gray-900 tracking-tight truncate tabular-nums">{{ $totals->total_count ?? 0 }}</div>
+                <div class="text-[10px] font-black text-blue-400 uppercase tracking-widest truncate">Total Records</div>
+            </div>
         </div>
-        <div class="min-w-0">
-            <div class="text-xl font-black text-gray-900 tracking-tight truncate tabular-nums">{{ $totals->total_count ?? 0 }}</div>
-            <div class="text-[10px] font-black text-gray-400 uppercase tracking-widest truncate">Total Records</div>
-        </div>
+        <i data-lucide="folder-open" class="absolute -right-3 -bottom-3 w-20 h-20 text-blue-400 opacity-[0.12] -rotate-12 z-0 pointer-events-none"></i>
     </div>
 
     <!-- Card 2: Pending -->
-    <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-orange-500 flex items-center gap-4">
-        <div class="p-3 bg-yellow-50 rounded-lg">
-            <i data-lucide="clock" class="w-6 h-6 text-orange-600"></i>
+    <div class="bg-gradient-to-br from-orange-50 to-amber-50/70 p-4 rounded-xl shadow-sm border-l-4 border-orange-500 relative overflow-hidden flex items-center justify-between">
+        <div class="flex items-center gap-4 relative z-10">
+            <div class="p-3 bg-orange-100 rounded-lg shadow-sm">
+                <i data-lucide="clock" class="w-6 h-6 text-orange-600"></i>
+            </div>
+            <div class="min-w-0">
+                <div class="text-xl font-black text-gray-900 tracking-tight truncate tabular-nums">{{ $totals->pending_count ?? 0 }}</div>
+                <div class="text-[10px] font-black text-orange-400 uppercase tracking-widest truncate">Pending</div>
+            </div>
         </div>
-        <div class="min-w-0">
-            <div class="text-xl font-black text-orange-600 tracking-tight truncate tabular-nums">{{ $totals->pending_count ?? 0 }}</div>
-            <div class="text-[10px] font-black text-gray-400 uppercase tracking-widest truncate">Pending</div>
-        </div>
+        <i data-lucide="clock" class="absolute -right-3 -bottom-3 w-20 h-20 text-orange-400 opacity-[0.12] -rotate-12 z-0 pointer-events-none"></i>
     </div>
 
     <!-- Card 3: Active Work -->
-    <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-indigo-500 flex items-center gap-4">
-        <div class="p-3 bg-indigo-50 rounded-lg">
-            <i data-lucide="wrench" class="w-6 h-6 text-indigo-600"></i>
+    <div class="bg-gradient-to-br from-indigo-50 to-violet-50/70 p-4 rounded-xl shadow-sm border-l-4 border-indigo-500 relative overflow-hidden flex items-center justify-between">
+        <div class="flex items-center gap-4 relative z-10">
+            <div class="p-3 bg-indigo-100 rounded-lg shadow-sm">
+                <i data-lucide="wrench" class="w-6 h-6 text-indigo-600"></i>
+            </div>
+            <div class="min-w-0">
+                <div class="text-xl font-black text-gray-900 tracking-tight truncate tabular-nums">{{ $totals->in_progress_count ?? 0 }}</div>
+                <div class="text-[10px] font-black text-indigo-400 uppercase tracking-widest truncate">Active Work</div>
+            </div>
         </div>
-        <div class="min-w-0">
-            <div class="text-xl font-black text-indigo-600 tracking-tight truncate tabular-nums">{{ $totals->in_progress_count ?? 0 }}</div>
-            <div class="text-[10px] font-black text-gray-400 uppercase tracking-widest truncate">Active Work</div>
-        </div>
+        <i data-lucide="wrench" class="absolute -right-3 -bottom-3 w-20 h-20 text-indigo-400 opacity-[0.12] -rotate-12 z-0 pointer-events-none"></i>
     </div>
 
     <!-- Card 4: Total Cost -->
-    <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-emerald-500 flex items-center gap-4">
-        <div class="p-3 bg-green-50 rounded-lg">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 text-emerald-600"><path d="M7 12h5a3 3 0 0 0 0-6H7v12"/><path d="M5 9h11"/><path d="M5 11h11"/></svg>
+    <div class="bg-gradient-to-br from-emerald-50 to-teal-50/70 p-4 rounded-xl shadow-sm border-l-4 border-emerald-500 relative overflow-hidden flex items-center justify-between">
+        <div class="flex items-center gap-4 relative z-10">
+            <div class="p-3 bg-emerald-100 rounded-lg shadow-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 text-emerald-600"><path d="M7 12h5a3 3 0 0 0 0-6H7v12"/><path d="M5 9h11"/><path d="M5 11h11"/></svg>
+            </div>
+            <div class="min-w-0">
+                <div class="text-xl font-black text-gray-900 tracking-tight truncate tabular-nums">{{ formatCurrency($totals->total_cost ?? 0) }}</div>
+                <div class="text-[10px] font-black text-emerald-400 uppercase tracking-widest truncate">Total Cost</div>
+            </div>
         </div>
-        <div class="min-w-0">
-            <div class="text-xl font-black text-emerald-600 tracking-tight truncate tabular-nums">{{ formatCurrency($totals->total_cost ?? 0) }}</div>
-            <div class="text-[10px] font-black text-gray-400 uppercase tracking-widest truncate">Total Cost</div>
-        </div>
+        <i data-lucide="philippine-peso" class="absolute -right-3 -bottom-3 w-20 h-20 text-emerald-400 opacity-[0.12] -rotate-12 z-0 pointer-events-none"></i>
     </div>
 </div>
 
