@@ -66,47 +66,59 @@
 <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
 
     {{-- 1. VIOLATIONS TODAY --}}
-    <div class="stat-card-premium relative overflow-hidden bg-gradient-to-br from-red-600 to-rose-700 rounded-2xl p-4 text-white shadow-lg shadow-red-100 group">
-        <div class="absolute right-[-5px] top-[-5px] opacity-10 transition-transform group-hover:scale-110 duration-500">
-            <i data-lucide="alert-circle" class="w-16 h-16"></i>
+    <div class="bg-gradient-to-br from-red-50 to-rose-50/70 p-4 rounded-xl shadow-sm border-l-4 border-red-500 relative overflow-hidden flex items-center justify-between">
+        <div class="flex items-center gap-4 relative z-10">
+            <div class="p-3 bg-red-100 rounded-lg shadow-sm">
+                <i data-lucide="alert-circle" class="w-6 h-6 text-red-600"></i>
+            </div>
+            <div class="min-w-0">
+                <div class="text-xl font-black text-gray-900 tracking-tight truncate tabular-nums">{{ $stats['violations_today'] ?? 0 }}</div>
+                <div class="text-[10px] font-black text-red-400 uppercase tracking-widest truncate">Violations Today</div>
+            </div>
         </div>
-        <div class="relative z-10 flex flex-col items-center text-center">
-            <p class="text-3xl font-black tracking-tighter leading-none">{{ $stats['violations_today'] ?? 0 }}</p>
-            <p class="text-[9px] font-black uppercase tracking-[0.1em] opacity-80 mt-1">Violations Today</p>
-        </div>
+        <i data-lucide="alert-circle" class="absolute -right-3 -bottom-3 w-20 h-20 text-red-400 opacity-[0.12] -rotate-12 z-0 pointer-events-none"></i>
     </div>
 
     {{-- 2. TOTAL VIOLATORS --}}
-    <div class="stat-card-premium relative overflow-hidden bg-gradient-to-br from-teal-500 to-emerald-600 rounded-2xl p-4 text-white shadow-lg shadow-teal-100 group">
-        <div class="absolute right-[-5px] top-[-5px] opacity-10 transition-transform group-hover:scale-110 duration-500">
-            <i data-lucide="users" class="w-16 h-16"></i>
+    <div class="bg-gradient-to-br from-teal-50 to-cyan-50/70 p-4 rounded-xl shadow-sm border-l-4 border-teal-500 relative overflow-hidden flex items-center justify-between">
+        <div class="flex items-center gap-4 relative z-10">
+            <div class="p-3 bg-teal-100 rounded-lg shadow-sm">
+                <i data-lucide="users" class="w-6 h-6 text-teal-600"></i>
+            </div>
+            <div class="min-w-0">
+                <div class="text-xl font-black text-gray-900 tracking-tight truncate tabular-nums">{{ $stats['total_violators'] ?? 0 }}</div>
+                <div class="text-[10px] font-black text-teal-400 uppercase tracking-widest truncate">Total Violators</div>
+            </div>
         </div>
-        <div class="relative z-10 flex flex-col items-center text-center">
-            <p class="text-3xl font-black tracking-tighter leading-none">{{ $stats['total_violators'] ?? 0 }}</p>
-             <p class="text-[9px] font-black uppercase tracking-[0.1em] opacity-80 mt-1">Total Violators</p>
-        </div>
+        <i data-lucide="users" class="absolute -right-3 -bottom-3 w-20 h-20 text-teal-400 opacity-[0.12] -rotate-12 z-0 pointer-events-none"></i>
     </div>
 
     {{-- 3. TOTAL CHARGES --}}
-    <div class="stat-card-premium relative overflow-hidden bg-gradient-to-br from-purple-600 to-indigo-700 rounded-2xl p-4 text-white shadow-lg shadow-purple-100 group">
-        <div class="absolute right-[-5px] top-[-5px] opacity-10 transition-transform group-hover:scale-110 duration-500">
-            <i data-lucide="banknote" class="w-16 h-16"></i>
+    <div class="bg-gradient-to-br from-purple-50 to-violet-50/70 p-4 rounded-xl shadow-sm border-l-4 border-purple-500 relative overflow-hidden flex items-center justify-between">
+        <div class="flex items-center gap-4 relative z-10">
+            <div class="p-3 bg-purple-100 rounded-lg shadow-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 text-purple-600"><path d="M7 12h5a3 3 0 0 0 0-6H7v12"/><path d="M5 9h11"/><path d="M5 11h11"/></svg>
+            </div>
+            <div class="min-w-0">
+                <div class="text-xl font-black text-gray-900 tracking-tight truncate tabular-nums">₱{{ number_format($stats['total_charges'] ?? 0, 0) }}</div>
+                <div class="text-[10px] font-black text-purple-400 uppercase tracking-widest truncate">Total Charges</div>
+            </div>
         </div>
-        <div class="relative z-10 flex flex-col items-center text-center">
-            <p class="text-xl font-black tracking-tighter leading-none">₱{{ number_format($stats['total_charges'] ?? 0, 0) }}</p>
-            <p class="text-[9px] font-black uppercase tracking-[0.1em] opacity-80 mt-1">Total Charges</p>
-        </div>
+        <i data-lucide="banknote" class="absolute -right-3 -bottom-3 w-20 h-20 text-purple-400 opacity-[0.12] -rotate-12 z-0 pointer-events-none"></i>
     </div>
 
     {{-- 4. ELIGIBLE INCENTIVE --}}
-    <div class="stat-card-premium relative overflow-hidden bg-gradient-to-br from-yellow-500 to-orange-500 rounded-2xl p-4 text-white shadow-lg shadow-yellow-100 group">
-        <div class="absolute right-[-5px] top-[-5px] opacity-10 transition-transform group-hover:scale-110 duration-500">
-            <i data-lucide="trophy" class="w-16 h-16"></i>
+    <div class="bg-gradient-to-br from-orange-50 to-amber-50/70 p-4 rounded-xl shadow-sm border-l-4 border-orange-500 relative overflow-hidden flex items-center justify-between">
+        <div class="flex items-center gap-4 relative z-10">
+            <div class="p-3 bg-orange-100 rounded-lg shadow-sm">
+                <i data-lucide="trophy" class="w-6 h-6 text-orange-600"></i>
+            </div>
+            <div class="min-w-0">
+                <div class="text-xl font-black text-gray-900 tracking-tight truncate tabular-nums">{{ count($incentive_summary['eligible'] ?? []) }}</div>
+                <div class="text-[10px] font-black text-orange-400 uppercase tracking-widest truncate">Eligible Incentive</div>
+            </div>
         </div>
-        <div class="relative z-10 flex flex-col items-center text-center">
-            <p class="text-3xl font-black tracking-tighter leading-none">{{ count($incentive_summary['eligible'] ?? []) }}</p>
-            <p class="text-[9px] font-black uppercase tracking-[0.1em] opacity-80 mt-1">Eligible Incentive</p>
-        </div>
+        <i data-lucide="trophy" class="absolute -right-3 -bottom-3 w-20 h-20 text-orange-400 opacity-[0.12] -rotate-12 z-0 pointer-events-none"></i>
     </div>
 </div>
 
@@ -358,18 +370,31 @@
      ════════════════════════════════════════ --}}
 <div id="tab-incentives" class="tab-content {{ ($tab ?? '') === 'incentives' ? '' : 'hidden' }}">
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
-        <div class="bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl p-5 text-white shadow-lg">
-            <i data-lucide="trophy" class="w-6 h-6 mb-2 opacity-80"></i>
-            <p class="text-3xl font-black">{{ count($incentive_summary['eligible'] ?? []) }}</p>
-            <p class="text-xs font-black uppercase tracking-widest opacity-80 mt-1">Eligible for Incentive</p>
+        <div class="bg-gradient-to-br from-emerald-50 to-teal-50/70 p-4 rounded-xl shadow-sm border-l-4 border-emerald-500 relative overflow-hidden flex items-center justify-between">
+            <div class="flex items-center gap-4 relative z-10">
+                <div class="p-3 bg-emerald-100 rounded-lg shadow-sm">
+                    <i data-lucide="trophy" class="w-6 h-6 text-emerald-600"></i>
+                </div>
+                <div class="min-w-0">
+                    <div class="text-xl font-black text-gray-900 tracking-tight truncate tabular-nums">{{ count($incentive_summary['eligible'] ?? []) }}</div>
+                    <div class="text-[10px] font-black text-emerald-400 uppercase tracking-widest truncate">Eligible for Incentive</div>
+                </div>
+            </div>
+            <i data-lucide="trophy" class="absolute -right-3 -bottom-3 w-20 h-20 text-emerald-400 opacity-[0.12] -rotate-12 z-0 pointer-events-none"></i>
         </div>
-        <div class="bg-gradient-to-br from-red-500 to-rose-600 rounded-2xl p-5 text-white shadow-lg">
-            <i data-lucide="x-circle" class="w-6 h-6 mb-2 opacity-80"></i>
-            <p class="text-3xl font-black">{{ count($incentive_summary['ineligible'] ?? []) }}</p>
-            <p class="text-xs font-black uppercase tracking-widest opacity-80 mt-1">Disqualified</p>
+        <div class="bg-gradient-to-br from-rose-50 to-red-50/70 p-4 rounded-xl shadow-sm border-l-4 border-rose-500 relative overflow-hidden flex items-center justify-between">
+            <div class="flex items-center gap-4 relative z-10">
+                <div class="p-3 bg-rose-100 rounded-lg shadow-sm">
+                    <i data-lucide="x-circle" class="w-6 h-6 text-rose-600"></i>
+                </div>
+                <div class="min-w-0">
+                    <div class="text-xl font-black text-gray-900 tracking-tight truncate tabular-nums">{{ count($incentive_summary['ineligible'] ?? []) }}</div>
+                    <div class="text-[10px] font-black text-rose-400 uppercase tracking-widest truncate">Disqualified</div>
+                </div>
+            </div>
+            <i data-lucide="x-circle" class="absolute -right-3 -bottom-3 w-20 h-20 text-rose-400 opacity-[0.12] -rotate-12 z-0 pointer-events-none"></i>
         </div>
-        <div class="bg-gradient-to-br from-yellow-500 to-amber-600 rounded-2xl p-5 text-white shadow-lg">
-            <i data-lucide="calendar-check" class="w-6 h-6 mb-2 opacity-80"></i>
+        <div class="bg-gradient-to-br from-amber-50 to-yellow-50/70 p-4 rounded-xl shadow-sm border-l-4 border-amber-500 relative overflow-hidden flex items-center justify-between">
             @php
                 $now = now()->timezone('Asia/Manila');
                 $firstSundayThisMonth = $now->copy()->startOfMonth();
@@ -384,8 +409,16 @@
 
                 while($targetDate->dayOfWeek !== \Carbon\Carbon::SUNDAY) { $targetDate->addDay(); }
             @endphp
-            <p class="text-xl font-black">{{ $targetDate->format('M d, Y') }}</p>
-            <p class="text-xs font-black uppercase tracking-widest opacity-80 mt-1">Next Payout Sunday</p>
+            <div class="flex items-center gap-4 relative z-10">
+                <div class="p-3 bg-amber-100 rounded-lg shadow-sm">
+                    <i data-lucide="calendar-check" class="w-6 h-6 text-amber-600"></i>
+                </div>
+                <div class="min-w-0">
+                    <div class="text-xl font-black text-gray-900 tracking-tight truncate tabular-nums">{{ $targetDate->format('M d, Y') }}</div>
+                    <div class="text-[10px] font-black text-amber-400 uppercase tracking-widest truncate">Next Payout Sunday</div>
+                </div>
+            </div>
+            <i data-lucide="calendar-check" class="absolute -right-3 -bottom-3 w-20 h-20 text-amber-400 opacity-[0.12] -rotate-12 z-0 pointer-events-none"></i>
         </div>
     </div>
 
