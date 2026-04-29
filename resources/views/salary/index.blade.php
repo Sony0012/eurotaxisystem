@@ -27,79 +27,98 @@
 
     {{-- Summary Cards --}}
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <div class="bg-white rounded-lg shadow card-hover">
-            <div class="p-6">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm text-gray-500">Total Employees</p>
-                        <p class="text-2xl font-bold text-blue-600">{{ $summary['total_employees'] ?? 0 }}</p>
-                        <p class="text-xs text-gray-500 mt-1">On payroll</p>
-                    </div>
-                    <div class="p-3 bg-blue-100 rounded-full">
-                        <i data-lucide="users" class="h-8 w-8 text-blue-600"></i>
-                    </div>
+        {{-- Total Employees --}}
+        <div class="bg-gradient-to-br from-blue-50 to-indigo-50/70 p-4 rounded-xl shadow-sm border-l-4 border-blue-500 relative overflow-hidden flex items-center">
+            <div class="flex items-center gap-4 relative z-10">
+                <div class="p-3 bg-blue-100 rounded-lg shadow-sm">
+                    <i data-lucide="users" class="w-6 h-6 text-blue-600"></i>
+                </div>
+                <div class="min-w-0">
+                    <div class="text-xl font-black text-gray-900 tracking-tight truncate tabular-nums">{{ $summary['total_employees'] ?? 0 }}</div>
+                    <div class="text-[10px] font-black text-blue-400 uppercase tracking-widest truncate">Total Employees</div>
+                    <div class="text-[9px] text-blue-300 truncate">On payroll</div>
                 </div>
             </div>
+            <i data-lucide="users" class="absolute -right-3 -bottom-3 w-24 h-24 text-blue-400 opacity-[0.12] -rotate-12 z-0 pointer-events-none"></i>
         </div>
 
-        <div class="bg-white rounded-lg shadow card-hover">
-            <div class="p-6">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm text-gray-500">Total Salaries</p>
-                        <p class="text-2xl font-bold text-green-600">{{ formatCurrency($summary['total_salaries'] ?? 0) }}</p>
-                        <p class="text-xs text-gray-500 mt-1">This month</p>
-                    </div>
-                    <div class="p-3 bg-green-100 rounded-full">
-                        <i data-lucide="dollar-sign" class="h-8 w-8 text-green-600"></i>
-                    </div>
+        {{-- Total Salaries --}}
+        <div class="bg-gradient-to-br from-green-50 to-emerald-50/70 p-4 rounded-xl shadow-sm border-l-4 border-green-500 relative overflow-hidden flex items-center">
+            <div class="flex items-center gap-4 relative z-10">
+                <div class="p-3 bg-green-100 rounded-lg shadow-sm">
+                    <i data-lucide="philippine-peso" class="w-6 h-6 text-green-600"></i>
+                </div>
+                <div class="min-w-0">
+                    <div class="text-xl font-black text-gray-900 tracking-tight truncate tabular-nums">{{ formatCurrency($summary['total_salaries'] ?? 0) }}</div>
+                    <div class="text-[10px] font-black text-green-400 uppercase tracking-widest truncate">Total Salaries</div>
+                    <div class="text-[9px] text-green-300 truncate">This month</div>
                 </div>
             </div>
+            <i data-lucide="philippine-peso" class="absolute -right-3 -bottom-3 w-24 h-24 text-green-400 opacity-[0.12] -rotate-12 z-0 pointer-events-none"></i>
         </div>
 
-        <div class="bg-white rounded-lg shadow card-hover">
-            <div class="p-6">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm text-gray-500">Total Expenses</p>
-                        <p class="text-2xl font-bold text-red-600">{{ formatCurrency($summary['total_expenses'] ?? 0) }}</p>
-                        <p class="text-xs text-gray-500 mt-1">This month</p>
-                    </div>
-                    <div class="p-3 bg-red-100 rounded-full">
-                        <i data-lucide="dollar-sign" class="h-8 w-8 text-red-600"></i>
-                    </div>
+        {{-- Total Expenses --}}
+        <div class="bg-gradient-to-br from-rose-50 to-red-50/70 p-4 rounded-xl shadow-sm border-l-4 border-rose-500 relative overflow-hidden flex items-center">
+            <div class="flex items-center gap-4 relative z-10">
+                <div class="p-3 bg-rose-100 rounded-lg shadow-sm">
+                    <i data-lucide="philippine-peso" class="w-6 h-6 text-rose-600"></i>
+                </div>
+                <div class="min-w-0">
+                    <div class="text-xl font-black text-gray-900 tracking-tight truncate tabular-nums">{{ formatCurrency($summary['total_expenses'] ?? 0) }}</div>
+                    <div class="text-[10px] font-black text-rose-400 uppercase tracking-widest truncate">Total Expenses</div>
+                    <div class="text-[9px] text-rose-300 truncate">This month</div>
                 </div>
             </div>
+            <i data-lucide="philippine-peso" class="absolute -right-3 -bottom-3 w-24 h-24 text-rose-400 opacity-[0.12] -rotate-12 z-0 pointer-events-none"></i>
         </div>
 
-        <div class="bg-white rounded-lg shadow card-hover">
-            <div class="p-6">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm text-gray-500">Net Profit</p>
-                        @php $net = ($summary['net_profit'] ?? 0); @endphp
-                        <p class="text-2xl font-bold {{ $net >= 0 ? 'text-green-600' : 'text-red-600' }}">
-                            {{ formatCurrency($net) }}
-                        </p>
-                        <p class="text-xs text-gray-500 mt-1">After payroll</p>
+        {{-- Net Profit --}}
+        @php $net = ($summary['net_profit'] ?? 0); @endphp
+        <div class="{{ $net >= 0 ? 'bg-gradient-to-br from-emerald-50 to-teal-50/70 border-emerald-500' : 'bg-gradient-to-br from-red-50 to-rose-50/70 border-red-500' }} p-4 rounded-xl shadow-sm border-l-4 relative overflow-hidden flex items-center">
+            <div class="flex items-center gap-4 relative z-10">
+                <div class="p-3 {{ $net >= 0 ? 'bg-emerald-100' : 'bg-red-100' }} rounded-lg shadow-sm">
+                    <i data-lucide="{{ $net >= 0 ? 'trending-up' : 'trending-down' }}" class="w-6 h-6 {{ $net >= 0 ? 'text-emerald-600' : 'text-red-600' }}"></i>
+                </div>
+                <div class="min-w-0">
+                    <div class="text-xl font-black text-gray-900 tracking-tight truncate tabular-nums">
+                        {{ formatCurrency($net) }}
                     </div>
-                    <div class="p-3 {{ $net >= 0 ? 'bg-green-100' : 'bg-red-100' }} rounded-full">
-                        <i data-lucide="{{ $net >= 0 ? 'trending-up' : 'trending-down' }}" class="h-8 w-8 {{ $net >= 0 ? 'text-green-600' : 'text-red-600' }}"></i>
-                    </div>
+                    <div class="text-[10px] font-black {{ $net >= 0 ? 'text-emerald-400' : 'text-red-400' }} uppercase tracking-widest truncate">Net Profit</div>
+                    <div class="text-[9px] {{ $net >= 0 ? 'text-emerald-300' : 'text-red-300' }} truncate">After payroll</div>
                 </div>
             </div>
+            <i data-lucide="{{ $net >= 0 ? 'trending-up' : 'trending-down' }}" class="absolute -right-3 -bottom-3 w-24 h-24 {{ $net >= 0 ? 'text-emerald-400' : 'text-red-400' }} opacity-[0.12] -rotate-12 z-0 pointer-events-none"></i>
         </div>
     </div>
 
     {{-- Average Stats --}}
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-        <div class="bg-white rounded-lg shadow p-6">
-            <h3 class="font-semibold text-gray-700 mb-1">Average Salary/Employee</h3>
-            <p class="text-xl text-green-600">{{ formatCurrency($summary['avg_salary'] ?? 0) }}</p>
+        {{-- Average Salary --}}
+        <div class="bg-gradient-to-br from-green-50 to-emerald-50/70 p-5 rounded-xl shadow-sm border-l-4 border-green-500 relative overflow-hidden flex items-center justify-between">
+            <div class="flex items-center gap-4 relative z-10">
+                <div class="p-3 bg-green-100 rounded-lg shadow-sm">
+                    <i data-lucide="calculator" class="w-6 h-6 text-green-600"></i>
+                </div>
+                <div class="min-w-0">
+                    <div class="text-xl font-black text-gray-900 tracking-tight truncate tabular-nums">{{ formatCurrency($summary['avg_salary'] ?? 0) }}</div>
+                    <div class="text-[10px] font-black text-green-400 uppercase tracking-widest truncate">Average Salary/Employee</div>
+                </div>
+            </div>
+            <i data-lucide="bar-chart-2" class="absolute -right-4 top-1/2 -translate-y-1/2 w-28 h-28 text-green-400 opacity-[0.10] -rotate-12 z-0 pointer-events-none"></i>
         </div>
-        <div class="bg-white rounded-lg shadow p-6">
-            <h3 class="font-semibold text-gray-700 mb-1">Average Expense/Employee</h3>
-            <p class="text-xl text-red-600">{{ formatCurrency($summary['avg_expense'] ?? 0) }}</p>
+        
+        {{-- Average Expense --}}
+        <div class="bg-gradient-to-br from-rose-50 to-red-50/70 p-5 rounded-xl shadow-sm border-l-4 border-rose-500 relative overflow-hidden flex items-center justify-between">
+            <div class="flex items-center gap-4 relative z-10">
+                <div class="p-3 bg-rose-100 rounded-lg shadow-sm">
+                    <i data-lucide="pie-chart" class="w-6 h-6 text-rose-600"></i>
+                </div>
+                <div class="min-w-0">
+                    <div class="text-xl font-black text-gray-900 tracking-tight truncate tabular-nums">{{ formatCurrency($summary['avg_expense'] ?? 0) }}</div>
+                    <div class="text-[10px] font-black text-rose-400 uppercase tracking-widest truncate">Average Expense/Employee</div>
+                </div>
+            </div>
+            <i data-lucide="activity" class="absolute -right-4 top-1/2 -translate-y-1/2 w-28 h-28 text-rose-400 opacity-[0.10] -rotate-12 z-0 pointer-events-none"></i>
         </div>
     </div>
 
@@ -225,197 +244,380 @@
     </div>
 
     {{-- Add Salary Modal --}}
-    <div id="addSalaryModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden h-full w-full z-50 flex items-center justify-center p-4">
-        <div class="relative bg-white rounded-lg shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
-            <div class="flex justify-between items-center p-6 border-b">
-                <h3 class="text-lg font-bold text-gray-900" id="salaryModalTitle">Add Salary</h3>
-                <button onclick="closeAddSalaryModal()" class="text-gray-400 hover:text-gray-600">
-                    <i data-lucide="x" class="w-5 h-5"></i>
-                </button>
+    <div id="addSalaryModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden h-full w-full z-50 flex items-center justify-center p-4 transition-all duration-300">
+        <div class="relative bg-white rounded-2xl shadow-2xl max-w-5xl w-full h-[95vh] overflow-hidden flex flex-col scale-95 transition-transform duration-300" id="salaryModalContainer">
+            {{-- Modal Header (Deep Navy) --}}
+            <div class="bg-slate-800 p-5 shrink-0">
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center gap-3">
+                        <div class="p-2.5 bg-white/20 rounded-xl flex items-center justify-center">
+                            <i data-lucide="philippine-peso" class="w-6 h-6 text-yellow-500"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-black text-white tracking-wide" id="salaryModalTitle">Add Salary</h3>
+                            <p class="text-xs font-medium text-slate-300 mt-0.5 uppercase tracking-widest">Employee Payroll Management</p>
+                        </div>
+                    </div>
+                    <button type="button" onclick="closeAddSalaryModal()" class="text-slate-400 hover:text-white bg-slate-700/50 hover:bg-slate-700 p-2 rounded-full transition-colors">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
             </div>
-            <form id="salaryForm" method="POST" action="{{ route('salaries.store') }}" class="p-6 space-y-4">
+
+            <form id="salaryForm" method="POST" action="{{ route('salaries.store') }}" class="flex flex-col flex-1 overflow-hidden">
                 @csrf
                 <input type="hidden" name="_method" id="salaryMethod" value="POST">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Employee *</label>
-                    <select name="employee_raw" id="salaryEmployee" required
-                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
-                        <option value="">Select Employee</option>
-                        @foreach($employees as $employee)
-                            <option value="{{ $employee->source }}_{{ $employee->id }}">{{ $employee->name }} ({{ ucfirst($employee->role) }})</option>
-                        @endforeach
-                    </select>
+                
+                <div class="p-8 overflow-y-auto flex-1 space-y-8 custom-scrollbar">
+                    {{-- Row 1: Employee, Type, Basic --}}
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="space-y-1.5">
+                            <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Employee *</label>
+                            <div class="relative">
+                                <i data-lucide="user" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
+                                <select name="employee_raw" id="salaryEmployee" required
+                                    class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none font-bold text-sm text-gray-700 appearance-none">
+                                    <option value="">Select Employee</option>
+                                    @foreach($employees as $employee)
+                                        <option value="{{ $employee->source }}_{{ $employee->id }}">{{ $employee->name }} ({{ ucfirst($employee->role) }})</option>
+                                    @endforeach
+                                </select>
+                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
+                                    <i data-lucide="chevron-down" class="w-4 h-4"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-1.5">
+                            <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Employee Type</label>
+                            <div class="relative">
+                                <i data-lucide="briefcase" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
+                                <select name="employee_type" id="salaryType"
+                                    class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none font-bold text-sm text-gray-700 appearance-none">
+                                    <option value="Staff">Staff</option>
+                                    <option value="Driver">Driver</option>
+                                    <option value="Admin">Admin</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
+                                    <i data-lucide="chevron-down" class="w-4 h-4"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-1.5">
+                            <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Basic Salary *</label>
+                            <div class="relative">
+                                <span class="absolute left-4 top-1/2 -translate-y-1/2 flex items-center justify-center pointer-events-none">
+                                    <span class="text-sm font-black text-gray-400">₱</span>
+                                </span>
+                                <input type="number" name="basic_salary" id="salaryBasic" step="0.01" min="0" required placeholder="0.00"
+                                    class="w-full pl-9 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none font-black text-sm text-gray-700">
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Row 2: Additions / Deductions --}}
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 p-6 bg-gray-50 rounded-2xl border border-gray-100">
+                        <div class="space-y-1.5">
+                            <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Overtime Pay</label>
+                            <div class="relative">
+                                <span class="absolute left-4 top-1/2 -translate-y-1/2 flex items-center justify-center pointer-events-none">
+                                    <span class="text-sm font-black text-gray-400">₱</span>
+                                </span>
+                                <input type="number" name="overtime_pay" id="salaryOvertime" step="0.01" min="0" value="0"
+                                    class="w-full pl-9 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none font-bold text-sm text-gray-700">
+                            </div>
+                        </div>
+
+                        <div class="space-y-1.5">
+                            <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Holiday Pay</label>
+                            <div class="relative">
+                                <span class="absolute left-4 top-1/2 -translate-y-1/2 flex items-center justify-center pointer-events-none">
+                                    <span class="text-sm font-black text-gray-400">₱</span>
+                                </span>
+                                <input type="number" name="holiday_pay" id="salaryHoliday" step="0.01" min="0" value="0"
+                                    class="w-full pl-9 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none font-bold text-sm text-gray-700">
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-1.5">
+                            <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Night Diff.</label>
+                            <div class="relative">
+                                <span class="absolute left-4 top-1/2 -translate-y-1/2 flex items-center justify-center pointer-events-none">
+                                    <span class="text-sm font-black text-gray-400">₱</span>
+                                </span>
+                                <input type="number" name="night_differential" id="salaryNight" step="0.01" min="0" value="0"
+                                    class="w-full pl-9 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none font-bold text-sm text-gray-700">
+                            </div>
+                        </div>
+
+                        <div class="space-y-1.5">
+                            <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Allowance</label>
+                            <div class="relative">
+                                <span class="absolute left-4 top-1/2 -translate-y-1/2 flex items-center justify-center pointer-events-none">
+                                    <span class="text-sm font-black text-gray-400">₱</span>
+                                </span>
+                                <input type="number" name="allowance" id="salaryAllowance" step="0.01" min="0" value="0"
+                                    class="w-full pl-9 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none font-bold text-sm text-gray-700">
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Row 3: Month, Year, Date --}}
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="space-y-1.5">
+                            <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Payroll Month *</label>
+                            <div class="relative">
+                                <i data-lucide="calendar" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
+                                <select name="month" id="salaryMonth" required class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none font-bold text-sm text-gray-700 appearance-none">
+                                    @for($i = 1; $i <= 12; $i++)
+                                        <option value="{{ $i }}" {{ $i == date('m') ? 'selected' : '' }}>{{ date('F', mktime(0, 0, 0, $i, 1)) }}</option>
+                                    @endfor
+                                </select>
+                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
+                                    <i data-lucide="chevron-down" class="w-4 h-4"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-1.5">
+                            <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Payroll Year *</label>
+                            <div class="relative">
+                                <i data-lucide="calendar" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
+                                <select name="year" id="salaryYear" required class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none font-bold text-sm text-gray-700 appearance-none">
+                                    @for($i = 2024; $i <= 2030; $i++)
+                                        <option value="{{ $i }}" {{ $i == date('Y') ? 'selected' : '' }}>{{ $i }}</option>
+                                    @endfor
+                                </select>
+                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
+                                    <i data-lucide="chevron-down" class="w-4 h-4"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-1.5">
+                            <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Pay Date *</label>
+                            <div class="relative">
+                                <i data-lucide="calendar-check" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
+                                <input type="date" name="pay_date" id="salaryPayDate" value="{{ date('Y-m-d') }}" required
+                                    onchange="updateMonthYear(this.value)"
+                                    class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none font-bold text-sm text-gray-700">
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Employee Type</label>
-                        <select name="employee_type" id="salaryType" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
-                            <option value="Staff">Staff</option>
-                            <option value="Driver">Driver</option>
-                            <option value="Admin">Admin</option>
-                            <option value="Other">Other</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Basic Salary *</label>
-                        <input type="number" name="basic_salary" id="salaryBasic" step="0.01" min="0" required
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
-                    </div>
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Overtime Pay</label>
-                        <input type="number" name="overtime_pay" id="salaryOvertime" step="0.01" min="0" value="0"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Holiday Pay</label>
-                        <input type="number" name="holiday_pay" id="salaryHoliday" step="0.01" min="0" value="0"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
-                    </div>
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Night Differential</label>
-                        <input type="number" name="night_differential" id="salaryNight" step="0.01" min="0" value="0"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Allowance</label>
-                        <input type="number" name="allowance" id="salaryAllowance" step="0.01" min="0" value="0"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
-                    </div>
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Month *</label>
-                        <select name="month" id="salaryMonth" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
-                            @for($i = 1; $i <= 12; $i++)
-                                <option value="{{ $i }}" {{ $i == date('m') ? 'selected' : '' }}>{{ date('F', mktime(0, 0, 0, $i, 1)) }}</option>
-                            @endfor
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Year *</label>
-                        <select name="year" id="salaryYear" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
-                            @for($i = 2024; $i <= 2030; $i++)
-                                <option value="{{ $i }}" {{ $i == date('Y') ? 'selected' : '' }}>{{ $i }}</option>
-                            @endfor
-                        </select>
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Pay Date *</label>
-                    <input type="date" name="pay_date" id="salaryPayDate" value="{{ date('Y-m-d') }}" required
-                        onchange="updateMonthYear(this.value)"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
-                </div>
-                <div class="flex gap-3 mt-4">
-                    <button type="submit" class="flex-1 bg-yellow-600 text-white py-2 rounded-lg hover:bg-yellow-700">Save</button>
-                    <button type="button" onclick="closeAddSalaryModal()" class="flex-1 bg-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-400">Cancel</button>
+
+                {{-- Form Footer --}}
+                <div class="p-4 border-t flex justify-end gap-3 shadow-inner bg-gray-50 shrink-0">
+                    <button type="button" onclick="closeAddSalaryModal()" 
+                        class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 text-sm font-bold transition-all">
+                        Cancel
+                    </button>
+                    <button type="submit" 
+                        class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-bold shadow-lg shadow-green-200/50 transition-all flex items-center gap-2">
+                        <i data-lucide="check" class="w-4 h-4"></i> Save Salary
+                    </button>
                 </div>
             </form>
         </div>
     </div>
 
     {{-- Add Expense Modal --}}
-    <div id="addExpenseModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden h-full w-full z-50 flex items-center justify-center p-4">
-        <div class="relative bg-white rounded-lg shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
-            <div class="flex justify-between items-center p-6 border-b">
-                <h3 class="text-lg font-bold text-gray-900">Add Expense</h3>
-                <button onclick="closeAddExpenseModal()" class="text-gray-400 hover:text-gray-600">
-                    <i data-lucide="x" class="w-5 h-5"></i>
-                </button>
+    <div id="addExpenseModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden h-full w-full z-50 flex items-center justify-center p-4 transition-all duration-300">
+        <div class="relative bg-white rounded-2xl shadow-2xl max-w-5xl w-full h-[95vh] overflow-hidden flex flex-col scale-95 transition-transform duration-300" id="expenseModalContainer">
+            {{-- Modal Header (Deep Navy) --}}
+            <div class="bg-slate-800 p-5 shrink-0">
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center gap-3">
+                        <div class="p-2.5 bg-white/20 rounded-xl flex items-center justify-center">
+                            <i data-lucide="philippine-peso" class="w-6 h-6 text-yellow-500"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-black text-white tracking-wide">Add Expense</h3>
+                            <p class="text-xs font-medium text-slate-300 mt-0.5 uppercase tracking-widest">Company Expense Record</p>
+                        </div>
+                    </div>
+                    <button type="button" onclick="closeAddExpenseModal()" class="text-slate-400 hover:text-white bg-slate-700/50 hover:bg-slate-700 p-2 rounded-full transition-colors">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
             </div>
-            <form method="POST" action="{{ route('salaries.store') }}" enctype="multipart/form-data" class="p-6 space-y-4">
+
+            <form method="POST" action="{{ route('salaries.store') }}" enctype="multipart/form-data" class="flex flex-col flex-1 overflow-hidden">
                 @csrf
                 <input type="hidden" name="record_type" value="expense">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Expense Type *</label>
-                    <input type="text" name="expense_type" required
-                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Category</label>
-                    <select name="category" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
-                        <option value="Operational">Operational</option>
-                        <option value="Administrative">Administrative</option>
-                        <option value="Utilities">Utilities</option>
-                        <option value="Maintenance">Maintenance</option>
-                        <option value="Other">Other</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                    <textarea name="description" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"></textarea>
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Amount *</label>
-                        <input type="number" name="amount" step="0.01" min="0" required
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
+                
+                <div class="p-8 overflow-y-auto flex-1 space-y-8 custom-scrollbar">
+                    {{-- Row 1: Type, Category, Amount --}}
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="space-y-1.5">
+                            <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Expense Type *</label>
+                            <div class="relative">
+                                <i data-lucide="tag" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
+                                <input type="text" name="expense_type" required placeholder="e.g. Office Supplies"
+                                    class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none font-bold text-sm text-gray-700">
+                            </div>
+                        </div>
+
+                        <div class="space-y-1.5">
+                            <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Category</label>
+                            <div class="relative">
+                                <i data-lucide="folder" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
+                                <select name="category"
+                                    class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none font-bold text-sm text-gray-700 appearance-none">
+                                    <option value="Operational">Operational</option>
+                                    <option value="Administrative">Administrative</option>
+                                    <option value="Utilities">Utilities</option>
+                                    <option value="Maintenance">Maintenance</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
+                                    <i data-lucide="chevron-down" class="w-4 h-4"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-1.5">
+                            <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Amount *</label>
+                            <div class="relative">
+                                <span class="absolute left-4 top-1/2 -translate-y-1/2 flex items-center justify-center pointer-events-none">
+                                    <span class="text-sm font-black text-gray-400">₱</span>
+                                </span>
+                                <input type="number" name="amount" step="0.01" min="0" required placeholder="0.00"
+                                    class="w-full pl-9 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none font-black text-sm text-gray-700">
+                            </div>
+                        </div>
                     </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Date *</label>
-                        <input type="date" name="expense_date" value="{{ date('Y-m-d') }}" required
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
+
+                    {{-- Row 2: Description --}}
+                    <div class="space-y-1.5">
+                        <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Description / Details</label>
+                        <textarea name="description" rows="3" placeholder="Additional notes about this expense..."
+                            class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none font-medium text-sm text-gray-700"></textarea>
+                    </div>
+
+                    {{-- Row 3: Date, Approved By, Receipt --}}
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 p-6 bg-gray-50 rounded-2xl border border-gray-100">
+                        <div class="space-y-1.5">
+                            <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Date *</label>
+                            <div class="relative">
+                                <i data-lucide="calendar" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
+                                <input type="date" name="expense_date" value="{{ date('Y-m-d') }}" required
+                                    class="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none font-bold text-sm text-gray-700">
+                            </div>
+                        </div>
+
+                        <div class="space-y-1.5">
+                            <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Approved By</label>
+                            <div class="relative">
+                                <i data-lucide="user-check" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
+                                <input type="text" name="approved_by" placeholder="Manager Name"
+                                    class="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none font-bold text-sm text-gray-700">
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-1.5">
+                            <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Receipt (Image/PDF)</label>
+                            <div class="relative">
+                                <input type="file" name="receipt" accept=".jpg,.jpeg,.png,.pdf"
+                                    class="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none text-sm text-gray-600 file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer">
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Receipt (Image/PDF)</label>
-                    <input type="file" name="receipt" accept=".jpg,.jpeg,.png,.pdf"
-                        class="block w-full text-sm text-gray-700 border border-gray-300 rounded-lg cursor-pointer">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Approved By</label>
-                    <input type="text" name="approved_by"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
-                </div>
-                <div class="flex gap-3 mt-4">
-                    <button type="submit" class="flex-1 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700">Save</button>
-                    <button type="button" onclick="closeAddExpenseModal()" class="flex-1 bg-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-400">Cancel</button>
+
+                {{-- Form Footer --}}
+                <div class="p-4 border-t flex justify-end gap-3 shadow-inner bg-gray-50 shrink-0">
+                    <button type="button" onclick="closeAddExpenseModal()" 
+                        class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 text-sm font-bold transition-all">
+                        Cancel
+                    </button>
+                    <button type="submit" 
+                        class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-bold shadow-lg shadow-blue-200/50 transition-all flex items-center gap-2">
+                        <i data-lucide="check" class="w-4 h-4"></i> Save Expense
+                    </button>
                 </div>
             </form>
         </div>
     </div>
 
     {{-- Monthly Report Modal --}}
-    <div id="monthlyReportModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden h-full w-full z-50 flex items-center justify-center p-4">
-        <div class="relative bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div class="flex justify-between items-center p-6 border-b">
-                <h3 class="text-lg font-bold text-gray-900">Monthly Report</h3>
-                <button onclick="closeMonthlyReport()" class="text-gray-400 hover:text-gray-600">
-                    <i data-lucide="x" class="w-5 h-5"></i>
-                </button>
-            </div>
-            <div class="p-6" id="monthlyReportContent">
-                <h4 class="text-md font-semibold text-gray-700 mb-4">{{ date('F Y') }} Summary</h4>
-                <div class="grid grid-cols-2 gap-4 mb-6">
-                    <div class="p-4 bg-green-50 rounded-lg">
-                        <p class="text-sm text-gray-600">Total Employees</p>
-                        <p class="text-xl font-bold text-green-700">{{ $summary['total_employees'] ?? 0 }}</p>
+    <div id="monthlyReportModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden h-full w-full z-50 flex items-center justify-center p-4 transition-all duration-300">
+        <div class="relative bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-hidden flex flex-col scale-95 transition-transform duration-300" id="monthlyReportModalContainer">
+            {{-- Modal Header (Deep Navy) --}}
+            <div class="bg-slate-800 p-5 shrink-0">
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center gap-3">
+                        <div class="p-2.5 bg-white/20 rounded-xl flex items-center justify-center">
+                            <i data-lucide="file-text" class="w-6 h-6 text-green-400"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-black text-white tracking-wide">Monthly Report</h3>
+                            <p class="text-xs font-medium text-slate-300 mt-0.5 uppercase tracking-widest">Financial Summary</p>
+                        </div>
                     </div>
-                    <div class="p-4 bg-blue-50 rounded-lg">
-                        <p class="text-sm text-gray-600">Total Salaries</p>
-                        <p class="text-xl font-bold text-blue-700">{{ formatCurrency($summary['total_salaries'] ?? 0) }}</p>
-                    </div>
-                    <div class="p-4 bg-red-50 rounded-lg">
-                        <p class="text-sm text-gray-600">Total Expenses</p>
-                        <p class="text-xl font-bold text-red-700">{{ formatCurrency($summary['total_expenses'] ?? 0) }}</p>
-                    </div>
-                    <div class="p-4 {{ ($summary['net_profit'] ?? 0) >= 0 ? 'bg-green-50' : 'bg-red-50' }} rounded-lg">
-                        <p class="text-sm text-gray-600">Net Profit</p>
-                        <p class="text-xl font-bold {{ ($summary['net_profit'] ?? 0) >= 0 ? 'text-green-700' : 'text-red-700' }}">
-                            {{ formatCurrency($summary['net_profit'] ?? 0) }}
-                        </p>
-                    </div>
-                </div>
-                <div class="flex justify-end gap-3">
-                    <button onclick="window.print()" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 flex items-center gap-2">
-                        <i data-lucide="printer" class="w-4 h-4"></i> Print
+                    <button type="button" onclick="closeMonthlyReport()" class="text-slate-400 hover:text-white bg-slate-700/50 hover:bg-slate-700 p-2 rounded-full transition-colors">
+                        <i data-lucide="x" class="w-5 h-5"></i>
                     </button>
-                    <button onclick="closeMonthlyReport()" class="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700">Close</button>
                 </div>
+            </div>
+
+            <div class="p-8 overflow-y-auto flex-1 custom-scrollbar" id="monthlyReportContent">
+                <h4 class="text-sm font-black text-gray-400 uppercase tracking-widest mb-6">{{ date('F Y') }} Summary</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div class="p-6 bg-gray-50 border border-gray-100 rounded-2xl flex items-center justify-between">
+                        <div>
+                            <p class="text-[11px] font-black text-gray-400 uppercase tracking-widest mb-1">Total Employees</p>
+                            <p class="text-2xl font-bold text-gray-800">{{ $summary['total_employees'] ?? 0 }}</p>
+                        </div>
+                        <div class="p-3 bg-white rounded-xl shadow-sm border border-gray-100">
+                            <i data-lucide="users" class="h-6 w-6 text-gray-500"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="p-6 bg-blue-50/50 border border-blue-100 rounded-2xl flex items-center justify-between">
+                        <div>
+                            <p class="text-[11px] font-black text-blue-400 uppercase tracking-widest mb-1">Total Salaries</p>
+                            <p class="text-2xl font-bold text-blue-700">{{ formatCurrency($summary['total_salaries'] ?? 0) }}</p>
+                        </div>
+                        <div class="p-3 bg-white rounded-xl shadow-sm border border-blue-100">
+                            <i data-lucide="philippine-peso" class="h-6 w-6 text-blue-500"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="p-6 bg-red-50/50 border border-red-100 rounded-2xl flex items-center justify-between">
+                        <div>
+                            <p class="text-[11px] font-black text-red-400 uppercase tracking-widest mb-1">Total Expenses</p>
+                            <p class="text-2xl font-bold text-red-700">{{ formatCurrency($summary['total_expenses'] ?? 0) }}</p>
+                        </div>
+                        <div class="p-3 bg-white rounded-xl shadow-sm border border-red-100">
+                            <i data-lucide="philippine-peso" class="h-6 w-6 text-red-500"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="p-6 {{ ($summary['net_profit'] ?? 0) >= 0 ? 'bg-green-50/50 border-green-100' : 'bg-red-50/50 border-red-100' }} border rounded-2xl flex items-center justify-between">
+                        <div>
+                            <p class="text-[11px] font-black {{ ($summary['net_profit'] ?? 0) >= 0 ? 'text-green-500' : 'text-red-500' }} uppercase tracking-widest mb-1">Net Profit</p>
+                            <p class="text-2xl font-bold {{ ($summary['net_profit'] ?? 0) >= 0 ? 'text-green-700' : 'text-red-700' }}">
+                                {{ formatCurrency($summary['net_profit'] ?? 0) }}
+                            </p>
+                        </div>
+                        <div class="p-3 bg-white rounded-xl shadow-sm border {{ ($summary['net_profit'] ?? 0) >= 0 ? 'border-green-100' : 'border-red-100' }}">
+                            <i data-lucide="{{ ($summary['net_profit'] ?? 0) >= 0 ? 'trending-up' : 'trending-down' }}" class="h-6 w-6 {{ ($summary['net_profit'] ?? 0) >= 0 ? 'text-green-500' : 'text-red-500' }}"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Form Footer --}}
+            <div class="p-4 border-t flex justify-end gap-3 shadow-inner bg-gray-50 shrink-0">
+                <button onclick="closeMonthlyReport()" class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 text-sm font-bold transition-all">
+                    Close
+                </button>
+                <button onclick="window.print()" class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-bold shadow-lg shadow-green-200/50 transition-all flex items-center gap-2">
+                    <i data-lucide="printer" class="w-4 h-4"></i> Print Report
+                </button>
             </div>
         </div>
     </div>
@@ -437,7 +639,12 @@ function openAddSalaryModal() {
     document.getElementById('salaryPayDate').value = '{{ date('Y-m-d') }}';
     document.getElementById('salaryMonth').value = '{{ date('m') }}';
     document.getElementById('salaryYear').value = '{{ date('Y') }}';
-    document.getElementById('addSalaryModal').classList.remove('hidden');
+    
+    const modal = document.getElementById('addSalaryModal');
+    modal.classList.remove('hidden');
+    setTimeout(() => {
+        document.getElementById('salaryModalContainer').classList.remove('scale-95');
+    }, 10);
     lucide.createIcons();
 }
 
@@ -449,33 +656,55 @@ function updateMonthYear(dateString) {
 }
 
 function openEditSalaryModal(id) {
-    document.getElementById('salaryModalTitle').textContent = 'Edit Salary';
+    document.getElementById('salaryModalTitle').textContent = 'Edit Salary Details';
     document.getElementById('salaryMethod').value = 'PUT';
     document.getElementById('salaryForm').action = '{{ url('salaries') }}/' + id;
-    document.getElementById('addSalaryModal').classList.remove('hidden');
+    
+    const modal = document.getElementById('addSalaryModal');
+    modal.classList.remove('hidden');
+    setTimeout(() => {
+        document.getElementById('salaryModalContainer').classList.remove('scale-95');
+    }, 10);
     lucide.createIcons();
 }
 
 function closeAddSalaryModal() {
-    document.getElementById('addSalaryModal').classList.add('hidden');
+    document.getElementById('salaryModalContainer').classList.add('scale-95');
+    setTimeout(() => {
+        document.getElementById('addSalaryModal').classList.add('hidden');
+    }, 150);
 }
 
 function openAddExpenseModal() {
-    document.getElementById('addExpenseModal').classList.remove('hidden');
+    const modal = document.getElementById('addExpenseModal');
+    modal.classList.remove('hidden');
+    setTimeout(() => {
+        document.getElementById('expenseModalContainer').classList.remove('scale-95');
+    }, 10);
     lucide.createIcons();
 }
 
 function closeAddExpenseModal() {
-    document.getElementById('addExpenseModal').classList.add('hidden');
+    document.getElementById('expenseModalContainer').classList.add('scale-95');
+    setTimeout(() => {
+        document.getElementById('addExpenseModal').classList.add('hidden');
+    }, 150);
 }
 
 function openMonthlyReport() {
-    document.getElementById('monthlyReportModal').classList.remove('hidden');
+    const modal = document.getElementById('monthlyReportModal');
+    modal.classList.remove('hidden');
+    setTimeout(() => {
+        document.getElementById('monthlyReportModalContainer').classList.remove('scale-95');
+    }, 10);
     lucide.createIcons();
 }
 
 function closeMonthlyReport() {
-    document.getElementById('monthlyReportModal').classList.add('hidden');
+    document.getElementById('monthlyReportModalContainer').classList.add('scale-95');
+    setTimeout(() => {
+        document.getElementById('monthlyReportModal').classList.add('hidden');
+    }, 150);
 }
 </script>
 @endpush
