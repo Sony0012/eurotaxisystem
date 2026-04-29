@@ -4,6 +4,33 @@
 @section('page-subheading', 'Manage non-account staff like mechanics and guards')
 
 @section('content')
+<style>
+    .modern-table-sep {
+        border-collapse: separate;
+        border-spacing: 0 0.6rem;
+    }
+    .modern-row {
+        background-color: white;
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+        transition: all 0.2s ease-in-out;
+    }
+    .modern-row:hover {
+        box-shadow: 0 10px 15px -3px rgba(234, 179, 8, 0.2), 0 4px 6px -2px rgba(234, 179, 8, 0.1);
+        transform: translateY(-2px);
+    }
+    .modern-row td:first-child {
+        border-top-left-radius: 0.75rem;
+        border-bottom-left-radius: 0.75rem;
+        border-left: 4px solid transparent;
+    }
+    .modern-row:hover td:first-child {
+        border-left-color: #eab308;
+    }
+    .modern-row td:last-child {
+        border-top-right-radius: 0.75rem;
+        border-bottom-right-radius: 0.75rem;
+    }
+</style>
 <div class="space-y-6">
     <!-- Search Bar -->
     <div class="bg-white p-4 rounded-xl shadow-sm border">
@@ -84,21 +111,20 @@
             </button>
         </div>
 
-        <div class="bg-white rounded-xl shadow-sm border overflow-hidden">
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="bg-gray-50 border-b">
-                            <th class="px-6 py-4 text-sm font-semibold text-gray-600">Name</th>
-                            <th class="px-6 py-4 text-sm font-semibold text-gray-600">Role</th>
-                            <th class="px-6 py-4 text-sm font-semibold text-gray-600">Phone</th>
-                            <th class="px-6 py-4 text-sm font-semibold text-gray-600">Status</th>
-                            <th class="px-6 py-4 text-sm font-semibold text-gray-600 text-right">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y">
-                        @forelse($generalStaff as $member)
-                        <tr class="hover:bg-gray-50 transition-colors">
+        <div class="overflow-x-auto bg-gray-50/50 px-4 py-2 rounded-xl border border-gray-100">
+            <table class="w-full text-left modern-table-sep">
+                <thead>
+                    <tr>
+                        <th class="px-6 py-2 text-[10px] font-black text-gray-400 uppercase tracking-widest">Name</th>
+                        <th class="px-6 py-2 text-[10px] font-black text-gray-400 uppercase tracking-widest">Role</th>
+                        <th class="px-6 py-2 text-[10px] font-black text-gray-400 uppercase tracking-widest">Phone</th>
+                        <th class="px-6 py-2 text-[10px] font-black text-gray-400 uppercase tracking-widest">Status</th>
+                        <th class="px-6 py-2 text-[10px] font-black text-gray-400 uppercase tracking-widest text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($generalStaff as $member)
+                    <tr class="modern-row group cursor-pointer">
                             <td class="px-6 py-4">
                                 <div class="flex items-center gap-3">
                                     <div class="w-8 h-8 rounded-full bg-yellow-100 flex items-center justify-center text-yellow-700 font-bold text-xs uppercase">
@@ -114,17 +140,31 @@
                                     {{ ucfirst($member->status) }}
                                 </span>
                             </td>
-                            <td class="px-6 py-4 text-right space-x-2">
-                                <button onclick="editStaff({{ json_encode($member) }})" class="p-1 hover:bg-yellow-100 rounded text-yellow-600 transition-colors" title="Edit">
-                                    <i data-lucide="edit-3" class="w-4 h-4"></i>
-                                </button>
-                                <form action="{{ route('staff.destroy', $member->id) }}" method="POST" class="inline-block" onsubmit="return confirm('Are you sure you want to delete this staff record?')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="p-1 hover:bg-red-100 rounded text-red-600 transition-colors" title="Delete">
-                                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            <td class="px-6 py-4 text-right relative">
+                                <div class="inline-block text-left">
+                                    <button type="button" 
+                                        onclick="toggleStaffDropdown('staff-dropdown-{{ $member->id }}', event)"
+                                        class="p-2 hover:bg-gray-100 rounded-full transition-colors focus:outline-none">
+                                        <i data-lucide="more-vertical" class="w-4 h-4 text-gray-500"></i>
                                     </button>
-                                </form>
+                                    <div id="staff-dropdown-{{ $member->id }}" 
+                                        class="staff-action-dropdown absolute right-6 mt-1 w-32 bg-white border border-gray-100 rounded-xl shadow-xl z-50 hidden animate-in fade-in zoom-in-95 duration-200 overflow-hidden">
+                                        <div class="p-1.5 space-y-1">
+                                            <button onclick="editStaff({{ json_encode($member) }})" class="w-full flex items-center gap-2 px-3 py-2 text-xs font-bold text-gray-600 hover:bg-yellow-50 hover:text-yellow-700 rounded-lg transition-all text-left">
+                                                <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
+                                                Edit Record
+                                            </button>
+                                            <form action="{{ route('staff.destroy', $member->id) }}" method="POST" onsubmit="return confirm('Archive this staff record?')">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="w-full flex items-center gap-2 px-3 py-2 text-xs font-bold text-red-600 hover:bg-red-50 rounded-lg transition-all text-left">
+                                                    <i data-lucide="archive" class="w-3.5 h-3.5"></i>
+                                                    Archive
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
                             </td>
                         </tr>
                         @empty
@@ -143,104 +183,250 @@
 </div>
 
 <!-- Add Modal -->
-<div id="addStaffModal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-black/50 flex items-center justify-center p-4 backdrop-blur-sm">
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md transform transition-all">
-        <div class="p-6 border-b flex items-center justify-between">
-            <h3 class="text-xl font-bold text-gray-900">Add Staff Record</h3>
-            <button onclick="closeModal('addStaffModal')" class="p-2 hover:bg-gray-100 rounded-lg text-gray-400">
-                <i data-lucide="x" class="w-5 h-5"></i>
-            </button>
+<div id="addStaffModal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-black/50 flex items-center justify-center p-4 backdrop-blur-sm transition-all duration-300">
+    <div class="relative bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+        <div class="bg-slate-800 p-5 shrink-0">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <div class="p-2.5 bg-white/20 rounded-xl flex items-center justify-center">
+                        <i data-lucide="user-plus" class="w-6 h-6 text-yellow-500"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-black text-white tracking-wide">Add Staff Record</h3>
+                        <p class="text-xs font-medium text-slate-300 mt-0.5 uppercase tracking-widest">Staff Management</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeModal('addStaffModal')" class="text-slate-400 hover:text-white bg-slate-700/50 hover:bg-slate-700 p-2 rounded-full transition-colors">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
         </div>
-        <form action="{{ route('staff.store') }}" method="POST" class="p-6 space-y-4">
+
+        <form action="{{ route('staff.store') }}" method="POST" class="flex flex-col flex-1 overflow-hidden">
             @csrf
-            <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-1">Full Name</label>
-                <input type="text" name="name" required class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-yellow-500 outline-none">
-            </div>
-            <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-1">Role</label>
-                <select name="role" id="add_role_select" onchange="toggleCustomRole('addStaffModal', this.value)" required class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-yellow-500 outline-none">
-                    <option value="">Select Role</option>
-                    <option value="Mechanic">Mechanic</option>
-                    <option value="Guard">Guard</option>
-                    <option value="Others">Others</option>
-                </select>
-                <div id="add_custom_role_container" class="hidden mt-2">
-                    <input type="text" id="add_custom_role" placeholder="Enter role (letters only)" oninput="validateTextOnly(this)" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-yellow-500 outline-none bg-yellow-50">
+            <div class="p-8 overflow-y-auto flex-1 space-y-6 custom-scrollbar">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-1.5">
+                        <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Full Name *</label>
+                        <div class="relative">
+                            <i data-lucide="user" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
+                            <input type="text" name="name" required class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none font-bold text-sm text-gray-700">
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-1.5">
+                        <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Phone Number</label>
+                        <div class="relative">
+                            <i data-lucide="phone" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
+                            <input type="text" name="phone" class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none font-bold text-sm text-gray-700">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="space-y-1.5">
+                        <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Role *</label>
+                        <div class="relative">
+                            <i data-lucide="briefcase" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
+                            <select name="role" id="add_role_select" onchange="toggleCustomRole('addStaffModal', this.value)" required class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none font-bold text-sm text-gray-700 appearance-none">
+                                <option value="">Select Role</option>
+                                <option value="Mechanic">Mechanic</option>
+                                <option value="Guard">Guard</option>
+                                <option value="Others">Others</option>
+                            </select>
+                            <i data-lucide="chevron-down" class="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"></i>
+                        </div>
+                        <div id="add_custom_role_container" class="hidden mt-3 space-y-1.5">
+                            <label class="text-[11px] font-black text-yellow-600 uppercase tracking-widest ml-1">Specify Role *</label>
+                            <div class="relative">
+                                <i data-lucide="edit-3" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-yellow-600"></i>
+                                <input type="text" id="add_custom_role" placeholder="Enter role (letters only)" oninput="validateTextOnly(this)" class="w-full pl-10 pr-4 py-2.5 bg-yellow-50 border border-yellow-200 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:outline-none font-bold text-sm text-yellow-700">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Emergency Contact Name</label>
+                        <div class="relative">
+                            <i data-lucide="user-check" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
+                            <input type="text" name="contact_person" class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none font-bold text-sm text-gray-700" placeholder="Contact person name">
+                        </div>
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Emergency Contact Number</label>
+                        <div class="relative">
+                            <i data-lucide="phone-forwarded" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
+                            <input type="text" name="emergency_phone" class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none font-bold text-sm text-gray-700" placeholder="Contact person phone">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-1.5">
+                    <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Address</label>
+                    <div class="relative">
+                        <i data-lucide="map-pin" class="absolute left-3 top-3 w-4 h-4 text-gray-400"></i>
+                        <textarea name="address" rows="2" class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none font-bold text-sm text-gray-700" placeholder="Full residential address"></textarea>
+                    </div>
+                </div>
+
+                <div class="space-y-3 flex flex-col items-center py-2">
+                    <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest">Status</label>
+                    <div class="grid grid-cols-2 gap-3 max-w-md w-full">
+                        <label class="relative cursor-pointer group">
+                            <input type="radio" name="status" value="active" checked class="peer sr-only">
+                            <div class="p-2.5 flex items-center justify-center gap-2 border-2 border-gray-100 rounded-xl peer-checked:border-green-500 peer-checked:bg-green-50 transition-all hover:bg-gray-50">
+                                <div class="w-2 h-2 rounded-full bg-gray-300 peer-checked:bg-green-500"></div>
+                                <span class="text-sm font-black uppercase text-gray-500 peer-checked:text-green-700 tracking-wider">Active</span>
+                            </div>
+                        </label>
+                        <label class="relative cursor-pointer group">
+                            <input type="radio" name="status" value="inactive" class="peer sr-only">
+                            <div class="p-2.5 flex items-center justify-center gap-2 border-2 border-gray-100 rounded-xl peer-checked:border-red-500 peer-checked:bg-red-50 transition-all hover:bg-gray-50">
+                                <div class="w-2 h-2 rounded-full bg-gray-300 peer-checked:bg-red-500"></div>
+                                <span class="text-sm font-black uppercase text-gray-500 peer-checked:text-red-700 tracking-wider">Inactive</span>
+                            </div>
+                        </label>
+                    </div>
                 </div>
             </div>
-            <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-1">Phone Number</label>
-                <input type="text" name="phone" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-yellow-500 outline-none">
-            </div>
-            <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-1">Status</label>
-                <div class="flex gap-4">
-                    <label class="flex items-center gap-2">
-                        <input type="radio" name="status" value="active" checked class="text-yellow-600 focus:ring-yellow-500">
-                        <span class="text-sm">Active</span>
-                    </label>
-                    <label class="flex items-center gap-2">
-                        <input type="radio" name="status" value="inactive" class="text-yellow-600 focus:ring-yellow-500">
-                        <span class="text-sm">Inactive</span>
-                    </label>
-                </div>
-            </div>
-            <div class="flex gap-3 pt-4">
-                <button type="button" onclick="closeModal('addStaffModal')" class="flex-1 px-4 py-2 border rounded-lg hover:bg-gray-50 font-medium text-gray-700">Cancel</button>
-                <button type="submit" class="flex-1 px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg font-medium shadow-sm transition-colors">Save Record</button>
+
+            <div class="p-4 border-t flex justify-end gap-3 shadow-inner bg-gray-50 shrink-0">
+                <button type="button" onclick="closeModal('addStaffModal')" class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 text-sm font-bold transition-all">
+                    Cancel
+                </button>
+                <button type="submit" class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-bold shadow-lg shadow-green-200/50 transition-all flex items-center gap-2">
+                    <i data-lucide="check" class="w-4 h-4"></i> Save Record
+                </button>
             </div>
         </form>
     </div>
 </div>
 
 <!-- Edit Modal -->
-<div id="editStaffModal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-black/50 flex items-center justify-center p-4 backdrop-blur-sm">
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md transform transition-all">
-        <div class="p-6 border-b flex items-center justify-between">
-            <h3 class="text-xl font-bold text-gray-900">Edit Staff Record</h3>
-            <button onclick="closeModal('editStaffModal')" class="p-2 hover:bg-gray-100 rounded-lg text-gray-400">
-                <i data-lucide="x" class="w-5 h-5"></i>
-            </button>
+<div id="editStaffModal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-black/50 flex items-center justify-center p-4 backdrop-blur-sm transition-all duration-300">
+    <div class="relative bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+        <div class="bg-slate-800 p-5 shrink-0">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <div class="p-2.5 bg-white/20 rounded-xl flex items-center justify-center">
+                        <i data-lucide="user-cog" class="w-6 h-6 text-yellow-500"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-black text-white tracking-wide">Edit Staff Record</h3>
+                        <p class="text-xs font-medium text-slate-300 mt-0.5 uppercase tracking-widest">Staff Management</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeModal('editStaffModal')" class="text-slate-400 hover:text-white bg-slate-700/50 hover:bg-slate-700 p-2 rounded-full transition-colors">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
         </div>
-        <form id="editStaffForm" method="POST" class="p-6 space-y-4">
+
+        <form id="editStaffForm" method="POST" class="flex flex-col flex-1 overflow-hidden">
             @csrf
             @method('PUT')
-            <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-1">Full Name</label>
-                <input type="text" name="name" id="edit_name" required class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-yellow-500 outline-none">
-            </div>
-            <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-1">Role</label>
-                <select name="role" id="edit_role_select" onchange="toggleCustomRole('editStaffModal', this.value)" required class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-yellow-500 outline-none">
-                    <option value="Mechanic">Mechanic</option>
-                    <option value="Guard">Guard</option>
-                    <option value="Others">Others</option>
-                </select>
-                <div id="edit_custom_role_container" class="hidden mt-2">
-                    <input type="text" id="edit_custom_role" placeholder="Enter role (letters only)" oninput="validateTextOnly(this)" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-yellow-500 outline-none bg-yellow-50">
+            <div class="p-8 overflow-y-auto flex-1 space-y-6 custom-scrollbar">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-1.5">
+                        <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Full Name *</label>
+                        <div class="relative">
+                            <i data-lucide="user" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
+                            <input type="text" name="name" id="edit_name" required class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none font-bold text-sm text-gray-700">
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-1.5">
+                        <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Phone Number</label>
+                        <div class="relative">
+                            <i data-lucide="phone" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
+                            <input type="text" name="phone" id="edit_phone" class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none font-bold text-sm text-gray-700">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="space-y-1.5">
+                        <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Role *</label>
+                        <div class="relative">
+                            <i data-lucide="briefcase" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
+                            <select name="role" id="edit_role_select" onchange="toggleCustomRole('editStaffModal', this.value)" required class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none font-bold text-sm text-gray-700 appearance-none">
+                                <option value="Mechanic">Mechanic</option>
+                                <option value="Guard">Guard</option>
+                                <option value="Others">Others</option>
+                            </select>
+                            <i data-lucide="chevron-down" class="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"></i>
+                        </div>
+                        <div id="edit_custom_role_container" class="hidden mt-3 space-y-1.5">
+                            <label class="text-[11px] font-black text-yellow-600 uppercase tracking-widest ml-1">Specify Role *</label>
+                            <div class="relative">
+                                <i data-lucide="edit-3" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-yellow-600"></i>
+                                <input type="text" id="edit_custom_role" placeholder="Enter role (letters only)" oninput="validateTextOnly(this)" class="w-full pl-10 pr-4 py-2.5 bg-yellow-50 border border-yellow-200 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:outline-none font-bold text-sm text-yellow-700">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Emergency Contact Name</label>
+                        <div class="relative">
+                            <i data-lucide="user-check" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
+                            <input type="text" name="contact_person" id="edit_contact_person" class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none font-bold text-sm text-gray-700">
+                        </div>
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Emergency Contact Number</label>
+                        <div class="relative">
+                            <i data-lucide="phone-forwarded" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
+                            <input type="text" name="emergency_phone" id="edit_emergency_phone" class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none font-bold text-sm text-gray-700">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-1.5">
+                    <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Address</label>
+                    <div class="relative">
+                        <i data-lucide="map-pin" class="absolute left-3 top-3 w-4 h-4 text-gray-400"></i>
+                        <textarea name="address" id="edit_address" rows="2" class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none font-bold text-sm text-gray-700"></textarea>
+                    </div>
+                </div>
+
+                <div class="space-y-3 flex flex-col items-center py-2">
+                    <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest">Status</label>
+                    <div class="grid grid-cols-2 gap-3 max-w-md w-full">
+                        <label class="relative cursor-pointer group">
+                            <input type="radio" name="status" id="edit_status_active" value="active" class="peer sr-only">
+                            <div class="p-2.5 flex items-center justify-center gap-2 border-2 border-gray-100 rounded-xl peer-checked:border-green-500 peer-checked:bg-green-50 transition-all hover:bg-gray-50">
+                                <div class="w-2 h-2 rounded-full bg-gray-300 peer-checked:bg-green-500"></div>
+                                <span class="text-sm font-black uppercase text-gray-500 peer-checked:text-green-700 tracking-wider">Active</span>
+                            </div>
+                        </label>
+                        <label class="relative cursor-pointer group">
+                            <input type="radio" name="status" id="edit_status_inactive" value="inactive" class="peer sr-only">
+                            <div class="p-2.5 flex items-center justify-center gap-2 border-2 border-gray-100 rounded-xl peer-checked:border-red-500 peer-checked:bg-red-50 transition-all hover:bg-gray-50">
+                                <div class="w-2 h-2 rounded-full bg-gray-300 peer-checked:bg-red-500"></div>
+                                <span class="text-sm font-black uppercase text-gray-500 peer-checked:text-red-700 tracking-wider">Inactive</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="space-y-1.5">
+                    <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Address</label>
+                    <div class="relative">
+                        <i data-lucide="map-pin" class="absolute left-3 top-3 w-4 h-4 text-gray-400"></i>
+                        <textarea name="address" id="edit_address" rows="2" class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none font-bold text-sm text-gray-700"></textarea>
+                    </div>
                 </div>
             </div>
-            <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-1">Phone Number</label>
-                <input type="text" name="phone" id="edit_phone" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-yellow-500 outline-none">
-            </div>
-            <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-1">Status</label>
-                <div class="flex gap-4">
-                    <label class="flex items-center gap-2">
-                        <input type="radio" name="status" id="edit_status_active" value="active" class="text-yellow-600 focus:ring-yellow-500">
-                        <span class="text-sm">Active</span>
-                    </label>
-                    <label class="flex items-center gap-2">
-                        <input type="radio" name="status" id="edit_status_inactive" value="inactive" class="text-yellow-600 focus:ring-yellow-500">
-                        <span class="text-sm">Inactive</span>
-                    </label>
-                </div>
-            </div>
-            <div class="flex gap-3 pt-4">
-                <button type="button" onclick="closeModal('editStaffModal')" class="flex-1 px-4 py-2 border rounded-lg hover:bg-gray-50 font-medium text-gray-700">Cancel</button>
-                <button type="submit" class="flex-1 px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg font-medium shadow-sm transition-colors">Update Record</button>
+
+            <div class="p-4 border-t flex justify-end gap-3 shadow-inner bg-gray-50 shrink-0">
+                <button type="button" onclick="closeModal('editStaffModal')" class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 text-sm font-bold transition-all">
+                    Cancel
+                </button>
+                <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-bold shadow-lg shadow-blue-200/50 transition-all flex items-center gap-2">
+                    <i data-lucide="check" class="w-4 h-4"></i> Update Record
+                </button>
             </div>
         </form>
     </div>
@@ -309,8 +495,14 @@
     });
 
     function editStaff(member) {
+        // Close dropdown first
+        document.querySelectorAll('.staff-action-dropdown').forEach(el => el.classList.add('hidden'));
+        
         document.getElementById('edit_name').value = member.name;
         document.getElementById('edit_phone').value = member.phone || '';
+        document.getElementById('edit_contact_person').value = member.contact_person || '';
+        document.getElementById('edit_emergency_phone').value = member.emergency_phone || '';
+        document.getElementById('edit_address').value = member.address || '';
         
         const roleSelect = document.getElementById('edit_role_select');
         const customContainer = document.getElementById('edit_custom_role_container');
@@ -336,6 +528,55 @@
         document.getElementById('editStaffForm').action = `/staff/${member.id}`;
         openModal('editStaffModal');
     }
+
+    // Dropdown Toggle Logic
+    window.toggleStaffDropdown = function(id, event) {
+        event.stopPropagation();
+        
+        // Close all other dropdowns and reset their row z-index
+        document.querySelectorAll('.staff-action-dropdown').forEach(el => {
+            if (el.id !== id) {
+                el.classList.add('hidden');
+                const row = el.closest('tr');
+                if (row) {
+                    row.style.zIndex = '';
+                    row.style.position = '';
+                }
+            }
+        });
+
+        const dropdown = document.getElementById(id);
+        const row = dropdown ? dropdown.closest('tr') : null;
+
+        if (dropdown) {
+            const isHidden = dropdown.classList.contains('hidden');
+            if (isHidden) {
+                dropdown.classList.remove('hidden');
+                if (row) {
+                    row.style.position = 'relative';
+                    row.style.zIndex = '50';
+                }
+            } else {
+                dropdown.classList.add('hidden');
+                if (row) {
+                    row.style.zIndex = '';
+                    row.style.position = '';
+                }
+            }
+        }
+    };
+
+    // Close dropdowns on outside click
+    document.addEventListener('click', function() {
+        document.querySelectorAll('.staff-action-dropdown').forEach(el => {
+            el.classList.add('hidden');
+            const row = el.closest('tr');
+            if (row) {
+                row.style.zIndex = '';
+                row.style.position = '';
+            }
+        });
+    });
 
     // Close modals on escape key
     window.addEventListener('keydown', (e) => {
