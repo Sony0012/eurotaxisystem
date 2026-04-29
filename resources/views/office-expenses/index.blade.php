@@ -37,61 +37,76 @@
     {{-- Statistics Cards --}}
     <div class="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
         {{-- Total Today --}}
-        <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-orange-500 flex items-center gap-4">
-            <div class="p-3 bg-orange-50 rounded-lg">
-                <i data-lucide="clock" class="w-6 h-6 text-orange-600"></i>
+        <div class="bg-gradient-to-br from-orange-50 to-amber-50/70 p-4 rounded-xl shadow-sm border-l-4 border-orange-500 relative overflow-hidden flex items-center justify-between">
+            <div class="flex items-center gap-4 relative z-10">
+                <div class="p-3 bg-orange-100 rounded-lg shadow-sm">
+                    <i data-lucide="clock" class="w-6 h-6 text-orange-600"></i>
+                </div>
+                <div class="min-w-0">
+                    <div class="text-xl font-black text-gray-900 tracking-tight truncate tabular-nums">{{ formatCurrency($stats['today'] ?? 0) }}</div>
+                    <div class="text-[10px] font-black text-orange-400 uppercase tracking-widest truncate">Total Today</div>
+                </div>
             </div>
-            <div class="min-w-0">
-                <div class="text-xl font-black text-gray-900 tracking-tight truncate tabular-nums">{{ formatCurrency($stats['today'] ?? 0) }}</div>
-                <div class="text-[10px] font-black text-gray-400 uppercase tracking-widest truncate">Total Today</div>
-            </div>
+            <i data-lucide="clock" class="absolute -right-3 -bottom-3 w-20 h-20 text-orange-400 opacity-[0.12] -rotate-12 z-0 pointer-events-none"></i>
         </div>
 
         {{-- This Month --}}
-        <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-rose-500 flex items-center gap-4">
-            <div class="p-3 bg-rose-50 rounded-lg">
-                <i data-lucide="calendar" class="w-6 h-6 text-rose-600"></i>
+        <div class="bg-gradient-to-br from-rose-50 to-pink-50/70 p-4 rounded-xl shadow-sm border-l-4 border-rose-500 relative overflow-hidden flex items-center justify-between">
+            <div class="flex items-center gap-4 relative z-10">
+                <div class="p-3 bg-rose-100 rounded-lg shadow-sm">
+                    <i data-lucide="calendar" class="w-6 h-6 text-rose-600"></i>
+                </div>
+                <div class="min-w-0">
+                    <div class="text-xl font-black text-gray-900 tracking-tight truncate tabular-nums">{{ formatCurrency($stats['this_month'] ?? 0) }}</div>
+                    <div class="text-[10px] font-black text-rose-400 uppercase tracking-widest truncate">This Month</div>
+                </div>
             </div>
-            <div class="min-w-0">
-                <div class="text-xl font-black text-gray-900 tracking-tight truncate tabular-nums">{{ formatCurrency($stats['this_month'] ?? 0) }}</div>
-                <div class="text-[10px] font-black text-gray-400 uppercase tracking-widest truncate">This Month</div>
-            </div>
+            <i data-lucide="calendar" class="absolute -right-3 -bottom-3 w-20 h-20 text-rose-400 opacity-[0.12] -rotate-12 z-0 pointer-events-none"></i>
         </div>
 
         {{-- Last Month --}}
-        <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-purple-500 flex items-center gap-4">
-            <div class="p-3 bg-purple-50 rounded-lg">
-                <i data-lucide="history" class="w-6 h-6 text-purple-600"></i>
+        <div class="bg-gradient-to-br from-purple-50 to-violet-50/70 p-4 rounded-xl shadow-sm border-l-4 border-purple-500 relative overflow-hidden flex items-center justify-between">
+            <div class="flex items-center gap-4 relative z-10">
+                <div class="p-3 bg-purple-100 rounded-lg shadow-sm">
+                    <i data-lucide="history" class="w-6 h-6 text-purple-600"></i>
+                </div>
+                <div class="min-w-0">
+                    <div class="text-xl font-black text-gray-900 tracking-tight truncate tabular-nums">{{ formatCurrency($stats['last_month'] ?? 0) }}</div>
+                    <div class="text-[10px] font-black text-purple-400 uppercase tracking-widest truncate">Last Month</div>
+                </div>
             </div>
-            <div class="min-w-0">
-                <div class="text-xl font-black text-gray-900 tracking-tight truncate tabular-nums">{{ formatCurrency($stats['last_month'] ?? 0) }}</div>
-                <div class="text-[10px] font-black text-gray-400 uppercase tracking-widest truncate">Last Month</div>
-            </div>
+            <i data-lucide="history" class="absolute -right-3 -bottom-3 w-20 h-20 text-purple-400 opacity-[0.12] -rotate-12 z-0 pointer-events-none"></i>
         </div>
 
         {{-- Trend --}}
-        <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-indigo-500 flex items-center gap-4">
+        <div class="bg-gradient-to-br from-indigo-50 to-blue-50/70 p-4 rounded-xl shadow-sm border-l-4 border-indigo-500 relative overflow-hidden flex items-center justify-between">
             @php $change = $stats['monthly_change'] ?? 0; @endphp
-            <div class="p-3 bg-indigo-50 rounded-lg">
-                <i data-lucide="{{ $change < 0 ? 'trending-down' : 'trending-up' }}" class="w-6 h-6 text-indigo-600"></i>
-            </div>
-            <div class="min-w-0">
-                <div class="text-xl font-black {{ $change < 0 ? 'text-green-600' : 'text-rose-600' }} tracking-tight truncate tabular-nums">
-                    {{ $change > 0 ? '+' : '' }}{{ $change }}%
+            <div class="flex items-center gap-4 relative z-10">
+                <div class="p-3 bg-indigo-100 rounded-lg shadow-sm">
+                    <i data-lucide="{{ $change < 0 ? 'trending-down' : 'trending-up' }}" class="w-6 h-6 text-indigo-600"></i>
                 </div>
-                <div class="text-[10px] font-black text-gray-400 uppercase tracking-widest truncate">Trend</div>
+                <div class="min-w-0">
+                    <div class="text-xl font-black {{ $change < 0 ? 'text-green-600' : 'text-rose-600' }} tracking-tight truncate tabular-nums">
+                        {{ $change > 0 ? '+' : '' }}{{ $change }}%
+                    </div>
+                    <div class="text-[10px] font-black text-indigo-400 uppercase tracking-widest truncate">Trend</div>
+                </div>
             </div>
+            <i data-lucide="{{ $change < 0 ? 'trending-down' : 'trending-up' }}" class="absolute -right-3 -bottom-3 w-20 h-20 text-indigo-400 opacity-[0.12] -rotate-12 z-0 pointer-events-none"></i>
         </div>
 
         {{-- History --}}
-        <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-teal-500 flex items-center gap-4">
-            <div class="p-3 bg-teal-50 rounded-lg">
-                <i data-lucide="layers" class="w-6 h-6 text-teal-600"></i>
+        <div class="bg-gradient-to-br from-teal-50 to-emerald-50/70 p-4 rounded-xl shadow-sm border-l-4 border-teal-500 relative overflow-hidden flex items-center justify-between">
+            <div class="flex items-center gap-4 relative z-10">
+                <div class="p-3 bg-teal-100 rounded-lg shadow-sm">
+                    <i data-lucide="layers" class="w-6 h-6 text-teal-600"></i>
+                </div>
+                <div class="min-w-0">
+                    <div class="text-xl font-black text-gray-900 tracking-tight truncate tabular-nums">{{ $stats['total_records'] ?? 0 }}</div>
+                    <div class="text-[10px] font-black text-teal-400 uppercase tracking-widest truncate">History</div>
+                </div>
             </div>
-            <div class="min-w-0">
-                <div class="text-xl font-black text-gray-900 tracking-tight truncate tabular-nums">{{ $stats['total_records'] ?? 0 }}</div>
-                <div class="text-[10px] font-black text-gray-400 uppercase tracking-widest truncate">History</div>
-            </div>
+            <i data-lucide="layers" class="absolute -right-3 -bottom-3 w-20 h-20 text-teal-400 opacity-[0.12] -rotate-12 z-0 pointer-events-none"></i>
         </div>
     </div>
 
@@ -399,6 +414,12 @@
                             </div>
                         </div>
 
+                        <div class="space-y-1.5 hidden animate-in fade-in zoom-in-95 duration-200" id="customCategoryGroup">
+                            <label class="text-[11px] font-black text-rose-500 uppercase tracking-widest ml-1">Specify Category *</label>
+                            <input type="text" id="expenseCustomCategory" placeholder="e.g. Website Hosting"
+                                class="w-full px-4 py-2.5 bg-rose-50 border border-rose-200 rounded-xl focus:ring-2 focus:ring-rose-500 focus:outline-none font-bold text-sm text-rose-700">
+                        </div>
+
                         <div class="space-y-1.5" id="topAmountGroup">
                             <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Amount (PHP) *</label>
                             <div class="relative">
@@ -663,6 +684,9 @@ function openAddExpenseModal() {
     document.getElementById('selectedCategoryLabel').textContent = '-- Choose Specific Category --';
     document.getElementById('selectedCategoryLabel').classList.remove('text-gray-900');
     document.getElementById('selectedCategoryLabel').classList.add('text-gray-400');
+    document.getElementById('customCategoryGroup').classList.add('hidden');
+    document.getElementById('expenseCustomCategory').value = '';
+    document.getElementById('expenseCustomCategory').removeAttribute('required');
     document.getElementById('expenseDescription').value = '';
     document.getElementById('expenseReference').value = '';
     document.getElementById('pmCash').checked = true;
@@ -693,11 +717,15 @@ function openEditExpenseModal(id) {
         const predefined = ['Electricity (Meralco)', 'Water (Maynilad)', 'Internet & WiFi', 'Communications', 'Office Supplies', 'Pantry & Cleaning', 'Building Repairs', 'Construction Materials', 'Office Equipment', 'Spare Parts Purchase', 'Tires & Batteries', 'Oil & Lubricants', 'Govt Permits & Fees', 'LTO & Registration', 'Insurance', 'Staff Meals & Incentives', 'Petty Cash'];
         
         if (data.category && !predefined.includes(data.category)) {
+            document.getElementById('expenseCategory').value = 'Other';
             document.getElementById('customCategoryGroup').classList.remove('hidden');
             document.getElementById('expenseCustomCategory').value = data.category;
+            document.getElementById('expenseCustomCategory').setAttribute('required', 'required');
             document.getElementById('selectedCategoryLabel').textContent = 'Custom: ' + data.category;
         } else {
             document.getElementById('customCategoryGroup').classList.add('hidden');
+            document.getElementById('expenseCustomCategory').value = '';
+            document.getElementById('expenseCustomCategory').removeAttribute('required');
         }
 
         // Handle Inventory Link for Edit
@@ -786,6 +814,8 @@ function selectCategory(val) {
     if (val === 'Other') {
         customGroup.classList.remove('hidden');
         customInput.setAttribute('required', 'required');
+    } else {
+        customGroup.classList.add('hidden');
         customInput.removeAttribute('required');
     }
 
