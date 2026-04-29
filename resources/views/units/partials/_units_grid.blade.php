@@ -8,12 +8,12 @@
         @php
             $primary_driver = $unit->primary_driver ?? null;
             $status_color = match($unit->status) {
-                'active'       => 'text-green-500',
-                'maintenance'  => 'text-red-500',
-                'coding'       => 'text-yellow-600',
-                'at_risk'      => 'text-orange-500',
-                'vacant', 'available' => 'text-gray-400',
-                default        => 'text-gray-400',
+                'active'       => 'text-green-600',
+                'maintenance'  => 'text-red-600',
+                'coding'       => 'text-yellow-700',
+                'at_risk'      => 'text-orange-600',
+                'vacant', 'available' => 'text-gray-500',
+                default        => 'text-gray-500',
             };
             $dot_bg = match($unit->status) {
                 'active'       => 'bg-green-500',
@@ -23,7 +23,51 @@
                 'vacant', 'available' => 'bg-gray-400',
                 default        => 'bg-gray-400',
             };
-            
+            // Card background & border per status
+            $card_bg = match($unit->status) {
+                'active'            => 'bg-gradient-to-br from-green-50 to-emerald-50/60 border-green-100',
+                'maintenance'       => 'bg-gradient-to-br from-red-50 to-rose-50/60 border-red-100',
+                'coding'            => 'bg-gradient-to-br from-yellow-50 to-amber-50/60 border-yellow-100',
+                'at_risk'           => 'bg-gradient-to-br from-orange-50 to-amber-50/60 border-orange-100',
+                'vacant', 'available' => 'bg-gradient-to-br from-slate-50 to-gray-50/60 border-gray-100',
+                default             => 'bg-gradient-to-br from-slate-50 to-gray-50/60 border-gray-100',
+            };
+            // Driver section bg per status
+            $driver_bg = match($unit->status) {
+                'active'            => 'bg-green-100/50 border-green-100',
+                'maintenance'       => 'bg-red-100/50 border-red-100',
+                'coding'            => 'bg-yellow-100/50 border-yellow-100',
+                'at_risk'           => 'bg-orange-100/50 border-orange-100',
+                'vacant', 'available' => 'bg-gray-100/50 border-gray-100',
+                default             => 'bg-gray-100/50 border-gray-100',
+            };
+            // Icon box bg per status
+            $icon_bg = match($unit->status) {
+                'active'            => 'bg-green-100 border-green-200',
+                'maintenance'       => 'bg-red-100 border-red-200',
+                'coding'            => 'bg-yellow-100 border-yellow-200',
+                'at_risk'           => 'bg-orange-100 border-orange-200',
+                'vacant', 'available' => 'bg-slate-100 border-slate-200',
+                default             => 'bg-slate-100 border-slate-200',
+            };
+            // Car icon color per status
+            $icon_color = match($unit->status) {
+                'active'            => 'text-green-500',
+                'maintenance'       => 'text-red-500',
+                'coding'            => 'text-yellow-600',
+                'at_risk'           => 'text-orange-500',
+                'vacant', 'available' => 'text-slate-400',
+                default             => 'text-slate-400',
+            };
+            // Footer divider per status
+            $footer_border = match($unit->status) {
+                'active'            => 'border-green-100',
+                'maintenance'       => 'border-red-100',
+                'coding'            => 'border-yellow-100',
+                'at_risk'           => 'border-orange-100',
+                'vacant', 'available' => 'border-gray-100',
+                default             => 'border-gray-100',
+            };
             // Maintenance logic for the bar
             $odo_limit = 5000;
             $current_odo = (int)($unit->latest_odo ?? 0);
@@ -33,7 +77,7 @@
             $progress_percent = min(100, ($kms_since / $odo_limit) * 100);
         @endphp
 
-        <div class="bg-white rounded-[2rem] shadow-sm border border-gray-100 p-6 flex flex-col cursor-pointer transition-all hover:shadow-xl hover:-translate-y-1" 
+        <div class="{{ $card_bg }} rounded-[2rem] shadow-sm border p-6 flex flex-col cursor-pointer transition-all hover:shadow-xl hover:-translate-y-1" 
              onclick="viewUnitDetails({{ $unit->id }})">
             
             {{-- Top Row: Plate & Status --}}
@@ -49,9 +93,9 @@
 
             {{-- Middle Content: Image & Basic Info --}}
             <div class="flex items-center gap-5 mb-6">
-                {{-- Light Blue Icon Box --}}
-                <div class="w-20 h-20 bg-blue-50/80 rounded-2xl flex items-center justify-center flex-shrink-0 border border-blue-100">
-                    <i data-lucide="car" class="w-10 h-10 text-blue-500"></i>
+                {{-- Status-tinted Icon Box --}}
+                <div class="w-20 h-20 {{ $icon_bg }} rounded-2xl flex items-center justify-center flex-shrink-0 border">
+                    <i data-lucide="car" class="w-10 h-10 {{ $icon_color }}"></i>
                 </div>
                 <div class="flex-1 min-w-0">
                     <h4 class="text-xl font-black text-gray-900 leading-tight">{{ $unit->make }} {{ $unit->model }}</h4>
@@ -66,7 +110,7 @@
             </div>
 
             {{-- Driver Section: Gray Box --}}
-            <div class="bg-gray-50/80 rounded-2xl p-4 flex items-center gap-4 mb-4 border border-gray-100">
+            <div class="{{ $driver_bg }} rounded-2xl p-4 flex items-center gap-4 mb-4 border">
                 <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center border border-gray-200 flex-shrink-0 shadow-sm">
                     <i data-lucide="user" class="w-5 h-5 text-gray-300"></i>
                 </div>
@@ -95,7 +139,7 @@
             @endif
 
             {{-- Footer: Serial & Actions --}}
-            <div class="mt-auto flex items-center justify-between pt-2 border-t border-gray-50">
+            <div class="mt-auto flex items-center justify-between pt-2 border-t {{ $footer_border }}">
                 <div class="flex flex-col">
                     <span class="text-[9px] font-black text-gray-400 uppercase tracking-tighter leading-none mb-1">Serial Info</span>
                     <span class="text-xs font-bold text-gray-800">{{ $unit->motor_no ? substr($unit->motor_no, -8) : 'N/A' }}</span>
