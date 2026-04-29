@@ -83,63 +83,63 @@
     <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
 
         {{-- Total Units --}}
-        <div onclick="showUnitsModal()" class="card-hover cursor-pointer group relative overflow-hidden rounded-2xl shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl" style="background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 60%, #3b82f6 100%);">
-            <div class="absolute inset-0 opacity-10" style="background: radial-gradient(circle at 80% 20%, #fff 0%, transparent 60%);"></div>
+        <div onclick="showUnitsModal()" class="card-hover cursor-pointer group relative overflow-hidden rounded-2xl shadow-sm border border-blue-100 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl bg-gradient-to-br from-blue-50 to-indigo-50/70">
             <div class="relative p-5 flex items-center justify-between">
-                <div>
-                    <p class="text-blue-200 text-xs font-semibold uppercase tracking-widest mb-1">Total Units</p>
-                    <p class="text-white text-3xl font-black leading-none mb-1" data-stat="active_units">{{ $stats['active_units'] }}</p>
-                    <p class="text-blue-200 text-xs font-medium"><span class="text-emerald-300 font-bold">{{ $stats['roi_units'] }}</span> ROI Achieved</p>
+                <div class="flex-1 min-w-0">
+                    <p class="text-blue-400 text-[10px] font-black uppercase tracking-widest mb-1">Total Units</p>
+                    <p class="text-gray-900 text-3xl font-black leading-none mb-1" data-stat="active_units">{{ $stats['active_units'] }}</p>
+                    <p class="text-blue-400 text-xs font-medium"><span class="text-emerald-600 font-bold">{{ $stats['roi_units'] }}</span> ROI Achieved</p>
                 </div>
-                <div class="p-3 rounded-2xl" style="background: rgba(255,255,255,0.15); backdrop-filter: blur(8px);">
-                    <i data-lucide="car" class="w-7 h-7 text-white"></i>
+                <div class="p-3 bg-blue-100 rounded-2xl border border-blue-200 shadow-sm flex-shrink-0">
+                    <i data-lucide="car" class="w-7 h-7 text-blue-600"></i>
                 </div>
             </div>
+            <i data-lucide="car" class="absolute -right-4 -bottom-4 w-24 h-24 text-blue-300 opacity-[0.12] -rotate-12 pointer-events-none"></i>
         </div>
 
         {{-- Daily Boundary Collection --}}
-        <div onclick="showDailyBoundaryModal()" class="card-hover cursor-pointer group relative overflow-hidden rounded-2xl shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl" style="background: linear-gradient(135deg, #065f46 0%, #059669 60%, #34d399 100%);">
-            <div class="absolute inset-0 opacity-10" style="background: radial-gradient(circle at 80% 20%, #fff 0%, transparent 60%);"></div>
+        <div onclick="showDailyBoundaryModal()" class="card-hover cursor-pointer group relative overflow-hidden rounded-2xl shadow-sm border border-emerald-100 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl bg-gradient-to-br from-emerald-50 to-teal-50/70">
             <div class="relative p-5 flex items-center justify-between">
-                <div>
-                    <p class="text-emerald-200 text-xs font-semibold uppercase tracking-widest mb-1">Daily Boundary Collection</p>
-                    <p class="text-white text-2xl font-black leading-none mb-1" data-stat="today_boundary">{{ formatCurrency($stats['today_boundary']) }}</p>
-                    <p class="text-emerald-200 text-xs font-medium">Target: <span class="text-white font-bold" data-stat="daily_target">{{ formatCurrency($stats['daily_target']) }}</span></p>
+                <div class="flex-1 min-w-0">
+                    <p class="text-emerald-500 text-[10px] font-black uppercase tracking-widest mb-1">Daily Boundary Collection</p>
+                    <p class="text-gray-900 text-2xl font-black leading-none mb-1" data-stat="today_boundary">{{ formatCurrency($stats['today_boundary']) }}</p>
+                    <p class="text-emerald-500 text-xs font-medium">Target: <span class="text-gray-700 font-bold" data-stat="daily_target">{{ formatCurrency($stats['daily_target']) }}</span></p>
                 </div>
-                <div class="p-3 rounded-2xl" style="background: rgba(255,255,255,0.15); backdrop-filter: blur(8px);">
-                    <i data-lucide="banknote" class="w-7 h-7 text-white"></i>
+                <div class="p-3 bg-emerald-100 rounded-2xl border border-emerald-200 shadow-sm flex-shrink-0">
+                    <i data-lucide="banknote" class="w-7 h-7 text-emerald-600"></i>
                 </div>
             </div>
+            <i data-lucide="banknote" class="absolute -right-4 -bottom-4 w-24 h-24 text-emerald-300 opacity-[0.12] -rotate-12 pointer-events-none"></i>
         </div>
 
         {{-- Net Income Today --}}
-        <div onclick="showNetIncomeModal()" class="card-hover cursor-pointer group relative overflow-hidden rounded-2xl shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl" style="background: linear-gradient(135deg, #14532d 0%, #16a34a 60%, #4ade80 100%);">
-            <div class="absolute inset-0 opacity-10" style="background: radial-gradient(circle at 80% 20%, #fff 0%, transparent 60%);"></div>
+        <div onclick="showNetIncomeModal()" class="card-hover cursor-pointer group relative overflow-hidden rounded-2xl shadow-sm border border-green-100 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl bg-gradient-to-br from-green-50 to-lime-50/70">
             <div class="relative p-5 flex items-center justify-between">
-                <div>
-                    <p class="text-green-200 text-xs font-semibold uppercase tracking-widest mb-1">Net Income Today</p>
-                    <p class="text-white text-2xl font-black leading-none mb-1" data-stat="net_income">{{ formatCurrency($stats['net_income']) }}</p>
-                    <p class="text-green-200 text-xs font-medium">After all expenses</p>
+                <div class="flex-1 min-w-0">
+                    <p class="text-green-500 text-[10px] font-black uppercase tracking-widest mb-1">Net Income Today</p>
+                    <p class="text-gray-900 text-2xl font-black leading-none mb-1" data-stat="net_income">{{ formatCurrency($stats['net_income']) }}</p>
+                    <p class="text-green-500 text-xs font-medium">After all expenses</p>
                 </div>
-                <div class="p-3 rounded-2xl" style="background: rgba(255,255,255,0.15); backdrop-filter: blur(8px);">
-                    <i data-lucide="trending-up" class="w-7 h-7 text-white"></i>
+                <div class="p-3 bg-green-100 rounded-2xl border border-green-200 shadow-sm flex-shrink-0">
+                    <i data-lucide="trending-up" class="w-7 h-7 text-green-600"></i>
                 </div>
             </div>
+            <i data-lucide="trending-up" class="absolute -right-4 -bottom-4 w-24 h-24 text-green-300 opacity-[0.12] -rotate-12 pointer-events-none"></i>
         </div>
 
         {{-- Units Under Maintenance --}}
-        <div onclick="showMaintenanceUnitsModal()" class="card-hover cursor-pointer group relative overflow-hidden rounded-2xl shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl" style="background: linear-gradient(135deg, #7c2d12 0%, #ea580c 60%, #fb923c 100%);">
-            <div class="absolute inset-0 opacity-10" style="background: radial-gradient(circle at 80% 20%, #fff 0%, transparent 60%);"></div>
+        <div onclick="showMaintenanceUnitsModal()" class="card-hover cursor-pointer group relative overflow-hidden rounded-2xl shadow-sm border border-orange-100 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl bg-gradient-to-br from-orange-50 to-amber-50/70">
             <div class="relative p-5 flex items-center justify-between">
-                <div>
-                    <p class="text-orange-200 text-xs font-semibold uppercase tracking-widest mb-1">Units Under Maintenance</p>
-                    <p class="text-white text-3xl font-black leading-none mb-1" data-stat="maintenance_units">{{ $stats['maintenance_units'] }}</p>
-                    <p class="text-orange-200 text-xs font-medium" data-stat="maintenance_subtitle">Units ongoing maintenance</p>
+                <div class="flex-1 min-w-0">
+                    <p class="text-orange-400 text-[10px] font-black uppercase tracking-widest mb-1">Units Under Maintenance</p>
+                    <p class="text-gray-900 text-3xl font-black leading-none mb-1" data-stat="maintenance_units">{{ $stats['maintenance_units'] }}</p>
+                    <p class="text-orange-400 text-xs font-medium" data-stat="maintenance_subtitle">Units ongoing maintenance</p>
                 </div>
-                <div class="p-3 rounded-2xl" style="background: rgba(255,255,255,0.15); backdrop-filter: blur(8px);">
-                    <i data-lucide="wrench" class="w-7 h-7 text-white"></i>
+                <div class="p-3 bg-orange-100 rounded-2xl border border-orange-200 shadow-sm flex-shrink-0">
+                    <i data-lucide="wrench" class="w-7 h-7 text-orange-600"></i>
                 </div>
             </div>
+            <i data-lucide="wrench" class="absolute -right-4 -bottom-4 w-24 h-24 text-orange-300 opacity-[0.12] -rotate-12 pointer-events-none"></i>
         </div>
 
     </div>
@@ -148,46 +148,46 @@
     <div class="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-4">
 
         {{-- Active Drivers --}}
-        <div onclick="showActiveDriversModal()" class="card-hover cursor-pointer group relative overflow-hidden rounded-2xl shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl" style="background: linear-gradient(135deg, #1e1b4b 0%, #4338ca 60%, #818cf8 100%);">
-            <div class="absolute inset-0 opacity-10" style="background: radial-gradient(circle at 80% 20%, #fff 0%, transparent 60%);"></div>
+        <div onclick="showActiveDriversModal()" class="card-hover cursor-pointer group relative overflow-hidden rounded-2xl shadow-sm border border-indigo-100 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl bg-gradient-to-br from-indigo-50 to-violet-50/70">
             <div class="relative p-5 flex items-center justify-between">
-                <div>
-                    <p class="text-indigo-200 text-xs font-semibold uppercase tracking-widest mb-1">Active Drivers</p>
-                    <p class="text-white text-3xl font-black leading-none" data-stat="active_drivers">{{ $stats['active_drivers'] }}</p>
+                <div class="flex-1 min-w-0">
+                    <p class="text-indigo-400 text-[10px] font-black uppercase tracking-widest mb-1">Active Drivers</p>
+                    <p class="text-gray-900 text-3xl font-black leading-none" data-stat="active_drivers">{{ $stats['active_drivers'] }}</p>
                 </div>
-                <div class="p-3 rounded-2xl" style="background: rgba(255,255,255,0.15); backdrop-filter: blur(8px);">
-                    <i data-lucide="users" class="w-7 h-7 text-white"></i>
+                <div class="p-3 bg-indigo-100 rounded-2xl border border-indigo-200 shadow-sm flex-shrink-0">
+                    <i data-lucide="users" class="w-7 h-7 text-indigo-600"></i>
                 </div>
             </div>
+            <i data-lucide="users" class="absolute -right-4 -bottom-4 w-24 h-24 text-indigo-300 opacity-[0.12] -rotate-12 pointer-events-none"></i>
         </div>
 
         {{-- Total Expenses Today --}}
-        <div onclick="showExpensesModal()" class="card-hover cursor-pointer group relative overflow-hidden rounded-2xl shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl" style="background: linear-gradient(135deg, #7f1d1d 0%, #dc2626 60%, #f87171 100%);">
-            <div class="absolute inset-0 opacity-10" style="background: radial-gradient(circle at 80% 20%, #fff 0%, transparent 60%);"></div>
+        <div onclick="showExpensesModal()" class="card-hover cursor-pointer group relative overflow-hidden rounded-2xl shadow-sm border border-rose-100 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl bg-gradient-to-br from-rose-50 to-red-50/70">
             <div class="relative p-5 flex items-center justify-between">
-                <div>
-                    <p class="text-red-200 text-xs font-semibold uppercase tracking-widest mb-1">Total Expenses Today</p>
-                    <p class="text-white text-2xl font-black leading-none" data-stat="total_expenses_today">{{ formatCurrency($stats['total_expenses_today']) }}</p>
+                <div class="flex-1 min-w-0">
+                    <p class="text-rose-400 text-[10px] font-black uppercase tracking-widest mb-1">Total Expenses Today</p>
+                    <p class="text-gray-900 text-2xl font-black leading-none" data-stat="total_expenses_today">{{ formatCurrency($stats['total_expenses_today']) }}</p>
                 </div>
-                <div class="p-3 rounded-2xl" style="background: rgba(255,255,255,0.15); backdrop-filter: blur(8px);">
-                    <i data-lucide="trending-down" class="w-7 h-7 text-white"></i>
+                <div class="p-3 bg-rose-100 rounded-2xl border border-rose-200 shadow-sm flex-shrink-0">
+                    <i data-lucide="trending-down" class="w-7 h-7 text-rose-600"></i>
                 </div>
             </div>
+            <i data-lucide="trending-down" class="absolute -right-4 -bottom-4 w-24 h-24 text-rose-300 opacity-[0.12] -rotate-12 pointer-events-none"></i>
         </div>
 
         {{-- Coding Units Today --}}
-        <div onclick="showCodingUnitsModal()" class="card-hover cursor-pointer group relative overflow-hidden rounded-2xl shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl" style="background: linear-gradient(135deg, #4c1d95 0%, #7c3aed 60%, #a78bfa 100%);">
-            <div class="absolute inset-0 opacity-10" style="background: radial-gradient(circle at 80% 20%, #fff 0%, transparent 60%);"></div>
+        <div onclick="showCodingUnitsModal()" class="card-hover cursor-pointer group relative overflow-hidden rounded-2xl shadow-sm border border-violet-100 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl bg-gradient-to-br from-violet-50 to-purple-50/70">
             <div class="relative p-5 flex items-center justify-between">
-                <div>
-                    <p class="text-violet-200 text-xs font-semibold uppercase tracking-widest mb-1">Coding Units Today</p>
-                    <p class="text-white text-3xl font-black leading-none mb-1" data-stat="coding_units">{{ $stats['coding_units'] }}</p>
-                    <p class="text-violet-200 text-[10px] font-bold uppercase tracking-tight">{{ now()->timezone('Asia/Manila')->format('l') }}</p>
+                <div class="flex-1 min-w-0">
+                    <p class="text-violet-400 text-[10px] font-black uppercase tracking-widest mb-1">Coding Units Today</p>
+                    <p class="text-gray-900 text-3xl font-black leading-none mb-1" data-stat="coding_units">{{ $stats['coding_units'] }}</p>
+                    <p class="text-violet-400 text-[10px] font-bold uppercase tracking-tight">{{ now()->timezone('Asia/Manila')->format('l') }}</p>
                 </div>
-                <div class="p-3 rounded-2xl" style="background: rgba(255,255,255,0.15); backdrop-filter: blur(8px);">
-                    <i data-lucide="calendar" class="w-7 h-7 text-white"></i>
+                <div class="p-3 bg-violet-100 rounded-2xl border border-violet-200 shadow-sm flex-shrink-0">
+                    <i data-lucide="calendar" class="w-7 h-7 text-violet-600"></i>
                 </div>
             </div>
+            <i data-lucide="calendar" class="absolute -right-4 -bottom-4 w-24 h-24 text-violet-300 opacity-[0.12] -rotate-12 pointer-events-none"></i>
         </div>
 
     </div>
