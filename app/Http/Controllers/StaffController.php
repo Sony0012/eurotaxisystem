@@ -45,6 +45,9 @@ class StaffController extends Controller
             'name' => 'required|string|max:255',
             'role' => 'required|string|max:255',
             'phone' => 'nullable|string|max:20',
+            'contact_person' => 'nullable|string|max:255',
+            'emergency_phone' => 'nullable|string|max:20',
+            'address' => 'nullable|string',
             'status' => 'required|in:active,inactive',
         ]);
 
@@ -63,6 +66,9 @@ class StaffController extends Controller
             'name' => 'required|string|max:255',
             'role' => 'required|string|max:255',
             'phone' => 'nullable|string|max:20',
+            'contact_person' => 'nullable|string|max:255',
+            'emergency_phone' => 'nullable|string|max:20',
+            'address' => 'nullable|string',
             'status' => 'required|in:active,inactive',
         ]);
 
@@ -75,6 +81,7 @@ class StaffController extends Controller
 
     public function destroy($id)
     {
+        $staff = \App\Models\Staff::findOrFail($id);
         $name = $staff->name;
         $staff->delete();
 
