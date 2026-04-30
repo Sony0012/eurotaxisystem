@@ -45,6 +45,8 @@ class User extends Authenticatable
         'allowed_pages',
         'must_change_password',
         'temp_password',
+        'is_disabled',
+        'disable_reason',
     ];
 
     protected $hidden = [
@@ -83,7 +85,6 @@ class User extends Authenticatable
 
         // 2. Always allowed routes (never restricted)
         $alwaysAllowed = [
-            'dashboard',
             'login',
             'logout',
             'register',

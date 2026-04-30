@@ -619,7 +619,8 @@
                                     <div class="search-option unit-search-option" 
                                         data-id="{{ $u->id }}" 
                                         data-name="{{ $u->plate_number }}"
-                                        data-driver-id="{{ $u->driver_id }}">
+                                        data-driver-id="{{ $u->driver_id }}"
+                                        data-secondary-driver-id="{{ $u->secondary_driver_id }}">
                                         <div class="font-black text-xs text-gray-900">{{ $u->plate_number }}</div>
                                     </div>
                                 @endforeach
@@ -633,7 +634,12 @@
                             <div id="driverSearchDropdown" class="search-dropdown hidden">
                                 @foreach($drivers as $d)
                                     <div class="search-option driver-search-option" data-id="{{ $d->id }}" data-name="{{ $d->full_name }}">
-                                        <div class="font-black text-xs text-gray-900">{{ $d->full_name }}</div>
+                                        <div class="flex justify-between items-start">
+                                            <div class="font-black text-xs text-gray-900">{{ $d->full_name }}</div>
+                                            <span class="recommend-badge hidden px-1.5 py-0.5 bg-green-100 text-green-700 text-[8px] font-black rounded uppercase tracking-widest animate-pulse">
+                                                Recommended
+                                            </span>
+                                        </div>
                                         <div class="text-[9px] text-gray-400 font-black uppercase tracking-tighter mt-1">{{ $d->current_plate ?? 'Floating / Unassigned' }}</div>
                                     </div>
                                 @endforeach
@@ -1332,6 +1338,10 @@ window.openIncidentModal = function() {
     modal.classList.add('flex');
     if(window.lucide) lucide.createIcons();
     
+    // Reset driver filtering state
+    allowedDriverIds = null;
+    setDriverOptionsVisibility(null);
+    
     // Always re-init to ensure fresh state
     initializeSearchDropdowns();
     initPartSearch();
@@ -1496,6 +1506,56 @@ window._checkAutoBanState = function() {
 };
 
 // ─── Searchable Dropdowns (Unit/Driver) ───
+// When a unit is selected, limit driver suggestions to its assigned drivers.
+// If null/empty, show all drivers.
+let allowedDriverIds = null;
+
+function setDriverOptionsVisibility(allowedIds) {
+    const allowed = new Set((allowedIds || []).map(String).filter(v => v && v !== '0' && v !== 'null'));
+    const opts = document.querySelectorAll('.driver-search-option');
+    opts.forEach(opt => {
+        const id = String(opt.dataset.id || '');
+        const isMatch = (allowed.size === 0 || allowed.has(id));
+        opt.setAttribute('data-unit-match', isMatch ? '1' : '0');
+        
+        // Toggle Recommended Badge
+        const badge = opt.querySelector('.recommend-badge');
+        if (badge) {
+            if (allowed.size > 0 && isMatch) {
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        }
+
+        // Initial visibility based on unit match
+        opt.style.display = isMatch ? 'block' : 'none';
+    });
+}
+
+function filterDropdown(input, optClass) {
+    const q = input.value.toLowerCase().trim();
+    const isDriverSearch = (optClass === 'driver-search-option');
+    
+    document.querySelectorAll('.' + optClass).forEach(opt => {
+        const text = opt.innerText.toLowerCase();
+        const matchesQuery = (!q || text.includes(q));
+        
+        if (isDriverSearch && allowedDriverIds) {
+            // If searching (q has value), show all matching drivers.
+            // If just focusing (q is empty), show only unit-matched drivers.
+            const isUnitMatch = opt.getAttribute('data-unit-match') === '1';
+            if (q) {
+                opt.style.display = matchesQuery ? 'block' : 'none';
+            } else {
+                opt.style.display = isUnitMatch ? 'block' : 'none';
+            }
+        } else {
+            opt.style.display = matchesQuery ? 'block' : 'none';
+        }
+    });
+}
+
 function initializeSearchDropdowns() {
     const searchConfig = [
         { display: 'unitSearchDisplay', hidden: 'incidentUnitId', dropdown: 'unitSearchDropdown', options: 'unit-search-option' },
@@ -1521,33 +1581,45 @@ function initializeSearchDropdowns() {
             if (options === 'unit-search-option') {
                 const driverHidden = document.getElementById('incidentDriverId');
                 const driverDisplay = document.getElementById('driverSearchDisplay');
-                const drvId = opt.dataset.driverId;
+                const drvId1 = opt.dataset.driverId;
+                const drvId2 = opt.dataset.secondaryDriverId;
 
-                if (drvId && drvId !== 'null' && drvId !== '' && drvId !== '0') {
-                    const driverOpt = document.querySelector(`.driver-search-option[data-id="${drvId}"]`);
-                    if (driverOpt && driverHidden && driverDisplay) {
-                        driverHidden.value = drvId;
-                        driverDisplay.value = driverOpt.dataset.name;
-                        driverDisplay.dispatchEvent(new Event('input'));
+                const ids = [drvId1, drvId2].filter(v => v && v !== 'null' && v !== '' && v !== '0');
+                
+                // Update global state
+                allowedDriverIds = ids.length ? ids : null;
+                setDriverOptionsVisibility(allowedDriverIds);
+
+                if (driverHidden) driverHidden.value = '';
+                if (driverDisplay) {
+                    driverDisplay.value = '';
+                    // If exactly 1 driver assigned, auto-fill for convenience.
+                    if (ids.length === 1) {
+                        const driverOpt = document.querySelector(`.driver-search-option[data-id="${ids[0]}"]`);
+                        if (driverOpt) {
+                            driverHidden.value = ids[0];
+                            driverDisplay.value = driverOpt.dataset.name;
+                        }
+                    } else {
+                        // For shared units or no assigned: open dropdown immediately so suggestions are visible
+                        filterDropdown(driverDisplay, 'driver-search-option');
+                        const driverDrop = document.getElementById('driverSearchDropdown');
+                        driverDrop?.classList.remove('hidden');
+                        driverDrop?.classList.add('flex');
+                        // Put focus on driver input so the user can pick D1/D2 immediately
+                        setTimeout(() => driverDisplay.focus(), 0);
                     }
-                } else {
-                    if (driverHidden) driverHidden.value = '';
-                    if (driverDisplay) driverDisplay.value = '';
                 }
             }
         };
 
-        dInput.onfocus = () => { filterDropdown(dInput, options); drop.classList.remove('hidden'); drop.classList.add('flex'); };
+        dInput.onfocus = () => { 
+            filterDropdown(dInput, options); 
+            drop.classList.remove('hidden'); 
+            drop.classList.add('flex'); 
+        };
         dInput.oninput = () => { filterDropdown(dInput, options); drop.classList.remove('hidden'); drop.classList.add('flex'); };
         dInput.onblur = () => { setTimeout(() => { if (drop) { drop.classList.add('hidden'); drop.classList.remove('flex'); } }, 200); };
-    });
-}
-
-function filterDropdown(input, optClass) {
-    const q = input.value.toLowerCase().trim();
-    document.querySelectorAll('.' + optClass).forEach(opt => {
-        const text = opt.innerText.toLowerCase();
-        opt.style.display = (!q || text.includes(q)) ? 'block' : 'none';
     });
 }
 

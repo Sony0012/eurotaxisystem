@@ -39,17 +39,44 @@ async function makeRequest(url, options = {}) {
 
 function updateNotificationCount() {
     const list = document.getElementById('notificationList');
-    const countSpan = document.querySelector('#notificationDropdown .border-b span.text-xs');
+    const totalCountSpan = document.querySelector('#notificationDropdown .uppercase.tracking-widest');
     const badge = document.querySelector('#notificationBell span');
-    const count = list ? list.querySelectorAll('.notification-item').length : 0;
     
-    if (countSpan) countSpan.textContent = count + ' item(s)';
+    const allItems = list ? list.querySelectorAll('.notification-item') : [];
+    const count = allItems.length;
+    const stockItems = list ? list.querySelectorAll('.notification-item[data-type="low_stock"]') : [];
+    const stockCount = stockItems.length;
+    const systemCount = count - stockCount;
+    
+    if (totalCountSpan) totalCountSpan.textContent = count + ' item(s)';
     if (badge) {
         if (count > 0) {
             badge.textContent = count;
             badge.classList.remove('hidden');
         } else {
             badge.classList.add('hidden');
+        }
+    }
+
+    // Update System Badge in Tabs
+    const systemBadge = document.querySelector('#btn-filter-system span');
+    if (systemBadge) {
+        if (systemCount > 0) {
+            systemBadge.textContent = systemCount;
+            systemBadge.classList.remove('hidden');
+        } else {
+            systemBadge.classList.add('hidden');
+        }
+    }
+
+    // Update Parts Badge in Tabs
+    const partsBadge = document.querySelector('#btn-filter-parts span');
+    if (partsBadge) {
+        if (stockCount > 0) {
+            partsBadge.textContent = stockCount;
+            partsBadge.classList.remove('hidden');
+        } else {
+            partsBadge.classList.add('hidden');
         }
     }
 

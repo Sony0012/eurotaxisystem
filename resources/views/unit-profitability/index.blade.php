@@ -536,7 +536,14 @@
             const dateTo = document.querySelector('input[name="date_to"]').value;
 
             try {
-                const response = await fetch(`/unit-profitability/ai-dss?date_from=${dateFrom}&date_to=${dateTo}`);
+                const url = `{{ route('unit-profitability.ai-dss') }}?date_from=${encodeURIComponent(dateFrom)}&date_to=${encodeURIComponent(dateTo)}`;
+                const response = await fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+
+                const contentType = response.headers.get('content-type') || '';
+                if (!contentType.includes('application/json')) {
+                    const text = await response.text();
+                    throw new Error(`AI DSS returned non-JSON (${response.status}). ${text?.slice(0, 120) || ''}`);
+                }
                 const data = await response.json();
 
                 if (data.success) {
@@ -550,7 +557,7 @@
                 }
             } catch (error) {
                 console.error('AI Error:', error);
-                alert('An error occurred while connecting to the AI service. Please check your internet connection or try again later.');
+                alert('AI Service error. Please try again later.\n\n' + (error?.message || 'Unknown error'));
             } finally {
                 btn.disabled = false;
                 btn.classList.remove('opacity-50', 'cursor-not-allowed');

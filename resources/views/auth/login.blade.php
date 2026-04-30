@@ -490,6 +490,22 @@
             animation: logoBounce 1.5s ease-out;
         }
 
+        @keyframes pulseGlow {
+            0% {
+                filter: drop-shadow(0 0 20px rgba(59, 130, 246, 0.4));
+            }
+            50% {
+                filter: drop-shadow(0 0 60px rgba(59, 130, 246, 0.95));
+            }
+            100% {
+                filter: drop-shadow(0 0 20px rgba(59, 130, 246, 0.4));
+            }
+        }
+
+        .pulse-shadow {
+            animation: pulseGlow 1.2s infinite ease-in-out;
+        }
+
         @keyframes iconSlideIn1 {
             0% {
                 transform: translateX(-100px);
@@ -671,7 +687,7 @@
             <div style="transform: translateY(-5vh); display: flex; flex-direction: column; align-items: center;">
                 <!-- Logo -->
                 <div class="logo-bounce" style="margin-bottom:1rem;">
-                    <img src="{{ asset('uploads/logo.png') }}" alt="Eurotaxi Inc." style="width:380px;max-width:100%;filter:drop-shadow(0 0 40px rgba(59,130,246,0.55));object-fit:contain;">
+                    <img src="{{ asset('uploads/logo.png') }}" alt="Eurotaxi Inc." class="pulse-shadow" style="width:380px;max-width:100%;object-fit:contain;">
                 </div>
                 <p style="color:#bfdbfe;font-size:0.95rem;font-weight:500;letter-spacing:0.18em;text-transform:uppercase;margin:0 0 1.5rem;font-family:'Inter',sans-serif;">Fleet Management System</p>
                 <!-- Animation Stats Container -->
@@ -1253,6 +1269,37 @@
         </div>
     </div>
 
+    <!-- Account Disabled Modal -->
+    <div id="disabledModal" class="mfa-modal-overlay">
+        <div class="mfa-modal-content" style="max-width: 440px; text-align: center; border: 1px solid #fee2e2;">
+            <div style="margin-bottom: 1.5rem; display: flex; justify-content: center;">
+                <div style="background: #fef2f2; width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 4px solid #fee2e2;">
+                    <i class="fas fa-user-slash" style="font-size: 2.2rem; color: #dc2626;"></i>
+                </div>
+            </div>
+            
+            <h2 style="font-size: 1.5rem; font-weight: 800; color: #991b1b; margin-bottom: 0.5rem;">Account Suspended</h2>
+            <p style="color: #4b5563; font-size: 0.95rem; line-height: 1.6; margin-bottom: 1.5rem;">
+                Your access to the system has been temporarily disabled.
+            </p>
+
+            <div style="background: #f8fafc; border: 1.5px dashed #e2e8f0; border-radius: 1rem; padding: 1.25rem; margin-bottom: 1.5rem; text-align: left;">
+                <p style="font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">Note from Administrator:</p>
+                <p id="disabledReasonText" style="color: #1e293b; font-size: 0.9rem; font-weight: 500; font-style: italic;">
+                    Your account has been temporarily disabled by the Owner/Super Admin.
+                </p>
+            </div>
+
+            <button type="button" onclick="closeDisabledModal()" class="btn-primary" style="background: #1e293b; border: none; margin-bottom: 0; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                GOT IT
+            </button>
+            
+            <p style="margin-top: 1.25rem; color: #94a3b8; font-size: 0.75rem;">
+                If you believe this is a mistake, please contact <strong>Robert Garcia</strong>.
+            </p>
+        </div>
+    </div>
+
     <script>
         let currentState = 'login';
         let mfaMethod = '';
@@ -1279,6 +1326,23 @@
                     resendBtn.style.display = 'inline-block';
                 }
             }, 1000);
+        }
+
+        function showDisabledModal(reason) {
+            const modal = document.getElementById('disabledModal');
+            if (reason) {
+                document.getElementById('disabledReasonText').textContent = reason;
+            }
+            modal.style.display = 'flex';
+            setTimeout(() => modal.classList.add('show'), 10);
+        }
+
+        function closeDisabledModal() {
+            const modal = document.getElementById('disabledModal');
+            modal.classList.remove('show');
+            setTimeout(() => {
+                modal.style.display = 'none';
+            }, 300);
         }
 
         // Force Password Modal Logic
@@ -2984,7 +3048,11 @@
                         return data;
                     })
                     .then(data => {
-                        if (data.mfa_required) {
+                        if (data.account_disabled) {
+                            showDisabledModal(data.message);
+                            btn.disabled = false;
+                            btn.innerHTML = originalText;
+                        } else if (data.mfa_required) {
                             showMfaModal(data);
                             btn.disabled = false;
                             btn.innerHTML = originalText;

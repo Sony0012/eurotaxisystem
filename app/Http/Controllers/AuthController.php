@@ -44,6 +44,22 @@ class AuthController extends Controller
             ->first();
 
         if ($user) {
+            // Block disabled accounts
+            if ($user->is_disabled) {
+                $reason = $user->disable_reason ?? 'Your account has been temporarily disabled by the Owner/Super Admin.';
+                LoginAudit::log('failed_login', $user, 'Login blocked: account disabled. Reason: ' . $reason);
+                
+                if ($request->ajax() || $request->wantsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'account_disabled' => true,
+                        'message' => $reason,
+                    ], 403);
+                }
+                
+                return back()->withErrors(['email' => $reason])->onlyInput('email');
+            }
+
             // Block pending or rejected accounts
             if (in_array($user->approval_status ?? 'approved', ['pending', 'rejected'])) {
                 LoginAudit::log('failed_login', $user, 'Login blocked: account ' . ($user->approval_status) . '.');

@@ -13,7 +13,6 @@ class PageAccessMiddleware
      * Routes/patterns that are ALWAYS accessible (never restricted).
      */
     protected array $alwaysAllowed = [
-        'dashboard',
         'login',
         'logout',
         'register',
@@ -74,7 +73,15 @@ class PageAccessMiddleware
             return response()->json(['error' => 'Access to this page has been restricted by the system owner.'], 403);
         }
 
-        return redirect()->route('dashboard')->with(
+        // Determine a safe fallback route if they are blocked
+        $fallbackRoute = 'my-account';
+        
+        // If the current route IS the fallback route (shouldn't happen due to alwaysAllowed, but just in case)
+        if ($routeName === $fallbackRoute) {
+            abort(403, 'Access denied by system owner.');
+        }
+
+        return redirect()->route($fallbackRoute)->with(
             'error',
             'You do not have permission to access that page. Contact the system owner.'
         );

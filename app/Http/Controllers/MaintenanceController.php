@@ -60,9 +60,9 @@ class MaintenanceController extends Controller
         $totals = DB::table('maintenance')->whereNull('deleted_at')->selectRaw('
             COUNT(*) as total_count,
             SUM(cost) as total_cost,
-            SUM(CASE WHEN maintenance.status = "completed" THEN 1 ELSE 0 END) as completed_count,
+            SUM(CASE WHEN maintenance.status = "complete" THEN 1 ELSE 0 END) as completed_count,
             SUM(CASE WHEN maintenance.status = "pending" THEN 1 ELSE 0 END) as pending_count,
-            SUM(CASE WHEN maintenance.status IN ("in_progress", "in_shop", "testing") THEN 1 ELSE 0 END) as in_progress_count
+            SUM(CASE WHEN maintenance.status = "ongoing" THEN 1 ELSE 0 END) as in_progress_count
         ')->first();
 
         // 7-Day Trend Data for Sparklines
@@ -74,7 +74,7 @@ class MaintenanceController extends Controller
                 DATE(date_started) as d,
                 COUNT(*) as total,
                 SUM(CASE WHEN status = "pending" THEN 1 ELSE 0 END) as pending,
-                SUM(CASE WHEN status IN ("in_progress", "in_shop", "testing") THEN 1 ELSE 0 END) as active,
+                SUM(CASE WHEN status = "ongoing" THEN 1 ELSE 0 END) as active,
                 SUM(cost) as cost
             ')
             ->groupBy(DB::raw('DATE(date_started)'))
@@ -187,9 +187,9 @@ class MaintenanceController extends Controller
         }
 
         // Update unit status based on maintenance completion
-        if ($data['status'] === 'completed' && $data['date_completed']) {
+        if ($data['status'] === 'complete' && $data['date_completed']) {
             DB::table('units')->where('id', $data['unit_id'])->update(['status' => 'active', 'updated_at' => now()]);
-        } else if (in_array($data['status'], ['pending', 'in_progress', 'in_shop', 'testing'])) {
+        } else if (in_array($data['status'], ['pending', 'ongoing'])) {
             DB::table('units')->where('id', $data['unit_id'])->update(['status' => 'maintenance', 'updated_at' => now()]);
         }
 
@@ -411,10 +411,10 @@ class MaintenanceController extends Controller
                     'updated_at' => now()
                 ]);
             } else {
-                // Complete: Set status to completed and date to today
+                // Complete: Set status to complete and date to today
                 $maint->update([
                     'date_completed' => date('Y-m-d'),
-                    'status' => 'completed',
+                    'status' => 'complete',
                     'updated_by' => Auth::id()
                 ]);
                 
@@ -426,10 +426,10 @@ class MaintenanceController extends Controller
             }
         });
 
-        $statusMessage = $maint->date_completed ? 'Maintenance marked as completed.' : 'Maintenance marked as incomplete.';
+        $statusMessage = $maint->date_completed ? 'Maintenance marked as complete.' : 'Maintenance marked as incomplete.';
         
         $plate = DB::table('units')->where('id', $maint->unit_id)->value('plate_number');
-        $statusLabel = $maint->status === 'completed' ? 'Completed' : 'Pending';
+        $statusLabel = $maint->status === 'complete' ? 'Complete' : 'Pending';
         ActivityLogController::log('Toggled Maintenance Status', "Unit: {$plate}\nStatus changed to: {$statusLabel}");
 
         return back()->with('success', $statusMessage);
@@ -440,14 +440,16 @@ class MaintenanceController extends Controller
         $maint = Maintenance::findOrFail($id);
 
         DB::transaction(function () use ($maint) {
-            // Workflow: pending -> in_shop -> testing -> pending
+            // Workflow: pending -> ongoing -> complete
             if ($maint->status === 'pending') {
-                $maint->update(['status' => 'in_shop', 'date_completed' => null, 'updated_by' => Auth::id()]);
-            } elseif ($maint->status === 'in_shop' || $maint->status === 'in_progress') {
-                $maint->update(['status' => 'testing', 'date_completed' => null, 'updated_by' => Auth::id()]);
+                $maint->update(['status' => 'ongoing', 'date_completed' => null, 'updated_by' => Auth::id()]);
+            } elseif ($maint->status === 'ongoing') {
+                $maint->update(['status' => 'complete', 'date_completed' => date('Y-m-d'), 'updated_by' => Auth::id()]);
+                DB::table('units')->where('id', $maint->unit_id)->update(['status' => 'active', 'updated_at' => now()]);
+                return; // Early return to avoid setting unit to maintenance below
             } else {
-                // If it's testing, revert back to pending to allow restarting the loop if needed
-                $maint->update(['status' => 'pending', 'updated_by' => Auth::id()]);
+                // If it's complete, revert back to pending
+                $maint->update(['status' => 'pending', 'date_completed' => null, 'updated_by' => Auth::id()]);
             }
             
             DB::table('units')->where('id', $maint->unit_id)->update(['status' => 'maintenance', 'updated_at' => now()]);

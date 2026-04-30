@@ -177,6 +177,9 @@ class OfficeExpenseController extends Controller
             'unit_price' => $request->unit_price,
             'recorded_by' => auth()->id(),
             'created_by' => auth()->id(),
+            'status' => 'approved',
+            'approved_by' => auth()->id(),
+            'approved_at' => now(),
         ]);
 
         // If it's a spare parts purchase, increment stock
@@ -232,35 +235,5 @@ class OfficeExpenseController extends Controller
         ActivityLogController::log('Archived Office Expense', "Expense: {$desc} moved to archive.");
 
         return redirect()->route('office-expenses.index')->with('success', 'Expense archived successfully');
-    }
-
-    public function approve(Request $request, $id)
-    {
-        // Use Eloquent to trigger TrackChanges trait
-        $expense = Expense::findOrFail($id);
-        $expense->update([
-            'status' => 'approved',
-            'approved_by' => auth()->id(),
-            'approved_at' => now(),
-        ]);
-
-        ActivityLogController::log('Approved Office Expense', "Expense #{$id} ({$expense->category}) has been approved.");
-
-        return redirect()->route('office-expenses.index')->with('success', 'Expense approved successfully');
-    }
-
-    public function reject(Request $request, $id)
-    {
-        // Use Eloquent to trigger TrackChanges trait
-        $expense = Expense::findOrFail($id);
-        $expense->update([
-            'status' => 'rejected',
-            'approved_by' => auth()->id(),
-            'approved_at' => now(),
-        ]);
-
-        ActivityLogController::log('Rejected Office Expense', "Expense #{$id} ({$expense->category}) has been rejected.");
-
-        return redirect()->route('office-expenses.index')->with('success', 'Expense rejected successfully');
     }
 }

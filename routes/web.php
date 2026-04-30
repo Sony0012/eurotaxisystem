@@ -36,6 +36,9 @@ Route::post('/login/mfa/send', [AuthController::class, 'sendDeviceOtp'])->name('
 Route::post('/login/mfa/verify', [AuthController::class, 'verifyDeviceOtp'])->name('login.mfa.verify');
 Route::post('/register', [AuthController::class, 'register'])->name('register.submit');
 Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
+// Forced password change (temporary password flow)
+Route::get('/force-change-password', [AuthController::class, 'showForceChangePassword'])->name('auth.force-change-password');
+Route::post('/force-change-password', [AuthController::class, 'updateForceChangePassword'])->name('auth.force-change-password.update');
 
 
 // ─── My Account Routes ───────────────────────────────────
@@ -150,6 +153,7 @@ Route::middleware(['auth', 'page_access'])->group(function () {
     // Unit Profitability
     Route::get('/unit-profitability', [UnitProfitabilityController::class, 'index'])->name('unit-profitability.index');
     Route::get('/unit-profitability/details', [UnitProfitabilityController::class, 'getDetails'])->name('unit-profitability.details');
+    Route::get('/unit-profitability/ai-dss', [UnitProfitabilityController::class, 'generateAiDss'])->name('unit-profitability.ai-dss');
 
     // Staff Records
     Route::resource('staff', StaffController::class);
@@ -202,16 +206,20 @@ Route::middleware(['auth', 'page_access'])->group(function () {
 // ─── Super Admin Routes (Owner Only) ─────────────────────────────────────────
 Route::middleware(['auth', 'super_admin'])->prefix('super-admin')->name('super-admin.')->group(function () {
     Route::get('/', [SuperAdminController::class, 'index'])->name('index');
-    Route::post('/approve/{id}', [SuperAdminController::class, 'approveUser'])->name('approve');
-    Route::post('/reject/{id}', [SuperAdminController::class, 'rejectUser'])->name('reject');
-    Route::post('/toggle-active/{id}', [SuperAdminController::class, 'toggleActive'])->name('toggle-active');
+    Route::post('/toggle-disable/{id}', [SuperAdminController::class, 'toggleDisable'])->name('toggle-disable');
     Route::post('/page-access/{id}', [SuperAdminController::class, 'updatePageAccess'])->name('page-access');
     Route::get('/login-history', [SuperAdminController::class, 'loginHistory'])->name('login-history');
-    Route::delete('/users/{id}', [SuperAdminController::class, 'deleteUser'])->name('delete-user');
+    Route::delete('/users/{id}/archive', [SuperAdminController::class, 'archiveUser'])->name('archive-user');
     Route::post('/users/{id}/restore', [SuperAdminController::class, 'restoreUser'])->name('restore-user');
+    Route::put('/users/{id}/update', [SuperAdminController::class, 'updateUser'])->name('update-user');
+    Route::get('/users/{id}/details', [SuperAdminController::class, 'getUserDetails'])->name('user-details');
     Route::post('/users/{id}/reset-password', [SuperAdminController::class, 'resetPassword'])->name('reset-password');
     Route::post('/users/{id}/update-role', [SuperAdminController::class, 'updateRole'])->name('update-role');
+    Route::delete('/users/{id}', [SuperAdminController::class, 'deleteUser'])->name('users.delete');
     Route::post('/staff/store', [SuperAdminController::class, 'storeStaff'])->name('store-staff');
+    
+    // System Security Settings
+    Route::post('/security/update-archive-password', [SuperAdminController::class, 'updateArchivePassword'])->name('security.update-archive-password');
 
     // Role Management
     Route::post('/roles', [SuperAdminController::class, 'storeRole'])->name('roles.store');

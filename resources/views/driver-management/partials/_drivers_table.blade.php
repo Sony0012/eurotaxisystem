@@ -26,10 +26,23 @@
                                 <div class="flex items-center gap-2 mb-1">
                                     <h4 class="text-sm font-black {{ $has_shortage ? 'text-red-700 shortage-text-blink' : 'text-gray-900' }}">{{ $driver->full_name }}</h4>
                                     @if($has_shortage)
-                                        <span class="shortage-blink inline-flex items-center gap-1 px-2 py-0.5 bg-red-600 text-white text-[9px] font-black rounded uppercase tracking-widest shadow-sm"
-                                              title="Net unpaid shortage: ₱{{ number_format($driver->net_shortage, 2) }}">
-                                            <i data-lucide="alert-triangle" class="w-3 h-3"></i> ₱{{ number_format($driver->net_shortage, 2) }}
-                                        </span>
+                                        <div class="shortage-blink flex items-center gap-1.5 px-2.5 py-1 bg-red-50 text-red-600 border border-red-200 rounded-lg shadow-sm group/shortage hover:bg-red-600 hover:text-white transition-all duration-300"
+                                              title="Net unpaid boundary shortage: ₱{{ number_format($driver->net_shortage, 2) }}">
+                                            <i data-lucide="alert-triangle" class="w-3 h-3"></i>
+                                            <span class="text-[10px] font-black tracking-tight whitespace-nowrap">
+                                                ₱{{ number_format($driver->net_shortage, 0) }} <span class="text-[8px] opacity-70">SHORT</span>
+                                            </span>
+                                        </div>
+                                    @endif
+
+                                    @if(isset($driver->total_pending_debt) && $driver->total_pending_debt > 0)
+                                        <div class="flex items-center gap-1.5 px-2.5 py-1 bg-orange-50 text-orange-600 border border-orange-200 rounded-lg shadow-sm group/debt hover:bg-orange-600 hover:text-white transition-all duration-300"
+                                              title="Pending Accident/Incident Debt: ₱{{ number_format($driver->total_pending_debt, 2) }}">
+                                            <i data-lucide="shield-alert" class="w-3 h-3"></i>
+                                            <span class="text-[10px] font-black tracking-tight whitespace-nowrap">
+                                                ₱{{ number_format($driver->total_pending_debt, 0) }} <span class="text-[8px] opacity-70">DEBT</span>
+                                            </span>
+                                        </div>
                                     @endif
                                 </div>
                                 <div class="text-[10px] font-semibold text-gray-400 flex gap-2">

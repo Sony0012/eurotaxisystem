@@ -34,22 +34,22 @@
     <link rel="manifest" href="{{ asset('manifest.json') }}?v=1.5">
     <link rel="manifest" href="/public/manifest.json?v=1.5">
 
-    <!-- Tailwind CSS -->
+    <!-- Tailwind CSS (Local) -->
+    <script src="{{ asset('assets/tailwind.min.js') }}"></script>
     <script>
         // Silence Tailwind CDN production warning
         if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-            window.tailwind = { config: { silent: true } };
+            if (window.tailwind) window.tailwind.config = { silent: true };
         }
     </script>
-    <script src="https://cdn.tailwindcss.com"></script>
     <style>
         input::-webkit-outer-spin-button,
         input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         input[type=number] { -moz-appearance: textfield; }
     </style>
-
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Lucide Icons (Local) -->
+    <script src="{{ asset('assets/lucide.min.js') }}"></script>
 
     <!-- Custom CSS -->
     <link href="{{ asset('assets/app.css') }}?v=1.2" rel="stylesheet">
@@ -58,31 +58,34 @@
     <!-- Custom JS -->
     <script src="{{ asset('assets/app.js') }}?v=1.2"></script>
 
-    <!-- Chart.js for Dashboard -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+    <!-- Chart.js for Dashboard (Local) -->
+    <script src="{{ asset('assets/chart.min.js') }}"></script>
+    <script src="{{ asset('assets/chartjs-plugin-datalabels.min.js') }}"></script>
 
     @auth
         @php
             // Notifications for header bell
             $headerNotifications = [];
+            $user = auth()->user();
             
             // 1. HIGHEST PRIORITY: Manually flagged 'Surveillance' units
-            $flaggedUnits = DB::table('units')
-                ->whereNull('deleted_at')
-                ->where('status', 'surveillance')
-                ->get();
-                
-            foreach($flaggedUnits as $fu) {
-                $headerNotifications[] = [
-                    'id' => 'surveillance_' . $fu->id,
-                    'title' => '🚨 Flagged: ' . $fu->plate_number,
-                    'message' => 'This unit is currently flagged as At Risk.',
-                    'type' => 'surveillance',
-                    'url' => route('units.index') . '?open_flagged=1',
-                    'time' => 'Action Required',
-                    'timestamp' => \Carbon\Carbon::parse($fu->updated_at ?? now())
-                ];
+            if ($user->hasAccessTo('units.*')) {
+                $flaggedUnits = DB::table('units')
+                    ->whereNull('deleted_at')
+                    ->where('status', 'surveillance')
+                    ->get();
+                    
+                foreach($flaggedUnits as $fu) {
+                    $headerNotifications[] = [
+                        'id' => 'surveillance_' . $fu->id,
+                        'title' => '🚨 Flagged: ' . $fu->plate_number,
+                        'message' => 'This unit is currently flagged as At Risk.',
+                        'type' => 'surveillance',
+                        'url' => route('units.index') . '?open_flagged=1',
+                        'time' => 'Action Required',
+                        'timestamp' => \Carbon\Carbon::parse($fu->updated_at ?? now())
+                    ];
+                }
             }
             
             // 2. Fetch System Alerts from DB (REAL-TIME VIOLATIONS)
@@ -93,21 +96,32 @@
                 ->get();
 
             foreach($dbAlerts as $alert) {
-                // If it's a missing unit alert, send to units index with open_flagged parameter
-                $targetUrl = ($alert->type === 'missing_unit') 
-                    ? route('units.index') . '?open_flagged=1' 
-                    : route('driver-behavior.index');
+                $targetUrl = '#';
+                $canView = false;
 
-                $headerNotifications[] = [
-                    'id' => $alert->id,
-                    'title' => $alert->title,
-                    'message' => $alert->message,
-                    'type' => 'violation_alert', 
-                    'severity' => $alert->type, 
-                    'url' => $targetUrl,
-                    'time' => \Carbon\Carbon::parse($alert->created_at)->diffForHumans(),
-                    'timestamp' => \Carbon\Carbon::parse($alert->created_at)
-                ];
+                if ($alert->type === 'missing_unit') {
+                    $targetUrl = route('units.index') . '?open_flagged=1';
+                    $canView = $user->hasAccessTo('units.*');
+                } elseif ($alert->type === 'coding_notice') {
+                    $targetUrl = route('coding.index');
+                    $canView = $user->hasAccessTo('coding.*');
+                } else {
+                    $targetUrl = route('driver-behavior.index');
+                    $canView = $user->hasAccessTo('driver-behavior.*');
+                }
+
+                if ($canView) {
+                    $headerNotifications[] = [
+                        'id' => $alert->id,
+                        'title' => $alert->title,
+                        'message' => $alert->message,
+                        'type' => 'violation_alert', 
+                        'severity' => $alert->type, 
+                        'url' => $targetUrl,
+                        'time' => \Carbon\Carbon::parse($alert->created_at)->diffForHumans(),
+                        'timestamp' => \Carbon\Carbon::parse($alert->created_at)
+                    ];
+                }
             }
             
             // 3. Merge specialized notifications from views if they exist
@@ -123,7 +137,28 @@
                     $headerNotifications[] = $n;
                 }
             }
+
+            // 4. Merge Stock and License notifications (previously separate buttons)
+            if(isset($stockNotifs)) {
+                foreach($stockNotifs as $n) {
+                    $n['type'] = 'low_stock';
+                    $n['url'] = route('maintenance.index', ['open_inventory' => 1]);
+                    $headerNotifications[] = $n;
+                }
+            }
+            if(isset($licenseNotifs)) {
+                foreach($licenseNotifs as $n) {
+                    $n['type'] = 'license_expiry';
+                    $n['url'] = route('driver-management.index');
+                    $headerNotifications[] = $n;
+                }
+            }
+
             $headerNotificationCount = count($headerNotifications);
+            
+            // Calculate specific counts
+            $stockNotifCount = collect($headerNotifications)->where('type', 'low_stock')->count();
+            $systemNotifCount = $headerNotificationCount - $stockNotifCount;
 
             // Sort logic: "Action Required" items first, then others by recency
             // We'll use a custom property 'priority' (0 for standard, 1 for Action Required/High)
@@ -359,31 +394,8 @@
                         </div>
 
                         <div class="flex items-center gap-4">
-                            <!-- Licenses Expired (Separate Button) -->
-                            @if(isset($licenseNotifs) && count($licenseNotifs) > 0)
-                                @php
-                                    $hasExpired = collect($licenseNotifs)->contains('time', 'ACTION REQUIRED');
-                                    $licColor = $hasExpired ? 'red' : 'orange';
-                                @endphp
-                                <a href="{{ route('driver-management.index') }}" title="{{ $hasExpired ? 'Expired Licenses' : 'Expiring Licenses' }}"
-                                    class="relative p-2 text-{{ $licColor }}-600 hover:bg-{{ $licColor }}-50 rounded-lg transition-colors group">
-                                    <i data-lucide="id-card" class="w-5 h-5 group-hover:scale-110 transition-transform {{ $hasExpired ? 'animate-pulse' : '' }}"></i>
-                                    <span class="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-{{ $licColor }}-600 text-white text-[10px] leading-[18px] rounded-full text-center shadow-sm font-bold border border-white">
-                                        {{ count($licenseNotifs) }}
-                                    </span>
-                                </a>
-                            @endif
+                            {{-- Consolidating all notifications into the Main Bell --}}
 
-                            <!-- Parts Stocks (Separate Button) -->
-                            @if(isset($stockNotifs) && count($stockNotifs) > 0)
-                                <a href="{{ route('maintenance.index', ['open_inventory' => 1]) }}" title="Low Parts Stocks"
-                                    class="relative p-2 text-amber-600 hover:bg-amber-50 rounded-lg transition-colors group">
-                                    <i data-lucide="package-search" class="w-5 h-5 group-hover:scale-110 transition-transform"></i>
-                                    <span class="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-amber-500 text-white text-[10px] leading-[18px] rounded-full text-center shadow-sm font-bold border border-white">
-                                        {{ count($stockNotifs) }}
-                                    </span>
-                                </a>
-                            @endif
 
                             <!-- Main Notification Bell -->
                             <div class="relative">
@@ -399,20 +411,50 @@
                                 </button>
 
                                 <div id="notificationDropdown"
-                                    class="hidden absolute right-0 mt-2 w-80 bg-white shadow-lg rounded-lg border border-gray-200 z-50">
-                                    <div class="px-4 py-2 border-b flex items-center justify-between">
-                                        <span class="text-sm font-semibold text-gray-800">Notifications</span>
-                                        <span class="text-xs text-gray-500">{{ $headerNotificationCount }} item(s)</span>
+                                    class="hidden absolute right-0 mt-2 w-80 bg-white shadow-xl rounded-2xl border border-gray-100 z-50 overflow-hidden">
+                                    <div class="px-4 py-3 border-b bg-gray-50/50 flex items-center justify-between">
+                                        <div class="flex flex-col">
+                                            <span class="text-sm font-black text-gray-900 tracking-tight">Notifications</span>
+                                            <span class="text-[9px] font-bold text-gray-400 uppercase tracking-widest">{{ $headerNotificationCount }} item(s)</span>
+                                        </div>
+                                        @if($headerNotificationCount > 0)
+                                            <button onclick="markAllAsRead()" class="text-[10px] font-bold text-yellow-600 hover:text-yellow-700 hover:underline transition-all">
+                                                Mark All Read
+                                            </button>
+                                        @endif
                                     </div>
+
+                                    {{-- Filter Tabs --}}
+                                    <div class="flex border-b bg-white">
+                                        <button onclick="filterNotifs('system')" id="btn-filter-system" class="flex-1 py-2.5 text-[11px] font-bold uppercase tracking-wider text-yellow-600 border-b-2 border-yellow-500 transition-all">
+                                            System
+                                            @if($systemNotifCount > 0)
+                                                <span class="bg-red-500 text-white text-[9px] px-1.5 py-0.5 rounded-full ml-1">{{ $systemNotifCount }}</span>
+                                            @endif
+                                        </button>
+                                        <button onclick="filterNotifs('low_stock')" id="btn-filter-parts" class="flex-1 py-2.5 text-[11px] font-bold uppercase tracking-wider text-gray-400 hover:text-gray-600 transition-all flex items-center justify-center gap-1.5">
+                                            Parts Stock
+                                            @if($stockNotifCount > 0)
+                                                <span class="bg-orange-500 text-white text-[9px] px-1.5 py-0.5 rounded-full">{{ $stockNotifCount }}</span>
+                                            @endif
+                                        </button>
+                                    </div>
+
                                     <div class="max-h-80 overflow-y-auto" id="notificationList">
                                         @if(empty($headerNotifications))
                                             <div class="px-4 py-4 text-sm text-gray-500 text-center">No notifications.</div>
                                         @else
                                             @foreach($headerNotifications as $n)
-                                                <div class="notification-item px-4 py-3 border-b last:border-b-0 hover:bg-gray-50 flex items-start gap-2"
-                                                    data-type="{{ $n['type'] }}" @if(isset($n['id'])) data-id="{{ $n['id'] }}"
-                                                    @endif>
-                                                    <a href="{{ $n['url'] ?? '#' }}" class="flex-1 flex gap-3 min-w-0">
+                                                @php 
+                                                    $notifId = $n['id'] ?? md5($n['title'] . ($n['message'] ?? '')); 
+                                                    $isHidden = ($n['type'] === 'low_stock');
+                                                @endphp
+                                                <div class="notification-item px-4 py-3 border-b last:border-b-0 hover:bg-gray-50 flex items-start gap-2 transition-all unread-notif {{ $isHidden ? 'hidden' : '' }}"
+                                                     id="notif-{{ $notifId }}"
+                                                     data-type="{{ $n['type'] }}" 
+                                                     data-notif-id="{{ $notifId }}"
+                                                     style="background-color: #f0f9ff;">
+                                                    <a href="{{ $n['url'] ?? '#' }}" class="flex-1 flex gap-3 min-w-0" onclick="markAsRead('{{ $notifId }}')">
 
                                                         <div class="mt-0.5 flex-shrink-0">
                                                             @if($n['type'] === 'case_expiry')
@@ -422,7 +464,9 @@
                                                             @elseif($n['type'] === 'violation_alert')
                                                                 <i data-lucide="shield-alert" class="w-4 h-4 text-red-600"></i>
                                                             @elseif($n['type'] === 'low_stock')
-                                                                <i data-lucide="package-search" class="w-4 h-4 text-yellow-600"></i>
+                                                                <i data-lucide="package-search" class="w-4 h-4 text-orange-500"></i>
+                                                            @elseif($n['type'] === 'license_expiry')
+                                                                <i data-lucide="id-card" class="w-4 h-4 text-rose-500"></i>
                                                             @else
                                                                 <i data-lucide="alert-circle" class="w-4 h-4 text-red-600"></i>
                                                             @endif
@@ -498,6 +542,111 @@
             </main>
         </div>
 
+        {{-- Global Archive Deletion Security Modal --}}
+        <div id="globalArchiveSecurityModal" class="fixed inset-0 z-[9999] hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+            <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" onclick="closeGlobalArchiveSecurityModal()"></div>
+                <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+                <div class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md sm:w-full p-6 border border-red-100">
+                    <div class="text-center">
+                        <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-50 border-4 border-red-100 mb-4">
+                            <i data-lucide="shield-alert" class="h-8 w-8 text-red-600"></i>
+                        </div>
+                        <h3 class="text-xl font-black text-red-900 mb-2">Security Verification</h3>
+                        <p class="text-sm text-gray-500 mb-6">This action is irreversible. To permanently delete this record, please enter the **Archive Deletion Password**.</p>
+                        
+                        <div class="mb-6">
+                            <input type="password" id="global-archive-pwd" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-red-500 focus:border-red-500 text-center text-lg tracking-widest outline-none transition-all" placeholder="••••••">
+                        </div>
+
+                        <div class="bg-amber-50 border border-amber-100 rounded-xl p-4 flex gap-3 text-left mb-6">
+                            <i data-lucide="alert-triangle" class="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5"></i>
+                            <p class="text-[11px] text-amber-800 font-medium leading-relaxed">
+                                Warning: Permanently deleting this item will remove it and all related data from the database forever. This cannot be undone.
+                            </p>
+                        </div>
+
+                        <div class="flex gap-3">
+                            <button type="button" onclick="closeGlobalArchiveSecurityModal()" class="flex-1 px-4 py-3 bg-white border border-gray-200 text-gray-700 font-bold rounded-xl hover:bg-gray-50 transition-all">Cancel</button>
+                            <button type="button" id="global-confirm-archive-delete" class="flex-1 px-4 py-3 bg-red-600 text-white font-bold rounded-xl hover:bg-red-700 shadow-lg shadow-red-200 transition-all">Confirm Delete</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            let pendingDeleteForm = null;
+            let pendingArchivePwdResolve = null;
+
+            function closeGlobalArchiveSecurityModal() {
+                document.getElementById('globalArchiveSecurityModal').classList.add('hidden');
+                document.getElementById('global-archive-pwd').value = '';
+                pendingDeleteForm = null;
+                pendingArchivePwdResolve = null;
+            }
+
+            // Allow JS-driven destructive actions (fetch/AJAX) to reuse this modal.
+            // Returns the password string, or null if cancelled.
+            window.promptArchiveDeletionPassword = function () {
+                return new Promise((resolve) => {
+                    pendingArchivePwdResolve = resolve;
+                    pendingDeleteForm = null; // ensure we are not in form-submit mode
+                    document.getElementById('globalArchiveSecurityModal').classList.remove('hidden');
+                    if (window.lucide) window.lucide.createIcons();
+                    setTimeout(() => document.getElementById('global-archive-pwd')?.focus(), 100);
+                });
+            };
+
+            document.addEventListener('submit', function(e) {
+                // Intercept forms that look like permanent deletes
+                const form = e.target;
+                const action = form.getAttribute('action') || '';
+                const method = form.querySelector('input[name="_method"]')?.value || form.getAttribute('method');
+
+                // Check if it's a permanent delete (contains force-delete, permanent, or delete and is inside an archive context)
+                const isArchiveDelete = (action.includes('force-delete') || action.includes('permanent') || action.includes('delete')) && 
+                                        (method?.toUpperCase() === 'DELETE' || method?.toUpperCase() === 'POST');
+
+                // Skip if it's already handled or not an archive delete
+                if (!isArchiveDelete || form.dataset.verified === 'true') return;
+
+                e.preventDefault();
+                pendingDeleteForm = form;
+                
+                document.getElementById('globalArchiveSecurityModal').classList.remove('hidden');
+                if (window.lucide) window.lucide.createIcons();
+                setTimeout(() => document.getElementById('global-archive-pwd').focus(), 100);
+            });
+
+            document.getElementById('global-confirm-archive-delete').addEventListener('click', function() {
+                const password = document.getElementById('global-archive-pwd').value;
+                if (!password) { alert('Please enter the password.'); return; }
+
+                if (pendingDeleteForm) {
+                    // Add password as a hidden input to the form
+                    let pwdInput = pendingDeleteForm.querySelector('input[name="archive_password"]');
+                    if (!pwdInput) {
+                        pwdInput = document.createElement('input');
+                        pwdInput.type = 'hidden';
+                        pwdInput.name = 'archive_password';
+                        pendingDeleteForm.appendChild(pwdInput);
+                    }
+                    pwdInput.value = password;
+                    pendingDeleteForm.dataset.verified = 'true';
+                    pendingDeleteForm.submit();
+                }
+                // If opened programmatically (fetch/AJAX), resolve instead of submitting a form.
+                if (!pendingDeleteForm && typeof pendingArchivePwdResolve === 'function') {
+                    const resolve = pendingArchivePwdResolve;
+                    closeGlobalArchiveSecurityModal();
+                    resolve(password);
+                    return;
+                }
+                closeGlobalArchiveSecurityModal();
+            });
+        </script>
+
     @else
         <!-- Login/Signup Layout -->
         <div class="min-h-screen bg-gradient-to-br from-yellow-50 to-orange-50 flex items-center justify-center p-4">
@@ -557,7 +706,72 @@
             // Start header clock
             updateHeaderClock();
             setInterval(updateHeaderClock, 1000);
+
+            // Restore Read States
+            const readNotifs = JSON.parse(localStorage.getItem('read_notifs') || '[]');
+            readNotifs.forEach(id => {
+                const el = document.getElementById('notif-' + id);
+                if (el) {
+                    el.style.backgroundColor = 'transparent';
+                    el.classList.remove('unread-notif');
+                }
+            });
         });
+
+        function filterNotifs(type) {
+            const items = document.querySelectorAll('.notification-item');
+            const btnSystem = document.getElementById('btn-filter-system');
+            const btnParts = document.getElementById('btn-filter-parts');
+
+            if (type === 'system') {
+                items.forEach(i => {
+                    if (i.dataset.type !== 'low_stock') i.classList.remove('hidden');
+                    else i.classList.add('hidden');
+                });
+                btnSystem.classList.add('border-b-2', 'border-yellow-500', 'text-yellow-600');
+                btnSystem.classList.remove('text-gray-400');
+                btnParts.classList.remove('border-b-2', 'border-yellow-500', 'text-yellow-600');
+                btnParts.classList.add('text-gray-400');
+            } else {
+                items.forEach(i => {
+                    if (i.dataset.type === type) i.classList.remove('hidden');
+                    else i.classList.add('hidden');
+                });
+                btnParts.classList.add('border-b-2', 'border-yellow-500', 'text-yellow-600');
+                btnParts.classList.remove('text-gray-400');
+                btnSystem.classList.remove('border-b-2', 'border-yellow-500', 'text-yellow-600');
+                btnSystem.classList.add('text-gray-400');
+            }
+        }
+
+        function markAsRead(id) {
+            const readNotifs = JSON.parse(localStorage.getItem('read_notifs') || '[]');
+            if (!readNotifs.includes(id)) {
+                readNotifs.push(id);
+                localStorage.setItem('read_notifs', JSON.stringify(readNotifs));
+            }
+            const el = document.getElementById('notif-' + id);
+            if (el) {
+                el.style.backgroundColor = 'transparent';
+                el.classList.remove('unread-notif');
+            }
+        }
+
+        function markAllAsRead() {
+            const items = document.querySelectorAll('.notification-item');
+            const readNotifs = JSON.parse(localStorage.getItem('read_notifs') || '[]');
+            
+            items.forEach(item => {
+                const id = item.dataset.notifId;
+                if (id && !readNotifs.includes(id)) {
+                    readNotifs.push(id);
+                }
+                item.style.backgroundColor = 'transparent';
+                item.classList.remove('unread-notif');
+            });
+            
+            localStorage.setItem('read_notifs', JSON.stringify(readNotifs));
+        }
     </script>
 
     <!-- Structured Data (JSON-LD) -->
@@ -586,6 +800,15 @@
     }
     </script>
 
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(reg => console.log('Service Worker registered'))
+                    .catch(err => console.log('Service Worker registration failed', err));
+            });
+        }
+    </script>
     @stack('scripts')
 </body>
 

@@ -177,8 +177,16 @@ class SparePartController extends Controller
     /**
      * Permanently delete a spare part
      */
-    public function forceDelete($id)
+    public function forceDelete($id, Request $request)
     {
+        $password = $request->input('archive_password');
+        if (!\App\Models\SystemSetting::verifyPassword($password)) {
+            $msg = !\App\Models\SystemSetting::get('archive_deletion_password') 
+                ? 'Archive deletion password is not set. Please set it in the System Security tab.' 
+                : 'Invalid archive deletion password.';
+            return response()->json(['success' => false, 'message' => $msg], 403);
+        }
+
         $part = SparePart::withTrashed()->findOrFail($id);
         $name = $part->name;
         $part->forceDelete();

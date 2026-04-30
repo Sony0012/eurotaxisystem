@@ -245,7 +245,7 @@
 
             const reqList = [
                 { passed: (data.violations_absences||0) === 0, text: 'No unattended shifts (Zero Absences)' },
-                { passed: data.violations_no_incentive === 0, text: 'No skipped / late boundary returns' },
+                { passed: data.violations_no_incentive === 0, text: 'No skipped / late remittance returns' },
                 { passed: (!data.damage_missed && data.damage_missed === 0) && data.violations_incidents === 0, text: 'Zero vehicle damage incidents' },
                 { passed: (!data.breakdown_missed && data.breakdown_missed === 0), text: 'Zero breakdown incidents' },
                 { passed: data.violations_incidents === 0, text: 'Zero behavioral / traffic violations' }

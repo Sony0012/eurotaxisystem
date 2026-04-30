@@ -7,31 +7,39 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 use App\Models\LoginAudit;
+use App\Models\SystemSetting;
 
 class SuperAdminController extends Controller
 {
     // ─── Centralized page definitions (route => label) ────────────────────────
     public static array $pageDefinitions = [
-        'dashboard'                  => ['icon' => 'layout-dashboard', 'label' => 'Dashboard',          'group' => 'Core'],
-        'units.*'                    => ['icon' => 'car',              'label' => 'Unit Management',     'group' => 'Core'],
-        'driver-management.*'        => ['icon' => 'users',            'label' => 'Driver Management',   'group' => 'Core'],
-        'boundaries.*'               => ['icon' => 'dollar-sign',      'label' => 'Boundaries',          'group' => 'Finance'],
-        'maintenance.*'              => ['icon' => 'wrench',           'label' => 'Maintenance',          'group' => 'Operations'],
-        'coding.*'                   => ['icon' => 'calendar',         'label' => 'Coding Management',   'group' => 'Operations'],
-        'driver-behavior.*'          => ['icon' => 'alert-triangle',   'label' => 'Driver Behavior',     'group' => 'Operations'],
-        'office-expenses.*'          => ['icon' => 'receipt',          'label' => 'Office Expenses',     'group' => 'Finance'],
-        'salary.*'                   => ['icon' => 'calculator',       'label' => 'Salary Management',   'group' => 'Finance'],
-        'activity-logs.*'            => ['icon' => 'history',          'label' => 'History Logs',        'group' => 'Core'],
-        'salaries.*'                 => ['icon' => 'calculator',       'label' => 'Salaries',            'group' => 'Finance'],
-        'analytics.*'                => ['icon' => 'bar-chart',        'label' => 'Analytics',           'group' => 'Reports'],
-        'unit-profitability.*'       => ['icon' => 'trending-up',      'label' => 'Unit Profitability',  'group' => 'Reports'],
-        'live-tracking.*'            => ['icon' => 'map-pin',          'label' => 'Live Tracking',       'group' => 'Operations'],
-        'decision-management.*'      => ['icon' => 'file-text',        'label' => 'Franchise',           'group' => 'Admin'],
-        'staff.*'                    => ['icon' => 'user-cog',         'label' => 'Staff Records',       'group' => 'Admin'],
-        'archive.*'                  => ['icon' => 'archive',          'label' => 'Archive',             'group' => 'Admin'],
-        'boundary-rules.*'           => ['icon' => 'settings',         'label' => 'Boundary Rules',      'group' => 'Settings'],
-        'spare-parts.*'              => ['icon' => 'package',          'label' => 'Spare Parts',         'group' => 'Settings'],
-        'suppliers.*'                => ['icon' => 'truck',            'label' => 'Suppliers',           'group' => 'Settings'],
+        // ─── Core Management ───────────────────
+        'dashboard'                  => ['icon' => 'layout-dashboard', 'label' => 'Dashboard',          'group' => '1. Core Management'],
+        'units.*'                    => ['icon' => 'car',              'label' => 'Unit Management',     'group' => '1. Core Management'],
+        'driver-management.*'        => ['icon' => 'users',            'label' => 'Driver Management',   'group' => '1. Core Management'],
+        'activity-logs.*'            => ['icon' => 'history',          'label' => 'History Logs',        'group' => '1. Core Management'],
+
+        // ─── Operations ────────────────────────
+        'live-tracking.*'            => ['icon' => 'map-pin',          'label' => 'Live Tracking',       'group' => '2. Operations'],
+        'maintenance.*'              => ['icon' => 'wrench',           'label' => 'Maintenance',         'group' => '2. Operations'],
+        'coding.*'                   => ['icon' => 'calendar',         'label' => 'Coding Management',   'group' => '2. Operations'],
+        'driver-behavior.*'          => ['icon' => 'alert-triangle',   'label' => 'Driver Behavior',     'group' => '2. Operations'],
+        'spare-parts.*'              => ['icon' => 'package',          'label' => 'Spare Parts Inventory','group' => '2. Operations'],
+        'suppliers.*'                => ['icon' => 'truck',            'label' => 'Suppliers',           'group' => '2. Operations'],
+
+        // ─── Financial ─────────────────────────
+        'boundaries.*'               => ['icon' => 'banknote',         'label' => 'Boundaries',          'group' => '3. Financial'],
+        'office-expenses.*'          => ['icon' => 'receipt',          'label' => 'Office Expenses',     'group' => '3. Financial'],
+        'salary.*'                   => ['icon' => 'calculator',       'label' => 'Salary Management',   'group' => '3. Financial'],
+        'boundary-rules.*'           => ['icon' => 'settings',         'label' => 'Boundary Rules',      'group' => '3. Financial'],
+
+        // ─── Legal & Admin ─────────────────────
+        'decision-management.*'      => ['icon' => 'file-text',        'label' => 'Franchise',           'group' => '4. Legal & Admin'],
+        'staff.*'                    => ['icon' => 'user-cog',         'label' => 'Staff Records',       'group' => '4. Legal & Admin'],
+        'archive.*'                  => ['icon' => 'archive',          'label' => 'Archive Access',      'group' => '4. Legal & Admin'],
+
+        // ─── Reports ───────────────────────────
+        'analytics.*'                => ['icon' => 'bar-chart',        'label' => 'Analytics',           'group' => '5. Reports'],
     ];
 
     // ─── Dashboard ────────────────────────────────────────────────────────────
@@ -129,24 +137,29 @@ class SuperAdminController extends Controller
 
     // ─── Toggle Active Status ─────────────────────────────────────────────────
 
-    public function toggleActive(Request $request, $id)
+    public function toggleDisable(Request $request, $id)
     {
         $user = User::findOrFail($id);
 
         if ($user->role === 'super_admin') {
-            return response()->json(['success' => false, 'message' => 'Cannot modify the Super Admin account.'], 403);
+            return response()->json(['success' => false, 'message' => 'Cannot disable the Super Admin account.'], 403);
         }
 
-        $newActive = !$user->is_active;
-        $user->update(['is_active' => $newActive]);
+        $is_disabled = $request->input('is_disabled');
+        $reason = $request->input('reason');
 
-        $action = $newActive ? 'Account re-activated' : 'Account deactivated';
-        LoginAudit::log($newActive ? 'approved' : 'rejected', $user, $action . ' by ' . Auth::user()->full_name);
+        $user->update([
+            'is_disabled' => $is_disabled,
+            'disable_reason' => $is_disabled ? $reason : null,
+        ]);
+
+        $action = $is_disabled ? 'account_disabled' : 'account_enabled';
+        LoginAudit::log($is_disabled ? 'rejected' : 'approved', $user, 'Account ' . ($is_disabled ? 'disabled' : 'enabled') . ' by ' . Auth::user()->full_name . ($reason ? ' Reason: ' . $reason : ''));
 
         return response()->json([
-            'success'   => true,
-            'is_active' => $newActive,
-            'message'   => $user->full_name . ' has been ' . ($newActive ? 'activated.' : 'deactivated.'),
+            'success' => true,
+            'is_disabled' => $user->is_disabled,
+            'message' => 'Account ' . ($user->is_disabled ? 'disabled' : 'enabled') . ' successfully.'
         ]);
     }
 
@@ -203,25 +216,55 @@ class SuperAdminController extends Controller
 
     // ─── Delete / Restore User ────────────────────────────────────────────────
 
-    public function deleteUser(Request $request, $id)
+    public function archiveUser(Request $request, $id)
     {
         $user = User::findOrFail($id);
 
         if ($user->role === 'super_admin') {
-            return response()->json(['success' => false, 'message' => 'Cannot delete the Super Admin account.'], 403);
+            return response()->json(['success' => false, 'message' => 'Cannot archive the Super Admin account.'], 403);
         }
 
         $user->delete(); // Soft delete
-        return response()->json(['success' => true, 'message' => $user->full_name . ' has been archived.']);
+        LoginAudit::log('rejected', $user, 'Account archived by ' . Auth::user()->full_name);
+
+        return response()->json(['success' => true, 'message' => $user->full_name . ' has been moved to archives.']);
     }
 
     public function restoreUser(Request $request, $id)
     {
         $user = User::withTrashed()->findOrFail($id);
         $user->restore();
-        $user->update(['approval_status' => 'approved', 'is_active' => true]);
+        
+        LoginAudit::log('approved', $user, 'Account restored by ' . Auth::user()->full_name);
 
         return response()->json(['success' => true, 'message' => $user->full_name . ' has been restored.']);
+    }
+
+    public function updateUser(Request $request, $id)
+    {
+        $user = User::withTrashed()->findOrFail($id);
+
+        if ($user->role === 'super_admin' && Auth::user()->id != $user->id) {
+             return response()->json(['success' => false, 'message' => 'Unauthorized.'], 403);
+        }
+
+        $data = $request->validate([
+            'first_name'   => 'required|string|max:50',
+            'last_name'    => 'required|string|max:50',
+            'email'        => 'required|email|unique:users,email,' . $id,
+            'role'         => 'required|string',
+            'phone_number' => 'nullable|string|max:20',
+            'address'      => 'nullable|string|max:255',
+        ]);
+
+        $data['full_name'] = $data['first_name'] . ' ' . $data['last_name'];
+        $data['name']      = $data['full_name'];
+
+        $user->update($data);
+
+        LoginAudit::log('approved', $user, 'Account details updated by ' . Auth::user()->full_name);
+
+        return response()->json(['success' => true, 'message' => 'User account updated successfully.']);
     }
 
     // ─── Get User Details & History ───────────────────────────────────────────
@@ -247,7 +290,10 @@ class SuperAdminController extends Controller
                 'role' => $user->role,
                 'status' => $user->approval_status,
                 'is_active' => $user->is_active,
+                'is_disabled' => $user->is_disabled,
                 'trashed' => $user->trashed(),
+                'must_change_password' => $user->must_change_password,
+                'last_login' => $user->last_login,
                 'created_at' => $user->created_at->format('M d, Y h:i A'),
                 'profile_url' => $profileUrl,
                 'initials' => strtoupper(substr($user->full_name ?? 'U', 0, 1))
@@ -414,13 +460,7 @@ class SuperAdminController extends Controller
         return response()->json(['success' => true, 'message' => 'Classification restored.']);
     }
 
-    public function deleteClassification($id)
-    {
-        $item = \App\Models\IncidentClassification::withTrashed()->findOrFail($id);
-        $item->forceDelete();
 
-        return response()->json(['success' => true, 'message' => 'Classification permanently deleted.']);
-    }
 
     // ─── Role Management ───────────────────────────────────────────────────────
     public function storeRole(Request $request)
@@ -467,11 +507,65 @@ class SuperAdminController extends Controller
         return response()->json(['success' => true, 'message' => 'Role restored.']);
     }
 
-    public function deleteRole($id)
+    public function deleteRole($id, Request $request)
     {
+        $this->verifyArchivePassword($request);
+
         $role = \App\Models\Role::withTrashed()->findOrFail($id);
         $role->forceDelete();
 
         return response()->json(['success' => true, 'message' => 'Role permanently deleted.']);
+    }
+
+    public function deleteUser($id, Request $request)
+    {
+        $this->verifyArchivePassword($request);
+
+        $user = User::withTrashed()->findOrFail($id);
+        
+        if ($user->role === 'super_admin') {
+            return response()->json(['success' => false, 'message' => 'Cannot delete the Super Admin.'], 403);
+        }
+
+        $user->forceDelete();
+        return response()->json(['success' => true, 'message' => 'User permanently deleted.']);
+    }
+
+    public function updateArchivePassword(Request $request)
+    {
+        $request->validate([
+            'archive_password' => 'required|string|min:6|confirmed',
+        ]);
+
+        $hashed = Hash::make($request->archive_password);
+        
+        SystemSetting::updateOrCreate(
+            ['key' => 'archive_deletion_password'],
+            ['value' => $hashed, 'group' => 'security']
+        );
+
+        return response()->json(['success' => true, 'message' => 'Archive deletion password updated successfully.']);
+    }
+
+    public function deleteClassification($id, Request $request)
+    {
+        $this->verifyArchivePassword($request);
+
+        $item = \App\Models\IncidentClassification::withTrashed()->findOrFail($id);
+        $item->forceDelete();
+
+        return response()->json(['success' => true, 'message' => 'Classification permanently deleted.']);
+    }
+
+    private function verifyArchivePassword(Request $request)
+    {
+        $password = $request->input('archive_password');
+        
+        if (!SystemSetting::verifyPassword($password)) {
+            $msg = !SystemSetting::get('archive_deletion_password') 
+                ? 'Archive deletion password is not set. Please set it in the System Security tab.' 
+                : 'Invalid archive deletion password.';
+            abort(response()->json(['success' => false, 'message' => $msg], 403));
+        }
     }
 }

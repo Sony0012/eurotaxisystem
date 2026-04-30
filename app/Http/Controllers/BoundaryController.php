@@ -249,22 +249,7 @@ class BoundaryController extends Controller
                     $past_cutoff = $request->has('past_cutoff');
                     if ($past_cutoff) {
                         $has_incentive = false;
-                        $notes = trim($notes . " [Automatic Violation: Late Boundary (Past 10:00 AM)]");
-
-                        // Auto-log late remittance violation to performance
-                        DB::table('driver_behavior')->insert([
-                            'unit_id'       => $unit_id,
-                            'driver_id'     => $driver_id,
-                            'incident_type' => 'other',
-                            'severity'      => 'medium',
-                            'description'   => 'Auto-logged [Late Remittance]: Driver submitted boundary past the 10:00 AM cut-off.',
-                            'latitude'      => 0,
-                            'longitude'     => 0,
-                            'video_url'     => '',
-                            'timestamp'     => $now,
-                            'incident_date' => $date,
-                            'created_at'    => $now,
-                        ]);
+                        $notes = trim($notes . " [Automatic Violation: Late Remittance (Past 10:00 AM)]");
                     }
 
                     $is_absent = false; // "Absent / No Show" logic removed per user request
@@ -480,9 +465,9 @@ class BoundaryController extends Controller
                         DB::table('driver_behavior')->insert([
                             'unit_id'       => $unit_id,
                             'driver_id'     => $driver_id,
-                            'incident_type' => 'late_boundary',
+                            'incident_type' => 'Late Remittance',
                             'severity'      => 'medium',
-                            'description'   => 'Auto-logged [Late]: Boundary turned in past the 10:00 AM cutoff.',
+                            'description'   => 'Auto-logged [Late Remittance]: Driver submitted boundary past the 10:00 AM cut-off.',
                             'timestamp'     => $now_ts,
                             'created_at'    => $now_ts,
                         ]);
@@ -555,7 +540,7 @@ class BoundaryController extends Controller
                 }
                 if ($past_cutoff) {
                     $has_incentive = false;
-                    $clean_notes .= " [Automatic Violation: Late Boundary (Past 10:00 AM)]";
+                    $clean_notes .= " [Automatic Violation: Late Remittance (Past 10:00 AM)]";
                 }
                 if ($vehicle_damaged) {
                     $has_incentive = false;

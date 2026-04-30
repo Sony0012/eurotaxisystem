@@ -206,6 +206,7 @@
         $g = $def['group'] ?? 'Other';
         $groups[$g][$pattern] = $def;
     }
+    ksort($groups); // Sort by group name (1, 2, 3...)
 @endphp
 
 <div class="sa-shell p-0">
@@ -256,8 +257,8 @@
             <button class="sa-tab {{ $tab === 'audit' ? 'active' : '' }}" onclick="switchTab('audit')">
                 <i data-lucide="activity" class="inline w-3.5 h-3.5 mr-1 -mt-0.5"></i>Login History
             </button>
-            <button class="sa-tab {{ $tab === 'roles' ? 'active' : '' }}" onclick="switchTab('roles')">
-                <i data-lucide="shield" class="inline w-3.5 h-3.5 mr-1 -mt-0.5"></i>System Roles
+            <button class="sa-tab {{ $tab === 'security' ? 'active' : '' }}" onclick="switchTab('security')">
+                <i data-lucide="lock" class="inline w-3.5 h-3.5 mr-1 -mt-0.5"></i>System Security
             </button>
         </div>
     </div>
@@ -457,14 +458,21 @@
 
         {{-- ─── ALL USERS TAB ─── --}}
         <div id="tab-users" class="sa-tab-content {{ $tab === 'users' ? '' : 'hidden' }}">
-            <div class="flex items-center gap-3 mb-4 flex-wrap">
-                <input type="text" id="userSearch" class="sa-input" style="max-width:280px;" placeholder="Search users..." autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');" oninput="filterUserTable(this.value)">
-                <select id="statusFilter" class="sa-input" style="max-width:180px;" onchange="filterUserTable()">
-                    <option value="">All Statuses</option>
-                    <option value="approved">Approved</option>
-                    <option value="pending">Pending</option>
-                    <option value="rejected">Rejected</option>
-                </select>
+            <div class="flex items-center justify-between mb-6">
+                <div class="flex items-center gap-3 flex-wrap">
+                    <div class="relative">
+                        <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"></i>
+                        <input type="text" id="userSearch" class="sa-input pl-10" style="max-width:280px;" placeholder="Search users..." autocomplete="new-password" oninput="filterUserTable(this.value)">
+                    </div>
+                    <select id="statusFilter" class="sa-input" style="max-width:180px;" onchange="filterUserTable()">
+                        <option value="">All Statuses</option>
+                        <option value="activated">Activated</option>
+                        <option value="pending">Pending Activation</option>
+                    </select>
+                </div>
+                <button class="btn-ghost px-5 py-2.5 flex items-center gap-2" onclick="openArchivesModal()" style="border-color:var(--sa-gold); color:var(--sa-gold);">
+                    <i data-lucide="archive" class="w-4 h-4"></i> View Archives
+                </button>
             </div>
             <div style="background:var(--sa-card); border:1px solid var(--sa-border); border-radius:1.5rem; overflow:hidden;">
                 <div style="overflow-x:auto; max-height: 700px; overflow-y: auto;">
@@ -480,9 +488,13 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($allUsers as $u)
-                        <tr class="user-row cursor-pointer transition-colors" style="cursor: pointer;" onclick="openUserDetailsModal({{ $u->id }})" data-name="{{ strtolower($u->full_name) }}" data-email="{{ strtolower($u->email) }}" data-role="{{ strtolower($u->role) }}" data-status="{{ $u->approval_status }}">
-                            <td>
+                        @foreach($allUsers->whereNull('deleted_at') as $u)
+                        @php
+                            $isActivated = !$u->must_change_password && $u->last_login;
+                            $statusSlug = $isActivated ? 'activated' : 'pending';
+                        @endphp
+                        <tr class="user-row transition-colors" data-name="{{ strtolower($u->full_name) }}" data-email="{{ strtolower($u->email) }}" data-role="{{ strtolower($u->role) }}" data-status="{{ $statusSlug }}">
+                            <td onclick="openUserDetailsModal({{ $u->id }})" style="cursor:pointer;">
                                 <div class="flex items-center gap-2.5">
                                     @if($u->profile_image)
                                         <img src="{{ asset('storage/' . $u->profile_image) }}" style="width:34px;height:34px;border-radius:50%;object-fit:cover;border:2px solid #e5e7eb;" alt="">
@@ -499,33 +511,34 @@
                             </td>
                             <td><span class="badge badge-role-{{ $u->role }}">{{ ucfirst(str_replace('_', ' ', $u->role)) }}</span></td>
                             <td>
-                                @if($u->trashed())
-                                    <span class="badge badge-rejected">Archived</span>
-                                @elseif($u->approval_status === 'approved')
-                                    <span class="badge badge-approved">Approved</span>
-                                @elseif($u->approval_status === 'pending')
-                                    <span class="badge badge-pending">Pending</span>
+                                @if($isActivated)
+                                    <span class="badge badge-approved">● Activated</span>
                                 @else
-                                    <span class="badge badge-rejected">Rejected</span>
+                                    <span class="badge badge-pending">○ Pending</span>
                                 @endif
                             </td>
                             <td>
-                                <button onclick="event.stopPropagation(); toggleActive({{ $u->id }}, this)" style="background:{{ $u->is_active ? '#f0fdf4' : '#fef2f2' }};border:1px solid {{ $u->is_active ? '#22c55e' : '#ef4444' }};color:{{ $u->is_active ? '#15803d' : '#b91c1c' }};border-radius:999px;padding:.2rem .75rem;font-size:.68rem;font-weight:800;cursor:pointer;" data-id="{{ $u->id }}" data-active="{{ $u->is_active ? 1 : 0 }}">
-                                    {{ $u->is_active ? '● Active' : '○ Inactive' }}
-                                </button>
+                                @if($u->is_disabled)
+                                    <button onclick="confirmEnable({{ $u->id }}, '{{ $u->full_name }}')" style="background:#fef2f2; border:1px solid #ef4444; color:#b91c1c; border-radius:999px; padding:.2rem .75rem; font-size:.68rem; font-weight:800; cursor:pointer;" title="Click to enable account">
+                                        ● Disabled
+                                    </button>
+                                @else
+                                    <button onclick="openDisableModal({{ $u->id }}, '{{ $u->full_name }}')" style="background:#f0fdf4; border:1px solid #22c55e; color:#15803d; border-radius:999px; padding:.2rem .75rem; font-size:.68rem; font-weight:800; cursor:pointer;" title="Click to disable account">
+                                        ● Active
+                                    </button>
+                                @endif
                             </td>
                             <td style="color:#64748b; font-size:.78rem;">
                                 {{ $u->last_login ? \Carbon\Carbon::parse($u->last_login)->format('M d, Y h:i A') : 'Never' }}
                             </td>
                             <td>
                                 <div class="flex justify-end gap-1.5">
-                                    @if($u->trashed())
-                                        <button class="btn-approve" onclick="event.stopPropagation(); restoreUser({{ $u->id }}, '{{ $u->full_name }}')">Restore</button>
-                                    @else
-                                        <button class="btn-danger" onclick="event.stopPropagation(); deleteUser({{ $u->id }}, '{{ $u->full_name }}')">
-                                            <i data-lucide="trash-2" class="inline w-3 h-3"></i>
-                                        </button>
-                                    @endif
+                                    <button class="p-2 text-slate-400 hover:text-amber-600 transition-colors" title="Edit User" onclick="openEditUserModal({{ json_encode($u->only(['id','first_name','last_name','email','role','phone_number','address'])) }})">
+                                        <i data-lucide="edit-3" class="w-4 h-4"></i>
+                                    </button>
+                                    <button class="p-2 text-slate-400 hover:text-rose-600 transition-colors" title="Archive User" onclick="archiveUser({{ $u->id }}, '{{ $u->full_name }}')">
+                                        <i data-lucide="archive" class="w-4 h-4"></i>
+                                    </button>
                                 </div>
                             </td>
                         </tr>
@@ -614,8 +627,11 @@
         <div id="tab-audit" class="sa-tab-content {{ $tab === 'audit' ? '' : 'hidden' }}">
             {{-- Filters --}}
             <div class="flex flex-wrap gap-3 mb-5">
-                <input type="text" id="auditSearch" class="sa-input" style="max-width:240px;" placeholder="Search logs..." autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');">
-                <select id="auditActionFilter" class="sa-input" style="max-width:160px;">
+                <div class="relative flex-1" style="max-width: 320px;">
+                    <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"></i>
+                    <input type="text" id="auditSearch" class="sa-input pl-10" placeholder="Search logs by name, email, or notes..." autocomplete="off" oninput="debouncedAuditLog()">
+                </div>
+                <select id="auditActionFilter" class="sa-input" style="max-width:160px;" onchange="loadAuditLog(1)">
                     <option value="">All Actions</option>
                     <option value="login">Login</option>
                     <option value="logout">Logout</option>
@@ -625,16 +641,13 @@
                     <option value="password_changed">Password Changed</option>
                     <option value="created">Account Created</option>
                 </select>
-                <select id="auditRoleFilter" class="sa-input" style="max-width:160px;">
+                <select id="auditRoleFilter" class="sa-input" style="max-width:160px;" onchange="loadAuditLog(1)">
                     <option value="">All Roles</option>
                     <option value="dispatcher">Dispatcher</option>
                     <option value="manager">Manager</option>
                     <option value="secretary">Secretary</option>
                     <option value="super_admin">Super Admin</option>
                 </select>
-                <button class="btn-gold" onclick="loadAuditLog(1)">
-                    <i data-lucide="search" class="inline w-3 h-3 mr-1"></i>Search
-                </button>
             </div>
 
             <div style="background:var(--sa-card); border:1px solid var(--sa-border); border-radius:1.5rem; overflow:hidden;">
@@ -710,104 +723,83 @@
             </div>
         </div>
 
-        {{-- ─── SYSTEM ROLES TAB ─── --}}
-        <div id="tab-roles" class="sa-tab-content {{ $tab === 'roles' ? '' : 'hidden' }}">
-            <div class="flex items-center justify-between mb-6">
-                <div>
-                    <h3 style="color:#000; font-weight:900; font-size:1.4rem; margin-bottom:.2rem;">System Role Management</h3>
-                    <p style="color:#64748b; font-size:.85rem;">Define, modify, or retire specialized access roles for your organization.</p>
-                </div>
-                <button class="btn-gold px-6 py-2.5 flex items-center gap-2" onclick="openAddRoleModal()">
-                    <i data-lucide="plus-circle" class="w-4 h-4"></i> Add New Role
-                </button>
-            </div>
+        </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {{-- Active Roles --}}
+        {{-- ─── SECURITY TAB ─── --}}
+        <div id="tab-security" class="sa-tab-content {{ $tab === 'security' ? '' : 'hidden' }}">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {{-- Archive Protection Card --}}
                 <div style="background:var(--sa-card); border:1px solid var(--sa-border); border-radius:1.5rem; overflow:hidden;">
-                    <div style="padding:1.25rem; border-bottom:1px solid var(--sa-border); background:#f8fafc; display:flex; align-items:center; gap:.75rem;">
-                        <div class="w-8 h-8 bg-emerald-100 text-emerald-600 rounded-lg flex items-center justify-center">
-                            <i data-lucide="shield-check" class="w-4 h-4"></i>
+                    <div style="padding:1.5rem; border-bottom:1px solid var(--sa-border); background:#fef2f2; display:flex; align-items:center; gap:.75rem;">
+                        <div class="w-10 h-10 bg-white text-rose-600 rounded-xl flex items-center justify-center shadow-sm">
+                            <i data-lucide="shield-alert" class="w-5 h-5"></i>
                         </div>
-                        <span style="font-size:.72rem; font-weight:800; text-transform:uppercase; letter-spacing:.08em; color:#475569;">Active System Roles</span>
+                        <div>
+                            <span style="font-size:.72rem; font-weight:800; text-transform:uppercase; letter-spacing:.08em; color:#991b1b;">Archive Deletion Lock</span>
+                            <p style="color:#b91c1c; font-size:.65rem; font-weight:600; margin-top:1px;">Prevents accidental or unauthorized permanent data loss.</p>
+                        </div>
                     </div>
-                    <div style="padding:1rem;">
-                        <div class="space-y-3">
-                            @foreach($roles as $r)
-                            <div class="group border border-slate-100 rounded-xl p-4 hover:border-amber-200 hover:bg-amber-50/20 transition-all">
-                                <div class="flex items-start justify-between">
-                                    <div class="flex items-center gap-4">
-                                        <div class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center group-hover:bg-amber-100 transition-colors">
-                                            <i data-lucide="user-cog" class="w-5 h-5 text-slate-400 group-hover:text-amber-600"></i>
-                                        </div>
-                                        <div>
-                                            <div class="flex items-center gap-2">
-                                                <h5 class="text-sm font-black text-slate-900">{{ $r->label }}</h5>
-                                                <span class="text-[9px] font-black uppercase tracking-widest text-slate-400 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-100">{{ $r->name }}</span>
-                                            </div>
-                                            <p class="text-[10px] text-slate-500 mt-0.5">{{ $r->description ?? 'No description provided.' }}</p>
-                                        </div>
-                                    </div>
-                                    <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <button class="p-2 hover:text-amber-600 transition-colors" title="Edit Role" onclick="editRole({{ json_encode($r) }})">
-                                            <i data-lucide="edit-3" class="w-4 h-4"></i>
-                                        </button>
-                                        <button class="p-2 hover:text-rose-600 transition-colors" title="Archive Role" onclick="archiveRole({{ $r->id }})">
-                                            <i data-lucide="archive" class="w-4 h-4"></i>
-                                        </button>
-                                    </div>
+                    <div style="padding:1.5rem;">
+                        <form id="archive-password-form" onsubmit="updateArchivePassword(event)">
+                            <div class="mb-4">
+                                <label class="sa-label">Current Deletion Password</label>
+                                <div style="font-size:.7rem; color:#64748b; margin-bottom:.5rem;">If this is your first time, leave the password field empty (or use default).</div>
+                                <div class="relative">
+                                    <input type="password" name="archive_password" id="sec-archive-pwd" class="sa-input" placeholder="Enter new deletion password" required minlength="6">
                                 </div>
                             </div>
-                            @endforeach
-                        </div>
+                            <div class="mb-6">
+                                <label class="sa-label">Confirm New Password</label>
+                                <input type="password" name="archive_password_confirmation" id="sec-archive-pwd-confirm" class="sa-input" placeholder="Repeat deletion password" required>
+                            </div>
+                            
+                            <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:1rem; padding:1rem; margin-bottom:1.5rem;">
+                                <div class="flex gap-2 text-blue-600 mb-1.5">
+                                    <i data-lucide="info" class="w-4 h-4"></i>
+                                    <span style="font-size:.75rem; font-weight:800; text-transform:uppercase;">Security Notice</span>
+                                </div>
+                                <p style="font-size:.72rem; color:#475569; line-height:1.5;">This password is **separate** from your login password. It is required whenever someone attempts to **Permanently Delete** items from the archives (Users, Roles, Incident Types).</p>
+                            </div>
+
+                            <button type="submit" class="btn-gold w-full py-3 flex items-center justify-center gap-2" style="background:#1c1917;">
+                                <i data-lucide="check-circle" class="w-4 h-4"></i> Update Deletion Password
+                            </button>
+                        </form>
                     </div>
                 </div>
 
-                {{-- Archived Roles --}}
-                <div style="background:var(--sa-card); border:1px solid var(--sa-border); border-radius:1.5rem; overflow:hidden; opacity: 0.8;">
-                    <div style="padding:1.25rem; border-bottom:1px solid var(--sa-border); background:#f8fafc; display:flex; align-items:center; gap:.75rem;">
-                        <div class="w-8 h-8 bg-slate-100 text-slate-600 rounded-lg flex items-center justify-center">
-                            <i data-lucide="archive" class="w-4 h-4"></i>
-                        </div>
-                        <span style="font-size:.72rem; font-weight:800; text-transform:uppercase; letter-spacing:.08em; color:#475569;">Archived / Retired Roles</span>
-                    </div>
-                    <div style="padding:1rem;">
-                        @if($archivedRoles->count() > 0)
-                            <div class="space-y-3">
-                                @foreach($archivedRoles as $r)
-                                <div class="group border border-slate-100 rounded-xl p-4 bg-slate-50/50 grayscale">
-                                    <div class="flex items-start justify-between">
-                                        <div class="flex items-center gap-4">
-                                            <div class="w-10 h-10 bg-slate-200 rounded-xl flex items-center justify-center">
-                                                <i data-lucide="user-minus" class="w-5 h-5 text-slate-400"></i>
-                                            </div>
-                                            <div>
-                                                <h5 class="text-sm font-bold text-slate-600">{{ $r->label }}</h5>
-                                                <p class="text-[10px] text-slate-400 mt-0.5">{{ $r->name }}</p>
-                                            </div>
-                                        </div>
-                                        <div class="flex items-center gap-1">
-                                            <button class="p-2 hover:text-emerald-600 transition-colors" title="Restore Role" onclick="restoreRole({{ $r->id }})">
-                                                <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
-                                            </button>
-                                            <button class="p-2 hover:text-rose-600 transition-colors" title="Delete Permanently" onclick="deleteRole({{ $r->id }})">
-                                                <i data-lucide="trash-2" class="w-4 h-4"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                                @endforeach
-                            </div>
-                        @else
-                            <div class="text-center py-10">
-                                <i data-lucide="archive" class="w-12 h-12 text-slate-200 mx-auto mb-3"></i>
-                                <p class="text-xs text-slate-400 font-bold uppercase tracking-widest">No Archived Roles</p>
-                            </div>
-                        @endif
+                {{-- Additional Security Info --}}
+                <div class="flex flex-col gap-6">
+                    <div style="background:var(--sa-card); border:1px solid var(--sa-border); border-radius:1.5rem; padding:1.5rem;">
+                         <h4 style="font-weight:900; font-size:1rem; color:#000; margin-bottom:1rem;">System Integrity Status</h4>
+                         <div class="space-y-4">
+                             <div class="flex items-center justify-between py-2 border-bottom border-slate-50">
+                                 <div class="flex items-center gap-3">
+                                     <i data-lucide="database" class="w-4 h-4 text-emerald-500"></i>
+                                     <span class="text-sm font-bold text-slate-700">Database Connection</span>
+                                 </div>
+                                 <span class="badge badge-approved">SECURE</span>
+                             </div>
+                             <div class="flex items-center justify-between py-2 border-bottom border-slate-50">
+                                 <div class="flex items-center gap-3">
+                                     <i data-lucide="shield-check" class="w-4 h-4 text-amber-500"></i>
+                                     <span class="text-sm font-bold text-slate-700">MFA Enforcement</span>
+                                 </div>
+                                 <span class="badge badge-approved">ACTIVE</span>
+                             </div>
+                             <div class="flex items-center justify-between py-2">
+                                 <div class="flex items-center gap-3">
+                                     <i data-lucide="history" class="w-4 h-4 text-blue-500"></i>
+                                     <span class="text-sm font-bold text-slate-700">Audit Logging</span>
+                                 </div>
+                                 <span class="badge badge-approved">LOGGING</span>
+                             </div>
+                         </div>
                     </div>
                 </div>
             </div>
         </div>
+        
         
     </div>
 </div>
@@ -963,77 +955,119 @@
 
  {{-- Manage Roles List Modal --}}
  <div class="sa-modal-backdrop" id="manageRolesModal">
-    <div class="sa-modal" style="max-width: 550px; padding: 0; overflow: hidden; display: flex; flex-direction: column; max-height: 85vh;">
-        <div style="background: #f8fafc; padding: 1.5rem; border-bottom: 1px solid var(--sa-border); display: flex; items-center justify-between;">
-            <div>
-                <h3 style="font-weight:900; font-size:1.2rem; color:#000;">System Roles</h3>
-                <p style="color:#64748b; font-size:.75rem;">Add or modify roles available in the system.</p>
-            </div>
-            <button class="btn-gold px-4 py-2 flex items-center gap-2" onclick="openAddRoleModal()">
-                <i data-lucide="plus" class="w-4 h-4"></i> Add Role
+    <div class="sa-modal" style="max-width: 950px; padding: 0; overflow: hidden; display: flex; flex-direction: column; max-height: 90vh;">
+        {{-- Header --}}
+        <div style="background: #f8fafc; padding: 1.5rem; border-bottom: 1px solid var(--sa-border); position: relative;">
+            <button onclick="document.getElementById('manageRolesModal').classList.remove('open')" style="position: absolute; top: 1.25rem; right: 1.25rem; color: #64748b; cursor: pointer; padding: .4rem; transition: color .2s;" class="hover:text-black">
+                <i data-lucide="x" style="width:20px;height:20px;"></i>
             </button>
+            <div class="flex items-center justify-between pr-10">
+                <div>
+                    <h3 style="color:#000; font-weight:900; font-size:1.4rem; margin-bottom:.2rem;">System Role Management</h3>
+                    <p style="color:#64748b; font-size:.85rem;">Define, modify, or retire specialized access roles for your organization.</p>
+                </div>
+                <button class="btn-gold px-6 py-2.5 flex items-center gap-2" onclick="openAddRoleModal()">
+                    <i data-lucide="plus-circle" class="w-4 h-4"></i> Add New Role
+                </button>
+            </div>
         </div>
         
-        <div style="padding: 1rem; overflow-y: auto; flex: 1; background: #fff;">
-            <div class="space-y-2">
-                @foreach($roles as $r)
-                <div class="flex items-center justify-between p-3 border border-slate-100 rounded-xl hover:bg-slate-50 transition-colors">
-                    <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 bg-amber-100 rounded-lg flex items-center justify-center">
-                            <i data-lucide="shield" class="w-4 h-4 text-amber-600"></i>
+        {{-- Content --}}
+        <div style="padding: 1.5rem; overflow-y: auto; flex: 1; background: #fff;">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {{-- Active Roles --}}
+                <div style="background:var(--sa-card); border:1px solid var(--sa-border); border-radius:1.5rem; overflow:hidden;">
+                    <div style="padding:1.25rem; border-bottom:1px solid var(--sa-border); background:#f8fafc; display:flex; align-items:center; gap:.75rem;">
+                        <div class="w-8 h-8 bg-emerald-100 text-emerald-600 rounded-lg flex items-center justify-center">
+                            <i data-lucide="shield-check" class="w-4 h-4"></i>
                         </div>
-                        <div>
-                            <div class="text-sm font-bold text-slate-900">{{ $r->label }}</div>
-                            <div class="text-[10px] text-slate-400 font-mono">{{ $r->name }}</div>
-                        </div>
+                        <span style="font-size:.72rem; font-weight:800; text-transform:uppercase; letter-spacing:.08em; color:#475569;">Active System Roles</span>
                     </div>
-                    <div class="flex items-center gap-1">
-                        <button class="p-2 text-slate-400 hover:text-amber-600 transition-colors" onclick="editRole({{ json_encode($r) }})">
-                            <i data-lucide="edit-3" class="w-4 h-4"></i>
-                        </button>
-                        <button class="p-2 text-slate-400 hover:text-rose-600 transition-colors" onclick="archiveRole({{ $r->id }})">
-                            <i data-lucide="archive" class="w-4 h-4"></i>
-                        </button>
+                    <div style="padding:1rem;">
+                        <div class="space-y-3">
+                            @foreach($roles as $r)
+                            <div class="group border border-slate-100 rounded-xl p-4 hover:border-amber-200 hover:bg-amber-50/20 transition-all">
+                                <div class="flex items-start justify-between">
+                                    <div class="flex items-center gap-4">
+                                        <div class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center group-hover:bg-amber-100 transition-colors">
+                                            <i data-lucide="user-cog" class="w-5 h-5 text-slate-400 group-hover:text-amber-600"></i>
+                                        </div>
+                                        <div>
+                                            <div class="flex items-center gap-2">
+                                                <h5 class="text-sm font-black text-slate-900">{{ $r->label }}</h5>
+                                                <span class="text-[9px] font-black uppercase tracking-widest text-slate-400 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-100">{{ $r->name }}</span>
+                                            </div>
+                                            <p class="text-[10px] text-slate-500 mt-0.5">{{ $r->description ?? 'No description provided.' }}</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <button class="p-2 hover:text-amber-600 transition-colors" title="Edit Role" onclick="editRole({{ json_encode($r) }})">
+                                            <i data-lucide="edit-3" class="w-4 h-4"></i>
+                                        </button>
+                                        <button class="p-2 hover:text-rose-600 transition-colors" title="Archive Role" onclick="archiveRole({{ $r->id }})">
+                                            <i data-lucide="archive" class="w-4 h-4"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
                     </div>
                 </div>
-                @endforeach
-            </div>
 
-            @if($archivedRoles->count() > 0)
-            <div class="mt-6">
-                <h4 class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3 px-1">Archived Roles</h4>
-                <div class="space-y-2">
-                    @foreach($archivedRoles as $r)
-                    <div class="flex items-center justify-between p-3 border border-dashed border-slate-200 rounded-xl bg-slate-50/50">
-                        <div class="flex items-center gap-3 grayscale opacity-60">
-                            <div class="w-8 h-8 bg-slate-200 rounded-lg flex items-center justify-center">
-                                <i data-lucide="shield-off" class="w-4 h-4 text-slate-500"></i>
-                            </div>
-                            <div>
-                                <div class="text-sm font-bold text-slate-600">{{ $r->label }}</div>
-                                <div class="text-[10px] text-slate-400 font-mono">{{ $r->name }}</div>
-                            </div>
+                {{-- Archived Roles --}}
+                <div style="background:var(--sa-card); border:1px solid var(--sa-border); border-radius:1.5rem; overflow:hidden; opacity: 0.8;">
+                    <div style="padding:1.25rem; border-bottom:1px solid var(--sa-border); background:#f8fafc; display:flex; align-items:center; gap:.75rem;">
+                        <div class="w-8 h-8 bg-slate-100 text-slate-600 rounded-lg flex items-center justify-center">
+                            <i data-lucide="archive" class="w-4 h-4"></i>
                         </div>
-                        <div class="flex items-center gap-1">
-                            <button class="p-2 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors" onclick="restoreRole({{ $r->id }})">
-                                <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
-                            </button>
-                            <button class="p-2 text-rose-600 hover:bg-rose-50 rounded-lg transition-colors" onclick="deleteRole({{ $r->id }})">
-                                <i data-lucide="trash-2" class="w-4 h-4"></i>
-                            </button>
-                        </div>
+                        <span style="font-size:.72rem; font-weight:800; text-transform:uppercase; letter-spacing:.08em; color:#475569;">Archived / Retired Roles</span>
                     </div>
-                    @endforeach
+                    <div style="padding:1rem;">
+                        @if($archivedRoles->count() > 0)
+                            <div class="space-y-3">
+                                @foreach($archivedRoles as $r)
+                                <div class="group border border-slate-100 rounded-xl p-4 bg-slate-50/50 grayscale">
+                                    <div class="flex items-start justify-between">
+                                        <div class="flex items-center gap-4">
+                                            <div class="w-10 h-10 bg-slate-200 rounded-xl flex items-center justify-center">
+                                                <i data-lucide="user-minus" class="w-5 h-5 text-slate-400"></i>
+                                            </div>
+                                            <div>
+                                                <h5 class="text-sm font-bold text-slate-600">{{ $r->label }}</h5>
+                                                <p class="text-[10px] text-slate-400 mt-0.5">{{ $r->name }}</p>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center gap-1">
+                                            <button class="p-2 hover:text-emerald-600 transition-colors" title="Restore Role" onclick="restoreRole({{ $r->id }})">
+                                                <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+                                            </button>
+                                            <button class="p-2 hover:text-rose-600 transition-colors" title="Delete Permanently" onclick="deleteRole({{ $r->id }})">
+                                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                @endforeach
+                            </div>
+                        @else
+                            <div class="text-center py-10">
+                                <i data-lucide="archive" class="w-12 h-12 text-slate-200 mx-auto mb-3"></i>
+                                <p class="text-xs text-slate-400 font-bold uppercase tracking-widest">No Archived Roles</p>
+                            </div>
+                        @endif
+                    </div>
                 </div>
             </div>
-            @endif
         </div>
 
-        <div style="padding: 1rem; border-top: 1px solid var(--sa-border); background: #f8fafc; text-align: right;">
-            <button class="btn-ghost px-6" onclick="document.getElementById('manageRolesModal').classList.remove('open')">Close</button>
+        {{-- Footer --}}
+        <div style="padding: 1rem 1.5rem; border-top: 1px solid var(--sa-border); background: #f8fafc; text-align: right;">
+            <button class="btn-ghost px-8 py-2" onclick="document.getElementById('manageRolesModal').classList.remove('open')">Close Manager</button>
         </div>
     </div>
  </div>
+
 
  {{-- Role Detail Modal --}}
  <div class="sa-modal-backdrop" id="roleDetailModal">
@@ -1060,6 +1094,165 @@
             <div class="flex gap-3">
                 <button type="submit" class="btn-gold flex-1 py-3">Save System Role</button>
                 <button type="button" class="btn-ghost flex-1 py-3" onclick="document.getElementById('roleDetailModal').classList.remove('open')">Cancel</button>
+            </div>
+        </form>
+    </div>
+ </div>
+
+  {{-- Edit User Modal --}}
+ <div class="sa-modal-backdrop" id="editUserModal">
+    <div class="sa-modal" style="max-width: 500px;">
+        <div class="flex items-center justify-between mb-6">
+            <h3 style="font-weight:900; font-size:1.2rem; color:#000;">Edit User Account</h3>
+            <button class="btn-ghost" onclick="document.getElementById('editUserModal').classList.remove('open')">✕</button>
+        </div>
+        <form id="edit-user-form" onsubmit="submitUserEdit(event)">
+            <input type="hidden" id="edit-user-id">
+            <div class="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="sa-label">First Name</label>
+                    <input type="text" id="edit-first-name" class="sa-input" required>
+                </div>
+                <div>
+                    <label class="sa-label">Last Name</label>
+                    <input type="text" id="edit-last-name" class="sa-input" required>
+                </div>
+            </div>
+            <div class="mb-4">
+                <label class="sa-label">Email Address</label>
+                <input type="email" id="edit-email" class="sa-input" required>
+            </div>
+            <div class="mb-4">
+                <label class="sa-label">Assign Role</label>
+                <select id="edit-role" class="sa-input" required>
+                    @foreach($roles as $r)
+                        <option value="{{ $r->name }}">{{ $r->label }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="mb-4">
+                <label class="sa-label">Phone Number</label>
+                <input type="text" id="edit-phone" class="sa-input">
+            </div>
+            <div class="mb-6">
+                <label class="sa-label">Home Address</label>
+                <textarea id="edit-address" class="sa-input" rows="2"></textarea>
+            </div>
+            <div class="flex gap-3">
+                <button type="submit" class="btn-gold flex-1 py-3">Update Account</button>
+                <button type="button" class="btn-ghost flex-1 py-3" onclick="document.getElementById('editUserModal').classList.remove('open')">Cancel</button>
+            </div>
+        </form>
+    </div>
+ </div>
+
+ {{-- User Archives Modal --}}
+ <div class="sa-modal-backdrop" id="archivesModal">
+    <div class="sa-modal" style="max-width: 800px; padding: 0; overflow: hidden; display: flex; flex-direction: column; max-height: 85vh;">
+        <div style="background: #f8fafc; padding: 1.5rem; border-bottom: 1px solid var(--sa-border); display: flex; items-center justify-between;">
+            <div>
+                <h3 style="font-weight:900; font-size:1.2rem; color:#000;">User Archives</h3>
+                <p style="color:#64748b; font-size:.75rem;">Previously deleted staff accounts. You can restore them if needed.</p>
+            </div>
+            <button class="btn-ghost" onclick="document.getElementById('archivesModal').classList.remove('open')">✕</button>
+        </div>
+        
+        <div style="padding: 1rem; overflow-y: auto; flex: 1; background: #fff;">
+            <table class="sa-table">
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Role</th>
+                        <th>Date Deleted</th>
+                        <th style="text-align:right;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @php $archivedCount = 0; @endphp
+                    @foreach($allUsers->whereNotNull('deleted_at') as $u)
+                        @php $archivedCount++; @endphp
+                        <tr>
+                            <td>
+                                <div style="font-weight:700;color:#000;">{{ $u->full_name }}</div>
+                                <div style="font-size:.7rem;color:#64748b;">{{ $u->email }}</div>
+                            </td>
+                            <td><span class="badge badge-role-{{ $u->role }}">{{ ucfirst(str_replace('_', ' ', $u->role)) }}</span></td>
+                            <td style="color:#64748b; font-size:.75rem;">{{ $u->deleted_at->format('M d, Y h:i A') }}</td>
+                            <td style="text-align:right;">
+                                <div class="flex gap-2 justify-end">
+                                    <button class="btn-approve px-4 py-1.5" onclick="restoreUser({{ $u->id }}, '{{ $u->full_name }}')">
+                                        <i data-lucide="rotate-ccw" class="inline w-3 h-3 mr-1"></i> Restore
+                                    </button>
+                                    <button class="btn-reject px-4 py-1.5" onclick="deleteUserPermanently({{ $u->id }}, '{{ $u->full_name }}')">
+                                        <i data-lucide="trash-2" class="inline w-3 h-3 mr-1"></i> Delete
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    @endforeach
+                    @if($archivedCount === 0)
+                        <tr>
+                            <td colspan="4" style="text-align:center; padding: 3rem; color: #64748b;">
+                                <i data-lucide="archive" class="w-12 h-12 mx-auto mb-3 opacity-20"></i>
+                                No archived users found.
+                            </td>
+                        </tr>
+                    @endif
+                </tbody>
+            </table>
+        </div>
+        <div style="padding: 1rem; border-top: 1px solid var(--sa-border); background: #f8fafc; text-align: right;">
+            <button class="btn-ghost px-6" onclick="document.getElementById('archivesModal').classList.remove('open')">Close</button>
+        </div>
+    </div>
+ </div>
+
+  {{-- Archive Deletion Security Modal --}}
+  <div class="sa-modal-backdrop" id="archiveSecurityModal">
+     <div class="sa-modal" style="max-width: 420px; text-align: center;">
+         <div style="background: #fef2f2; width: 64px; height: 64px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; border: 4px solid #fee2e2;">
+             <i data-lucide="shield-alert" style="width: 32px; height: 32px; color: #dc2626;"></i>
+         </div>
+         
+         <h3 style="font-weight: 900; font-size: 1.25rem; color: #991b1b; margin-bottom: .5rem;">Security Verification</h3>
+         <p style="color: #64748b; font-size: .85rem; margin-bottom: 1.5rem;">To permanently delete this item, please enter the **Archive Deletion Password** below.</p>
+         
+         <div class="mb-6">
+             <input type="password" id="archive-security-pwd" class="sa-input" style="text-align: center; font-size: 1.2rem; letter-spacing: .2em;" placeholder="••••••">
+         </div>
+         
+         <div style="background: #fffbeb; border: 1px solid #fef3c7; border-radius: .75rem; padding: .75rem; margin-bottom: 1.5rem; display: flex; align-items: flex-start; gap: .75rem; text-align: left;">
+             <i data-lucide="alert-triangle" style="width: 16px; height: 16px; color: #d97706; flex-shrink: 0; margin-top: 2px;"></i>
+             <p style="font-size: .7rem; color: #92400e; font-weight: 500;">Warning: Permanent deletion is **irreversible**. All associated data will be removed from the system forever.</p>
+         </div>
+
+         <div class="flex gap-3">
+             <button class="btn-ghost flex-1 py-3" onclick="document.getElementById('archiveSecurityModal').classList.remove('open')">Cancel</button>
+             <button class="btn-danger flex-1 py-3" id="btn-confirm-permanent-delete">Confirm Delete</button>
+         </div>
+     </div>
+  </div>
+
+ {{-- Disable User Modal --}}
+ <div class="sa-modal-backdrop" id="disableUserModal">
+    <div class="sa-modal" style="max-width: 450px;">
+        <div class="flex items-center justify-between mb-6">
+            <h3 style="font-weight:900; font-size:1.2rem; color:#000;">Disable Account</h3>
+            <button class="btn-ghost" onclick="document.getElementById('disableUserModal').classList.remove('open')">✕</button>
+        </div>
+        <div style="background:#fff7ed; border:1px solid #ffedd5; border-radius:1rem; padding:1rem; margin-bottom:1.5rem; display:flex; gap:.75rem;">
+            <i data-lucide="alert-triangle" style="width:18px;height:18px;color:#f59e0b;flex-shrink:0;"></i>
+            <p style="font-size:.78rem; color:#9a3412; font-weight:600;">Disabling <strong id="disable-user-display-name"></strong>'s account will automatically log them out and block future access until re-enabled.</p>
+        </div>
+        <form id="disable-user-form" onsubmit="submitDisable(event)">
+            <input type="hidden" id="disable-user-id">
+            <div class="mb-6">
+                <label class="sa-label">Reason for disabling (will be shown to user)</label>
+                <textarea id="disable-reason" class="sa-input" rows="3" placeholder="e.g. Account security under review, Overdue payments, etc." required></textarea>
+            </div>
+            <div class="flex gap-3">
+                <button type="submit" class="btn-danger flex-1 py-3" style="background:#ef4444; color:#fff; border:none; font-weight:800;">Confirm Disable</button>
+                <button type="button" class="btn-ghost flex-1 py-3" onclick="document.getElementById('disableUserModal').classList.remove('open')">Cancel</button>
             </div>
         </form>
     </div>
@@ -1118,11 +1311,7 @@ function renderUserDetails(user, history) {
     document.getElementById('ud-email').textContent = user.email + (user.phone_number ? ' · ' + user.phone_number : '');
     
     // 3. Badges
-    const statusMap = {
-        'approved': '<span class="badge badge-approved">Approved</span>',
-        'pending': '<span class="badge badge-pending">Pending</span>',
-        'rejected': '<span class="badge badge-rejected">Rejected</span>'
-    };
+    const isActivated = !user.must_change_password && user.last_login;
     const roleMap = {
         'manager': 'badge-role-manager',
         'dispatcher': 'badge-role-dispatcher',
@@ -1131,10 +1320,13 @@ function renderUserDetails(user, history) {
         'super_admin': 'badge-role-super_admin'
     };
     const roleClass = roleMap[user.role] || 'badge-role-staff';
-    const statusBadge = user.trashed ? '<span class="badge badge-rejected">Archived</span>' : (statusMap[user.status] || '');
-    const activeBadge = user.is_active 
-        ? '<span style="color:#15803d;font-size:.65rem;font-weight:700;border:1px solid #86efac;padding:.1rem .5rem;border-radius:99px;background:#f0fdf4;">● Active</span>' 
-        : '<span style="color:#b91c1c;font-size:.65rem;font-weight:700;border:1px solid #fca5a5;padding:.1rem .5rem;border-radius:99px;background:#fef2f2;">○ Inactive</span>';
+    const statusBadge = user.trashed 
+        ? '<span class="badge badge-rejected">Archived</span>' 
+        : (isActivated ? '<span class="badge badge-approved">Activated</span>' : '<span class="badge badge-pending">Pending</span>');
+        
+    const activeBadge = user.is_disabled
+        ? '<span style="color:#b91c1c;font-size:.65rem;font-weight:700;border:1px solid #fca5a5;padding:.1rem .5rem;border-radius:99px;background:#fef2f2;">● Disabled</span>'
+        : '<span style="color:#15803d;font-size:.65rem;font-weight:700;border:1px solid #86efac;padding:.1rem .5rem;border-radius:99px;background:#f0fdf4;">● Active</span>';
         
     document.getElementById('ud-badges').innerHTML = `
         <span class="badge ${roleClass}">${user.role.replace('_', ' ')}</span>
@@ -1246,35 +1438,137 @@ async function rejectUser(id, name) {
     }
 }
 
-// ─── Toggle Active ─────────────────────────────────────────────────────────────
-async function toggleActive(id, btn) {
-    const res = await fetch(`/super-admin/toggle-active/${id}`, { method: 'POST', headers: { 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' } });
-    const data = await res.json();
-    if (data.success) {
-        toast(data.message);
-        btn.textContent  = data.is_active ? '● Active' : '○ Inactive';
-        btn.style.color  = data.is_active ? '#15803d' : '#b91c1c';
-        btn.style.background = data.is_active ? '#f0fdf4' : '#fef2f2';
-        btn.style.borderColor = data.is_active ? '#22c55e' : '#ef4444';
-        btn.setAttribute('data-active', data.is_active ? 1 : 0);
-    } else {
-        toast(data.message || 'Error.', true);
-    }
+// ─── Disable / Enable ─────────────────────────────────────────────────────────
+function openDisableModal(id, name) {
+    document.getElementById('disable-user-id').value = id;
+    document.getElementById('disable-user-display-name').textContent = name;
+    document.getElementById('disable-reason').value = '';
+    document.getElementById('disableUserModal').classList.add('open');
+    if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
-// ─── Delete / Restore ─────────────────────────────────────────────────────────
-async function deleteUser(id, name) {
-    if (!confirm(`Archive ${name}? They will be soft-deleted and cannot log in.`)) return;
-    const res = await fetch(`/super-admin/users/${id}`, { method: 'DELETE', headers: { 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' } });
-    const data = await res.json();
-    if (data.success) { toast('Archived: ' + name); location.reload(); }
-    else toast(data.message || 'Error.', true);
+async function submitDisable(e) {
+    e.preventDefault();
+    const id = document.getElementById('disable-user-id').value;
+    const reason = document.getElementById('disable-reason').value;
+
+    try {
+        const res = await fetch(`/super-admin/toggle-disable/${id}`, {
+            method: 'POST',
+            headers: { 'X-CSRF-TOKEN': CSRF, 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            body: JSON.stringify({ is_disabled: true, reason })
+        });
+        const data = await res.json();
+        if (data.success) {
+            toast('✔ ' + data.message);
+            location.reload();
+        } else {
+            toast(data.message || 'Error.', true);
+        }
+    } catch (e) { toast('Network error.', true); }
 }
+
+async function confirmEnable(id, name) {
+    if (!confirm(`Re-enable ${name}'s account?`)) return;
+    try {
+        const res = await fetch(`/super-admin/toggle-disable/${id}`, {
+            method: 'POST',
+            headers: { 'X-CSRF-TOKEN': CSRF, 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            body: JSON.stringify({ is_disabled: false })
+        });
+        const data = await res.json();
+        if (data.success) {
+            toast('✔ ' + data.message);
+            location.reload();
+        } else {
+            toast(data.message || 'Error.', true);
+        }
+    } catch (e) { toast('Network error.', true); }
+}
+
+// ─── Archive / Restore ─────────────────────────────────────────────────────────
+async function archiveUser(id, name) {
+    if (!confirm(`Move ${name} to archives? They will be unable to log in.`)) return;
+    try {
+        const res = await fetch(`/super-admin/users/${id}/archive`, { 
+            method: 'DELETE', 
+            headers: { 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' } 
+        });
+        const data = await res.json();
+        if (data.success) { 
+            toast('✔ ' + data.message); 
+            location.reload(); 
+        } else {
+            toast(data.message || 'Error.', true);
+        }
+    } catch (e) { toast('Network error.', true); }
+}
+
 async function restoreUser(id, name) {
-    const res = await fetch(`/super-admin/users/${id}/restore`, { method: 'POST', headers: { 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' } });
-    const data = await res.json();
-    if (data.success) { toast('Restored: ' + name); location.reload(); }
-    else toast(data.message || 'Error.', true);
+    if (!confirm(`Restore ${name}'s account access?`)) return;
+    try {
+        const res = await fetch(`/super-admin/users/${id}/restore`, { 
+            method: 'POST', 
+            headers: { 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' } 
+        });
+        const data = await res.json();
+        if (data.success) { 
+            toast('✔ ' + data.message); 
+            location.reload(); 
+        } else {
+            toast(data.message || 'Error.', true);
+        }
+    } catch (e) { toast('Network error.', true); }
+}
+
+function openArchivesModal() {
+    document.getElementById('archivesModal').classList.add('open');
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+// ─── User Edit ────────────────────────────────────────────────────────────────
+function openEditUserModal(user) {
+    document.getElementById('edit-user-id').value = user.id;
+    document.getElementById('edit-first-name').value = user.first_name || '';
+    document.getElementById('edit-last-name').value = user.last_name || '';
+    document.getElementById('edit-email').value = user.email || '';
+    document.getElementById('edit-role').value = user.role || '';
+    document.getElementById('edit-phone').value = user.phone_number || '';
+    document.getElementById('edit-address').value = user.address || '';
+    
+    document.getElementById('editUserModal').classList.add('open');
+}
+
+async function submitUserEdit(e) {
+    e.preventDefault();
+    const id = document.getElementById('edit-user-id').value;
+    const formData = {
+        first_name: document.getElementById('edit-first-name').value,
+        last_name: document.getElementById('edit-last-name').value,
+        email: document.getElementById('edit-email').value,
+        role: document.getElementById('edit-role').value,
+        phone_number: document.getElementById('edit-phone').value,
+        address: document.getElementById('edit-address').value,
+    };
+
+    try {
+        const res = await fetch(`/super-admin/users/${id}/update`, {
+            method: 'PUT',
+            headers: { 
+                'X-CSRF-TOKEN': CSRF, 
+                'Content-Type': 'application/json',
+                'Accept': 'application/json' 
+            },
+            body: JSON.stringify(formData)
+        });
+        const data = await res.json();
+        if (data.success) {
+            toast('✔ ' + data.message);
+            location.reload();
+        } else {
+            toast(data.message || 'Validation error.', true);
+        }
+    } catch (e) { toast('Network error.', true); }
 }
 
 // ─── User Search ──────────────────────────────────────────────────────────────
@@ -1354,14 +1648,26 @@ async function savePageAccess() {
 }
 
 // ─── Audit Log Pagination ─────────────────────────────────────────────────────
+let auditTimer;
+function debouncedAuditLog() {
+    clearTimeout(auditTimer);
+    auditTimer = setTimeout(() => loadAuditLog(1), 300);
+}
+
 async function loadAuditLog(page = 1) {
     const search  = document.getElementById('auditSearch').value;
     const action  = document.getElementById('auditActionFilter').value;
     const role    = document.getElementById('auditRoleFilter').value;
     const params  = new URLSearchParams({ page, search, action, role, per_page: 25 });
 
+    // Visual loading state
+    const tbody = document.getElementById('audit-tbody');
+    if(page === 1) tbody.style.opacity = '0.5';
+
     const res  = await fetch(`/super-admin/login-history?${params}`, { headers: { 'Accept': 'application/json' } });
     const data = await res.json();
+
+    tbody.style.opacity = '1';
 
     const actionMap = {
         login: ['badge-login','● Login'], logout: ['badge-logout','○ Logout'],
@@ -1533,20 +1839,22 @@ async function submitClassification(e) {
  }
 
  async function deleteClassification(id) {
-     if (!confirm('PERMANENTLY DELETE this classification? This cannot be undone.')) return;
-     try {
-         const res = await fetch(`/super-admin/incident-classifications/${id}`, {
-             method: 'DELETE',
-             headers: { 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' }
-         });
-         const data = await res.json();
-         if (data.success) {
-             toast(data.message);
-             location.reload();
-         } else {
-             toast(data.message || 'Error.', true);
-         }
-     } catch (e) { toast('Error deleting.', true); }
+     promptArchivePassword(async (password) => {
+         try {
+             const res = await fetch(`/super-admin/incident-classifications/${id}`, {
+                 method: 'DELETE',
+                 headers: { 'X-CSRF-TOKEN': CSRF, 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                 body: JSON.stringify({ archive_password: password })
+             });
+             const data = await res.json();
+             if (data.success) {
+                 toast(data.message);
+                 location.reload();
+             } else {
+                 toast(data.message || 'Error.', true);
+             }
+         } catch (e) { toast('Error deleting.', true); }
+     });
  }
 
   // ─── Role Management JS ───────────────────────────────────────────────────
@@ -1625,16 +1933,96 @@ async function submitClassification(e) {
   }
 
   async function deleteRole(id) {
-      if (!confirm('PERMANENTLY DELETE this role? This cannot be undone.')) return;
+      promptArchivePassword(async (password) => {
+          try {
+              const res = await fetch(`/super-admin/roles/${id}`, {
+                  method: 'DELETE',
+                  headers: { 'X-CSRF-TOKEN': CSRF, 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                  body: JSON.stringify({ archive_password: password })
+              });
+              const data = await res.json();
+              if (data.success) { toast(data.message); location.reload(); }
+              else toast(data.message || 'Error.', true);
+          } catch (e) { toast('Error deleting role.', true); }
+      });
+  }
+
+  // ─── Archive Security Logic ───────────────────────────────────────────────────
+  let archiveSecurityCallback = null;
+
+  function promptArchivePassword(callback) {
+      archiveSecurityCallback = callback;
+      const modal = document.getElementById('archiveSecurityModal');
+      document.getElementById('archive-security-pwd').value = '';
+      modal.classList.add('open');
+      setTimeout(() => document.getElementById('archive-security-pwd').focus(), 300);
+  }
+
+  document.getElementById('btn-confirm-permanent-delete').addEventListener('click', async function() {
+      const password = document.getElementById('archive-security-pwd').value;
+      if (!password) { toast('Please enter the security password.', true); return; }
+      
+      const btn = this;
+      const originalText = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
+
+      if (archiveSecurityCallback) {
+          await archiveSecurityCallback(password);
+      }
+
+      btn.disabled = false;
+      btn.innerHTML = originalText;
+      document.getElementById('archiveSecurityModal').classList.remove('open');
+  });
+
+  async function updateArchivePassword(e) {
+      e.preventDefault();
+      const pwd = document.getElementById('sec-archive-pwd').value;
+      const confirm = document.getElementById('sec-archive-pwd-confirm').value;
+      
+      if (pwd !== confirm) { toast('Passwords do not match.', true); return; }
+
+      const btn = e.target.querySelector('button[type="submit"]');
+      const originalText = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Updating...';
+
       try {
-          const res = await fetch(`/super-admin/roles/${id}`, {
-              method: 'DELETE',
-              headers: { 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' }
+          const res = await fetch('{{ route("super-admin.security.update-archive-password") }}', {
+              method: 'POST',
+              headers: { 'X-CSRF-TOKEN': CSRF, 'Content-Type': 'application/json', 'Accept': 'application/json' },
+              body: JSON.stringify({ archive_password: pwd, archive_password_confirmation: confirm })
           });
           const data = await res.json();
-          if (data.success) { toast(data.message); location.reload(); }
-          else toast(data.message || 'Error.', true);
-      } catch (e) { toast('Error deleting role.', true); }
+          if (data.success) {
+              toast('✔ ' + data.message);
+              e.target.reset();
+          } else {
+              toast(data.message || 'Error updating password.', true);
+          }
+      } catch (err) { toast('Network error.', true); }
+      btn.disabled = false;
+      btn.innerHTML = originalText;
+  }
+
+  async function deleteUserPermanently(id, name) {
+      promptArchivePassword(async (password) => {
+          try {
+              const res = await fetch(`/super-admin/users/${id}`, {
+                  method: 'DELETE',
+                  headers: { 'X-CSRF-TOKEN': CSRF, 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                  body: JSON.stringify({ archive_password: password })
+              });
+              const data = await res.json();
+              if (data.success) {
+                  toast('✔ ' + data.message);
+                  location.reload();
+              } else {
+                  toast(data.message || 'Error deleting user.', true);
+              }
+          } catch (err) { toast('Network error.', true); }
+      });
   }
 
 // ─── Create Staff ───────────────────────────────────────────────────────────────

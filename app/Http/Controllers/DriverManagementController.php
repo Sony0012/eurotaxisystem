@@ -52,7 +52,9 @@ class DriverManagementController extends Controller
                 // is_active derived from driver_status
                 DB::raw("CASE WHEN d.driver_status IN ('available','assigned') THEN 1 ELSE 0 END as is_active"),
                 // Net unpaid shortage: sum of all shortages minus sum of all excess
-                DB::raw("(SELECT GREATEST(0, COALESCE(SUM(shortage),0) - COALESCE(SUM(excess),0)) FROM boundaries WHERE driver_id = d.id AND deleted_at IS NULL) as net_shortage")
+                DB::raw("(SELECT GREATEST(0, COALESCE(SUM(shortage),0) - COALESCE(SUM(excess),0)) FROM boundaries WHERE driver_id = d.id AND deleted_at IS NULL) as net_shortage"),
+                // Total Pending Accident/Incident Debt
+                DB::raw("(SELECT COALESCE(SUM(remaining_balance), 0) FROM driver_behavior WHERE driver_id = d.id AND is_driver_fault = 1 AND charge_status = 'pending') as total_pending_debt")
             );
 
         if ($search) {
@@ -420,11 +422,16 @@ class DriverManagementController extends Controller
 
     public function store(Request $request)
     {
-        if ($request->has('daily_boundary_target')) {
+        // Normalize numeric inputs (avoid '' inserting into DECIMAL columns)
+        // Also normalize request value so nullable|numeric validation behaves as expected.
+        if ($request->filled('daily_boundary_target')) {
             $request->merge([
-                'daily_boundary_target' => str_replace(',', '', $request->daily_boundary_target),
+                'daily_boundary_target' => str_replace(',', '', $request->input('daily_boundary_target')),
             ]);
+        } else {
+            $request->merge(['daily_boundary_target' => null]);
         }
+        $dailyBoundaryTarget = (float) ($request->input('daily_boundary_target') ?? 0);
 
         $request->validate([
             'first_name'            => 'required|string|max:100',
@@ -450,7 +457,7 @@ class DriverManagementController extends Controller
             'emergency_contact'     => $request->emergency_contact,
             'emergency_phone'       => $request->emergency_phone,
             'hire_date'             => $request->hire_date,
-            'daily_boundary_target' => $request->daily_boundary_target ?? 0,
+            'daily_boundary_target' => $dailyBoundaryTarget,
             'driver_type'           => $request->driver_type ?? 'regular',
             'driver_status'         => 'available',
         ]);
@@ -465,11 +472,16 @@ class DriverManagementController extends Controller
     {
         $driver_instance = Driver::findOrFail($id);
 
-        if ($request->has('daily_boundary_target')) {
+        // Normalize numeric inputs (avoid '' inserting into DECIMAL columns)
+        // Also normalize request value so nullable|numeric validation behaves as expected.
+        if ($request->filled('daily_boundary_target')) {
             $request->merge([
-                'daily_boundary_target' => str_replace(',', '', $request->daily_boundary_target),
+                'daily_boundary_target' => str_replace(',', '', $request->input('daily_boundary_target')),
             ]);
+        } else {
+            $request->merge(['daily_boundary_target' => null]);
         }
+        $dailyBoundaryTarget = (float) ($request->input('daily_boundary_target') ?? 0);
 
         $request->validate([
             'first_name'            => 'required|string|max:100',
@@ -497,7 +509,7 @@ class DriverManagementController extends Controller
             'emergency_contact'     => $request->emergency_contact,
             'emergency_phone'       => $request->emergency_phone,
             'hire_date'             => $request->hire_date,
-            'daily_boundary_target' => $request->daily_boundary_target ?? 0,
+            'daily_boundary_target' => $dailyBoundaryTarget,
             'driver_type'           => $request->driver_type ?? 'regular',
             'driver_status'         => $request->driver_status ?? 'available',
         ]);

@@ -986,31 +986,29 @@
 <script>
     let currentViewMode = localStorage.getItem('unitViewMode') || 'table';
     
-    function setViewMode(mode) {
-        currentViewMode = mode;
-        localStorage.setItem('unitViewMode', mode);
+    function applyViewModeUI(mode) {
         document.getElementById('viewModeInput').value = mode;
-        
-        // Update UI — premium pill toggle active states
         const btnTable = document.getElementById('btn-view-table');
         const btnGrid  = document.getElementById('btn-view-grid');
-        
+        if (!btnTable || !btnGrid) return;
+
         if (mode === 'table') {
-            // Table ACTIVE
             btnTable.classList.add('bg-white', 'text-yellow-600', 'shadow-md', 'shadow-yellow-100/80');
             btnTable.classList.remove('text-gray-400');
-            // Grid INACTIVE
             btnGrid.classList.remove('bg-white', 'text-yellow-600', 'shadow-md', 'shadow-yellow-100/80');
             btnGrid.classList.add('text-gray-400');
         } else {
-            // Grid ACTIVE
             btnGrid.classList.add('bg-white', 'text-yellow-600', 'shadow-md', 'shadow-yellow-100/80');
             btnGrid.classList.remove('text-gray-400');
-            // Table INACTIVE
             btnTable.classList.remove('bg-white', 'text-yellow-600', 'shadow-md', 'shadow-yellow-100/80');
             btnTable.classList.add('text-gray-400');
         }
-        
+    }
+
+    function setViewMode(mode) {
+        currentViewMode = mode;
+        localStorage.setItem('unitViewMode', mode);
+        applyViewModeUI(mode);
         performSearch(1); // Re-fetch with new view mode
     }
 
@@ -1074,35 +1072,56 @@
     }
 
     // ── performSearch ───────────────────────────────────────────────
+    let unitsSearchAbort = null;
+    let unitsSearchLoadingTimer = null;
+    let unitsSearchSeq = 0;
+
     function performSearch(page = 1) {
+        unitsSearchSeq += 1;
+        const seq = unitsSearchSeq;
+
         const query = searchInput.value;
         const status = statusFilter.value;
         const sort = sortFilter.value;
 
-        // Visual feedback
-        tableContainer.style.opacity = '0.5';
-        tableContainer.style.pointerEvents = 'none';
+        // Cancel in-flight request to prevent late-response flicker
+        if (unitsSearchAbort) {
+            unitsSearchAbort.abort();
+        }
+        unitsSearchAbort = new AbortController();
+
+        // Show a subtle spinner only if request is slow (prevents “flash” on fast responses)
+        if (unitsSearchLoadingTimer) clearTimeout(unitsSearchLoadingTimer);
+        const qsLoading = document.getElementById('qs-loading');
+        unitsSearchLoadingTimer = setTimeout(() => {
+            qsLoading?.classList.remove('hidden');
+        }, 180);
 
         fetch(`{{ route('units.index') }}?search=${encodeURIComponent(query)}&status=${status}&sort=${sort}&page=${page}&view=${currentViewMode}`, {
             headers: {
                 'X-Requested-With': 'XMLHttpRequest'
-            }
+            },
+            signal: unitsSearchAbort.signal
         })
         .then(response => response.text())
         .then(html => {
+            if (seq !== unitsSearchSeq) return;
+            if (unitsSearchLoadingTimer) clearTimeout(unitsSearchLoadingTimer);
+            qsLoading?.classList.add('hidden');
+
+            // Replace content without dimming (prevents flicker while typing)
             tableContainer.innerHTML = html;
-            tableContainer.style.opacity = '1';
-            tableContainer.style.pointerEvents = 'auto';
             if (typeof lucide !== 'undefined') lucide.createIcons();
         })
         .catch(error => {
+            if (error?.name === 'AbortError') return;
+            if (unitsSearchLoadingTimer) clearTimeout(unitsSearchLoadingTimer);
+            qsLoading?.classList.add('hidden');
             console.error('Search failed:', error);
-            tableContainer.style.opacity = '1';
-            tableContainer.style.pointerEvents = 'auto';
         });
     }
 
-    searchInput.addEventListener('input', () => {
+    if (searchInput) searchInput.addEventListener('input', () => {
         clearTimeout(searchTimer);
         searchTimer = setTimeout(() => {
             performSearch(1);
@@ -1110,19 +1129,24 @@
         }, 300);
     });
 
-    statusFilter.addEventListener('change', () => {
+    if (statusFilter) statusFilter.addEventListener('change', () => {
         performSearch(1);
         refreshQuickStats();
     });
-    sortFilter.addEventListener('change', () => performSearch(1));
+    if (sortFilter) sortFilter.addEventListener('change', () => performSearch(1));
 
     window.changePage = function(page) {
         performSearch(page);
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
-    // Load quick stats on initial page load
+    // Initial UI state (avoid duplicate fetch on load)
+    applyViewModeUI(currentViewMode);
     refreshQuickStats();
+    const initialView = document.getElementById('viewModeInput')?.value || 'table';
+    if (currentViewMode !== initialView) {
+        performSearch(1);
+    }
 
     window.showFlaggedUnitsModal = function() {
         const modal = document.getElementById('flaggedUnitsModal');
@@ -2506,50 +2530,5 @@ function resetAddUnitModal() {
     addUnitRenderGPS(); addUnitRenderDashcam();
 }
 
-// Real-time table filtering
-document.addEventListener('DOMContentLoaded', function() {
-    setViewMode(currentViewMode);
-    const searchInput = document.getElementById('tableSearchInput');
-    const tableBody = document.querySelector('tbody.bg-white.divide-y.divide-gray-200');
-    
-    if (searchInput && tableBody) {
-        searchInput.addEventListener('input', function(e) {
-            const searchTerm = e.target.value.toLowerCase();
-            const rows = tableBody.querySelectorAll('tr.cursor-pointer');
-            let visibleCount = 0;
-
-            rows.forEach(row => {
-                const text = row.innerText.toLowerCase();
-                if (text.includes(searchTerm)) {
-                    row.style.display = '';
-                    visibleCount++;
-                } else {
-                    row.style.display = 'none';
-                }
-            });
-
-            // Handle "No units found" message
-            let emptyMsgRow = document.getElementById('clientEmptySearchRow');
-            if (visibleCount === 0 && rows.length > 0) {
-                if (!emptyMsgRow) {
-                    emptyMsgRow = document.createElement('tr');
-                    emptyMsgRow.id = 'clientEmptySearchRow';
-                    emptyMsgRow.innerHTML = `
-                        <td colspan="6" class="px-6 py-12 text-center text-gray-500">
-                            <i data-lucide="search" class="w-12 h-12 mx-auto mb-4 text-gray-300"></i>
-                            <p>No units match your search.</p>
-                        </td>
-                    `;
-                    tableBody.appendChild(emptyMsgRow);
-                    if (typeof lucide !== 'undefined') lucide.createIcons();
-                } else {
-                    emptyMsgRow.style.display = '';
-                }
-            } else if (emptyMsgRow) {
-                emptyMsgRow.style.display = 'none';
-            }
-        });
-    }
-});
 </script>
 @endpush

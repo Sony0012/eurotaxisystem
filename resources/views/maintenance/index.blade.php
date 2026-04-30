@@ -162,7 +162,7 @@
             </div>
             <div class="min-w-0">
                 <div class="text-xl font-black text-gray-900 tracking-tight truncate tabular-nums">{{ $totals->in_progress_count ?? 0 }}</div>
-                <div class="text-[10px] font-black text-indigo-400 uppercase tracking-widest truncate">Active Work</div>
+                <div class="text-[10px] font-black text-indigo-400 uppercase tracking-widest truncate">Ongoing Work</div>
             </div>
         </div>
         <i data-lucide="wrench" class="absolute -right-3 -bottom-3 w-20 h-20 text-indigo-400 opacity-[0.12] -rotate-12 z-0 pointer-events-none"></i>
@@ -191,9 +191,8 @@
         <select name="status" onchange="this.form.submit()" class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-yellow-500 focus:outline-none">
             <option value="">All Status</option>
             <option value="pending" @selected($status=='pending')>Pending</option>
-            <option value="in_shop" @selected($status=='in_shop' || $status=='in_progress')>In Shop</option>
-            <option value="testing" @selected($status=='testing')>Testing</option>
-            <option value="completed" @selected($status=='completed')>Completed</option>
+            <option value="ongoing" @selected($status=='ongoing')>Ongoing</option>
+            <option value="complete" @selected($status=='complete')>Complete</option>
             <option value="cancelled" @selected($status=='cancelled')>Cancelled</option>
         </select>
         <select name="type" onchange="this.form.submit()" class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-yellow-500 focus:outline-none">
@@ -239,7 +238,7 @@
                     <td class="px-4 py-3">
                         <div class="flex items-center gap-2">
                            <p class="font-bold text-gray-900 group-hover:text-yellow-700 transition-colors">{{ $r->plate_number }}</p>
-                           @if($r->date_started == date('Y-m-d') && $r->status != 'completed')
+                           @if($r->date_started == date('Y-m-d') && $r->status != 'complete')
                                <span class="px-1.5 py-0.5 bg-red-100 text-red-600 text-[9px] font-black uppercase rounded animate-pulse">Today</span>
                            @endif
                            <i data-lucide="external-link" class="w-3 h-3 text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity"></i>
@@ -298,7 +297,7 @@
                     <td class="px-4 py-3 min-w-[240px]">
                         @php
                             $s = $r->status ?? 'pending';
-                            $step = $s === 'cancelled' ? 0 : ($s === 'completed' ? 4 : ($s === 'testing' ? 3 : (in_array($s, ['in_shop', 'in_progress']) ? 2 : 1)));
+                            $step = $s === 'cancelled' ? 0 : ($s === 'complete' ? 3 : ($s === 'ongoing' ? 2 : 1));
                         @endphp
                         @if($step === 0)
                             <span class="px-2 py-1 text-xs rounded-full bg-red-100 text-red-800 font-black uppercase tracking-widest">Cancelled</span>
@@ -313,33 +312,23 @@
                                     <span class="text-[9px] font-black mt-1.5 {{ $step >= 1 ? 'text-yellow-600' : 'text-gray-400' }} uppercase tracking-wider">Pending</span>
                                 </div>
                                 
-                                <!-- In Shop -->
-                                <div class="flex flex-col items-center relative flex-1 group cursor-help" title="In Shop">
+                                <!-- Ongoing -->
+                                <div class="flex flex-col items-center relative flex-1 group cursor-help" title="Ongoing">
                                     <div class="absolute top-2.5 right-1/2 w-full h-0.5 {{ $step >= 2 ? 'bg-blue-500' : 'bg-gray-200' }} -z-0"></div>
                                     <div class="w-5 h-5 rounded-full {{ $step >= 2 ? 'bg-blue-500' : 'bg-gray-200' }} z-10 flex items-center justify-center shadow-sm">
                                          @if($step > 2) <i data-lucide="check" class="w-3 h-3 text-white"></i> @endif
                                     </div>
-                                    <div class="absolute top-2.5 left-1/2 w-full h-0.5 {{ $step >= 3 ? 'bg-purple-500' : 'bg-gray-200' }} -z-0"></div>
-                                    <span class="text-[9px] font-black mt-1.5 {{ $step >= 2 ? 'text-blue-600' : 'text-gray-400' }} uppercase tracking-wider text-center leading-none">In Shop</span>
+                                    <div class="absolute top-2.5 left-1/2 w-full h-0.5 {{ $step >= 3 ? 'bg-green-500' : 'bg-gray-200' }} -z-0"></div>
+                                    <span class="text-[9px] font-black mt-1.5 {{ $step >= 2 ? 'text-blue-600' : 'text-gray-400' }} uppercase tracking-wider text-center leading-none">Ongoing</span>
                                 </div>
                                 
-                                <!-- Testing -->
-                                <div class="flex flex-col items-center relative flex-1 group cursor-help" title="Testing">
-                                    <div class="absolute top-2.5 right-1/2 w-full h-0.5 {{ $step >= 3 ? 'bg-purple-500' : 'bg-gray-200' }} -z-0"></div>
-                                    <div class="w-5 h-5 rounded-full {{ $step >= 3 ? 'bg-purple-500' : 'bg-gray-200' }} z-10 flex items-center justify-center shadow-sm">
-                                         @if($step > 3) <i data-lucide="check" class="w-3 h-3 text-white"></i> @endif
+                                <!-- Complete -->
+                                <div class="flex flex-col items-center relative flex-1 group cursor-help" title="Complete">
+                                    <div class="absolute top-2.5 right-1/2 w-full h-0.5 {{ $step >= 3 ? 'bg-green-500' : 'bg-gray-200' }} -z-0"></div>
+                                    <div class="w-5 h-5 rounded-full {{ $step >= 3 ? 'bg-green-500' : 'bg-gray-200' }} z-10 flex items-center justify-center shadow-sm">
+                                         @if($step == 3) <i data-lucide="check" class="w-3 h-3 text-white"></i> @endif
                                     </div>
-                                    <div class="absolute top-2.5 left-1/2 w-full h-0.5 {{ $step >= 4 ? 'bg-green-500' : 'bg-gray-200' }} -z-0"></div>
-                                    <span class="text-[9px] font-black mt-1.5 {{ $step >= 3 ? 'text-purple-600' : 'text-gray-400' }} uppercase tracking-wider">Testing</span>
-                                </div>
-
-                                <!-- Completed -->
-                                <div class="flex flex-col items-center relative flex-1 group cursor-help" title="Completed">
-                                    <div class="absolute top-2.5 right-1/2 w-full h-0.5 {{ $step >= 4 ? 'bg-green-500' : 'bg-gray-200' }} -z-0"></div>
-                                    <div class="w-5 h-5 rounded-full {{ $step >= 4 ? 'bg-green-500' : 'bg-gray-200' }} z-10 flex items-center justify-center shadow-sm">
-                                         @if($step == 4) <i data-lucide="check" class="w-3 h-3 text-white"></i> @endif
-                                    </div>
-                                    <span class="text-[9px] font-black mt-1.5 {{ $step >= 4 ? 'text-green-600' : 'text-gray-400' }} uppercase tracking-wider text-center leading-none">Done</span>
+                                    <span class="text-[9px] font-black mt-1.5 {{ $step >= 3 ? 'text-green-600' : 'text-gray-400' }} uppercase tracking-wider text-center leading-none">Complete</span>
                                 </div>
                             </div>
                         @endif
@@ -360,7 +349,7 @@
                             <form method="POST" action="{{ route('maintenance.toggle-in-progress', $r->id) }}">
                                 @csrf
                                 <button type="submit"
-                                    title="Advance Stage (Pending -> In Shop -> Testing)"
+                                    title="Advance Stage (Pending -> Ongoing -> Complete)"
                                     class="text-blue-500 hover:text-blue-800 hover:bg-blue-50 p-1 rounded transition">
                                     <i data-lucide="fast-forward" class="w-4 h-4"></i>
                                 </button>
@@ -506,9 +495,8 @@
                         <label class="block text-xs font-medium text-gray-700 mb-1">Status *</label>
                         <select name="status" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-yellow-500 focus:outline-none" required>
                             <option value="pending">Pending</option>
-                            <option value="in_shop">In Shop</option>
-                            <option value="testing">Testing</option>
-                            <option value="completed">Completed</option>
+                            <option value="ongoing">Ongoing</option>
+                            <option value="complete">Complete</option>
                             <option value="cancelled">Cancelled</option>
                         </select>
                     </div>
@@ -722,10 +710,8 @@
                         <label class="block text-xs font-medium text-gray-700 mb-1">Status *</label>
                         <select name="status" id="em_status" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
                             <option value="pending">Pending</option>
-                            <option value="in_shop">In Shop</option>
-                            <option value="in_progress" class="hidden">In Progress (Legacy)</option>
-                            <option value="testing">Testing</option>
-                            <option value="completed">Completed</option>
+                            <option value="ongoing">Ongoing</option>
+                            <option value="complete">Complete</option>
                             <option value="cancelled">Cancelled</option>
                         </select>
                     </div>
@@ -1680,14 +1666,25 @@ async function restorePart(id) {
 async function forceDeletePart(id) {
     if (!confirm('🛑 WARNING: This will permanently delete the part record. This action cannot be undone. Proceed?')) return;
     try {
+        const pwd = window.promptArchiveDeletionPassword ? await window.promptArchiveDeletionPassword() : null;
+        if (!pwd) return;
+
         const res = await fetch(`{{ url('spare-parts/permanent') }}/${id}`, {
             method: 'DELETE',
-            headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
+            headers: { 
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+            body: JSON.stringify({ archive_password: pwd }),
         });
         const result = await res.json();
         if (result.success) {
             showModalToast(result.message, 'success');
             refreshArchivedParts();
+        } else {
+            showModalToast(result.message || 'Permanent delete failed.', 'error');
         }
     } catch(e) { console.error(e); }
 }

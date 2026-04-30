@@ -63,8 +63,16 @@ class ArchiveController extends Controller
         return back()->with('success', ucfirst($type) . ' restored successfully.');
     }
 
-    public function forceDelete($type, $id)
+    public function forceDelete($type, $id, Request $request)
     {
+        $password = $request->input('archive_password');
+        if (!\App\Models\SystemSetting::verifyPassword($password)) {
+            $msg = !\App\Models\SystemSetting::get('archive_deletion_password') 
+                ? 'Archive deletion password is not set. Please set it in the System Security tab.' 
+                : 'Invalid archive deletion password.';
+            return back()->with('error', $msg);
+        }
+
         $model = $this->getModelByType($type);
         if (!$model) {
             return back()->with('error', 'Invalid model type.');
