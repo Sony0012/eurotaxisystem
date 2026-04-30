@@ -119,7 +119,7 @@
                     <div class="input-wrapper">
                         <i class="fas fa-key icon"></i>
                         <input type="password" name="current_password" id="currentPw" placeholder="Enter your temporary password" required>
-                        <button type="button" class="toggle" onclick="togglePw('currentPw', this)"><i class="fas fa-eye"></i></button>
+                        <button type="button" class="toggle" onclick="togglePw('currentPw', this)"><i class="fas fa-eye-slash"></i></button>
                     </div>
                 </div>
 
@@ -138,7 +138,7 @@
                     <div class="input-wrapper">
                         <i class="fas fa-lock icon"></i>
                         <input type="password" name="new_password" id="newPw" placeholder="Create a strong password" required minlength="8" oninput="checkStrength(this.value)">
-                        <button type="button" class="toggle" onclick="togglePw('newPw', this)"><i class="fas fa-eye"></i></button>
+                        <button type="button" class="toggle" onclick="togglePw('newPw', this)"><i class="fas fa-eye-slash"></i></button>
                     </div>
                     <div class="strength-bar"><div class="strength-fill" id="strengthFill"></div></div>
                     <div class="strength-text" id="strengthText"></div>
@@ -149,7 +149,7 @@
                     <div class="input-wrapper">
                         <i class="fas fa-lock icon"></i>
                         <input type="password" name="new_password_confirmation" id="confirmPw" placeholder="Re-enter your new password" required oninput="checkMatch()">
-                        <button type="button" class="toggle" onclick="togglePw('confirmPw', this)"><i class="fas fa-eye"></i></button>
+                        <button type="button" class="toggle" onclick="togglePw('confirmPw', this)"><i class="fas fa-eye-slash"></i></button>
                     </div>
                     <div class="error-msg" id="matchError">Passwords do not match.</div>
                 </div>
@@ -166,7 +166,7 @@
             const input = document.getElementById(id);
             const isHidden = input.type === 'password';
             input.type = isHidden ? 'text' : 'password';
-            btn.querySelector('i').className = isHidden ? 'fas fa-eye-slash' : 'fas fa-eye';
+            btn.querySelector('i').className = isHidden ? 'fas fa-eye' : 'fas fa-eye-slash';
         }
 
         function checkRule(id, pass) {

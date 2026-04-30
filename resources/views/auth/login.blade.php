@@ -786,7 +786,7 @@
                                         <i class="fas fa-lock pw-icon"></i>
                                         <input type="password" name="password" id="loginPassword" placeholder="Password" required>
                                         <button type="button" class="toggle-password" onclick="togglePassword('loginPassword', this)" tabindex="-1">
-                                            <i class="fas fa-eye"></i>
+                                            <i class="fas fa-eye-slash"></i>
                                         </button>
                                     </div>
 
@@ -889,7 +889,7 @@
                                             <i class="fas fa-lock pw-icon"></i>
                                             <input type="password" id="newPassword" placeholder="New password" required minlength="6">
                                             <button type="button" class="toggle-password" onclick="togglePassword('newPassword', this)" tabindex="-1">
-                                                <i class="fas fa-eye"></i>
+                                                <i class="fas fa-eye-slash"></i>
                                             </button>
                                         </div>
                                         <div class="password-strength-container hidden" id="resetPwStrengthContainer">
@@ -908,7 +908,7 @@
                                             <i class="fas fa-lock pw-icon"></i>
                                             <input type="password" id="confirmNewPassword" placeholder="Confirm password" required>
                                             <button type="button" class="toggle-password" onclick="togglePassword('confirmNewPassword', this)" tabindex="-1">
-                                                <i class="fas fa-eye"></i>
+                                                <i class="fas fa-eye-slash"></i>
                                             </button>
                                         </div>
                                         <div id="resetConfirmError" class="text-red-600 text-[10px] leading-tight font-medium hidden mt-0.5"></div>
@@ -1031,7 +1031,7 @@
                                             <i class="fas fa-lock pw-icon"></i>
                                             <input type="password" name="password" id="regPassword" placeholder="Password" required minlength="6">
                                             <button type="button" class="toggle-password" onclick="togglePassword('regPassword', this)" tabindex="-1">
-                                                <i class="fas fa-eye"></i>
+                                                <i class="fas fa-eye-slash"></i>
                                             </button>
                                         </div>
                                         <div class="password-strength-container hidden" id="pwStrengthContainer">
@@ -1050,7 +1050,7 @@
                                             <i class="fas fa-lock pw-icon"></i>
                                             <input type="password" name="password_confirmation" id="regPasswordConfirm" placeholder="Confirm password" required>
                                             <button type="button" class="toggle-password" onclick="togglePassword('regPasswordConfirm', this)" tabindex="-1">
-                                                <i class="fas fa-eye"></i>
+                                                <i class="fas fa-eye-slash"></i>
                                             </button>
                                         </div>
                                         <div id="regPasswordConfirmError" class="text-red-600 text-[10px] leading-tight font-medium hidden mt-0.5"></div>
@@ -1209,7 +1209,7 @@
                                     <i class="fas fa-key pw-icon"></i>
                                     <input type="password" id="force-current-pwd" required placeholder="Enter current password">
                                     <button type="button" class="toggle-password" onclick="togglePassword('force-current-pwd', this)" tabindex="-1">
-                                        <i class="fas fa-eye"></i>
+                                        <i class="fas fa-eye-slash"></i>
                                     </button>
                                 </div>
                             </div>
@@ -1222,7 +1222,7 @@
                                     <i class="fas fa-lock pw-icon"></i>
                                     <input type="password" id="force-new-pwd" required minlength="8" placeholder="Enter new password">
                                     <button type="button" class="toggle-password" onclick="togglePassword('force-new-pwd', this)" tabindex="-1">
-                                        <i class="fas fa-eye"></i>
+                                        <i class="fas fa-eye-slash"></i>
                                     </button>
                                 </div>
                             </div>
@@ -1249,7 +1249,7 @@
                                     <i class="fas fa-lock pw-icon"></i>
                                     <input type="password" id="force-confirm-pwd" required minlength="8" placeholder="Confirm new password">
                                     <button type="button" class="toggle-password" onclick="togglePassword('force-confirm-pwd', this)" tabindex="-1">
-                                        <i class="fas fa-eye"></i>
+                                        <i class="fas fa-eye-slash"></i>
                                     </button>
                                 </div>
                             </div>
@@ -1629,12 +1629,12 @@
             const icon = btn.querySelector('i');
             if (input.type === 'password') {
                 input.type = 'text';
-                icon.classList.remove('fa-eye');
-                icon.classList.add('fa-eye-slash');
-            } else {
-                input.type = 'password';
                 icon.classList.remove('fa-eye-slash');
                 icon.classList.add('fa-eye');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
             }
         }
 
