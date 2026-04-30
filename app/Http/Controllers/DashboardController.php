@@ -508,8 +508,8 @@ class DashboardController extends Controller
             ->map(function($alert) {
                 return [
                     'message' => $alert->message,
-                    'severity' => $alert->severity,
-                    'alert_type' => $alert->alert_type
+                    'severity' => 'medium', // Fallback as column doesn't exist
+                    'alert_type' => $alert->type ?? 'notice'
                 ];
             });
 
