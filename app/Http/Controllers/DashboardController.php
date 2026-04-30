@@ -26,6 +26,9 @@ class DashboardController extends Controller
         // Total units (matches Unit Management default list)
         $stats['active_units'] = Unit::count();
 
+        // Philippine time for all today-based queries
+        $today = now()->timezone('Asia/Manila')->toDateString();
+
         // Units with ROI achieved (calculated from real boundary data)
         $stats['roi_units'] = DB::table('units as u')
             ->whereNull('u.deleted_at')
@@ -172,23 +175,26 @@ class DashboardController extends Controller
             }
         }
 
-        // Units under maintenance
-        $stats['maintenance_units'] = DB::table('units')->whereNull('deleted_at')->whereRaw('LOWER(status) = ?', ['maintenance'])->count();
+        // Units under maintenance (active maintenance records only - excludes complete/cancelled)
+        $stats['maintenance_units'] = DB::table('maintenance')
+            ->whereNull('deleted_at')
+            ->whereNotIn(DB::raw('LOWER(status)'), ['complete', 'completed', 'cancelled'])
+            ->count();
 
-        // Today's boundary collected
+        // Today's boundary collected (Philippine timezone)
         $stats['today_boundary'] = DB::table('boundaries')
             ->whereNull('deleted_at')
-            ->whereDate('date', now()->toDateString())
+            ->whereDate('date', $today)
             ->sum('actual_boundary') ?? 0;
 
-        // Today's expenses (General + Salaries)
+        // Today's expenses (General + Salaries) - Philippine timezone
         $generalExpensesToday = DB::table('expenses')
             ->whereNull('deleted_at')
-            ->whereDate('date', now()->toDateString())
+            ->whereDate('date', $today)
             ->sum('amount') ?? 0;
 
         $salariesToday = DB::table('salaries')
-            ->whereDate('pay_date', now()->toDateString())
+            ->whereDate('pay_date', $today)
             ->sum('total_salary') ?? 0;
 
         $stats['today_expenses'] = $generalExpensesToday + $salariesToday;
@@ -220,10 +226,10 @@ class DashboardController extends Controller
             ->where('status', 'completed')
             ->sum('cost') ?? 0;
 
-        // Net income today (Calculation ignores coding fees as per user request)
+        // Net income today (Philippine timezone)
         $todayMaintenance = DB::table('maintenance')
             ->whereNull('deleted_at')
-            ->whereDate('date_started', now()->toDateString())
+            ->whereDate('date_started', $today)
             ->where('status', '!=', 'cancelled')
             ->sum('cost') ?? 0;
             
@@ -233,15 +239,9 @@ class DashboardController extends Controller
         $stats['total_expenses_today'] = $stats['today_expenses'] + $todayMaintenance;
         $stats['net_income'] = $stats['today_boundary'] - $stats['total_expenses_today'];
 
-        // Active drivers — counts drivers who are currently assigned to a unit
-        $stats['active_drivers'] = DB::table('drivers as d')
-            ->whereNull('d.deleted_at')
-            ->whereExists(function($query) {
-                $query->select(DB::raw(1))
-                    ->from('units')
-                    ->whereRaw('units.driver_id = d.id')
-                    ->orWhereRaw('units.secondary_driver_id = d.id');
-            })
+        // Active drivers — counts ALL non-deleted drivers in the system
+        $stats['active_drivers'] = DB::table('drivers')
+            ->whereNull('deleted_at')
             ->count();
 
         // Average boundary rate for active units
@@ -397,6 +397,9 @@ class DashboardController extends Controller
         $stats = [];
         $alerts = [];
 
+        // Philippine time for all today-based queries
+        $today = now()->timezone('Asia/Manila')->toDateString();
+
         // Total units (all non-deleted units)
         $stats['active_units'] = DB::table('units')->whereNull('deleted_at')->count();
 
@@ -423,8 +426,11 @@ class DashboardController extends Controller
             return $codingDay === $todayDay;
         })->count();
 
-        // Units under maintenance
-        $stats['maintenance_units'] = DB::table('units')->whereNull('deleted_at')->whereRaw('LOWER(status) = ?', ['maintenance'])->count();
+        // Units under maintenance (active records only - excludes complete/cancelled)
+        $stats['maintenance_units'] = DB::table('maintenance')
+            ->whereNull('deleted_at')
+            ->whereNotIn(DB::raw('LOWER(status)'), ['complete', 'completed', 'cancelled'])
+            ->count();
 
         // Enhanced Net Income with filtering support
         $filter = request('net_income_filter', 'today');
@@ -444,21 +450,21 @@ class DashboardController extends Controller
             $salEx = DB::table('salaries')->whereYear('pay_date', now()->year)->sum('total_salary') ?? 0;
             $expense = $genEx + $mntEx + $salEx;
         } else {
-            // Default Today
+            // Default Today - Philippine timezone
             $stats['today_boundary'] = DB::table('boundaries')
                 ->whereNull('deleted_at')
-                ->whereDate('date', now()->toDateString())
+                ->whereDate('date', $today)
                 ->sum('actual_boundary') ?? 0;
 
             $stats['today_expenses'] = DB::table('expenses')
                 ->whereNull('deleted_at')
-                ->whereDate('date', now()->toDateString())
+                ->whereDate('date', $today)
                 ->sum('amount') ?? 0;
 
             $income = $stats['today_boundary'];
             $genEx = $stats['today_expenses'];
-            $mntEx = DB::table('maintenance')->whereNull('deleted_at')->whereDate('date_started', now()->toDateString())->where('status', '!=', 'cancelled')->sum('cost') ?? 0;
-            $salEx = DB::table('salaries')->whereDate('pay_date', now()->toDateString())->sum('total_salary') ?? 0;
+            $mntEx = DB::table('maintenance')->whereNull('deleted_at')->whereDate('date_started', $today)->where('status', '!=', 'cancelled')->sum('cost') ?? 0;
+            $salEx = DB::table('salaries')->whereDate('pay_date', $today)->sum('total_salary') ?? 0;
             $expense = $genEx + $mntEx + $salEx;
         }
 
@@ -474,15 +480,9 @@ class DashboardController extends Controller
             $stats['daily_target'] = 2500;
         }
 
-        // Active drivers — counts drivers who are currently assigned to a unit
-        $stats['active_drivers'] = DB::table('drivers as d')
-            ->whereNull('d.deleted_at')
-            ->whereExists(function($query) {
-                $query->select(DB::raw(1))
-                    ->from('units')
-                    ->whereRaw('units.driver_id = d.id')
-                    ->orWhereRaw('units.secondary_driver_id = d.id');
-            })
+        // Active drivers — counts ALL non-deleted drivers in the system
+        $stats['active_drivers'] = DB::table('drivers')
+            ->whereNull('deleted_at')
             ->count();
 
         // Average boundary rate for active units
