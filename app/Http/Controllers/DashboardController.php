@@ -1244,39 +1244,29 @@ class DashboardController extends Controller
             $hasMaintenances = Schema::hasTable('maintenance');
             $hasDrivers = Schema::hasTable('drivers');
 
-            if ($filter === 'complete') {
+            if ($filter === 'complete' || $filter === 'completed') {
                 // Query historical completed maintenance records
                 $unitsQuery = DB::table('maintenance as m')
                     ->join('units as u', 'm.unit_id', '=', 'u.id')
-                    ->where('m.status', '=', 'completed')
+                    ->whereIn('m.status', ['completed', 'complete'])
                     ->whereNull('m.deleted_at')
                     ->whereNull('u.deleted_at');
             } else {
-                // Default logic for active maintenance units (Corrective, Preventive, Emergency)
-                $unitsQuery = DB::table('units as u')
-                    ->where('u.status', '=', 'maintenance')
+                // Base logic: All active maintenance records (Not completed/cancelled)
+                $unitsQuery = DB::table('maintenance as m')
+                    ->join('units as u', 'm.unit_id', '=', 'u.id')
+                    ->whereNotIn('m.status', ['completed', 'complete', 'cancelled'])
+                    ->whereNull('m.deleted_at')
                     ->whereNull('u.deleted_at');
 
-                if ($hasMaintenances) {
-                    // Use a LEFT JOIN instead of an INNER/WHERE-based join for strict filtering in "all" view
-                    $latestM = DB::table('maintenance')
-                        ->select('unit_id', DB::raw('MAX(id) as latest_id'))
-                        ->whereNull('deleted_at')
-                        ->groupBy('unit_id');
-
-                    $unitsQuery->leftJoinSub($latestM, 'latest_m', function($join) {
-                        $join->on('u.id', '=', 'latest_m.unit_id');
-                    })->leftJoin('maintenance as m', 'latest_m.latest_id', '=', 'm.id');
-
-                    // If NO filter is applied (all), we show ALL maintenance units
-                    if ($filter !== 'all') {
-                        if ($filter === 'preventive') {
-                            $unitsQuery->where('m.maintenance_type', 'LIKE', '%preventive%');
-                        } elseif ($filter === 'corrective') {
-                            $unitsQuery->where('m.maintenance_type', 'LIKE', '%corrective%');
-                        } elseif ($filter === 'emergency') {
-                            $unitsQuery->where('m.maintenance_type', 'LIKE', '%emergency%');
-                        }
+                // Filter by type if specified
+                if ($filter !== 'all') {
+                    if ($filter === 'preventive') {
+                        $unitsQuery->where('m.maintenance_type', 'LIKE', '%preventive%');
+                    } elseif ($filter === 'corrective') {
+                        $unitsQuery->where('m.maintenance_type', 'LIKE', '%corrective%');
+                    } elseif ($filter === 'emergency') {
+                        $unitsQuery->where('m.maintenance_type', 'LIKE', '%emergency%');
                     }
                 }
             }
@@ -1335,27 +1325,20 @@ class DashboardController extends Controller
                     ];
                 });
 
-            // Calculate Global Overview Stats for the modal
-            $latestMSub = DB::table('maintenance')
-                ->select('unit_id', DB::raw('MAX(id) as latest_id'))
+            // Calculate Global Overview Stats based on MAINTENANCE records, not unit status
+            $mStats = DB::table('maintenance')
+                ->whereNotIn('status', ['completed', 'complete', 'cancelled'])
                 ->whereNull('deleted_at')
-                ->groupBy('unit_id');
-
-            $mStats = DB::table('units as u')
-                ->where('u.status', 'maintenance')
-                ->whereNull('u.deleted_at')
-                ->leftJoinSub($latestMSub, 'lm', 'u.id', '=', 'lm.unit_id')
-                ->leftJoin('maintenance as m', 'lm.latest_id', '=', 'm.id')
                 ->select([
                     DB::raw('COUNT(*) as total'),
-                    DB::raw('SUM(CASE WHEN m.maintenance_type LIKE "%preventive%" THEN 1 ELSE 0 END) as preventive'),
-                    DB::raw('SUM(CASE WHEN m.maintenance_type LIKE "%corrective%" THEN 1 ELSE 0 END) as corrective'),
-                    DB::raw('SUM(CASE WHEN m.maintenance_type LIKE "%emergency%" THEN 1 ELSE 0 END) as emergency'),
+                    DB::raw('SUM(CASE WHEN maintenance_type LIKE "%preventive%" THEN 1 ELSE 0 END) as preventive'),
+                    DB::raw('SUM(CASE WHEN maintenance_type LIKE "%corrective%" THEN 1 ELSE 0 END) as corrective'),
+                    DB::raw('SUM(CASE WHEN maintenance_type LIKE "%emergency%" THEN 1 ELSE 0 END) as emergency'),
                 ])
                 ->first();
 
             $completedCount = DB::table('maintenance')
-                ->where('status', 'completed')
+                ->whereIn('status', ['completed', 'complete'])
                 ->whereNull('deleted_at')
                 ->count();
 
