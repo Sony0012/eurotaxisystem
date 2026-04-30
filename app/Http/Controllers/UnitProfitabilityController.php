@@ -152,4 +152,69 @@ class UnitProfitabilityController extends Controller
             'expenses' => $expenses,
         ]);
     }
+
+    public function generateAiDss(Request $request)
+    {
+        $date_from = $request->input('date_from', date('Y-m-01'));
+        $date_to = $request->input('date_to', date('Y-m-t'));
+
+        // Gather critical data for AI
+        $stats = DB::table('units as u')
+            ->leftJoin('boundaries as b', function($join) use ($date_from, $date_to) {
+                $join->on('u.id', '=', 'b.unit_id')->whereBetween('b.date', [$date_from, $date_to])->whereNull('b.deleted_at');
+            })
+            ->leftJoin('maintenance as m', function($join) use ($date_from, $date_to) {
+                $join->on('u.id', '=', 'm.unit_id')->whereBetween('m.date_started', [$date_from, $date_to])->whereNull('m.deleted_at');
+            })
+            ->select(
+                'u.plate_number',
+                'u.make',
+                'u.model',
+                'u.purchase_cost',
+                DB::raw('COALESCE(SUM(b.actual_boundary), 0) as total_revenue'),
+                DB::raw('COALESCE(SUM(m.cost), 0) as total_maintenance'),
+                DB::raw('COUNT(DISTINCT b.id) as active_days')
+            )
+            ->whereNull('u.deleted_at')
+            ->groupBy('u.id', 'u.plate_number', 'u.make', 'u.model', 'u.purchase_cost')
+            ->get();
+
+        $totalUnits = $stats->count();
+        $totalRevenue = $stats->sum('total_revenue');
+        $totalMaint = $stats->sum('total_maintenance');
+        
+        if ($totalUnits === 0) {
+            return response()->json(['success' => false, 'message' => 'No unit data available for the selected period.']);
+        }
+
+        $topPerformer = $stats->sortByDesc('total_revenue')->first();
+        $worstPerformer = $stats->sortBy('total_revenue')->first();
+
+        $topPlate = $topPerformer->plate_number ?? 'N/A';
+        $topRev = $topPerformer->total_revenue ?? 0;
+        $worstPlate = $worstPerformer->plate_number ?? 'N/A';
+        $worstRev = $worstPerformer->total_revenue ?? 0;
+
+        $prompt = "As a Taxi Fleet Financial Analyst AI, analyze this profitability data for $totalUnits units from $date_from to $date_to:
+        - Total Revenue: ₱" . number_format($totalRevenue, 2) . "
+        - Total Maintenance Cost: ₱" . number_format($totalMaint, 2) . "
+        - Top Performer: $topPlate (₱" . number_format($topRev, 2) . ")
+        - Lowest Revenue: $worstPlate (₱" . number_format($worstRev, 2) . ")
+        
+        Provide a strategic Decision Support (DSS) report including:
+        1. Financial Health Score (1-100).
+        2. Top 3 Revenue Leakage risks identified.
+        3. Strategic recommendations for fleet maintenance vs replacement.
+        4. ROI projection based on current performance.
+        
+        Keep it professional, data-driven, and highly actionable. Format in HTML-ready markdown.";
+
+        try {
+            $aiResponse = \App\Services\GeminiService::generate($prompt);
+            return response()->json(['success' => true, 'analysis' => $aiResponse]);
+        } catch (\Exception $e) {
+            \Log::error('AI Analysis Error: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'AI Service currently unavailable.'], 500);
+        }
+    }
 }

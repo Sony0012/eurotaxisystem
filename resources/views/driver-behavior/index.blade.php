@@ -59,66 +59,67 @@
     .search-dropdown:not(.hidden) { display: flex; }
     .search-option { padding: 0.5rem 0.75rem; cursor: pointer; border-bottom: 1px solid #f3f4f6; }
     .search-option:last-child { border-bottom: none; }
-    .search-option:hover { background-color: #fefce8; }
+    .cls-tab-btn.active {
+        color: #111827;
+        position: relative;
+    }
+    .cls-tab-btn.active::after {
+        content: '';
+        position: absolute;
+        bottom: -17px;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: #eab308;
+        border-radius: 99px;
+    }
 </style>
 
 {{-- ════════ HEADER STATS (COMPACT) ════════ --}}
 <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
 
     {{-- 1. VIOLATIONS TODAY --}}
-    <div class="bg-gradient-to-br from-red-50 to-rose-50/70 p-4 rounded-xl shadow-sm border-l-4 border-red-500 relative overflow-hidden flex items-center justify-between">
-        <div class="flex items-center gap-4 relative z-10">
-            <div class="p-3 bg-red-100 rounded-lg shadow-sm">
-                <i data-lucide="alert-circle" class="w-6 h-6 text-red-600"></i>
-            </div>
-            <div class="min-w-0">
-                <div class="text-xl font-black text-gray-900 tracking-tight truncate tabular-nums">{{ $stats['violations_today'] ?? 0 }}</div>
-                <div class="text-[10px] font-black text-red-400 uppercase tracking-widest truncate">Violations Today</div>
-            </div>
+    <div class="stat-card-premium relative overflow-hidden bg-gradient-to-br from-red-600 to-rose-700 rounded-2xl p-4 text-white shadow-lg shadow-red-100 group">
+        <div class="absolute right-[-5px] top-[-5px] opacity-10 transition-transform group-hover:scale-110 duration-500">
+            <i data-lucide="alert-circle" class="w-16 h-16"></i>
         </div>
-        <i data-lucide="alert-circle" class="absolute -right-3 -bottom-3 w-20 h-20 text-red-400 opacity-[0.12] -rotate-12 z-0 pointer-events-none"></i>
+        <div class="relative z-10 flex flex-col items-center text-center">
+            <p class="text-3xl font-black tracking-tighter leading-none">{{ $stats['violations_today'] ?? 0 }}</p>
+            <p class="text-[9px] font-black uppercase tracking-[0.1em] opacity-80 mt-1">Violations Today</p>
+        </div>
     </div>
 
     {{-- 2. TOTAL VIOLATORS --}}
-    <div class="bg-gradient-to-br from-teal-50 to-cyan-50/70 p-4 rounded-xl shadow-sm border-l-4 border-teal-500 relative overflow-hidden flex items-center justify-between">
-        <div class="flex items-center gap-4 relative z-10">
-            <div class="p-3 bg-teal-100 rounded-lg shadow-sm">
-                <i data-lucide="users" class="w-6 h-6 text-teal-600"></i>
-            </div>
-            <div class="min-w-0">
-                <div class="text-xl font-black text-gray-900 tracking-tight truncate tabular-nums">{{ $stats['total_violators'] ?? 0 }}</div>
-                <div class="text-[10px] font-black text-teal-400 uppercase tracking-widest truncate">Total Violators</div>
-            </div>
+    <div class="stat-card-premium relative overflow-hidden bg-gradient-to-br from-teal-500 to-emerald-600 rounded-2xl p-4 text-white shadow-lg shadow-teal-100 group">
+        <div class="absolute right-[-5px] top-[-5px] opacity-10 transition-transform group-hover:scale-110 duration-500">
+            <i data-lucide="users" class="w-16 h-16"></i>
         </div>
-        <i data-lucide="users" class="absolute -right-3 -bottom-3 w-20 h-20 text-teal-400 opacity-[0.12] -rotate-12 z-0 pointer-events-none"></i>
+        <div class="relative z-10 flex flex-col items-center text-center">
+            <p class="text-3xl font-black tracking-tighter leading-none">{{ $stats['total_violators'] ?? 0 }}</p>
+             <p class="text-[9px] font-black uppercase tracking-[0.1em] opacity-80 mt-1">Total Violators</p>
+        </div>
     </div>
 
     {{-- 3. TOTAL CHARGES --}}
-    <div class="bg-gradient-to-br from-purple-50 to-violet-50/70 p-4 rounded-xl shadow-sm border-l-4 border-purple-500 relative overflow-hidden flex items-center justify-between">
-        <div class="flex items-center gap-4 relative z-10">
-            <div class="p-3 bg-purple-100 rounded-lg shadow-sm">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 text-purple-600"><path d="M7 12h5a3 3 0 0 0 0-6H7v12"/><path d="M5 9h11"/><path d="M5 11h11"/></svg>
-            </div>
-            <div class="min-w-0">
-                <div class="text-xl font-black text-gray-900 tracking-tight truncate tabular-nums">₱{{ number_format($stats['total_charges'] ?? 0, 0) }}</div>
-                <div class="text-[10px] font-black text-purple-400 uppercase tracking-widest truncate">Total Charges</div>
-            </div>
+    <div class="stat-card-premium relative overflow-hidden bg-gradient-to-br from-purple-600 to-indigo-700 rounded-2xl p-4 text-white shadow-lg shadow-purple-100 group">
+        <div class="absolute right-[-5px] top-[-5px] opacity-10 transition-transform group-hover:scale-110 duration-500">
+            <i data-lucide="banknote" class="w-16 h-16"></i>
         </div>
-        <i data-lucide="banknote" class="absolute -right-3 -bottom-3 w-20 h-20 text-purple-400 opacity-[0.12] -rotate-12 z-0 pointer-events-none"></i>
+        <div class="relative z-10 flex flex-col items-center text-center">
+            <p class="text-xl font-black tracking-tighter leading-none">₱{{ number_format($stats['total_charges'] ?? 0, 0) }}</p>
+            <p class="text-[9px] font-black uppercase tracking-[0.1em] opacity-80 mt-1">Total Charges</p>
+        </div>
     </div>
 
     {{-- 4. ELIGIBLE INCENTIVE --}}
-    <div class="bg-gradient-to-br from-orange-50 to-amber-50/70 p-4 rounded-xl shadow-sm border-l-4 border-orange-500 relative overflow-hidden flex items-center justify-between">
-        <div class="flex items-center gap-4 relative z-10">
-            <div class="p-3 bg-orange-100 rounded-lg shadow-sm">
-                <i data-lucide="trophy" class="w-6 h-6 text-orange-600"></i>
-            </div>
-            <div class="min-w-0">
-                <div class="text-xl font-black text-gray-900 tracking-tight truncate tabular-nums">{{ count($incentive_summary['eligible'] ?? []) }}</div>
-                <div class="text-[10px] font-black text-orange-400 uppercase tracking-widest truncate">Eligible Incentive</div>
-            </div>
+    <div class="stat-card-premium relative overflow-hidden bg-gradient-to-br from-yellow-500 to-orange-500 rounded-2xl p-4 text-white shadow-lg shadow-yellow-100 group">
+        <div class="absolute right-[-5px] top-[-5px] opacity-10 transition-transform group-hover:scale-110 duration-500">
+            <i data-lucide="trophy" class="w-16 h-16"></i>
         </div>
-        <i data-lucide="trophy" class="absolute -right-3 -bottom-3 w-20 h-20 text-orange-400 opacity-[0.12] -rotate-12 z-0 pointer-events-none"></i>
+        <div class="relative z-10 flex flex-col items-center text-center">
+            <p class="text-3xl font-black tracking-tighter leading-none">{{ count($incentive_summary['eligible'] ?? []) }}</p>
+            <p class="text-[9px] font-black uppercase tracking-[0.1em] opacity-80 mt-1">Eligible Incentive</p>
+        </div>
     </div>
 </div>
 
@@ -173,8 +174,8 @@
                 <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Type</label>
                 <select name="type" onchange="this.form.submit()" class="w-full px-3 py-2 bg-gray-50 border border-gray-100 rounded-xl text-sm font-medium focus:ring-2 focus:ring-yellow-500 focus:outline-none">
                     <option value="">All Types</option>
-                    @foreach(App\Http\Controllers\DriverBehaviorController::$incidentTypes as $type => $meta)
-                        <option value="{{ $type }}" {{ $type_filter === $type ? 'selected' : '' }}>{{ $type }}</option>
+                    @foreach($classifications as $c)
+                        <option value="{{ $c->name }}" {{ $type_filter === $c->name ? 'selected' : '' }}>{{ $c->name }}</option>
                     @endforeach
                 </select>
             </div>
@@ -297,9 +298,9 @@
                                 {{-- Archive Button --}}
                                 <button type="button" 
                                     onclick="IncidentManager.archive({{ $inc->id }})"
-                                    class="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all duration-300 group/delete cursor-pointer" 
+                                    class="p-2 text-gray-400 hover:text-orange-500 hover:bg-orange-50 rounded-xl transition-all duration-300 group/delete cursor-pointer" 
                                     title="Archive Record">
-                                    <i data-lucide="trash-2" class="w-4 h-4 group-hover/delete:scale-110 pointer-events-none"></i>
+                                    <i data-lucide="archive" class="w-4 h-4 group-hover/delete:scale-110 pointer-events-none"></i>
                                 </button>
                             </div>
                         </td>
@@ -370,31 +371,18 @@
      ════════════════════════════════════════ --}}
 <div id="tab-incentives" class="tab-content {{ ($tab ?? '') === 'incentives' ? '' : 'hidden' }}">
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
-        <div class="bg-gradient-to-br from-emerald-50 to-teal-50/70 p-4 rounded-xl shadow-sm border-l-4 border-emerald-500 relative overflow-hidden flex items-center justify-between">
-            <div class="flex items-center gap-4 relative z-10">
-                <div class="p-3 bg-emerald-100 rounded-lg shadow-sm">
-                    <i data-lucide="trophy" class="w-6 h-6 text-emerald-600"></i>
-                </div>
-                <div class="min-w-0">
-                    <div class="text-xl font-black text-gray-900 tracking-tight truncate tabular-nums">{{ count($incentive_summary['eligible'] ?? []) }}</div>
-                    <div class="text-[10px] font-black text-emerald-400 uppercase tracking-widest truncate">Eligible for Incentive</div>
-                </div>
-            </div>
-            <i data-lucide="trophy" class="absolute -right-3 -bottom-3 w-20 h-20 text-emerald-400 opacity-[0.12] -rotate-12 z-0 pointer-events-none"></i>
+        <div class="bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl p-5 text-white shadow-lg">
+            <i data-lucide="trophy" class="w-6 h-6 mb-2 opacity-80"></i>
+            <p class="text-3xl font-black">{{ count($incentive_summary['eligible'] ?? []) }}</p>
+            <p class="text-xs font-black uppercase tracking-widest opacity-80 mt-1">Eligible for Incentive</p>
         </div>
-        <div class="bg-gradient-to-br from-rose-50 to-red-50/70 p-4 rounded-xl shadow-sm border-l-4 border-rose-500 relative overflow-hidden flex items-center justify-between">
-            <div class="flex items-center gap-4 relative z-10">
-                <div class="p-3 bg-rose-100 rounded-lg shadow-sm">
-                    <i data-lucide="x-circle" class="w-6 h-6 text-rose-600"></i>
-                </div>
-                <div class="min-w-0">
-                    <div class="text-xl font-black text-gray-900 tracking-tight truncate tabular-nums">{{ count($incentive_summary['ineligible'] ?? []) }}</div>
-                    <div class="text-[10px] font-black text-rose-400 uppercase tracking-widest truncate">Disqualified</div>
-                </div>
-            </div>
-            <i data-lucide="x-circle" class="absolute -right-3 -bottom-3 w-20 h-20 text-rose-400 opacity-[0.12] -rotate-12 z-0 pointer-events-none"></i>
+        <div class="bg-gradient-to-br from-red-500 to-rose-600 rounded-2xl p-5 text-white shadow-lg">
+            <i data-lucide="x-circle" class="w-6 h-6 mb-2 opacity-80"></i>
+            <p class="text-3xl font-black">{{ count($incentive_summary['ineligible'] ?? []) }}</p>
+            <p class="text-xs font-black uppercase tracking-widest opacity-80 mt-1">Disqualified</p>
         </div>
-        <div class="bg-gradient-to-br from-amber-50 to-yellow-50/70 p-4 rounded-xl shadow-sm border-l-4 border-amber-500 relative overflow-hidden flex items-center justify-between">
+        <div class="bg-gradient-to-br from-yellow-500 to-amber-600 rounded-2xl p-5 text-white shadow-lg">
+            <i data-lucide="calendar-check" class="w-6 h-6 mb-2 opacity-80"></i>
             @php
                 $now = now()->timezone('Asia/Manila');
                 $firstSundayThisMonth = $now->copy()->startOfMonth();
@@ -409,16 +397,8 @@
 
                 while($targetDate->dayOfWeek !== \Carbon\Carbon::SUNDAY) { $targetDate->addDay(); }
             @endphp
-            <div class="flex items-center gap-4 relative z-10">
-                <div class="p-3 bg-amber-100 rounded-lg shadow-sm">
-                    <i data-lucide="calendar-check" class="w-6 h-6 text-amber-600"></i>
-                </div>
-                <div class="min-w-0">
-                    <div class="text-xl font-black text-gray-900 tracking-tight truncate tabular-nums">{{ $targetDate->format('M d, Y') }}</div>
-                    <div class="text-[10px] font-black text-amber-400 uppercase tracking-widest truncate">Next Payout Sunday</div>
-                </div>
-            </div>
-            <i data-lucide="calendar-check" class="absolute -right-3 -bottom-3 w-20 h-20 text-amber-400 opacity-[0.12] -rotate-12 z-0 pointer-events-none"></i>
+            <p class="text-xl font-black">{{ $targetDate->format('M d, Y') }}</p>
+            <p class="text-xs font-black uppercase tracking-widest opacity-80 mt-1">Next Payout Sunday</p>
         </div>
     </div>
 
@@ -534,7 +514,7 @@
             $inc = $profile['incentive'];
             $eligible = $inc['eligible'];
         @endphp
-        <div class="profile-card bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-all" data-name="{{ strtolower($profile['name']) }}">
+        <div class="profile-card bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-all cursor-pointer" data-name="{{ strtolower($profile['name']) }}" onclick="openDriverDetails({{ $profile['id'] }})">
             {{-- Card Header --}}
             <div class="p-5 border-b border-gray-50 flex items-center gap-3 {{ $eligible ? 'bg-gradient-to-r from-green-50 to-emerald-50' : 'bg-gray-50/50' }}">
                 <div class="w-11 h-11 rounded-xl {{ $eligible ? 'bg-green-500' : 'bg-gray-300' }} flex items-center justify-center text-white font-black text-lg shadow-sm flex-shrink-0">
@@ -600,10 +580,10 @@
 </div>
 
 {{-- ════════════════════════════════════════
-     RECORD INCIDENT MODAL (PREMIUM & FUNCTIONAL)
+     RECORD INCIDENT MODAL — SMART DYNAMIC
      ════════════════════════════════════════ --}}
-<div id="incidentModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden z-[100] flex items-center justify-center p-4">
-    <div class="w-full max-w-6xl bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col h-[95vh] animate-in fade-in zoom-in duration-300">
+<div id="incidentModal" class="fixed inset-0 bg-black/60 backdrop-blur-md hidden z-[100] flex items-center justify-center p-4">
+    <div class="w-full max-w-2xl bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in fade-in zoom-in duration-300">
         {{-- Modal Header --}}
         <div class="px-8 py-6 bg-gray-900 text-white flex items-center justify-between shadow-lg z-10">
             <div>
@@ -663,18 +643,29 @@
 
                     <div class="grid grid-cols-2 gap-5">
                         <div class="col-span-2 sm:col-span-1">
-                            <label class="block text-[10px] font-black text-gray-500 uppercase mb-2 ml-1">Incident Classification *</label>
+                            <div class="flex items-center justify-between mb-2 ml-1">
+                                <label class="block text-[10px] font-black text-gray-500 uppercase">Incident Classification *</label>
+                                <button type="button" onclick="openClassificationSettings()" class="text-[10px] font-black text-yellow-600 hover:text-yellow-700 uppercase tracking-tighter flex items-center gap-1">
+                                    <i data-lucide="settings" class="w-3 h-3"></i> Manage Types
+                                </button>
+                            </div>
                             <select name="incident_type" required id="incidentTypeSelect" onchange="handleTypeChange(this.value)"
                                 class="w-full px-4 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl text-sm font-bold focus:ring-4 focus:ring-yellow-500/10 focus:border-yellow-500 focus:outline-none transition-all">
                                 <option value="">Select Type</option>
-                                @foreach(App\Http\Controllers\DriverBehaviorController::$incidentTypes as $type => $meta)
-                                    <option value="{{ $type }}">{{ $type }}</option>
+                                @foreach($classifications as $c)
+                                    <option value="{{ $c->name }}"
+                                        data-mode="{{ $c->behavior_mode ?? 'narrative' }}"
+                                        data-sub-options='{{ json_encode($c->sub_options ?? $c->getDefaultSubOptions($c->behavior_mode ?? 'narrative')) }}'
+                                        data-auto-ban="{{ $c->auto_ban_trigger ? '1' : '0' }}"
+                                        data-ban-value="{{ $c->ban_trigger_value ?? '' }}">
+                                        {{ $c->name }}
+                                    </option>
                                 @endforeach
                             </select>
                         </div>
                         <div class="col-span-2 sm:col-span-1">
                             <label class="block text-[10px] font-black text-gray-500 uppercase mb-2 ml-1">Severity / Priority *</label>
-                            <select name="severity" required id="severitySelect"
+                            <select name="severity" required id="severitySelect" onchange="window._checkAutoBanState()"
                                 class="w-full px-4 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl text-sm font-bold focus:ring-4 focus:ring-yellow-500/10 focus:border-yellow-500 focus:outline-none transition-all">
                                 <option value="low">Low</option>
                                 <option value="medium" selected>Medium</option>
@@ -693,18 +684,55 @@
                     </div>
                 </div>
 
-                {{-- Section: Narrative --}}
+                {{-- ── COMPLAINT MODE: Sub-Classification Picker ── --}}
+                <div id="section-complaint" class="hidden bg-blue-50/60 p-6 rounded-3xl border border-blue-100 shadow-sm space-y-4">
+                    <div class="flex items-center gap-3 mb-1">
+                        <div class="w-1.5 h-5 bg-blue-500 rounded-full"></div>
+                        <p class="text-[11px] font-black text-blue-700 uppercase tracking-widest">Complaint Sub-Classification</p>
+                    </div>
+                    <div id="subOptionsContainer" class="grid grid-cols-2 gap-2"></div>
+                    <input type="hidden" name="sub_classification" id="subClassificationInput">
+                </div>
+
+                {{-- GLOBAL AUTO-BAN WARNING --}}
+                <div id="autoBanWarning" class="hidden p-4 bg-red-50 border border-red-200 rounded-2xl flex items-start gap-3 shadow-sm">
+                    <i data-lucide="alert-triangle" class="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5"></i>
+                    <div>
+                        <p class="text-[11px] font-black text-red-700 uppercase tracking-widest leading-relaxed">⚠ SYSTEM AUTO-BAN TRIGGERED</p>
+                        <p id="banTriggerLabel" class="text-[10px] font-bold text-red-500 mt-1">This driver will be automatically banned from the system.</p>
+                    </div>
+                </div>
+
+                {{-- ── TRAFFIC MODE: Fine Amount ── --}}
+                <div id="section-traffic" class="hidden bg-orange-50/60 p-6 rounded-3xl border border-orange-100 shadow-sm space-y-4">
+                    <div class="flex items-center gap-3 mb-1">
+                        <div class="w-1.5 h-5 bg-orange-500 rounded-full"></div>
+                        <p class="text-[11px] font-black text-orange-700 uppercase tracking-widest">Traffic Violation Details</p>
+                    </div>
+                    <div id="trafficSubOptionsContainer" class="grid grid-cols-2 gap-2 mb-4"></div>
+                    <input type="hidden" name="sub_classification" id="trafficSubClassificationInput">
+                    <div>
+                        <label class="block text-[10px] font-black text-orange-600 uppercase mb-2 ml-1">Traffic Fine Amount (₱) — charged to driver</label>
+                        <div class="relative">
+                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-orange-400 font-bold">₱</span>
+                            <input type="number" name="traffic_fine_amount" id="trafficFineInput" step="0.01" min="0" placeholder="0.00"
+                                class="w-full pl-9 pr-4 py-3.5 bg-white border border-orange-200 rounded-2xl text-sm font-black text-orange-700 focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500 focus:outline-none transition-all">
+                        </div>
+                    </div>
+                </div>
+
+                {{-- ── NARRATIVE: Description (always visible) ── --}}
                 <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm space-y-4">
                     <div class="flex items-center gap-3 mb-1">
                         <div class="w-1.5 h-5 bg-orange-500 rounded-full"></div>
-                        <p class="text-[11px] font-black text-gray-400 uppercase tracking-widest">Incident Narrative</p>
+                        <p class="text-[11px] font-black text-gray-400 uppercase tracking-widest">Incident Narrative <span id="narrativeModeLabel" class="text-gray-300">(Describe the incident)</span></p>
                     </div>
                     <textarea name="description" required rows="3" placeholder="Provide a detailed report of the incident..."
                         class="w-full px-5 py-4 bg-gray-50 border border-gray-200 rounded-2xl text-sm font-medium focus:ring-4 focus:ring-orange-500/5 focus:border-orange-500 focus:outline-none resize-none transition-all placeholder:text-gray-300"></textarea>
                 </div>
 
-                {{-- Section: Financial Charges (MAINTENANCE STYLE) --}}
-                <div class="p-8 bg-purple-50/50 rounded-[2.5rem] border border-purple-100 space-y-8 ring-1 ring-purple-100/50">
+                {{-- ── DAMAGE MODE: Full Assessment ── --}}
+                <div id="section-damage" class="hidden p-8 bg-purple-50/50 rounded-[2.5rem] border border-purple-100 space-y-8 ring-1 ring-purple-100/50">
                     <div class="flex items-center gap-4">
                         <div class="p-3 bg-purple-600 rounded-2xl shadow-xl shadow-purple-600/20">
                             <i data-lucide="calculator" class="w-5 h-5 text-white"></i>
@@ -798,26 +826,26 @@
                             </div>
                         </div>
 
-                        <div class="flex flex-wrap gap-6 justify-center">
+                        <div class="grid grid-cols-2 gap-5">
                             {{-- Grand Total Cost (Green - Maintenance Style) --}}
-                            <div class="flex-1 min-w-[280px] max-w-[320px] bg-green-600 p-5 rounded-3xl shadow-xl shadow-green-600/20 relative overflow-hidden group">
+                            <div class="bg-green-600 p-6 rounded-[2.5rem] shadow-xl shadow-green-600/20 relative overflow-hidden group">
                                 <div class="absolute right-[-10px] top-[-10px] opacity-10">
-                                    <i data-lucide="calculator" class="w-12 h-12 text-white"></i>
+                                    <i data-lucide="calculator" class="w-16 h-16 text-white"></i>
                                 </div>
-                                <p class="text-[11px] font-black text-white uppercase tracking-widest mb-1">Grand Total Cost</p>
-                                <p class="text-2xl font-black text-white tracking-tighter" id="totalDamageLabel">₱0.00</p>
-                                <p class="text-[8px] text-green-100 font-bold uppercase mt-1.5 opacity-60">Sum of all parts & services</p>
+                                <p class="text-[10px] font-black text-white/60 uppercase tracking-widest mb-2">Grand Total Cost</p>
+                                <p class="text-3xl font-black text-white tracking-tighter" id="totalDamageLabel">₱0.00</p>
+                                <p class="text-[8px] text-green-100/50 font-bold uppercase mt-2">Sum of all parts & services</p>
                             </div>
 
                             {{-- Driver Liability (Red - Premium Style) --}}
-                            <div class="flex-1 min-w-[280px] max-w-[320px] bg-red-600 p-5 rounded-3xl shadow-xl shadow-red-600/20 relative overflow-hidden group">
+                            <div class="bg-red-600 p-6 rounded-[2.5rem] shadow-xl shadow-red-600/20 relative overflow-hidden group">
                                 <div class="absolute right-[-10px] top-[-10px] opacity-10">
-                                    <i data-lucide="alert-triangle" class="w-12 h-12 text-white"></i>
+                                    <i data-lucide="alert-triangle" class="w-16 h-16 text-white"></i>
                                 </div>
-                                <p class="text-[11px] font-black text-white uppercase tracking-widest mb-1 font-sans">Total Driver Liability</p>
-                                <p class="text-2xl font-black text-white tracking-tighter" id="driverChargeLabel">₱0.00</p>
+                                <p class="text-[10px] font-black text-white/60 uppercase tracking-widest mb-2 font-sans">Total Driver Liability</p>
+                                <p class="text-3xl font-black text-white tracking-tighter" id="driverChargeLabel">₱0.00</p>
                                 <input type="hidden" name="total_charge_to_driver" id="totalChargeValue" value="0">
-                                <p class="text-[8px] text-red-100 font-bold uppercase mt-1.5 opacity-60">Deductible Balance</p>
+                                <p class="text-[8px] text-red-100/50 font-bold uppercase mt-2">Deductible Balance</p>
                             </div>
                         </div>
 
@@ -846,12 +874,12 @@
                 </div>
             </div>
 
-            <div class="px-8 py-7 bg-white border-t border-gray-100 flex justify-end gap-4 shadow-[0_-10px_20px_rgba(0,0,0,0.02)]">
-                <button type="button" onclick="closeIncidentModal()" class="px-10 py-5 bg-white border border-gray-200 text-gray-500 font-black text-xs uppercase tracking-[0.2em] rounded-[1.25rem] hover:bg-gray-50 hover:text-gray-800 transition-all active:scale-[0.98]">
-                    Cancel
-                </button>
-                <button type="submit" class="px-16 py-5 bg-gray-900 text-white font-black text-xs uppercase tracking-[0.2em] rounded-[1.25rem] hover:bg-gray-800 shadow-2xl shadow-gray-900/30 transition-all active:scale-[0.98] flex items-center justify-center gap-3">
+            <div class="px-8 py-7 bg-white border-t border-gray-100 flex gap-4 shadow-[0_-10px_20px_rgba(0,0,0,0.02)]">
+                <button type="submit" class="flex-1 py-4.5 bg-gray-900 text-white font-black text-xs uppercase tracking-[0.2em] rounded-[1.25rem] hover:bg-gray-800 shadow-2xl shadow-gray-900/30 transition-all active:scale-[0.98] flex items-center justify-center gap-3">
                      <i data-lucide="save" class="w-4 h-4"></i> Commit Incident Record
+                </button>
+                <button type="button" onclick="closeIncidentModal()" class="px-8 py-4.5 bg-white border border-gray-200 text-gray-500 font-black text-xs uppercase tracking-[0.2em] rounded-[1.25rem] hover:bg-gray-50 hover:text-gray-800 transition-all active:scale-[0.98]">
+                    Cancel
                 </button>
             </div>
         </form>
@@ -861,8 +889,8 @@
 {{-- ════════════════════════════════════════
      EDIT INCIDENT MODAL
      ════════════════════════════════════════ --}}
-<div id="editIncidentModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden z-[101] flex items-center justify-center p-4">
-    <div class="w-full max-w-6xl bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col h-[95vh] animate-in fade-in zoom-in duration-300">
+<div id="editIncidentModal" class="fixed inset-0 bg-black/60 backdrop-blur-md hidden z-[101] flex items-center justify-center p-4">
+    <div class="w-full max-w-xl bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in fade-in zoom-in duration-300">
         {{-- Modal Header --}}
         <div class="px-8 py-6 bg-blue-600 text-white flex items-center justify-between shadow-lg z-10">
             <div>
@@ -891,10 +919,10 @@
                 <div class="grid grid-cols-2 gap-5">
                     <div>
                         <label class="block text-[10px] font-black text-gray-500 uppercase mb-2 ml-1">Classification</label>
-                        <select name="incident_type" id="edit_incident_type" required
+                        <select name="incident_type" id="edit_incident_type" required onchange="handleTypeChange(this.value)"
                             class="w-full px-4 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl text-sm font-bold focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:outline-none transition-all">
-                            @foreach(App\Http\Controllers\DriverBehaviorController::$incidentTypes as $type => $meta)
-                                <option value="{{ $type }}">{{ $type }}</option>
+                            @foreach($classifications as $c)
+                                <option value="{{ $c->name }}">{{ $c->name }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -942,19 +970,18 @@
             </div>
 
             {{-- Modal Footer --}}
-            <div class="px-8 py-6 bg-gray-50 border-t border-gray-100 flex justify-end gap-3">
+            <div class="px-8 py-6 bg-gray-50 border-t border-gray-100 flex gap-3">
                 <button type="button" id="editModalArchiveBtn"
-                    class="p-5 bg-red-50 text-red-500 font-black text-xs uppercase tracking-widest rounded-2xl border border-red-100 hover:bg-red-100 transition-all active:scale-95"
+                    class="p-4 bg-red-50 text-red-500 font-black text-xs uppercase tracking-widest rounded-2xl border border-red-100 hover:bg-red-100 transition-all active:scale-95"
                     title="Archive Record">
                     <i data-lucide="trash-2" class="w-4 h-4"></i>
                 </button>
-                <div class="flex-1"></div>
                 <button type="button" onclick="closeEditIncidentModal()"
-                    class="px-10 py-5 bg-white text-gray-500 font-black text-xs uppercase tracking-widest rounded-2xl border border-gray-200 hover:bg-gray-100 transition-all active:scale-95">
+                    class="px-6 py-4 bg-white text-gray-500 font-black text-xs uppercase tracking-widest rounded-2xl border border-gray-200 hover:bg-gray-100 transition-all active:scale-95">
                     Cancel
                 </button>
                 <button type="submit"
-                    class="px-16 py-5 bg-blue-600 text-white font-black text-xs uppercase tracking-widest rounded-2xl shadow-lg shadow-blue-200 hover:bg-blue-700 hover:shadow-blue-300 transition-all active:scale-95 flex items-center justify-center gap-2">
+                    class="flex-1 px-6 py-4 bg-blue-600 text-white font-black text-xs uppercase tracking-widest rounded-2xl shadow-lg shadow-blue-200 hover:bg-blue-700 hover:shadow-blue-300 transition-all active:scale-95 flex items-center justify-center gap-2">
                     <i data-lucide="check-circle" class="w-4 h-4"></i>
                     Update Record
                 </button>
@@ -994,10 +1021,147 @@
     </div>
 </div>
 
+{{-- Incident Classification Settings Modal --}}
+<div id="classificationSettingsModal" style="display: none;" class="fixed inset-0 z-[9999] items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+    <div class="bg-white rounded-[2rem] w-full max-w-4xl overflow-hidden shadow-2xl border border-white/20 animate-in fade-in zoom-in duration-300">
+        <div class="bg-yellow-500 p-6 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="p-2 bg-white/20 rounded-xl">
+                    <i data-lucide="settings" class="w-5 h-5 text-white"></i>
+                </div>
+                <h3 class="text-white font-black uppercase tracking-tighter">Incident Classification Settings</h3>
+            </div>
+            <button onclick="closeClassificationSettings()" class="p-2 hover:bg-white/10 rounded-xl transition-colors">
+                <i data-lucide="x" class="w-5 h-5 text-white"></i>
+            </button>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2">
+            {{-- Left: List --}}
+            <div class="p-8 border-r border-gray-100 flex flex-col max-h-[70vh]">
+                <div class="flex items-center gap-6 mb-8 border-b border-gray-100 pb-4">
+                    <button onclick="switchClsList('active')" id="clsTabBtn-active" class="cls-tab-btn active text-[10px] font-black uppercase tracking-widest transition-all">Active Classifications</button>
+                    <button onclick="switchClsList('archived')" id="clsTabBtn-archived" class="cls-tab-btn text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-gray-600 transition-all">Archives</button>
+                </div>
+
+                <div id="clsList-active" class="cls-list-content space-y-3 overflow-y-auto custom-scroll pr-2 flex-1">
+                    @foreach($classifications as $c)
+                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-gray-100 hover:border-yellow-200 transition-all group">
+                        <div>
+                            <div class="text-sm font-black text-gray-900">{{ $c->name }}</div>
+                            <div class="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">Default: <span class="text-yellow-600">{{ $c->default_severity }}</span></div>
+                        </div>
+                        <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-all relative z-10">
+                            <button type="button" onclick="editClassification({{ $c->id }}, '{{ addslashes($c->name) }}', '{{ $c->default_severity }}')" class="p-2 bg-white text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl border border-gray-100 shadow-sm transition-all cursor-pointer relative z-10">
+                                <i data-lucide="edit-3" class="w-4 h-4"></i>
+                            </button>
+                            <button type="button" onclick="archiveClassification({{ $c->id }})" class="p-2 bg-white text-gray-400 hover:text-orange-500 hover:bg-orange-50 rounded-xl border border-gray-100 shadow-sm transition-all cursor-pointer relative z-10">
+                                <i data-lucide="archive" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+
+                <div id="clsList-archived" class="cls-list-content hidden space-y-3 overflow-y-auto custom-scroll pr-2 flex-1">
+                    @forelse($archivedClassifications as $ac)
+                    <div class="flex items-center justify-between p-4 bg-gray-100/50 rounded-2xl border border-gray-200 opacity-60">
+                        <div class="text-sm font-black text-gray-500 line-through">{{ $ac->name }}</div>
+                        <div class="flex gap-2 relative z-10">
+                            <button type="button" onclick="restoreClassification({{ $ac->id }})" class="p-2 bg-white text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-xl border border-gray-100 transition-all cursor-pointer relative z-10">
+                                <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                            </button>
+                            <button type="button" onclick="deleteClassification({{ $ac->id }})" class="p-2 bg-white text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-xl border border-gray-100 transition-all cursor-pointer relative z-10">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </div>
+                    @empty
+                    <div class="h-full flex flex-col items-center justify-center p-12 text-center">
+                        <div class="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4">
+                            <i data-lucide="archive" class="w-8 h-8 text-gray-200"></i>
+                        </div>
+                        <div class="text-[10px] font-black text-gray-300 uppercase tracking-widest">No archived items found</div>
+                    </div>
+                    @endforelse
+                </div>
+            </div>
+
+            {{-- Right: Add/Edit Form --}}
+            <div class="p-8 bg-gray-50/50 overflow-y-auto max-h-[70vh]">
+                <div class="flex items-center justify-between mb-6">
+                    <h4 id="quickClsTitle" class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Add New Classification</h4>
+                    <button onclick="resetClsForm()" class="text-[10px] font-black text-blue-600 uppercase tracking-tighter">Clear Form</button>
+                </div>
+                <input type="hidden" id="quickClsId">
+                <div class="space-y-5">
+                    <div>
+                        <label class="block text-[10px] font-black text-gray-500 uppercase mb-2 ml-1">Classification Name</label>
+                        <input type="text" id="quickClsName" placeholder="e.g. Passenger Complaint"
+                            class="w-full px-5 py-4 bg-white border border-gray-100 rounded-2xl text-sm font-black focus:ring-4 focus:ring-yellow-500/10 focus:border-yellow-500 focus:outline-none transition-all">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-black text-gray-500 uppercase mb-2 ml-1">Default Severity</label>
+                        <select id="quickClsSeverity"
+                            class="w-full px-5 py-4 bg-white border border-gray-100 rounded-2xl text-sm font-black focus:ring-4 focus:ring-yellow-500/10 focus:border-yellow-500 focus:outline-none transition-all">
+                            <option value="low">Low</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="high">High</option>
+                            <option value="critical">Critical</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-black text-gray-500 uppercase mb-2 ml-1">Modal Behavior Mode</label>
+                        <select id="quickClsMode" onchange="toggleClsModeFields()" class="w-full px-5 py-4 bg-white border border-gray-100 rounded-2xl text-sm font-black focus:ring-4 focus:ring-yellow-500/10 focus:border-yellow-500 focus:outline-none transition-all">
+                            <option value="narrative">Narrative Only (remark/absent)</option>
+                            <option value="complaint">Passenger Complaint (sub-options + ban)</option>
+                            <option value="traffic">Traffic Violation (sub-options + fine)</option>
+                            <option value="damage">Vehicle Damage / Accident (full cost assessment)</option>
+                        </select>
+                        <p class="text-[9px] text-gray-400 font-bold mt-1 ml-1">Controls which sections appear in the Record Incident form</p>
+                    </div>
+                    <div id="clsSubOptionsRow" class="hidden">
+                        <label class="block text-[10px] font-black text-gray-500 uppercase mb-2 ml-1">Sub-Options <span class="text-gray-300">(one per line)</span></label>
+                        <textarea id="quickClsSubOptions" rows="5" placeholder="e.g.&#10;Contracting&#10;Discourtesy&#10;Overcharging"
+                            class="w-full px-4 py-3 bg-white border border-gray-100 rounded-2xl text-sm font-medium focus:ring-4 focus:ring-yellow-500/10 focus:border-yellow-500 focus:outline-none resize-none"></textarea>
+                    </div>
+                    <div id="clsBanRow" class="hidden space-y-3">
+                        <label class="flex items-center gap-3 p-4 bg-red-50 rounded-2xl border border-red-100 cursor-pointer">
+                            <input type="checkbox" id="quickClsAutoBan" class="w-5 h-5 accent-red-600" onchange="toggleBanValueField()">
+                            <div>
+                                <p class="text-[10px] font-black text-red-700 uppercase tracking-widest">Enable Auto-Ban Trigger</p>
+                                <p class="text-[9px] text-red-400 font-bold mt-0.5">Selecting a specific sub-option will automatically ban the driver</p>
+                            </div>
+                        </label>
+                        <div id="clsBanValueRow" class="hidden">
+                            <label class="block text-[10px] font-black text-gray-500 uppercase mb-2 ml-1">Ban Trigger Sub-Option</label>
+                            <input type="text" id="quickClsBanValue" placeholder="e.g. Contracting"
+                                class="w-full px-4 py-3 bg-white border border-red-200 rounded-2xl text-sm font-black text-red-700 focus:ring-4 focus:ring-red-500/10 focus:border-red-500 focus:outline-none">
+                        </div>
+                    </div>
+                    <button type="button" onclick="saveQuickClassification()" class="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-black py-5 rounded-2xl shadow-xl shadow-yellow-500/20 transition-all flex items-center justify-center gap-2 mt-2">
+                        <i data-lucide="save" class="w-4 h-4"></i> SAVE CLASSIFICATION
+                    </button>
+                </div>
+                <div class="mt-8 p-5 bg-yellow-50 rounded-2xl border border-yellow-100">
+                    <div class="flex gap-3">
+                        <i data-lucide="info" class="w-5 h-5 text-yellow-600 flex-shrink-0"></i>
+                        <p class="text-[10px] font-bold text-yellow-800 leading-relaxed uppercase tracking-tight">The Behavior Mode controls what the dispatcher sees when recording an incident of this type.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@include('partials._driver_details_modal')
+
 @endsection
 
 @push('scripts')
 <script>
+@include('partials._driver_details_scripts')
 // ─── Global Scoping & Initialization ───
 window.switchTab = function(name) {
     document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
@@ -1006,6 +1170,160 @@ window.switchTab = function(name) {
     document.getElementById('tab-btn-' + name)?.classList.add('active');
     if(window.lucide) lucide.createIcons();
 };
+
+// ─── Incident Classification Management ────────────────────────────────────
+ window.openClassificationSettings = function() {
+     const modal = document.getElementById('classificationSettingsModal');
+     if (!modal) return;
+     modal.style.display = 'flex';
+     if(window.lucide) lucide.createIcons();
+ };
+
+ window.closeClassificationSettings = function() {
+     const modal = document.getElementById('classificationSettingsModal');
+     if (!modal) return;
+     modal.style.display = 'none';
+ };
+
+ window.editClassification = function(id, name, severity) {
+     document.getElementById('quickClsId').value = id;
+     document.getElementById('quickClsName').value = name;
+     document.getElementById('quickClsSeverity').value = severity;
+     document.getElementById('quickClsTitle').textContent = 'Edit Classification';
+
+     // Fetch full metadata for this classification via XHR
+     fetch(`/api/incidents/classification/${id}`, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+         .then(r => r.json()).then(data => {
+             if (data && data.behavior_mode) {
+                 document.getElementById('quickClsMode').value = data.behavior_mode;
+                 toggleClsModeFields();
+                 if (data.sub_options && Array.isArray(data.sub_options)) {
+                     document.getElementById('quickClsSubOptions').value = data.sub_options.join('\n');
+                 }
+                 document.getElementById('quickClsAutoBan').checked = !!data.auto_ban_trigger;
+                 toggleBanValueField();
+                 document.getElementById('quickClsBanValue').value = data.ban_trigger_value || '';
+             }
+         }).catch(() => {});
+ };
+
+ window.resetClsForm = function() {
+     document.getElementById('quickClsId').value = '';
+     document.getElementById('quickClsName').value = '';
+     document.getElementById('quickClsTitle').textContent = 'Add New Classification';
+     document.getElementById('quickClsMode').value = 'narrative';
+     document.getElementById('quickClsSubOptions').value = '';
+     document.getElementById('quickClsAutoBan').checked = false;
+     document.getElementById('quickClsBanValue').value = '';
+     toggleClsModeFields();
+ };
+
+ window.toggleClsModeFields = function() {
+     const mode = document.getElementById('quickClsMode').value;
+     const subRow = document.getElementById('clsSubOptionsRow');
+     const banRow = document.getElementById('clsBanRow');
+     if (['complaint','traffic'].includes(mode)) {
+         subRow.classList.remove('hidden');
+         banRow.classList.toggle('hidden', mode !== 'complaint');
+     } else {
+         subRow.classList.add('hidden');
+         banRow.classList.add('hidden');
+     }
+ };
+
+ window.toggleBanValueField = function() {
+     const checked = document.getElementById('quickClsAutoBan').checked;
+     document.getElementById('clsBanValueRow').classList.toggle('hidden', !checked);
+ };
+
+ window.saveQuickClassification = async function() {
+     const id = document.getElementById('quickClsId').value;
+     const name = document.getElementById('quickClsName').value.trim();
+     const severity = document.getElementById('quickClsSeverity').value;
+     const mode = document.getElementById('quickClsMode').value;
+     const subOptsRaw = document.getElementById('quickClsSubOptions').value;
+     const autoBan = document.getElementById('quickClsAutoBan').checked;
+     const banValue = document.getElementById('quickClsBanValue').value.trim();
+
+     if (!name) return alert('Please enter a classification name.');
+
+     const subOptions = subOptsRaw ? subOptsRaw.split('\n').map(s => s.trim()).filter(Boolean) : [];
+     const url = id ? `/super-admin/incident-classifications/${id}/update` : '/super-admin/incident-classifications';
+
+     try {
+         const res = await fetch(url, {
+             method: 'POST',
+             headers: { 
+                 'Content-Type': 'application/json', 
+                 'Accept': 'application/json',
+                 'X-CSRF-TOKEN': '{{ csrf_token() }}' 
+             },
+             body: JSON.stringify({
+                 name, default_severity: severity, color: 'gray', icon: 'alert-circle',
+                 behavior_mode: mode, sub_options: subOptions,
+                 auto_ban_trigger: autoBan, ban_trigger_value: banValue || null
+             })
+         });
+         const result = await res.json();
+         if (res.ok && result.success) {
+             location.reload();
+         } else {
+             const errorMsg = result.message || result.error || 'Validation Failed: Please check your inputs.';
+             alert(errorMsg);
+         }
+     } catch(e) { 
+         console.error(e);
+         alert('Error saving classification. Check the console for details.'); 
+     }
+ };
+
+ window.archiveClassification = async function(id) {
+     if (!confirm('Archive this classification?')) return;
+     try {
+         const res = await fetch(`/super-admin/incident-classifications/${id}/archive`, {
+             method: 'POST',
+             headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
+         });
+         const data = await res.json();
+         if (data.success) location.reload();
+     } catch (e) { alert('Error archiving.'); }
+ };
+
+ window.restoreClassification = async function(id) {
+     try {
+         const res = await fetch(`/super-admin/incident-classifications/${id}/restore`, {
+             method: 'POST',
+             headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
+         });
+         const data = await res.json();
+         if (data.success) location.reload();
+     } catch (e) { alert('Error restoring.'); }
+ };
+
+ window.deleteClassification = async function(id) {
+     if (!confirm('Permanently delete this?')) return;
+     try {
+         const res = await fetch(`/super-admin/incident-classifications/${id}`, {
+             method: 'DELETE',
+             headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
+         });
+         const data = await res.json();
+         if (data.success) location.reload();
+     } catch (e) { alert('Error deleting.'); }
+ };
+
+ window.switchClsList = function(type) {
+     document.querySelectorAll('.cls-list-content').forEach(l => l.classList.add('hidden'));
+     document.querySelectorAll('.cls-tab-btn').forEach(b => {
+         b.classList.remove('active', 'text-gray-900');
+         b.classList.add('text-gray-400');
+     });
+     
+     document.getElementById('clsList-' + type).classList.remove('hidden');
+     const btn = document.getElementById('clsTabBtn-' + type);
+     btn.classList.add('active', 'text-gray-900');
+     btn.classList.remove('text-gray-400');
+ };
 
 window.openIncidentModal = function() {
     const modal = document.getElementById('incidentModal');
@@ -1034,6 +1352,7 @@ window.openQuickAddPart = function() {
     if(window.lucide) lucide.createIcons();
 };
 
+
 window.closeQuickAddPart = function() {
     const modal = document.getElementById('quickAddPartModal');
     if (!modal) return;
@@ -1048,6 +1367,133 @@ let partsCatalog = @json($spare_parts ?? []);
 let incidentPartsCart = [];
 let incidentServices = [];
 let partyIndex = 0;
+let classificationsMap = @json($classifications->pluck('default_severity', 'name'));
+
+// Full classification metadata for the smart modal
+let classificationsMeta = {};
+@foreach($classifications as $c)
+classificationsMeta["{{ $c->name }}"] = {
+    mode: "{{ $c->behavior_mode ?? 'narrative' }}",
+    subOptions: @json($c->sub_options ?? $c->getDefaultSubOptions($c->behavior_mode ?? 'narrative')),
+    autoBan: {{ $c->auto_ban_trigger ? 'true' : 'false' }},
+    banValue: "{{ addslashes($c->ban_trigger_value ?? '') }}"
+};
+@endforeach
+
+window.handleTypeChange = function(val) {
+    // 1. Auto-set severity
+    const severitySelect = document.getElementById('severitySelect') || document.getElementById('edit_severity');
+    if (severitySelect && classificationsMap[val]) severitySelect.value = classificationsMap[val];
+
+    const meta = classificationsMeta[val] || { mode: 'narrative', subOptions: [], autoBan: false, banValue: '' };
+    const mode = meta.mode;
+
+    // 2. Hide all mode-specific sections
+    ['complaint','traffic','damage'].forEach(s => {
+        const el = document.getElementById('section-' + s);
+        if (el) el.classList.add('hidden');
+    });
+
+    // 3. Clear any previous sub_classification inputs
+    const subInput = document.getElementById('subClassificationInput');
+    const trafInput = document.getElementById('trafficSubClassificationInput');
+    if (subInput) subInput.value = '';
+    if (trafInput) trafInput.value = '';
+
+    // 4. Show relevant section
+    if (mode === 'complaint') {
+        const sec = document.getElementById('section-complaint');
+        if (sec) sec.classList.remove('hidden');
+        _renderSubOptions('subOptionsContainer', meta.subOptions, 'subClassificationInput', meta.autoBan, meta.banValue, 'blue');
+        _updateBanWarning(meta.autoBan, meta.banValue, '');
+    } else if (mode === 'traffic') {
+        const sec = document.getElementById('section-traffic');
+        if (sec) sec.classList.remove('hidden');
+        _renderSubOptions('trafficSubOptionsContainer', meta.subOptions, 'trafficSubClassificationInput', false, '', 'orange');
+    } else if (mode === 'damage') {
+        const sec = document.getElementById('section-damage');
+        if (sec) sec.classList.remove('hidden');
+    }
+
+    // 5. Update narrative label hint
+    const hint = document.getElementById('narrativeModeLabel');
+    if (hint) {
+        const labels = { complaint:'(Describe the passenger complaint)', traffic:'(Describe the traffic violation)', damage:'(Describe the accident/damage)', narrative:'(Describe the incident)' };
+        hint.textContent = labels[mode] || '(Describe the incident)';
+    }
+
+    if (window.lucide) lucide.createIcons();
+    window._checkAutoBanState();
+};
+
+// Render pill buttons for sub-options
+function _renderSubOptions(containerId, options, inputId, autoBan, banValue, color) {
+    const container = document.getElementById(containerId);
+    const input = document.getElementById(inputId);
+    if (!container || !input) return;
+    if (!options || options.length === 0) { container.innerHTML = ''; return; }
+
+    const colors = {
+        blue: { base: 'bg-white border-blue-200 text-blue-700 hover:bg-blue-600 hover:text-white hover:border-blue-600', active: 'bg-blue-600 border-blue-600 text-white' },
+        orange: { base: 'bg-white border-orange-200 text-orange-700 hover:bg-orange-500 hover:text-white hover:border-orange-500', active: 'bg-orange-500 border-orange-500 text-white' }
+    };
+    const c = colors[color] || colors.blue;
+
+    container.innerHTML = options.map(opt => `
+        <button type="button" data-value="${opt}"
+            class="sub-option-btn px-3 py-2.5 border rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${c.base}"
+            onclick="window._selectSubOption(this, '${inputId}', ${autoBan ? `'${banValue}'` : 'null'}, '${color}')">
+            ${opt}
+        </button>
+    `).join('');
+}
+
+window._selectSubOption = function(btn, inputId, banValue, color) {
+    const colors = {
+        blue: 'bg-blue-600 border-blue-600 text-white',
+        orange: 'bg-orange-500 border-orange-500 text-white'
+    };
+    // Deselect siblings
+    btn.closest('div').querySelectorAll('.sub-option-btn').forEach(b => {
+        b.className = b.className.replace(/bg-(blue|orange)-\d+\s+border-(blue|orange)-\d+\s+text-white/g, '').trim();
+    });
+    btn.classList.add(...(colors[color] || colors.blue).split(' '));
+
+    const val = btn.dataset.value;
+    const input = document.getElementById(inputId);
+    if (input) input.value = val;
+
+    window._checkAutoBanState();
+};
+
+window._checkAutoBanState = function() {
+    const typeVal = document.getElementById('incidentTypeSelect').value;
+    const sevVal = document.getElementById('severitySelect').value;
+    const subInput = document.getElementById('subClassificationInput').value;
+    
+    const meta = classificationsMeta[typeVal] || { autoBan: false, banValue: '' };
+    const warning = document.getElementById('autoBanWarning');
+    const label = document.getElementById('banTriggerLabel');
+    if (!warning) return;
+
+    let shouldBan = false;
+    let reason = '';
+
+    if (sevVal === 'critical') {
+        shouldBan = true;
+        reason = "Critical severity triggers an automatic driver ban.";
+    } else if (meta.autoBan && meta.banValue && subInput === meta.banValue) {
+        shouldBan = true;
+        reason = `Selecting "${meta.banValue}" triggers an automatic driver ban.`;
+    }
+
+    if (shouldBan) {
+        warning.classList.remove('hidden');
+        if (label) label.textContent = reason;
+    } else {
+        warning.classList.add('hidden');
+    }
+};
 
 // ─── Searchable Dropdowns (Unit/Driver) ───
 function initializeSearchDropdowns() {
@@ -1370,4 +1816,3 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 @endpush
-

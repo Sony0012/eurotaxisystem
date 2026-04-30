@@ -53,11 +53,11 @@ function updateNotificationCount() {
         }
     }
 
-    // Sound logic
+    // Sound logic — play only when count INCREASES (new notifications)
     const storedCount = sessionStorage.getItem('notif_count');
-    const storedCountNum = storedCount ? parseInt(storedCount, 10) : 0;
+    const storedCountNum = storedCount !== null ? parseInt(storedCount, 10) : -1;
     
-    if (count > 0 && count > storedCountNum) {
+    if (count > 0 && (storedCountNum === -1 || count > storedCountNum)) {
         const assetUrlMeta = document.querySelector('meta[name="asset-url"]');
         const assetBase = assetUrlMeta ? assetUrlMeta.getAttribute('content') : '/';
         const audio = new Audio(assetBase + 'assets/sounds/notification.mp3');
@@ -69,14 +69,20 @@ function updateNotificationCount() {
 }
 
 function dismissNotification(button) {
-    event.stopPropagation();
+    if (event) event.stopPropagation();
     const item = button.closest('.notification-item');
     if (!item) return;
     const type = item.getAttribute('data-type');
     const id = item.getAttribute('data-id');
-    item.remove();
-    updateNotificationCount();
-    if (type === 'system' && id) {
+
+    // Animate out
+    item.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
+    item.style.opacity = '0';
+    item.style.transform = 'translateX(10px)';
+    setTimeout(() => { item.remove(); updateNotificationCount(); }, 200);
+
+    // Call backend for DB-backed alerts (violation_alert, surveillance)
+    if ((type === 'violation_alert' || type === 'surveillance') && id) {
         fetch('/notifications/dismiss', {
             method: 'POST',
             headers: {
@@ -97,6 +103,10 @@ document.addEventListener('DOMContentLoaded', () => {
     bell.addEventListener('click', (e) => {
         e.stopPropagation();
         dropdown.classList.toggle('hidden');
+    });
+
+    dropdown.addEventListener('click', (e) => {
+        e.stopPropagation();
     });
 
     document.addEventListener('click', () => {

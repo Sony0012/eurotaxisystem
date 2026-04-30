@@ -52,14 +52,6 @@ class SalaryController extends Controller
 
         $salaries = $query->orderBy('u.full_name')->get();
 
-        // Fetch expenses for the current month
-        $expense_records = DB::table('expenses')
-            ->whereNull('deleted_at')
-            ->whereMonth('date', $currentMonth)
-            ->whereYear('date', $currentYear)
-            ->orderByDesc('date')
-            ->get();
-
         // Calculate income from boundaries for net profit
         $total_income = DB::table('boundaries')
             ->whereNull('deleted_at')
@@ -69,7 +61,7 @@ class SalaryController extends Controller
 
         // Calculate totals/summary
         $total_salaries = $salaries->sum('total_pay');
-        $total_expenses = $expense_records->sum('amount');
+
         // Calculate totals/summary (Unified count of Users + Staff, excluding Drivers and Developer)
         $user_count = DB::table('users')
             ->whereNull('deleted_at')
@@ -84,15 +76,13 @@ class SalaryController extends Controller
             ->count();
 
         $total_employees = $user_count + $staff_count;
-        $net_profit = $total_income - ($total_salaries + $total_expenses);
+        $net_profit = $total_income - $total_salaries;
 
         $summary = [
             'total_employees' => $total_employees,
             'total_salaries' => $total_salaries,
-            'total_expenses' => $total_expenses,
             'net_profit' => $net_profit,
             'avg_salary' => $total_employees > 0 ? $total_salaries / $total_employees : 0,
-            'avg_expense' => $total_employees > 0 ? $total_expenses / $total_employees : 0,
         ];
 
         // Get employees for dropdown (Combine Admin/Web Staff and General Staff)
@@ -111,7 +101,7 @@ class SalaryController extends Controller
             ->orderBy('name')
             ->get();
 
-        return view('salary.index', compact('salaries', 'expense_records', 'summary', 'search', 'employees'));
+        return view('salary.index', compact('salaries', 'summary', 'search', 'employees'));
     }
 
     public function store(Request $request)

@@ -6,22 +6,15 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
+use App\Http\Controllers\ActivityLogController;
+
 class DriverBehaviorController extends Controller
 {
-    // ─── Incident Types ────────────────────────────────────────────────────
-    public static $incidentTypes = [
-        'Coding Violation'      => ['color' => 'red',    'icon' => 'shield-alert'],
-        'Late Boundary'         => ['color' => 'orange', 'icon' => 'clock'],
-        'Short Boundary'        => ['color' => 'yellow', 'icon' => 'trending-down'],
-        'Vehicle Damage'        => ['color' => 'purple', 'icon' => 'car-crash'],
-        'Accident'              => ['color' => 'red',    'icon' => 'alert-octagon'],
-        'Traffic Violation'     => ['color' => 'orange', 'icon' => 'traffic-cone'],
-        'Absent / No Show'      => ['color' => 'gray',   'icon' => 'user-x'],
-        'Passenger Complaint'   => ['color' => 'blue',   'icon' => 'message-square-warning'],
-        'Speeding'              => ['color' => 'red',    'icon' => 'gauge'],
-        'Hard Braking'          => ['color' => 'orange', 'icon' => 'zap'],
-        'Other'                 => ['color' => 'gray',   'icon' => 'alert-circle'],
-    ];
+    // Incident types are now managed in the database (IncidentClassification model)
+    public static function getIncidentTypes()
+    {
+        return \App\Models\IncidentClassification::orderBy('name')->get();
+    }
 
     // ─── INDEX: Unified Incident + Driver Dashboard ─────────────────────
     public function index(Request $request)
@@ -112,12 +105,14 @@ class DriverBehaviorController extends Controller
             ->orderBy('plate_number')->get();
 
         $spare_parts = \App\Models\SparePart::orderBy('name')->get();
+        $classifications = \App\Models\IncidentClassification::orderBy('name')->get();
+        $archivedClassifications = \App\Models\IncidentClassification::onlyTrashed()->orderBy('name')->get();
 
         return view('driver-behavior.index', compact(
             'incidents', 'search', 'type_filter', 'severity_filter',
             'date_from', 'date_to', 'pagination', 'stats',
             'driver_profiles', 'incentive_summary',
-            'drivers', 'units', 'tab', 'spare_parts'
+            'drivers', 'units', 'tab', 'spare_parts', 'classifications', 'archivedClassifications'
         ));
     }
 
@@ -128,9 +123,11 @@ class DriverBehaviorController extends Controller
             'unit_id'                => 'required|integer',
             'driver_id'              => 'required|integer',
             'incident_type'          => 'required|string',
+            'sub_classification'     => 'nullable|string|max:255',
             'severity'               => 'required|string',
             'description'            => 'required|string',
             'incident_date'          => 'nullable|date',
+            'traffic_fine_amount'    => 'nullable|numeric|min:0',
             'third_party_name'       => 'nullable|string',
             'third_party_vehicle'    => 'nullable|string',
             'own_unit_damage_cost'   => 'nullable|numeric|min:0',
@@ -143,53 +140,58 @@ class DriverBehaviorController extends Controller
             'video_url'              => 'nullable|string',
         ]);
 
-        // Validate dynamic arrays without strict structure since they can be totally empty
         $parties = $request->input('parties', []);
-        $parts = $request->input('parts', []);
-        $cause = $request->input('cause_of_incident');
+        $parts   = $request->input('parts', []);
+        $cause   = $request->input('cause_of_incident');
 
-        $isFault = (bool)($data['is_driver_fault'] ?? false);
-        $isAccident = in_array($data['incident_type'], ['Vehicle Damage', 'Accident']);
+        // ── Resolve Classification metadata ────────────────────────────
+        $classification = \App\Models\IncidentClassification::where('name', $data['incident_type'])->first();
+        $behaviorMode   = $classification?->behavior_mode ?? 'narrative';
 
-        // Auto-compute damages from parts list and other costs
+        $isFault    = (bool)($data['is_driver_fault'] ?? false);
+        $isDamage   = $behaviorMode === 'damage';
+        $isTraffic  = $behaviorMode === 'traffic';
+        $isComplaint= $behaviorMode === 'complaint';
+
+        // ── Compute damage costs only for damage mode ──────────────────
         $computedOwnUnitDamage = 0;
         $totalCharge = 0;
-        
-        foreach ($parts as $partData) {
-            $qty = (int)($partData['quantity'] ?? 0);
-            $price = (float)($partData['unit_price'] ?? 0);
-            $isCharged = (bool)($partData['is_charged_to_driver'] ?? false);
-            
-            $itemTotal = ($qty * $price);
-            $computedOwnUnitDamage += $itemTotal;
-            
-            if ($isCharged) {
-                $totalCharge += $itemTotal;
+
+        if ($isDamage) {
+            foreach ($parts as $partData) {
+                $qty   = (int)($partData['quantity'] ?? 0);
+                $price = (float)($partData['unit_price'] ?? 0);
+                $isCharged = (bool)($partData['is_charged_to_driver'] ?? false);
+                $itemTotal = $qty * $price;
+                $computedOwnUnitDamage += $itemTotal;
+                if ($isCharged) { $totalCharge += $itemTotal; }
             }
+            if (count($parts) > 0) {
+                $data['own_unit_damage_cost'] = $computedOwnUnitDamage;
+            }
+            if ($isFault) {
+                $totalCharge += ($data['third_party_damage_cost'] ?? 0);
+            }
+        } elseif ($isTraffic) {
+            // Traffic fine goes entirely to driver
+            $totalCharge = (float)($data['traffic_fine_amount'] ?? 0);
         }
+        // Complaint & narrative modes → no financial charge from incident form
 
-        // If parts were uploaded, it overrides the manual own_unit damage
-        if (count($parts) > 0) {
-            $data['own_unit_damage_cost'] = $computedOwnUnitDamage;
-        }
-
-        // Add third party damage to total charge if driver is at fault
-        if ($isFault && $isAccident) {
-            $totalCharge += ($data['third_party_damage_cost'] ?? 0);
-        }
-        
         $data['total_charge_to_driver'] = $totalCharge;
 
-        // 1. Create main behavior record using Eloquent
+        // ── Create main behavior record ────────────────────────────────
         $behavior = \App\Models\DriverBehavior::create([
             'unit_id'                 => $data['unit_id'],
             'driver_id'               => $data['driver_id'],
             'incident_type'           => $data['incident_type'],
+            'sub_classification'      => $data['sub_classification'] ?? null,
+            'traffic_fine_amount'     => $isTraffic ? ($data['traffic_fine_amount'] ?? 0) : null,
             'cause_of_incident'       => $cause,
             'severity'                => $data['severity'],
             'description'             => $data['description'],
-            'third_party_name'        => collect($parties)->pluck('name')->filter()->implode(', ') ?: null, // Keep legacy synced
-            'third_party_vehicle'     => collect($parties)->pluck('vehicle_type')->filter()->implode(', ') ?: null, // Keep legacy synced
+            'third_party_name'        => $isDamage ? (collect($parties)->pluck('name')->filter()->implode(', ') ?: null) : null,
+            'third_party_vehicle'     => $isDamage ? (collect($parties)->pluck('vehicle_type')->filter()->implode(', ') ?: null) : null,
             'own_unit_damage_cost'    => $data['own_unit_damage_cost'] ?? 0,
             'third_party_damage_cost' => $data['third_party_damage_cost'] ?? 0,
             'is_driver_fault'         => $isFault,
@@ -204,59 +206,97 @@ class DriverBehaviorController extends Controller
             'incident_date'           => $data['incident_date'] ?? now()->timezone('Asia/Manila')->toDateString(),
         ]);
 
-        // 2. Insert dynamic Involved Parties
-        foreach ($parties as $p) {
-            if (!empty($p['name']) || !empty($p['plate_number'])) {
-                \App\Models\IncidentInvolvedParty::create([
-                    'driver_behavior_id' => $behavior->id,
-                    'name'               => $p['name'] ?? null,
-                    'vehicle_type'       => $p['vehicle_type'] ?? null,
-                    'plate_number'       => $p['plate_number'] ?? null,
-                ]);
+        // ── Insert Involved Parties (damage mode only) ─────────────────
+        if ($isDamage) {
+            foreach ($parties as $p) {
+                if (!empty($p['name']) || !empty($p['plate_number'])) {
+                    \App\Models\IncidentInvolvedParty::create([
+                        'driver_behavior_id' => $behavior->id,
+                        'name'               => $p['name'] ?? null,
+                        'vehicle_type'       => $p['vehicle_type'] ?? null,
+                        'plate_number'       => $p['plate_number'] ?? null,
+                    ]);
+                }
+            }
+            foreach ($parts as $partData) {
+                $qty   = (int)($partData['quantity'] ?? 0);
+                $price = (float)($partData['unit_price'] ?? 0);
+                if ($qty > 0 && $price >= 0) {
+                    \App\Models\IncidentPartsEstimate::create([
+                        'driver_behavior_id'   => $behavior->id,
+                        'spare_part_id'        => !empty($partData['spare_part_id']) ? $partData['spare_part_id'] : null,
+                        'custom_part_name'     => $partData['custom_part_name'] ?? null,
+                        'quantity'             => $qty,
+                        'unit_price'           => $price,
+                        'total_price'          => $qty * $price,
+                        'is_charged_to_driver' => (bool)($partData['is_charged_to_driver'] ?? false),
+                    ]);
+                }
             }
         }
 
-        // 3. Insert dynamic Parts Estimates
-        foreach ($parts as $partData) {
-            $qty = (int)($partData['quantity'] ?? 0);
-            $price = (float)($partData['unit_price'] ?? 0);
-            $isCharged = (bool)($partData['is_charged_to_driver'] ?? false);
-            
-            if ($qty > 0 && $price >= 0) {
-                \App\Models\IncidentPartsEstimate::create([
-                    'driver_behavior_id' => $behavior->id,
-                    'spare_part_id'      => !empty($partData['spare_part_id']) ? $partData['spare_part_id'] : null,
-                    'custom_part_name'   => $partData['custom_part_name'] ?? null,
-                    'quantity'           => $qty,
-                    'unit_price'         => $price,
-                    'total_price'        => $qty * $price,
-                    'is_charged_to_driver' => $isCharged,
-                ]);
-            }
-        }
-
-
-        // If driver at fault → void incentive for any boundary on incident date
-        if ($isFault && !empty($data['incident_date'])) {
+        // ── Void Incentive for the Day of Incident ───────────
+        // Disqualify if: At-fault Damage, Any Traffic Violation, or Any Passenger Complaint
+        $shouldVoidIncentive = ($isFault && $isDamage) || $isTraffic || $isComplaint;
+        
+        if ($shouldVoidIncentive && !empty($data['incident_date'])) {
+            $reason = $isTraffic ? 'Traffic Violation' : ($isComplaint ? 'Passenger Complaint' : 'At-fault Accident');
             DB::table('boundaries')
                 ->where('driver_id', $data['driver_id'])
                 ->whereDate('date', $data['incident_date'])
                 ->update([
-                    'has_incentive'          => false,
-                    'counted_for_incentive'  => false,
-                    'notes'                  => DB::raw("CONCAT(COALESCE(notes,''), ' [Disqualified: Driver at fault in accident]')")
+                    'has_incentive'         => false,
+                    'counted_for_incentive' => false,
+                    'notes'                 => DB::raw("CONCAT(COALESCE(notes,''), ' [Disqualified: Recorded Incident - {$reason}]')")
                 ]);
         }
 
-        // Create system alert for accidents
-        if ($isAccident) {
-            $unit      = DB::table('units')->find($data['unit_id']);
+        // ── Auto-Ban Logic (Passenger Complaint + Contracting OR Critical Severity) ─────────
+        $shouldAutoBan = false;
+        
+        // Trigger 1: Specific sub-classification (e.g., 'Contracting') configured in settings
+        if ($classification && $classification->auto_ban_trigger && !empty($data['sub_classification'])) {
+            if ($data['sub_classification'] === $classification->ban_trigger_value) {
+                $shouldAutoBan = true;
+            }
+        }
+
+        // Trigger 2: Manual override via Severity dropdown
+        if (strtolower($data['severity']) === 'critical') {
+            $shouldAutoBan = true;
+        }
+
+        if ($shouldAutoBan) {
+            // Mark driver as banned
+            DB::table('drivers')
+                ->where('id', $data['driver_id'])
+                ->update([
+                    'driver_status' => 'banned',
+                    'updated_at'    => now(),
+                ]);
+
+            // Automatically unassign banned driver from any units
+            DB::table('units')
+                ->where('driver_id', $data['driver_id'])
+                ->update([
+                    'driver_id' => null, 
+                    'status' => 'active', // Ensure unit status stays active or resets if needed
+                    'updated_at' => now()
+                ]);
+            DB::table('units')
+                ->where('secondary_driver_id', $data['driver_id'])
+                ->update([
+                    'secondary_driver_id' => null,
+                    'updated_at' => now()
+                ]);
+
+            // Log a system alert
             $driver    = DB::table('drivers')->find($data['driver_id']);
-            $plateName = $unit->plate_number ?? 'Unknown Unit';
+            $unit      = DB::table('units')->find($data['unit_id']);
             $driverName = trim(($driver->first_name ?? '') . ' ' . ($driver->last_name ?? ''));
             DB::table('system_alerts')->insert([
-                'title'       => "Accident Reported: {$plateName}",
-                'message'     => "Driver {$driverName} reported an accident. Fault: " . ($isFault ? 'YES' : 'NO') . ". Charge: ₱" . number_format($data['total_charge_to_driver'] ?? 0, 2),
+                'title'       => "🚫 AUTO-BAN: {$driverName}",
+                'message'     => "Driver {$driverName} has been automatically banned due to a Contracting / passenger complaint violation on unit {$unit->plate_number}.",
                 'type'        => 'danger',
                 'is_resolved' => false,
                 'created_at'  => now(),
@@ -264,8 +304,28 @@ class DriverBehaviorController extends Controller
             ]);
         }
 
+        // ── Create system alert for accidents/damage ───────────────────
+        if ($isDamage) {
+            $unit      = DB::table('units')->find($data['unit_id']);
+            $driver    = DB::table('drivers')->find($data['driver_id']);
+            $plateName  = $unit->plate_number ?? 'Unknown Unit';
+            $driverName = trim(($driver->first_name ?? '') . ' ' . ($driver->last_name ?? ''));
+            DB::table('system_alerts')->insert([
+                'title'       => "Accident Reported: {$plateName}",
+                'message'     => "Driver {$driverName} reported an accident. Fault: " . ($isFault ? 'YES' : 'NO') . ". Charge: ₱" . number_format($totalCharge, 2),
+                'type'        => 'danger',
+                'is_resolved' => false,
+                'created_at'  => now(),
+                'updated_at'  => now(),
+            ]);
+        }
+
+        $driverName = DB::table('drivers')->where('id', $data['driver_id'])->select(DB::raw("CONCAT(first_name, ' ', last_name) as name"))->value('name');
+        $plate = DB::table('units')->where('id', $data['unit_id'])->value('plate_number');
+        ActivityLogController::log('Recorded Incident', "Driver: {$driverName}\nUnit: {$plate}\nType: {$data['incident_type']}\nSeverity: " . ucfirst($data['severity']));
+
         return redirect()->route('driver-behavior.index', ['tab' => 'incidents'])
-            ->with('success', 'Incident recorded successfully.');
+            ->with('success', 'Incident recorded successfully.' . ($shouldAutoBan ? ' Driver has been automatically BANNED due to contracting violation.' : ''));
     }
 
     // ─── SHOW: Get Incident Details (JSON) ──────────────────────────────
@@ -337,6 +397,9 @@ class DriverBehaviorController extends Controller
             return response()->json(['success' => true, 'message' => 'Incident updated successfully.']);
         }
 
+        $driverName = DB::table('drivers')->where('id', $incident->driver_id)->select(DB::raw("CONCAT(first_name, ' ', last_name) as name"))->value('name');
+        ActivityLogController::log('Updated Incident', "Incident #{$id} ({$incident->incident_type})\nDriver: {$driverName}\nSeverity changed to: " . ucfirst($incident->severity));
+
         return redirect()->route('driver-behavior.index', ['tab' => 'incidents'])
             ->with('success', 'Incident updated successfully.');
     }
@@ -345,8 +408,13 @@ class DriverBehaviorController extends Controller
     public function destroy($id)
     {
         $behavior = \App\Models\DriverBehavior::findOrFail($id);
+        $type = $behavior->incident_type;
+        $driverId = $behavior->driver_id;
         $behavior->delete();
         
+        $driverName = DB::table('drivers')->where('id', $driverId)->select(DB::raw("CONCAT(first_name, ' ', last_name) as name"))->value('name');
+        ActivityLogController::log('Archived Incident', "Type: {$type}\nDriver: {$driverName}\nRecord moved to archive.");
+
         if (request()->ajax()) {
             return response()->json(['success' => true, 'message' => 'Incident moved to Archive.']);
         }
@@ -375,6 +443,8 @@ class DriverBehaviorController extends Controller
 
         $driver = DB::table('drivers')->find($driver_id);
         $name = trim(($driver->first_name ?? '') . ' ' . ($driver->last_name ?? ''));
+
+        ActivityLogController::log('Released Incentive', "Driver: {$name}\nAll unreleased boundaries and violations have been cleared.");
 
         return redirect()->route('driver-behavior.index', ['tab' => 'incentives'])
             ->with('success', "Incentive released for {$name}. Counter reset.");

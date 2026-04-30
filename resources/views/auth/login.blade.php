@@ -606,6 +606,7 @@
             z-index: 100000;
             opacity: 0;
             transition: opacity 0.3s ease;
+            padding: 1rem;
         }
         .mfa-modal-overlay.show {
             display: flex;
@@ -615,6 +616,8 @@
             background: white;
             width: 100%;
             max-width: 400px;
+            max-height: calc(100vh - 2rem);
+            overflow-y: auto;
             border-radius: 1.5rem;
             padding: 2rem;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
@@ -785,15 +788,7 @@
                                     </button>
                                 </form>
 
-                                <div class="text-center mt-4">
-                                    <p class="text-gray-600 text-sm">
-                                        Don't have an account?
-                                        <button type="button" onclick="setState('register')"
-                                            class="text-blue-600 font-semibold hover:underline">
-                                            Create Account
-                                        </button>
-                                    </p>
-                                </div>
+
                             </div>
 
                             <!-- Forgot Password Panel -->
@@ -1174,6 +1169,90 @@
         </div>
     </div>
 
+    <!-- Force Password Change Modal -->
+    <div id="forcePasswordModal" class="mfa-modal-overlay">
+        <div class="mfa-modal-content relative" style="max-width: 400px; padding: 0; overflow: hidden;">
+            <button onclick="closeForcePasswordModal()" type="button" class="absolute top-3 right-3 text-white/80 hover:text-white transition-colors p-2 z-10" aria-label="Close">
+                <i class="fas fa-times text-lg"></i>
+            </button>
+            <div class="bg-amber-500 p-4 sm:p-5 text-center relative">
+                <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center mx-auto mb-2 shadow-inner">
+                    <i class="fas fa-shield-alt text-2xl text-amber-500"></i>
+                </div>
+                <h3 class="text-lg sm:text-xl font-bold text-white leading-tight">Action Required</h3>
+                <p class="text-amber-50 mt-1 text-[11px] sm:text-xs" id="forcePasswordMessage">Please update your temporary password to continue.</p>
+            </div>
+            
+            <div class="p-4 sm:p-5">
+                <form id="forcePasswordForm" onsubmit="submitForcePassword(event)">
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Temporary Password</label>
+                            <div class="input-group" style="margin-bottom:0;">
+                                <div class="pw-group" style="margin-bottom:0;">
+                                    <i class="fas fa-key pw-icon"></i>
+                                    <input type="password" id="force-current-pwd" required placeholder="Enter current password">
+                                    <button type="button" class="toggle-password" onclick="togglePassword('force-current-pwd', this)" tabindex="-1">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">New Password</label>
+                            <div class="input-group" style="margin-bottom:0;">
+                                <div class="pw-group" style="margin-bottom:0;">
+                                    <i class="fas fa-lock pw-icon"></i>
+                                    <input type="password" id="force-new-pwd" required minlength="8" placeholder="Enter new password">
+                                    <button type="button" class="toggle-password" onclick="togglePassword('force-new-pwd', this)" tabindex="-1">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="password-strength-container hidden mt-1" id="forcePwStrengthContainer">
+                                <div style="width: 100%; height: 3px; background: #e5e7eb; border-radius: 2px; overflow: hidden; display: flex;">
+                                    <div id="forcePwStrengthBar" style="width: 0%; height: 100%; transition: all 0.3s ease; border-radius: 2px;"></div>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; margin-top: 2px;">
+                                    <div id="forcePwStrengthText" class="text-[10px] font-medium leading-tight w-full text-right"></div>
+                                </div>
+                            </div>
+                            <ul id="forcePwCriteria" class="text-[10px] text-gray-500 mt-1.5 space-y-0.5">
+                                <li id="req-length" class="flex items-center gap-1.5 transition-colors duration-200"><i class="fas fa-circle text-[6px]"></i> <span>Minimum 8 characters</span></li>
+                                <li id="req-upper" class="flex items-center gap-1.5 transition-colors duration-200"><i class="fas fa-circle text-[6px]"></i> <span>At least 1 uppercase</span></li>
+                                <li id="req-number" class="flex items-center gap-1.5 transition-colors duration-200"><i class="fas fa-circle text-[6px]"></i> <span>At least 1 number</span></li>
+                                <li id="req-special" class="flex items-center gap-1.5 transition-colors duration-200"><i class="fas fa-circle text-[6px]"></i> <span>At least 1 special character</span></li>
+                            </ul>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Confirm New Password</label>
+                            <div class="input-group" style="margin-bottom:0;">
+                                <div class="pw-group" style="margin-bottom:0;">
+                                    <i class="fas fa-lock pw-icon"></i>
+                                    <input type="password" id="force-confirm-pwd" required minlength="8" placeholder="Confirm new password">
+                                    <button type="button" class="toggle-password" onclick="togglePassword('force-confirm-pwd', this)" tabindex="-1">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div id="forceConfirmError" class="text-red-600 text-[10px] leading-tight font-medium hidden mt-1">Passwords do not match.</div>
+                        </div>
+                    </div>
+                    
+                    <div id="force-pwd-error" class="hidden mt-4 p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-lg text-center font-medium"></div>
+                    
+                    <div class="mt-6">
+                        <button type="submit" id="btn-force-pwd" class="btn-primary w-full py-2.5 flex justify-center items-center gap-2" style="background-color: #f59e0b; border-color: #f59e0b;">
+                            <i class="fas fa-check"></i> Update Password & Sign In
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <script>
         let currentState = 'login';
         let mfaMethod = '';
@@ -1200,6 +1279,91 @@
                     resendBtn.style.display = 'inline-block';
                 }
             }, 1000);
+        }
+
+        // Force Password Modal Logic
+        function showForcePasswordModal(message) {
+            const modal = document.getElementById('forcePasswordModal');
+            if (message) {
+                document.getElementById('forcePasswordMessage').textContent = message;
+            }
+            modal.style.display = 'flex';
+            setTimeout(() => modal.classList.add('show'), 10);
+        }
+
+        function closeForcePasswordModal() {
+            const modal = document.getElementById('forcePasswordModal');
+            modal.classList.remove('show');
+            setTimeout(() => {
+                modal.style.display = 'none';
+                document.getElementById('forcePasswordForm').reset();
+            }, 300);
+        }
+
+        async function submitForcePassword(e) {
+            e.preventDefault();
+            
+            const currentPwd = document.getElementById('force-current-pwd').value;
+            const newPwd = document.getElementById('force-new-pwd').value;
+            const confirmPwd = document.getElementById('force-confirm-pwd').value;
+            const errBox = document.getElementById('force-pwd-error');
+            const btn = document.getElementById('btn-force-pwd');
+            
+            errBox.classList.add('hidden');
+            
+            if (newPwd !== confirmPwd) {
+                errBox.textContent = 'New passwords do not match.';
+                errBox.classList.remove('hidden');
+                return;
+            }
+            
+            if (!/(?=.*[A-Z])(?=.*[0-9])/.test(newPwd)) {
+                errBox.textContent = 'Password must contain at least 1 uppercase letter and 1 number.';
+                errBox.classList.remove('hidden');
+                return;
+            }
+
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Updating...';
+            btn.disabled = true;
+
+            try {
+                const response = await fetch('{{ route("auth.force-change-password.update") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        current_password: currentPwd,
+                        new_password: newPwd,
+                        new_password_confirmation: confirmPwd
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showToast('Password updated successfully! Welcome to Eurotaxi.', 'success');
+                    setTimeout(() => {
+                        window.location.href = data.redirect;
+                    }, 1000);
+                } else {
+                    errBox.textContent = data.message || 'Validation failed.';
+                    if(data.errors) {
+                        errBox.textContent = Object.values(data.errors)[0][0];
+                    }
+                    errBox.classList.remove('hidden');
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                }
+            } catch (err) {
+                errBox.textContent = 'A network error occurred. Please try again.';
+                errBox.classList.remove('hidden');
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
         }
 
         // Added MFA Functions
@@ -1319,7 +1483,12 @@
                 return res.json();
             })
             .then(data => {
-                if (data.success) {
+                if (data.force_password_change) {
+                    closeMfaModal();
+                    showForcePasswordModal(data.message);
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
+                } else if (data.success) {
                     showToast('Identity verified! Signing in...', 'success');
                     setTimeout(() => {
                         window.location.href = data.redirect;
@@ -2650,6 +2819,136 @@
                     }
                 });
             }
+
+            // ─── Force Password Change Modal Strength & Match ─────────────────
+            const forcePwInput = document.getElementById('force-new-pwd');
+            const forcePwConfirm = document.getElementById('force-confirm-pwd');
+            const forceBtn = document.getElementById('btn-force-pwd');
+
+            if (forceBtn) {
+                forceBtn.disabled = true;
+                forceBtn.style.opacity = '0.5';
+                forceBtn.style.cursor = 'not-allowed';
+            }
+            
+            function validateForcePwConfirm() {
+                if (!forcePwConfirm || !forcePwInput || !forceBtn) return;
+                const errDiv = document.getElementById('forceConfirmError');
+                let isValidMatch = true;
+                
+                if (forcePwConfirm.value.length === 0) {
+                    errDiv.classList.add('hidden');
+                    isValidMatch = false;
+                } else if (forcePwInput.value !== forcePwConfirm.value) {
+                    errDiv.textContent = 'Passwords do not match.';
+                    errDiv.classList.remove('hidden');
+                    isValidMatch = false;
+                } else {
+                    errDiv.classList.add('hidden');
+                }
+
+                const val = forcePwInput.value;
+                const meetsCriteria = val.length >= 8 && val.match(/[A-Z]/) && val.match(/[0-9]/) && val.match(/[^A-Za-z0-9]/);
+
+                if (isValidMatch && meetsCriteria) {
+                    forceBtn.disabled = false;
+                    forceBtn.style.opacity = '1';
+                    forceBtn.style.cursor = 'pointer';
+                } else {
+                    forceBtn.disabled = true;
+                    forceBtn.style.opacity = '0.5';
+                    forceBtn.style.cursor = 'not-allowed';
+                }
+            }
+
+            if (forcePwInput) {
+                forcePwInput.addEventListener('input', function() {
+                    const val = this.value;
+                    const criteriaText = document.getElementById('forcePwCriteria');
+                    const strengthContainer = document.getElementById('forcePwStrengthContainer');
+                    const strengthBar = document.getElementById('forcePwStrengthBar');
+                    const strengthText = document.getElementById('forcePwStrengthText');
+                    
+                    const reqLength = document.getElementById('req-length');
+                    const reqUpper = document.getElementById('req-upper');
+                    const reqNumber = document.getElementById('req-number');
+                    const reqSpecial = document.getElementById('req-special');
+
+                    function resetReq(el, text) {
+                        el.className = 'flex items-center gap-1.5 text-gray-500 transition-colors duration-200';
+                        el.innerHTML = '<i class="fas fa-circle text-[6px]"></i> <span>' + text + '</span>';
+                    }
+
+                    if (val.length === 0) {
+                        strengthContainer.classList.add('hidden');
+                        criteriaText.classList.remove('hidden');
+                        resetReq(reqLength, 'Minimum 8 characters');
+                        resetReq(reqUpper, 'At least 1 uppercase');
+                        resetReq(reqNumber, 'At least 1 number');
+                        resetReq(reqSpecial, 'At least 1 special character');
+                        validateForcePwConfirm();
+                        return;
+                    }
+                    strengthContainer.classList.remove('hidden');
+                    
+                    let strength = 0;
+                    if (val.length >= 8) strength++;
+                    if (val.match(/[A-Z]/)) strength++;
+                    if (val.match(/[a-z]/)) strength++;
+                    if (val.match(/[0-9]/)) strength++;
+                    if (val.match(/[^A-Za-z0-9]/)) strength++;
+
+                    let percent = 0;
+                    let color = '';
+                    let text = '';
+
+                    if (strength <= 2) {
+                        percent = 33; color = '#ef4444'; text = 'Weak';
+                    } else if (strength === 3 || strength === 4) {
+                        percent = 66; color = '#eab308'; text = 'Medium';
+                    } else if (strength === 5) {
+                        percent = 100; color = '#22c55e'; text = 'Strong';
+                    }
+
+                    function updateReq(el, isMet, text) {
+                        if (isMet) {
+                            el.className = 'flex items-center gap-1.5 text-green-600 transition-colors duration-200';
+                            el.innerHTML = '<i class="fas fa-check text-[10px]"></i> <span>' + text + '</span>';
+                        } else {
+                            el.className = 'flex items-center gap-1.5 text-red-500 transition-colors duration-200';
+                            el.innerHTML = '<i class="fas fa-times text-[10px]"></i> <span>' + text + '</span>';
+                        }
+                    }
+
+                    const hasLength = val.length >= 8;
+                    const hasUpper = /[A-Z]/.test(val);
+                    const hasNumber = /[0-9]/.test(val);
+                    const hasSpecial = /[^A-Za-z0-9]/.test(val);
+
+                    updateReq(reqLength, hasLength, 'Minimum 8 characters');
+                    updateReq(reqUpper, hasUpper, 'At least 1 uppercase');
+                    updateReq(reqNumber, hasNumber, 'At least 1 number');
+                    updateReq(reqSpecial, hasSpecial, 'At least 1 special character');
+
+                    // Strict check for the minimum requirements
+                    if (hasLength && hasUpper && hasNumber && hasSpecial) {
+                        criteriaText.classList.add('hidden');
+                    } else {
+                        criteriaText.classList.remove('hidden');
+                    }
+
+                    strengthBar.style.width = percent + '%';
+                    strengthBar.style.backgroundColor = color;
+                    strengthText.textContent = text;
+                    strengthText.style.color = color;
+                    
+                    validateForcePwConfirm();
+                });
+            }
+
+            if (forcePwConfirm) {
+                forcePwConfirm.addEventListener('input', validateForcePwConfirm);
+            }
             
             if (loginForm) {
                 loginForm.addEventListener('submit', function(e) {
@@ -2687,6 +2986,10 @@
                     .then(data => {
                         if (data.mfa_required) {
                             showMfaModal(data);
+                            btn.disabled = false;
+                            btn.innerHTML = originalText;
+                        } else if (data.force_password_change) {
+                            showForcePasswordModal(data.message);
                             btn.disabled = false;
                             btn.innerHTML = originalText;
                         } else if (data.success) {

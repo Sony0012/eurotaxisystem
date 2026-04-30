@@ -42,12 +42,14 @@ class SuperAdminController extends Controller
 
         // Stats
         $totalUsers    = User::whereNotIn('role', ['super_admin'])->count();
-        $pendingUsers  = User::whereNotIn('role', ['super_admin'])->where('approval_status', 'pending')->count();
         $activeUsers   = User::whereNotIn('role', ['super_admin'])->where('is_active', true)->where('approval_status', 'approved')->count();
         $rejectedUsers = User::whereNotIn('role', ['super_admin'])->where('approval_status', 'rejected')->count();
 
-        // Recent login audit (for overview)
-        $recentAudit = LoginAudit::orderByDesc('created_at')->limit(10)->get();
+        // Recent login audit (for overview) - Filter for only login-related activity
+        $recentAudit = LoginAudit::whereIn('action', ['login', 'failed_login', 'logout'])
+            ->orderByDesc('created_at')
+            ->limit(10)
+            ->get();
 
         // Users
         $allUsers = User::whereNotIn('role', ['super_admin'])
@@ -56,18 +58,30 @@ class SuperAdminController extends Controller
             ->orderByDesc('created_at')
             ->get();
 
-        // Paginated audit log
-        $auditLog = LoginAudit::orderByDesc('created_at')->paginate(25);
+        // Paginated audit log - Filter for login-related activity for this tab
+        $auditLog = LoginAudit::whereIn('action', ['login', 'failed_login', 'logout', 'approved', 'rejected', 'password_changed', 'created'])
+            ->orderByDesc('created_at')
+            ->paginate(25);
+        // Classifications
+        $classifications = \App\Models\IncidentClassification::orderBy('name')->get();
+        $archivedClassifications = \App\Models\IncidentClassification::onlyTrashed()->orderBy('name')->get();
+
+        // Roles
+        $roles = \App\Models\Role::orderBy('label')->get();
+        $archivedRoles = \App\Models\Role::onlyTrashed()->orderBy('label')->get();
 
         return view('super-admin.index', compact(
             'tab',
             'totalUsers',
-            'pendingUsers',
             'activeUsers',
             'rejectedUsers',
             'recentAudit',
             'allUsers',
-            'auditLog'
+            'auditLog',
+            'classifications',
+            'archivedClassifications',
+            'roles',
+            'archivedRoles'
         ));
     }
 
@@ -161,7 +175,8 @@ class SuperAdminController extends Controller
 
     public function loginHistory(Request $request)
     {
-        $query = LoginAudit::orderByDesc('created_at');
+        $query = LoginAudit::whereIn('action', ['login', 'failed_login', 'logout', 'approved', 'rejected', 'password_changed', 'created'])
+            ->orderByDesc('created_at');
 
         if ($request->filled('search')) {
             $s = $request->input('search');
@@ -209,6 +224,38 @@ class SuperAdminController extends Controller
         return response()->json(['success' => true, 'message' => $user->full_name . ' has been restored.']);
     }
 
+    // ─── Get User Details & History ───────────────────────────────────────────
+
+    public function getUserDetails(Request $request, $id)
+    {
+        $user = User::withTrashed()->findOrFail($id);
+        $history = LoginAudit::where('user_id', $user->id)
+                             ->orderByDesc('created_at')
+                             ->limit(50)
+                             ->get();
+                             
+        // Append profile image url for easier frontend handling
+        $profileUrl = $user->profile_image ? asset('storage/' . $user->profile_image) : null;
+                             
+        return response()->json([
+            'success' => true,
+            'user'    => [
+                'id' => $user->id,
+                'full_name' => $user->full_name,
+                'email' => $user->email,
+                'phone_number' => $user->phone_number,
+                'role' => $user->role,
+                'status' => $user->approval_status,
+                'is_active' => $user->is_active,
+                'trashed' => $user->trashed(),
+                'created_at' => $user->created_at->format('M d, Y h:i A'),
+                'profile_url' => $profileUrl,
+                'initials' => strtoupper(substr($user->full_name ?? 'U', 0, 1))
+            ],
+            'history' => $history
+        ]);
+    }
+
     // ─── Reset Password (Super Admin override) ────────────────────────────────
 
     public function resetPassword(Request $request, $id)
@@ -245,5 +292,186 @@ class SuperAdminController extends Controller
         LoginAudit::log('approved', $user, 'Role changed from ' . $oldRole . ' to ' . $user->role . ' by ' . Auth::user()->full_name);
 
         return response()->json(['success' => true, 'message' => 'Role updated for ' . $user->full_name . '.']);
+    }
+
+    // ─── CREATE STAFF ACCOUNT (Super Admin only) ──────────────────────────────
+    public function storeStaff(Request $request)
+    {
+        $validRoles = \App\Models\Role::pluck('name')->toArray();
+        $roleIn = implode(',', $validRoles);
+
+        $request->validate([
+            'first_name'   => 'required|string|max:50',
+            'last_name'    => 'required|string|max:50',
+            'email'        => 'required|email|unique:users,email',
+            'role'         => 'required|in:' . $roleIn,
+            'phone_number' => 'nullable|string|max:20',
+            'address'      => 'nullable|string|max:255',
+        ]);
+
+        // Auto-generate a secure temp password
+        $tempPassword = strtoupper(substr(str_shuffle('abcdefghjkmnpqrstuvwxyz'), 0, 3))
+                      . rand(100, 999)
+                      . str_shuffle('!@#$%')[0];
+
+        $user = User::create([
+            'first_name'           => $request->first_name,
+            'last_name'            => $request->last_name,
+            'full_name'            => $request->first_name . ' ' . $request->last_name,
+            'name'                 => $request->first_name . ' ' . $request->last_name,
+            'username'             => strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $request->first_name . $request->last_name)) . rand(100, 999),
+            'email'                => $request->email,
+            'phone_number'         => $request->phone_number,
+            'address'              => $request->address,
+            'role'                 => $request->role,
+            'password'             => \Illuminate\Support\Facades\Hash::make($tempPassword),
+            'password_hash'        => \Illuminate\Support\Facades\Hash::make($tempPassword),
+            'must_change_password' => true,
+            'temp_password'        => $tempPassword,
+            'is_active'            => true,
+            'is_verified'          => true,
+            'approval_status'      => 'approved',
+        ]);
+
+        // Send welcome email with temp password
+        try {
+            $mailResult = \Mail::to($user->email)->send(new \App\Mail\StaffWelcomeMail($user, $tempPassword));
+        } catch (\Throwable $e) {
+            \Log::error('StaffWelcomeMail failed: ' . $e->getMessage());
+        }
+
+        LoginAudit::log('created', $user, 'Staff account created by ' . Auth::user()->full_name . ' with role: ' . $user->role);
+
+        return response()->json([
+            'success'       => true,
+            'message'       => 'Staff account created! Credentials sent to ' . $user->email,
+            'temp_password' => $tempPassword,
+        ]);
+    }
+
+    // ─── Incident Classification Management ───────────────────────────────────
+    public function storeClassification(Request $request)
+    {
+        $data = $request->validate([
+            'name'              => 'required|string|unique:incident_classifications,name',
+            'default_severity'  => 'required|in:low,medium,high,critical',
+            'color'             => 'required|string',
+            'icon'              => 'required|string',
+            'behavior_mode'     => 'nullable|in:narrative,complaint,traffic,damage',
+            'sub_options'       => 'nullable|array',
+            'sub_options.*'     => 'string|max:100',
+            'auto_ban_trigger'  => 'nullable|boolean',
+            'ban_trigger_value' => 'nullable|string|max:100',
+        ]);
+
+        $data['behavior_mode']    = $data['behavior_mode'] ?? 'narrative';
+        $data['sub_options']      = $data['sub_options'] ?? null;
+        $data['auto_ban_trigger'] = (bool)($data['auto_ban_trigger'] ?? false);
+
+        $item = \App\Models\IncidentClassification::create($data);
+
+        return response()->json(['success' => true, 'data' => $item, 'message' => 'New incident classification added!']);
+    }
+
+    public function updateClassification(Request $request, $id)
+    {
+        $item = \App\Models\IncidentClassification::findOrFail($id);
+        
+        $data = $request->validate([
+            'name'              => 'required|string|unique:incident_classifications,name,' . $id,
+            'default_severity'  => 'required|in:low,medium,high,critical',
+            'color'             => 'required|string',
+            'icon'              => 'required|string',
+            'behavior_mode'     => 'nullable|in:narrative,complaint,traffic,damage',
+            'sub_options'       => 'nullable|array',
+            'sub_options.*'     => 'string|max:100',
+            'auto_ban_trigger'  => 'nullable|boolean',
+            'ban_trigger_value' => 'nullable|string|max:100',
+        ]);
+
+        $data['sub_options']      = $data['sub_options'] ?? null;
+        $data['auto_ban_trigger'] = (bool)($data['auto_ban_trigger'] ?? false);
+        $data['behavior_mode']    = $data['behavior_mode'] ?? 'narrative';
+
+        $item->update($data);
+
+        return response()->json(['success' => true, 'data' => $item, 'message' => 'Classification updated successfully.']);
+    }
+
+    public function archiveClassification($id)
+    {
+        $item = \App\Models\IncidentClassification::findOrFail($id);
+        $item->delete();
+
+        return response()->json(['success' => true, 'message' => 'Classification moved to archive.']);
+    }
+
+    public function restoreClassification($id)
+    {
+        $item = \App\Models\IncidentClassification::withTrashed()->findOrFail($id);
+        $item->restore();
+
+        return response()->json(['success' => true, 'message' => 'Classification restored.']);
+    }
+
+    public function deleteClassification($id)
+    {
+        $item = \App\Models\IncidentClassification::withTrashed()->findOrFail($id);
+        $item->forceDelete();
+
+        return response()->json(['success' => true, 'message' => 'Classification permanently deleted.']);
+    }
+
+    // ─── Role Management ───────────────────────────────────────────────────────
+    public function storeRole(Request $request)
+    {
+        $data = $request->validate([
+            'name'        => 'required|string|unique:roles,name',
+            'label'       => 'required|string',
+            'description' => 'nullable|string',
+        ]);
+
+        $role = \App\Models\Role::create($data);
+
+        return response()->json(['success' => true, 'data' => $role, 'message' => 'New system role added!']);
+    }
+
+    public function updateRoleDetail(Request $request, $id)
+    {
+        $role = \App\Models\Role::findOrFail($id);
+        
+        $data = $request->validate([
+            'name'        => 'required|string|unique:roles,name,' . $id,
+            'label'       => 'required|string',
+            'description' => 'nullable|string',
+        ]);
+
+        $role->update($data);
+
+        return response()->json(['success' => true, 'data' => $role, 'message' => 'Role updated successfully.']);
+    }
+
+    public function archiveRole($id)
+    {
+        $role = \App\Models\Role::findOrFail($id);
+        $role->delete();
+
+        return response()->json(['success' => true, 'message' => 'Role moved to archive.']);
+    }
+
+    public function restoreRole($id)
+    {
+        $role = \App\Models\Role::withTrashed()->findOrFail($id);
+        $role->restore();
+
+        return response()->json(['success' => true, 'message' => 'Role restored.']);
+    }
+
+    public function deleteRole($id)
+    {
+        $role = \App\Models\Role::withTrashed()->findOrFail($id);
+        $role->forceDelete();
+
+        return response()->json(['success' => true, 'message' => 'Role permanently deleted.']);
     }
 }

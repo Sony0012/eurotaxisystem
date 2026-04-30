@@ -54,4 +54,8 @@ return [
         'drift'      => env('TRACKSOLID_TIME_DRIFT', 0),
     ],
 
+    'gemini' => [
+        'api_key' => env('GEMINI_API_KEY', ''),
+    ],
+
 ];

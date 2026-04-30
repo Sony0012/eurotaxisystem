@@ -123,13 +123,6 @@
                     $headerNotifications[] = $n;
                 }
             }
-            if(isset($stockNotifs)) {
-                foreach($stockNotifs as $n) {
-                    $n['time'] = $n['time'] ?? 'Critical';
-                    $headerNotifications[] = $n;
-                }
-            }
-
             $headerNotificationCount = count($headerNotifications);
 
             // Sort logic: "Action Required" items first, then others by recency
@@ -366,7 +359,33 @@
                         </div>
 
                         <div class="flex items-center gap-4">
-                            <!-- Notification Bell -->
+                            <!-- Licenses Expired (Separate Button) -->
+                            @if(isset($licenseNotifs) && count($licenseNotifs) > 0)
+                                @php
+                                    $hasExpired = collect($licenseNotifs)->contains('time', 'ACTION REQUIRED');
+                                    $licColor = $hasExpired ? 'red' : 'orange';
+                                @endphp
+                                <a href="{{ route('driver-management.index') }}" title="{{ $hasExpired ? 'Expired Licenses' : 'Expiring Licenses' }}"
+                                    class="relative p-2 text-{{ $licColor }}-600 hover:bg-{{ $licColor }}-50 rounded-lg transition-colors group">
+                                    <i data-lucide="id-card" class="w-5 h-5 group-hover:scale-110 transition-transform {{ $hasExpired ? 'animate-pulse' : '' }}"></i>
+                                    <span class="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-{{ $licColor }}-600 text-white text-[10px] leading-[18px] rounded-full text-center shadow-sm font-bold border border-white">
+                                        {{ count($licenseNotifs) }}
+                                    </span>
+                                </a>
+                            @endif
+
+                            <!-- Parts Stocks (Separate Button) -->
+                            @if(isset($stockNotifs) && count($stockNotifs) > 0)
+                                <a href="{{ route('maintenance.index', ['open_inventory' => 1]) }}" title="Low Parts Stocks"
+                                    class="relative p-2 text-amber-600 hover:bg-amber-50 rounded-lg transition-colors group">
+                                    <i data-lucide="package-search" class="w-5 h-5 group-hover:scale-110 transition-transform"></i>
+                                    <span class="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-amber-500 text-white text-[10px] leading-[18px] rounded-full text-center shadow-sm font-bold border border-white">
+                                        {{ count($stockNotifs) }}
+                                    </span>
+                                </a>
+                            @endif
+
+                            <!-- Main Notification Bell -->
                             <div class="relative">
                                 <button id="notificationBell"
                                     class="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg">
@@ -495,16 +514,7 @@
 
     <!-- Common JavaScript -->
     <script>
-        // Auto-hide flash messages after 5 seconds
-        setTimeout(() => {
-            const alerts = document.querySelectorAll('.alert-slide');
-            alerts.forEach(alert => {
-                alert.style.opacity = '0';
-                setTimeout(() => alert.remove(), 300);
-            });
-        }, 5000);
-
-        // Common AJAX function
+        // makeRequest — global AJAX helper used across all pages
         async function makeRequest(url, options = {}) {
             try {
                 const response = await fetch(url, {
@@ -526,65 +536,24 @@
             }
         }
 
-        function updateNotificationCount() {
-            const list = document.getElementById('notificationList');
-            const countSpan = document.querySelector('#notificationDropdown .border-b span.text-xs');
-            const badge = document.querySelector('#notificationBell span');
-            const count = list ? list.querySelectorAll('.notification-item').length : 0;
-            if (countSpan) countSpan.textContent = count + ' item(s)';
-            if (badge) {
-                if (count > 0) {
-                    badge.textContent = count;
-                    badge.classList.remove('hidden');
-                } else {
-                    badge.classList.add('hidden');
-                }
-            }
-        }
-
-        function dismissNotification(button) {
-            event.stopPropagation();
-            const item = button.closest('.notification-item');
-            if (!item) return;
-            const type = item.getAttribute('data-type');
-            const id = item.getAttribute('data-id');
-            item.remove();
-            updateNotificationCount();
-            if (type === 'system' && id) {
-                fetch('{{ route("notifications.dismiss") }}', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                    },
-                    body: 'id=' + encodeURIComponent(id)
-                }).catch(err => console.error('Failed to dismiss:', err));
-            }
-        }
-
+        // Header clock — updates every second
         function updateHeaderClock() {
             const now = new Date();
             const dateEl = document.getElementById('header-date');
             const timeEl = document.getElementById('header-time');
-            
             if (dateEl && timeEl) {
-                // Friday, April 5, 2026
                 const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
                 dateEl.textContent = now.toLocaleDateString('en-US', dateOptions);
-                
-                // 09:23 AM
                 const timeOptions = { hour: '2-digit', minute: '2-digit', hour12: true };
                 timeEl.textContent = now.toLocaleTimeString('en-US', timeOptions);
             }
         }
 
-        // Initialize Lucide icons when DOM is ready
         document.addEventListener('DOMContentLoaded', () => {
+            // Re-initialize Lucide icons
             if (window.lucide && window.lucide.createIcons) {
                 window.lucide.createIcons();
             }
-            
             // Start header clock
             updateHeaderClock();
             setInterval(updateHeaderClock, 1000);

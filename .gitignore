@@ -21,3 +21,9 @@ yarn-error.log
 /deploy.bat
 /deployer.cjs
 /tmp/
+
+# Local sync / backup artifacts (do not commit)
+/backups/
+*.bak
+*.github
+*.git_backup

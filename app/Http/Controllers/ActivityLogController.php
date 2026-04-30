@@ -16,6 +16,11 @@ class ActivityLogController extends Controller
     {
         $query = LoginAudit::with('user')->orderByDesc('created_at');
 
+        // By default, exclude auth and account management logs unless explicitly requested via filter
+        if ($request->input('type') !== 'auth') {
+            $query->whereNotIn('action', ['login', 'logout', 'failed_login', 'created', 'approved', 'rejected']);
+        }
+
         // Search by name, email, action, or notes
         if ($request->filled('search')) {
             $s = $request->input('search');

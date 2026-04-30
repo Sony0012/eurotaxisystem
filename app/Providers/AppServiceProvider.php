@@ -117,6 +117,30 @@ class AppServiceProvider extends ServiceProvider
                     ];
                 }
                 $view->with('stockNotifs', $stockNotifs);
+                
+                // Global Notifications for Driver License Expiry
+                $expiringLicenses = \Illuminate\Support\Facades\DB::table('drivers')
+                    ->whereNull('deleted_at')
+                    ->where('license_expiry', '<=', Carbon::now()->addDays(30)->toDateString())
+                    ->get();
+                
+                $licenseNotifs = [];
+                foreach ($expiringLicenses as $l) {
+                    $expDt = Carbon::parse($l->license_expiry);
+                    $isExpired = $expDt->isPast();
+                    $driverName = $l->first_name . ' ' . $l->last_name;
+                    
+                    $licenseNotifs[] = [
+                        'id' => 'lic_exp_' . $l->id,
+                        'type' => 'license_expiry',
+                        'title' => $isExpired ? '🚫 Expired License: ' . $driverName : '⚠️ License Renewal: ' . $driverName,
+                        'message' => "{$driverName}'s license " . ($isExpired ? 'expired on ' : 'expires on ') . $expDt->format('M d, Y') . ". Please update the record.",
+                        'url' => route('driver-management.index') . '?edit_driver=' . $l->id,
+                        'time' => $isExpired ? 'ACTION REQUIRED' : 'Upcoming',
+                        'timestamp' => $expDt
+                    ];
+                }
+                $view->with('licenseNotifs', $licenseNotifs);
 
             } catch (\Exception $e) {
                 // If DB is missing during initial setup, silently ignore

@@ -113,6 +113,12 @@ Route::middleware(['auth', 'page_access'])->group(function () {
     Route::get('/driver-behavior', [DriverBehaviorController::class, 'index'])->name('driver-behavior.index');
     Route::post('/driver-behavior', [DriverBehaviorController::class, 'store'])->name('driver-behavior.store');
 
+    // Driver Management — static paths MUST be registered before the resource
+    // so "pending-debts" is not matched as driver-management/{id} (show).
+    Route::get('/driver-management/pending-debts', [DriverManagementController::class, 'getPendingDebts'])->name('driver-management.pending-debts');
+    Route::get('/driver-management/debt-history', [DriverManagementController::class, 'getDebtHistory'])->name('driver-management.debt-history');
+    Route::post('/driver-management/pay-debt', [DriverManagementController::class, 'payDebt'])->name('driver-management.pay-debt');
+
     // Driver Management Resource Routes
     Route::resource('driver-management', DriverManagementController::class);
     Route::post('/driver-management/upload-documents/{id}', [DriverManagementController::class, 'uploadDocuments'])->name('driver-management.upload-documents');
@@ -129,6 +135,7 @@ Route::middleware(['auth', 'page_access'])->group(function () {
 
     // Analytics
     Route::get('/analytics', [AnalyticsController::class, 'index'])->name('analytics.index');
+    Route::get('/api/analytics/ai-insights', [AnalyticsController::class, 'aiInsights'])->name('analytics.ai-insights');
 
     // Activity Logs
     Route::get('/activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');
@@ -204,6 +211,14 @@ Route::middleware(['auth', 'super_admin'])->prefix('super-admin')->name('super-a
     Route::post('/users/{id}/restore', [SuperAdminController::class, 'restoreUser'])->name('restore-user');
     Route::post('/users/{id}/reset-password', [SuperAdminController::class, 'resetPassword'])->name('reset-password');
     Route::post('/users/{id}/update-role', [SuperAdminController::class, 'updateRole'])->name('update-role');
+    Route::post('/staff/store', [SuperAdminController::class, 'storeStaff'])->name('store-staff');
+
+    // Role Management
+    Route::post('/roles', [SuperAdminController::class, 'storeRole'])->name('roles.store');
+    Route::put('/roles/{id}', [SuperAdminController::class, 'updateRoleDetail'])->name('roles.update');
+    Route::delete('/roles/{id}/archive', [SuperAdminController::class, 'archiveRole'])->name('roles.archive');
+    Route::post('/roles/{id}/restore', [SuperAdminController::class, 'restoreRole'])->name('roles.restore');
+    Route::delete('/roles/{id}', [SuperAdminController::class, 'deleteRole'])->name('roles.delete');
 });
 
 // ─── Temporary System Sync Route ───────────────────────────

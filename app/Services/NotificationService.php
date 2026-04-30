@@ -66,7 +66,7 @@ class NotificationService
             }
 
             // 5. Low Stock Spare Parts
-            $lowStock = DB::table('spare_parts')->where('stock_quantity', '<=', 5)->get();
+            $lowStock = DB::table('spare_parts')->where('stock_quantity', '<=', 5)->limit(5)->get();
             foreach ($lowStock as $p) {
                 $qty = (int)$p->stock_quantity;
                 $headerNotifications[] = [
@@ -90,6 +90,26 @@ class NotificationService
                     'type' => 'driver_incident', 'title' => 'Driver Incident: ' . ($ri->incident_type ?: 'Warning'),
                     'message' => "{$ri->driver_name}: {$ri->description}", 'url' => route('driver-behavior.index'),
                     'time' => Carbon::parse($ri->created_at)->diffForHumans(), 'timestamp' => Carbon::parse($ri->created_at)
+                ];
+            }
+
+            // 7. Driver License Expiry
+            $expiringDrivers = DB::table('drivers')
+                ->whereNull('deleted_at')
+                ->where('license_expiry', '<=', $now->copy()->addDays(30)->toDateString())
+                ->get();
+            foreach ($expiringDrivers as $ed) {
+                $expDt = Carbon::parse($ed->license_expiry);
+                $isExpired = $expDt->isPast();
+                $driverName = trim(($ed->first_name ?? '') . ' ' . ($ed->last_name ?? ''));
+                $headerNotifications[] = [
+                    'id' => 'lic_exp_' . $ed->id,
+                    'type' => 'license_expiry',
+                    'title' => $isExpired ? '🚫 Expired License: ' . $driverName : '⚠️ License Renewal: ' . $driverName,
+                    'message' => "{$driverName}'s license " . ($isExpired ? 'expired on ' : 'expires on ') . $expDt->format('M d, Y') . ". Please update the record.",
+                    'url' => route('driver-management.index') . '?edit_driver=' . $ed->id,
+                    'time' => $isExpired ? 'ACTION REQUIRED' : 'Upcoming',
+                    'timestamp' => $expDt
                 ];
             }
 

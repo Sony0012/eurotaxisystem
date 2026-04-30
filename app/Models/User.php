@@ -43,6 +43,8 @@ class User extends Authenticatable
         'approved_by',
         'approved_at',
         'allowed_pages',
+        'must_change_password',
+        'temp_password',
     ];
 
     protected $hidden = [
@@ -51,11 +53,12 @@ class User extends Authenticatable
     ];
 
     protected $casts = [
-        'is_active'      => 'boolean',
-        'is_verified'    => 'boolean',
-        'last_login'     => 'datetime',
-        'approved_at'    => 'datetime',
-        'allowed_pages'  => 'array',
+        'is_active'            => 'boolean',
+        'is_verified'          => 'boolean',
+        'must_change_password' => 'boolean',
+        'last_login'           => 'datetime',
+        'approved_at'          => 'datetime',
+        'allowed_pages'        => 'array',
     ];
 
     public function isSuperAdmin(): bool

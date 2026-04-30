@@ -1818,7 +1818,7 @@ function validateAddQty(input) {
 }
 
 async function deletePart(id, btn) {
-    if(!confirm('Are you sure you want to delete this part from the catalog?')) return;
+    if(!confirm('Are you sure you want to archive this part from the catalog?')) return;
     try {
         const res = await fetch(`{{ url('spare-parts') }}/${id}`, {
             method: 'DELETE',
@@ -1860,9 +1860,9 @@ function refreshPartsTable() {
                             <i data-lucide="package-plus" class="w-4 h-4"></i>
                         </button>
                         <button onclick="deletePart(${p.id}, this)" 
-                            title="Delete"
-                            class="p-2 text-red-200 hover:text-red-600 hover:bg-red-50 rounded-lg transition">
-                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            title="Archive"
+                            class="p-2 text-orange-200 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition">
+                            <i data-lucide="archive" class="w-4 h-4"></i>
                         </button>
                     </div>
                 </td>

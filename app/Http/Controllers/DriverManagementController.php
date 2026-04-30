@@ -252,45 +252,76 @@ class DriverManagementController extends Controller
             else $late_turn_missed++;
         }
 
-        // --- Full Eligibility Check (lookback period) ---
-        // Rule 1: No skipped/late boundary (has_incentive = 0) in the entire period
-        $violations_no_incentive = $allBoundaries->where('has_incentive', 0)->count();
+        // --- Full Eligibility Check (Non-Stacking Penalty Block Logic) ---
+        $periodStart = now()->subDays(150)->toDateString();
 
-        // Rule 2: No vehicle damage in lookback period
-        $violations_damage = $allBoundaries->filter(fn($b) =>
-            str_contains(strtolower($b->notes ?? ''), 'vehicle damaged')
-        )->count();
-
-        // Rule 3: No breakdown in lookback period
-        $violations_breakdown = $allBoundaries->filter(fn($b) =>
-            str_contains(strtolower($b->notes ?? ''), 'maintenance')
-        )->count();
-
-        // Rule 4: No driver behavior incidents in lookback period
-        $violations_incidents = DB::table('driver_behavior')
+        $incDates = DB::table('driver_behavior')
             ->where('driver_id', $id)
-            ->where('created_at', '>=', $lookbackFrom)
-            ->count();
+            ->where('created_at', '>=', $periodStart)
+            ->where(function($q) {
+                $q->where('incident_type', '!=', 'damage')
+                  ->orWhere('is_driver_fault', 1);
+            })
+            ->pluck('created_at')->map(fn($d) => \Carbon\Carbon::parse($d))->toArray();
 
-        // Rule 5: No absences in lookback period 
-        // (Expected to drive, but someone else drove)
-        $violations_absences = DB::table('boundaries')
-            ->where('expected_driver_id', $id)
-            ->where('driver_id', '!=', $id)
-            ->where('date', '>=', $lookbackFrom->toDateString())
-            ->whereNull('deleted_at')
-            ->count();
+        $bndDates = DB::table('boundaries')
+            ->where('driver_id', $id)->where('has_incentive', 0)->whereNull('deleted_at')->where('date', '>=', $periodStart)
+            ->pluck('date')->map(fn($d) => \Carbon\Carbon::parse($d))->toArray();
 
-        // Rule 6: Must have at least some shifts recorded in the period
+        $absDates = DB::table('boundaries')
+            ->where('expected_driver_id', $id)->where('driver_id', '!=', $id)->whereNull('deleted_at')->where('date', '>=', $periodStart)
+            ->pluck('date')->map(fn($d) => \Carbon\Carbon::parse($d))->toArray();
+
+        $allViolationDates = array_merge($incDates, $bndDates, $absDates);
+        usort($allViolationDates, fn($a, $b) => $a->timestamp <=> $b->timestamp);
+
+        $currentPenaltyStart = null;
+        $currentPenaltyEnd = null;
+
+        foreach ($allViolationDates as $date) {
+            if (!$currentPenaltyEnd || $date->gt($currentPenaltyEnd)) {
+                // Start a new non-stacking block
+                $currentPenaltyStart = $date->copy();
+                $currentPenaltyEnd = $date->copy()->addDays($lookbackDays);
+            }
+        }
+
+        $is_eligible = !$currentPenaltyEnd || now()->gt($currentPenaltyEnd);
+        $activeBlockStart = ($currentPenaltyEnd && now()->lte($currentPenaltyEnd)) ? $currentPenaltyStart->startOfDay() : null;
+
         $has_shifts = $allBoundaries->count() > 0;
+        if (!$has_shifts) $is_eligible = false;
 
-        // Is fully clean?
-        $is_eligible = $violations_no_incentive === 0
-            && $violations_damage === 0
-            && $violations_breakdown === 0
-            && $violations_incidents === 0
-            && $violations_absences === 0
-            && $has_shifts;
+        $violations_no_incentive = 0;
+        $violations_damage = 0;
+        $violations_breakdown = 0;
+        $violations_incidents = 0;
+        $violations_absences = 0;
+        $blocking_violations = [];
+
+        if ($activeBlockStart && !$is_eligible) {
+            $activeBoundaries = DB::table('boundaries')
+                ->where('driver_id', $id)->where('has_incentive', 0)->whereNull('deleted_at')
+                ->where('date', '>=', $activeBlockStart->toDateString())->where('date', '<=', $currentPenaltyEnd->toDateString())->get();
+
+            $violations_no_incentive = $activeBoundaries->count();
+            $violations_damage = $activeBoundaries->filter(fn($b) => str_contains(strtolower($b->notes ?? ''), 'vehicle damaged'))->count();
+            $violations_breakdown = $activeBoundaries->filter(fn($b) => str_contains(strtolower($b->notes ?? ''), 'maintenance'))->count();
+
+            $violations_incidents = DB::table('driver_behavior')
+                ->where('driver_id', $id)
+                ->where('created_at', '>=', $activeBlockStart)
+                ->where('created_at', '<=', $currentPenaltyEnd)
+                ->where(function($q) {
+                    $q->where('incident_type', '!=', 'damage')
+                      ->orWhere('is_driver_fault', 1);
+                })
+                ->count();
+
+            $violations_absences = DB::table('boundaries')
+                ->where('expected_driver_id', $id)->where('driver_id', '!=', $id)->whereNull('deleted_at')
+                ->where('date', '>=', $activeBlockStart->toDateString())->where('date', '<=', $currentPenaltyEnd->toDateString())->count();
+        }
 
         // Is it the 1st week of the month? (days 1-7)
         $is_first_week = now()->day <= 7;
@@ -298,14 +329,14 @@ class DriverManagementController extends Controller
         // Build violations blocking list
         $blocking_violations = [];
         if ($violations_no_incentive > 0) {
-            $lateVio = $allBoundaries->where('has_incentive', 0)->filter(fn($b) =>
+            $lateVio = $activeBoundaries->filter(fn($b) =>
                 !str_contains(strtolower($b->notes ?? ''), 'vehicle damaged') &&
                 !str_contains(strtolower($b->notes ?? ''), 'maintenance')
             )->count();
-            $dmgVio = $allBoundaries->where('has_incentive', 0)->filter(fn($b) =>
+            $dmgVio = $activeBoundaries->filter(fn($b) =>
                 str_contains(strtolower($b->notes ?? ''), 'vehicle damaged')
             )->count();
-            $brkVio = $allBoundaries->where('has_incentive', 0)->filter(fn($b) =>
+            $brkVio = $activeBoundaries->filter(fn($b) =>
                 str_contains(strtolower($b->notes ?? ''), 'maintenance')
             )->count();
             if ($lateVio > 0) $blocking_violations[] = "{$lateVio} late/skipped boundary turn(s)";
@@ -314,6 +345,7 @@ class DriverManagementController extends Controller
         }
         if ($violations_absences > 0) $blocking_violations[] = "{$violations_absences} unattended shift(s) (Absent)";
         if ($violations_incidents > 0) $blocking_violations[] = "{$violations_incidents} behavior incident(s) on record";
+        if (!$is_eligible && $currentPenaltyEnd) $blocking_violations[] = "Penalty Expires: " . $currentPenaltyEnd->format('M d, Y');
 
         $driver->monthly_incentive        = round($total_incentive, 2);
         $driver->incentive_earned_count   = $earned_count;
@@ -388,6 +420,12 @@ class DriverManagementController extends Controller
 
     public function store(Request $request)
     {
+        if ($request->has('daily_boundary_target')) {
+            $request->merge([
+                'daily_boundary_target' => str_replace(',', '', $request->daily_boundary_target),
+            ]);
+        }
+
         $request->validate([
             'first_name'            => 'required|string|max:100',
             'last_name'             => 'required|string|max:100',
@@ -427,6 +465,12 @@ class DriverManagementController extends Controller
     {
         $driver_instance = Driver::findOrFail($id);
 
+        if ($request->has('daily_boundary_target')) {
+            $request->merge([
+                'daily_boundary_target' => str_replace(',', '', $request->daily_boundary_target),
+            ]);
+        }
+
         $request->validate([
             'first_name'            => 'required|string|max:100',
             'last_name'             => 'required|string|max:100',
@@ -439,7 +483,7 @@ class DriverManagementController extends Controller
             'hire_date'             => 'required|date',
             'daily_boundary_target' => 'nullable|numeric|min:0',
             'driver_type'           => 'nullable|in:regular,senior,trainee',
-            'driver_status'         => 'nullable|in:available,assigned,on_leave,suspended',
+            'driver_status'         => 'nullable|in:available,assigned,on_leave,suspended,banned',
         ]);
 
         $driver_instance->update([
@@ -457,6 +501,12 @@ class DriverManagementController extends Controller
             'driver_type'           => $request->driver_type ?? 'regular',
             'driver_status'         => $request->driver_status ?? 'available',
         ]);
+
+        // If manually set to banned, ensure they are unassigned from units
+        if ($request->driver_status === 'banned') {
+            DB::table('units')->where('driver_id', $driver_instance->id)->update(['driver_id' => null, 'updated_at' => now()]);
+            DB::table('units')->where('secondary_driver_id', $driver_instance->id)->update(['secondary_driver_id' => null, 'updated_at' => now()]);
+        }
 
         ActivityLogController::log('Updated Driver Record', "Driver: {$driver_instance->first_name} {$driver_instance->last_name}\nUpdated details and status to " . ucfirst($driver_instance->driver_status));
 
@@ -502,5 +552,129 @@ class DriverManagementController extends Controller
         }
 
         return back()->with('success', 'Documents uploaded successfully!');
+    }
+
+    public function getDebtHistory()
+    {
+        // 1. Get fully paid debts (Settled)
+        $settledDebts = DB::table('driver_behavior as db')
+            ->join('drivers as d', 'db.driver_id', '=', 'd.id')
+            ->leftJoin('units as u', 'db.unit_id', '=', 'u.id')
+            ->where('db.is_driver_fault', 1)
+            ->where('db.charge_status', 'paid')
+            ->whereNull('d.deleted_at')
+            ->select(
+                'db.id', 'db.incident_date as date', 'db.description', 
+                'db.severity', 'db.total_charge_to_driver as total_charge', 
+                DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')) as driver_name"),
+                'u.plate_number as unit_plate'
+            )
+            ->orderBy('db.updated_at', 'desc')
+            ->limit(20)
+            ->get();
+
+        // 2. Get recent payment transactions from Expenses
+        $payments = DB::table('expenses as e')
+            ->leftJoin('units as u', 'e.unit_id', '=', 'u.id')
+            ->where('e.category', 'Damage Recovery')
+            ->where('e.status', 'approved')
+            ->select(
+                'e.id', 'e.date', 'e.description', 'e.amount',
+                'u.plate_number as unit_plate'
+            )
+            ->orderBy('e.date', 'desc')
+            ->orderBy('e.created_at', 'desc')
+            ->limit(30)
+            ->get();
+            
+        // Map payments to remove the negative sign for UI display
+        $payments = $payments->map(function($p) {
+            $p->amount = abs($p->amount);
+            return $p;
+        });
+
+        return response()->json([
+            'success' => true, 
+            'settled' => $settledDebts,
+            'payments' => $payments
+        ]);
+    }
+
+    public function getPendingDebts()
+    {
+        $debtsRaw = DB::table('driver_behavior as db')
+            ->join('drivers as d', 'db.driver_id', '=', 'd.id')
+            ->leftJoin('units as u', 'db.unit_id', '=', 'u.id')
+            ->where('db.is_driver_fault', 1)
+            ->where('db.charge_status', 'pending')
+            ->where('db.remaining_balance', '>', 0)
+            ->whereNull('d.deleted_at')
+            ->select(
+                'db.id', 'db.driver_id', 'db.incident_date as date', 'db.description', 
+                'db.severity', 'db.total_charge_to_driver as total_charge', 
+                'db.total_paid', 'db.remaining_balance',
+                DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')) as driver_name"),
+                'u.plate_number as unit_plate'
+            )
+            ->orderBy('db.incident_date', 'asc')
+            ->get();
+
+        $drivers = [];
+        foreach ($debtsRaw as $debt) {
+            $dId = $debt->driver_id;
+            if (!isset($drivers[$dId])) {
+                $drivers[$dId] = [
+                    'driver_id' => $dId,
+                    'driver_name' => trim($debt->driver_name),
+                    'unit_plate' => $debt->unit_plate,
+                    'total_remaining' => 0,
+                    'debts' => []
+                ];
+            }
+            $drivers[$dId]['total_remaining'] += $debt->remaining_balance;
+            $drivers[$dId]['debts'][] = $debt;
+        }
+
+        return response()->json(['success' => true, 'debts' => array_values($drivers)]);
+    }
+
+    public function payDebt(Request $request)
+    {
+        $request->validate([
+            'debt_id' => 'required|integer',
+            'payment_amount' => 'required|numeric|min:1'
+        ]);
+
+        $debt = \App\Models\DriverBehavior::find($request->debt_id);
+        if (!$debt || $debt->remaining_balance <= 0) {
+            return back()->with('error', 'Debt record not found or already paid.');
+        }
+
+        $amount = min($request->payment_amount, $debt->remaining_balance);
+        
+        $debt->total_paid += $amount;
+        $debt->remaining_balance -= $amount;
+        if ($debt->remaining_balance <= 0) {
+            $debt->charge_status = 'paid';
+        }
+        $debt->save();
+
+        // Register as a negative expense (cash inflow / revenue recovery)
+        $driverName = DB::table('drivers')->where('id', $debt->driver_id)->select(DB::raw("CONCAT(first_name, ' ', last_name) as name"))->value('name');
+        
+        \App\Models\Expense::create([
+            'category' => 'Damage Recovery',
+            'description' => "Direct cash payment from {$driverName} for accident debt (Incident Date: {$debt->incident_date})",
+            'amount' => -$amount, // Negative means revenue in an expense table
+            'payment_method' => 'Cash',
+            'date' => now()->toDateString(),
+            'recorded_by' => \Illuminate\Support\Facades\Auth::id(),
+            'unit_id' => $debt->unit_id,
+            'status' => 'approved'
+        ]);
+
+        ActivityLogController::log('Debt Payment', "Processed ₱" . number_format($amount, 2) . " cash payment from {$driverName} for accident debt.");
+
+        return back()->with('success', 'Cash payment processed successfully. The balance has been updated and the revenue has been recorded.');
     }
 }

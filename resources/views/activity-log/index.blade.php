@@ -222,17 +222,54 @@
                     <td>
                         @php
                             $action = strtolower($log->action);
-                            $class = 'badge-auth';
-                            $icon = 'circle-dot';
+                            $class = 'badge-admin';
+                            $icon = 'activity';
                             
-                            if (str_contains($action, 'create') || str_contains($action, 'add')) { $class = 'badge-create'; $icon = 'plus-circle'; }
-                            elseif (str_contains($action, 'edit') || str_contains($action, 'update') || str_contains($action, 'change')) { $class = 'badge-update'; $icon = 'edit-3'; }
-                            elseif (str_contains($action, 'delete') || str_contains($action, 'reject') || str_contains($action, 'archive')) { $class = 'badge-delete'; $icon = 'trash-2'; }
-                            elseif (str_contains($action, 'restore')) { $class = 'badge-create'; $icon = 'rotate-ccw'; }
-                            elseif (str_contains($action, 'permanently deleted')) { $class = 'badge-delete'; $icon = 'alert-octagon'; }
-                            elseif (str_contains($action, 'approve')) { $class = 'badge-create'; $icon = 'check-circle'; }
-                            elseif (str_contains($action, 'login') || str_contains($action, 'logout')) { $class = 'badge-auth'; $icon = 'key'; }
-                            else { $class = 'badge-admin'; $icon = 'activity'; }
+                            // Category: Creation/Addition
+                            if (str_contains($action, 'create') || str_contains($action, 'add') || str_contains($action, 'recorded')) { 
+                                $class = 'badge-create'; 
+                                $icon = 'plus-circle'; 
+                            }
+                            // Category: Updates
+                            elseif (str_contains($action, 'edit') || str_contains($action, 'update') || str_contains($action, 'change') || str_contains($action, 'toggle')) { 
+                                $class = 'badge-update'; 
+                                $icon = 'edit-3'; 
+                            }
+                            // Category: Deletion/Archive/Rejection
+                            elseif (str_contains($action, 'delete') || str_contains($action, 'reject') || str_contains($action, 'archive') || str_contains($action, 'dismissed')) { 
+                                $class = 'badge-delete'; 
+                                $icon = 'trash-2'; 
+                            }
+                            // Category: Financial/Payment
+                            elseif (str_contains($action, 'payment') || str_contains($action, 'salary') || str_contains($action, 'expense')) { 
+                                $class = 'badge-update'; 
+                                $icon = 'dollar-sign'; 
+                            }
+                            // Category: Restoration
+                            elseif (str_contains($action, 'restore')) { 
+                                $class = 'badge-create'; 
+                                $icon = 'rotate-ccw'; 
+                            }
+                            // Category: Approval
+                            elseif (str_contains($action, 'approve')) { 
+                                $class = 'badge-create'; 
+                                $icon = 'check-circle'; 
+                            }
+                            // Category: Security/Auth (if visible)
+                            elseif (str_contains($action, 'login') || str_contains($action, 'logout')) { 
+                                $class = 'badge-auth'; 
+                                $icon = 'key'; 
+                            }
+
+                            // Module Specific Icons (Override if needed)
+                            if (str_contains($action, 'maintenance')) $icon = 'wrench';
+                            elseif (str_contains($action, 'boundary')) $icon = 'dollar-sign';
+                            elseif (str_contains($action, 'driver')) $icon = 'users';
+                            elseif (str_contains($action, 'unit')) $icon = 'car';
+                            elseif (str_contains($action, 'incident')) $icon = 'alert-triangle';
+                            elseif (str_contains($action, 'staff')) $icon = 'user-cog';
+                            elseif (str_contains($action, 'coding')) $icon = 'calendar';
+                            elseif (str_contains($action, 'franchise')) $icon = 'file-text';
                         @endphp
                         <span class="action-badge {{ $class }}">
                             <i data-lucide="{{ $icon }}" class="w-3 h-3"></i>

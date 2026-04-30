@@ -97,18 +97,27 @@ class AuthController extends Controller
                     ]);
                 }
 
-                // Device is recognized, log in normally
+                // ─── FORCE PASSWORD CHANGE CHECK ───────────────────────────────
+                if ($user->must_change_password) {
+                    $request->session()->put('force_pwd_user_id', $user->id);
+                    $request->session()->put('force_pwd_remember', $request->boolean('remember'));
+                    
+                    if ($request->ajax() || $request->wantsJson()) {
+                        return response()->json([
+                            'force_password_change' => true,
+                            'message' => 'Please update your temporary password.'
+                        ]);
+                    }
+                    return redirect()->route('login');
+                }
+
+                // Device is recognized and no forced password change, log in normally
                 Auth::login($user, $request->boolean('remember'));
                 $request->session()->regenerate();
-                
+
                 // Track last login and log audit
                 $user->update(['last_login' => now()]);
                 LoginAudit::log('login', $user);
-
-                // Update last active on this device
-                $user->verifiedBrowsers()
-                    ->where('browser_token', hash('sha256', $browserCookie))
-                    ->update(['last_active_at' => now(), 'ip_address' => $request->ip()]);
 
                 if ($request->ajax() || $request->wantsJson()) {
                     return response()->json([
@@ -135,6 +144,67 @@ class AuthController extends Controller
         return back()->withErrors([
             'email' => 'Invalid email or password.',
         ])->onlyInput('email');
+    }
+
+    // ─── FORCE PASSWORD CHANGE ────────────────────────────────────────────────
+    public function showForceChangePassword()
+    {
+        if (!Auth::check()) return redirect()->route('login');
+        if (!Auth::user()->must_change_password) return redirect()->route('dashboard');
+        return view('auth.force-change-password');
+    }
+
+    public function updateForceChangePassword(Request $request)
+    {
+        $userId = $request->session()->get('force_pwd_user_id');
+        if (!$userId) {
+            return response()->json(['success' => false, 'message' => 'Session expired. Please log in again.']);
+        }
+
+        $request->validate([
+            'current_password'      => 'required|string',
+            'new_password'          => [
+                'required',
+                'string',
+                'min:8',
+                'confirmed',
+                'regex:/^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9])[A-Za-z\d\D]{8,}$/'
+            ],
+        ], [
+            'new_password.regex' => 'Password must contain at least 1 uppercase letter, 1 number, and 1 special character.'
+        ]);
+
+        $user = User::find($userId);
+        $storedHash = $user->password ?? $user->password_hash ?? null;
+
+        // Verify temporary password
+        if (!$storedHash || !Hash::check($request->current_password, $storedHash)) {
+            return response()->json(['success' => false, 'message' => 'The temporary password you entered is incorrect.']);
+        }
+
+        // Save new password and clear force-change flag
+        $user->update([
+            'password'             => Hash::make($request->new_password),
+            'password_hash'        => Hash::make($request->new_password),
+            'must_change_password' => false,
+            'temp_password'        => null,
+        ]);
+
+        // Log them in now
+        $remember = $request->session()->get('force_pwd_remember', false);
+        Auth::login($user, $remember);
+        $request->session()->forget(['force_pwd_user_id', 'force_pwd_remember']);
+        $request->session()->regenerate();
+        $user->update(['last_login' => now()]);
+
+        LoginAudit::log('password_changed', $user, 'Staff forced password change completed.');
+        LoginAudit::log('login', $user);
+
+        return response()->json([
+            'success' => true, 
+            'message' => 'Password updated successfully! Welcome to Eurotaxi.',
+            'redirect' => route('dashboard')
+        ]);
     }
 
     public function sendDeviceOtp(Request $request)
@@ -216,6 +286,18 @@ class AuthController extends Controller
 
         // 3. Clear OTP
         $user->update(['otp_code' => null, 'otp_expires_at' => null]);
+
+        // ─── FORCE PASSWORD CHANGE CHECK ───────────────────────────────
+        if ($user->must_change_password) {
+            $request->session()->put('force_pwd_user_id', $user->id);
+            $request->session()->put('force_pwd_remember', $request->session()->get('mfa_remember', false));
+            $request->session()->forget(['mfa_user_id', 'mfa_remember']);
+            
+            return response()->json([
+                'force_password_change' => true,
+                'message' => 'Please update your temporary password.'
+            ])->cookie('browser_id', $deviceId, 60 * 24 * 365);
+        }
 
         // 4. Log in and audit
         $remember = $request->session()->get('mfa_remember', false);

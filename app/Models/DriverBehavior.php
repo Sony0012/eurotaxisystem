@@ -14,7 +14,8 @@ class DriverBehavior extends Model
     public $timestamps = false; // Using custom timestamp columns mostly
 
     protected $fillable = [
-        'unit_id', 'driver_id', 'incident_type', 'cause_of_incident', 'severity', 'description', 
+        'unit_id', 'driver_id', 'incident_type', 'sub_classification',
+        'traffic_fine_amount', 'cause_of_incident', 'severity', 'description', 
         'third_party_name', 'third_party_vehicle', 'own_unit_damage_cost', 
         'third_party_damage_cost', 'is_driver_fault', 'total_charge_to_driver', 
         'total_paid', 'remaining_balance', 'charge_status', 'latitude', 'longitude', 

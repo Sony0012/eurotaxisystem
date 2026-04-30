@@ -77,7 +77,7 @@
             <div class="flex-1">
                 <div class="relative group">
                     <input type="text" name="search" id="tableSearchInput" value="{{ $search ?? '' }}"
-                        class="block w-full pl-3 pr-10 py-1 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none"
+                        class="block w-full pl-3 pr-10 py-1 border border-gray-300 rounded-xl text-xs focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none shadow-sm"
                         placeholder="Search by driver name or license...">
                     <button type="submit" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-yellow-600 transition-colors">
                         <i data-lucide="search" class="h-4 w-4"></i>
@@ -87,7 +87,7 @@
 
             <div class="md:w-48">
                 <select name="status" onchange="this.form.submit()"
-                    class="block w-full px-3 py-1 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none">
+                    class="block w-full px-3 py-1 border border-gray-300 rounded-xl text-xs focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none shadow-sm">
                     <option value="">All Status</option>
                     <option value="active" {{ ($status_filter ?? '') === 'active' ? 'selected' : '' }}>Active Only</option>
                     <option value="inactive" {{ ($status_filter ?? '') === 'inactive' ? 'selected' : '' }}>Inactive Only</option>
@@ -96,8 +96,12 @@
             </div>
 
             <div class="flex gap-2">
+                <button type="button" onclick="openPendingDebtsModal()"
+                    class="px-3 py-1 bg-red-600 text-white rounded-xl hover:bg-red-700 flex items-center gap-2 text-xs font-semibold whitespace-nowrap shadow-sm transition-transform active:scale-95">
+                    <i data-lucide="wallet" class="w-3.5 h-3.5"></i> Pending Debts
+                </button>
                 <button type="button" onclick="openAddDriverModal()"
-                    class="px-3 py-1 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-2 text-xs font-semibold whitespace-nowrap">
+                    class="px-3 py-1 bg-green-600 text-white rounded-xl hover:bg-green-700 flex items-center gap-2 text-xs font-semibold whitespace-nowrap shadow-sm transition-transform active:scale-95">
                     <i data-lucide="plus" class="w-3.5 h-3.5"></i> Add Driver
                 </button>
             </div>
@@ -306,7 +310,7 @@
 
                 {{-- Fixed Footer --}}
                 <div class="p-4 border-t flex justify-between items-center gap-3 shadow-inner bg-gray-50 shrink-0">
-                    <button type="button" id="archiveDriverButton" onclick="confirmArchiveDriver()"
+                    <button type="button" id="deleteDriverButton" onclick="confirmDeleteDriver()"
                         class="hidden px-5 py-2 bg-orange-100 text-orange-700 border border-orange-200 rounded-lg hover:bg-orange-200 text-sm font-bold transition-all flex items-center gap-2">
                         <i data-lucide="archive" class="w-4 h-4"></i> Archive Driver
                     </button>
@@ -325,7 +329,6 @@
         </div>
     </div>
 
-
     {{-- Driver Details Modal with Tabs --}}
     <div id="driverDetailsModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden h-full w-full z-50 flex items-center justify-center p-4">
         <div class="relative bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
@@ -334,7 +337,7 @@
                     <h3 class="text-lg font-bold text-gray-900" id="driverDetailsName">Driver Details</h3>
                     <p class="text-sm text-gray-500" id="driverDetailsSubtitle"></p>
                 </div>
-                <button onclick="closeDriverDetails()" class="text-gray-400 hover:text-gray-600">
+                <button onclick="closeDriverDetails()" class="p-1 bg-gray-50 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors">
                     <i data-lucide="x" class="w-6 h-6"></i>
                 </button>
             </div>
@@ -440,214 +443,60 @@
         </div>
     </div>
 
-@endsection
-
-@push('scripts')
-<script>
-window.boundaryRules = @json($boundary_rules ?? []);
-function openAddDriverModal() {
-    document.getElementById('driverModalTitle').textContent = 'Add Driver';
-    document.getElementById('driverFormMethod').value = 'POST';
-    document.getElementById('driverForm').action = '{{ route('driver-management.store') }}';
-    document.getElementById('editDriverId').value = '';
-    document.getElementById('driverFirstName').value = '';
-    document.getElementById('driverLastName').value = '';
-
-    document.getElementById('driverContact').value = '';
-    document.getElementById('driverLicense').value = '';
-    document.getElementById('driverLicenseExpiry').value = '';
-    document.getElementById('driverHireDate').value = '{{ date('Y-m-d') }}';
-    document.getElementById('driverAddress').value = '';
-    document.getElementById('driverEmergencyContact').value = '';
-    document.getElementById('driverEmergencyPhone').value = '';
-    const targetInput = document.getElementById('driverBoundaryTarget');
-    const codingAlert = document.getElementById('codingBoundaryAlert');
-    targetInput.value = '0';
-    if (document.getElementById('unitDerivedLabel')) {
-        const derivedLabel = document.getElementById('unitDerivedLabel');
-        derivedLabel.classList.add('hidden');
-    }
-    
-    if (codingAlert) {
-        codingAlert.classList.remove('hidden');
-        codingAlert.classList.remove('text-red-600');
-        codingAlert.classList.add('text-gray-500');
-        codingAlert.textContent = '(Pending Dispatch)';
-    }
-
-    document.getElementById('editIsActive').value = '1';
-    document.getElementById('archiveDriverButton').classList.add('hidden');
-    document.getElementById('addDriverModal').classList.remove('hidden');
-    lucide.createIcons();
-}
-
-function openEditDriverModal(id) {
-    fetch('{{ route('driver-management.index') }}/' + id + '?format=json', {
-        headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
-    })
-    .then(r => r.json())
-    .then(data => {
-        document.getElementById('driverModalTitle').textContent = 'Edit Driver';
-        document.getElementById('driverFormMethod').value = 'PUT';
-        document.getElementById('driverForm').action = '{{ url('driver-management') }}/' + id;
-        document.getElementById('editDriverId').value = id;
-        document.getElementById('driverFirstName').value = data.first_name || '';
-        document.getElementById('driverLastName').value = data.last_name || '';
-
-        document.getElementById('driverContact').value = data.contact_number || '';
-        document.getElementById('driverLicense').value = data.license_number || '';
-        document.getElementById('driverLicenseExpiry').value = data.license_expiry || '';
-        document.getElementById('driverHireDate').value = data.hire_date || '{{ date('Y-m-d') }}';
-        document.getElementById('driverAddress').value = data.address || '';
-        document.getElementById('driverEmergencyContact').value = data.emergency_contact || '';
-        document.getElementById('driverEmergencyPhone').value = data.emergency_phone || '';
-        
-        // Dynamic Boundary Automation (Sync with Controller Trait)
-        const targetInput = document.getElementById('driverBoundaryTarget');
-        const codingAlert = document.getElementById('codingBoundaryAlert');
-        
-        if (data.current_pricing) {
-            targetInput.value = data.current_pricing.rate.toFixed(2);
-            
-            // Show inheritance label if assigned
-            const derivedLabel = document.getElementById('unitDerivedLabel');
-            if (data.assigned_unit) {
-                if (derivedLabel) {
-                    derivedLabel.textContent = `(Inherited from ${data.assigned_unit})`;
-                    derivedLabel.classList.remove('hidden');
-                }
-            } else {
-                if (derivedLabel) derivedLabel.classList.add('hidden');
-            }
-
-            if (data.current_pricing.label && data.current_pricing.type !== 'regular') {
-                codingAlert.classList.remove('hidden');
-                codingAlert.textContent = data.current_pricing.label;
-                codingAlert.className = data.current_pricing.type === 'coding' ? 'text-[11px] text-red-600 font-bold' : 'text-[11px] text-blue-600 font-bold';
-            } else {
-                codingAlert.classList.add('hidden');
-            }
-        } else {
-            targetInput.value = data.daily_boundary_target || '0.00';
-            const derivedLabel = document.getElementById('unitDerivedLabel');
-            if (derivedLabel) derivedLabel.classList.add('hidden');
-            codingAlert.classList.add('hidden');
-        }
-        document.getElementById('editIsActive').value = data.is_active ? '1' : '0';
-        document.getElementById('archiveDriverButton').classList.remove('hidden');
-        document.getElementById('addDriverModal').classList.remove('hidden');
-        lucide.createIcons();
-    })
-    .catch(() => {
-        // Fallback: just show empty edit modal
-        document.getElementById('driverModalTitle').textContent = 'Edit Driver';
-        document.getElementById('driverFormMethod').value = 'PUT';
-        document.getElementById('driverForm').action = '{{ url('driver-management') }}/' + id;
-        document.getElementById('editDriverId').value = id;
-        document.getElementById('archiveDriverButton').classList.remove('hidden');
-        document.getElementById('addDriverModal').classList.remove('hidden');
-        lucide.createIcons();
-    });
-}
-
-function closeAddDriverModal() {
-    document.getElementById('addDriverModal').classList.add('hidden');
-}
-
-function confirmArchiveDriver() {
-    const id = document.getElementById('editDriverId').value;
-    const firstName = document.getElementById('driverFirstName').value || '';
-    const lastName = document.getElementById('driverLastName').value || '';
-    const name = (firstName + ' ' + lastName).trim() || 'this driver';
-    archiveDriver(id, name);
-}
-
-function archiveDriver(id, name) {
-    if (!id) return;
-    if (confirm('Are you sure you want to archive ' + name + '? They will be moved to the Archive page.')) {
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = '{{ url('driver-management') }}/' + id;
-        form.innerHTML = '@csrf' +
-                         '<input type="hidden" name="_method" value="DELETE">';
-        document.body.appendChild(form);
-        form.submit();
-    }
-}
-
-function openDriverDetails(id) {
-    const modal = document.getElementById('driverDetailsModal');
-    modal.classList.remove('hidden');
-
-    // Reset tab state
-    document.querySelectorAll('.driver-tab').forEach(btn => {
-        btn.classList.remove('border-yellow-500', 'text-yellow-600', 'active');
-        btn.classList.add('border-transparent', 'text-gray-500');
-    });
-    document.querySelectorAll('.driver-tab-panel').forEach(panel => {
-        panel.classList.add('hidden');
-    });
-    const firstTab = document.querySelector('.driver-tab[data-tab="basic"]');
-    const firstPanel = document.querySelector('.driver-tab-panel[data-tab-panel="basic"]');
-    if (firstTab && firstPanel) {
-        firstTab.classList.add('border-yellow-500', 'text-yellow-600', 'active');
-        firstTab.classList.remove('border-transparent', 'text-gray-500');
-        firstPanel.classList.remove('hidden');
-    }
-
-    document.getElementById('driverDocumentsDriverId').value = id;
-    document.getElementById('driverDocumentsForm').action = '{{ url('driver-management/upload-documents') }}/' + id;
-
-    // Fetch basic details
-    fetch('{{ route('driver-management.index') }}/' + id + '?format=json', {
-        headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
-    })
-    .then(r => r.json())
-    .then(data => {
-        document.getElementById('driverDetailsName').textContent = data.full_name || 'Driver Details';
-
-        document.getElementById('basicInfoContent').innerHTML = `
-            <div>
-                <p><span class="font-semibold">First Name:</span> ${data.first_name || ''}</p>
-                <p><span class="font-semibold">Last Name:</span> ${data.last_name || ''}</p>
-
-                <p><span class="font-semibold">Contact:</span> ${data.contact_number || 'N/A'}</p>
-                <p><span class="font-semibold">Address:</span> ${data.address || 'N/A'}</p>
-                <p><span class="font-semibold">Emergency Contact:</span> ${data.emergency_contact || 'N/A'}</p>
-                <p><span class="font-semibold">Emergency Phone:</span> ${data.emergency_phone || 'N/A'}</p>
-            </div>
-            <div>
-                <p><span class="font-semibold">Hire Date:</span> ${data.hire_date || 'N/A'}</p>
-                <p><span class="font-semibold">Daily Boundary Target:</span> ₱${data.current_pricing ? data.current_pricing.rate.toFixed(2) : data.daily_boundary_target}</p>
-                ${data.current_pricing && data.current_pricing.type !== 'regular' ? `<p class="text-[10px] text-blue-600 font-bold">${data.current_pricing.label}</p>` : ''}
-                <p><span class="font-semibold">Status:</span> ${data.is_active ? 'Active' : 'Inactive'}</p>
-                <div class="mt-4 pt-2 border-t border-gray-100">
-                    <p class="text-[10px] text-gray-400 uppercase font-bold tracking-wider">Record Credit</p>
-                    <p class="text-xs text-gray-600"><span class="font-medium text-gray-500">Input by:</span> ${data.creator_name || 'System'}</p>
-                    <p class="text-xs text-gray-600"><span class="font-medium text-gray-500">Last Edit:</span> ${data.editor_name || 'System'}</p>
+    {{-- Pending Debts Modal --}}
+    <div id="pendingDebtsModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden h-full w-full z-50 flex items-center justify-center p-4 transition-all duration-300">
+        <div class="relative bg-white rounded-2xl shadow-2xl max-w-4xl w-full h-[90vh] overflow-hidden flex flex-col scale-95 transition-transform duration-300" id="pendingDebtsModalContainer">
+            {{-- Modal Header (Deep Navy) --}}
+            <div class="bg-slate-800 p-5 shrink-0">
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center gap-3">
+                        <div class="p-2.5 bg-white/20 rounded-xl flex items-center justify-center">
+                            <i data-lucide="wallet" class="w-6 h-6 text-red-400" id="modalIcon"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-black text-white tracking-wide" id="modalTitle">Pending Driver Debts</h3>
+                            <p class="text-xs font-medium text-slate-300 mt-0.5 uppercase tracking-widest" id="modalSubtitle">Accident Charge Management</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <button type="button" onclick="toggleDebtHistory()" id="historyToggleBtn"
+                            class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white text-xs font-black rounded-xl transition-all flex items-center gap-2">
+                            <i data-lucide="history" class="w-4 h-4"></i> View History
+                        </button>
+                        <button type="button" onclick="closePendingDebtsModal()" class="text-slate-400 hover:text-white bg-slate-700/50 hover:bg-slate-700 p-2 rounded-full transition-colors">
+                            <i data-lucide="x" class="w-5 h-5"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
-        `;
-
-        document.getElementById('licenseInfoContent').innerHTML = `
-            <div>
-                <p><span class="font-semibold">License Number:</span> ${data.license_number || ''}</p>
-                <p><span class="font-semibold">License Expiry:</span> ${data.license_expiry || ''}</p>
+            
+            <div class="p-8 overflow-y-auto flex-1 custom-scrollbar">
+                <div id="pendingDebtsContent" class="space-y-6">
+                    <div class="flex flex-col items-center justify-center py-20 text-slate-400">
+                        <div class="relative w-16 h-16 mb-4">
+                            <div class="absolute inset-0 border-4 border-slate-100 rounded-full"></div>
+                            <div class="absolute inset-0 border-4 border-red-500 rounded-full border-t-transparent animate-spin"></div>
+                        </div>
+                        <p class="font-bold text-sm tracking-widest uppercase">Synchronizing Debt Records...</p>
+                    </div>
+                </div>
+                <div id="debtHistoryContent" class="hidden space-y-6">
+                    {{-- History content will be loaded here --}}
+                </div>
             </div>
-            <div>
-                <p class="text-xs text-gray-500">License status and reminders will be computed here (e.g., expiring soon).</p>
+
+            {{-- Footer --}}
+            <div class="p-4 border-t flex justify-end shadow-inner bg-slate-50 shrink-0">
+                <button type="button" onclick="closePendingDebtsModal()" 
+                    class="px-8 py-2.5 bg-slate-200 text-slate-700 rounded-xl hover:bg-slate-300 text-sm font-black transition-all">
+                    Close Management
+                </button>
             </div>
-        `;
+        </div>
+    </div>
 
-        lucide.createIcons();
-    })
-    .catch(() => {
-        document.getElementById('basicInfoContent').innerHTML = '<p class="text-red-500">Failed to load details.</p>';
-    });
+@endsection
 
-    lucide.createIcons();
-}
-</script>
 
 @push('scripts')
 <script>
@@ -680,7 +529,7 @@ function openDriverDetails(id) {
         }
 
         document.getElementById('editIsActive').value = '1';
-        document.getElementById('archiveDriverButton').classList.add('hidden');
+        document.getElementById('deleteDriverButton').classList.add('hidden');
         document.getElementById('addDriverModal').classList.remove('hidden');
         lucide.createIcons();
     }
@@ -726,7 +575,7 @@ function openDriverDetails(id) {
                 codingAlert.classList.add('hidden');
             }
             document.getElementById('editIsActive').value = data.is_active ? '1' : '0';
-            document.getElementById('archiveDriverButton').classList.remove('hidden');
+            document.getElementById('deleteDriverButton').classList.remove('hidden');
             document.getElementById('addDriverModal').classList.remove('hidden');
             lucide.createIcons();
         });
@@ -736,17 +585,17 @@ function openDriverDetails(id) {
         document.getElementById('addDriverModal').classList.add('hidden');
     }
 
-    function confirmArchiveDriver() {
+    function confirmDeleteDriver() {
         const id = document.getElementById('editDriverId').value;
         const firstName = document.getElementById('driverFirstName').value || '';
         const lastName = document.getElementById('driverLastName').value || '';
         const name = (firstName + ' ' + lastName).trim() || 'this driver';
-        archiveDriver(id, name);
+        deleteDriver(id, name);
     }
 
-    function archiveDriver(id, name) {
+    function deleteDriver(id, name) {
         if (!id) return;
-        if (confirm('Are you sure you want to archive ' + name + '? They will be moved to the Archive page.')) {
+        if (confirm('Are you sure you want to delete ' + name + '?')) {
             const form = document.createElement('form');
             form.method = 'POST';
             form.action = '{{ url('driver-management') }}/' + id;
@@ -801,8 +650,8 @@ function openDriverDetails(id) {
                     <p><span class="font-semibold text-gray-500">Active Target:</span> ₱${data.current_pricing ? data.current_pricing.rate.toFixed(2) : '0.00'}</p>
                     ${data.current_pricing && data.current_pricing.label ? `<p class="text-[10px] text-blue-600 font-bold">${data.current_pricing.label}</p>` : ''}
                     <p><span class="font-semibold text-gray-500">Status:</span> 
-                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${data.is_active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}">
-                            ${data.is_active ? 'Active' : 'Inactive'}
+                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${data.driver_status === 'banned' ? 'bg-red-100 text-red-700 ring-1 ring-red-300 animate-pulse' : (data.is_active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700')}">
+                            ${(data.driver_status || 'Unknown').toUpperCase()}
                         </span>
                     </p>
                 </div>
@@ -1127,5 +976,330 @@ function openDriverDetails(id) {
         performSearch(page);
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
+
+    let showingHistory = false;
+
+    function toggleDebtHistory() {
+        showingHistory = !showingHistory;
+        const activeContent = document.getElementById('pendingDebtsContent');
+        const historyContent = document.getElementById('debtHistoryContent');
+        const toggleBtn = document.getElementById('historyToggleBtn');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalSubtitle = document.getElementById('modalSubtitle');
+        const modalIcon = document.getElementById('modalIcon');
+
+        if (showingHistory) {
+            activeContent.classList.add('hidden');
+            historyContent.classList.remove('hidden');
+            toggleBtn.innerHTML = '<i data-lucide="arrow-left" class="w-4 h-4"></i> Back to Debts';
+            modalTitle.textContent = 'Transaction History';
+            modalSubtitle.textContent = 'Settled Records & Payments';
+            modalIcon.classList.remove('text-red-400');
+            modalIcon.classList.add('text-emerald-400');
+            fetchDebtHistory();
+        } else {
+            activeContent.classList.remove('hidden');
+            historyContent.classList.add('hidden');
+            toggleBtn.innerHTML = '<i data-lucide="history" class="w-4 h-4"></i> View History';
+            modalTitle.textContent = 'Pending Driver Debts';
+            modalSubtitle.textContent = 'Accident Charge Management';
+            modalIcon.classList.remove('text-emerald-400');
+            modalIcon.classList.add('text-red-400');
+        }
+        lucide.createIcons();
+    }
+
+    function fetchDebtHistory() {
+        const historyContent = document.getElementById('debtHistoryContent');
+        historyContent.innerHTML = `
+            <div class="flex flex-col items-center justify-center py-20 text-slate-400">
+                <div class="relative w-16 h-16 mb-4">
+                    <div class="absolute inset-0 border-4 border-slate-100 rounded-full"></div>
+                    <div class="absolute inset-0 border-4 border-emerald-500 rounded-full border-t-transparent animate-spin"></div>
+                </div>
+                <p class="font-bold text-sm tracking-widest uppercase text-emerald-600">Reconstructing Financial Logs...</p>
+            </div>`;
+        lucide.createIcons();
+
+        fetch('{{ route('driver-management.debt-history') }}', {
+            headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (!data.success) throw new Error('Failed to load history');
+
+            let settledHtml = '';
+            if (data.settled.length > 0) {
+                data.settled.forEach(item => {
+                    settledHtml += `
+                        <div class="bg-emerald-50/50 border border-emerald-100 rounded-2xl p-5 flex flex-col md:flex-row justify-between items-center gap-4">
+                            <div class="flex items-center gap-4 flex-1">
+                                <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center shrink-0">
+                                    <i data-lucide="check-circle" class="w-6 h-6"></i>
+                                </div>
+                                <div>
+                                    <h5 class="text-sm font-black text-slate-900">${item.driver_name} <span class="text-xs font-bold text-slate-400">• ${item.unit_plate}</span></h5>
+                                    <p class="text-[10px] font-bold text-slate-500 mt-0.5">${item.description}</p>
+                                    <p class="text-[9px] font-black uppercase tracking-widest text-emerald-600 mt-1">Settled on ${new Date(item.date).toLocaleDateString('en-PH')}</p>
+                                </div>
+                            </div>
+                            <div class="text-right shrink-0">
+                                <p class="text-[9px] font-black text-emerald-400 uppercase tracking-widest mb-1">Total Paid</p>
+                                <p class="text-xl font-black text-emerald-700">₱${parseFloat(item.total_charge).toLocaleString('en-PH', {minimumFractionDigits:2})}</p>
+                            </div>
+                        </div>
+                    `;
+                });
+            } else {
+                settledHtml = '<p class="text-sm text-slate-400 italic text-center py-4">No settled debts recorded yet.</p>';
+            }
+
+            let paymentsHtml = '';
+            if (data.payments.length > 0) {
+                data.payments.forEach(p => {
+                    paymentsHtml += `
+                        <div class="bg-white border border-slate-100 rounded-xl p-4 hover:border-indigo-100 hover:shadow-lg transition-all duration-300">
+                            <div class="flex justify-between items-center">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 bg-indigo-50 text-indigo-600 rounded-lg flex items-center justify-center">
+                                        <i data-lucide="banknote" class="w-4 h-4"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-[10px] font-black text-indigo-500 uppercase tracking-widest">${new Date(p.date).toLocaleDateString('en-PH', {month:'short', day:'numeric', year:'numeric'})}</p>
+                                        <p class="text-xs font-bold text-slate-700">${p.description}</p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-sm font-black text-emerald-600">+₱${parseFloat(p.amount).toLocaleString('en-PH', {minimumFractionDigits:2})}</p>
+                                    <p class="text-[9px] font-bold text-slate-400 uppercase">Cash Entry</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+            } else {
+                paymentsHtml = '<p class="text-sm text-slate-400 italic text-center py-4">No recent payment transactions found.</p>';
+            }
+
+            historyContent.innerHTML = `
+                <div class="space-y-8">
+                    <section>
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="h-px bg-slate-100 flex-1"></div>
+                            <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Recently Settled Incidents</h4>
+                            <div class="h-px bg-slate-100 flex-1"></div>
+                        </div>
+                        <div class="space-y-4">
+                            ${settledHtml}
+                        </div>
+                    </section>
+
+                    <section>
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="h-px bg-slate-100 flex-1"></div>
+                            <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Individual Payment Logs</h4>
+                            <div class="h-px bg-slate-100 flex-1"></div>
+                        </div>
+                        <div class="grid grid-cols-1 gap-3">
+                            ${paymentsHtml}
+                        </div>
+                    </section>
+                </div>
+            `;
+            lucide.createIcons();
+        })
+        .catch(err => {
+            console.error(err);
+            historyContent.innerHTML = `<div class="text-center py-10 text-rose-500 font-bold">Failed to load history.</div>`;
+        });
+    }
+
+    function openPendingDebtsModal() {
+        const modal = document.getElementById('pendingDebtsModal');
+        modal.classList.remove('hidden');
+        
+        // Reset to debts view if it was on history
+        showingHistory = true;
+        toggleDebtHistory();
+
+        setTimeout(() => {
+            document.getElementById('pendingDebtsModalContainer').classList.remove('scale-95');
+        }, 10);
+        lucide.createIcons();
+        fetchPendingDebts();
+    }
+
+    function closePendingDebtsModal() {
+        document.getElementById('pendingDebtsModalContainer').classList.add('scale-95');
+        setTimeout(() => {
+            document.getElementById('pendingDebtsModal').classList.add('hidden');
+        }, 150);
+    }
+
+    function fetchPendingDebts() {
+        const content = document.getElementById('pendingDebtsContent');
+        content.innerHTML = `
+            <div class="flex flex-col items-center justify-center py-20 text-slate-400">
+                <div class="relative w-16 h-16 mb-4">
+                    <div class="absolute inset-0 border-4 border-slate-100 rounded-full"></div>
+                    <div class="absolute inset-0 border-4 border-red-500 rounded-full border-t-transparent animate-spin"></div>
+                </div>
+                <p class="font-bold text-sm tracking-widest uppercase">Processing Telemetry...</p>
+            </div>`;
+        lucide.createIcons();
+
+        fetch('{{ route('driver-management.pending-debts') }}', {
+            headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (!data.success || !data.debts || data.debts.length === 0) {
+                content.innerHTML = `
+                    <div class="flex flex-col items-center justify-center py-20 bg-slate-50 rounded-[2.5rem] border border-dashed border-slate-200">
+                        <div class="w-20 h-20 bg-emerald-50 text-emerald-500 rounded-3xl flex items-center justify-center mb-6 shadow-xl shadow-emerald-100">
+                            <i data-lucide="check-circle" class="w-10 h-10"></i>
+                        </div>
+                        <h4 class="text-xl font-black text-slate-800 mb-2">Zero Liabilities Detected</h4>
+                        <p class="text-sm text-slate-500 max-w-xs text-center font-medium leading-relaxed">All driver at-fault accident charges have been fully settled and reconciled.</p>
+                    </div>`;
+                lucide.createIcons();
+                return;
+            }
+
+            let html = '<div class="space-y-8 pb-10">';
+            data.debts.forEach(driver => {
+                let rows = '';
+                driver.debts.forEach(debt => {
+                    const severityColors = {
+                        critical: 'bg-red-600 text-white shadow-red-100',
+                        high: 'bg-orange-500 text-white shadow-orange-100',
+                        medium: 'bg-amber-400 text-white shadow-amber-100',
+                        low: 'bg-indigo-500 text-white shadow-indigo-100'
+                    };
+                    const badgeClass = severityColors[debt.severity.toLowerCase()] || 'bg-slate-500 text-white';
+
+                    rows += `
+                        <div class="group relative bg-white border border-slate-100 rounded-2xl p-5 hover:border-red-200 hover:shadow-xl hover:shadow-red-50 transition-all duration-300">
+                            <div class="flex flex-col md:flex-row gap-6 items-start md:items-center">
+                                <div class="w-full md:w-32 shrink-0">
+                                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Incident Date</p>
+                                    <p class="text-sm font-black text-slate-800">${new Date(debt.date).toLocaleDateString('en-PH', {month:'short', day:'numeric', year:'numeric'})}</p>
+                                    <span class="inline-block mt-2 px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-widest shadow-lg ${badgeClass}">
+                                        ${debt.severity} Risk
+                                    </span>
+                                </div>
+
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Details & Description</p>
+                                    <p class="text-sm font-bold text-slate-700 leading-relaxed mb-3 line-clamp-2" title="${debt.description}">
+                                        ${debt.description}
+                                    </p>
+                                    <div class="flex flex-wrap gap-4">
+                                        <div class="px-3 py-1.5 bg-slate-50 rounded-xl border border-slate-100">
+                                            <span class="text-[9px] font-black text-slate-400 uppercase block tracking-tighter">Total Charge</span>
+                                            <span class="text-xs font-black text-slate-700">₱${parseFloat(debt.total_charge).toLocaleString('en-PH', {minimumFractionDigits:2})}</span>
+                                        </div>
+                                        <div class="px-3 py-1.5 bg-emerald-50 rounded-xl border border-emerald-100">
+                                            <span class="text-[9px] font-black text-emerald-400 uppercase block tracking-tighter">Settled</span>
+                                            <span class="text-xs font-black text-emerald-700">₱${parseFloat(debt.total_paid).toLocaleString('en-PH', {minimumFractionDigits:2})}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="w-full md:w-auto flex flex-col items-end gap-3 shrink-0">
+                                    <div class="text-right">
+                                        <p class="text-[10px] font-black text-red-400 uppercase tracking-widest mb-1">Remaining Balance</p>
+                                        <p class="text-2xl font-black text-red-600 tracking-tight">₱${parseFloat(debt.remaining_balance).toLocaleString('en-PH', {minimumFractionDigits:2})}</p>
+                                    </div>
+                                    
+                                    <form method="POST" action="{{ route('driver-management.pay-debt') }}" class="flex items-center gap-2 w-full md:w-auto" onsubmit="return confirm('Confirm cash payment of ₱' + this.payment_amount.value + ' for this incident?');">
+                                        @csrf
+                                        <input type="hidden" name="debt_id" value="${debt.id}">
+                                        <div class="relative flex-1 md:w-32">
+                                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs font-black">₱</span>
+                                            <input type="number" name="payment_amount" step="0.01" max="${debt.remaining_balance}" min="1" required placeholder="0.00"
+                                                class="w-full pl-6 pr-3 py-2 text-sm font-black border border-slate-200 rounded-xl focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all outline-none bg-slate-50">
+                                        </div>
+                                        <button type="submit" class="px-5 py-2 bg-slate-900 text-white text-xs font-black rounded-xl hover:bg-slate-800 transition-all flex items-center gap-2 shadow-xl shadow-slate-200">
+                                            <i data-lucide="banknote" class="w-4 h-4 text-emerald-400"></i> Pay
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                html += `
+                    <div class="bg-slate-900 rounded-[2.5rem] p-1 shadow-2xl relative overflow-hidden group">
+                        <div class="absolute -right-10 -top-10 w-40 h-40 bg-red-500/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-1000"></div>
+                        <div class="bg-white rounded-[2.3rem] overflow-hidden">
+                            <div class="bg-gradient-to-br from-slate-50 to-white p-8 border-b border-slate-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-14 h-14 bg-slate-100 rounded-2xl flex items-center justify-center shadow-inner relative">
+                                        <i data-lucide="user" class="w-7 h-7 text-slate-400"></i>
+                                        <div class="absolute -bottom-1 -right-1 w-5 h-5 bg-red-500 rounded-full border-4 border-white flex items-center justify-center">
+                                            <div class="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-xl font-black text-slate-900">${driver.driver_name}</h4>
+                                        <div class="flex items-center gap-3 mt-1">
+                                            <span class="px-2 py-0.5 bg-indigo-50 text-indigo-600 rounded-lg text-[10px] font-black uppercase tracking-widest border border-indigo-100">
+                                                ${driver.unit_plate || 'Unassigned'}
+                                            </span>
+                                            <span class="text-xs font-bold text-slate-400">• Total Liability</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="text-left md:text-right w-full md:w-auto bg-red-50 p-4 md:p-0 md:bg-transparent rounded-2xl border border-red-100 md:border-0">
+                                    <p class="text-[10px] font-black text-red-400 uppercase tracking-widest mb-1">Aggregated Pending Balance</p>
+                                    <p class="text-3xl font-black text-red-600 tracking-tighter">₱${parseFloat(driver.total_remaining).toLocaleString('en-PH', {minimumFractionDigits:2})}</p>
+                                </div>
+                            </div>
+                            <div class="p-6 bg-white space-y-4">
+                                ${rows}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            content.innerHTML = html;
+            lucide.createIcons();
+        })
+        .catch(err => {
+            console.error(err);
+            content.innerHTML = `
+                <div class="flex flex-col items-center justify-center py-20 text-rose-500">
+                    <div class="w-20 h-20 bg-rose-50 rounded-3xl flex items-center justify-center mb-6">
+                        <i data-lucide="alert-triangle" class="w-10 h-10"></i>
+                    </div>
+                    <h4 class="text-xl font-black mb-2">Protocol Interrupted</h4>
+                    <p class="text-sm text-slate-500 text-center max-w-xs font-medium leading-relaxed mb-6">Unable to sync debt telemetry with the central server.</p>
+                    <button onclick="fetchPendingDebts()" class="px-8 py-3 bg-slate-900 text-white rounded-xl font-black text-xs">Retry Protocol</button>
+                </div>`;
+            lucide.createIcons();
+        });
+    }
+
+    // Handle URL parameters for notifications
+    window.addEventListener('DOMContentLoaded', () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const editDriverId = urlParams.get('edit_driver');
+        const openDebts = urlParams.get('open_debts');
+
+        if (editDriverId) {
+            setTimeout(() => {
+                openEditDriverModal(editDriverId);
+            }, 500);
+        }
+
+        if (openDebts) {
+            setTimeout(() => {
+                openPendingDebtsModal();
+            }, 500);
+        }
+    });
 </script>
 @endpush

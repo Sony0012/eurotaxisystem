@@ -7,17 +7,17 @@
 <style>
     /* ── Premium dark glass palette ── */
     :root {
-        --sa-bg:       #0f1117;
-        --sa-surface:  #1a1d27;
-        --sa-card:     #20243a;
-        --sa-border:   rgba(255,255,255,.07);
-        --sa-gold:     #f59e0b;
-        --sa-gold-dim: #92400e;
-        --sa-teal:     #14b8a6;
-        --sa-purple:   #8b5cf6;
-        --sa-red:      #ef4444;
-        --sa-green:    #22c55e;
-        --sa-text:     #e2e8f0;
+        --sa-bg:       #f8fafc;
+        --sa-surface:  #f1f5f9;
+        --sa-card:     #ffffff;
+        --sa-border:   #e2e8f0;
+        --sa-gold:     #ca8a04;
+        --sa-gold-dim: #fef3c7;
+        --sa-teal:     #0d9488;
+        --sa-purple:   #7c3aed;
+        --sa-red:      #dc2626;
+        --sa-green:    #16a34a;
+        --sa-text:     #1e293b;
         --sa-muted:    #64748b;
     }
 
@@ -46,15 +46,15 @@
 
     /* ── Stat cards ── */
     .sa-stat {
-        background: linear-gradient(135deg, var(--sa-card) 0%, rgba(32,36,58,.6) 100%);
+        background: linear-gradient(135deg, var(--sa-card) 0%, #f8fafc 100%);
         border: 1px solid var(--sa-border);
-        border-radius: 1rem;
+        border-radius: 1.5rem;
         padding: 1.25rem 1.5rem;
         position: relative;
         overflow: hidden;
         transition: transform .2s, box-shadow .2s;
     }
-    .sa-stat:hover { transform: translateY(-2px); box-shadow: 0 10px 40px rgba(0,0,0,.4); }
+    .sa-stat:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(0,0,0,.08); }
     .sa-stat::before {
         content: '';
         position: absolute;
@@ -68,7 +68,7 @@
     /* ── Tables ── */
     .sa-table { width: 100%; border-collapse: collapse; }
     .sa-table th {
-        background: rgba(255,255,255,.03);
+        background: #f8fafc;
         color: var(--sa-muted);
         font-size: .7rem;
         font-weight: 700;
@@ -77,27 +77,30 @@
         padding: .75rem 1rem;
         text-align: left;
         border-bottom: 1px solid var(--sa-border);
+        position: sticky;
+        top: 0;
+        z-index: 10;
     }
     .sa-table td {
         padding: .85rem 1rem;
         font-size: .825rem;
-        border-bottom: 1px solid rgba(255,255,255,.04);
+        border-bottom: 1px solid var(--sa-border);
         vertical-align: middle;
     }
-    .sa-table tbody tr:hover { background: rgba(255,255,255,.025); }
+    .sa-table tbody tr:hover { background: rgba(0,0,0,.015); }
 
-    /* ── Badges ── */
-    .badge-pending  { background:#78350f33; color:#fbbf24; border:1px solid #92400e; }
-    .badge-approved { background:#14532d33; color:#4ade80; border:1px solid #166534; }
-    .badge-rejected { background:#7f1d1d33; color:#f87171; border:1px solid #991b1b; }
-    .badge-login    { background:#1e3a5f33; color:#60a5fa; border:1px solid #1e40af; }
-    .badge-logout   { background:#1f2937; color:#9ca3af; border:1px solid #374151; }
-    .badge-failed   { background:#7f1d1d33; color:#f87171; border:1px solid #991b1b; }
-    .badge-role-super_admin { background:#4c1d9533; color:#c4b5fd; border:1px solid #7c3aed; }
-    .badge-role-manager     { background:#1e3a5f33; color:#60a5fa; border:1px solid #1e40af; }
-    .badge-role-dispatcher  { background:#134e4a33; color:#2dd4bf; border:1px solid #0f766e; }
-    .badge-role-secretary   { background:#1e1b4b33; color:#a5b4fc; border:1px solid #4338ca; }
-    .badge-role-staff       { background:#1f293733; color:#94a3b8; border:1px solid #334155; }
+    /* ── Badges (High Contrast Light Mode) ── */
+    .badge-pending  { background:#fef3c7; color:#92400e; border:1px solid #fcd34d; }
+    .badge-approved { background:#dcfce7; color:#15803d; border:1px solid #86efac; }
+    .badge-rejected { background:#fee2e2; color:#b91c1c; border:1px solid #fca5a5; }
+    .badge-login    { background:#dbeafe; color:#1e40af; border:1px solid #93c5fd; }
+    .badge-logout   { background:#f4f4f5; color:#52525b; border:1px solid #d4d4d8; }
+    .badge-failed   { background:#fee2e2; color:#b91c1c; border:1px solid #fca5a5; }
+    .badge-role-super_admin { background:#f3e8ff; color:#6b21a8; border:1px solid #d8b4fe; }
+    .badge-role-manager     { background:#e0f2fe; color:#075985; border:1px solid #7dd3fc; }
+    .badge-role-dispatcher  { background:#ccfbf1; color:#115e59; border:1px solid #5eead4; }
+    .badge-role-secretary   { background:#e0e7ff; color:#3730a3; border:1px solid #a5b4fc; }
+    .badge-role-staff       { background:#f1f5f9; color:#475569; border:1px solid #cbd5e1; }
 
     .badge {
         display: inline-flex; align-items: center; gap: .3rem;
@@ -114,15 +117,15 @@
     .btn-approve:hover { background:#15803d; }
     .btn-reject  { background:#7f1d1d; color:#f87171; border:1px solid #991b1b; border-radius:.5rem; padding:.3rem .9rem; font-size:.72rem; font-weight:700; cursor:pointer; transition:all .2s; }
     .btn-reject:hover  { background:#991b1b; }
-    .btn-ghost   { background:rgba(255,255,255,.05); color:var(--sa-muted); border:1px solid var(--sa-border); border-radius:.5rem; padding:.3rem .9rem; font-size:.72rem; font-weight:700; cursor:pointer; transition:all .2s; }
-    .btn-ghost:hover   { background:rgba(255,255,255,.1); color:var(--sa-text); }
-    .btn-gold   { background:var(--sa-gold); color:#1c1917; border:0; border-radius:.5rem; padding:.35rem 1rem; font-size:.72rem; font-weight:800; cursor:pointer; transition:all .2s; }
+    .btn-ghost   { background:transparent; color:var(--sa-muted); border:1px solid var(--sa-border); border-radius:.5rem; padding:.3rem .9rem; font-size:.72rem; font-weight:700; cursor:pointer; transition:all .2s; }
+    .btn-ghost:hover   { background:rgba(0,0,0,.04); color:var(--sa-text); }
+    .btn-gold   { background:var(--sa-gold); color:#ffffff; border:0; border-radius:.5rem; padding:.35rem 1rem; font-size:.72rem; font-weight:800; cursor:pointer; transition:all .2s; }
     .btn-gold:hover   { background:#fbbf24; }
     .btn-danger { background:#7f1d1d; color:#f87171; border:1px solid #991b1b; border-radius:.5rem; padding:.3rem .9rem; font-size:.72rem; font-weight:700; cursor:pointer; transition:all .2s; }
 
     /* ── Search & inputs ── */
     .sa-input {
-        background: rgba(255,255,255,.06);
+        background: #f8fafc;
         border: 1px solid var(--sa-border);
         color: var(--sa-text);
         border-radius: .6rem;
@@ -144,7 +147,7 @@
         text-transform: uppercase;
         letter-spacing: .05em;
         border: 1px solid var(--sa-border);
-        background: rgba(255,255,255,.04);
+        background: #ffffff;
         color: var(--sa-muted);
         transition: all .2s;
         user-select: none;
@@ -178,7 +181,7 @@
     }
     .sa-modal-backdrop.open { display: flex; }
     .sa-modal {
-        background: var(--sa-card); border: 1px solid var(--sa-border); border-radius: 1.25rem;
+        background: var(--sa-card); border: 1px solid var(--sa-border); border-radius: 2rem;
         padding: 2rem; width: 100%; max-width: 520px; max-height: 90vh; overflow-y: auto;
         box-shadow: 0 24px 80px rgba(0,0,0,.7);
         animation: modal-in .25s ease;
@@ -188,7 +191,7 @@
     /* ── Scrollbar ── */
     ::-webkit-scrollbar { width: 5px; height: 5px; }
     ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: #374151; border-radius: 99px; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 99px; }
 </style>
 @endpush
 
@@ -208,34 +211,30 @@
 <div class="sa-shell p-0">
 
     {{-- ══ Header Banner ══ --}}
-    <div style="background: linear-gradient(135deg, #0f1117 0%, #1a1127 50%, #0f1117 100%); border-bottom: 1px solid rgba(245,158,11,.15);" class="px-6 pt-5 pb-0">
+    <div style="background: linear-gradient(135deg, #fefce8 0%, #fef3c7 100%); border: 1px solid #fde047; border-radius: 1.5rem; margin: -0.5rem 1.25rem 0 1.25rem; position: relative; z-index: 10;" class="px-6 pt-5 pb-0">
         <div class="flex items-start justify-between mb-4">
             <div class="flex items-center gap-4">
-                <div style="background:linear-gradient(135deg,#f59e0b,#d97706); width:52px; height:52px; border-radius:1rem;" class="flex items-center justify-center shadow-lg flex-shrink-0">
+                <div style="background:linear-gradient(135deg,#f59e0b,#d97706); width:52px; height:52px; border-radius:1.25rem;" class="flex items-center justify-center shadow-lg flex-shrink-0">
                     <i data-lucide="crown" style="width:26px;height:26px;color:#1c1917;"></i>
                 </div>
                 <div>
                     <div class="flex items-center gap-2 mb-0.5">
-                        <h1 style="color:#f59e0b; font-size:1.35rem; font-weight:900; letter-spacing:-.02em;">Owner Control Center</h1>
+                        <h1 style="color:#854d0e; font-size:1.35rem; font-weight:900; letter-spacing:-.02em;">Owner Control Center</h1>
                         <span class="badge badge-role-super_admin">Super Admin</span>
                     </div>
-                    <p style="color:#64748b; font-size:.8rem;">Welcome back, <strong style="color:#e2e8f0;">{{ auth()->user()->full_name }}</strong> · Full system access</p>
+                    <p style="color:#71717a; font-size:.8rem;">Welcome back, <strong style="color:var(--sa-text);">{{ auth()->user()->full_name }}</strong> · Full system access</p>
                 </div>
             </div>
             <div class="hidden lg:flex items-center gap-3 text-right">
+
                 <div>
-                    <p style="color:#f59e0b; font-size:1.4rem; font-weight:900;">{{ $pendingUsers }}</p>
-                    <p style="color:#64748b; font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em;">Pending</p>
+                    <p style="color:#16a34a; font-size:1.4rem; font-weight:900;">{{ $activeUsers }}</p>
+                    <p style="color:#71717a; font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em;">Active</p>
                 </div>
-                <div style="width:1px; height:36px; background:rgba(255,255,255,.08);"></div>
+                <div style="width:1px; height:36px; background:#dcdcdc;"></div>
                 <div>
-                    <p style="color:#4ade80; font-size:1.4rem; font-weight:900;">{{ $activeUsers }}</p>
-                    <p style="color:#64748b; font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em;">Active</p>
-                </div>
-                <div style="width:1px; height:36px; background:rgba(255,255,255,.08);"></div>
-                <div>
-                    <p style="color:#e2e8f0; font-size:1.4rem; font-weight:900;">{{ $totalUsers }}</p>
-                    <p style="color:#64748b; font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em;">Total Users</p>
+                    <p style="color:#000; font-size:1.4rem; font-weight:900;">{{ $totalUsers }}</p>
+                    <p style="color:#71717a; font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em;">Total Users</p>
                 </div>
             </div>
         </div>
@@ -245,11 +244,8 @@
             <button class="sa-tab {{ $tab === 'overview' ? 'active' : '' }}" onclick="switchTab('overview')">
                 <i data-lucide="layout-dashboard" class="inline w-3.5 h-3.5 mr-1 -mt-0.5"></i>Overview
             </button>
-            <button class="sa-tab {{ $tab === 'pending' ? 'active' : '' }}" onclick="switchTab('pending')">
-                <i data-lucide="clock" class="inline w-3.5 h-3.5 mr-1 -mt-0.5"></i>Pending Approvals
-                @if($pendingUsers > 0)
-                    <span style="background:#f59e0b; color:#1c1917; font-size:.6rem; padding:.05rem .4rem; border-radius:999px; margin-left:.3rem;">{{ $pendingUsers }}</span>
-                @endif
+            <button class="sa-tab {{ $tab === 'staff' ? 'active' : '' }}" onclick="switchTab('staff')">
+                <i data-lucide="user-plus" class="inline w-3.5 h-3.5 mr-1 -mt-0.5"></i>Create Staff
             </button>
             <button class="sa-tab {{ $tab === 'users' ? 'active' : '' }}" onclick="switchTab('users')">
                 <i data-lucide="users" class="inline w-3.5 h-3.5 mr-1 -mt-0.5"></i>All Users
@@ -259,6 +255,9 @@
             </button>
             <button class="sa-tab {{ $tab === 'audit' ? 'active' : '' }}" onclick="switchTab('audit')">
                 <i data-lucide="activity" class="inline w-3.5 h-3.5 mr-1 -mt-0.5"></i>Login History
+            </button>
+            <button class="sa-tab {{ $tab === 'roles' ? 'active' : '' }}" onclick="switchTab('roles')">
+                <i data-lucide="shield" class="inline w-3.5 h-3.5 mr-1 -mt-0.5"></i>System Roles
             </button>
         </div>
     </div>
@@ -277,19 +276,10 @@
                             <i data-lucide="users" style="width:16px;height:16px;color:#f59e0b;"></i>
                         </div>
                     </div>
-                    <p style="font-size:2.2rem; font-weight:900; line-height:1; color:#f59e0b;">{{ $totalUsers }}</p>
+                    <p style="font-size:2.2rem; font-weight:900; line-height:1; color:#000;">{{ $totalUsers }}</p>
                     <p style="font-size:.7rem; color:#64748b; margin-top:.4rem;">Registered accounts</p>
                 </div>
-                <div class="sa-stat" style="color:#fbbf24;">
-                    <div class="flex items-center justify-between mb-3">
-                        <span style="font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:#92400e;">Pending</span>
-                        <div style="background:rgba(251,191,36,.12); padding:.45rem; border-radius:.6rem;">
-                            <i data-lucide="clock" style="width:16px;height:16px;color:#fbbf24;"></i>
-                        </div>
-                    </div>
-                    <p style="font-size:2.2rem; font-weight:900; line-height:1; color:#fbbf24;">{{ $pendingUsers }}</p>
-                    <p style="font-size:.7rem; color:#64748b; margin-top:.4rem;">Awaiting your approval</p>
-                </div>
+
                 <div class="sa-stat" style="color:#22c55e;">
                     <div class="flex items-center justify-between mb-3">
                         <span style="font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:#166534;">Active</span>
@@ -297,28 +287,28 @@
                             <i data-lucide="check-circle" style="width:16px;height:16px;color:#22c55e;"></i>
                         </div>
                     </div>
-                    <p style="font-size:2.2rem; font-weight:900; line-height:1; color:#22c55e;">{{ $activeUsers }}</p>
+                    <p style="font-size:2.2rem; font-weight:900; line-height:1; color:#000;">{{ $activeUsers }}</p>
                     <p style="font-size:.7rem; color:#64748b; margin-top:.4rem;">Approved & active</p>
                 </div>
-                <div class="sa-stat" style="color:#f87171;">
+                <div class="sa-stat" style="color:#ef4444;">
                     <div class="flex items-center justify-between mb-3">
                         <span style="font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:#991b1b;">Rejected</span>
-                        <div style="background:rgba(239,68,68,.12); padding:.45rem; border-radius:.6rem;">
-                            <i data-lucide="x-circle" style="width:16px;height:16px;color:#f87171;"></i>
+                        <div style="background:#fee2e2; padding:.45rem; border-radius:.6rem;">
+                            <i data-lucide="x-circle" style="width:16px;height:16px;color:#dc2626;"></i>
                         </div>
                     </div>
-                    <p style="font-size:2.2rem; font-weight:900; line-height:1; color:#f87171;">{{ $rejectedUsers }}</p>
+                    <p style="font-size:2.2rem; font-weight:900; line-height:1; color:#000;">{{ $rejectedUsers }}</p>
                     <p style="font-size:.7rem; color:#64748b; margin-top:.4rem;">Denied access</p>
                 </div>
             </div>
 
             {{-- Recent Activity --}}
-            <div style="background:var(--sa-card); border:1px solid var(--sa-border); border-radius:1rem; overflow:hidden;">
+            <div style="background:var(--sa-card); border:1px solid var(--sa-border); border-radius:1.5rem; overflow:hidden;">
                 <div style="padding:1rem 1.25rem; border-bottom:1px solid var(--sa-border); display:flex; align-items:center; gap:.6rem;">
                     <i data-lucide="activity" style="width:15px;height:15px;color:#f59e0b;"></i>
-                    <span style="font-size:.75rem; font-weight:800; text-transform:uppercase; letter-spacing:.07em; color:#94a3b8;">Recent Login Activity</span>
+                    <span style="font-size:.75rem; font-weight:800; text-transform:uppercase; letter-spacing:.07em; color:#475569;">Recent Login Activity</span>
                 </div>
-                <div style="overflow-x:auto;">
+                <div style="overflow-x:auto; max-height: 600px; overflow-y: auto;">
                     <table class="sa-table">
                         <thead>
                             <tr>
@@ -332,12 +322,20 @@
                             @forelse($recentAudit as $audit)
                             <tr>
                                 <td>
-                                    <div style="font-weight:700; color:#e2e8f0;">{{ $audit->user_name ?? 'Unknown' }}</div>
+                                    <div style="font-weight:700; color:#000;">{{ $audit->user_name ?? 'Unknown' }}</div>
                                     <div style="font-size:.72rem; color:#64748b;">{{ $audit->user_email ?? '' }}</div>
                                 </td>
                                 <td>
                                     @php
-                                        $aMap = ['login' => ['badge-login','Login'], 'logout' => ['badge-logout','Logout'], 'failed_login' => ['badge-failed','Failed Login'], 'approved' => ['badge-approved','Approved'], 'rejected' => ['badge-rejected','Rejected']];
+                                        $aMap = [
+                                            'login' => ['badge-login','Login'], 
+                                            'logout' => ['badge-logout','Logout'], 
+                                            'failed_login' => ['badge-failed','Failed Login'], 
+                                            'approved' => ['badge-approved','Approved'], 
+                                            'rejected' => ['badge-rejected','Rejected'],
+                                            'password_changed' => ['badge-role-manager', 'PW Changed'],
+                                            'created' => ['badge-login', 'Created']
+                                        ];
                                         [$cls,$lbl] = $aMap[$audit->action] ?? ['badge-logout', $audit->action];
                                     @endphp
                                     <span class="badge {{ $cls }}">{{ $lbl }}</span>
@@ -356,70 +354,111 @@
             </div>
         </div>
 
-        {{-- ─── PENDING APPROVALS TAB ─── --}}
-        <div id="tab-pending" class="sa-tab-content {{ $tab === 'pending' ? '' : 'hidden' }}">
-            @php $pending = $allUsers->where('approval_status', 'pending'); @endphp
-            @if($pending->isEmpty())
-                <div style="text-align:center; padding:4rem 2rem; color:#64748b;">
-                    <i data-lucide="check-circle" style="width:48px;height:48px;color:#22c55e;margin:0 auto 1rem;display:block;"></i>
-                    <p style="font-weight:700; font-size:1rem; color:#94a3b8;">All Clear!</p>
-                    <p style="font-size:.85rem; margin-top:.5rem;">No accounts are pending approval at this time.</p>
+        <div id="tab-staff" class="sa-tab-content {{ $tab === 'staff' ? '' : 'hidden' }}">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                {{-- Left Side: Info --}}
+                <div class="lg:col-span-4">
+                    <div style="background:var(--sa-card); border:1px solid var(--sa-border); border-radius:1.5rem; padding:2rem; height:100%;">
+                        <div style="background:rgba(245,158,11,.15); width:52px; height:52px; border-radius:1.25rem; display:flex; align-items:center; justify-content:center; margin-bottom:1.5rem;">
+                            <i data-lucide="user-plus" style="width:26px;height:26px;color:#f59e0b;"></i>
+                        </div>
+                        <h3 style="color:#000; font-weight:900; font-size:1.4rem; margin-bottom:.75rem;">Create Staff Account</h3>
+                        <p style="color:#64748b; font-size:.88rem; line-height:1.6; margin-bottom:1.5rem;">
+                            Add a new member to your team. The system will automatically generate a secure password and send the login credentials directly to their email address.
+                        </p>
+                        
+                        <div style="background:rgba(245,158,11,.05); border:1px solid rgba(245,158,11,.15); border-radius:1rem; padding:1.25rem;">
+                            <div class="flex items-center gap-2 mb-2" style="color:#b45309; font-weight:800; font-size:.72rem; text-transform:uppercase; letter-spacing:.05em;">
+                                <i data-lucide="shield-check" style="width:14px;height:14px;"></i>
+                                Security Note
+                            </div>
+                            <p style="font-size:.78rem; color:#d97706; line-height:1.5;">
+                                For security, new users are required to change their auto-generated password immediately upon their first login.
+                            </p>
+                        </div>
+                    </div>
                 </div>
-            @else
-                <div style="background:rgba(245,158,11,.08); border:1px solid rgba(245,158,11,.25); border-radius:.75rem; padding:.85rem 1.25rem; margin-bottom:1.25rem; display:flex; align-items:center; gap:.75rem;">
-                    <i data-lucide="alert-circle" style="width:16px;height:16px;color:#f59e0b; flex-shrink:0;"></i>
-                    <p style="font-size:.8rem; color:#fbbf24; font-weight:600;">{{ $pending->count() }} account(s) are awaiting your approval. These users cannot log in until you approve them.</p>
+
+                {{-- Right Side: Form --}}
+                <div class="lg:col-span-8">
+                    <div style="background:var(--sa-card); border:1px solid var(--sa-border); border-radius:1.5rem; padding:2.5rem;">
+                        <form id="staffForm" onsubmit="submitStaff(event)">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                                <div>
+                                    <label style="font-size:.75rem; font-weight:800; text-transform:uppercase; letter-spacing:.06em; color:#475569; display:block; margin-bottom:.6rem;">First Name <span style="color:#ef4444;">*</span></label>
+                                    <input type="text" id="staff-first" class="sa-input" required placeholder="Enter first name">
+                                </div>
+                                <div>
+                                    <label style="font-size:.75rem; font-weight:800; text-transform:uppercase; letter-spacing:.06em; color:#475569; display:block; margin-bottom:.6rem;">Last Name <span style="color:#ef4444;">*</span></label>
+                                    <input type="text" id="staff-last" class="sa-input" required placeholder="Enter last name">
+                                </div>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                                <div>
+                                    <label style="font-size:.75rem; font-weight:800; text-transform:uppercase; letter-spacing:.06em; color:#475569; display:block; margin-bottom:.6rem;">Email Address <span style="color:#ef4444;">*</span></label>
+                                    <input type="email" id="staff-email" class="sa-input" required placeholder="name@eurotaxi.com">
+                                </div>
+                                <div>
+                                    <label style="font-size:.75rem; font-weight:800; text-transform:uppercase; letter-spacing:.06em; color:#475569; display:block; margin-bottom:.6rem;">Phone Number</label>
+                                    <input type="text" id="staff-phone" class="sa-input" placeholder="+63 9XX XXX XXXX">
+                                </div>
+                            </div>
+
+                            <div class="mb-6">
+                                <label style="font-size:.75rem; font-weight:800; text-transform:uppercase; letter-spacing:.06em; color:#475569; display:block; margin-bottom:.6rem;">Home Address</label>
+                                <input type="text" id="staff-address" class="sa-input" placeholder="Enter complete home address">
+                            </div>
+
+                            <div class="mb-8">
+                                <div class="flex items-center justify-between mb-2">
+                                    <label style="font-size:.75rem; font-weight:800; text-transform:uppercase; letter-spacing:.06em; color:#475569; margin-bottom:0;">Assign System Role <span style="color:#ef4444;">*</span></label>
+                                    <button type="button" onclick="openManageRolesModal()" class="text-[10px] font-bold text-amber-600 hover:text-amber-700 flex items-center gap-1 bg-amber-50 px-2 py-1 rounded-md border border-amber-100 transition-colors">
+                                        <i data-lucide="settings-2" class="w-3 h-3"></i> Manage System Roles
+                                    </button>
+                                </div>
+                                <select id="staff-role" class="sa-input" required>
+                                    <option value="" disabled selected>Select a role...</option>
+                                    @foreach($roles as $role)
+                                        <option value="{{ $role->name }}">{{ $role->label }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <div class="flex items-center justify-end pt-4 border-t border-sa-border">
+                                <button type="submit" class="btn-gold px-8 py-3 flex items-center gap-2" id="btn-save-staff">
+                                    <i data-lucide="user-plus" style="width:18px;height:18px;"></i>
+                                    Create Staff Account
+                                </button>
+                            </div>
+                        </form>
+
+                        {{-- Success Output --}}
+                        <div id="staffSuccessMsg" class="hidden text-center py-8">
+                            <div style="background:#dcfce7; width:64px; height:64px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 1.5rem;">
+                                <i data-lucide="check-circle" style="width:32px;height:32px;color:#22c55e;"></i>
+                            </div>
+                            <h3 style="color:#15803d; font-weight:900; font-size:1.5rem; margin-bottom:.75rem;">Account Created Successfully!</h3>
+                            <p style="color:#64748b; font-size:.9rem; margin-bottom:2rem; max-width:400px; margin-left:auto; margin-right:auto;">
+                                The user has been added to the system and an invitation email has been sent.
+                            </p>
+                            
+                            <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:1.25rem; padding:1.5rem; margin-bottom:2rem; max-width:320px; margin-left:auto; margin-right:auto;">
+                                <p style="font-size:.65rem; color:#64748b; text-transform:uppercase; font-weight:800; letter-spacing:.1em; margin-bottom:.5rem;">One-Time Password</p>
+                                <p id="generatedPassword" style="font-size:1.8rem; color:#000; font-family:monospace; font-weight:900; letter-spacing:.1em;"></p>
+                            </div>
+
+                            <button onclick="resetStaffForm()" class="btn-ghost px-8 py-3">Create Another Account</button>
+                        </div>
+                    </div>
                 </div>
-                <div style="background:var(--sa-card); border:1px solid var(--sa-border); border-radius:1rem; overflow:hidden;">
-                    <table class="sa-table">
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Email</th>
-                                <th>Role</th>
-                                <th>Registered</th>
-                                <th style="text-align:right;">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($pending as $u)
-                            <tr id="pending-row-{{ $u->id }}">
-                                <td>
-                                    <div class="flex items-center gap-2.5">
-                                        <div style="width:34px;height:34px;background:linear-gradient(135deg,#f59e0b,#d97706);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:.8rem;color:#1c1917;flex-shrink:0;">
-                                            {{ strtoupper(substr($u->full_name ?? 'U', 0, 1)) }}
-                                        </div>
-                                        <div>
-                                            <div style="font-weight:700;color:#e2e8f0;">{{ $u->full_name }}</div>
-                                            <div style="font-size:.7rem;color:#64748b;">{{ $u->phone_number }}</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td style="color:#94a3b8; font-size:.8rem;">{{ $u->email }}</td>
-                                <td><span class="badge badge-role-{{ $u->role }}">{{ ucfirst($u->role) }}</span></td>
-                                <td style="color:#64748b; font-size:.78rem;">{{ \Carbon\Carbon::parse($u->created_at)->format('M d, Y h:i A') }}</td>
-                                <td>
-                                    <div class="flex justify-end gap-2">
-                                        <button class="btn-approve" onclick="approveUser({{ $u->id }}, '{{ $u->full_name }}')">
-                                            <i data-lucide="check" class="inline w-3 h-3 mr-0.5"></i>Approve
-                                        </button>
-                                        <button class="btn-reject" onclick="rejectUser({{ $u->id }}, '{{ $u->full_name }}')">
-                                            <i data-lucide="x" class="inline w-3 h-3 mr-0.5"></i>Reject
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            @endif
+            </div>
         </div>
 
         {{-- ─── ALL USERS TAB ─── --}}
         <div id="tab-users" class="sa-tab-content {{ $tab === 'users' ? '' : 'hidden' }}">
             <div class="flex items-center gap-3 mb-4 flex-wrap">
-                <input type="text" id="userSearch" class="sa-input" style="max-width:280px;" placeholder="Search name, email, role…" oninput="filterUserTable(this.value)">
+                <input type="text" id="userSearch" class="sa-input" style="max-width:280px;" placeholder="Search users..." autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');" oninput="filterUserTable(this.value)">
                 <select id="statusFilter" class="sa-input" style="max-width:180px;" onchange="filterUserTable()">
                     <option value="">All Statuses</option>
                     <option value="approved">Approved</option>
@@ -427,8 +466,9 @@
                     <option value="rejected">Rejected</option>
                 </select>
             </div>
-            <div style="background:var(--sa-card); border:1px solid var(--sa-border); border-radius:1rem; overflow:hidden;">
-                <table class="sa-table" id="userTable">
+            <div style="background:var(--sa-card); border:1px solid var(--sa-border); border-radius:1.5rem; overflow:hidden;">
+                <div style="overflow-x:auto; max-height: 700px; overflow-y: auto;">
+                    <table class="sa-table" id="userTable">
                     <thead>
                         <tr>
                             <th>User</th>
@@ -441,18 +481,18 @@
                     </thead>
                     <tbody>
                         @foreach($allUsers as $u)
-                        <tr class="user-row" data-name="{{ strtolower($u->full_name) }}" data-email="{{ strtolower($u->email) }}" data-role="{{ strtolower($u->role) }}" data-status="{{ $u->approval_status }}">
+                        <tr class="user-row cursor-pointer transition-colors" style="cursor: pointer;" onclick="openUserDetailsModal({{ $u->id }})" data-name="{{ strtolower($u->full_name) }}" data-email="{{ strtolower($u->email) }}" data-role="{{ strtolower($u->role) }}" data-status="{{ $u->approval_status }}">
                             <td>
                                 <div class="flex items-center gap-2.5">
                                     @if($u->profile_image)
-                                        <img src="{{ asset('storage/' . $u->profile_image) }}" style="width:34px;height:34px;border-radius:50%;object-fit:cover;border:2px solid rgba(245,158,11,.3);" alt="">
+                                        <img src="{{ asset('storage/' . $u->profile_image) }}" style="width:34px;height:34px;border-radius:50%;object-fit:cover;border:2px solid #e5e7eb;" alt="">
                                     @else
-                                        <div style="width:34px;height:34px;background:linear-gradient(135deg,#334155,#1e293b);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:.8rem;color:#94a3b8;flex-shrink:0;">
+                                        <div style="width:34px;height:34px;background:#e2e8f0;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:.8rem;color:#64748b;flex-shrink:0;">
                                             {{ strtoupper(substr($u->full_name ?? 'U', 0, 1)) }}
                                         </div>
                                     @endif
                                     <div>
-                                        <div style="font-weight:700;color:#e2e8f0;">{{ $u->full_name }}</div>
+                                        <div style="font-weight:700;color:#000;">{{ $u->full_name }}</div>
                                         <div style="font-size:.7rem;color:#64748b;">{{ $u->email }}</div>
                                     </div>
                                 </div>
@@ -470,7 +510,7 @@
                                 @endif
                             </td>
                             <td>
-                                <button onclick="toggleActive({{ $u->id }}, this)" style="background:{{ $u->is_active ? 'rgba(34,197,94,.15)' : 'rgba(239,68,68,.1)' }};border:1px solid {{ $u->is_active ? '#166534' : '#991b1b' }};color:{{ $u->is_active ? '#4ade80' : '#f87171' }};border-radius:999px;padding:.2rem .75rem;font-size:.68rem;font-weight:800;cursor:pointer;" data-id="{{ $u->id }}" data-active="{{ $u->is_active ? 1 : 0 }}">
+                                <button onclick="event.stopPropagation(); toggleActive({{ $u->id }}, this)" style="background:{{ $u->is_active ? '#f0fdf4' : '#fef2f2' }};border:1px solid {{ $u->is_active ? '#22c55e' : '#ef4444' }};color:{{ $u->is_active ? '#15803d' : '#b91c1c' }};border-radius:999px;padding:.2rem .75rem;font-size:.68rem;font-weight:800;cursor:pointer;" data-id="{{ $u->id }}" data-active="{{ $u->is_active ? 1 : 0 }}">
                                     {{ $u->is_active ? '● Active' : '○ Inactive' }}
                                 </button>
                             </td>
@@ -480,18 +520,9 @@
                             <td>
                                 <div class="flex justify-end gap-1.5">
                                     @if($u->trashed())
-                                        <button class="btn-approve" onclick="restoreUser({{ $u->id }}, '{{ $u->full_name }}')">Restore</button>
+                                        <button class="btn-approve" onclick="event.stopPropagation(); restoreUser({{ $u->id }}, '{{ $u->full_name }}')">Restore</button>
                                     @else
-                                        <button class="btn-ghost" onclick="openRoleModal({{ $u->id }}, '{{ addslashes($u->full_name) }}', '{{ $u->role }}')">
-                                            <i data-lucide="user-plus" class="inline w-3 h-3 mr-0.5"></i>Role
-                                        </button>
-                                        <button class="btn-ghost" onclick="openPasswordModal({{ $u->id }}, '{{ addslashes($u->full_name) }}')">
-                                            <i data-lucide="key" class="inline w-3 h-3 mr-0.5"></i>PW
-                                        </button>
-                                        @if($u->approval_status === 'pending')
-                                            <button class="btn-approve" onclick="approveUser({{ $u->id }}, '{{ $u->full_name }}')">Approve</button>
-                                        @endif
-                                        <button class="btn-danger" onclick="deleteUser({{ $u->id }}, '{{ $u->full_name }}')">
+                                        <button class="btn-danger" onclick="event.stopPropagation(); deleteUser({{ $u->id }}, '{{ $u->full_name }}')">
                                             <i data-lucide="trash-2" class="inline w-3 h-3"></i>
                                         </button>
                                     @endif
@@ -501,19 +532,20 @@
                         @endforeach
                     </tbody>
                 </table>
+                </div>
             </div>
-        </div>
+    </div>
 
-        {{-- ─── PAGE ACCESS TAB ─── --}}
+    {{-- ─── PAGE ACCESS TAB ─── --}}
         <div id="tab-access" class="sa-tab-content {{ $tab === 'access' ? '' : 'hidden' }}">
-            <div style="background:rgba(20,184,166,.08); border:1px solid rgba(20,184,166,.2); border-radius:.75rem; padding:.85rem 1.25rem; margin-bottom:1.5rem; display:flex; align-items:center; gap:.75rem;">
+            <div style="background:#f0fdfa; border:1px solid #ccfbf1; border-radius:1.5rem; padding:.85rem 1.25rem; margin-bottom:1.5rem; display:flex; align-items:center; gap:.75rem;">
                 <i data-lucide="info" style="width:15px;height:15px;color:#14b8a6;flex-shrink:0;"></i>
-                <p style="font-size:.78rem; color:#5eead4; font-weight:600;">Click a user below, then toggle which pages they can access. Leave all unchecked to grant full access.</p>
+                <p style="font-size:.78rem; color:#0f766e; font-weight:600;">Click a user below, then toggle which pages they can access. Leave all unchecked to grant full access.</p>
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
                 {{-- User Picker --}}
-                <div style="background:var(--sa-card); border:1px solid var(--sa-border); border-radius:1rem; overflow:hidden;">
+                <div style="background:var(--sa-card); border:1px solid var(--sa-border); border-radius:1.5rem; overflow:hidden;">
                     <div style="padding:.85rem 1rem; border-bottom:1px solid var(--sa-border); font-size:.72rem; font-weight:800; text-transform:uppercase; letter-spacing:.07em; color:#64748b;">
                         Select User
                     </div>
@@ -521,12 +553,12 @@
                         @foreach($allUsers->where('approval_status', 'approved') as $u)
                         <div class="access-user-item" data-id="{{ $u->id }}" data-allowed="{{ json_encode($u->allowed_pages ?? null) }}"
                              onclick="selectAccessUser(this)"
-                             style="padding:.85rem 1rem; cursor:pointer; border-bottom:1px solid rgba(255,255,255,.04); display:flex; align-items:center; gap:.75rem; transition:background .15s;">
-                            <div style="width:32px;height:32px;background:linear-gradient(135deg,#334155,#1e293b);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:.75rem;color:#94a3b8;flex-shrink:0;">
+                             style="padding:.85rem 1rem; cursor:pointer; border-bottom:1px solid #f1f5f9; display:flex; align-items:center; gap:.75rem; transition:background .15s; margin: .25rem; border-radius: .75rem;">
+                            <div style="width:32px;height:32px;background:#e2e8f0;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:.75rem;color:#64748b;flex-shrink:0;">
                                 {{ strtoupper(substr($u->full_name ?? 'U', 0, 1)) }}
                             </div>
                             <div style="flex:1; min-width:0;">
-                                <div style="font-weight:700;color:#e2e8f0;font-size:.82rem; truncate;">{{ $u->full_name }}</div>
+                                <div style="font-weight:700;color:#000;font-size:.82rem; truncate;">{{ $u->full_name }}</div>
                                 <div style="font-size:.68rem;color:#64748b;">{{ ucfirst($u->role) }}</div>
                             </div>
                         </div>
@@ -535,7 +567,7 @@
                 </div>
 
                 {{-- Page Picker --}}
-                <div class="lg:col-span-2" style="background:var(--sa-card); border:1px solid var(--sa-border); border-radius:1rem; overflow:hidden;">
+                <div class="lg:col-span-2" style="background:var(--sa-card); border:1px solid var(--sa-border); border-radius:1.5rem; overflow:hidden;">
                     <div style="padding:.85rem 1rem; border-bottom:1px solid var(--sa-border); display:flex; align-items:center; justify-between;">
                         <div>
                             <span style="font-size:.72rem; font-weight:800; text-transform:uppercase; letter-spacing:.07em; color:#64748b;">Page Permissions</span>
@@ -570,7 +602,7 @@
                             @endforeach
                             <div style="margin-top:1rem; padding-top:1rem; border-top:1px solid var(--sa-border); font-size:.72rem; color:#64748b;">
                                 <i data-lucide="info" class="inline w-3 h-3 mr-1"></i>
-                                <strong style="color:#94a3b8;">No chips selected</strong> = Full access (no restriction). Select specific pages to restrict this user.
+                                <strong style="color:#000;">No chips selected</strong> = Full access (no restriction). Select specific pages to restrict this user.
                             </div>
                         </div>
                     </div>
@@ -582,7 +614,7 @@
         <div id="tab-audit" class="sa-tab-content {{ $tab === 'audit' ? '' : 'hidden' }}">
             {{-- Filters --}}
             <div class="flex flex-wrap gap-3 mb-5">
-                <input type="text" id="auditSearch" class="sa-input" style="max-width:240px;" placeholder="Name, email, IP…">
+                <input type="text" id="auditSearch" class="sa-input" style="max-width:240px;" placeholder="Search logs..." autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');">
                 <select id="auditActionFilter" class="sa-input" style="max-width:160px;">
                     <option value="">All Actions</option>
                     <option value="login">Login</option>
@@ -590,13 +622,14 @@
                     <option value="failed_login">Failed Login</option>
                     <option value="approved">Approved</option>
                     <option value="rejected">Rejected</option>
+                    <option value="password_changed">Password Changed</option>
+                    <option value="created">Account Created</option>
                 </select>
                 <select id="auditRoleFilter" class="sa-input" style="max-width:160px;">
                     <option value="">All Roles</option>
                     <option value="dispatcher">Dispatcher</option>
                     <option value="manager">Manager</option>
                     <option value="secretary">Secretary</option>
-                    <option value="staff">Staff</option>
                     <option value="super_admin">Super Admin</option>
                 </select>
                 <button class="btn-gold" onclick="loadAuditLog(1)">
@@ -604,8 +637,8 @@
                 </button>
             </div>
 
-            <div style="background:var(--sa-card); border:1px solid var(--sa-border); border-radius:1rem; overflow:hidden;">
-                <div id="audit-table-container">
+            <div style="background:var(--sa-card); border:1px solid var(--sa-border); border-radius:1.5rem; overflow:hidden;">
+                <div id="audit-table-container" style="overflow-x:auto; max-height: 700px; overflow-y: auto;">
                     <table class="sa-table">
                         <thead>
                             <tr>
@@ -622,7 +655,7 @@
                             @foreach($auditLog as $a)
                             <tr>
                                 <td>
-                                    <div style="font-weight:700;color:#e2e8f0;font-size:.82rem;">{{ $a->user_name ?? 'Unknown' }}</div>
+                                    <div style="font-weight:700;color:#000;font-size:.82rem;">{{ $a->user_name ?? 'Unknown' }}</div>
                                     <div style="font-size:.7rem;color:#64748b;">{{ $a->user_email ?? '—' }}</div>
                                 </td>
                                 <td>
@@ -634,12 +667,20 @@
                                 </td>
                                 <td>
                                     @php
-                                        $aMap2 = ['login'=>['badge-login','● Login'],'logout'=>['badge-logout','○ Logout'],'failed_login'=>['badge-failed','✕ Failed'],'approved'=>['badge-approved','✔ Approved'],'rejected'=>['badge-rejected','✕ Rejected']];
+                                        $aMap2 = [
+                                            'login'=>['badge-login','● Login'],
+                                            'logout'=>['badge-logout','○ Logout'],
+                                            'failed_login'=>['badge-failed','✕ Failed'],
+                                            'approved'=>['badge-approved','✔ Approved'],
+                                            'rejected'=>['badge-rejected','✕ Rejected'],
+                                            'password_changed'=>['badge-role-manager','★ PW Changed'],
+                                            'created'=>['badge-login','★ Created']
+                                        ];
                                         [$cls2,$lbl2] = $aMap2[$a->action] ?? ['badge-logout',$a->action];
                                     @endphp
                                     <span class="badge {{ $cls2 }}">{{ $lbl2 }}</span>
                                 </td>
-                                <td style="color:#94a3b8;font-family:monospace;font-size:.76rem;">{{ $a->ip_address ?? '—' }}</td>
+                                <td style="color:#64748b;font-family:monospace;font-size:.76rem;">{{ $a->ip_address ?? '—' }}</td>
                                 <td style="color:#64748b;font-size:.72rem;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="{{ $a->user_agent }}">
                                     {{ Str::limit($a->user_agent ?? '—', 45) }}
                                 </td>
@@ -669,18 +710,166 @@
             </div>
         </div>
 
-    </div>{{-- /p-6 --}}
+        {{-- ─── SYSTEM ROLES TAB ─── --}}
+        <div id="tab-roles" class="sa-tab-content {{ $tab === 'roles' ? '' : 'hidden' }}">
+            <div class="flex items-center justify-between mb-6">
+                <div>
+                    <h3 style="color:#000; font-weight:900; font-size:1.4rem; margin-bottom:.2rem;">System Role Management</h3>
+                    <p style="color:#64748b; font-size:.85rem;">Define, modify, or retire specialized access roles for your organization.</p>
+                </div>
+                <button class="btn-gold px-6 py-2.5 flex items-center gap-2" onclick="openAddRoleModal()">
+                    <i data-lucide="plus-circle" class="w-4 h-4"></i> Add New Role
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {{-- Active Roles --}}
+                <div style="background:var(--sa-card); border:1px solid var(--sa-border); border-radius:1.5rem; overflow:hidden;">
+                    <div style="padding:1.25rem; border-bottom:1px solid var(--sa-border); background:#f8fafc; display:flex; align-items:center; gap:.75rem;">
+                        <div class="w-8 h-8 bg-emerald-100 text-emerald-600 rounded-lg flex items-center justify-center">
+                            <i data-lucide="shield-check" class="w-4 h-4"></i>
+                        </div>
+                        <span style="font-size:.72rem; font-weight:800; text-transform:uppercase; letter-spacing:.08em; color:#475569;">Active System Roles</span>
+                    </div>
+                    <div style="padding:1rem;">
+                        <div class="space-y-3">
+                            @foreach($roles as $r)
+                            <div class="group border border-slate-100 rounded-xl p-4 hover:border-amber-200 hover:bg-amber-50/20 transition-all">
+                                <div class="flex items-start justify-between">
+                                    <div class="flex items-center gap-4">
+                                        <div class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center group-hover:bg-amber-100 transition-colors">
+                                            <i data-lucide="user-cog" class="w-5 h-5 text-slate-400 group-hover:text-amber-600"></i>
+                                        </div>
+                                        <div>
+                                            <div class="flex items-center gap-2">
+                                                <h5 class="text-sm font-black text-slate-900">{{ $r->label }}</h5>
+                                                <span class="text-[9px] font-black uppercase tracking-widest text-slate-400 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-100">{{ $r->name }}</span>
+                                            </div>
+                                            <p class="text-[10px] text-slate-500 mt-0.5">{{ $r->description ?? 'No description provided.' }}</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <button class="p-2 hover:text-amber-600 transition-colors" title="Edit Role" onclick="editRole({{ json_encode($r) }})">
+                                            <i data-lucide="edit-3" class="w-4 h-4"></i>
+                                        </button>
+                                        <button class="p-2 hover:text-rose-600 transition-colors" title="Archive Role" onclick="archiveRole({{ $r->id }})">
+                                            <i data-lucide="archive" class="w-4 h-4"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Archived Roles --}}
+                <div style="background:var(--sa-card); border:1px solid var(--sa-border); border-radius:1.5rem; overflow:hidden; opacity: 0.8;">
+                    <div style="padding:1.25rem; border-bottom:1px solid var(--sa-border); background:#f8fafc; display:flex; align-items:center; gap:.75rem;">
+                        <div class="w-8 h-8 bg-slate-100 text-slate-600 rounded-lg flex items-center justify-center">
+                            <i data-lucide="archive" class="w-4 h-4"></i>
+                        </div>
+                        <span style="font-size:.72rem; font-weight:800; text-transform:uppercase; letter-spacing:.08em; color:#475569;">Archived / Retired Roles</span>
+                    </div>
+                    <div style="padding:1rem;">
+                        @if($archivedRoles->count() > 0)
+                            <div class="space-y-3">
+                                @foreach($archivedRoles as $r)
+                                <div class="group border border-slate-100 rounded-xl p-4 bg-slate-50/50 grayscale">
+                                    <div class="flex items-start justify-between">
+                                        <div class="flex items-center gap-4">
+                                            <div class="w-10 h-10 bg-slate-200 rounded-xl flex items-center justify-center">
+                                                <i data-lucide="user-minus" class="w-5 h-5 text-slate-400"></i>
+                                            </div>
+                                            <div>
+                                                <h5 class="text-sm font-bold text-slate-600">{{ $r->label }}</h5>
+                                                <p class="text-[10px] text-slate-400 mt-0.5">{{ $r->name }}</p>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center gap-1">
+                                            <button class="p-2 hover:text-emerald-600 transition-colors" title="Restore Role" onclick="restoreRole({{ $r->id }})">
+                                                <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+                                            </button>
+                                            <button class="p-2 hover:text-rose-600 transition-colors" title="Delete Permanently" onclick="deleteRole({{ $r->id }})">
+                                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                @endforeach
+                            </div>
+                        @else
+                            <div class="text-center py-10">
+                                <i data-lucide="archive" class="w-12 h-12 text-slate-200 mx-auto mb-3"></i>
+                                <p class="text-xs text-slate-400 font-bold uppercase tracking-widest">No Archived Roles</p>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    </div>
 </div>
 
 {{-- Toast --}}
 <div id="sa-toast"></div>
+
+{{-- User Details & Activity Modal --}}
+<div class="sa-modal-backdrop" id="userDetailsModal">
+    <div class="sa-modal" style="max-width: 650px; padding: 0; overflow: hidden; display: flex; flex-direction: column;">
+        
+        {{-- Header --}}
+        <div style="background: #f8fafc; padding: 1.5rem; border-bottom: 1px solid var(--sa-border); position: relative;">
+            <button onclick="closeUserDetailsModal()" style="position: absolute; top: 1rem; right: 1rem; color: #64748b; cursor: pointer; padding: .4rem; transition: color .2s;" class="hover:text-black">
+                <i data-lucide="x" style="width:20px;height:20px;"></i>
+            </button>
+            
+            <div class="flex items-center gap-4">
+                <div id="ud-avatar" style="width:56px;height:56px;border-radius:50%;background:#e2e8f0;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:1.2rem;color:#475569;border:2px solid #fcd34d;flex-shrink:0;">
+                    U
+                </div>
+                <div>
+                    <h3 id="ud-name" style="color: #000; font-weight: 900; font-size: 1.25rem; margin-bottom: .2rem;">Loading...</h3>
+                    <p id="ud-email" style="color: #64748b; font-size: .8rem; margin-bottom: .4rem;">—</p>
+                    <div class="flex gap-2" id="ud-badges">
+                        {{-- Badges populated by JS --}}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- Actions Bar --}}
+        <div style="padding: 1rem 1.5rem; background: #fff; border-bottom: 1px solid var(--sa-border); display: flex; gap: .75rem; justify-content: flex-end;">
+            <button class="btn-ghost" id="ud-btn-role" onclick="" style="font-size: .75rem;">
+                <i data-lucide="shield" class="inline w-3.5 h-3.5 mr-1 -mt-0.5"></i>Change Role
+            </button>
+            <button class="btn-ghost" id="ud-btn-pw" onclick="" style="font-size: .75rem;">
+                <i data-lucide="key" class="inline w-3.5 h-3.5 mr-1 -mt-0.5"></i>Reset Password
+            </button>
+        </div>
+
+        {{-- Activity Timeline --}}
+        <div style="padding: 1.5rem; overflow-y: auto; max-height: 400px; background: #fafafa;">
+            <h4 style="font-size: .75rem; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; color: #64748b; margin-bottom: 1rem;">
+                <i data-lucide="activity" class="inline w-3.5 h-3.5 mr-1 -mt-0.5 text-amber-500"></i>Activity Timeline
+            </h4>
+            
+            <div id="ud-timeline" style="position: relative; padding-left: 1rem;">
+                {{-- Timeline items populated by JS --}}
+                <div style="color: #64748b; font-size: .8rem; text-align: center; padding: 2rem;">Loading activity history...</div>
+            </div>
+        </div>
+
+    </div>
+</div>
 
 {{-- Password Reset Modal --}}
 <div class="sa-modal-backdrop" id="pwModal">
     <div class="sa-modal">
         <div class="flex items-center justify-between mb-5">
             <div>
-                <h3 style="color:#f59e0b; font-weight:900; font-size:1.05rem;">Reset Password</h3>
+                <h3 style="color:#000; font-weight:900; font-size:1.05rem;">Reset Password</h3>
                 <p id="pw-modal-name" style="color:#64748b; font-size:.8rem; margin-top:.2rem;"></p>
             </div>
             <button onclick="closePwModal()" style="color:#64748b; cursor:pointer; padding:.4rem;"><i data-lucide="x" style="width:18px;height:18px;"></i></button>
@@ -708,7 +897,7 @@
     <div class="sa-modal">
         <div class="flex items-center justify-between mb-5">
             <div>
-                <h3 style="color:#14b8a6; font-weight:900; font-size:1.05rem;">Update User Role</h3>
+                <h3 style="color:#000; font-weight:900; font-size:1.05rem;">Update User Role</h3>
                 <p id="role-modal-name" style="color:#64748b; font-size:.8rem; margin-top:.2rem;"></p>
             </div>
             <button onclick="closeRoleModal()" style="color:#64748b; cursor:pointer; padding:.4rem;"><i data-lucide="x" style="width:18px;height:18px;"></i></button>
@@ -717,21 +906,164 @@
         <div class="mb-6">
             <label style="font-size:.75rem; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:#64748b; display:block; margin-bottom:.5rem;">Assign New Role</label>
             <select id="role-select" class="sa-input">
-                <option value="staff">Staff</option>
-                <option value="dispatcher">Dispatcher</option>
-                <option value="secretary">Secretary</option>
-                <option value="manager">Manager</option>
+                @foreach($roles as $role)
+                    <option value="{{ $role->name }}">{{ $role->label }}</option>
+                @endforeach
             </select>
             <p style="font-size:.68rem; color:#64748b; margin-top:.75rem;">Changing a role will grant the user the default permissions for that role unless specific page access is set below.</p>
         </div>
         <div class="flex gap-3 justify-end">
             <button class="btn-ghost" onclick="closeRoleModal()">Cancel</button>
-            <button class="btn-gold" onclick="submitRoleUpdate()" style="background:#14b8a6; color:white;">
+            <button class="btn-gold" onclick="submitRoleUpdate()" style="background:#f59e0b; color:black;">
                 <i data-lucide="shield" class="inline w-3 h-3 mr-1"></i>Update Role
             </button>
         </div>
     </div>
 </div>
+
+{{-- Classification Management Modal --}}
+ <div class="sa-modal-backdrop" id="classificationModal">
+    <div class="sa-modal" style="max-width: 450px;">
+        <div class="flex items-center justify-between mb-6">
+            <h3 id="cls-modal-title" style="font-weight:900; font-size:1.2rem; color:#000;">Add Classification</h3>
+            <button class="btn-ghost" onclick="document.getElementById('classificationModal').classList.remove('active')">✕</button>
+        </div>
+        <form id="cls-form" onsubmit="submitClassification(event)">
+            <input type="hidden" id="cls-id">
+            <div class="mb-4">
+                <label class="sa-label">Classification Name</label>
+                <input type="text" id="cls-name" class="sa-input" placeholder="e.g. Traffic Violation" required>
+            </div>
+            <div class="mb-4">
+                <label class="sa-label">Default Severity</label>
+                <select id="cls-severity" class="sa-input" required>
+                    <option value="low">Low</option>
+                    <option value="medium">Medium</option>
+                    <option value="high">High</option>
+                    <option value="critical">Critical</option>
+                </select>
+            </div>
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <div>
+                    <label class="sa-label">Theme Color</label>
+                    <input type="text" id="cls-color" class="sa-input" placeholder="#hex or name" required>
+                </div>
+                <div>
+                    <label class="sa-label">Lucide Icon</label>
+                    <input type="text" id="cls-icon" class="sa-input" placeholder="e.g. alert-circle" required>
+                </div>
+            </div>
+            <div class="flex gap-3">
+                <button type="submit" class="btn-gold flex-1 py-3">Save Classification</button>
+                <button type="button" class="btn-ghost flex-1 py-3" onclick="document.getElementById('classificationModal').classList.remove('active')">Cancel</button>
+            </div>
+        </form>
+    </div>
+ </div>
+
+ {{-- Manage Roles List Modal --}}
+ <div class="sa-modal-backdrop" id="manageRolesModal">
+    <div class="sa-modal" style="max-width: 550px; padding: 0; overflow: hidden; display: flex; flex-direction: column; max-height: 85vh;">
+        <div style="background: #f8fafc; padding: 1.5rem; border-bottom: 1px solid var(--sa-border); display: flex; items-center justify-between;">
+            <div>
+                <h3 style="font-weight:900; font-size:1.2rem; color:#000;">System Roles</h3>
+                <p style="color:#64748b; font-size:.75rem;">Add or modify roles available in the system.</p>
+            </div>
+            <button class="btn-gold px-4 py-2 flex items-center gap-2" onclick="openAddRoleModal()">
+                <i data-lucide="plus" class="w-4 h-4"></i> Add Role
+            </button>
+        </div>
+        
+        <div style="padding: 1rem; overflow-y: auto; flex: 1; background: #fff;">
+            <div class="space-y-2">
+                @foreach($roles as $r)
+                <div class="flex items-center justify-between p-3 border border-slate-100 rounded-xl hover:bg-slate-50 transition-colors">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 bg-amber-100 rounded-lg flex items-center justify-center">
+                            <i data-lucide="shield" class="w-4 h-4 text-amber-600"></i>
+                        </div>
+                        <div>
+                            <div class="text-sm font-bold text-slate-900">{{ $r->label }}</div>
+                            <div class="text-[10px] text-slate-400 font-mono">{{ $r->name }}</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-1">
+                        <button class="p-2 text-slate-400 hover:text-amber-600 transition-colors" onclick="editRole({{ json_encode($r) }})">
+                            <i data-lucide="edit-3" class="w-4 h-4"></i>
+                        </button>
+                        <button class="p-2 text-slate-400 hover:text-rose-600 transition-colors" onclick="archiveRole({{ $r->id }})">
+                            <i data-lucide="archive" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+                @endforeach
+            </div>
+
+            @if($archivedRoles->count() > 0)
+            <div class="mt-6">
+                <h4 class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3 px-1">Archived Roles</h4>
+                <div class="space-y-2">
+                    @foreach($archivedRoles as $r)
+                    <div class="flex items-center justify-between p-3 border border-dashed border-slate-200 rounded-xl bg-slate-50/50">
+                        <div class="flex items-center gap-3 grayscale opacity-60">
+                            <div class="w-8 h-8 bg-slate-200 rounded-lg flex items-center justify-center">
+                                <i data-lucide="shield-off" class="w-4 h-4 text-slate-500"></i>
+                            </div>
+                            <div>
+                                <div class="text-sm font-bold text-slate-600">{{ $r->label }}</div>
+                                <div class="text-[10px] text-slate-400 font-mono">{{ $r->name }}</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-1">
+                            <button class="p-2 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors" onclick="restoreRole({{ $r->id }})">
+                                <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+                            </button>
+                            <button class="p-2 text-rose-600 hover:bg-rose-50 rounded-lg transition-colors" onclick="deleteRole({{ $r->id }})">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+            </div>
+            @endif
+        </div>
+
+        <div style="padding: 1rem; border-top: 1px solid var(--sa-border); background: #f8fafc; text-align: right;">
+            <button class="btn-ghost px-6" onclick="document.getElementById('manageRolesModal').classList.remove('open')">Close</button>
+        </div>
+    </div>
+ </div>
+
+ {{-- Role Detail Modal --}}
+ <div class="sa-modal-backdrop" id="roleDetailModal">
+    <div class="sa-modal" style="max-width: 450px;">
+        <div class="flex items-center justify-between mb-6">
+            <h3 id="role-detail-title" style="font-weight:900; font-size:1.2rem; color:#000;">Add System Role</h3>
+            <button class="btn-ghost" onclick="document.getElementById('roleDetailModal').classList.remove('open')">✕</button>
+        </div>
+        <form id="role-detail-form" onsubmit="submitRoleDetail(event)">
+            <input type="hidden" id="role-detail-id">
+            <div class="mb-4">
+                <label style="font-size:.72rem; font-weight:800; text-transform:uppercase; color:#64748b; display:block; margin-bottom:.5rem;">Role Name (Slug)</label>
+                <input type="text" id="role-detail-name" class="sa-input" placeholder="e.g. cashier" required>
+                <p class="text-[10px] text-slate-400 mt-1">Unique identifier used by the system (lowercase, no spaces).</p>
+            </div>
+            <div class="mb-4">
+                <label style="font-size:.72rem; font-weight:800; text-transform:uppercase; color:#64748b; display:block; margin-bottom:.5rem;">Display Label</label>
+                <input type="text" id="role-detail-label" class="sa-input" placeholder="e.g. Head Cashier" required>
+            </div>
+            <div class="mb-6">
+                <label style="font-size:.72rem; font-weight:800; text-transform:uppercase; color:#64748b; display:block; margin-bottom:.5rem;">Description</label>
+                <textarea id="role-detail-desc" class="sa-input" rows="3" placeholder="Briefly describe what this role does..."></textarea>
+            </div>
+            <div class="flex gap-3">
+                <button type="submit" class="btn-gold flex-1 py-3">Save System Role</button>
+                <button type="button" class="btn-ghost flex-1 py-3" onclick="document.getElementById('roleDetailModal').classList.remove('open')">Cancel</button>
+            </div>
+        </form>
+    </div>
+ </div>
 
 @endsection
 
@@ -739,12 +1071,145 @@
 <script>
 const CSRF = document.querySelector('meta[name="csrf-token"]').content;
 
+// ─── User Details Modal ────────────────────────────────────────────────────────
+async function openUserDetailsModal(id) {
+    const modal = document.getElementById('userDetailsModal');
+    modal.classList.add('open');
+    
+    // Reset contents
+    document.getElementById('ud-name').textContent = 'Loading...';
+    document.getElementById('ud-email').textContent = '—';
+    document.getElementById('ud-badges').innerHTML = '';
+    document.getElementById('ud-timeline').innerHTML = '<div style="color: #64748b; font-size: .8rem; text-align: center; padding: 2rem;"><i class="fas fa-spinner fa-spin mr-2"></i>Loading activity history...</div>';
+    
+    try {
+        const res = await fetch(`/super-admin/users/${id}/details`, {
+            headers: { 'Accept': 'application/json' }
+        });
+        const data = await res.json();
+        
+        if (data.success) {
+            renderUserDetails(data.user, data.history);
+        } else {
+            toast('Failed to load user details.', true);
+            closeUserDetailsModal();
+        }
+    } catch (e) {
+        toast('Network error while loading user details.', true);
+        closeUserDetailsModal();
+    }
+}
+
+function closeUserDetailsModal() {
+    document.getElementById('userDetailsModal').classList.remove('open');
+}
+
+function renderUserDetails(user, history) {
+    // 1. Avatar
+    const avatar = document.getElementById('ud-avatar');
+    if (user.profile_url) {
+        avatar.innerHTML = `<img src="${user.profile_url}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;" alt="Avatar">`;
+    } else {
+        avatar.innerHTML = user.initials;
+    }
+
+    // 2. Info
+    document.getElementById('ud-name').textContent = user.full_name;
+    document.getElementById('ud-email').textContent = user.email + (user.phone_number ? ' · ' + user.phone_number : '');
+    
+    // 3. Badges
+    const statusMap = {
+        'approved': '<span class="badge badge-approved">Approved</span>',
+        'pending': '<span class="badge badge-pending">Pending</span>',
+        'rejected': '<span class="badge badge-rejected">Rejected</span>'
+    };
+    const roleMap = {
+        'manager': 'badge-role-manager',
+        'dispatcher': 'badge-role-dispatcher',
+        'secretary': 'badge-role-secretary',
+        'staff': 'badge-role-staff',
+        'super_admin': 'badge-role-super_admin'
+    };
+    const roleClass = roleMap[user.role] || 'badge-role-staff';
+    const statusBadge = user.trashed ? '<span class="badge badge-rejected">Archived</span>' : (statusMap[user.status] || '');
+    const activeBadge = user.is_active 
+        ? '<span style="color:#15803d;font-size:.65rem;font-weight:700;border:1px solid #86efac;padding:.1rem .5rem;border-radius:99px;background:#f0fdf4;">● Active</span>' 
+        : '<span style="color:#b91c1c;font-size:.65rem;font-weight:700;border:1px solid #fca5a5;padding:.1rem .5rem;border-radius:99px;background:#fef2f2;">○ Inactive</span>';
+        
+    document.getElementById('ud-badges').innerHTML = `
+        <span class="badge ${roleClass}">${user.role.replace('_', ' ')}</span>
+        ${statusBadge}
+        ${activeBadge}
+    `;
+
+    // 4. Actions Binding
+    const btnRole = document.getElementById('ud-btn-role');
+    const btnPw = document.getElementById('ud-btn-pw');
+    
+    if (user.trashed || user.role === 'super_admin') {
+        btnRole.style.display = 'none';
+        btnPw.style.display = 'none';
+    } else {
+        btnRole.style.display = 'inline-flex';
+        btnPw.style.display = 'inline-flex';
+        btnRole.onclick = () => openRoleModal(user.id, user.full_name, user.role);
+        btnPw.onclick = () => openPasswordModal(user.id, user.full_name);
+    }
+
+    // 5. Timeline
+    const tl = document.getElementById('ud-timeline');
+    if (!history || history.length === 0) {
+        tl.innerHTML = '<div style="color: #64748b; font-size: .8rem; text-align: center; padding: 2rem;">No activity history found for this user.</div>';
+        return;
+    }
+
+    let html = '<div style="position:absolute; left: 1rem; top: .5rem; bottom: 0; width: 2px; background: #e2e8f0; border-radius: 2px;"></div>';
+    
+    const actionIcons = {
+        'login': { color: '#3b82f6', icon: 'log-in' },
+        'logout': { color: '#64748b', icon: 'log-out' },
+        'failed_login': { color: '#ef4444', icon: 'alert-circle' },
+        'approved': { color: '#22c55e', icon: 'check-circle' },
+        'rejected': { color: '#f87171', icon: 'x-circle' },
+        'password_changed': { color: '#f59e0b', icon: 'key' },
+        'created': { color: '#14b8a6', icon: 'user-plus' }
+    };
+
+    history.forEach(log => {
+        const style = actionIcons[log.action] || { color: '#94a3b8', icon: 'activity' };
+        
+        // Format date: "Apr 28, 05:07 AM"
+        const dateObj = new Date(log.created_at);
+        const formattedDate = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+
+        html += `
+            <div style="position: relative; padding-left: 2rem; padding-bottom: 1.5rem;">
+                <div style="position: absolute; left: -5px; top: 2px; width: 12px; height: 12px; border-radius: 50%; background: #fff; border: 2px solid ${style.color};"></div>
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: .2rem;">
+                    <div style="font-size: .78rem; font-weight: 800; color: #000; text-transform: capitalize;">${log.action.replace('_', ' ')}</div>
+                    <div style="font-size: .7rem; color: #64748b; white-space: nowrap; margin-left: 1rem;">${formattedDate}</div>
+                </div>
+                <div style="font-size: .75rem; color: #475569; line-height: 1.4;">${log.notes || 'No details provided.'}</div>
+                ${log.ip_address ? `<div style="font-size: .65rem; color: #64748b; margin-top: .3rem; font-family: monospace;">IP: ${log.ip_address}</div>` : ''}
+            </div>
+        `;
+    });
+
+    tl.innerHTML = html;
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
 // ─── Tab Switching ─────────────────────────────────────────────────────────────
 function switchTab(tab) {
     document.querySelectorAll('.sa-tab-content').forEach(el => el.classList.add('hidden'));
     document.querySelectorAll('.sa-tab').forEach(el => el.classList.remove('active'));
-    document.getElementById('tab-' + tab).classList.remove('hidden');
-    event.currentTarget.classList.add('active');
+    
+    const content = document.getElementById('tab-' + tab);
+    if (content) content.classList.remove('hidden');
+    
+    const tabBtn = document.querySelector(`.sa-tab[onclick*="switchTab('${tab}')"]`);
+    if (tabBtn) tabBtn.classList.add('active');
+    
     if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
@@ -756,17 +1221,14 @@ function toast(msg, isError = false) {
     setTimeout(() => el.className = '', 3500);
 }
 
-// ─── Approve / Reject ─────────────────────────────────────────────────────────
+// ─── Approve / Reject (Left here for API backwards compatibility) ────
 async function approveUser(id, name) {
     if (!confirm('Approve account for ' + name + '? They will be able to log in immediately.')) return;
     const res = await fetch(`/super-admin/approve/${id}`, { method: 'POST', headers: { 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' } });
     const data = await res.json();
     if (data.success) {
         toast('✔ ' + data.message);
-        const row = document.getElementById('pending-row-' + id);
-        if (row) row.remove();
-        // Update pending badge
-        updatePendingBadge();
+        setTimeout(() => location.reload(), 1500);
     } else {
         toast(data.message || 'Error.', true);
     }
@@ -778,19 +1240,10 @@ async function rejectUser(id, name) {
     const data = await res.json();
     if (data.success) {
         toast('Rejected: ' + name);
-        const row = document.getElementById('pending-row-' + id);
-        if (row) row.remove();
-        updatePendingBadge();
+        setTimeout(() => location.reload(), 1500);
     } else {
         toast(data.message || 'Error.', true);
     }
-}
-
-function updatePendingBadge() {
-    const rows = document.querySelectorAll('#tab-pending tbody tr');
-    const count = rows.length;
-    const badge = document.querySelector('.sa-tab:nth-child(2) span');
-    if (badge) badge.textContent = count > 0 ? count : '';
 }
 
 // ─── Toggle Active ─────────────────────────────────────────────────────────────
@@ -800,9 +1253,9 @@ async function toggleActive(id, btn) {
     if (data.success) {
         toast(data.message);
         btn.textContent  = data.is_active ? '● Active' : '○ Inactive';
-        btn.style.color  = data.is_active ? '#4ade80' : '#f87171';
-        btn.style.background = data.is_active ? 'rgba(34,197,94,.15)' : 'rgba(239,68,68,.1)';
-        btn.style.borderColor = data.is_active ? '#166534' : '#991b1b';
+        btn.style.color  = data.is_active ? '#15803d' : '#b91c1c';
+        btn.style.background = data.is_active ? '#f0fdf4' : '#fef2f2';
+        btn.style.borderColor = data.is_active ? '#22c55e' : '#ef4444';
         btn.setAttribute('data-active', data.is_active ? 1 : 0);
     } else {
         toast(data.message || 'Error.', true);
@@ -843,8 +1296,9 @@ function selectAccessUser(el) {
         i.style.background = '';
         i.style.borderLeft = '';
     });
-    el.style.background = 'rgba(245,158,11,.08)';
-    el.style.borderLeft = '3px solid #f59e0b';
+    el.style.background = '#fef3c7';
+    el.style.boxShadow = '0 2px 8px rgba(0,0,0,.05)';
+    el.style.borderColor = '#f59e0b';
 
     currentAccessUserId = el.dataset.id;
     document.getElementById('access-user-name').textContent = '— ' + el.querySelector('[style*="font-weight:700"]').textContent.trim();
@@ -920,12 +1374,12 @@ async function loadAuditLog(page = 1) {
         : data.data.map(a => {
             const [cls, lbl] = actionMap[a.action] || ['badge-logout', a.action];
             return `<tr>
-                <td><div style="font-weight:700;color:#e2e8f0;font-size:.82rem;">${a.user_name ?? '—'}</div><div style="font-size:.7rem;color:#64748b;">${a.user_email ?? ''}</div></td>
+                <td><div style="font-weight:700;color:#000;font-size:.82rem;">${a.user_name ?? '—'}</div><div style="font-size:.7rem;color:#64748b;">${a.user_email ?? ''}</div></td>
                 <td>${a.user_role ? `<span class="badge ${roleClass(a.user_role)}">${a.user_role.replace('_',' ')}</span>` : '—'}</td>
                 <td><span class="badge ${cls}">${lbl}</span></td>
-                <td style="color:#94a3b8;font-family:monospace;font-size:.76rem;">${a.ip_address ?? '—'}</td>
+                <td style="color:#64748b;font-family:monospace;font-size:.76rem;">${a.ip_address ?? '—'}</td>
                 <td style="color:#64748b;font-size:.72rem;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${a.user_agent ?? ''}">${(a.user_agent ?? '—').substring(0,50)}</td>
-                <td style="color:#64748b;font-size:.75rem;">${a.notes ?? '—'}</td>
+                <td style="color:#475569;font-size:.75rem;">${a.notes ?? '—'}</td>
                 <td style="color:#64748b;font-size:.75rem;white-space:nowrap;">${new Date(a.created_at).toLocaleDateString('en-US', {month:'short',day:'numeric',year:'numeric',hour:'2-digit',minute:'2-digit'})}</td>
             </tr>`;
         }).join('');
@@ -999,6 +1453,246 @@ async function submitRoleUpdate() {
     }
 }
 
+// ─── Incident Classification Management ────────────────────────────────────
+ function openAddClassificationModal() {
+     document.getElementById('cls-id').value = '';
+     document.getElementById('cls-form').reset();
+     document.getElementById('cls-modal-title').textContent = 'Add Incident Classification';
+     document.getElementById('classificationModal').classList.add('active');
+ }
+
+ function editClassification(c) {
+     document.getElementById('cls-id').value = c.id;
+     document.getElementById('cls-name').value = c.name;
+     document.getElementById('cls-severity').value = c.default_severity;
+     document.getElementById('cls-color').value = c.color;
+     document.getElementById('cls-icon').value = c.icon;
+     document.getElementById('cls-modal-title').textContent = 'Edit Classification';
+     document.getElementById('classificationModal').classList.add('active');
+ }
+
+async function submitClassification(e) {
+     e.preventDefault();
+     const id = document.getElementById('cls-id').value;
+     const payload = {
+         name: document.getElementById('cls-name').value,
+         default_severity: document.getElementById('cls-severity').value,
+         color: document.getElementById('cls-color').value,
+         icon: document.getElementById('cls-icon').value,
+     };
+
+     const url = id ? `/super-admin/incident-classifications/${id}/update` : '/super-admin/incident-classifications';
+     
+     try {
+         const res = await fetch(url, {
+             method: 'POST',
+             headers: { 'X-CSRF-TOKEN': CSRF, 'Content-Type': 'application/json', 'Accept': 'application/json' },
+             body: JSON.stringify(payload)
+         });
+         const data = await res.json();
+         if (data.success) {
+             toast(data.message);
+             location.reload();
+         } else {
+             toast(data.message || 'Error.', true);
+         }
+     } catch (e) { toast('Error saving.', true); }
+ }
+
+ async function archiveClassification(id) {
+     if (!confirm('Archive this classification? It will be hidden from the selection list.')) return;
+     try {
+         const res = await fetch(`/super-admin/incident-classifications/${id}/archive`, {
+             method: 'POST',
+             headers: { 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' }
+         });
+         const data = await res.json();
+         if (data.success) {
+             toast(data.message);
+             location.reload();
+         } else {
+             toast(data.message || 'Error.', true);
+         }
+     } catch (e) { toast('Error archiving.', true); }
+ }
+
+ async function restoreClassification(id) {
+     try {
+         const res = await fetch(`/super-admin/incident-classifications/${id}/restore`, {
+             method: 'POST',
+             headers: { 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' }
+         });
+         const data = await res.json();
+         if (data.success) {
+             toast(data.message);
+             location.reload();
+         } else {
+             toast(data.message || 'Error.', true);
+         }
+     } catch (e) { toast('Error restoring.', true); }
+ }
+
+ async function deleteClassification(id) {
+     if (!confirm('PERMANENTLY DELETE this classification? This cannot be undone.')) return;
+     try {
+         const res = await fetch(`/super-admin/incident-classifications/${id}`, {
+             method: 'DELETE',
+             headers: { 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' }
+         });
+         const data = await res.json();
+         if (data.success) {
+             toast(data.message);
+             location.reload();
+         } else {
+             toast(data.message || 'Error.', true);
+         }
+     } catch (e) { toast('Error deleting.', true); }
+ }
+
+  // ─── Role Management JS ───────────────────────────────────────────────────
+  function openManageRolesModal() {
+      document.getElementById('manageRolesModal').classList.add('open');
+      if (typeof lucide !== 'undefined') lucide.createIcons();
+  }
+
+  function openAddRoleModal() {
+      document.getElementById('role-detail-id').value = '';
+      document.getElementById('role-detail-form').reset();
+      document.getElementById('role-detail-title').textContent = 'Add System Role';
+      document.getElementById('roleDetailModal').classList.add('open');
+  }
+
+  function editRole(r) {
+      document.getElementById('role-detail-id').value = r.id;
+      document.getElementById('role-detail-name').value = r.name;
+      document.getElementById('role-detail-label').value = r.label;
+      document.getElementById('role-detail-desc').value = r.description || '';
+      document.getElementById('role-detail-title').textContent = 'Edit System Role';
+      document.getElementById('roleDetailModal').classList.add('open');
+  }
+
+  async function submitRoleDetail(e) {
+      e.preventDefault();
+      const id = document.getElementById('role-detail-id').value;
+      const payload = {
+          name: document.getElementById('role-detail-name').value,
+          label: document.getElementById('role-detail-label').value,
+          description: document.getElementById('role-detail-desc').value,
+      };
+
+      const url = id ? `/super-admin/roles/${id}` : '/super-admin/roles';
+      const method = id ? 'PUT' : 'POST';
+      
+      try {
+          const res = await fetch(url, {
+              method: method,
+              headers: { 'X-CSRF-TOKEN': CSRF, 'Content-Type': 'application/json', 'Accept': 'application/json' },
+              body: JSON.stringify(payload)
+          });
+          const data = await res.json();
+          if (data.success) {
+              toast(data.message);
+              location.reload();
+          } else {
+              toast(data.message || 'Error saving role.', true);
+          }
+      } catch (e) { toast('Error saving role details.', true); }
+  }
+
+  async function archiveRole(id) {
+      if (!confirm('Archive this role? Existing users with this role will keep it, but you won\'t be able to select it for new staff.')) return;
+      try {
+          const res = await fetch(`/super-admin/roles/${id}/archive`, {
+              method: 'DELETE',
+              headers: { 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' }
+          });
+          const data = await res.json();
+          if (data.success) { toast(data.message); location.reload(); }
+          else toast(data.message || 'Error.', true);
+      } catch (e) { toast('Error archiving role.', true); }
+  }
+
+  async function restoreRole(id) {
+      try {
+          const res = await fetch(`/super-admin/roles/${id}/restore`, {
+              method: 'POST',
+              headers: { 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' }
+          });
+          const data = await res.json();
+          if (data.success) { toast(data.message); location.reload(); }
+          else toast(data.message || 'Error.', true);
+      } catch (e) { toast('Error restoring role.', true); }
+  }
+
+  async function deleteRole(id) {
+      if (!confirm('PERMANENTLY DELETE this role? This cannot be undone.')) return;
+      try {
+          const res = await fetch(`/super-admin/roles/${id}`, {
+              method: 'DELETE',
+              headers: { 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' }
+          });
+          const data = await res.json();
+          if (data.success) { toast(data.message); location.reload(); }
+          else toast(data.message || 'Error.', true);
+      } catch (e) { toast('Error deleting role.', true); }
+  }
+
+// ─── Create Staff ───────────────────────────────────────────────────────────────
+function resetStaffForm() {
+    document.getElementById('staffForm').reset();
+    document.getElementById('staffForm').classList.remove('hidden');
+    document.getElementById('staffSuccessMsg').classList.add('hidden');
+}
+
+async function submitStaff(e) {
+    e.preventDefault();
+    
+    const btn = document.getElementById('btn-save-staff');
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Saving...';
+    btn.disabled = true;
+
+    try {
+        const payload = {
+            first_name: document.getElementById('staff-first').value,
+            last_name: document.getElementById('staff-last').value,
+            email: document.getElementById('staff-email').value,
+            phone_number: document.getElementById('staff-phone').value,
+            role: document.getElementById('staff-role').value,
+            address: document.getElementById('staff-address').value,
+        };
+
+        const res = await fetch('{{ route('super-admin.store-staff') }}', {
+            method: 'POST',
+            headers: { 'X-CSRF-TOKEN': CSRF, 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        
+        const data = await res.json();
+        
+        if (data.success) {
+            toast('✔ ' + data.message);
+            document.getElementById('staffForm').classList.add('hidden');
+            document.getElementById('staffSuccessMsg').classList.remove('hidden');
+            document.getElementById('generatedPassword').textContent = data.temp_password;
+            
+            // Reload user list in background if needed, but no auto-redirect
+            // setTimeout(() => location.reload(), 3000); 
+        } else {
+            toast(data.message || 'Error occurred.', true);
+            if (data.errors) {
+                const firstError = Object.values(data.errors)[0][0];
+                toast(firstError, true);
+            }
+        }
+    } catch (err) {
+        toast('A network error occurred.', true);
+    } finally {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+    }
+}
+
 // Close modal on backdrop click
 document.getElementById('pwModal').addEventListener('click', function(e) {
     if (e.target === this) closePwModal();
@@ -1006,6 +1700,13 @@ document.getElementById('pwModal').addEventListener('click', function(e) {
 document.getElementById('roleModal').addEventListener('click', function(e) {
     if (e.target === this) closeRoleModal();
 });
+document.getElementById('roleDetailModal').addEventListener('click', function(e) {
+    if (e.target === this) this.classList.remove('open');
+});
+document.getElementById('manageRolesModal').addEventListener('click', function(e) {
+    if (e.target === this) this.classList.remove('open');
+});
+
 
 // Init icons on load
 document.addEventListener('DOMContentLoaded', () => {

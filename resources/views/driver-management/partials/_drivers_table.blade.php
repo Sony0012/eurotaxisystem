@@ -1,6 +1,6 @@
 <div class="overflow-x-auto pb-4">
     <table class="min-w-full text-sm modern-table-sep">
-        <thead>
+        <thead class="bg-gray-50/80 border-b border-gray-100">
             <tr>
                 <th class="px-6 py-4 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest w-1/4">Driver Profile</th>
                 <th class="px-6 py-4 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Assigned Unit</th>
@@ -62,8 +62,16 @@
                     <td class="px-6 py-5 whitespace-nowrap">
                         <div class="text-sm font-bold text-gray-900 font-mono tracking-wider">{{ $driver->license_number ?? 'N/A' }}</div>
                         @if(isset($driver->license_expiry))
-                            <div class="text-[10px] font-semibold mt-1 {{ \Carbon\Carbon::parse($driver->license_expiry)->isPast() ? 'text-red-500' : 'text-gray-500' }}">
-                                EXP: {{ \Carbon\Carbon::parse($driver->license_expiry)->format('M d, Y') }}
+                            @php $is_license_expired = \Carbon\Carbon::parse($driver->license_expiry)->isPast(); @endphp
+                            <div class="flex flex-col gap-1 mt-1">
+                                <div class="text-[10px] font-semibold {{ $is_license_expired ? 'text-red-500' : 'text-gray-500' }}">
+                                    EXP: {{ \Carbon\Carbon::parse($driver->license_expiry)->format('M d, Y') }}
+                                </div>
+                                @if($is_license_expired)
+                                    <span class="inline-flex items-center gap-1 px-1.5 py-0.5 bg-red-100 text-red-600 text-[9px] font-black rounded uppercase tracking-widest border border-red-200 w-fit animate-pulse">
+                                        <i data-lucide="alert-circle" class="w-2.5 h-2.5"></i> Expired
+                                    </span>
+                                @endif
                             </div>
                         @endif
                     </td>
@@ -71,10 +79,19 @@
                     {{-- Status --}}
                     <td class="px-6 py-5 whitespace-nowrap">
                         <div class="flex items-center gap-2">
-                            <div class="w-2.5 h-2.5 rounded-full {{ $driver->is_active ? 'bg-green-500 animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.6)]' : 'bg-red-500' }}"></div>
-                            <span class="text-[11px] font-black uppercase tracking-widest {{ $driver->is_active ? 'text-green-700' : 'text-red-700' }}">
-                                {{ $driver->is_active ? 'Active' : 'Inactive' }}
-                            </span>
+                            @if($driver->driver_status === 'banned')
+                                <div class="w-2.5 h-2.5 rounded-full bg-red-600 shadow-[0_0_8px_rgba(220,38,38,0.6)]"></div>
+                                <span class="text-[11px] font-black uppercase tracking-widest text-red-600 flex items-center gap-1">
+                                    <i data-lucide="ban" class="w-3 h-3"></i> Banned
+                                </span>
+                            @else
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full {{ $driver->is_active ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-red-50 text-red-700 border border-red-200' }}">
+                                    <div class="w-1.5 h-1.5 rounded-full {{ $driver->is_active ? 'bg-green-500 animate-pulse' : 'bg-red-500' }}"></div>
+                                    <span class="text-[10px] font-black uppercase tracking-widest">
+                                        {{ $driver->is_active ? 'Active' : 'Inactive' }}
+                                    </span>
+                                </span>
+                            @endif
                         </div>
                     </td>
 
@@ -118,7 +135,7 @@
                             <button type="button" class="w-full text-left px-4 py-2.5 text-xs font-bold text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors flex items-center gap-2" onclick="event.stopPropagation(); document.getElementById('dropdown-{{ $driver->id }}').classList.add('hidden'); openEditDriverModal({{ $driver->id }})">
                                 <i data-lucide="edit-2" class="w-4 h-4"></i> Edit Driver
                             </button>
-                            <button type="button" class="w-full text-left px-4 py-2.5 text-xs font-bold text-orange-600 hover:bg-orange-50 transition-colors flex items-center gap-2 border-t border-gray-50" onclick="event.stopPropagation(); document.getElementById('dropdown-{{ $driver->id }}').classList.add('hidden'); archiveDriver({{ $driver->id }}, '{{ $driver->full_name }}')">
+                            <button type="button" class="w-full text-left px-4 py-2.5 text-xs font-bold text-orange-600 hover:bg-orange-50 transition-colors flex items-center gap-2 border-t border-gray-50" onclick="event.stopPropagation(); document.getElementById('dropdown-{{ $driver->id }}').classList.add('hidden'); deleteDriver({{ $driver->id }}, '{{ $driver->full_name }}')">
                                 <i data-lucide="archive" class="w-4 h-4"></i> Archive
                             </button>
                         </div>
@@ -171,36 +188,17 @@
     window.toggleDriverDropdown = function(id, event) {
         event.stopPropagation(); // Prevent row click (which opens details)
         
-        // Close all other dropdowns and reset their row z-index
+        // Close all other dropdowns
         document.querySelectorAll('.driver-action-dropdown').forEach(el => {
             if (el.id !== id) {
                 el.classList.add('hidden');
-            }
-            const row = el.closest('tr');
-            if (row) {
-                row.style.zIndex = '';
-                row.style.position = '';
             }
         });
         
         // Toggle the target dropdown
         const dropdown = document.getElementById(id);
         if (dropdown) {
-            const isHidden = dropdown.classList.contains('hidden');
-            const row = dropdown.closest('tr');
-            if (isHidden) {
-                dropdown.classList.remove('hidden');
-                if (row) {
-                    row.style.position = 'relative';
-                    row.style.zIndex = '50';
-                }
-            } else {
-                dropdown.classList.add('hidden');
-                if (row) {
-                    row.style.zIndex = '';
-                    row.style.position = '';
-                }
-            }
+            dropdown.classList.toggle('hidden');
         }
     };
 
@@ -209,11 +207,6 @@
         document.addEventListener('click', function() {
             document.querySelectorAll('.driver-action-dropdown').forEach(el => {
                 el.classList.add('hidden');
-                const row = el.closest('tr');
-                if (row) {
-                    row.style.zIndex = '';
-                    row.style.position = '';
-                }
             });
         });
         window.driverDropdownListenerAdded = true;
