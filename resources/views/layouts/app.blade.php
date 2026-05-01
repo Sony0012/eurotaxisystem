@@ -35,7 +35,15 @@
     <link rel="manifest" href="/public/manifest.json?v=1.5">
 
     <!-- Tailwind CSS (Local) -->
-    <link href="{{ asset('assets/tailwind-built.css') }}" rel="stylesheet">
+    <script>
+        // Silence Tailwind CDN production warning before script loads
+        window.tailwind = {
+            config: {
+                silent: true
+            }
+        }
+    </script>
+    <script src="{{ asset('assets/tailwind.min.js') }}"></script>
     <style>
         input::-webkit-outer-spin-button,
         input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
