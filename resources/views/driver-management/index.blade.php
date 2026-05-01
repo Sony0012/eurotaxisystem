@@ -947,7 +947,8 @@
                     <div class="bg-slate-900 rounded-2xl p-5 border border-slate-800 shadow-xl relative overflow-hidden group">
                         <div class="absolute right-0 top-0 p-2"><i data-lucide="star" class="w-4 h-4 text-amber-400 fill-amber-400"></i></div>
                         <p class="text-[9px] text-slate-400 font-black uppercase tracking-[0.2em] mb-2">Aggregate Rating</p>
-                        <p class="text-2xl font-black text-white">${data.performance_rating||'N/A'}</p>
+                        <p class="text-2xl font-black text-white">${data.performance_rating ? data.performance_rating.label : 'N/A'}</p>
+                        <p class="text-[10px] text-amber-400 font-bold mt-1">${data.performance_rating ? '★'.repeat(data.performance_rating.stars) + '☆'.repeat(Math.max(0, 5 - data.performance_rating.stars)) : ''}</p>
                     </div>
                     <div class="bg-rose-50 rounded-2xl p-5 border border-rose-100 shadow-sm group">
                         <p class="text-[9px] text-rose-500 font-black uppercase tracking-[0.2em] mb-2">30D Incidents</p>
