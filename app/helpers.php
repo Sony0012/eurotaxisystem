@@ -125,13 +125,13 @@ if (!function_exists('send_custom_email')) {
             };
 
             $mail->isSMTP();
-            $mail->Host = env('MAIL_HOST', 'smtp.hostinger.com');
+            $mail->Host = config('mail.mailers.smtp.host', 'smtp.gmail.com');
             $mail->SMTPAuth = true;
-            $mail->Username = env('MAIL_USERNAME');
-            $mail->Password = env('MAIL_PASSWORD');
+            $mail->Username = config('mail.mailers.smtp.username');
+            $mail->Password = config('mail.mailers.smtp.password');
             
-            $encryption = env('MAIL_ENCRYPTION', 'ssl');
-            $port = (int) env('MAIL_PORT', 465);
+            $encryption = config('mail.mailers.smtp.encryption', 'tls');
+            $port = (int) config('mail.mailers.smtp.port', 587);
 
             if ($port === 465 || $encryption === 'ssl') {
                 $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
@@ -152,9 +152,9 @@ if (!function_exists('send_custom_email')) {
 
             // Anti-Spam Headers
             $mail->CharSet = 'UTF-8';
-            $mail->setFrom(env('MAIL_FROM_ADDRESS', 'noreply@eurotaxisystem.site'), env('MAIL_FROM_NAME', 'Euro Taxi System'));
+            $mail->setFrom(config('mail.from.address', 'noreply@eurotaxisystem.site'), config('mail.from.name', 'Euro Taxi System'));
             $mail->addAddress($to);
-            $mail->addReplyTo(env('MAIL_FROM_ADDRESS', 'support@eurotaxisystem.site'), env('MAIL_FROM_NAME', 'Support'));
+            $mail->addReplyTo(config('mail.from.address', 'support@eurotaxisystem.site'), config('mail.from.name', 'Support'));
 
             // Content
             $mail->isHTML(true);
