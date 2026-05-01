@@ -539,7 +539,7 @@
                             <i data-lucide="plus-circle" class="w-3 h-3"></i> Add Mechanic
                         </button>
                     </div>
-                </div>         </div>
+                </div>
 
                 <!-- Parts Selection -->
                 <div class="p-3 bg-gray-50 rounded-lg border border-gray-200">
@@ -703,8 +703,9 @@
                             <option value="complete">Complete</option>
                             <option value="cancelled">Cancelled</option>
                         </select>
-                    </div>
-                </div>                <div class="grid grid-cols-1 gap-3">
+                </div>
+
+                <div class="grid grid-cols-1 gap-3">
                     <div>
                         <label class="block text-xs font-medium text-gray-700 mb-1">Service / Reported Issue (Optional) <span class="text-[10px] text-gray-400">(Max 100)</span></label>
                         <textarea name="description" id="em_description" maxlength="100" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-yellow-500 focus:outline-none bg-gray-50"></textarea>
