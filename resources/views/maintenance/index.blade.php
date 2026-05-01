@@ -520,17 +520,24 @@
                     <div class="space-y-2">
                         @for($i = 1; $i <= 5; $i++)
                         <div id="addMechRow{{ $i }}" class="{{ $i == 1 ? '' : 'hidden animate-fade-in' }}">
-                            <div class="relative">
-                                <input type="text" name="mechanic_name[]" id="addMechDisplay{{ $i }}" placeholder="Search mechanic {{ $i }}..." {{ $i == 1 ? 'required' : '' }}
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-yellow-500 focus:outline-none">
-                                <div id="addMechDropdown{{ $i }}" class="search-dropdown hidden">
-                                    @foreach($staff as $s)
-                                    <div class="search-option mech-option" data-name="{{ $s->name }}" onclick="selectMech('addMechDisplay{{ $i }}', '{{ $s->name }}', 'addMechDropdown{{ $i }}')">
-                                        <div class="font-medium text-xs text-gray-900">{{ $s->name }}</div>
-                                        <div class="text-[10px] text-gray-500">{{ $s->role }}</div>
+                            <div class="flex items-center gap-2">
+                                <div class="relative flex-1">
+                                    <input type="text" name="mechanic_name[]" id="addMechDisplay{{ $i }}" placeholder="Search mechanic {{ $i }}..." {{ $i == 1 ? 'required' : '' }}
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-yellow-500 focus:outline-none">
+                                    <div id="addMechDropdown{{ $i }}" class="search-dropdown hidden">
+                                        @foreach($staff as $s)
+                                        <div class="search-option mech-option" data-name="{{ $s->name }}" onclick="selectMech('addMechDisplay{{ $i }}', '{{ $s->name }}', 'addMechDropdown{{ $i }}')">
+                                            <div class="font-medium text-xs text-gray-900">{{ $s->name }}</div>
+                                            <div class="text-[10px] text-gray-500">{{ $s->role }}</div>
+                                        </div>
+                                        @endforeach
                                     </div>
-                                    @endforeach
                                 </div>
+                                @if($i > 1)
+                                <button type="button" onclick="removeMechRow('add', {{ $i }})" class="p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition shrink-0" title="Remove mechanic">
+                                    <i data-lucide="minus-circle" class="w-4 h-4"></i>
+                                </button>
+                                @endif
                             </div>
                         </div>
                         @endfor
@@ -724,17 +731,24 @@
                     <div class="space-y-2">
                         @for($i = 1; $i <= 5; $i++)
                         <div id="editMechRow{{ $i }}" class="{{ $i == 1 ? '' : 'hidden animate-fade-in' }}">
-                            <div class="relative">
-                                <input type="text" name="mechanic_name[]" id="editMechDisplay{{ $i }}" placeholder="Search mechanic {{ $i }}..." {{ $i == 1 ? 'required' : '' }}
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-yellow-500 focus:outline-none">
-                                <div id="editMechDropdown{{ $i }}" class="search-dropdown hidden">
-                                    @foreach($staff as $s)
-                                    <div class="search-option mech-option" data-name="{{ $s->name }}" onclick="selectMech('editMechDisplay{{ $i }}', '{{ $s->name }}', 'editMechDropdown{{ $i }}')">
-                                        <div class="font-medium text-xs text-gray-900">{{ $s->name }}</div>
-                                        <div class="text-[10px] text-gray-500">{{ $s->role }}</div>
+                            <div class="flex items-center gap-2">
+                                <div class="relative flex-1">
+                                    <input type="text" name="mechanic_name[]" id="editMechDisplay{{ $i }}" placeholder="Search mechanic {{ $i }}..." {{ $i == 1 ? 'required' : '' }}
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-yellow-500 focus:outline-none">
+                                    <div id="editMechDropdown{{ $i }}" class="search-dropdown hidden">
+                                        @foreach($staff as $s)
+                                        <div class="search-option mech-option" data-name="{{ $s->name }}" onclick="selectMech('editMechDisplay{{ $i }}', '{{ $s->name }}', 'editMechDropdown{{ $i }}')">
+                                            <div class="font-medium text-xs text-gray-900">{{ $s->name }}</div>
+                                            <div class="text-[10px] text-gray-500">{{ $s->role }}</div>
+                                        </div>
+                                        @endforeach
                                     </div>
-                                    @endforeach
                                 </div>
+                                @if($i > 1)
+                                <button type="button" onclick="removeMechRow('edit', {{ $i }})" class="p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition shrink-0" title="Remove mechanic">
+                                    <i data-lucide="minus-circle" class="w-4 h-4"></i>
+                                </button>
+                                @endif
                             </div>
                         </div>
                         @endfor
@@ -1352,6 +1366,19 @@ function toggleNextMech(mode) {
             lucide.createIcons();
             return;
         }
+    }
+}
+
+function removeMechRow(mode, i) {
+    const row = document.getElementById(mode + 'MechRow' + i);
+    const input = document.getElementById(mode + 'MechDisplay' + i);
+    if (row) {
+        input.value = '';
+        row.classList.add('hidden');
+        // Re-show the Add Mechanic button since a slot is now free
+        const btn = document.getElementById('btnAddMech_' + mode);
+        if (btn) btn.classList.remove('hidden');
+        lucide.createIcons();
     }
 }
 
