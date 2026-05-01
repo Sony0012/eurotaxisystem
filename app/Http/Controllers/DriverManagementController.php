@@ -728,12 +728,17 @@ class DriverManagementController extends Controller
         // PERFORMANCE CAPS (The "Connections")
         // =====================================================================
         
-        // CAP 1: If has pending damage debt OR boundary shortage, MAX rating is 'Average' (Score 49)
-        if (($hasDebt || $hasShortage) && $totalScore > 49) {
+        // CAP 1: If has pending damage debt (ASSET DAMAGE), MAX rating is 'Growing' (Score 24)
+        if ($hasDebt && $totalScore > 24) {
+            $totalScore = 24;
+        }
+
+        // CAP 2: If has boundary shortage (FINANCIAL), MAX rating is 'Average' (Score 49)
+        if ($hasShortage && $totalScore > 49) {
             $totalScore = 49;
         }
 
-        // CAP 2: If multiple incidents (2+), MAX rating is 'Average'
+        // CAP 3: If multiple incidents (2+), MAX rating is 'Average'
         if ($incidentsCount >= 2 && $totalScore > 49) {
             $totalScore = 49;
         }
