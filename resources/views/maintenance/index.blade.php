@@ -722,19 +722,23 @@
                             <i data-lucide="plus-circle" class="w-3 h-3"></i> Add Mechanic
                         </button>
                     </div>
-                    <div id="mechanicRows_edit" class="space-y-2">
-                        <div class="relative">
-                            <input type="text" name="mechanic_name[]" id="editMechDisplay1" placeholder="Primary Mechanic..." required
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-yellow-500 focus:outline-none">
-                            <div id="editMechDropdown1" class="search-dropdown hidden">
-                                @foreach($staff as $s)
-                                <div class="search-option mech-option" data-name="{{ $s->name }}" onclick="selectMech('editMechDisplay1', '{{ $s->name }}', 'editMechDropdown1')">
-                                    <div class="font-medium text-xs text-gray-900">{{ $s->name }}</div>
-                                    <div class="text-[10px] text-gray-500">{{ $s->role }}</div>
+                    <div class="space-y-2">
+                        @for($i = 1; $i <= 5; $i++)
+                        <div id="editMechRow{{ $i }}" class="{{ $i == 1 ? '' : 'hidden animate-fade-in' }}">
+                            <div class="relative">
+                                <input type="text" name="mechanic_name[]" id="editMechDisplay{{ $i }}" placeholder="Search mechanic {{ $i }}..." {{ $i == 1 ? 'required' : '' }}
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-yellow-500 focus:outline-none">
+                                <div id="editMechDropdown{{ $i }}" class="search-dropdown hidden">
+                                    @foreach($staff as $s)
+                                    <div class="search-option mech-option" data-name="{{ $s->name }}" onclick="selectMech('editMechDisplay{{ $i }}', '{{ $s->name }}', 'editMechDropdown{{ $i }}')">
+                                        <div class="font-medium text-xs text-gray-900">{{ $s->name }}</div>
+                                        <div class="text-[10px] text-gray-500">{{ $s->role }}</div>
+                                    </div>
+                                    @endforeach
                                 </div>
-                                @endforeach
                             </div>
                         </div>
+                        @endfor
                     </div>
                 </div>
                 <div class="grid grid-cols-2 gap-3">
