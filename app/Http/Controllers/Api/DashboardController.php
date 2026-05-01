@@ -14,38 +14,66 @@ class DashboardController extends Controller
      */
     public function index()
     {
+        $today = now()->timezone('Asia/Manila')->toDateString();
         $stats = [];
         
-        // Total units
-        $stats['active_units'] = Unit::count();
+        // Total units (All non-deleted)
+        $stats['active_units'] = DB::table('units')->whereNull('deleted_at')->count();
 
-        // Units under coding
-        $stats['coding_units'] = DB::table('units')->whereRaw('LOWER(status) = ?', ['coding'])->count();
+        // ROI Units
+        $stats['roi_units'] = DB::table('units as u')
+            ->whereNull('u.deleted_at')
+            ->whereExists(function($query) {
+                $query->select(DB::raw(1))
+                    ->from('boundaries as b')
+                    ->whereNull('b.deleted_at')
+                    ->whereRaw('b.unit_id = u.id')
+                    ->whereIn('b.status', ['paid', 'excess', 'shortage'])
+                    ->groupBy('b.unit_id')
+                    ->havingRaw('SUM(b.actual_boundary) >= u.purchase_cost');
+            })
+            ->count();
+        $stats['roi_achieved'] = $stats['roi_units'];
 
-        // Units under maintenance
-        $stats['maintenance_units'] = DB::table('units')->whereRaw('LOWER(status) = ?', ['maintenance'])->count();
+        // Coding Units Today
+        $todayDay = now()->timezone('Asia/Manila')->format('l');
+        $allUnits = DB::table('units')->whereNull('deleted_at')->get();
+        $stats['coding_units'] = $allUnits->filter(function($unit) {
+            $todayDay = now()->timezone('Asia/Manila')->format('l');
+            $plate = $unit->plate_number;
+            $lastDigit = substr($plate, -1);
+            $codingDays = ['1' => 'Monday', '2' => 'Monday', '3' => 'Tuesday', '4' => 'Tuesday', '5' => 'Wednesday', '6' => 'Wednesday', '7' => 'Thursday', '8' => 'Thursday', '9' => 'Friday', '0' => 'Friday'];
+            return ($codingDays[$lastDigit] ?? '') === $todayDay;
+        })->count();
 
-        // Today's boundary collected
+        // Maintenance Units
+        $stats['maintenance_units'] = DB::table('maintenance')
+            ->join('units', 'maintenance.unit_id', '=', 'units.id')
+            ->whereNull('maintenance.deleted_at')
+            ->whereNull('units.deleted_at')
+            ->whereNotIn(DB::raw('LOWER(maintenance.status)'), ['complete', 'completed', 'cancelled'])
+            ->count();
+
+        // Financials
         $stats['today_boundary'] = DB::table('boundaries')
-            ->whereDate('date', now()->toDateString())
-            ->sum('boundary_amount') ?? 0;
+            ->whereNull('deleted_at')
+            ->whereDate('date', $today)
+            ->sum('actual_boundary') ?? 0;
 
-        // Today's expenses
-        $stats['today_expenses'] = DB::table('expenses')
-            ->whereDate('date', now()->toDateString())
-            ->sum('amount') ?? 0;
-
-        // Net income today
-        $stats['net_income'] = $stats['today_boundary'] - $stats['today_expenses'];
+        $genEx = DB::table('expenses')->whereNull('deleted_at')->whereDate('date', $today)->sum('amount') ?? 0;
+        $salEx = DB::table('salaries')->whereDate('pay_date', $today)->sum('total_salary') ?? 0;
+        $mntEx = DB::table('maintenance')->whereNull('deleted_at')->whereDate('date_started', $today)->where('status', '!=', 'cancelled')->sum('cost') ?? 0;
+        
+        $stats['total_expenses_today'] = $genEx + $salEx + $mntEx;
+        $stats['today_expenses'] = $stats['total_expenses_today'];
+        $stats['net_income'] = $stats['today_boundary'] - $stats['total_expenses_today'];
 
         // Active drivers
-        $stats['active_drivers'] = DB::table('drivers as d')
-            ->join('users as u', 'd.user_id', '=', 'u.id')
-            ->where('u.is_active', true)
-            ->count();
+        $stats['active_drivers'] = DB::table('drivers')->whereNull('deleted_at')->count();
 
         return response()->json([
             'success' => true,
+            'stats' => $stats,
             'data' => $stats,
         ]);
     }

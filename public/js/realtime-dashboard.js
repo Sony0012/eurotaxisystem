@@ -2,15 +2,21 @@ class RealTimeDashboard {
     constructor() {
         this.updateInterval = 5000; // Update every 5 seconds
         this.isUpdating = false;
+        this.lastUpdateTime = Date.now();
+        this.stabilityDelay = 3000; // Wait 3 seconds after load before first AJAX
         
         // Ingest initial stats from Blade to prevent first-load flickering
         this.previousStats = window.__INITIAL_STATS__ || {};
+        console.log('[Dashboard] Initialized with stats:', this.previousStats);
         
         this.init();
     }
 
     init() {
-        this.startRealTimeUpdates();
+        // Initial delay to let the page settle
+        setTimeout(() => {
+            this.startRealTimeUpdates();
+        }, this.stabilityDelay);
         
         // Listen for visibility change to pause/resume updates
         document.addEventListener('visibilitychange', () => {
@@ -18,13 +24,15 @@ class RealTimeDashboard {
                 this.stopRealTimeUpdates();
             } else {
                 this.startRealTimeUpdates();
-                this.updateDashboardData(); // Update immediately on return
+                // When returning to tab, wait a bit before refreshing
+                setTimeout(() => this.updateDashboardData(), 1000);
             }
         });
     }
 
     startRealTimeUpdates() {
         if (!this.pollInterval) {
+            console.log('[Dashboard] Starting poll interval...');
             this.pollInterval = setInterval(() => {
                 this.updateDashboardData();
             }, this.updateInterval);
@@ -33,6 +41,7 @@ class RealTimeDashboard {
 
     stopRealTimeUpdates() {
         if (this.pollInterval) {
+            console.log('[Dashboard] Stopping poll interval...');
             clearInterval(this.pollInterval);
             this.pollInterval = null;
         }
@@ -40,16 +49,20 @@ class RealTimeDashboard {
 
     async updateDashboardData() {
         if (this.isUpdating) return;
+        
+        // Prevent updates too close to page load
+        if (Date.now() - this.lastUpdateTime < 2000) return;
+
         this.isUpdating = true;
 
         try {
-            // Fetch latest dashboard data with cache-buster
             const response = await fetch(`/api/dashboard/realtime?_=${Date.now()}`);
             if (!response.ok) throw new Error('Network response was not ok');
             
             const data = await response.json();
             
             if (data.success && data.stats) {
+                console.log('[Dashboard] Received fresh data:', data.stats);
                 this.updateStats(data.stats);
                 this.updateCharts(data.charts);
                 
@@ -58,7 +71,7 @@ class RealTimeDashboard {
                 }
             }
         } catch (error) {
-            console.error('Error updating dashboard:', error);
+            console.error('[Dashboard] Update failed:', error);
         } finally {
             this.isUpdating = false;
         }
@@ -81,25 +94,26 @@ class RealTimeDashboard {
             const newValue = stats[config.key];
             const prevValue = this.previousStats[config.key];
 
-            // Only update if value changed and is valid
-            if (newValue !== undefined && newValue !== null && newValue !== prevValue) {
+            // Use strict numeric comparison to prevent false flickers
+            const nVal = parseFloat(newValue) || 0;
+            const pVal = parseFloat(prevValue) || 0;
+
+            if (newValue !== undefined && newValue !== null && Math.abs(nVal - pVal) > 0.01) {
                 const element = document.querySelector(config.selector);
                 if (element) {
-                    this.animateValue(element, newValue, config.format);
-                    this.previousStats[config.key] = newValue;
+                    console.log(`[Dashboard] Updating ${config.key}: ${pVal} -> ${nVal}`);
+                    this.animateValue(element, nVal, config.format);
+                    this.previousStats[config.key] = nVal;
                 }
             }
         });
     }
 
-    animateValue(element, newValue, format) {
-        // Strip non-numeric chars from current text to get start value
+    animateValue(element, endValue, format) {
         const currentText = element.textContent || '0';
         const startValue = parseFloat(currentText.replace(/[^\d.-]/g, '')) || 0;
-        const endValue = parseFloat(newValue);
         
-        if (isNaN(endValue)) return;
-        if (startValue === endValue) return;
+        if (Math.abs(startValue - endValue) < 0.01) return;
 
         const duration = 1000;
         const startTime = performance.now();
@@ -114,8 +128,6 @@ class RealTimeDashboard {
         const animate = (currentTime) => {
             const elapsed = currentTime - startTime;
             const progress = Math.min(elapsed / duration, 1);
-            
-            // Easing function: easeOutExpo
             const easeProgress = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
             
             const currentVal = startValue + (endValue - startValue) * easeProgress;
@@ -124,7 +136,7 @@ class RealTimeDashboard {
             if (progress < 1) {
                 requestAnimationFrame(animate);
             } else {
-                element.textContent = formatFn(endValue); // Ensure final value is exact
+                element.textContent = formatFn(endValue);
             }
         };
 
@@ -140,7 +152,7 @@ class RealTimeDashboard {
             window.weeklyChart.data.datasets[0].data = charts.weekly_data.map(d => d.boundary);
             window.weeklyChart.data.datasets[1].data = charts.weekly_data.map(d => d.expenses);
             window.weeklyChart.data.datasets[2].data = charts.weekly_data.map(d => d.net);
-            window.weeklyChart.update('none'); // Update without full animation for smoothness
+            window.weeklyChart.update('none');
         }
 
         // Unit Status Chart
@@ -164,7 +176,6 @@ class RealTimeDashboard {
             window.unitPerformanceChart.data.datasets[1].data = charts.unit_performance.map(d => d.target);
             window.unitPerformanceChart.update('none');
             
-            // Update Top Performer insight
             if (charts.unit_performance.length > 0) {
                 const insightPlate = document.getElementById('insightTopPlate');
                 if (insightPlate) insightPlate.textContent = charts.unit_performance[0].unit;
@@ -176,7 +187,6 @@ class RealTimeDashboard {
         const container = document.getElementById('alerts-container');
         if (!container) return;
 
-        // Simple check to see if alerts count or content changed
         const currentAlertsHash = JSON.stringify(alerts);
         if (this.lastAlertsHash === currentAlertsHash) return;
         this.lastAlertsHash = currentAlertsHash;
@@ -215,7 +225,6 @@ class RealTimeDashboard {
     }
 }
 
-// Initialize on load
 document.addEventListener('DOMContentLoaded', () => {
     window.dashboardManager = new RealTimeDashboard();
 });
