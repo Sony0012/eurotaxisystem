@@ -29,8 +29,8 @@ class RealTimeDashboard {
 
     async updateDashboardData() {
         try {
-            // Fetch latest dashboard data
-            const response = await fetch('/api/dashboard/realtime');
+            // Fetch latest dashboard data with cache-buster
+            const response = await fetch(`/api/dashboard/realtime?_=${Date.now()}`);
             const data = await response.json();
             
             if (data.success) {

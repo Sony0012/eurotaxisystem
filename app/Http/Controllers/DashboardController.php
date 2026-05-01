@@ -1126,9 +1126,13 @@ class DashboardController extends Controller
      */
     private function getDashboardStats($runMonitor = true)
     {
-        // Run automated system monitoring only when requested (usually on page load)
+        // Run automated system monitoring only when requested and rate-limited (every 5 minutes)
         if ($runMonitor) {
-            $this->monitorSystemStatus();
+            $lastMonitor = session('last_monitor_run');
+            if (!$lastMonitor || now()->diffInMinutes(Carbon::parse($lastMonitor)) >= 5) {
+                $this->monitorSystemStatus();
+                session(['last_monitor_run' => now()->toDateTimeString()]);
+            }
         }
 
         $today = now()->timezone('Asia/Manila')->toDateString();
