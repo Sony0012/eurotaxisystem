@@ -197,22 +197,35 @@ class UnitController extends Controller
             'purchase_cost' => str_replace(',', '', $request->purchase_cost),
         ]);
 
+        $today = now()->format('Y-m-d');
+        $maxYear = 2026;
+
         $data = $request->validate([
-            'plate_number' => 'required|string|unique:units,plate_number',
-            'make' => 'required|string',
-            'model' => 'required|string',
-            'year' => 'required|integer',
+            'plate_number' => 'required|string|max:8|regex:/^[A-Z0-9]+ ?[A-Z0-9]*$/|unique:units,plate_number',
+            'make' => ['required', 'string', 'max:15', 'regex:/^(?![0-9\s\W]+$)[a-zA-Z0-9\s\W]+$/'],
+            'model' => ['required', 'string', 'max:15', 'regex:/^(?![0-9\s\W]+$)[a-zA-Z0-9\s\W]+$/'],
+            'year' => 'required|integer|digits:4|max:'.$maxYear,
             'status' => 'sometimes|required|string',
-            'boundary_rate' => 'required|numeric',
-            'purchase_date' => 'nullable|date',
-            'purchase_cost' => 'nullable|numeric',
-            'motor_no' => 'required|string',
-            'chassis_no' => 'required|string',
+            'boundary_rate' => 'required|numeric|max:100000',
+            'purchase_date' => 'nullable|date|before_or_equal:'.$today,
+            'purchase_cost' => 'nullable|numeric|max:1000000',
+            'motor_no' => 'required|string|max:25|regex:/^[A-Z0-9]+$/',
+            'chassis_no' => 'required|string|max:25|regex:/^[A-Z0-9]+$/',
             'unit_type' => 'sometimes|required|in:new,old,rented',
             'coding_day' => 'nullable|string',
             'driver_id' => 'nullable|integer',
             'secondary_driver_id' => 'nullable|integer',
-            'imei' => 'nullable|string|max:20|unique:units,imei',
+            'imei' => 'nullable|string|size:15|regex:/^[a-zA-Z0-9]+$/|unique:units,imei',
+        ], [
+            'plate_number.regex' => 'Plate number must be alphanumeric and can contain at most one space.',
+            'make.regex' => 'Vehicle make cannot be pure numbers, spaces, or symbols.',
+            'model.regex' => 'Vehicle model cannot be pure numbers, spaces, or symbols.',
+            'motor_no.regex' => 'Motor number must be alphanumeric with no spaces or symbols.',
+            'chassis_no.regex' => 'Chassis number must be alphanumeric with no spaces or symbols.',
+            'imei.regex' => 'IMEI must be alphanumeric with no spaces or symbols.',
+            'imei.size' => 'IMEI must be exactly 15 characters.',
+            'purchase_date.before_or_equal' => 'Purchase date cannot be in the future.',
+            'year.max' => 'Year cannot exceed 2026.',
         ]);
 
         $driver_id = $request->input('driver_id') ?: null;
@@ -281,22 +294,35 @@ class UnitController extends Controller
             'purchase_cost' => str_replace(',', '', $request->purchase_cost),
         ]);
 
+        $today = now()->format('Y-m-d');
+        $maxYear = 2026;
+
         $data = $request->validate([
-            'plate_number' => 'required|string|unique:units,plate_number,' . $id,
-            'make' => 'sometimes|required|string',
-            'model' => 'sometimes|required|string',
-            'year' => 'sometimes|required|integer',
+            'plate_number' => 'required|string|max:8|regex:/^[A-Z0-9]+ ?[A-Z0-9]*$/|unique:units,plate_number,' . $id,
+            'make' => ['sometimes', 'required', 'string', 'max:15', 'regex:/^(?![0-9\s\W]+$)[a-zA-Z0-9\s\W]+$/'],
+            'model' => ['sometimes', 'required', 'string', 'max:15', 'regex:/^(?![0-9\s\W]+$)[a-zA-Z0-9\s\W]+$/'],
+            'year' => 'sometimes|required|integer|digits:4|max:'.$maxYear,
             'status' => 'sometimes|required|string',
-            'boundary_rate' => 'required|numeric',
-            'purchase_date' => 'nullable|date',
-            'purchase_cost' => 'nullable|numeric',
-            'motor_no' => 'required|string',
-            'chassis_no' => 'required|string',
+            'boundary_rate' => 'required|numeric|max:100000',
+            'purchase_date' => 'nullable|date|before_or_equal:'.$today,
+            'purchase_cost' => 'nullable|numeric|max:1000000',
+            'motor_no' => 'required|string|max:25|regex:/^[A-Z0-9]+$/',
+            'chassis_no' => 'required|string|max:25|regex:/^[A-Z0-9]+$/',
             'unit_type' => 'sometimes|required|in:new,old,rented',
             'coding_day' => 'nullable|string',
             'driver_id' => 'nullable|integer',
             'secondary_driver_id' => 'nullable|integer',
-            'imei' => 'nullable|string|max:20|unique:units,imei,' . $id,
+            'imei' => 'nullable|string|size:15|regex:/^[a-zA-Z0-9]+$/|unique:units,imei,' . $id,
+        ], [
+            'plate_number.regex' => 'Plate number must be alphanumeric and can contain at most one space.',
+            'make.regex' => 'Vehicle make cannot be pure numbers, spaces, or symbols.',
+            'model.regex' => 'Vehicle model cannot be pure numbers, spaces, or symbols.',
+            'motor_no.regex' => 'Motor number must be alphanumeric with no spaces or symbols.',
+            'chassis_no.regex' => 'Chassis number must be alphanumeric with no spaces or symbols.',
+            'imei.regex' => 'IMEI must be alphanumeric with no spaces or symbols.',
+            'imei.size' => 'IMEI must be exactly 15 characters.',
+            'purchase_date.before_or_equal' => 'Purchase date cannot be in the future.',
+            'year.max' => 'Year cannot exceed 2026.',
         ]);
 
         $driver_id = $request->input('driver_id') ?: null;

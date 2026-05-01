@@ -294,10 +294,12 @@
                                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                     <i data-lucide="credit-card" class="w-5 h-5 text-gray-400"></i>
                                 </div>
-                                <input type="text" name="plate_number" id="addPlateNumber" required
-                                    class="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                <input type="text" name="plate_number" id="addPlateNumber" required maxlength="8"
+                                    class="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-bold tracking-widest uppercase"
                                     placeholder="e.g., ABC 123"
-                                    oninput="this.value = this.value.toUpperCase(); addUnitUpdateCoding()">
+                                    pattern="^[A-Z0-9]+ ?[A-Z0-9]*$"
+                                    title="Plate number must be alphanumeric and can contain at most one space."
+                                    oninput="this.value = this.value.toUpperCase().replace(/\s{2,}/g, ' ').slice(0, 8); addUnitUpdateCoding()">
                             </div>
                         </div>
                     </div>
@@ -314,37 +316,46 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
                         <div class="space-y-2">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Make <span class="text-red-500">*</span></label>
-                            <input type="text" name="make" required
+                            <input type="text" name="make" required maxlength="15"
                                 class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                placeholder="e.g., Toyota, Honda, Nissan"
-                                oninput="this.value = this.value.toUpperCase()">
+                                placeholder="e.g., TOYOTA"
+                                pattern="^(?![0-9\s\W]+$)[a-zA-Z0-9\s\W]+$"
+                                title="Make cannot be pure numbers, spaces, or symbols."
+                                oninput="this.value = this.value.toUpperCase().slice(0, 15)">
                         </div>
                         <div class="space-y-2">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Model <span class="text-red-500">*</span></label>
-                            <input type="text" name="model" required
+                            <input type="text" name="model" required maxlength="15"
                                 class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                placeholder="e.g., Vios, Civic, Sentra"
-                                oninput="this.value = this.value.toUpperCase()">
+                                placeholder="e.g., VIOS"
+                                pattern="^(?![0-9\s\W]+$)[a-zA-Z0-9\s\W]+$"
+                                title="Model cannot be pure numbers, spaces, or symbols."
+                                oninput="this.value = this.value.toUpperCase().slice(0, 15)">
                         </div>
                         <div class="space-y-2">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Year <span class="text-red-500">*</span></label>
-                            <input type="number" name="year" required min="2000" max="{{ date('Y') }}" value="{{ date('Y') }}"
+                            <input type="number" name="year" required min="1900" max="2026"
                                 class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                placeholder="e.g., 2023">
+                                placeholder="e.g., 2023"
+                                oninput="if(this.value.length > 4) this.value = this.value.slice(0,4)">
                         </div>
                         <div class="space-y-2">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Motor No <span class="text-red-500">*</span></label>
-                            <input type="text" name="motor_no" required
+                            <input type="text" name="motor_no" required maxlength="25"
                                 class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
                                 placeholder="e.g., 2NZ7847183"
-                                oninput="this.value = this.value.toUpperCase()">
+                                pattern="^[A-Z0-9]+$"
+                                title="Motor number must be alphanumeric with no spaces or symbols."
+                                oninput="this.value = this.value.toUpperCase().replace(/\s/g, '').slice(0, 25)">
                         </div>
                         <div class="space-y-2">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Chassis No <span class="text-red-500">*</span></label>
-                            <input type="text" name="chassis_no" required
+                            <input type="text" name="chassis_no" required maxlength="25"
                                 class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
                                 placeholder="e.g., NCP1512071757"
-                                oninput="this.value = this.value.toUpperCase()">
+                                pattern="^[A-Z0-9]+$"
+                                title="Chassis number must be alphanumeric with no spaces or symbols."
+                                oninput="this.value = this.value.toUpperCase().replace(/\s/g, '').slice(0, 25)">
                         </div>
 
                     </div>
@@ -393,7 +404,7 @@
                                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                     <i data-lucide="calendar" class="w-4 h-4 text-gray-400"></i>
                                 </div>
-                                <input type="date" name="purchase_date"
+                                <input type="date" name="purchase_date" max="{{ date('Y-m-d') }}"
                                     class="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                             </div>
                             <p class="text-xs text-gray-500">When the unit was purchased</p>
@@ -569,9 +580,11 @@
                                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                     <i data-lucide="hash" class="w-5 h-5 text-gray-400"></i>
                                 </div>
-                                <input type="text" name="imei" id="addImei"
+                                <input type="text" name="imei" id="addImei" maxlength="15"
                                     class="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent font-mono"
-                                    placeholder="Enter 15-digit IMEI">
+                                    placeholder="Enter 15-digit IMEI"
+                                    pattern="^[a-zA-Z0-9]{15}$"
+                                    oninput="this.value = this.value.replace(/[^a-zA-Z0-9]/g, '').slice(0, 15)">
                             </div>
                             <p class="text-xs text-gray-500">Retrieve the IMEI from the physical device label or the Tracksolid Pro application.</p>
                         </div>
@@ -634,39 +647,56 @@
                                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                     <i data-lucide="credit-card" class="w-5 h-5 text-gray-400"></i>
                                 </div>
-                                <input type="text" name="plate_number" id="editPlateNumber" required
-                                    class="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                    oninput="this.value = this.value.toUpperCase(); editUnitUpdateCoding()">
+                                <input type="text" name="plate_number" id="editPlateNumber" required maxlength="8"
+                                    class="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-bold tracking-widest uppercase"
+                                    placeholder="e.g., ABC 123"
+                                    pattern="^[A-Z0-9]+ ?[A-Z0-9]*$"
+                                    title="Plate number must be alphanumeric and can contain at most one space."
+                                    oninput="this.value = this.value.toUpperCase().replace(/\s{2,}/g, ' ').slice(0, 8); editUnitUpdateCoding()">
                             </div>
                         </div>
                         <div class="space-y-2">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Make <span class="text-red-500">*</span></label>
-                            <input type="text" name="make" id="editMake" required
-                                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                oninput="this.value = this.value.toUpperCase()">
+                            <input type="text" name="make" id="editMake" required maxlength="15"
+                                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                placeholder="e.g., TOYOTA"
+                                pattern="^(?![0-9\s\W]+$)[a-zA-Z0-9\s\W]+$"
+                                title="Make cannot be pure numbers, spaces, or symbols."
+                                oninput="this.value = this.value.toUpperCase().slice(0, 15)">
                         </div>
                         <div class="space-y-2">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Model <span class="text-red-500">*</span></label>
-                            <input type="text" name="model" id="editModel" required
-                                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                oninput="this.value = this.value.toUpperCase()">
+                            <input type="text" name="model" id="editModel" required maxlength="15"
+                                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                placeholder="e.g., VIOS"
+                                pattern="^(?![0-9\s\W]+$)[a-zA-Z0-9\s\W]+$"
+                                title="Model cannot be pure numbers, spaces, or symbols."
+                                oninput="this.value = this.value.toUpperCase().slice(0, 15)">
                         </div>
                         <div class="space-y-2">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Year <span class="text-red-500">*</span></label>
-                            <input type="number" name="year" id="editYear" required
-                                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <input type="number" name="year" id="editYear" required min="1900" max="2026"
+                                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                placeholder="e.g., 2023"
+                                oninput="if(this.value.length > 4) this.value = this.value.slice(0,4)">
                         </div>
                         <div class="space-y-2">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Motor No <span class="text-red-500">*</span></label>
-                            <input type="text" name="motor_no" id="editMotorNo" required
-                                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                oninput="this.value = this.value.toUpperCase()">
+                            <input type="text" name="motor_no" id="editMotorNo" required maxlength="25"
+                                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                                placeholder="e.g., 2NZ7847183"
+                                pattern="^[A-Z0-9]+$"
+                                title="Motor number must be alphanumeric with no spaces or symbols."
+                                oninput="this.value = this.value.toUpperCase().replace(/\s/g, '').slice(0, 25)">
                         </div>
                         <div class="space-y-2">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Chassis No <span class="text-red-500">*</span></label>
-                            <input type="text" name="chassis_no" id="editChassisNo" required
-                                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                oninput="this.value = this.value.toUpperCase()">
+                            <input type="text" name="chassis_no" id="editChassisNo" required maxlength="25"
+                                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                                placeholder="e.g., NCP1512071757"
+                                pattern="^[A-Z0-9]+$"
+                                title="Chassis number must be alphanumeric with no spaces or symbols."
+                                oninput="this.value = this.value.toUpperCase().replace(/\s/g, '').slice(0, 25)">
                         </div>
 
                         <div class="space-y-2">
@@ -734,7 +764,7 @@
                                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                     <i data-lucide="calendar" class="w-4 h-4 text-gray-400"></i>
                                 </div>
-                                <input type="date" name="purchase_date" id="editPurchaseDate"
+                                <input type="date" name="purchase_date" id="editPurchaseDate" max="{{ date('Y-m-d') }}"
                                     class="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                             </div>
                             <p class="text-xs text-gray-500">When the unit was purchased</p>
@@ -895,9 +925,11 @@
                                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                     <i data-lucide="hash" class="w-5 h-5 text-gray-400"></i>
                                 </div>
-                                <input type="text" name="imei" id="editImei"
+                                <input type="text" name="imei" id="editImei" maxlength="15"
                                     class="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent font-mono"
-                                    placeholder="Enter 15-digit IMEI">
+                                    placeholder="Enter 15-digit IMEI"
+                                    pattern="^[a-zA-Z0-9]{15}$"
+                                    oninput="this.value = this.value.replace(/[^a-zA-Z0-9]/g, '').slice(0, 15)">
                             </div>
                             <p class="text-xs text-gray-500">Changing this will update the real-time tracking for this unit.</p>
                         </div>
@@ -1281,6 +1313,17 @@
             let value = input.value.replace(/[^0-9.]/g, '');
             if (value === '' || isNaN(parseFloat(value))) return;
             let num = parseFloat(value);
+            
+            // Limit checks
+            if (input.name === 'boundary_rate' && num > 100000) {
+                alert('Boundary rate cannot exceed ₱100,000');
+                num = 100000;
+            }
+            if (input.name === 'purchase_cost' && num > 1000000) {
+                alert('Purchase cost cannot exceed ₱1,000,000');
+                num = 1000000;
+            }
+
             input.value = num.toLocaleString('en-US', {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2
