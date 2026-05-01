@@ -314,7 +314,7 @@
                 <h3 class="text-base font-semibold text-gray-900">Unit Status Distribution</h3>
             </div>
             <div class="p-4">
-                <canvas id="unitStatusDistributionChart" width="400" height="200"></canvas>
+                <canvas id="unitStatusChart" width="400" height="200"></canvas>
             </div>
         </div>
 
@@ -1244,26 +1244,8 @@
             });
         } catch (error) { console.error('Weekly Chart Error:', error); }
 
-        // Unit Status Chart
-        try {
-            const unitStatusCtx = document.getElementById('unitStatusChart').getContext('2d');
-            const unitStatusData = @json($unit_status_data);
-            console.log('Unit Status Data:', unitStatusData);
-            window.unitStatusChart = new Chart(unitStatusCtx, {
-                type: 'bar',
-                data: {
-                    labels: unitStatusData.map(d => d.status),
-                    datasets: [{ label: 'Units', data: unitStatusData.map(d => d.count), backgroundColor: '#eab308', borderColor: '#ca8a04', borderWidth: 1 }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
-                }
-            });
-        } catch (error) {
-            console.error('Unit Status Chart Error:', error);
-        }
+        // Unit Status Chart - (Handled by the premium donut chart below)
+
 
         // Revenue Trend Chart - Premium Line
         try {
@@ -1498,7 +1480,7 @@
 
         // Unit Status Distribution Chart - Premium Donut
         try {
-            const unitStatusDistCtx = document.getElementById('unitStatusDistributionChart').getContext('2d');
+            const unitStatusDistCtx = document.getElementById('unitStatusChart').getContext('2d');
             const unitStatusDistData = @json($unit_status_distribution_data);
             const donutColors = ['#10b981','#3b82f6','#f59e0b','#ef4444'];
             const donutHover = ['#059669','#2563eb','#d97706','#dc2626'];
@@ -1512,7 +1494,7 @@
                 distValues = unitStatusDistData.map(d => d.count);
             }
             const totalUnits = distValues.reduce((a,b) => a+b, 0);
-            window.unitStatusDistChart = new Chart(unitStatusDistCtx, {
+            window.unitStatusChart = new Chart(unitStatusDistCtx, {
                 type: 'doughnut',
                 data: { labels: distLabels, datasets: [{ data: distValues, backgroundColor: donutColors, hoverBackgroundColor: donutHover, borderWidth: 4, borderColor: '#fff', hoverOffset: 16 }] },
                 options: {
@@ -1529,9 +1511,10 @@
                 plugins: [{ id: 'donutCenter', afterDraw(chart) {
                     const { ctx, chartArea: { left, top, right, bottom } } = chart;
                     const cx = (left+right)/2, cy = (top+bottom)/2;
+                    const currentTotal = chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
                     ctx.save();
                     ctx.font = 'bold 28px Inter, sans-serif'; ctx.fillStyle = '#0f172a'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-                    ctx.fillText(totalUnits, cx, cy-10);
+                    ctx.fillText(currentTotal, cx, cy-10);
                     ctx.font = '600 11px Inter, sans-serif'; ctx.fillStyle = '#94a3b8';
                     ctx.fillText('TOTAL UNITS', cx, cy+14);
                     ctx.restore();
