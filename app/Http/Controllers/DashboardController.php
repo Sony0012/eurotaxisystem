@@ -765,19 +765,23 @@ class DashboardController extends Controller
 
             // Calculate Global Overview Stats based on MAINTENANCE records, not unit status
             $mStats = DB::table('maintenance')
-                ->whereNotIn(DB::raw('LOWER(status)'), ['completed', 'complete', 'cancelled'])
-                ->whereNull('deleted_at')
+                ->join('units', 'maintenance.unit_id', '=', 'units.id')
+                ->whereNull('maintenance.deleted_at')
+                ->whereNull('units.deleted_at')
+                ->whereNotIn(DB::raw('LOWER(maintenance.status)'), ['completed', 'complete', 'cancelled'])
                 ->select([
                     DB::raw('COUNT(*) as total'),
-                    DB::raw('SUM(CASE WHEN LOWER(maintenance_type) LIKE "%preventive%" THEN 1 ELSE 0 END) as preventive'),
-                    DB::raw('SUM(CASE WHEN LOWER(maintenance_type) LIKE "%corrective%" THEN 1 ELSE 0 END) as corrective'),
-                    DB::raw('SUM(CASE WHEN LOWER(maintenance_type) LIKE "%emergency%" THEN 1 ELSE 0 END) as emergency'),
+                    DB::raw('SUM(CASE WHEN LOWER(maintenance.maintenance_type) LIKE "%preventive%" THEN 1 ELSE 0 END) as preventive'),
+                    DB::raw('SUM(CASE WHEN LOWER(maintenance.maintenance_type) LIKE "%corrective%" THEN 1 ELSE 0 END) as corrective'),
+                    DB::raw('SUM(CASE WHEN LOWER(maintenance.maintenance_type) LIKE "%emergency%" THEN 1 ELSE 0 END) as emergency'),
                 ])
                 ->first();
 
             $completedCount = DB::table('maintenance')
-                ->whereIn(DB::raw('LOWER(status)'), ['completed', 'complete'])
-                ->whereNull('deleted_at')
+                ->join('units', 'maintenance.unit_id', '=', 'units.id')
+                ->whereNull('maintenance.deleted_at')
+                ->whereNull('units.deleted_at')
+                ->whereIn(DB::raw('LOWER(maintenance.status)'), ['completed', 'complete'])
                 ->count();
 
             $avgMaintenanceDays = $maintenanceUnits->count() > 0 ? 
@@ -1157,8 +1161,10 @@ class DashboardController extends Controller
 
         // 4. Maintenance Units (Primary Source: Maintenance Table)
         $stats['maintenance_units'] = DB::table('maintenance')
-            ->whereNull('deleted_at')
-            ->whereNotIn(DB::raw('LOWER(status)'), ['complete', 'completed', 'cancelled'])
+            ->join('units', 'maintenance.unit_id', '=', 'units.id')
+            ->whereNull('maintenance.deleted_at')
+            ->whereNull('units.deleted_at')
+            ->whereNotIn(DB::raw('LOWER(maintenance.status)'), ['complete', 'completed', 'cancelled'])
             ->count();
 
         // 5. Today's Financials

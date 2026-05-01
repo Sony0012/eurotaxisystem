@@ -45,7 +45,11 @@ class MaintenanceController extends Controller
         }
 
         if ($status) {
-            $query->where('maintenance.status', $status);
+            if ($status === 'complete' || $status === 'completed') {
+                $query->whereIn(DB::raw('LOWER(maintenance.status)'), ['complete', 'completed']);
+            } else {
+                $query->where('maintenance.status', $status);
+            }
         }
 
         if ($type) {
@@ -57,13 +61,17 @@ class MaintenanceController extends Controller
 
         $total_pages = max(1, ceil($total / $limit));
 
-        $totals = DB::table('maintenance')->whereNull('deleted_at')->selectRaw('
-            COUNT(*) as total_count,
-            SUM(cost) as total_cost,
-            SUM(CASE WHEN LOWER(maintenance.status) IN ("complete", "completed") THEN 1 ELSE 0 END) as completed_count,
-            SUM(CASE WHEN LOWER(maintenance.status) = "pending" THEN 1 ELSE 0 END) as pending_count,
-            SUM(CASE WHEN LOWER(maintenance.status) IN ("ongoing", "testing", "in_progress", "in_shop") THEN 1 ELSE 0 END) as in_progress_count
-        ')->first();
+        $totals = DB::table('maintenance')
+            ->join('units', 'maintenance.unit_id', '=', 'units.id')
+            ->whereNull('maintenance.deleted_at')
+            ->whereNull('units.deleted_at')
+            ->selectRaw('
+                COUNT(*) as total_count,
+                SUM(maintenance.cost) as total_cost,
+                SUM(CASE WHEN LOWER(maintenance.status) IN ("complete", "completed") THEN 1 ELSE 0 END) as completed_count,
+                SUM(CASE WHEN LOWER(maintenance.status) = "pending" THEN 1 ELSE 0 END) as pending_count,
+                SUM(CASE WHEN LOWER(maintenance.status) IN ("ongoing", "testing", "in_progress", "in_shop") THEN 1 ELSE 0 END) as in_progress_count
+            ')->first();
 
         // 7-Day Trend Data for Sparklines
         $sevenDaysAgo = date('Y-m-d', strtotime('-6 days'));
@@ -397,7 +405,7 @@ class MaintenanceController extends Controller
         $maint = Maintenance::findOrFail($id);
         
         DB::transaction(function () use ($maint) {
-            if ($maint->date_completed) {
+            if (in_array(strtolower($maint->status), ['complete', 'completed'])) {
                 // Uncomplete: Set back to pending and clear date
                 $maint->update([
                     'date_completed' => null,
@@ -411,10 +419,10 @@ class MaintenanceController extends Controller
                     'updated_at' => now()
                 ]);
             } else {
-                // Complete: Set status to complete and date to today
+                // Complete: Set status to completed and date to today
                 $maint->update([
                     'date_completed' => date('Y-m-d'),
-                    'status' => 'complete',
+                    'status' => 'completed',
                     'updated_by' => Auth::id()
                 ]);
                 
@@ -440,11 +448,12 @@ class MaintenanceController extends Controller
         $maint = Maintenance::findOrFail($id);
 
         DB::transaction(function () use ($maint) {
-            // Workflow: pending -> ongoing -> complete
-            if ($maint->status === 'pending') {
+            // Workflow: pending -> ongoing -> completed
+            $currentStatus = strtolower($maint->status);
+            if ($currentStatus === 'pending') {
                 $maint->update(['status' => 'ongoing', 'date_completed' => null, 'updated_by' => Auth::id()]);
-            } elseif ($maint->status === 'ongoing') {
-                $maint->update(['status' => 'complete', 'date_completed' => date('Y-m-d'), 'updated_by' => Auth::id()]);
+            } elseif ($currentStatus === 'ongoing' || $currentStatus === 'testing') {
+                $maint->update(['status' => 'completed', 'date_completed' => date('Y-m-d'), 'updated_by' => Auth::id()]);
                 DB::table('units')->where('id', $maint->unit_id)->update(['status' => 'active', 'updated_at' => now()]);
                 return; // Early return to avoid setting unit to maintenance below
             } else {
