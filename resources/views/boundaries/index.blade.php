@@ -1533,7 +1533,7 @@ function updateShiftInfo(unitElement) {
         } else {
             // Shift still active
             mainLabel.textContent = expectedName ? `${expectedName} — On Shift` : 'Driver On Shift';
-            shiftTimer.innerHTML  = `<span class="text-green-600 font-bold">${diffHours}h ${diffMins}m remaining</span> &nbsp;·&nbsp; Returns by ${absoluteStr}`;
+            shiftTimer.innerHTML  = `<span class="text-green-600 font-bold">${diffHours}h ${diffMins}m remaining</span> &nbsp;·&nbsp; Expected Return: ${absoluteStr}`;
             shiftIconWrap.className = 'p-1.5 rounded-lg mt-0.5 shrink-0 bg-green-100';
             shiftIcon.className     = 'w-3.5 h-3.5 text-green-600';
             shiftIcon.setAttribute('data-lucide', 'user-check');
