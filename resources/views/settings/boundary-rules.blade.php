@@ -148,17 +148,23 @@
 
                 <div>
                     <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-1.5">Bracket Description <span class="text-red-500">*</span></label>
-                    <input type="text" name="name" id="ruleName" required placeholder="e.g., Standard Models" class="w-full px-3 py-2.5 border border-gray-300 rounded-xl bg-white focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-sm font-bold shadow-sm">
+                    <input type="text" name="name" id="ruleName" required maxlength="30" placeholder="e.g., Standard Models" class="w-full px-3 py-2.5 border border-gray-300 rounded-xl bg-white focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-sm font-bold shadow-sm">
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div>
                         <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-1.5">Start Year <span class="text-red-500">*</span></label>
-                        <input type="number" name="start_year" id="ruleStartYear" required min="2000" max="2099" class="w-full px-3 py-2.5 border border-gray-300 rounded-xl bg-white focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-sm font-bold shadow-sm">
+                        <input type="text" name="start_year" id="ruleStartYear" required 
+                               oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 4)"
+                               placeholder="YYYY"
+                               class="w-full px-3 py-2.5 border border-gray-300 rounded-xl bg-white focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-sm font-bold shadow-sm">
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-1.5">End Year <span class="text-red-500">*</span></label>
-                        <input type="number" name="end_year" id="ruleEndYear" required min="2000" max="2099" class="w-full px-3 py-2.5 border border-gray-300 rounded-xl bg-white focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-sm font-bold shadow-sm">
+                        <input type="text" name="end_year" id="ruleEndYear" required 
+                               oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 4)"
+                               placeholder="YYYY"
+                               class="w-full px-3 py-2.5 border border-gray-300 rounded-xl bg-white focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-sm font-bold shadow-sm">
                     </div>
                 </div>
 
@@ -168,7 +174,10 @@
                         <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
                             <span class="text-gray-500 font-black">₱</span>
                         </div>
-                        <input type="number" name="regular_rate" id="ruleRegularRate" required step="0.01" min="0" class="w-full pl-8 px-3 py-2.5 border border-gray-300 rounded-xl bg-white focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-base font-black text-gray-900 shadow-sm">
+                        <input type="text" name="regular_rate" id="ruleRegularRate" required 
+                               oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 4)"
+                               placeholder="0000"
+                               class="w-full pl-8 px-3 py-2.5 border border-gray-300 rounded-xl bg-white focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-base font-black text-gray-900 shadow-sm">
                     </div>
                 </div>
 
@@ -179,7 +188,10 @@
                             <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
                                 <span class="text-red-500 font-black">₱</span>
                             </div>
-                            <input type="number" name="sat_discount" id="ruleSatDiscount" required step="0.01" min="0" class="w-full pl-8 px-3 py-2.5 border border-red-200 rounded-xl bg-white focus:ring-2 focus:ring-red-500 focus:border-red-500 text-base font-black text-red-700 shadow-sm">
+                            <input type="text" name="sat_discount" id="ruleSatDiscount" required 
+                                   oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 4)"
+                                   placeholder="0000"
+                                   class="w-full pl-8 px-3 py-2.5 border border-red-200 rounded-xl bg-white focus:ring-2 focus:ring-red-500 focus:border-red-500 text-base font-black text-red-700 shadow-sm">
                         </div>
                     </div>
                     <div>
@@ -188,7 +200,10 @@
                             <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
                                 <span class="text-red-500 font-black">₱</span>
                             </div>
-                            <input type="number" name="sun_discount" id="ruleSunDiscount" required step="0.01" min="0" class="w-full pl-8 px-3 py-2.5 border border-red-200 rounded-xl bg-white focus:ring-2 focus:ring-red-500 focus:border-red-500 text-base font-black text-red-700 shadow-sm">
+                            <input type="text" name="sun_discount" id="ruleSunDiscount" required 
+                                   oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 4)"
+                                   placeholder="0000"
+                                   class="w-full pl-8 px-3 py-2.5 border border-red-200 rounded-xl bg-white focus:ring-2 focus:ring-red-500 focus:border-red-500 text-base font-black text-red-700 shadow-sm">
                         </div>
                     </div>
                 </div>
@@ -200,7 +215,10 @@
                             <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
                                 <span class="text-purple-500 font-black">₱</span>
                             </div>
-                            <input type="number" name="coding_rate" id="ruleCodingRate" required step="0.01" min="0" class="w-full pl-8 px-3 py-2.5 border border-purple-200 rounded-xl bg-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-base font-black text-purple-700 shadow-sm">
+                            <input type="text" name="coding_rate" id="ruleCodingRate" required 
+                                   oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 4)"
+                                   placeholder="0000"
+                                   class="w-full pl-8 px-3 py-2.5 border border-purple-200 rounded-xl bg-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-base font-black text-purple-700 shadow-sm">
                         </div>
                     </div>
                     <div>
@@ -257,7 +275,16 @@
         document.getElementById('ruleModal').classList.add('hidden');
     }
 
-
+    // Add JS validation for whitespace and extra checks on submit
+    document.getElementById('ruleForm').addEventListener('submit', function(e) {
+        const name = document.getElementById('ruleName').value.trim();
+        if (name.length === 0) {
+            e.preventDefault();
+            alert('Bracket Description cannot be empty or just whitespace.');
+            return false;
+        }
+        return true;
+    });
 </script>
 @endpush
 @endsection
