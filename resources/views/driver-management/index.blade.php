@@ -267,8 +267,7 @@
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                         <i data-lucide="briefcase" class="w-4 h-4 text-gray-400"></i>
                                     </div>
-                                    <input type="date" name="hire_date" id="driverHireDate" required value="{{ date('Y-m-d') }}"
-                                        min="{{ date('Y-m-d') }}"
+                                    <input type="date" name="hire_date" id="driverHireDate" required
                                         class="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                         onchange="(function(el){ const n=new Date(); const today=n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0'); if(el.value < today){ el.value=today; el.setCustomValidity('Hire date cannot be in the past.'); el.reportValidity(); } else { el.setCustomValidity(''); } })(this)">
                                 </div>
