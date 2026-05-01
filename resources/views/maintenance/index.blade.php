@@ -503,41 +503,29 @@
                 </div>
                 <div>
                     <label class="block text-xs font-medium text-gray-700 mb-1">Description (Optional)</label>
-                    <textarea name="description" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-yellow-500 focus:outline-none"></textarea>
+                    <textarea name="description" id="add_description" maxlength="100" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-yellow-500 focus:outline-none"></textarea>
                 </div>
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="block text-xs font-medium text-gray-700 mb-1">Date Started *</label>
-                        <input type="date" name="date_started" value="{{ date('Y-m-d') }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-yellow-500 focus:outline-none" required>
+                        <input type="date" name="date_started" id="add_date_started" value="{{ date('Y-m-d') }}" onchange="validateDates('add')" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-yellow-500 focus:outline-none" required>
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-gray-700 mb-1">Date Completed</label>
-                        <input type="date" name="date_completed" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-yellow-500 focus:outline-none">
+                        <input type="date" name="date_completed" id="add_date_completed" onchange="validateDates('add')" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-yellow-500 focus:outline-none">
                     </div>
                 </div>
-                <div>
-                    <label class="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-tight">Mechanic Name *</label>
+                       <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-tight">Mechanics Assigned * <span class="text-[10px] text-gray-400">(Max 5)</span></label>
                     <div class="space-y-2">
-                        <div class="relative">
-                            <input type="text" name="mechanic_name[]" id="addMechDisplay1" placeholder="Search primary mechanic..." required
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-yellow-500 focus:outline-none">
-                            <div id="addMechDropdown1" class="search-dropdown hidden">
-                                @foreach($staff as $s)
-                                <div class="search-option mech-option" data-name="{{ $s->name }}" onclick="selectMech('addMechDisplay1', '{{ $s->name }}', 'addMechDropdown1')">
-                                    <div class="font-medium text-xs text-gray-900">{{ $s->name }}</div>
-                                    <div class="text-[10px] text-gray-500">{{ $s->role }}</div>
-                                </div>
-                                @endforeach
-                            </div>
-                        </div>
-                        
-                        <div id="addSecondMechRow" class="hidden animate-fade-in">
+                        @for($i = 1; $i <= 5; $i++)
+                        <div id="addMechRow{{ $i }}" class="{{ $i == 1 ? '' : 'hidden animate-fade-in' }}">
                             <div class="relative">
-                                <input type="text" name="mechanic_name[]" id="addMechDisplay2" placeholder="Search secondary mechanic..."
+                                <input type="text" name="mechanic_name[]" id="addMechDisplay{{ $i }}" placeholder="Search mechanic {{ $i }}..." {{ $i == 1 ? 'required' : '' }}
                                     class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-yellow-500 focus:outline-none">
-                                <div id="addMechDropdown2" class="search-dropdown hidden">
+                                <div id="addMechDropdown{{ $i }}" class="search-dropdown hidden">
                                     @foreach($staff as $s)
-                                    <div class="search-option mech-option" data-name="{{ $s->name }}" onclick="selectMech('addMechDisplay2', '{{ $s->name }}', 'addMechDropdown2')">
+                                    <div class="search-option mech-option" data-name="{{ $s->name }}" onclick="selectMech('addMechDisplay{{ $i }}', '{{ $s->name }}', 'addMechDropdown{{ $i }}')">
                                         <div class="font-medium text-xs text-gray-900">{{ $s->name }}</div>
                                         <div class="text-[10px] text-gray-500">{{ $s->role }}</div>
                                     </div>
@@ -545,12 +533,13 @@
                                 </div>
                             </div>
                         </div>
+                        @endfor
 
-                        <button type="button" id="btnAddSecondMech" onclick="toggleSecondMech('add')" class="text-[10px] text-blue-600 font-bold hover:underline flex items-center gap-1">
-                            <i data-lucide="plus-circle" class="w-3 h-3"></i> Add Second Mechanic
+                        <button type="button" id="btnAddMech_add" onclick="toggleNextMech('add')" class="text-[10px] text-blue-600 font-bold hover:underline flex items-center gap-1">
+                            <i data-lucide="plus-circle" class="w-3 h-3"></i> Add Mechanic
                         </button>
                     </div>
-                </div>
+                </div>         </div>
 
                 <!-- Parts Selection -->
                 <div class="p-3 bg-gray-50 rounded-lg border border-gray-200">
@@ -715,22 +704,26 @@
                             <option value="cancelled">Cancelled</option>
                         </select>
                     </div>
-                </div>
-                <div class="grid grid-cols-1 gap-3">
+                </div>                <div class="grid grid-cols-1 gap-3">
                     <div>
-                        <label class="block text-xs font-medium text-gray-700 mb-1">Service / Reported Issue (Optional)</label>
-                        <textarea name="description" id="em_description" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-yellow-500 focus:outline-none bg-gray-50"></textarea>
+                        <label class="block text-xs font-medium text-gray-700 mb-1">Service / Reported Issue (Optional) <span class="text-[10px] text-gray-400">(Max 100)</span></label>
+                        <textarea name="description" id="em_description" maxlength="100" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-yellow-500 focus:outline-none bg-gray-50"></textarea>
                     </div>
                     <div>
-                        <label class="block text-xs font-medium text-blue-700 mb-1">Dispatcher Notes (Optional)</label>
-                        <textarea name="dispatcher_notes" id="em_dispatcher_notes" rows="2" placeholder="Additional remarks..." class="w-full px-3 py-2 border border-blue-300 rounded-lg text-sm bg-blue-50 focus:ring-2 focus:ring-blue-500 focus:outline-none"></textarea>
+                        <label class="block text-xs font-medium text-blue-700 mb-1">Dispatcher Notes (Optional) <span class="text-[10px] text-gray-400">(Max 100)</span></label>
+                        <textarea name="dispatcher_notes" id="em_dispatcher_notes" maxlength="100" rows="2" placeholder="Additional remarks..." class="w-full px-3 py-2 border border-blue-300 rounded-lg text-sm bg-blue-50 focus:ring-2 focus:ring-blue-500 focus:outline-none"></textarea>
                     </div>
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-tight">Mechanic Name *</label>
-                    <div class="space-y-2">
+                    <div class="flex justify-between items-center mb-1">
+                        <label class="block text-xs font-bold text-gray-700 uppercase tracking-tight">Mechanics Assigned * <span class="text-[10px] text-gray-400">(Max 5)</span></label>
+                        <button type="button" onclick="addMechanicRow('edit')" id="btnAddMech_edit" class="text-[10px] text-blue-600 font-bold hover:underline flex items-center gap-1">
+                            <i data-lucide="plus-circle" class="w-3 h-3"></i> Add Mechanic
+                        </button>
+                    </div>
+                    <div id="mechanicRows_edit" class="space-y-2">
                         <div class="relative">
-                            <input type="text" name="mechanic_name[]" id="editMechDisplay1" placeholder="Search primary mechanic..." required
+                            <input type="text" name="mechanic_name[]" id="editMechDisplay1" placeholder="Primary Mechanic..." required
                                 class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-yellow-500 focus:outline-none">
                             <div id="editMechDropdown1" class="search-dropdown hidden">
                                 @foreach($staff as $s)
@@ -741,35 +734,16 @@
                                 @endforeach
                             </div>
                         </div>
-                        
-                        <div id="editSecondMechRow" class="hidden">
-                            <div class="relative">
-                                <input type="text" name="mechanic_name[]" id="editMechDisplay2" placeholder="Search secondary mechanic..."
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-yellow-500 focus:outline-none">
-                                <div id="editMechDropdown2" class="search-dropdown hidden">
-                                    @foreach($staff as $s)
-                                    <div class="search-option mech-option" data-name="{{ $s->name }}" onclick="selectMech('editMechDisplay2', '{{ $s->name }}', 'editMechDropdown2')">
-                                        <div class="font-medium text-xs text-gray-900">{{ $s->name }}</div>
-                                        <div class="text-[10px] text-gray-500">{{ $s->role }}</div>
-                                    </div>
-                                    @endforeach
-                                </div>
-                            </div>
-                        </div>
-
-                        <button type="button" id="btnEditSecondMech" onclick="toggleSecondMech('edit')" class="text-[10px] text-blue-600 font-bold hover:underline flex items-center gap-1">
-                            <i data-lucide="plus-circle" class="w-3 h-3"></i> Add Second Mechanic
-                        </button>
                     </div>
                 </div>
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="block text-xs font-medium text-gray-700 mb-1">Date Started *</label>
-                        <input type="date" name="date_started" id="em_date_started" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-yellow-500 focus:outline-none" required>
+                        <input type="date" name="date_started" id="em_date_started" onchange="validateDates('edit')" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-yellow-500 focus:outline-none" required>
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-gray-700 mb-1">Date Completed</label>
-                        <input type="date" name="date_completed" id="em_date_completed" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-yellow-500 focus:outline-none">
+                        <input type="date" name="date_completed" id="em_date_completed" onchange="validateDates('edit')" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-yellow-500 focus:outline-none">
                     </div>
                 </div>
 
@@ -1349,10 +1323,11 @@ function openAddMaint() {
     closeAllDropdowns();
     document.getElementById('addMaintenanceModal').classList.remove('hidden');
     // Reset mechanics
-    document.getElementById('addMechDisplay1').value = '';
-    document.getElementById('addMechDisplay2').value = '';
-    document.getElementById('addSecondMechRow').classList.add('hidden');
-    document.getElementById('btnAddSecondMech').classList.remove('hidden');
+    for(let i=1; i<=5; i++) {
+        document.getElementById('addMechDisplay' + i).value = '';
+        if(i > 1) document.getElementById('addMechRow' + i).classList.add('hidden');
+    }
+    document.getElementById('btnAddMech_add').classList.remove('hidden');
     lucide.createIcons();
 }
 
@@ -1460,6 +1435,23 @@ async function openEditMaint(btn) {
         const suggestions = [unitOption.dataset.driverId, unitOption.dataset.secondaryId].filter(id => id && id !== 'null').join(',');
         document.getElementById('editDriverDisplay').dataset.suggestedIds = suggestions;
     }
+    
+    // Handle Multiple Mechanics (Up to 5)
+    const mechs = (r.mechanic_name || '').split(',').map(m => m.trim()).filter(m => m.length > 0);
+    for(let i=1; i<=5; i++) {
+        const row = document.getElementById('editMechRow' + i);
+        const input = document.getElementById('editMechDisplay' + i);
+        if (i <= mechs.length) {
+            input.value = mechs[i-1];
+            row.classList.remove('hidden');
+        } else {
+            input.value = '';
+            if(i > 1) row.classList.add('hidden');
+        }
+    }
+    const btnEditMech = document.getElementById('btnAddMech_edit');
+    if(mechs.length >= 5) btnEditMech.classList.add('hidden');
+    else btnEditMech.classList.remove('hidden');
 
     document.getElementById('em_type').value   = r.maintenance_type || 'preventive';
     document.getElementById('em_status').value = r.status || 'pending';
@@ -1475,12 +1467,8 @@ async function openEditMaint(btn) {
         document.getElementById('em_dispatcher_notes').value = '';
     }
     
-    // Handle Multiple Mechanics — filter empty strings before checking length
+    // Handle Multiple Mechanics (Up to 5)
     const mechs = (r.mechanic_name || '').split(',').map(m => m.trim()).filter(m => m.length > 0);
-    document.getElementById('editMechDisplay1').value = mechs[0] || '';
-    if (mechs.length > 1 && mechs[1]) {
-        document.getElementById('editSecondMechRow').classList.remove('hidden');
-        document.getElementById('editMechDisplay2').value = mechs[1];
         document.getElementById('btnEditSecondMech').classList.add('hidden');
     } else {
         document.getElementById('editSecondMechRow').classList.add('hidden');
@@ -1568,12 +1556,15 @@ function refreshOtherCosts(type) {
 
     container.innerHTML = list.map((item, i) => `
         <div class="flex gap-2 items-center bg-white p-2 rounded border border-gray-100 shadow-sm">
-            <input type="text" value="${item.name}" oninput="updateOtherCostValue(${i}, 'name', this.value, '${type}')" 
-                placeholder="Service Description (e.g. Labor)" 
-                class="flex-1 px-2 py-1 border rounded text-xs focus:ring-1 focus:ring-orange-500 focus:outline-none">
-            <div class="relative w-24">
+            <div class="flex-1 relative">
+                <input type="text" value="${item.name}" maxlength="30" oninput="updateOtherCostValue(${i}, 'name', this.value, '${type}')" 
+                    placeholder="Service Description (Max 30)" 
+                    class="w-full px-2 py-1 border rounded text-xs focus:ring-1 focus:ring-orange-500 focus:outline-none">
+            </div>
+            <div class="relative w-28">
                 <span class="absolute left-1 top-1.5 text-gray-400 text-[10px]">₱</span>
-                <input type="number" value="${item.price}" oninput="updateOtherCostValue(${i}, 'price', this.value, '${type}')" 
+                <input type="text" value="${item.price}" oninput="validateServicePrice(this); updateOtherCostValue(${i}, 'price', this.value, '${type}')" 
+                    placeholder="Max 100k"
                     class="w-full pl-3 pr-1 py-1 border rounded text-xs text-right focus:outline-none">
             </div>
             <button type="button" onclick="removeOtherCost(${i}, '${type}')" class="p-1 text-red-400 hover:text-red-600 transition">
