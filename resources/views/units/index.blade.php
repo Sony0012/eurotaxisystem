@@ -14,27 +14,31 @@
         /* ── Modern Table — Separated Rounded Rows (matching Maintenance page) ── */
         .modern-table-sep {
             border-collapse: separate;
-            border-spacing: 0 0.55rem;
+            border-spacing: 0 0.6rem;
         }
-        .modern-row {
+        .modern-card-tbody {
             background-color: white;
             box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
             transition: all 0.2s ease-in-out;
         }
-        .modern-row:hover {
+        .modern-card-tbody:hover {
             box-shadow: 0 10px 15px -3px rgba(234, 179, 8, 0.18), 0 4px 6px -2px rgba(234, 179, 8, 0.08);
             transform: translateY(-1px);
         }
-        .modern-row td:first-child {
+        .modern-card-tbody tr:first-child td:first-child {
             border-top-left-radius: 0.75rem;
-            border-bottom-left-radius: 0.75rem;
             border-left: 4px solid transparent;
         }
-        .modern-row:hover td:first-child {
+        .modern-card-tbody:hover tr:first-child td:first-child {
             border-left-color: #eab308;
         }
-        .modern-row td:last-child {
+        .modern-card-tbody tr:first-child td:last-child {
             border-top-right-radius: 0.75rem;
+        }
+        .modern-card-tbody tr:last-child td:first-child {
+            border-bottom-left-radius: 0.75rem;
+        }
+        .modern-card-tbody tr:last-child td:last-child {
             border-bottom-right-radius: 0.75rem;
         }
 

@@ -40,9 +40,11 @@
                     // Maintenance check for the sub-row bar
                     $has_maintenance_data = (int)($unit->gps_device_count ?? 0) > 0 || !empty($unit->imei);
                 @endphp
-                
+
+                {{-- Grouped card: main row + health bar share one tbody --}}
+                <tbody class="modern-card-tbody">
                 {{-- Main Data Row --}}
-                <tr class="modern-row cursor-pointer group" onclick="viewUnitDetails({{ $unit->id }})">
+                <tr class="cursor-pointer group" onclick="viewUnitDetails({{ $unit->id }})">
                     {{-- Plate Number Info --}}
                     <td class="px-6 py-5 whitespace-nowrap">
                         <div class="flex flex-col">
@@ -147,16 +149,18 @@
                     </td>
                 </tr>
 
-                {{-- Maintenance Bar Row (Sub-Row) --}}
+                {{-- Maintenance Bar Row (Sub-Row — stays inside same tbody card) --}}
                 @if($has_maintenance_data)
-                    <tr class="modern-row" onclick="viewUnitDetails({{ $unit->id }})" style="cursor:pointer">
-                        <td colspan="6" class="px-6 pb-4 pt-0" style="border-radius: 0 0 0.75rem 0.75rem">
+                    <tr onclick="viewUnitDetails({{ $unit->id }})" style="cursor:pointer; background:white;">
+                        <td colspan="6" class="px-6 pb-4 pt-0">
                             @include('units.partials._maintenance_health_bar', ['unit' => $unit])
                         </td>
                     </tr>
                 @endif
+                </tbody>
 
             @empty
+                <tbody>
                 <tr>
                     <td colspan="6" class="px-6 py-20 text-center">
                         <i data-lucide="car" class="w-16 h-16 mx-auto mb-4 text-gray-100"></i>
@@ -164,9 +168,9 @@
                         <p class="text-gray-400 italic">Try adjusting your search criteria.</p>
                     </td>
                 </tr>
+                </tbody>
             @endforelse
-        </tbody>
-    </table>
+        </table>
 </div>
 
 {{-- Modern Pagination --}}
