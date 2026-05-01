@@ -367,9 +367,9 @@
                                     {{ strtoupper(substr(auth()->user()->full_name ?? 'U', 0, 1)) }}
                                 @endif
                             </div>
-                            <div class="flex-1 hidden lg:block">
-                                <p class="text-sm font-medium text-gray-900 group-hover:text-yellow-700 transition-colors">{{ auth()->user()->full_name ?? 'User' }}</p>
-                                <p class="text-xs text-gray-500">{{ ucfirst(auth()->user()->role ?? 'user') }}</p>
+                            <div>
+                                <h4 class="text-sm font-semibold text-gray-900">{{ auth()->user()->first_name }} {{ auth()->user()->last_name }}</h4>
+                                <p class="text-xs text-gray-500">{{ auth()->user()->role === 'super_admin' ? 'Owner' : ucfirst(auth()->user()->role ?? 'user') }}</p>
                             </div>
                             <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400 group-hover:text-yellow-600 transition-colors hidden lg:block"></i>
                         </a>

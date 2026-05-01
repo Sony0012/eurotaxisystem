@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('page-heading', 'Owner Control Center')
-@section('page-subheading', 'System administration, user management & security audit — Super Admin only')
+@section('page-subheading', 'System administration, user management & security audit — Owner only')
 
 @push('styles')
 <style>
@@ -221,7 +221,7 @@
                 <div>
                     <div class="flex items-center gap-2 mb-0.5">
                         <h1 style="color:#854d0e; font-size:1.35rem; font-weight:900; letter-spacing:-.02em;">Owner Control Center</h1>
-                        <span class="badge badge-role-super_admin">Super Admin</span>
+                        <span class="badge badge-role-super_admin">Owner</span>
                     </div>
                     <p style="color:#71717a; font-size:.8rem;">Welcome back, <strong style="color:var(--sa-text);">{{ auth()->user()->full_name }}</strong> · Full system access</p>
                 </div>
@@ -509,7 +509,7 @@
                                     </div>
                                 </div>
                             </td>
-                            <td><span class="badge badge-role-{{ $u->role }}">{{ ucfirst(str_replace('_', ' ', $u->role)) }}</span></td>
+                            <td><span class="badge badge-role-{{ $u->role }}">{{ $u->role === 'super_admin' ? 'Owner' : ucfirst(str_replace('_', ' ', $u->role)) }}</span></td>
                             <td>
                                 @if($isActivated)
                                     <span class="badge badge-approved">● Activated</span>
@@ -572,7 +572,7 @@
                             </div>
                             <div style="flex:1; min-width:0;">
                                 <div style="font-weight:700;color:#000;font-size:.82rem; truncate;">{{ $u->full_name }}</div>
-                                <div style="font-size:.68rem;color:#64748b;">{{ ucfirst($u->role) }}</div>
+                                <div style="font-size:.68rem;color:#64748b;">{{ $u->role === 'super_admin' ? 'Owner' : ucfirst($u->role) }}</div>
                             </div>
                         </div>
                         @endforeach
@@ -646,7 +646,7 @@
                     <option value="dispatcher">Dispatcher</option>
                     <option value="manager">Manager</option>
                     <option value="secretary">Secretary</option>
-                    <option value="super_admin">Super Admin</option>
+                    <option value="super_admin">Owner</option>
                 </select>
             </div>
 
@@ -673,7 +673,7 @@
                                 </td>
                                 <td>
                                     @if($a->user_role)
-                                        <span class="badge badge-role-{{ $a->user_role }}">{{ ucfirst(str_replace('_',' ',$a->user_role)) }}</span>
+                                        <span class="badge badge-role-{{ $a->user_role }}">{{ $a->user_role === 'super_admin' ? 'Owner' : ucfirst(str_replace('_',' ',$a->user_role)) }}</span>
                                     @else
                                         <span style="color:#64748b;">—</span>
                                     @endif
@@ -1176,7 +1176,7 @@
                                 <div style="font-weight:700;color:#000;">{{ $u->full_name }}</div>
                                 <div style="font-size:.7rem;color:#64748b;">{{ $u->email }}</div>
                             </td>
-                            <td><span class="badge badge-role-{{ $u->role }}">{{ ucfirst(str_replace('_', ' ', $u->role)) }}</span></td>
+                            <td><span class="badge badge-role-{{ $u->role }}">{{ $u->role === 'super_admin' ? 'Owner' : ucfirst(str_replace('_', ' ', $u->role)) }}</span></td>
                             <td style="color:#64748b; font-size:.75rem;">{{ $u->deleted_at->format('M d, Y h:i A') }}</td>
                             <td style="text-align:right;">
                                 <div class="flex gap-2 justify-end">
@@ -1329,7 +1329,7 @@ function renderUserDetails(user, history) {
         : '<span style="color:#15803d;font-size:.65rem;font-weight:700;border:1px solid #86efac;padding:.1rem .5rem;border-radius:99px;background:#f0fdf4;">● Active</span>';
         
     document.getElementById('ud-badges').innerHTML = `
-        <span class="badge ${roleClass}">${user.role.replace('_', ' ')}</span>
+        <span class="badge ${roleClass}">${user.role === 'super_admin' ? 'Owner' : user.role.replace('_', ' ')}</span>
         ${statusBadge}
         ${activeBadge}
     `;
@@ -1681,7 +1681,7 @@ async function loadAuditLog(page = 1) {
             const [cls, lbl] = actionMap[a.action] || ['badge-logout', a.action];
             return `<tr>
                 <td><div style="font-weight:700;color:#000;font-size:.82rem;">${a.user_name ?? '—'}</div><div style="font-size:.7rem;color:#64748b;">${a.user_email ?? ''}</div></td>
-                <td>${a.user_role ? `<span class="badge ${roleClass(a.user_role)}">${a.user_role.replace('_',' ')}</span>` : '—'}</td>
+                <td>${a.user_role ? `<span class="badge ${roleClass(a.user_role)}">${a.user_role === 'super_admin' ? 'Owner' : a.user_role.replace('_',' ')}</span>` : '-'}</td>
                 <td><span class="badge ${cls}">${lbl}</span></td>
                 <td style="color:#64748b;font-family:monospace;font-size:.76rem;">${a.ip_address ?? '—'}</td>
                 <td style="color:#64748b;font-size:.72rem;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${a.user_agent ?? ''}">${(a.user_agent ?? '—').substring(0,50)}</td>
