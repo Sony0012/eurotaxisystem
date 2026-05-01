@@ -6,16 +6,43 @@
 
 @section('content')
 
-    {{-- Page Header with Action Buttons --}}
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-        <div></div>
+    {{-- Page Header with Action Buttons & Filters --}}
+    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
+        <form id="filterForm" action="{{ route('salary.index') }}" method="GET" class="flex flex-wrap items-center gap-3">
+            <div class="relative min-w-[140px]">
+                <i data-lucide="calendar" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
+                <select name="month" onchange="this.form.submit()" class="w-full pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:outline-none font-bold text-sm text-gray-700 appearance-none shadow-sm">
+                    @for($i = 1; $i <= 12; $i++)
+                        <option value="{{ $i }}" {{ $month == $i ? 'selected' : '' }}>{{ date('F', mktime(0, 0, 0, $i, 1)) }}</option>
+                    @endfor
+                </select>
+                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                    <i data-lucide="chevron-down" class="w-3 h-3"></i>
+                </div>
+            </div>
+            <div class="relative min-w-[100px]">
+                <i data-lucide="calendar" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
+                <select name="year" onchange="this.form.submit()" class="w-full pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:outline-none font-bold text-sm text-gray-700 appearance-none shadow-sm">
+                    @for($i = 2024; $i <= 2030; $i++)
+                        <option value="{{ $i }}" {{ $year == $i ? 'selected' : '' }}>{{ $i }}</option>
+                    @endfor
+                </select>
+                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                    <i data-lucide="chevron-down" class="w-3 h-3"></i>
+                </div>
+            </div>
+            @if($search)
+                <input type="hidden" name="search" value="{{ $search }}">
+            @endif
+        </form>
+
         <div class="flex gap-3">
             <button type="button" onclick="openAddSalaryModal()"
-                class="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 flex items-center gap-2">
+                class="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 shadow-sm flex items-center gap-2 font-bold text-sm transition-all duration-200">
                 <i data-lucide="plus" class="w-4 h-4"></i> Add Salary
             </button>
             <button type="button" onclick="openMonthlyReport()"
-                class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-2">
+                class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 shadow-sm flex items-center gap-2 font-bold text-sm transition-all duration-200">
                 <i data-lucide="file-text" class="w-4 h-4"></i> Monthly Report
             </button>
         </div>
@@ -47,7 +74,7 @@
                 <div class="min-w-0">
                     <div class="text-xl font-black text-gray-900 tracking-tight truncate tabular-nums">{{ formatCurrency($summary['total_salaries'] ?? 0) }}</div>
                     <div class="text-[10px] font-black text-green-400 uppercase tracking-widest truncate">Total Salaries</div>
-                    <div class="text-[9px] text-green-300 truncate">This month</div>
+                    <div class="text-[9px] text-green-300 truncate font-medium">{{ date('F', mktime(0, 0, 0, $month, 1)) }} {{ $year }}</div>
                 </div>
             </div>
             <i data-lucide="philippine-peso" class="absolute -right-3 -bottom-3 w-24 h-24 text-green-400 opacity-[0.12] -rotate-12 z-0 pointer-events-none"></i>
@@ -67,7 +94,7 @@
                         {{ formatCurrency($net) }}
                     </div>
                     <div class="text-[10px] font-black {{ $net >= 0 ? 'text-emerald-400' : 'text-red-400' }} uppercase tracking-widest truncate">Net Profit</div>
-                    <div class="text-[9px] {{ $net >= 0 ? 'text-emerald-300' : 'text-red-300' }} truncate">After payroll</div>
+                    <div class="text-[9px] {{ $net >= 0 ? 'text-emerald-300' : 'text-red-300' }} truncate font-medium">After payroll for {{ date('M', mktime(0, 0, 0, $month, 1)) }}</div>
                 </div>
             </div>
             <i data-lucide="{{ $net >= 0 ? 'trending-up' : 'trending-down' }}" class="absolute -right-3 -bottom-3 w-24 h-24 {{ $net >= 0 ? 'text-emerald-400' : 'text-red-400' }} opacity-[0.12] -rotate-12 z-0 pointer-events-none"></i>
@@ -194,7 +221,7 @@
                                     class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none font-bold text-sm text-gray-700 appearance-none">
                                     <option value="">Select Employee</option>
                                     @foreach($employees as $employee)
-                                        <option value="{{ $employee->source }}_{{ $employee->id }}">{{ $employee->name }} ({{ ucfirst($employee->role) }})</option>
+                                        <option value="{{ $employee->source }}_{{ $employee->id }}" data-role="{{ ucfirst($employee->role) }}">{{ $employee->name }} ({{ ucfirst($employee->role) }})</option>
                                     @endforeach
                                 </select>
                                 <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
@@ -207,16 +234,8 @@
                             <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Employee Type</label>
                             <div class="relative">
                                 <i data-lucide="briefcase" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
-                                <select name="employee_type" id="salaryType"
-                                    class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none font-bold text-sm text-gray-700 appearance-none">
-                                    <option value="Staff">Staff</option>
-                                    <option value="Driver">Driver</option>
-                                    <option value="Admin">Admin</option>
-                                    <option value="Other">Other</option>
-                                </select>
-                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
-                                    <i data-lucide="chevron-down" class="w-4 h-4"></i>
-                                </div>
+                                <input type="text" name="employee_type" id="salaryType" readonly placeholder="Auto-filled"
+                                    class="w-full pl-10 pr-4 py-2.5 bg-gray-100 border border-gray-200 rounded-xl focus:outline-none font-bold text-sm text-gray-500 cursor-not-allowed">
                             </div>
                         </div>
 
@@ -226,7 +245,9 @@
                                 <span class="absolute left-4 top-1/2 -translate-y-1/2 flex items-center justify-center pointer-events-none">
                                     <span class="text-sm font-black text-gray-400">₱</span>
                                 </span>
-                                <input type="number" name="basic_salary" id="salaryBasic" step="0.01" min="0" required placeholder="0.00"
+                                <input type="number" name="basic_salary" id="salaryBasic" step="1" min="1" max="99999" required placeholder="0"
+                                    onkeypress="return (event.charCode >= 48 && event.charCode <= 57)"
+                                    oninput="if(this.value.length > 5) this.value = this.value.slice(0, 5); if(parseInt(this.value) > 99999) this.value = 99999;"
                                     class="w-full pl-9 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none font-black text-sm text-gray-700">
                             </div>
                         </div>
@@ -240,7 +261,9 @@
                                 <span class="absolute left-4 top-1/2 -translate-y-1/2 flex items-center justify-center pointer-events-none">
                                     <span class="text-sm font-black text-gray-400">₱</span>
                                 </span>
-                                <input type="number" name="overtime_pay" id="salaryOvertime" step="0.01" min="0" value="0"
+                                <input type="number" name="overtime_pay" id="salaryOvertime" step="1" min="1" max="99999" placeholder="0"
+                                    onkeypress="return (event.charCode >= 48 && event.charCode <= 57)"
+                                    oninput="if(this.value.length > 5) this.value = this.value.slice(0, 5); if(parseInt(this.value) > 99999) this.value = 99999;"
                                     class="w-full pl-9 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none font-bold text-sm text-gray-700">
                             </div>
                         </div>
@@ -251,7 +274,9 @@
                                 <span class="absolute left-4 top-1/2 -translate-y-1/2 flex items-center justify-center pointer-events-none">
                                     <span class="text-sm font-black text-gray-400">₱</span>
                                 </span>
-                                <input type="number" name="holiday_pay" id="salaryHoliday" step="0.01" min="0" value="0"
+                                <input type="number" name="holiday_pay" id="salaryHoliday" step="1" min="1" max="99999" placeholder="0"
+                                    onkeypress="return (event.charCode >= 48 && event.charCode <= 57)"
+                                    oninput="if(this.value.length > 5) this.value = this.value.slice(0, 5); if(parseInt(this.value) > 99999) this.value = 99999;"
                                     class="w-full pl-9 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none font-bold text-sm text-gray-700">
                             </div>
                         </div>
@@ -262,7 +287,9 @@
                                 <span class="absolute left-4 top-1/2 -translate-y-1/2 flex items-center justify-center pointer-events-none">
                                     <span class="text-sm font-black text-gray-400">₱</span>
                                 </span>
-                                <input type="number" name="night_differential" id="salaryNight" step="0.01" min="0" value="0"
+                                <input type="number" name="night_differential" id="salaryNight" step="1" min="1" max="99999" placeholder="0"
+                                    onkeypress="return (event.charCode >= 48 && event.charCode <= 57)"
+                                    oninput="if(this.value.length > 5) this.value = this.value.slice(0, 5); if(parseInt(this.value) > 99999) this.value = 99999;"
                                     class="w-full pl-9 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none font-bold text-sm text-gray-700">
                             </div>
                         </div>
@@ -273,44 +300,16 @@
                                 <span class="absolute left-4 top-1/2 -translate-y-1/2 flex items-center justify-center pointer-events-none">
                                     <span class="text-sm font-black text-gray-400">₱</span>
                                 </span>
-                                <input type="number" name="allowance" id="salaryAllowance" step="0.01" min="0" value="0"
+                                <input type="number" name="allowance" id="salaryAllowance" step="1" min="1" max="99999" placeholder="0"
+                                    onkeypress="return (event.charCode >= 48 && event.charCode <= 57)"
+                                    oninput="if(this.value.length > 5) this.value = this.value.slice(0, 5); if(parseInt(this.value) > 99999) this.value = 99999;"
                                     class="w-full pl-9 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none font-bold text-sm text-gray-700">
                             </div>
                         </div>
                     </div>
 
-                    {{-- Row 3: Month, Year, Date --}}
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div class="space-y-1.5">
-                            <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Payroll Month *</label>
-                            <div class="relative">
-                                <i data-lucide="calendar" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
-                                <select name="month" id="salaryMonth" required class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none font-bold text-sm text-gray-700 appearance-none">
-                                    @for($i = 1; $i <= 12; $i++)
-                                        <option value="{{ $i }}" {{ $i == date('m') ? 'selected' : '' }}>{{ date('F', mktime(0, 0, 0, $i, 1)) }}</option>
-                                    @endfor
-                                </select>
-                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
-                                    <i data-lucide="chevron-down" class="w-4 h-4"></i>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="space-y-1.5">
-                            <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Payroll Year *</label>
-                            <div class="relative">
-                                <i data-lucide="calendar" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
-                                <select name="year" id="salaryYear" required class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none font-bold text-sm text-gray-700 appearance-none">
-                                    @for($i = 2024; $i <= 2030; $i++)
-                                        <option value="{{ $i }}" {{ $i == date('Y') ? 'selected' : '' }}>{{ $i }}</option>
-                                    @endfor
-                                </select>
-                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
-                                    <i data-lucide="chevron-down" class="w-4 h-4"></i>
-                                </div>
-                            </div>
-                        </div>
-                        
+                    {{-- Row 3: Month, Year, Date (Month/Year Hidden) --}}
+                    <div class="grid grid-cols-1 gap-6">
                         <div class="space-y-1.5">
                             <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Pay Date *</label>
                             <div class="relative">
@@ -321,6 +320,10 @@
                             </div>
                         </div>
                     </div>
+
+                    {{-- Hidden fields for Month and Year, auto-updated by Pay Date --}}
+                    <input type="hidden" name="month" id="salaryMonth" value="{{ date('m') }}">
+                    <input type="hidden" name="year" id="salaryYear" value="{{ date('Y') }}">
                 </div>
 
                 {{-- Form Footer --}}
@@ -421,11 +424,12 @@ function openAddSalaryModal() {
     document.getElementById('salaryMethod').value = 'POST';
     document.getElementById('salaryForm').action = '{{ route('salaries.store') }}';
     document.getElementById('salaryEmployee').value = '';
+    document.getElementById('salaryType').value = '';
     document.getElementById('salaryBasic').value = '';
-    document.getElementById('salaryOvertime').value = '0';
-    document.getElementById('salaryHoliday').value = '0';
-    document.getElementById('salaryNight').value = '0';
-    document.getElementById('salaryAllowance').value = '0';
+    document.getElementById('salaryOvertime').value = '';
+    document.getElementById('salaryHoliday').value = '';
+    document.getElementById('salaryNight').value = '';
+    document.getElementById('salaryAllowance').value = '';
     document.getElementById('salaryPayDate').value = '{{ date('Y-m-d') }}';
     document.getElementById('salaryMonth').value = '{{ date('m') }}';
     document.getElementById('salaryYear').value = '{{ date('Y') }}';
@@ -482,5 +486,12 @@ function closeMonthlyReport() {
         document.getElementById('monthlyReportModal').classList.add('hidden');
     }, 150);
 }
+
+// Auto-fill Employee Type based on selected Employee
+document.getElementById('salaryEmployee').addEventListener('change', function() {
+    const selectedOption = this.options[this.selectedIndex];
+    const role = selectedOption.getAttribute('data-role') || '';
+    document.getElementById('salaryType').value = role;
+});
 </script>
 @endpush
