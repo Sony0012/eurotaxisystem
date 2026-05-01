@@ -31,6 +31,9 @@
                 <button onclick="switchTab('incidents')" class="tab-btn border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-all" data-tab="incidents">
                     Incidents ({{ count($archivedIncidents) }})
                 </button>
+                <button onclick="switchTab('pricing_rules')" class="tab-btn border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-all" data-tab="pricing_rules">
+                    Pricing Rules ({{ count($archivedPricingRules) }})
+                </button>
 
             </nav>
         </div>
@@ -69,6 +72,11 @@
             <!-- Incidents Tab -->
             <div id="tab-incidents" class="tab-content hidden">
                 @include('archive.partials._incidents_table', ['items' => $archivedIncidents])
+            </div>
+
+            <!-- Pricing Rules Tab -->
+            <div id="tab-pricing_rules" class="tab-content hidden">
+                @include('archive.partials._pricing_rules_table', ['items' => $archivedPricingRules])
             </div>
 
 

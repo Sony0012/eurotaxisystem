@@ -10,6 +10,7 @@ use App\Models\Boundary;
 use App\Models\Maintenance;
 use App\Models\FranchiseCase;
 use App\Models\Staff;
+use App\Models\BoundaryRule;
 
 use Illuminate\Support\Facades\DB;
 
@@ -32,6 +33,8 @@ class ArchiveController extends Controller
                 'u.plate_number',
                 DB::raw("TRIM(CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,''))) as driver_name")
             )->get();
+        
+        $archivedPricingRules = BoundaryRule::onlyTrashed()->get();
 
 
 
@@ -43,7 +46,8 @@ class ArchiveController extends Controller
             'archivedMaintenance',
             'archivedFranchiseCases',
             'archivedStaff',
-            'archivedIncidents'
+            'archivedIncidents',
+            'archivedPricingRules'
         ));
     }
 
@@ -98,6 +102,7 @@ class ArchiveController extends Controller
             'franchise_case' => FranchiseCase::class,
             'staff' => Staff::class,
             'incident' => \App\Models\DriverBehavior::class,
+            'pricing_rule' => BoundaryRule::class,
 
             default => null,
         };
