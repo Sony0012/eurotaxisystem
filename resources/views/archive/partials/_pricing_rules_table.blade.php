@@ -10,35 +10,27 @@
         </thead>
         <tbody class="bg-white divide-y divide-gray-200">
             @forelse($items as $item)
-                <tr>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        {{ $item->name }}
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {{ $item->start_year }} - {{ $item->end_year }}
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {{ $item->deleted_at->format('M d, Y H:i') }}
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-3">
-                        <form action="{{ route('archive.restore', ['type' => 'pricing_rule', 'id' => $item->id]) }}" method="POST" class="inline">
-                            @csrf
-                            <button type="submit" class="text-blue-600 hover:text-blue-900 font-bold">Restore</button>
-                        </form>
-
-                        <button type="button" 
-                            onclick="confirmPermanentDelete('pricing_rule', {{ $item->id }}, '{{ $item->name }}')"
-                            class="text-red-600 hover:text-red-900 font-bold">
-                            Delete Permanently
-                        </button>
-                    </td>
-                </tr>
+            <tr>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $item->name }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $item->start_year }} - {{ $item->end_year }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $item->deleted_at->format('M d, Y H:i') }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <form action="{{ route('archive.restore', ['type' => 'pricing_rule', 'id' => $item->id]) }}" method="POST" class="inline-block">
+                        @csrf
+                        <button type="submit" class="text-indigo-600 hover:text-indigo-900 mr-3 font-medium">Restore</button>
+                    </form>
+                    
+                    <button type="button" 
+                        onclick="confirmPermanentDelete('pricing_rule', {{ $item->id }}, '{{ $item->name }}')"
+                        class="text-red-600 hover:text-red-900 font-medium">
+                        Delete Permanently
+                    </button>
+                </td>
+            </tr>
             @empty
-                <tr>
-                    <td colspan="4" class="px-6 py-12 text-center text-gray-500">
-                        No archived pricing rules found.
-                    </td>
-                </tr>
+            <tr>
+                <td colspan="4" class="px-6 py-10 text-center text-gray-500">No archived pricing rules found.</td>
+            </tr>
             @endforelse
         </tbody>
     </table>
