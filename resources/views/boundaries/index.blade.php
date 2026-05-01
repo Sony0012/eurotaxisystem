@@ -1191,7 +1191,14 @@ function addBoundary() {
 function editBoundary(id) {
     // Find the boundary data directly from the page
     const boundaryData = @json($boundariesArray);
-    const boundary = boundaryData.find(b => b.id == id);
+    let boundary = null;
+    
+    // Support both Array and Object (Associative Array) structures
+    if (Array.isArray(boundaryData)) {
+        boundary = boundaryData.find(b => b.id == id);
+    } else {
+        boundary = boundaryData[id];
+    }
     
     if (boundary) {
         document.getElementById('modalTitle').textContent = 'Edit Boundary Record';
