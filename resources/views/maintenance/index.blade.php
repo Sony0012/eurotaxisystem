@@ -1337,12 +1337,30 @@ function selectMech(inputId, name, dropdownId) {
     document.getElementById(dropdownId).classList.add('hidden');
 }
 
-function toggleSecondMech(mode) {
-    const row = document.getElementById(mode + 'SecondMechRow');
-    const btn = document.getElementById('btn' + mode + 'SecondMech');
-    row.classList.remove('hidden');
-    btn.classList.add('hidden');
-    lucide.createIcons();
+function toggleNextMech(mode) {
+    for(let i=1; i<=5; i++) {
+        const row = document.getElementById(mode + 'MechRow' + i);
+        if(row && row.classList.contains('hidden')) {
+            row.classList.remove('hidden');
+            if(i === 5) {
+                const btn = document.getElementById('btnAddMech_' + mode);
+                if(btn) btn.classList.add('hidden');
+            }
+            lucide.createIcons();
+            return;
+        }
+    }
+}
+
+function validateDates(mode) {
+    const start = document.getElementById(mode === 'add' ? 'add_date_started' : 'em_date_started');
+    const end = document.getElementById(mode === 'add' ? 'add_date_completed' : 'em_date_completed');
+    if (start && end && start.value && end.value) {
+        if (new Date(end.value) < new Date(start.value)) {
+            alert('Date Completed cannot be earlier than Date Started.');
+            end.value = '';
+        }
+    }
 }
 
 async function openViewMaint(id) {
