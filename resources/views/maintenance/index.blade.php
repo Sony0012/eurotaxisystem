@@ -1774,7 +1774,7 @@ function editCatalogPart(id, name, price, qty, supplier) {
     document.getElementById('miniModalSubtitle').innerText = `Restocking: ${name}`;
     document.getElementById('lblQtyMode').innerText = 'Qty to Add';
     document.getElementById('txtSavePart').innerText = 'Update Inventory';
-    document.getElementById('newPartName').readOnly = true; // Protect name on restock
+    document.getElementById('newPartName').readOnly = false; // Allow editing even on restock
 
     // Show current stock badge
     document.getElementById('spanCurrentStock').textContent = qty;
