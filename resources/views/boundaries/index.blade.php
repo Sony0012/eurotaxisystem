@@ -416,6 +416,23 @@
                     </div>
                 </div>
 
+                <!-- Damage Payment Section (Hidden by default, shown if driver has accident debt) -->
+                <div id="damagePaymentContainer" class="hidden p-4 bg-red-50 border border-red-200 rounded-xl shadow-inner mb-4 transition-all duration-300">
+                    <div class="flex items-center gap-2 mb-2">
+                        <i data-lucide="shield-alert" class="w-4 h-4 text-red-600"></i>
+                        <span class="text-xs font-black text-red-800 uppercase tracking-widest">Damage/Incident Payment</span>
+                    </div>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                            <span class="text-red-600 font-black">₱</span>
+                        </div>
+                        <input type="number" name="damage_payment" id="damage_payment" step="0.01" min="0"
+                               class="w-full pl-8 px-3 py-2.5 border-2 border-red-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 font-black text-red-800 shadow-sm text-base"
+                               placeholder="0.00">
+                    </div>
+                    <p class="text-[10px] text-red-600 font-bold mt-2 italic leading-tight">This driver has an outstanding accident/damage balance. Use this field to record payments toward their debt.</p>
+                </div>
+
                 <div>
                     <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-1.5">Notes</label>
                     <textarea name="notes" id="notes" rows="2" 
@@ -1189,16 +1206,10 @@ function addBoundary() {
 }
 
 function editBoundary(id) {
-    // Find the boundary data directly from the page
     const boundaryData = @json($boundariesArray);
-    let boundary = null;
     
-    // Support both Array and Object (Associative Array) structures
-    if (Array.isArray(boundaryData)) {
-        boundary = boundaryData.find(b => b.id == id);
-    } else {
-        boundary = boundaryData[id];
-    }
+    // Use Object.values to handle both Array and Associative Object structures safely
+    const boundary = Object.values(boundaryData).find(b => b.id == id);
     
     if (boundary) {
         document.getElementById('modalTitle').textContent = 'Edit Boundary Record';
