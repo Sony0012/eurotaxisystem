@@ -1466,18 +1466,21 @@ function _renderSubOptions(containerId, options, inputId, autoBan, banValue, col
     if (!options || options.length === 0) { container.innerHTML = ''; return; }
 
     const colors = {
-        blue: { base: 'bg-white border-blue-200 text-blue-700 hover:bg-blue-600 hover:text-white hover:border-blue-600', active: 'bg-blue-600 border-blue-600 text-white' },
-        orange: { base: 'bg-white border-orange-200 text-orange-700 hover:bg-orange-500 hover:text-white hover:border-orange-500', active: 'bg-orange-500 border-orange-500 text-white' }
+        blue: 'focus:ring-blue-500/10 focus:border-blue-500',
+        orange: 'focus:ring-orange-500/10 focus:border-orange-500'
     };
     const c = colors[color] || colors.blue;
 
-    container.innerHTML = options.map(opt => `
-        <button type="button" data-value="${opt}"
-            class="sub-option-btn px-3 py-2.5 border rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${c.base}"
-            onclick="window._selectSubOption(this, '${inputId}', ${autoBan ? `'${banValue}'` : 'null'}, '${color}')">
-            ${opt}
-        </button>
-    `).join('');
+    let html = `
+        <div class="col-span-2">
+            <select class="w-full px-4 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl text-sm font-bold focus:ring-4 ${c} focus:outline-none transition-all"
+                onchange="document.getElementById('${inputId}').value = this.value; window._checkAutoBanState();">
+                <option value="">-- Select Sub-Classification --</option>
+                ${options.map(opt => `<option value="${opt}">${opt}</option>`).join('')}
+            </select>
+        </div>
+    `;
+    container.innerHTML = html;
 }
 
 window._selectSubOption = function(btn, inputId, banValue, color) {
