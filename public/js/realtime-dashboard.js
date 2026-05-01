@@ -2,7 +2,10 @@ class RealTimeDashboard {
     constructor() {
         this.updateInterval = 5000; // Update every 5 seconds
         this.isUpdating = false;
-        this.previousStats = {};
+        
+        // Ingest initial stats from Blade to prevent first-load flickering
+        this.previousStats = window.__INITIAL_STATS__ || {};
+        
         this.init();
     }
 

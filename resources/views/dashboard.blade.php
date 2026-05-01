@@ -83,6 +83,11 @@
         <span class="text-[10px] text-gray-400 font-bold uppercase">System Debug: v2.1 ({{ date('Y-m-d H:i:s') }})</span>
     </div>
 
+    <script>
+        // Inject initial stats for JS to prevent flickering on load
+        window.__INITIAL_STATS__ = @json($stats);
+    </script>
+
     <!-- Stats Grid -->
     <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
 
