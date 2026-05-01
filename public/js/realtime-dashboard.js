@@ -1,290 +1,218 @@
-// Real-time Dashboard Updates
 class RealTimeDashboard {
     constructor() {
-        this.updateInterval = 5000; // Update every 5 seconds (Real-time Feel)
+        this.updateInterval = 5000; // Update every 5 seconds
+        this.isUpdating = false;
+        this.previousStats = {};
         this.init();
     }
 
     init() {
-        // Start real-time updates
         this.startRealTimeUpdates();
         
-        // Setup WebSocket connection if available
-        this.setupWebSocket();
-    }
-
-    startRealTimeUpdates() {
-        // Update dashboard data every 30 seconds
-        setInterval(() => {
-            this.updateDashboardData();
-        }, this.updateInterval);
-
-        // Also update on page visibility change (when user returns to tab)
+        // Listen for visibility change to pause/resume updates
         document.addEventListener('visibilitychange', () => {
-            if (!document.hidden) {
-                this.updateDashboardData();
+            if (document.hidden) {
+                this.stopRealTimeUpdates();
+            } else {
+                this.startRealTimeUpdates();
+                this.updateDashboardData(); // Update immediately on return
             }
         });
     }
 
+    startRealTimeUpdates() {
+        if (!this.pollInterval) {
+            this.pollInterval = setInterval(() => {
+                this.updateDashboardData();
+            }, this.updateInterval);
+        }
+    }
+
+    stopRealTimeUpdates() {
+        if (this.pollInterval) {
+            clearInterval(this.pollInterval);
+            this.pollInterval = null;
+        }
+    }
+
     async updateDashboardData() {
+        if (this.isUpdating) return;
+        this.isUpdating = true;
+
         try {
             // Fetch latest dashboard data with cache-buster
             const response = await fetch(`/api/dashboard/realtime?_=${Date.now()}`);
+            if (!response.ok) throw new Error('Network response was not ok');
+            
             const data = await response.json();
             
-            if (data.success) {
-                // Store previous values to prevent unnecessary updates/flashing
+            if (data.success && data.stats) {
                 this.updateStats(data.stats);
                 this.updateCharts(data.charts);
                 
-                // Only update alerts if they've changed
                 if (data.alerts) {
                     this.updateAlerts(data.alerts);
                 }
             }
         } catch (error) {
             console.error('Error updating dashboard:', error);
-            // Don't update time if fetch failed
+        } finally {
+            this.isUpdating = false;
         }
     }
 
     updateStats(stats) {
-        // Update stat cards with animation
-        const updates = [
-            { selector: '[data-stat="active_units"]', value: stats.active_units },
-            { selector: '[data-stat="today_boundary"]', value: this.formatCurrency(stats.today_boundary) },
-            { selector: '[data-stat="net_income"]', value: this.formatCurrency(stats.net_income) },
-            { selector: '[data-stat="total_expenses_today"]', value: this.formatCurrency(stats.total_expenses_today) },
-            { selector: '[data-stat="maintenance_units"]', value: stats.maintenance_units },
-            { selector: '[data-stat="active_drivers"]', value: stats.active_drivers },
-            { selector: '[data-stat="avg_boundary"]', value: this.formatCurrency(stats.avg_boundary) },
-            { selector: '[data-stat="coding_units"]', value: stats.coding_units },
-            { selector: '[data-stat="daily_target"]', value: this.formatCurrency(stats.daily_target) }
+        const statConfig = [
+            { key: 'active_units', selector: '[data-stat="active_units"]', format: 'number' },
+            { key: 'roi_achieved', selector: '[data-stat="roi_achieved"]', format: 'number' },
+            { key: 'coding_units', selector: '[data-stat="coding_units"]', format: 'number' },
+            { key: 'maintenance_units', selector: '[data-stat="maintenance_units"]', format: 'number' },
+            { key: 'active_drivers', selector: '[data-stat="active_drivers"]', format: 'number' },
+            { key: 'today_boundary', selector: '[data-stat="today_boundary"]', format: 'currency' },
+            { key: 'today_expenses', selector: '[data-stat="today_expenses"]', format: 'currency' },
+            { key: 'net_income', selector: '[data-stat="net_income"]', format: 'currency' },
+            { key: 'daily_target', selector: '[data-stat="daily_target"]', format: 'currency' }
         ];
 
-        updates.forEach(update => {
-            const element = document.querySelector(update.selector);
-            if (element) {
-                this.animateValue(element, update.value);
+        statConfig.forEach(config => {
+            const newValue = stats[config.key];
+            const prevValue = this.previousStats[config.key];
+
+            // Only update if value changed and is valid
+            if (newValue !== undefined && newValue !== null && newValue !== prevValue) {
+                const element = document.querySelector(config.selector);
+                if (element) {
+                    this.animateValue(element, newValue, config.format);
+                    this.previousStats[config.key] = newValue;
+                }
             }
         });
     }
 
-    updateCharts(chartData) {
-        if (!chartData) return;
+    animateValue(element, newValue, format) {
+        // Strip non-numeric chars from current text to get start value
+        const currentText = element.textContent || '0';
+        const startValue = parseFloat(currentText.replace(/[^\d.-]/g, '')) || 0;
+        const endValue = parseFloat(newValue);
+        
+        if (isNaN(endValue)) return;
+        if (startValue === endValue) return;
 
-        // Helper to check if a global variable is a valid Chart instance
-        const isValidChart = (chart) => chart && typeof chart.update === 'function' && chart.data && chart.data.datasets;
+        const duration = 1000;
+        const startTime = performance.now();
 
-        // Helper to check if two arrays are equal
-        const arraysEqual = (a, b) => {
-            if (a === b) return true;
-            if (a == null || b == null) return false;
-            if (a.length !== b.length) return false;
-            for (let i = 0; i < a.length; ++i) {
-                if (a[i] !== b[i]) return false;
+        const formatFn = (val) => {
+            if (format === 'currency') {
+                return '₱' + Math.floor(val).toLocaleString();
             }
-            return true;
+            return Math.floor(val).toLocaleString();
         };
 
-        // Update weekly financial chart
-        if (isValidChart(window.weeklyChart) && chartData.weekly_data) {
-            const bData = chartData.weekly_data.map(d => d.boundary);
-            const eData = chartData.weekly_data.map(d => d.expenses);
-            const nData = chartData.weekly_data.map(d => d.net);
+        const animate = (currentTime) => {
+            const elapsed = currentTime - startTime;
+            const progress = Math.min(elapsed / duration, 1);
             
-            if (!arraysEqual(window.weeklyChart.data.datasets[0].data, bData) ||
-                !arraysEqual(window.weeklyChart.data.datasets[1].data, eData) ||
-                !arraysEqual(window.weeklyChart.data.datasets[2].data, nData)) {
-                
-                window.weeklyChart.data.datasets[0].data = bData;
-                window.weeklyChart.data.datasets[1].data = eData;
-                window.weeklyChart.data.datasets[2].data = nData;
-                window.weeklyChart.update('none');
-            }
-        }
-
-        // Update unit status chart
-        if (isValidChart(window.unitStatusChart) && chartData.unit_status_data) {
-            const sData = chartData.unit_status_data.map(d => d.count);
-            if (!arraysEqual(window.unitStatusChart.data.datasets[0].data, sData)) {
-                window.unitStatusChart.data.datasets[0].data = sData;
-                window.unitStatusChart.update('none');
-            }
-        }
-
-        // Update revenue trend chart
-        if (isValidChart(window.revenueTrendChart) && chartData.revenue_trend) {
-            const tData = chartData.revenue_trend.map(d => d.revenue);
-            if (!arraysEqual(window.revenueTrendChart.data.datasets[0].data, tData)) {
-                window.revenueTrendChart.data.datasets[0].data = tData;
-                window.revenueTrendChart.update('none');
-            }
-        }
-
-        // Update unit performance chart
-        if (isValidChart(window.unitPerformanceChart) && chartData.unit_performance) {
-            const pData = chartData.unit_performance.map(d => d.performance);
-            const tgData = chartData.unit_performance.map(d => d.target);
+            // Easing function: easeOutExpo
+            const easeProgress = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
             
-            if (!arraysEqual(window.unitPerformanceChart.data.datasets[0].data, pData) ||
-                !arraysEqual(window.unitPerformanceChart.data.datasets[1].data, tgData)) {
-                
-                window.unitPerformanceChart.data.datasets[0].data = pData;
-                window.unitPerformanceChart.data.datasets[1].data = tgData;
-                window.unitPerformanceChart.update('none');
+            const currentVal = startValue + (endValue - startValue) * easeProgress;
+            element.textContent = formatFn(currentVal);
+
+            if (progress < 1) {
+                requestAnimationFrame(animate);
+            } else {
+                element.textContent = formatFn(endValue); // Ensure final value is exact
             }
+        };
+
+        requestAnimationFrame(animate);
+    }
+
+    updateCharts(charts) {
+        if (!charts) return;
+
+        // Weekly Chart
+        if (window.weeklyChart && charts.weekly_data) {
+            window.weeklyChart.data.labels = charts.weekly_data.map(d => d.day);
+            window.weeklyChart.data.datasets[0].data = charts.weekly_data.map(d => d.boundary);
+            window.weeklyChart.data.datasets[1].data = charts.weekly_data.map(d => d.expenses);
+            window.weeklyChart.data.datasets[2].data = charts.weekly_data.map(d => d.net);
+            window.weeklyChart.update('none'); // Update without full animation for smoothness
         }
 
-        // Update expense breakdown chart
-        if (isValidChart(window.expenseBreakdownChart) && chartData.expense_breakdown) {
-            const amData = chartData.expense_breakdown.map(d => d.amount);
-            const lbData = chartData.expense_breakdown.map(d => d.category);
+        // Unit Status Chart
+        if (window.unitStatusChart && charts.unit_status_data) {
+            window.unitStatusChart.data.labels = charts.unit_status_data.map(d => d.status);
+            window.unitStatusChart.data.datasets[0].data = charts.unit_status_data.map(d => d.count);
+            window.unitStatusChart.update('none');
+        }
+
+        // Revenue Trend Chart
+        if (window.revenueTrendChart && charts.revenue_trend) {
+            window.revenueTrendChart.data.labels = charts.revenue_trend.map(d => d.date);
+            window.revenueTrendChart.data.datasets[0].data = charts.revenue_trend.map(d => d.revenue);
+            window.revenueTrendChart.update('none');
+        }
+
+        // Unit Performance Chart
+        if (window.unitPerformanceChart && charts.unit_performance) {
+            window.unitPerformanceChart.data.labels = charts.unit_performance.map(d => d.unit);
+            window.unitPerformanceChart.data.datasets[0].data = charts.unit_performance.map(d => d.performance);
+            window.unitPerformanceChart.data.datasets[1].data = charts.unit_performance.map(d => d.target);
+            window.unitPerformanceChart.update('none');
             
-            if (!arraysEqual(window.expenseBreakdownChart.data.datasets[0].data, amData) ||
-                !arraysEqual(window.expenseBreakdownChart.data.labels, lbData)) {
-                
-                window.expenseBreakdownChart.data.datasets[0].data = amData;
-                window.expenseBreakdownChart.data.labels = lbData;
-                window.expenseBreakdownChart.update('none');
+            // Update Top Performer insight
+            if (charts.unit_performance.length > 0) {
+                const insightPlate = document.getElementById('insightTopPlate');
+                if (insightPlate) insightPlate.textContent = charts.unit_performance[0].unit;
             }
         }
     }
 
     updateAlerts(alerts) {
-        const alertsContainer = document.querySelector('[data-alerts-container]');
-        if (!alertsContainer) return;
+        const container = document.getElementById('alerts-container');
+        if (!container) return;
 
-        if (!alerts || alerts.length === 0) {
-            const emptyHtml = '<p class="text-gray-500 text-center py-4">No active alerts</p>';
-            if (alertsContainer.innerHTML !== emptyHtml) {
-                alertsContainer.innerHTML = emptyHtml;
-            }
-            return;
-        }
+        // Simple check to see if alerts count or content changed
+        const currentAlertsHash = JSON.stringify(alerts);
+        if (this.lastAlertsHash === currentAlertsHash) return;
+        this.lastAlertsHash = currentAlertsHash;
 
-        const alertsHtml = `<div class="space-y-3">${alerts.map(alert => `
-            <div class="flex items-start gap-3 p-3 rounded-lg border ${this.getAlertClass(alert.severity)} transition-all duration-300">
-                <div class="mt-0.5">
-                    ${this.getAlertIcon(alert.severity)}
+        if (alerts.length === 0) {
+            container.innerHTML = `
+                <div class="flex flex-col items-center justify-center py-12 text-gray-400">
+                    <div class="p-4 bg-gray-50 rounded-full mb-4">
+                        <i data-lucide="check-circle-2" class="w-12 h-12 text-gray-200"></i>
+                    </div>
+                    <p class="font-black uppercase tracking-widest text-xs">All Clear</p>
+                    <p class="text-[10px] mt-1">No pending system alerts detected</p>
                 </div>
-                <div class="flex-1">
-                    <p class="text-sm text-gray-900 font-medium">${alert.message}</p>
-                    <span class="text-[10px] text-gray-400 capitalize font-bold uppercase tracking-wider">${alert.alert_type}</span>
-                </div>
-            </div>
-        `).join('')}</div>`;
-
-        // Only update if HTML actually changed to avoid flicker
-        if (alertsContainer.innerHTML !== alertsHtml) {
-            alertsContainer.innerHTML = alertsHtml;
-            
-            // Re-initialize lucide icons for new alerts
-            if (window.lucide) {
-                window.lucide.createIcons();
-            }
-        }
-    }
-
-    getAlertClass(severity) {
-        const classes = {
-            'high': 'bg-red-50 border-red-200',
-            'critical': 'bg-red-50 border-red-200',
-            'medium': 'bg-yellow-50 border-yellow-200',
-            'low': 'bg-blue-50 border-blue-200'
-        };
-        return classes[severity] || 'bg-gray-50 border-gray-200';
-    }
-
-    getAlertIcon(severity) {
-        if (['high', 'critical'].includes(severity)) {
-            return '<i data-lucide="alert-triangle" class="w-5 h-5 text-red-600"></i>';
-        } else if (severity === 'medium') {
-            return '<i data-lucide="alert-triangle" class="w-5 h-5 text-yellow-600"></i>';
+            `;
         } else {
-            return '<i data-lucide="info" class="w-5 h-5 text-blue-600"></i>';
+            container.innerHTML = alerts.map(alert => `
+                <div class="group relative bg-white border border-gray-100 rounded-2xl p-4 transition-all duration-300 hover:shadow-lg hover:border-orange-100 mb-3 overflow-hidden">
+                    <div class="absolute top-0 left-0 w-1 h-full bg-orange-500"></div>
+                    <div class="flex items-start gap-4">
+                        <div class="p-2.5 bg-orange-50 rounded-xl border border-orange-100">
+                            <i data-lucide="alert-circle" class="w-5 h-5 text-orange-600"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <h5 class="text-sm font-black text-gray-900 mb-1 truncate">${alert.message}</h5>
+                            <div class="flex items-center gap-3">
+                                <span class="px-2 py-0.5 bg-orange-100 text-orange-600 text-[9px] font-black uppercase tracking-widest rounded-full border border-orange-200">${alert.severity}</span>
+                                <span class="text-[10px] text-gray-400 font-bold">${alert.alert_type}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
         }
-    }
-
-    animateValue(element, newValue) {
-        // Only update if value changed and newValue is valid
-        if (newValue === undefined || newValue === null) return;
         
-        const currentValue = element.textContent.trim();
-        const formattedNewValue = newValue.toString();
-        
-        // Robust comparison: remove currency symbols and commas for numeric comparison if possible
-        const cleanCurrent = currentValue.replace(/[₱,]/g, '').trim();
-        const cleanNew = formattedNewValue.replace(/[₱,]/g, '').trim();
-        
-        // Prevent update if values are identical
-        if (cleanCurrent === cleanNew) return;
-        
-        // Update immediately to prevent lag
-        element.textContent = formattedNewValue;
-        
-        // Add a subtle transition effect instead of a jarring flash
-        element.style.transition = 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.3s ease';
-        element.style.color = '#10b981'; // Emerald-500
-        element.style.transform = 'scale(1.1)';
-        
-        setTimeout(() => {
-            element.style.color = '';
-            element.style.transform = '';
-        }, 1000);
-    }
-
-    formatCurrency(value) {
-        if (value === null || value === undefined || value === '') return '₱0.00';
-        return '₱' + new Intl.NumberFormat('en-PH', {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-        }).format(value);
-    }
-
-    setupWebSocket() {
-        // WebSocket setup for real-time updates (optional)
-        if (typeof io !== 'undefined') {
-            const socket = io();
-            
-            socket.on('dashboard:update', (data) => {
-                this.updateStats(data.stats);
-                this.updateCharts(data.charts);
-                this.updateAlerts(data.alerts);
-                this.updateLastUpdatedTime();
-            });
-        }
+        if (typeof lucide !== 'undefined') lucide.createIcons();
     }
 }
 
-// Initialize when DOM is ready
+// Initialize on load
 document.addEventListener('DOMContentLoaded', () => {
-    window.realTimeDashboard = new RealTimeDashboard();
-});
-
-// Make charts globally accessible for updates
-window.weeklyChart = null;
-window.unitStatusChart = null;
-
-// Store chart instances when created
-document.addEventListener('DOMContentLoaded', () => {
-    // Wait for Chart.js to initialize
-    setTimeout(() => {
-        if (typeof Chart !== 'undefined') {
-            Chart.helpers.each(Chart.instances, (instance) => {
-                if (instance.canvas.id === 'weeklyChart') {
-                    window.weeklyChart = instance;
-                } else if (instance.canvas.id === 'unitStatusChart') {
-                    window.unitStatusChart = instance;
-                } else if (instance.canvas.id === 'revenueTrendChart') {
-                    window.revenueTrendChart = instance;
-                } else if (instance.canvas.id === 'unitPerformanceChart') {
-                    window.unitPerformanceChart = instance;
-                } else if (instance.canvas.id === 'expenseBreakdownChart') {
-                    window.expenseBreakdownChart = instance;
-                }
-            });
-        }
-    }, 1000);
+    window.dashboardManager = new RealTimeDashboard();
 });

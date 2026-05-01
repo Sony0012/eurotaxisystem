@@ -1183,9 +1183,9 @@ class DashboardController extends Controller
         $salEx = DB::table('salaries')->whereDate('pay_date', $today)->sum('total_salary') ?? 0;
         $mntEx = DB::table('maintenance')->whereNull('deleted_at')->whereDate('date_started', $today)->where('status', '!=', 'cancelled')->sum('cost') ?? 0;
         
-        $stats['today_expenses'] = $genEx + $salEx;
         $stats['total_expenses_today'] = $genEx + $salEx + $mntEx;
         $stats['net_income'] = $stats['today_boundary'] - $stats['total_expenses_today'];
+        $stats['roi_achieved'] = $stats['roi_units']; // Harmonize for JS
 
         // 6. Daily Target (Active Units Rate)
         $stats['daily_target'] = DB::table('units')

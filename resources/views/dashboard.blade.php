@@ -92,7 +92,7 @@
                 <div class="flex-1 min-w-0">
                     <p class="text-blue-400 text-[10px] font-black uppercase tracking-widest mb-1">Total Units</p>
                     <p class="text-gray-900 text-3xl font-black leading-none mb-1" data-stat="active_units">{{ $stats['active_units'] }}</p>
-                    <p class="text-blue-400 text-xs font-medium"><span class="text-emerald-600 font-bold">{{ $stats['roi_units'] }}</span> ROI Achieved</p>
+                    <p class="text-blue-400 text-xs font-medium"><span class="text-emerald-600 font-bold" data-stat="roi_achieved">{{ $stats['roi_units'] }}</span> ROI Achieved</p>
                 </div>
                 <div class="p-3 bg-blue-100 rounded-2xl border border-blue-200 shadow-sm flex-shrink-0">
                     <i data-lucide="car" class="w-7 h-7 text-blue-600"></i>
@@ -170,7 +170,7 @@
             <div class="relative p-5 flex items-center justify-between">
                 <div class="flex-1 min-w-0">
                     <p class="text-rose-400 text-[10px] font-black uppercase tracking-widest mb-1">Total Expenses Today</p>
-                    <p class="text-gray-900 text-2xl font-black leading-none" data-stat="total_expenses_today">{{ formatCurrency($stats['total_expenses_today']) }}</p>
+                    <p class="text-gray-900 text-2xl font-black leading-none" data-stat="today_expenses">{{ formatCurrency($stats['total_expenses_today']) }}</p>
                 </div>
                 <div class="p-3 bg-rose-100 rounded-2xl border border-rose-200 shadow-sm flex-shrink-0">
                     <i data-lucide="trending-down" class="w-7 h-7 text-rose-600"></i>
