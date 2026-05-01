@@ -1802,6 +1802,47 @@ function resetPartForm() {
     document.getElementById('qtyError').classList.add('hidden');
 }
 
+// Strict Validation for Parts Modal
+function applyPartStrictValidation(input, maxDigits, fieldName) {
+    input.addEventListener('input', function() {
+        let val = this.value;
+        val = val.replace(/[^0-9.]/g, '');
+        if (val.length > 1 && val.startsWith('0') && !val.startsWith('0.')) {
+            val = val.replace(/^0+/, '');
+        }
+        if (val.includes('.')) {
+            let parts = val.split('.');
+            if (parts[0].length > maxDigits) parts[0] = parts[0].substring(0, maxDigits);
+            val = parts[0] + '.' + (parts[1] ? parts[1].substring(0, 2) : '');
+        } else {
+            if (val.length > maxDigits) val = val.substring(0, maxDigits);
+        }
+        this.value = val;
+    });
+    input.addEventListener('keydown', function(e) {
+        if (['e', 'E', '+', '-'].includes(e.key)) e.preventDefault();
+    });
+    input.addEventListener('change', function() {
+        if (parseFloat(this.value || 0) <= 0) {
+            this.value = '';
+            alert(`${fieldName} cannot be zero or empty.`);
+        }
+    });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const partNameInput = document.getElementById('newPartName');
+    const priceInput = document.getElementById('newPartPrice');
+    const qtyInput = document.getElementById('newPartQty');
+    if (partNameInput) {
+        partNameInput.addEventListener('input', function() {
+            if (this.value.length > 35) this.value = this.value.substring(0, 35);
+        });
+    }
+    if (priceInput) applyPartStrictValidation(priceInput, 5, 'Price');
+    if (qtyInput) applyPartStrictValidation(qtyInput, 3, 'Quantity');
+});
+
 function validateAddQty(input) {
     const val = parseInt(input.value);
     const errEl = document.getElementById('qtyError');

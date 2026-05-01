@@ -48,9 +48,9 @@ class SparePartController extends Controller
     {
         $data = $request->validate([
             'id'         => 'nullable|integer|exists:spare_parts,id',
-            'name'       => 'required|string|max:255',
-            'price'      => 'required|numeric|min:0',
-            'qty_to_add' => 'nullable|integer|min:0',
+            'name'       => 'required|string|max:35',
+            'price'      => 'required|numeric|min:0.01|max:99999.99',
+            'qty_to_add' => 'nullable|integer|min:0|max:999',
             'supplier'   => 'nullable|string|max:255',
         ]);
 
