@@ -222,8 +222,13 @@ class BoundaryController extends Controller
             $needs_maintenance_zero = $request->has('needs_maintenance_zero');
             $needs_maintenance = $needs_maintenance_half || $needs_maintenance_zero;
             
-            // Allow $boundary_amount to be 0 ONLY if $needs_maintenance_zero is true
-                    $is_valid_amount = $needs_maintenance_zero ? ($boundary_amount >= 0) : ($boundary_amount > 0);
+            // Server-side strict validation (Max 4 digits, No pure zero unless breakdown)
+            if ($actual_boundary >= 10000 || $boundary_amount >= 10000) {
+                return back()->with('error', 'Boundary amounts cannot exceed 4 digits (₱9,999.99)');
+            }
+            if (!$needs_maintenance_zero && $actual_boundary <= 0) {
+                return back()->with('error', 'Actual collected amount cannot be zero unless it is an Early Shift Breakdown.');
+            }
 
             if ($unit_id > 0 && $driver_id > 0 && $is_valid_amount) {
                 // Check duplicate
@@ -519,9 +524,14 @@ class BoundaryController extends Controller
             $needs_maintenance_half = $request->has('needs_maintenance_half');
             $needs_maintenance_zero = $request->has('needs_maintenance_zero');
 
-            // Allow 0 amount if expressly No Boundary due to Breakdown
-            $is_valid_amount = $needs_maintenance_zero ? ($boundary_amount >= 0) : ($boundary_amount > 0);
-            
+            // Server-side strict validation (Max 4 digits, No pure zero unless breakdown)
+            if ($actual_boundary >= 10000 || $boundary_amount >= 10000) {
+                return back()->with('error', 'Boundary amounts cannot exceed 4 digits (₱9,999.99)');
+            }
+            if (!$needs_maintenance_zero && $actual_boundary <= 0) {
+                return back()->with('error', 'Actual collected amount cannot be zero unless it is an Early Shift Breakdown.');
+            }
+
             if ($id > 0 && $is_valid_amount) {
                 $boundary = Boundary::find($id);
                 if (!$boundary) {

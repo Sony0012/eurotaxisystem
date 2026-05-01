@@ -1595,17 +1595,59 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Sync manual target changes with dataset and actual boundary
     const amtInput = document.getElementById('boundaryAmount');
+    const actualInput = document.getElementById('actualBoundary');
+
+    function applyStrictValidation(input, allowZero = false) {
+        input.addEventListener('input', function(e) {
+            let val = this.value;
+            
+            // 1. Numbers only (strip non-numeric except decimal)
+            val = val.replace(/[^0-9.]/g, '');
+            
+            // 2. Prevent leading zeros (e.g. 0500 -> 500)
+            if (val.length > 1 && val.startsWith('0') && !val.startsWith('0.')) {
+                val = val.replace(/^0+/, '');
+            }
+            
+            // 3. Limit to 4 digits for integer part (max 9999)
+            if (val.includes('.')) {
+                let parts = val.split('.');
+                if (parts[0].length > 4) parts[0] = parts[0].substring(0, 4);
+                val = parts[0] + '.' + parts[1].substring(0, 2);
+            } else {
+                if (val.length > 4) val = val.substring(0, 4);
+            }
+            
+            this.value = val;
+        });
+
+        // Prevent invalid keys (e, +, -, etc.)
+        input.addEventListener('keydown', function(e) {
+            if (['e', 'E', '+', '-'].includes(e.key)) {
+                e.preventDefault();
+            }
+        });
+    }
+
     if (amtInput) {
+        applyStrictValidation(amtInput);
         amtInput.addEventListener('input', function() {
             const val = this.value || '0.00';
-            // Update originalTarget so maintenance math uses this as the new base
             this.dataset.originalTarget = val;
-            
-            const actualInput = document.getElementById('actualBoundary');
             if (actualInput) actualInput.value = val;
-            
-            // Re-run breakdown math if active to use the new base
             updateBreakdownComputation();
+        });
+    }
+
+    if (actualInput) {
+        applyStrictValidation(actualInput);
+        actualInput.addEventListener('change', function() {
+            // Prevent pure zero input if not a breakdown case
+            const zeroCheck = document.getElementById('needsMaintenanceZeroCheck');
+            if ((!zeroCheck || !zeroCheck.checked) && parseFloat(this.value || 0) <= 0) {
+                this.value = '';
+                alert('Actual collected amount cannot be zero.');
+            }
         });
     }
 
