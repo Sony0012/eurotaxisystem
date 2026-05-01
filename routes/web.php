@@ -227,6 +227,14 @@ Route::middleware(['auth', 'super_admin'])->prefix('super-admin')->name('super-a
     Route::delete('/roles/{id}/archive', [SuperAdminController::class, 'archiveRole'])->name('roles.archive');
     Route::post('/roles/{id}/restore', [SuperAdminController::class, 'restoreRole'])->name('roles.restore');
     Route::delete('/roles/{id}', [SuperAdminController::class, 'deleteRole'])->name('roles.delete');
+
+    // Incident Classification Management
+    Route::post('/incident-classifications', [SuperAdminController::class, 'storeClassification'])->name('incident-classifications.store');
+    Route::get('/incident-classifications/{id}/details', [SuperAdminController::class, 'getClassificationDetails'])->name('incident-classifications.details');
+    Route::match(['put', 'patch'], '/incident-classifications/{id}', [SuperAdminController::class, 'updateClassification'])->name('incident-classifications.update');
+    Route::delete('/incident-classifications/{id}/archive', [SuperAdminController::class, 'archiveClassification'])->name('incident-classifications.archive');
+    Route::post('/incident-classifications/{id}/restore', [SuperAdminController::class, 'restoreClassification'])->name('incident-classifications.restore');
+    Route::delete('/incident-classifications/{id}', [SuperAdminController::class, 'deleteClassification'])->name('incident-classifications.delete');
 });
 
 // ─── Temporary System Sync Route ───────────────────────────

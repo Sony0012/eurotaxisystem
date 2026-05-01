@@ -41,4 +41,41 @@ class DriverBehavior extends Model
     {
         return $this->belongsTo(Unit::class, 'unit_id');
     }
+
+    /**
+     * Logic: What constitutes a "Violation" that blocks incentives/ratings?
+     * 1. Any At-Fault Incident (is_driver_fault = 1)
+     * 2. Any Specific Administrative Violation (Short Boundary, Late Remittance, etc.)
+     * 3. EXCLUDES: Unit Breakdowns (if not at fault), General Inquiries, etc.
+     */
+    public function isViolation(): bool
+    {
+        if ($this->is_driver_fault) return true;
+
+        $violationTypes = [
+            'Short Boundary', 
+            'Late Remittance', 
+            'Coding Violation', 
+            'Traffic Violation', 
+            'Absent / No Show', 
+            'Passenger Complaint'
+        ];
+
+        return in_array($this->incident_type, $violationTypes);
+    }
+
+    public function scopeViolations($query)
+    {
+        return $query->where(function($q) {
+            $q->where('is_driver_fault', 1)
+              ->orWhereIn('incident_type', [
+                  'Short Boundary', 
+                  'Late Remittance', 
+                  'Coding Violation', 
+                  'Traffic Violation', 
+                  'Absent / No Show', 
+                  'Passenger Complaint'
+              ]);
+        });
+    }
 }

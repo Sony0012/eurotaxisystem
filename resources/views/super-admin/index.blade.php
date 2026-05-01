@@ -1787,11 +1787,11 @@ async function submitClassification(e) {
          icon: document.getElementById('cls-icon').value,
      };
 
-     const url = id ? `/super-admin/incident-classifications/${id}/update` : '/super-admin/incident-classifications';
+     const url = id ? `/super-admin/incident-classifications/${id}` : '/super-admin/incident-classifications';
      
      try {
          const res = await fetch(url, {
-             method: 'POST',
+             method: id ? 'PATCH' : 'POST',
              headers: { 'X-CSRF-TOKEN': CSRF, 'Content-Type': 'application/json', 'Accept': 'application/json' },
              body: JSON.stringify(payload)
          });

@@ -521,9 +521,9 @@ class DriverBehaviorController extends Controller
             ->count();
 
         // Violations this period (Two-Source Verification for Absolute Accuracy)
-        $behavior_violations = DB::table('driver_behavior')
-            ->where('driver_id', $driver_id)
+        $behavior_violations = \App\Models\DriverBehavior::where('driver_id', $driver_id)
             ->whereNull('incentive_released_at')
+            ->violations()
             ->count();
 
         $boundary_violations = DB::table('boundaries')

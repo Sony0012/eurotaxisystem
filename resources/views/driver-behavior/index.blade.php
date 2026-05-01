@@ -651,9 +651,11 @@
                         <div class="col-span-2 sm:col-span-1">
                             <div class="flex items-center justify-between mb-2 ml-1">
                                 <label class="block text-[10px] font-black text-gray-500 uppercase">Incident Classification *</label>
-                                <button type="button" onclick="openClassificationSettings()" class="text-[10px] font-black text-yellow-600 hover:text-yellow-700 uppercase tracking-tighter flex items-center gap-1">
-                                    <i data-lucide="settings" class="w-3 h-3"></i> Manage Types
-                                </button>
+                                @if(Auth::user()->role === 'super_admin')
+                                    <button type="button" onclick="openClassificationSettings()" class="text-[10px] font-black text-yellow-600 hover:text-yellow-700 uppercase tracking-tighter flex items-center gap-1">
+                                        <i data-lucide="settings" class="w-3 h-3"></i> Manage Types
+                                    </button>
+                                @endif
                             </div>
                             <select name="incident_type" required id="incidentTypeSelect" onchange="handleTypeChange(this.value)"
                                 class="w-full px-4 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl text-sm font-bold focus:ring-4 focus:ring-yellow-500/10 focus:border-yellow-500 focus:outline-none transition-all">
@@ -661,7 +663,7 @@
                                 @foreach($classifications as $c)
                                     <option value="{{ $c->name }}"
                                         data-mode="{{ $c->behavior_mode ?? 'narrative' }}"
-                                        data-sub-options='{{ json_encode($c->sub_options ?? $c->getDefaultSubOptions($c->behavior_mode ?? 'narrative')) }}'
+                                        data-sub-options='{{ json_encode($c->sub_options ?? \App\Models\IncidentClassification::getDefaultSubOptions($c->behavior_mode ?? 'narrative')) }}'
                                         data-auto-ban="{{ $c->auto_ban_trigger ? '1' : '0' }}"
                                         data-ban-value="{{ $c->ban_trigger_value ?? '' }}">
                                         {{ $c->name }}
@@ -1198,7 +1200,7 @@ window.switchTab = function(name) {
      document.getElementById('quickClsTitle').textContent = 'Edit Classification';
 
      // Fetch full metadata for this classification via XHR
-     fetch(`/api/incidents/classification/${id}`, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+     fetch(`/super-admin/incident-classifications/${id}/details`, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
          .then(r => r.json()).then(data => {
              if (data && data.behavior_mode) {
                  document.getElementById('quickClsMode').value = data.behavior_mode;
@@ -1254,11 +1256,11 @@ window.switchTab = function(name) {
      if (!name) return alert('Please enter a classification name.');
 
      const subOptions = subOptsRaw ? subOptsRaw.split('\n').map(s => s.trim()).filter(Boolean) : [];
-     const url = id ? `/super-admin/incident-classifications/${id}/update` : '/super-admin/incident-classifications';
+     const url = id ? `/super-admin/incident-classifications/${id}` : '/super-admin/incident-classifications';
 
      try {
          const res = await fetch(url, {
-             method: 'POST',
+             method: id ? 'PATCH' : 'POST',
              headers: { 
                  'Content-Type': 'application/json', 
                  'Accept': 'application/json',

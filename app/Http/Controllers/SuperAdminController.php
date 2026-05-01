@@ -419,6 +419,12 @@ class SuperAdminController extends Controller
         return response()->json(['success' => true, 'data' => $item, 'message' => 'New incident classification added!']);
     }
 
+    public function getClassificationDetails($id)
+    {
+        $item = \App\Models\IncidentClassification::withTrashed()->findOrFail($id);
+        return response()->json(['success' => true, 'data' => $item]);
+    }
+
     public function updateClassification(Request $request, $id)
     {
         $item = \App\Models\IncidentClassification::findOrFail($id);

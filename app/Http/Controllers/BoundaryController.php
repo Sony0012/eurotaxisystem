@@ -247,6 +247,16 @@ class BoundaryController extends Controller
                         $notes = trim($notes . " [Automatic Violation: Short Boundary]");
                     }
 
+                    // --- NEW: Check for ANY pre-existing violations today BEFORE granting incentive ---
+                    $todayViolations = \App\Models\DriverBehavior::where('driver_id', $driver_id)
+                        ->whereDate('incident_date', $date)
+                        ->violations()
+                        ->exists();
+                    
+                    if ($todayViolations) {
+                        $has_incentive = false;
+                    }
+
                     $unit = \App\Models\Unit::find($unit_id);
                     $is_extra_driver = false;
                     $expected_driver_id = $unit ? $unit->current_turn_driver_id : $driver_id;
@@ -291,16 +301,15 @@ class BoundaryController extends Controller
                             $notes = trim($notes . " [Automatic Violation: Vehicle Damaged]");
 
                             // Auto-log to Driver Performance
-                            DB::table('driver_behavior')->insert([
+                            \App\Models\DriverBehavior::create([
                                 'unit_id'       => $unit_id,
                                 'driver_id'     => $driver_id,
-                                'incident_type' => 'other',
+                                'incident_type' => 'Vehicle Damage',
                                 'severity'      => 'high',
                                 'description'   => 'Auto-logged [Damage]: Driver returned unit with damage reported during boundary turnover.',
-                                'latitude'      => 0,
-                                'longitude'     => 0,
-                                'video_url'     => '',
-                                'created_at'    => $now,
+                                'incident_date' => $date,
+                                'timestamp'     => $now,
+                                'is_driver_fault' => true,
                             ]);
                         }
 
@@ -321,18 +330,14 @@ class BoundaryController extends Controller
                             $notes = trim($notes . " [Automatic Violation: Low Fuel on Return]");
 
                             // Auto-log to Driver Performance
-                            DB::table('driver_behavior')->insert([
+                            \App\Models\DriverBehavior::create([
                                 'unit_id'       => $unit_id,
                                 'driver_id'     => $driver_id,
-                                'incident_type' => 'other',
+                                'incident_type' => 'Other',
                                 'severity'      => 'medium',
                                 'description'   => 'Auto-logged [Low Fuel]: Driver returned the unit without refueling (Kulang sa gas).',
-                                'latitude'      => 0,
-                                'longitude'     => 0,
-                                'video_url'     => '',
-                                'timestamp'     => $now,
                                 'incident_date' => $date,
-                                'created_at'    => $now,
+                                'timestamp'     => $now,
                             ]);
                         }
 
@@ -400,16 +405,15 @@ class BoundaryController extends Controller
                                 $behavior_desc = "Auto-logged [Breakdown]: Unit broke down after " . number_format($hours_driven, 2) . " hrs. No boundary collected.";
                             }
 
-                            DB::table('driver_behavior')->insert([
+                            \App\Models\DriverBehavior::create([
                                 'unit_id'       => $unit_id,
                                 'driver_id'     => $driver_id,
-                                'incident_type' => 'other',
+                                'incident_type' => 'Other',
                                 'severity'      => ($needs_maintenance_half || ($needs_maintenance_zero && $hours_driven >= 5)) ? 'medium' : 'low',
                                 'description'   => $behavior_desc,
-                                'latitude'      => 0,
-                                'longitude'     => 0,
-                                'video_url'     => '',
-                                'created_at'    => $now,
+                                'incident_date' => $date,
+                                'timestamp'     => $now,
+                                'is_driver_fault' => false, // Breakdowns are usually not driver's fault
                             ]);
                         }
 
@@ -469,36 +473,36 @@ class BoundaryController extends Controller
                     $now_ts = now();
 
                     if ($past_cutoff) {
-                        DB::table('driver_behavior')->insert([
+                        \App\Models\DriverBehavior::create([
                             'unit_id'       => $unit_id,
                             'driver_id'     => $driver_id,
                             'incident_type' => 'Late Remittance',
                             'severity'      => 'medium',
                             'description'   => 'Auto-logged [Late Remittance]: Driver submitted boundary past the 10:00 AM cut-off.',
+                            'incident_date' => $date,
                             'timestamp'     => $now_ts,
-                            'created_at'    => $now_ts,
                         ]);
                     }
                     if ($shortage > 0) {
-                        DB::table('driver_behavior')->insert([
+                        \App\Models\DriverBehavior::create([
                             'unit_id'       => $unit_id,
                             'driver_id'     => $driver_id,
-                            'incident_type' => 'short_boundary',
+                            'incident_type' => 'Short Boundary',
                             'severity'      => 'low',
                             'description'   => 'Auto-logged [Shortage]: Boundary payment was ₱' . number_format($shortage, 2) . ' short.',
+                            'incident_date' => $date,
                             'timestamp'     => $now_ts,
-                            'created_at'    => $now_ts,
                         ]);
                     }
                     if ($is_absent) {
-                        DB::table('driver_behavior')->insert([
+                        \App\Models\DriverBehavior::create([
                             'unit_id'       => $unit_id,
                             'driver_id'     => $driver_id,
-                            'incident_type' => 'other',
+                            'incident_type' => 'Absent / No Show',
                             'severity'      => 'medium',
                             'description'   => 'Auto-logged [Absent]: Pilot is marked as Absent / No Show for this shift.',
+                            'incident_date' => $date,
                             'timestamp'     => $now_ts,
-                            'created_at'    => $now_ts,
                         ]);
                     }
 
