@@ -155,14 +155,14 @@
                     <div>
                         <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-1.5">Start Year <span class="text-red-500">*</span></label>
                         <input type="text" name="start_year" id="ruleStartYear" required 
-                               oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 4)"
+                               oninput="this.value = this.value.replace(/[^0-9]/g, '').replace(/^0+/, '').slice(0, 4)"
                                placeholder="YYYY"
                                class="w-full px-3 py-2.5 border border-gray-300 rounded-xl bg-white focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-sm font-bold shadow-sm">
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-1.5">End Year <span class="text-red-500">*</span></label>
                         <input type="text" name="end_year" id="ruleEndYear" required 
-                               oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 4)"
+                               oninput="this.value = this.value.replace(/[^0-9]/g, '').replace(/^0+/, '').slice(0, 4)"
                                placeholder="YYYY"
                                class="w-full px-3 py-2.5 border border-gray-300 rounded-xl bg-white focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-sm font-bold shadow-sm">
                     </div>
@@ -175,7 +175,7 @@
                             <span class="text-gray-500 font-black">₱</span>
                         </div>
                         <input type="text" name="regular_rate" id="ruleRegularRate" required 
-                               oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 4)"
+                               oninput="this.value = this.value.replace(/[^0-9]/g, '').replace(/^0+/, '').slice(0, 4)"
                                placeholder="0000"
                                class="w-full pl-8 px-3 py-2.5 border border-gray-300 rounded-xl bg-white focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-base font-black text-gray-900 shadow-sm">
                     </div>
