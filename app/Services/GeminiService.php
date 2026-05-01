@@ -30,8 +30,8 @@ class GeminiService
         ];
 
         if (empty($apiKey)) {
-            Log::error('Gemini API Key is missing.');
-            return "AI Analysis is currently unavailable due to missing configuration.";
+            Log::warning('Gemini API Key is missing. Using local fallback analysis.');
+            return self::generateLocalFallback($prompt);
         }
 
         $lastError = "";
