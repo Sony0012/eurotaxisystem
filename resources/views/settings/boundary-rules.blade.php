@@ -278,11 +278,28 @@
     // Add JS validation for whitespace and extra checks on submit
     document.getElementById('ruleForm').addEventListener('submit', function(e) {
         const name = document.getElementById('ruleName').value.trim();
+        const startYear = parseInt(document.getElementById('ruleStartYear').value) || 0;
+        const endYear = parseInt(document.getElementById('ruleEndYear').value) || 0;
+        const regularRate = parseFloat(document.getElementById('ruleRegularRate').value) || 0;
+
         if (name.length === 0) {
             e.preventDefault();
             alert('Bracket Description cannot be empty or just whitespace.');
             return false;
         }
+
+        if (startYear <= 0 || endYear <= 0) {
+            e.preventDefault();
+            alert('Please enter a valid year (cannot be 0).');
+            return false;
+        }
+
+        if (regularRate <= 0) {
+            e.preventDefault();
+            alert('Regular Daily Rate must be greater than 0.');
+            return false;
+        }
+
         return true;
     });
 </script>
