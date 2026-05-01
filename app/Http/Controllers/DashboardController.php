@@ -59,8 +59,8 @@ class DashboardController extends Controller
     public function getRealTimeData()
     {
         try {
-            // Get centralized stats
-            $stats = $this->getDashboardStats();
+            // Get dashboard statistics (Skip monitorSystemStatus for AJAX to avoid load and flickering)
+            $stats = $this->getDashboardStats(false);
             
             // System alerts
             $alerts = DB::table('system_alerts')
@@ -1124,10 +1124,12 @@ class DashboardController extends Controller
     /**
      * Centralized Dashboard Statistics
      */
-    private function getDashboardStats()
+    private function getDashboardStats($runMonitor = true)
     {
-        // Run automated system monitoring (Missing units, coding alerts, etc.)
-        $this->monitorSystemStatus();
+        // Run automated system monitoring only when requested (usually on page load)
+        if ($runMonitor) {
+            $this->monitorSystemStatus();
+        }
 
         $today = now()->timezone('Asia/Manila')->toDateString();
         $todayDay = now()->timezone('Asia/Manila')->format('l');
@@ -1390,13 +1392,7 @@ class DashboardController extends Controller
             ->map(fn($e) => ['category' => $e->category, 'amount' => (float) $e->total]);
 
         if ($data->isEmpty() || $data->every(fn($d) => $d['amount'] == 0)) {
-            return collect([
-                ['category' => 'Maintenance', 'amount' => 4500],
-                ['category' => 'Repairs', 'amount' => 3200],
-                ['category' => 'Salaries', 'amount' => 8000],
-                ['category' => 'Parts', 'amount' => 2100],
-                ['category' => 'Others', 'amount' => 1200]
-            ]);
+            return collect([]);
         }
         return $data;
     }
@@ -1425,13 +1421,7 @@ class DashboardController extends Controller
             ->map(fn($d) => ['name' => $d->full_name, 'score' => (int) $d->good_days, 'total' => (float) $d->total_boundary]);
 
         if ($data->isEmpty() || $data->every(fn($d) => $d['score'] == 0)) {
-            return collect([
-                ['name' => 'Bernardo Silva', 'score' => 28, 'total' => 42000],
-                ['name' => 'Kevin De Bruyne', 'score' => 26, 'total' => 39000],
-                ['name' => 'Erling Haaland', 'score' => 25, 'total' => 37500],
-                ['name' => 'Phil Foden', 'score' => 22, 'total' => 33000],
-                ['name' => 'Rodri Hernandez', 'score' => 20, 'total' => 30000]
-            ]);
+            return collect([]);
         }
         return $data;
     }
