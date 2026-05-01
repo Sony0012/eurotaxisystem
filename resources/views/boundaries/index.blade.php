@@ -1270,16 +1270,29 @@ function editBoundary(id) {
         document.getElementById('date').value = boundary.date;
         document.getElementById('boundaryAmount').value = boundary.boundary_amount;
         document.getElementById('actualBoundary').value = boundary.actual_boundary || '';
-        document.getElementById('damage_payment').value = boundary.damage_payment || 0;
+        const savedDamagePayment = parseFloat(boundary.damage_payment || 0);
+        document.getElementById('damage_payment').value = savedDamagePayment > 0 ? savedDamagePayment.toFixed(2) : '';
         document.getElementById('notes').value = boundary.notes || '';
         
         // Handle Damage Payment Visibility for Edit
         const damageContainer = document.getElementById('damagePaymentContainer');
         const driverOption = document.querySelector(`.driver-option[data-id="${boundary.driver_id}"]`);
         const hasAccidentDebt = driverOption && driverOption.getAttribute('data-has-accident-debt') === 'true';
+        const accidentDebtAmount = driverOption ? parseFloat(driverOption.getAttribute('data-accident-debt-amount') || 0) : 0;
         
-        if (hasAccidentDebt || (parseFloat(boundary.damage_payment || 0) > 0)) {
+        if (hasAccidentDebt || savedDamagePayment > 0) {
             if (damageContainer) damageContainer.classList.remove('hidden');
+            // Populate Outstanding Debt display
+            const fmt = (n) => '₱' + n.toLocaleString('en-PH', { minimumFractionDigits: 2 });
+            const debtDisplay = document.getElementById('damageDebtTotalDisplay');
+            const remainDisplay = document.getElementById('damageRemainingDisplay');
+            const totalDebt = accidentDebtAmount > 0 ? accidentDebtAmount : savedDamagePayment;
+            if (debtDisplay) {
+                debtDisplay.textContent = fmt(totalDebt);
+                debtDisplay.dataset.rawDebt = totalDebt;
+            }
+            const remaining = Math.max(0, totalDebt - savedDamagePayment);
+            if (remainDisplay) remainDisplay.textContent = fmt(remaining);
         } else {
             if (damageContainer) damageContainer.classList.add('hidden');
         }
