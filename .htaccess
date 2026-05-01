@@ -37,7 +37,7 @@
     RewriteRule ^ %1 [L,R=301]
 
     # Send ALL Requests To Laravel Front Controller
-    RewriteRule ^(.*)$ public/index.php [L]
+    RewriteRule ^(.*)$ index.php [L]
 </IfModule>
 
 # Gzip compression
