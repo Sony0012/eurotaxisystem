@@ -427,6 +427,7 @@ class SuperAdminController extends Controller
 
     public function updateClassification(Request $request, $id)
     {
+        \Log::info("Updating Classification ID: {$id}", $request->all());
         $item = \App\Models\IncidentClassification::findOrFail($id);
         
         $data = $request->validate([

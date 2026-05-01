@@ -1201,18 +1201,23 @@ window.switchTab = function(name) {
 
      // Fetch full metadata for this classification via XHR
      fetch(`/super-admin/incident-classifications/${id}/details`, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
-         .then(r => r.json()).then(data => {
-             if (data && data.behavior_mode) {
-                 document.getElementById('quickClsMode').value = data.behavior_mode;
+         .then(r => r.json()).then(res => {
+             const data = res.data;
+             if (data) {
+                 document.getElementById('quickClsMode').value = data.behavior_mode || 'narrative';
                  toggleClsModeFields();
                  if (data.sub_options && Array.isArray(data.sub_options)) {
                      document.getElementById('quickClsSubOptions').value = data.sub_options.join('\n');
+                 } else {
+                     document.getElementById('quickClsSubOptions').value = '';
                  }
                  document.getElementById('quickClsAutoBan').checked = !!data.auto_ban_trigger;
                  toggleBanValueField();
                  document.getElementById('quickClsBanValue').value = data.ban_trigger_value || '';
              }
-         }).catch(() => {});
+         }).catch(err => {
+             console.error('Error fetching details:', err);
+         });
  };
 
  window.resetClsForm = function() {
@@ -1258,6 +1263,14 @@ window.switchTab = function(name) {
      const subOptions = subOptsRaw ? subOptsRaw.split('\n').map(s => s.trim()).filter(Boolean) : [];
      const url = id ? `/super-admin/incident-classifications/${id}` : '/super-admin/incident-classifications';
 
+     const btn = event?.target?.closest('button') || document.querySelector('button[onclick="saveQuickClassification()"]');
+     const originalHtml = btn ? btn.innerHTML : '';
+     if (btn) {
+         btn.disabled = true;
+         btn.innerHTML = '<i class="animate-spin" data-lucide="refresh-cw"></i> SAVING...';
+         if(window.lucide) lucide.createIcons();
+     }
+
      try {
          const res = await fetch(url, {
              method: id ? 'PATCH' : 'POST',
@@ -1272,6 +1285,7 @@ window.switchTab = function(name) {
                  auto_ban_trigger: autoBan, ban_trigger_value: banValue || null
              })
          });
+         
          const result = await res.json();
          if (res.ok && result.success) {
              location.reload();
@@ -1282,6 +1296,12 @@ window.switchTab = function(name) {
      } catch(e) { 
          console.error(e);
          alert('Error saving classification. Check the console for details.'); 
+     } finally {
+         if (btn) {
+             btn.disabled = false;
+             btn.innerHTML = originalHtml;
+             if(window.lucide) lucide.createIcons();
+         }
      }
  };
 
