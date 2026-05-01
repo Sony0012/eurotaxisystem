@@ -703,17 +703,16 @@
                             <option value="complete">Complete</option>
                             <option value="cancelled">Cancelled</option>
                         </select>
+                    </div>
                 </div>
 
-                <div class="grid grid-cols-1 gap-3">
-                    <div>
-                        <label class="block text-xs font-medium text-gray-700 mb-1">Service / Reported Issue (Optional) <span class="text-[10px] text-gray-400">(Max 100)</span></label>
-                        <textarea name="description" id="em_description" maxlength="100" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-yellow-500 focus:outline-none bg-gray-50"></textarea>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-medium text-blue-700 mb-1">Dispatcher Notes (Optional) <span class="text-[10px] text-gray-400">(Max 100)</span></label>
-                        <textarea name="dispatcher_notes" id="em_dispatcher_notes" maxlength="100" rows="2" placeholder="Additional remarks..." class="w-full px-3 py-2 border border-blue-300 rounded-lg text-sm bg-blue-50 focus:ring-2 focus:ring-blue-500 focus:outline-none"></textarea>
-                    </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-700 mb-1">Service / Reported Issue (Optional) <span class="text-[10px] text-gray-400">(Max 100)</span></label>
+                    <textarea name="description" id="em_description" maxlength="100" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-yellow-500 focus:outline-none bg-gray-50"></textarea>
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-blue-700 mb-1">Dispatcher Notes (Optional) <span class="text-[10px] text-gray-400">(Max 100)</span></label>
+                    <textarea name="dispatcher_notes" id="em_dispatcher_notes" maxlength="100" rows="2" placeholder="Additional remarks..." class="w-full px-3 py-2 border border-blue-300 rounded-lg text-sm bg-blue-50 focus:ring-2 focus:ring-blue-500 focus:outline-none"></textarea>
                 </div>
                 <div>
                     <div class="flex justify-between items-center mb-1">
