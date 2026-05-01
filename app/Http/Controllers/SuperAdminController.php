@@ -451,12 +451,17 @@ class SuperAdminController extends Controller
         return response()->json(['success' => true, 'data' => $item, 'message' => 'Classification updated successfully.']);
     }
 
-    public function archiveClassification($id)
+    public function archiveClassification($id, Request $request)
     {
-        $item = \App\Models\IncidentClassification::findOrFail($id);
-        $item->delete();
-
-        return response()->json(['success' => true, 'message' => 'Classification moved to archive.']);
+        try {
+            $this->verifyArchivePassword($request);
+            $item = \App\Models\IncidentClassification::findOrFail($id);
+            $item->delete();
+            return response()->json(['success' => true, 'message' => 'Classification moved to Archive.']);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error("Archive Classification Error: " . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Error: ' . $e->getMessage()], 500);
+        }
     }
 
     public function restoreClassification($id)
@@ -516,12 +521,15 @@ class SuperAdminController extends Controller
 
     public function deleteRole($id, Request $request)
     {
-        $this->verifyArchivePassword($request);
-
-        $role = \App\Models\Role::withTrashed()->findOrFail($id);
-        $role->forceDelete();
-
-        return response()->json(['success' => true, 'message' => 'Role permanently deleted.']);
+        try {
+            $this->verifyArchivePassword($request);
+            $role = \App\Models\Role::withTrashed()->findOrFail($id);
+            $role->forceDelete();
+            return response()->json(['success' => true, 'message' => 'Role permanently deleted.']);
+        } catch (\Exception $e) {
+            $code = ($e instanceof \Symfony\Component\HttpKernel\Exception\HttpException) ? $e->getStatusCode() : 403;
+            return response()->json(['success' => false, 'message' => $e->getMessage()], $code);
+        }
     }
 
     public function deleteUser($id, Request $request)
@@ -556,12 +564,17 @@ class SuperAdminController extends Controller
 
     public function deleteClassification($id, Request $request)
     {
-        $this->verifyArchivePassword($request);
+        try {
+            $this->verifyArchivePassword($request);
 
-        $item = \App\Models\IncidentClassification::withTrashed()->findOrFail($id);
-        $item->forceDelete();
+            $item = \App\Models\IncidentClassification::withTrashed()->findOrFail($id);
+            $item->forceDelete();
 
-        return response()->json(['success' => true, 'message' => 'Classification permanently deleted.']);
+            return response()->json(['success' => true, 'message' => 'Classification permanently deleted.']);
+        } catch (\Exception $e) {
+            $code = ($e instanceof \Symfony\Component\HttpKernel\Exception\HttpException) ? $e->getStatusCode() : 500;
+            return response()->json(['success' => false, 'message' => $e->getMessage()], $code);
+        }
     }
 
     private function verifyArchivePassword(Request $request)
@@ -572,7 +585,7 @@ class SuperAdminController extends Controller
             $msg = !SystemSetting::get('archive_deletion_password') 
                 ? 'Archive deletion password is not set. Please set it in the System Security tab.' 
                 : 'Invalid archive deletion password.';
-            abort(response()->json(['success' => false, 'message' => $msg], 403));
+            throw new \Exception($msg);
         }
     }
 }

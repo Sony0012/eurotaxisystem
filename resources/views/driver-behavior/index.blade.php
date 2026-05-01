@@ -84,6 +84,36 @@
     }
     #sa-toast.show { transform: translateX(-50%) translateY(0); }
     #sa-toast.error { border-color: #ef4444; }
+
+    /* ── Modal ── */
+    .sa-modal-backdrop {
+        position: fixed; inset: 0; background: rgba(0,0,0,.75); backdrop-filter: blur(4px);
+        z-index: 9990; display: none; align-items: center; justify-content: center;
+    }
+    .sa-modal-backdrop.open { display: flex; }
+    .sa-modal {
+        background: #fff; border: 1px solid #e2e8f0; border-radius: 2rem;
+        padding: 2rem; width: 100%; max-width: 520px; max-height: 90vh; overflow-y: auto;
+        box-shadow: 0 24px 80px rgba(0,0,0,.7);
+        animation: modal-in .25s ease;
+    }
+    @keyframes modal-in { from { opacity:0; transform:scale(.94) translateY(1rem); } to { opacity:1; transform:none; } }
+
+    .btn-danger { background:#7f1d1d; color:#f87171; border:1px solid #991b1b; border-radius:.5rem; padding:.3rem .9rem; font-size:.72rem; font-weight:700; cursor:pointer; transition:all .2s; }
+    .btn-ghost   { background:transparent; color:#64748b; border:1px solid #e2e8f0; border-radius:.5rem; padding:.3rem .9rem; font-size:.72rem; font-weight:700; cursor:pointer; transition:all .2s; }
+    .btn-ghost:hover   { background:rgba(0,0,0,0.04); color:#1e293b; }
+    .sa-input {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        color: #1e293b;
+        border-radius: .6rem;
+        padding: .5rem 1rem;
+        font-size: .82rem;
+        outline: none;
+        transition: border-color .2s;
+        width: 100%;
+    }
+    .sa-input:focus { border-color: #eab308; }
 </style>
 
 {{-- ════════ HEADER STATS (COMPACT) ════════ --}}
@@ -1162,7 +1192,59 @@
                         <i data-lucide="save" class="w-5 h-5"></i>
                         SAVE CLASSIFICATION
                     </button>
+                    {{-- Global Toast Container --}}
                     <div id="sa-toast"></div>
+
+                    {{-- Archive Deletion Security Modal --}}
+                    <div class="sa-modal-backdrop" id="archiveSecurityModal">
+                        <div class="sa-modal" style="max-width: 420px; text-align: center;">
+                            <div style="background: #fef2f2; width: 64px; height: 64px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; border: 4px solid #fee2e2;">
+                                <i data-lucide="shield-alert" style="width: 32px; height: 32px; color: #dc2626;"></i>
+                            </div>
+                            
+                            <h3 style="font-weight: 900; font-size: 1.25rem; color: #991b1b; margin-bottom: .5rem;">Security Verification</h3>
+                            <p style="color: #64748b; font-size: .85rem; margin-bottom: 1.5rem;">To permanently delete this item, please enter the **Archive Deletion Password** below.</p>
+                            
+                            <div class="mb-6">
+                                <input type="password" id="archive-security-pwd" class="sa-input" style="text-align: center; font-size: 1.2rem; letter-spacing: .2em;" placeholder="••••••">
+                            </div>
+                            
+                            <div style="background: #fffbeb; border: 1px solid #fef3c7; border-radius: .75rem; padding: .75rem; margin-bottom: 1.5rem; display: flex; align-items: flex-start; gap: .75rem; text-align: left;">
+                                <i data-lucide="alert-triangle" style="width: 16px; height: 16px; color: #d97706; flex-shrink: 0; margin-top: 2px;"></i>
+                                <p style="font-size: .7rem; color: #92400e; font-weight: 500;">Warning: Permanent deletion is **irreversible**. All associated data will be removed from the system forever.</p>
+                            </div>
+
+                            <div class="flex gap-3">
+                                <button class="btn-ghost flex-1 py-3" onclick="document.getElementById('archiveSecurityModal').classList.remove('open')">Cancel</button>
+                                <button class="btn-danger flex-1 py-3" id="btn-confirm-permanent-delete">Confirm Delete</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            const confirmBtn = document.getElementById('btn-confirm-permanent-delete');
+                            if (confirmBtn) {
+                                confirmBtn.addEventListener('click', async function() {
+                                    const password = document.getElementById('archive-security-pwd').value;
+                                    if (!password) { toast('Please enter the security password.', true); return; }
+                                    
+                                    const btn = this;
+                                    const originalText = btn.innerHTML;
+                                    btn.disabled = true;
+                                    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
+
+                                    if (typeof archiveSecurityCallback !== 'undefined' && archiveSecurityCallback) {
+                                        await archiveSecurityCallback(password);
+                                    }
+
+                                    btn.disabled = false;
+                                    btn.innerHTML = originalText;
+                                    document.getElementById('archiveSecurityModal').classList.remove('open');
+                                });
+                            }
+                        });
+                    </script>
                 </div>
                 <div class="mt-8 p-5 bg-yellow-50 rounded-2xl border border-yellow-100">
                     <div class="flex gap-3">
@@ -1199,6 +1281,28 @@ window.switchTab = function(name) {
      el.textContent = msg;
      el.className = 'show' + (isError ? ' error' : '');
      setTimeout(() => el.className = '', 3500);
+ };
+
+ window.promptArchivePassword = function(callback, isPermanent = false) {
+     window.archiveSecurityCallback = callback;
+     const pwdInput = document.getElementById('archive-security-pwd');
+     if (pwdInput) pwdInput.value = '';
+     
+     const modal = document.getElementById('archiveSecurityModal');
+     const title = modal?.querySelector('h3');
+     const desc = modal?.querySelector('p');
+     const confirmBtn = document.getElementById('btn-confirm-permanent-delete');
+     
+     if (title) title.textContent = isPermanent ? 'Permanent Deletion' : 'Archive Confirmation';
+     if (desc) desc.textContent = isPermanent ? 'This action is irreversible. Please enter the archive password to proceed.' : 'This item will be moved to archives. Please enter the security password.';
+     if (confirmBtn) {
+         confirmBtn.textContent = isPermanent ? 'Confirm Permanent Delete' : 'Confirm Archive';
+         confirmBtn.className = isPermanent 
+            ? 'bg-red-600 hover:bg-red-700 text-white flex-1 py-3 font-bold rounded-xl transition-all shadow-lg shadow-red-200'
+            : 'bg-orange-500 hover:bg-orange-600 text-white flex-1 py-3 font-bold rounded-xl transition-all shadow-lg shadow-orange-200';
+     }
+
+     if (modal) modal.classList.add('open');
  };
 
  window.refreshClassificationsList = async function() {
@@ -1335,6 +1439,7 @@ window.switchTab = function(name) {
              toast('✔ ' + result.message);
              resetClsForm();
              window.refreshClassificationsList();
+             if (typeof closeClassificationSettings === 'function') closeClassificationSettings();
          } else {
              const errorMsg = result.message || result.error || 'Validation Failed: Please check your inputs.';
              toast(errorMsg, true);
@@ -1352,19 +1457,37 @@ window.switchTab = function(name) {
  };
 
  window.archiveClassification = async function(id) {
-     if (!confirm('Archive this classification?')) return;
-     try {
-         const res = await fetch(`/super-admin/incident-classifications/${id}/archive`, {
-             method: 'DELETE',
-             headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
-         });
-         const data = await res.json();
-         if (data.success) {
-             toast('✔ ' + (data.message || 'Archived successfully.'));
-             window.refreshClassificationsList();
-         }
-     } catch (e) { toast('Error archiving.', true); }
- };
+      window.promptArchivePassword(async (password) => {
+          console.log('Archiving ID:', id);
+          try {
+              const res = await fetch(`/super-admin/incident-classifications/${id}/archive`, {
+                  method: 'DELETE',
+                  headers: { 
+                      'Content-Type': 'application/json',
+                      'X-CSRF-TOKEN': '{{ csrf_token() }}' 
+                  },
+                  body: JSON.stringify({ archive_password: password })
+              });
+              
+              const text = await res.text();
+              console.log('Archive Response Text:', text);
+              
+              let data;
+              try { data = JSON.parse(text); } catch(e) { throw new Error('Invalid JSON response'); }
+
+              if (res.ok && data.success) {
+                  toast('✔ ' + (data.message || 'Archived successfully.'));
+                  window.refreshClassificationsList();
+                  document.getElementById('archiveSecurityModal').classList.remove('open');
+              } else {
+                  toast(data.message || 'Error archiving: ' + res.status, true);
+              }
+          } catch (e) { 
+              console.error('Archive Error:', e);
+              toast('Error archiving: ' + e.message, true); 
+          }
+      }, false);
+  };
 
  window.restoreClassification = async function(id) {
      try {
@@ -1381,18 +1504,36 @@ window.switchTab = function(name) {
  };
 
  window.deleteClassification = async function(id) {
-     if (!confirm('Permanently delete this?')) return;
-     try {
-         const res = await fetch(`/super-admin/incident-classifications/${id}`, {
-             method: 'DELETE',
-             headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
-         });
-         const data = await res.json();
-         if (data.success) {
-             toast('✔ ' + (data.message || 'Deleted successfully.'));
-             window.refreshClassificationsList();
+     window.promptArchivePassword(async (password) => {
+         console.log('Deleting Permanent ID:', id);
+         try {
+             const res = await fetch(`/super-admin/incident-classifications/${id}`, {
+                 method: 'DELETE',
+                 headers: { 
+                     'Content-Type': 'application/json',
+                     'X-CSRF-TOKEN': '{{ csrf_token() }}' 
+                 },
+                 body: JSON.stringify({ archive_password: password })
+             });
+             
+             const text = await res.text();
+             console.log('Delete Response Text:', text);
+             
+             let data;
+             try { data = JSON.parse(text); } catch(e) { throw new Error('Invalid JSON response'); }
+
+             if (res.ok && data.success) {
+                 toast('✔ ' + (data.message || 'Deleted successfully.'));
+                 window.refreshClassificationsList();
+                 document.getElementById('archiveSecurityModal').classList.remove('open');
+             } else {
+                 toast(data.message || 'Verification failed: ' + res.status, true);
+             }
+         } catch (e) { 
+             console.error('Delete Error:', e);
+             toast('Error deleting: ' + e.message, true); 
          }
-     } catch (e) { toast('Error deleting.', true); }
+     }, true);
  };
 
  window.switchClsList = function(type) {
@@ -1538,28 +1679,14 @@ function _renderSubOptions(containerId, options, inputId, autoBan, banValue, col
     container.innerHTML = html;
 }
 
-window._selectSubOption = function(btn, inputId, banValue, color) {
-    const colors = {
-        blue: 'bg-blue-600 border-blue-600 text-white',
-        orange: 'bg-orange-500 border-orange-500 text-white'
-    };
-    // Deselect siblings
-    btn.closest('div').querySelectorAll('.sub-option-btn').forEach(b => {
-        b.className = b.className.replace(/bg-(blue|orange)-\d+\s+border-(blue|orange)-\d+\s+text-white/g, '').trim();
-    });
-    btn.classList.add(...(colors[color] || colors.blue).split(' '));
-
-    const val = btn.dataset.value;
-    const input = document.getElementById(inputId);
-    if (input) input.value = val;
-
-    window._checkAutoBanState();
-};
-
 window._checkAutoBanState = function() {
     const typeVal = document.getElementById('incidentTypeSelect').value;
     const sevVal = document.getElementById('severitySelect').value;
-    const subInput = document.getElementById('subClassificationInput').value;
+    
+    // Check both potential sub-classification inputs based on mode
+    const subInput = document.getElementById('subClassificationInput')?.value || '';
+    const trafSubInput = document.getElementById('trafficSubClassificationInput')?.value || '';
+    const activeSubValue = subInput || trafSubInput;
     
     const meta = classificationsMeta[typeVal] || { autoBan: false, banValue: '' };
     const warning = document.getElementById('autoBanWarning');
@@ -1572,7 +1699,7 @@ window._checkAutoBanState = function() {
     if (sevVal === 'critical') {
         shouldBan = true;
         reason = "Critical severity triggers an automatic driver ban.";
-    } else if (meta.autoBan && meta.banValue && subInput === meta.banValue) {
+    } else if (meta.autoBan && meta.banValue && activeSubValue.trim() === meta.banValue.trim()) {
         shouldBan = true;
         reason = `Selecting "${meta.banValue}" triggers an automatic driver ban.`;
     }
