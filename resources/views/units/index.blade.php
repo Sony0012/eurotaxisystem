@@ -706,7 +706,6 @@
                                 <option value="active">Active</option>
                                 <option value="at_risk">At Risk / Missing</option>
                                 <option value="maintenance">Maintenance</option>
-                                <option value="coding">Coding</option>
                                 <option value="retired">Retired</option>
                                 <option value="vacant">Vacant</option>
                             </select>
