@@ -236,7 +236,7 @@
                 <button type="button" onclick="closeRuleModal()" class="px-5 py-2.5 text-sm font-bold text-gray-600 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 focus:ring-4 focus:ring-gray-100 transition-all shadow-sm">
                     Cancel
                 </button>
-                <button type="submit" class="px-6 py-2.5 text-sm font-black text-white bg-yellow-500 rounded-xl hover:bg-yellow-400 focus:ring-4 focus:ring-yellow-100 transition-all shadow-sm">
+                <button type="submit" id="saveRuleBtn" class="px-6 py-2.5 text-sm font-black text-white bg-yellow-500 rounded-xl hover:bg-yellow-400 focus:ring-4 focus:ring-yellow-100 transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed">
                     Save Settings
                 </button>
             </div>
@@ -252,6 +252,7 @@
         document.getElementById('ruleForm').action = '{{ route('boundary-rules.store') }}';
         document.getElementById('ruleForm').reset();
         document.getElementById('ruleModal').classList.remove('hidden');
+        validateInputs(); // Initial check
     }
 
     function openEditRuleModal(rule) {
@@ -269,37 +270,67 @@
         document.getElementById('ruleCodingIsFixed').value = rule.coding_is_fixed ? '1' : '0';
         
         document.getElementById('ruleModal').classList.remove('hidden');
+        validateInputs(); // Initial check
     }
 
     function closeRuleModal() {
         document.getElementById('ruleModal').classList.add('hidden');
     }
 
+    function validateInputs() {
+        const name = document.getElementById('ruleName').value.trim();
+        const startYear = document.getElementById('ruleStartYear').value;
+        const endYear = document.getElementById('ruleEndYear').value;
+        const regularRate = document.getElementById('ruleRegularRate').value;
+        const saveBtn = document.getElementById('saveRuleBtn');
+
+        let isValid = true;
+
+        // Check Description
+        if (name.length === 0) {
+            isValid = false;
+        }
+
+        // Check Years (must be > 0 and 4 digits)
+        const sy = parseInt(startYear) || 0;
+        const ey = parseInt(endYear) || 0;
+        if (sy <= 0 || startYear.length < 4) {
+            document.getElementById('ruleStartYear').classList.add('border-red-500', 'ring-1', 'ring-red-500');
+            isValid = false;
+        } else {
+            document.getElementById('ruleStartYear').classList.remove('border-red-500', 'ring-1', 'ring-red-500');
+        }
+
+        if (ey <= 0 || endYear.length < 4) {
+            document.getElementById('ruleEndYear').classList.add('border-red-500', 'ring-1', 'ring-red-500');
+            isValid = false;
+        } else {
+            document.getElementById('ruleEndYear').classList.remove('border-red-500', 'ring-1', 'ring-red-500');
+        }
+
+        // Check Regular Rate (must be > 0)
+        const rr = parseFloat(regularRate) || 0;
+        if (rr <= 0) {
+            document.getElementById('ruleRegularRate').classList.add('border-red-500', 'ring-1', 'ring-red-500');
+            isValid = false;
+        } else {
+            document.getElementById('ruleRegularRate').classList.remove('border-red-500', 'ring-1', 'ring-red-500');
+        }
+
+        saveBtn.disabled = !isValid;
+    }
+
+    // Attach listeners for real-time validation
+    ['ruleName', 'ruleStartYear', 'ruleEndYear', 'ruleRegularRate'].forEach(id => {
+        document.getElementById(id).addEventListener('input', validateInputs);
+    });
+
     // Add JS validation for whitespace and extra checks on submit
     document.getElementById('ruleForm').addEventListener('submit', function(e) {
-        const name = document.getElementById('ruleName').value.trim();
-        const startYear = parseInt(document.getElementById('ruleStartYear').value) || 0;
-        const endYear = parseInt(document.getElementById('ruleEndYear').value) || 0;
-        const regularRate = parseFloat(document.getElementById('ruleRegularRate').value) || 0;
-
-        if (name.length === 0) {
+        if (document.getElementById('saveRuleBtn').disabled) {
             e.preventDefault();
-            alert('Bracket Description cannot be empty or just whitespace.');
             return false;
         }
-
-        if (startYear <= 0 || endYear <= 0) {
-            e.preventDefault();
-            alert('Please enter a valid year (cannot be 0).');
-            return false;
-        }
-
-        if (regularRate <= 0) {
-            e.preventDefault();
-            alert('Regular Daily Rate must be greater than 0.');
-            return false;
-        }
-
         return true;
     });
 </script>
