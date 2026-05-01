@@ -2412,6 +2412,10 @@ async function saveSupplier() {
     const phone_number = document.getElementById('supplierPhone').value.trim();
 
     if (!name) { alert('Supplier Name is required and cannot be empty or just spaces.'); return; }
+    if (contact_person === '' && document.getElementById('supplierContact').value.length > 0) {
+        alert('Contact Person cannot be just spaces.');
+        return;
+    }
     if (phone_number !== '' && !/^09\d{9}$/.test(phone_number)) {
         alert('Phone Number must be exactly 11 digits and start with 09 (e.g., 09123456789).');
         return;
