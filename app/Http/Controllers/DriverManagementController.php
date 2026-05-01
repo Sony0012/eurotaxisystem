@@ -712,12 +712,9 @@ class DriverManagementController extends Controller
         $hasShortage    = (isset($driver->net_shortage) && $driver->net_shortage > 0);
         $hasDebt        = (isset($driver->total_pending_debt) && $driver->total_pending_debt > 0);
 
-        // --- NEW: Neutral Starting Point for 0 Records ---
+        // --- Data-Driven Rating: 0 Shifts = 1 Star (Start of the Ladder) ---
         if ($shiftsCount === 0) {
-            // If brand new but has debt (e.g. from a training incident or pre-deployment damage)
-            if ($hasDebt) return ['label' => 'Growing', 'stars' => 1];
-            // Otherwise, start at 3 stars (Neutral/New)
-            return ['label' => 'Growing', 'stars' => 3];
+            return ['label' => 'Growing', 'stars' => 1];
         }
 
         // --- Unified Eligibility Check (Pari-parihas sa Incentives) ---
@@ -728,13 +725,14 @@ class DriverManagementController extends Controller
         if ($isEligible) {
             if ($shiftsCount >= 25) return ['label' => 'Elite', 'stars' => 5];
             if ($shiftsCount >= 15) return ['label' => 'Excellent', 'stars' => 4];
-            // Working but eligible = 3 stars minimum
-            return ['label' => 'Good', 'stars' => 3];
+            if ($shiftsCount >= 5)  return ['label' => 'Good', 'stars' => 3];
+            // 1-4 shifts but eligible -> 2 stars (Average but on track)
+            return ['label' => 'Average', 'stars' => 2];
         } else {
-            // Ineligible drivers are capped below the Neutral/New level
+            // Ineligible drivers are capped
             // Major issues (Damage Debt or multiple incidents) = 1 Star
             if ($hasDebt || $incidentsCount >= 2) return ['label' => 'Growing', 'stars' => 1];
-            // Minor issues (Shortage, 1 Incident, Late, or Absent) = 2 Stars (Punished below 3)
+            // Minor issues (Shortage, 1 Incident, Late, or Absent) = 2 Stars
             return ['label' => 'Average', 'stars' => 2];
         }
     }
