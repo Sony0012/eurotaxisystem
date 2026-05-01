@@ -1139,16 +1139,24 @@ function validateActualCollected() {
 
 // Update the Damage Payment remaining balance display in real-time
 function updateDamagePaymentInfo() {
-    const debtTotal = parseFloat(document.getElementById('damageDebtTotalDisplay').dataset.rawDebt || 0);
-    const paymentInput = parseFloat(document.getElementById('damage_payment').value || 0);
-    const remaining = Math.max(0, debtTotal - paymentInput);
-    const fmt = (n) => '₱' + n.toLocaleString('en-PH', { minimumFractionDigits: 2 });
-    document.getElementById('damageRemainingDisplay').textContent = fmt(remaining);
-    // Cap payment at total debt
-    if (paymentInput > debtTotal && debtTotal > 0) {
-        document.getElementById('damage_payment').value = debtTotal.toFixed(2);
-        document.getElementById('damageRemainingDisplay').textContent = '₱0.00';
+    const debtDisplay = document.getElementById('damageDebtTotalDisplay');
+    const debtTotal = parseFloat(debtDisplay ? debtDisplay.dataset.rawDebt : 0) || 0;
+    const paymentEl = document.getElementById('damage_payment');
+    const paymentInput = parseFloat(paymentEl.value || 0);
+    
+    // Cap payment at total debt strictly
+    if (paymentInput > debtTotal) {
+        paymentEl.value = debtTotal > 0 ? debtTotal.toFixed(2) : '';
+        // Visual warning
+        paymentEl.classList.add('ring-4', 'ring-red-400');
+        setTimeout(() => paymentEl.classList.remove('ring-4', 'ring-red-400'), 1000);
     }
+
+    const finalPayment = parseFloat(paymentEl.value || 0);
+    const remaining = Math.max(0, debtTotal - finalPayment);
+    const fmt = (n) => '₱' + n.toLocaleString('en-PH', { minimumFractionDigits: 2 });
+    const remainDisplay = document.getElementById('damageRemainingDisplay');
+    if (remainDisplay) remainDisplay.textContent = fmt(remaining);
 }
 
 function filterDrivers(searchTerm) {
@@ -1286,12 +1294,16 @@ function editBoundary(id) {
             const fmt = (n) => '₱' + n.toLocaleString('en-PH', { minimumFractionDigits: 2 });
             const debtDisplay = document.getElementById('damageDebtTotalDisplay');
             const remainDisplay = document.getElementById('damageRemainingDisplay');
-            const totalDebt = accidentDebtAmount > 0 ? accidentDebtAmount : savedDamagePayment;
+            
+            // Critical Fix: In edit mode, the "Debt Total" (cap) must be the current debt PLUS what was already paid in this record.
+            // If accidentDebtAmount is the current remaining balance in DB, then:
+            const totalDebtCap = accidentDebtAmount + savedDamagePayment;
+            
             if (debtDisplay) {
-                debtDisplay.textContent = fmt(totalDebt);
-                debtDisplay.dataset.rawDebt = totalDebt;
+                debtDisplay.textContent = fmt(totalDebtCap);
+                debtDisplay.dataset.rawDebt = totalDebtCap;
             }
-            const remaining = Math.max(0, totalDebt - savedDamagePayment);
+            const remaining = Math.max(0, totalDebtCap - savedDamagePayment);
             if (remainDisplay) remainDisplay.textContent = fmt(remaining);
         } else {
             if (damageContainer) damageContainer.classList.add('hidden');
