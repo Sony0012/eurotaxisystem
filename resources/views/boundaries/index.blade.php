@@ -1126,38 +1126,76 @@ function payFullBalance() {
 
 // Actual Collected must NOT exceed the target boundary
 function validateActualCollected() {
-    const actualInput = document.getElementById('actualBoundary');
+    const input = document.getElementById('actualBoundary');
     const target = parseFloat(document.getElementById('boundaryAmount').value || 0);
-    let val = parseFloat(actualInput.value || 0);
+    let val = parseFloat(input.value || 0);
 
+    // Strict Decimal Cap: Prevent more than 2 decimal places
+    if (input.value.includes('.')) {
+        const parts = input.value.split('.');
+        if (parts[1].length > 2) {
+            input.value = parts[0] + '.' + parts[1].substring(0, 2);
+            val = parseFloat(input.value);
+        }
+    }
+
+    // Amount Cap: Cannot exceed target
     if (val > target) {
-        actualInput.value = target.toFixed(2);
-        actualInput.classList.add('ring-4', 'ring-red-400', 'border-red-500');
-        setTimeout(() => actualInput.classList.remove('ring-4', 'ring-red-400', 'border-red-500'), 1200);
+        input.value = target.toFixed(2);
+        input.classList.add('ring-4', 'ring-red-400', 'border-red-500');
+        setTimeout(() => input.classList.remove('ring-4', 'ring-red-400', 'border-red-500'), 800);
     }
 }
 
 // Update the Damage Payment remaining balance display in real-time
 function updateDamagePaymentInfo() {
-    const debtDisplay = document.getElementById('damageDebtTotalDisplay');
-    const debtTotal = parseFloat(debtDisplay ? debtDisplay.dataset.rawDebt : 0) || 0;
-    const paymentEl = document.getElementById('damage_payment');
-    const paymentInput = parseFloat(paymentEl.value || 0);
-    
-    // Cap payment at total debt strictly
-    if (paymentInput > debtTotal) {
-        paymentEl.value = debtTotal > 0 ? debtTotal.toFixed(2) : '';
-        // Visual warning
-        paymentEl.classList.add('ring-4', 'ring-red-400');
-        setTimeout(() => paymentEl.classList.remove('ring-4', 'ring-red-400'), 1000);
+    const input = document.getElementById('damage_payment');
+    const debtTotal = parseFloat(document.getElementById('damageDebtTotalDisplay').dataset.rawDebt || 0);
+    let val = parseFloat(input.value || 0);
+
+    // Strict Decimal Cap: Prevent more than 2 decimal places
+    if (input.value.includes('.')) {
+        const parts = input.value.split('.');
+        if (parts[1].length > 2) {
+            input.value = parts[0] + '.' + parts[1].substring(0, 2);
+            val = parseFloat(input.value);
+        }
     }
 
-    const finalPayment = parseFloat(paymentEl.value || 0);
-    const remaining = Math.max(0, debtTotal - finalPayment);
+    // Amount Cap: Cannot exceed total debt
+    if (val > debtTotal && debtTotal > 0) {
+        input.value = debtTotal.toFixed(2);
+        val = debtTotal;
+        input.classList.add('ring-4', 'ring-red-400', 'border-red-500');
+        setTimeout(() => input.classList.remove('ring-4', 'ring-red-400', 'border-red-500'), 800);
+    }
+
+    const remaining = Math.max(0, debtTotal - val);
     const fmt = (n) => '₱' + n.toLocaleString('en-PH', { minimumFractionDigits: 2 });
-    const remainDisplay = document.getElementById('damageRemainingDisplay');
-    if (remainDisplay) remainDisplay.textContent = fmt(remaining);
+    document.getElementById('damageRemainingDisplay').textContent = fmt(remaining);
 }
+
+// Prevent invalid number characters (e, +, -, .) - already handling . via oninput
+document.addEventListener('DOMContentLoaded', function() {
+    const numericInputs = ['actualBoundary', 'damage_payment', 'boundaryAmount'];
+    numericInputs.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            // Force 2-decimal formatting when leaving the field
+            el.addEventListener('blur', function() {
+                if (this.value && !isNaN(this.value)) {
+                    this.value = parseFloat(this.value).toFixed(2);
+                }
+            });
+
+            el.addEventListener('keydown', function(e) {
+                if (['e', 'E', '+', '-'].includes(e.key)) {
+                    e.preventDefault();
+                }
+            });
+        }
+    });
+});
 
 function filterDrivers(searchTerm) {
     const driverOptions = document.querySelectorAll('.driver-option');
@@ -1294,16 +1332,12 @@ function editBoundary(id) {
             const fmt = (n) => '₱' + n.toLocaleString('en-PH', { minimumFractionDigits: 2 });
             const debtDisplay = document.getElementById('damageDebtTotalDisplay');
             const remainDisplay = document.getElementById('damageRemainingDisplay');
-            
-            // Critical Fix: In edit mode, the "Debt Total" (cap) must be the current debt PLUS what was already paid in this record.
-            // If accidentDebtAmount is the current remaining balance in DB, then:
-            const totalDebtCap = accidentDebtAmount + savedDamagePayment;
-            
+            const totalDebt = accidentDebtAmount > 0 ? accidentDebtAmount : savedDamagePayment;
             if (debtDisplay) {
-                debtDisplay.textContent = fmt(totalDebtCap);
-                debtDisplay.dataset.rawDebt = totalDebtCap;
+                debtDisplay.textContent = fmt(totalDebt);
+                debtDisplay.dataset.rawDebt = totalDebt;
             }
-            const remaining = Math.max(0, totalDebtCap - savedDamagePayment);
+            const remaining = Math.max(0, totalDebt - savedDamagePayment);
             if (remainDisplay) remainDisplay.textContent = fmt(remaining);
         } else {
             if (damageContainer) damageContainer.classList.add('hidden');
