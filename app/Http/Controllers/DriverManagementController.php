@@ -49,6 +49,8 @@ class DriverManagementController extends Controller
                 DB::raw("(SELECT COUNT(*) FROM driver_behavior WHERE driver_id = d.id AND created_at >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY)) as incidents_count"),
                 DB::raw("(SELECT COUNT(*) FROM boundaries WHERE driver_id = d.id AND has_incentive = 0 AND deleted_at IS NULL AND date >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY)) as missed_incentive_count"),
                 DB::raw("(SELECT COUNT(*) FROM boundaries WHERE expected_driver_id = d.id AND driver_id != d.id AND deleted_at IS NULL AND date >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY)) as absent_count"),
+                // Lifetime count to identify "Fresh" drivers
+                DB::raw("(SELECT COUNT(*) FROM boundaries WHERE driver_id = d.id AND status IN ('paid', 'excess') AND deleted_at IS NULL) as total_paid_count"),
                 
                 // is_active derived from driver_status
                 DB::raw("CASE WHEN d.driver_status IN ('available','assigned') THEN 1 ELSE 0 END as is_active"),
@@ -181,11 +183,11 @@ class DriverManagementController extends Controller
                 'd.*',
                 DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')) as full_name"),
                 DB::raw("(SELECT plate_number FROM units WHERE (driver_id = d.id OR secondary_driver_id = d.id) AND deleted_at IS NULL LIMIT 1) as assigned_unit"),
-                DB::raw("(SELECT plate_number FROM units WHERE (driver_id = d.id OR secondary_driver_id = d.id) AND deleted_at IS NULL LIMIT 1) as assigned_plate"),
+                DB::raw("(SELECT COUNT(*) FROM units WHERE (driver_id = d.id OR secondary_driver_id = d.id) AND deleted_at IS NULL LIMIT 1) as assigned_plate"),
                 DB::raw("(SELECT boundary_rate FROM units WHERE (driver_id = d.id OR secondary_driver_id = d.id) AND deleted_at IS NULL LIMIT 1) as assigned_boundary_rate"),
                 DB::raw("(SELECT coding_day FROM units WHERE (driver_id = d.id OR secondary_driver_id = d.id) AND deleted_at IS NULL LIMIT 1) as assigned_coding_day"),
                 DB::raw("(SELECT year FROM units WHERE (driver_id = d.id OR secondary_driver_id = d.id) AND deleted_at IS NULL LIMIT 1) as assigned_unit_year"),
-                // Basic counts for PHP-side Rating Calculation
+                // Basic counts for PHP-side Rating Calculation (30 Day Window)
                 DB::raw("(SELECT COUNT(*) FROM boundaries WHERE driver_id = d.id AND deleted_at IS NULL AND date >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY)) as shifts_count"),
                 DB::raw("(SELECT COUNT(*) FROM boundaries WHERE driver_id = d.id AND status IN ('paid', 'excess') AND deleted_at IS NULL AND date >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY)) as paid_shifts_count"),
                 DB::raw("(SELECT COUNT(*) FROM driver_behavior WHERE driver_id = d.id AND created_at >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY)) as incidents_count"),
@@ -706,33 +708,34 @@ class DriverManagementController extends Controller
     {
         $shiftsCount    = (int) ($driver->shifts_count ?? 0);
         $paidCount      = (int) ($driver->paid_shifts_count ?? 0);
+        $totalPaidCount = (int) ($driver->total_paid_count ?? 0);
         $incidentsCount = (int) ($driver->incidents_count ?? 0);
         $missedCount    = (int) ($driver->missed_incentive_count ?? 0);
         $absentCount    = (int) ($driver->absent_count ?? 0);
         $hasShortage    = (isset($driver->net_shortage) && $driver->net_shortage > 0);
         $hasDebt        = (isset($driver->total_pending_debt) && $driver->total_pending_debt > 0);
 
-        // --- Data-Driven Rating: 0 Shifts = 1 Star (Start of the Ladder) ---
-        if ($shiftsCount === 0) {
-            return ['label' => 'Growing', 'stars' => 1];
+        // --- FRESH DRIVER LOGIC: Never had a paid shift in history ---
+        if ($totalPaidCount === 0) {
+            if ($hasDebt) return ['label' => 'At Risk', 'stars' => 1];
+            return ['label' => 'New Driver', 'stars' => 0];
         }
 
-        // --- Unified Eligibility Check (Pari-parihas sa Incentives) ---
-        // A driver is only eligible for 3+ stars if they have NO violations/issues in 30 days
-        // We use missed_incentive_count which covers Lates, Shortages, and Damage reports.
+        // --- ACTIVE DRIVER LOGIC: Has history but 0 shifts in 30 days ---
+        if ($shiftsCount === 0) {
+            return ['label' => 'On Break', 'stars' => 0];
+        }
+
+        // --- PERFORMANCE LADDER ---
         $isEligible = ($incidentsCount === 0 && $missedCount === 0 && $absentCount === 0 && !$hasShortage && !$hasDebt);
 
         if ($isEligible) {
-            if ($shiftsCount >= 25) return ['label' => 'Elite', 'stars' => 5];
-            if ($shiftsCount >= 15) return ['label' => 'Excellent', 'stars' => 4];
-            if ($shiftsCount >= 5)  return ['label' => 'Good', 'stars' => 3];
-            // 1-4 shifts but eligible -> 2 stars (Average but on track)
-            return ['label' => 'Average', 'stars' => 2];
+            if ($paidCount >= 25) return ['label' => 'Elite', 'stars' => 5];
+            if ($paidCount >= 15) return ['label' => 'Excellent', 'stars' => 4];
+            if ($paidCount >= 5)  return ['label' => 'Good', 'stars' => 3];
+            return ['label' => 'Growing', 'stars' => 2];
         } else {
-            // Ineligible drivers are capped
-            // Major issues (Damage Debt or multiple incidents) = 1 Star
-            if ($hasDebt || $incidentsCount >= 2) return ['label' => 'Growing', 'stars' => 1];
-            // Minor issues (Shortage, 1 Incident, Late, or Absent) = 2 Stars
+            if ($hasDebt || $incidentsCount >= 2) return ['label' => 'At Risk', 'stars' => 1];
             return ['label' => 'Average', 'stars' => 2];
         }
     }
