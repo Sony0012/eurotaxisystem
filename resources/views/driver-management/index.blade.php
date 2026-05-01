@@ -180,7 +180,7 @@
                                         placeholder="e.g., Dela Cruz"
                                         pattern="^(?!\s+$)[A-Za-z]+(\s[A-Za-z]+)?$"
                                         title="Last name: letters only, max 15 chars, one space allowed."
-                                        oninput="this.value = this.value.replace(/[^A-Za-z ]/g,'').replace(/^ /, '').replace(/ {2,}/, ' ').slice(0, 15)">
+                                        oninput="let v=this.value.replace(/[^A-Za-z ]/g,''); let parts=v.split(' '); this.value=(parts.length>2?parts[0]+' '+parts.slice(1).join('').replace(/ /g,''):v).slice(0,15)">
                                 </div>
                             </div>
                             <div class="space-y-2">
