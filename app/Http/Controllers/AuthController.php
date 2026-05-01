@@ -242,8 +242,6 @@ class AuthController extends Controller
             'otp_expires_at' => now()->addMinutes(10)
         ]);
 
-        require_once app_path('Helpers/MailerHelper.php');
-
         if ($request->input('method') === 'email') {
             $emailBody = "
                 <div style='font-family:Arial,sans-serif;max-width:480px;margin:0 auto;padding:24px;background:#f9fafb;border-radius:12px;'>

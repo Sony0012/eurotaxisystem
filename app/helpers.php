@@ -109,13 +109,7 @@ use PHPMailer\PHPMailer\SMTP;
 
 if (!function_exists('send_custom_email')) {
     /**
-     * Send an email using PHPMailer (Anti-Spam Configuration)
-     *
-     * @param string $to Recipient email
-     * @param string $subject Email subject
-     * @param string $body Email content (HTML)
-     * @param string|null $altBody Plain text version of the body
-     * @return bool True if sent, false otherwise
+     * Send an email using PHPMailer (Anti-Spam & Hostinger Optimized)
      */
     function send_custom_email($to, $subject, $body, $altBody = null)
     {
@@ -123,18 +117,42 @@ if (!function_exists('send_custom_email')) {
 
         try {
             // Server settings
-            $mail->SMTPDebug = SMTP::DEBUG_OFF;
+            $mail->SMTPDebug = SMTP::DEBUG_SERVER;
+            // Redirect debug output to a file for easier troubleshooting
+            $debugFile = base_path('scratch/smtp_debug.log');
+            $mail->Debugoutput = function($str, $level) use ($debugFile) {
+                file_put_contents($debugFile, "[" . date('Y-m-d H:i:s') . "] $str\n", FILE_APPEND);
+            };
+
             $mail->isSMTP();
-            $mail->Host = env('MAIL_HOST', 'smtp.gmail.com');
+            $mail->Host = env('MAIL_HOST', 'smtp.hostinger.com');
             $mail->SMTPAuth = true;
             $mail->Username = env('MAIL_USERNAME');
             $mail->Password = env('MAIL_PASSWORD');
-            $mail->SMTPSecure = env('MAIL_ENCRYPTION', PHPMailer::ENCRYPTION_STARTTLS);
-            $mail->Port = env('MAIL_PORT', 587);
+            
+            $encryption = env('MAIL_ENCRYPTION', 'ssl');
+            $port = (int) env('MAIL_PORT', 465);
+
+            if ($port === 465 || $encryption === 'ssl') {
+                $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+                $mail->Port = 465;
+            } else {
+                $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+                $mail->Port = $port ?: 587;
+            }
+
+            // Hostinger/Shared Hosting SSL Fix
+            $mail->SMTPOptions = array(
+                'ssl' => array(
+                    'verify_peer' => false,
+                    'verify_peer_name' => false,
+                    'allow_self_signed' => true
+                )
+            );
 
             // Anti-Spam Headers
             $mail->CharSet = 'UTF-8';
-            $mail->setFrom(env('MAIL_FROM_ADDRESS', 'noreply@eurotaxisystem.site'), env('MAIL_FROM_NAME', 'Eurotaxisystem'));
+            $mail->setFrom(env('MAIL_FROM_ADDRESS', 'noreply@eurotaxisystem.site'), env('MAIL_FROM_NAME', 'Euro Taxi System'));
             $mail->addAddress($to);
             $mail->addReplyTo(env('MAIL_FROM_ADDRESS', 'support@eurotaxisystem.site'), env('MAIL_FROM_NAME', 'Support'));
 
@@ -144,13 +162,20 @@ if (!function_exists('send_custom_email')) {
             $mail->Body = $body;
             $mail->AltBody = $altBody ?: strip_tags($body);
 
-            // Additional headers to avoid spam filters
+            // Additional headers
             $mail->addCustomHeader('X-Priority', '3');
             $mail->addCustomHeader('X-Mailer', 'EurotaxisystemPHPMailer');
 
-            return $mail->send();
+            $sent = $mail->send();
+            if ($sent && file_exists($debugFile)) {
+                @unlink($debugFile); // Clean up on success
+            }
+            return $sent;
         } catch (MailerException $e) {
-            \Log::error("Mail Error: {$mail->ErrorInfo}");
+            \Log::error("Mail Error for {$to}: {$mail->ErrorInfo}");
+            return false;
+        } catch (\Exception $e) {
+            \Log::error("General Mail Error: " . $e->getMessage());
             return false;
         }
     }
