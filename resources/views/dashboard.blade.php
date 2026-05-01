@@ -79,9 +79,7 @@
         }
     </style>
 @section('content')
-    <div class="mb-4">
-        <span class="text-[10px] text-gray-400 font-bold uppercase">System Debug: v2.1 ({{ date('Y-m-d H:i:s') }})</span>
-    </div>
+
 
     <script>
         // Inject initial stats for JS to prevent flickering on load
