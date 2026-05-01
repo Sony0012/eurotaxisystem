@@ -163,26 +163,29 @@
                     {{-- Rating --}}
                     <td class="px-6 py-5 whitespace-nowrap">
                         @php
-                            $ratingData = $driver->performance_rating ?? ['label' => 'Growing', 'stars' => 1];
-                            $ratingLabel = $ratingData['label'];
+                            $ratingData = $driver->performance_rating ?? ['label' => 'New Driver', 'stars' => 0];
                             $starsCount = $ratingData['stars'];
-                            
-                            $rating_configs = [
-                                'Elite'     => ['bg' => 'bg-purple-50', 'text' => 'text-purple-700', 'border' => 'border-purple-200', 'star' => 'text-purple-500'],
-                                'Excellent' => ['bg' => 'bg-emerald-50', 'text' => 'text-emerald-700', 'border' => 'border-emerald-200', 'star' => 'text-emerald-500'],
-                                'Good'      => ['bg' => 'bg-blue-50', 'text' => 'text-blue-700', 'border' => 'border-blue-200', 'star' => 'text-blue-500'],
-                                'Average'   => ['bg' => 'bg-amber-50', 'text' => 'text-amber-700', 'border' => 'border-amber-200', 'star' => 'text-amber-500'],
-                                'Growing'   => ['bg' => 'bg-slate-50', 'text' => 'text-slate-500', 'border' => 'border-slate-200', 'star' => 'text-slate-400'],
-                            ];
-                            $cfg = $rating_configs[$ratingLabel] ?? $rating_configs['Growing'];
+                            $label = $ratingData['label'];
+                            $cfg = match($label) {
+                                'Elite'     => ['color' => 'text-yellow-500', 'bg' => 'bg-yellow-50', 'star' => 'text-yellow-400'],
+                                'Excellent' => ['color' => 'text-blue-600',   'bg' => 'bg-blue-50',   'star' => 'text-blue-500'],
+                                'Good'      => ['color' => 'text-green-600',  'bg' => 'bg-green-50',  'star' => 'text-green-500'],
+                                'Average'   => ['color' => 'text-slate-600',  'bg' => 'bg-slate-100', 'star' => 'text-slate-400'],
+                                'Growing'   => ['color' => 'text-slate-500',  'bg' => 'bg-slate-50',  'star' => 'text-slate-400'],
+                                'New Driver'=> ['color' => 'text-slate-400',  'bg' => 'bg-slate-50',  'star' => 'text-slate-200'],
+                                'At Risk'   => ['color' => 'text-red-600',    'bg' => 'bg-red-50',    'star' => 'text-red-500'],
+                                default     => ['color' => 'text-slate-400',  'bg' => 'bg-slate-50',  'star' => 'text-slate-300'],
+                            };
                         @endphp
-                        <div class="flex flex-col gap-1">
+                        <div class="flex flex-col items-center gap-1">
                             <div class="flex items-center gap-0.5">
-                                @for($i = 1; $i <= 5; $i++)
-                                    <i data-lucide="star" class="w-3 h-3 {{ $i <= $starsCount ? ($cfg['star'] . ' fill-current') : 'text-slate-200' }}"></i>
+                                @for ($i = 1; $i <= 5; $i++)
+                                    <i data-lucide="star" class="w-3 h-3 {{ ($starsCount > 0 && $i <= $starsCount) ? ($cfg['star'] . ' fill-current') : 'text-slate-200' }}"></i>
                                 @endfor
                             </div>
-                            <span class="text-[9px] font-black {{ $cfg['text'] }} uppercase tracking-widest">{{ $ratingLabel }}</span>
+                            <span class="text-[10px] font-bold uppercase tracking-wider {{ $cfg['color'] }} {{ $cfg['bg'] }} px-1.5 py-0.5 rounded-full border border-current/10">
+                                {{ $label }}
+                            </span>
                         </div>
                     </td>
 
