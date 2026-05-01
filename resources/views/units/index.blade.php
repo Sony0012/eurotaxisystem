@@ -294,7 +294,7 @@
                                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                     <i data-lucide="credit-card" class="w-5 h-5 text-gray-400"></i>
                                 </div>
-                                <input type="text" name="plate_number" id="addPlateNumber" required maxlength="8"
+                                <input type="text" name="plate_number" id="addPlateNumber" required maxlength="8" value="{{ old('plate_number') }}"
                                     class="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-bold tracking-widest uppercase"
                                     placeholder="e.g., ABC 123"
                                     pattern="^[A-Z0-9]+ ?[A-Z0-9]*$"
@@ -316,7 +316,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
                         <div class="space-y-2">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Make <span class="text-red-500">*</span></label>
-                            <input type="text" name="make" required maxlength="15"
+                            <input type="text" name="make" required maxlength="15" value="{{ old('make') }}"
                                 class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                 placeholder="e.g., TOYOTA"
                                 pattern="^(?![0-9\s\W]+$)[a-zA-Z0-9\s\W]+$"
@@ -325,7 +325,7 @@
                         </div>
                         <div class="space-y-2">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Model <span class="text-red-500">*</span></label>
-                            <input type="text" name="model" required maxlength="15"
+                            <input type="text" name="model" required maxlength="15" value="{{ old('model') }}"
                                 class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                 placeholder="e.g., VIOS"
                                 pattern="^(?![0-9\s\W]+$)[a-zA-Z0-9\s\W]+$"
@@ -334,14 +334,14 @@
                         </div>
                         <div class="space-y-2">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Year <span class="text-red-500">*</span></label>
-                            <input type="number" name="year" required min="1900" max="2026"
+                            <input type="number" name="year" required min="1900" max="2026" value="{{ old('year', date('Y')) }}"
                                 class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                 placeholder="e.g., 2023"
                                 oninput="if(this.value.length > 4) this.value = this.value.slice(0,4)">
                         </div>
                         <div class="space-y-2">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Motor No <span class="text-red-500">*</span></label>
-                            <input type="text" name="motor_no" required maxlength="25"
+                            <input type="text" name="motor_no" required maxlength="25" value="{{ old('motor_no') }}"
                                 class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
                                 placeholder="e.g., 2NZ7847183"
                                 pattern="^[A-Z0-9]+$"
@@ -350,7 +350,7 @@
                         </div>
                         <div class="space-y-2">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Chassis No <span class="text-red-500">*</span></label>
-                            <input type="text" name="chassis_no" required maxlength="25"
+                            <input type="text" name="chassis_no" required maxlength="25" value="{{ old('chassis_no') }}"
                                 class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
                                 placeholder="e.g., NCP1512071757"
                                 pattern="^[A-Z0-9]+$"
@@ -376,7 +376,7 @@
                                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                     <span class="text-gray-500 text-sm">₱</span>
                                 </div>
-                                <input type="text" name="boundary_rate" id="addBoundaryRate" required value="1,100.00"
+                                <input type="text" name="boundary_rate" id="addBoundaryRate" required value="{{ old('boundary_rate', '1,100.00') }}"
                                     class="w-full pl-8 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                     placeholder="0.00"
                                     onfocus="unformatCurrencyInput(this)"
@@ -390,7 +390,7 @@
                                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                     <span class="text-gray-500 text-sm">₱</span>
                                 </div>
-                                <input type="text" name="purchase_cost" id="addPurchaseCost" value="0.00"
+                                <input type="text" name="purchase_cost" id="addPurchaseCost" value="{{ old('purchase_cost', '0.00') }}"
                                     class="w-full pl-8 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                     placeholder="0.00"
                                     onfocus="unformatCurrencyInput(this)"
@@ -404,7 +404,7 @@
                                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                     <i data-lucide="calendar" class="w-4 h-4 text-gray-400"></i>
                                 </div>
-                                <input type="date" name="purchase_date" max="{{ date('Y-m-d') }}"
+                                <input type="date" name="purchase_date" max="{{ date('Y-m-d') }}" value="{{ old('purchase_date') }}"
                                     class="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                             </div>
                             <p class="text-xs text-gray-500">When the unit was purchased</p>
@@ -580,7 +580,7 @@
                                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                     <i data-lucide="hash" class="w-5 h-5 text-gray-400"></i>
                                 </div>
-                                <input type="text" name="imei" id="addImei" maxlength="15"
+                                <input type="text" name="imei" id="addImei" maxlength="15" value="{{ old('imei') }}"
                                     class="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent font-mono"
                                     placeholder="Enter 15-digit IMEI"
                                     pattern="^[a-zA-Z0-9]{15}$"
