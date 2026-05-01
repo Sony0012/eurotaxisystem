@@ -703,19 +703,40 @@ class DriverManagementController extends Controller
         $shiftsCount    = (int) ($driver->shifts_count ?? 0);
         $paidCount      = (int) ($driver->paid_shifts_count ?? 0);
         $incidentsCount = (int) ($driver->incidents_count ?? 0);
+        $hasShortage    = (isset($driver->net_shortage) && $driver->net_shortage > 0);
+        $hasDebt        = (isset($driver->total_pending_debt) && $driver->total_pending_debt > 0);
 
         if ($shiftsCount === 0) return 'Growing';
 
-        // 1. Attendance Score (Max 40 pts) - Goal is 25 shifts
+        // 1. Attendance Score (Max 40 pts)
         $attendanceScore = min(40, ($shiftsCount / 25.0) * 40);
 
-        // 2. Financial Score (Max 30 pts) - Percentage of paid shifts
+        // 2. Financial Score (Max 30 pts)
         $financialScore = ($paidCount / $shiftsCount) * 30;
+        if ($hasShortage) $financialScore *= 0.5; // 50% Penalty for unpaid shortages
 
-        // 3. Safety Score (Max 30 pts) - 30 minus 10 per incident
-        $safetyScore = max(0, 30 - ($incidentsCount * 10));
+        // 3. Safety Score (Max 30 pts)
+        // Heavy penalty: -20 pts per incident in last 30 days
+        $safetyScore = max(0, 30 - ($incidentsCount * 20));
+        
+        // CRITICAL: If they have pending damage debt, Safety Score is forced to ZERO
+        if ($hasDebt) $safetyScore = 0;
 
         $totalScore = $attendanceScore + $financialScore + $safetyScore;
+
+        // =====================================================================
+        // PERFORMANCE CAPS (The "Connections")
+        // =====================================================================
+        
+        // CAP 1: If has pending damage debt OR boundary shortage, MAX rating is 'Average' (Score 49)
+        if (($hasDebt || $hasShortage) && $totalScore > 49) {
+            $totalScore = 49;
+        }
+
+        // CAP 2: If multiple incidents (2+), MAX rating is 'Average'
+        if ($incidentsCount >= 2 && $totalScore > 49) {
+            $totalScore = 49;
+        }
 
         if ($totalScore >= 90) return 'Elite';
         if ($totalScore >= 75) return 'Excellent';
