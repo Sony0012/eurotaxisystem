@@ -410,6 +410,7 @@
                                 <span class="text-blue-600 font-black">₱</span>
                             </div>
                             <input type="number" name="actual_boundary" id="actualBoundary" required step="0.01" min="0" 
+                                   oninput="validateActualCollected()"
                                    class="w-full pl-8 px-3 py-2.5 border-2 border-blue-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-black text-blue-800 shadow-sm text-base"
                                    placeholder="0.00">
                         </div>
@@ -418,19 +419,32 @@
 
                 <!-- Damage Payment Section (Hidden by default, shown if driver has accident debt) -->
                 <div id="damagePaymentContainer" class="hidden p-4 bg-red-50 border border-red-200 rounded-xl shadow-inner mb-4 transition-all duration-300">
-                    <div class="flex items-center gap-2 mb-2">
-                        <i data-lucide="shield-alert" class="w-4 h-4 text-red-600"></i>
-                        <span class="text-xs font-black text-red-800 uppercase tracking-widest">Damage/Incident Payment</span>
+                    <div class="flex items-center justify-between gap-2 mb-3">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="shield-alert" class="w-4 h-4 text-red-600"></i>
+                            <span class="text-xs font-black text-red-800 uppercase tracking-widest">Damage/Incident Payment</span>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-[10px] text-red-500 font-bold uppercase tracking-widest">Outstanding Debt</div>
+                            <div id="damageDebtTotalDisplay" class="text-sm font-black text-red-700">₱0.00</div>
+                        </div>
                     </div>
-                    <div class="relative">
+                    <div class="relative mb-2">
                         <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
                             <span class="text-red-600 font-black">₱</span>
                         </div>
                         <input type="number" name="damage_payment" id="damage_payment" step="0.01" min="0"
+                               oninput="updateDamagePaymentInfo()"
                                class="w-full pl-8 px-3 py-2.5 border-2 border-red-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 font-black text-red-800 shadow-sm text-base"
                                placeholder="0.00">
                     </div>
-                    <p class="text-[10px] text-red-600 font-bold mt-2 italic leading-tight">This driver has an outstanding accident/damage balance. Use this field to record payments toward their debt.</p>
+                    <div class="flex justify-between items-center px-1">
+                        <p class="text-[10px] text-red-600 font-bold italic leading-tight">Enter amount paid toward damage debt today.</p>
+                        <div class="text-right shrink-0 ml-3">
+                            <div class="text-[10px] text-red-500 font-bold uppercase tracking-widest">Remaining After Payment</div>
+                            <div id="damageRemainingDisplay" class="text-sm font-black text-red-700">₱0.00</div>
+                        </div>
+                    </div>
                 </div>
 
                 <div>
@@ -1071,7 +1085,16 @@ function initializeDriverDropdown() {
 
                 if (hasAccidentDebt && accidentDebtAmount > 0) {
                     damageContainer.classList.remove('hidden');
-                    if (debtLabel) debtLabel.textContent = "₱" + accidentDebtAmount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                    // Populate the outstanding debt display
+                    const fmt = (n) => '₱' + n.toLocaleString('en-PH', { minimumFractionDigits: 2 });
+                    const debtDisplay = document.getElementById('damageDebtTotalDisplay');
+                    const remainDisplay = document.getElementById('damageRemainingDisplay');
+                    if (debtDisplay) {
+                        debtDisplay.textContent = fmt(accidentDebtAmount);
+                        debtDisplay.dataset.rawDebt = accidentDebtAmount;
+                    }
+                    if (remainDisplay) remainDisplay.textContent = fmt(accidentDebtAmount);
+                    if (debtLabel) debtLabel.textContent = fmt(accidentDebtAmount);
                 } else {
                     damageContainer.classList.add('hidden');
                     document.getElementById('damage_payment').value = 0;
@@ -1099,6 +1122,33 @@ function payFullBalance() {
     // Visual feedback/confirmation
     actualCollectedInput.classList.add('ring-4', 'ring-green-400');
     setTimeout(() => actualCollectedInput.classList.remove('ring-4', 'ring-green-400'), 1000);
+}
+
+// Actual Collected must NOT exceed the target boundary
+function validateActualCollected() {
+    const actualInput = document.getElementById('actualBoundary');
+    const target = parseFloat(document.getElementById('boundaryAmount').value || 0);
+    let val = parseFloat(actualInput.value || 0);
+
+    if (val > target) {
+        actualInput.value = target.toFixed(2);
+        actualInput.classList.add('ring-4', 'ring-red-400', 'border-red-500');
+        setTimeout(() => actualInput.classList.remove('ring-4', 'ring-red-400', 'border-red-500'), 1200);
+    }
+}
+
+// Update the Damage Payment remaining balance display in real-time
+function updateDamagePaymentInfo() {
+    const debtTotal = parseFloat(document.getElementById('damageDebtTotalDisplay').dataset.rawDebt || 0);
+    const paymentInput = parseFloat(document.getElementById('damage_payment').value || 0);
+    const remaining = Math.max(0, debtTotal - paymentInput);
+    const fmt = (n) => '₱' + n.toLocaleString('en-PH', { minimumFractionDigits: 2 });
+    document.getElementById('damageRemainingDisplay').textContent = fmt(remaining);
+    // Cap payment at total debt
+    if (paymentInput > debtTotal && debtTotal > 0) {
+        document.getElementById('damage_payment').value = debtTotal.toFixed(2);
+        document.getElementById('damageRemainingDisplay').textContent = '₱0.00';
+    }
 }
 
 function filterDrivers(searchTerm) {
