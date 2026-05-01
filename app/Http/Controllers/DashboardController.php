@@ -887,15 +887,15 @@ class DashboardController extends Controller
             $query = DB::table('drivers as d')
                 ->leftJoin('units as unit', function($join) {
                     $join->on('d.id', '=', 'unit.driver_id')
-                         ->orOn('d.id', '=', 'unit.secondary_driver_id');
+                         ->orOn('d.id', '=', 'unit.secondary_driver_id')
+                         ->whereNull('unit.deleted_at');
                 })
                 ->leftJoin('boundaries as b', function($join) {
                     $join->on('unit.id', '=', 'b.unit_id')
                          ->whereNull('b.deleted_at');
                 })
                 ->select($select)
-                ->whereNull('d.deleted_at')
-                ->whereNull('unit.deleted_at');
+                ->whereNull('d.deleted_at');
 
             if (Schema::hasColumn('drivers', 'status')) {
                 $query->where('d.status', '=', 'active');
