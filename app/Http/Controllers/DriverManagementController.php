@@ -43,12 +43,30 @@ class DriverManagementController extends Controller
                 DB::raw("(SELECT coding_day FROM units WHERE (driver_id = d.id OR secondary_driver_id = d.id) AND deleted_at IS NULL LIMIT 1) as assigned_coding_day"),
                 DB::raw("(SELECT year FROM units WHERE (driver_id = d.id OR secondary_driver_id = d.id) AND deleted_at IS NULL LIMIT 1) as assigned_unit_year"),
                 DB::raw("(SELECT COALESCE(SUM(actual_boundary * 0.05), 0) FROM boundaries WHERE driver_id = d.id AND status IN ('paid', 'excess') AND MONTH(date) = MONTH(CURRENT_DATE()) AND YEAR(date) = YEAR(CURRENT_DATE()) AND deleted_at IS NULL) as monthly_incentive"),
-                DB::raw("(SELECT CASE
-                    WHEN COUNT(*) >= 25 THEN 'Excellent'
-                    WHEN COUNT(*) >= 15 THEN 'Good'
-                    WHEN COUNT(*) >= 5  THEN 'Average'
-                    ELSE 'Growing'
-                END FROM boundaries WHERE driver_id = d.id AND status IN ('paid', 'excess', 'shortage') AND date >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY) AND deleted_at IS NULL) as performance_rating"),
+                // Improved Performance Rating Logic (Attendance 40%, Financial 30%, Safety 30%)
+                DB::raw("(SELECT 
+                    CASE 
+                        WHEN (score) >= 90 THEN 'Elite'
+                        WHEN (score) >= 75 THEN 'Excellent'
+                        WHEN (score) >= 50 THEN 'Good'
+                        WHEN (score) >= 25 THEN 'Average'
+                        ELSE 'Growing'
+                    END
+                FROM (
+                    SELECT 
+                        (
+                            -- Attendance Score (Max 40 pts)
+                            LEAST(40, (COUNT(*) / 25.0) * 40) +
+                            -- Financial Score (Max 30 pts)
+                            COALESCE((SUM(CASE WHEN status IN ('paid', 'excess') THEN 1 ELSE 0 END) / NULLIF(COUNT(*), 0)) * 30, 0) +
+                            -- Safety Score (Max 30 pts)
+                            GREATEST(0, 30 - (SELECT COUNT(*) FROM driver_behavior WHERE driver_id = d.id AND created_at >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY)) * 10)
+                        ) as score
+                    FROM boundaries 
+                    WHERE driver_id = d.id 
+                    AND deleted_at IS NULL 
+                    AND date >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY)
+                ) as rating_calc) as performance_rating"),
                 // is_active derived from driver_status
                 DB::raw("CASE WHEN d.driver_status IN ('available','assigned') THEN 1 ELSE 0 END as is_active"),
                 // Net unpaid shortage: sum of all shortages minus sum of all excess
@@ -181,12 +199,30 @@ class DriverManagementController extends Controller
                 DB::raw("(SELECT boundary_rate FROM units WHERE (driver_id = d.id OR secondary_driver_id = d.id) AND deleted_at IS NULL LIMIT 1) as assigned_boundary_rate"),
                 DB::raw("(SELECT coding_day FROM units WHERE (driver_id = d.id OR secondary_driver_id = d.id) AND deleted_at IS NULL LIMIT 1) as assigned_coding_day"),
                 DB::raw("(SELECT year FROM units WHERE (driver_id = d.id OR secondary_driver_id = d.id) AND deleted_at IS NULL LIMIT 1) as assigned_unit_year"),
-                DB::raw("(SELECT CASE
-                    WHEN COUNT(*) >= 25 THEN 'Excellent'
-                    WHEN COUNT(*) >= 15 THEN 'Good'
-                    WHEN COUNT(*) >= 5  THEN 'Average'
-                    ELSE 'Growing'
-                END FROM boundaries WHERE driver_id = d.id AND status IN ('paid', 'excess', 'shortage') AND date >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY) AND deleted_at IS NULL) as performance_rating")
+                // Improved Performance Rating Logic (Attendance 40%, Financial 30%, Safety 30%)
+                DB::raw("(SELECT 
+                    CASE 
+                        WHEN (score) >= 90 THEN 'Elite'
+                        WHEN (score) >= 75 THEN 'Excellent'
+                        WHEN (score) >= 50 THEN 'Good'
+                        WHEN (score) >= 25 THEN 'Average'
+                        ELSE 'Growing'
+                    END
+                FROM (
+                    SELECT 
+                        (
+                            -- Attendance Score (Max 40 pts)
+                            LEAST(40, (COUNT(*) / 25.0) * 40) +
+                            -- Financial Score (Max 30 pts)
+                            COALESCE((SUM(CASE WHEN status IN ('paid', 'excess') THEN 1 ELSE 0 END) / NULLIF(COUNT(*), 0)) * 30, 0) +
+                            -- Safety Score (Max 30 pts)
+                            GREATEST(0, 30 - (SELECT COUNT(*) FROM driver_behavior WHERE driver_id = d.id AND created_at >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY)) * 10)
+                        ) as score
+                    FROM boundaries 
+                    WHERE driver_id = d.id 
+                    AND deleted_at IS NULL 
+                    AND date >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY)
+                ) as rating_calc) as performance_rating")
             )
             ->first();
 

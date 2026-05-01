@@ -162,11 +162,20 @@
 
                     {{-- Rating --}}
                     <td class="px-6 py-5 whitespace-nowrap">
-                        <div
-                            class="inline-flex items-center gap-1.5 bg-yellow-50 px-2 py-1 rounded-md border border-yellow-200">
-                            <i data-lucide="star" class="w-4 h-4 text-yellow-500 fill-yellow-500"></i>
-                            <span
-                                class="text-xs font-black text-yellow-700 uppercase tracking-widest">{{ $driver->performance_rating ?? 'Good' }}</span>
+                        @php
+                            $rating = $driver->performance_rating ?? 'Growing';
+                            $rating_configs = [
+                                'Elite'     => ['bg' => 'bg-purple-50', 'text' => 'text-purple-700', 'border' => 'border-purple-200', 'icon' => 'crown', 'star_color' => 'text-purple-500'],
+                                'Excellent' => ['bg' => 'bg-emerald-50', 'text' => 'text-emerald-700', 'border' => 'border-emerald-200', 'icon' => 'star', 'star_color' => 'text-emerald-500'],
+                                'Good'      => ['bg' => 'bg-blue-50', 'text' => 'text-blue-700', 'border' => 'border-blue-200', 'icon' => 'thumbs-up', 'star_color' => 'text-blue-500'],
+                                'Average'   => ['bg' => 'bg-amber-50', 'text' => 'text-amber-700', 'border' => 'border-amber-200', 'icon' => 'activity', 'star_color' => 'text-amber-500'],
+                                'Growing'   => ['bg' => 'bg-slate-50', 'text' => 'text-slate-500', 'border' => 'border-slate-200', 'icon' => 'trending-up', 'star_color' => 'text-slate-400'],
+                            ];
+                            $cfg = $rating_configs[$rating] ?? $rating_configs['Growing'];
+                        @endphp
+                        <div class="inline-flex items-center gap-1.5 {{ $cfg['bg'] }} px-2.5 py-1 rounded-lg border {{ $cfg['border'] }} shadow-sm">
+                            <i data-lucide="{{ $cfg['icon'] }}" class="w-3.5 h-3.5 {{ $cfg['star_color'] }} {{ $rating === 'Elite' ? 'fill-purple-400' : ($rating === 'Excellent' ? 'fill-emerald-400' : '') }}"></i>
+                            <span class="text-[10px] font-black {{ $cfg['text'] }} uppercase tracking-widest">{{ $rating }}</span>
                         </div>
                     </td>
 
