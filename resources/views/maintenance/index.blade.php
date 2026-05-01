@@ -1539,11 +1539,13 @@ async function openEditMaint(btn) {
         if (result.success && result.data.length > 0) {
             result.data.forEach(p => {
                 if (p.part_id) {
+                    const catalogEntry = partsCatalog.find(c => c.id === p.part_id);
                     editPartsCart.push({
-                        id:    p.part_id,
-                        name:  p.part_name,
-                        price: parseFloat(p.price)    || 0,   // force number
-                        qty:   parseInt(p.quantity)   || 1    // force integer
+                        id:     p.part_id,
+                        name:   p.part_name,
+                        price:  parseFloat(p.price)    || 0,
+                        qty:    parseInt(p.quantity)   || 1,
+                        maxQty: catalogEntry ? parseInt(catalogEntry.stock_quantity) || 999 : 999
                     });
                 } else {
                     editOtherCosts.push({
@@ -2068,7 +2070,12 @@ function addPartToCart(part, type) {
     const cart = type === 'add' ? addPartsCart : editPartsCart;
     const existing = cart.find(p => p.id === part.id);
     if(existing) {
-        existing.qty++;
+        const max = existing.maxQty || 999;
+        if (existing.qty < max) {
+            existing.qty++;
+        } else {
+            alert(`Maximum stock available for this part is ${max} pc(s).`);
+        }
     } else {
         cart.push({ ...part, qty: 1 });
     }
@@ -2083,7 +2090,15 @@ function removeFromCart(index, type) {
 
 function updateQty(index, qty, type) {
     const cart = type === 'add' ? addPartsCart : editPartsCart;
-    cart[index].qty = parseInt(qty) || 1;
+    const item = cart[index];
+    let newQty = parseInt(qty) || 1;
+    if (newQty < 1) newQty = 1;
+    const max = item.maxQty || 999;
+    if (newQty > max) {
+        newQty = max;
+        alert(`Maximum stock available for "${item.name}" is ${max} pc(s). Value capped.`);
+    }
+    item.qty = newQty;
     refreshCart(type);
 }
 
@@ -2113,8 +2128,8 @@ function refreshCart(type) {
                         <div class="text-[10px] text-gray-400">\u20b1${price.toFixed(2)} / pc</div>
                     </div>
                     <div class="flex items-center gap-3">
-                        <input type="number" value="${qty}" onchange="updateQty(${i}, this.value, '${type}')" 
-                            class="w-12 px-1 py-0.5 border rounded text-xs text-center focus:outline-none">
+                        <input type="number" value="${qty}" min="1" max="${p.maxQty || 999}" onchange="updateQty(${i}, this.value, '${type}')" 
+                            class="w-12 px-1 py-0.5 border rounded text-xs text-center focus:outline-none" title="Max: ${p.maxQty || 999} pc(s) in stock">
                         <div class="text-xs font-black text-gray-900 w-20 text-right">\u20b1${subtotal.toFixed(2)}</div>
                         <button type="button" onclick="removeFromCart(${i}, '${type}')" class="text-red-400 hover:text-red-600 transition">
                             <i data-lucide="x-circle" class="w-4 h-4"></i>
@@ -2207,7 +2222,7 @@ function initPartSelectors() {
                 if (parseInt(opt.dataset.qty) <= 0) {
                     return;
                 }
-                const part = { id: parseInt(opt.dataset.id), name: opt.dataset.name, price: parseFloat(opt.dataset.price) };
+                const part = { id: parseInt(opt.dataset.id), name: opt.dataset.name, price: parseFloat(opt.dataset.price), maxQty: parseInt(opt.dataset.qty) || 1 };
                 addPartToCart(part, type);
                 input.value = '';
                 dropdown.classList.add('hidden');
