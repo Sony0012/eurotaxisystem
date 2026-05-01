@@ -216,7 +216,7 @@
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    <div>
+                    <div id="codingRateGroup">
                         <label class="block text-xs font-bold text-purple-600 uppercase tracking-widest mb-1.5">Coding Rate <span class="text-red-500">*</span></label>
                         <div class="relative">
                             <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
@@ -259,6 +259,7 @@
         document.getElementById('ruleForm').action = '{{ route('boundary-rules.store') }}';
         document.getElementById('ruleForm').reset();
         document.getElementById('ruleModal').classList.remove('hidden');
+        toggleCodingRateField();
         validateInputs(); // Initial check
     }
 
@@ -277,6 +278,7 @@
         document.getElementById('ruleCodingIsFixed').value = rule.coding_is_fixed ? '1' : '0';
         
         document.getElementById('ruleModal').classList.remove('hidden');
+        toggleCodingRateField();
         validateInputs(); // Initial check
     }
 
@@ -289,6 +291,8 @@
         const startYearStr = document.getElementById('ruleStartYear').value;
         const endYearStr = document.getElementById('ruleEndYear').value;
         const regularRateStr = document.getElementById('ruleRegularRate').value;
+        const codingRateStr = document.getElementById('ruleCodingRate').value;
+        const codingIsFixed = document.getElementById('ruleCodingIsFixed').value === '1';
         const saveBtn = document.getElementById('saveRuleBtn');
         const errorContainer = document.getElementById('ruleErrorContainer');
         const errorList = document.getElementById('ruleErrorList');
@@ -300,11 +304,11 @@
         document.getElementById('ruleStartYear').classList.remove('border-red-500', 'ring-1', 'ring-red-500');
         document.getElementById('ruleEndYear').classList.remove('border-red-500', 'ring-1', 'ring-red-500');
         document.getElementById('ruleRegularRate').classList.remove('border-red-500', 'ring-1', 'ring-red-500');
+        document.getElementById('ruleCodingRate').classList.remove('border-red-500', 'ring-1', 'ring-red-500');
 
         // Check Description
         if (name.length === 0) {
             isValid = false;
-            // No specific message for empty name yet, just disable button
         }
 
         // Check Years
@@ -347,6 +351,20 @@
             isValid = false;
         }
 
+        // Check Coding Rate only if Fixed Amount is selected
+        if (codingIsFixed) {
+            const cr = parseFloat(codingRateStr) || 0;
+            if (codingRateStr.length > 0) {
+                if (cr <= 0) {
+                    errors.push('Coding Rate must be greater than 0 if Fixed Amount is selected.');
+                    document.getElementById('ruleCodingRate').classList.add('border-red-500', 'ring-1', 'ring-red-500');
+                    isValid = false;
+                }
+            } else {
+                isValid = false;
+            }
+        }
+
         // Display Errors
         if (errors.length > 0) {
             errorList.innerHTML = errors.map(err => `<li>${err}</li>`).join('');
@@ -359,10 +377,29 @@
         saveBtn.disabled = !isValid;
     }
 
+    function toggleCodingRateField() {
+        const codingIsFixed = document.getElementById('ruleCodingIsFixed').value === '1';
+        const codingRateGroup = document.getElementById('codingRateGroup');
+        const codingRateInput = document.getElementById('ruleCodingRate');
+        
+        if (codingIsFixed) {
+            codingRateGroup.classList.remove('hidden');
+            codingRateInput.setAttribute('required', 'required');
+        } else {
+            codingRateGroup.classList.add('hidden');
+            codingRateInput.removeAttribute('required');
+            codingRateInput.value = '0'; // Set to 0 if not used
+        }
+        validateInputs();
+    }
+
     // Attach listeners for real-time validation
-    ['ruleName', 'ruleStartYear', 'ruleEndYear', 'ruleRegularRate'].forEach(id => {
+    ['ruleName', 'ruleStartYear', 'ruleEndYear', 'ruleRegularRate', 'ruleCodingRate'].forEach(id => {
         document.getElementById(id).addEventListener('input', validateInputs);
     });
+
+    document.getElementById('ruleCodingIsFixed').addEventListener('change', toggleCodingRateField);
+
 
     // Add JS validation for whitespace and extra checks on submit
     document.getElementById('ruleForm').addEventListener('submit', function(e) {
