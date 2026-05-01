@@ -230,6 +230,8 @@ class BoundaryController extends Controller
                 return back()->with('error', 'Actual collected amount cannot be zero unless it is an Early Shift Breakdown.');
             }
 
+            $is_valid_amount = ($boundary_amount > 0 || $needs_maintenance_zero);
+
             if ($unit_id > 0 && $driver_id > 0 && $is_valid_amount) {
                 // Check duplicate
                 $existing = DB::table('boundaries')->where('unit_id', $unit_id)->where('date', $date)->first();
@@ -531,6 +533,8 @@ class BoundaryController extends Controller
             if (!$needs_maintenance_zero && $actual_boundary <= 0) {
                 return back()->with('error', 'Actual collected amount cannot be zero unless it is an Early Shift Breakdown.');
             }
+
+            $is_valid_amount = ($boundary_amount > 0 || $needs_maintenance_zero);
 
             if ($id > 0 && $is_valid_amount) {
                 $boundary = Boundary::find($id);
