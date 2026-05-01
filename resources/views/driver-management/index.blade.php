@@ -562,6 +562,19 @@
 
 @push('scripts')
 <script>
+    // ─── Set hire date min to TODAY (client local time) immediately on page load ───
+    document.addEventListener('DOMContentLoaded', function () {
+        const _n = new Date();
+        const _today = _n.getFullYear() + '-' +
+            String(_n.getMonth() + 1).padStart(2, '0') + '-' +
+            String(_n.getDate()).padStart(2, '0');
+        const hireDateEl = document.getElementById('driverHireDate');
+        if (hireDateEl) {
+            hireDateEl.min = _today;
+            hireDateEl.value = _today;
+        }
+    });
+
     window.boundaryRules = @json($boundary_rules ?? []);
     function openAddDriverModal() {
         document.getElementById('driverModalTitle').textContent = 'Add Driver';
