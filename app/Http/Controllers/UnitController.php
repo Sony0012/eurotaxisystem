@@ -167,6 +167,7 @@ class UnitController extends Controller
         // Drivers list for add/edit modal
         $all_drivers = DB::table('drivers as d')
             ->whereNull('d.deleted_at')
+            ->where('d.driver_status', '!=', 'banned')
             ->select(
                 'd.id', 
                 DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')) as full_name"), 

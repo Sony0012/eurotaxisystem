@@ -101,6 +101,7 @@ class MaintenanceController extends Controller
         $units = DB::table('units')->whereNull('deleted_at')->where('status', '!=', 'retired')->orderBy('plate_number')->get();
         $drivers = DB::table('drivers')
             ->whereNull('deleted_at')
+            ->where('driver_status', '!=', 'banned')
             ->select('id', DB::raw('CONCAT(first_name, " ", last_name) as name'), 'nickname')
             ->orderBy('first_name')
             ->get();

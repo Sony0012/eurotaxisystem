@@ -94,6 +94,7 @@ class DriverBehaviorController extends Controller
                 $j->on('d.id', '=', 'u.driver_id')->orOn('d.id', '=', 'u.secondary_driver_id');
             })
             ->whereNull('d.deleted_at')
+            ->where('d.driver_status', '!=', 'banned')
             ->select('d.id', 
                 DB::raw("TRIM(CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,''))) as full_name"),
                 'u.plate_number as current_plate'
@@ -651,6 +652,7 @@ class DriverBehaviorController extends Controller
     {
         $drivers = DB::table('drivers as d')
             ->whereNull('d.deleted_at')
+            ->where('d.driver_status', '!=', 'banned')
             ->leftJoin('units as u', function($j) {
                 $j->on('u.driver_id', '=', 'd.id')->orOn('u.secondary_driver_id', '=', 'd.id');
             })
@@ -723,6 +725,7 @@ class DriverBehaviorController extends Controller
     {
         $drivers = DB::table('drivers as d')
             ->whereNull('d.deleted_at')
+            ->where('d.driver_status', '!=', 'banned')
             ->leftJoin('units as u', function($j) {
                 $j->on('u.driver_id', '=', 'd.id')->orOn('u.secondary_driver_id', '=', 'd.id');
             })

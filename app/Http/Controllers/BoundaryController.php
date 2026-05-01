@@ -92,7 +92,7 @@ class BoundaryController extends Controller
                    (SELECT COALESCE(SUM(remaining_balance), 0) FROM driver_behavior WHERE driver_id = d.id AND is_driver_fault = 1 AND charge_status = 'pending' AND remaining_balance > 0) as total_accident_debt
             FROM drivers d 
             LEFT JOIN units ua ON (d.id = ua.driver_id OR d.id = ua.secondary_driver_id) AND ua.deleted_at IS NULL
-            WHERE d.deleted_at IS NULL
+            WHERE d.deleted_at IS NULL AND d.driver_status != 'banned'
             ORDER BY 
                 CASE WHEN ua.plate_number IS NOT NULL THEN 1 ELSE 0 END,
                 d.last_name, d.first_name
@@ -107,7 +107,7 @@ class BoundaryController extends Controller
             FROM drivers d 
             LEFT JOIN units ua ON (d.id = ua.driver_id OR d.id = ua.secondary_driver_id) AND ua.deleted_at IS NULL
             WHERE ua.plate_number IS NOT NULL
-            AND d.deleted_at IS NULL
+            AND d.deleted_at IS NULL AND d.driver_status != 'banned'
             ORDER BY ua.plate_number, d.last_name, d.first_name
         ");
         $assigned_drivers = array_map(function($d) { return (array) $d; }, $assigned_drivers);
@@ -122,7 +122,7 @@ class BoundaryController extends Controller
                        ua.plate_number as current_unit
                 FROM drivers d 
                 LEFT JOIN units ua ON (d.id = ua.driver_id OR d.id = ua.secondary_driver_id)
-                WHERE ua.id = ? AND d.deleted_at IS NULL
+                WHERE ua.id = ? AND d.deleted_at IS NULL AND d.driver_status != 'banned'
                 ORDER BY d.last_name, d.first_name
             ", [$unit_id]);
             $unit_drivers[$unit_id] = array_map(function($d) { return (array) $d; }, $res);
