@@ -1437,7 +1437,7 @@ window.handleTypeChange = function(val) {
         const sec = document.getElementById('section-complaint');
         if (sec) sec.classList.remove('hidden');
         _renderSubOptions('subOptionsContainer', meta.subOptions, 'subClassificationInput', meta.autoBan, meta.banValue, 'blue');
-        _updateBanWarning(meta.autoBan, meta.banValue, '');
+        window._checkAutoBanState();
     } else if (mode === 'traffic') {
         const sec = document.getElementById('section-traffic');
         if (sec) sec.classList.remove('hidden');
