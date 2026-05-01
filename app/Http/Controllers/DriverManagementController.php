@@ -43,30 +43,11 @@ class DriverManagementController extends Controller
                 DB::raw("(SELECT coding_day FROM units WHERE (driver_id = d.id OR secondary_driver_id = d.id) AND deleted_at IS NULL LIMIT 1) as assigned_coding_day"),
                 DB::raw("(SELECT year FROM units WHERE (driver_id = d.id OR secondary_driver_id = d.id) AND deleted_at IS NULL LIMIT 1) as assigned_unit_year"),
                 DB::raw("(SELECT COALESCE(SUM(actual_boundary * 0.05), 0) FROM boundaries WHERE driver_id = d.id AND status IN ('paid', 'excess') AND MONTH(date) = MONTH(CURRENT_DATE()) AND YEAR(date) = YEAR(CURRENT_DATE()) AND deleted_at IS NULL) as monthly_incentive"),
-                // Improved Performance Rating Logic (Attendance 40%, Financial 30%, Safety 30%)
-                DB::raw("(SELECT 
-                    CASE 
-                        WHEN (score) >= 90 THEN 'Elite'
-                        WHEN (score) >= 75 THEN 'Excellent'
-                        WHEN (score) >= 50 THEN 'Good'
-                        WHEN (score) >= 25 THEN 'Average'
-                        ELSE 'Growing'
-                    END
-                FROM (
-                    SELECT 
-                        (
-                            -- Attendance Score (Max 40 pts)
-                            LEAST(40, (COUNT(*) / 25.0) * 40) +
-                            -- Financial Score (Max 30 pts)
-                            COALESCE((SUM(CASE WHEN status IN ('paid', 'excess') THEN 1 ELSE 0 END) / NULLIF(COUNT(*), 0)) * 30, 0) +
-                            -- Safety Score (Max 30 pts)
-                            GREATEST(0, 30 - (SELECT COUNT(*) FROM driver_behavior WHERE driver_id = d.id AND created_at >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY)) * 10)
-                        ) as score
-                    FROM boundaries 
-                    WHERE driver_id = d.id 
-                    AND deleted_at IS NULL 
-                    AND date >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY)
-                ) as rating_calc) as performance_rating"),
+                // Basic counts for PHP-side Rating Calculation
+                DB::raw("(SELECT COUNT(*) FROM boundaries WHERE driver_id = d.id AND deleted_at IS NULL AND date >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY)) as shifts_count"),
+                DB::raw("(SELECT COUNT(*) FROM boundaries WHERE driver_id = d.id AND status IN ('paid', 'excess') AND deleted_at IS NULL AND date >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY)) as paid_shifts_count"),
+                DB::raw("(SELECT COUNT(*) FROM driver_behavior WHERE driver_id = d.id AND created_at >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY)) as incidents_count"),
+                
                 // is_active derived from driver_status
                 DB::raw("CASE WHEN d.driver_status IN ('available','assigned') THEN 1 ELSE 0 END as is_active"),
                 // Net unpaid shortage: sum of all shortages minus sum of all excess
@@ -143,6 +124,9 @@ class DriverManagementController extends Controller
                 $driver->target_label = null;
                 $driver->target_type = null;
             }
+
+            // --- 360-Degree Performance Rating (PHP Side) ---
+            $driver->performance_rating = $this->calculatePerformanceRating($driver);
         }
 
         // Stats
@@ -199,32 +183,16 @@ class DriverManagementController extends Controller
                 DB::raw("(SELECT boundary_rate FROM units WHERE (driver_id = d.id OR secondary_driver_id = d.id) AND deleted_at IS NULL LIMIT 1) as assigned_boundary_rate"),
                 DB::raw("(SELECT coding_day FROM units WHERE (driver_id = d.id OR secondary_driver_id = d.id) AND deleted_at IS NULL LIMIT 1) as assigned_coding_day"),
                 DB::raw("(SELECT year FROM units WHERE (driver_id = d.id OR secondary_driver_id = d.id) AND deleted_at IS NULL LIMIT 1) as assigned_unit_year"),
-                // Improved Performance Rating Logic (Attendance 40%, Financial 30%, Safety 30%)
-                DB::raw("(SELECT 
-                    CASE 
-                        WHEN (score) >= 90 THEN 'Elite'
-                        WHEN (score) >= 75 THEN 'Excellent'
-                        WHEN (score) >= 50 THEN 'Good'
-                        WHEN (score) >= 25 THEN 'Average'
-                        ELSE 'Growing'
-                    END
-                FROM (
-                    SELECT 
-                        (
-                            -- Attendance Score (Max 40 pts)
-                            LEAST(40, (COUNT(*) / 25.0) * 40) +
-                            -- Financial Score (Max 30 pts)
-                            COALESCE((SUM(CASE WHEN status IN ('paid', 'excess') THEN 1 ELSE 0 END) / NULLIF(COUNT(*), 0)) * 30, 0) +
-                            -- Safety Score (Max 30 pts)
-                            GREATEST(0, 30 - (SELECT COUNT(*) FROM driver_behavior WHERE driver_id = d.id AND created_at >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY)) * 10)
-                        ) as score
-                    FROM boundaries 
-                    WHERE driver_id = d.id 
-                    AND deleted_at IS NULL 
-                    AND date >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY)
-                ) as rating_calc) as performance_rating")
+                // Basic counts for PHP-side Rating Calculation
+                DB::raw("(SELECT COUNT(*) FROM boundaries WHERE driver_id = d.id AND deleted_at IS NULL AND date >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY)) as shifts_count"),
+                DB::raw("(SELECT COUNT(*) FROM boundaries WHERE driver_id = d.id AND status IN ('paid', 'excess') AND deleted_at IS NULL AND date >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY)) as paid_shifts_count"),
+                DB::raw("(SELECT COUNT(*) FROM driver_behavior WHERE driver_id = d.id AND created_at >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY)) as incidents_count")
             )
             ->first();
+
+        if ($driver) {
+            $driver->performance_rating = $this->calculatePerformanceRating($driver);
+        }
 
         if (!empty($driver->assigned_plate) || !empty($driver->assigned_unit)) {
             $driver->current_pricing = $this->getCurrentPricing([
@@ -728,5 +696,31 @@ class DriverManagementController extends Controller
         ActivityLogController::log('Debt Payment', "Processed ₱" . number_format($amount, 2) . " cash payment from {$driverName} for accident debt.");
 
         return back()->with('success', 'Cash payment processed successfully. The balance has been updated and the revenue has been recorded.');
+    }
+
+    private function calculatePerformanceRating($driver)
+    {
+        $shiftsCount    = (int) ($driver->shifts_count ?? 0);
+        $paidCount      = (int) ($driver->paid_shifts_count ?? 0);
+        $incidentsCount = (int) ($driver->incidents_count ?? 0);
+
+        if ($shiftsCount === 0) return 'Growing';
+
+        // 1. Attendance Score (Max 40 pts) - Goal is 25 shifts
+        $attendanceScore = min(40, ($shiftsCount / 25.0) * 40);
+
+        // 2. Financial Score (Max 30 pts) - Percentage of paid shifts
+        $financialScore = ($paidCount / $shiftsCount) * 30;
+
+        // 3. Safety Score (Max 30 pts) - 30 minus 10 per incident
+        $safetyScore = max(0, 30 - ($incidentsCount * 10));
+
+        $totalScore = $attendanceScore + $financialScore + $safetyScore;
+
+        if ($totalScore >= 90) return 'Elite';
+        if ($totalScore >= 75) return 'Excellent';
+        if ($totalScore >= 50) return 'Good';
+        if ($totalScore >= 25) return 'Average';
+        return 'Growing';
     }
 }
