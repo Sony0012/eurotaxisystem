@@ -1355,7 +1355,7 @@ window.switchTab = function(name) {
      if (!confirm('Archive this classification?')) return;
      try {
          const res = await fetch(`/super-admin/incident-classifications/${id}/archive`, {
-             method: 'POST',
+             method: 'DELETE',
              headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
          });
          const data = await res.json();
