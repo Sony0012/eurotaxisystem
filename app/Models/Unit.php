@@ -20,6 +20,8 @@ class Unit extends Model
         'boundary_rate',
         'purchase_date',
         'purchase_cost',
+        'motor_no',
+        'chassis_no',
         'color',
         'unit_type',
         'coding_day',
