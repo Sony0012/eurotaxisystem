@@ -10,10 +10,11 @@ class SalaryController extends Controller
 {
     public function index(Request $request)
     {
-        $currentMonth = (int)date('m');
-        $currentYear = (int)date('Y');
+        $month = $request->input('month', date('m'));
+        $year = $request->input('year', date('Y'));
         $search = $request->input('search', '');
 
+        // 1. Table Query (Recent Salaries)
         $query = DB::table('salaries as s')
             ->leftJoin('users as u', function($join) {
                 $join->on('s.employee_id', '=', 'u.id')
@@ -45,28 +46,38 @@ class SalaryController extends Controller
 
         if ($request->filled('date')) {
             $query->whereDate('s.pay_date', $request->date);
-        } else {
-            $query->where('s.month', $currentMonth)
-                  ->where('s.year', $currentYear);
         }
 
-        $salaries = $query->orderBy('u.full_name')->get();
+        // Table shows all recent records regardless of month, ordered by latest creation
+        $salaries = $query->orderBy('s.created_at', 'desc')->get();
 
+        // 2. Summary Query (Strictly Filtered Month)
+        $monthlyRecords = DB::table('salaries')
+            ->where('month', $month)
+            ->where('year', $year)
+            ->get();
+ 
         // Calculate income from boundaries for net profit
         $total_income = DB::table('boundaries')
             ->whereNull('deleted_at')
-            ->whereMonth('date', $currentMonth)
-            ->whereYear('date', $currentYear)
+            ->whereMonth('date', $month)
+            ->whereYear('date', $year)
             ->sum('actual_boundary') ?? 0;
-
-        // Calculate totals/summary
-        $total_salaries = $salaries->sum('total_pay');
+ 
+        // Calculate totals/summary using filtered records
+        $total_salaries = $monthlyRecords->sum('total_salary');
+ 
+        // Count employees paid this month for average calculation
+        $employees_paid = $monthlyRecords->unique(function ($item) {
+            return $item->source . '_' . $item->employee_id;
+        })->count();
 
         // Calculate totals/summary (Unified count of Users + Staff, excluding Drivers and Developer)
         $user_count = DB::table('users')
             ->whereNull('deleted_at')
             ->where('is_active', 1)
-            ->where('role', '!=', 'developer')
+            ->where('role', '!=', 'driver')
+            ->where('role', '!=', 'super_admin')
             ->count();
 
         $staff_count = DB::table('staff')
@@ -82,14 +93,15 @@ class SalaryController extends Controller
             'total_employees' => $total_employees,
             'total_salaries' => $total_salaries,
             'net_profit' => $net_profit,
-            'avg_salary' => $total_employees > 0 ? $total_salaries / $total_employees : 0,
+            'avg_salary' => $employees_paid > 0 ? $total_salaries / $employees_paid : 0,
         ];
 
         // Get employees for dropdown (Combine Admin/Web Staff and General Staff)
         $employees = DB::table('users')
             ->whereNull('deleted_at')
             ->where('is_active', 1)
-            ->whereIn('role', ['admin', 'staff', 'office_staff', 'mechanic']) // broadened roles
+            ->where('role', '!=', 'driver')
+            ->where('role', '!=', 'super_admin')
             ->select('id', 'full_name as name', 'role', DB::raw("'user' as source"))
             ->union(
                 DB::table('staff')
@@ -101,7 +113,7 @@ class SalaryController extends Controller
             ->orderBy('name')
             ->get();
 
-        return view('salary.index', compact('salaries', 'summary', 'search', 'employees'));
+        return view('salary.index', compact('salaries', 'summary', 'search', 'employees', 'month', 'year'));
     }
 
     public function store(Request $request)
@@ -109,17 +121,21 @@ class SalaryController extends Controller
         $data = $request->validate([
             'employee_raw' => 'required|string', // Expecting "source_id", e.g., "user_5" or "staff_2"
             'employee_type' => 'required|string',
-            'basic_salary' => 'required|numeric|min:0',
-            'overtime_pay' => 'nullable|numeric|min:0',
-            'holiday_pay' => 'nullable|numeric|min:0',
-            'night_differential' => 'nullable|numeric|min:0',
-            'allowance' => 'nullable|numeric|min:0',
+            'basic_salary' => 'required|integer|min:1|max:99999',
+            'overtime_pay' => 'nullable|integer|min:1|max:99999',
+            'holiday_pay' => 'nullable|integer|min:1|max:99999',
+            'night_differential' => 'nullable|integer|min:1|max:99999',
+            'allowance' => 'nullable|integer|min:1|max:99999',
             'month' => 'required|integer|min:1|max:12',
             'year' => 'required|integer|min:2020|max:2030',
             'pay_date' => 'required|date',
         ]);
 
-        $total_salary = $data['basic_salary'] + $data['overtime_pay'] + $data['holiday_pay'] + $data['night_differential'] + $data['allowance'];
+        $total_salary = $data['basic_salary'] 
+            + ($data['overtime_pay'] ?? 0) 
+            + ($data['holiday_pay'] ?? 0) 
+            + ($data['night_differential'] ?? 0) 
+            + ($data['allowance'] ?? 0);
 
         $parts = explode('_', $data['employee_raw'], 2);
         $source = count($parts) == 2 ? $parts[0] : 'user';
@@ -156,15 +172,19 @@ class SalaryController extends Controller
     {
         $data = $request->validate([
             'employee_type' => 'required|string',
-            'basic_salary' => 'required|numeric|min:0',
-            'overtime_pay' => 'nullable|numeric|min:0',
-            'holiday_pay' => 'nullable|numeric|min:0',
-            'night_differential' => 'nullable|numeric|min:0',
-            'allowance' => 'nullable|numeric|min:0',
+            'basic_salary' => 'required|integer|min:1|max:99999',
+            'overtime_pay' => 'nullable|integer|min:1|max:99999',
+            'holiday_pay' => 'nullable|integer|min:1|max:99999',
+            'night_differential' => 'nullable|integer|min:1|max:99999',
+            'allowance' => 'nullable|integer|min:1|max:99999',
             'pay_date' => 'required|date',
         ]);
 
-        $total_salary = $data['basic_salary'] + $data['overtime_pay'] + $data['holiday_pay'] + $data['night_differential'] + $data['allowance'];
+        $total_salary = $data['basic_salary'] 
+            + ($data['overtime_pay'] ?? 0) 
+            + ($data['holiday_pay'] ?? 0) 
+            + ($data['night_differential'] ?? 0) 
+            + ($data['allowance'] ?? 0);
 
         DB::table('salaries')->where('id', $id)->update([
             'employee_type' => $data['employee_type'],
