@@ -163,19 +163,26 @@
                     {{-- Rating --}}
                     <td class="px-6 py-5 whitespace-nowrap">
                         @php
-                            $rating = $driver->performance_rating ?? 'Growing';
+                            $ratingData = $driver->performance_rating ?? ['label' => 'Growing', 'stars' => 1];
+                            $ratingLabel = $ratingData['label'];
+                            $starsCount = $ratingData['stars'];
+                            
                             $rating_configs = [
-                                'Elite'     => ['bg' => 'bg-purple-50', 'text' => 'text-purple-700', 'border' => 'border-purple-200', 'icon' => 'crown', 'star_color' => 'text-purple-500'],
-                                'Excellent' => ['bg' => 'bg-emerald-50', 'text' => 'text-emerald-700', 'border' => 'border-emerald-200', 'icon' => 'star', 'star_color' => 'text-emerald-500'],
-                                'Good'      => ['bg' => 'bg-blue-50', 'text' => 'text-blue-700', 'border' => 'border-blue-200', 'icon' => 'thumbs-up', 'star_color' => 'text-blue-500'],
-                                'Average'   => ['bg' => 'bg-amber-50', 'text' => 'text-amber-700', 'border' => 'border-amber-200', 'icon' => 'activity', 'star_color' => 'text-amber-500'],
-                                'Growing'   => ['bg' => 'bg-slate-50', 'text' => 'text-slate-500', 'border' => 'border-slate-200', 'icon' => 'trending-up', 'star_color' => 'text-slate-400'],
+                                'Elite'     => ['bg' => 'bg-purple-50', 'text' => 'text-purple-700', 'border' => 'border-purple-200', 'star' => 'text-purple-500'],
+                                'Excellent' => ['bg' => 'bg-emerald-50', 'text' => 'text-emerald-700', 'border' => 'border-emerald-200', 'star' => 'text-emerald-500'],
+                                'Good'      => ['bg' => 'bg-blue-50', 'text' => 'text-blue-700', 'border' => 'border-blue-200', 'star' => 'text-blue-500'],
+                                'Average'   => ['bg' => 'bg-amber-50', 'text' => 'text-amber-700', 'border' => 'border-amber-200', 'star' => 'text-amber-500'],
+                                'Growing'   => ['bg' => 'bg-slate-50', 'text' => 'text-slate-500', 'border' => 'border-slate-200', 'star' => 'text-slate-400'],
                             ];
-                            $cfg = $rating_configs[$rating] ?? $rating_configs['Growing'];
+                            $cfg = $rating_configs[$ratingLabel] ?? $rating_configs['Growing'];
                         @endphp
-                        <div class="inline-flex items-center gap-1.5 {{ $cfg['bg'] }} px-2.5 py-1 rounded-lg border {{ $cfg['border'] }} shadow-sm">
-                            <i data-lucide="{{ $cfg['icon'] }}" class="w-3.5 h-3.5 {{ $cfg['star_color'] }} {{ $rating === 'Elite' ? 'fill-purple-400' : ($rating === 'Excellent' ? 'fill-emerald-400' : '') }}"></i>
-                            <span class="text-[10px] font-black {{ $cfg['text'] }} uppercase tracking-widest">{{ $rating }}</span>
+                        <div class="flex flex-col gap-1">
+                            <div class="flex items-center gap-0.5">
+                                @for($i = 1; $i <= 5; $i++)
+                                    <i data-lucide="star" class="w-3 h-3 {{ $i <= $starsCount ? ($cfg['star'] . ' fill-current') : 'text-slate-200' }}"></i>
+                                @endfor
+                            </div>
+                            <span class="text-[9px] font-black {{ $cfg['text'] }} uppercase tracking-widest">{{ $ratingLabel }}</span>
                         </div>
                     </td>
 

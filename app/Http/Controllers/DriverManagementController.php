@@ -43,10 +43,12 @@ class DriverManagementController extends Controller
                 DB::raw("(SELECT coding_day FROM units WHERE (driver_id = d.id OR secondary_driver_id = d.id) AND deleted_at IS NULL LIMIT 1) as assigned_coding_day"),
                 DB::raw("(SELECT year FROM units WHERE (driver_id = d.id OR secondary_driver_id = d.id) AND deleted_at IS NULL LIMIT 1) as assigned_unit_year"),
                 DB::raw("(SELECT COALESCE(SUM(actual_boundary * 0.05), 0) FROM boundaries WHERE driver_id = d.id AND status IN ('paid', 'excess') AND MONTH(date) = MONTH(CURRENT_DATE()) AND YEAR(date) = YEAR(CURRENT_DATE()) AND deleted_at IS NULL) as monthly_incentive"),
-                // Basic counts for PHP-side Rating Calculation
+                // Basic counts for PHP-side Unified Rating Calculation (30-day window)
                 DB::raw("(SELECT COUNT(*) FROM boundaries WHERE driver_id = d.id AND deleted_at IS NULL AND date >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY)) as shifts_count"),
                 DB::raw("(SELECT COUNT(*) FROM boundaries WHERE driver_id = d.id AND status IN ('paid', 'excess') AND deleted_at IS NULL AND date >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY)) as paid_shifts_count"),
                 DB::raw("(SELECT COUNT(*) FROM driver_behavior WHERE driver_id = d.id AND created_at >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY)) as incidents_count"),
+                DB::raw("(SELECT COUNT(*) FROM boundaries WHERE driver_id = d.id AND is_late = 1 AND deleted_at IS NULL AND date >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY)) as late_count"),
+                DB::raw("(SELECT COUNT(*) FROM boundaries WHERE expected_driver_id = d.id AND driver_id != d.id AND deleted_at IS NULL AND date >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY)) as absent_count"),
                 
                 // is_active derived from driver_status
                 DB::raw("CASE WHEN d.driver_status IN ('available','assigned') THEN 1 ELSE 0 END as is_active"),
@@ -186,7 +188,9 @@ class DriverManagementController extends Controller
                 // Basic counts for PHP-side Rating Calculation
                 DB::raw("(SELECT COUNT(*) FROM boundaries WHERE driver_id = d.id AND deleted_at IS NULL AND date >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY)) as shifts_count"),
                 DB::raw("(SELECT COUNT(*) FROM boundaries WHERE driver_id = d.id AND status IN ('paid', 'excess') AND deleted_at IS NULL AND date >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY)) as paid_shifts_count"),
-                DB::raw("(SELECT COUNT(*) FROM driver_behavior WHERE driver_id = d.id AND created_at >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY)) as incidents_count")
+                DB::raw("(SELECT COUNT(*) FROM driver_behavior WHERE driver_id = d.id AND created_at >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY)) as incidents_count"),
+                DB::raw("(SELECT COUNT(*) FROM boundaries WHERE driver_id = d.id AND is_late = 1 AND deleted_at IS NULL AND date >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY)) as late_count"),
+                DB::raw("(SELECT COUNT(*) FROM boundaries WHERE expected_driver_id = d.id AND driver_id != d.id AND deleted_at IS NULL AND date >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY)) as absent_count")
             )
             ->first();
 
@@ -703,50 +707,27 @@ class DriverManagementController extends Controller
         $shiftsCount    = (int) ($driver->shifts_count ?? 0);
         $paidCount      = (int) ($driver->paid_shifts_count ?? 0);
         $incidentsCount = (int) ($driver->incidents_count ?? 0);
+        $lateCount      = (int) ($driver->late_count ?? 0);
+        $absentCount    = (int) ($driver->absent_count ?? 0);
         $hasShortage    = (isset($driver->net_shortage) && $driver->net_shortage > 0);
         $hasDebt        = (isset($driver->total_pending_debt) && $driver->total_pending_debt > 0);
 
-        if ($shiftsCount === 0) return 'Growing';
+        if ($shiftsCount === 0) return ['label' => 'Growing', 'stars' => 1];
 
-        // 1. Attendance Score (Max 40 pts)
-        $attendanceScore = min(40, ($shiftsCount / 25.0) * 40);
+        // --- Unified Eligibility Check (Pari-parihas sa Incentives) ---
+        // A driver is only eligible for 3+ stars if they have NO violations/issues in 30 days
+        $isEligible = ($incidentsCount === 0 && $lateCount === 0 && $absentCount === 0 && !$hasShortage && !$hasDebt);
 
-        // 2. Financial Score (Max 30 pts)
-        $financialScore = ($paidCount / $shiftsCount) * 30;
-        if ($hasShortage) $financialScore *= 0.5; // 50% Penalty for unpaid shortages
-
-        // 3. Safety Score (Max 30 pts)
-        // Heavy penalty: -20 pts per incident in last 30 days
-        $safetyScore = max(0, 30 - ($incidentsCount * 20));
-        
-        // CRITICAL: If they have pending damage debt, Safety Score is forced to ZERO
-        if ($hasDebt) $safetyScore = 0;
-
-        $totalScore = $attendanceScore + $financialScore + $safetyScore;
-
-        // =====================================================================
-        // PERFORMANCE CAPS (The "Connections")
-        // =====================================================================
-        
-        // CAP 1: If has pending damage debt (ASSET DAMAGE), MAX rating is 'Growing' (Score 24)
-        if ($hasDebt && $totalScore > 24) {
-            $totalScore = 24;
+        if ($isEligible) {
+            if ($shiftsCount >= 25) return ['label' => 'Elite', 'stars' => 5];
+            if ($shiftsCount >= 15) return ['label' => 'Excellent', 'stars' => 4];
+            return ['label' => 'Good', 'stars' => 3];
+        } else {
+            // Ineligible drivers are capped
+            // Major issues (Damage Debt or multiple incidents) = 1 Star
+            if ($hasDebt || $incidentsCount >= 2) return ['label' => 'Growing', 'stars' => 1];
+            // Minor issues (Shortage, 1 Incident, Late, or Absent) = 2 Stars
+            return ['label' => 'Average', 'stars' => 2];
         }
-
-        // CAP 2: If has boundary shortage (FINANCIAL), MAX rating is 'Average' (Score 49)
-        if ($hasShortage && $totalScore > 49) {
-            $totalScore = 49;
-        }
-
-        // CAP 3: If multiple incidents (2+), MAX rating is 'Average'
-        if ($incidentsCount >= 2 && $totalScore > 49) {
-            $totalScore = 49;
-        }
-
-        if ($totalScore >= 90) return 'Elite';
-        if ($totalScore >= 75) return 'Excellent';
-        if ($totalScore >= 50) return 'Good';
-        if ($totalScore >= 25) return 'Average';
-        return 'Growing';
     }
 }
