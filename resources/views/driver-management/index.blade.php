@@ -92,6 +92,7 @@
                     <option value="active" {{ ($status_filter ?? '') === 'active' ? 'selected' : '' }}>Active Only</option>
                     <option value="inactive" {{ ($status_filter ?? '') === 'inactive' ? 'selected' : '' }}>Inactive Only</option>
                     <option value="no_unit" {{ ($status_filter ?? '') === 'no_unit' ? 'selected' : '' }}>Available (No Unit)</option>
+                    <option value="banned" {{ ($status_filter ?? '') === 'banned' ? 'selected' : '' }}>Banned Drivers</option>
                 </select>
             </div>
 

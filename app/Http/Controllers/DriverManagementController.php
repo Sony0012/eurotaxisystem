@@ -84,6 +84,8 @@ class DriverManagementController extends Controller
                              ->orWhereColumn('units.secondary_driver_id', 'd.id');
                       });
                 });
+            } elseif ($status_filter === 'banned') {
+                $query->where('d.driver_status', 'banned');
             }
         }
 
