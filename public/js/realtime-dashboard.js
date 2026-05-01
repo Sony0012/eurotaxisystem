@@ -1,12 +1,10 @@
 class RealTimeDashboard {
     constructor() {
-        this.updateInterval = 5000; // Update every 5 seconds
+        this.updateInterval = 5000;
         this.isUpdating = false;
         this.lastUpdateTime = Date.now();
-        this.stabilityDelay = 3000; // Wait 3 seconds after load before first AJAX
+        this.stabilityDelay = 3000;
         
-        // Ingest initial stats from Blade to prevent first-load flickering
-        // Ensure values are numbers for comparison
         this.previousStats = {};
         if (window.__INITIAL_STATS__) {
             Object.keys(window.__INITIAL_STATS__).forEach(key => {
@@ -14,23 +12,19 @@ class RealTimeDashboard {
             });
         }
         
-        console.log('[Dashboard] Initialized with stats:', this.previousStats);
         this.init();
     }
 
     init() {
-        // Initial delay to let the page settle
         setTimeout(() => {
             this.startRealTimeUpdates();
         }, this.stabilityDelay);
         
-        // Listen for visibility change to pause/resume updates
         document.addEventListener('visibilitychange', () => {
             if (document.hidden) {
                 this.stopRealTimeUpdates();
             } else {
                 this.startRealTimeUpdates();
-                // When returning to tab, wait a bit before refreshing
                 setTimeout(() => this.updateDashboardData(), 1500);
             }
         });
@@ -38,7 +32,6 @@ class RealTimeDashboard {
 
     startRealTimeUpdates() {
         if (!this.pollInterval) {
-            console.log('[Dashboard] Starting poll interval...');
             this.pollInterval = setInterval(() => {
                 this.updateDashboardData();
             }, this.updateInterval);
@@ -47,7 +40,6 @@ class RealTimeDashboard {
 
     stopRealTimeUpdates() {
         if (this.pollInterval) {
-            console.log('[Dashboard] Stopping poll interval...');
             clearInterval(this.pollInterval);
             this.pollInterval = null;
         }
@@ -55,8 +47,6 @@ class RealTimeDashboard {
 
     async updateDashboardData() {
         if (this.isUpdating) return;
-        
-        // Prevent updates too close to each other
         if (Date.now() - this.lastUpdateTime < 2000) return;
 
         this.isUpdating = true;
@@ -69,15 +59,11 @@ class RealTimeDashboard {
             const data = await response.json();
             
             if (data.success && data.stats) {
-                // FAIL-SAFE: If active_units is 0 but we had units before, skip update
-                // This prevents "zeroing" if the server returns an empty or invalid response
                 const newActiveUnits = parseFloat(data.stats.active_units) || 0;
                 if (newActiveUnits === 0 && this.previousStats.active_units > 0) {
-                    console.warn('[Dashboard] API returned 0 units. Skipping update to prevent zeroing flicker.');
                     return;
                 }
 
-                console.log('[Dashboard] Received fresh data:', data.stats);
                 this.updateStats(data.stats);
                 this.updateCharts(data.charts);
                 
@@ -86,7 +72,7 @@ class RealTimeDashboard {
                 }
             }
         } catch (error) {
-            console.error('[Dashboard] Update failed:', error);
+            // Silently fail in production
         } finally {
             this.isUpdating = false;
         }
@@ -108,15 +94,12 @@ class RealTimeDashboard {
         statConfig.forEach(config => {
             const newValue = stats[config.key];
             const prevValue = this.previousStats[config.key];
-
-            // Use strict numeric comparison
             const nVal = parseFloat(newValue) || 0;
             const pVal = parseFloat(prevValue) || 0;
 
             if (newValue !== undefined && newValue !== null && Math.abs(nVal - pVal) > 0.01) {
                 const element = document.querySelector(config.selector);
                 if (element) {
-                    console.log(`[Dashboard] Updating ${config.key}: ${pVal} -> ${nVal}`);
                     this.animateValue(element, nVal, config.format);
                     this.previousStats[config.key] = nVal;
                 }
@@ -161,7 +144,6 @@ class RealTimeDashboard {
     updateCharts(charts) {
         if (!charts) return;
 
-        // Weekly Chart
         if (window.weeklyChart && charts.weekly_data) {
             window.weeklyChart.data.labels = charts.weekly_data.map(d => d.day);
             window.weeklyChart.data.datasets[0].data = charts.weekly_data.map(d => d.boundary);
@@ -170,21 +152,18 @@ class RealTimeDashboard {
             window.weeklyChart.update('none');
         }
 
-        // Unit Status Chart (Donut)
         if (window.unitStatusChart && charts.unit_status_data) {
             window.unitStatusChart.data.labels = charts.unit_status_data.map(d => d.status);
             window.unitStatusChart.data.datasets[0].data = charts.unit_status_data.map(d => d.count);
             window.unitStatusChart.update('none');
         }
 
-        // Revenue Trend Chart
         if (window.revenueTrendChart && charts.revenue_trend) {
             window.revenueTrendChart.data.labels = charts.revenue_trend.map(d => d.date);
             window.revenueTrendChart.data.datasets[0].data = charts.revenue_trend.map(d => d.revenue);
             window.revenueTrendChart.update('none');
         }
 
-        // Unit Performance Chart
         if (window.unitPerformanceChart && charts.unit_performance) {
             window.unitPerformanceChart.data.labels = charts.unit_performance.map(d => d.unit);
             window.unitPerformanceChart.data.datasets[0].data = charts.unit_performance.map(d => d.performance);

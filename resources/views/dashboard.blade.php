@@ -1203,9 +1203,6 @@
         // Register Chart.js datalabels plugin
         Chart.register(ChartDataLabels);
         
-        // Debug: Check if Chart.js is loaded
-        console.log('Chart.js loaded:', typeof Chart !== 'undefined');
-        console.log('ChartDataLabels loaded:', typeof ChartDataLabels !== 'undefined');
         
         // Weekly Financial Chart
         try {
@@ -1811,22 +1808,17 @@
             // Test the API endpoint
             fetch('/api/maintenance-units')
                 .then(response => {
-                    console.log('API Response Status:', response.status);
-                    console.log('API Response Headers:', response.headers);
                     return response.text();
                 })
                 .then(text => {
-                    console.log('API Response Text:', text);
                     try {
                         const data = JSON.parse(text);
-                        console.log('Parsed API Data:', data);
                         showMaintenanceError('API Test Complete - Check Console for Details', {
                             response_status: 'success',
                             data_keys: Object.keys(data),
                             data: data
                         });
                     } catch (parseError) {
-                        console.log('JSON Parse Error:', parseError);
                         showMaintenanceError('API Test Complete - JSON Parse Error', {
                             response_status: 'parse_error',
                             raw_response: text.substring(0, 500) + (text.length > 500 ? '...' : ''),
@@ -1835,7 +1827,6 @@
                     }
                 })
                 .catch(error => {
-                    console.log('API Fetch Error:', error);
                     showMaintenanceError('API Test Complete - Fetch Error', {
                         response_status: 'fetch_error',
                         error: error.message,
@@ -1867,7 +1858,6 @@
                     }
                 })
                 .catch(error => {
-                    console.error('Error loading active drivers data:', error);
                     showActiveDriversError('Error loading active drivers data. Please try again.');
                 });
         }
@@ -2112,22 +2102,17 @@
             // Test the API endpoint
             fetch('/api/active-drivers')
                 .then(response => {
-                    console.log('API Response Status:', response.status);
-                    console.log('API Response Headers:', response.headers);
                     return response.text();
                 })
                 .then(text => {
-                    console.log('API Response Text:', text);
                     try {
                         const data = JSON.parse(text);
-                        console.log('Parsed API Data:', data);
                         showActiveDriversError('API Test Complete - Check Console for Details', {
                             response_status: 'success',
                             data_keys: Object.keys(data),
                             data: data
                         });
                     } catch (parseError) {
-                        console.log('JSON Parse Error:', parseError);
                         showActiveDriversError('API Test Complete - JSON Parse Error', {
                             response_status: 'parse_error',
                             raw_response: text.substring(0, 500) + (text.length > 500 ? '...' : ''),
@@ -2136,7 +2121,6 @@
                     }
                 })
                 .catch(error => {
-                    console.log('API Fetch Error:', error);
                     showActiveDriversError('API Test Complete - Fetch Error', {
                         response_status: 'fetch_error',
                         error: error.message,
@@ -2168,7 +2152,6 @@
                     }
                 })
                 .catch(error => {
-                    console.error('Error loading coding units data:', error);
                     showCodingError('Error loading coding units data. Please try again.');
                 });
         }
@@ -2457,22 +2440,17 @@
             // Test the API endpoint
             fetch('/api/coding-units')
                 .then(response => {
-                    console.log('API Response Status:', response.status);
-                    console.log('API Response Headers:', response.headers);
                     return response.text();
                 })
                 .then(text => {
-                    console.log('API Response Text:', text);
                     try {
                         const data = JSON.parse(text);
-                        console.log('Parsed API Data:', data);
                         showCodingError('API Test Complete - Check Console for Details', {
                             response_status: 'success',
                             data_keys: Object.keys(data),
                             data: data
                         });
                     } catch (parseError) {
-                        console.log('JSON Parse Error:', parseError);
                         showCodingError('API Test Complete - JSON Parse Error', {
                             response_status: 'parse_error',
                             raw_response: text.substring(0, 500) + (text.length > 500 ? '...' : ''),
@@ -2481,7 +2459,6 @@
                     }
                 })
                 .catch(error => {
-                    console.log('API Fetch Error:', error);
                     showCodingError('API Test Complete - Fetch Error', {
                         response_status: 'fetch_error',
                         error: error.message,
@@ -2527,7 +2504,6 @@
                     }
                 })
                 .catch(error => {
-                    console.error('Error loading income data:', error);
                     showIncomeError('Error loading income data. Please try again.', {
                         fetch_error: error.message,
                         stack: error.stack
@@ -2728,7 +2704,6 @@
         function renderIncomeData(data) {
             // Grid rendering is now integrated into updateIncomeSummary
             // This function is kept for compatibility with fetchIncomeData flow
-            console.log("Income report updated with " + data.length + " items");
         }
 
         function printReport() {
@@ -3114,11 +3089,6 @@
             // Test the API endpoint
             fetch('/api/net-income-details')
                 .then(response => {
-                    console.log('API Response Status:', response.status);
-                    console.log('API Response Headers:', response.headers);
-                    console.log('Content-Type:', response.headers.get('content-type'));
-                    
-                    // Check if response is HTML (error page) or JSON
                     const contentType = response.headers.get('content-type');
                     if (contentType && contentType.includes('text/html')) {
                         return response.text().then(text => {
@@ -3129,37 +3099,26 @@
                     return response.text();
                 })
                 .then(text => {
-                    console.log('API Response Text:', text);
-                    console.log('Response Length:', text.length);
-                    console.log('First 100 chars:', text.substring(0, 100));
-                    
-                    // Check if response starts with HTML
                     if (text.trim().startsWith('<')) {
                         throw new Error('API returned HTML instead of JSON. Response starts with: ' + text.substring(0, 100) + '...');
                     }
                     
                     try {
                         const data = JSON.parse(text);
-                        console.log('Parsed API Data:', data);
                         showIncomeError('API Test Complete - Check Console for Details', {
                             response_status: 'success',
                             data_keys: Object.keys(data),
                             data: data
                         });
                     } catch (parseError) {
-                        console.log('JSON Parse Error:', parseError);
-                        console.log('Raw Response:', text);
                         showIncomeError('API Test Complete - JSON Parse Error', {
                             response_status: 'parse_error',
                             raw_response: text.substring(0, 500) + (text.length > 500 ? '...' : ''),
-                            parse_error: parseError.message,
-                            response_length: text.length,
-                            first_chars: text.substring(0, 100)
+                            parse_error: parseError.message
                         });
                     }
                 })
                 .catch(error => {
-                    console.log('API Fetch Error:', error);
                     showIncomeError('API Test Complete - Fetch Error', {
                         response_status: 'fetch_error',
                         error: error.message,
@@ -3201,7 +3160,6 @@
                     }
                 })
                 .catch(error => {
-                    console.error('Error loading boundary collections:', error);
                     showBoundaryError('Error loading boundary collections. Please try again.');
                 });
         }
@@ -3401,7 +3359,6 @@
                     return response.json();
                 })
                 .then(data => {
-                    console.log('Units data received:', data);
                     if (data.success) {
                         displayUnitsData(data);
                     } else {
