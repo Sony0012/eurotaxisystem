@@ -1486,14 +1486,6 @@ async function openEditMaint(btn) {
         document.getElementById('em_dispatcher_notes').value = '';
     }
     
-    // Handle Multiple Mechanics (Up to 5)
-    const mechs = (r.mechanic_name || '').split(',').map(m => m.trim()).filter(m => m.length > 0);
-        document.getElementById('btnEditSecondMech').classList.add('hidden');
-    } else {
-        document.getElementById('editSecondMechRow').classList.add('hidden');
-        document.getElementById('editMechDisplay2').value = '';
-        document.getElementById('btnEditSecondMech').classList.remove('hidden');
-    }
     
     // Date values: may come as "2026-04-13T00:00:00.000000Z" or "2026-04-13" — always slice to 10 chars
     const toDateInput = v => v ? String(v).substring(0, 10) : '';
