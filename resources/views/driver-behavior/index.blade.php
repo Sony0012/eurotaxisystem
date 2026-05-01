@@ -73,6 +73,17 @@
         background: #eab308;
         border-radius: 99px;
     }
+    
+    #sa-toast {
+        position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%) translateY(4rem);
+        background: #1e293b; border: 1px solid #eab308; color: #fff;
+        padding: .75rem 1.5rem; border-radius: .75rem; font-size: .83rem; font-weight: 600;
+        box-shadow: 0 8px 32px rgba(0,0,0,.5);
+        z-index: 9999; transition: transform .3s cubic-bezier(.34,1.56,.64,1);
+        max-width: 90vw; text-align: center;
+    }
+    #sa-toast.show { transform: translateX(-50%) translateY(0); }
+    #sa-toast.error { border-color: #ef4444; }
 </style>
 
 {{-- ════════ HEADER STATS (COMPACT) ════════ --}}
@@ -1148,8 +1159,10 @@
                         </div>
                     </div>
                     <button type="button" onclick="saveQuickClassification()" class="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-black py-5 rounded-2xl shadow-xl shadow-yellow-500/20 transition-all flex items-center justify-center gap-2 mt-2">
-                        <i data-lucide="save" class="w-4 h-4"></i> SAVE CLASSIFICATION
+                        <i data-lucide="save" class="w-5 h-5"></i>
+                        SAVE CLASSIFICATION
                     </button>
+                    <div id="sa-toast"></div>
                 </div>
                 <div class="mt-8 p-5 bg-yellow-50 rounded-2xl border border-yellow-100">
                     <div class="flex gap-3">
@@ -1180,6 +1193,37 @@ window.switchTab = function(name) {
 };
 
 // ─── Incident Classification Management ────────────────────────────────────
+ window.toast = function(msg, isError = false) {
+     const el = document.getElementById('sa-toast');
+     if (!el) return;
+     el.textContent = msg;
+     el.className = 'show' + (isError ? ' error' : '');
+     setTimeout(() => el.className = '', 3500);
+ };
+
+ window.refreshClassificationsList = async function() {
+     try {
+         const res = await fetch(window.location.href);
+         const text = await res.text();
+         const parser = new DOMParser();
+         const doc = parser.parseFromString(text, 'text/html');
+         
+         const newActive = doc.getElementById('clsList-active');
+         const newArchived = doc.getElementById('clsList-archived');
+         
+         if (newActive) {
+             document.getElementById('clsList-active').innerHTML = newActive.innerHTML;
+         }
+         if (newArchived) {
+             document.getElementById('clsList-archived').innerHTML = newArchived.innerHTML;
+         }
+         
+         if (window.lucide) window.lucide.createIcons();
+     } catch (err) {
+         console.error('Failed to refresh list:', err);
+     }
+ };
+
  window.openClassificationSettings = function() {
      const modal = document.getElementById('classificationSettingsModal');
      if (!modal) return;
@@ -1288,14 +1332,16 @@ window.switchTab = function(name) {
          
          const result = await res.json();
          if (res.ok && result.success) {
-             location.reload();
+             toast('✔ ' + result.message);
+             resetClsForm();
+             window.refreshClassificationsList();
          } else {
              const errorMsg = result.message || result.error || 'Validation Failed: Please check your inputs.';
-             alert(errorMsg);
+             toast(errorMsg, true);
          }
      } catch(e) { 
          console.error(e);
-         alert('Error saving classification. Check the console for details.'); 
+         toast('Error saving classification.', true); 
      } finally {
          if (btn) {
              btn.disabled = false;
@@ -1313,8 +1359,11 @@ window.switchTab = function(name) {
              headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
          });
          const data = await res.json();
-         if (data.success) location.reload();
-     } catch (e) { alert('Error archiving.'); }
+         if (data.success) {
+             toast('✔ ' + (data.message || 'Archived successfully.'));
+             window.refreshClassificationsList();
+         }
+     } catch (e) { toast('Error archiving.', true); }
  };
 
  window.restoreClassification = async function(id) {
@@ -1324,8 +1373,11 @@ window.switchTab = function(name) {
              headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
          });
          const data = await res.json();
-         if (data.success) location.reload();
-     } catch (e) { alert('Error restoring.'); }
+         if (data.success) {
+             toast('✔ ' + (data.message || 'Restored successfully.'));
+             window.refreshClassificationsList();
+         }
+     } catch (e) { toast('Error restoring.', true); }
  };
 
  window.deleteClassification = async function(id) {
@@ -1336,8 +1388,11 @@ window.switchTab = function(name) {
              headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
          });
          const data = await res.json();
-         if (data.success) location.reload();
-     } catch (e) { alert('Error deleting.'); }
+         if (data.success) {
+             toast('✔ ' + (data.message || 'Deleted successfully.'));
+             window.refreshClassificationsList();
+         }
+     } catch (e) { toast('Error deleting.', true); }
  };
 
  window.switchClsList = function(type) {
