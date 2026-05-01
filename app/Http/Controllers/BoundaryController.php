@@ -515,6 +515,7 @@ class BoundaryController extends Controller
             $is_absent = $request->has('is_absent');
             $past_cutoff = $request->has('past_cutoff');
             $vehicle_damaged = $request->has('vehicle_damaged');
+            $low_fuel = $request->has('low_fuel');
             $needs_maintenance_half = $request->has('needs_maintenance_half');
             $needs_maintenance_zero = $request->has('needs_maintenance_zero');
 
@@ -527,6 +528,9 @@ class BoundaryController extends Controller
                     return back()->with('error', 'Boundary record not found');
                 }
 
+                $now = now();
+                $now_ts = $now;
+
                 // Strip existing system-generated tags from notes to prevent duplicates on edit
                 $clean_notes = preg_replace('/\[Automatic Violation:.*?\]/i', '', $notes);
                 $clean_notes = preg_replace('/\[Unit Sent to Maintenance.*?\]/i', '', $clean_notes);
@@ -537,15 +541,64 @@ class BoundaryController extends Controller
                 if ($is_absent) {
                     $has_incentive = false;
                     $clean_notes .= " [Automatic Violation: Absent / No Show]";
+                    
+                    // Log behavior for update
+                    DB::table('driver_behavior')->insert([
+                        'unit_id'       => $boundary->unit_id,
+                        'driver_id'     => $boundary->driver_id,
+                        'incident_type' => 'other',
+                        'severity'      => 'medium',
+                        'description'   => 'Auto-logged [Absent/Update]: Pilot marked as Absent / No Show during record update.',
+                        'timestamp'     => $now_ts,
+                        'created_at'    => $now_ts,
+                    ]);
                 }
                 if ($past_cutoff) {
                     $has_incentive = false;
                     $clean_notes .= " [Automatic Violation: Late Remittance (Past 10:00 AM)]";
+                    
+                    // Log behavior for update
+                    DB::table('driver_behavior')->insert([
+                        'unit_id'       => $boundary->unit_id,
+                        'driver_id'     => $boundary->driver_id,
+                        'incident_type' => 'Late Remittance',
+                        'severity'      => 'medium',
+                        'description'   => 'Auto-logged [Late/Update]: Boundary update marked as Late Remittance (Past 10:00 AM).',
+                        'timestamp'     => $now_ts,
+                        'created_at'    => $now_ts,
+                    ]);
                 }
                 if ($vehicle_damaged) {
                     $has_incentive = false;
                     $clean_notes .= " [Automatic Violation: Vehicle Damaged]";
+                    
+                    // Log behavior for update
+                    DB::table('driver_behavior')->insert([
+                        'unit_id'       => $boundary->unit_id,
+                        'driver_id'     => $boundary->driver_id,
+                        'incident_type' => 'other',
+                        'severity'      => 'high',
+                        'description'   => 'Auto-logged [Damage/Update]: Vehicle damage reported during record update.',
+                        'timestamp'     => $now_ts,
+                        'created_at'    => $now_ts,
+                    ]);
                 }
+                if ($low_fuel) {
+                    $has_incentive = false;
+                    $clean_notes .= " [Automatic Violation: Low Fuel on Return]";
+                    
+                    // Log behavior for update
+                    DB::table('driver_behavior')->insert([
+                        'unit_id'       => $boundary->unit_id,
+                        'driver_id'     => $boundary->driver_id,
+                        'incident_type' => 'other',
+                        'severity'      => 'medium',
+                        'description'   => 'Auto-logged [Low Fuel/Update]: Driver returned unit without refueling (Update).',
+                        'timestamp'     => $now_ts,
+                        'created_at'    => $now_ts,
+                    ]);
+                }
+
                 if ($needs_maintenance_half) {
                     $clean_notes .= " [Unit Sent to Maintenance - Shift Schedule Paused (Half Boundary)]";
                 }
@@ -573,11 +626,11 @@ class BoundaryController extends Controller
                     'notes'           => trim($clean_notes),
                     'has_incentive'   => $has_incentive,
                     'vehicle_damaged' => $vehicle_damaged ? 1 : 0,
+                    'is_absent'       => $is_absent ? 1 : 0,
                 ]);
 
                 // --- Auto-log Shortage to Driver Performance for UPDATES ---
                 if ($shortage > 0) {
-                    $now_ts = now();
                     DB::table('driver_behavior')->insert([
                         'unit_id'       => $boundary->unit_id,
                         'driver_id'     => $boundary->driver_id,
