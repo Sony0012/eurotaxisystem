@@ -160,8 +160,12 @@
                                         <i data-lucide="user" class="w-4 h-4 text-gray-400"></i>
                                     </div>
                                     <input type="text" name="first_name" id="driverFirstName" required
+                                        maxlength="15"
                                         class="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                        placeholder="e.g., Juan">
+                                        placeholder="e.g., Juan"
+                                        pattern="^(?!\s+$)[A-Za-z]+(\s[A-Za-z]+)?$"
+                                        title="First name: letters only, max 15 chars, one space allowed."
+                                        oninput="this.value = this.value.replace(/[^A-Za-z ]/g,'').replace(/^ /, '').replace(/ {2,}/, ' ').slice(0, 15)">
                                 </div>
                             </div>
                             <div class="space-y-2">
@@ -171,8 +175,12 @@
                                         <i data-lucide="user" class="w-4 h-4 text-gray-400"></i>
                                     </div>
                                     <input type="text" name="last_name" id="driverLastName" required
+                                        maxlength="15"
                                         class="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                        placeholder="e.g., Dela Cruz">
+                                        placeholder="e.g., Dela Cruz"
+                                        pattern="^(?!\s+$)[A-Za-z]+(\s[A-Za-z]+)?$"
+                                        title="Last name: letters only, max 15 chars, one space allowed."
+                                        oninput="this.value = this.value.replace(/[^A-Za-z ]/g,'').replace(/^ /, '').replace(/ {2,}/, ' ').slice(0, 15)">
                                 </div>
                             </div>
                             <div class="space-y-2">
@@ -182,8 +190,12 @@
                                         <i data-lucide="phone" class="w-4 h-4 text-gray-400"></i>
                                     </div>
                                     <input type="tel" name="contact_number" id="driverContact" required
+                                        maxlength="11"
                                         class="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                        placeholder="e.g., 09XX-XXX-XXXX">
+                                        placeholder="e.g., 09XXXXXXXXX"
+                                        pattern="^[0-9]{11}$"
+                                        title="Contact number must be exactly 11 digits."
+                                        oninput="this.value = this.value.replace(/[^0-9]/g,'').slice(0, 11)">
                                 </div>
                             </div>
                             <div class="space-y-2">
@@ -206,8 +218,10 @@
                                         <i data-lucide="map-pin" class="w-4 h-4 text-gray-400"></i>
                                     </div>
                                     <textarea name="address" id="driverAddress" required rows="2"
+                                        maxlength="250"
                                         class="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-                                        placeholder="Complete address..."></textarea>
+                                        placeholder="Complete address..."
+                                        oninput="this.value = this.value.slice(0, 250)"></textarea>
                                 </div>
                             </div>
                         </div>
@@ -229,8 +243,12 @@
                                         <i data-lucide="credit-card" class="w-4 h-4 text-gray-400"></i>
                                     </div>
                                     <input type="text" name="license_number" id="driverLicense" required
+                                        maxlength="13"
                                         class="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono uppercase"
-                                        placeholder="e.g., TBD-123456">
+                                        placeholder="e.g., A01-12-123456"
+                                        pattern="^[A-Z0-9]{1}-[A-Z0-9]{2}-[A-Z0-9]{6}$"
+                                        title="License format: e.g., A01-12-123456 (13 chars, no spaces)"
+                                        oninput="this.value = this.value.toUpperCase().slice(0, 13)">
                                 </div>
                             </div>
                             <div class="space-y-2">
@@ -250,6 +268,7 @@
                                         <i data-lucide="briefcase" class="w-4 h-4 text-gray-400"></i>
                                     </div>
                                     <input type="date" name="hire_date" id="driverHireDate" required value="{{ date('Y-m-d') }}"
+                                        min="{{ date('Y-m-d') }}"
                                         class="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                                 </div>
                             </div>
@@ -288,8 +307,12 @@
                                         <i data-lucide="users" class="w-4 h-4 text-gray-400"></i>
                                     </div>
                                     <input type="text" name="emergency_contact" id="driverEmergencyContact" required
+                                        maxlength="25"
                                         class="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                        placeholder="e.g., Maria Dela Cruz">
+                                        placeholder="e.g., Maria Dela Cruz"
+                                        pattern="^(?!\s+$)[A-Za-z]+(\s[A-Za-z]+)*$"
+                                        title="Contact name: letters only, max 25 chars."
+                                        oninput="this.value = this.value.replace(/[^A-Za-z ]/g,'').replace(/^ /, '').replace(/ {2,}/, ' ').slice(0, 25)">
                                 </div>
                             </div>
                             <div class="space-y-2">
@@ -299,8 +322,12 @@
                                         <i data-lucide="phone-call" class="w-4 h-4 text-gray-400"></i>
                                     </div>
                                     <input type="tel" name="emergency_phone" id="driverEmergencyPhone" required
+                                        maxlength="11"
                                         class="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                        placeholder="e.g., 09XX-XXX-XXXX">
+                                        placeholder="e.g., 09XXXXXXXXX"
+                                        pattern="^[0-9]{11}$"
+                                        title="Emergency phone must be exactly 11 digits."
+                                        oninput="this.value = this.value.replace(/[^0-9]/g,'').slice(0, 11)">
                                 </div>
                             </div>
                         </div>
