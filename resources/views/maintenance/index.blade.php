@@ -1243,12 +1243,12 @@
 
             <div class="flex flex-col gap-3 mb-6 p-4 bg-gray-50 rounded-xl border border-gray-100">
                 <input type="hidden" id="supplierId">
-                <input type="text" id="supplierName" placeholder="Supplier Name" 
+                <input type="text" id="supplierName" maxlength="35" placeholder="Supplier Name" 
                     class="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-yellow-500 focus:outline-none">
                 <div class="grid grid-cols-2 gap-3">
-                    <input type="text" id="supplierContact" placeholder="Contact Person" 
+                    <input type="text" id="supplierContact" maxlength="25" placeholder="Contact Person" 
                         class="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-yellow-500 focus:outline-none">
-                    <input type="text" id="supplierPhone" placeholder="Phone Number" 
+                    <input type="text" id="supplierPhone" maxlength="11" placeholder="Phone Number" 
                         class="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-yellow-500 focus:outline-none">
                 </div>
                 <button onclick="saveSupplier()" class="w-full py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 text-sm font-bold transition flex items-center justify-center gap-2 shadow-md">
@@ -2369,6 +2369,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     initPartSelectors();
 
+    // Supplier Phone Number: Digits only, max 11
+    const sPhone = document.getElementById('supplierPhone');
+    if (sPhone) {
+        sPhone.addEventListener('input', function() {
+            this.value = this.value.replace(/[^0-9]/g, '').substring(0, 11);
+        });
+    }
+
     // Check for auto-open inventory
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.has('open_inventory')) {
@@ -2399,11 +2407,15 @@ function editSupplier(id, name, contact, phone) {
 
 async function saveSupplier() {
     const id = document.getElementById('supplierId').value;
-    const name = document.getElementById('supplierName').value;
-    const contact_person = document.getElementById('supplierContact').value;
-    const phone_number = document.getElementById('supplierPhone').value;
+    const name = document.getElementById('supplierName').value.trim();
+    const contact_person = document.getElementById('supplierContact').value.trim();
+    const phone_number = document.getElementById('supplierPhone').value.trim();
 
-    if (!name) { alert('Supplier Name is required'); return; }
+    if (!name) { alert('Supplier Name is required and cannot be empty or just spaces.'); return; }
+    if (phone_number !== '' && !/^09\d{9}$/.test(phone_number)) {
+        alert('Phone Number must be exactly 11 digits and start with 09 (e.g., 09123456789).');
+        return;
+    }
 
     try {
         const res = await fetch("{{ route('suppliers.store') }}", {

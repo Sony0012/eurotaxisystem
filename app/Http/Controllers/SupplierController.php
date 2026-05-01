@@ -20,9 +20,9 @@ class SupplierController extends Controller
     {
         $data = $request->validate([
             'id' => 'nullable|integer|exists:suppliers,id',
-            'name' => 'required|string|max:255|unique:suppliers,name,' . ($request->id ?? 'NULL'),
-            'contact_person' => 'nullable|string|max:255',
-            'phone_number' => 'nullable|string|max:20',
+            'name' => 'required|string|max:35|unique:suppliers,name,' . ($request->id ?? 'NULL'),
+            'contact_person' => 'nullable|string|max:25',
+            'phone_number' => 'nullable|string|regex:/^09\d{9}$/',
             'address' => 'nullable|string',
         ]);
 
