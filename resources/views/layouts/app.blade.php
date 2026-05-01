@@ -35,13 +35,7 @@
     <link rel="manifest" href="/public/manifest.json?v=1.5">
 
     <!-- Tailwind CSS (Local) -->
-    <script src="{{ asset('assets/tailwind.min.js') }}"></script>
-    <script>
-        // Silence Tailwind CDN production warning
-        if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-            if (window.tailwind) window.tailwind.config = { silent: true };
-        }
-    </script>
+    <link href="{{ asset('assets/tailwind-built.css') }}" rel="stylesheet">
     <style>
         input::-webkit-outer-spin-button,
         input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
