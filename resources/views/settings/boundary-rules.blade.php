@@ -94,12 +94,23 @@
                         </div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
-                        <button type="button"
-                            class="px-4 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-600 hover:text-white transition-all duration-200 flex items-center gap-2 font-bold shadow-sm group mx-auto"
-                            onclick="openEditRuleModal({{ json_encode($rule) }})">
-                            <i data-lucide="edit-2" class="w-4 h-4 group-hover:scale-110 transition-transform"></i>
-                            <span>Edit Bracket</span>
-                        </button>
+                        <div class="flex items-center justify-center gap-2">
+                            <button type="button"
+                                class="px-3 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-600 hover:text-white transition-all duration-200 flex items-center gap-1.5 font-bold shadow-sm group"
+                                onclick="openEditRuleModal({{ json_encode($rule) }})">
+                                <i data-lucide="edit-2" class="w-3.5 h-3.5 group-hover:scale-110 transition-transform"></i>
+                                <span>Edit</span>
+                            </button>
+                            
+                            <form action="{{ route('boundary-rules.destroy', $rule->id) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to archive this pricing bracket?')">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="px-3 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-600 hover:text-white transition-all duration-200 flex items-center gap-1.5 font-bold shadow-sm group">
+                                    <i data-lucide="archive" class="w-3.5 h-3.5 group-hover:scale-110 transition-transform"></i>
+                                    <span>Archive</span>
+                                </button>
+                            </form>
+                        </div>
                     </td>
                 </tr>
                 @empty
