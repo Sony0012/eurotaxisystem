@@ -36,12 +36,16 @@
 
     <!-- Tailwind CSS (Local) -->
     <script>
-        // Silence Tailwind CDN production warning before script loads
-        window.tailwind = {
-            config: {
-                silent: true
-            }
-        }
+        // Ultimate silence for Tailwind production warning
+        (function() {
+            const originalWarn = console.warn;
+            console.warn = function() {
+                if (arguments[0] && typeof arguments[0] === 'string' && arguments[0].includes('cdn.tailwindcss.com')) {
+                    return;
+                }
+                originalWarn.apply(console, arguments);
+            };
+        })();
     </script>
     <script src="{{ asset('assets/tailwind.min.js') }}"></script>
     <style>
