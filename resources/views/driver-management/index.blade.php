@@ -269,7 +269,7 @@
                                     </div>
                                     <input type="date" name="hire_date" id="driverHireDate" required
                                         class="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                        onchange="(function(el){ const n=new Date(); const today=n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0'); if(el.value < today){ el.value=today; el.setCustomValidity('Hire date cannot be in the past.'); el.reportValidity(); } else { el.setCustomValidity(''); } })(this)">
+                                        onchange="(function(el){ const n=new Date(); const today=n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0'); if(el.value > today){ el.value=today; el.setCustomValidity('Hire date cannot be in the future.'); el.reportValidity(); } else { el.setCustomValidity(''); } })(this)">
                                 </div>
                             </div>
                             <div class="space-y-2">
@@ -562,7 +562,7 @@
 
 @push('scripts')
 <script>
-    // ─── Set hire date min to TODAY (client local time) immediately on page load ───
+    // ─── Set hire date max to TODAY (client local time) immediately on page load ───
     document.addEventListener('DOMContentLoaded', function () {
         const _n = new Date();
         const _today = _n.getFullYear() + '-' +
@@ -570,7 +570,7 @@
             String(_n.getDate()).padStart(2, '0');
         const hireDateEl = document.getElementById('driverHireDate');
         if (hireDateEl) {
-            hireDateEl.min = _today;
+            hireDateEl.max = _today;
             hireDateEl.value = _today;
         }
     });
@@ -593,7 +593,7 @@
             String(_now.getMonth() + 1).padStart(2, '0') + '-' +
             String(_now.getDate()).padStart(2, '0');
         const hireDateEl = document.getElementById('driverHireDate');
-        hireDateEl.min = todayStr;
+        hireDateEl.max = todayStr;
         hireDateEl.value = todayStr;
         document.getElementById('driverAddress').value = '';
         document.getElementById('driverEmergencyContact').value = '';
