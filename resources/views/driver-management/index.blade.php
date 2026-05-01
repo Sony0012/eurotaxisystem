@@ -165,7 +165,7 @@
                                         placeholder="e.g., Juan"
                                         pattern="^(?!\s+$)[A-Za-z]+(\s[A-Za-z]+)?$"
                                         title="First name: letters only, max 15 chars, one space allowed."
-                                        oninput="this.value = this.value.replace(/[^A-Za-z ]/g,'').replace(/^ /, '').replace(/ {2,}/, ' ').slice(0, 15)">
+                                        oninput="let v=this.value.replace(/[^A-Za-z ]/g,''); let parts=v.split(' '); this.value=(parts.length>2?parts[0]+' '+parts.slice(1).join('').replace(/ /g,''):v).slice(0, 15)">
                                 </div>
                             </div>
                             <div class="space-y-2">
@@ -310,8 +310,8 @@
                                         maxlength="25"
                                         class="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                         placeholder="e.g., Maria Dela Cruz"
-                                        pattern="^(?!\s+$)[A-Za-z]+(\s[A-Za-z]+)*$"
-                                        title="Contact name: letters only, max 25 chars."
+                                        pattern="^(?!\s+$)[A-Za-z]+(\s[A-Za-z ]+)*$"
+                                        title="Contact name: letters and spaces only, max 25 chars."
                                         oninput="this.value = this.value.replace(/[^A-Za-z ]/g,'').replace(/^ /, '').replace(/ {2,}/, ' ').slice(0, 25)">
                                 </div>
                             </div>
@@ -632,7 +632,16 @@
             document.getElementById('driverContact').value = data.contact_number || '';
             document.getElementById('driverLicense').value = data.license_number || '';
             document.getElementById('driverLicenseExpiry').value = data.license_expiry || '';
-            document.getElementById('driverHireDate').value = data.hire_date || '{{ date('Y-m-d') }}';
+            
+            // Set max to today for Edit mode as well
+            const _n = new Date();
+            const _today = _n.getFullYear() + '-' +
+                String(_n.getMonth() + 1).padStart(2, '0') + '-' +
+                String(_n.getDate()).padStart(2, '0');
+            const hireDateEl = document.getElementById('driverHireDate');
+            hireDateEl.max = _today;
+            hireDateEl.value = data.hire_date || _today;
+            
             document.getElementById('driverAddress').value = data.address || '';
             document.getElementById('driverEmergencyContact').value = data.emergency_contact || '';
             document.getElementById('driverEmergencyPhone').value = data.emergency_phone || '';
