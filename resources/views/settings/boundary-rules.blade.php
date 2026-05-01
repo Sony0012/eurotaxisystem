@@ -146,6 +146,13 @@
                 <input type="hidden" name="_method" id="ruleFormMethod" value="POST">
                 <input type="hidden" id="editRuleId">
 
+                <!-- Real-time Error Messages -->
+                <div id="ruleErrorContainer" class="hidden px-4 py-3 bg-red-50 border border-red-200 rounded-xl mb-4">
+                    <p class="text-xs font-black text-red-600 uppercase tracking-widest mb-1">Please fix the following:</p>
+                    <ul id="ruleErrorList" class="text-xs text-red-700 font-bold list-disc list-inside space-y-0.5">
+                    </ul>
+                </div>
+
                 <div>
                     <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-1.5">Bracket Description <span class="text-red-500">*</span></label>
                     <input type="text" name="name" id="ruleName" required maxlength="30" placeholder="e.g., Standard Models" class="w-full px-3 py-2.5 border border-gray-300 rounded-xl bg-white focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-sm font-bold shadow-sm">
@@ -279,42 +286,74 @@
 
     function validateInputs() {
         const name = document.getElementById('ruleName').value.trim();
-        const startYear = document.getElementById('ruleStartYear').value;
-        const endYear = document.getElementById('ruleEndYear').value;
-        const regularRate = document.getElementById('ruleRegularRate').value;
+        const startYearStr = document.getElementById('ruleStartYear').value;
+        const endYearStr = document.getElementById('ruleEndYear').value;
+        const regularRateStr = document.getElementById('ruleRegularRate').value;
         const saveBtn = document.getElementById('saveRuleBtn');
+        const errorContainer = document.getElementById('ruleErrorContainer');
+        const errorList = document.getElementById('ruleErrorList');
 
         let isValid = true;
+        let errors = [];
+
+        // Reset borders
+        document.getElementById('ruleStartYear').classList.remove('border-red-500', 'ring-1', 'ring-red-500');
+        document.getElementById('ruleEndYear').classList.remove('border-red-500', 'ring-1', 'ring-red-500');
+        document.getElementById('ruleRegularRate').classList.remove('border-red-500', 'ring-1', 'ring-red-500');
 
         // Check Description
         if (name.length === 0) {
             isValid = false;
+            // No specific message for empty name yet, just disable button
         }
 
-        // Check Years (must be > 0 and 4 digits)
-        const sy = parseInt(startYear) || 0;
-        const ey = parseInt(endYear) || 0;
-        if (sy <= 0 || startYear.length < 4) {
-            document.getElementById('ruleStartYear').classList.add('border-red-500', 'ring-1', 'ring-red-500');
-            isValid = false;
+        // Check Years
+        const sy = parseInt(startYearStr) || 0;
+        const ey = parseInt(endYearStr) || 0;
+
+        if (startYearStr.length > 0) {
+            if (sy < 2000) {
+                errors.push('The start year must be at least 2000.');
+                document.getElementById('ruleStartYear').classList.add('border-red-500', 'ring-1', 'ring-red-500');
+                isValid = false;
+            }
         } else {
-            document.getElementById('ruleStartYear').classList.remove('border-red-500', 'ring-1', 'ring-red-500');
+            isValid = false;
         }
 
-        if (ey <= 0 || endYear.length < 4) {
-            document.getElementById('ruleEndYear').classList.add('border-red-500', 'ring-1', 'ring-red-500');
-            isValid = false;
+        if (endYearStr.length > 0) {
+            if (ey < 2000) {
+                errors.push('The end year must be at least 2000.');
+                document.getElementById('ruleEndYear').classList.add('border-red-500', 'ring-1', 'ring-red-500');
+                isValid = false;
+            } else if (ey < sy) {
+                errors.push('The end year must be greater than or equal to ' + sy + '.');
+                document.getElementById('ruleEndYear').classList.add('border-red-500', 'ring-1', 'ring-red-500');
+                isValid = false;
+            }
         } else {
-            document.getElementById('ruleEndYear').classList.remove('border-red-500', 'ring-1', 'ring-red-500');
+            isValid = false;
         }
 
-        // Check Regular Rate (must be > 0)
-        const rr = parseFloat(regularRate) || 0;
-        if (rr <= 0) {
-            document.getElementById('ruleRegularRate').classList.add('border-red-500', 'ring-1', 'ring-red-500');
-            isValid = false;
+        // Check Regular Rate
+        const rr = parseFloat(regularRateStr) || 0;
+        if (regularRateStr.length > 0) {
+            if (rr <= 0) {
+                errors.push('Regular Daily Rate must be greater than 0.');
+                document.getElementById('ruleRegularRate').classList.add('border-red-500', 'ring-1', 'ring-red-500');
+                isValid = false;
+            }
         } else {
-            document.getElementById('ruleRegularRate').classList.remove('border-red-500', 'ring-1', 'ring-red-500');
+            isValid = false;
+        }
+
+        // Display Errors
+        if (errors.length > 0) {
+            errorList.innerHTML = errors.map(err => `<li>${err}</li>`).join('');
+            errorContainer.classList.remove('hidden');
+        } else {
+            errorContainer.classList.add('hidden');
+            errorList.innerHTML = '';
         }
 
         saveBtn.disabled = !isValid;
