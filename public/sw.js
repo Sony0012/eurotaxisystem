@@ -19,6 +19,11 @@ self.addEventListener('install', event => {
 });
 
 self.addEventListener('fetch', event => {
+  // Skip cross-origin requests and API calls
+  if (!event.request.url.startsWith(self.location.origin) || event.request.url.includes('/api/')) {
+    return;
+  }
+
   event.respondWith(
     caches.match(event.request)
       .then(response => response || fetch(event.request))

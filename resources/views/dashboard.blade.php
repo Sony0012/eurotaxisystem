@@ -419,7 +419,7 @@
                     <div class="bg-white rounded-lg p-3 shadow-sm border border-amber-100 hover:shadow-md transition-shadow">
                         <div class="flex items-center gap-2">
                             <div class="p-1.5 bg-amber-100 rounded">
-                                <i data-lucide="tool" class="w-4 h-4 text-amber-600"></i>
+                                <i data-lucide="wrench" class="w-4 h-4 text-amber-600"></i>
                             </div>
                             <div>
                                 <div class="text-lg font-bold text-amber-600" id="correctiveMaintenanceCount">0</div>
@@ -2679,6 +2679,7 @@
             };
 
             safeSet('reportTotalIncome', fmt(totalIncome));
+            /* Tailwind imports removed to prevent 404s in production */
             safeSet('reportTotalExpenses', fmt(totalExpenses));
             safeSet('reportMaintenanceTotal', 'Total: ' + fmt(breakdown.maintenanceTotal));
             safeSet('reportGeneralExpensesTotal', 'Total: ' + fmt(breakdown.officeTotal));

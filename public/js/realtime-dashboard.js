@@ -6,9 +6,15 @@ class RealTimeDashboard {
         this.stabilityDelay = 3000; // Wait 3 seconds after load before first AJAX
         
         // Ingest initial stats from Blade to prevent first-load flickering
-        this.previousStats = window.__INITIAL_STATS__ || {};
-        console.log('[Dashboard] Initialized with stats:', this.previousStats);
+        // Ensure values are numbers for comparison
+        this.previousStats = {};
+        if (window.__INITIAL_STATS__) {
+            Object.keys(window.__INITIAL_STATS__).forEach(key => {
+                this.previousStats[key] = parseFloat(window.__INITIAL_STATS__[key]) || 0;
+            });
+        }
         
+        console.log('[Dashboard] Initialized with stats:', this.previousStats);
         this.init();
     }
 
@@ -25,7 +31,7 @@ class RealTimeDashboard {
             } else {
                 this.startRealTimeUpdates();
                 // When returning to tab, wait a bit before refreshing
-                setTimeout(() => this.updateDashboardData(), 1000);
+                setTimeout(() => this.updateDashboardData(), 1500);
             }
         });
     }
@@ -50,10 +56,11 @@ class RealTimeDashboard {
     async updateDashboardData() {
         if (this.isUpdating) return;
         
-        // Prevent updates too close to page load
+        // Prevent updates too close to each other
         if (Date.now() - this.lastUpdateTime < 2000) return;
 
         this.isUpdating = true;
+        this.lastUpdateTime = Date.now();
 
         try {
             const response = await fetch(`/api/dashboard/realtime?_=${Date.now()}`);
@@ -62,6 +69,14 @@ class RealTimeDashboard {
             const data = await response.json();
             
             if (data.success && data.stats) {
+                // FAIL-SAFE: If active_units is 0 but we had units before, skip update
+                // This prevents "zeroing" if the server returns an empty or invalid response
+                const newActiveUnits = parseFloat(data.stats.active_units) || 0;
+                if (newActiveUnits === 0 && this.previousStats.active_units > 0) {
+                    console.warn('[Dashboard] API returned 0 units. Skipping update to prevent zeroing flicker.');
+                    return;
+                }
+
                 console.log('[Dashboard] Received fresh data:', data.stats);
                 this.updateStats(data.stats);
                 this.updateCharts(data.charts);
@@ -94,7 +109,7 @@ class RealTimeDashboard {
             const newValue = stats[config.key];
             const prevValue = this.previousStats[config.key];
 
-            // Use strict numeric comparison to prevent false flickers
+            // Use strict numeric comparison
             const nVal = parseFloat(newValue) || 0;
             const pVal = parseFloat(prevValue) || 0;
 
@@ -155,7 +170,7 @@ class RealTimeDashboard {
             window.weeklyChart.update('none');
         }
 
-        // Unit Status Chart
+        // Unit Status Chart (Donut)
         if (window.unitStatusChart && charts.unit_status_data) {
             window.unitStatusChart.data.labels = charts.unit_status_data.map(d => d.status);
             window.unitStatusChart.data.datasets[0].data = charts.unit_status_data.map(d => d.count);
@@ -175,11 +190,6 @@ class RealTimeDashboard {
             window.unitPerformanceChart.data.datasets[0].data = charts.unit_performance.map(d => d.performance);
             window.unitPerformanceChart.data.datasets[1].data = charts.unit_performance.map(d => d.target);
             window.unitPerformanceChart.update('none');
-            
-            if (charts.unit_performance.length > 0) {
-                const insightPlate = document.getElementById('insightTopPlate');
-                if (insightPlate) insightPlate.textContent = charts.unit_performance[0].unit;
-            }
         }
     }
 
