@@ -1381,12 +1381,14 @@
                                         <p class="text-2xl font-black text-red-600 tracking-tight">₱${parseFloat(debt.remaining_balance).toLocaleString('en-PH', {minimumFractionDigits:2})}</p>
                                     </div>
                                     
-                                    <form method="POST" action="{{ route('driver-management.pay-debt') }}" class="flex items-center gap-2 w-full md:w-auto" onsubmit="return confirm('Confirm cash payment of ₱' + this.payment_amount.value + ' for this incident?');">
+                                    <form method="POST" action="{{ route('driver-management.pay-debt') }}" class="flex items-center gap-2 w-full md:w-auto" 
+                                        onsubmit="const amt=parseFloat(this.payment_amount.value); const bal=parseFloat('${debt.remaining_balance}'); if(amt > bal){ alert('Bawal lumampas sa balance (₱' + bal.toLocaleString() + ')'); return false; } return confirm('Confirm cash payment of ₱' + amt.toLocaleString() + ' for this incident?');">
                                         @csrf
                                         <input type="hidden" name="debt_id" value="${debt.id}">
                                         <div class="relative flex-1 md:w-32">
                                             <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs font-black">₱</span>
-                                            <input type="number" name="payment_amount" step="0.01" max="${debt.remaining_balance}" min="1" required placeholder="0.00"
+                                            <input type="number" name="payment_amount" step="0.01" max="${debt.remaining_balance}" min="0.01" required placeholder="0.00"
+                                                oninput="const bal=parseFloat('${debt.remaining_balance}'); if(parseFloat(this.value) > bal) this.value = bal;"
                                                 class="w-full pl-6 pr-3 py-2 text-sm font-black border border-slate-200 rounded-xl focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all outline-none bg-slate-50">
                                         </div>
                                         <button type="submit" class="px-5 py-2 bg-slate-900 text-white text-xs font-black rounded-xl hover:bg-slate-800 transition-all flex items-center gap-2 shadow-xl shadow-slate-200">

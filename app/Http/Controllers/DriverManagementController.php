@@ -659,10 +659,14 @@ class DriverManagementController extends Controller
 
         $debt = \App\Models\DriverBehavior::find($request->debt_id);
         if (!$debt || $debt->remaining_balance <= 0) {
-            return back()->with('error', 'Debt record not found or already paid.');
+            return back()->with('error', 'Debt record not found or na-settle na ito.');
         }
 
-        $amount = min($request->payment_amount, $debt->remaining_balance);
+        if ($request->payment_amount > $debt->remaining_balance) {
+            return back()->with('error', 'Bawal ang sobra na bayad. Ang balance ay ₱' . number_format($debt->remaining_balance, 2) . ' lang.');
+        }
+
+        $amount = (float) $request->payment_amount;
         
         $debt->total_paid += $amount;
         $debt->remaining_balance -= $amount;
