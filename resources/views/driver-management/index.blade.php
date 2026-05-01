@@ -270,7 +270,7 @@
                                     <input type="date" name="hire_date" id="driverHireDate" required value="{{ date('Y-m-d') }}"
                                         min="{{ date('Y-m-d') }}"
                                         class="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                        onchange="(function(el){ const today=new Date().toISOString().split('T')[0]; if(el.value < today){ el.value=today; el.setCustomValidity('Hire date cannot be in the past.'); el.reportValidity(); } else { el.setCustomValidity(''); } })(this)">
+                                        onchange="(function(el){ const n=new Date(); const today=n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0'); if(el.value < today){ el.value=today; el.setCustomValidity('Hire date cannot be in the past.'); el.reportValidity(); } else { el.setCustomValidity(''); } })(this)">
                                 </div>
                             </div>
                             <div class="space-y-2">
@@ -575,8 +575,11 @@
         document.getElementById('driverContact').value = '';
         document.getElementById('driverLicense').value = '';
         document.getElementById('driverLicenseExpiry').value = '';
-        // Always set min to today (client-side) so past dates are blocked
-        const todayStr = new Date().toISOString().split('T')[0];
+        // Use local date (not UTC) to correctly enforce today's date in PH timezone
+        const _now = new Date();
+        const todayStr = _now.getFullYear() + '-' +
+            String(_now.getMonth() + 1).padStart(2, '0') + '-' +
+            String(_now.getDate()).padStart(2, '0');
         const hireDateEl = document.getElementById('driverHireDate');
         hireDateEl.min = todayStr;
         hireDateEl.value = todayStr;
