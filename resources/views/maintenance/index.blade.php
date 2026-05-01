@@ -295,10 +295,6 @@
                     <td class="px-4 py-3 text-gray-600">{{ $r->date_completed ? formatDate($r->date_completed) : '—' }}</td>
                     <td class="px-4 py-3 font-semibold text-gray-900">{{ formatCurrency($r->cost) }}</td>
                     <td class="px-4 py-3 min-w-[240px]">
-                        @php
-                            $s = $r->status ?? 'pending';
-                            $step = $s === 'cancelled' ? 0 : ($s === 'complete' ? 3 : ($s === 'ongoing' ? 2 : 1));
-                        @endphp
                         @if($step === 0)
                             <span class="px-2 py-1 text-xs rounded-full bg-red-100 text-red-800 font-black uppercase tracking-widest">Cancelled</span>
                         @else

@@ -55,6 +55,7 @@ class RealTimeDashboard {
             { selector: '[data-stat="active_units"]', value: stats.active_units },
             { selector: '[data-stat="today_boundary"]', value: this.formatCurrency(stats.today_boundary) },
             { selector: '[data-stat="net_income"]', value: this.formatCurrency(stats.net_income) },
+            { selector: '[data-stat="total_expenses_today"]', value: this.formatCurrency(stats.total_expenses_today) },
             { selector: '[data-stat="maintenance_units"]', value: stats.maintenance_units },
             { selector: '[data-stat="active_drivers"]', value: stats.active_drivers },
             { selector: '[data-stat="avg_boundary"]', value: this.formatCurrency(stats.avg_boundary) },
@@ -213,22 +214,24 @@ class RealTimeDashboard {
         const currentValue = element.textContent.trim();
         const formattedNewValue = newValue.toString();
         
-        // Prevent update if values are identical (case-insensitive)
-        if (currentValue.toLowerCase() === formattedNewValue.toLowerCase()) return;
+        // Robust comparison: remove currency symbols and commas for numeric comparison if possible
+        const cleanCurrent = currentValue.replace(/[₱,]/g, '').trim();
+        const cleanNew = formattedNewValue.replace(/[₱,]/g, '').trim();
+        
+        // Prevent update if values are identical
+        if (cleanCurrent === cleanNew) return;
         
         // Update immediately to prevent lag
         element.textContent = formattedNewValue;
         
         // Add a subtle transition effect instead of a jarring flash
-        element.classList.add('value-updated');
-        element.style.transition = 'transform 0.3s ease, color 0.3s ease';
-        element.style.color = '#22c55e'; // Emerald-500
-        element.style.transform = 'scale(1.05)';
+        element.style.transition = 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.3s ease';
+        element.style.color = '#10b981'; // Emerald-500
+        element.style.transform = 'scale(1.1)';
         
         setTimeout(() => {
             element.style.color = '';
             element.style.transform = '';
-            element.classList.remove('value-updated');
         }, 1000);
     }
 

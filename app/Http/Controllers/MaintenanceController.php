@@ -60,9 +60,9 @@ class MaintenanceController extends Controller
         $totals = DB::table('maintenance')->whereNull('deleted_at')->selectRaw('
             COUNT(*) as total_count,
             SUM(cost) as total_cost,
-            SUM(CASE WHEN maintenance.status = "complete" THEN 1 ELSE 0 END) as completed_count,
-            SUM(CASE WHEN maintenance.status = "pending" THEN 1 ELSE 0 END) as pending_count,
-            SUM(CASE WHEN maintenance.status = "ongoing" THEN 1 ELSE 0 END) as in_progress_count
+            SUM(CASE WHEN LOWER(maintenance.status) IN ("complete", "completed") THEN 1 ELSE 0 END) as completed_count,
+            SUM(CASE WHEN LOWER(maintenance.status) = "pending" THEN 1 ELSE 0 END) as pending_count,
+            SUM(CASE WHEN LOWER(maintenance.status) IN ("ongoing", "testing", "in_progress", "in_shop") THEN 1 ELSE 0 END) as in_progress_count
         ')->first();
 
         // 7-Day Trend Data for Sparklines
@@ -187,9 +187,9 @@ class MaintenanceController extends Controller
         }
 
         // Update unit status based on maintenance completion
-        if ($data['status'] === 'complete' && $data['date_completed']) {
+        if (in_array(strtolower($data['status']), ['complete', 'completed']) && $data['date_completed']) {
             DB::table('units')->where('id', $data['unit_id'])->update(['status' => 'active', 'updated_at' => now()]);
-        } else if (in_array($data['status'], ['pending', 'ongoing'])) {
+        } else if (in_array(strtolower($data['status']), ['pending', 'ongoing', 'testing', 'in_progress', 'in_shop'])) {
             DB::table('units')->where('id', $data['unit_id'])->update(['status' => 'maintenance', 'updated_at' => now()]);
         }
 
@@ -296,9 +296,9 @@ class MaintenanceController extends Controller
             $maintenance->update($data);
 
             // Update unit status based on maintenance completion
-            if ($data['status'] === 'completed' && $data['date_completed']) {
+            if (in_array(strtolower($data['status']), ['complete', 'completed']) && $data['date_completed']) {
                 DB::table('units')->where('id', $data['unit_id'])->update(['status' => 'active', 'updated_at' => now()]);
-            } else if (in_array($data['status'], ['pending', 'in_progress', 'in_shop', 'testing'])) {
+            } else if (in_array(strtolower($data['status']), ['pending', 'ongoing', 'testing', 'in_progress', 'in_shop'])) {
                 DB::table('units')->where('id', $data['unit_id'])->update(['status' => 'maintenance', 'updated_at' => now()]);
             }
 
