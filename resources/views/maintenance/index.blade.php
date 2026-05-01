@@ -1586,6 +1586,13 @@ function refreshOtherCosts(type) {
     lucide.createIcons();
 }
 
+function validateServicePrice(input) {
+    let val = input.value.replace(/[^0-9.]/g, ''); // Numbers and dots only
+    if (val.split('.').length > 2) val = val.substring(0, val.lastIndexOf('.')); // Only one dot
+    if (parseFloat(val) > 100000) val = '100000';
+    input.value = val;
+}
+
 // --- Master Parts Catalog ---
 function openPartsModal() {
     document.getElementById('partsModal').classList.remove('hidden');
