@@ -785,7 +785,7 @@
                         <div class="w-1.5 h-5 bg-orange-500 rounded-full"></div>
                         <p class="text-[11px] font-black text-gray-400 uppercase tracking-widest">Incident Narrative <span id="narrativeModeLabel" class="text-gray-300">(Describe the incident)</span></p>
                     </div>
-                    <textarea name="description" required rows="3" placeholder="Provide a detailed report of the incident..."
+                    <textarea name="description" required rows="3" maxlength="250" placeholder="Provide a detailed report of the incident..."
                         class="w-full px-5 py-4 bg-gray-50 border border-gray-200 rounded-2xl text-sm font-medium focus:ring-4 focus:ring-orange-500/5 focus:border-orange-500 focus:outline-none resize-none transition-all placeholder:text-gray-300"></textarea>
                 </div>
 
@@ -1020,7 +1020,7 @@
 
                 <div>
                     <label class="block text-[10px] font-black text-gray-500 uppercase mb-2 ml-1">Narrative Description</label>
-                    <textarea name="description" id="edit_description" required rows="3"
+                    <textarea name="description" id="edit_description" required rows="3" maxlength="250"
                         class="w-full px-4 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl text-sm font-bold focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:outline-none transition-all resize-none"></textarea>
                 </div>
 
