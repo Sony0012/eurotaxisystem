@@ -258,6 +258,9 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-50">
+                    @php
+                        $classificationsMapForUI = collect($classifications)->keyBy('name');
+                    @endphp
                     @forelse($incidents as $inc)
                     @php
                         $sevColors = [
@@ -298,7 +301,13 @@
                                 @if($inc->is_driver_fault)
                                     <span class="px-2 py-0.5 bg-red-500 text-white text-[9px] font-black uppercase tracking-widest rounded-full shadow-sm shadow-red-100">Driver at Fault</span>
                                 @else
-                                    <span class="px-2 py-0.5 bg-blue-500 text-white text-[9px] font-black uppercase tracking-widest rounded-full shadow-sm shadow-blue-100">Not at Fault</span>
+                                    @php
+                                        $incClass = $classificationsMapForUI[$inc->incident_type] ?? null;
+                                        $incMode  = $incClass ? $incClass->behavior_mode : 'narrative';
+                                    @endphp
+                                    @if($incMode === 'damage')
+                                        <span class="px-2 py-0.5 bg-blue-500 text-white text-[9px] font-black uppercase tracking-widest rounded-full shadow-sm shadow-blue-100">Not at Fault</span>
+                                    @endif
                                 @endif
 
                                 {{-- Charge Info --}}
@@ -913,14 +922,14 @@
                         </div>
 
                         {{-- Liability Acknowledgement --}}
-                        <label id="faultCheckContainer" class="flex items-center gap-4 cursor-pointer p-6 bg-white rounded-[2rem] border border-red-100 hover:bg-red-50 hover:border-red-200 transition-all group select-none shadow-sm mt-4">
+                        <label class="flex items-center gap-4 cursor-pointer p-6 bg-white rounded-[2rem] border border-red-100 hover:bg-red-50 hover:border-red-200 transition-all group select-none shadow-sm">
                             <div class="relative flex items-center justify-center">
                                 <input type="checkbox" name="is_driver_fault" id="faultCheck" value="1" onchange="computeTotal()"
                                     class="w-7 h-7 accent-red-600 rounded-2xl cursor-pointer transition-transform group-hover:scale-110 border-2 border-red-200">
                             </div>
                             <div>
                                 <p class="text-xs font-black text-gray-800 uppercase tracking-wider">Driver is at Fault</p>
-                                <p class="text-[9px] text-red-500 font-bold uppercase mt-1 tracking-widest leading-relaxed">Checking this will hold the driver accountable for the incident.</p>
+                                <p class="text-[9px] text-red-500 font-bold uppercase mt-1 tracking-widest leading-relaxed">Checking this will include Third-Party costs in Driver's balance.</p>
                             </div>
                         </label>
                     </div>
@@ -1681,35 +1690,6 @@ window.handleTypeChange = function(val) {
     } else if (mode === 'security') {
         const sec = document.getElementById('section-security');
         if (sec) sec.classList.remove('hidden');
-    }
-
-    // NEW: Auto-check and manage the "Driver is at Fault" checkbox
-    const faultCheck = document.getElementById('faultCheck');
-    const faultContainer = document.getElementById('faultCheckContainer');
-    
-    if (faultCheck && faultContainer) {
-        // Move the container outside of damage section so it's always visible/submittable
-        const damageSection = document.getElementById('section-damage');
-        const causeSection = document.getElementById('causeSection');
-        if (faultContainer.parentElement === damageSection) {
-            damageSection.parentNode.insertBefore(faultContainer, causeSection);
-        }
-
-        if (['security', 'traffic', 'complaint'].includes(mode)) {
-            faultCheck.checked = true;
-            // Optionally disable it so user can't uncheck it for these strict modes
-            // faultCheck.disabled = true; 
-        } else if (mode === 'damage') {
-            // Keep user's choice or default to true
-            faultCheck.checked = true;
-            faultCheck.disabled = false;
-        } else {
-            faultCheck.checked = false;
-            faultCheck.disabled = false;
-        }
-        
-        // Ensure visibility
-        faultContainer.classList.remove('hidden');
     }
 
     // 5. Update narrative label hint
