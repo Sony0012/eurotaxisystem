@@ -161,7 +161,8 @@ class DriverBehaviorController extends Controller
 
         if ($isDamage) {
             foreach ($parts as $partData) {
-                $qty   = (int)($partData['quantity'] ?? 0);
+                // If it's a service (custom_part_name exists but no quantity), default qty to 1
+                $qty   = (int)($partData['quantity'] ?? (isset($partData['custom_part_name']) ? 1 : 0));
                 $price = (float)($partData['unit_price'] ?? 0);
                 $isCharged = (bool)($partData['is_charged_to_driver'] ?? false);
                 $itemTotal = $qty * $price;
@@ -221,7 +222,7 @@ class DriverBehaviorController extends Controller
                 }
             }
             foreach ($parts as $partData) {
-                $qty   = (int)($partData['quantity'] ?? 0);
+                $qty   = (int)($partData['quantity'] ?? (isset($partData['custom_part_name']) ? 1 : 0));
                 $price = (float)($partData['unit_price'] ?? 0);
                 if ($qty > 0 && $price >= 0) {
                     \App\Models\IncidentPartsEstimate::create([
