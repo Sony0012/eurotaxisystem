@@ -18,8 +18,13 @@ use App\Http\Controllers\Api\DriverController;
 |
 */
 
+// Public routes
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/forgot-password', [AuthController::class, 'sendResetOtp']);
+Route::post('/verify-otp', [AuthController::class, 'verifyOtp']);
+Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 
+// Protected routes
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', function (Request $request) {
         return $request->user();
