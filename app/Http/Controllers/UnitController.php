@@ -1028,4 +1028,36 @@ class UnitController extends Controller
             'updated_at' => now(),
         ]);
     }
+
+    public function recover(Request $request, $id)
+    {
+        DB::beginTransaction();
+        try {
+            $unit = Unit::findOrFail($id);
+            $old_status = $unit->status;
+            
+            // Set back to active
+            $unit->update([
+                'status' => 'active',
+                'is_pinned_missing' => false,
+                'updated_at' => now(),
+            ]);
+
+            ActivityLogController::log('Recovered Unit', "Unit: {$unit->plate_number} recovered from status: " . ucfirst($old_status));
+
+            DB::commit();
+            
+            if ($request->ajax()) {
+                return response()->json(['success' => true, 'message' => "Unit {$unit->plate_number} has been recovered."]);
+            }
+            
+            return back()->with('success', "Unit {$unit->plate_number} has been marked as RECOVERED.");
+        } catch (\Exception $e) {
+            DB::rollBack();
+            if ($request->ajax()) {
+                return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+            }
+            return back()->with('error', 'Recovery failed: ' . $e->getMessage());
+        }
+    }
 }
