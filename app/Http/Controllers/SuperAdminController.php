@@ -458,7 +458,6 @@ class SuperAdminController extends Controller
     public function archiveClassification($id, Request $request)
     {
         try {
-            $this->verifyArchivePassword($request);
             $item = \App\Models\IncidentClassification::findOrFail($id);
             $item->delete();
             return response()->json(['success' => true, 'message' => 'Classification moved to Archive.']);

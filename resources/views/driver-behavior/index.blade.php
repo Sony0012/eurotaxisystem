@@ -1565,36 +1565,33 @@ window.switchTab = function(name) {
  };
 
  window.archiveClassification = async function(id) {
-      window.promptArchivePassword(async (password) => {
-          console.log('Archiving ID:', id);
-          try {
-              const res = await fetch(`/super-admin/incident-classifications/${id}/archive`, {
-                  method: 'DELETE',
-                  headers: { 
-                      'Content-Type': 'application/json',
-                      'X-CSRF-TOKEN': '{{ csrf_token() }}' 
-                  },
-                  body: JSON.stringify({ archive_password: password })
-              });
-              
-              const text = await res.text();
-              console.log('Archive Response Text:', text);
-              
-              let data;
-              try { data = JSON.parse(text); } catch(e) { throw new Error('Invalid JSON response'); }
-
-              if (res.ok && data.success) {
-                  toast('✔ ' + (data.message || 'Archived successfully.'));
-                  window.refreshClassificationsList();
-                  document.getElementById('archiveSecurityModal').classList.remove('open');
-              } else {
-                  toast(data.message || 'Error archiving: ' + res.status, true);
+      if (!confirm('Are you sure you want to move this classification to the archives?')) return;
+      console.log('Archiving ID:', id);
+      try {
+          const res = await fetch(`/super-admin/incident-classifications/${id}/archive`, {
+              method: 'DELETE',
+              headers: { 
+                  'Content-Type': 'application/json',
+                  'X-CSRF-TOKEN': '{{ csrf_token() }}' 
               }
-          } catch (e) { 
-              console.error('Archive Error:', e);
-              toast('Error archiving: ' + e.message, true); 
+          });
+          
+          const text = await res.text();
+          console.log('Archive Response Text:', text);
+          
+          let data;
+          try { data = JSON.parse(text); } catch(e) { throw new Error('Invalid JSON response'); }
+
+          if (res.ok && data.success) {
+              toast('✔ ' + (data.message || 'Archived successfully.'));
+              window.refreshClassificationsList();
+          } else {
+              toast(data.message || 'Error archiving: ' + res.status, true);
           }
-      }, false);
+      } catch (e) { 
+          console.error('Archive Error:', e);
+          toast('Error archiving: ' + e.message, true); 
+      }
   };
 
  window.restoreClassification = async function(id) {
