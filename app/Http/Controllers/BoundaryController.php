@@ -100,8 +100,8 @@ class BoundaryController extends Controller
                    COALESCE(ua.plate_number, '') as current_plate,
                    (SELECT COUNT(*) FROM units WHERE (driver_id = d.id OR secondary_driver_id = d.id) AND deleted_at IS NULL) as assigned_units_count,
                    (SELECT GREATEST(0, COALESCE(SUM(shortage),0) - COALESCE(SUM(excess),0)) FROM boundaries WHERE driver_id = d.id AND deleted_at IS NULL) as net_shortage,
-                   (SELECT COUNT(*) FROM driver_behavior WHERE driver_id = d.id AND is_driver_fault = 1 AND charge_status = 'pending' AND remaining_balance > 0) as has_accident_debt,
-                   (SELECT COALESCE(SUM(remaining_balance), 0) FROM driver_behavior WHERE driver_id = d.id AND is_driver_fault = 1 AND charge_status = 'pending' AND remaining_balance > 0) as total_accident_debt
+                   (SELECT COUNT(*) FROM driver_behavior WHERE driver_id = d.id AND charge_status = 'pending' AND remaining_balance > 0) as has_accident_debt,
+                   (SELECT COALESCE(SUM(remaining_balance), 0) FROM driver_behavior WHERE driver_id = d.id AND charge_status = 'pending' AND remaining_balance > 0) as total_accident_debt
             FROM drivers d 
             LEFT JOIN units ua ON (d.id = ua.driver_id OR d.id = ua.secondary_driver_id) AND ua.deleted_at IS NULL
             WHERE d.deleted_at IS NULL AND d.driver_status != 'banned'
@@ -456,7 +456,6 @@ class BoundaryController extends Controller
                         
                         // Get all at-fault pending charges for this driver, oldest first
                         $pending_debts = \App\Models\DriverBehavior::where('driver_id', $driver_id)
-                            ->where('is_driver_fault', 1)
                             ->where('charge_status', 'pending')
                             ->where('remaining_balance', '>', 0)
                             ->orderBy('timestamp', 'asc')

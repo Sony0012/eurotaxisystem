@@ -57,7 +57,7 @@ class DriverManagementController extends Controller
                 // Net unpaid shortage: sum of all shortages minus sum of all excess
                 DB::raw("(SELECT GREATEST(0, COALESCE(SUM(shortage),0) - COALESCE(SUM(excess),0)) FROM boundaries WHERE driver_id = d.id AND deleted_at IS NULL) as net_shortage"),
                 // Total Pending Accident/Incident Debt
-                DB::raw("(SELECT COALESCE(SUM(remaining_balance), 0) FROM driver_behavior WHERE driver_id = d.id AND is_driver_fault = 1 AND charge_status = 'pending') as total_pending_debt")
+                DB::raw("(SELECT COALESCE(SUM(remaining_balance), 0) FROM driver_behavior WHERE driver_id = d.id AND charge_status = 'pending') as total_pending_debt")
             );
 
         if ($search) {
@@ -580,7 +580,6 @@ class DriverManagementController extends Controller
         $settledDebts = DB::table('driver_behavior as db')
             ->join('drivers as d', 'db.driver_id', '=', 'd.id')
             ->leftJoin('units as u', 'db.unit_id', '=', 'u.id')
-            ->where('db.is_driver_fault', 1)
             ->where('db.charge_status', 'paid')
             ->whereNull('d.deleted_at')
             ->select(
@@ -625,7 +624,6 @@ class DriverManagementController extends Controller
         $debtsRaw = DB::table('driver_behavior as db')
             ->join('drivers as d', 'db.driver_id', '=', 'd.id')
             ->leftJoin('units as u', 'db.unit_id', '=', 'u.id')
-            ->where('db.is_driver_fault', 1)
             ->where('db.charge_status', 'pending')
             ->where('db.remaining_balance', '>', 0)
             ->whereNull('d.deleted_at')
