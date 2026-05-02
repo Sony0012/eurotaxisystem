@@ -993,7 +993,7 @@
                 <div class="grid grid-cols-2 gap-5">
                     <div>
                         <label class="block text-[10px] font-black text-gray-500 uppercase mb-2 ml-1">Classification</label>
-                        <select name="incident_type" id="edit_incident_type" required onchange="handleTypeChange(this.value)"
+                        <select name="incident_type" id="edit_incident_type" required onchange="handleTypeChange(this.value, 'edit')"
                             class="w-full px-4 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl text-sm font-bold focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:outline-none transition-all">
                             @foreach($classifications as $c)
                                 <option value="{{ $c->name }}">{{ $c->name }}</option>
@@ -1073,7 +1073,7 @@
 
                 <div class="grid grid-cols-2 gap-5 pt-2">
                     <div id="edit-total-charge-section" class="hidden">
-                        <label class="block text-[10px] font-black text-gray-500 uppercase mb-2 ml-1">Driver Charge Assessment (₱)</label>
+                        <label class="block text-[10px] font-black text-gray-500 uppercase mb-2 ml-1">!!! SYSTEM UPDATED !!! (₱)</label>
                         <div class="relative">
                             <input type="number" step="0.01" name="total_charge_to_driver" id="edit_total_charge"
                                 class="w-full pl-9 pr-4 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl text-sm font-black text-red-600 focus:ring-4 focus:ring-red-500/10 focus:border-red-500 focus:outline-none transition-all">
@@ -1756,12 +1756,13 @@ window.handleTypeChange = function(val, context = '') {
     }
 
     // 5. Explicitly handle Charge Section for Edit Modal
-    if (context === 'edit') {
+    if (context === 'edit' || (val && document.getElementById('edit_incident_type')?.value === val)) {
         const chargeSection = document.getElementById('edit-total-charge-section');
         if (chargeSection) {
             // ONLY show charge field for Vehicle Damage, regardless of mode
             if (val === 'Vehicle Damage' || mode === 'damage') {
                 chargeSection.classList.remove('hidden');
+                chargeSection.style.display = 'block'; 
             } else {
                 chargeSection.classList.add('hidden');
                 chargeSection.style.display = 'none'; // Force hide
