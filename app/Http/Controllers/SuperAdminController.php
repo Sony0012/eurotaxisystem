@@ -408,11 +408,13 @@ class SuperAdminController extends Controller
             'sub_options.*'     => 'string|max:100',
             'auto_ban_trigger'  => 'nullable|boolean',
             'ban_trigger_value' => 'nullable|string|max:100',
+            'show_not_at_fault' => 'nullable|boolean',
         ]);
 
         $data['behavior_mode']    = $data['behavior_mode'] ?? 'narrative';
         $data['sub_options']      = $data['sub_options'] ?? null;
         $data['auto_ban_trigger'] = (bool)($data['auto_ban_trigger'] ?? false);
+        $data['show_not_at_fault']= (bool)($data['show_not_at_fault'] ?? false);
 
         $item = \App\Models\IncidentClassification::create($data);
 
@@ -440,10 +442,12 @@ class SuperAdminController extends Controller
             'sub_options.*'     => 'string|max:100',
             'auto_ban_trigger'  => 'nullable|boolean',
             'ban_trigger_value' => 'nullable|string|max:100',
+            'show_not_at_fault' => 'nullable|boolean',
         ]);
 
         $data['sub_options']      = $data['sub_options'] ?? null;
         $data['auto_ban_trigger'] = (bool)($data['auto_ban_trigger'] ?? false);
+        $data['show_not_at_fault']= (bool)($data['show_not_at_fault'] ?? false);
         $data['behavior_mode']    = $data['behavior_mode'] ?? 'narrative';
 
         $item->update($data);

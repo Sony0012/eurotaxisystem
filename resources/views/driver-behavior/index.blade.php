@@ -303,9 +303,9 @@
                                 @else
                                     @php
                                         $incClass = $classificationsMapForUI[$inc->incident_type] ?? null;
-                                        $incMode  = $incClass ? $incClass->behavior_mode : 'narrative';
+                                        $showNotAtFault = $incClass ? $incClass->show_not_at_fault : false;
                                     @endphp
-                                    @if($incMode === 'damage')
+                                    @if($showNotAtFault)
                                         <span class="px-2 py-0.5 bg-blue-500 text-white text-[9px] font-black uppercase tracking-widest rounded-full shadow-sm shadow-blue-100">Not at Fault</span>
                                     @endif
                                 @endif
@@ -1193,7 +1193,16 @@
                         </select>
                         <p class="text-[9px] text-gray-400 font-bold mt-1 ml-1">Controls which sections appear in the Record Incident form</p>
                     </div>
-                    <div id="clsSubOptionsRow" class="hidden">
+                    <div id="clsFaultBadgeRow" class="space-y-3 mt-4">
+                        <label class="flex items-center gap-3 p-4 bg-blue-50 rounded-2xl border border-blue-100 cursor-pointer transition-all hover:bg-blue-100/50">
+                            <input type="checkbox" id="quickClsShowNotAtFault" class="w-5 h-5 accent-blue-600 rounded">
+                            <div>
+                                <p class="text-[10px] font-black text-blue-700 uppercase tracking-widest">Show "Not at Fault" Badge</p>
+                                <p class="text-[9px] text-blue-500 font-bold mt-0.5">When unchecked in incidents, display the Blue "Not at Fault" badge.</p>
+                            </div>
+                        </label>
+                    </div>
+                    <div id="clsSubOptionsRow" class="hidden mt-4">
                         <label class="block text-[10px] font-black text-gray-500 uppercase mb-2 ml-1">Sub-Options <span class="text-gray-300">(one per line)</span></label>
                         <textarea id="quickClsSubOptions" rows="5" placeholder="e.g.&#10;Contracting&#10;Discourtesy&#10;Overcharging"
                             class="w-full px-4 py-3 bg-white border border-gray-100 rounded-2xl text-sm font-medium focus:ring-4 focus:ring-yellow-500/10 focus:border-yellow-500 focus:outline-none resize-none"></textarea>
@@ -1396,6 +1405,7 @@ window.switchTab = function(name) {
                  document.getElementById('quickClsAutoBan').checked = !!data.auto_ban_trigger;
                  toggleBanValueField();
                  document.getElementById('quickClsBanValue').value = data.ban_trigger_value || '';
+                 document.getElementById('quickClsShowNotAtFault').checked = !!data.show_not_at_fault;
              }
          }).catch(err => {
              console.error('Error fetching details:', err);
@@ -1410,6 +1420,7 @@ window.switchTab = function(name) {
      document.getElementById('quickClsSubOptions').value = '';
      document.getElementById('quickClsAutoBan').checked = false;
      document.getElementById('quickClsBanValue').value = '';
+     document.getElementById('quickClsShowNotAtFault').checked = false;
      toggleClsModeFields();
  };
 
@@ -1451,6 +1462,7 @@ window.switchTab = function(name) {
      const subOptsRaw = document.getElementById('quickClsSubOptions').value;
      const autoBan = document.getElementById('quickClsAutoBan').checked;
      const banValue = document.getElementById('quickClsBanValue').value.trim();
+     const showNotAtFault = document.getElementById('quickClsShowNotAtFault').checked;
 
      if (!name) return alert('Please enter a classification name.');
 
@@ -1476,7 +1488,8 @@ window.switchTab = function(name) {
              body: JSON.stringify({
                  name, default_severity: severity, color: 'gray', icon: 'alert-circle',
                  behavior_mode: mode, sub_options: subOptions,
-                 auto_ban_trigger: autoBan, ban_trigger_value: banValue || null
+                 auto_ban_trigger: autoBan, ban_trigger_value: banValue || null,
+                 show_not_at_fault: showNotAtFault
              })
          });
          
