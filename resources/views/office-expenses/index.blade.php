@@ -583,13 +583,39 @@
                             <div class="space-y-4">
                                 <div class="space-y-1.5">
                                     <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Select Franchise Case *</label>
-                                    <select name="franchise_case_id" id="expenseFranchiseCaseId"
-                                        class="w-full px-4 py-2.5 bg-white border border-emerald-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none font-bold text-sm">
-                                        <option value="">-- Choose Franchise Case --</option>
-                                        @foreach($franchises as $f)
-                                            <option value="{{ $f->id }}">Case #{{ $f->case_no }} - {{ $f->applicant_name }}</option>
-                                        @endforeach
-                                    </select>
+                                    <div class="relative" id="franchiseSelectWrapper">
+                                        <button type="button" onclick="toggleFranchiseSelect()" id="franchiseSelectTrigger"
+                                            class="w-full px-4 py-3 bg-white border border-emerald-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none flex items-center justify-between transition-all group">
+                                            <span id="selectedFranchiseLabel" class="text-sm font-bold text-gray-400">-- Choose Franchise Case --</span>
+                                            <i data-lucide="chevron-down" id="franchiseSelectArrow" class="w-4 h-4 text-emerald-400 transition-transform duration-300"></i>
+                                        </button>
+                                        <input type="hidden" name="franchise_case_id" id="expenseFranchiseCaseId">
+
+                                        {{-- Custom Franchise Dropdown --}}
+                                        <div id="franchiseSelectMenu" class="hidden absolute left-0 right-0 top-full mt-2 bg-white border border-emerald-100 rounded-2xl shadow-2xl z-[110] animate-in fade-in slide-in-from-top-2 duration-300 overflow-hidden">
+                                            <div class="p-3 border-b border-emerald-50 bg-emerald-50/30">
+                                                <div class="relative">
+                                                    <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-emerald-400"></i>
+                                                    <input type="text" id="franSearch" oninput="filterFranchises(this.value)" placeholder="Search case no or name..." 
+                                                        class="w-full pl-9 pr-4 py-2 bg-white border border-emerald-100 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500 font-bold">
+                                                </div>
+                                            </div>
+                                            <div class="max-h-48 overflow-y-auto custom-scrollbar p-2 space-y-1" id="franListContainer">
+                                                @foreach($franchises as $f)
+                                                    <button type="button" onclick="selectFranchise('{{ $f->id }}', '{{ $f->case_no }}', '{{ addslashes($f->applicant_name) }}')" 
+                                                        class="fran-item w-full px-4 py-2.5 text-left text-sm font-bold text-gray-600 hover:bg-emerald-50 hover:text-emerald-600 rounded-xl transition-all flex items-center justify-between">
+                                                        <div class="flex flex-col">
+                                                            <span class="font-black">Case #{{ $f->case_no }}</span>
+                                                            <span class="text-[10px] opacity-60">{{ $f->applicant_name }}</span>
+                                                        </div>
+                                                        @if($f->expiry_date)
+                                                            <span class="text-[9px] bg-white px-1.5 py-0.5 rounded border border-emerald-100">Expires: {{ $f->expiry_date->format('M Y') }}</span>
+                                                        @endif
+                                                    </button>
+                                                @endforeach
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <div class="space-y-1.5">
@@ -1054,33 +1080,69 @@ function filterCategories(query) {
     const q = query.toLowerCase();
     items.forEach(item => {
         const text = item.textContent.toLowerCase();
-        if(text.includes(q)) {
-            item.classList.remove('hidden');
-        } else {
-            item.classList.add('hidden');
-        }
+        item.classList.toggle('hidden', !text.includes(q));
     });
+}
+
+function toggleFranchiseSelect() {
+    const menu = document.getElementById('franchiseSelectMenu');
+    const arrow = document.getElementById('franchiseSelectArrow');
+    
+    // Close other menus first
+    const otherMenus = ['customSelectMenu', 'partSelectMenu', 'supplierSelectMenu'];
+    otherMenus.forEach(id => {
+        const m = document.getElementById(id);
+        if(m && !m.classList.contains('hidden')) m.classList.add('hidden');
+    });
+
+    if (menu.classList.contains('hidden')) {
+        menu.classList.remove('hidden');
+        arrow.classList.add('rotate-180');
+        document.getElementById('franSearch').focus();
+    } else {
+        menu.classList.add('hidden');
+        arrow.classList.remove('rotate-180');
+    }
+}
+
+function filterFranchises(query) {
+    const q = query.toLowerCase();
+    const items = document.querySelectorAll('.fran-item');
+    items.forEach(item => {
+        const text = item.textContent.toLowerCase();
+        item.classList.toggle('hidden', !text.includes(q));
+    });
+}
+
+function selectFranchise(id, caseNo, name) {
+    const hiddenInput = document.getElementById('expenseFranchiseCaseId');
+    const label = document.getElementById('selectedFranchiseLabel');
+    const menu = document.getElementById('franchiseSelectMenu');
+    const arrow = document.getElementById('franchiseSelectArrow');
+    
+    hiddenInput.value = id;
+    label.textContent = 'Case #' + caseNo + ' - ' + name;
+    label.classList.add('text-gray-900');
+    
+    menu.classList.add('hidden');
+    arrow.classList.remove('rotate-180');
 }
 
 // Close all custom dropdowns on outside click
 document.addEventListener('click', function(e) {
-    // 1. Category Dropdown
-    const catWrapper = document.getElementById('customSelectWrapper');
-    if(catWrapper && !catWrapper.contains(e.target)) {
-        const menu = document.getElementById('customSelectMenu');
-        if(menu) menu.classList.add('hidden');
-        const arrow = document.getElementById('customSelectArrow');
-        if(arrow) arrow.classList.remove('rotate-180');
-    }
-
-    // 3. Spare Part Dropdown
-    const partWrapper = document.getElementById('partSelectWrapper');
-    if(partWrapper && !partWrapper.contains(e.target)) {
-        const menu = document.getElementById('partSelectMenu');
-        if(menu) menu.classList.add('hidden');
-        const arrow = document.getElementById('partSelectArrow');
-        if(arrow) arrow.classList.remove('rotate-180');
-    }
+    const wrappers = ['customSelectWrapper', 'partSelectWrapper', 'supplierSelectWrapper', 'franchiseSelectWrapper'];
+    wrappers.forEach(id => {
+        const wrapper = document.getElementById(id);
+        const menuId = id.replace('Wrapper', 'Menu');
+        const arrowId = id.replace('Wrapper', 'Arrow');
+        const menu = document.getElementById(menuId);
+        const arrow = document.getElementById(arrowId);
+        
+        if (wrapper && !wrapper.contains(e.target) && menu && !menu.classList.contains('hidden')) {
+            menu.classList.add('hidden');
+            if(arrow) arrow.classList.remove('rotate-180');
+        }
+    });
 });
 
 function toggleSupplierSelect() {
