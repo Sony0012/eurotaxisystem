@@ -42,7 +42,7 @@ class OfficeExpenseController extends Controller
 
         // Calculate totals based on the FILTERED query (before pagination)
         $totals = (clone $query)
-            ->selectRaw('SUM(e.amount) as total_amount, COUNT(*) as total_count')
+            ->select(DB::raw('SUM(e.amount) as total_amount'), DB::raw('COUNT(*) as total_count'))
             ->first();
 
         $expenses = $query->orderByDesc('e.date')
