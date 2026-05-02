@@ -110,6 +110,21 @@
                     </div>
                 </div>
 
+                <div class="flex gap-2">
+                    <div class="w-36">
+                        <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1 ml-1">From</label>
+                        <input type="date" name="date_from" value="{{ $date_from }}" 
+                            onchange="this.form.submit()"
+                            class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none text-xs font-bold h-[42px]">
+                    </div>
+                    <div class="w-36">
+                        <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1 ml-1">To</label>
+                        <input type="date" name="date_to" value="{{ $date_to }}" 
+                            onchange="this.form.submit()"
+                            class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none text-xs font-bold h-[42px]">
+                    </div>
+                </div>
+
                 <div class="lg:w-48">
                     <select name="category" onchange="this.form.submit()" class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none font-bold text-[10px] uppercase h-[42px]">
                         <option value="">All Categories</option>
@@ -145,8 +160,8 @@
                 <div class="lg:w-40">
                     <select name="status" onchange="this.form.submit()" class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none font-bold text-sm h-[42px]">
                         <option value="">All Status</option>
-                        <option value="pending" {{ ($status_filter ?? '') === 'pending' ? 'selected' : '' }}>Pending</option>
-                        <option value="approved" {{ ($status_filter ?? '') === 'approved' ? 'selected' : '' }}>Approved</option>
+                        <option value="pending" {{ ($status ?? '') === 'pending' ? 'selected' : '' }}>Pending</option>
+                        <option value="approved" {{ ($status ?? '') === 'approved' ? 'selected' : '' }}>Approved</option>
                     </select>
                 </div>
 

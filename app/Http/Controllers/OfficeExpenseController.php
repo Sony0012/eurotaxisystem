@@ -13,6 +13,7 @@ class OfficeExpenseController extends Controller
     {
         $search = $request->input('search', '');
         $category = $request->input('category', '');
+        $status = $request->input('status', '');
         $date_from = $request->input('date_from', date('Y-m-01'));
         $date_to = $request->input('date_to', date('Y-m-d'));
         $page = max(1, (int) $request->input('page', 1));
@@ -36,6 +37,9 @@ class OfficeExpenseController extends Controller
         }
         if (!empty($category)) {
             $query->where('e.category', $category);
+        }
+        if (!empty($status)) {
+            $query->where('e.status', $status);
         }
 
         $total = $query->count();
@@ -116,7 +120,7 @@ class OfficeExpenseController extends Controller
         $spareParts = \App\Models\SparePart::orderBy('name')->get();
         $suppliers = DB::table('suppliers')->orderBy('name')->get();
 
-        return view('office-expenses.index', compact('expenses', 'pagination', 'search', 'category', 'date_from', 'date_to', 'totals', 'categories', 'stats', 'units', 'spareParts', 'suppliers'));
+        return view('office-expenses.index', compact('expenses', 'pagination', 'search', 'category', 'status', 'date_from', 'date_to', 'totals', 'categories', 'stats', 'units', 'spareParts', 'suppliers'));
     }
 
     public function store(Request $request)
