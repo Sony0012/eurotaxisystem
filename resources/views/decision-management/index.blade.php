@@ -444,7 +444,7 @@ foreach ($cases as $c) {
                                 </tr>
                                 
                                 <!-- Dropdown Units Row -->
-                                <tr id="units-<?php echo $c['id']; ?>"> class="hidden bg-slate-50 border-b-2 border-slate-200 shadow-inner">
+                                <tr id="units-<?php echo $c['id']; ?>" class="hidden bg-slate-50 border-b-2 border-slate-200 shadow-inner">
                                     <td colspan="8" class="p-4">
                                         <div class="pl-8 border-l-4 border-yellow-400">
                                             <h4 class="text-[11px] font-black text-gray-400 uppercase tracking-widest mb-2">Attached Units (<?php echo count($c['units'] ?? []); ?>)</h4>
