@@ -14,12 +14,10 @@ jobs:
       - name: Deploy to Hostinger via SSH
         uses: appleboy/ssh-action@v0.1.5
         with:
-          host: eurotaxisystem.site
-          username: ${{ secrets.HOSTINGER_SSH_USERNAME }}
+          host: 195.35.62.133
+          username: u747826271
           key: ${{ secrets.HOSTINGER_SSH_KEY }}
-          port: ${{ secrets.HOSTINGER_SSH_PORT }}
-          timeout: 60s
-          command_timeout: 10m
+          port: 65002
           script: |
             cd /home/u747826271/domains/eurotaxisystem.site/public_html
             
