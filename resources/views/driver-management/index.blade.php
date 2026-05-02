@@ -247,9 +247,9 @@
                                         maxlength="20"
                                         class="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono uppercase"
                                         placeholder="e.g., A01-12-123456"
-                                        pattern="^\S+$"
-                                        title="License number: up to 20 characters, no spaces allowed."
-                                        oninput="this.value = this.value.toUpperCase().replace(/\s/g, '').slice(0, 20)">
+                                        pattern="^(?!0+$)(?!-+$)[A-Z0-9-]{3,20}$"
+                                        title="License number: 3-20 characters, letters/numbers/hyphens only. Cannot be all zeros or all hyphens."
+                                        oninput="this.value = this.value.toUpperCase().replace(/[^A-Z0-9-]/g, '').slice(0, 20)">
                                 </div>
                             </div>
                             <div class="space-y-2">
