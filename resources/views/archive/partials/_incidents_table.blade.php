@@ -6,7 +6,7 @@
                 <th class="px-6 py-3 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Driver</th>
                 <th class="px-6 py-3 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Unit</th>
                 <th class="px-6 py-3 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Description</th>
-                <th class="px-6 py-3 text-[10px] font-black text-gray-400 uppercase tracking-widest text-right">Actions</th>
+                <th class="px-6 py-3 text-right text-[10px] font-black text-gray-400 uppercase tracking-widest">Actions</th>
             </tr>
         </thead>
         <tbody class="bg-white divide-y divide-gray-100">
@@ -33,29 +33,25 @@
                     <div class="text-[9px] text-gray-400 mt-1 uppercase font-bold tracking-widest">Deleted on {{ $item->deleted_at->format('M d, Y') }}</div>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-right">
-                    <div class="flex justify-end gap-2">
-                        <form action="{{ route('archive.restore', ['type' => 'incident', 'id' => $item->id]) }}" method="POST" class="inline">
-                            @csrf
-                            <button type="submit" class="p-2 text-green-500 hover:bg-green-50 rounded-lg transition-colors" title="Restore Incident">
-                                <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
-                            </button>
-                        </form>
-                        <form action="{{ route('archive.forceDelete', ['type' => 'incident', 'id' => $item->id]) }}" method="POST" class="inline" onsubmit="return confirm('Permanently delete this incident record? This cannot be undone.')">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="p-2 text-red-400 hover:bg-red-50 hover:text-red-600 rounded-lg transition-colors" title="Delete Permanently">
-                                <i data-lucide="trash-2" class="w-4 h-4"></i>
-                            </button>
-                        </form>
-                    </div>
+                    <form action="{{ route('archive.restore', ['type' => 'incident', 'id' => $item->id]) }}" method="POST" class="inline-block">
+                        @csrf
+                        <button type="submit" class="inline-flex items-center gap-1 text-xs font-bold text-indigo-600 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-lg mr-2 transition-all">
+                            <i data-lucide="undo-2" class="w-3 h-3"></i> Restore
+                        </button>
+                    </form>
+                    <button type="button"
+                        onclick="confirmPermanentDelete('incident', {{ $item->id }}, '{{ addslashes($item->incident_type) }} - {{ addslashes($item->driver_name ?? 'Unknown') }}')"
+                        class="inline-flex items-center gap-1 text-xs font-bold text-red-600 hover:text-red-800 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg transition-all">
+                        <i data-lucide="trash-2" class="w-3 h-3"></i> Delete Permanently
+                    </button>
                 </td>
             </tr>
             @empty
             <tr>
-                <td colspan="5" class="px-6 py-10 text-center">
-                    <div class="flex flex-col items-center justify-center opacity-40">
-                        <i data-lucide="clipboard-list" class="w-12 h-12 text-gray-400 mb-3"></i>
-                        <p class="text-xs font-black text-gray-400 uppercase tracking-widest">No archived incidents found</p>
+                <td colspan="5" class="px-6 py-16 text-center">
+                    <div class="flex flex-col items-center justify-center gap-3 text-gray-400">
+                        <i data-lucide="clipboard-list" class="w-12 h-12 opacity-30"></i>
+                        <p class="text-sm font-medium">No archived incidents found.</p>
                     </div>
                 </td>
             </tr>

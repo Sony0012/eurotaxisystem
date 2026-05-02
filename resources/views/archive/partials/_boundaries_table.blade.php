@@ -2,8 +2,8 @@
     <table class="min-w-full divide-y divide-gray-200">
         <thead class="bg-gray-50">
             <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Unit ID</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Unit</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Boundary Amount</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Deleted At</th>
                 <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
@@ -11,26 +11,38 @@
         </thead>
         <tbody class="bg-white divide-y divide-gray-200">
             @forelse($items as $b)
-            <tr>
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $b->unit_id }}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ formatCurrency($b->boundary_amount) }}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $b->date }}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $b->deleted_at->format('M d, Y H:i') }}</td>
+            <tr class="hover:bg-gray-50 transition-colors">
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">Unit #{{ $b->unit_id }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-amber-600">{{ formatCurrency($b->boundary_amount) }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ $b->date }}</td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="inline-flex items-center gap-1 text-xs font-medium text-red-600 bg-red-50 px-2 py-1 rounded-full">
+                        <i data-lucide="clock" class="w-3 h-3"></i>
+                        {{ $b->deleted_at->format('M d, Y h:i A') }}
+                    </span>
+                </td>
                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <form action="{{ route('archive.restore', ['type' => 'boundary', 'id' => $b->id]) }}" method="POST" class="inline-block">
                         @csrf
-                        <button type="submit" class="text-indigo-600 hover:text-indigo-900 mr-3">Restore</button>
+                        <button type="submit" class="inline-flex items-center gap-1 text-xs font-bold text-indigo-600 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-lg mr-2 transition-all">
+                            <i data-lucide="undo-2" class="w-3 h-3"></i> Restore
+                        </button>
                     </form>
-                    <form action="{{ route('archive.forceDelete', ['type' => 'boundary', 'id' => $b->id]) }}" method="POST" class="inline-block" onsubmit="return confirm('Are you sure you want to permanently delete this boundary record?')">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="text-red-600 hover:text-red-900">Delete Permanently</button>
-                    </form>
+                    <button type="button"
+                        onclick="confirmPermanentDelete('boundary', {{ $b->id }}, 'Boundary #{{ $b->id }}')"
+                        class="inline-flex items-center gap-1 text-xs font-bold text-red-600 hover:text-red-800 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg transition-all">
+                        <i data-lucide="trash-2" class="w-3 h-3"></i> Delete Permanently
+                    </button>
                 </td>
             </tr>
             @empty
             <tr>
-                <td colspan="5" class="px-6 py-10 text-center text-gray-500">No archived boundary records found.</td>
+                <td colspan="5" class="px-6 py-16 text-center">
+                    <div class="flex flex-col items-center gap-3 text-gray-400">
+                        <i data-lucide="wallet" class="w-12 h-12 opacity-30"></i>
+                        <p class="text-sm font-medium">No archived boundary records found.</p>
+                    </div>
+                </td>
             </tr>
             @endforelse
         </tbody>

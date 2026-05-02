@@ -10,25 +10,37 @@
         </thead>
         <tbody class="bg-white divide-y divide-gray-200">
             @forelse($items as $s)
-            <tr>
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $s->name }}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $s->role }}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $s->deleted_at->format('M d, Y H:i') }}</td>
+            <tr class="hover:bg-gray-50 transition-colors">
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">{{ $s->name }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ $s->role }}</td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="inline-flex items-center gap-1 text-xs font-medium text-red-600 bg-red-50 px-2 py-1 rounded-full">
+                        <i data-lucide="clock" class="w-3 h-3"></i>
+                        {{ $s->deleted_at->format('M d, Y h:i A') }}
+                    </span>
+                </td>
                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <form action="{{ route('archive.restore', ['type' => 'staff', 'id' => $s->id]) }}" method="POST" class="inline-block">
                         @csrf
-                        <button type="submit" class="text-indigo-600 hover:text-indigo-900 mr-3">Restore</button>
+                        <button type="submit" class="inline-flex items-center gap-1 text-xs font-bold text-indigo-600 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-lg mr-2 transition-all">
+                            <i data-lucide="undo-2" class="w-3 h-3"></i> Restore
+                        </button>
                     </form>
-                    <form action="{{ route('archive.forceDelete', ['type' => 'staff', 'id' => $s->id]) }}" method="POST" class="inline-block" onsubmit="return confirm('Are you sure you want to permanently delete this staff record?')">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="text-red-600 hover:text-red-900">Delete Permanently</button>
-                    </form>
+                    <button type="button"
+                        onclick="confirmPermanentDelete('staff', {{ $s->id }}, '{{ addslashes($s->name) }}')"
+                        class="inline-flex items-center gap-1 text-xs font-bold text-red-600 hover:text-red-800 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg transition-all">
+                        <i data-lucide="trash-2" class="w-3 h-3"></i> Delete Permanently
+                    </button>
                 </td>
             </tr>
             @empty
             <tr>
-                <td colspan="4" class="px-6 py-10 text-center text-gray-500">No archived staff records found.</td>
+                <td colspan="4" class="px-6 py-16 text-center">
+                    <div class="flex flex-col items-center gap-3 text-gray-400">
+                        <i data-lucide="user-cog" class="w-12 h-12 opacity-30"></i>
+                        <p class="text-sm font-medium">No archived staff records found.</p>
+                    </div>
+                </td>
             </tr>
             @endforelse
         </tbody>
