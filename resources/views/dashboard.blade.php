@@ -108,9 +108,15 @@
         <div onclick="showDailyBoundaryModal()" class="card-hover cursor-pointer group relative overflow-hidden rounded-2xl shadow-sm border border-emerald-100 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl bg-gradient-to-br from-emerald-50 to-teal-50/70">
             <div class="relative p-5 flex items-center justify-between">
                 <div class="flex-1 min-w-0">
-                    <p class="text-emerald-500 text-[10px] font-black uppercase tracking-widest mb-1">Daily Boundary Collection</p>
-                    <p class="text-gray-900 text-2xl font-black leading-none mb-1" data-stat="today_boundary">{{ formatCurrency($stats['today_boundary']) }}</p>
-                    <p class="text-emerald-500 text-xs font-medium">Target: <span class="text-gray-700 font-bold" data-stat="daily_target">{{ formatCurrency($stats['daily_target']) }}</span></p>
+                    <p class="text-emerald-500 text-[10px] font-black uppercase tracking-widest mb-1">Boundary Revenue</p>
+                    <div class="flex flex-col">
+                        <span class="text-gray-900 text-2xl font-black leading-none mb-0.5" data-stat="today_boundary">{{ formatCurrency($stats['today_boundary']) }}</span>
+                        <span class="text-[10px] font-bold text-emerald-600 uppercase">Today</span>
+                    </div>
+                    <div class="mt-3 pt-3 border-t border-emerald-100/50">
+                        <p class="text-gray-900 text-lg font-black leading-none mb-0.5" data-stat="month_boundary">{{ formatCurrency($stats['month_boundary'] ?? 0) }}</p>
+                        <p class="text-emerald-500 text-[9px] font-black uppercase tracking-widest">This Month</p>
+                    </div>
                 </div>
                 <div class="p-3 bg-emerald-100 rounded-2xl border border-emerald-200 shadow-sm flex-shrink-0">
                     <i data-lucide="banknote" class="w-7 h-7 text-emerald-600"></i>
@@ -119,13 +125,19 @@
             <i data-lucide="banknote" class="absolute -right-4 -bottom-4 w-24 h-24 text-emerald-300 opacity-[0.12] -rotate-12 pointer-events-none"></i>
         </div>
 
-        {{-- Net Income Today --}}
+        {{-- Net Income --}}
         <div onclick="showNetIncomeModal()" class="card-hover cursor-pointer group relative overflow-hidden rounded-2xl shadow-sm border border-green-100 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl bg-gradient-to-br from-green-50 to-lime-50/70">
             <div class="relative p-5 flex items-center justify-between">
                 <div class="flex-1 min-w-0">
-                    <p class="text-green-500 text-[10px] font-black uppercase tracking-widest mb-1">Net Income Today</p>
-                    <p class="text-gray-900 text-2xl font-black leading-none mb-1" data-stat="net_income">{{ formatCurrency($stats['net_income']) }}</p>
-                    <p class="text-green-500 text-xs font-medium">After all expenses</p>
+                    <p class="text-green-500 text-[10px] font-black uppercase tracking-widest mb-1">Net Income (Kita)</p>
+                    <div class="flex flex-col">
+                        <span class="text-gray-900 text-2xl font-black leading-none mb-0.5" data-stat="net_income">{{ formatCurrency($stats['net_income']) }}</span>
+                        <span class="text-[10px] font-bold text-green-600 uppercase">Today</span>
+                    </div>
+                    <div class="mt-3 pt-3 border-t border-green-100/50">
+                        <p class="text-gray-900 text-lg font-black leading-none mb-0.5" data-stat="net_income_month">{{ formatCurrency($stats['net_income_month'] ?? 0) }}</p>
+                        <p class="text-green-500 text-[9px] font-black uppercase tracking-widest">This Month</p>
+                    </div>
                 </div>
                 <div class="p-3 bg-green-100 rounded-2xl border border-green-200 shadow-sm flex-shrink-0">
                     <i data-lucide="trending-up" class="w-7 h-7 text-green-600"></i>

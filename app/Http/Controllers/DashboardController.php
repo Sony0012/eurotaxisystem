@@ -1177,18 +1177,36 @@ class DashboardController extends Controller
             ->whereNotIn(DB::raw('LOWER(maintenance.status)'), ['complete', 'completed', 'cancelled'])
             ->count();
 
-        // 5. Today's Financials
+        // 5. Financials (Today)
         $stats['today_boundary'] = DB::table('boundaries')
             ->whereNull('deleted_at')
             ->whereDate('date', $today)
             ->sum('actual_boundary') ?? 0;
 
-        $genEx = DB::table('expenses')->whereNull('deleted_at')->whereDate('date', $today)->sum('amount') ?? 0;
-        $salEx = DB::table('salaries')->whereDate('pay_date', $today)->sum('total_salary') ?? 0;
-        $mntEx = DB::table('maintenance')->whereNull('deleted_at')->whereDate('date_started', $today)->where('status', '!=', 'cancelled')->sum('cost') ?? 0;
+        $genExToday = DB::table('expenses')->whereNull('deleted_at')->whereDate('date', $today)->sum('amount') ?? 0;
+        $salExToday = DB::table('salaries')->whereDate('pay_date', $today)->sum('total_salary') ?? 0;
+        $mntExToday = DB::table('maintenance')->whereNull('deleted_at')->whereDate('date_started', $today)->where('status', '!=', 'cancelled')->sum('cost') ?? 0;
         
-        $stats['total_expenses_today'] = $genEx + $salEx + $mntEx;
+        $stats['total_expenses_today'] = $genExToday + $salExToday + $mntExToday;
         $stats['net_income'] = $stats['today_boundary'] - $stats['total_expenses_today'];
+
+        // 6. Financials (This Month)
+        $month = now()->timezone('Asia/Manila')->month;
+        $year = now()->timezone('Asia/Manila')->year;
+
+        $stats['month_boundary'] = DB::table('boundaries')
+            ->whereNull('deleted_at')
+            ->whereMonth('date', $month)
+            ->whereYear('date', $year)
+            ->sum('actual_boundary') ?? 0;
+
+        $genExMonth = DB::table('expenses')->whereNull('deleted_at')->whereMonth('date', $month)->whereYear('date', $year)->sum('amount') ?? 0;
+        $salExMonth = DB::table('salaries')->whereMonth('pay_date', $month)->whereYear('pay_date', $year)->sum('total_salary') ?? 0;
+        $mntExMonth = DB::table('maintenance')->whereNull('deleted_at')->whereMonth('date_started', $month)->whereYear('date_started', $year)->where('status', '!=', 'cancelled')->sum('cost') ?? 0;
+        
+        $stats['total_expenses_month'] = $genExMonth + $salExMonth + $mntExMonth;
+        $stats['net_income_month'] = $stats['month_boundary'] - $stats['total_expenses_month'];
+
         $stats['roi_achieved'] = $stats['roi_units']; // Harmonize for JS
 
         // 6. Daily Target (Active Units Rate)
