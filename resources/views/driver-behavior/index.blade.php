@@ -1071,16 +1071,16 @@
                     </div>
                 </div>
 
-                <div id="edit-liability-section" class="grid grid-cols-2 gap-5 pt-2">
-                    <div>
+                <div class="grid grid-cols-2 gap-5 pt-2">
+                    <div id="edit-total-charge-section" class="hidden">
                         <label class="block text-[10px] font-black text-gray-500 uppercase mb-2 ml-1">Total Charge to Driver (₱)</label>
                         <div class="relative">
-                            <input type="number" step="0.01" name="total_charge_to_driver" id="edit_total_charge" required
+                            <input type="number" step="0.01" name="total_charge_to_driver" id="edit_total_charge"
                                 class="w-full pl-9 pr-4 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl text-sm font-black text-red-600 focus:ring-4 focus:ring-red-500/10 focus:border-red-500 focus:outline-none transition-all">
                             <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold">₱</span>
                         </div>
                     </div>
-                    <div>
+                    <div id="edit-fault-section">
                         <label class="block text-[10px] font-black text-gray-500 uppercase mb-2 ml-1">Liability Status</label>
                         <label class="flex items-center gap-3 p-3.5 bg-gray-50 border border-gray-100 rounded-2xl cursor-pointer hover:bg-gray-100 transition-all">
                             <input type="checkbox" name="is_driver_fault" id="edit_is_driver_fault" value="1" class="w-5 h-5 rounded-lg border-gray-300 text-red-600 focus:ring-red-500">
@@ -1750,14 +1750,21 @@ window.handleTypeChange = function(val, context = '') {
         
         // Handle "Amount" field visibility in Edit Modal
         if (context === 'edit') {
-            const liabilitySection = document.getElementById('edit-liability-section');
-            if (liabilitySection) liabilitySection.classList.add('hidden');
+            const chargeSection = document.getElementById('edit-total-charge-section');
+            if (chargeSection) chargeSection.classList.add('hidden');
         }
     } else {
-        // Show liability section for others in Edit modal
+        // Handle Visibility for others in Edit modal
         if (context === 'edit') {
-            const liabilitySection = document.getElementById('edit-liability-section');
-            if (liabilitySection) liabilitySection.classList.remove('hidden');
+            const chargeSection = document.getElementById('edit-total-charge-section');
+            if (chargeSection) {
+                // Only show generic charge field for Damage mode
+                if (mode === 'damage') {
+                    chargeSection.classList.remove('hidden');
+                } else {
+                    chargeSection.classList.add('hidden');
+                }
+            }
         }
         
         if (mode === 'damage') {
