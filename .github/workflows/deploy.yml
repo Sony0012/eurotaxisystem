@@ -14,7 +14,7 @@ jobs:
       - name: Deploy to Hostinger via SSH
         uses: appleboy/ssh-action@v0.1.5
         with:
-          host: ${{ secrets.HOSTINGER_SSH_HOST }}
+          host: 195.35.62.133
           username: ${{ secrets.HOSTINGER_SSH_USERNAME }}
           key: ${{ secrets.HOSTINGER_SSH_KEY }}
           port: ${{ secrets.HOSTINGER_SSH_PORT }}
