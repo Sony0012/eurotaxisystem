@@ -15,7 +15,13 @@
     @php
         $selected_day = date('l', strtotime($date));
         $real_today = date('l');
-        $active_day = $selected_day; 
+        $active_day = $selected_day;
+
+        // Clamp to a valid weekday — coding_calendar only has Mon–Fri keys
+        $valid_coding_days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+        if (!in_array($active_day, $valid_coding_days)) {
+            $active_day = 'Monday';
+        }
         
         $highlight_plate = request('search');
         if ($highlight_plate) {
