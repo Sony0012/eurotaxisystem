@@ -211,6 +211,7 @@
                                         'Govt Permits & Fees' => 'bg-teal-50 text-teal-700 border-teal-200',
                                         'LTO & Registration' => 'bg-emerald-50 text-emerald-700 border-emerald-200',
                                         'Insurance' => 'bg-blue-50 text-blue-700 border-blue-200',
+                                        'Franchise Renewal' => 'bg-emerald-100 text-emerald-800 border-emerald-300',
                                         'Staff Meals & Incentives' => 'bg-violet-50 text-violet-700 border-violet-200',
                                         'Petty Cash' => 'bg-green-50 text-green-700 border-green-200',
                                         'maintenance' => 'bg-rose-50 text-rose-700 border-rose-200',
@@ -393,6 +394,9 @@
                                     <div class="cat-item px-5 py-2.5 hover:bg-yellow-50 cursor-pointer text-sm font-bold text-gray-700 transition-colors flex items-center gap-2" onclick="selectCategory('Insurance')">
                                         <i data-lucide="shield-check" class="w-3 h-3 text-blue-500"></i> Insurance (TPL/Comp)
                                     </div>
+                                    <div class="cat-item px-5 py-2.5 hover:bg-emerald-50 cursor-pointer text-sm font-black text-emerald-700 transition-colors flex items-center gap-2" onclick="selectCategory('Franchise Renewal')">
+                                        <i data-lucide="scroll-text" class="w-3.5 h-3.5 text-emerald-500"></i> Franchise Renewal
+                                    </div>
                                     <div class="cat-item px-5 py-2.5 hover:bg-yellow-50 cursor-pointer text-sm font-bold text-gray-700 transition-colors flex items-center gap-2" onclick="selectCategory('Staff Meals & Incentives')">
                                         <i data-lucide="utensils" class="w-3 h-3 text-violet-500"></i> Staff Meals
                                     </div>
@@ -565,6 +569,39 @@
                             <p class="text-[9px] text-amber-600 font-bold uppercase ml-1 flex items-center gap-1">
                                 <i data-lucide="info" class="w-3 h-3"></i> Adding this expense will automatically increase inventory stock.
                             </p>
+                        </div>
+
+                        {{-- Franchise Renewal Sync Section --}}
+                        <div id="franchiseSyncSection" class="hidden space-y-5 p-5 bg-emerald-50/50 border border-emerald-100 rounded-2xl animate-in fade-in slide-in-from-top-2 duration-300">
+                            <div class="flex items-center gap-2 mb-1">
+                                <div class="p-1.5 bg-emerald-500 rounded-lg text-white">
+                                    <i data-lucide="scroll-text" class="w-3.5 h-3.5"></i>
+                                </div>
+                                <h4 class="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Franchise Renewal Sync</h4>
+                            </div>
+                            
+                            <div class="space-y-4">
+                                <div class="space-y-1.5">
+                                    <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Select Franchise Case *</label>
+                                    <select name="franchise_case_id" id="expenseFranchiseCaseId"
+                                        class="w-full px-4 py-2.5 bg-white border border-emerald-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none font-bold text-sm">
+                                        <option value="">-- Choose Franchise Case --</option>
+                                        @foreach($franchises as $f)
+                                            <option value="{{ $f->id }}">Case #{{ $f->case_no }} - {{ $f->applicant_name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                                <div class="space-y-1.5">
+                                    <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">New Expiry Date *</label>
+                                    <div class="relative">
+                                        <i data-lucide="calendar" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-emerald-400"></i>
+                                        <input type="date" name="new_expiry_date" id="expenseNewExpiryDate"
+                                            class="w-full pl-10 pr-4 py-2.5 bg-white border border-emerald-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none font-bold text-sm">
+                                    </div>
+                                    <p class="text-[9px] text-emerald-600 font-bold uppercase ml-1 mt-1">This will update the expiry date in the Franchise module.</p>
+                                </div>
+                            </div>
                         </div>
 
                     {{-- Custom Category Input (Hidden by default) --}}
@@ -809,7 +846,10 @@ function openAddExpenseModal() {
     safeSet('expenseNewPartName', 'value', '');
     safeSet('expenseAmount', 'value', '');
     safeSet('expenseAmount', 'readOnly', false);
-    safeSet('expenseAmount', 'bg-gray-100', 'remove', true);
+    safeSet('expenseAmount', 'bg-gray-100', 'remove', true);    safeSet('inventorySyncSection', 'hidden', 'add', true);
+    safeSet('franchiseSyncSection', 'hidden', 'add', true);
+    safeSet('topAmountGroup', 'hidden', 'remove', true);
+    safeSet('standardVendorOnly', 'hidden', 'remove', true);
     
     safeSet('selectedCategoryLabel', 'textContent', '-- Choose Specific Category --');
     safeSet('selectedCategoryLabel', 'text-gray-900', 'remove', true);
@@ -848,7 +888,7 @@ function openEditExpenseModal(id) {
         document.getElementById('selectedCategoryLabel').classList.add('text-gray-900');
         
         // Handle custom category logic
-        const predefined = ['Electricity (Meralco)', 'Water (Maynilad)', 'Internet & WiFi', 'Communications', 'Office Supplies', 'Pantry & Cleaning', 'Building Repairs', 'Construction Materials', 'Office Equipment', 'Spare Parts Purchase', 'Tires & Batteries', 'Oil & Lubricants', 'Govt Permits & Fees', 'LTO & Registration', 'Insurance', 'Staff Meals & Incentives', 'Petty Cash'];
+        const predefined = ['Electricity (Meralco)', 'Water (Maynilad)', 'Internet & WiFi', 'Communications', 'Office Supplies', 'Pantry & Cleaning', 'Building Repairs', 'Construction Materials', 'Office Equipment', 'Spare Parts Purchase', 'Tires & Batteries', 'Oil & Lubricants', 'Govt Permits & Fees', 'LTO & Registration', 'Insurance', 'Franchise Renewal', 'Staff Meals & Incentives', 'Petty Cash'];
         
         if (data.category && !predefined.includes(data.category)) {
             document.getElementById('customCategoryGroup').classList.remove('hidden');
@@ -858,10 +898,15 @@ function openEditExpenseModal(id) {
             document.getElementById('customCategoryGroup').classList.add('hidden');
         }
 
+        // Reset all sections first
+        document.getElementById('inventorySyncSection').classList.add('hidden');
+        document.getElementById('franchiseSyncSection').classList.add('hidden');
+        document.getElementById('standardVendorOnly').classList.remove('hidden');
+        document.getElementById('topAmountGroup').classList.remove('hidden');
+
         // Handle Inventory Link for Edit
-        const inventorySection = document.getElementById('inventorySyncSection');
         if (data.category === 'Spare Parts Purchase') {
-            inventorySection.classList.remove('hidden');
+            document.getElementById('inventorySyncSection').classList.remove('hidden');
             document.getElementById('standardVendorOnly').classList.add('hidden');
             document.getElementById('expenseSparePartId').value = data.spare_part_id || '';
             document.getElementById('expenseQuantity').value = data.quantity || '';
@@ -886,12 +931,15 @@ function openEditExpenseModal(id) {
                 supLabel.classList.add('text-gray-900');
                 document.getElementById('syncSupplierHidden').value = data.vendor_name;
             }
+        } else if (data.category === 'Franchise Renewal') {
+            document.getElementById('franchiseSyncSection').classList.remove('hidden');
+            document.getElementById('expenseFranchiseCaseId').value = data.franchise_case_id || '';
+            // We don't necessarily have the new_expiry_date in the expense table, 
+            // but we can at least show the section.
         } else {
-            inventorySection.classList.add('hidden');
             document.getElementById('expenseAmount').readOnly = false;
             document.getElementById('expenseAmount').classList.remove('bg-gray-100');
-            document.getElementById('standardVendorOnly').classList.remove('hidden');
-        }
+        }     }
 
         document.getElementById('expenseDescription').value = data.description || '';
         document.getElementById('expenseAmount').value = data.amount || '';
@@ -944,6 +992,9 @@ function selectCategory(val) {
     const menu = document.getElementById('customSelectMenu');
     const arrow = document.getElementById('customSelectArrow');
     const inventorySection = document.getElementById('inventorySyncSection');
+    const franchiseSection = document.getElementById('franchiseSyncSection');
+    const fCaseSelect = document.getElementById('expenseFranchiseCaseId');
+    const fExpiryDate = document.getElementById('expenseNewExpiryDate');
     const amountInput = document.getElementById('expenseAmount');
     const descInput = document.getElementById('expenseDescription');
     const customGroup = document.getElementById('customCategoryGroup');
@@ -954,29 +1005,43 @@ function selectCategory(val) {
     label.textContent = val === 'Other' ? '-- Specify Custom Category Below --' : val;
     label.classList.add('text-gray-900');
     
+    // Reset Sections
+    inventorySection.classList.add('hidden');
+    franchiseSection.classList.add('hidden');
+    document.getElementById('standardVendorOnly').classList.remove('hidden');
+    document.getElementById('topAmountGroup').classList.remove('hidden');
+    document.getElementById('expenseVendor').disabled = false;
+    amountInput.readOnly = false;
+    amountInput.classList.remove('bg-gray-100');
+    customGroup.classList.add('hidden');
+    customInput.removeAttribute('required');
+
+    fCaseSelect.removeAttribute('required');
+    fExpiryDate.removeAttribute('required');
+    
     // 1. Handle Custom Other Logic
     if (val === 'Other') {
         customGroup.classList.remove('hidden');
         customInput.setAttribute('required', 'required');
-        customInput.removeAttribute('required');
     }
 
-    // Toggle Inventory Section vs Standard Vendor Section
+    // 2. Toggle Inventory Section
     if (val === 'Spare Parts Purchase') {
         inventorySection.classList.remove('hidden');
         document.getElementById('standardVendorOnly').classList.add('hidden');
         document.getElementById('topAmountGroup').classList.add('hidden');
-        document.getElementById('expenseVendor').disabled = true; // Disable original to use the sync one
+        document.getElementById('expenseVendor').disabled = true; 
         amountInput.readOnly = true;
         amountInput.classList.add('bg-gray-100');
-        if(!descInput.value) descInput.value = 'Inventory Stock Restock';
-    } else {
-        inventorySection.classList.add('hidden');
-        document.getElementById('standardVendorOnly').classList.remove('hidden');
-        document.getElementById('topAmountGroup').classList.remove('hidden');
-        document.getElementById('expenseVendor').disabled = false;
-        amountInput.readOnly = false;
-        amountInput.classList.remove('bg-gray-100');
+        if(!descInput.value || descInput.value.includes('Franchise')) descInput.value = 'Inventory Stock Restock';
+    } 
+    
+    // 3. Toggle Franchise Section
+    if (val === 'Franchise Renewal') {
+        franchiseSection.classList.remove('hidden');
+        fCaseSelect.setAttribute('required', 'required');
+        fExpiryDate.setAttribute('required', 'required');
+        if(!descInput.value || descInput.value.includes('Restock')) descInput.value = 'Franchise Case Renewal';
     }
     
     menu.classList.add('hidden');

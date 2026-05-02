@@ -24,6 +24,7 @@ class Expense extends Model
         'reference_number',
         'unit_id',
         'spare_part_id',
+        'franchise_case_id',
         'quantity',
         'unit_price',
         'status',

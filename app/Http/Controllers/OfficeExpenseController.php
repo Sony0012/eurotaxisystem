@@ -111,8 +111,9 @@ class OfficeExpenseController extends Controller
 
         $spareParts = \App\Models\SparePart::orderBy('name')->get();
         $suppliers = DB::table('suppliers')->orderBy('name')->get();
+        $franchises = \App\Models\FranchiseCase::orderBy('case_no')->get();
 
-        return view('office-expenses.index', compact('expenses', 'pagination', 'search', 'category', 'status', 'date_from', 'date_to', 'totals', 'categories', 'stats', 'units', 'spareParts', 'suppliers'));
+        return view('office-expenses.index', compact('expenses', 'pagination', 'search', 'category', 'date_from', 'date_to', 'totals', 'categories', 'stats', 'units', 'spareParts', 'suppliers', 'franchises'));
     }
 
     public function show($id)
@@ -137,10 +138,24 @@ class OfficeExpenseController extends Controller
             'update_master' => 'nullable|integer',
             'quantity' => 'nullable|integer|min:1|max:9999',
             'unit_price' => 'nullable|numeric|min:0.01|max:500000',
+            'franchise_case_id' => 'nullable|integer',
+            'new_expiry_date' => 'nullable|date',
         ]);
 
         $sparePartId = $request->spare_part_id;
         $finalDescription = $request->description;
+
+        // Franchise Renewal Logic
+        if ($request->category === 'Franchise Renewal' && $request->franchise_case_id) {
+            $fCase = \App\Models\FranchiseCase::find($request->franchise_case_id);
+            if ($fCase) {
+                $oldExpiry = $fCase->expiry_date ? $fCase->expiry_date->format('M d, Y') : 'N/A';
+                if ($request->new_expiry_date) {
+                    $fCase->update(['expiry_date' => $request->new_expiry_date]);
+                    $finalDescription = "FRANCHISE RENEWAL: Case #{$fCase->case_no} (Old Expiry: {$oldExpiry} -> New: " . \Carbon\Carbon::parse($request->new_expiry_date)->format('M d, Y') . ")";
+                }
+            }
+        }
 
         // If it's an existing part but user modified Price or Supplier
         if (is_numeric($sparePartId) && $request->update_master == 1) {
@@ -175,6 +190,7 @@ class OfficeExpenseController extends Controller
             'reference_number' => $request->reference_number,
             'unit_id' => $request->unit_id ?: null,
             'spare_part_id' => is_numeric($sparePartId) ? $sparePartId : null,
+            'franchise_case_id' => $request->franchise_case_id,
             'quantity' => $request->quantity,
             'unit_price' => $request->unit_price,
             'recorded_by' => auth()->id(),
