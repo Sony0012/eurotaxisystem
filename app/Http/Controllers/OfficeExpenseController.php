@@ -123,12 +123,12 @@ class OfficeExpenseController extends Controller
     {
         $request->validate([
             'category' => 'required|string',
-            'description' => 'required|string',
-            'vendor_name' => 'nullable|string',
-            'amount' => 'required|numeric',
+            'description' => 'required|string|max:250',
+            'vendor_name' => ['nullable', 'string', 'max:30', 'regex:/^\S*$/'],
+            'amount' => 'required|numeric|min:0.01|max:500000',
             'payment_method' => 'nullable|string',
             'date' => 'required|date',
-            'reference_number' => 'nullable|string',
+            'reference_number' => ['nullable', 'string', 'max:30', 'regex:/^\S*$/'],
             'unit_id' => 'nullable|integer',
             'spare_part_id' => 'nullable|string', // Changed to string to allow 'new'
             'new_part_name' => 'nullable|string',
@@ -199,12 +199,12 @@ class OfficeExpenseController extends Controller
     {
         $request->validate([
             'category' => 'required|string',
-            'description' => 'required|string',
-            'vendor_name' => 'nullable|string',
-            'amount' => 'required|numeric',
+            'description' => 'required|string|max:250',
+            'vendor_name' => ['nullable', 'string', 'max:30', 'regex:/^\S*$/'],
+            'amount' => 'required|numeric|min:0.01|max:500000',
             'payment_method' => 'nullable|string',
             'date' => 'required|date',
-            'reference_number' => 'nullable|string',
+            'reference_number' => ['nullable', 'string', 'max:30', 'regex:/^\S*$/'],
             'unit_id' => 'nullable|integer',
         ]);
 
