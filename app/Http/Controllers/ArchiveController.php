@@ -11,6 +11,7 @@ use App\Models\Maintenance;
 use App\Models\FranchiseCase;
 use App\Models\Staff;
 use App\Models\BoundaryRule;
+use App\Models\Supplier;
 
 use Illuminate\Support\Facades\DB;
 
@@ -35,6 +36,7 @@ class ArchiveController extends Controller
             )->get();
         
         $archivedPricingRules = BoundaryRule::onlyTrashed()->get();
+        $archivedSuppliers = Supplier::onlyTrashed()->get();
 
 
 
@@ -47,7 +49,8 @@ class ArchiveController extends Controller
             'archivedFranchiseCases',
             'archivedStaff',
             'archivedIncidents',
-            'archivedPricingRules'
+            'archivedPricingRules',
+            'archivedSuppliers'
         ));
     }
 
@@ -103,6 +106,7 @@ class ArchiveController extends Controller
             'staff' => Staff::class,
             'incident' => \App\Models\DriverBehavior::class,
             'pricing_rule' => BoundaryRule::class,
+            'supplier' => Supplier::class,
 
             default => null,
         };

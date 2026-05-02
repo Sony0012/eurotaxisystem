@@ -34,6 +34,9 @@
                 <button onclick="switchTab('pricing_rules')" class="tab-btn border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-all" data-tab="pricing_rules">
                     Pricing Rules ({{ count($archivedPricingRules) }})
                 </button>
+                <button onclick="switchTab('suppliers')" class="tab-btn border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-all" data-tab="suppliers">
+                    Suppliers ({{ count($archivedSuppliers) }})
+                </button>
 
             </nav>
         </div>
@@ -77,6 +80,11 @@
             <!-- Pricing Rules Tab -->
             <div id="tab-pricing_rules" class="tab-content hidden">
                 @include('archive.partials._pricing_rules_table', ['items' => $archivedPricingRules])
+            </div>
+
+            <!-- Suppliers Tab -->
+            <div id="tab-suppliers" class="tab-content hidden">
+                @include('archive.partials._suppliers_table', ['items' => $archivedSuppliers])
             </div>
 
 
