@@ -93,10 +93,6 @@ class OfficeExpenseController extends Controller
         ];
 
         if ($request->wantsJson() || $request->input('format') === 'json') {
-            if ($request->route('id')) {
-                $expense = DB::table('expenses')->where('id', $request->route('id'))->first();
-                return response()->json($expense);
-            }
             return response()->json(['expenses' => $expenses, 'stats' => $stats]);
         }
 
@@ -121,6 +117,12 @@ class OfficeExpenseController extends Controller
         $suppliers = DB::table('suppliers')->orderBy('name')->get();
 
         return view('office-expenses.index', compact('expenses', 'pagination', 'search', 'category', 'status', 'date_from', 'date_to', 'totals', 'categories', 'stats', 'units', 'spareParts', 'suppliers'));
+    }
+
+    public function show($id)
+    {
+        $expense = DB::table('expenses')->where('id', $id)->first();
+        return response()->json($expense);
     }
 
     public function store(Request $request)
