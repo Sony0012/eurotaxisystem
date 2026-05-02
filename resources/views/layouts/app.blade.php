@@ -31,8 +31,7 @@
     <link rel="shortcut icon" href="{{ asset('favicon_euro_transparent.png') }}?v=1.5">
     <link rel="icon" type="image/png" href="{{ asset('favicon_euro_transparent.png') }}?v=1.5">
     <link rel="apple-touch-icon" href="{{ asset('favicon_euro_transparent.png') }}?v=1.5">
-    <link rel="manifest" href="{{ asset('manifest.json') }}?v=1.5">
-    <link rel="manifest" href="/public/manifest.json?v=1.5">
+    <link rel="manifest" href="{{ asset('manifest.json') }}?v=1.6">
 
     <!-- Tailwind CSS (Local) -->
     <script>

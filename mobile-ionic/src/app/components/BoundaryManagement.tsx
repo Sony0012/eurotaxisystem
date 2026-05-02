@@ -7,112 +7,47 @@ import { Label } from "./ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { Calendar, DollarSign, AlertCircle, CheckCircle, Plus, Search } from "lucide-react";
-import { useState } from "react";
-
-const boundaryRules = {
-  newUnit: {
-    regular: 1200,
-    half: 600,
-    coding: 600,
-  },
-  oldUnit: {
-    regular: 1000,
-    half: 500,
-    coding: 500,
-  },
-};
-
-const boundaryRecords = [
-  {
-    id: "BND-001",
-    date: "2026-02-06",
-    unitNumber: "TXN-1234",
-    driver: "Juan Dela Cruz",
-    unitType: "New Unit",
-    boundaryType: "Regular (24hrs)",
-    expectedAmount: 1200,
-    paidAmount: 1200,
-    status: "Paid",
-    paymentTime: "08:30 AM",
-  },
-  {
-    id: "BND-002",
-    date: "2026-02-06",
-    unitNumber: "TXN-5678",
-    driver: "Pedro Reyes",
-    unitType: "Old Unit",
-    boundaryType: "Regular (24hrs)",
-    expectedAmount: 1000,
-    paidAmount: 800,
-    status: "Shortage",
-    shortage: 200,
-    paymentTime: "09:15 AM",
-  },
-  {
-    id: "BND-003",
-    date: "2026-02-06",
-    unitNumber: "TXN-9012",
-    driver: "Ana Garcia",
-    unitType: "New Unit",
-    boundaryType: "Coding (24hrs)",
-    expectedAmount: 600,
-    paidAmount: 600,
-    status: "Paid",
-    paymentTime: "07:45 AM",
-  },
-  {
-    id: "BND-004",
-    date: "2026-02-06",
-    unitNumber: "TXN-3456",
-    driver: "Maria Santos",
-    unitType: "Old Unit",
-    boundaryType: "Half (12hrs)",
-    expectedAmount: 500,
-    paidAmount: 0,
-    status: "Unpaid",
-    paymentTime: "-",
-  },
-  {
-    id: "BND-005",
-    date: "2026-02-05",
-    unitNumber: "TXN-7890",
-    driver: "Carlos Martinez",
-    unitType: "New Unit",
-    boundaryType: "Regular (24hrs)",
-    expectedAmount: 1200,
-    paidAmount: 1200,
-    status: "Paid",
-    paymentTime: "06:30 PM",
-  },
-];
-
-const overduePayments = [
-  {
-    driver: "Roberto Tan",
-    unitNumber: "TXN-2468",
-    daysOverdue: 3,
-    totalDue: 3600,
-    lastPayment: "2026-02-03",
-  },
-  {
-    driver: "Lisa Garcia",
-    unitNumber: "TXN-1357",
-    daysOverdue: 1,
-    totalDue: 1000,
-    lastPayment: "2026-02-05",
-  },
-];
+import { useEffect, useState } from "react";
+import api from "../services/api";
 
 export function BoundaryManagement() {
   const [searchQuery, setSearchQuery] = useState("");
   const [recordDialogOpen, setRecordDialogOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("today");
+  const [records, setRecords] = useState<any[]>([]);
+  const [stats, setStats] = useState<any>({
+    totalExpected: 0,
+    totalCollected: 0,
+    paid: 0,
+    shortage: 0,
+    unpaid: 0
+  });
+  const [loading, setLoading] = useState(true);
 
-  const filteredRecords = boundaryRecords.filter(
+  useEffect(() => {
+    fetchBoundaries();
+  }, [activeTab]);
+
+  const fetchBoundaries = async () => {
+    try {
+      setLoading(true);
+      const response = await api.get('/boundaries');
+      if (response.data.success) {
+        setRecords(response.data.records);
+        setStats(response.data.stats);
+      }
+    } catch (error) {
+      console.error("Failed to fetch boundaries:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const filteredRecords = records.filter(
     (record) =>
-      record.unitNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      record.driver.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      record.id.toLowerCase().includes(searchQuery.toLowerCase())
+      record.unitNumber?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      record.driver?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      record.id?.toString().includes(searchQuery.toLowerCase())
   );
 
   const getStatusColor = (status: string) => {
@@ -128,17 +63,7 @@ export function BoundaryManagement() {
     }
   };
 
-  const todayStats = {
-    totalExpected: boundaryRecords
-      .filter((r) => r.date === "2026-02-06")
-      .reduce((sum, r) => sum + r.expectedAmount, 0),
-    totalCollected: boundaryRecords
-      .filter((r) => r.date === "2026-02-06")
-      .reduce((sum, r) => sum + r.paidAmount, 0),
-    paid: boundaryRecords.filter((r) => r.date === "2026-02-06" && r.status === "Paid").length,
-    shortage: boundaryRecords.filter((r) => r.date === "2026-02-06" && r.status === "Shortage").length,
-    unpaid: boundaryRecords.filter((r) => r.date === "2026-02-06" && r.status === "Unpaid").length,
-  };
+  const todayStats = stats;
 
   return (
     <div className="space-y-6">

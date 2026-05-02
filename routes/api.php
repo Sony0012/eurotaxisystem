@@ -36,4 +36,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/units', [UnitController::class, 'index']);
     Route::get('/units/{id}', [UnitController::class, 'show']);
     Route::get('/drivers', [DriverController::class, 'index']);
+    
+    // Boundary & Financials
+    Route::get('/boundaries', [\App\Http\Controllers\Api\BoundaryController::class, 'index']);
 });
