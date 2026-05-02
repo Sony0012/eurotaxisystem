@@ -497,10 +497,10 @@ class BoundaryController extends Controller
                     if ($is_absent) {
                         \App\Models\DriverBehavior::create([
                             'unit_id'       => $unit_id,
-                            'driver_id'     => $driver_id,
+                            'driver_id'     => $expected_driver_id,
                             'incident_type' => 'Absent / No Show',
                             'severity'      => 'medium',
-                            'description'   => 'Auto-logged [Absent]: Pilot is marked as Absent / No Show for this shift.',
+                            'description'   => 'Auto-logged [Absent]: Marked as Absent / No Show because an Extra Driver took their expected shift.',
                             'incident_date' => $date,
                             'timestamp'     => $now_ts,
                         ]);
@@ -563,10 +563,10 @@ class BoundaryController extends Controller
                     // Log behavior for update
                     DB::table('driver_behavior')->insert([
                         'unit_id'       => $boundary->unit_id,
-                        'driver_id'     => $boundary->driver_id,
-                        'incident_type' => 'other',
+                        'driver_id'     => $boundary->expected_driver_id ?: $boundary->driver_id,
+                        'incident_type' => 'Absent / No Show',
                         'severity'      => 'medium',
-                        'description'   => 'Auto-logged [Absent/Update]: Pilot marked as Absent / No Show during record update.',
+                        'description'   => 'Auto-logged [Absent/Update]: Marked as Absent / No Show during record update.',
                         'timestamp'     => $now_ts,
                         'created_at'    => $now_ts,
                     ]);

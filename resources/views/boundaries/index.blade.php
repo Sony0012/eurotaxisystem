@@ -471,7 +471,7 @@
 
                         <div class="h-px bg-gray-100 mx-3"></div>
 
-                        <label class="hidden items-center gap-3 cursor-pointer p-3 rounded-lg hover:bg-red-50 transition-colors group">
+                        <label class="flex items-start gap-3 cursor-pointer p-3 rounded-lg hover:bg-red-50 transition-colors group">
                             <input type="checkbox" name="is_absent" id="is_absent" value="1" class="rounded border-gray-300 text-red-600 focus:ring-red-500 mt-0.5">
                             <div class="flex flex-col">
                                 <span class="text-sm font-black text-gray-800 group-hover:text-red-700 leading-tight mb-0.5 transition-colors">Absenteeism Validation (No Show)</span>
@@ -479,7 +479,7 @@
                             </div>
                         </label>
 
-                        <div class="h-px bg-gray-100 mx-3 hidden"></div>
+                        <div class="h-px bg-gray-100 mx-3"></div>
 
                         <label class="flex items-start gap-3 cursor-pointer p-3 rounded-lg hover:bg-yellow-50 transition-colors group">
                             <input type="checkbox" name="needs_maintenance_half" id="needsMaintenanceHalfCheck" value="1" class="rounded border-gray-300 text-yellow-600 focus:ring-yellow-500 needs-maintenance-opt mt-0.5">
