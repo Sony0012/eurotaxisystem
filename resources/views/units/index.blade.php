@@ -1266,12 +1266,11 @@
                                         <div class="text-lg ${daysColor} leading-none mt-0.5 font-bold">${daysMissing}</div>
                                         <div class="text-[10px] text-gray-400">day(s)</div>
                                     </div>
-                                    <form method="POST" action="/units/toggle-status" class="m-0" onsubmit="return confirm('Clear MISSING flag on ${unit.plate_number}?');">
+                                    <form method="POST" action="/units/${unit.id}/recover" class="m-0" onsubmit="return confirm('Confirm RECOVERY of Unit ${unit.plate_number}? This will restore its active status and clear security alerts.');">
                                         <input type="hidden" name="_token" value="${csrfToken}">
-                                        <input type="hidden" name="id" value="${unit.id}">
-                                        <input type="hidden" name="new_status" value="active">
-                                        <button type="submit" class="p-2 bg-green-100 text-green-700 hover:bg-green-200 rounded-lg transition shadow-sm" title="Clear Flag">
+                                        <button type="submit" class="p-2 bg-green-600 text-white hover:bg-green-700 rounded-lg transition shadow-md flex items-center gap-2" title="Mark as Recovered">
                                             <i data-lucide="check-circle" class="w-4 h-4"></i>
+                                            <span class="text-[10px] font-bold uppercase">Recover</span>
                                         </button>
                                     </form>
                                 </div>

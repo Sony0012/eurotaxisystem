@@ -71,6 +71,7 @@ class BoundaryController extends Controller
         $units = DB::table('units')
             ->whereNull('deleted_at')
             ->where('status', '!=', 'retired')
+            ->where('status', '!=', 'missing')
             ->select('id', 'plate_number', 'make', 'model', 'year', 'boundary_rate', 'coding_day', 'driver_id', 'secondary_driver_id', 'current_turn_driver_id', 'last_swapping_at', 'shift_deadline_at')
             ->orderBy('plate_number')
             ->get()
@@ -232,6 +233,12 @@ class BoundaryController extends Controller
             $needs_maintenance_half = $request->has('needs_maintenance_half');
             $needs_maintenance_zero = $request->has('needs_maintenance_zero');
             $needs_maintenance = $needs_maintenance_half || $needs_maintenance_zero;
+
+            // Security Check: Block missing/stolen units from recording boundaries
+            $unitStatus = DB::table('units')->where('id', $unit_id)->value('status');
+            if (strtolower($unitStatus) === 'missing') {
+                return back()->with('error', 'Critical Security Alert: This vehicle is currently flagged as MISSING/STOLEN and is under security lockdown. Boundary recording is prohibited.');
+            }
             
             // Server-side strict validation (Max 4 digits, No pure zero unless breakdown)
             if ($actual_boundary >= 10000 || $boundary_amount >= 10000) {

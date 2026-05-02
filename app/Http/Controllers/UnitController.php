@@ -753,17 +753,17 @@ class UnitController extends Controller
 
     public function getFlaggedUnits()
     {
-        // 1. Manually flagged units (status = surveillance) — always shown regardless of driver
+        // 1. Manually flagged or Missing/Stolen units — always shown
         $surveillanceUnits = DB::table('units')
             ->whereNull('deleted_at')
-            ->where('status', 'surveillance')
+            ->whereIn('status', ['surveillance', 'missing'])
             ->select('id', 'plate_number', 'make', 'model', 'status', 'driver_id', 'secondary_driver_id')
             ->get();
 
         // 2. Auto-detected missing units: has a driver, overdue boundary (>48h), NOT already surveillance
         $autoMissingUnits = DB::table('units')
             ->whereNull('deleted_at')
-            ->whereNotIn('status', ['maintenance', 'surveillance', 'retired', 'coding'])
+            ->whereNotIn('status', ['maintenance', 'surveillance', 'retired', 'coding', 'missing'])
             ->whereNotNull('shift_deadline_at')
             ->where('shift_deadline_at', '<', now()->subHours(48))
             ->where(function($q) {
@@ -992,6 +992,27 @@ class UnitController extends Controller
         }
 
         return view('units.print', compact('units'));
+    }
+
+    public function recover(Request $request, $id)
+    {
+        $unit = Unit::findOrFail($id);
+        
+        // Restore unit status to active
+        $unit->update([
+            'status' => 'active',
+            'updated_at' => now(),
+        ]);
+
+        ActivityLogController::log('Unit Recovered', "Unit {$unit->plate_number} has been recovered and set back to active.");
+        
+        // Resolve any related missing unit alerts
+        DB::table('system_alerts')
+            ->where('title', 'like', "%{$unit->plate_number}%")
+            ->where('is_resolved', false)
+            ->update(['is_resolved' => true, 'updated_at' => now()]);
+
+        return redirect()->back()->with('success', "Unit {$unit->plate_number} has been successfully recovered and restored to Active status.");
     }
 
     private function syncDriverBoundaryTarget($driver_id, $unit)

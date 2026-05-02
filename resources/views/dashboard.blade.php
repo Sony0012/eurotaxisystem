@@ -152,7 +152,7 @@
     </div>
 
     <!-- Quick Stats -->
-    <div class="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-4">
+    <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
 
         {{-- Active Drivers --}}
         <div onclick="showActiveDriversModal()" class="card-hover cursor-pointer group relative overflow-hidden rounded-2xl shadow-sm border border-indigo-100 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl bg-gradient-to-br from-indigo-50 to-violet-50/70">
@@ -195,6 +195,23 @@
                 </div>
             </div>
             <i data-lucide="calendar" class="absolute -right-4 -bottom-4 w-24 h-24 text-violet-300 opacity-[0.12] -rotate-12 pointer-events-none"></i>
+        </div>
+
+        {{-- Missing / Flagged Units --}}
+        <div onclick="showFlaggedUnitsModal()" class="card-hover cursor-pointer group relative overflow-hidden rounded-2xl shadow-sm border border-red-100 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl bg-gradient-to-br from-red-50 to-rose-50/70 {{ $stats['missing_units'] > 0 ? '' : 'opacity-60 grayscale-[0.5]' }}">
+            <div class="relative p-5 flex items-center justify-between">
+                <div class="flex-1 min-w-0">
+                    <p class="text-red-500 text-[10px] font-black uppercase tracking-widest mb-1">Missing / Flagged Units</p>
+                    <p class="text-gray-900 text-3xl font-black leading-none mb-1" data-stat="missing_units">{{ $stats['missing_units'] }}</p>
+                    <p class="text-red-500 text-xs font-medium" data-stat="missing_subtitle">
+                        {{ $stats['missing_units'] > 0 ? 'CRITICAL: Action Required' : 'Fleet is secure' }}
+                    </p>
+                </div>
+                <div class="p-3 bg-red-100 rounded-2xl border border-red-200 shadow-sm flex-shrink-0 {{ $stats['missing_units'] > 0 ? 'animate-pulse' : '' }}">
+                    <i data-lucide="shield-alert" class="w-7 h-7 text-red-600"></i>
+                </div>
+            </div>
+            <i data-lucide="shield-alert" class="absolute -right-4 -bottom-4 w-24 h-24 text-red-300 opacity-[0.12] -rotate-12 pointer-events-none"></i>
         </div>
 
     </div>
@@ -1190,6 +1207,32 @@
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Flagged Units Modal -->
+    <div id="flaggedUnitsModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-60 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden border border-red-100">
+            <div class="p-4 bg-gradient-to-r from-red-600 to-rose-700 flex justify-between items-center">
+                <div class="flex items-center gap-2">
+                    <div class="p-1.5 bg-white/20 rounded-lg backdrop-blur-sm">
+                        <i data-lucide="shield-alert" class="w-5 h-5 text-white"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-black text-white uppercase tracking-tight">Security Flags / Missing Units</h3>
+                        <p class="text-red-100 text-[10px] font-bold uppercase tracking-widest">Fleet Lockdown Management</p>
+                    </div>
+                </div>
+                <button onclick="document.getElementById('flaggedUnitsModal').classList.add('hidden')" class="text-white/80 hover:text-white hover:bg-white/20 p-2 rounded-lg transition-all duration-200 backdrop-blur-sm">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <div id="flaggedUnitsList" class="max-h-[70vh] overflow-y-auto p-4 space-y-4 bg-gray-50/50">
+                <div class="text-center py-12">
+                    <div class="animate-spin rounded-full h-10 w-10 border-4 border-red-600 border-t-transparent mx-auto mb-3"></div>
+                    <p class="text-gray-500 font-bold uppercase tracking-widest text-[10px]">Loading security status...</p>
                 </div>
             </div>
         </div>
@@ -3611,6 +3654,115 @@
         function clearSearch() {
             document.getElementById('unitSearchInput').value = '';
             setUnitStatusFilter('all');
+        }
+
+        window.showFlaggedUnitsModal = function() {
+            const modal = document.getElementById('flaggedUnitsModal');
+            modal.classList.remove('hidden');
+            const container = document.getElementById('flaggedUnitsList');
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+            fetch('/api/flagged-units')
+                .then(res => res.json())
+                .then(data => {
+                    if (!data.success || data.units.length === 0) {
+                        container.innerHTML = `
+                            <div class="text-center py-12 bg-white rounded-2xl border border-gray-100 shadow-sm">
+                                <div class="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4 border border-green-100">
+                                    <i data-lucide="shield-check" class="w-8 h-8 text-green-600"></i>
+                                </div>
+                                <h4 class="text-lg font-black text-gray-900 uppercase tracking-tight">All Clear</h4>
+                                <p class="text-gray-500 text-xs px-8 mt-1 font-medium">No units are currently flagged or missing. Fleet integrity is secured.</p>
+                            </div>
+                        `;
+                        if (typeof lucide !== 'undefined') lucide.createIcons();
+                        return;
+                    }
+
+                    let html = '<div class="space-y-3">';
+                    data.units.forEach(unit => {
+                        const isMissing = (unit.status || '').toLowerCase() === 'missing';
+                        const badgeClass = isMissing ? 'bg-red-100 text-red-700 border-red-200' : 'bg-amber-100 text-amber-700 border-amber-200';
+                        const icon = isMissing ? 'alert-octagon' : 'eye';
+                        const statusText = isMissing ? 'MISSING / STOLEN' : 'SURVEILLANCE';
+                        
+                        const daysMissing = unit.days_missing || 0;
+                        const daysColor = daysMissing > 3 ? 'text-red-600' : 'text-amber-600';
+
+                        const contactDisplay = unit.driver_phone ? 
+                            `<a href="tel:${unit.driver_phone}" class="text-blue-600 font-bold hover:underline flex items-center gap-1">
+                                <i data-lucide="phone" class="w-3 h-3"></i> ${unit.driver_phone}
+                            </a>` : '<span class="text-gray-400">Not recorded</span>';
+
+                        html += `
+                            <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 border-l-4 ${isMissing ? 'border-red-600' : 'border-amber-600'} hover:shadow-md transition-all relative overflow-hidden group">
+                                ${isMissing ? '<div class="absolute top-0 right-0 p-1 bg-red-600 text-white text-[8px] font-black uppercase tracking-widest px-3">Lockdown</div>' : ''}
+                                <div class="flex justify-between items-start">
+                                    <div class="flex-1">
+                                        <div class="flex items-center gap-2 mb-2">
+                                            <span class="text-lg font-black text-gray-900 tracking-tighter">${unit.plate_number}</span>
+                                            <span class="px-2 py-0.5 rounded text-[9px] font-black border ${badgeClass} flex items-center gap-1 uppercase tracking-widest shadow-sm">
+                                                <i data-lucide="${icon}" class="w-3 h-3"></i> ${statusText}
+                                            </span>
+                                        </div>
+                                        <div class="space-y-1.5">
+                                            <div class="flex items-center gap-2 text-[10px]">
+                                                <span class="text-gray-400 w-24 flex-shrink-0 font-bold uppercase tracking-tight">Current Driver:</span>
+                                                <span class="text-gray-800 font-black uppercase tracking-tighter">${unit.driver_name || 'No Driver'}</span>
+                                            </div>
+                                            <div class="flex items-center gap-2 text-[10px]">
+                                                <span class="text-gray-400 w-24 flex-shrink-0 font-bold uppercase tracking-tight">Contact # :</span>
+                                                ${contactDisplay}
+                                            </div>
+                                            <div class="flex items-center gap-2 text-[10px] pt-1.5 mt-1.5 border-t border-gray-100">
+                                                <span class="text-gray-400 w-24 flex-shrink-0 font-bold uppercase tracking-tight">Last Return:</span>
+                                                <span class="text-gray-600 italic font-black uppercase tracking-tighter">${unit.last_known_driver || 'None'}</span>
+                                            </div>
+                                            <div class="flex items-center gap-2 text-[10px]">
+                                                <span class="text-gray-400 w-24 flex-shrink-0 font-bold uppercase tracking-tight">Return Date:</span>
+                                                <span class="text-gray-600 font-bold uppercase">${unit.last_boundary_date || 'No record'}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-col items-center gap-3 flex-shrink-0 ml-4">
+                                        <div class="text-center bg-gray-50 p-2 rounded-xl border border-gray-100 min-w-[70px]">
+                                            <div class="text-[9px] uppercase font-black text-gray-400 tracking-widest">Time Elapsed</div>
+                                            <div class="text-xl ${daysColor} leading-none mt-1 font-black">${daysMissing}</div>
+                                            <div class="text-[9px] font-bold text-gray-400 uppercase tracking-tighter">day(s)</div>
+                                        </div>
+                                        ${isMissing ? `
+                                        <form method="POST" action="/units/${unit.id}/recover" class="m-0 w-full" onsubmit="return confirm('Confirm RECOVERY of Unit ${unit.plate_number}? This will restore its active status and clear security alerts.');">
+                                            <input type="hidden" name="_token" value="${csrfToken}">
+                                            <button type="submit" class="w-full py-2 bg-green-600 text-white hover:bg-green-700 rounded-xl transition-all shadow-lg shadow-green-200 flex items-center justify-center gap-2 group/btn" title="Mark as Recovered">
+                                                <i data-lucide="check-circle" class="w-4 h-4 group-hover/btn:scale-110 transition-transform"></i>
+                                                <span class="text-[10px] font-black uppercase tracking-widest">Recover</span>
+                                            </button>
+                                        </form>
+                                        ` : `
+                                        <a href="/units?id=${unit.id}" class="w-full py-2 bg-gray-100 text-gray-600 hover:bg-gray-200 rounded-xl transition-all flex items-center justify-center gap-2 border border-gray-200">
+                                            <i data-lucide="edit-3" class="w-4 h-4"></i>
+                                            <span class="text-[10px] font-black uppercase tracking-widest text-center">Manage</span>
+                                        </a>
+                                        `}
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    html += '</div>';
+                    container.innerHTML = html;
+                    if (typeof lucide !== 'undefined') lucide.createIcons();
+                })
+                .catch(err => {
+                    container.innerHTML = `
+                        <div class="text-center py-12 bg-red-50 rounded-2xl border border-red-100">
+                            <i data-lucide="alert-circle" class="w-12 h-12 text-red-500 mx-auto mb-3"></i>
+                            <p class="text-red-700 font-black uppercase tracking-widest text-xs">Failed to load security flags.</p>
+                            <button onclick="showFlaggedUnitsModal()" class="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg text-xs font-bold uppercase tracking-widest">Retry</button>
+                        </div>
+                    `;
+                    if (typeof lucide !== 'undefined') lucide.createIcons();
+                });
         }
     </script>
 @endpush

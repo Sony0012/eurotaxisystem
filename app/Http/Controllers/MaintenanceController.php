@@ -98,7 +98,11 @@ class MaintenanceController extends Controller
             $trends['cost'][] = $trendsRaw->has($d) ? $trendsRaw[$d]->cost : 0;
         }
 
-        $units = DB::table('units')->whereNull('deleted_at')->where('status', '!=', 'retired')->orderBy('plate_number')->get();
+        $units = DB::table('units')
+            ->whereNull('deleted_at')
+            ->whereNotIn('status', ['retired', 'missing'])
+            ->orderBy('plate_number')
+            ->get();
         $drivers = DB::table('drivers')
             ->whereNull('deleted_at')
             ->where('driver_status', '!=', 'banned')
@@ -149,6 +153,16 @@ class MaintenanceController extends Controller
 
     public function store(Request $request)
     {
+        // 1. Check if the unit is missing/stolen
+        $unitId = $request->input('unit_id');
+        $unitStatus = DB::table('units')->where('id', $unitId)->value('status');
+        
+        if (strtolower($unitStatus) === 'missing') {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Cannot record maintenance for this unit. This vehicle is currently flagged as MISSING/STOLEN and is under security lockdown.');
+        }
+
         $data = $request->validate([
             'unit_id' => 'required|integer',
             'driver_id' => 'nullable|integer',
@@ -253,6 +267,16 @@ class MaintenanceController extends Controller
 
     public function update(Request $request, $id)
     {
+        // 1. Check if the unit is missing/stolen
+        $unitId = $request->input('unit_id');
+        $unitStatus = DB::table('units')->where('id', $unitId)->value('status');
+        
+        if (strtolower($unitStatus) === 'missing') {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Cannot update maintenance for this unit. This vehicle is currently flagged as MISSING/STOLEN and is under security lockdown.');
+        }
+
         $data = $request->validate([
             'unit_id' => 'required|integer',
             'driver_id' => 'nullable|integer',

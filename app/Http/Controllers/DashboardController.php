@@ -156,7 +156,7 @@ class DashboardController extends Controller
                     $plateCodingDay = $this->getCodingDay($unit->plate_number);
                     $shouldBeCodingToday = ($plateCodingDay === $todayDay);
 
-                    if ($shouldBeCodingToday) {
+                    if ($shouldBeCodingToday && $displayStatus !== 'missing') {
                         $displayStatus = 'coding';
                     } elseif ($displayStatus === 'coding' && !$shouldBeCodingToday) {
                         $displayStatus = 'active';
@@ -289,8 +289,9 @@ class DashboardController extends Controller
             $stats = [
                 'total_units' => $units->count(),
                 'vacant_units' => $units->whereNull('driver_id')->count(),
-                'active_units' => $units->whereNotNull('driver_id')->count(),
+                'active_units' => $units->whereNotNull('driver_id')->where('status', '!=', 'missing')->count(),
                 'coding_units' => $units->where('status', 'coding')->count(),
+                'missing_units' => $units->where('status', 'missing')->count(),
                 'roi_units' => $units->where('roi_achieved', true)->count(),
                 'avg_roi' => $units->avg('roi_percentage') ?: 0,
                 'total_investment' => $units->sum('purchase_cost'),
@@ -1197,6 +1198,12 @@ class DashboardController extends Controller
         // 7. Active Drivers
         $stats['active_drivers'] = DB::table('drivers')->whereNull('deleted_at')->count();
 
+        // 8. Missing/Stolen Units
+        $stats['missing_units'] = DB::table('units')
+            ->whereNull('deleted_at')
+            ->where('status', 'missing')
+            ->count();
+
         // 8. Average Boundary
         $stats['avg_boundary'] = DB::table('units')
             ->whereNull('deleted_at')
@@ -1349,14 +1356,16 @@ class DashboardController extends Controller
             ->whereNotIn(DB::raw('LOWER(status)'), ['complete', 'completed', 'cancelled'])
             ->count();
 
+        $missingCount = $allUnits->filter(fn($u) => strtolower($u->status) === 'missing')->count();
         $retiredCount = $allUnits->filter(fn($u) => strtolower($u->status) === 'retired')->count();
         $totalCount = $allUnits->count();
-        $activeCount = max(0, $totalCount - $codingCount - $maintenanceCount - $retiredCount);
+        $activeCount = max(0, $totalCount - $codingCount - $maintenanceCount - $retiredCount - $missingCount);
 
         return [
             ['status' => 'Active',            'count' => $activeCount],
             ['status' => 'Under Maintenance', 'count' => $maintenanceCount],
             ['status' => 'Coding',            'count' => $codingCount],
+            ['status' => 'Missing / Stolen',  'count' => $missingCount],
             ['status' => 'Retired',           'count' => $retiredCount],
         ];
     }

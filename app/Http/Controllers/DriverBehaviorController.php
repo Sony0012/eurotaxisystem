@@ -153,6 +153,7 @@ class DriverBehaviorController extends Controller
         $isDamage   = $behaviorMode === 'damage';
         $isTraffic  = $behaviorMode === 'traffic';
         $isComplaint= $behaviorMode === 'complaint';
+        $isSecurity = $behaviorMode === 'security';
 
         // ── Compute damage costs only for damage mode ──────────────────
         $computedOwnUnitDamage = 0;
@@ -252,17 +253,24 @@ class DriverBehaviorController extends Controller
                 ]);
         }
 
-        // ── Auto-Ban Logic (Passenger Complaint + Contracting OR Critical Severity) ─────────
+        // ── Auto-Ban & Lockdown Logic ─────────────────────────────────────────
         $shouldAutoBan = false;
+        $isStolen      = false;
+
+        // Trigger A: Specific keywords for "Taken / Stolen" OR Behavior Mode is 'security'
+        if ($isSecurity || stripos($data['incident_type'], 'taken') !== false || stripos($data['incident_type'], 'stolen') !== false) {
+            $isStolen = true;
+            $shouldAutoBan = true; // Permanent ban for theft
+        }
         
-        // Trigger 1: Specific sub-classification (e.g., 'Contracting') configured in settings
+        // Trigger B: Specific sub-classification (e.g., 'Contracting') configured in settings
         if ($classification && $classification->auto_ban_trigger && !empty($data['sub_classification'])) {
             if ($data['sub_classification'] === $classification->ban_trigger_value) {
                 $shouldAutoBan = true;
             }
         }
 
-        // Trigger 2: Manual override via Severity dropdown
+        // Trigger C: Manual override via Severity dropdown
         if (strtolower($data['severity']) === 'critical') {
             $shouldAutoBan = true;
         }
@@ -291,13 +299,27 @@ class DriverBehaviorController extends Controller
                     'updated_at' => now()
                 ]);
 
+            if ($isStolen) {
+                // Update unit status to missing
+                DB::table('units')
+                    ->where('id', $data['unit_id'])
+                    ->update([
+                        'status' => 'missing',
+                        'updated_at' => now()
+                    ]);
+            }
+
             // Log a system alert
             $driver    = DB::table('drivers')->find($data['driver_id']);
             $unit      = DB::table('units')->find($data['unit_id']);
             $driverName = trim(($driver->first_name ?? '') . ' ' . ($driver->last_name ?? ''));
+            
+            $alertTitle = $isStolen ? "🚨 STOLEN/TAKEN VEHICLE: {$unit->plate_number}" : "🚫 AUTO-BAN: {$driverName}";
+            $alertMsg   = $isStolen ? "CRITICAL: Unit {$unit->plate_number} has been reported as TAKEN/STOLEN by {$driverName}. Vehicle is now in LOCKDOWN (Missing status)." : "Driver {$driverName} has been automatically banned due to a Contracting / passenger complaint violation on unit {$unit->plate_number}.";
+
             DB::table('system_alerts')->insert([
-                'title'       => "🚫 AUTO-BAN: {$driverName}",
-                'message'     => "Driver {$driverName} has been automatically banned due to a Contracting / passenger complaint violation on unit {$unit->plate_number}.",
+                'title'       => $alertTitle,
+                'message'     => $alertMsg,
                 'type'        => 'danger',
                 'is_resolved' => false,
                 'created_at'  => now(),

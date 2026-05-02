@@ -780,6 +780,20 @@
                         class="w-full px-5 py-4 bg-gray-50 border border-gray-200 rounded-2xl text-sm font-medium focus:ring-4 focus:ring-orange-500/5 focus:border-orange-500 focus:outline-none resize-none transition-all placeholder:text-gray-300"></textarea>
                 </div>
 
+                {{-- ── SECURITY MODE: Lockdown Warning ── --}}
+                <div id="section-security" class="hidden p-6 bg-red-600 rounded-3xl border border-red-700 shadow-xl shadow-red-600/20 space-y-3 relative overflow-hidden group">
+                    <div class="absolute right-[-10px] top-[-10px] opacity-10">
+                        <i data-lucide="shield-alert" class="w-20 h-20 text-white"></i>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div class="p-2 bg-white/20 rounded-xl backdrop-blur-sm">
+                            <i data-lucide="shield-alert" class="w-5 h-5 text-white"></i>
+                        </div>
+                        <p class="text-[12px] font-black text-white uppercase tracking-widest">Security Lockdown Protocol</p>
+                    </div>
+                    <p class="text-[10px] font-bold text-red-100 leading-relaxed uppercase">Recording this incident will trigger an immediate permanent ban for the driver and flag the vehicle as stolen/missing in the system dashboard.</p>
+                </div>
+
                 {{-- ── DAMAGE MODE: Full Assessment ── --}}
                 <div id="section-damage" class="hidden p-8 bg-purple-50/50 rounded-[2.5rem] border border-purple-100 space-y-8 ring-1 ring-purple-100/50">
                     <div class="flex items-center gap-4">
@@ -1166,6 +1180,7 @@
                             <option value="complaint">Passenger Complaint (sub-options + ban)</option>
                             <option value="traffic">Traffic Violation (sub-options + fine)</option>
                             <option value="damage">Vehicle Damage / Accident (full cost assessment)</option>
+                            <option value="security">Vehicle Security Lockdown (Taken/Stolen)</option>
                         </select>
                         <p class="text-[9px] text-gray-400 font-bold mt-1 ml-1">Controls which sections appear in the Record Incident form</p>
                     </div>
@@ -1246,7 +1261,17 @@
                         });
                     </script>
                 </div>
-                <div class="mt-8 p-5 bg-yellow-50 rounded-2xl border border-yellow-100">
+                <div id="clsSecurityWarning" class="hidden mt-8 p-5 bg-red-50 rounded-2xl border border-red-100">
+                    <div class="flex gap-3">
+                        <i data-lucide="shield-alert" class="w-5 h-5 text-red-600 flex-shrink-0"></i>
+                        <div>
+                            <p class="text-[10px] font-black text-red-700 uppercase tracking-widest">Security Lockdown Mode Active</p>
+                            <p class="text-[9px] font-bold text-red-500 leading-relaxed uppercase tracking-tight mt-0.5">Recording an incident with this classification will automatically BANNED the driver and flag the unit as MISSING/STOLEN.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="clsBehaviorInfo" class="mt-8 p-5 bg-yellow-50 rounded-2xl border border-yellow-100">
                     <div class="flex gap-3">
                         <i data-lucide="info" class="w-5 h-5 text-yellow-600 flex-shrink-0"></i>
                         <p class="text-[10px] font-bold text-yellow-800 leading-relaxed uppercase tracking-tight">The Behavior Mode controls what the dispatcher sees when recording an incident of this type.</p>
@@ -1379,18 +1404,30 @@ window.switchTab = function(name) {
      toggleClsModeFields();
  };
 
- window.toggleClsModeFields = function() {
-     const mode = document.getElementById('quickClsMode').value;
-     const subRow = document.getElementById('clsSubOptionsRow');
-     const banRow = document.getElementById('clsBanRow');
-     if (['complaint','traffic'].includes(mode)) {
-         subRow.classList.remove('hidden');
-         banRow.classList.toggle('hidden', mode !== 'complaint');
-     } else {
-         subRow.classList.add('hidden');
-         banRow.classList.add('hidden');
-     }
- };
+  window.toggleClsModeFields = function() {
+      const mode = document.getElementById('quickClsMode').value;
+      const subRow = document.getElementById('clsSubOptionsRow');
+      const banRow = document.getElementById('clsBanRow');
+      const securityWarning = document.getElementById('clsSecurityWarning');
+      const behaviorInfo = document.getElementById('clsBehaviorInfo');
+
+      if (['complaint','traffic'].includes(mode)) {
+          subRow.classList.remove('hidden');
+          banRow.classList.toggle('hidden', mode !== 'complaint');
+      } else {
+          subRow.classList.add('hidden');
+          banRow.classList.add('hidden');
+      }
+
+      if (mode === 'security') {
+          securityWarning?.classList.remove('hidden');
+          behaviorInfo?.classList.add('hidden');
+          document.getElementById('quickClsSeverity').value = 'critical';
+      } else {
+          securityWarning?.classList.add('hidden');
+          behaviorInfo?.classList.remove('hidden');
+      }
+  };
 
  window.toggleBanValueField = function() {
      const checked = document.getElementById('quickClsAutoBan').checked;
@@ -1617,7 +1654,7 @@ window.handleTypeChange = function(val) {
     const mode = meta.mode;
 
     // 2. Hide all mode-specific sections
-    ['complaint','traffic','damage'].forEach(s => {
+    ['complaint','traffic','damage','security'].forEach(s => {
         const el = document.getElementById('section-' + s);
         if (el) el.classList.add('hidden');
     });
@@ -1641,12 +1678,21 @@ window.handleTypeChange = function(val) {
     } else if (mode === 'damage') {
         const sec = document.getElementById('section-damage');
         if (sec) sec.classList.remove('hidden');
+    } else if (mode === 'security') {
+        const sec = document.getElementById('section-security');
+        if (sec) sec.classList.remove('hidden');
     }
 
     // 5. Update narrative label hint
     const hint = document.getElementById('narrativeModeLabel');
     if (hint) {
-        const labels = { complaint:'(Describe the passenger complaint)', traffic:'(Describe the traffic violation)', damage:'(Describe the accident/damage)', narrative:'(Describe the incident)' };
+        const labels = { 
+            complaint:'(Describe the passenger complaint)', 
+            traffic:'(Describe the traffic violation)', 
+            damage:'(Describe the accident/damage)', 
+            security:'(Describe the vehicle security incident)',
+            narrative:'(Describe the incident)' 
+        };
         hint.textContent = labels[mode] || '(Describe the incident)';
     }
 

@@ -17,7 +17,7 @@ class IncidentClassification extends Model
         'default_severity',
         'color',
         'icon',
-        'behavior_mode',      // narrative | complaint | traffic | damage
+        'behavior_mode',      // narrative | complaint | traffic | damage | security
         'sub_options',        // JSON array of sub-classification options
         'auto_ban_trigger',   // If true, certain sub_classifications trigger a ban
         'ban_trigger_value',  // Which sub_classification value triggers auto-ban
