@@ -608,7 +608,7 @@
                         <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Vendor / Store Name</label>
                         <div class="relative">
                             <i data-lucide="building" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
-                            <input type="text" name="vendor_name" id="expenseVendor" placeholder="e.g. Meralco, Pandayan, PLDT" maxlength="30" onkeypress="return event.charCode !== 32"
+                            <input type="text" name="vendor_name" id="expenseVendor" placeholder="e.g. Meralco, Pandayan, PLDT" maxlength="30"
                                 class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none font-bold text-sm">
                         </div>
                     </div>
@@ -620,7 +620,7 @@
                         </label>
                         <div class="relative">
                             <i data-lucide="tag" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-300"></i>
-                            <input type="text" name="reference_number" id="expenseReference" placeholder="e.g. SINV-12345, OR-9876, etc." maxlength="30" onkeypress="return event.charCode !== 32"
+                            <input type="text" name="reference_number" id="expenseReference" placeholder="e.g. SINV-12345, OR-9876, etc." maxlength="30"
                                 class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none font-black text-sm uppercase">
                         </div>
                     </div>
