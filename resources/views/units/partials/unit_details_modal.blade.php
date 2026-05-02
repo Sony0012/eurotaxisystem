@@ -350,7 +350,7 @@
                     </div>
                 @else
                     <div class="text-center py-8 text-gray-500">
-                        <i data-lucide="dollar-sign" class="w-12 h-12 mx-auto mb-4 text-gray-300"></i>
+                        <i data-lucide="philippine-peso" class="w-12 h-12 mx-auto mb-4 text-gray-300"></i>
                         <p>No boundary collection history found</p>
                     </div>
                 @endif

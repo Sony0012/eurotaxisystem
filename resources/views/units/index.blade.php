@@ -369,7 +369,7 @@
                 <div class="mb-8">
                     <div class="flex items-center gap-2 mb-4">
                         <div class="p-2 bg-purple-100 rounded-lg">
-                            <i data-lucide="dollar-sign" class="w-5 h-5 text-purple-600"></i>
+                            <i data-lucide="philippine-peso" class="w-5 h-5 text-purple-600"></i>
                         </div>
                         <h4 class="text-lg font-semibold text-gray-900">Financial Information</h4>
                     </div>
@@ -730,7 +730,7 @@
                 {{-- Section 3: Financial Information --}}
                 <div class="mb-8">
                     <div class="flex items-center gap-2 mb-4">
-                        <div class="p-2 bg-purple-100 rounded-lg"><i data-lucide="dollar-sign" class="w-5 h-5 text-purple-600"></i></div>
+                        <div class="p-2 bg-purple-100 rounded-lg"><i data-lucide="philippine-peso" class="w-5 h-5 text-purple-600"></i></div>
                         <h4 class="text-lg font-semibold text-gray-900">Financial Information</h4>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -2166,7 +2166,7 @@
                         <div id="boundary-tab" class="tab-content hidden">
                             <div class="bg-white border border-gray-200 rounded-lg p-3">
                                 <h4 class="text-sm font-semibold text-gray-900 mb-2">Boundary Collection History</h4>
-                                ${boundaryRowsHtml ? `<div class="overflow-x-auto"><table class="min-w-full divide-y divide-gray-200"><thead class="bg-gray-50"><tr><th class="px-3 py-2 text-left text-[10px] font-medium text-gray-500 uppercase">Date</th><th class="px-3 py-2 text-left text-[10px] font-medium text-gray-500 uppercase">Driver</th><th class="px-3 py-2 text-left text-[10px] font-medium text-gray-500 uppercase">License</th><th class="px-3 py-2 text-left text-[10px] font-medium text-gray-500 uppercase">Amount</th></tr></thead><tbody class="bg-white divide-y divide-gray-200">${boundaryRowsHtml.replace(/px-6 py-4/g, 'px-3 py-1.5').replace(/text-sm/g, 'text-xs')}</tbody></table></div>` : '<div class="text-center py-6 text-gray-500"><i data-lucide="dollar-sign" class="w-10 h-10 mx-auto mb-2 text-gray-300"></i><p class="text-xs">No boundary history found</p></div>'}
+                                ${boundaryRowsHtml ? `<div class="overflow-x-auto"><table class="min-w-full divide-y divide-gray-200"><thead class="bg-gray-50"><tr><th class="px-3 py-2 text-left text-[10px] font-medium text-gray-500 uppercase">Date</th><th class="px-3 py-2 text-left text-[10px] font-medium text-gray-500 uppercase">Driver</th><th class="px-3 py-2 text-left text-[10px] font-medium text-gray-500 uppercase">License</th><th class="px-3 py-2 text-left text-[10px] font-medium text-gray-500 uppercase">Amount</th></tr></thead><tbody class="bg-white divide-y divide-gray-200">${boundaryRowsHtml.replace(/px-6 py-4/g, 'px-3 py-1.5').replace(/text-sm/g, 'text-xs')}</tbody></table></div>` : '<div class="text-center py-6 text-gray-500"><i data-lucide="philippine-peso" class="w-10 h-10 mx-auto mb-2 text-gray-300"></i><p class="text-xs">No boundary history found</p></div>'}
                             </div>
                         </div>
 

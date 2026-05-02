@@ -263,7 +263,7 @@
                     @empty
                         <tr>
                             <td colspan="7" class="px-6 py-12 text-center text-gray-500">
-                                <i data-lucide="dollar-sign" class="w-12 h-12 mx-auto mb-4 text-gray-300"></i>
+                                <i data-lucide="philippine-peso" class="w-12 h-12 mx-auto mb-4 text-gray-300"></i>
                                 <p>No expenses recorded yet.</p>
                             </td>
                         </tr>

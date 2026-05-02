@@ -243,7 +243,7 @@
                             // Category: Financial/Payment
                             elseif (str_contains($action, 'payment') || str_contains($action, 'salary') || str_contains($action, 'expense')) { 
                                 $class = 'badge-update'; 
-                                $icon = 'dollar-sign'; 
+                                $icon = 'philippine-peso'; 
                             }
                             // Category: Restoration
                             elseif (str_contains($action, 'restore')) { 
@@ -263,7 +263,7 @@
 
                             // Module Specific Icons (Override if needed)
                             if (str_contains($action, 'maintenance')) $icon = 'wrench';
-                            elseif (str_contains($action, 'boundary')) $icon = 'dollar-sign';
+                            elseif (str_contains($action, 'boundary')) $icon = 'philippine-peso';
                             elseif (str_contains($action, 'driver')) $icon = 'users';
                             elseif (str_contains($action, 'unit')) $icon = 'car';
                             elseif (str_contains($action, 'incident')) $icon = 'alert-triangle';
