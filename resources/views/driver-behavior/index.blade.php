@@ -966,10 +966,10 @@
 <div id="editIncidentModal" class="fixed inset-0 bg-black/60 backdrop-blur-md hidden z-[101] flex items-center justify-center p-4">
     <div class="w-full max-w-xl bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in fade-in zoom-in duration-300">
         {{-- Modal Header --}}
-        <div class="px-8 py-6 bg-blue-600 text-white flex items-center justify-between shadow-lg z-10">
+        <div class="px-8 py-6 bg-orange-600 text-white flex items-center justify-between shadow-lg z-10">
             <div>
-                <h3 class="text-xl font-black tracking-tight leading-none">Edit Incident Record</h3>
-                <p class="text-[10px] text-blue-100 font-bold mt-2 uppercase tracking-[0.2em]">Update incident details & charges</p>
+                <h3 class="text-xl font-black tracking-tight leading-none">EDIT RECORD (DEPLOYED)</h3>
+                <p class="text-[10px] text-orange-100 font-bold mt-2 uppercase tracking-[0.2em]">Update incident details & charges</p>
             </div>
             <button onclick="closeEditIncidentModal()" class="p-2.5 rounded-2xl bg-white/10 hover:bg-white/20 transition-all active:scale-95 border border-white/10">
                 <i data-lucide="x" class="w-5 h-5 text-white"></i>
