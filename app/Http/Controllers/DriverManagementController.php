@@ -275,7 +275,7 @@ class DriverManagementController extends Controller
             ->where('driver_id', $id)
             ->whereMonth('incident_date', $currentMonth)
             ->whereYear('incident_date', $currentYear)
-            ->violations()
+            ->whereRaw($this->getViolationQuerySnippet())
             ->whereNotIn('incident_type', ['Late Remittance', 'Vehicle Damage', 'Short Boundary'])
             ->count();
 
