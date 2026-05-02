@@ -10,6 +10,7 @@ use Carbon\Carbon;
 use App\Http\Controllers\ActivityLogController;
 
 use App\Traits\CalculatesBoundary;
+use App\Traits\CalculatesDriverPerformance;
 
 class BoundaryController extends Controller
 {

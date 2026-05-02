@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 use App\Traits\CalculatesBoundary;
+use App\Traits\CalculatesDriverPerformance;
 use App\Http\Controllers\ActivityLogController;
 
 class DriverManagementController extends Controller
