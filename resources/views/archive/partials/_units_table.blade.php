@@ -3,7 +3,7 @@
         <thead class="bg-gray-50">
             <tr>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Plate Number</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Deleted At</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date Archived</th>
                 <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
             </tr>
         </thead>
@@ -25,7 +25,7 @@
                         </button>
                     </form>
                     <button type="button"
-                        onclick="confirmPermanentDelete('unit', {{ $unit->id }}, '{{ addslashes($unit->plate_number) }}')"
+                        onclick="archiveForceDelete('{{ route('archive.forceDelete', ['type' => 'unit', 'id' => $unit->id]) }}')"
                         class="inline-flex items-center gap-1 text-xs font-bold text-red-600 hover:text-red-800 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg transition-all">
                         <i data-lucide="trash-2" class="w-3 h-3"></i> Delete Permanently
                     </button>

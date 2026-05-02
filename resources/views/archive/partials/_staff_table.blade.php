@@ -4,7 +4,7 @@
             <tr>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Deleted At</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date Archived</th>
                 <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
             </tr>
         </thead>
@@ -12,7 +12,9 @@
             @forelse($items as $s)
             <tr class="hover:bg-gray-50 transition-colors">
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">{{ $s->name }}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ $s->role }}</td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="inline-flex text-xs font-bold text-blue-700 bg-blue-50 px-2 py-1 rounded-full">{{ $s->role }}</span>
+                </td>
                 <td class="px-6 py-4 whitespace-nowrap">
                     <span class="inline-flex items-center gap-1 text-xs font-medium text-red-600 bg-red-50 px-2 py-1 rounded-full">
                         <i data-lucide="clock" class="w-3 h-3"></i>
@@ -27,7 +29,7 @@
                         </button>
                     </form>
                     <button type="button"
-                        onclick="confirmPermanentDelete('staff', {{ $s->id }}, '{{ addslashes($s->name) }}')"
+                        onclick="archiveForceDelete('{{ route('archive.forceDelete', ['type' => 'staff', 'id' => $s->id]) }}')"
                         class="inline-flex items-center gap-1 text-xs font-bold text-red-600 hover:text-red-800 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg transition-all">
                         <i data-lucide="trash-2" class="w-3 h-3"></i> Delete Permanently
                     </button>

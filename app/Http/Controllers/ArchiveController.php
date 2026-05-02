@@ -74,14 +74,21 @@ class ArchiveController extends Controller
     {
         $password = $request->input('archive_password');
         if (!\App\Models\SystemSetting::verifyPassword($password)) {
-            $msg = !\App\Models\SystemSetting::get('archive_deletion_password') 
-                ? 'Archive deletion password is not set. Please set it in the System Security tab.' 
+            $msg = !\App\Models\SystemSetting::get('archive_deletion_password')
+                ? 'Archive deletion password is not set. Please set it in the System Security tab.'
                 : 'Invalid archive deletion password.';
+
+            if ($request->wantsJson() || $request->expectsJson()) {
+                return response()->json(['success' => false, 'message' => $msg], 422);
+            }
             return back()->with('error', $msg);
         }
 
         $model = $this->getModelByType($type);
         if (!$model) {
+            if ($request->wantsJson() || $request->expectsJson()) {
+                return response()->json(['success' => false, 'message' => 'Invalid model type.'], 400);
+            }
             return back()->with('error', 'Invalid model type.');
         }
 
@@ -91,6 +98,9 @@ class ArchiveController extends Controller
 
         system_log("Permanently Deleted " . ucfirst($type), "Item: {$name} was permanently wiped from the database.");
 
+        if ($request->wantsJson() || $request->expectsJson()) {
+            return response()->json(['success' => true, 'message' => ucfirst($type) . ' permanently deleted.']);
+        }
         return back()->with('success', ucfirst($type) . ' permanently deleted.');
     }
 

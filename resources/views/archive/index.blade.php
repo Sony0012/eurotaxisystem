@@ -92,78 +92,57 @@
     </div>
 </div>
 
-{{-- ═══════════════════════════════════════════════════════════════ --}}
-{{-- SHARED: Delete Permanently Modal — used by ALL archive partials --}}
-{{-- ═══════════════════════════════════════════════════════════════ --}}
-<div id="permanentDeleteModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-[200] flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-fade-in">
-        {{-- Header --}}
-        <div class="bg-gradient-to-r from-red-600 to-rose-600 p-5">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
-                    <i data-lucide="shield-alert" class="w-5 h-5 text-white"></i>
-                </div>
-                <div>
-                    <h3 class="text-base font-black text-white">Permanent Deletion</h3>
-                    <p class="text-xs text-red-200 font-medium">This action cannot be undone</p>
-                </div>
-            </div>
-        </div>
-
-        <form id="permanentDeleteForm" method="POST" class="p-6 space-y-5">
-            @csrf
-            @method('DELETE')
-
-            {{-- Warning Box --}}
-            <div class="bg-red-50 border border-red-100 rounded-xl p-4 flex gap-3">
-                <i data-lucide="alert-triangle" class="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5"></i>
-                <div>
-                    <p class="text-xs font-black text-red-800 uppercase tracking-wide mb-1">Warning</p>
-                    <p class="text-xs text-red-700 leading-relaxed">
-                        You are about to permanently wipe
-                        <span id="deleteItemName" class="font-black text-red-900"></span>
-                        from the database. All related data will be lost forever.
-                    </p>
-                </div>
-            </div>
-
-            {{-- Password Field --}}
-            <div class="space-y-2">
-                <label class="block text-xs font-black text-gray-500 uppercase tracking-widest">Archive Deletion Password</label>
-                <div class="relative">
-                    <i data-lucide="lock" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
-                    <input type="password" name="archive_password" id="archivePasswordInput" required
-                        class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none text-sm font-bold tracking-widest text-center"
-                        placeholder="Enter password to confirm">
-                </div>
-            </div>
-
-            {{-- Action Buttons --}}
-            <div class="flex gap-3 pt-1">
-                <button type="button" onclick="closePermanentDeleteModal()"
-                    class="flex-1 px-4 py-3 text-sm font-bold text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-xl transition-all">
-                    Cancel
-                </button>
-                <button type="submit"
-                    class="flex-1 px-4 py-3 text-sm font-black text-white bg-red-600 hover:bg-red-700 rounded-xl shadow-lg shadow-red-200 transition-all flex items-center justify-center gap-2">
-                    <i data-lucide="trash-2" class="w-4 h-4"></i> Wipe Permanently
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
-
 <script>
-    // ── Tab Switcher ──────────────────────────────────────────────────
+    // ─── Global Archive Force-Delete Handler ─────────────────────────────────────
+    // Called by all archive partial "Delete Permanently" buttons.
+    // Hooks into the globalArchiveSecurityModal defined in app.blade.php.
+    async function archiveForceDelete(deleteUrl) {
+        if (typeof window.promptArchiveDeletionPassword !== 'function') {
+            alert('Security modal is not available. Please refresh the page.');
+            return;
+        }
+
+        const password = await window.promptArchiveDeletionPassword();
+        if (!password) return; // User cancelled
+
+        try {
+            const response = await fetch(deleteUrl, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                },
+                body: JSON.stringify({ archive_password: password }),
+            });
+
+            const result = await response.json();
+
+            if (response.ok && result.success !== false) {
+                window.location.reload();
+            } else {
+                alert(result.message || 'Invalid password or error occurred. Please try again.');
+            }
+        } catch (err) {
+            alert('A network error occurred. Please try again.');
+        }
+    }
+
     function switchTab(tabId) {
+        // Hide all tab content
         document.querySelectorAll('.tab-content').forEach(content => {
             content.classList.add('hidden');
         });
+
+        // Show selected tab content
         document.getElementById('tab-' + tabId).classList.remove('hidden');
+
+        // Update tab button styles
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.classList.remove('border-blue-500', 'text-blue-600');
             btn.classList.add('border-transparent', 'text-gray-500');
         });
+
         const activeBtn = document.querySelector(`[data-tab="${tabId}"]`);
         if (activeBtn) {
             activeBtn.classList.remove('border-transparent', 'text-gray-500');
@@ -175,33 +154,9 @@
     document.addEventListener('DOMContentLoaded', function() {
         const urlParams = new URLSearchParams(window.location.search);
         const initialTab = urlParams.get('tab');
-        if (initialTab) switchTab(initialTab);
-        if (window.lucide) window.lucide.createIcons();
-    });
-
-    // ── Shared Delete Permanently Modal ───────────────────────────────
-    function confirmPermanentDelete(type, id, name) {
-        const modal = document.getElementById('permanentDeleteModal');
-        const form = document.getElementById('permanentDeleteForm');
-        const nameSpan = document.getElementById('deleteItemName');
-        const pwdInput = document.getElementById('archivePasswordInput');
-
-        nameSpan.textContent = name;
-        form.action = `/archive/force-delete/${type}/${id}`;
-        pwdInput.value = '';
-        modal.classList.remove('hidden');
-        if (window.lucide) window.lucide.createIcons();
-        setTimeout(() => pwdInput.focus(), 100);
-    }
-
-    function closePermanentDeleteModal() {
-        document.getElementById('permanentDeleteModal').classList.add('hidden');
-        document.getElementById('archivePasswordInput').value = '';
-    }
-
-    // Close modal on backdrop click
-    document.getElementById('permanentDeleteModal').addEventListener('click', function(e) {
-        if (e.target === this) closePermanentDeleteModal();
+        if (initialTab) {
+            switchTab(initialTab);
+        }
     });
 </script>
 @endsection
