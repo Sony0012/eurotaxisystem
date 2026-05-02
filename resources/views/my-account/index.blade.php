@@ -157,31 +157,6 @@
                 </form>
             </div>
 
-            <!-- Forgot Password -->
-            <div class="bg-white rounded-lg shadow-sm">
-                <div class="p-2 border-b">
-                    <h2 class="text-sm font-semibold text-gray-900 flex items-center gap-1">
-                        <i data-lucide="mail" class="w-4 h-4"></i>
-                        Forgot Password
-                    </h2>
-                </div>
-                <div class="p-3">
-                    <p class="text-xs text-gray-600 mb-2">Enter your email address and we'll send you a link to reset your password.</p>
-                    <form method="POST" action="{{ route('my-account.forgot-password') }}">
-                        @csrf
-                        <div class="space-y-2">
-                            <input type="email" name="email" value="{{ $user->email }}" required
-                                   placeholder="Enter your email"
-                                   class="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-yellow-500 focus:border-yellow-500">
-                            <button type="submit" class="w-full px-3 py-1 text-sm bg-gray-600 text-white rounded hover:bg-gray-700 flex items-center justify-center gap-1">
-                                <i data-lucide="send" class="w-3 h-3"></i>
-                                Send Reset Link
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-
         </div>
     </div>
 </div>
