@@ -8,8 +8,8 @@
 <div class="px-4 py-6 mx-auto max-w-7xl sm:px-6 lg:px-8">
     <!-- Archive Tabs -->
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-        <div class="border-b border-gray-100">
-            <nav class="flex -mb-px px-6 space-x-8" aria-label="Tabs" id="archive-tabs">
+        <div class="border-b border-gray-100 overflow-x-auto custom-scrollbar">
+            <nav class="flex -mb-px px-6 space-x-8 min-w-max" aria-label="Tabs" id="archive-tabs">
                 <button onclick="switchTab('units')" class="tab-btn active border-blue-500 text-blue-600 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-all" data-tab="units">
                     Units ({{ count($archivedUnits) }})
                 </button>
