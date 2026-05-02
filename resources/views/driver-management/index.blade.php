@@ -244,12 +244,12 @@
                                         <i data-lucide="credit-card" class="w-4 h-4 text-gray-400"></i>
                                     </div>
                                     <input type="text" name="license_number" id="driverLicense" required
-                                        maxlength="13"
+                                        maxlength="20"
                                         class="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono uppercase"
                                         placeholder="e.g., A01-12-123456"
-                                        pattern="^[A-Z0-9]{1}-[A-Z0-9]{2}-[A-Z0-9]{6}$"
-                                        title="License format: e.g., A01-12-123456 (13 chars, no spaces)"
-                                        oninput="this.value = this.value.toUpperCase().slice(0, 13)">
+                                        pattern="^\S+$"
+                                        title="License number: up to 20 characters, no spaces allowed."
+                                        oninput="this.value = this.value.toUpperCase().replace(/\s/g, '').slice(0, 20)">
                                 </div>
                             </div>
                             <div class="space-y-2">
