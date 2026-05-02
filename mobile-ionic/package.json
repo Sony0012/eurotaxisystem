@@ -11,9 +11,9 @@
     "copy": "npx cap copy android"
   },
   "dependencies": {
-    "@capacitor/android": "5.0.0",
-    "@capacitor/core": "5.0.0",
-    "@capacitor/splash-screen": "^5.0.0",
+    "@capacitor/android": "^8.3.1",
+    "@capacitor/core": "^8.3.1",
+    "@capacitor/splash-screen": "^8.0.1",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
     "@ionic/react": "7.0.0",
@@ -85,7 +85,7 @@
     "vaul": "^1.1.2"
   },
   "devDependencies": {
-    "@capacitor/cli": "^5.7.8",
+    "@capacitor/cli": "^8.3.1",
     "@types/react": "18.2.21",
     "@types/react-dom": "18.2.7",
     "@types/react-router-dom": "^5.3.3",
