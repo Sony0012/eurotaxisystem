@@ -814,20 +814,20 @@
 <script>
 const partsCatalog = @json($spareParts);
 
-function openAddExpenseModal() {
-    // Helper to safely set values/classes
-    const safeSet = (id, prop, val, isClass = false) => {
-        const el = document.getElementById(id);
-        if (el) {
-            if (isClass) {
-                if (val === 'add') el.classList.add(prop);
-                else if (val === 'remove') el.classList.remove(prop);
-            } else {
-                el[prop] = val;
-            }
+// Helper to safely set values/classes
+function safeSet(id, prop, val, isClass = false) {
+    const el = document.getElementById(id);
+    if (el) {
+        if (isClass) {
+            if (val === 'add') el.classList.add(prop);
+            else if (val === 'remove') el.classList.remove(prop);
+        } else {
+            el[prop] = val;
         }
-    };
+    }
+}
 
+function openAddExpenseModal() {
     safeSet('expenseModalTitle', 'textContent', 'New Expense');
     safeSet('expenseFormMethod', 'value', 'POST');
     safeSet('expenseForm', 'action', '{{ route('office-expenses.store') }}');
@@ -837,11 +837,15 @@ function openAddExpenseModal() {
     safeSet('expenseQuantity', 'value', '');
     safeSet('expenseUnitPrice', 'value', '');
     
+    // Reset Sections
     safeSet('inventorySyncSection', 'hidden', 'add', true);
+    safeSet('franchiseSyncSection', 'hidden', 'add', true);
     safeSet('topAmountGroup', 'hidden', 'remove', true);
+    safeSet('standardVendorOnly', 'hidden', 'remove', true);
+    safeSet('customCategoryGroup', 'hidden', 'add', true);
+    
     safeSet('editModeBadge', 'hidden', 'add', true);
     safeSet('priceEditBadge', 'hidden', 'add', true);
-    
     safeSet('updateMasterHidden', 'value', '0');
     safeSet('existingPartGroup', 'hidden', 'remove', true);
     safeSet('newPartGroup', 'hidden', 'add', true);
@@ -854,7 +858,6 @@ function openAddExpenseModal() {
         regBtn.classList.replace('text-gray-600', 'text-rose-600');
     }
     
-    safeSet('standardVendorOnly', 'hidden', 'remove', true);
     safeSet('syncSupplierHidden', 'value', '');
     safeSet('selectedSupplierLabel', 'textContent', '-- Choose or Type Supplier --');
     safeSet('selectedSupplierLabel', 'text-gray-900', 'remove', true);
@@ -863,6 +866,12 @@ function openAddExpenseModal() {
     safeSet('selectedPartLabel', 'textContent', '-- Select Existing Part to Restock --');
     safeSet('selectedPartLabel', 'text-gray-900', 'remove', true);
     safeSet('selectedPartLabel', 'text-gray-400', 'add', true);
+
+    safeSet('selectedFranchiseLabel', 'textContent', '-- Choose Franchise Case --');
+    safeSet('selectedFranchiseLabel', 'text-gray-900', 'remove', true);
+    safeSet('selectedFranchiseLabel', 'text-gray-400', 'add', true);
+    safeSet('expenseFranchiseCaseId', 'value', '');
+    safeSet('expenseNewExpiryDate', 'value', '');
     
     safeSet('expenseReference', 'value', '');
     safeSet('newSupplierField', 'hidden', 'add', true);
@@ -872,17 +881,13 @@ function openAddExpenseModal() {
     safeSet('expenseNewPartName', 'value', '');
     safeSet('expenseAmount', 'value', '');
     safeSet('expenseAmount', 'readOnly', false);
-    safeSet('expenseAmount', 'bg-gray-100', 'remove', true);    safeSet('inventorySyncSection', 'hidden', 'add', true);
-    safeSet('franchiseSyncSection', 'hidden', 'add', true);
-    safeSet('topAmountGroup', 'hidden', 'remove', true);
-    safeSet('standardVendorOnly', 'hidden', 'remove', true);
+    safeSet('expenseAmount', 'bg-gray-100', 'remove', true);
     
     safeSet('selectedCategoryLabel', 'textContent', '-- Choose Specific Category --');
     safeSet('selectedCategoryLabel', 'text-gray-900', 'remove', true);
     safeSet('selectedCategoryLabel', 'text-gray-400', 'add', true);
     
     safeSet('expenseDescription', 'value', '');
-    safeSet('expenseReference', 'value', '');
     safeSet('expenseVendor', 'value', '');
     
     const pmCash = document.getElementById('pmCash');
@@ -965,7 +970,7 @@ function openEditExpenseModal(id) {
         } else {
             document.getElementById('expenseAmount').readOnly = false;
             document.getElementById('expenseAmount').classList.remove('bg-gray-100');
-        }     }
+        }
 
         document.getElementById('expenseDescription').value = data.description || '';
         document.getElementById('expenseAmount').value = data.amount || '';
@@ -983,7 +988,7 @@ function openEditExpenseModal(id) {
         setTimeout(() => {
             document.getElementById('modalContainer').classList.remove('scale-95');
         }, 10);
-        lucide.createIcons();
+        if (window.lucide) lucide.createIcons();
     });
 }
  
