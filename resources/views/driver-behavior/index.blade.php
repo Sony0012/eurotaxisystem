@@ -920,19 +920,21 @@
                                 <p class="text-[8px] text-red-100/50 font-bold uppercase mt-2">Deductible Balance</p>
                             </div>
                         </div>
-
-                        {{-- Liability Acknowledgement --}}
-                        <label class="flex items-center gap-4 cursor-pointer p-6 bg-white rounded-[2rem] border border-red-100 hover:bg-red-50 hover:border-red-200 transition-all group select-none shadow-sm">
-                            <div class="relative flex items-center justify-center">
-                                <input type="checkbox" name="is_driver_fault" id="faultCheck" value="1" onchange="computeTotal()"
-                                    class="w-7 h-7 accent-red-600 rounded-2xl cursor-pointer transition-transform group-hover:scale-110 border-2 border-red-200">
-                            </div>
-                            <div>
-                                <p class="text-xs font-black text-gray-800 uppercase tracking-wider">Driver is at Fault</p>
-                                <p class="text-[9px] text-red-500 font-bold uppercase mt-1 tracking-widest leading-relaxed">Checking this will include Third-Party costs in Driver's balance.</p>
-                            </div>
-                        </label>
                     </div>
+                </div>
+
+                {{-- Global Liability Acknowledgement (Visible for all modes) --}}
+                <div class="space-y-4">
+                    <label class="flex items-center gap-4 cursor-pointer p-6 bg-white rounded-[2rem] border border-red-100 hover:bg-red-50 hover:border-red-200 transition-all group select-none shadow-sm">
+                        <div class="relative flex items-center justify-center">
+                            <input type="checkbox" name="is_driver_fault" id="faultCheck" value="1" onchange="typeof computeTotal === 'function' ? computeTotal() : null"
+                                class="w-7 h-7 accent-red-600 rounded-2xl cursor-pointer transition-transform group-hover:scale-110 border-2 border-red-200">
+                        </div>
+                        <div>
+                            <p class="text-xs font-black text-gray-800 uppercase tracking-wider">Driver is at Fault</p>
+                            <p class="text-[9px] text-red-500 font-bold uppercase mt-1 tracking-widest leading-relaxed">Check this if the driver is primarily responsible for the incident.</p>
+                        </div>
+                    </label>
                 </div>
 
                 {{-- Section: Cause (Conditional) --}}
