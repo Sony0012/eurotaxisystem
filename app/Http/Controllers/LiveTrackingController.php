@@ -307,6 +307,12 @@ class LiveTrackingController extends Controller
                             'updated_at'          => now()
                         ]
                     );
+
+                    // Sync to units table for health tracking
+                    DB::table('units')->where('id', $unitData['unit_id'])->update([
+                        'current_gps_odo' => $currentOdo,
+                        'updated_at' => now()
+                    ]);
                 }
             }
 

@@ -212,7 +212,11 @@ class MaintenanceController extends Controller
 
         // Update unit status based on maintenance completion
         if (in_array(strtolower($data['status']), ['complete', 'completed']) && $data['date_completed']) {
-            DB::table('units')->where('id', $data['unit_id'])->update(['status' => 'active', 'updated_at' => now()]);
+            DB::table('units')->where('id', $data['unit_id'])->update([
+                'status' => 'active', 
+                'last_service_odo_gps' => DB::raw('current_gps_odo'), // Reset health counter
+                'updated_at' => now()
+            ]);
         } else if (in_array(strtolower($data['status']), ['pending', 'ongoing', 'testing', 'in_progress', 'in_shop'])) {
             DB::table('units')->where('id', $data['unit_id'])->update(['status' => 'maintenance', 'updated_at' => now()]);
         }
@@ -332,7 +336,11 @@ class MaintenanceController extends Controller
 
             // Update unit status based on maintenance completion
             if (in_array(strtolower($data['status']), ['complete', 'completed']) && $data['date_completed']) {
-                DB::table('units')->where('id', $data['unit_id'])->update(['status' => 'active', 'updated_at' => now()]);
+                DB::table('units')->where('id', $data['unit_id'])->update([
+                    'status' => 'active', 
+                    'last_service_odo_gps' => DB::raw('current_gps_odo'), // Reset health counter
+                    'updated_at' => now()
+                ]);
             } else if (in_array(strtolower($data['status']), ['pending', 'ongoing', 'testing', 'in_progress', 'in_shop'])) {
                 DB::table('units')->where('id', $data['unit_id'])->update(['status' => 'maintenance', 'updated_at' => now()]);
             }
@@ -456,6 +464,7 @@ class MaintenanceController extends Controller
                 // Set unit status back to active
                 DB::table('units')->where('id', $maint->unit_id)->update([
                     'status' => 'active',
+                    'last_service_odo_gps' => DB::raw('current_gps_odo'), // Reset health counter
                     'updated_at' => now()
                 ]);
             }
@@ -481,7 +490,11 @@ class MaintenanceController extends Controller
                 $maint->update(['status' => 'ongoing', 'date_completed' => null, 'updated_by' => Auth::id()]);
             } elseif ($currentStatus === 'ongoing' || $currentStatus === 'testing') {
                 $maint->update(['status' => 'completed', 'date_completed' => date('Y-m-d'), 'updated_by' => Auth::id()]);
-                DB::table('units')->where('id', $maint->unit_id)->update(['status' => 'active', 'updated_at' => now()]);
+                DB::table('units')->where('id', $maint->unit_id)->update([
+                    'status' => 'active', 
+                    'last_service_odo_gps' => DB::raw('current_gps_odo'), // Reset health counter
+                    'updated_at' => now()
+                ]);
                 return; // Early return to avoid setting unit to maintenance below
             } else {
                 // If it's complete, revert back to pending

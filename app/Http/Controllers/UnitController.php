@@ -751,6 +751,20 @@ class UnitController extends Controller
         return redirect()->route('units.index')->with('success', 'Unit status updated!');
     }
 
+    public function resetHealth($id)
+    {
+        $unit = Unit::findOrFail($id);
+        
+        DB::table('units')->where('id', $id)->update([
+            'last_service_odo_gps' => $unit->current_gps_odo,
+            'updated_at' => now(),
+        ]);
+
+        ActivityLogController::log('Reset Maintenance Health', "Manual health reset for Unit: {$unit->plate_number}. Counter restarted at " . number_format($unit->current_gps_odo) . " KM.");
+
+        return back()->with('success', 'Maintenance health counter has been reset to current odometer!');
+    }
+
     public function getFlaggedUnits()
     {
         // 1. Manually flagged or Missing/Stolen units — always shown

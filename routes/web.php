@@ -88,6 +88,7 @@ Route::middleware(['auth', 'page_access'])->group(function () {
     Route::get('/units/details', [UnitController::class, 'getDetails'])->name('units.details');
     Route::get('/units/details-html', [UnitController::class, 'getDetailsHtml'])->name('units.detailsHtml');
     Route::post('/units/toggle-status', [UnitController::class, 'toggleStatus'])->name('units.toggle-status');
+    Route::post('/units/{id}/reset-health', [UnitController::class, 'resetHealth'])->name('units.reset-health');
     Route::post('/units/{id}/recover', [UnitController::class, 'recover'])->name('units.recover');
     Route::get('/units/quick-stats', [UnitController::class, 'quickStats'])->name('units.quick-stats');
     Route::get('/units/print', [UnitController::class, 'printPdf'])->name('units.print');

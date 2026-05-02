@@ -11,8 +11,8 @@
     $SERVICE_KM = 5000;
     
     if ($has_gps) {
-        $current_odo = (float)($unit->latest_odo ?? 0);
-        $service_odo = (float)($unit->last_service_odo ?? 0);
+        $current_odo = (float)($unit->current_gps_odo ?? 0);
+        $service_odo = (float)($unit->last_service_odo_gps ?? 0);
         $km_since = max(0, $current_odo - $service_odo);
         $pct = min(100, round(($km_since / $SERVICE_KM) * 100));
         $is_overdue = $km_since >= $SERVICE_KM;

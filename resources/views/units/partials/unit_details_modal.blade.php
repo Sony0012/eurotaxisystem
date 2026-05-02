@@ -359,10 +359,20 @@
 
         <div id="maintenance-tab" class="tab-content hidden">
             <div class="bg-white border border-gray-200 rounded-lg p-6">
-                <h4 class="text-lg font-semibold text-gray-900 mb-6 flex items-center gap-2">
-                    <i data-lucide="history" class="w-5 h-5 text-gray-600"></i>
-                    Comprehensive Maintenance History
-                </h4>
+                <div class="flex justify-between items-center mb-6">
+                    <h4 class="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                        <i data-lucide="history" class="w-5 h-5 text-gray-600"></i>
+                        Comprehensive Maintenance History
+                    </h4>
+                    
+                    <form action="{{ route('units.reset-health', $unit->id) }}" method="POST" onsubmit="return confirm('RESET HEALTH COUNTER?\n\nThis will set the Maintenance baseline to the current GPS Odometer ({{ number_format((float)$unit->current_gps_odo) }} KM).\n\nUse this only if maintenance was done but not recorded.')">
+                        @csrf
+                        <button type="submit" class="flex items-center gap-2 px-3 py-1.5 bg-orange-50 text-orange-600 rounded-lg hover:bg-orange-100 transition-colors text-[10px] font-black uppercase tracking-widest border border-orange-200">
+                            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+                            Reset Health Counter
+                        </button>
+                    </form>
+                </div>
                 @if(!empty($maintenance_records))
                     <div class="space-y-6">
                         @foreach($maintenance_records as $maintenance)
