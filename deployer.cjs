@@ -8,7 +8,7 @@ const config = {
     readyTimeout: 20000
 };
 
-const command = 'cd /home/u747826271/domains/eurotaxisystem.site/public_html && git fetch origin main && git reset --hard origin/main && rsync -av --exclude="storage" public/ . && sed -i \'s|../vendor|vendor|g\' index.php && sed -i \'s|../bootstrap|bootstrap|g\' index.php && php artisan migrate --force && php artisan optimize && echo "---SUCCESS_DEPLOY---"';
+const command = 'cd /home/u747826271/domains/eurotaxisystem.site/public_html && git fetch origin main && git reset --hard origin/main && rsync -av --exclude="storage" public/ . && sed -i \'s|../vendor|vendor|g\' index.php && sed -i \'s|../bootstrap|bootstrap|g\' index.php && php artisan migrate --force && php artisan tinker --execute="DB::table(\'incident_classifications\')->where(\'name\', \'Coding Violation\')->delete();" && php artisan optimize && echo "---SUCCESS_DEPLOY---"';
 
 console.log('--- ROBUST DEPLOYMENT START ---');
 console.log(`Connecting to ${config.host}:${config.port} as ${config.username}...`);

@@ -55,7 +55,7 @@ class DriverBehavior extends Model
         $violationTypes = [
             'Short Boundary', 
             'Late Remittance', 
-            'Coding Violation', 
+            
             'Traffic Violation', 
             'Absent / No Show', 
             'Passenger Complaint'
@@ -71,7 +71,7 @@ class DriverBehavior extends Model
               ->orWhereIn('incident_type', [
                   'Short Boundary', 
                   'Late Remittance', 
-                  'Coding Violation', 
+                  
                   'Traffic Violation', 
                   'Absent / No Show', 
                   'Passenger Complaint'

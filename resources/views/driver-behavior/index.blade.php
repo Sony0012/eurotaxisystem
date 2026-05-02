@@ -270,7 +270,7 @@
                             'low'      => 'bg-blue-100 text-blue-700 border-blue-200',
                         ];
                         $typeColors = [
-                            'Coding Violation'    => 'bg-red-100 text-red-700 border-red-200',
+                            
                             'Late Boundary'       => 'bg-orange-100 text-orange-700 border-orange-200',
                             'Short Boundary'      => 'bg-yellow-100 text-yellow-700 border-yellow-200',
                             'Vehicle Damage'      => 'bg-purple-100 text-purple-700 border-purple-200',

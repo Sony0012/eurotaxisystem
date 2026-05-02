@@ -79,7 +79,7 @@ class NotificationService
             // 6. Recent Driver Behavior Incidents (Excluding coding duplicates)
             $recentIncidents = DB::table('driver_behavior as db')
                 ->join('drivers as d', 'db.driver_id', '=', 'd.id')
-                ->where('db.incident_type', '!=', 'Coding Violation')
+                
                 ->where('db.created_at', '>=', $now->copy()->subDays(3))
                 ->select('db.*', DB::raw("CONCAT(d.first_name, ' ', d.last_name) as driver_name"))
                 ->orderByDesc('db.created_at')
