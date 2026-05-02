@@ -869,6 +869,8 @@
                         <div class="space-y-1 mt-1">
                             <p class="text-[10px] text-rose-800 font-black uppercase tracking-tight flex justify-between">Late Turn: <span>${data.late_turn_missed||0}</span></p>
                             <p class="text-[10px] text-rose-800 font-black uppercase tracking-tight flex justify-between">Damage: <span>${data.damage_missed||0}</span></p>
+                            <p class="text-[10px] text-rose-800 font-black uppercase tracking-tight flex justify-between">Behavior: <span>${data.behavior_missed||0}</span></p>
+                            <p class="text-[10px] text-rose-800 font-black uppercase tracking-tight flex justify-between">Shortage: <span>${data.shortage_missed||0}</span></p>
                         </div>
                     </div>
                 </div>

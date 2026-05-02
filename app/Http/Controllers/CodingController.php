@@ -90,11 +90,8 @@ class CodingController extends Controller
             'active_rules' => DB::table('coding_rules')->where('status', 'active')->count(),
             'today_coding' => $coding_today_count,
             'on_road' => $on_road_count,
-            'violations' => $violations_count,
-            'today_violators' => DB::table('coding_violations')
-                ->whereDate('violation_time', now()->timezone('Asia/Manila')->toDateString())
-                ->distinct('unit_id')
-                ->count('unit_id'),
+            'on_road' => $on_road_count,
+            'active_coding_fleet' => $violations_count,
         ];
 
         // Build coding calendar (Always based on FULL fleet)
@@ -211,43 +208,7 @@ class CodingController extends Controller
         return redirect()->route('coding.index')->with('success', 'Coding day updated successfully');
     }
 
-    public function violations(Request $request)
-    {
-        $page = (int)($request->input('page', 1));
-        $date = $request->input('date');
-        $search = $request->input('search');
-        $limit = 15;
-        $offset = ($page - 1) * $limit;
 
-        $query = DB::table('coding_violations as cv')
-            ->join('units as u', 'cv.unit_id', '=', 'u.id')
-            ->select('cv.*', 'u.plate_number', 'u.make', 'u.model');
-
-        if (!empty($date)) {
-            $query->whereDate('cv.violation_time', $date);
-        }
-
-        if (!empty($search)) {
-            $query->where('u.plate_number', 'like', "%{$search}%");
-        }
-
-        $query->orderByDesc('cv.violation_time');
-
-        $total = $query->count();
-        $violations = $query->offset($offset)->limit($limit)->get();
-
-        $pagination = [
-            'page' => $page,
-            'total_pages' => ceil($total / $limit),
-            'total_items' => $total,
-            'has_prev' => $page > 1,
-            'has_next' => $page < ceil($total / $limit),
-            'prev_page' => $page - 1,
-            'next_page' => $page + 1,
-        ];
-
-        return view('coding.violations', compact('violations', 'pagination', 'date', 'search'));
-    }
 
     public function suggestions(Request $request)
     {

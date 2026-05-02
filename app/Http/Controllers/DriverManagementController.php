@@ -11,7 +11,7 @@ use App\Http\Controllers\ActivityLogController;
 
 class DriverManagementController extends Controller
 {
-    use CalculatesBoundary;
+    use CalculatesBoundary, CalculatesDriverPerformance;
 
     public function index(Request $request)
     {
@@ -46,7 +46,7 @@ class DriverManagementController extends Controller
                 // Basic counts for PHP-side Unified Rating Calculation (30-day window)
                 DB::raw("(SELECT COUNT(*) FROM boundaries WHERE driver_id = d.id AND deleted_at IS NULL AND date >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY)) as shifts_count"),
                 DB::raw("(SELECT COUNT(*) FROM boundaries WHERE driver_id = d.id AND status IN ('paid', 'excess') AND deleted_at IS NULL AND date >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY)) as paid_shifts_count"),
-                DB::raw("(SELECT COUNT(*) FROM driver_behavior WHERE driver_id = d.id AND created_at >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY) AND (is_driver_fault = 1 OR incident_type IN ('Short Boundary', 'Late Remittance', 'Traffic Violation', 'Absent / No Show', 'Passenger Complaint'))) as incidents_count"),
+                DB::raw("(SELECT COUNT(*) FROM driver_behavior WHERE driver_id = d.id AND created_at >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY) AND " . $this->getViolationQuerySnippet() . ") as incidents_count"),
                 DB::raw("(SELECT COUNT(*) FROM boundaries WHERE driver_id = d.id AND has_incentive = 0 AND deleted_at IS NULL AND date >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY)) as missed_incentive_count"),
                 DB::raw("(SELECT COUNT(*) FROM boundaries WHERE expected_driver_id = d.id AND driver_id != d.id AND deleted_at IS NULL AND date >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY)) as absent_count"),
                 // Lifetime count to identify "Fresh" drivers
@@ -192,7 +192,7 @@ class DriverManagementController extends Controller
                 // Basic counts for PHP-side Rating Calculation (30 Day Window)
                 DB::raw("(SELECT COUNT(*) FROM boundaries WHERE driver_id = d.id AND deleted_at IS NULL AND date >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY)) as shifts_count"),
                 DB::raw("(SELECT COUNT(*) FROM boundaries WHERE driver_id = d.id AND status IN ('paid', 'excess') AND deleted_at IS NULL AND date >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY)) as paid_shifts_count"),
-                DB::raw("(SELECT COUNT(*) FROM driver_behavior WHERE driver_id = d.id AND created_at >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY) AND (is_driver_fault = 1 OR incident_type IN ('Short Boundary', 'Late Remittance', 'Traffic Violation', 'Absent / No Show', 'Passenger Complaint'))) as incidents_count"),
+                DB::raw("(SELECT COUNT(*) FROM driver_behavior WHERE driver_id = d.id AND created_at >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY) AND " . $this->getViolationQuerySnippet() . ") as incidents_count"),
                 DB::raw("(SELECT COUNT(*) FROM boundaries WHERE driver_id = d.id AND has_incentive = 0 AND deleted_at IS NULL AND date >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY)) as missed_incentive_count"),
                 DB::raw("(SELECT COUNT(*) FROM boundaries WHERE expected_driver_id = d.id AND driver_id != d.id AND deleted_at IS NULL AND date >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY)) as absent_count")
             )
@@ -255,16 +255,40 @@ class DriverManagementController extends Controller
             ->whereIn('status', ['paid', 'excess'])
             ->sum(fn($b) => $b->actual_boundary * 0.05);
 
-        // Missed reason breakdown (current month)
-        $late_turn_missed  = 0;
-        $damage_missed     = 0;
-        $breakdown_missed  = 0;
-        foreach ($thisMonthBoundaries->where('has_incentive', 0) as $b) {
-            $n = strtolower($b->notes ?? '');
-            if (str_contains($n, 'vehicle damaged')) $damage_missed++;
-            elseif (str_contains($n, 'maintenance')) $breakdown_missed++;
-            else $late_turn_missed++;
-        }
+        // Missed reason breakdown (current month - Unified from Behavior + Boundaries)
+        $late_turn_missed  = DB::table('driver_behavior')
+            ->where('driver_id', $id)
+            ->whereMonth('incident_date', $currentMonth)
+            ->whereYear('incident_date', $currentYear)
+            ->where('incident_type', 'Late Remittance')
+            ->count();
+
+        $damage_missed     = DB::table('driver_behavior')
+            ->where('driver_id', $id)
+            ->whereMonth('incident_date', $currentMonth)
+            ->whereYear('incident_date', $currentYear)
+            ->where('incident_type', 'Vehicle Damage')
+            ->count();
+
+        $behavior_missed   = DB::table('driver_behavior')
+            ->where('driver_id', $id)
+            ->whereMonth('incident_date', $currentMonth)
+            ->whereYear('incident_date', $currentYear)
+            ->violations()
+            ->whereNotIn('incident_type', ['Late Remittance', 'Vehicle Damage', 'Short Boundary'])
+            ->count();
+
+        $shortage_missed   = DB::table('driver_behavior')
+            ->where('driver_id', $id)
+            ->whereMonth('incident_date', $currentMonth)
+            ->whereYear('incident_date', $currentYear)
+            ->where('incident_type', 'Short Boundary')
+            ->count();
+
+        // Backup check for boundaries that might have missed incentive for other reasons (e.g. manual toggle)
+        $other_missed = $thisMonthBoundaries->where('has_incentive', 0)->count() 
+            - ($late_turn_missed + $damage_missed + $shortage_missed);
+        $other_missed = max(0, $other_missed);
 
         // --- Full Eligibility Check (Non-Stacking Penalty Block Logic) ---
         $periodStart = now()->subDays(150)->toDateString();
@@ -272,7 +296,7 @@ class DriverManagementController extends Controller
         $incDates = DB::table('driver_behavior')
             ->where('driver_id', $id)
             ->where('created_at', '>=', $periodStart)
-            ->whereRaw("(is_driver_fault = 1 OR incident_type IN ('Short Boundary', 'Late Remittance', 'Traffic Violation', 'Absent / No Show', 'Passenger Complaint'))")
+            ->whereRaw($this->getViolationQuerySnippet())
             ->pluck('created_at')->map(fn($d) => \Carbon\Carbon::parse($d))->toArray();
 
         $bndDates = DB::table('boundaries')
@@ -323,7 +347,7 @@ class DriverManagementController extends Controller
                 ->where('driver_id', $id)
                 ->where('created_at', '>=', $activeBlockStart)
                 ->where('created_at', '<=', $currentPenaltyEnd)
-                ->whereRaw("(is_driver_fault = 1 OR incident_type IN ('Short Boundary', 'Late Remittance', 'Traffic Violation', 'Absent / No Show', 'Passenger Complaint'))")
+                ->whereRaw($this->getViolationQuerySnippet())
                 ->count();
 
             $violations_absences = DB::table('boundaries')
@@ -362,7 +386,9 @@ class DriverManagementController extends Controller
         $driver->incentive_rate           = $total_shifts > 0 ? round($earned_count / $total_shifts * 100, 1) : 0;
         $driver->late_turn_missed         = $late_turn_missed;
         $driver->damage_missed            = $damage_missed;
-        $driver->breakdown_missed         = $breakdown_missed;
+        $driver->behavior_missed          = $behavior_missed;
+        $driver->shortage_missed          = $shortage_missed;
+        $driver->other_missed             = $other_missed;
         $driver->is_dual_driver           = $isDualDriver;
         $driver->lookback_days            = $lookbackDays;
         $driver->is_eligible              = $is_eligible;
@@ -415,14 +441,14 @@ class DriverManagementController extends Controller
         $driver->total_incidents_30d = DB::table('driver_behavior')
             ->where('driver_id', $id)
             ->where('created_at', '>=', now()->subDays(30))
-            ->whereRaw("(is_driver_fault = 1 OR incident_type IN ('Short Boundary', 'Late Remittance', 'Traffic Violation', 'Absent / No Show', 'Passenger Complaint'))")
+            ->whereRaw($this->getViolationQuerySnippet())
             ->count();
 
         $driver->high_severity_incidents = DB::table('driver_behavior')
             ->where('driver_id', $id)
             ->whereIn('severity', ['high', 'critical'])
             ->where('created_at', '>=', now()->subDays(30))
-            ->whereRaw("(is_driver_fault = 1 OR incident_type IN ('Short Boundary', 'Late Remittance', 'Traffic Violation', 'Absent / No Show', 'Passenger Complaint'))")
+            ->whereRaw($this->getViolationQuerySnippet())
             ->count();
 
         return response()->json($driver);
@@ -700,39 +726,5 @@ class DriverManagementController extends Controller
         return back()->with('success', 'Cash payment processed successfully. The balance has been updated and the revenue has been recorded.');
     }
 
-    private function calculatePerformanceRating($driver)
-    {
-        $shiftsCount    = (int) ($driver->shifts_count ?? 0);
-        $paidCount      = (int) ($driver->paid_shifts_count ?? 0);
-        $totalPaidCount = (int) ($driver->total_paid_count ?? 0);
-        $incidentsCount = (int) ($driver->incidents_count ?? 0);
-        $missedCount    = (int) ($driver->missed_incentive_count ?? 0);
-        $absentCount    = (int) ($driver->absent_count ?? 0);
-        $hasShortage    = (isset($driver->net_shortage) && $driver->net_shortage > 0);
-        $hasDebt        = (isset($driver->total_pending_debt) && $driver->total_pending_debt > 0);
-
-        // --- FRESH DRIVER LOGIC: Never had a paid shift in history ---
-        if ($totalPaidCount === 0) {
-            if ($hasDebt) return ['label' => 'At Risk', 'stars' => 1];
-            return ['label' => 'New Driver', 'stars' => 0];
-        }
-
-        // --- ACTIVE DRIVER LOGIC: Has history but 0 shifts in 30 days ---
-        if ($shiftsCount === 0) {
-            return ['label' => 'On Break', 'stars' => 0];
-        }
-
-        // --- PERFORMANCE LADDER ---
-        $isEligible = ($incidentsCount === 0 && $missedCount === 0 && $absentCount === 0 && !$hasShortage && !$hasDebt);
-
-        if ($isEligible) {
-            if ($paidCount >= 25) return ['label' => 'Elite', 'stars' => 5];
-            if ($paidCount >= 15) return ['label' => 'Excellent', 'stars' => 4];
-            if ($paidCount >= 5)  return ['label' => 'Good', 'stars' => 3];
-            return ['label' => 'Growing', 'stars' => 2];
-        } else {
-            if ($hasDebt || $incidentsCount >= 2) return ['label' => 'At Risk', 'stars' => 1];
-            return ['label' => 'Average', 'stars' => 2];
-        }
-    }
+    // calculatePerformanceRating moved to App\Traits\CalculatesDriverPerformance
 }

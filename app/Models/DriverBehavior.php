@@ -42,6 +42,16 @@ class DriverBehavior extends Model
         return $this->belongsTo(Unit::class, 'unit_id');
     }
 
+    public const VIOLATION_TYPES = [
+        'Short Boundary', 
+        'Late Remittance', 
+        'Traffic Violation', 
+        'Absent / No Show', 
+        'Passenger Complaint',
+        'Vehicle Damage',
+        'Low Fuel'
+    ];
+
     /**
      * Logic: What constitutes a "Violation" that blocks incentives/ratings?
      * 1. Any At-Fault Incident (is_driver_fault = 1)
@@ -51,31 +61,14 @@ class DriverBehavior extends Model
     public function isViolation(): bool
     {
         if ($this->is_driver_fault) return true;
-
-        $violationTypes = [
-            'Short Boundary', 
-            'Late Remittance', 
-            
-            'Traffic Violation', 
-            'Absent / No Show', 
-            'Passenger Complaint'
-        ];
-
-        return in_array($this->incident_type, $violationTypes);
+        return in_array($this->incident_type, self::VIOLATION_TYPES);
     }
 
     public function scopeViolations($query)
     {
         return $query->where(function($q) {
             $q->where('is_driver_fault', 1)
-              ->orWhereIn('incident_type', [
-                  'Short Boundary', 
-                  'Late Remittance', 
-                  
-                  'Traffic Violation', 
-                  'Absent / No Show', 
-                  'Passenger Complaint'
-              ]);
+              ->orWhereIn('incident_type', self::VIOLATION_TYPES);
         });
     }
 }

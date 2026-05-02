@@ -1024,9 +1024,56 @@
                         class="w-full px-4 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl text-sm font-bold focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:outline-none transition-all resize-none"></textarea>
                 </div>
 
-                <div class="grid grid-cols-2 gap-5 pt-2">
+                {{-- ── DYNAMIC SECTIONS FOR EDIT MODAL ── --}}
+                
+                {{-- COMPLAINT MODE (EDIT) --}}
+                <div id="edit-section-complaint" class="hidden bg-blue-50/60 p-6 rounded-3xl border border-blue-100 shadow-sm space-y-4">
+                    <div class="flex items-center gap-3 mb-1">
+                        <div class="w-1.5 h-5 bg-blue-500 rounded-full"></div>
+                        <p class="text-[11px] font-black text-blue-700 uppercase tracking-widest">Complaint Sub-Classification</p>
+                    </div>
+                    <div id="edit-subOptionsContainer" class="grid grid-cols-2 gap-2"></div>
+                    <input type="hidden" name="sub_classification" id="edit-subClassificationInput">
+                </div>
+
+                {{-- TRAFFIC MODE (EDIT) --}}
+                <div id="edit-section-traffic" class="hidden bg-orange-50/60 p-6 rounded-3xl border border-orange-100 shadow-sm space-y-4">
+                    <div class="flex items-center gap-3 mb-1">
+                        <div class="w-1.5 h-5 bg-orange-500 rounded-full"></div>
+                        <p class="text-[11px] font-black text-orange-700 uppercase tracking-widest">Traffic Violation Details</p>
+                    </div>
+                    <div id="edit-trafficSubOptionsContainer" class="grid grid-cols-2 gap-2 mb-4"></div>
+                    <input type="hidden" name="sub_classification" id="edit-trafficSubClassificationInput">
                     <div>
-                        <label class="block text-[10px] font-black text-gray-500 uppercase mb-2 ml-1">Total Charge (₱)</label>
+                        <label class="block text-[10px] font-black text-orange-600 uppercase mb-2 ml-1">Traffic Fine Amount (₱)</label>
+                        <div class="relative">
+                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-orange-400 font-bold">₱</span>
+                            <input type="number" name="traffic_fine_amount" id="edit_traffic_fine_amount" step="0.01" min="0" placeholder="0.00"
+                                class="w-full pl-9 pr-4 py-3.5 bg-white border border-orange-200 rounded-2xl text-sm font-black text-orange-700 focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500 focus:outline-none transition-all">
+                        </div>
+                    </div>
+                </div>
+
+                {{-- DAMAGE MODE (EDIT) --}}
+                <div id="edit-section-damage" class="hidden bg-purple-50/60 p-6 rounded-3xl border border-purple-100 shadow-sm space-y-4">
+                     <div class="flex items-center gap-3 mb-1">
+                        <div class="w-1.5 h-5 bg-purple-500 rounded-full"></div>
+                        <p class="text-[11px] font-black text-purple-700 uppercase tracking-widest">Damage Assessment</p>
+                    </div>
+                    <p class="text-[10px] text-purple-400 font-bold uppercase tracking-tight leading-relaxed italic">Note: To manage itemized parts and services, please use the main assessment system.</p>
+                </div>
+
+                {{-- SECURITY MODE (EDIT) --}}
+                <div id="edit-section-security" class="hidden p-6 bg-red-600 rounded-3xl border border-red-700 shadow-lg space-y-3">
+                    <div class="flex items-center gap-3">
+                        <i data-lucide="shield-alert" class="w-5 h-5 text-white"></i>
+                        <p class="text-[12px] font-black text-white uppercase tracking-widest">Security Lockdown Active</p>
+                    </div>
+                </div>
+
+                <div id="edit-liability-section" class="grid grid-cols-2 gap-5 pt-2">
+                    <div>
+                        <label class="block text-[10px] font-black text-gray-500 uppercase mb-2 ml-1">Total Charge to Driver (₱)</label>
                         <div class="relative">
                             <input type="number" step="0.01" name="total_charge_to_driver" id="edit_total_charge" required
                                 class="w-full pl-9 pr-4 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl text-sm font-black text-red-600 focus:ring-4 focus:ring-red-500/10 focus:border-red-500 focus:outline-none transition-all">
@@ -1034,7 +1081,7 @@
                         </div>
                     </div>
                     <div>
-                        <label class="block text-[10px] font-black text-gray-500 uppercase mb-2 ml-1">Driver Liability</label>
+                        <label class="block text-[10px] font-black text-gray-500 uppercase mb-2 ml-1">Liability Status</label>
                         <label class="flex items-center gap-3 p-3.5 bg-gray-50 border border-gray-100 rounded-2xl cursor-pointer hover:bg-gray-100 transition-all">
                             <input type="checkbox" name="is_driver_fault" id="edit_is_driver_fault" value="1" class="w-5 h-5 rounded-lg border-gray-300 text-red-600 focus:ring-red-500">
                             <span class="text-xs font-black text-gray-700 uppercase">At Fault</span>
@@ -1669,9 +1716,11 @@ classificationsMeta["{{ $c->name }}"] = {
 };
 @endforeach
 
-window.handleTypeChange = function(val) {
+window.handleTypeChange = function(val, context = '') {
+    const prefix = context ? context + '-' : '';
+    
     // 1. Auto-set severity
-    const severitySelect = document.getElementById('severitySelect') || document.getElementById('edit_severity');
+    const severitySelect = document.getElementById(prefix + 'severitySelect') || document.getElementById('edit_severity');
     if (severitySelect && classificationsMap[val]) severitySelect.value = classificationsMap[val];
 
     const meta = classificationsMeta[val] || { mode: 'narrative', subOptions: [], autoBan: false, banValue: '' };
@@ -1679,36 +1728,49 @@ window.handleTypeChange = function(val) {
 
     // 2. Hide all mode-specific sections
     ['complaint','traffic','damage','security'].forEach(s => {
-        const el = document.getElementById('section-' + s);
+        const el = document.getElementById(prefix + 'section-' + s);
         if (el) el.classList.add('hidden');
     });
 
     // 3. Clear any previous sub_classification inputs
-    const subInput = document.getElementById('subClassificationInput');
-    const trafInput = document.getElementById('trafficSubClassificationInput');
+    const subInput = document.getElementById(prefix + 'subClassificationInput');
+    const trafInput = document.getElementById(prefix + 'trafficSubClassificationInput');
     if (subInput) subInput.value = '';
     if (trafInput) trafInput.value = '';
 
     // 4. Show relevant section
     if (mode === 'complaint') {
-        const sec = document.getElementById('section-complaint');
+        const sec = document.getElementById(prefix + 'section-complaint');
         if (sec) sec.classList.remove('hidden');
-        _renderSubOptions('subOptionsContainer', meta.subOptions, 'subClassificationInput', meta.autoBan, meta.banValue, 'blue');
-        window._checkAutoBanState();
+        _renderSubOptions(prefix + 'subOptionsContainer', meta.subOptions, prefix + 'subClassificationInput', meta.autoBan, meta.banValue, 'blue');
     } else if (mode === 'traffic') {
-        const sec = document.getElementById('section-traffic');
+        const sec = document.getElementById(prefix + 'section-traffic');
         if (sec) sec.classList.remove('hidden');
-        _renderSubOptions('trafficSubOptionsContainer', meta.subOptions, 'trafficSubClassificationInput', false, '', 'orange');
-    } else if (mode === 'damage') {
-        const sec = document.getElementById('section-damage');
-        if (sec) sec.classList.remove('hidden');
-    } else if (mode === 'security') {
-        const sec = document.getElementById('section-security');
-        if (sec) sec.classList.remove('hidden');
+        _renderSubOptions(prefix + 'trafficSubOptionsContainer', meta.subOptions, prefix + 'trafficSubClassificationInput', false, '', 'orange');
+        
+        // Handle "Amount" field visibility in Edit Modal
+        if (context === 'edit') {
+            const liabilitySection = document.getElementById('edit-liability-section');
+            if (liabilitySection) liabilitySection.classList.add('hidden');
+        }
+    } else {
+        // Show liability section for others in Edit modal
+        if (context === 'edit') {
+            const liabilitySection = document.getElementById('edit-liability-section');
+            if (liabilitySection) liabilitySection.classList.remove('hidden');
+        }
+        
+        if (mode === 'damage') {
+            const sec = document.getElementById(prefix + 'section-damage');
+            if (sec) sec.classList.remove('hidden');
+        } else if (mode === 'security') {
+            const sec = document.getElementById(prefix + 'section-security');
+            if (sec) sec.classList.remove('hidden');
+        }
     }
 
     // 5. Update narrative label hint
-    const hint = document.getElementById('narrativeModeLabel');
+    const hint = document.getElementById(prefix + 'narrativeModeLabel');
     if (hint) {
         const labels = { 
             complaint:'(Describe the passenger complaint)', 
@@ -1721,7 +1783,7 @@ window.handleTypeChange = function(val) {
     }
 
     if (window.lucide) lucide.createIcons();
-    window._checkAutoBanState();
+    if (typeof window._checkAutoBanState === 'function') window._checkAutoBanState();
 };
 
 // Render pill buttons for sub-options
@@ -2074,6 +2136,33 @@ window.IncidentManager = {
             document.getElementById('edit_total_charge').value = data.total_charge_to_driver;
             document.getElementById('edit_is_driver_fault').checked = !!data.is_driver_fault;
             document.getElementById('editInfoDisplay').textContent = `${data.driver_name} • ${data.plate_number}`;
+
+            // Handle Dynamic Sections for Edit
+            window.handleTypeChange(data.incident_type, 'edit');
+            
+            // Populate sub-fields if any
+            if (data.sub_classification) {
+                const subInput = document.getElementById('edit-subClassificationInput');
+                const trafInput = document.getElementById('edit-trafficSubClassificationInput');
+                if (subInput) subInput.value = data.sub_classification;
+                if (trafInput) trafInput.value = data.sub_classification;
+                
+                // Find and select in the dropdowns
+                const selects = document.querySelectorAll('#editIncidentModal select');
+                selects.forEach(s => {
+                    for(let i=0; i<s.options.length; i++) {
+                        if(s.options[i].value === data.sub_classification) {
+                            s.selectedIndex = i;
+                            break;
+                        }
+                    }
+                });
+            }
+
+            if (data.traffic_fine_amount) {
+                const fineInput = document.getElementById('edit_traffic_fine_amount');
+                if (fineInput) fineInput.value = data.traffic_fine_amount;
+            }
             
             // Set Form action
             const form = document.getElementById('editIncidentForm');

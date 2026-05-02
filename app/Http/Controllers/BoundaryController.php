@@ -13,7 +13,7 @@ use App\Traits\CalculatesBoundary;
 
 class BoundaryController extends Controller
 {
-    use CalculatesBoundary;
+    use CalculatesBoundary, CalculatesDriverPerformance;
     /**
      * Display a listing of boundary records.
      */
@@ -260,31 +260,50 @@ class BoundaryController extends Controller
                     $excess   = max(0, $actual_boundary - $boundary_amount);
                     $status   = $shortage > 0 ? 'shortage' : ($excess > 0 ? 'excess' : 'paid');
 
+                    $has_incentive = true;
+
                     if ($shortage > 0) {
                         $has_incentive = false;
                         $notes = trim($notes . " [Automatic Violation: Short Boundary]");
+                        
+                        // Auto-log to Driver Performance
+                        \App\Models\DriverBehavior::create([
+                            'unit_id'       => $unit_id,
+                            'driver_id'     => $driver_id,
+                            'incident_type' => 'Short Boundary',
+                            'severity'      => 'medium',
+                            'description'   => "Auto-logged [Shortage]: Driver remitted ₱" . number_format($actual_boundary, 2) . " instead of ₱" . number_format($boundary_amount, 2),
+                            'incident_date' => $date,
+                            'timestamp'     => now(),
+                        ]);
                     }
 
-                    // --- NEW: Check for ANY pre-existing violations today BEFORE granting incentive ---
-                    $todayViolations = \App\Models\DriverBehavior::where('driver_id', $driver_id)
-                        ->whereDate('incident_date', $date)
-                        ->violations()
-                        ->exists();
-                    
-                    if ($todayViolations) {
+                    // --- Check for ANY pre-existing violations today ---
+                    if ($has_incentive && !$this->isEligibleToday(\App\Models\Driver::find($driver_id), $date)) {
                         $has_incentive = false;
+                        $notes = trim($notes . " [Prior Incident Violation]");
                     }
 
                     $unit = \App\Models\Unit::find($unit_id);
                     $is_extra_driver = false;
                     $expected_driver_id = $unit ? $unit->current_turn_driver_id : $driver_id;
-                    $has_incentive = true;
                     $now = now();
 
                     $past_cutoff = $request->has('past_cutoff');
                     if ($past_cutoff) {
                         $has_incentive = false;
                         $notes = trim($notes . " [Automatic Violation: Late Remittance (Past 10:00 AM)]");
+                        
+                        // Auto-log to Driver Performance
+                        \App\Models\DriverBehavior::create([
+                            'unit_id'       => $unit_id,
+                            'driver_id'     => $driver_id,
+                            'incident_type' => 'Late Remittance',
+                            'severity'      => 'medium',
+                            'description'   => 'Auto-logged [Late Remittance]: Driver remitted boundary after the 10:00 AM cutoff.',
+                            'incident_date' => $date,
+                            'timestamp'     => $now,
+                        ]);
                     }
 
                     $is_absent = false; // "Absent / No Show" logic removed per user request

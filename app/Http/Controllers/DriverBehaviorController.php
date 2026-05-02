@@ -8,8 +8,12 @@ use Carbon\Carbon;
 
 use App\Http\Controllers\ActivityLogController;
 
+use App\Models\Driver;
+use App\Traits\CalculatesDriverPerformance;
+
 class DriverBehaviorController extends Controller
 {
+    use CalculatesDriverPerformance;
     // Incident types are now managed in the database (IncidentClassification model)
     public static function getIncidentTypes()
     {
@@ -239,18 +243,14 @@ class DriverBehaviorController extends Controller
         }
 
         // ── Void Incentive for the Day of Incident ───────────
-        // Disqualify if: At-fault Damage, Any Traffic Violation, or Any Passenger Complaint
-        $shouldVoidIncentive = ($isFault && $isDamage) || $isTraffic || $isComplaint;
-        
-        if ($shouldVoidIncentive && !empty($data['incident_date'])) {
-            $reason = $isTraffic ? 'Traffic Violation' : ($isComplaint ? 'Passenger Complaint' : 'At-fault Accident');
+        if ($behavior->isViolation() && !empty($data['incident_date'])) {
             DB::table('boundaries')
                 ->where('driver_id', $data['driver_id'])
                 ->whereDate('date', $data['incident_date'])
                 ->update([
                     'has_incentive'         => false,
                     'counted_for_incentive' => false,
-                    'notes'                 => DB::raw("CONCAT(COALESCE(notes,''), ' [Disqualified: Recorded Incident - {$reason}]')")
+                    'notes'                 => DB::raw("CONCAT(COALESCE(notes,''), ' [Disqualified: Recorded Violation - {$data['incident_type']}]')")
                 ]);
         }
 
@@ -380,6 +380,8 @@ class DriverBehaviorController extends Controller
             'description'            => 'required|string',
             'incident_date'          => 'nullable|date',
             'is_driver_fault'        => 'nullable|boolean',
+            'sub_classification'     => 'nullable|string',
+            'traffic_fine_amount'    => 'nullable|numeric|min:0',
             'total_charge_to_driver' => 'nullable|numeric|min:0',
         ]);
 
@@ -387,14 +389,22 @@ class DriverBehaviorController extends Controller
         $prevDate  = $incident->incident_date;
 
         $isFault = (bool)($data['is_driver_fault'] ?? false);
+        
+        // If it's a traffic violation and total_charge is not explicitly provided (hidden in UI), use fine amount
+        $finalCharge = $data['total_charge_to_driver'] ?? 0;
+        if ($data['incident_type'] === 'Traffic Violation' && !empty($data['traffic_fine_amount'])) {
+            $finalCharge = $data['traffic_fine_amount'];
+        }
 
         $incident->update([
             'incident_type'          => $data['incident_type'],
             'severity'               => $data['severity'],
             'description'            => $data['description'],
             'is_driver_fault'        => $isFault,
-            'total_charge_to_driver' => $data['total_charge_to_driver'] ?? 0,
-            'remaining_balance'      => $data['total_charge_to_driver'] ?? 0, // Reset for simplicity in this edit flow
+            'sub_classification'     => $data['sub_classification'] ?? $incident->sub_classification,
+            'traffic_fine_amount'    => $data['traffic_fine_amount'] ?? 0,
+            'total_charge_to_driver' => $finalCharge,
+            'remaining_balance'      => $finalCharge, // Reset for simplicity in this edit flow
             'incident_date'          => $data['incident_date'] ?? $incident->incident_date,
         ]);
 
@@ -544,23 +554,8 @@ class DriverBehaviorController extends Controller
             ->whereNull('incentive_released_at')
             ->count();
 
-        // Violations this period (Two-Source Verification for Absolute Accuracy)
-        $behavior_violations = \App\Models\DriverBehavior::where('driver_id', $driver_id)
-            ->whereNull('incentive_released_at')
-            ->violations()
-            ->count();
-
-        $boundary_violations = DB::table('boundaries')
-            ->where('driver_id', $driver_id)
-            ->where(function($q) {
-                $q->where('shortage', '>', 0)
-                  ->orWhere('has_incentive', false)
-                  ->orWhere('is_absent', true);
-            })
-            ->whereNull('incentive_released_at')
-            ->count();
-
-        $violations = $behavior_violations + $boundary_violations;
+        // Violations this period (Unified Behavioral + Boundary Verification)
+        $violations = $this->getViolationCount(Driver::find($driver_id), null, null, true);
 
         $required_days = 20;
         $eligible = $valid_days >= $required_days && $violations === 0;

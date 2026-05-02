@@ -13,10 +13,13 @@ use App\Models\Expense;
 use App\Models\User;
 use App\Models\SystemAlert;
 use App\Models\FranchiseCase;
+use App\Models\DriverBehavior;
+use App\Traits\CalculatesDriverPerformance;
 use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
+    use CalculatesDriverPerformance;
     public function index(Request $request)
     {
         // Get dashboard statistics using centralized method
@@ -1422,11 +1425,11 @@ class DashboardController extends Controller
                 DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')) as full_name"),
                 DB::raw('COUNT(CASE WHEN b.status IN ("paid", "excess", "shortage") THEN 1 END) as good_days'),
                 DB::raw('SUM(b.actual_boundary) as total_boundary'),
-                DB::raw('COUNT(db.id) as incident_count')
+                DB::raw('COUNT(CASE WHEN ' . $this->getViolationQuerySnippet() . ' THEN 1 END) as violation_count')
             )
             ->whereIn('d.driver_status', ['available', 'assigned'])
             ->groupBy('d.id', 'd.first_name', 'd.last_name')
-            ->having('incident_count', '=', 0)
+            ->having('violation_count', '=', 0)
             ->orderByDesc('good_days')
             ->orderByDesc('total_boundary')
             ->limit(5)
