@@ -21,11 +21,13 @@ class IncidentClassification extends Model
         'sub_options',        // JSON array of sub-classification options
         'auto_ban_trigger',   // If true, certain sub_classifications trigger a ban
         'ban_trigger_value',  // Which sub_classification value triggers auto-ban
+        'show_not_at_fault',  // If true, shows "Not at Fault" badge when is_driver_fault is false
     ];
 
     protected $casts = [
-        'sub_options'      => 'array',
-        'auto_ban_trigger' => 'boolean',
+        'sub_options'       => 'array',
+        'auto_ban_trigger'  => 'boolean',
+        'show_not_at_fault' => 'boolean',
     ];
 
     /**
