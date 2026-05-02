@@ -40,10 +40,10 @@ class OfficeExpenseController extends Controller
 
         $total = $query->count();
         $expenses = $query->orderByDesc('e.date')
-                          ->orderByDesc('e.created_at')
-                          ->offset($offset)
-                          ->limit($limit)
-                          ->get();
+            ->orderByDesc('e.created_at')
+            ->offset($offset)
+            ->limit($limit)
+            ->get();
 
         $totals = DB::table('expenses')
             ->whereNull('deleted_at')
@@ -60,7 +60,7 @@ class OfficeExpenseController extends Controller
             ->whereNull('deleted_at')
             ->whereRaw('DATE_FORMAT(date, "%Y-%m") = ?', [$thisMonth])
             ->sum('amount') ?? 0;
-            
+
         $lastMonthAmount = DB::table('expenses')
             ->whereNull('deleted_at')
             ->whereRaw('DATE_FORMAT(date, "%Y-%m") = ?', [$lastMonth])
@@ -125,7 +125,7 @@ class OfficeExpenseController extends Controller
             'category' => 'required|string',
             'description' => 'required|string|max:250',
             'vendor_name' => ['nullable', 'string', 'max:30', 'regex:/^\S*$/'],
-            'amount' => 'required|numeric|min:0.01|max:500000',
+            'amount' => 'required|numeric|min:0.01|max:10000000',
             'payment_method' => 'nullable|string',
             'date' => 'required|date',
             'reference_number' => ['nullable', 'string', 'max:30', 'regex:/^\S*$/'],
@@ -201,7 +201,7 @@ class OfficeExpenseController extends Controller
             'category' => 'required|string',
             'description' => 'required|string|max:250',
             'vendor_name' => ['nullable', 'string', 'max:30', 'regex:/^\S*$/'],
-            'amount' => 'required|numeric|min:0.01|max:500000',
+            'amount' => 'required|numeric|min:0.01|max:10000000',
             'payment_method' => 'nullable|string',
             'date' => 'required|date',
             'reference_number' => ['nullable', 'string', 'max:30', 'regex:/^\S*$/'],
@@ -231,7 +231,7 @@ class OfficeExpenseController extends Controller
         $expense = Expense::findOrFail($id);
         $desc = $expense->description;
         $expense->delete();
-        
+
         ActivityLogController::log('Archived Office Expense', "Expense: {$desc} moved to archive.");
 
         return redirect()->route('office-expenses.index')->with('success', 'Expense archived successfully');

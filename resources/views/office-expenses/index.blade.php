@@ -317,7 +317,9 @@
                             <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Amount (₱) *</label>
                             <div class="relative">
                                 <span class="absolute left-4 top-1/2 -translate-y-1/2 font-black text-gray-400 text-sm">₱</span>
-                                <input type="number" name="amount" id="expenseAmount" step="0.01" min="0.01" max="500000" required placeholder="0.00"
+                                <input type="number" name="amount" id="expenseAmount" step="0.01" min="0.01" max="10000000" required placeholder="0.00"
+                                    onkeypress="if(event.key === 'e' || event.key === 'E' || event.key === '+' || event.key === '-') return false;"
+                                    oninput="if(this.value > 10000000) this.value = 10000000; if(this.value.length > 10) this.value = this.value.slice(0, 10);"
                                     class="w-full pl-9 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none font-black text-sm text-red-600">
                             </div>
                         </div>
