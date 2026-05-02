@@ -190,6 +190,7 @@ class MaintenanceController extends Controller
         }
         unset($data['dispatcher_notes']);
 
+        $parsed = null;
         // Process parts and other costs if provided
         if (!empty($data['parts_data'])) {
             $parsed = json_decode($data['parts_data'], true);
@@ -304,6 +305,7 @@ class MaintenanceController extends Controller
         }
         unset($data['dispatcher_notes']);
 
+        $parsed = null;
         // Process parts if provided
         if (!empty($data['parts_data'])) {
             $parsed = json_decode($data['parts_data'], true);
