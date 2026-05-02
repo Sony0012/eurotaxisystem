@@ -152,7 +152,7 @@
     </div>
 
     <!-- Quick Stats -->
-    <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
 
         {{-- Active Drivers --}}
         <div onclick="showActiveDriversModal()" class="card-hover cursor-pointer group relative overflow-hidden rounded-2xl shadow-sm border border-indigo-100 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl bg-gradient-to-br from-indigo-50 to-violet-50/70">
@@ -195,23 +195,6 @@
                 </div>
             </div>
             <i data-lucide="calendar" class="absolute -right-4 -bottom-4 w-24 h-24 text-violet-300 opacity-[0.12] -rotate-12 pointer-events-none"></i>
-        </div>
-
-        {{-- Missing / Flagged Units --}}
-        <div onclick="showFlaggedUnitsModal()" class="card-hover cursor-pointer group relative overflow-hidden rounded-2xl shadow-sm border border-red-100 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl bg-gradient-to-br from-red-50 to-rose-50/70 {{ $stats['missing_units'] > 0 ? '' : 'opacity-60 grayscale-[0.5]' }}">
-            <div class="relative p-5 flex items-center justify-between">
-                <div class="flex-1 min-w-0">
-                    <p class="text-red-500 text-[10px] font-black uppercase tracking-widest mb-1">Missing / Flagged Units</p>
-                    <p class="text-gray-900 text-3xl font-black leading-none mb-1" data-stat="missing_units">{{ $stats['missing_units'] }}</p>
-                    <p class="text-red-500 text-xs font-medium" data-stat="missing_subtitle">
-                        {{ $stats['missing_units'] > 0 ? 'CRITICAL: Action Required' : 'Fleet is secure' }}
-                    </p>
-                </div>
-                <div class="p-3 bg-red-100 rounded-2xl border border-red-200 shadow-sm flex-shrink-0 {{ $stats['missing_units'] > 0 ? 'animate-pulse' : '' }}">
-                    <i data-lucide="shield-alert" class="w-7 h-7 text-red-600"></i>
-                </div>
-            </div>
-            <i data-lucide="shield-alert" class="absolute -right-4 -bottom-4 w-24 h-24 text-red-300 opacity-[0.12] -rotate-12 pointer-events-none"></i>
         </div>
 
     </div>
