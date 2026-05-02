@@ -688,19 +688,31 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div class="space-y-1">
                             <label class="text-[10px] font-black text-gray-400 uppercase ml-1">Supplier Name *</label>
-                            <input type="text" id="supName" required class="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-yellow-500 focus:outline-none font-bold">
+                            <input type="text" id="supName" required 
+                                maxlength="20" pattern="^(?=.*[a-zA-Z])[a-zA-Z0-9\s.,&'-]+$" title="Must contain at least one letter. Max 20 characters."
+                                oninput="this.value = this.value.replace(/^\s+/, '').replace(/\s{2,}/g, ' ').slice(0, 20)"
+                                class="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-yellow-500 focus:outline-none font-bold">
                         </div>
                         <div class="space-y-1">
                             <label class="text-[10px] font-black text-gray-400 uppercase ml-1">Contact Person</label>
-                            <input type="text" id="supContact" class="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-yellow-500 focus:outline-none">
+                            <input type="text" id="supContact" 
+                                maxlength="20" pattern="^(?!\s+$)[a-zA-Z\s]*$" title="Letters only. Max 20 characters."
+                                oninput="this.value = this.value.replace(/[^a-zA-Z\s]/g, '').replace(/^\s+/, '').replace(/\s{2,}/g, ' ').slice(0, 20)"
+                                class="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-yellow-500 focus:outline-none">
                         </div>
                         <div class="space-y-1">
                             <label class="text-[10px] font-black text-gray-400 uppercase ml-1">Phone Number</label>
-                            <input type="text" id="supPhone" class="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-yellow-500 focus:outline-none">
+                            <input type="tel" id="supPhone" 
+                                maxlength="11" pattern="^(?!0+$)[0-9]+$" title="Up to 11 digits. Cannot be all zeros."
+                                oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 11)"
+                                class="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-yellow-500 focus:outline-none">
                         </div>
                         <div class="space-y-1">
                             <label class="text-[10px] font-black text-gray-400 uppercase ml-1">Address</label>
-                            <input type="text" id="supAddress" class="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-yellow-500 focus:outline-none">
+                            <input type="text" id="supAddress" 
+                                maxlength="50" pattern="^(?!\s+$).+$" title="Max 50 characters. Cannot be only spaces."
+                                oninput="this.value = this.value.replace(/^\s+/, '').replace(/\s{2,}/g, ' ').slice(0, 50)"
+                                class="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-yellow-500 focus:outline-none">
                         </div>
                     </div>
                     <div class="mt-4 flex justify-end gap-2">
