@@ -109,6 +109,14 @@
                             <input type="email" name="email" value="{{ $user->email }}" required
                                    class="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-yellow-500 focus:border-yellow-500">
                         </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-700 mb-1">Phone Number (11 Digits)</label>
+                            <input type="text" name="phone_number" id="phone_number" value="{{ $user->phone_number ?? '09' }}" required
+                                   maxlength="11"
+                                   oninput="validatePhone(this)"
+                                   class="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-yellow-500 focus:border-yellow-500 font-bold tracking-widest"
+                                   placeholder="09XXXXXXXXX">
+                        </div>
                     </div>
                     <div class="flex justify-end mt-2">
                         <button type="submit" class="px-3 py-1 text-sm bg-yellow-600 text-white rounded hover:bg-yellow-700 flex items-center gap-1">
@@ -248,6 +256,23 @@
     function selectIcon(path) {
         document.getElementById('iconPathInput').value = path;
         document.getElementById('iconForm').submit();
+    }
+
+    function validatePhone(input) {
+        // Remove non-digits
+        let val = input.value.replace(/\D/g, '');
+        
+        // Force starts with 09
+        if (!val.startsWith('09')) {
+            val = '09' + val;
+        }
+        
+        // Max 11 digits
+        if (val.length > 11) {
+            val = val.slice(0, 11);
+        }
+        
+        input.value = val;
     }
 
     // Close on escape key

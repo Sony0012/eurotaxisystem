@@ -75,18 +75,16 @@ class MyAccountController extends Controller
             'middle_name' => 'nullable|string|max:255',
             'last_name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
-            'phone' => 'nullable|string|max:20',
-            'address' => 'nullable|string|max:500',
+            'phone_number' => 'nullable|string|size:11',
         ]);
-
+ 
         $user->update([
             'first_name' => $request->first_name,
             'middle_name' => $request->middle_name,
             'last_name' => $request->last_name,
             'email' => $request->email,
-            'phone' => $request->phone,
-            'address' => $request->address,
-            'full_name' => $request->first_name . ' ' . $request->last_name,
+            'phone_number' => $request->phone_number,
+            'full_name' => trim($request->first_name . ' ' . $request->last_name),
         ]);
 
         return redirect()->route('my-account')
