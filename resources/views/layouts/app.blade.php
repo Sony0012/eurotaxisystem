@@ -160,6 +160,12 @@
                 }
             }
 
+            if(isset($odoMaintNotifs)) {
+                foreach($odoMaintNotifs as $n) {
+                    $headerNotifications[] = $n;
+                }
+            }
+
             $headerNotificationCount = count($headerNotifications);
             
             // Calculate specific counts
@@ -473,6 +479,8 @@
                                                                 <i data-lucide="package-search" class="w-4 h-4 text-orange-500"></i>
                                                             @elseif($n['type'] === 'license_expiry')
                                                                 <i data-lucide="id-card" class="w-4 h-4 text-rose-500"></i>
+                                                            @elseif($n['type'] === 'odo_maint_due')
+                                                                <i data-lucide="settings-2" class="w-4 h-4 text-orange-600"></i>
                                                             @else
                                                                 <i data-lucide="alert-circle" class="w-4 h-4 text-red-600"></i>
                                                             @endif

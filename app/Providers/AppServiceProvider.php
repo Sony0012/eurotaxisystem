@@ -100,6 +100,29 @@ class AppServiceProvider extends ServiceProvider
                     }
                 }
                 $view->with('maintNotifs', $maintNotifs);
+                
+                // 2.5. Global Notifications for Odometer-based Maintenance Due (>= 5000 KM)
+                $odoMaintNotifs = [];
+                if ($user->hasAccessTo('maintenance.*')) {
+                    $dueUnits = \Illuminate\Support\Facades\DB::table('units')
+                        ->whereNull('deleted_at')
+                        ->whereRaw('(current_gps_odo - last_service_odo_gps) >= 5000')
+                        ->where('status', '!=', 'maintenance')
+                        ->get();
+
+                    foreach ($dueUnits as $du) {
+                        $km_since = (float)($du->current_gps_odo - $du->last_service_odo_gps);
+                        $odoMaintNotifs[] = [
+                            'type' => 'odo_maint_due',
+                            'title' => '⚠ Service Required: ' . $du->plate_number,
+                            'message' => "Unit {$du->plate_number} has reached " . number_format($km_since, 0) . " KM since last service. Maintenance is now REQUIRED.",
+                            'url' => route('units.index', ['search' => $du->plate_number]),
+                            'time' => 'CRITICAL',
+                            'timestamp' => now()
+                        ];
+                    }
+                }
+                $view->with('odoMaintNotifs', $odoMaintNotifs);
 
                 // 3. Global Notifications for Low Stock Spare Parts (<= 5)
                 $stockNotifs = [];
