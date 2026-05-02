@@ -996,41 +996,6 @@ class UnitController extends Controller
 
     public function recover(Request $request, $id)
     {
-        $unit = Unit::findOrFail($id);
-        
-        // Restore unit status to active
-        $unit->update([
-            'status' => 'active',
-            'updated_at' => now(),
-        ]);
-
-        ActivityLogController::log('Unit Recovered', "Unit {$unit->plate_number} has been recovered and set back to active.");
-        
-        // Resolve any related missing unit alerts
-        DB::table('system_alerts')
-            ->where('title', 'like', "%{$unit->plate_number}%")
-            ->where('is_resolved', false)
-            ->update(['is_resolved' => true, 'updated_at' => now()]);
-
-        return redirect()->back()->with('success', "Unit {$unit->plate_number} has been successfully recovered and restored to Active status.");
-    }
-
-    private function syncDriverBoundaryTarget($driver_id, $unit)
-    {
-        if (!$driver_id || !$unit) return;
-
-        // Simplify: Just sync the BASE boundary rate of the unit.
-        // The smart pricing (coding/weekend) is handled dynamically in the view/trait.
-        $baseRate = (float) $unit->boundary_rate;
-
-        DB::table('drivers')->where('id', $driver_id)->update([
-            'daily_boundary_target' => $baseRate,
-            'updated_at' => now(),
-        ]);
-    }
-
-    public function recover(Request $request, $id)
-    {
         DB::beginTransaction();
         try {
             $unit = Unit::findOrFail($id);
@@ -1044,6 +1009,12 @@ class UnitController extends Controller
             ]);
 
             ActivityLogController::log('Recovered Unit', "Unit: {$unit->plate_number} recovered from status: " . ucfirst($old_status));
+
+            // Resolve any related missing unit alerts
+            DB::table('system_alerts')
+                ->where('title', 'like', "%{$unit->plate_number}%")
+                ->where('is_resolved', false)
+                ->update(['is_resolved' => true, 'updated_at' => now()]);
 
             DB::commit();
             
@@ -1059,5 +1030,19 @@ class UnitController extends Controller
             }
             return back()->with('error', 'Recovery failed: ' . $e->getMessage());
         }
+    }
+
+    private function syncDriverBoundaryTarget($driver_id, $unit)
+    {
+        if (!$driver_id || !$unit) return;
+
+        // Simplify: Just sync the BASE boundary rate of the unit.
+        // The smart pricing (coding/weekend) is handled dynamically in the view/trait.
+        $baseRate = (float) $unit->boundary_rate;
+
+        DB::table('drivers')->where('id', $driver_id)->update([
+            'daily_boundary_target' => $baseRate,
+            'updated_at' => now(),
+        ]);
     }
 }
