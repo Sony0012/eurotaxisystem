@@ -162,10 +162,10 @@
                                     <i data-lucide="edit" class="w-4 h-4"></i>
                                 </button>
                                 <form method="POST" action="{{ route('salaries.destroy', $salary->id) }}" class="inline"
-                                    onsubmit="return confirm('Delete this salary record?')">
+                                    onsubmit="return confirm('Archive this salary record?')">
                                     @csrf @method('DELETE')
-                                    <button type="submit" class="text-red-600 hover:text-red-900">
-                                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                    <button type="submit" class="text-rose-500 hover:text-rose-700 transition-colors">
+                                        <i data-lucide="archive" class="w-4 h-4"></i>
                                     </button>
                                 </form>
                             </td>
