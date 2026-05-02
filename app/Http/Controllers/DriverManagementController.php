@@ -628,13 +628,13 @@ class DriverManagementController extends Controller
             ->where('db.remaining_balance', '>', 0)
             ->whereNull('d.deleted_at')
             ->select(
-                'db.id', 'db.driver_id', 'db.incident_date as date', 'db.description', 
+                'db.id', 'db.driver_id', 'db.incident_date as date', 'db.timestamp', 'db.description', 
                 'db.severity', 'db.total_charge_to_driver as total_charge', 
                 'db.total_paid', 'db.remaining_balance',
                 DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')) as driver_name"),
                 'u.plate_number as unit_plate'
             )
-            ->orderBy('db.incident_date', 'asc')
+            ->orderBy('db.timestamp', 'desc')
             ->get();
 
         $drivers = [];

@@ -1353,8 +1353,9 @@
                         <div class="group relative bg-white border border-slate-100 rounded-2xl p-5 hover:border-red-200 hover:shadow-xl hover:shadow-red-50 transition-all duration-300">
                             <div class="flex flex-col md:flex-row gap-6 items-start md:items-center">
                                 <div class="w-full md:w-32 shrink-0">
-                                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Incident Date</p>
-                                    <p class="text-sm font-black text-slate-800">${new Date(debt.date).toLocaleDateString('en-PH', {month:'short', day:'numeric', year:'numeric'})}</p>
+                                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Incident Date & Time</p>
+                                    <p class="text-sm font-black text-slate-800">${new Date(debt.timestamp || debt.date).toLocaleDateString('en-PH', {month:'short', day:'numeric', year:'numeric'})}</p>
+                                    <p class="text-[10px] font-bold text-slate-400 mt-0.5 uppercase tracking-widest">${new Date(debt.timestamp || debt.date).toLocaleTimeString('en-PH', { hour: '2-digit', minute: '2-digit', hour12: true })}</p>
                                     <span class="inline-block mt-2 px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-widest shadow-lg ${badgeClass}">
                                         ${debt.severity} Risk
                                     </span>
