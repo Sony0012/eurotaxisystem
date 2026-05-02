@@ -98,29 +98,29 @@
     {{-- Search / Filter + Add Button --}}
     <div class="bg-white rounded-lg shadow p-6 mb-6">
         <form method="GET" action="{{ route('office-expenses.index') }}">
-            <div class="flex flex-col lg:flex-row gap-4">
-                <div class="flex-1">
+            <div class="flex flex-col lg:flex-row gap-4 items-center">
+                <div class="flex-1 w-full">
                     <div class="relative">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <i data-lucide="search" class="h-5 w-5 text-gray-400"></i>
                         </div>
                         <input type="text" name="search" value="{{ $search ?? '' }}"
-                            class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none"
+                            class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none h-[42px]"
                             placeholder="Search by description, category, or reference...">
                     </div>
                 </div>
 
-                <div class="flex gap-2">
+                <div class="flex gap-2 shrink-0">
                     <div class="w-36">
-                        <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1 ml-1">From</label>
                         <input type="date" name="date_from" value="{{ $date_from }}" 
                             onchange="this.form.submit()"
+                            title="Start Date"
                             class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none text-xs font-bold h-[42px]">
                     </div>
                     <div class="w-36">
-                        <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1 ml-1">To</label>
                         <input type="date" name="date_to" value="{{ $date_to }}" 
                             onchange="this.form.submit()"
+                            title="End Date"
                             class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none text-xs font-bold h-[42px]">
                     </div>
                 </div>
