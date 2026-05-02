@@ -31,8 +31,9 @@
         <div class="p-6 flex-1 overflow-y-auto print:overflow-visible">
             <div id="decisionPrintArea">
                 <form method="POST" class="space-y-6">
+                    @csrf
                     <input type="hidden" name="action" value="save_case">
-                    <input type="hidden" name="case_id" value="<?php echo $edit_case['id'] ?? 0; ?>">
+                    <input type="hidden" name="case_id" value="<?php echo $edit_case['id'] ?? 0; ?">
 
                     <div class="flex items-center gap-2 mb-6">
                         <div class="p-2 bg-blue-100 rounded-lg">
@@ -430,8 +431,9 @@ foreach ($cases as $c) {
                                                 Edit
                                             </span>
                                             <form method="POST" onsubmit="event.stopPropagation(); return confirm('Are you sure you want to completely delete this franchise case?');">
+                                                @csrf
                                                 <input type="hidden" name="action" value="delete_case">
-                                                <input type="hidden" name="case_id" value="<?php echo $c['id']; ?>">
+                                                <input type="hidden" name="case_id" value="<?php echo $c['id']; ?">
                                                 <button type="submit"
                                                         class="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors" title="Delete Case">
                                                     <i data-lucide="trash-2" class="w-4 h-4"></i>
