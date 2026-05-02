@@ -477,6 +477,9 @@
                                     <div class="space-y-1.5">
                                         <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Part Name *</label>
                                         <input type="text" name="new_part_name" id="expenseNewPartName" placeholder="e.g. Clutch Disc (Genuine), Brake Pads, etc."
+                                            maxlength="30"
+                                            onkeypress="if(event.key === ' ' && this.value.trim() === '') return false;"
+                                            oninput="this.value = this.value.trimStart();"
                                             class="w-full px-4 py-2.5 bg-white border border-rose-200 rounded-xl focus:ring-2 focus:ring-rose-500 focus:outline-none font-black text-sm text-rose-700">
                                     </div>
                                     <p class="text-[9px] text-rose-500 font-bold uppercase ml-1">This will be added to your inventory list</p>
@@ -486,7 +489,9 @@
                             <div class="grid grid-cols-2 gap-4">
                                 <div class="space-y-1.5">
                                     <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Quantity *</label>
-                                    <input type="number" name="quantity" id="expenseQuantity" min="1" placeholder="0" oninput="calcInventoryTotal()"
+                                    <input type="number" name="quantity" id="expenseQuantity" min="1" max="9999" placeholder="0"
+                                        onkeypress="if(event.key==='e'||event.key==='E'||event.key==='+'||event.key==='-'||event.key==='.') return false;"
+                                        oninput="this.value=this.value.replace(/[^0-9]/g,''); if(parseInt(this.value)>9999)this.value=9999; if(this.value.length>4)this.value=this.value.slice(0,4); calcInventoryTotal();"
                                         class="w-full px-4 py-2.5 bg-white border border-amber-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:outline-none font-black text-sm">
                                 </div>
                                 <div class="space-y-1.5">
@@ -494,7 +499,9 @@
                                         <span>Unit Price *</span>
                                         <span id="priceEditBadge" class="hidden text-[8px] bg-rose-500 text-white px-1.5 py-0.5 rounded animate-pulse">MODIFIED</span>
                                     </label>
-                                    <input type="number" name="unit_price" id="expenseUnitPrice" step="0.01" min="0" placeholder="0.00" oninput="calcInventoryTotal(); markAsModified();"
+                                    <input type="number" name="unit_price" id="expenseUnitPrice" step="0.01" min="0.01" max="500000" placeholder="0.00"
+                                        onkeypress="if(event.key==='e'||event.key==='E'||event.key==='+'||event.key==='-') return false;"
+                                        oninput="if(parseFloat(this.value)>500000)this.value=500000; if(this.value.length>9)this.value=this.value.slice(0,9); calcInventoryTotal(); markAsModified();"
                                         class="w-full px-4 py-2.5 bg-white border border-amber-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:outline-none font-black text-sm">
                                 </div>
                             </div>

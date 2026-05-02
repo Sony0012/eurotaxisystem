@@ -130,11 +130,11 @@ class OfficeExpenseController extends Controller
             'date' => 'required|date',
             'reference_number' => ['nullable', 'string', 'max:30', 'regex:/^\S*$/'],
             'unit_id' => 'nullable|integer',
-            'spare_part_id' => 'nullable|string', // Changed to string to allow 'new'
-            'new_part_name' => 'nullable|string',
+            'spare_part_id' => 'nullable|string',
+            'new_part_name' => 'nullable|string|max:30|regex:/^\S.*/',
             'update_master' => 'nullable|integer',
-            'quantity' => 'nullable|integer',
-            'unit_price' => 'nullable|numeric',
+            'quantity' => 'nullable|integer|min:1|max:9999',
+            'unit_price' => 'nullable|numeric|min:0.01|max:500000',
         ]);
 
         $sparePartId = $request->spare_part_id;
