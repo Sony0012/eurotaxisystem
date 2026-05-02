@@ -767,6 +767,8 @@
 
 @push('scripts')
 <script>
+const partsCatalog = @json($spareParts);
+
 function openAddExpenseModal() {
     // Helper to safely set values/classes
     const safeSet = (id, prop, val, isClass = false) => {
