@@ -296,11 +296,11 @@
                 </button>
             </div>
 
-            <form id="expenseForm" method="POST" class="overflow-y-auto">
+            <form id="expenseForm" method="POST" class="flex flex-col flex-1 min-h-0">
                 @csrf
                 <input type="hidden" name="_method" id="expenseFormMethod" value="POST">
                 
-                <div class="p-6 space-y-6">
+                <div class="p-6 space-y-6 flex-1 overflow-y-auto custom-scrollbar">
                     {{-- Row 1: Date & Amount --}}
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5 items-end">
                         <div class="space-y-1.5">
@@ -640,7 +640,7 @@
                 </div>
 
                 {{-- Form Footer --}}
-                <div class="p-6 bg-gray-50 border-t flex gap-4">
+                <div class="p-6 bg-gray-50 border-t flex gap-4 mt-auto shrink-0">
                     <button type="submit" class="flex-1 bg-yellow-600 text-white font-black uppercase tracking-widest text-xs py-4 rounded-2xl hover:bg-yellow-700 shadow-lg shadow-yellow-200 transition-all active:scale-95">Save Expense</button>
                     <button type="button" onclick="closeExpenseModal()" class="flex-1 bg-white border border-gray-200 text-gray-500 font-black uppercase tracking-widest text-xs py-4 rounded-2xl hover:bg-gray-50 transition-all">Cancel</button>
                 </div>
