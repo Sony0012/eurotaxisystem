@@ -314,7 +314,7 @@
 
                         {{-- Hidden for Spare Parts Sync to avoid double entries --}}
                         <div class="space-y-1.5" id="topAmountGroup">
-                            <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Amount (PHP) *</label>
+                            <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Amount (₱) *</label>
                             <div class="relative">
                                 <span class="absolute left-4 top-1/2 -translate-y-1/2 font-black text-gray-400 text-sm">₱</span>
                                 <input type="number" name="amount" id="expenseAmount" step="0.01" min="0" required placeholder="0.00"

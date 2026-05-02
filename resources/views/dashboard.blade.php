@@ -2593,7 +2593,7 @@
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden font-mono text-sm max-w-4xl mx-auto">
                     <div class="bg-gray-100 px-6 py-3 border-b-2 border-gray-200 flex justify-between text-[11px] font-black text-gray-500 uppercase tracking-widest">
                         <span>Description / Category</span>
-                        <span class="text-right">Amount (PHP)</span>
+                        <span class="text-right">Amount (₱)</span>
                     </div>
                     <div class="divide-y divide-gray-100">
                         ${incomeData.map(item => `
@@ -2613,7 +2613,7 @@
                                 </div>
                                 <div class="text-right">
                                     <div class="font-black text-lg ${item.type === 'income' ? 'text-green-600' : 'text-red-600'}">
-                                        ${item.type === 'income' ? '+' : '-'} ${Math.abs(parseFloat(item.amount) || 0).toLocaleString(undefined, {minimumFractionDigits: 2})}
+                                        ${item.type === 'income' ? '+' : '-'} ₱${Math.abs(parseFloat(item.amount) || 0).toLocaleString(undefined, {minimumFractionDigits: 2})}
                                     </div>
                                     <div class="text-[9px] text-gray-400 font-bold uppercase tracking-tighter">${item.source || 'OFFICE'}</div>
                                 </div>
