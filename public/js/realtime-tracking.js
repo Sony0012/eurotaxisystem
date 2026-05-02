@@ -247,23 +247,6 @@ function updateListItemUI(unit) {
         item.classList.remove('opacity-70');
     }
 
-    // --- NEW: Coding Violation Indicator ---
-    const violationBadge = item.querySelector('.coding-violation-badge');
-    if (unit.violation) {
-        if (!violationBadge) {
-            const badge = document.createElement('div');
-            badge.className = 'coding-violation-badge mt-2 px-2 py-1 bg-red-600 text-white text-[9px] font-black uppercase tracking-widest rounded flex items-center gap-1 animate-pulse';
-            badge.innerHTML = `<i data-lucide="alert-octagon" class="w-3 h-3"></i> CODING: ${unit.violation.location}`;
-            item.appendChild(badge);
-        } else {
-            violationBadge.innerHTML = `<i data-lucide="alert-octagon" class="w-3 h-3"></i> CODING: ${unit.violation.location}`;
-            violationBadge.classList.remove('hidden');
-        }
-        item.classList.add('ring-2', 'ring-red-500', 'ring-inset');
-    } else {
-        if (violationBadge) violationBadge.classList.add('hidden');
-        item.classList.remove('ring-2', 'ring-red-500', 'ring-inset');
-    }
 }
 
 async function getAddress(lat, lng) {
@@ -282,8 +265,8 @@ async function getAddress(lat, lng) {
 function updateMarker(unit) {
     const isOffline = unit.gps_status === 'offline';
     // Mute colors if offline (gray out)
-    const carBodyColor = unit.violation ? '#ef4444' : (isOffline ? '#9CA3AF' : '#EAB308'); 
-    const roofColor = unit.violation ? '#f87171' : (isOffline ? '#D1D5DB' : '#FEF08A');
+    const carBodyColor = isOffline ? '#9CA3AF' : '#EAB308';
+    const roofColor = isOffline ? '#D1D5DB' : '#FEF08A';
     
     // Status Indicator Dot (Green/Yellow/Red/Gray)
     let dotColor = '#9CA3AF'; // offline
@@ -294,15 +277,11 @@ function updateMarker(unit) {
     const carIconValue = `
         <div class="relative flex flex-col items-center justify-center marker-wrapper" style="width: 60px; height: 60px;">
             <!-- Floating Plate Number Badge -->
-            <div class="absolute -top-5 px-2 py-0.5 ${unit.violation ? 'bg-red-600 border-red-700' : 'bg-yellow-500 border-yellow-600'} text-white font-black text-[10px] rounded shadow-md border whitespace-nowrap z-50 pointer-events-none transition-transform hover:scale-110 drop-shadow-md">
+            <div class="absolute -top-5 px-2 py-0.5 bg-yellow-500 border-yellow-600 text-white font-black text-[10px] rounded shadow-md border whitespace-nowrap z-50 pointer-events-none transition-transform hover:scale-110 drop-shadow-md">
                 ${unit.plate_number}
                 <!-- Tiny status dot -->
                 <div class="absolute -right-1.5 -top-1.5 w-3 h-3 rounded-full border-2 border-white shadow-sm" style="background-color: ${dotColor};"></div>
             </div>
-            
-            ${unit.violation ? `
-            <div class="absolute -bottom-4 bg-red-600 text-white text-[7px] font-black px-1 rounded border border-white animate-bounce z-50">CODING</div>
-            ` : ''}
 
             <!-- Taxi Car Body (Rotates with Heading) -->
             <div style="transform: rotate(${unit.angle}deg); transition: transform 0.5s ease-out;" class="drop-shadow-lg pointer-events-auto cursor-pointer flex items-center justify-center">
@@ -392,22 +371,9 @@ function updateMarker(unit) {
             <div class="flex items-center justify-between border-b border-gray-100 pb-3 mb-3">
                 <div class="flex flex-col">
                     <div class="font-black text-gray-900 text-xl tracking-tight">${unit.plate_number}</div>
-                    ${unit.violation ? `<div class="text-[9px] font-black text-red-600 uppercase tracking-widest mt-0.5">Coding in ${unit.violation.location}</div>` : ''}
                 </div>
                 <div class="px-3 py-1 rounded-full bg-gray-50 text-[10px] font-black text-gray-500 uppercase border border-gray-100">${unit.gps_status}</div>
             </div>
-            
-            ${unit.violation ? `
-            <div class="mb-4 p-3 bg-red-50 border border-red-100 rounded-2xl flex items-center gap-3">
-                <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center shrink-0 border border-red-200">
-                    <i data-lucide="alert-octagon" class="w-5 h-5 text-red-600"></i>
-                </div>
-                <div>
-                    <div class="text-[9px] text-red-400 font-black uppercase tracking-widest leading-none mb-1">Violation Detected</div>
-                    <div class="font-black text-red-700 text-xs leading-tight">${unit.violation.type}: In restricted area during coding hours.</div>
-                </div>
-            </div>
-            ` : ''}
             <div class="space-y-4">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center shrink-0 border border-blue-100">

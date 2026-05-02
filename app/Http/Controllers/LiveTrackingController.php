@@ -4,20 +4,15 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Http;
 use App\Services\TracksolidService;
-use App\Services\CodingService;
-use App\Models\CodingViolation;
 
 class LiveTrackingController extends Controller
 {
     protected $tracksolid;
-    protected $coding;
 
-    public function __construct(TracksolidService $tracksolid, CodingService $coding)
+    public function __construct(TracksolidService $tracksolid)
     {
         $this->tracksolid = $tracksolid;
-        $this->coding = $coding;
     }
     // ─── Main Page ─────────────────────────────────────────
 
