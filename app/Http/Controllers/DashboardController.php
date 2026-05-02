@@ -1397,15 +1397,42 @@ class DashboardController extends Controller
 
     private function getExpenseBreakdownData()
     {
-        $data = DB::table('expenses')
+        $month = now()->month;
+        $year = now()->year;
+
+        // 1. General Expenses from 'expenses' table
+        $genExpenses = DB::table('expenses')
             ->whereNull('deleted_at')
             ->select('category', DB::raw('SUM(amount) as total'))
-            ->whereMonth('date', now()->month)
-            ->whereYear('date', now()->year)
+            ->whereMonth('date', $month)
+            ->whereYear('date', $year)
             ->groupBy('category')
-            ->orderByDesc('total')
-            ->get()
-            ->map(fn($e) => ['category' => $e->category, 'amount' => (float) $e->total]);
+            ->get();
+
+        // 2. Maintenance Costs
+        $mntTotal = DB::table('maintenance')
+            ->whereNull('deleted_at')
+            ->where('status', '!=', 'cancelled')
+            ->whereMonth('date_started', $month)
+            ->whereYear('date_started', $year)
+            ->sum('cost') ?? 0;
+
+        // 3. Salaries / Payroll
+        $salTotal = DB::table('salaries')
+            ->whereMonth('pay_date', $month)
+            ->whereYear('pay_date', $year)
+            ->sum('total_salary') ?? 0;
+
+        $breakdown = $genExpenses->map(fn($e) => ['category' => $e->category, 'amount' => (float) $e->total])->toArray();
+        
+        if ($mntTotal > 0) {
+            $breakdown[] = ['category' => 'Maintenance', 'amount' => (float) $mntTotal];
+        }
+        if ($salTotal > 0) {
+            $breakdown[] = ['category' => 'Payroll/Salaries', 'amount' => (float) $salTotal];
+        }
+
+        $data = collect($breakdown)->sortByDesc('amount')->values();
 
         if ($data->isEmpty() || $data->every(fn($d) => $d['amount'] == 0)) {
             return collect([]);

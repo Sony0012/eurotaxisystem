@@ -43,17 +43,17 @@ class OfficeExpenseController extends Controller
         }
 
         $total = $query->count();
+
+        // Calculate totals based on the FILTERED query (before pagination)
+        $totals = (clone $query)
+            ->selectRaw('SUM(e.amount) as total_amount, COUNT(*) as total_count')
+            ->first();
+
         $expenses = $query->orderByDesc('e.date')
             ->orderByDesc('e.created_at')
             ->offset($offset)
             ->limit($limit)
             ->get();
-
-        $totals = DB::table('expenses')
-            ->whereNull('deleted_at')
-            ->whereBetween('date', [$date_from, $date_to])
-            ->selectRaw('SUM(amount) as total_amount, COUNT(*) as total_count')
-            ->first();
 
         $categories = DB::table('expenses')->whereNull('deleted_at')->distinct()->pluck('category');
 
@@ -215,6 +215,15 @@ class OfficeExpenseController extends Controller
         ]);
 
         $expense = Expense::findOrFail($id);
+        
+        // Handle Inventory Reversal if it was a Spare Parts Purchase
+        if ($expense->category === 'Spare Parts Purchase' && $expense->spare_part_id && $expense->quantity > 0) {
+            $oldPart = \App\Models\SparePart::find($expense->spare_part_id);
+            if ($oldPart) {
+                $oldPart->decrement('stock_quantity', $expense->quantity);
+            }
+        }
+
         $expense->update([
             'category' => $request->category,
             'description' => $request->description,
@@ -227,6 +236,14 @@ class OfficeExpenseController extends Controller
             'updated_by' => auth()->id(),
         ]);
 
+        // Re-apply Inventory Stock if the updated category is Spare Parts Purchase
+        if ($expense->category === 'Spare Parts Purchase' && $expense->spare_part_id && $expense->quantity > 0) {
+            $newPart = \App\Models\SparePart::find($expense->spare_part_id);
+            if ($newPart) {
+                $newPart->increment('stock_quantity', $expense->quantity);
+            }
+        }
+
         ActivityLogController::log('Updated Office Expense', "Record #{$id}\nCategory: {$expense->category}\nNew Amount: ₱" . number_format($expense->amount, 2));
 
         return redirect()->route('office-expenses.index')->with('success', 'Expense updated successfully');
@@ -235,6 +252,15 @@ class OfficeExpenseController extends Controller
     public function destroy($id)
     {
         $expense = Expense::findOrFail($id);
+        
+        // Reverse inventory stock if applicable
+        if ($expense->category === 'Spare Parts Purchase' && $expense->spare_part_id && $expense->quantity > 0) {
+            $part = \App\Models\SparePart::find($expense->spare_part_id);
+            if ($part) {
+                $part->decrement('stock_quantity', $expense->quantity);
+            }
+        }
+
         $desc = $expense->description;
         $expense->delete();
 
