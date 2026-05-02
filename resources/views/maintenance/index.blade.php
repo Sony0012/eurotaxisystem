@@ -443,7 +443,7 @@
         </div>
         
         {{-- Content Area --}}
-        <form method="POST" action="{{ route('maintenance.store') }}" class="flex flex-col flex-1 overflow-hidden">
+        <form id="addMaintForm" method="POST" action="{{ route('maintenance.store') }}" class="flex flex-col flex-1 overflow-hidden" onsubmit="return validateMaintForm('add')">
             @csrf
             <div class="p-6 flex-1 overflow-y-auto custom-scrollbar">
                 <div class="max-w-3xl mx-auto space-y-4">
@@ -654,7 +654,7 @@
         </div>
         
         {{-- Content Area --}}
-        <form id="editMaintForm" method="POST" class="flex flex-col flex-1 overflow-hidden">
+        <form id="editMaintForm" method="POST" class="flex flex-col flex-1 overflow-hidden" onsubmit="return validateMaintForm('edit')">
             @csrf @method('PUT')
             <div class="p-6 flex-1 overflow-y-auto custom-scrollbar">
                 <div class="max-w-3xl mx-auto space-y-4">
@@ -1336,6 +1336,30 @@ let editOtherCosts = [];
 
 // Record store - keyed by ID, no HTML attribute encoding issues
 const maintRecords = @json($records->keyBy('id'));
+
+function validateMaintForm(mode) {
+    let parts = mode === 'add' ? addPartsCart : editPartsCart;
+    let others = mode === 'add' ? addOtherCosts : editOtherCosts;
+
+    let hasParts = parts && parts.length > 0;
+    
+    let hasOthers = false;
+    if (others && others.length > 0) {
+        for (let o of others) {
+            if (o.name && o.name.trim() !== '' && parseFloat(o.price) > 0) {
+                hasOthers = true;
+                break;
+            }
+        }
+    }
+
+    if (!hasParts && !hasOthers) {
+        alert("Hindi pwedeng i-save! Kailangan mong maglagay ng Spare Part o Additional Service kahit isa lang.");
+        return false;
+    }
+    
+    return true;
+}
 
 function openAddMaint() {
     closeAllDropdowns();
