@@ -257,7 +257,7 @@
                         @if(auth()->user()->hasAccessTo('boundaries.*'))
                         <a href="{{ route('boundaries.index') }}"
                             class="sidebar-item flex items-center justify-center lg:justify-start lg:gap-2.5 px-0 lg:px-4 py-2 rounded-lg text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 {{ request()->routeIs('boundaries.*') ? 'bg-yellow-50 text-yellow-700 font-semibold' : '' }}">
-                            <i data-lucide="philippine-peso" class="w-5 lg:w-4 h-5 lg:h-4"></i>
+                            <i data-lucide="wallet" class="w-5 lg:w-4 h-5 lg:h-4"></i>
                             <span class="text-sm hidden lg:block">Boundaries</span>
                         </a>
                         @endif
