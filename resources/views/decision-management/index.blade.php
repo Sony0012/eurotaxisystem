@@ -33,7 +33,7 @@
                 <form method="POST" class="space-y-6">
                     @csrf
                     <input type="hidden" name="action" value="save_case">
-                    <input type="hidden" name="case_id" value="<?php echo $edit_case['id'] ?? 0; ?">
+                    <input type="hidden" name="case_id" value="<?php echo $edit_case['id'] ?? 0; ?>">
 
                     <div class="flex items-center gap-2 mb-6">
                         <div class="p-2 bg-blue-100 rounded-lg">
@@ -433,7 +433,7 @@ foreach ($cases as $c) {
                                             <form method="POST" onsubmit="event.stopPropagation(); return confirm('Are you sure you want to completely delete this franchise case?');">
                                                 @csrf
                                                 <input type="hidden" name="action" value="delete_case">
-                                                <input type="hidden" name="case_id" value="<?php echo $c['id']; ?">
+                                                <input type="hidden" name="case_id" value="<?php echo $c['id']; ?>">
                                                 <button type="submit"
                                                         class="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors" title="Delete Case">
                                                     <i data-lucide="trash-2" class="w-4 h-4"></i>
@@ -444,7 +444,7 @@ foreach ($cases as $c) {
                                 </tr>
                                 
                                 <!-- Dropdown Units Row -->
-                                <tr id="units-<?php echo $c['id']; ?>" class="hidden bg-slate-50 border-b-2 border-slate-200 shadow-inner">
+                                <tr id="units-<?php echo $c['id']; ?>"> class="hidden bg-slate-50 border-b-2 border-slate-200 shadow-inner">
                                     <td colspan="8" class="p-4">
                                         <div class="pl-8 border-l-4 border-yellow-400">
                                             <h4 class="text-[11px] font-black text-gray-400 uppercase tracking-widest mb-2">Attached Units (<?php echo count($c['units'] ?? []); ?>)</h4>
