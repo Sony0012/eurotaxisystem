@@ -77,6 +77,17 @@ class BoundaryController extends Controller
             ->map(function ($unit) {
                 $unitArray = (array) $unit;
                 $unitArray['make_model'] = ($unitArray['make'] ?? '') . ' ' . ($unitArray['model'] ?? '');
+                
+                // Smart Integration: Check if expected driver has an 'Absent / No Show' incident recorded for today
+                $unitArray['has_absent_today'] = false;
+                if ($unit->current_turn_driver_id) {
+                    $unitArray['has_absent_today'] = DB::table('driver_behavior')
+                        ->where('driver_id', $unit->current_turn_driver_id)
+                        ->whereDate('incident_date', date('Y-m-d'))
+                        ->where('incident_type', 'Absent / No Show')
+                        ->exists();
+                }
+                
                 return $unitArray;
             })
             ->toArray();
@@ -495,15 +506,23 @@ class BoundaryController extends Controller
                         ]);
                     }
                     if ($is_absent) {
-                        \App\Models\DriverBehavior::create([
-                            'unit_id'       => $unit_id,
-                            'driver_id'     => $expected_driver_id,
-                            'incident_type' => 'Absent / No Show',
-                            'severity'      => 'medium',
-                            'description'   => 'Auto-logged [Absent]: Marked as Absent / No Show because an Extra Driver took their expected shift.',
-                            'incident_date' => $date,
-                            'timestamp'     => $now_ts,
-                        ]);
+                        // Prevent duplicate 'Absent / No Show' records for the same driver and date
+                        $exists = \App\Models\DriverBehavior::where('driver_id', $expected_driver_id)
+                            ->whereDate('incident_date', $date)
+                            ->where('incident_type', 'Absent / No Show')
+                            ->exists();
+
+                        if (!$exists) {
+                            \App\Models\DriverBehavior::create([
+                                'unit_id'       => $unit_id,
+                                'driver_id'     => $expected_driver_id,
+                                'incident_type' => 'Absent / No Show',
+                                'severity'      => 'medium',
+                                'description'   => 'Auto-logged [Absent]: Marked as Absent / No Show because an Extra Driver took their expected shift.',
+                                'incident_date' => $date,
+                                'timestamp'     => $now_ts,
+                            ]);
+                        }
                     }
 
                     $plate = DB::table('units')->where('id', $unit_id)->value('plate_number');
@@ -560,16 +579,26 @@ class BoundaryController extends Controller
                     $has_incentive = false;
                     $clean_notes .= " [Automatic Violation: Absent / No Show]";
                     
-                    // Log behavior for update
-                    DB::table('driver_behavior')->insert([
-                        'unit_id'       => $boundary->unit_id,
-                        'driver_id'     => $boundary->expected_driver_id ?: $boundary->driver_id,
-                        'incident_type' => 'Absent / No Show',
-                        'severity'      => 'medium',
-                        'description'   => 'Auto-logged [Absent/Update]: Marked as Absent / No Show during record update.',
-                        'timestamp'     => $now_ts,
-                        'created_at'    => $now_ts,
-                    ]);
+                    // Log behavior for update (prevent duplicates)
+                    $target_absent_id = $boundary->expected_driver_id ?: $boundary->driver_id;
+                    $exists = DB::table('driver_behavior')
+                        ->where('driver_id', $target_absent_id)
+                        ->whereDate('incident_date', $boundary->date)
+                        ->where('incident_type', 'Absent / No Show')
+                        ->exists();
+
+                    if (!$exists) {
+                        DB::table('driver_behavior')->insert([
+                            'unit_id'       => $boundary->unit_id,
+                            'driver_id'     => $target_absent_id,
+                            'incident_type' => 'Absent / No Show',
+                            'severity'      => 'medium',
+                            'description'   => 'Auto-logged [Absent/Update]: Marked as Absent / No Show during record update.',
+                            'incident_date' => $boundary->date,
+                            'timestamp'     => $now_ts,
+                            'created_at'    => $now_ts,
+                        ]);
+                    }
                 }
                 if ($past_cutoff) {
                     $has_incentive = false;

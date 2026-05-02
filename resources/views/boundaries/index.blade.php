@@ -288,7 +288,8 @@
                                          data-secondary-id="{{ $unit['secondary_driver_id'] }}"
                                          data-expected-id="{{ $unit['current_turn_driver_id'] }}"
                                          data-deadline="{{ $unit['shift_deadline_at'] }}"
-                                         data-swapped-at="{{ $unit['last_swapping_at'] }}">
+                                         data-swapped-at="{{ $unit['last_swapping_at'] }}"
+                                         data-has-absent-today="{{ $unit['has_absent_today'] ? 'true' : 'false' }}">
                                         <div class="font-black text-sm text-gray-900">{{ $unit['plate_number'] }}</div>
                                         <div class="text-[11px] font-bold text-gray-500">{{ $unit['make_model'] ?? 'N/A' }}</div>
                                     </div>
@@ -1463,6 +1464,7 @@ function updateShiftInfo(unitElement) {
     const shiftIcon       = document.getElementById('shiftIcon');
     const extraNotice     = document.getElementById('shiftExtraNotice');
     const extraText       = document.getElementById('shiftExtraText');
+    const hasAbsentToday  = unitElement.getAttribute('data-has-absent-today') === 'true';
 
     // Store expected ID on the modal so refreshShiftStatusForDriver can read it later
     document.getElementById('boundaryModal').setAttribute('data-expected-id', expectedId);
@@ -1477,6 +1479,25 @@ function updateShiftInfo(unitElement) {
         document.getElementById('driverDisplay').value = expectedName;
         const shortage = parseFloat(driverOption ? driverOption.getAttribute('data-shortage') : 0);
         if (typeof triggerDriverAlerts === 'function') triggerDriverAlerts(expectedId, shortage);
+    }
+
+    // --- NEW: Smart Integration for Existing Absences ---
+    if (hasAbsentToday) {
+        extraNotice.classList.remove('hidden');
+        extraText.innerHTML = `<strong>SMART ALERT:</strong> ${expectedName || 'The expected driver'} was already recorded as <strong>ABSENT</strong> in the Incident Report today. <span class="block mt-1 opacity-75">Absenteeism Validation has been auto-selected.</span>`;
+        
+        // Auto-check the is_absent checkbox
+        const absentCheckbox = document.getElementById('is_absent');
+        if (absentCheckbox) {
+            absentCheckbox.checked = true;
+            // Visual feedback
+            absentCheckbox.closest('label').classList.add('bg-red-50');
+        }
+    } else {
+        // Reset if no absent found (unless it's an extra driver case which is handled elsewhere)
+        if (!extraNotice.classList.contains('stay-visible')) {
+            // extraNotice.classList.add('hidden');
+        }
     }
 
     // --- Build shift timing info ---
