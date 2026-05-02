@@ -884,10 +884,29 @@ function openEditExpenseModal(id) {
             document.getElementById('expenseUnitPrice').value = data.unit_price || '';
             document.getElementById('expenseAmount').readOnly = true;
             document.getElementById('expenseAmount').classList.add('bg-gray-100');
+            
+            // Populate Part Label
+            if (data.spare_part_id) {
+                const part = partsCatalog.find(p => p.id == data.spare_part_id);
+                if (part) {
+                    const partLabel = document.getElementById('selectedPartLabel');
+                    partLabel.textContent = part.name + ' (Stock: ' + part.stock_quantity + ')';
+                    partLabel.classList.add('text-gray-900');
+                }
+            }
+            
+            // Populate Supplier Label (shared with standard vendor)
+            if (data.vendor_name) {
+                const supLabel = document.getElementById('selectedSupplierLabel');
+                supLabel.textContent = data.vendor_name;
+                supLabel.classList.add('text-gray-900');
+                document.getElementById('syncSupplierHidden').value = data.vendor_name;
+            }
         } else {
             inventorySection.classList.add('hidden');
             document.getElementById('expenseAmount').readOnly = false;
             document.getElementById('expenseAmount').classList.remove('bg-gray-100');
+            document.getElementById('standardVendorOnly').classList.remove('hidden');
         }
 
         document.getElementById('expenseDescription').value = data.description || '';
