@@ -920,11 +920,38 @@ export function UnitManagement() {
                   </div>
                 )}
 
-                {/* ── Serial Info Footer ── */}
-                <div className="px-3 py-2 bg-gray-50 mt-auto">
-                  <p className="text-[8px] font-black text-gray-400 uppercase tracking-wider mb-0.5">Serial Info</p>
-                  <p className="text-[8px] text-gray-500 truncate">M: {u.motor_no || "N/A"}</p>
-                  <p className="text-[8px] text-gray-500 truncate">C: {u.chassis_no || "N/A"}</p>
+                {/* ── Serial Info Footer + Actions ── */}
+                <div className="px-3 py-2 bg-gray-50 mt-auto border-t border-gray-100 flex items-center justify-between">
+                  <div className="min-w-0">
+                    <p className="text-[8px] font-black text-gray-400 uppercase tracking-wider mb-0.5">Serial Info</p>
+                    <p className="text-[8px] text-gray-500 truncate">M: {u.motor_no || "N/A"}</p>
+                    <p className="text-[8px] text-gray-500 truncate">C: {u.chassis_no || "N/A"}</p>
+                  </div>
+                  
+                  <div className="relative">
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); setActiveMenu(activeMenu === u.id ? null : u.id); }}
+                      className="p-1.5 hover:bg-gray-200 rounded-lg text-gray-400 hover:text-gray-900 transition-colors"
+                    >
+                      <MoreVertical className="w-4 h-4" />
+                    </button>
+                    {activeMenu === u.id && (
+                      <div className="absolute right-0 bottom-full mb-1 w-44 bg-white border border-gray-100 rounded-2xl shadow-2xl z-[100] py-2 animate-in fade-in slide-in-from-bottom-2 duration-200">
+                        <button 
+                          onClick={(e) => { e.stopPropagation(); setEditingUnit(u); setActiveMenu(null); }}
+                          className="w-full px-4 py-2 text-left flex items-center gap-2 hover:bg-gray-50 text-xs font-black text-gray-700 uppercase tracking-widest transition-colors"
+                        >
+                          <Edit2 className="w-3 h-3 text-yellow-500" /> Edit Unit
+                        </button>
+                        <button 
+                          onClick={(e) => { e.stopPropagation(); archiveUnit(u); }}
+                          className="w-full px-4 py-2 text-left flex items-center gap-2 hover:bg-red-50 text-xs font-black text-red-600 uppercase tracking-widest transition-colors"
+                        >
+                          <Trash2 className="w-3 h-3 text-red-500" /> Archive Unit
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             );
