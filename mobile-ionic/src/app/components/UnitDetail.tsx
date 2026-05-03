@@ -143,78 +143,82 @@ export function UnitDetail() {
       <div className="flex-1 overflow-y-auto px-4 py-4">
         {/* ── OVERVIEW ── */}
         {activeTab === "Overview" && (
-          <div className="space-y-4">
+          <div className="space-y-6">
             {/* Quick Stats */}
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-4">
               {[
-                { icon: <Users className="w-5 h-5 text-blue-600" />, bg: "bg-blue-50", label: "Drivers", val: `${driverCount}/2` },
-                { icon: <Calendar className="w-5 h-5 text-green-600" />, bg: "bg-green-50", label: "Next Coding", val: `${unit.days_until_coding ?? "?"}d` },
-                { icon: <TrendingUp className="w-5 h-5 text-purple-600" />, bg: "bg-purple-50", label: "ROI", val: `${Number(unit.roi_percentage || 0).toFixed(1)}%` },
-                { icon: <Wrench className="w-5 h-5 text-orange-600" />, bg: "bg-orange-50", label: "Maint Jobs", val: unit.maintenance_count ?? 0 },
+                { icon: <Users className="w-5 h-5 text-blue-600" />, bg: "bg-blue-50/50", label: "Drivers", val: `${driverCount}/2` },
+                { icon: <Calendar className="w-5 h-5 text-green-600" />, bg: "bg-green-50/50", label: "Next Coding", val: `${unit.days_until_coding ?? "?"}d` },
+                { icon: <TrendingUp className="w-5 h-5 text-purple-600" />, bg: "bg-purple-50/50", label: "ROI", val: `${Number(unit.roi_percentage || 0).toFixed(1)}%` },
+                { icon: <Wrench className="w-5 h-5 text-orange-600" />, bg: "bg-orange-50/50", label: "Maint Jobs", val: unit.maintenance_count ?? 0 },
               ].map((s, i) => (
-                <div key={i} className="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm flex items-center gap-3">
-                  <div className={`p-2.5 ${s.bg} rounded-xl`}>{s.icon}</div>
+                <div key={i} className="bg-white border border-gray-100 rounded-3xl p-5 shadow-sm flex items-center gap-4">
+                  <div className={`p-3 ${s.bg} rounded-2xl`}>{s.icon}</div>
                   <div>
-                    <p className="text-[9px] text-gray-400 uppercase font-black tracking-widest">{s.label}</p>
+                    <p className="text-[10px] text-gray-400 uppercase font-black tracking-widest mb-0.5">{s.label}</p>
                     <p className="text-xl font-black text-gray-900">{s.val}</p>
                   </div>
                 </div>
               ))}
             </div>
 
-            {/* Basic Information */}
-            <div className="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm">
-              <p className="text-[10px] font-black text-gray-900 uppercase tracking-widest mb-3 flex items-center gap-2">ℹ Basic Information</p>
-              <InfoRow label="Plate Number" value={<span className="bg-gray-100 px-2 py-0.5 rounded font-black">{unit.plate_number}</span>} />
-              <InfoRow label="Vehicle" value={`${unit.make} ${unit.model}`} />
-              <InfoRow label="Year" value={unit.year} />
-              <InfoRow label="Motor No." value={unit.motor_no} />
-              <InfoRow label="Chassis No." value={unit.chassis_no} />
-              <InfoRow label="Status" value={<StatusPill status={unit.status} />} />
-              <InfoRow label="Unit Type" value={<span className="uppercase font-black">{unit.unit_type}</span>} />
-              <div className="pt-3 mt-2 border-t border-gray-100 flex justify-between">
-                <div>
-                  <p className="text-[9px] text-gray-400 uppercase font-black mb-0.5">Created</p>
-                  <p className="text-xs font-bold text-gray-600">{fmtDate(unit.created_at)}</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-[9px] text-gray-400 uppercase font-black mb-0.5">Updated</p>
-                  <p className="text-xs font-bold text-gray-600">{fmtDate(unit.updated_at)}</p>
-                </div>
-              </div>
-              <div className="pt-3 mt-2 border-t border-gray-100 flex justify-between items-center">
-                <span className="text-xs font-black text-gray-900 uppercase tracking-widest">Boundary Rate</span>
-                <span className="text-xl font-black text-blue-600">{fmt(unit.boundary_rate)}</span>
-              </div>
-            </div>
-
-            {/* Driver Assignment */}
-            <div className="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm">
-              <p className="text-[10px] font-black text-gray-900 uppercase tracking-widest mb-3 flex items-center gap-2">👥 Driver Assignment</p>
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-xs font-bold text-gray-400 uppercase">Drivers</span>
-                <span className="font-black text-gray-900">{driverCount}/2</span>
-              </div>
-              <div className="flex justify-between items-center mb-4">
-                <span className="text-xs font-bold text-gray-400 uppercase">Status</span>
-                <span className={`px-2.5 py-1 text-[10px] font-black rounded-full border ${driversFull ? "bg-red-50 text-red-600 border-red-200" : "bg-green-50 text-green-600 border-green-200"}`}>
-                  {driversFull ? "Full" : "Available"}
-                </span>
-              </div>
-              {[unit.primary_driver, unit.secondary_driver].filter(Boolean).map((d: any, i: number) => (
-                <div key={i} className="bg-gray-50 p-3 rounded-xl border border-gray-100 mb-2">
-                  <div className="flex justify-between items-start mb-1">
-                    <p className="text-sm font-black text-gray-900">{d.full_name}</p>
-                    <span className="text-[9px] font-black bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded uppercase">Active</span>
+            <div className="grid grid-cols-1 gap-6">
+              {/* Basic Information */}
+              <div className="bg-white border border-gray-100 rounded-3xl p-6 shadow-sm">
+                <p className="text-[10px] font-black text-gray-900 uppercase tracking-widest mb-6 flex items-center gap-2">
+                  <div className="p-1 bg-blue-50 rounded-md">
+                    <Car className="w-3 h-3 text-blue-600" />
                   </div>
-                  <p className="text-[10px] text-gray-400">{d === unit.primary_driver ? "Primary Driver" : "Secondary Driver"}</p>
+                  Basic Information
+                </p>
+                <div className="space-y-4">
+                  <InfoRow label="Plate Number" value={unit.plate_number} />
+                  <InfoRow label="Vehicle" value={`${unit.make} ${unit.model}`} />
+                  <InfoRow label="Year" value={unit.year} />
+                  <InfoRow label="Created By" value={unit.created_by_name || "System"} />
+                  <InfoRow label="Last Update" value={new Date(unit.updated_at).toLocaleString("en-US", { month: "short", day: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit", hour12: true })} />
+                  
+                  <div className="pt-6 mt-2 border-t border-gray-50 flex justify-between items-center">
+                    <span className="text-xs font-black text-gray-900 uppercase tracking-widest">Active Rate</span>
+                    <span className="text-2xl font-black text-blue-600 tracking-tight">{fmt(unit.boundary_rate)}</span>
+                  </div>
                 </div>
-              ))}
-              {driverCount === 0 && (
-                <div className="text-center py-6">
-                  <p className="text-xs font-bold text-gray-300 uppercase tracking-widest">No Drivers Assigned</p>
+              </div>
+
+              {/* Driver Assignment */}
+              <div className="bg-white border border-gray-100 rounded-3xl p-6 shadow-sm">
+                <div className="flex justify-between items-center mb-6">
+                  <p className="text-[10px] font-black text-gray-900 uppercase tracking-widest flex items-center gap-2">
+                    <div className="p-1 bg-blue-50 rounded-md">
+                      <Users className="w-3 h-3 text-blue-600" />
+                    </div>
+                    Driver Assignment
+                  </p>
+                  <span className={`px-3 py-1 text-[10px] font-black rounded-full border uppercase ${driversFull ? "bg-red-50 text-red-600 border-red-100" : "bg-green-50 text-green-600 border-green-100"}`}>
+                    {driversFull ? "Full" : "Available"}
+                  </span>
                 </div>
-              )}
+
+                <div className="space-y-3">
+                  <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Status</p>
+                  {[unit.primary_driver, unit.secondary_driver].filter(Boolean).map((d: any, i: number) => (
+                    <div key={i} className="bg-gray-50/50 p-4 rounded-2xl border border-gray-100">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <p className="text-sm font-black text-gray-900 mb-1">{d.full_name}</p>
+                          <p className="text-[11px] text-gray-500 font-medium">License: {d.license_number}</p>
+                          <p className="text-[11px] text-gray-500 font-medium">Contact: {d.contact_number}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                  {driverCount === 0 && (
+                    <div className="py-8 text-center bg-gray-50/50 rounded-2xl border border-dashed border-gray-200">
+                      <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">No Drivers Assigned</p>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
 
             <HealthBar unit={unit} />
