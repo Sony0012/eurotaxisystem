@@ -41,6 +41,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/units/{id}', [UnitController::class, 'update']);
     Route::delete('/units/{id}', [UnitController::class, 'destroy']);
     Route::get('/drivers', [DriverController::class, 'index']);
+
+    // Archive Management
+    Route::get('/archive', [\App\Http\Controllers\Api\ArchiveController::class, 'index']);
+    Route::post('/archive/restore/{type}/{id}', [\App\Http\Controllers\Api\ArchiveController::class, 'restore']);
+    Route::post('/archive/delete/{type}/{id}', [\App\Http\Controllers\Api\ArchiveController::class, 'forceDelete']);
     
     // Boundary & Financials
     Route::get('/boundaries', [\App\Http\Controllers\Api\BoundaryController::class, 'index']);
