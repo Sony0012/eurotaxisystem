@@ -13,7 +13,10 @@ class DriverController extends Controller
      */
     public function index()
     {
-        $drivers = Driver::with('user')->get()->map(function($driver) {
+        $drivers = Driver::with('user')
+            ->where('driver_status', '!=', 'banned')
+            ->get()
+            ->map(function($driver) {
             $isAssigned = \DB::table('units')
                 ->where(function($q) use ($driver) {
                     $q->where('driver_id', $driver->id)
