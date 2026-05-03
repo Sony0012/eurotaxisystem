@@ -1,6 +1,6 @@
 class RealTimeDashboard {
     constructor() {
-        this.updateInterval = 5000;
+        this.updateInterval = 30000; // Increased to 30s to respect Hostinger connection limits
         this.isUpdating = false;
         this.lastUpdateTime = Date.now();
         this.stabilityDelay = 3000;
