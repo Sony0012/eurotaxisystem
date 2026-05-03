@@ -146,11 +146,37 @@ class DashboardController extends Controller
     {
         try {
             $todayDay = now()->format('l');
+            $todayDate = now()->toDateString();
+            $sub30Days = now()->subDays(30)->toDateString();
+            $sub10Days = now()->subDays(10)->toDateString();
+            $sub7Days = now()->subDays(7)->toDateString();
 
-            $units = DB::table('units')
-                ->whereNull('deleted_at')
-                ->select('id', 'status', 'boundary_rate', 'purchase_cost', 'plate_number', 'driver_id')
-                ->orderBy('plate_number')
+            // 1. Get units with essential joined data and aggregate subqueries to avoid N+1
+            $units = DB::table('units as u')
+                ->leftJoin('drivers as d', 'u.driver_id', '=', 'd.id')
+                ->whereNull('u.deleted_at')
+                ->select([
+                    'u.id', 'u.status', 'u.boundary_rate', 'u.purchase_cost', 'u.plate_number', 'u.driver_id',
+                    DB::raw("TRIM(CONCAT(COALESCE(d.first_name, ''), ' ', COALESCE(d.last_name, ''))) as driver_full_name"),
+                    'd.nickname as driver_nickname',
+                    // Total Boundary
+                    DB::raw("(SELECT SUM(actual_boundary) FROM boundaries WHERE unit_id = u.id AND deleted_at IS NULL) as total_boundary"),
+                    // Today's Boundary
+                    DB::raw("(SELECT SUM(actual_boundary) FROM boundaries WHERE unit_id = u.id AND deleted_at IS NULL AND DATE(date) = '$todayDate') as today_boundary"),
+                    // Recent Boundary sums for ROI calculation
+                    DB::raw("(SELECT SUM(actual_boundary) FROM boundaries WHERE unit_id = u.id AND deleted_at IS NULL AND DATE(date) >= '$sub30Days' AND boundary_amount > 0) as boundary_30d"),
+                    DB::raw("(SELECT SUM(actual_boundary) FROM boundaries WHERE unit_id = u.id AND deleted_at IS NULL AND DATE(date) >= '$sub10Days' AND boundary_amount > 0) as boundary_10d"),
+                    DB::raw("(SELECT SUM(actual_boundary) FROM boundaries WHERE unit_id = u.id AND deleted_at IS NULL AND DATE(date) >= '$sub7Days' AND boundary_amount > 0) as boundary_7d"),
+                    // Active days count
+                    DB::raw("(SELECT COUNT(*) FROM boundaries WHERE unit_id = u.id AND deleted_at IS NULL AND boundary_amount > 0) as active_days"),
+                    // Maintenance Costs
+                    DB::raw("(SELECT SUM(cost) FROM maintenance WHERE unit_id = u.id AND deleted_at IS NULL AND status != 'cancelled') as total_maintenance_cost"),
+                    // Coding Costs
+                    DB::raw("(SELECT SUM(cost) FROM coding_records WHERE unit_id = u.id AND deleted_at IS NULL) as total_coding_cost"),
+                    // Last Activity Date
+                    DB::raw("(SELECT MAX(date) FROM boundaries WHERE unit_id = u.id AND deleted_at IS NULL) as last_activity_date")
+                ])
+                ->orderBy('u.plate_number')
                 ->get()
                 ->map(function($unit) use ($todayDay) {
                     $displayStatus = strtolower($unit->status);
@@ -165,108 +191,35 @@ class DashboardController extends Controller
                         $displayStatus = 'active';
                     }
                     
-                    // Get total boundary for this unit from real data
-                    $totalBoundary = DB::table('boundaries')
-                        ->whereNull('deleted_at')
-                        ->where('unit_id', $unit->id)
-                        ->sum('actual_boundary') ?? 0;
-                    
-                    // Get today's boundary for real-time data
-                    $todayBoundary = DB::table('boundaries')
-                        ->whereNull('deleted_at')
-                        ->where('unit_id', $unit->id)
-                        ->whereDate('date', now()->toDateString())
-                        ->sum('actual_boundary') ?? 0;
-                    
-                    // Get driver information
-                    $driverName = 'No Driver';
-                    if ($unit->driver_id) {
-                        $driver = DB::table('drivers')
-                            ->where('id', $unit->driver_id)
-                            ->whereNull('deleted_at')
-                            ->select('first_name', 'last_name', 'nickname')
-                            ->first();
-                        
-                        if ($driver) {
-                            $driverName = trim(($driver->first_name ?? '') . ' ' . ($driver->last_name ?? ''));
-                            if (empty($driverName)) $driverName = $driver->nickname ?? 'Unknown';
-                        }
-                    }
-                    
-                    // Calculate Net ROI percentage (Revenue - Costs)
-                    $totalCosts = (DB::table('maintenance')->where('unit_id', $unit->id)->whereNull('deleted_at')->where('status', '!=', 'cancelled')->sum('cost') ?? 0) + 
-                                  (DB::table('coding_records')->where('unit_id', $unit->id)->whereNull('deleted_at')->sum('cost') ?? 0);
-                    
+                    $totalBoundary = (float)($unit->total_boundary ?? 0);
+                    $totalCosts = (float)($unit->total_maintenance_cost ?? 0) + (float)($unit->total_coding_cost ?? 0);
                     $netRevenue = $totalBoundary - $totalCosts;
+                    
                     $roiPercentage = 0;
                     if ($unit->purchase_cost > 0 && $netRevenue > 0) {
                         $roiPercentage = min(100, round(($netRevenue / $unit->purchase_cost) * 100, 2));
                     }
                     
-                    // Calculate days to ROI based on real performance
+                    // Driver name logic
+                    $driverName = $unit->driver_full_name ?: ($unit->driver_nickname ?: 'No Driver');
+                    if (!$unit->driver_id) $driverName = 'No Driver';
+                    
+                    // Days to ROI calculation logic (optimized)
                     $daysToROI = 0;
                     if ($unit->purchase_cost > 0 && $totalBoundary > 0 && $roiPercentage < 100) {
-                        // Method 1: Calculate based on recent 30-day average
-                        $recent30DaysBoundary = DB::table('boundaries')
-                            ->where('unit_id', $unit->id)
-                            ->where('boundary_amount', '>', 0)
-                            ->whereNull('deleted_at')
-                            ->whereDate('date', '>=', now()->subDays(30)->toDateString())
-                            ->sum('actual_boundary') ?? 0;
-                        
-                        // Method 2: Calculate based on last 10 days average
-                        $last10DaysBoundary = DB::table('boundaries')
-                            ->where('unit_id', $unit->id)
-                            ->where('boundary_amount', '>', 0)
-                            ->whereNull('deleted_at')
-                            ->whereDate('date', '>=', now()->subDays(10)->toDateString())
-                            ->sum('actual_boundary') ?? 0;
-                        
-                        // Method 3: Calculate based on last 7 days average
-                        $last7DaysBoundary = DB::table('boundaries')
-                            ->where('unit_id', $unit->id)
-                            ->where('boundary_amount', '>', 0)
-                            ->whereNull('deleted_at')
-                            ->whereDate('date', '>=', now()->subDays(7)->toDateString())
-                            ->sum('actual_boundary') ?? 0;
-                        
-                        // Choose the most reliable method
                         $dailyAverage = 0;
-                        
-                        if ($last7DaysBoundary > 0) {
-                            // Use last 7 days if available (most recent)
-                            $dailyAverage = $last7DaysBoundary / 7;
-                        } elseif ($last10DaysBoundary > 0) {
-                            // Use last 10 days
-                            $dailyAverage = $last10DaysBoundary / 10;
-                        } elseif ($recent30DaysBoundary > 0) {
-                            // Use last 30 days
-                            $dailyAverage = $recent30DaysBoundary / 30;
-                        } else {
-                            // Fallback to overall average
-                            $activeDays = DB::table('boundaries')
-                                ->where('unit_id', $unit->id)
-                                ->where('boundary_amount', '>', 0)
-                                ->count();
-                            if ($activeDays > 0) {
-                                $dailyAverage = $totalBoundary / $activeDays;
-                            }
-                        }
-                        
-                        // Calculate days to ROI with accuracy improvements
+                        if ($unit->boundary_7d > 0) $dailyAverage = $unit->boundary_7d / 7;
+                        elseif ($unit->boundary_10d > 0) $dailyAverage = $unit->boundary_10d / 10;
+                        elseif ($unit->boundary_30d > 0) $dailyAverage = $unit->boundary_30d / 30;
+                        elseif ($unit->active_days > 0) $dailyAverage = $totalBoundary / $unit->active_days;
+
                         if ($dailyAverage > 0) {
                             $remainingAmount = $unit->purchase_cost - $totalBoundary;
                             $daysToROI = ceil($remainingAmount / $dailyAverage);
-                            
-                            // Cap at maximum 365 days (1 year) for realistic estimation
                             $daysToROI = min($daysToROI, 365);
-                            
-                            // If ROI is very close (within 5%), show as "Almost there"
-                            if ($daysToROI <= 5) {
-                                $daysToROI = 0; // Will be handled as "Almost there"
-                            }
+                            if ($daysToROI <= 5) $daysToROI = 0; // Almost there
                         } else {
-                            $daysToROI = 999; // No recent activity indicator
+                            $daysToROI = 999;
                         }
                     }
                     
@@ -275,15 +228,15 @@ class DashboardController extends Controller
                         'plate_number' => $unit->plate_number,
                         'status' => $displayStatus,
                         'boundary_rate' => (float) $unit->boundary_rate,
-                        'total_boundary' => (float) $totalBoundary,
-                        'today_boundary' => (float) $todayBoundary,
+                        'total_boundary' => $totalBoundary,
+                        'today_boundary' => (float)($unit->today_boundary ?? 0),
                         'purchase_cost' => (float) $unit->purchase_cost,
                         'driver_name' => $driverName,
                         'driver_id' => $unit->driver_id,
                         'roi_percentage' => $roiPercentage,
                         'roi_achieved' => $roiPercentage >= 100,
                         'days_to_roi' => $daysToROI,
-                        'last_activity' => $this->getLastActivity($unit->id),
+                        'last_activity' => $unit->last_activity_date,
                         'performance_rating' => $this->getPerformanceRating($roiPercentage)
                     ];
                 });

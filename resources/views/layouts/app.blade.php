@@ -69,65 +69,77 @@
 
     @auth
         @php
-            // Notifications for header bell
-            $headerNotifications = [];
             $user = auth()->user();
+            $cacheKey = 'header_notifs_' . $user->id;
             
-            // 1. HIGHEST PRIORITY: Manually flagged 'Surveillance' units
-            if ($user->hasAccessTo('units.*')) {
-                $flaggedUnits = DB::table('units')
-                    ->whereNull('deleted_at')
-                    ->where('status', 'surveillance')
+            $headerNotifications = Cache::remember($cacheKey, 60, function() use ($user) {
+                $notifs = [];
+                
+                // 1. HIGHEST PRIORITY: Manually flagged 'Surveillance' units
+                if ($user->hasAccessTo('units.*')) {
+                    $flaggedUnits = DB::table('units')
+                        ->whereNull('deleted_at')
+                        ->where('status', 'surveillance')
+                        ->get();
+                        
+                    foreach($flaggedUnits as $fu) {
+                        $notifs[] = [
+                            'id' => 'surveillance_' . $fu->id,
+                            'title' => '🚨 Flagged: ' . $fu->plate_number,
+                            'message' => 'This unit is currently flagged as At Risk.',
+                            'type' => 'surveillance',
+                            'url' => route('units.index') . '?open_flagged=1',
+                            'time' => 'Action Required',
+                            'timestamp' => \Carbon\Carbon::parse($fu->updated_at ?? now())->timestamp
+                        ];
+                    }
+                }
+                
+                // 2. Fetch System Alerts from DB (REAL-TIME VIOLATIONS)
+                $dbAlerts = DB::table('system_alerts')
+                    ->where('is_resolved', false)
+                    ->orderByDesc('created_at')
+                    ->limit(15)
                     ->get();
-                    
-                foreach($flaggedUnits as $fu) {
-                    $headerNotifications[] = [
-                        'id' => 'surveillance_' . $fu->id,
-                        'title' => '🚨 Flagged: ' . $fu->plate_number,
-                        'message' => 'This unit is currently flagged as At Risk.',
-                        'type' => 'surveillance',
-                        'url' => route('units.index') . '?open_flagged=1',
-                        'time' => 'Action Required',
-                        'timestamp' => \Carbon\Carbon::parse($fu->updated_at ?? now())
-                    ];
+
+                foreach($dbAlerts as $alert) {
+                    $targetUrl = '#';
+                    $canView = false;
+
+                    if ($alert->type === 'missing_unit') {
+                        $targetUrl = route('units.index') . '?open_flagged=1';
+                        $canView = $user->hasAccessTo('units.*');
+                    } elseif ($alert->type === 'coding_notice') {
+                        $targetUrl = route('coding.index');
+                        $canView = $user->hasAccessTo('coding.*');
+                    } else {
+                        $targetUrl = route('driver-behavior.index');
+                        $canView = $user->hasAccessTo('driver-behavior.*');
+                    }
+
+                    if ($canView) {
+                        $notifs[] = [
+                            'id' => $alert->id,
+                            'title' => $alert->title,
+                            'message' => $alert->message,
+                            'type' => 'violation_alert', 
+                            'severity' => $alert->type, 
+                            'url' => $targetUrl,
+                            'time' => \Carbon\Carbon::parse($alert->created_at)->diffForHumans(),
+                            'timestamp' => \Carbon\Carbon::parse($alert->created_at)->timestamp
+                        ];
+                    }
+                }
+                return $notifs;
+            });
+
+            // Convert timestamps back to Carbon objects after cache retrieval
+            foreach($headerNotifications as &$n) {
+                if(isset($n['timestamp'])) {
+                    $n['timestamp'] = \Carbon\Carbon::createFromTimestamp($n['timestamp']);
                 }
             }
-            
-            // 2. Fetch System Alerts from DB (REAL-TIME VIOLATIONS)
-            $dbAlerts = DB::table('system_alerts')
-                ->where('is_resolved', false)
-                ->orderByDesc('created_at')
-                ->limit(15)
-                ->get();
-
-            foreach($dbAlerts as $alert) {
-                $targetUrl = '#';
-                $canView = false;
-
-                if ($alert->type === 'missing_unit') {
-                    $targetUrl = route('units.index') . '?open_flagged=1';
-                    $canView = $user->hasAccessTo('units.*');
-                } elseif ($alert->type === 'coding_notice') {
-                    $targetUrl = route('coding.index');
-                    $canView = $user->hasAccessTo('coding.*');
-                } else {
-                    $targetUrl = route('driver-behavior.index');
-                    $canView = $user->hasAccessTo('driver-behavior.*');
-                }
-
-                if ($canView) {
-                    $headerNotifications[] = [
-                        'id' => $alert->id,
-                        'title' => $alert->title,
-                        'message' => $alert->message,
-                        'type' => 'violation_alert', 
-                        'severity' => $alert->type, 
-                        'url' => $targetUrl,
-                        'time' => \Carbon\Carbon::parse($alert->created_at)->diffForHumans(),
-                        'timestamp' => \Carbon\Carbon::parse($alert->created_at)
-                    ];
-                }
-            }
+            unset($n);
             
             // 3. Merge specialized notifications from views if they exist
             if(isset($maintNotifs)) {
