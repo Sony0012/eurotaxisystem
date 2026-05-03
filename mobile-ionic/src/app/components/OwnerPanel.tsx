@@ -17,6 +17,10 @@ export function OwnerPanel() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string|null>(null);
   const [search, setSearch] = useState("");
+  const [showVerifyModal, setShowVerifyModal] = useState(false);
+  const [verifyPassword, setVerifyPassword] = useState("");
+  const [deleteTarget, setDeleteTarget] = useState<{id:number, type:string}|null>(null);
+  const [deleting, setDeleting] = useState(false);
   const [auditSearch, setAuditSearch] = useState("");
   const [auditAction, setAuditAction] = useState("");
   const [auditRole, setAuditRole] = useState("");
@@ -176,14 +180,30 @@ export function OwnerPanel() {
     } catch(e:any) { toast.error(e?.response?.data?.message || "Failed."); }
   };
 
-  const permanentlyDeleteUser = async (id: number) => {
-    if (!confirm("Are you sure you want to permanently delete this user? This requires the archive password.")) return;
-    const password = prompt("Please enter the archive deletion password:");
-    if (!password) return;
+  const permanentlyDeleteUser = (id: number) => {
+    setDeleteTarget({ id, type: 'user' });
+    setShowVerifyModal(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteTarget || !verifyPassword) return;
+    setDeleting(true);
     try {
-      const r = await api.delete(`/super-admin/users/${id}`, { data: { archive_password: password } });
-      toast.success(r.data.message); loadData();
-    } catch(e:any) { toast.error(e?.response?.data?.message || "Failed."); }
+      let url = "";
+      if (deleteTarget.type === 'user') url = `/super-admin/users/${deleteTarget.id}`;
+      else if (deleteTarget.type === 'role') url = `/super-admin/roles/${deleteTarget.id}`;
+      
+      const r = await api.delete(url, { data: { archive_password: verifyPassword } });
+      toast.success(r.data.message);
+      setShowVerifyModal(false);
+      setVerifyPassword("");
+      setDeleteTarget(null);
+      loadData();
+    } catch(e:any) { 
+      toast.error(e?.response?.data?.message || "Verification failed."); 
+    } finally { 
+      setDeleting(false); 
+    }
   };
 
   const approveUser = async (id: number) => {
@@ -1015,8 +1035,8 @@ export function OwnerPanel() {
                         <p className="text-xs text-gray-400 truncate">{r.description || "No description provided."}</p>
                       </div>
                       {r.name !== "super_admin" && (
-                        <button onClick={() => handleArchiveRole(r.id)} className="opacity-0 group-hover:opacity-100 p-2 text-red-400 hover:bg-red-50 rounded-lg transition-all flex-shrink-0">
-                          <CheckCircle className="w-4 h-4" /> {/* Just using any icon since lucide might not have Archive imported, wait we have Archive from lucide but I didn't import it. Wait, I imported ShieldAlert, Activity, etc. I'll use XCircle */}
+                        <button onClick={() => handleArchiveRole(r.id)} className="opacity-0 group-hover:opacity-100 p-2 text-amber-500 hover:bg-amber-50 rounded-lg transition-all flex-shrink-0" title="Archive Role">
+                          <Archive className="w-4 h-4" />
                         </button>
                       )}
                     </div>
@@ -1049,9 +1069,14 @@ export function OwnerPanel() {
                         </div>
                         <p className="text-xs text-gray-400 truncate">{r.description || "No description provided."}</p>
                       </div>
-                      <button onClick={() => handleRestoreRole(r.id)} className="opacity-0 group-hover:opacity-100 p-2 text-green-500 hover:bg-green-50 rounded-lg transition-all flex-shrink-0">
-                        <RefreshCw className="w-4 h-4" />
-                      </button>
+                      <div className="flex items-center gap-1">
+                        <button onClick={() => handleRestoreRole(r.id)} className="opacity-0 group-hover:opacity-100 p-2 text-green-500 hover:bg-green-50 rounded-lg transition-all flex-shrink-0" title="Restore Role">
+                          <RefreshCw className="w-4 h-4" />
+                        </button>
+                        <button onClick={() => { setDeleteTarget({id: r.id, type: 'role'}); setShowVerifyModal(true); }} className="opacity-0 group-hover:opacity-100 p-2 text-red-500 hover:bg-red-50 rounded-lg transition-all flex-shrink-0" title="Permanently Delete Role">
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -1095,6 +1120,60 @@ export function OwnerPanel() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+      {showVerifyModal && (
+        <div className="fixed inset-0 bg-gray-900/60 backdrop-blur-md z-[100] flex items-center justify-center p-4">
+          <div className="bg-white rounded-[32px] w-full max-w-sm shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300">
+            <div className="p-8 flex flex-col items-center text-center">
+              <div className="w-20 h-20 bg-red-50 rounded-3xl flex items-center justify-center mb-6 border border-red-100 shadow-sm">
+                <ShieldAlert className="w-10 h-10 text-red-500 animate-pulse" />
+              </div>
+              
+              <h3 className="text-2xl font-black text-[#8b1a1a] tracking-tight mb-2">Security Verification</h3>
+              <p className="text-sm text-gray-500 leading-relaxed mb-8">
+                To permanently delete this item, please enter the <span className="font-bold text-gray-700">Archive Deletion Password</span> below.
+              </p>
+
+              <div className="w-full space-y-6">
+                <div className="relative group">
+                  <input
+                    type="password"
+                    placeholder="••••••"
+                    value={verifyPassword}
+                    onChange={(e) => setVerifyPassword(e.target.value)}
+                    className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-6 py-4 text-center text-2xl tracking-[1em] font-mono focus:border-red-200 focus:bg-white outline-none transition-all placeholder:tracking-normal placeholder:text-gray-300"
+                    autoFocus
+                  />
+                </div>
+
+                <div className="bg-[#fffcf0] border border-[#fef0c7] rounded-2xl p-4 flex gap-3 text-left">
+                  <ShieldAlert className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
+                  <p className="text-[11px] text-amber-700 leading-relaxed font-medium">
+                    <span className="font-bold uppercase">Warning:</span> Permanent deletion is <span className="underline font-bold">irreversible</span>. All associated data will be removed from the system forever.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => { setShowVerifyModal(false); setVerifyPassword(""); setDeleteTarget(null); }}
+                    className="py-4 border border-gray-200 text-gray-600 rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-gray-50 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    disabled={deleting || !verifyPassword}
+                    onClick={handleConfirmDelete}
+                    className="py-4 bg-[#8b1a1a] hover:bg-[#6b1414] text-white rounded-2xl font-black text-sm uppercase tracking-widest disabled:opacity-50 transition-all shadow-lg shadow-red-100"
+                  >
+                    {deleting ? "Verifying..." : "Confirm Delete"}
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       )}
