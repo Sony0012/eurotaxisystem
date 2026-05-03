@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Car, Users, TrendingUp, Wrench, DollarSign, Calendar, Activity, BarChart3, X, ChevronRight, Loader2, RefreshCw, Crown, PieChart as PieChartIcon, LineChart as LineChartIcon } from "lucide-react";
-import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, AreaChart, Area, ReferenceLine } from "recharts";
+import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, AreaChart, Area, ReferenceLine, LabelList } from "recharts";
 import api from "../services/api";
 import { toast } from "sonner";
 
@@ -138,7 +138,68 @@ export function Dashboard() {
           </div>
         ))}
       </div>
-      {/* Revenue Trend Area Chart - Matching Web precisely */}
+      {/* 2. UNIT PERFORMANCE (Matching Web) */}
+      <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-xl overflow-hidden mb-4">
+        <div className="p-6 border-b border-gray-50 flex items-center justify-between bg-white">
+          <div className="flex items-center gap-3">
+             <div className="w-10 h-10 bg-blue-50 rounded-2xl flex items-center justify-center">
+                <BarChart3 className="w-5 h-5 text-blue-600"/>
+             </div>
+             <h3 className="font-black text-gray-900 uppercase tracking-tight">Unit Performance</h3>
+          </div>
+        </div>
+        
+        <div className="p-4">
+          <div className="h-[350px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={charts?.unitPerformance||[]} layout="vertical" margin={{ left: -10, right: 40, top: 10, bottom: 0 }} barGap={-16}>
+                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f1f5f9"/>
+                <XAxis type="number" hide />
+                <YAxis type="category" dataKey="plate" tick={{fontSize:9, fontWeight:900, fill:'#64748b'}} axisLine={false} tickLine={false} width={70}/>
+                <Tooltip 
+                  cursor={{fill: 'transparent'}}
+                  contentStyle={{borderRadius: 12, border: 'none', boxShadow: '0 8px 24px rgba(0,0,0,0.1)', padding: '10px'}}
+                  formatter={(v:any)=>fmt(v)}
+                />
+                <Bar dataKey="target" name="Monthly Target" fill="transparent" stroke="#fcd34d" strokeWidth={1.5} radius={[0, 4, 4, 0]} barSize={16}>
+                  <LabelList dataKey="target" position="insideRight" style={{fontSize: 7, fontWeight: 900, fill: '#b45309'}} offset={5} formatter={(v:any)=>Math.round(v)} />
+                </Bar>
+                <Bar dataKey="actual" name="Actual Collection" fill="#3b82f6" radius={[0, 4, 4, 0]} barSize={8}>
+                  <LabelList dataKey="actual" position="right" style={{fontSize: 7, fontWeight: 900, fill: '#3b82f6'}} offset={5} formatter={(v:any)=>v > 0 ? v.toFixed(2) : ''} />
+                </Bar>
+                <Legend iconType="circle" wrapperStyle={{paddingTop: 10, fontSize: 9, fontWeight: 700}} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      </div>
+
+      {/* 3. EXECUTIVE INSIGHTS (Matching Web Sidebar logic) */}
+      <div className="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm mb-4">
+        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">Executive Insights</p>
+        <div className="flex items-center justify-between gap-6">
+           <div className="flex-1">
+              <p className="text-[9px] font-bold text-gray-500 uppercase mb-1">Fleet Health</p>
+              <div className="flex items-end gap-1.5">
+                 <p className="text-3xl font-black text-gray-900">{insights?.fleetHealth??0}%</p>
+                 <div className="flex items-center text-green-500 text-[9px] font-bold mb-1.5">
+                    <TrendingUp className="w-3 h-3 mr-0.5"/> 2.4%
+                 </div>
+              </div>
+           </div>
+           <div className="flex-1 border-l border-gray-100 pl-6">
+              <p className="text-[9px] font-bold text-gray-500 uppercase mb-2">Top Performer</p>
+              <div className="flex items-center gap-3">
+                 <div className="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center">
+                    <Crown className="w-5 h-5 text-amber-600"/>
+                 </div>
+                 <p className="text-sm font-black text-gray-900 leading-none">{insights?.topPerformerUnit}</p>
+              </div>
+           </div>
+        </div>
+      </div>
+
+      {/* 4. REVENUE TREND */}
       <div className="bg-white rounded-[2rem] border border-gray-100 shadow-xl overflow-hidden mb-4">
         <div className="p-4 border-b border-gray-50 flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -176,82 +237,9 @@ export function Dashboard() {
           </ResponsiveContainer>
         </div>
       </div>
-      {/* Unit Performance Section - Matching Web precisely */}
-      <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-xl overflow-hidden">
-        <div className="p-6 border-b border-gray-50 flex items-center justify-between bg-white">
-          <div className="flex items-center gap-3">
-             <div className="w-10 h-10 bg-blue-50 rounded-2xl flex items-center justify-center">
-                <BarChart3 className="w-5 h-5 text-blue-600"/>
-             </div>
-             <h3 className="font-black text-gray-900 uppercase tracking-tight">Unit Performance</h3>
-          </div>
-          <button className="text-[10px] font-black text-blue-600 bg-blue-50 px-4 py-2 rounded-full uppercase tracking-widest hover:bg-blue-100 transition-colors">Top 10 Performers</button>
-        </div>
-        
-        <div className="p-4 grid grid-cols-1 gap-6">
-          <div className="h-[300px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={charts?.unitPerformance||[]} layout="vertical" margin={{ left: -10, right: 30, top: 0, bottom: 0 }} barGap={-16}>
-                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f1f5f9"/>
-                <XAxis type="number" hide />
-                <YAxis type="category" dataKey="plate" tick={{fontSize:9, fontWeight:900, fill:'#64748b'}} axisLine={false} tickLine={false} width={70}/>
-                <Tooltip 
-                  cursor={{fill: 'transparent'}}
-                  contentStyle={{borderRadius: 12, border: 'none', boxShadow: '0 8px 24px rgba(0,0,0,0.1)', padding: '10px'}}
-                  formatter={(v:any)=>fmt(v)}
-                />
-                {/* Target Bar (Hollow/Border only) */}
-                <Bar dataKey="target" name="Monthly Target" fill="transparent" stroke="#fcd34d" strokeWidth={1.5} radius={[0, 4, 4, 0]} barSize={16} />
-                {/* Actual Bar (Solid Blue) */}
-                <Bar dataKey="actual" name="Actual Collection" fill="#3b82f6" radius={[0, 4, 4, 0]} barSize={8} />
-                <Legend iconType="circle" wrapperStyle={{paddingTop: 10, fontSize: 9, fontWeight: 700}} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
 
-          {/* Executive Insights Sidebar */}
-          <div className="space-y-6">
-             <div className="bg-gray-50 rounded-2xl p-4 border border-gray-100">
-                <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-3">Executive Insights</p>
-                
-                <div className="flex items-center justify-between gap-4">
-                   <div className="flex-1">
-                      <p className="text-[8px] font-bold text-gray-500 uppercase mb-0.5">Fleet Health</p>
-                      <div className="flex items-end gap-1.5">
-                         <p className="text-2xl font-black text-gray-900">{insights?.fleetHealth??0}%</p>
-                         <div className="flex items-center text-green-500 text-[8px] font-bold mb-1">
-                            <TrendingUp className="w-2.5 h-2.5 mr-0.5"/> 2.4%
-                         </div>
-                      </div>
-                   </div>
-
-                   <div className="flex-1 border-l border-gray-200/50 pl-4">
-                      <p className="text-[8px] font-bold text-gray-500 uppercase mb-1">Top Performer</p>
-                      <div className="flex items-center gap-2">
-                         <div className="w-7 h-7 bg-amber-100 rounded-lg flex items-center justify-center">
-                            <Crown className="w-3.5 h-3.5 text-amber-600"/>
-                         </div>
-                         <p className="text-xs font-black text-gray-900">{insights?.topPerformerUnit}</p>
-                      </div>
-                   </div>
-                </div>
-             </div>
-             
-             <div className="bg-blue-600 rounded-3xl p-6 text-white shadow-lg shadow-blue-200">
-                <p className="text-[10px] font-bold uppercase tracking-widest opacity-80 mb-2">Top Driver</p>
-                <p className="text-lg font-black leading-tight mb-1">{insights?.topPerformerDriver}</p>
-                <div className="flex items-center gap-1.5 opacity-90">
-                   <div className="w-1 h-1 bg-white rounded-full"></div>
-                   <p className="text-[10px] font-bold uppercase tracking-tighter">Excellence Awarded</p>
-                </div>
-             </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Distribution Section */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-         {/* Expense Breakdown */}
+      {/* 5. EXPENSE BREAKDOWN & WEEKLY OVERVIEW */}
+      <div className="grid grid-cols-1 gap-4 mb-4">
           <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-lg p-6">
             <div className="flex items-center gap-3 mb-6">
                <div className="w-10 h-10 bg-rose-50 rounded-2xl flex items-center justify-center">
@@ -272,22 +260,52 @@ export function Dashboard() {
             </div>
           </div>
 
-         {/* Unit Status Distribution */}
-          <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-lg p-6">
+          <div className="bg-white rounded-[2rem] border border-gray-100 shadow-xl p-4">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 bg-indigo-50 rounded-xl flex items-center justify-center">
+                  <LineChartIcon className="w-4 h-4 text-indigo-600"/>
+                </div>
+                <h3 className="font-black text-gray-900 uppercase tracking-tight text-sm">Weekly Overview</h3>
+              </div>
+            </div>
+            <div className="p-4 h-56">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={charts?.weeklyData||[]} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9"/>
+                  <XAxis dataKey="day" tick={{fontSize:9, fontWeight:700, fill:'#94a3b8'}} axisLine={false} tickLine={false}/>
+                  <YAxis tick={{fontSize:9, fontWeight:700, fill:'#94a3b8'}} axisLine={false} tickLine={false} tickFormatter={(v)=>v >= 1000 ? `${v/1000}k` : v}/>
+                  <Tooltip 
+                    contentStyle={{borderRadius: 16, border: 'none', boxShadow: '0 12px 32px rgba(0,0,0,0.1)', padding: '10px'}}
+                  />
+                  <Legend iconType="circle" wrapperStyle={{fontSize: 9, fontWeight: 700, paddingTop: 10}} />
+                  <Line type="monotone" dataKey="boundary" name="Boundary" stroke="#eab308" strokeWidth={3} dot={{ r: 4, fill: '#eab308' }} activeDot={{ r: 6 }} />
+                  <Line type="monotone" dataKey="expenses" name="Expenses" stroke="#ef4444" strokeWidth={3} dot={{ r: 4, fill: '#ef4444' }} activeDot={{ r: 6 }} />
+                  <Line type="monotone" dataKey="net" name="Net Income" stroke="#22c55e" strokeWidth={3} dot={{ r: 4, fill: '#22c55e' }} activeDot={{ r: 6 }} />
+                  <ReferenceLine y={0} stroke="#cbd5e1" strokeDasharray="3 3" />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+      </div>
+
+      {/* 6. UNIT STATUS & TOP DRIVERS */}
+      <div className="grid grid-cols-1 gap-4 mb-8">
+          <div className="bg-white rounded-[2rem] border border-gray-100 shadow-lg p-6">
             <div className="flex items-center gap-3 mb-6">
                <div className="w-10 h-10 bg-emerald-50 rounded-2xl flex items-center justify-center">
                   <Activity className="w-5 h-5 text-emerald-500"/>
                </div>
-               <h3 className="font-black text-gray-900 uppercase tracking-tight">Unit Status Distribution</h3>
+               <h3 className="font-black text-gray-900 uppercase tracking-tight text-sm">Unit Status Distribution</h3>
             </div>
-            <div className="h-48 relative">
+            <div className="h-56 relative">
                <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie 
                       data={charts?.unitStatusDist||[]} 
                       cx="50%" cy="50%" 
-                      innerRadius={50} 
-                      outerRadius={70} 
+                      innerRadius={55} 
+                      outerRadius={75} 
                       paddingAngle={4} 
                       dataKey="value"
                       stroke="none"
@@ -295,71 +313,62 @@ export function Dashboard() {
                       {(charts?.unitStatusDist||[]).map((_:any,i:number)=><Cell key={i} fill={['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#64748b'][i % 5]}/>)}
                     </Pie>
                     <Tooltip contentStyle={{borderRadius: 12, border: 'none', boxShadow: '0 8px 24px rgba(0,0,0,0.1)'}}/>
-                    <Legend verticalAlign="bottom" align="center" iconType="circle" wrapperStyle={{fontSize: 9, fontWeight: 700}} />
+                    <Legend layout="vertical" align="right" verticalAlign="middle" iconType="circle" wrapperStyle={{fontSize: 9, fontWeight: 700}} />
                   </PieChart>
                </ResponsiveContainer>
-               <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none mt-[-15px]">
+               <div className="absolute top-1/2 left-[35%] -translate-y-1/2 -translate-x-1/2 text-center pointer-events-none">
                   <p className="text-xl font-black text-gray-900 leading-none">{stats?.active_units}</p>
                   <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest">Total Fleet</p>
                </div>
             </div>
           </div>
-      </div>
 
-      {/* Weekly Financial Overview Section */}
-      <div className="bg-white rounded-[2rem] border border-gray-100 shadow-xl p-4">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-indigo-50 rounded-xl flex items-center justify-center">
-              <LineChartIcon className="w-4 h-4 text-indigo-600"/>
-            </div>
-            <h3 className="font-black text-gray-900 uppercase tracking-tight text-sm">Weekly Overview</h3>
+          <div className="bg-white rounded-[2rem] border border-gray-100 shadow-xl overflow-hidden">
+             <div className="p-4 border-b border-gray-50 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                   <div className="w-8 h-8 bg-amber-50 rounded-xl flex items-center justify-center">
+                      <Users className="w-4 h-4 text-amber-600"/>
+                   </div>
+                   <h3 className="font-black text-gray-900 uppercase tracking-tight text-sm">Top Performing Drivers</h3>
+                </div>
+             </div>
+              <div className="p-4 h-[300px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={charts?.topDrivers||[]} layout="vertical" margin={{ left: -10, right: 35, top: 0, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f1f5f9" />
+                    <XAxis type="number" hide />
+                    <YAxis type="category" dataKey="name" tick={{fontSize: 9, fontWeight: 700, fill: '#64748b'}} axisLine={false} tickLine={false} width={100} />
+                    <Tooltip cursor={{fill: '#f8fafc'}} />
+                    <Bar dataKey="total" radius={[0, 4, 4, 0]} barSize={12}>
+                      {(charts?.topDrivers||[]).map((_: any, index: number) => (
+                        <Cell key={`cell-${index}`} fill={['#3b82f6', '#8b5cf6', '#0d9488', '#64748b', '#ec4899'][index % 5]} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
           </div>
-        </div>
-        
-        <div className="p-4 h-56">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={charts?.weeklyData||[]} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9"/>
-              <XAxis dataKey="day" tick={{fontSize:9, fontWeight:700, fill:'#94a3b8'}} axisLine={false} tickLine={false}/>
-              <YAxis tick={{fontSize:9, fontWeight:700, fill:'#94a3b8'}} axisLine={false} tickLine={false} tickFormatter={(v)=>v >= 1000 ? `${v/1000}k` : v}/>
-              <Tooltip 
-                contentStyle={{borderRadius: 16, border: 'none', boxShadow: '0 12px 32px rgba(0,0,0,0.1)', padding: '10px'}}
-              />
-              <Legend iconType="circle" wrapperStyle={{fontSize: 9, fontWeight: 700, paddingTop: 10}} />
-              <Line type="monotone" dataKey="boundary" name="Boundary" stroke="#eab308" strokeWidth={3} dot={{ r: 4, fill: '#eab308' }} activeDot={{ r: 6 }} />
-              <Line type="monotone" dataKey="expenses" name="Expenses" stroke="#ef4444" strokeWidth={3} dot={{ r: 4, fill: '#ef4444' }} activeDot={{ r: 6 }} />
-              <Line type="monotone" dataKey="net" name="Net Income" stroke="#22c55e" strokeWidth={3} dot={{ r: 4, fill: '#22c55e' }} activeDot={{ r: 6 }} />
-              <ReferenceLine y={0} stroke="#cbd5e1" strokeDasharray="3 3" />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
 
-      {/* Top Performing Drivers Table/List */}
-      <div className="bg-white rounded-[2rem] border border-gray-100 shadow-lg overflow-hidden">
-         <div className="p-4 border-b border-gray-50 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-               <div className="w-8 h-8 bg-amber-50 rounded-xl flex items-center justify-center">
-                  <Users className="w-4 h-4 text-amber-600"/>
-               </div>
-               <h3 className="font-black text-gray-900 uppercase tracking-tight text-sm">Top Drivers</h3>
-            </div>
-         </div>
-          <div className="p-4 h-[280px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={charts?.topDrivers||[]} layout="vertical" margin={{ left: -10, right: 30, top: 0, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f1f5f9" />
-                <XAxis type="number" hide />
-                <YAxis type="category" dataKey="name" tick={{fontSize: 9, fontWeight: 700, fill: '#64748b'}} axisLine={false} tickLine={false} width={100} />
-                <Tooltip cursor={{fill: '#f8fafc'}} />
-                <Bar dataKey="total" radius={[0, 4, 4, 0]} barSize={12}>
-                  {(charts?.topDrivers||[]).map((_: any, index: number) => (
-                    <Cell key={`cell-${index}`} fill={['#3b82f6', '#8b5cf6', '#0d9488', '#64748b', '#ec4899'][index % 5]} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
+          <div className="bg-blue-600 rounded-[2rem] p-6 text-white shadow-xl shadow-blue-100">
+             <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center">
+                   <Crown className="w-6 h-6 text-white"/>
+                </div>
+                <div>
+                   <p className="text-[10px] font-bold uppercase tracking-[0.2em] opacity-80">System Top Driver</p>
+                   <p className="text-xl font-black leading-tight">{insights?.topPerformerDriver}</p>
+                </div>
+             </div>
+             <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 flex items-center justify-between border border-white/10">
+                <div className="flex items-center gap-2">
+                   <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></div>
+                   <p className="text-[10px] font-black uppercase tracking-widest">Excellence Awarded</p>
+                </div>
+                <div className="text-right">
+                   <p className="text-[8px] font-bold opacity-70 uppercase">Month Total</p>
+                   <p className="text-sm font-black tracking-tighter">{fmt(charts?.topDrivers?.[0]?.total)}</p>
+                </div>
+             </div>
           </div>
       </div>
 
