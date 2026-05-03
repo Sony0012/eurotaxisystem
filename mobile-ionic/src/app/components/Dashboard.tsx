@@ -1,6 +1,6 @@
-﻿import { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Car, Users, TrendingUp, Wrench, DollarSign, Calendar, Activity, BarChart3, X, ChevronRight, Loader2, RefreshCw } from "lucide-react";
+import { Car, Users, TrendingUp, Wrench, DollarSign, Calendar, Activity, BarChart3, X, ChevronRight, Loader2, RefreshCw, Crown, PieChart as PieChartIcon, LineChart as LineChartIcon } from "lucide-react";
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import api from "../services/api";
 import { toast } from "sonner";
@@ -24,44 +24,37 @@ function Modal({title,color,onClose,children}:{title:string;color:string;onClose
 
 export function Dashboard() {
   const navigate = useNavigate();
-  const [stats, setStats] = useState<any>(null);
-  const [charts, setCharts] = useState<any>(null);
-  const [modal, setModal] = useState<any>(null);
+  const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [activeModal, setActiveModal] = useState<string|null>(null);
   const [days, setDays] = useState(7);
   const [error, setError] = useState<string|null>(null);
 
   useEffect(()=>{ load(); },[]);
-  useEffect(()=>{ if(stats) loadTrend(); },[days]);
+  useEffect(()=>{ if(data) loadTrend(); },[days]);
 
   const load = async () => {
     setLoading(true); setError(null);
     try {
       const r = await api.get("/dashboard?days="+days);
-      if(r.data.success){
-        setStats(r.data.stats);
-        setCharts(r.data.chartData);
-        setModal(r.data.modalData);
-      } else { setError("Server returned error"); }
+      if(r.data.success) setData(r.data);
+      else setError("Server returned error");
     } catch(e:any) {
-      const msg = e?.response?.data?.message || e?.message || "Network error";
-      setError(msg);
-      toast.error("Dashboard error: "+msg);
+      setError(e?.response?.data?.message || e?.message || "Network error");
     } finally { setLoading(false); }
   };
 
   const loadTrend = async () => {
     try {
       const r = await api.get("/dashboard?days="+days);
-      if(r.data.success) setCharts((p:any)=>({...p, revenueTrend: r.data.chartData?.revenueTrend||[]}));
+      if(r.data.success) setData((p:any)=>({...p, chartData: {...p.chartData, revenueTrend: r.data.chartData?.revenueTrend||[]}}));
     } catch{}
   };
 
   if(loading) return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] gap-3">
       <Loader2 className="w-8 h-8 animate-spin text-blue-600"/>
-      <p className="text-gray-500 text-sm">Loading dashboard...</p>
+      <p className="text-gray-500 text-sm italic font-medium tracking-tight">Accessing fleet data...</p>
     </div>
   );
 
@@ -78,289 +71,443 @@ export function Dashboard() {
     </div>
   );
 
+  const stats = data?.stats;
+  const charts = data?.chartData;
+  const insights = data?.insights;
+  const modal = data?.modalData;
+
   const cards = [
-    {id:"units",    label:"Total Units",       val:stats?.active_units??0,             sub:`${stats?.roi_achieved??0} ROI Achieved`, icon:Car,      c:"bg-blue-500",   bg:"from-blue-50 to-indigo-50",   bd:"border-blue-100"},
-    {id:"boundary", label:"Boundary Revenue",  val:fmt(stats?.today_boundary),          sub:`${fmt(stats?.month_boundary)} this month`, icon:DollarSign, c:"bg-emerald-500",bg:"from-emerald-50 to-teal-50",  bd:"border-emerald-100"},
-    {id:"income",   label:"Net Income (Kita)",  val:fmt(stats?.net_income),              sub:`${fmt(stats?.net_income_month)} this month`, icon:TrendingUp, c:"bg-green-500",  bg:"from-green-50 to-lime-50",    bd:"border-green-100"},
-    {id:"maintenance",label:"Under Maintenance",val:stats?.maintenance_units??0,         sub:"Ongoing maintenance",   icon:Wrench,    c:"bg-orange-500", bg:"from-orange-50 to-amber-50",  bd:"border-orange-100"},
-    {id:"drivers",  label:"Active Drivers",    val:stats?.active_drivers??0,            sub:"Registered drivers",    icon:Users,     c:"bg-indigo-500", bg:"from-indigo-50 to-violet-50", bd:"border-indigo-100"},
-    {id:"expenses", label:"Total Expenses",    val:fmt(stats?.today_expenses),          sub:"Today total",           icon:Activity,  c:"bg-rose-500",   bg:"from-rose-50 to-red-50",      bd:"border-rose-100"},
-    {id:"coding",   label:"Coding Units Today", val:stats?.coding_units??0,             sub:new Date().toLocaleDateString("en-PH",{weekday:"long"}), icon:Calendar, c:"bg-violet-500", bg:"from-violet-50 to-purple-50", bd:"border-violet-100"},
+    {id:"units",    label:"Total Units",       val:stats?.active_units??0,             sub:`${stats?.roi_achieved??0} ROI Achieved`, icon:Car,      c:"text-blue-500", bg:"bg-blue-50", bd:"border-blue-100", wave:"rgba(59, 130, 246, 0.05)"},
+    {id:"boundary", label:"Boundary Revenue",  val:fmt(stats?.today_boundary),          sub:`${fmt(stats?.month_boundary)} this month`, icon:DollarSign, c:"text-emerald-500", bg:"bg-emerald-50", bd:"border-emerald-100", wave:"rgba(16, 185, 129, 0.05)"},
+    {id:"income",   label:"Net Income (Kita)",  val:fmt(stats?.net_income),              sub:`${fmt(stats?.net_income_month)} this month`, icon:TrendingUp, c:"text-green-600", bg:"bg-green-50", bd:"border-green-200", wave:"rgba(34, 197, 94, 0.05)"},
+    {id:"maintenance",label:"Units Under Mntnc",val:stats?.maintenance_units??0,         sub:"Ongoing maintenance",   icon:Wrench,    c:"text-orange-500", bg:"bg-orange-50", bd:"border-orange-100", wave:"rgba(249, 115, 22, 0.05)"},
+    {id:"drivers",  label:"Active Drivers",    val:stats?.active_drivers??0,            sub:"Registered drivers",    icon:Users,     c:"text-indigo-500", bg:"bg-indigo-50", bd:"border-indigo-100", wave:"rgba(99, 102, 241, 0.05)"},
+    {id:"expenses", label:"Total Expenses",    val:fmt(stats?.today_expenses),          sub:"Today total",           icon:Activity,  c:"text-rose-500", bg:"bg-rose-50", bd:"border-rose-100", wave:"rgba(244, 63, 94, 0.05)"},
+    {id:"coding",   label:"Coding Units Today", val:stats?.coding_units??0,             sub:new Date().toLocaleDateString("en-PH",{weekday:"long"}), icon:Calendar, c:"text-violet-500", bg:"bg-violet-50", bd:"border-violet-100", wave:"rgba(139, 92, 246, 0.05)"},
   ];
 
   return (
-    <div className="space-y-5 pb-10">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-black text-gray-900">Dashboard</h2>
-          <p className="text-xs text-gray-400">{new Date().toLocaleDateString("en-PH",{weekday:"long",year:"numeric",month:"long",day:"numeric"})}</p>
+    <div className="space-y-6 pb-20">
+      {/* Header matching web dashboard precisely */}
+      <div className="flex flex-col gap-1">
+        <div className="flex items-center justify-between">
+          <h1 className="text-3xl font-black text-gray-900 tracking-tight">Euro Taxi System</h1>
+          <button onClick={load} className="p-2.5 bg-gray-100 rounded-2xl active:bg-gray-200 transition-colors">
+            <RefreshCw className="w-5 h-5 text-gray-500"/>
+          </button>
         </div>
-        <button onClick={load} className="p-2 bg-gray-100 rounded-xl"><RefreshCw className="w-4 h-4 text-gray-500"/></button>
+        <p className="text-xs font-medium text-gray-400">Professional taxi fleet management and real-time tracking solutions</p>
+        <div className="flex items-center gap-2 mt-2">
+           <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></div>
+           <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Live System Update • {new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}</p>
+        </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
-        {cards.map(s=>(
+      {/* Hero Stats Section - Premium Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {cards.slice(0, 4).map(s=>(
           <div key={s.id} onClick={()=>setActiveModal(s.id)}
-            className={`cursor-pointer relative overflow-hidden rounded-2xl bg-gradient-to-br ${s.bg} border ${s.bd} p-4 active:scale-95 transition-all`}>
-            <div className="flex items-start justify-between mb-2">
-              <div className={`${s.c} p-2 rounded-xl`}><s.icon className="w-4 h-4 text-white"/></div>
-              <ChevronRight className="w-4 h-4 text-gray-300"/>
+            className={`cursor-pointer group relative overflow-hidden rounded-[2rem] ${s.bg} border ${s.bd} p-6 shadow-sm active:scale-[0.98] transition-all`}>
+            {/* Wave Background logic */}
+            <div className="absolute bottom-0 right-0 left-0 h-1/2 opacity-20 pointer-events-none" style={{ background: `radial-gradient(circle at 100% 100%, ${s.wave}, transparent)` }}></div>
+            
+            <div className="flex items-start justify-between mb-4 relative z-10">
+              <div className="flex items-center gap-3">
+                <div className={`p-3 bg-white rounded-2xl shadow-sm ${s.c}`}><s.icon className="w-5 h-5"/></div>
+                <p className="text-[11px] font-black text-gray-500 uppercase tracking-[0.1em]">{s.label}</p>
+              </div>
+              <ChevronRight className="w-4 h-4 text-gray-300 group-hover:text-gray-400 transition-colors"/>
             </div>
-            <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wide mb-1">{s.label}</p>
-            <p className="text-xl font-black text-gray-900 leading-none">{s.val}</p>
-            <p className="text-[10px] text-gray-400 mt-1">{s.sub}</p>
+            
+            <div className="relative z-10">
+              <p className="text-3xl font-black text-gray-900 leading-none mb-2">{s.val}</p>
+              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">{s.sub}</p>
+            </div>
           </div>
         ))}
       </div>
 
-      {charts ? (
-        <>
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100">
-            <div className="p-4 border-b flex items-center justify-between">
-              <div className="flex items-center gap-2"><BarChart3 className="w-4 h-4 text-blue-600"/><span className="font-bold text-sm">Revenue Trend</span></div>
-              <div className="flex gap-1">
-                {[{d:7,l:"7D"},{d:30,l:"30D"},{d:90,l:"3M"},{d:365,l:"1Y"}].map(b=>(
-                  <button key={b.d} onClick={()=>setDays(b.d)} className={`px-2 py-1 text-[10px] font-bold rounded-lg ${days===b.d?"bg-blue-600 text-white":"bg-gray-100 text-gray-600"}`}>{b.l}</button>
-                ))}
-              </div>
-            </div>
-            <div className="p-2 h-52">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={charts.revenueTrend||[]}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" vertical={false}/>
-                  <XAxis dataKey="date" tick={{fontSize:8}} axisLine={false} tickLine={false}/>
-                  <YAxis tick={{fontSize:8}} axisLine={false} tickLine={false} width={40}/>
-                  <Tooltip formatter={(v:any)=>fmt(v)} contentStyle={{borderRadius:8,border:"none",boxShadow:"0 4px 15px rgba(0,0,0,0.1)"}}/>
-                  <Legend iconType="circle" wrapperStyle={{fontSize:9}}/>
-                  <Line type="monotone" dataKey="revenue" name="Revenue" stroke="#3b82f6" strokeWidth={2} dot={false}/>
-                  <Line type="monotone" dataKey="expenses" name="Expenses" stroke="#ef4444" strokeWidth={2} dot={false}/>
-                  <Line type="monotone" dataKey="netIncome" name="Net Income" stroke="#10b981" strokeWidth={2} dot={false}/>
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
+      {/* Secondary Stats Row */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {cards.slice(4).map(s=>(
+          <div key={s.id} onClick={()=>setActiveModal(s.id)}
+            className={`cursor-pointer group relative overflow-hidden rounded-[2rem] ${s.bg} border ${s.bd} p-5 active:scale-[0.98] transition-all`}>
+             <div className="flex items-center gap-3 mb-3">
+                <div className={`p-2.5 bg-white rounded-xl shadow-sm ${s.c}`}><s.icon className="w-4 h-4"/></div>
+                <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest">{s.label}</p>
+             </div>
+             <p className="text-2xl font-black text-gray-900 leading-none">{s.val}</p>
+             <p className="text-[9px] font-bold text-gray-400 mt-1 uppercase tracking-wider">{s.sub}</p>
           </div>
+        ))}
+      </div>
 
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100">
-            <div className="p-4 border-b flex items-center justify-between">
-              <div className="flex items-center gap-2"><BarChart3 className="w-4 h-4 text-blue-600"/><span className="font-bold text-sm">Unit Performance</span></div>
-              <span className="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-full">Top 10 This Month</span>
-            </div>
-            <div className="p-2 h-60">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={charts.unitPerformance||[]} layout="vertical">
-                  <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f0f0f0"/>
-                  <XAxis type="number" tick={{fontSize:8}} axisLine={false} tickLine={false}/>
-                  <YAxis type="category" dataKey="plate" tick={{fontSize:8}} axisLine={false} tickLine={false} width={55}/>
-                  <Tooltip formatter={(v:any)=>fmt(v)} contentStyle={{borderRadius:8,border:"none"}}/>
-                  <Legend iconType="circle" wrapperStyle={{fontSize:9}}/>
-                  <Bar dataKey="actual" name="Collected" fill="#3b82f6" radius={[0,4,4,0]}/>
-                  <Bar dataKey="target" name="Target" fill="#fcd34d" radius={[0,4,4,0]}/>
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
+      {/* Unit Performance Section - Matching Web precisely */}
+      <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-xl overflow-hidden">
+        <div className="p-6 border-b border-gray-50 flex items-center justify-between bg-white">
+          <div className="flex items-center gap-3">
+             <div className="w-10 h-10 bg-blue-50 rounded-2xl flex items-center justify-center">
+                <BarChart3 className="w-5 h-5 text-blue-600"/>
+             </div>
+             <h3 className="font-black text-gray-900 uppercase tracking-tight">Unit Performance</h3>
           </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100">
-              <p className="p-3 border-b text-sm font-bold">Expenses</p>
-              <div className="h-44">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie data={charts.expenseBreakdown||[]} cx="50%" cy="50%" innerRadius={35} outerRadius={55} paddingAngle={3} dataKey="value">
-                      {(charts.expenseBreakdown||[]).map((_:any,i:number)=><Cell key={i} fill={COLORS[i%COLORS.length]}/>)}
-                    </Pie>
-                    <Tooltip formatter={(v:any)=>fmt(v)} contentStyle={{borderRadius:8,border:"none"}}/>
-                    <Legend iconType="circle" wrapperStyle={{fontSize:8}}/>
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100">
-              <p className="p-3 border-b text-sm font-bold">Unit Status</p>
-              <div className="h-44">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie data={charts.unitStatusDist||[]} cx="50%" cy="50%" innerRadius={35} outerRadius={55} paddingAngle={3} dataKey="value">
-                      {(charts.unitStatusDist||[]).map((_:any,i:number)=><Cell key={i} fill={COLORS[i%COLORS.length]}/>)}
-                    </Pie>
-                    <Tooltip contentStyle={{borderRadius:8,border:"none"}}/>
-                    <Legend iconType="circle" wrapperStyle={{fontSize:8}}/>
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100">
-            <p className="p-3 border-b text-sm font-bold">Weekly Overview</p>
-            <div className="p-2 h-48">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={charts.weeklyData||[]}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0"/>
-                  <XAxis dataKey="day" tick={{fontSize:8}} axisLine={false} tickLine={false}/>
-                  <YAxis tick={{fontSize:8}} axisLine={false} tickLine={false} width={40}/>
-                  <Tooltip formatter={(v:any)=>fmt(v)} contentStyle={{borderRadius:8,border:"none"}}/>
-                  <Legend iconType="circle" wrapperStyle={{fontSize:9}}/>
-                  <Bar dataKey="boundary" name="Boundary" fill="#3b82f6" radius={[4,4,0,0]}/>
-                  <Bar dataKey="expenses" name="Expenses" fill="#ef4444" radius={[4,4,0,0]}/>
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100">
-            <p className="p-3 border-b text-sm font-bold">Top Drivers This Month</p>
-            <div className="p-2 h-52">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={charts.topDrivers||[]} layout="vertical">
-                  <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f0f0f0"/>
-                  <XAxis type="number" tick={{fontSize:8}} axisLine={false} tickLine={false}/>
-                  <YAxis type="category" dataKey="name" tick={{fontSize:8}} axisLine={false} tickLine={false} width={70}/>
-                  <Tooltip formatter={(v:any)=>fmt(v)} contentStyle={{borderRadius:8,border:"none"}}/>
-                  <Bar dataKey="total" name="Collected" fill="#10b981" radius={[0,4,4,0]}/>
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-        </>
-      ) : (
-        <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-center">
-          <p className="text-amber-700 font-bold text-sm">Charts loading...</p>
-          <p className="text-amber-600 text-xs mt-1">No chart data returned from server yet.</p>
+          <button className="text-[10px] font-black text-blue-600 bg-blue-50 px-4 py-2 rounded-full uppercase tracking-widest hover:bg-blue-100 transition-colors">Top 10 Performers</button>
         </div>
-      )}
-
-      {activeModal==="maintenance" && (
-        <Modal title="Units Under Maintenance" color="bg-gradient-to-r from-orange-500 to-amber-500" onClose={()=>setActiveModal(null)}>
-          <div className="grid grid-cols-3 gap-2 mb-4">
-            {[["Total","text-orange-600",(modal?.maintenanceList||[]).length],["Preventive","text-blue-600",(modal?.maintenanceList||[]).filter((m:any)=>m.type?.toLowerCase()==="preventive").length],["Emergency","text-red-600",(modal?.maintenanceList||[]).filter((m:any)=>m.type?.toLowerCase()==="emergency").length]].map(([l,c,v]:any)=>(
-              <div key={l} className="bg-gray-50 rounded-xl p-3 text-center border"><p className={`text-xl font-black ${c}`}>{v}</p><p className="text-[10px] text-gray-500 font-bold uppercase">{l}</p></div>
-            ))}
+        
+        <div className="p-6 grid grid-cols-1 lg:grid-cols-4 gap-8">
+          <div className="lg:col-span-3 h-[400px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={charts?.unitPerformance||[]} layout="vertical" margin={{ left: 20, right: 30, top: 10, bottom: 10 }}>
+                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f8fafc"/>
+                <XAxis type="number" hide />
+                <YAxis type="category" dataKey="plate" tick={{fontSize:10, fontWeight:900, fill:'#1e293b'}} axisLine={false} tickLine={false} width={80}/>
+                <Tooltip 
+                  cursor={{fill: '#f8fafc'}}
+                  contentStyle={{borderRadius: 16, border: 'none', boxShadow: '0 10px 30px rgba(0,0,0,0.1)', padding: '12px'}}
+                  formatter={(v:any)=>fmt(v)}
+                />
+                <Bar dataKey="actual" name="Actual Collection" fill="#3b82f6" radius={[0, 6, 6, 0]} barSize={12} />
+                <Bar dataKey="target" name="Monthly Target" fill="#fcd34d" radius={[0, 6, 6, 0]} barSize={12} />
+                <Legend iconType="circle" wrapperStyle={{paddingTop: 20, fontSize: 10, fontWeight: 700}} />
+              </BarChart>
+            </ResponsiveContainer>
           </div>
-          <div className="space-y-3">
-            {(modal?.maintenanceList||[]).map((m:any)=>(
-              <div key={m.id} className="bg-gray-50 rounded-xl p-3 border">
-                <div className="flex justify-between items-start">
-                  <div><p className="font-bold text-sm">{m.plate_number}</p><p className="text-xs text-gray-500">{m.driver_name?.trim()||"No driver"}</p></div>
-                  <span className={`text-[10px] font-bold px-2 py-1 rounded-full ${m.type?.toLowerCase()==="emergency"?"bg-red-100 text-red-700":"bg-orange-100 text-orange-700"}`}>{m.type||"N/A"}</span>
+
+          {/* Executive Insights Sidebar */}
+          <div className="space-y-6">
+             <div className="bg-gray-50 rounded-3xl p-6 border border-gray-100">
+                <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-4">Executive Insights</p>
+                
+                <div className="space-y-6">
+                   <div>
+                      <p className="text-[10px] font-bold text-gray-500 uppercase mb-1">Fleet Health</p>
+                      <div className="flex items-end gap-2">
+                         <p className="text-4xl font-black text-gray-900">{insights?.fleetHealth??0}%</p>
+                         <div className="flex items-center text-green-500 text-[10px] font-bold mb-1.5">
+                            <TrendingUp className="w-3 h-3 mr-0.5"/> 2.4%
+                         </div>
+                      </div>
+                      <p className="text-[10px] text-gray-400 leading-relaxed mt-2">{insights?.healthMessage}</p>
+                   </div>
+
+                   <div className="pt-6 border-t border-gray-200/50">
+                      <p className="text-[10px] font-bold text-gray-500 uppercase mb-3">Top Performer</p>
+                      <div className="flex items-center gap-3">
+                         <div className="w-10 h-10 bg-amber-100 rounded-2xl flex items-center justify-center">
+                            <Crown className="w-5 h-5 text-amber-600"/>
+                         </div>
+                         <div>
+                            <p className="text-sm font-black text-gray-900">{insights?.topPerformerUnit}</p>
+                            <p className="text-[9px] text-gray-400 uppercase font-bold tracking-widest">Monthly High</p>
+                         </div>
+                      </div>
+                   </div>
                 </div>
-                <p className="text-xs text-gray-500 mt-1">{m.description||"No description"}</p>
-                <p className="text-[10px] text-gray-400 mt-1">Cost: {fmt(m.cost)} · {m.date_started}</p>
-              </div>
-            ))}
-            {!(modal?.maintenanceList||[]).length&&<p className="text-center text-gray-400 py-8 text-sm">No maintenance records.</p>}
-          </div>
-        </Modal>
-      )}
-
-      {activeModal==="drivers" && (
-        <Modal title="Active Drivers" color="bg-gradient-to-r from-indigo-500 to-purple-500" onClose={()=>setActiveModal(null)}>
-          <div className="grid grid-cols-3 gap-2 mb-4">
-            {[["Total","text-blue-600",(modal?.driversList||[]).length],["With Unit","text-green-600",(modal?.driversList||[]).filter((d:any)=>d.plate_number).length],["Vacant","text-orange-600",(modal?.driversList||[]).filter((d:any)=>!d.plate_number).length]].map(([l,c,v]:any)=>(
-              <div key={l} className="bg-gray-50 rounded-xl p-3 text-center border"><p className={`text-xl font-black ${c}`}>{v}</p><p className="text-[10px] text-gray-500 font-bold uppercase">{l}</p></div>
-            ))}
-          </div>
-          <div className="space-y-2">
-            {(modal?.driversList||[]).map((d:any)=>(
-              <div key={d.id} className="bg-gray-50 rounded-xl p-3 border flex items-center gap-3">
-                <div className="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center font-black text-indigo-600 flex-shrink-0 text-sm">{d.first_name?.charAt(0)||"?"}</div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-bold text-sm">{d.first_name} {d.last_name}</p>
-                  <p className="text-xs text-gray-400">{d.contact_number||"No contact"}</p>
-                  {d.plate_number&&<p className="text-[10px] text-blue-600 font-bold">Unit: {d.plate_number}</p>}
+             </div>
+             
+             <div className="bg-blue-600 rounded-3xl p-6 text-white shadow-lg shadow-blue-200">
+                <p className="text-[10px] font-bold uppercase tracking-widest opacity-80 mb-2">Top Driver</p>
+                <p className="text-lg font-black leading-tight mb-1">{insights?.topPerformerDriver}</p>
+                <div className="flex items-center gap-1.5 opacity-90">
+                   <div className="w-1 h-1 bg-white rounded-full"></div>
+                   <p className="text-[10px] font-bold uppercase tracking-tighter">Excellence Awarded</p>
                 </div>
-                <span className={`text-[10px] font-bold px-2 py-1 rounded-full ${d.plate_number?"bg-green-100 text-green-700":"bg-gray-100 text-gray-500"}`}>{d.plate_number?"Active":"Vacant"}</span>
-              </div>
-            ))}
+             </div>
           </div>
-        </Modal>
-      )}
+        </div>
+      </div>
 
-      {activeModal==="income" && (
-        <Modal title="Net Income Details" color="bg-gradient-to-r from-green-500 to-emerald-600" onClose={()=>setActiveModal(null)}>
-          <div className="space-y-3">
-            {[["Today's Boundary",stats?.today_boundary,"text-blue-600"],["Today's Expenses",-(stats?.today_expenses||0),"text-red-600"],["Today's Net Income",stats?.net_income,(stats?.net_income||0)>=0?"text-green-600":"text-red-600"],["Month Boundary",stats?.month_boundary,"text-blue-600"],["Month Net Income",stats?.net_income_month,(stats?.net_income_month||0)>=0?"text-green-600":"text-red-600"]].map(([l,v,c]:any)=>(
-              <div key={l} className="flex justify-between items-center p-3 bg-gray-50 rounded-xl border">
-                <span className="text-sm text-gray-600">{l}</span>
-                <span className={`font-black text-sm ${c}`}>{fmt(v)}</span>
-              </div>
-            ))}
-            <div className="p-3 bg-gray-50 rounded-xl border space-y-2 mt-2">
-              <p className="text-xs font-bold text-gray-500 uppercase">Today Expense Breakdown</p>
-              {[["General",stats?.expense_general],["Salary",stats?.expense_salary],["Maintenance",stats?.expense_maintenance]].map(([l,v]:any)=>(
-                <div key={l} className="flex justify-between text-sm"><span className="text-gray-500">{l}</span><span className="font-bold text-red-500">-{fmt(v)}</span></div>
-              ))}
+      {/* Distribution Section */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+         {/* Expense Breakdown */}
+         <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-lg p-6">
+            <div className="flex items-center gap-3 mb-6">
+               <div className="w-10 h-10 bg-rose-50 rounded-2xl flex items-center justify-center">
+                  <PieChartIcon className="w-5 h-5 text-rose-500"/>
+               </div>
+               <h3 className="font-black text-gray-900 uppercase tracking-tight">Expense Distribution</h3>
             </div>
-          </div>
-        </Modal>
-      )}
-
-      {activeModal==="expenses" && (
-        <Modal title="Today's Expenses" color="bg-gradient-to-r from-rose-500 to-red-500" onClose={()=>setActiveModal(null)}>
-          <div className="space-y-3">
-            {[["General Expenses",stats?.expense_general,"#ef4444"],["Salary",stats?.expense_salary,"#f59e0b"],["Maintenance",stats?.expense_maintenance,"#8b5cf6"]].map(([l,v,c]:any)=>(
-              <div key={l} className="flex justify-between items-center p-4 bg-gray-50 rounded-xl border">
-                <div className="flex items-center gap-3"><div className="w-3 h-3 rounded-full" style={{background:c}}/><span className="text-sm">{l}</span></div>
-                <span className="font-black">{fmt(v)}</span>
-              </div>
-            ))}
-            <div className="flex justify-between items-center p-4 bg-rose-50 rounded-xl border border-rose-200">
-              <span className="font-bold">Total</span><span className="font-black text-rose-600 text-lg">{fmt(stats?.today_expenses)}</span>
+            <div className="h-64 relative">
+               <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie data={charts?.expenseBreakdown||[]} cx="50%" cy="50%" innerRadius={60} outerRadius={85} paddingAngle={8} dataKey="value" stroke="none">
+                      {(charts?.expenseBreakdown||[]).map((_:any,i:number)=><Cell key={i} fill={COLORS[i%COLORS.length]}/>)}
+                    </Pie>
+                    <Tooltip contentStyle={{borderRadius: 16, border: 'none', boxShadow: '0 10px 30px rgba(0,0,0,0.1)'}}/>
+                    <Legend verticalAlign="bottom" align="center" iconType="circle" wrapperStyle={{fontSize: 10, fontWeight: 700, paddingTop: 20}} />
+                  </PieChart>
+               </ResponsiveContainer>
+               <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none mt-[-20px]">
+                  <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Total</p>
+                  <p className="text-xl font-black text-gray-900 tracking-tighter">{fmt(stats?.today_expenses)}</p>
+               </div>
             </div>
-          </div>
-        </Modal>
-      )}
+         </div>
 
-      {activeModal==="boundary" && (
-        <Modal title="Boundary Revenue" color="bg-gradient-to-r from-emerald-500 to-teal-500" onClose={()=>setActiveModal(null)}>
-          <div className="space-y-3">
-            <div className="p-4 bg-emerald-50 rounded-2xl border border-emerald-100">
-              <p className="text-xs font-bold text-emerald-600 uppercase mb-1">Today's Boundary</p>
-              <p className="text-3xl font-black">{fmt(stats?.today_boundary)}</p>
+         {/* Unit Status Distribution */}
+         <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-lg p-6">
+            <div className="flex items-center gap-3 mb-6">
+               <div className="w-10 h-10 bg-emerald-50 rounded-2xl flex items-center justify-center">
+                  <Activity className="w-5 h-5 text-emerald-500"/>
+               </div>
+               <h3 className="font-black text-gray-900 uppercase tracking-tight">Unit Status Distribution</h3>
             </div>
-            <div className="p-4 bg-emerald-50 rounded-2xl border border-emerald-100">
-              <p className="text-xs font-bold text-emerald-600 uppercase mb-1">This Month's Boundary</p>
-              <p className="text-3xl font-black">{fmt(stats?.month_boundary)}</p>
+            <div className="h-64 relative">
+               <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie 
+                      data={charts?.unitStatusDist||[]} 
+                      cx="50%" cy="50%" 
+                      innerRadius={65} 
+                      outerRadius={90} 
+                      startAngle={180} 
+                      endAngle={0} 
+                      paddingAngle={4} 
+                      dataKey="value"
+                      stroke="none"
+                    >
+                      <Cell fill="#10b981" /> {/* Operational */}
+                      <Cell fill="#f59e0b" /> {/* Maintenance */}
+                      <Cell fill="#8b5cf6" /> {/* Coding */}
+                    </Pie>
+                    <Tooltip contentStyle={{borderRadius: 16, border: 'none', boxShadow: '0 10px 30px rgba(0,0,0,0.1)'}}/>
+                    <Legend verticalAlign="bottom" align="center" iconType="circle" wrapperStyle={{fontSize: 10, fontWeight: 700}} />
+                  </PieChart>
+               </ResponsiveContainer>
+               <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none mt-[40px]">
+                  <p className="text-3xl font-black text-gray-900 leading-none">{stats?.active_units}</p>
+                  <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Total Fleet</p>
+               </div>
             </div>
-            <button onClick={()=>{setActiveModal(null);navigate("/boundaries");}} className="w-full bg-emerald-600 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2">
-              View All Boundaries <ChevronRight className="w-4 h-4"/>
-            </button>
-          </div>
-        </Modal>
-      )}
+         </div>
+      </div>
 
-      {activeModal==="coding" && (
-        <Modal title="Coding Units Today" color="bg-gradient-to-r from-violet-500 to-purple-600" onClose={()=>setActiveModal(null)}>
-          <div className="bg-violet-50 rounded-2xl p-4 border border-violet-100 mb-4 text-center">
-            <p className="text-4xl font-black text-violet-700">{stats?.coding_units??0}</p>
-            <p className="text-xs text-violet-600 font-bold uppercase">Units on Coding Today</p>
-            <p className="text-xs text-gray-400 mt-1">{new Date().toLocaleDateString("en-PH",{weekday:"long"})}</p>
+      {/* Weekly Financial Overview Section */}
+      <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-xl p-8">
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-indigo-50 rounded-2xl flex items-center justify-center">
+              <LineChartIcon className="w-5 h-5 text-indigo-600"/>
+            </div>
+            <h3 className="font-black text-gray-900 uppercase tracking-tight text-lg">Weekly Financial Overview</h3>
           </div>
-          <div className="space-y-2">
-            {(modal?.codingList||[]).map((u:any,i:number)=>(
-              <div key={i} className="bg-gray-50 rounded-xl p-3 border flex items-center gap-3">
-                <Calendar className="w-4 h-4 text-violet-500"/>
-                <span className="font-bold text-sm">{u.plate_number}</span>
-              </div>
-            ))}
-            {!(modal?.codingList||[]).length&&<p className="text-center text-gray-400 py-6 text-sm">No coding units today.</p>}
+          <div className="flex items-center gap-2">
+             <div className="flex items-center gap-1.5"><div className="w-2 h-2 bg-blue-500 rounded-full"></div><span className="text-[9px] font-bold text-gray-500 uppercase">Boundary</span></div>
+             <div className="flex items-center gap-1.5"><div className="w-2 h-2 bg-red-500 rounded-full"></div><span className="text-[9px] font-bold text-gray-500 uppercase">Expenses</span></div>
+             <div className="flex items-center gap-1.5"><div className="w-2 h-2 bg-green-500 rounded-full"></div><span className="text-[9px] font-bold text-gray-500 uppercase">Net Income</span></div>
           </div>
-        </Modal>
-      )}
+        </div>
+        
+        <div className="h-80">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={charts?.revenueTrend||[]} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+              <defs>
+                <linearGradient id="colorBoundary" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.1}/>
+                  <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9"/>
+              <XAxis dataKey="date" tick={{fontSize:9, fontWeight:700, fill:'#94a3b8'}} axisLine={false} tickLine={false}/>
+              <YAxis tick={{fontSize:9, fontWeight:700, fill:'#94a3b8'}} axisLine={false} tickLine={false} width={45} tickFormatter={(v)=>v >= 1000 ? `${v/1000}k` : v}/>
+              <Tooltip 
+                contentStyle={{borderRadius: 20, border: 'none', boxShadow: '0 20px 40px rgba(0,0,0,0.1)', padding: '15px'}}
+                formatter={(v:any)=>fmt(v)}
+              />
+              <Line type="monotone" dataKey="revenue" name="Boundary" stroke="#3b82f6" strokeWidth={4} dot={{ r: 4, fill: '#3b82f6', strokeWidth: 2, stroke: '#fff' }} activeDot={{ r: 6 }} />
+              <Line type="monotone" dataKey="expenses" name="Expenses" stroke="#ef4444" strokeWidth={4} dot={{ r: 4, fill: '#ef4444', strokeWidth: 2, stroke: '#fff' }} activeDot={{ r: 6 }} />
+              <Line type="monotone" dataKey="netIncome" name="Net Income" stroke="#10b981" strokeWidth={4} dot={{ r: 4, fill: '#10b981', strokeWidth: 2, stroke: '#fff' }} activeDot={{ r: 6 }} />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
 
-      {activeModal==="units" && (
-        <Modal title="Fleet Overview" color="bg-gradient-to-r from-blue-500 to-indigo-600" onClose={()=>setActiveModal(null)}>
-          <div className="space-y-3">
-            {[["Total Units","text-blue-600",stats?.active_units],["ROI Achieved","text-green-600",stats?.roi_achieved],["Under Maintenance","text-orange-600",stats?.maintenance_units],["Coding Today","text-violet-600",stats?.coding_units]].map(([l,c,v]:any)=>(
-              <div key={l} className="flex justify-between items-center p-4 bg-gray-50 rounded-xl border">
-                <span className="text-sm text-gray-600">{l}</span>
-                <span className={`text-2xl font-black ${c}`}>{v??0}</span>
-              </div>
+      {/* Top Performing Drivers Table/List */}
+      <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-lg overflow-hidden">
+         <div className="p-6 border-b border-gray-50 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+               <div className="w-10 h-10 bg-amber-50 rounded-2xl flex items-center justify-center">
+                  <Users className="w-5 h-5 text-amber-600"/>
+               </div>
+               <h3 className="font-black text-gray-900 uppercase tracking-tight">Top Performing Drivers</h3>
+            </div>
+         </div>
+         <div className="divide-y divide-gray-50">
+            {(charts?.topDrivers||[]).slice(0, 5).map((d:any, i:number)=>(
+               <div key={i} className="p-5 flex items-center justify-between hover:bg-gray-50/50 transition-colors">
+                  <div className="flex items-center gap-4">
+                     <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center relative overflow-hidden">
+                        {i === 0 ? <Crown className="w-6 h-6 text-amber-500 absolute z-10 top-0 left-0 -translate-x-1 -translate-y-1 rotate-[-30deg]"/> : null}
+                        <p className="text-lg font-black text-gray-400">{d.name?.charAt(0)}</p>
+                     </div>
+                     <div>
+                        <p className="font-black text-gray-900">{d.name}</p>
+                        <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-0.5">Rank #{i+1} • High Reliability</p>
+                     </div>
+                  </div>
+                  <div className="text-right">
+                     <p className="font-black text-emerald-600 text-lg">{fmt(d.total)}</p>
+                     <p className="text-[9px] text-gray-400 font-bold uppercase">This Month</p>
+                  </div>
+               </div>
             ))}
-            <button onClick={()=>{setActiveModal(null);navigate("/units");}} className="w-full bg-blue-600 text-white font-bold py-3 rounded-xl">View All Units</button>
-          </div>
-        </Modal>
-      )}
+         </div>
+      </div>
+
+      {/* MODALS - Minimal Update needed to match new theme */}
+      {activeModal==="units" && <Modal title="Fleet Overview" color="bg-blue-600" onClose={()=>setActiveModal(null)}><FleetModal stats={stats} navigate={navigate} /></Modal>}
+      {activeModal==="boundary" && <Modal title="Boundary Revenue" color="bg-emerald-600" onClose={()=>setActiveModal(null)}><BoundaryModal stats={stats} navigate={navigate} /></Modal>}
+      {activeModal==="income" && <Modal title="Net Income" color="bg-green-600" onClose={()=>setActiveModal(null)}><IncomeModal stats={stats} /></Modal>}
+      {activeModal==="maintenance" && <Modal title="Units Under Maintenance" color="bg-orange-500" onClose={()=>setActiveModal(null)}><MaintenanceModal modal={modal} /></Modal>}
+      {activeModal==="drivers" && <Modal title="Active Drivers" color="bg-indigo-600" onClose={()=>setActiveModal(null)}><DriversModal modal={modal} /></Modal>}
+      {activeModal==="expenses" && <Modal title="Total Expenses" color="bg-rose-500" onClose={()=>setActiveModal(null)}><ExpensesModal stats={stats} /></Modal>}
+      {activeModal==="coding" && <Modal title="Coding Units Today" color="bg-violet-600" onClose={()=>setActiveModal(null)}><CodingModal stats={stats} modal={modal} /></Modal>}
     </div>
   );
 }
+
+// Sub-components for Modals
+function FleetModal({stats, navigate}: any) {
+  return (
+    <div className="space-y-4">
+      {[["Total Units","text-blue-600",stats?.active_units],["ROI Achieved","text-green-600",stats?.roi_achieved],["Under Maintenance","text-orange-600",stats?.maintenance_units],["Coding Today","text-violet-600",stats?.coding_units]].map(([l,c,v]:any)=>(
+        <div key={l} className="flex justify-between items-center p-5 bg-gray-50 rounded-2xl border border-gray-100">
+          <span className="text-sm font-bold text-gray-500 uppercase tracking-widest">{l}</span>
+          <span className={`text-2xl font-black ${c}`}>{v??0}</span>
+        </div>
+      ))}
+      <button onClick={()=>navigate("/units")} className="w-full bg-blue-600 text-white font-black py-4 rounded-2xl shadow-lg shadow-blue-100 active:scale-95 transition-all">View All Units</button>
+    </div>
+  );
+}
+
+function BoundaryModal({stats, navigate}: any) {
+  return (
+    <div className="space-y-4">
+      <div className="p-6 bg-emerald-50 rounded-[2rem] border border-emerald-100">
+        <p className="text-xs font-black text-emerald-600 uppercase tracking-[0.2em] mb-2">Today's Boundary</p>
+        <p className="text-4xl font-black text-gray-900">{fmt(stats?.today_boundary)}</p>
+      </div>
+      <div className="p-6 bg-emerald-50 rounded-[2rem] border border-emerald-100">
+        <p className="text-xs font-black text-emerald-600 uppercase tracking-[0.2em] mb-2">This Month's Boundary</p>
+        <p className="text-4xl font-black text-gray-900">{fmt(stats?.month_boundary)}</p>
+      </div>
+      <button onClick={()=>navigate("/boundaries")} className="w-full bg-emerald-600 text-white font-black py-4 rounded-2xl shadow-lg shadow-emerald-100 flex items-center justify-center gap-2 active:scale-95 transition-all">
+        Full Boundary Logs <ChevronRight className="w-5 h-5"/>
+      </button>
+    </div>
+  );
+}
+
+function IncomeModal({stats}: any) {
+  return (
+    <div className="space-y-3">
+      {[["Today Boundary",stats?.today_boundary,"text-blue-600"],["Today Expenses",-(stats?.today_expenses||0),"text-red-600"],["Today Net Income",stats?.net_income,(stats?.net_income||0)>=0?"text-green-600":"text-red-600"],["Month Boundary",stats?.month_boundary,"text-blue-600"],["Month Net Income",stats?.net_income_month,(stats?.net_income_month||0)>=0?"text-green-600":"text-red-600"]].map(([l,v,c]:any)=>(
+        <div key={l} className="flex justify-between items-center p-4 bg-gray-50 rounded-2xl border border-gray-100">
+          <span className="text-xs font-bold text-gray-500 uppercase tracking-widest">{l}</span>
+          <span className={`font-black text-base ${c}`}>{fmt(v)}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function MaintenanceModal({modal}: any) {
+  return (
+    <div className="space-y-4">
+      <div className="grid grid-cols-3 gap-3">
+        {[["Total",(modal?.maintenanceList||[]).length,"text-orange-600"],["Preventive",(modal?.maintenanceList||[]).filter((m:any)=>m.type?.toLowerCase()==="preventive").length,"text-blue-600"],["Emergency",(modal?.maintenanceList||[]).filter((m:any)=>m.type?.toLowerCase()==="emergency").length,"text-red-600"]].map(([l,v,c]:any)=>(
+          <div key={l} className="bg-gray-50 rounded-2xl p-4 text-center border border-gray-100">
+            <p className={`text-2xl font-black ${c}`}>{v}</p>
+            <p className="text-[10px] text-gray-400 font-black uppercase tracking-tighter">{l}</p>
+          </div>
+        ))}
+      </div>
+      <div className="space-y-3">
+        {(modal?.maintenanceList||[]).map((m:any)=>(
+          <div key={m.id} className="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm">
+            <div className="flex justify-between items-start mb-2">
+              <div>
+                <p className="font-black text-gray-900">{m.plate_number}</p>
+                <p className="text-xs text-gray-400 font-medium">{m.driver_name?.trim()||"No driver assigned"}</p>
+              </div>
+              <span className={`text-[10px] font-black px-3 py-1.5 rounded-xl uppercase tracking-widest ${m.type?.toLowerCase()==="emergency"?"bg-red-50 text-red-600 border border-red-100":"bg-orange-50 text-orange-600 border border-orange-100"}`}>{m.type||"N/A"}</span>
+            </div>
+            <p className="text-xs text-gray-500 leading-relaxed mb-3">{m.description||"System generated maintenance ticket."}</p>
+            <div className="flex items-center justify-between pt-3 border-t border-gray-50">
+               <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Entry: {m.date_started}</span>
+               <span className="text-sm font-black text-gray-900">{fmt(m.cost)}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function DriversModal({modal}: any) {
+  return (
+    <div className="space-y-4">
+      <div className="grid grid-cols-3 gap-3">
+        {[["Total",(modal?.driversList||[]).length,"text-blue-600"],["With Unit",(modal?.driversList||[]).filter((d:any)=>d.plate_number).length,"text-green-600"],["Vacant",(modal?.driversList||[]).filter((d:any)=>!d.plate_number).length,"text-orange-600"]].map(([l,v,c]:any)=>(
+          <div key={l} className="bg-gray-50 rounded-2xl p-4 text-center border border-gray-100">
+            <p className={`text-2xl font-black ${c}`}>{v}</p>
+            <p className="text-[10px] text-gray-400 font-black uppercase tracking-tighter">{l}</p>
+          </div>
+        ))}
+      </div>
+      <div className="space-y-3">
+        {(modal?.driversList||[]).map((d:any)=>(
+          <div key={d.id} className="bg-white rounded-[1.5rem] p-4 border border-gray-100 flex items-center gap-4">
+            <div className="w-12 h-12 bg-indigo-50 rounded-full flex items-center justify-center font-black text-indigo-600 text-lg">{d.first_name?.charAt(0)}</div>
+            <div className="flex-1 min-w-0">
+              <p className="font-black text-gray-900 text-sm leading-none mb-1">{d.first_name} {d.last_name}</p>
+              <p className="text-[10px] text-gray-400 font-medium">{d.contact_number||"NO CONTACT RECORDED"}</p>
+              {d.plate_number && <div className="mt-2 flex items-center gap-1.5"><Car className="w-3 h-3 text-blue-500"/><span className="text-[10px] font-black text-blue-600 uppercase tracking-widest">UNIT: {d.plate_number}</span></div>}
+            </div>
+            <span className={`text-[10px] font-black px-3 py-1.5 rounded-xl uppercase tracking-widest ${d.plate_number?"bg-green-50 text-green-600 border border-green-100":"bg-gray-50 text-gray-400 border border-gray-100"}`}>{d.plate_number?"Deployed":"Available"}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ExpensesModal({stats}: any) {
+  return (
+    <div className="space-y-4">
+      {[["General Expenses",stats?.expense_general,"#ef4444"],["Salary",stats?.expense_salary,"#f59e0b"],["Maintenance",stats?.expense_maintenance,"#8b5cf6"]].map(([l,v,c]:any)=>(
+        <div key={l} className="flex justify-between items-center p-5 bg-gray-50 rounded-2xl border border-gray-100">
+          <div className="flex items-center gap-3"><div className="w-4 h-4 rounded-lg shadow-sm" style={{background:c}}/><span className="text-sm font-bold text-gray-600 uppercase tracking-widest">{l}</span></div>
+          <span className="font-black text-gray-900">{fmt(v)}</span>
+        </div>
+      ))}
+      <div className="flex justify-between items-center p-6 bg-rose-50 rounded-[2rem] border border-rose-100 mt-4">
+        <span className="font-black text-rose-600 uppercase tracking-[0.2em]">Total Daily</span>
+        <span className="font-black text-rose-600 text-3xl tracking-tighter">{fmt(stats?.today_expenses)}</span>
+      </div>
+    </div>
+  );
+}
+
+function CodingModal({stats, modal}: any) {
+  return (
+    <div className="space-y-4">
+      <div className="bg-violet-50 rounded-[2.5rem] p-8 border border-violet-100 text-center">
+        <p className="text-5xl font-black text-violet-700 tracking-tighter mb-1">{stats?.coding_units??0}</p>
+        <p className="text-xs text-violet-500 font-black uppercase tracking-[0.2em] mb-2">Fleet Under Coding</p>
+        <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">{new Date().toLocaleDateString("en-PH",{weekday:"long", month:"long", day:"numeric"})}</p>
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        {(modal?.codingList||[]).map((u:any,i:number)=>(
+          <div key={i} className="bg-white rounded-2xl p-4 border border-gray-100 flex items-center gap-3 shadow-sm active:bg-gray-50 transition-colors">
+            <div className="p-2 bg-violet-50 rounded-xl"><Calendar className="w-4 h-4 text-violet-500"/></div>
+            <span className="font-black text-gray-900 tracking-tight">{u.plate_number}</span>
+          </div>
+        ))}
+        {!(modal?.codingList||[]).length&&<p className="col-span-2 text-center text-gray-400 py-10 text-sm font-medium italic">No units restricted today.</p>}
+      </div>
+    </div>
+  );
+}
+

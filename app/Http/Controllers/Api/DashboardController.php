@@ -192,6 +192,14 @@ class DashboardController extends Controller
         $codingList = $allUnits->filter(fn($u) => ($codingDays[substr($u->plate_number, -1)] ?? '') === $todayDay)
             ->values()->toArray();
 
+        // 7. Executive Insights & Fleet Health
+        $performanceThreshold = 0.8; // 80%
+        $unitsMeetingTarget = collect($unitPerformance)->filter(fn($u) => $u['actual'] >= ($u['target'] * $performanceThreshold))->count();
+        $fleetHealth = $totalUnits > 0 ? round(($unitsMeetingTarget / $totalUnits) * 100) : 0;
+
+        $topPerformerUnit = collect($unitPerformance)->sortByDesc('actual')->first();
+        $topPerformerDriver = collect($topDriversData)->sortByDesc('total')->first();
+
         return response()->json([
             'success'    => true,
             'stats'      => $stats,
@@ -202,6 +210,12 @@ class DashboardController extends Controller
                 'weeklyData'      => $weeklyData,
                 'unitStatusDist'  => $unitStatusDist,
                 'topDrivers'      => $topDriversData,
+            ],
+            'insights'   => [
+                'fleetHealth' => $fleetHealth,
+                'topPerformerUnit' => $topPerformerUnit ? $topPerformerUnit['plate'] : 'N/A',
+                'topPerformerDriver' => $topPerformerDriver ? $topPerformerDriver['name'] : 'N/A',
+                'healthMessage' => "Most units are meeting over 80% of their monthly boundary targets."
             ],
             'modalData'  => [
                 'maintenanceList' => $maintenanceList,
