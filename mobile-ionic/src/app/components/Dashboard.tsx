@@ -493,7 +493,7 @@ export function Dashboard() {
       </div>
 
       {/* MODALS - Minimal Update needed to match new theme */}
-      {activeModal==="units" && <Modal title="Fleet Overview" color="bg-blue-600" onClose={()=>setActiveModal(null)}><FleetModal stats={stats} navigate={navigate} /></Modal>}
+      {activeModal==="units" && <Modal title="Units Overview" color="bg-indigo-600" onClose={()=>setActiveModal(null)}><FleetModal stats={stats} modal={modal} navigate={navigate} /></Modal>}
       {activeModal==="boundary" && <Modal title="Boundary Revenue" color="bg-emerald-600" onClose={()=>setActiveModal(null)}><BoundaryModal stats={stats} navigate={navigate} /></Modal>}
       {activeModal==="income" && <Modal title="Net Income" color="bg-green-600" onClose={()=>setActiveModal(null)}><IncomeModal stats={stats} /></Modal>}
       {activeModal==="maintenance" && <Modal title="Units Under Maintenance" color="bg-orange-500" onClose={()=>setActiveModal(null)}><MaintenanceModal modal={modal} /></Modal>}
@@ -505,16 +505,104 @@ export function Dashboard() {
 }
 
 // Sub-components for Modals
-function FleetModal({stats, navigate}: any) {
+function FleetModal({stats, modal, navigate}: any) {
+  const [filter, setFilter] = useState('all');
+  const [search, setSearch] = useState('');
+  
+  const units = modal?.unitsList || [];
+  const filteredUnits = units.filter((u: any) => {
+    const matchesFilter = filter === 'all' || u.status === filter;
+    const matchesSearch = u.plate.toLowerCase().includes(search.toLowerCase());
+    return matchesFilter && matchesSearch;
+  });
+
+  const getStatusColor = (status: string) => {
+    switch (status.toLowerCase()) {
+      case 'active': return { bg: 'bg-green-50', text: 'text-green-600', bd: 'border-green-100', label: 'ACTIVE' };
+      case 'maintenance': return { bg: 'bg-red-50', text: 'text-red-600', bd: 'border-red-100', label: 'MAINTENANCE' };
+      case 'coding': return { bg: 'bg-amber-50', text: 'text-amber-600', bd: 'border-amber-100', label: 'CODING' };
+      default: return { bg: 'bg-gray-50', text: 'text-gray-400', bd: 'border-gray-200', label: 'VACANT' };
+    }
+  };
+
   return (
-    <div className="space-y-4">
-      {[["Total Units","text-blue-600",stats?.active_units],["ROI Achieved","text-green-600",stats?.roi_achieved],["Under Maintenance","text-orange-600",stats?.maintenance_units],["Coding Today","text-violet-600",stats?.coding_units]].map(([l,c,v]:any)=>(
-        <div key={l} className="flex justify-between items-center p-5 bg-gray-50 rounded-2xl border border-gray-100">
-          <span className="text-sm font-bold text-gray-500 uppercase tracking-widest">{l}</span>
-          <span className={`text-2xl font-black ${c}`}>{v??0}</span>
+    <div className="space-y-6">
+      {/* Search & Filter Bar */}
+      <div className="flex flex-col gap-4">
+        <div className="relative">
+          <input 
+            type="text" 
+            placeholder="Search plate number..." 
+            className="w-full bg-gray-100 border-none rounded-2xl py-4 pl-12 pr-4 text-sm font-bold text-gray-900 focus:ring-2 focus:ring-blue-500 transition-all"
+            value={search}
+            onChange={(e)=>setSearch(e.target.value)}
+          />
+          <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+            <Users className="w-5 h-5"/>
+          </div>
         </div>
-      ))}
-      <button onClick={()=>navigate("/units")} className="w-full bg-blue-600 text-white font-black py-4 rounded-2xl shadow-lg shadow-blue-100 active:scale-95 transition-all">View All Units</button>
+        
+        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+          {['all', 'active', 'maintenance', 'coding', 'vacant'].map((f) => (
+            <button 
+              key={f}
+              onClick={() => setFilter(f)}
+              className={`px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${filter === f ? 'bg-blue-600 text-white shadow-lg shadow-blue-100' : 'bg-gray-100 text-gray-400 hover:bg-gray-200'}`}
+            >
+              {f}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Summary Summary Cards */}
+      <div className="grid grid-cols-2 gap-3">
+        {[
+          { l: 'Total Units', v: units.length, c: 'text-blue-600', bg: 'bg-blue-50/50' },
+          { l: 'Vacant (No Driver)', v: units.filter((u:any)=>u.status==='vacant').length, c: 'text-emerald-600', bg: 'bg-emerald-50/50' },
+          { l: 'Active Units', v: units.filter((u:any)=>u.status==='active').length, c: 'text-amber-600', bg: 'bg-amber-50/50' },
+          { l: 'Avg ROI', v: units.length > 0 ? (units.reduce((a:any,b:any)=>a+b.roi,0)/units.length).toFixed(1)+'%' : '0%', c: 'text-purple-600', bg: 'bg-purple-50/50' }
+        ].map((s) => (
+          <div key={s.l} className={`${s.bg} rounded-2xl p-4 border border-gray-50 flex flex-col items-center text-center`}>
+            <p className={`text-2xl font-black ${s.c} leading-none mb-1`}>{s.v}</p>
+            <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest">{s.l}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Units Grid */}
+      <div className="grid grid-cols-2 gap-3">
+        {filteredUnits.map((u: any) => {
+          const s = getStatusColor(u.status);
+          return (
+            <div key={u.id} className={`${s.bg} border ${s.bd} rounded-2xl p-4 transition-all active:scale-[0.98]`}>
+              <div className="flex justify-between items-start mb-4">
+                <p className="text-[11px] font-black text-gray-900 tracking-tight">{u.plate}</p>
+                <span className={`text-[7px] font-black px-1.5 py-0.5 rounded-md ${s.text} bg-white border ${s.bd}`}>{s.label}</span>
+              </div>
+              
+              <div className="space-y-3">
+                 <div className="flex justify-between items-end">
+                    <div>
+                       <p className="text-[7px] font-black text-gray-400 uppercase tracking-tighter">Total Coll.</p>
+                       <p className="text-[10px] font-black text-green-600 leading-none">{fmt(u.total_collection).split('.')[0]}</p>
+                    </div>
+                    <div className="text-right">
+                       <p className="text-[7px] font-black text-gray-400 uppercase tracking-tighter">ROI</p>
+                       <p className="text-[10px] font-black text-gray-900 leading-none">{u.roi}%</p>
+                    </div>
+                 </div>
+                 <div className="pt-2 border-t border-black/5 flex justify-between items-center">
+                    <span className="text-[6px] font-bold text-gray-400">ID: {u.plate}</span>
+                    <span className="text-[6px] font-bold text-gray-400">NO DAILY</span>
+                 </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <button onClick={()=>navigate("/units")} className="w-full bg-blue-600 text-white font-black py-4 rounded-2xl shadow-lg shadow-blue-100 active:scale-95 transition-all">View Full Unit List</button>
     </div>
   );
 }

@@ -214,9 +214,37 @@ class DashboardController extends Controller
             ->whereNull('drivers.deleted_at')
             ->orderBy('drivers.first_name')->limit(100)->get();
 
-        // Coding units
-        $codingList = $allUnits->filter(fn($u) => ($codingDays[substr($u->plate_number, -1)] ?? '') === $todayDay)
-            ->values()->toArray();
+        // Units list for Overview Modal (Matching Web)
+        $unitsList = DB::table('units as u')
+            ->whereNull('u.deleted_at')
+            ->leftJoin('boundaries as b', function($join) {
+                $join->on('u.id', '=', 'b.unit_id')->whereNull('b.deleted_at');
+            })
+            ->leftJoin('drivers as d', 'u.driver_id', '=', 'd.id')
+            ->select(
+                'u.id', 'u.plate_number', 'u.status', 'u.purchase_cost',
+                DB::raw('COALESCE(SUM(b.actual_boundary), 0) as total_collection'),
+                'd.id as driver_id'
+            )
+            ->groupBy('u.id', 'u.plate_number', 'u.status', 'u.purchase_cost', 'd.id')
+            ->get()
+            ->map(function($u) {
+                $roi = ($u->purchase_cost > 0) ? ($u->total_collection / $u->purchase_cost) * 100 : 0;
+                
+                // Determine display status like web
+                $displayStatus = $u->status;
+                if ($u->status === 'active' && !$u->driver_id) {
+                    $displayStatus = 'vacant';
+                }
+
+                return [
+                    'id' => $u->id,
+                    'plate' => $u->plate_number,
+                    'status' => strtolower($displayStatus),
+                    'total_collection' => (float)$u->total_collection,
+                    'roi' => round($roi, 1),
+                ];
+            });
 
         // Executive Insights (Harmonizing with Web hardcoded/static values for parity)
         $topPerformerUnit = !empty($unitPerformance) ? $unitPerformance[0]['plate'] : 'N/A';
@@ -243,6 +271,7 @@ class DashboardController extends Controller
                 'maintenanceList' => $maintenanceList,
                 'driversList'     => $driversList,
                 'codingList'      => $codingList,
+                'unitsList'       => $unitsList,
             ]
         ]);
     }
