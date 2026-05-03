@@ -22,13 +22,20 @@ class CheckAccountStatus
 
             if ($user->is_disabled) {
                 $reason = $user->disable_reason ?? 'Your account has been temporarily disabled by the Owner/Super Admin.';
-                
-                Auth::logout();
-                $request->session()->invalidate();
-                $request->session()->regenerateToken();
 
-                if ($request->expectsJson()) {
+                // For API requests, just return JSON without touching session
+                if ($request->expectsJson() || $request->is('api/*')) {
+                    Auth::logout();
                     return response()->json(['success' => false, 'message' => $reason], 403);
+                }
+
+                // For web requests, handle session
+                Auth::logout();
+                try {
+                    $request->session()->invalidate();
+                    $request->session()->regenerateToken();
+                } catch (\Exception $e) {
+                    // Session not available, skip
                 }
 
                 return redirect()->route('login')->withErrors(['email' => $reason]);
