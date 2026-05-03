@@ -138,64 +138,82 @@ export function Dashboard() {
           </div>
         ))}
       </div>
-      {/* 2. UNIT PERFORMANCE (Matching Web) */}
-      <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-xl overflow-hidden mb-4">
-        <div className="p-6 border-b border-gray-50 flex items-center justify-between bg-white">
+      {/* 2. UNIT PERFORMANCE (Matching Web Sidebar Layout) */}
+      <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-2xl overflow-hidden mb-4">
+        <div className="p-6 border-b border-gray-50 flex items-center justify-between">
           <div className="flex items-center gap-3">
-             <div className="w-10 h-10 bg-blue-50 rounded-2xl flex items-center justify-center">
-                <BarChart3 className="w-5 h-5 text-blue-600"/>
+             <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center">
+                <BarChart3 className="w-6 h-6 text-blue-600"/>
              </div>
              <h3 className="font-black text-gray-900 uppercase tracking-tight">Unit Performance</h3>
           </div>
+          <span className="text-[10px] font-black text-blue-600 bg-blue-50 px-3 py-1.5 rounded-full uppercase tracking-widest border border-blue-100">Top 10 Performers</span>
         </div>
         
-        <div className="p-4">
-          <div className="h-[350px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={charts?.unitPerformance||[]} layout="vertical" margin={{ left: -10, right: 40, top: 10, bottom: 0 }} barGap={-16}>
-                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f1f5f9"/>
-                <XAxis type="number" hide />
-                <YAxis type="category" dataKey="plate" tick={{fontSize:9, fontWeight:900, fill:'#64748b'}} axisLine={false} tickLine={false} width={70}/>
-                <Tooltip 
-                  cursor={{fill: 'transparent'}}
-                  contentStyle={{borderRadius: 12, border: 'none', boxShadow: '0 8px 24px rgba(0,0,0,0.1)', padding: '10px'}}
-                  formatter={(v:any)=>fmt(v)}
-                />
-                <Bar dataKey="target" name="Monthly Target" fill="transparent" stroke="#fcd34d" strokeWidth={1.5} radius={[0, 4, 4, 0]} barSize={16}>
-                  <LabelList dataKey="target" position="insideRight" style={{fontSize: 7, fontWeight: 900, fill: '#b45309'}} offset={5} formatter={(v:any)=>Math.round(v)} />
-                </Bar>
-                <Bar dataKey="actual" name="Actual Collection" fill="#3b82f6" radius={[0, 4, 4, 0]} barSize={8}>
-                  <LabelList dataKey="actual" position="right" style={{fontSize: 7, fontWeight: 900, fill: '#3b82f6'}} offset={5} formatter={(v:any)=>v > 0 ? v.toFixed(2) : ''} />
-                </Bar>
-                <Legend iconType="circle" wrapperStyle={{paddingTop: 10, fontSize: 9, fontWeight: 700}} />
-              </BarChart>
-            </ResponsiveContainer>
+        <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-4">
+          {/* Main Chart Area */}
+          <div className="md:col-span-3 p-4">
+            <div className="h-[450px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={charts?.unitPerformance||[]} layout="vertical" margin={{ left: -10, right: 35, top: 10, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f1f5f9" />
+                  <XAxis type="number" hide />
+                  <YAxis type="category" dataKey="plate" tick={{fontSize: 9, fontWeight: 900, fill: '#1e293b'}} axisLine={false} tickLine={false} width={80} />
+                  <Tooltip 
+                    cursor={{fill: '#f8fafc'}}
+                    contentStyle={{borderRadius: 16, border: 'none', boxShadow: '0 12px 32px rgba(0,0,0,0.1)'}}
+                    formatter={(v:any)=>fmt(v)}
+                  />
+                  {/* Target Bar (Hollow Amber) */}
+                  <Bar dataKey="target" name="Monthly Target" fill="transparent" stroke="#fcd34d" strokeWidth={1.5} radius={[0, 4, 4, 0]} barSize={16}>
+                    <LabelList dataKey="target" position="insideRight" style={{fontSize: 8, fontWeight: 900, fill: '#b45309'}} offset={8} formatter={(v:any)=>Math.round(v)} />
+                  </Bar>
+                  {/* Actual Bar (Solid Blue) */}
+                  <Bar dataKey="actual" name="Actual Collection" fill="#3b82f6" radius={[0, 4, 4, 0]} barSize={8}>
+                    <LabelList dataKey="actual" position="right" style={{fontSize: 8, fontWeight: 900, fill: '#3b82f6'}} offset={8} formatter={(v:any)=>v > 0 ? v.toFixed(2) : ''} />
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
           </div>
-        </div>
-      </div>
 
-      {/* 3. EXECUTIVE INSIGHTS (Matching Web Sidebar logic) */}
-      <div className="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm mb-4">
-        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">Executive Insights</p>
-        <div className="flex items-center justify-between gap-6">
-           <div className="flex-1">
-              <p className="text-[9px] font-bold text-gray-500 uppercase mb-1">Fleet Health</p>
-              <div className="flex items-end gap-1.5">
-                 <p className="text-3xl font-black text-gray-900">{insights?.fleetHealth??0}%</p>
-                 <div className="flex items-center text-green-500 text-[9px] font-bold mb-1.5">
-                    <TrendingUp className="w-3 h-3 mr-0.5"/> 2.4%
-                 </div>
+          {/* Sidebar Insights (Matching Web) */}
+          <div className="bg-gray-50/50 p-6 border-l border-gray-100 flex flex-col gap-8">
+            <div>
+              <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-2">Fleet Health</p>
+              <div className="flex items-end gap-2">
+                <p className="text-4xl font-black text-gray-900 leading-none">{insights?.fleetHealth??0}%</p>
+                <div className="flex items-center text-green-600 font-bold text-[10px] mb-1">
+                   <TrendingUp className="w-3 h-3 mr-0.5"/> +2.4%
+                </div>
               </div>
-           </div>
-           <div className="flex-1 border-l border-gray-100 pl-6">
-              <p className="text-[9px] font-bold text-gray-500 uppercase mb-2">Top Performer</p>
-              <div className="flex items-center gap-3">
-                 <div className="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center">
-                    <Crown className="w-5 h-5 text-amber-600"/>
-                 </div>
-                 <p className="text-sm font-black text-gray-900 leading-none">{insights?.topPerformerUnit}</p>
+              <p className="text-[11px] text-gray-500 mt-2 font-medium leading-relaxed">
+                Most units are meeting over 80% of their monthly boundary targets.
+              </p>
+            </div>
+
+            <div className="pt-6 border-t border-gray-200">
+              <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-2">Top Performer</p>
+              <p className="text-xl font-black text-gray-900">{insights?.topPerformerUnit}</p>
+              <p className="text-[11px] text-gray-500 mt-2 font-medium leading-relaxed">
+                Consistency in daily collections makes this your most reliable asset.
+              </p>
+            </div>
+
+            <div className="pt-6 border-t border-gray-200">
+              <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-4">Legend</p>
+              <div className="space-y-3">
+                <div className="flex items-center gap-3">
+                   <div className="w-4 h-4 rounded bg-[#3b82f6] shadow-sm"></div>
+                   <span className="text-[10px] font-black text-gray-600 uppercase tracking-widest">Actual Collection</span>
+                </div>
+                <div className="flex items-center gap-3">
+                   <div className="w-4 h-4 rounded border-2 border-[#fcd34d] bg-amber-50"></div>
+                   <span className="text-[10px] font-black text-gray-600 uppercase tracking-widest">Monthly Target</span>
+                </div>
               </div>
-           </div>
+            </div>
+          </div>
         </div>
       </div>
 
