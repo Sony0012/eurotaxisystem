@@ -214,6 +214,10 @@ class DashboardController extends Controller
             ->whereNull('drivers.deleted_at')
             ->orderBy('drivers.first_name')->limit(100)->get();
 
+        // Coding units
+        $codingList = $allUnits->filter(fn($u) => ($codingDays[substr($u->plate_number, -1)] ?? '') === $todayDay)
+            ->values()->toArray();
+
         // Units list for Overview Modal (Matching Web)
         $unitsList = DB::table('units as u')
             ->whereNull('u.deleted_at')
