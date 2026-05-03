@@ -62,16 +62,16 @@ class AuthController extends Controller
             ], 401);
         }
 
-        // makeVisible forces password to be accessible even though it's in $hidden
-        $user->makeVisible(['password', 'password_hash']);
+        // Get the user with raw DB to bypass Eloquent hidden fields
+        $rawUser = \DB::table('users')->where('id', $user->id)->first();
         
-        // Support both 'password' and legacy 'password_hash' column names
-        $storedHash = $user->getAttributes()['password'] ?? $user->getAttributes()['password_hash'] ?? null;
+        // Try password_hash first (used by web), then password column
+        $storedHash = $rawUser->password_hash ?? $rawUser->password ?? null;
 
-        Log::info('Password check debug', [
-            'has_hash' => !empty($storedHash),
-            'hash_prefix' => $storedHash ? substr($storedHash, 0, 10) : 'null',
-            'user_id' => $user->id,
+        Log::info('Login attempt', [
+            'user_id'     => $user->id,
+            'has_hash'    => !empty($storedHash),
+            'hash_type'   => $storedHash ? (str_starts_with($storedHash, '$2y$') ? 'bcrypt' : 'other') : 'null',
         ]);
 
         if (! $storedHash ||
