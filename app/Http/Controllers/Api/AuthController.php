@@ -62,8 +62,17 @@ class AuthController extends Controller
             ], 401);
         }
 
+        // makeVisible forces password to be accessible even though it's in $hidden
+        $user->makeVisible(['password', 'password_hash']);
+        
         // Support both 'password' and legacy 'password_hash' column names
-        $storedHash = $user->password ?? $user->password_hash ?? null;
+        $storedHash = $user->getAttributes()['password'] ?? $user->getAttributes()['password_hash'] ?? null;
+
+        Log::info('Password check debug', [
+            'has_hash' => !empty($storedHash),
+            'hash_prefix' => $storedHash ? substr($storedHash, 0, 10) : 'null',
+            'user_id' => $user->id,
+        ]);
 
         if (! $storedHash ||
             ! (Hash::check($request->password, $storedHash) ||
