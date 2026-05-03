@@ -293,23 +293,58 @@ export function UnitDetail() {
 
         {/* ── CODING ── */}
         {activeTab === "Coding" && (
-          <div className="space-y-4">
-            <div className="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm">
-              <p className="text-sm font-black text-gray-900 uppercase tracking-widest border-b border-gray-100 pb-3 mb-3">MMDA Coding Info</p>
-              <InfoRow label="Coding Day" value={<span className="px-2.5 py-1 bg-blue-100 text-blue-700 rounded-full text-[10px] font-black">{codingDay}</span>} />
-              <InfoRow label="Plate Last Digit" value={lastDigit} />
-              <InfoRow label="Days Until Coding" value={<span className={`font-black ${unit.days_until_coding === 0 ? "text-red-600" : "text-green-600"}`}>{unit.days_until_coding === 0 ? "Today!" : `${unit.days_until_coding}d`}</span>} />
-              <InfoRow label="Coding Time" value="7:00 AM – 10:00 AM" />
-              <InfoRow label="Status" value={<span className={`px-2 py-0.5 text-[10px] font-black rounded-full ${unit.days_until_coding === 0 ? "bg-red-100 text-red-700" : "bg-green-100 text-green-700"}`}>{unit.days_until_coding === 0 ? "Coding Today" : "No Coding"}</span>} />
+          <div className="space-y-6">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="p-2 bg-blue-50 rounded-lg">
+                <Calendar className="w-5 h-5 text-blue-600" />
+              </div>
+              <h3 className="text-sm font-black text-gray-900 uppercase tracking-widest">MMDA Coding Schedule</h3>
             </div>
-            <div className="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm">
-              <p className="text-sm font-black text-gray-900 uppercase tracking-widest border-b border-gray-100 pb-3 mb-3">MMDA Schedule</p>
-              {Object.entries(CODING_SCHEDULE).map(([day, digits]) => (
-                <div key={day} className={`flex justify-between p-2.5 rounded-xl mb-1.5 ${today === day ? "bg-blue-50 border border-blue-200" : "bg-gray-50"}`}>
-                  <span className={`text-xs font-bold ${today === day ? "text-blue-700" : "text-gray-600"}`}>{day}</span>
-                  <span className={`text-xs font-black ${today === day ? "text-blue-700" : "text-gray-800"}`}>{digits}</span>
+
+            <div className="grid grid-cols-1 gap-6">
+              {/* Current Unit Status */}
+              <div className="bg-white border border-gray-100 rounded-3xl p-6 shadow-sm">
+                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-6 pb-2 border-b border-gray-50">Current Unit Status</p>
+                <div className="space-y-5">
+                  <div className="flex justify-between items-center">
+                    <span className="text-[11px] font-black text-gray-400 uppercase tracking-tight">Coding Day</span>
+                    <span className="px-3 py-1 bg-blue-600 text-white rounded-full text-[10px] font-black uppercase tracking-wider">{codingDay}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-[11px] font-black text-gray-400 uppercase tracking-tight">Plate Ending</span>
+                    <span className="text-lg font-black text-gray-900">{lastDigit}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-[11px] font-black text-gray-400 uppercase tracking-tight">Next Schedule</span>
+                    <span className="text-sm font-black text-gray-900">{unit.next_coding_date}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-[11px] font-black text-gray-400 uppercase tracking-tight">Remaining</span>
+                    <span className={`text-lg font-black ${unit.days_until_coding === 0 ? "text-red-600" : "text-green-600"}`}>
+                      {unit.days_until_coding === 0 ? "Today" : `${unit.days_until_coding} Days`}
+                    </span>
+                  </div>
                 </div>
-              ))}
+              </div>
+
+              {/* Standard MMDA Reference */}
+              <div className="bg-white border border-gray-100 rounded-3xl p-6 shadow-sm">
+                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-6 pb-2 border-b border-gray-50">Standard MMDA Reference</p>
+                <div className="space-y-1">
+                  {Object.entries(CODING_SCHEDULE).map(([day, digits]) => (
+                    <div key={day} className={`flex justify-between items-center p-3 rounded-2xl ${today === day ? "bg-blue-50/50" : ""}`}>
+                      <span className={`text-[11px] font-black uppercase tracking-tight ${today === day ? "text-blue-600" : "text-gray-500"}`}>{day}</span>
+                      <span className={`text-base font-black ${today === day ? "text-blue-600" : "text-gray-900"}`}>{digits}</span>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-6 pt-4 border-t border-gray-50">
+                  <div className="flex items-center gap-2 text-[10px] text-gray-400 font-bold uppercase tracking-widest italic">
+                    <div className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse" />
+                    Coding Time: 7:00 AM – 10:00 AM
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         )}
