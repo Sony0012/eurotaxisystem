@@ -168,7 +168,7 @@ class DashboardController extends Controller
             ->join('units', 'maintenance.unit_id', '=', 'units.id')
             ->leftJoin('drivers', 'units.driver_id', '=', 'drivers.id')
             ->select(
-                'maintenance.id', 'maintenance.type', 'maintenance.status',
+                'maintenance.id', 'maintenance.maintenance_type as type', 'maintenance.status',
                 'maintenance.cost', 'maintenance.description',
                 'maintenance.date_started', 'maintenance.date_completed',
                 'units.plate_number',
