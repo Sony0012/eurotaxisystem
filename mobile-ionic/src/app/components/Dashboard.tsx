@@ -322,10 +322,10 @@ export function Dashboard() {
                     <Legend layout="vertical" align="right" verticalAlign="middle" iconType="circle" wrapperStyle={{fontSize: 9, fontWeight: 700}} />
                   </PieChart>
                </ResponsiveContainer>
-               <div className="absolute top-1/2 left-[35%] -translate-y-1/2 -translate-x-1/2 text-center pointer-events-none">
+                <div className="absolute top-1/2 left-[35%] -translate-y-1/2 -translate-x-1/2 text-center pointer-events-none">
                   <p className="text-xl font-black text-gray-900 leading-none">{stats?.active_units}</p>
-                  <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest">Total Fleet</p>
-               </div>
+                  <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest">Total Units</p>
+                </div>
             </div>
           </div>
 

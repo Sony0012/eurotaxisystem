@@ -177,15 +177,13 @@ class DashboardController extends Controller
             ];
         }
 
-        // 5. Unit Status Distribution
-        $totalUnits      = $stats['active_units'];
-        $maintenanceCount = $stats['maintenance_units'];
-        $codingCount     = $stats['coding_units'];
-        $operationalCount = max(0, $totalUnits - $maintenanceCount - $codingCount);
-        $unitStatusDist  = [
-            ['name' => 'Operational', 'value' => $operationalCount],
-            ['name' => 'Maintenance', 'value' => $maintenanceCount],
-            ['name' => 'Coding Today', 'value' => $codingCount],
+        // 5. Unit Status Distribution (Matching Web Legend Exactly)
+        $unitStatusDist = [
+            ['name' => 'Active',             'value' => (int)DB::table('units')->whereNull('deleted_at')->where('status', 'active')->count()],
+            ['name' => 'Under Maintenance',  'value' => (int)DB::table('units')->whereNull('deleted_at')->where('status', 'maintenance')->count()],
+            ['name' => 'Coding',             'value' => (int)DB::table('units')->whereNull('deleted_at')->where('status', 'coding')->count()],
+            ['name' => 'Missing / Stolen',    'value' => (int)DB::table('units')->whereNull('deleted_at')->where('status', 'missing')->count()],
+            ['name' => 'Retired',            'value' => (int)DB::table('units')->whereNull('deleted_at')->where('status', 'retired')->count()],
         ];
 
         // ── MODAL DATA ─────────────────────────────────────────────────────────
