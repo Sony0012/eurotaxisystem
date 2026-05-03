@@ -164,7 +164,7 @@ class DashboardController extends Controller
         ])->toArray();
 
 
-        // 4. Weekly Financial Overview (Matching Web: Only boundaries vs general expenses)
+        // 4. Weekly Financial Overview (Matching Web Exactly: Boundaries vs Expenses)
         $weeklyData = [];
         for ($i = 6; $i >= 0; $i--) {
             $d   = now()->timezone('Asia/Manila')->subDays($i)->toDateString();
@@ -173,7 +173,8 @@ class DashboardController extends Controller
             $weeklyData[] = [
                 'day' => now()->timezone('Asia/Manila')->subDays($i)->format('D'),
                 'boundary' => $rev,
-                'expenses' => $gx
+                'expenses' => $gx,
+                'net' => $rev - $gx
             ];
         }
 
