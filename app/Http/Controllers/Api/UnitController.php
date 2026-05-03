@@ -174,16 +174,107 @@ class UnitController extends Controller
     }
 
     /**
-     * Display the specified unit.
+     * Display full unit details for the mobile Unit Detail page.
      */
     public function show($id)
     {
-        $unit = Unit::with(['driver'])->find($id);
-
+        $unit = DB::table('units')->whereNull('deleted_at')->where('id', $id)->first();
         if (!$unit) {
             return response()->json(['success' => false, 'message' => 'Unit not found.'], 404);
         }
 
-        return response()->json(['success' => true, 'data' => $unit]);
+        // Drivers with contacts
+        $d1 = $unit->driver_id ? DB::table('drivers')->where('id', $unit->driver_id)->first(['full_name','contact_number','license_number','hire_date','license_expiry']) : null;
+        $d2 = $unit->secondary_driver_id ? DB::table('drivers')->where('id', $unit->secondary_driver_id)->first(['full_name','contact_number','license_number','hire_date','license_expiry']) : null;
+
+        // Maintenance records
+        $maintenanceRecords = DB::table('maintenance')
+            ->where('unit_id', $id)->whereNull('deleted_at')
+            ->orderByDesc('date_started')->limit(20)
+            ->get(['maintenance_type','status','date_started','date_completed','cost','description','mechanic_name','driver_name']);
+
+        // Boundary history
+        $boundaryHistory = DB::table('boundaries as b')
+            ->leftJoin('drivers as d', 'b.driver_id', '=', 'd.id')
+            ->where('b.unit_id', $id)->whereNull('b.deleted_at')
+            ->orderByDesc('b.date')->limit(20)
+            ->get(['b.date','b.actual_boundary','b.status','d.full_name']);
+
+        // Coding info
+        $lastDigit  = substr($unit->plate_number ?? '', -1);
+        $dayMap = ['1'=>'Monday','2'=>'Monday','3'=>'Tuesday','4'=>'Tuesday','5'=>'Wednesday','6'=>'Wednesday','7'=>'Thursday','8'=>'Thursday','9'=>'Friday','0'=>'Friday'];
+        $codingDay  = $dayMap[$lastDigit] ?? 'Unknown';
+        $nextCoding = null; $daysUntil = 0;
+        $dayIndex   = ['Monday'=>1,'Tuesday'=>2,'Wednesday'=>3,'Thursday'=>4,'Friday'=>5];
+        if (isset($dayIndex[$codingDay])) {
+            $now = \Carbon\Carbon::now(); $target = $dayIndex[$codingDay];
+            $today = (int)$now->format('N');
+            $diff  = ($target - $today + 7) % 7;
+            $daysUntil = $diff; $nextCoding = $now->copy()->addDays($diff)->format('M d, Y');
+        }
+
+        // ROI
+        $revenue    = (float) DB::table('boundaries')->where('unit_id',$id)->whereNull('deleted_at')->whereIn('status',['paid','excess','shortage'])->sum('actual_boundary');
+        $maintCost  = (float) DB::table('maintenance')->where('unit_id',$id)->whereNull('deleted_at')->where('status','!=','cancelled')->sum('cost');
+        $investment = (float)($unit->purchase_cost ?? 0) + $maintCost;
+        $roiPct     = $investment > 0 ? ($revenue / $investment) * 100 : 0;
+        $monthly    = $revenue / max(1, \Carbon\Carbon::parse($unit->created_at)->diffInMonths(now()) ?: 1);
+        $payback    = $monthly > 0 ? $investment / $monthly : 0;
+
+        $rateLabel = match(true) {
+            str_contains(strtolower($unit->unit_type ?? ''), 'rent') => 'Sunday Discount',
+            str_contains(strtolower($unit->unit_type ?? ''), 'new')  => 'New Unit Rate',
+            default => 'Standard Rate',
+        };
+
+        return response()->json(['success' => true, 'data' => [
+            'id'                   => $unit->id,
+            'plate_number'         => $unit->plate_number,
+            'make'                 => $unit->make ?? '',
+            'model'                => $unit->model ?? '',
+            'year'                 => $unit->year ?? '',
+            'motor_no'             => $unit->motor_no ?? '—',
+            'chassis_no'           => $unit->chassis_no ?? '—',
+            'status'               => $unit->status ?? 'active',
+            'unit_type'            => $unit->unit_type ?? 'standard',
+            'boundary_rate'        => (float)($unit->boundary_rate ?? 0),
+            'purchase_cost'        => (float)($unit->purchase_cost ?? 0),
+            'rate_label'           => $rateLabel,
+            'imei'                 => $unit->imei,
+            'gps_device_count'     => (int)($unit->gps_device_count ?? 0),
+            'current_gps_odo'      => (float)($unit->current_gps_odo ?? 0),
+            'last_service_odo_gps' => (float)($unit->last_service_odo_gps ?? 0),
+            'gps_speed'            => $unit->gps_speed ?? 0,
+            'gps_ignition'         => $unit->gps_ignition ?? 0,
+            'latitude'             => $unit->latitude,
+            'longitude'            => $unit->longitude,
+            'current_location'     => $unit->current_location,
+            'last_location_update' => $unit->last_location_update,
+            'dashcam_enabled'      => (bool)($unit->dashcam_enabled ?? false),
+            'coding_day'           => $codingDay,
+            'days_until_coding'    => $daysUntil,
+            'next_coding_date'     => $nextCoding,
+            'created_at'           => $unit->created_at,
+            'updated_at'           => $unit->updated_at,
+            'primary_driver'       => $d1?->full_name,
+            'primary_contact'      => $d1?->contact_number,
+            'primary_license'      => $d1?->license_number,
+            'secondary_driver'     => $d2?->full_name,
+            'secondary_contact'    => $d2?->contact_number,
+            'secondary_license'    => $d2?->license_number,
+            'maintenance_count'    => $maintenanceRecords->count(),
+            'maintenance_records'  => $maintenanceRecords,
+            'boundary_history'     => $boundaryHistory,
+            'roi_percentage'       => round($roiPct, 2),
+            'roi' => [
+                'total_investment'  => round($investment, 2),
+                'total_revenue'     => round($revenue, 2),
+                'total_expenses'    => round($maintCost, 2),
+                'roi_percentage'    => round($roiPct, 2),
+                'monthly_revenue'   => round($monthly, 2),
+                'monthly_expenses'  => round($maintCost / max(1, \Carbon\Carbon::parse($unit->created_at)->diffInMonths(now()) ?: 1), 2),
+                'payback_period'    => round($payback, 1),
+            ],
+        ]]);
     }
 }
