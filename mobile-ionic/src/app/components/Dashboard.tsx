@@ -271,25 +271,43 @@ export function Dashboard() {
             </div>
             <div className="p-4 h-64">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={charts?.weeklyData||[]} margin={{ top: 20, right: 30, left: -10, bottom: 0 }}>
+                <AreaChart data={charts?.weeklyData||[]} margin={{ top: 25, right: 30, left: -10, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="colorBoundary" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#eab308" stopOpacity={0.3}/>
+                      <stop offset="95%" stopColor="#eab308" stopOpacity={0}/>
+                    </linearGradient>
+                    <linearGradient id="colorExpenses" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#ef4444" stopOpacity={0.3}/>
+                      <stop offset="95%" stopColor="#ef4444" stopOpacity={0}/>
+                    </linearGradient>
+                    <linearGradient id="colorNet" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#22c55e" stopOpacity={0.3}/>
+                      <stop offset="95%" stopColor="#22c55e" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9"/>
                   <XAxis dataKey="day" tick={{fontSize:9, fontWeight:700, fill:'#94a3b8'}} axisLine={false} tickLine={false}/>
-                  <YAxis tick={{fontSize:9, fontWeight:700, fill:'#94a3b8'}} axisLine={false} tickLine={false} tickFormatter={(v)=>v >= 1000 ? `${v/1000}k` : v}/>
+                  <YAxis tick={{fontSize:9, fontWeight:700, fill:'#94a3b8'}} axisLine={false} tickLine={false} tickFormatter={(v)=>v !== 0 ? (Math.abs(v) >= 1000000 ? `${v/1000000}M` : `${v/1000}k`) : '0'}/>
                   <Tooltip 
                     contentStyle={{borderRadius: 16, border: 'none', boxShadow: '0 12px 32px rgba(0,0,0,0.1)', padding: '10px'}}
                   />
-                  <Legend iconType="circle" wrapperStyle={{fontSize: 9, fontWeight: 700, paddingTop: 10}} />
-                  <Line type="monotone" dataKey="boundary" name="Boundary" stroke="#eab308" strokeWidth={3} dot={{ r: 4, fill: '#eab308' }} activeDot={{ r: 6 }}>
+                  <Legend verticalAlign="top" align="center" iconType="circle" wrapperStyle={{fontSize: 10, fontWeight: 700, paddingBottom: 20}} />
+                  
+                  <Area type="monotone" dataKey="boundary" name="Boundary" stroke="#eab308" strokeWidth={3} fillOpacity={1} fill="url(#colorBoundary)" dot={{ r: 4, fill: '#eab308' }} activeDot={{ r: 6 }}>
                      <LabelList dataKey="boundary" position="top" offset={10} style={{fontSize: 7, fontWeight: 900, fill: '#854d0e'}} formatter={(v:any)=>v > 0 ? Math.round(v) : ''} />
-                  </Line>
-                  <Line type="monotone" dataKey="expenses" name="Expenses" stroke="#ef4444" strokeWidth={3} dot={{ r: 4, fill: '#ef4444' }} activeDot={{ r: 6 }}>
-                     <LabelList dataKey="expenses" position="top" offset={10} style={{fontSize: 7, fontWeight: 900, fill: '#991b1b'}} formatter={(v:any)=>v > 0 ? (v >= 1000000 ? (v/1000000).toFixed(1)+'M' : Math.round(v)) : ''} />
-                  </Line>
-                  <Line type="monotone" dataKey="net" name="Net Income" stroke="#22c55e" strokeWidth={3} dot={{ r: 4, fill: '#22c55e' }} activeDot={{ r: 6 }}>
-                     <LabelList dataKey="net" position="bottom" offset={10} style={{fontSize: 7, fontWeight: 900, fill: '#166534'}} formatter={(v:any)=>v !== 0 ? (Math.abs(v) >= 1000000 ? (v/1000000).toFixed(1)+'M' : Math.round(v)) : ''} />
-                  </Line>
-                  <ReferenceLine y={0} stroke="#cbd5e1" strokeDasharray="3 3" />
-                </LineChart>
+                  </Area>
+                  
+                  <Area type="monotone" dataKey="expenses" name="Expenses" stroke="#ef4444" strokeWidth={3} fillOpacity={1} fill="url(#colorExpenses)" dot={{ r: 4, fill: '#ef4444' }} activeDot={{ r: 6 }}>
+                     <LabelList dataKey="expenses" position="top" offset={10} style={{fontSize: 7, fontWeight: 900, fill: '#991b1b'}} formatter={(v:any)=>v > 0 ? (v >= 1000000 ? (v/1000000).toFixed(2)+'M' : Math.round(v)) : ''} />
+                  </Area>
+                  
+                  <Area type="monotone" dataKey="net" name="Net Income" stroke="#22c55e" strokeWidth={3} fillOpacity={1} fill="url(#colorNet)" dot={{ r: 4, fill: '#22c55e' }} activeDot={{ r: 6 }}>
+                     <LabelList dataKey="net" position="bottom" offset={10} style={{fontSize: 7, fontWeight: 900, fill: '#166534'}} formatter={(v:any)=>v !== 0 ? (Math.abs(v) >= 1000000 ? (v/1000000).toFixed(2)+'M' : Math.round(v)) : ''} />
+                  </Area>
+                  
+                  <ReferenceLine y={0} stroke="#cbd5e1" strokeWidth={2} />
+                </AreaChart>
               </ResponsiveContainer>
             </div>
           </div>
