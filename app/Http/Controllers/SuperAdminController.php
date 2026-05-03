@@ -93,6 +93,40 @@ class SuperAdminController extends Controller
         ));
     }
 
+    public function indexJson(Request $request)
+    {
+        if (Auth::user()->role !== 'super_admin') {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+        }
+
+        $totalUsers    = User::whereNotIn('role', ['super_admin'])->count();
+        $activeUsers   = User::whereNotIn('role', ['super_admin'])->where('is_active', true)->where('approval_status', 'approved')->count();
+        $rejectedUsers = User::whereNotIn('role', ['super_admin'])->where('approval_status', 'rejected')->count();
+
+        $recentAudit = LoginAudit::whereIn('action', ['login', 'failed_login', 'logout'])
+            ->orderByDesc('created_at')
+            ->limit(10)
+            ->get();
+
+        $allUsers = User::whereNotIn('role', ['super_admin'])
+            ->withTrashed()
+            ->orderByRaw("FIELD(approval_status, 'pending', 'approved', 'rejected')")
+            ->orderByDesc('created_at')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'stats' => [
+                'total_users' => $totalUsers,
+                'active_users' => $activeUsers,
+                'rejected_users' => $rejectedUsers,
+            ],
+            'recentAudit' => $recentAudit,
+            'allUsers' => $allUsers,
+            'roles' => \App\Models\Role::orderBy('label')->get()
+        ]);
+    }
+
     // ─── Approve User ─────────────────────────────────────────────────────────
 
     public function approveUser(Request $request, $id)

@@ -16,16 +16,14 @@ class Authenticate extends Middleware
     protected function redirectTo($request)
     {
         if (! $request->expectsJson()) {
-            // Flash a message for better user experience
-            if ($request->session()) {
-                $request->session()->flash('info', 'Please log in to access this page.');
+            // Only access session on web routes
+            try {
+                if ($request->hasSession()) {
+                    $request->session()->flash('info', 'Please log in to access this page.');
+                }
+            } catch (\Exception $e) {
+                // Session not available (API route), skip
             }
-            
-            // Clear any existing session data
-            if ($request->session()) {
-                $request->session()->flush();
-            }
-            
             return route('login');
         }
     }
@@ -52,10 +50,14 @@ class Authenticate extends Middleware
             
             return $next($request);
         } catch (\Illuminate\Auth\AuthenticationException $e) {
-            // Clear session on authentication failure
-            if ($request->session()) {
-                $request->session()->flush();
-                $request->session()->flash('info', 'Your session has expired. Please log in again.');
+            // Only flush session on web routes
+            try {
+                if ($request->hasSession()) {
+                    $request->session()->flush();
+                    $request->session()->flash('info', 'Your session has expired. Please log in again.');
+                }
+            } catch (\Exception $ex) {
+                // Session not available (API route), skip
             }
             
             return $this->unauthenticated($request, $guards);

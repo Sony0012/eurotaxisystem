@@ -14,30 +14,15 @@
     RewriteCond %{REQUEST_URI} ^/google[a-z0-9]+\.html [NC]
     RewriteRule ^ - [L]
 
-    # If the request is for an existing file inside public/, serve it directly
+    # If the request is already for public/, don't loop
     RewriteCond %{REQUEST_URI} ^/public/
     RewriteRule ^ - [L]
 
-    # MAINTENANCE MODE TOGGLE
-    # To ENABLE maintenance mode:  Uncomment the next 2 lines
-    # To DISABLE maintenance mode: Comment the next 2 lines (normal site operation)
-    # RewriteRule ^ - [E=SITE_MAINTENANCE:1]
-    # RewriteRule ^(.*)$ public/maintenance.html [L]
-
-    # Prevent browser from caching maintenance page
-    <IfModule mod_headers.c>
-        Header set Cache-Control "no-cache, no-store, must-revalidate" env=SITE_MAINTENANCE
-        Header set Pragma "no-cache" env=SITE_MAINTENANCE
-        Header set Expires "0" env=SITE_MAINTENANCE
-    </IfModule>
-
-    # Redirect Trailing Slashes If Not A Folder...
-    RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteCond %{REQUEST_URI} (.+)/$
-    RewriteRule ^ %1 [L,R=301]
-
-    # Send ALL Requests To Laravel Front Controller
-    RewriteRule ^(.*)$ index.php [L]
+    # REDIRECT ALL TRAFFIC TO PUBLIC FOLDER
+    # This ensures that assets like /assets/app.css are mapped to public/assets/app.css
+    # and /login maps to public/index.php
+    RewriteCond %{REQUEST_URI} !^/public/
+    RewriteRule ^(.*)$ public/$1 [L]
 </IfModule>
 
 # Gzip compression
