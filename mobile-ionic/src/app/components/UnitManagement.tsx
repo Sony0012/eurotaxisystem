@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, RefreshCw, ChevronRight, Loader2, Car, X, SlidersHorizontal, Grid3X3, List, Printer, Flag, Plus, AlertTriangle, Wrench, MoreVertical, Eye, Edit2, Trash2, Info, CreditCard, Save, Calendar, Users } from "lucide-react";
+import { Search, RefreshCw, ChevronRight, Loader2, Car, X, SlidersHorizontal, Grid3X3, List, Printer, Flag, Plus, AlertTriangle, Wrench, MoreVertical, Eye, Edit2, Trash2, Info, CreditCard, Save, Calendar, Users, Clock, AlertCircle } from "lucide-react";
 import api from "../services/api";
 import { toast } from "sonner";
 
@@ -95,6 +95,33 @@ function FlaggedModal({ units, onClose }: { units: any[], onClose: () => void })
     </div>
   );
 }
+
+const getCodingInfo = (plate: string) => {
+  if (!plate) return { day: "N/A", next: "N/A", remaining: "N/A" };
+  const lastDigit = plate.trim().slice(-1);
+  const dayMap: any = { '1': 'Monday', '2': 'Monday', '3': 'Tuesday', '4': 'Tuesday', '5': 'Wednesday', '6': 'Wednesday', '7': 'Thursday', '8': 'Thursday', '9': 'Friday', '0': 'Friday' };
+  const codingDay = dayMap[lastDigit] || "N/A";
+  
+  if (codingDay === "N/A") return { day: "N/A", next: "N/A", remaining: "N/A" };
+  
+  const dayIndex: any = { 'Monday': 1, 'Tuesday': 2, 'Wednesday': 3, 'Thursday': 4, 'Friday': 5 };
+  const today = new Date();
+  const currentDay = today.getDay(); // 0 is Sunday, 1 is Monday...
+  const target = dayIndex[codingDay];
+  
+  let diff = target - currentDay;
+  if (diff < 0) diff += 7;
+  if (diff === 0) diff = 7; // Next week if today is the day
+
+  const nextDate = new Date();
+  nextDate.setDate(today.getDate() + diff);
+  
+  return {
+    day: codingDay,
+    next: nextDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+    remaining: `${diff} ${diff === 1 ? 'day' : 'days'}`
+  };
+};
 
 function EditUnitModal({ unit, onClose, onUpdated }: { unit: any; onClose: () => void; onUpdated: () => void }) {
   const [form, setForm] = useState({ 
@@ -317,6 +344,62 @@ function EditUnitModal({ unit, onClose, onUpdated }: { unit: any; onClose: () =>
                   ))}
                 </select>
               </div>
+            </div>
+          </div>
+
+          {/* Section: Coding Information (Synchronized with Web) */}
+          <div className="pt-4 border-t border-gray-100">
+            {/* Coding Schedule Summary (Light Blue Box from Web) */}
+            <div className="bg-blue-50/50 rounded-2xl p-4 border border-blue-100 mb-6">
+              <div className="grid grid-cols-5 gap-1">
+                {[
+                  { d: 'Mon', n: '1, 2' },
+                  { d: 'Tue', n: '3, 4' },
+                  { d: 'Wed', n: '5, 6' },
+                  { d: 'Thu', n: '7, 8' },
+                  { d: 'Fri', n: '9, 0' }
+                ].map(s => (
+                  <div key={s.d} className="text-center">
+                    <p className="text-[9px] font-black text-gray-400 uppercase mb-1">{s.d}</p>
+                    <span className="px-2 py-0.5 bg-blue-100 text-blue-600 text-[10px] font-black rounded-lg">{s.n}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 mb-6 px-1">
+              <div className="w-7 h-7 bg-orange-50 rounded-lg flex items-center justify-center">
+                <Clock className="w-4 h-4 text-orange-500" />
+              </div>
+              <p className="text-sm font-black text-gray-800 tracking-tight">Coding Information</p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+              {(() => {
+                const info = getCodingInfo(form.plate_number);
+                return (
+                  <>
+                    <div>
+                      <label className="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Coding Day</label>
+                      <div className="px-4 py-3.5 bg-gray-50 border-2 border-gray-100 rounded-2xl text-sm font-black text-gray-900 uppercase">
+                        {info.day}
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Next Coding Date</label>
+                      <div className="px-4 py-3.5 bg-gray-50 border-2 border-gray-100 rounded-2xl text-sm font-black text-gray-900">
+                        {info.next}
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Days Until Next Coding</label>
+                      <div className="px-4 py-3.5 bg-gray-50 border-2 border-gray-100 rounded-2xl text-sm font-black text-blue-600">
+                        {info.remaining}
+                      </div>
+                    </div>
+                  </>
+                );
+              })()}
             </div>
           </div>
 
