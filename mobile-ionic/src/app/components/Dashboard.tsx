@@ -269,9 +269,9 @@ export function Dashboard() {
                 <h3 className="font-black text-gray-900 uppercase tracking-tight text-sm">Weekly Overview</h3>
               </div>
             </div>
-            <div className="p-4 h-56">
+            <div className="p-4 h-64">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={charts?.weeklyData||[]} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                <LineChart data={charts?.weeklyData||[]} margin={{ top: 20, right: 30, left: -10, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9"/>
                   <XAxis dataKey="day" tick={{fontSize:9, fontWeight:700, fill:'#94a3b8'}} axisLine={false} tickLine={false}/>
                   <YAxis tick={{fontSize:9, fontWeight:700, fill:'#94a3b8'}} axisLine={false} tickLine={false} tickFormatter={(v)=>v >= 1000 ? `${v/1000}k` : v}/>
@@ -279,9 +279,15 @@ export function Dashboard() {
                     contentStyle={{borderRadius: 16, border: 'none', boxShadow: '0 12px 32px rgba(0,0,0,0.1)', padding: '10px'}}
                   />
                   <Legend iconType="circle" wrapperStyle={{fontSize: 9, fontWeight: 700, paddingTop: 10}} />
-                  <Line type="monotone" dataKey="boundary" name="Boundary" stroke="#eab308" strokeWidth={3} dot={{ r: 4, fill: '#eab308' }} activeDot={{ r: 6 }} />
-                  <Line type="monotone" dataKey="expenses" name="Expenses" stroke="#ef4444" strokeWidth={3} dot={{ r: 4, fill: '#ef4444' }} activeDot={{ r: 6 }} />
-                  <Line type="monotone" dataKey="net" name="Net Income" stroke="#22c55e" strokeWidth={3} dot={{ r: 4, fill: '#22c55e' }} activeDot={{ r: 6 }} />
+                  <Line type="monotone" dataKey="boundary" name="Boundary" stroke="#eab308" strokeWidth={3} dot={{ r: 4, fill: '#eab308' }} activeDot={{ r: 6 }}>
+                     <LabelList dataKey="boundary" position="top" offset={10} style={{fontSize: 7, fontWeight: 900, fill: '#854d0e'}} formatter={(v:any)=>v > 0 ? Math.round(v) : ''} />
+                  </Line>
+                  <Line type="monotone" dataKey="expenses" name="Expenses" stroke="#ef4444" strokeWidth={3} dot={{ r: 4, fill: '#ef4444' }} activeDot={{ r: 6 }}>
+                     <LabelList dataKey="expenses" position="top" offset={10} style={{fontSize: 7, fontWeight: 900, fill: '#991b1b'}} formatter={(v:any)=>v > 0 ? (v >= 1000000 ? (v/1000000).toFixed(1)+'M' : Math.round(v)) : ''} />
+                  </Line>
+                  <Line type="monotone" dataKey="net" name="Net Income" stroke="#22c55e" strokeWidth={3} dot={{ r: 4, fill: '#22c55e' }} activeDot={{ r: 6 }}>
+                     <LabelList dataKey="net" position="bottom" offset={10} style={{fontSize: 7, fontWeight: 900, fill: '#166534'}} formatter={(v:any)=>v !== 0 ? (Math.abs(v) >= 1000000 ? (v/1000000).toFixed(1)+'M' : Math.round(v)) : ''} />
+                  </Line>
                   <ReferenceLine y={0} stroke="#cbd5e1" strokeDasharray="3 3" />
                 </LineChart>
               </ResponsiveContainer>
@@ -332,44 +338,24 @@ export function Dashboard() {
                    <h3 className="font-black text-gray-900 uppercase tracking-tight text-sm">Top Performing Drivers</h3>
                 </div>
              </div>
-              <div className="p-4 h-[300px]">
+              <div className="p-4 h-[350px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={charts?.topDrivers||[]} layout="vertical" margin={{ left: -10, right: 35, top: 0, bottom: 0 }}>
                     <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f1f5f9" />
                     <XAxis type="number" hide />
                     <YAxis type="category" dataKey="name" tick={{fontSize: 9, fontWeight: 700, fill: '#64748b'}} axisLine={false} tickLine={false} width={100} />
                     <Tooltip cursor={{fill: '#f8fafc'}} />
-                    <Bar dataKey="total" radius={[0, 4, 4, 0]} barSize={12}>
+                    <Bar dataKey="score" radius={[0, 4, 4, 0]} barSize={16}>
                       {(charts?.topDrivers||[]).map((_: any, index: number) => (
                         <Cell key={`cell-${index}`} fill={['#3b82f6', '#8b5cf6', '#0d9488', '#64748b', '#ec4899'][index % 5]} />
                       ))}
+                      <LabelList dataKey="score" position="right" style={{fontSize: 10, fontWeight: 900, fill: '#1e293b'}} offset={8} />
                     </Bar>
                   </BarChart>
                 </ResponsiveContainer>
               </div>
           </div>
 
-          <div className="bg-blue-600 rounded-[2rem] p-6 text-white shadow-xl shadow-blue-100">
-             <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center">
-                   <Crown className="w-6 h-6 text-white"/>
-                </div>
-                <div>
-                   <p className="text-[10px] font-bold uppercase tracking-[0.2em] opacity-80">System Top Driver</p>
-                   <p className="text-xl font-black leading-tight">{insights?.topPerformerDriver}</p>
-                </div>
-             </div>
-             <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 flex items-center justify-between border border-white/10">
-                <div className="flex items-center gap-2">
-                   <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></div>
-                   <p className="text-[10px] font-black uppercase tracking-widest">Excellence Awarded</p>
-                </div>
-                <div className="text-right">
-                   <p className="text-[8px] font-bold opacity-70 uppercase">Month Total</p>
-                   <p className="text-sm font-black tracking-tighter">{fmt(charts?.topDrivers?.[0]?.total)}</p>
-                </div>
-             </div>
-          </div>
       </div>
 
       {/* MODALS - Minimal Update needed to match new theme */}
