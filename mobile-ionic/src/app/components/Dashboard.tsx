@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Car, Users, TrendingUp, Wrench, DollarSign, Calendar, Activity, BarChart3, X, ChevronRight, Loader2, RefreshCw, Crown, PieChart as PieChartIcon, LineChart as LineChartIcon } from "lucide-react";
-import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, AreaChart, Area, ReferenceLine } from "recharts";
 import api from "../services/api";
 import { toast } from "sonner";
 
@@ -138,7 +138,44 @@ export function Dashboard() {
           </div>
         ))}
       </div>
-
+      {/* Revenue Trend Area Chart - Matching Web precisely */}
+      <div className="bg-white rounded-[2rem] border border-gray-100 shadow-xl overflow-hidden mb-4">
+        <div className="p-4 border-b border-gray-50 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-blue-50 rounded-xl flex items-center justify-center">
+              <TrendingUp className="w-4 h-4 text-blue-600"/>
+            </div>
+            <h3 className="font-black text-gray-900 uppercase tracking-tight text-sm">Revenue Trend</h3>
+          </div>
+          <div className="flex gap-1">
+            {[7, 30, 90, 365].map(d => (
+              <button key={d} onClick={() => setDays(d)} className={`px-2 py-1 text-[8px] font-black rounded-lg transition-all ${days === d ? 'bg-blue-600 text-white shadow-sm' : 'bg-gray-50 text-gray-400'}`}>
+                {d === 365 ? '1 YEAR' : d === 90 ? '3 MOS' : `${d} DAYS`}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className="p-4 h-52">
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart data={charts?.revenueTrend||[]} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+              <defs>
+                <linearGradient id="colorRev" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.2}/>
+                  <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9"/>
+              <XAxis dataKey="date" tick={{fontSize:8, fontWeight:700, fill:'#94a3b8'}} axisLine={false} tickLine={false}/>
+              <YAxis tick={{fontSize:8, fontWeight:700, fill:'#94a3b8'}} axisLine={false} tickLine={false} tickFormatter={(v)=>v >= 1000 ? `${v/1000}k` : v}/>
+              <Tooltip 
+                contentStyle={{borderRadius: 16, border: 'none', boxShadow: '0 12px 32px rgba(0,0,0,0.1)'}}
+                formatter={(v:any)=>fmt(v)}
+              />
+              <Area type="monotone" dataKey="revenue" stroke="#3b82f6" strokeWidth={3} fillOpacity={1} fill="url(#colorRev)" />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
       {/* Unit Performance Section - Matching Web precisely */}
       <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-xl overflow-hidden">
         <div className="p-6 border-b border-gray-50 flex items-center justify-between bg-white">
@@ -215,32 +252,28 @@ export function Dashboard() {
       {/* Distribution Section */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
          {/* Expense Breakdown */}
-         <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-lg p-6">
+          <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-lg p-6">
             <div className="flex items-center gap-3 mb-6">
                <div className="w-10 h-10 bg-rose-50 rounded-2xl flex items-center justify-center">
                   <PieChartIcon className="w-5 h-5 text-rose-500"/>
                </div>
                <h3 className="font-black text-gray-900 uppercase tracking-tight">Expense Distribution</h3>
             </div>
-            <div className="h-48 relative">
+            <div className="h-48">
                <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
-                    <Pie data={charts?.expenseBreakdown||[]} cx="50%" cy="50%" innerRadius={45} outerRadius={65} paddingAngle={6} dataKey="value" stroke="none">
-                      {(charts?.expenseBreakdown||[]).map((_:any,i:number)=><Cell key={i} fill={COLORS[i%COLORS.length]}/>)}
+                    <Pie data={charts?.expenseBreakdown||[]} cx="35%" cy="50%" innerRadius={0} outerRadius={60} dataKey="value" stroke="#fff" strokeWidth={2}>
+                      {(charts?.expenseBreakdown||[]).map((_:any,i:number)=><Cell key={i} fill={['#ef4444', '#f59e0b', '#3b82f6', '#8b5cf6', '#ec4899'][i % 5]}/>)}
                     </Pie>
                     <Tooltip contentStyle={{borderRadius: 12, border: 'none', boxShadow: '0 8px 24px rgba(0,0,0,0.1)'}}/>
-                    <Legend verticalAlign="bottom" align="center" iconType="circle" wrapperStyle={{fontSize: 9, fontWeight: 700, paddingTop: 10}} />
+                    <Legend layout="vertical" align="right" verticalAlign="middle" iconType="circle" wrapperStyle={{fontSize: 9, fontWeight: 700}} />
                   </PieChart>
                </ResponsiveContainer>
-               <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none mt-[-15px]">
-                  <p className="text-[8px] font-bold text-gray-400 uppercase tracking-widest">Total</p>
-                  <p className="text-sm font-black text-gray-900 tracking-tighter">{fmt(stats?.today_expenses)}</p>
-               </div>
             </div>
-         </div>
+          </div>
 
          {/* Unit Status Distribution */}
-         <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-lg p-6">
+          <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-lg p-6">
             <div className="flex items-center gap-3 mb-6">
                <div className="w-10 h-10 bg-emerald-50 rounded-2xl flex items-center justify-center">
                   <Activity className="w-5 h-5 text-emerald-500"/>
@@ -255,26 +288,22 @@ export function Dashboard() {
                       cx="50%" cy="50%" 
                       innerRadius={50} 
                       outerRadius={70} 
-                      startAngle={180} 
-                      endAngle={0} 
-                      paddingAngle={3} 
+                      paddingAngle={4} 
                       dataKey="value"
                       stroke="none"
                     >
-                      <Cell fill="#10b981" /> {/* Operational */}
-                      <Cell fill="#f59e0b" /> {/* Maintenance */}
-                      <Cell fill="#8b5cf6" /> {/* Coding */}
+                      {(charts?.unitStatusDist||[]).map((_:any,i:number)=><Cell key={i} fill={['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#64748b'][i % 5]}/>)}
                     </Pie>
                     <Tooltip contentStyle={{borderRadius: 12, border: 'none', boxShadow: '0 8px 24px rgba(0,0,0,0.1)'}}/>
                     <Legend verticalAlign="bottom" align="center" iconType="circle" wrapperStyle={{fontSize: 9, fontWeight: 700}} />
                   </PieChart>
                </ResponsiveContainer>
-               <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none mt-[30px]">
+               <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none mt-[-15px]">
                   <p className="text-xl font-black text-gray-900 leading-none">{stats?.active_units}</p>
                   <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest">Total Fleet</p>
                </div>
             </div>
-         </div>
+          </div>
       </div>
 
       {/* Weekly Financial Overview Section */}
@@ -288,25 +317,20 @@ export function Dashboard() {
           </div>
         </div>
         
-        <div className="h-56">
+        <div className="p-4 h-56">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={charts?.revenueTrend||[]} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
-              <defs>
-                <linearGradient id="colorBoundary" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.1}/>
-                  <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
-                </linearGradient>
-              </defs>
+            <LineChart data={charts?.weeklyData||[]} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9"/>
-              <XAxis dataKey="date" tick={{fontSize:8, fontWeight:700, fill:'#94a3b8'}} axisLine={false} tickLine={false}/>
-              <YAxis tick={{fontSize:8, fontWeight:700, fill:'#94a3b8'}} axisLine={false} tickLine={false} width={45} tickFormatter={(v)=>v >= 1000 ? `${v/1000}k` : v}/>
+              <XAxis dataKey="day" tick={{fontSize:9, fontWeight:700, fill:'#94a3b8'}} axisLine={false} tickLine={false}/>
+              <YAxis tick={{fontSize:9, fontWeight:700, fill:'#94a3b8'}} axisLine={false} tickLine={false} tickFormatter={(v)=>v >= 1000 ? `${v/1000}k` : v}/>
               <Tooltip 
                 contentStyle={{borderRadius: 16, border: 'none', boxShadow: '0 12px 32px rgba(0,0,0,0.1)', padding: '10px'}}
-                formatter={(v:any)=>fmt(v)}
               />
-              <Line type="monotone" dataKey="revenue" name="Boundary" stroke="#3b82f6" strokeWidth={3} dot={{ r: 3, fill: '#3b82f6', strokeWidth: 2, stroke: '#fff' }} activeDot={{ r: 5 }} />
-              <Line type="monotone" dataKey="expenses" name="Expenses" stroke="#ef4444" strokeWidth={3} dot={{ r: 3, fill: '#ef4444', strokeWidth: 2, stroke: '#fff' }} activeDot={{ r: 5 }} />
-              <Line type="monotone" dataKey="netIncome" name="Net Income" stroke="#10b981" strokeWidth={3} dot={{ r: 3, fill: '#10b981', strokeWidth: 2, stroke: '#fff' }} activeDot={{ r: 5 }} />
+              <Legend iconType="circle" wrapperStyle={{fontSize: 9, fontWeight: 700, paddingTop: 10}} />
+              <Line type="monotone" dataKey="boundary" name="Boundary" stroke="#eab308" strokeWidth={3} dot={{ r: 4, fill: '#eab308' }} activeDot={{ r: 6 }} />
+              <Line type="monotone" dataKey="expenses" name="Expenses" stroke="#ef4444" strokeWidth={3} dot={{ r: 4, fill: '#ef4444' }} activeDot={{ r: 6 }} />
+              <Line type="monotone" dataKey="net" name="Net Income" stroke="#22c55e" strokeWidth={3} dot={{ r: 4, fill: '#22c55e' }} activeDot={{ r: 6 }} />
+              <ReferenceLine y={0} stroke="#cbd5e1" strokeDasharray="3 3" />
             </LineChart>
           </ResponsiveContainer>
         </div>
@@ -322,25 +346,21 @@ export function Dashboard() {
                <h3 className="font-black text-gray-900 uppercase tracking-tight text-sm">Top Drivers</h3>
             </div>
          </div>
-         <div className="divide-y divide-gray-50">
-            {(charts?.topDrivers||[]).slice(0, 5).map((d:any, i:number)=>(
-               <div key={i} className="p-4 flex items-center justify-between hover:bg-gray-50/50 transition-colors">
-                  <div className="flex items-center gap-3">
-                     <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center relative overflow-hidden">
-                        {i === 0 ? <Crown className="w-4 h-4 text-amber-500 absolute z-10 top-0 left-0 -translate-x-0.5 -translate-y-0.5 rotate-[-30deg]"/> : null}
-                        <p className="text-base font-black text-gray-400">{d.name?.charAt(0)}</p>
-                     </div>
-                     <div>
-                        <p className="font-black text-gray-900 text-sm">{d.name}</p>
-                        <p className="text-[8px] text-gray-400 font-bold uppercase tracking-widest mt-0.5">Rank #{i+1}</p>
-                     </div>
-                  </div>
-                  <div className="text-right">
-                     <p className="font-black text-emerald-600 text-base">{fmt(d.total)}</p>
-                  </div>
-               </div>
-            ))}
-         </div>
+          <div className="p-4 h-[280px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={charts?.topDrivers||[]} layout="vertical" margin={{ left: -10, right: 30, top: 0, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f1f5f9" />
+                <XAxis type="number" hide />
+                <YAxis type="category" dataKey="name" tick={{fontSize: 9, fontWeight: 700, fill: '#64748b'}} axisLine={false} tickLine={false} width={100} />
+                <Tooltip cursor={{fill: '#f8fafc'}} />
+                <Bar dataKey="total" radius={[0, 4, 4, 0]} barSize={12}>
+                  {(charts?.topDrivers||[]).map((_: any, index: number) => (
+                    <Cell key={`cell-${index}`} fill={['#3b82f6', '#8b5cf6', '#0d9488', '#64748b', '#ec4899'][index % 5]} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
       </div>
 
       {/* MODALS - Minimal Update needed to match new theme */}
