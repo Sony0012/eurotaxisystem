@@ -206,7 +206,7 @@ class UnitController extends Controller
             ->leftJoin('drivers as d', 'b.driver_id', '=', 'd.id')
             ->where('b.unit_id', $id)->whereNull('b.deleted_at')
             ->orderByDesc('b.date')->limit(20)
-            ->select('b.date','b.actual_boundary','b.status', DB::raw("CONCAT(d.first_name, ' ', d.last_name) as full_name"))
+            ->select('b.date','b.actual_boundary','b.status','b.notes as remarks', DB::raw("CONCAT(d.first_name, ' ', d.last_name) as full_name"))
             ->get();
 
         // Coding info

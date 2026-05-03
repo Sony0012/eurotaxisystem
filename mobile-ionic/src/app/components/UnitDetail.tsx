@@ -355,30 +355,58 @@ export function UnitDetail() {
 
         {/* ── BOUNDARY ── */}
         {activeTab === "Boundary" && (
-          <div className="bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden">
-            <div className="px-4 py-3 border-b border-gray-100">
+          <div className="bg-white border border-gray-100 rounded-3xl shadow-sm overflow-hidden">
+            <div className="px-6 py-5 border-b border-gray-50 flex items-center gap-3">
+              <div className="p-2 bg-blue-50 rounded-lg">
+                <TrendingUp className="w-5 h-5 text-blue-600" />
+              </div>
               <p className="text-sm font-black text-gray-900 uppercase tracking-widest">Boundary Collection History</p>
             </div>
-            {unit.boundary_history?.length > 0 ? (
-              <div className="divide-y divide-gray-50">
-                {unit.boundary_history.map((b: any, i: number) => (
-                  <div key={i} className="px-4 py-3 flex justify-between items-center">
-                    <div>
-                      <p className="text-xs font-black text-gray-800">{fmtDate(b.date)}</p>
-                      <p className="text-[10px] text-gray-400 font-bold">{b.full_name || "N/A"}</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-sm font-black text-green-600">{fmt(b.actual_boundary)}</p>
-                      <p className="text-[9px] text-gray-400 uppercase font-bold">{b.status}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="py-16 text-center">
-                <p className="text-xs font-bold text-gray-300 uppercase tracking-widest">No boundary history found</p>
-              </div>
-            )}
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-gray-50/50">
+                    <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Date</th>
+                    <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Driver</th>
+                    <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Remarks</th>
+                    <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-right">Amount</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-50">
+                  {unit.boundary_history?.length > 0 ? (
+                    unit.boundary_history.map((b: any, i: number) => (
+                      <tr key={i} className="hover:bg-gray-50/30 transition-colors">
+                        <td className="px-6 py-4">
+                          <p className="text-xs font-black text-gray-600 font-mono">
+                            {new Date(b.date).toISOString().split('T')[0]}
+                          </p>
+                        </td>
+                        <td className="px-6 py-4">
+                          <p className="text-xs font-bold text-gray-700">{b.full_name || "N/A"}</p>
+                        </td>
+                        <td className="px-6 py-4">
+                          <p className="text-[10px] text-gray-400 font-medium italic">{b.remarks || "---"}</p>
+                        </td>
+                        <td className="px-6 py-4 text-right">
+                          <p className="text-sm font-black text-green-600">{fmt(b.actual_boundary)}</p>
+                          <p className="text-[9px] text-gray-300 uppercase font-black">{b.status}</p>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={4} className="py-20 text-center">
+                        <div className="flex flex-col items-center">
+                          <TrendingUp className="w-12 h-12 text-gray-100 mb-3" />
+                          <p className="text-xs font-bold text-gray-300 uppercase tracking-widest">No collection history found</p>
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
 
