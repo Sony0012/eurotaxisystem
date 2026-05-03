@@ -42,13 +42,18 @@ class StaffController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => ['required', 'string', 'max:20', 'regex:/^[A-Za-z]+( [A-Za-z]+){0,5}$/'],
             'role' => 'required|string|max:255',
-            'phone' => 'nullable|string|max:20',
-            'contact_person' => 'nullable|string|max:255',
-            'emergency_phone' => 'nullable|string|max:20',
-            'address' => 'nullable|string',
+            'phone' => 'nullable|numeric|digits_between:1,11',
+            'contact_person' => ['nullable', 'string', 'max:20', 'regex:/^[A-Za-z]+( [A-Za-z]+){0,5}$/'],
+            'emergency_phone' => 'nullable|numeric|digits_between:1,11',
+            'address' => 'nullable|string|max:200',
             'status' => 'required|in:active,inactive',
+        ], [
+            'name.regex' => 'The name must only contain letters and a maximum of 5 spaces.',
+            'contact_person.regex' => 'The emergency contact name must only contain letters and a maximum of 5 spaces.',
+            'phone.numeric' => 'The phone number must only contain digits.',
+            'emergency_phone.numeric' => 'The emergency phone number must only contain digits.',
         ]);
 
         \App\Models\Staff::create($data);
@@ -63,13 +68,18 @@ class StaffController extends Controller
         $staff = \App\Models\Staff::findOrFail($id);
 
         $data = $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => ['required', 'string', 'max:20', 'regex:/^[A-Za-z]+( [A-Za-z]+){0,5}$/'],
             'role' => 'required|string|max:255',
-            'phone' => 'nullable|string|max:20',
-            'contact_person' => 'nullable|string|max:255',
-            'emergency_phone' => 'nullable|string|max:20',
-            'address' => 'nullable|string',
+            'phone' => 'nullable|numeric|digits_between:1,11',
+            'contact_person' => ['nullable', 'string', 'max:20', 'regex:/^[A-Za-z]+( [A-Za-z]+){0,5}$/'],
+            'emergency_phone' => 'nullable|numeric|digits_between:1,11',
+            'address' => 'nullable|string|max:200',
             'status' => 'required|in:active,inactive',
+        ], [
+            'name.regex' => 'The name must only contain letters and a maximum of 5 spaces.',
+            'contact_person.regex' => 'The emergency contact name must only contain letters and a maximum of 5 spaces.',
+            'phone.numeric' => 'The phone number must only contain digits.',
+            'emergency_phone.numeric' => 'The emergency phone number must only contain digits.',
         ]);
 
         $staff->update($data);

@@ -210,7 +210,7 @@
                         <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Full Name *</label>
                         <div class="relative">
                             <i data-lucide="user" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
-                            <input type="text" name="name" required class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none font-bold text-sm text-gray-700">
+                            <input type="text" name="name" id="add_name" maxlength="20" required class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none font-bold text-sm text-gray-700">
                         </div>
                     </div>
                     
@@ -218,7 +218,7 @@
                         <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Phone Number</label>
                         <div class="relative">
                             <i data-lucide="phone" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
-                            <input type="text" name="phone" class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none font-bold text-sm text-gray-700">
+                            <input type="text" name="phone" id="add_phone" maxlength="11" class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none font-bold text-sm text-gray-700">
                         </div>
                     </div>
                 </div>
@@ -249,7 +249,7 @@
                         <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Emergency Contact Name</label>
                         <div class="relative">
                             <i data-lucide="user-check" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
-                            <input type="text" name="contact_person" class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none font-bold text-sm text-gray-700" placeholder="Contact person name">
+                            <input type="text" name="contact_person" id="add_contact_person" maxlength="20" class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none font-bold text-sm text-gray-700" placeholder="Contact person name">
                         </div>
                     </div>
 
@@ -257,7 +257,7 @@
                         <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Emergency Contact Number</label>
                         <div class="relative">
                             <i data-lucide="phone-forwarded" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
-                            <input type="text" name="emergency_phone" class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none font-bold text-sm text-gray-700" placeholder="Contact person phone">
+                            <input type="text" name="emergency_phone" id="add_emergency_phone" maxlength="11" class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none font-bold text-sm text-gray-700" placeholder="Contact person phone">
                         </div>
                     </div>
                 </div>
@@ -266,7 +266,7 @@
                     <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Address</label>
                     <div class="relative">
                         <i data-lucide="map-pin" class="absolute left-3 top-3 w-4 h-4 text-gray-400"></i>
-                        <textarea name="address" rows="2" class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none font-bold text-sm text-gray-700" placeholder="Full residential address"></textarea>
+                        <textarea name="address" id="add_address" maxlength="200" rows="2" class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none font-bold text-sm text-gray-700" placeholder="Full residential address"></textarea>
                     </div>
                 </div>
 
@@ -332,7 +332,7 @@
                         <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Full Name *</label>
                         <div class="relative">
                             <i data-lucide="user" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
-                            <input type="text" name="name" id="edit_name" required class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none font-bold text-sm text-gray-700">
+                            <input type="text" name="name" id="edit_name" maxlength="20" required class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none font-bold text-sm text-gray-700">
                         </div>
                     </div>
                     
@@ -340,7 +340,7 @@
                         <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Phone Number</label>
                         <div class="relative">
                             <i data-lucide="phone" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
-                            <input type="text" name="phone" id="edit_phone" class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none font-bold text-sm text-gray-700">
+                            <input type="text" name="phone" id="edit_phone" maxlength="11" class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none font-bold text-sm text-gray-700">
                         </div>
                     </div>
                 </div>
@@ -370,7 +370,7 @@
                         <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Emergency Contact Name</label>
                         <div class="relative">
                             <i data-lucide="user-check" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
-                            <input type="text" name="contact_person" id="edit_contact_person" class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none font-bold text-sm text-gray-700">
+                            <input type="text" name="contact_person" id="edit_contact_person" maxlength="20" class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none font-bold text-sm text-gray-700">
                         </div>
                     </div>
 
@@ -378,7 +378,7 @@
                         <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Emergency Contact Number</label>
                         <div class="relative">
                             <i data-lucide="phone-forwarded" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
-                            <input type="text" name="emergency_phone" id="edit_emergency_phone" class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none font-bold text-sm text-gray-700">
+                            <input type="text" name="emergency_phone" id="edit_emergency_phone" maxlength="11" class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none font-bold text-sm text-gray-700">
                         </div>
                     </div>
                 </div>
@@ -387,7 +387,7 @@
                     <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Address</label>
                     <div class="relative">
                         <i data-lucide="map-pin" class="absolute left-3 top-3 w-4 h-4 text-gray-400"></i>
-                        <textarea name="address" id="edit_address" rows="2" class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none font-bold text-sm text-gray-700"></textarea>
+                        <textarea name="address" id="edit_address" maxlength="200" rows="2" class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none font-bold text-sm text-gray-700"></textarea>
                     </div>
                 </div>
 
@@ -463,15 +463,51 @@
         }
     }
 
-    function validateTextOnly(input) {
+    function validateNameInput(input) {
         // Remove everything except letters and spaces
-        input.value = input.value.replace(/[^A-Za-z\s]/g, '');
+        let val = input.value.replace(/[^A-Za-z\s]/g, '');
+        
+        // Limit to 5 spaces
+        const spaceCount = (val.match(/ /g) || []).length;
+        if (spaceCount > 5) {
+            // If more than 5 spaces, keep only up to the 5th space
+            let parts = val.split(' ');
+            val = parts.slice(0, 6).join(' ') + parts.slice(6).join('');
+        }
+        
+        input.value = val;
     }
 
-    // Intercept form submissions to handle custom role
+    function validatePhoneInput(input) {
+        // Remove everything except digits
+        input.value = input.value.replace(/\D/g, '');
+    }
+
+    // Attach real-time listeners
+    document.addEventListener('DOMContentLoaded', function() {
+        const nameInputs = ['add_name', 'edit_name', 'add_contact_person', 'edit_contact_person', 'add_custom_role', 'edit_custom_role'];
+        const phoneInputs = ['add_phone', 'edit_phone', 'add_emergency_phone', 'edit_emergency_phone'];
+
+        nameInputs.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.addEventListener('input', () => validateNameInput(el));
+        });
+
+        phoneInputs.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.addEventListener('input', () => validatePhoneInput(el));
+        });
+    });
+
+    // Intercept form submissions to handle custom role and trimming
     document.querySelectorAll('form').forEach(form => {
         if (form.action.includes('/staff')) {
             form.addEventListener('submit', (e) => {
+                // Trim all text inputs before submission
+                form.querySelectorAll('input[type="text"], textarea').forEach(input => {
+                    input.value = input.value.trim();
+                });
+
                 const prefix = form.id === 'editStaffForm' ? 'edit' : 'add';
                 const select = document.getElementById(`${prefix}_role_select`);
                 const customInput = document.getElementById(`${prefix}_custom_role`);
