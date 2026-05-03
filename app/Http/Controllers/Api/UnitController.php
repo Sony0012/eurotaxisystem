@@ -317,6 +317,8 @@ class UnitController extends Controller
                 'roi_status'        => $roiPct >= 100 ? 'Achieved' : 'In Progress',
             ],
         ]]);
+    }
+
     public function destroy($id)
     {
         DB::beginTransaction();
