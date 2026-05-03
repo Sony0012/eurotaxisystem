@@ -123,6 +123,7 @@ class SuperAdminController extends Controller
             ],
             'recentAudit' => $recentAudit,
             'allUsers' => $allUsers,
+            'archivedUsers' => \App\Models\User::onlyTrashed()->orderBy('deleted_at', 'desc')->get(),
             'roles' => \App\Models\Role::orderBy('label')->get(),
             'archivedRoles' => \App\Models\Role::onlyTrashed()->orderBy('label')->get()
         ]);

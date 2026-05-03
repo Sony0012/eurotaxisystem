@@ -127,6 +127,43 @@ export function OwnerPanel() {
     }
   };
 
+  const archiveUser = async (id: number) => {
+    if (!confirm("Archive this user?")) return;
+    try {
+      const r = await api.post(`/super-admin/users/${id}/archive`);
+      toast.success(r.data.message); loadData();
+    } catch(e:any) { toast.error(e?.response?.data?.message || "Failed."); }
+  };
+
+  const [showUserArchiveModal, setShowUserArchiveModal] = useState(false);
+
+  const restoreUser = async (id: number) => {
+    try {
+      const r = await api.post(`/super-admin/users/${id}/restore`);
+      toast.success(r.data.message); loadData();
+    } catch(e:any) { toast.error(e?.response?.data?.message || "Failed."); }
+  };
+
+  const permanentlyDeleteUser = async (id: number) => {
+    if (!confirm("Are you sure you want to permanently delete this user? This requires the archive password.")) return;
+    const password = prompt("Please enter the archive deletion password:");
+    if (!password) return;
+    try {
+      const r = await api.delete(`/super-admin/users/${id}`, { data: { archive_password: password } });
+      toast.success(r.data.message); loadData();
+    } catch(e:any) { toast.error(e?.response?.data?.message || "Failed."); }
+  };
+
+  const saveArchivePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (archForm.archive_password !== archForm.archive_password_confirmation) { toast.error("Passwords do not match."); return; }
+    try {
+      const r = await api.post("/super-admin/archive-password", archForm);
+      toast.success(r.data.message);
+      setArchForm({archive_password:"",archive_password_confirmation:""});
+    } catch(e:any) { toast.error(e?.response?.data?.message || "Failed."); }
+  };
+
   if (user?.role !== "super_admin") return (
     <div className="flex flex-col items-center justify-center min-h-[400px] gap-4 p-6">
       <Shield className="w-16 h-16 text-red-400"/>
@@ -478,38 +515,107 @@ export function OwnerPanel() {
 
           {/* ALL USERS */}
           {tab==="all_users" && (
-            <div className="space-y-3">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"/>
-                <input type="text" placeholder="Search users by name, email or role..." value={search} onChange={e=>setSearch(e.target.value)}
-                  className="w-full pl-9 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm"/>
-              </div>
-              <p className="text-xs text-gray-400">{filteredUsers.length} user{filteredUsers.length!==1?"s":""} found</p>
-              {filteredUsers.map((u:any)=>(
-                <div key={u.id} className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col md:flex-row md:items-center">
-                  <div className="p-4 flex items-center gap-3 flex-1">
-                    <div className={`w-11 h-11 rounded-full flex items-center justify-center font-black text-white text-sm flex-shrink-0
-                      ${u.approval_status==="approved"?"bg-blue-500":u.approval_status==="pending"?"bg-amber-500":"bg-red-400"}`}>
-                      {u.full_name?.charAt(0)||"?"}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-bold text-sm text-gray-900">{u.full_name}</p>
-                      <p className="text-xs text-gray-400 truncate">{u.email}</p>
-                      <div className="flex items-center gap-2 mt-1">
-                        <span className="text-[10px] font-bold bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">{u.role}</span>
-                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${statusColor(u.approval_status)}`}>{u.approval_status}</span>
-                        {u.is_disabled && <span className="text-[10px] font-bold bg-red-100 text-red-600 px-2 py-0.5 rounded-full">Disabled</span>}
-                        {u.deleted_at && <span className="text-[10px] font-bold bg-gray-200 text-gray-500 px-2 py-0.5 rounded-full">Archived</span>}
-                      </div>
-                    </div>
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col">
+              <div className="p-4 border-b border-gray-100 flex flex-col md:flex-row items-center justify-between gap-4">
+                <div className="flex items-center gap-3 w-full md:w-auto">
+                  <div className="relative w-full md:w-64">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"/>
+                    <input type="text" placeholder="Search users..." value={search} onChange={e=>setSearch(e.target.value)}
+                      className="w-full pl-9 pr-4 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 outline-none"/>
                   </div>
-                  <div className="bg-gray-50 md:bg-transparent border-t md:border-t-0 border-gray-100 px-4 py-3 md:py-4 flex flex-wrap gap-2 items-center justify-end">
-                    {/* Placeholder for action buttons to avoid complex imports not strictly needed for UI match */}
-                    <button className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-xs font-bold transition-colors">Manage</button>
-                  </div>
+                  <select className="bg-white border border-gray-200 text-sm rounded-xl px-4 py-2 focus:ring-2 focus:ring-amber-500 outline-none">
+                    <option value="">All Statuses</option>
+                    <option value="approved">Activated</option>
+                    <option value="pending">Pending</option>
+                  </select>
                 </div>
-              ))}
-              {filteredUsers.length===0 && <p className="text-center text-gray-400 py-8 text-sm">No users found.</p>}
+                <button onClick={() => setShowUserArchiveModal(true)} className="flex items-center gap-2 border border-amber-500 text-amber-600 px-4 py-2 rounded-xl text-sm font-bold hover:bg-amber-50 transition-colors w-full md:w-auto justify-center">
+                  <Archive className="w-4 h-4"/> View Archives
+                </button>
+              </div>
+
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse min-w-[900px]">
+                  <thead>
+                    <tr className="bg-gray-50 border-b border-gray-100">
+                      <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest whitespace-nowrap">User</th>
+                      <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest whitespace-nowrap">Role</th>
+                      <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest whitespace-nowrap">Status</th>
+                      <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest whitespace-nowrap">Active</th>
+                      <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest whitespace-nowrap">Last Login</th>
+                      <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest whitespace-nowrap text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-50">
+                    {filteredUsers.length === 0 && (
+                      <tr><td colSpan={6} className="px-6 py-8 text-center text-gray-400 text-sm">No users found.</td></tr>
+                    )}
+                    {filteredUsers.map((u: any) => (
+                      <tr key={u.id} className="hover:bg-gray-50/50 transition-colors">
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center font-bold text-gray-600 flex-shrink-0">
+                              {u.full_name?.charAt(0) || "?"}
+                            </div>
+                            <div>
+                              <p className="font-bold text-gray-900 text-sm">{u.full_name}</p>
+                              <p className="text-xs text-gray-500">{u.email}</p>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className={`inline-block px-3 py-1 border text-[10px] font-black uppercase tracking-wider rounded-full
+                            ${u.role==='super_admin'?'bg-amber-50 text-amber-600 border-amber-100':
+                              u.role==='manager'?'bg-blue-50 text-blue-600 border-blue-100':
+                              u.role==='dispatcher'?'bg-emerald-50 text-emerald-600 border-emerald-100':'bg-indigo-50 text-indigo-600 border-indigo-100'}`}>
+                            {u.role}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4">
+                          {u.approval_status === "approved" ? (
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-green-50 border border-green-200 text-green-600 text-[10px] font-black uppercase tracking-wider rounded-full">
+                              <div className="w-1.5 h-1.5 rounded-full bg-green-500"></div> ACTIVATED
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-50 border border-amber-200 text-amber-600 text-[10px] font-black uppercase tracking-wider rounded-full">
+                              <div className="w-1.5 h-1.5 rounded-full bg-amber-500"></div> PENDING
+                            </span>
+                          )}
+                        </td>
+                        <td className="px-6 py-4">
+                          {!u.is_disabled ? (
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1 border border-green-500 text-green-600 text-[10px] font-bold uppercase tracking-wider rounded-full">
+                              <div className="w-1.5 h-1.5 rounded-full bg-green-500"></div> Active
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1 border border-red-500 text-red-600 text-[10px] font-bold uppercase tracking-wider rounded-full">
+                              <div className="w-1.5 h-1.5 rounded-full bg-red-500"></div> Inactive
+                            </span>
+                          )}
+                        </td>
+                        <td className="px-6 py-4 text-xs text-gray-500">
+                          {u.last_login_at ? new Date(u.last_login_at).toLocaleString('en-US', { month: 'short', day: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : "Never"}
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="flex items-center justify-end gap-2">
+                            {u.approval_status === "pending" && (
+                               <button onClick={()=>approveUser(u.id)} className="p-2 text-gray-400 hover:text-green-500 hover:bg-green-50 rounded-lg transition-colors" title="Approve">
+                                 <CheckCircle className="w-4 h-4"/>
+                               </button>
+                            )}
+                            <button onClick={()=>toggleDisable(u.id, !!u.is_disabled)} className="p-2 text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-colors" title={u.is_disabled ? "Enable" : "Disable"}>
+                              {u.is_disabled ? <Activity className="w-4 h-4"/> : <Lock className="w-4 h-4"/>}
+                            </button>
+                            <button onClick={()=>archiveUser(u.id)} className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors" title="Archive">
+                              <Trash2 className="w-4 h-4"/>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           )}
 
@@ -583,6 +689,71 @@ export function OwnerPanel() {
       )}
 
       {/* MODALS */}
+      {showUserArchiveModal && (
+        <div className="fixed inset-0 bg-gray-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl w-full max-w-4xl shadow-2xl flex flex-col max-h-[90vh]">
+            <div className="p-6 flex items-start justify-between">
+              <div>
+                <h2 className="text-2xl font-black text-gray-900 tracking-tight">User Archives</h2>
+                <p className="text-sm text-gray-500 mt-1">Previously deleted staff accounts. You can restore them if needed.</p>
+              </div>
+              <button onClick={() => setShowUserArchiveModal(false)} className="p-2 bg-gray-50 text-gray-400 rounded-xl hover:bg-gray-100 hover:text-gray-600 transition-colors">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="flex-1 overflow-auto">
+              <table className="w-full text-left border-collapse min-w-[700px]">
+                <thead>
+                  <tr className="bg-gray-50 border-y border-gray-100">
+                    <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest">User</th>
+                    <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest">Role</th>
+                    <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest">Date Deleted</th>
+                    <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-50">
+                  {data?.archivedUsers?.length === 0 && (
+                    <tr><td colSpan={4} className="p-8 text-center text-gray-400">No archived users found.</td></tr>
+                  )}
+                  {data?.archivedUsers?.map((u: any) => (
+                    <tr key={u.id} className="hover:bg-gray-50/50">
+                      <td className="px-6 py-4">
+                        <p className="font-bold text-gray-900 text-sm">{u.full_name}</p>
+                        <p className="text-xs text-gray-500">{u.email}</p>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className={`inline-block px-3 py-1 border text-[10px] font-black uppercase tracking-wider rounded-full
+                          ${u.role==='super_admin'?'bg-amber-50 text-amber-600 border-amber-100':
+                            u.role==='manager'?'bg-blue-50 text-blue-600 border-blue-100':
+                            u.role==='dispatcher'?'bg-emerald-50 text-emerald-600 border-emerald-100':'bg-indigo-50 text-indigo-600 border-indigo-100'}`}>
+                          {u.role}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-xs text-gray-500">
+                        {u.deleted_at ? new Date(u.deleted_at).toLocaleString('en-US', { month: 'short', day: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : "Unknown"}
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center justify-end gap-2">
+                          <button onClick={() => restoreUser(u.id)} className="flex items-center gap-1.5 px-4 py-2 bg-green-700 hover:bg-green-800 text-white text-xs font-bold rounded-lg transition-colors">
+                            <RefreshCw className="w-3 h-3" /> Restore
+                          </button>
+                          <button onClick={() => permanentlyDeleteUser(u.id)} className="flex items-center gap-1.5 px-4 py-2 bg-red-800 hover:bg-red-900 text-white text-xs font-bold rounded-lg transition-colors">
+                            <Trash2 className="w-3 h-3" /> Delete
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <div className="p-4 border-t border-gray-100 flex justify-end">
+              <button onClick={() => setShowUserArchiveModal(false)} className="px-6 py-2 border border-gray-200 text-gray-600 rounded-xl text-sm font-bold hover:bg-gray-50 transition-colors">Close</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {showRoleModal && (
         <div className="fixed inset-0 bg-gray-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl w-full max-w-4xl shadow-2xl flex flex-col max-h-[90vh]">
