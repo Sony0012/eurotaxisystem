@@ -108,9 +108,26 @@ function EditUnitModal({ unit, onClose, onUpdated }: { unit: any; onClose: () =>
     unit_type: unit.unit_type || "standard",
     boundary_rate: unit.boundary_rate || "",
     purchase_date: unit.purchase_date || "",
+    purchase_cost: unit.purchase_cost || "",
+    driver_id: unit.driver_id || "",
+    secondary_driver_id: unit.secondary_driver_id || "",
   });
+  const [drivers, setDrivers] = useState<any[]>([]);
+  const [loadingDrivers, setLoadingDrivers] = useState(false);
   const [saving, setSaving] = useState(false);
   const set = (k: string, v: any) => setForm(p => ({ ...p, [k]: v }));
+
+  useEffect(() => {
+    const fetchDrivers = async () => {
+      setLoadingDrivers(true);
+      try {
+        const res = await api.get("/drivers");
+        if (res.data.success) setDrivers(res.data.data);
+      } catch (err) { console.error("Error fetching drivers", err); }
+      finally { setLoadingDrivers(false); }
+    };
+    fetchDrivers();
+  }, []);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -221,40 +238,85 @@ function EditUnitModal({ unit, onClose, onUpdated }: { unit: any; onClose: () =>
                 <option value="rented">Rented</option>
               </select>
             </div>
+          </div>
 
-            {/* Boundary Rate */}
-            <div className="col-span-full">
-              <label className="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-0.5 ml-1">Boundary Rate</label>
-              <p className="text-[10px] text-gray-400 font-bold mb-1.5 ml-1">Daily boundary collection target</p>
-              <div className="relative">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-black text-gray-400">₱</span>
-                <input type="number" className="w-full border-2 border-gray-100 bg-gray-50/30 rounded-2xl pl-11 pr-4 py-3.5 text-sm font-black text-gray-900 focus:outline-none focus:border-blue-400 focus:bg-white transition-all"
-                  placeholder="0.00" value={form.boundary_rate} onChange={e => set("boundary_rate", e.target.value)} />
+          {/* Section: Financial Information */}
+          <div className="pt-4 border-t border-gray-100">
+            <div className="flex items-center gap-2 mb-6 px-1">
+              <div className="w-7 h-7 bg-purple-50 rounded-lg flex items-center justify-center">
+                <span className="text-purple-500 font-black text-xs leading-none">₱</span>
               </div>
+              <p className="text-sm font-black text-gray-800 tracking-tight">Financial Information</p>
             </div>
 
-            {/* Purchase Date */}
-            <div className="col-span-full">
-              <label className="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-0.5 ml-1">Purchase Date</label>
-              <p className="text-[10px] text-gray-400 font-bold mb-1.5 ml-1">When the unit was purchased</p>
-              <div className="relative">
-                <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                <input type="date" className="w-full border-2 border-gray-100 bg-gray-50/30 rounded-2xl pl-11 pr-4 py-3.5 text-sm font-black text-gray-900 focus:outline-none focus:border-blue-400 focus:bg-white transition-all"
-                  value={form.purchase_date} onChange={e => set("purchase_date", e.target.value)} />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              {/* Boundary Rate */}
+              <div className="col-span-full">
+                <label className="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-0.5 ml-1">Boundary Rate <span className="text-red-500">*</span></label>
+                <p className="text-[10px] text-gray-400 font-bold mb-1.5 ml-1">Daily boundary collection target</p>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-black text-gray-400">₱</span>
+                  <input type="number" required className="w-full border-2 border-gray-100 bg-gray-50/30 rounded-2xl pl-11 pr-4 py-3.5 text-sm font-black text-gray-900 focus:outline-none focus:border-blue-400 focus:bg-white transition-all"
+                    placeholder="0.00" value={form.boundary_rate} onChange={e => set("boundary_rate", e.target.value)} />
+                </div>
+              </div>
+
+              {/* Purchase Cost */}
+              <div>
+                <label className="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-0.5 ml-1">Purchase Cost</label>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-black text-gray-400">₱</span>
+                  <input type="number" className="w-full border-2 border-gray-100 bg-gray-50/30 rounded-2xl pl-11 pr-4 py-3.5 text-sm font-black text-gray-900 focus:outline-none focus:border-blue-400 focus:bg-white transition-all"
+                    placeholder="0.00" value={form.purchase_cost} onChange={e => set("purchase_cost", e.target.value)} />
+                </div>
+              </div>
+
+              {/* Purchase Date */}
+              <div>
+                <label className="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-0.5 ml-1">Purchase Date</label>
+                <div className="relative">
+                  <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <input type="date" className="w-full border-2 border-gray-100 bg-gray-50/30 rounded-2xl pl-11 pr-4 py-3.5 text-sm font-black text-gray-900 focus:outline-none focus:border-blue-400 focus:bg-white transition-all"
+                    value={form.purchase_date} onChange={e => set("purchase_date", e.target.value)} />
+                </div>
               </div>
             </div>
           </div>
 
           {/* Section: Driver Assignment */}
           <div className="pt-4 border-t border-gray-100">
-            <div className="flex items-center gap-2 mb-4 px-1">
-              <div className="w-7 h-7 bg-green-50 rounded-lg flex items-center justify-center">
-                <Users className="w-4 h-4 text-green-500" />
+            <div className="flex items-center gap-2 mb-6 px-1">
+              <div className="w-7 h-7 bg-blue-50 rounded-lg flex items-center justify-center">
+                <Users className="w-4 h-4 text-blue-500" />
               </div>
               <p className="text-sm font-black text-gray-800 tracking-tight">Driver Assignment</p>
             </div>
-            <div className="bg-gray-50 rounded-2xl p-4 border border-dashed border-gray-200 text-center">
-              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Driver management coming soon to mobile</p>
+            
+            <div className="space-y-5">
+              {/* Primary Driver */}
+              <div>
+                <label className="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Primary Driver</label>
+                <select className="w-full border-2 border-gray-100 bg-gray-50/30 rounded-2xl px-4 py-3.5 text-sm font-black text-gray-900 focus:outline-none focus:border-blue-400 focus:bg-white transition-all"
+                  value={form.driver_id} onChange={e => set("driver_id", e.target.value)}>
+                  <option value="">Start typing to search drivers...</option>
+                  {drivers.map(d => (
+                    <option key={d.id} value={d.id}>{d.name} {d.license ? `- ${d.license}` : ""}</option>
+                  ))}
+                </select>
+                <p className="text-[10px] text-gray-400 font-bold mt-1.5 ml-1 italic">Main driver assigned to this unit</p>
+              </div>
+
+              {/* Secondary Driver */}
+              <div>
+                <label className="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Secondary Driver (Optional)</label>
+                <select className="w-full border-2 border-gray-100 bg-gray-50/30 rounded-2xl px-4 py-3.5 text-sm font-black text-gray-900 focus:outline-none focus:border-blue-400 focus:bg-white transition-all"
+                  value={form.secondary_driver_id} onChange={e => set("secondary_driver_id", e.target.value)}>
+                  <option value="">Backup or relief driver (optional)</option>
+                  {drivers.map(d => (
+                    <option key={d.id} value={d.id}>{d.name} {d.license ? `- ${d.license}` : ""}</option>
+                  ))}
+                </select>
+              </div>
             </div>
           </div>
 

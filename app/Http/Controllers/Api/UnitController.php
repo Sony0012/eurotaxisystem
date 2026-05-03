@@ -326,7 +326,7 @@ class UnitController extends Controller
     public function update(Request $request, $id)
     {
         $validated = $request->validate([
-            'plate_number'   => 'required|string|max:20|unique:units,plate_number,' . $id,
+            'plate_number'   => 'required|string|max:20|unique:units,plate_number,'.$id,
             'make'           => 'required|string|max:50',
             'model'          => 'required|string|max:50',
             'year'           => 'required|integer|min:1990|max:2100',
@@ -334,6 +334,11 @@ class UnitController extends Controller
             'chassis_no'     => 'required|string|max:191',
             'status'         => 'required|string|max:20',
             'unit_type'      => 'required|string|max:20',
+            'boundary_rate'  => 'required|numeric|min:0',
+            'purchase_date'  => 'nullable|date',
+            'purchase_cost'  => 'nullable|numeric|min:0',
+            'driver_id'      => 'nullable|exists:drivers,id',
+            'secondary_driver_id' => 'nullable|exists:drivers,id',
         ]);
 
         try {
