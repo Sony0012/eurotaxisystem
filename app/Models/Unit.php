@@ -52,6 +52,15 @@ class Unit extends Model
         return $this->belongsTo(Driver::class, 'driver_id');
     }
 
+    /**
+     * Alias for primaryDriver() — keeps backward compatibility with any code
+     * that calls Unit::with(['driver']).
+     */
+    public function driver()
+    {
+        return $this->belongsTo(Driver::class, 'driver_id');
+    }
+
     public function secondaryDriver()
     {
         return $this->belongsTo(Driver::class, 'secondary_driver_id');

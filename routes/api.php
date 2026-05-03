@@ -36,6 +36,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Core Resources
     Route::get('/dashboard', [DashboardController::class, 'index']);
     Route::get('/units', [UnitController::class, 'index']);
+    Route::post('/units', [UnitController::class, 'store']);
     Route::get('/units/{id}', [UnitController::class, 'show']);
     Route::get('/drivers', [DriverController::class, 'index']);
     
