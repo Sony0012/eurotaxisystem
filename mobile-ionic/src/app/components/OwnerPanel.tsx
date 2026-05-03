@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import {
   Crown, Shield, Users, UserPlus, Activity, Lock, ShieldAlert,
   CheckCircle, XCircle, RefreshCw, Loader2, X, ChevronRight,
-  LayoutDashboard, Eye, EyeOff, Search, Key, Archive, Trash2
+  LayoutDashboard, Eye, EyeOff, Search, Key, Archive, Trash2, Edit2
 } from "lucide-react";
 
 export function OwnerPanel() {
@@ -125,6 +125,28 @@ export function OwnerPanel() {
     } finally {
       setSavingAccess(false);
     }
+  };
+
+  const [editUser, setEditUser] = useState<any>(null);
+  const [editing, setEditing] = useState(false);
+
+  const saveEditUser = async (e: React.FormEvent) => {
+    e.preventDefault(); setEditing(true);
+    try {
+      const payload = {
+        first_name: editUser.first_name,
+        last_name: editUser.last_name,
+        email: editUser.email,
+        phone_number: editUser.phone_number,
+        address: editUser.address,
+        role: editUser.role
+      };
+      const r = await api.put(`/super-admin/users/${editUser.id}/update`, payload);
+      toast.success(r.data.message);
+      setEditUser(null);
+      loadData();
+    } catch(e:any) { toast.error(e?.response?.data?.message || "Failed to update user."); }
+    finally { setEditing(false); }
   };
 
   const archiveUser = async (id: number) => {
@@ -584,13 +606,13 @@ export function OwnerPanel() {
                         </td>
                         <td className="px-6 py-4">
                           {!u.is_disabled ? (
-                            <span className="inline-flex items-center gap-1.5 px-3 py-1 border border-green-500 text-green-600 text-[10px] font-bold uppercase tracking-wider rounded-full">
+                            <button onClick={()=>toggleDisable(u.id, !!u.is_disabled)} className="inline-flex items-center gap-1.5 px-3 py-1 border border-green-500 text-green-600 text-[10px] font-bold uppercase tracking-wider rounded-full hover:bg-green-50 transition-colors" title="Click to disable account">
                               <div className="w-1.5 h-1.5 rounded-full bg-green-500"></div> Active
-                            </span>
+                            </button>
                           ) : (
-                            <span className="inline-flex items-center gap-1.5 px-3 py-1 border border-red-500 text-red-600 text-[10px] font-bold uppercase tracking-wider rounded-full">
-                              <div className="w-1.5 h-1.5 rounded-full bg-red-500"></div> Inactive
-                            </span>
+                            <button onClick={()=>toggleDisable(u.id, !!u.is_disabled)} className="inline-flex items-center gap-1.5 px-3 py-1 border border-red-500 text-red-600 text-[10px] font-bold uppercase tracking-wider rounded-full hover:bg-red-50 transition-colors" title="Click to enable account">
+                              <div className="w-1.5 h-1.5 rounded-full bg-red-500"></div> Disabled
+                            </button>
                           )}
                         </td>
                         <td className="px-6 py-4 text-xs text-gray-500">
@@ -603,8 +625,8 @@ export function OwnerPanel() {
                                  <CheckCircle className="w-4 h-4"/>
                                </button>
                             )}
-                            <button onClick={()=>toggleDisable(u.id, !!u.is_disabled)} className="p-2 text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-colors" title={u.is_disabled ? "Enable" : "Disable"}>
-                              {u.is_disabled ? <Activity className="w-4 h-4"/> : <Lock className="w-4 h-4"/>}
+                            <button onClick={()=>setEditUser(u)} className="p-2 text-gray-400 hover:text-amber-500 hover:bg-amber-50 rounded-lg transition-colors" title="Edit User">
+                              <Edit2 className="w-4 h-4"/>
                             </button>
                             <button onClick={()=>archiveUser(u.id)} className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors" title="Archive">
                               <Trash2 className="w-4 h-4"/>
@@ -689,6 +711,63 @@ export function OwnerPanel() {
       )}
 
       {/* MODALS */}
+      {editUser && (
+        <div className="fixed inset-0 bg-gray-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl w-full max-w-md shadow-2xl p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl font-black text-gray-900">Edit User</h3>
+              <button onClick={() => setEditUser(null)} className="text-gray-400 hover:text-gray-600"><X className="w-5 h-5" /></button>
+            </div>
+            <form onSubmit={saveEditUser} className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-xs font-bold text-gray-700 uppercase tracking-widest mb-1 block">First Name</label>
+                  <input required type="text" value={editUser.first_name} onChange={e => setEditUser({ ...editUser, first_name: e.target.value })}
+                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-amber-500 outline-none" />
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-gray-700 uppercase tracking-widest mb-1 block">Last Name</label>
+                  <input required type="text" value={editUser.last_name} onChange={e => setEditUser({ ...editUser, last_name: e.target.value })}
+                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-amber-500 outline-none" />
+                </div>
+              </div>
+              <div>
+                <label className="text-xs font-bold text-gray-700 uppercase tracking-widest mb-1 block">Email</label>
+                <input required type="email" value={editUser.email} onChange={e => setEditUser({ ...editUser, email: e.target.value })}
+                  className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-amber-500 outline-none" />
+              </div>
+              <div>
+                <label className="text-xs font-bold text-gray-700 uppercase tracking-widest mb-1 block">Phone Number</label>
+                <input required type="text" value={editUser.phone_number} onChange={e => setEditUser({ ...editUser, phone_number: e.target.value })}
+                  className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-amber-500 outline-none" />
+              </div>
+              <div>
+                <label className="text-xs font-bold text-gray-700 uppercase tracking-widest mb-1 block">Address</label>
+                <input required type="text" value={editUser.address} onChange={e => setEditUser({ ...editUser, address: e.target.value })}
+                  className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-amber-500 outline-none" />
+              </div>
+              <div>
+                <label className="text-xs font-bold text-gray-700 uppercase tracking-widest mb-1 block">Role</label>
+                <select required value={editUser.role} onChange={e => setEditUser({ ...editUser, role: e.target.value })}
+                  className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-amber-500 outline-none">
+                  {data?.roles?.map((r: any) => (
+                    <option key={r.id} value={r.name}>{r.label}</option>
+                  ))}
+                  <option value="super_admin">Super Admin (Owner)</option>
+                </select>
+              </div>
+              <div className="pt-2 flex gap-3">
+                <button type="button" onClick={() => setEditUser(null)} className="flex-1 py-3 border border-gray-200 text-gray-600 rounded-xl font-bold hover:bg-gray-50 transition-colors">
+                  Cancel
+                </button>
+                <button type="submit" disabled={editing} className="flex-1 bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 rounded-xl disabled:opacity-60 transition-colors">
+                  {editing ? "Saving..." : "Save Changes"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
       {showUserArchiveModal && (
         <div className="fixed inset-0 bg-gray-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl w-full max-w-4xl shadow-2xl flex flex-col max-h-[90vh]">
