@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, RefreshCw, ChevronRight, Loader2, Car, X, SlidersHorizontal, Grid3X3, List, Printer, Flag, Plus, AlertTriangle, Wrench, MoreVertical, Eye, Edit2, Trash2, Info, CreditCard, Save } from "lucide-react";
+import { Search, RefreshCw, ChevronRight, Loader2, Car, X, SlidersHorizontal, Grid3X3, List, Printer, Flag, Plus, AlertTriangle, Wrench, MoreVertical, Eye, Edit2, Trash2, Info, CreditCard, Save, Calendar, Users } from "lucide-react";
 import api from "../services/api";
 import { toast } from "sonner";
 
@@ -105,7 +105,9 @@ function EditUnitModal({ unit, onClose, onUpdated }: { unit: any; onClose: () =>
     motor_no: unit.motor_no, 
     chassis_no: unit.chassis_no, 
     status: unit.status, 
-    unit_type: unit.unit_type || "standard" 
+    unit_type: unit.unit_type || "standard",
+    boundary_rate: unit.boundary_rate || "",
+    purchase_date: unit.purchase_date || "",
   });
   const [saving, setSaving] = useState(false);
   const set = (k: string, v: any) => setForm(p => ({ ...p, [k]: v }));
@@ -201,10 +203,10 @@ function EditUnitModal({ unit, onClose, onUpdated }: { unit: any; onClose: () =>
               <select className="w-full border-2 border-gray-100 bg-gray-50/30 rounded-2xl px-4 py-3.5 text-sm font-black text-gray-900 focus:outline-none focus:border-blue-400 focus:bg-white transition-all"
                 value={form.status} onChange={e => set("status", e.target.value)}>
                 <option value="active">Active</option>
+                <option value="at_risk">At Risk / Missing</option>
                 <option value="maintenance">Maintenance</option>
-                <option value="coding">Coding</option>
-                <option value="at_risk">At Risk</option>
                 <option value="retired">Retired</option>
+                <option value="vacant">Vacant</option>
               </select>
             </div>
 
@@ -213,11 +215,46 @@ function EditUnitModal({ unit, onClose, onUpdated }: { unit: any; onClose: () =>
               <label className="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Unit Type</label>
               <select className="w-full border-2 border-gray-100 bg-gray-50/30 rounded-2xl px-4 py-3.5 text-sm font-black text-gray-900 focus:outline-none focus:border-blue-400 focus:bg-white transition-all"
                 value={form.unit_type} onChange={e => set("unit_type", e.target.value)}>
+                <option value="new">New</option>
                 <option value="standard">Standard</option>
-                <option value="new">New Unit</option>
-                <option value="old">Old Unit</option>
+                <option value="old">Old</option>
                 <option value="rented">Rented</option>
               </select>
+            </div>
+
+            {/* Boundary Rate */}
+            <div className="col-span-full">
+              <label className="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-0.5 ml-1">Boundary Rate</label>
+              <p className="text-[10px] text-gray-400 font-bold mb-1.5 ml-1">Daily boundary collection target</p>
+              <div className="relative">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-black text-gray-400">₱</span>
+                <input type="number" className="w-full border-2 border-gray-100 bg-gray-50/30 rounded-2xl pl-11 pr-4 py-3.5 text-sm font-black text-gray-900 focus:outline-none focus:border-blue-400 focus:bg-white transition-all"
+                  placeholder="0.00" value={form.boundary_rate} onChange={e => set("boundary_rate", e.target.value)} />
+              </div>
+            </div>
+
+            {/* Purchase Date */}
+            <div className="col-span-full">
+              <label className="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-0.5 ml-1">Purchase Date</label>
+              <p className="text-[10px] text-gray-400 font-bold mb-1.5 ml-1">When the unit was purchased</p>
+              <div className="relative">
+                <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <input type="date" className="w-full border-2 border-gray-100 bg-gray-50/30 rounded-2xl pl-11 pr-4 py-3.5 text-sm font-black text-gray-900 focus:outline-none focus:border-blue-400 focus:bg-white transition-all"
+                  value={form.purchase_date} onChange={e => set("purchase_date", e.target.value)} />
+              </div>
+            </div>
+          </div>
+
+          {/* Section: Driver Assignment */}
+          <div className="pt-4 border-t border-gray-100">
+            <div className="flex items-center gap-2 mb-4 px-1">
+              <div className="w-7 h-7 bg-green-50 rounded-lg flex items-center justify-center">
+                <Users className="w-4 h-4 text-green-500" />
+              </div>
+              <p className="text-sm font-black text-gray-800 tracking-tight">Driver Assignment</p>
+            </div>
+            <div className="bg-gray-50 rounded-2xl p-4 border border-dashed border-gray-200 text-center">
+              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Driver management coming soon to mobile</p>
             </div>
           </div>
 

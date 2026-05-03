@@ -40,6 +40,8 @@ class UnitController extends Controller
                 'u.unit_type',
                 'u.driver_id',
                 'u.secondary_driver_id',
+                'u.purchase_date',
+                'u.color',
                 DB::raw("CONCAT(COALESCE(d1.first_name,''), ' ', COALESCE(d1.last_name,'')) as primary_driver_name"),
                 DB::raw("CONCAT(COALESCE(d2.first_name,''), ' ', COALESCE(d2.last_name,'')) as secondary_driver_name")
             );
