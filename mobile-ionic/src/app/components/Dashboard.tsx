@@ -4,6 +4,7 @@ import { Car, Users, TrendingUp, Wrench, DollarSign, Calendar, Activity, BarChar
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, AreaChart, Area, ReferenceLine, LabelList } from "recharts";
 import api from "../services/api";
 import { toast } from "sonner";
+import dayjs from "dayjs";
 
 const COLORS = ["#3b82f6","#10b981","#f59e0b","#ef4444","#8b5cf6","#06b6d4"];
 const fmt = (n: any) => "₱" + Number(n||0).toLocaleString("en-PH",{minimumFractionDigits:2,maximumFractionDigits:2});
@@ -211,7 +212,7 @@ export function Dashboard() {
             id: 'coding', 
             label: "Coding Units Today", 
             val: stats?.coding_units, 
-            sub: now().format('dddd').toUpperCase(), 
+            sub: dayjs().format('dddd').toUpperCase(), 
             icon: Calendar, 
             bg: "bg-purple-50/50", 
             bd: "border-purple-100", 
