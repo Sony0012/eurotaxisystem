@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, RefreshCw, ChevronRight, Loader2, Car, X, SlidersHorizontal, Grid3X3, List, Printer, Flag, Plus, AlertTriangle, Wrench, MoreVertical, Eye, Edit2, Trash2, Info, CreditCard, Save, Calendar, Users, Clock, AlertCircle, UserMinus } from "lucide-react";
+import { Search, RefreshCw, ChevronRight, Loader2, Car, X, SlidersHorizontal, Grid3X3, List, Printer, Flag, Plus, AlertTriangle, Wrench, MoreVertical, Eye, Edit2, Trash2, Info, CreditCard, Save, Calendar, Users, Clock, AlertCircle, UserMinus, ChevronDown } from "lucide-react";
 import api from "../services/api";
 import { toast } from "sonner";
 
@@ -122,6 +122,72 @@ const getCodingInfo = (plate: string) => {
     remaining: `${diff} ${diff === 1 ? 'day' : 'days'}`
   };
 };
+
+function SearchableSelect({ label, placeholder, value, options, onChange, helperText }: { 
+  label: string; 
+  placeholder: string; 
+  value: string; 
+  options: any[]; 
+  onChange: (id: string) => void;
+  helperText?: string;
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [search, setSearch] = useState("");
+  
+  const selectedOption = options.find(o => o.id == value);
+  const filtered = options.filter(o => 
+    o.name.toLowerCase().includes(search.toLowerCase()) || 
+    (o.license && o.license.toLowerCase().includes(search.toLowerCase()))
+  );
+
+  return (
+    <div className="relative">
+      <label className="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">{label}</label>
+      <div className="relative">
+        <input 
+          type="text"
+          className="w-full border-2 border-gray-100 bg-gray-50/30 rounded-2xl px-4 py-3.5 text-sm font-black text-gray-900 focus:outline-none focus:border-blue-400 focus:bg-white transition-all pr-10"
+          placeholder={placeholder}
+          value={isOpen ? search : (selectedOption ? selectedOption.name : "")}
+          onChange={e => { setSearch(e.target.value); setIsOpen(true); }}
+          onFocus={() => { setIsOpen(true); setSearch(""); }}
+          onBlur={() => setTimeout(() => setIsOpen(false), 200)}
+        />
+        <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-1">
+          {value && !isOpen && (
+            <button type="button" onClick={(e) => { e.stopPropagation(); onChange(""); }} className="p-1 hover:bg-gray-100 rounded-full">
+              <X className="w-3 h-3 text-gray-400" />
+            </button>
+          )}
+          <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+        </div>
+      </div>
+      
+      {isOpen && (
+        <div className="absolute z-[60] left-0 right-0 mt-2 bg-white border border-gray-100 rounded-2xl shadow-xl max-h-60 overflow-y-auto overflow-x-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+          <div className="p-2 space-y-1">
+            {filtered.length === 0 ? (
+              <p className="p-4 text-center text-xs font-bold text-gray-400 uppercase tracking-widest">No drivers found</p>
+            ) : (
+              filtered.map(opt => (
+                <button
+                  key={opt.id}
+                  type="button"
+                  onClick={() => { onChange(opt.id); setIsOpen(false); setSearch(""); }}
+                  className={`w-full text-left p-3 rounded-xl transition-all flex flex-col gap-0.5 ${value == opt.id ? 'bg-blue-50' : 'hover:bg-gray-50'}`}
+                >
+                  <span className={`text-sm font-black ${value == opt.id ? 'text-blue-600' : 'text-gray-900'}`}>{opt.name}</span>
+                  {opt.license && <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">{opt.license}</span>}
+                </button>
+              ))
+            )}
+          </div>
+        </div>
+      )}
+      {helperText && <p className="text-[10px] text-gray-400 font-bold mt-1.5 ml-1 italic">{helperText}</p>}
+    </div>
+  );
+}
 
 function EditUnitModal({ unit, onClose, onUpdated }: { unit: any; onClose: () => void; onUpdated: () => void }) {
   const [form, setForm] = useState({ 
@@ -319,40 +385,32 @@ function EditUnitModal({ unit, onClose, onUpdated }: { unit: any; onClose: () =>
               <p className="text-sm font-black text-gray-800 tracking-tight">Driver Assignment</p>
             </div>
             
-            <div className="space-y-5">
+            <div className="space-y-6">
               {/* Primary Driver */}
-              <div>
-                <label className="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Primary Driver</label>
-                <select className="w-full border-2 border-gray-100 bg-gray-50/30 rounded-2xl px-4 py-3.5 text-sm font-black text-gray-900 focus:outline-none focus:border-blue-400 focus:bg-white transition-all"
-                  value={form.driver_id} onChange={e => {
-                    const val = e.target.value;
-                    set("driver_id", val);
-                    if (val && val === form.secondary_driver_id) set("secondary_driver_id", "");
-                  }}>
-                  <option value="">Start typing to search drivers...</option>
-                  {drivers.filter(d => d.is_available || d.id == unit.driver_id || d.id == unit.secondary_driver_id).map(d => (
-                    <option key={d.id} value={d.id}>{d.name} {d.license ? `- ${d.license}` : ""}</option>
-                  ))}
-                </select>
-                <p className="text-[10px] text-gray-400 font-bold mt-1.5 ml-1 italic">Main driver assigned to this unit</p>
-              </div>
+              <SearchableSelect 
+                label="Primary Driver"
+                placeholder="Start typing to search drivers..."
+                value={form.driver_id}
+                options={drivers.filter(d => d.is_available || d.id == unit.driver_id || d.id == unit.secondary_driver_id)}
+                onChange={val => {
+                  set("driver_id", val);
+                  if (val && val === form.secondary_driver_id) set("secondary_driver_id", "");
+                }}
+                helperText="Main driver assigned to this unit"
+              />
 
               {/* Secondary Driver */}
-              <div>
-                <label className="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Secondary Driver (Optional)</label>
-                <select className="w-full border-2 border-gray-100 bg-gray-50/30 rounded-2xl px-4 py-3.5 text-sm font-black text-gray-900 focus:outline-none focus:border-blue-400 focus:bg-white transition-all"
-                  value={form.secondary_driver_id} onChange={e => {
-                    const val = e.target.value;
-                    set("secondary_driver_id", val);
-                    if (val && val === form.driver_id) set("driver_id", "");
-                  }}>
-                  <option value="">Backup or relief driver (optional)</option>
-                  {drivers.filter(d => d.is_available || d.id == unit.driver_id || d.id == unit.secondary_driver_id).map(d => (
-                    <option key={d.id} value={d.id}>{d.name} {d.license ? `- ${d.license}` : ""}</option>
-                  ))}
-                </select>
-                <p className="text-[10px] text-gray-400 font-bold mt-1.5 ml-1 italic">Backup or relief driver (optional)</p>
-              </div>
+              <SearchableSelect 
+                label="Secondary Driver (Optional)"
+                placeholder="Backup or relief driver (optional)"
+                value={form.secondary_driver_id}
+                options={drivers.filter(d => d.is_available || d.id == unit.driver_id || d.id == unit.secondary_driver_id)}
+                onChange={val => {
+                  set("secondary_driver_id", val);
+                  if (val && val === form.driver_id) set("driver_id", "");
+                }}
+                helperText="Backup or relief driver (optional)"
+              />
 
               {/* Remove All Drivers Button - matching web premium look */}
               <div className="pt-2">
