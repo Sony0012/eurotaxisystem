@@ -319,6 +319,43 @@ class UnitController extends Controller
         ]]);
     }
 
+    /**
+     * Update an existing unit.
+     */
+    public function update(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'plate_number'   => 'required|string|max:20|unique:units,plate_number,' . $id,
+            'make'           => 'required|string|max:50',
+            'model'          => 'required|string|max:50',
+            'year'           => 'required|integer|min:1990|max:2100',
+            'motor_no'       => 'required|string|max:191',
+            'chassis_no'     => 'required|string|max:191',
+            'status'         => 'required|string|max:20',
+            'unit_type'      => 'required|string|max:20',
+        ]);
+
+        try {
+            $oldUnit = DB::table('units')->where('id', $id)->first();
+            if (!$oldUnit) return response()->json(['success' => false, 'message' => 'Unit not found.'], 404);
+
+            DB::table('units')->where('id', $id)->update(array_merge($validated, [
+                'updated_at' => now(),
+            ]));
+
+            // Log activity
+            try {
+                if (class_exists(\App\Http\Controllers\ActivityLogController::class)) {
+                    \App\Http\Controllers\ActivityLogController::log('Updated Unit Details', "Unit: {$validated['plate_number']} information updated.");
+                }
+            } catch (\Exception $e) {}
+
+            return response()->json(['success' => true, 'message' => 'Unit updated successfully.']);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+        }
+    }
+
     public function destroy($id)
     {
         DB::beginTransaction();

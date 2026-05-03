@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, RefreshCw, ChevronRight, Loader2, Car, X, SlidersHorizontal, Grid3X3, List, Printer, Flag, Plus, AlertTriangle, Wrench, MoreVertical, Eye, Edit2, Trash2 } from "lucide-react";
+import { Search, RefreshCw, ChevronRight, Loader2, Car, X, SlidersHorizontal, Grid3X3, List, Printer, Flag, Plus, AlertTriangle, Wrench, MoreVertical, Eye, Edit2, Trash2, Info, CreditCard, Save } from "lucide-react";
 import api from "../services/api";
 import { toast } from "sonner";
 
@@ -96,6 +96,144 @@ function FlaggedModal({ units, onClose }: { units: any[], onClose: () => void })
   );
 }
 
+function EditUnitModal({ unit, onClose, onUpdated }: { unit: any; onClose: () => void; onUpdated: () => void }) {
+  const [form, setForm] = useState({ 
+    plate_number: unit.plate_number, 
+    make: unit.make, 
+    model: unit.model, 
+    year: unit.year, 
+    motor_no: unit.motor_no, 
+    chassis_no: unit.chassis_no, 
+    status: unit.status, 
+    unit_type: unit.unit_type || "standard" 
+  });
+  const [saving, setSaving] = useState(false);
+  const set = (k: string, v: any) => setForm(p => ({ ...p, [k]: v }));
+
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSaving(true);
+    try {
+      await api.put(`/units/${unit.id}`, form);
+      toast.success("Unit updated successfully!");
+      onUpdated();
+      onClose();
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || "Failed to update unit.");
+    } finally { setSaving(false); }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end sm:items-center sm:justify-center p-0 sm:p-4">
+      <div className="bg-white w-full sm:max-w-xl rounded-t-3xl sm:rounded-3xl max-h-[95vh] flex flex-col shadow-2xl overflow-hidden">
+        {/* Header - matching web premium dark look */}
+        <div className="bg-slate-900 p-5 flex items-center justify-between border-b border-white/10">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center">
+              <Edit2 className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <p className="font-black text-white text-base leading-none">Edit Unit</p>
+              <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mt-1">Update vehicle information and settings</p>
+            </div>
+          </div>
+          <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-full transition-colors"><X className="w-5 h-5 text-white" /></button>
+        </div>
+
+        <form onSubmit={submit} className="flex-1 overflow-y-auto p-6 space-y-6">
+          {/* Section: Basic Information */}
+          <div className="flex items-center gap-2 mb-2 px-1">
+            <div className="w-7 h-7 bg-blue-50 rounded-lg flex items-center justify-center">
+              <Info className="w-4 h-4 text-blue-500" />
+            </div>
+            <p className="text-sm font-black text-gray-800 tracking-tight">Basic Information</p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            {/* Plate Number */}
+            <div className="col-span-full">
+              <label className="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Plate Number <span className="text-red-500">*</span></label>
+              <div className="relative">
+                <CreditCard className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <input required className="w-full border-2 border-gray-100 bg-gray-50/30 rounded-2xl pl-11 pr-4 py-3.5 text-sm font-black text-gray-900 focus:outline-none focus:border-blue-400 focus:bg-white transition-all uppercase"
+                  placeholder="ABC 1234" value={form.plate_number} onChange={e => set("plate_number", e.target.value.toUpperCase())} />
+              </div>
+            </div>
+
+            {/* Make */}
+            <div>
+              <label className="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Make <span className="text-red-500">*</span></label>
+              <input required className="w-full border-2 border-gray-100 bg-gray-50/30 rounded-2xl px-4 py-3.5 text-sm font-black text-gray-900 focus:outline-none focus:border-blue-400 focus:bg-white transition-all uppercase"
+                placeholder="TOYOTA" value={form.make} onChange={e => set("make", e.target.value.toUpperCase())} />
+            </div>
+
+            {/* Model */}
+            <div>
+              <label className="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Model <span className="text-red-500">*</span></label>
+              <input required className="w-full border-2 border-gray-100 bg-gray-50/30 rounded-2xl px-4 py-3.5 text-sm font-black text-gray-900 focus:outline-none focus:border-blue-400 focus:bg-white transition-all uppercase"
+                placeholder="VIOS" value={form.model} onChange={e => set("model", e.target.value.toUpperCase())} />
+            </div>
+
+            {/* Year */}
+            <div>
+              <label className="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Year <span className="text-red-500">*</span></label>
+              <input type="number" required className="w-full border-2 border-gray-100 bg-gray-50/30 rounded-2xl px-4 py-3.5 text-sm font-black text-gray-900 focus:outline-none focus:border-blue-400 focus:bg-white transition-all"
+                value={form.year} onChange={e => set("year", e.target.value)} />
+            </div>
+
+            {/* Motor No */}
+            <div className="col-span-full">
+              <label className="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Motor No <span className="text-red-500">*</span></label>
+              <input required className="w-full border-2 border-gray-100 bg-gray-50/30 rounded-2xl px-4 py-3.5 text-sm font-black text-gray-900 focus:outline-none focus:border-blue-400 focus:bg-white transition-all uppercase"
+                placeholder="Engine serial number" value={form.motor_no} onChange={e => set("motor_no", e.target.value.toUpperCase())} />
+            </div>
+
+            {/* Chassis No */}
+            <div className="col-span-full">
+              <label className="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Chassis No <span className="text-red-500">*</span></label>
+              <input required className="w-full border-2 border-gray-100 bg-gray-50/30 rounded-2xl px-4 py-3.5 text-sm font-black text-gray-900 focus:outline-none focus:border-blue-400 focus:bg-white transition-all uppercase"
+                placeholder="Vehicle identification number" value={form.chassis_no} onChange={e => set("chassis_no", e.target.value.toUpperCase())} />
+            </div>
+
+            {/* Status */}
+            <div>
+              <label className="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Status</label>
+              <select className="w-full border-2 border-gray-100 bg-gray-50/30 rounded-2xl px-4 py-3.5 text-sm font-black text-gray-900 focus:outline-none focus:border-blue-400 focus:bg-white transition-all"
+                value={form.status} onChange={e => set("status", e.target.value)}>
+                <option value="active">Active</option>
+                <option value="maintenance">Maintenance</option>
+                <option value="coding">Coding</option>
+                <option value="at_risk">At Risk</option>
+                <option value="retired">Retired</option>
+              </select>
+            </div>
+
+            {/* Unit Type */}
+            <div>
+              <label className="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Unit Type</label>
+              <select className="w-full border-2 border-gray-100 bg-gray-50/30 rounded-2xl px-4 py-3.5 text-sm font-black text-gray-900 focus:outline-none focus:border-blue-400 focus:bg-white transition-all"
+                value={form.unit_type} onChange={e => set("unit_type", e.target.value)}>
+                <option value="standard">Standard</option>
+                <option value="new">New Unit</option>
+                <option value="old">Old Unit</option>
+                <option value="rented">Rented</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="flex gap-4 pt-6 pb-2">
+            <button type="button" onClick={onClose} className="flex-1 py-4 rounded-2xl border-2 border-gray-100 text-sm font-black text-gray-500 hover:bg-gray-50 active:bg-gray-100 transition-all uppercase tracking-widest">Cancel</button>
+            <button type="submit" disabled={saving} className="flex-[1.5] py-4 rounded-2xl bg-blue-600 text-white text-sm font-black shadow-lg shadow-blue-200 active:scale-95 transition-all flex items-center justify-center gap-2 uppercase tracking-widest disabled:opacity-50">
+              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+              {saving ? "Updating..." : "Update Unit"}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
 function AddUnitModal({ onClose, onAdded }: { onClose: () => void; onAdded: () => void }) {
   const [form, setForm] = useState({ plate_number:"", make:"", model:"", year: new Date().getFullYear(), boundary_rate:"1100", purchase_cost:"0", motor_no:"", chassis_no:"" });
   const [saving, setSaving] = useState(false);
@@ -180,6 +318,7 @@ export function UnitManagement() {
   const [viewMode, setViewMode] = useState<"table"|"cards">("table");
   const [showFlagged, setShowFlagged] = useState(false);
   const [showAddUnit, setShowAddUnit] = useState(false);
+  const [editingUnit, setEditingUnit] = useState<any|null>(null);
   const [activeMenu, setActiveMenu] = useState<number|null>(null);
   const navigate = useNavigate();
 
@@ -401,7 +540,204 @@ export function UnitManagement() {
                     </button>
                     {activeMenu === u.id && (
                       <div className="absolute right-0 top-full mt-1 w-44 bg-white border border-gray-100 rounded-2xl shadow-2xl z-[100] py-2 animate-in fade-in zoom-in duration-200">
-                        <button className="w-full px-4 py-2 text-left flex items-center gap-2 hover:bg-gray-50 text-xs font-black text-gray-700 uppercase tracking-widest transition-colors">
+                        <button 
+                          onClick={(e) => { e.stopPropagation(); setEditingUnit(u); setActiveMenu(null); }}
+                          className="w-full px-4 py-2 text-left flex items-center gap-2 hover:bg-gray-50 text-xs font-black text-gray-700 uppercase tracking-widest transition-colors"
+                        >
+                          <Edit2 className="w-3 h-3 text-yellow-500" /> Edit Unit
+                        </button>
+                        <button 
+                          onClick={(e) => { e.stopPropagation(); archiveUnit(u); }}
+                          className="w-full px-4 py-2 text-left flex items-center gap-2 hover:bg-red-50 text-xs font-black text-red-600 uppercase tracking-widest transition-colors"
+                        >
+                          <Trash2 className="w-3 h-3" /> Archive Unit
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <HealthBar unit={u} />
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        /* ── CARDS VIEW — matches eurotaxisystem.site/units cards layout ── */
+        <div className="flex-1 p-3 grid grid-cols-2 gap-3 bg-gray-100">
+          {units.map(u => {
+            const hasGps = u.gps_device_count > 0 || !!u.imei;
+            const SERVICE_KM = 5000;
+            const kmSince = Math.max(0, (u.current_gps_odo||0) - (u.last_service_odo_gps||0));
+            const pct = Math.min(100, Math.round((kmSince / SERVICE_KM) * 100));
+            const isOverdue = kmSince >= SERVICE_KM;
+            let barColor = "bg-green-500", barText = "text-green-600", barLabel = "Good";
+            if (isOverdue)    { barColor = "bg-red-600";    barText = "text-red-600";    barLabel = "SERVICE OVERDUE"; }
+            else if (pct>=85) { barColor = "bg-orange-500"; barText = "text-orange-600"; barLabel = "Service Due Soon"; }
+            else if (pct>=60) { barColor = "bg-yellow-400"; barText = "text-yellow-600"; barLabel = "Maintenance Progress"; }
+
+            const s = u.status?.toLowerCase();
+            const statusCfg: any = {
+              active:      { dot:"bg-green-500 animate-pulse shadow-[0_0_5px_rgba(34,197,94,0.7)]",  label:"Active",      txt:"text-green-600" },
+              maintenance: { dot:"bg-red-500 shadow-[0_0_4px_rgba(239,68,68,0.6)]",                  label:"Maintenance", txt:"text-red-600"   },
+              coding:      { dot:"bg-yellow-400 animate-[blink_1.1s_step-start_infinite]",            label:"Coding",      txt:"text-yellow-600"},
+              at_risk:     { dot:"bg-orange-500 animate-pulse shadow-[0_0_5px_rgba(249,115,22,0.7)]",label:"At Risk",     txt:"text-orange-600"},
+            };
+            const sc = statusCfg[s] || { dot:"bg-gray-400", label: u.status || "Unknown", txt:"text-gray-500" };
+
+            return (
+              <div key={u.id} onClick={() => navigate(`/units/${u.id}`)}
+                className="bg-white rounded-2xl shadow overflow-hidden cursor-pointer active:opacity-90 transition-all flex flex-col">
+
+                {/* ── Card Header: Plate + Status (matching web dark header) ── */}
+                <div className="bg-gray-900 px-3 py-2 flex items-center justify-between">
+                  <span className="text-white font-black text-xs tracking-wider">{u.plate_number}</span>
+                  <span className={`flex items-center gap-1 text-[9px] font-black uppercase ${sc.txt}`}>
+                    <span className={`w-1.5 h-1.5 rounded-full ${sc.dot}`} />
+                    {sc.label}
+                  </span>
+                </div>
+
+                {/* ── Car Icon + Vehicle Details ── */}
+                <div className="flex items-center gap-2 px-3 py-3 border-b border-gray-100">
+                  <div className="w-12 h-12 bg-red-50 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <Car className="w-7 h-7 text-red-400" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-black text-gray-900 leading-tight">{u.make}</p>
+                    <p className="text-sm font-black text-gray-900 leading-tight">{u.model}</p>
+                    <div className="flex items-center gap-1 mt-0.5">
+                      <span className="text-[9px] text-gray-400 font-bold">{u.year}</span>
+                      <span className="text-gray-300">•</span>
+                      <span className="px-1.5 py-0.5 bg-gray-900 text-white text-[8px] font-black rounded uppercase">
+                        {u.unit_type === 'new' || (u.boundary_rate > 1000) ? 'NEW' : 'OLD'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* ── Boundary Rate ── */}
+                <div className="px-3 py-2 border-b border-gray-100 flex items-center gap-1.5">
+                  <span className="text-green-600">💳</span>
+                  <span className="text-sm font-black text-gray-900">{fmtRate(u.boundary_rate)}</span>
+                </div>
+
+                {/* ── Primary Driver ── */}
+                <div className="px-3 py-2 border-b border-gray-100">
+                  <p className="text-[8px] font-black text-gray-400 uppercase tracking-wider mb-1">Primary Driver</p>
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-5 h-5 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">
+                      <span className="text-[9px] text-gray-400">👤</span>
+                    </div>
+                    <p className={`text-xs font-bold truncate ${u.primary_driver ? "text-gray-900" : "text-gray-300 italic"}`}>
+                      {u.primary_driver || "Unassigned"}
+                    </p>
+                  </div>
+                </div>
+
+                {/* ── Maintenance Health Bar (GPS units only) ── */}
+                {hasGps && (
+                  <div className="px-3 py-2 border-b border-gray-100">
+                    <div className="flex justify-between items-center mb-1">
+                      <span className={`flex items-center gap-1 text-[8px] font-black uppercase tracking-wide ${barText}`}>
+                        {isOverdue && <span>⚠</span>}
+                        {barLabel}
+                      </span>
+                      <span className="text-[8px] text-gray-400 font-bold tabular-nums">
+                        {Number(kmSince).toLocaleString()} / {Number(SERVICE_KM).toLocaleString()} KM
+                      </span>
+                    </div>
+                    <div className="relative h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                      <div className={`absolute inset-y-0 left-0 ${barColor} ${isOverdue?"animate-pulse":""} rounded-full`}
+                        style={{ width:`${pct}%` }} />
+                    </div>
+                    {isOverdue && (
+                      <p className="text-[8px] text-red-500 mt-1 italic leading-tight">
+                        Exceeded by {Number(kmSince - SERVICE_KM).toLocaleString()}km.
+                      </p>
+                    )}
+                  </div>
+                )}
+      {/* ── Unit List ── */}
+      {isLoading ? (
+        <div className="flex flex-col items-center justify-center flex-1 py-20 gap-3">
+          <Loader2 className="h-8 w-8 animate-spin text-yellow-500" />
+          <p className="text-sm text-gray-500 font-medium">Loading units...</p>
+        </div>
+      ) : apiError ? (
+        <div className="flex flex-col items-center justify-center flex-1 py-20 gap-3 text-center px-8">
+          <div className="w-14 h-14 bg-red-100 rounded-full flex items-center justify-center mb-2">
+            <span className="text-2xl">⚠️</span>
+          </div>
+          <p className="text-base font-black text-gray-800">Failed to Load Units</p>
+          <p className="text-xs text-red-600 font-medium bg-red-50 border border-red-200 rounded-xl px-4 py-3 max-w-xs break-words">{apiError}</p>
+          <button onClick={fetchUnits} className="mt-2 px-6 py-2.5 bg-yellow-400 text-gray-900 font-black text-sm rounded-xl active:bg-yellow-500">
+            Try Again
+          </button>
+        </div>
+      ) : units.length === 0 ? (
+        <div className="flex flex-col items-center justify-center flex-1 py-20 gap-3 text-center px-8">
+          <Car className="w-16 h-16 text-gray-200" />
+          <p className="text-base font-black text-gray-800">No units found</p>
+          <p className="text-sm text-gray-400 italic">Try adjusting your search criteria.</p>
+        </div>
+      ) : viewMode === "table" ? (
+        /* ── TABLE VIEW ── */
+        <div className="flex-1 divide-y divide-gray-100 bg-white">
+          {/* Column Headers (matching web exactly) */}
+          <div className="grid grid-cols-[1.5fr_1.5fr_1.5fr_1fr_1.2fr_0.5fr] px-4 py-3 bg-gray-50 border-b border-gray-200">
+            <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Plate Number Info</p>
+            <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Vehicle Details</p>
+            <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Assigned Drivers</p>
+            <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest text-center">Status</p>
+            <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest text-right">Boundary Rate</p>
+            <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest text-right">Actions</p>
+          </div>
+          {units.map(u => (
+            <div key={u.id} className="relative group">
+              <div className="px-4 py-4 hover:bg-yellow-50/30 transition-all border-l-4 border-transparent hover:border-yellow-400">
+                <div className="grid grid-cols-[1.5fr_1.5fr_1.5fr_1fr_1.2fr_0.5fr] gap-2 items-center">
+                  {/* Plate Info */}
+                  <div onClick={() => navigate(`/units/${u.id}`)} className="cursor-pointer">
+                    <p className="text-sm font-black text-gray-900 tracking-tight leading-none mb-1.5">{u.plate_number}</p>
+                    <p className="text-[8px] font-bold text-gray-400 uppercase leading-tight">M: {u.motor_no}</p>
+                    <p className="text-[8px] font-bold text-gray-400 uppercase leading-tight">C: {u.chassis_no}</p>
+                  </div>
+                  {/* Vehicle Details */}
+                  <div onClick={() => navigate(`/units/${u.id}`)} className="cursor-pointer">
+                    <p className="text-xs font-black text-gray-900 leading-none mb-1">{u.make} {u.model}</p>
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-[9px] text-gray-400 font-bold">{u.year}</span>
+                      <span className="px-1.5 py-0.5 bg-blue-50 text-blue-600 text-[8px] font-black rounded uppercase tracking-tighter">NEW</span>
+                    </div>
+                  </div>
+                  {/* Assigned Drivers */}
+                  <div onClick={() => navigate(`/units/${u.id}`)} className="cursor-pointer">
+                    <p className="text-[9px] text-gray-500 mb-1 leading-none"><span className="font-black text-gray-400 uppercase text-[8px]">D1:</span> {u.primary_driver || <span className="italic text-gray-300">No D1</span>}</p>
+                    <p className="text-[9px] text-gray-900 font-bold leading-none"><span className="font-black text-gray-400 uppercase text-[8px]">D2:</span> {u.secondary_driver || <span className="italic text-gray-300">No D2</span>}</p>
+                  </div>
+                  {/* Status */}
+                  <div className="text-center" onClick={() => navigate(`/units/${u.id}`)}>
+                    <StatusDot status={u.status} />
+                  </div>
+                  {/* Boundary Rate */}
+                  <div className="text-right" onClick={() => navigate(`/units/${u.id}`)}>
+                    <p className="text-sm font-black text-gray-900 leading-none mb-1.5">{fmtRate(u.boundary_rate)}</p>
+                    <span className="px-2 py-0.5 bg-blue-600 text-white text-[8px] font-black uppercase rounded tracking-widest shadow-sm">SUNDAY DISCOUNT</span>
+                  </div>
+                  {/* Actions */}
+                  <div className="text-right relative">
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); setActiveMenu(activeMenu === u.id ? null : u.id); }}
+                      className="p-1.5 hover:bg-gray-100 rounded-lg text-gray-400 hover:text-gray-900 transition-colors"
+                    >
+                      <MoreVertical className="w-4 h-4" />
+                    </button>
+                    {activeMenu === u.id && (
+                      <div className="absolute right-0 top-full mt-1 w-44 bg-white border border-gray-100 rounded-2xl shadow-2xl z-[100] py-2 animate-in fade-in zoom-in duration-200">
+                        <button 
+                          onClick={(e) => { e.stopPropagation(); setEditingUnit(u); setActiveMenu(null); }}
+                          className="w-full px-4 py-2 text-left flex items-center gap-2 hover:bg-gray-50 text-xs font-black text-gray-700 uppercase tracking-widest transition-colors"
+                        >
                           <Edit2 className="w-3 h-3 text-yellow-500" /> Edit Unit
                         </button>
                         <button 
@@ -531,6 +867,7 @@ export function UnitManagement() {
       {/* ── Modals ── */}
       {showFlagged && <FlaggedModal units={units} onClose={() => setShowFlagged(false)} />}
       {showAddUnit && <AddUnitModal onClose={() => setShowAddUnit(false)} onAdded={fetchUnits} />}
+      {editingUnit && <EditUnitModal unit={editingUnit} onClose={() => setEditingUnit(null)} onUpdated={fetchUnits} />}
     </div>
   );
 }
