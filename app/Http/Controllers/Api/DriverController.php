@@ -24,11 +24,11 @@ class DriverController extends Controller
 
             return [
                 'id' => $driver->id,
-                'name' => $driver->user->full_name ?? $driver->user->name,
-                'email' => $driver->user->email,
+                'name' => $driver->user ? ($driver->user->full_name ?? $driver->user->name) : ($driver->first_name . ' ' . $driver->last_name),
+                'email' => $driver->user->email ?? 'N/A',
                 'phone' => $driver->contact_number,
                 'license' => $driver->license_number,
-                'status' => $driver->user->is_active ? 'Active' : 'Inactive',
+                'status' => $driver->user ? ($driver->user->is_active ? 'Active' : 'Inactive') : 'Inactive',
                 'is_available' => !$isAssigned,
             ];
         });
