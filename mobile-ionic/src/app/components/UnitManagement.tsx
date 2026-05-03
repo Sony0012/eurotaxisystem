@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, RefreshCw, ChevronRight, Loader2, Car, X, SlidersHorizontal, Grid3X3, List, Printer, Flag, Plus, AlertTriangle, Wrench, MoreVertical, Eye, Edit2, Trash2, Info, CreditCard, Save, Calendar, Users, Clock, AlertCircle } from "lucide-react";
+import { Search, RefreshCw, ChevronRight, Loader2, Car, X, SlidersHorizontal, Grid3X3, List, Printer, Flag, Plus, AlertTriangle, Wrench, MoreVertical, Eye, Edit2, Trash2, Info, CreditCard, Save, Calendar, Users, Clock, AlertCircle, UserMinus } from "lucide-react";
 import api from "../services/api";
 import { toast } from "sonner";
 
@@ -324,9 +324,13 @@ function EditUnitModal({ unit, onClose, onUpdated }: { unit: any; onClose: () =>
               <div>
                 <label className="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Primary Driver</label>
                 <select className="w-full border-2 border-gray-100 bg-gray-50/30 rounded-2xl px-4 py-3.5 text-sm font-black text-gray-900 focus:outline-none focus:border-blue-400 focus:bg-white transition-all"
-                  value={form.driver_id} onChange={e => set("driver_id", e.target.value)}>
+                  value={form.driver_id} onChange={e => {
+                    const val = e.target.value;
+                    set("driver_id", val);
+                    if (val && val === form.secondary_driver_id) set("secondary_driver_id", "");
+                  }}>
                   <option value="">Start typing to search drivers...</option>
-                  {drivers.map(d => (
+                  {drivers.filter(d => d.is_available || d.id == unit.driver_id || d.id == unit.secondary_driver_id).map(d => (
                     <option key={d.id} value={d.id}>{d.name} {d.license ? `- ${d.license}` : ""}</option>
                   ))}
                 </select>
@@ -337,12 +341,30 @@ function EditUnitModal({ unit, onClose, onUpdated }: { unit: any; onClose: () =>
               <div>
                 <label className="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Secondary Driver (Optional)</label>
                 <select className="w-full border-2 border-gray-100 bg-gray-50/30 rounded-2xl px-4 py-3.5 text-sm font-black text-gray-900 focus:outline-none focus:border-blue-400 focus:bg-white transition-all"
-                  value={form.secondary_driver_id} onChange={e => set("secondary_driver_id", e.target.value)}>
+                  value={form.secondary_driver_id} onChange={e => {
+                    const val = e.target.value;
+                    set("secondary_driver_id", val);
+                    if (val && val === form.driver_id) set("driver_id", "");
+                  }}>
                   <option value="">Backup or relief driver (optional)</option>
-                  {drivers.map(d => (
+                  {drivers.filter(d => d.is_available || d.id == unit.driver_id || d.id == unit.secondary_driver_id).map(d => (
                     <option key={d.id} value={d.id}>{d.name} {d.license ? `- ${d.license}` : ""}</option>
                   ))}
                 </select>
+                <p className="text-[10px] text-gray-400 font-bold mt-1.5 ml-1 italic">Backup or relief driver (optional)</p>
+              </div>
+
+              {/* Remove All Drivers Button - matching web premium look */}
+              <div className="pt-2">
+                <button 
+                  type="button"
+                  onClick={() => { setForm(p => ({ ...p, driver_id: "", secondary_driver_id: "" })); }}
+                  className="w-full flex items-center justify-center gap-2 py-3 bg-red-50 border border-red-100 rounded-2xl text-red-600 hover:bg-red-100 transition-all active:scale-[0.98]"
+                >
+                  <UserMinus className="w-4 h-4" />
+                  <span className="text-xs font-black uppercase tracking-widest">Remove All Drivers</span>
+                </button>
+                <p className="text-[9px] text-center text-gray-400 font-bold mt-2 uppercase tracking-tighter">Clear both driver assignments for this unit</p>
               </div>
             </div>
           </div>

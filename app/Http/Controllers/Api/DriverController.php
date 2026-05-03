@@ -14,6 +14,14 @@ class DriverController extends Controller
     public function index()
     {
         $drivers = Driver::with('user')->get()->map(function($driver) {
+            $isAssigned = \DB::table('units')
+                ->where(function($q) use ($driver) {
+                    $q->where('driver_id', $driver->id)
+                      ->orWhere('secondary_driver_id', $driver->id);
+                })
+                ->whereNull('deleted_at')
+                ->exists();
+
             return [
                 'id' => $driver->id,
                 'name' => $driver->user->full_name ?? $driver->user->name,
@@ -21,6 +29,7 @@ class DriverController extends Controller
                 'phone' => $driver->contact_number,
                 'license' => $driver->license_number,
                 'status' => $driver->user->is_active ? 'Active' : 'Inactive',
+                'is_available' => !$isAssigned,
             ];
         });
 
