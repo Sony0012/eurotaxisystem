@@ -6,7 +6,7 @@
 @section('main-padding', 'p-0')
 
 @push('styles')
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="stylesheet" href="{{ asset('assets/leaflet/leaflet.css') }}" />
 <style>
 /* ── Full-height layout fixes ───────────────────────────────────── */
 /* Force the content wrapper to be a proper flex column so        */
@@ -596,7 +596,7 @@
 @endsection
 
 @push('scripts')
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="{{ asset('assets/leaflet/leaflet.js') }}"></script>
 <script src="{{ asset('js/realtime-tracking.js') }}?v={{ time() }}"></script>
 <script>
 /* ================================================================

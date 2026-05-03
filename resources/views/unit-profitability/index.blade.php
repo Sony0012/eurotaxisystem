@@ -566,5 +566,5 @@
             }
         }
     </script>
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="{{ asset('assets/marked.min.js') }}"></script>
 @endpush

@@ -553,7 +553,7 @@
         <div id="tab-access" class="sa-tab-content {{ $tab === 'access' ? '' : 'hidden' }}">
             <div style="background:#f0fdfa; border:1px solid #ccfbf1; border-radius:1.5rem; padding:.85rem 1.25rem; margin-bottom:1.5rem; display:flex; align-items:center; gap:.75rem;">
                 <i data-lucide="info" style="width:15px;height:15px;color:#14b8a6;flex-shrink:0;"></i>
-                <p style="font-size:.78rem; color:#0f766e; font-weight:600;">Click a user below, then toggle which pages they can access. Leave all unchecked to grant full access.</p>
+                <p style="font-size:.78rem; color:#0f766e; font-weight:600;">Click a user below, then toggle which pages they can access. If nothing is selected, the user will have NO access to restricted pages.</p>
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
@@ -615,7 +615,7 @@
                             @endforeach
                             <div style="margin-top:1rem; padding-top:1rem; border-top:1px solid var(--sa-border); font-size:.72rem; color:#64748b;">
                                 <i data-lucide="info" class="inline w-3 h-3 mr-1"></i>
-                                <strong style="color:#000;">No chips selected</strong> = Full access (no restriction). Select specific pages to restrict this user.
+                                <strong style="color:#b91c1c;">No chips selected</strong> = Restricted Access. The user will not be able to view any pages until permissions are granted.
                             </div>
                         </div>
                     </div>
@@ -1629,7 +1629,7 @@ function clearAllPages() {
 async function savePageAccess() {
     if (!currentAccessUserId) return;
     const activeChips = [...document.querySelectorAll('.page-chip.active')].map(c => c.dataset.route);
-    const pages = activeChips.length > 0 ? activeChips : null;
+    const pages = activeChips;
 
     const res = await fetch(`/super-admin/page-access/${currentAccessUserId}`, {
         method: 'POST',

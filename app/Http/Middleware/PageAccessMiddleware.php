@@ -34,19 +34,15 @@ class PageAccessMiddleware
             return $next($request);
         }
 
-        // Users with no allowed_pages set have full access (backward compat)
         $allowedPages = $user->allowed_pages;
-        if (empty($allowedPages)) {
-            return $next($request);
-        }
 
         // Decode if it's a string
         if (is_string($allowedPages)) {
             $allowedPages = json_decode($allowedPages, true) ?? [];
         }
 
-        // If allowed_pages is an explicit empty array [] it means "no restrictions"
-        // We use null to mean "no restrictions", empty array means all blocked
+        // We use null to mean "full access/no restrictions" (backward compat)
+        // An explicit empty array [] means "no pages allowed" (blocked)
         // So if it's null (not set), allow everything
         if ($allowedPages === null) {
             return $next($request);

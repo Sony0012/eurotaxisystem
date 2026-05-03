@@ -15,12 +15,10 @@
     <link rel="shortcut icon" href="{{ asset('favicon_euro_transparent.png') }}?v=1.5">
     <link rel="icon" type="image/png" href="{{ asset('favicon_euro_transparent.png') }}?v=1.5">
     <link rel="apple-touch-icon" href="{{ asset('favicon_euro_transparent.png') }}?v=1.5">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="{{ asset('assets/tailwind.min.js') }}"></script>
+    <script src="{{ asset('assets/lottie-player.js') }}"></script>
+    <link rel="stylesheet" href="{{ asset('assets/fontawesome/all.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/inter/inter.css') }}">
     
     <script>
         // Prevent back button caching

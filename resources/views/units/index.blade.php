@@ -7,7 +7,7 @@
 
 @push('styles')
     <!-- Leaflet CSS for Map -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="{{ asset('assets/leaflet/leaflet.css') }}" />
     <style>
         #unitDetailMap { z-index: 1; }
 
@@ -1305,7 +1305,7 @@
     });
 </script>
     <!-- Leaflet JS for Map -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="{{ asset('assets/leaflet/leaflet.js') }}"></script>
 @endpush
 @endsection
 
