@@ -76,11 +76,11 @@
     
     #sa-toast {
         position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%) translateY(4rem);
-        background: #1e293b; border: 1px solid #eab308; color: #fff;
-        padding: .75rem 1.5rem; border-radius: .75rem; font-size: .83rem; font-weight: 600;
-        box-shadow: 0 8px 32px rgba(0,0,0,.5);
-        z-index: 9999; transition: transform .3s cubic-bezier(.34,1.56,.64,1);
-        max-width: 90vw; text-align: center;
+        background: #1e293b; border: 1px solid #eab308; color: #ffffff;
+        padding: .85rem 1.75rem; border-radius: 999px; font-size: .85rem; font-weight: 600;
+        box-shadow: 0 12px 40px rgba(0,0,0,.6);
+        z-index: 9999; transition: transform .4s cubic-bezier(.34,1.56,.64,1);
+        max-width: 90vw; display: flex; align-items: center; gap: .75rem;
     }
     #sa-toast.show { transform: translateX(-50%) translateY(0); }
     #sa-toast.error { border-color: #ef4444; }
@@ -1370,7 +1370,17 @@ window.switchTab = function(name) {
  window.toast = function(msg, isError = false) {
      const el = document.getElementById('sa-toast');
      if (!el) return;
-     el.textContent = msg;
+     
+     const icon = isError ? 'alert-circle' : 'check-circle';
+     const iconColor = isError ? '#ef4444' : '#10b981';
+     
+     el.innerHTML = `
+         <i data-lucide="${icon}" style="width:18px;height:18px;color:${iconColor}; flex-shrink:0;"></i>
+         <span style="white-space: nowrap;">${msg}</span>
+     `;
+     
+     if (window.lucide) window.lucide.createIcons();
+     
      el.className = 'show' + (isError ? ' error' : '');
      setTimeout(() => el.className = '', 3500);
  };

@@ -165,11 +165,11 @@
     /* ── Toast notification ── */
     #sa-toast {
         position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%) translateY(4rem);
-        background: #1e293b; border: 1px solid var(--sa-gold); color: var(--sa-text);
-        padding: .75rem 1.5rem; border-radius: .75rem; font-size: .83rem; font-weight: 600;
-        box-shadow: 0 8px 32px rgba(0,0,0,.5);
-        z-index: 9999; transition: transform .3s cubic-bezier(.34,1.56,.64,1);
-        max-width: 90vw; text-align: center;
+        background: #1e293b; border: 1px solid var(--sa-gold); color: #ffffff;
+        padding: .85rem 1.75rem; border-radius: 999px; font-size: .85rem; font-weight: 600;
+        box-shadow: 0 12px 40px rgba(0,0,0,.6);
+        z-index: 9999; transition: transform .4s cubic-bezier(.34,1.56,.64,1);
+        max-width: 90vw; display: flex; align-items: center; gap: .75rem;
     }
     #sa-toast.show { transform: translateX(-50%) translateY(0); }
     #sa-toast.error { border-color: #ef4444; }
@@ -387,11 +387,11 @@
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                                 <div>
                                     <label style="font-size:.75rem; font-weight:800; text-transform:uppercase; letter-spacing:.06em; color:#475569; display:block; margin-bottom:.6rem;">First Name <span style="color:#ef4444;">*</span></label>
-                                    <input type="text" id="staff-first" class="sa-input" required placeholder="Enter first name">
+                                    <input type="text" id="staff-first" class="sa-input" required maxlength="16" pattern="^[a-zA-Z\s]+$" title="Only letters and spaces allowed, max 16 characters" placeholder="Enter first name" oninput="this.value = this.value.replace(/[^a-zA-Z\s]/g, '');">
                                 </div>
                                 <div>
                                     <label style="font-size:.75rem; font-weight:800; text-transform:uppercase; letter-spacing:.06em; color:#475569; display:block; margin-bottom:.6rem;">Last Name <span style="color:#ef4444;">*</span></label>
-                                    <input type="text" id="staff-last" class="sa-input" required placeholder="Enter last name">
+                                    <input type="text" id="staff-last" class="sa-input" required maxlength="16" pattern="^[a-zA-Z\s]+$" title="Only letters and spaces allowed, max 16 characters" placeholder="Enter last name" oninput="this.value = this.value.replace(/[^a-zA-Z\s]/g, '');">
                                 </div>
                             </div>
                             
@@ -402,13 +402,13 @@
                                 </div>
                                 <div>
                                     <label style="font-size:.75rem; font-weight:800; text-transform:uppercase; letter-spacing:.06em; color:#475569; display:block; margin-bottom:.6rem;">Phone Number</label>
-                                    <input type="text" id="staff-phone" class="sa-input" placeholder="+63 9XX XXX XXXX">
+                                    <input type="text" id="staff-phone" class="sa-input" maxlength="11" pattern="^[0-9]+$" title="Only up to 11 numbers allowed" placeholder="09XX XXX XXXX" oninput="this.value = this.value.replace(/[^0-9]/g, '');">
                                 </div>
                             </div>
 
                             <div class="mb-6">
                                 <label style="font-size:.75rem; font-weight:800; text-transform:uppercase; letter-spacing:.06em; color:#475569; display:block; margin-bottom:.6rem;">Home Address</label>
-                                <input type="text" id="staff-address" class="sa-input" placeholder="Enter complete home address">
+                                <input type="text" id="staff-address" class="sa-input" maxlength="255" pattern="^[a-zA-Z0-9\s.,'-]+$" title="Only letters, numbers, spaces, dots, commas, dashes, and single quotes allowed" placeholder="Enter complete home address" oninput="this.value = this.value.replace(/[^a-zA-Z0-9\s.,'-]/g, '');">
                             </div>
 
                             <div class="mb-8">
@@ -1408,7 +1408,18 @@ function switchTab(tab) {
 // ─── Toast ────────────────────────────────────────────────────────────────────
 function toast(msg, isError = false) {
     const el = document.getElementById('sa-toast');
-    el.textContent = msg;
+    if (!el) return;
+    
+    const icon = isError ? 'alert-circle' : 'check-circle';
+    const iconColor = isError ? '#ef4444' : '#10b981';
+    
+    el.innerHTML = `
+        <i data-lucide="${icon}" style="width:18px;height:18px;color:${iconColor}; flex-shrink:0;"></i>
+        <span style="white-space: nowrap;">${msg}</span>
+    `;
+    
+    if (window.lucide) window.lucide.createIcons();
+    
     el.className = 'show' + (isError ? ' error' : '');
     setTimeout(() => el.className = '', 3500);
 }
@@ -1419,7 +1430,7 @@ async function approveUser(id, name) {
     const res = await fetch(`/super-admin/approve/${id}`, { method: 'POST', headers: { 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' } });
     const data = await res.json();
     if (data.success) {
-        toast('✔ ' + data.message);
+        toast(data.message);
         setTimeout(() => location.reload(), 1500);
     } else {
         toast(data.message || 'Error.', true);
@@ -1460,7 +1471,7 @@ async function submitDisable(e) {
         });
         const data = await res.json();
         if (data.success) {
-            toast('✔ ' + data.message);
+            toast(data.message);
             location.reload();
         } else {
             toast(data.message || 'Error.', true);
@@ -1478,7 +1489,7 @@ async function confirmEnable(id, name) {
         });
         const data = await res.json();
         if (data.success) {
-            toast('✔ ' + data.message);
+            toast(data.message);
             location.reload();
         } else {
             toast(data.message || 'Error.', true);
@@ -1496,7 +1507,7 @@ async function archiveUser(id, name) {
         });
         const data = await res.json();
         if (data.success) { 
-            toast('✔ ' + data.message); 
+            toast(data.message); 
             location.reload(); 
         } else {
             toast(data.message || 'Error.', true);
@@ -1513,7 +1524,7 @@ async function restoreUser(id, name) {
         });
         const data = await res.json();
         if (data.success) { 
-            toast('✔ ' + data.message); 
+            toast(data.message); 
             location.reload(); 
         } else {
             toast(data.message || 'Error.', true);
@@ -1563,7 +1574,7 @@ async function submitUserEdit(e) {
         });
         const data = await res.json();
         if (data.success) {
-            toast('✔ ' + data.message);
+            toast(data.message);
             location.reload();
         } else {
             toast(data.message || 'Validation error.', true);
@@ -1638,7 +1649,7 @@ async function savePageAccess() {
     });
     const data = await res.json();
     if (data.success) {
-        toast('✔ ' + data.message);
+        toast(data.message);
         // Update the data attribute on the user item
         const item = document.querySelector(`.access-user-item[data-id="${currentAccessUserId}"]`);
         if (item) item.dataset.allowed = JSON.stringify(pages);
@@ -1725,7 +1736,7 @@ async function submitPasswordReset() {
         body: JSON.stringify({ password: pw })
     });
     const data = await res.json();
-    if (data.success) { toast('✔ ' + data.message); closePwModal(); }
+    if (data.success) { toast(data.message); closePwModal(); }
     else toast(data.message || 'Error.', true);
 }
 
@@ -1751,7 +1762,7 @@ async function submitRoleUpdate() {
     });
     const data = await res.json();
     if (data.success) {
-        toast('✔ ' + data.message);
+        toast(data.message);
         closeRoleModal();
         location.reload(); // Reload to see badge update
     } else {
@@ -1996,7 +2007,7 @@ async function submitClassification(e) {
           });
           const data = await res.json();
           if (data.success) {
-              toast('✔ ' + data.message);
+              toast(data.message);
               e.target.reset();
           } else {
               toast(data.message || 'Error updating password.', true);
@@ -2016,7 +2027,7 @@ async function submitClassification(e) {
               });
               const data = await res.json();
               if (data.success) {
-                  toast('✔ ' + data.message);
+                  toast(data.message);
                   location.reload();
               } else {
                   toast(data.message || 'Error deleting user.', true);
@@ -2041,13 +2052,42 @@ async function submitStaff(e) {
     btn.disabled = true;
 
     try {
+        const firstName = document.getElementById('staff-first').value.trim();
+        const lastName = document.getElementById('staff-last').value.trim();
+        const phone = document.getElementById('staff-phone').value.trim();
+        const address = document.getElementById('staff-address').value.trim();
+        const email = document.getElementById('staff-email').value.trim();
+        const role = document.getElementById('staff-role').value;
+
+        const nameRegex = /^[A-Za-z\s]+$/;
+        if (!nameRegex.test(firstName) || firstName.length > 16) {
+            toast('First Name must only contain letters and max 16 chars.', true);
+            btn.innerHTML = originalText; btn.disabled = false; return;
+        }
+        if (!nameRegex.test(lastName) || lastName.length > 16) {
+            toast('Last Name must only contain letters and max 16 chars.', true);
+            btn.innerHTML = originalText; btn.disabled = false; return;
+        }
+        
+        const phoneRegex = /^[0-9]+$/;
+        if (phone && (!phoneRegex.test(phone) || phone.length > 11)) {
+            toast('Phone Number must be up to 11 digits only.', true);
+            btn.innerHTML = originalText; btn.disabled = false; return;
+        }
+
+        const addressRegex = /^[A-Za-z0-9\s.,'-]+$/;
+        if (address && !addressRegex.test(address)) {
+            toast('Home Address contains invalid special characters.', true);
+            btn.innerHTML = originalText; btn.disabled = false; return;
+        }
+
         const payload = {
-            first_name: document.getElementById('staff-first').value,
-            last_name: document.getElementById('staff-last').value,
-            email: document.getElementById('staff-email').value,
-            phone_number: document.getElementById('staff-phone').value,
-            role: document.getElementById('staff-role').value,
-            address: document.getElementById('staff-address').value,
+            first_name: firstName,
+            last_name: lastName,
+            email: email,
+            phone_number: phone,
+            role: role,
+            address: address,
         };
 
         const res = await fetch('{{ route('super-admin.store-staff') }}', {
@@ -2059,7 +2099,7 @@ async function submitStaff(e) {
         const data = await res.json();
         
         if (data.success) {
-            toast('✔ ' + data.message);
+            toast(data.message);
             document.getElementById('staffForm').classList.add('hidden');
             document.getElementById('staffSuccessMsg').classList.remove('hidden');
             document.getElementById('generatedPassword').textContent = data.temp_password;

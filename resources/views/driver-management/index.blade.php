@@ -222,8 +222,10 @@
                                         maxlength="250"
                                         class="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
                                         placeholder="Complete address..."
-                                        oninput="this.value = this.value.slice(0, 250)"></textarea>
+                                        oninput="let original = this.value; this.value = this.value.replace(/[^a-zA-Z0-9\s.,'-]/g, '').slice(0, 250); if(original !== this.value && this.value.length === 250) { document.getElementById('address-notif').classList.remove('hidden'); } else { document.getElementById('address-notif').classList.add('hidden'); }"></textarea>
                                 </div>
+                                <p id="address-notif" class="text-xs text-red-500 hidden font-semibold">Address limit reached (250 chars) or invalid character removed.</p>
+                                <p class="text-[10px] text-gray-400">Only letters, numbers, spaces, dots, commas, and dashes. Max 250 chars.</p>
                             </div>
                         </div>
                     </div>
@@ -244,13 +246,21 @@
                                         <i data-lucide="credit-card" class="w-4 h-4 text-gray-400"></i>
                                     </div>
                                     <input type="text" name="license_number" id="driverLicense" required
-                                        maxlength="20"
+                                        maxlength="13"
                                         class="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono uppercase"
-                                        placeholder="e.g., A01-12-123456"
-                                        pattern="^(?!0+$)(?!-+$)[A-Z0-9-]{3,20}$"
-                                        title="License number: 3-20 characters, letters/numbers/hyphens only. Cannot be all zeros or all hyphens."
-                                        oninput="this.value = this.value.toUpperCase().replace(/[^A-Z0-9-]/g, '').slice(0, 20)">
+                                        placeholder="A00-00-000000"
+                                        pattern="^[A-Z][0-9]{2}-[0-9]{2}-[0-9]{6}$"
+                                        title="Format must be 1 letter, 10 numbers separated by dashes: X00-00-000000"
+                                        oninput="
+                                            let v = this.value.toUpperCase().replace(/[^A-Z0-9]/g, ''); 
+                                            if (v.length > 0) v = v.replace(/^([^A-Z]+)/, ''); 
+                                            if (v.length > 1) v = v[0] + v.substring(1).replace(/[^0-9]/g, ''); 
+                                            if (v.length > 3) v = v.slice(0, 3) + '-' + v.slice(3);
+                                            if (v.length > 6) v = v.slice(0, 6) + '-' + v.slice(6);
+                                            this.value = v.slice(0, 13);
+                                        ">
                                 </div>
+                                <p class="text-[10px] text-gray-400">Format: X00-00-000000 (Auto-formatted)</p>
                             </div>
                             <div class="space-y-2">
                                 <label class="block text-sm font-semibold text-gray-700">License Expiry <span class="text-red-500">*</span></label>
