@@ -412,26 +412,70 @@ export function UnitDetail() {
 
         {/* ── MAINTENANCE ── */}
         {activeTab === "Maintenance" && (
-          <div className="space-y-4">
+          <div className="space-y-6">
+            <div className="flex justify-between items-center mb-2">
+              <div className="flex items-center gap-2">
+                <div className="p-2 bg-blue-50 rounded-lg">
+                  <Wrench className="w-5 h-5 text-blue-600" />
+                </div>
+                <h3 className="text-sm font-black text-gray-900 uppercase tracking-widest">Vehicle Maintenance Records</h3>
+              </div>
+              <span className="px-3 py-1 bg-orange-100 text-orange-700 text-[10px] font-black rounded-full border border-orange-200 uppercase tracking-wider">
+                Total: {fmt(unit.maintenance_total_cost)}
+              </span>
+            </div>
+
             {unit.maintenance_records?.length > 0 ? unit.maintenance_records.map((m: any, i: number) => (
-              <div key={i} className={`bg-white border-l-4 ${m.status === "completed" ? "border-l-green-500" : "border-l-yellow-500"} rounded-2xl p-4 shadow-sm`}>
-                <div className="flex justify-between items-start mb-3">
+              <div key={i} className="bg-white border border-gray-100 rounded-3xl shadow-sm overflow-hidden mb-6">
+                {/* Dark Header */}
+                <div className="bg-slate-800 p-4 flex justify-between items-center text-white">
                   <div>
-                    <p className="text-sm font-black text-gray-900 uppercase">{m.maintenance_type || "Maintenance"}</p>
-                    <p className="text-[10px] text-gray-400 mt-0.5">Started: {fmtDate(m.date_started)}{m.date_completed ? ` · Done: ${fmtDate(m.date_completed)}` : ""}</p>
+                    <p className="text-xs font-black uppercase tracking-widest">{m.maintenance_type || "Maintenance"}</p>
+                    <p className="text-[10px] text-slate-400 font-bold mt-0.5">{new Date(m.date_started).toISOString().split('T')[0]}</p>
                   </div>
                   <div className="text-right">
-                    <span className={`text-[9px] font-black px-2 py-0.5 rounded-full ${m.status === "completed" ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"}`}>{m.status}</span>
-                    <p className="text-base font-black text-red-600 mt-1">{fmt(m.cost)}</p>
+                    <p className="text-sm font-black tracking-tight">{fmt(m.cost)}</p>
+                    <p className="text-[9px] text-slate-400 font-black uppercase">Total Cost</p>
                   </div>
                 </div>
-                {m.description && <div className="bg-gray-50 p-3 rounded-xl mb-2"><p className="text-[9px] font-black text-gray-400 uppercase mb-1">Work Description</p><p className="text-xs text-gray-700">{m.description}</p></div>}
-                {m.mechanic_name && <div className="bg-gray-50 p-3 rounded-xl"><p className="text-[9px] font-black text-gray-400 uppercase mb-1">Mechanic</p><p className="text-xs font-bold text-gray-700">{m.mechanic_name}</p></div>}
+
+                {/* Content Area */}
+                <div className="p-5 space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-[9px] text-gray-400 uppercase font-black tracking-widest mb-1">Mechanic</p>
+                      <p className="text-xs font-black text-gray-700">{m.mechanic_name || "N/A"}</p>
+                    </div>
+                    <div>
+                      <p className="text-[9px] text-gray-400 uppercase font-black tracking-widest mb-1">Status</p>
+                      <span className={`px-2 py-0.5 text-[9px] font-black rounded-full border uppercase inline-flex items-center gap-1 ${
+                        m.status === "completed" ? "bg-green-50 text-green-600 border-green-100" : 
+                        m.status === "pending" ? "bg-yellow-50 text-yellow-600 border-yellow-100" : 
+                        "bg-gray-50 text-gray-600 border-gray-100"
+                      }`}>
+                        {m.status === "pending" && <div className="w-1 h-1 rounded-full bg-yellow-600 animate-pulse" />}
+                        {m.status}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div>
+                    <p className="text-[9px] text-gray-400 uppercase font-black tracking-widest mb-1">Driver</p>
+                    <p className="text-xs font-bold text-gray-700">{m.driver_name || "N/A"}</p>
+                  </div>
+
+                  <div className="pt-4 border-t border-gray-50">
+                    <p className="text-[9px] text-gray-400 uppercase font-black tracking-widest mb-1">Description</p>
+                    <p className="text-xs text-gray-600 leading-relaxed">{m.description || "No description provided."}</p>
+                  </div>
+                </div>
               </div>
             )) : (
-              <div className="bg-white border border-gray-100 rounded-2xl py-16 text-center shadow-sm">
-                <Wrench className="w-12 h-12 text-gray-200 mx-auto mb-3" />
-                <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">No Maintenance Records</p>
+              <div className="bg-white border border-gray-100 rounded-3xl py-20 text-center shadow-sm">
+                <div className="flex flex-col items-center">
+                  <Wrench className="w-16 h-16 text-gray-100 mb-4" />
+                  <p className="text-xs font-bold text-gray-300 uppercase tracking-widest">No Maintenance Records Found</p>
+                </div>
               </div>
             )}
           </div>

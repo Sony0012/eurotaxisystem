@@ -277,9 +277,10 @@ class UnitController extends Controller
                 'hire_date'             => $d2->hire_date,
                 'license_expiry'        => $d2->license_expiry,
             ] : null,
-            'maintenance_count'    => $maintenanceRecords->count(),
-            'maintenance_records'  => $maintenanceRecords,
-            'boundary_history'     => $boundaryHistory,
+            'maintenance_count'      => $maintenanceRecords->count(),
+            'maintenance_total_cost' => round($maintCost, 2),
+            'maintenance_records'    => $maintenanceRecords,
+            'boundary_history'       => $boundaryHistory,
             'roi_percentage'       => round($roiPct, 2),
             'roi' => [
                 'total_investment'  => round($investment, 2),
