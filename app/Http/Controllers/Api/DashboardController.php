@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
+use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
@@ -106,10 +108,7 @@ class DashboardController extends Controller
         // Active drivers
         $stats['active_drivers'] = DB::table('drivers')->whereNull('deleted_at')->count();
 
-        // Coding units today
-        $allUnits = DB::table('units')->whereNull('deleted_at')->get(['plate_number']);
-        $codingDays = ['1'=>'Monday','2'=>'Monday','3'=>'Tuesday','4'=>'Tuesday','5'=>'Wednesday','6'=>'Wednesday','7'=>'Thursday','8'=>'Thursday','9'=>'Friday','0'=>'Friday'];
-        $stats['coding_units'] = $allUnits->filter(fn($u) => ($codingDays[substr($u->plate_number, -1)] ?? '') === $todayDay)->count();
+
 
         // ── CHART DATA ─────────────────────────────────────────────────────────
 
@@ -213,20 +212,110 @@ class DashboardController extends Controller
             ->whereNull('maintenance.deleted_at')->whereNull('units.deleted_at')
             ->orderByDesc('maintenance.date_started')->limit(50)->get();
 
-        // Drivers list
-        $driversList = DB::table('drivers')
-            ->leftJoin('units', 'drivers.id', '=', 'units.driver_id')
+        // Drivers list (MATCHING WEB LOGIC EXACTLY)
+        $driversList = DB::table('drivers as d')
+            ->leftJoin('units as u', function($join) {
+                $join->on('d.id', '=', 'u.driver_id')
+                     ->orOn('d.id', '=', 'u.secondary_driver_id')
+                     ->whereNull('u.deleted_at');
+            })
+            ->leftJoin('boundaries as b', function($join) {
+                $join->on('u.id', '=', 'b.unit_id')
+                     ->whereNull('b.deleted_at');
+            })
             ->select(
-                'drivers.id', 'drivers.first_name', 'drivers.last_name',
-                'drivers.contact_number', 'drivers.license_number', 'drivers.driver_status',
-                'units.plate_number'
+                'd.id', 'd.first_name', 'd.last_name',
+                'd.contact_number as phone', 'd.license_number', 'd.driver_status',
+                'd.hire_date', 'd.address',
+                DB::raw('COUNT(DISTINCT u.id) as assigned_units'),
+                DB::raw('GROUP_CONCAT(DISTINCT u.plate_number) as plate_numbers'),
+                DB::raw('COALESCE(SUM(b.actual_boundary), 0) as total_collected'),
+                DB::raw('COALESCE(AVG(b.actual_boundary), 0) as avg_boundary')
             )
-            ->whereNull('drivers.deleted_at')
-            ->orderBy('drivers.first_name')->limit(100)->get();
+            ->whereNull('d.deleted_at')
+            ->groupBy('d.id', 'd.first_name', 'd.last_name', 'd.contact_number', 'd.license_number', 'd.driver_status', 'd.hire_date', 'd.address')
+            ->orderBy('d.first_name')
+            ->get()
+            ->map(function($driver) {
+                $avg = (float)$driver->avg_boundary;
+                $rating = 'average';
+                if ($avg >= 2000) $rating = 'excellent';
+                elseif ($avg >= 1500) $rating = 'good';
+                elseif ($avg >= 1000) $rating = 'average';
+                else $rating = 'needs_improvement';
 
-        // Coding units
-        $codingList = $allUnits->filter(fn($u) => ($codingDays[substr($u->plate_number, -1)] ?? '') === $todayDay)
-            ->values()->toArray();
+                return [
+                    'id' => $driver->id,
+                    'name' => trim($driver->first_name . ' ' . $driver->last_name),
+                    'license_number' => $driver->license_number,
+                    'phone' => $driver->phone,
+                    'address' => $driver->address,
+                    'hire_date' => $driver->hire_date,
+                    'assigned_units' => (int)$driver->assigned_units,
+                    'plate_number' => $driver->plate_numbers, // For frontend compatibility
+                    'plate_numbers' => $driver->plate_numbers,
+                    'total_collected' => (float)$driver->total_collected,
+                    'performance_rating' => $rating,
+                    'is_top_performer' => ($rating === 'excellent')
+                ];
+            });
+
+        // Recalculate accurate stats for parity matching the web
+        $stats['total_drivers'] = $driversList->count();
+        $stats['vacant_drivers_count'] = $driversList->where('assigned_units', 0)->count();
+        $stats['active_drivers_count'] = $driversList->where('assigned_units', '>', 0)->count();
+        $stats['top_performers_count'] = $driversList->where('is_top_performer', true)->count();
+
+        // Coding units (MATCHING WEB DETAILED FETCH)
+        $hasCodingRecords = Schema::hasTable('coding_records');
+        $codingUnitsQuery = DB::table('units as u')->whereNull('u.deleted_at');
+        $todayName = now()->timezone('Asia/Manila')->format('l');
+
+        if (Schema::hasTable('drivers')) {
+            $codingUnitsQuery->leftJoin('drivers as d', 'u.driver_id', '=', 'd.id');
+        }
+
+        if ($hasCodingRecords) {
+            $latestC = DB::table('coding_records')
+                ->select('unit_id', DB::raw('MAX(id) as latest_id'))
+                ->whereNull('deleted_at')
+                ->groupBy('unit_id');
+
+            $codingUnitsQuery->leftJoinSub($latestC, 'latest_c', function($join) {
+                $join->on('u.id', '=', 'latest_c.unit_id');
+            })->leftJoin('coding_records as c', 'latest_c.latest_id', '=', 'c.id');
+        }
+
+        $codingList = $codingUnitsQuery->select([
+            'u.id', 'u.plate_number', 'u.status', 'u.purchase_cost', 'u.boundary_rate',
+            DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')) as driver_name"),
+            'c.id as coding_id', 'c.description', 'c.date as start_date', 'c.date as end_date',
+            'c.status as coding_status', 'c.cost as coding_cost'
+        ])->get()
+        ->filter(function($unit) use ($todayName) {
+            $plateCodingDay = $this->getCodingDay($unit->plate_number);
+            $isManualCoding = ($unit->status === 'coding' || ($unit->coding_id && $unit->coding_status !== 'completed'));
+            return ($plateCodingDay === $todayName || $isManualCoding);
+        })
+        ->map(function($unit) {
+            return [
+                'id' => $unit->id,
+                'plate_number' => $unit->plate_number,
+                'status' => $unit->status,
+                'driver_name' => $unit->driver_name,
+                'coding_type' => 'Coding',
+                'coding_day' => $this->getCodingDay($unit->plate_number),
+                'description' => $unit->description ?: 'No description available',
+                'start_date' => $unit->start_date,
+                'end_date' => $unit->end_date,
+                'estimated_completion' => $unit->end_date ?: 'Not specified',
+                'coding_status' => $unit->coding_status ?: 'Ongoing',
+                'coding_cost' => (float)$unit->coding_cost
+            ];
+        })->values()->toArray();
+
+        // Update stats coding count to match the web's list count
+        $stats['coding_units'] = count($codingList);
 
         // Units list for Overview Modal (Matching Web)
         $unitsList = DB::table('units as u')
@@ -261,46 +350,62 @@ class DashboardController extends Controller
             });
 
         // ── FINANCIAL BREAKDOWN (Multi-period for Modal) ───────────────────────
+        // Web uses Sunday-start week (JS: today.getDate() - today.getDay())
+        $nowMNL = now()->timezone('Asia/Manila');
+        $dayOfWeek = (int)$nowMNL->format('w'); // 0=Sunday, 1=Monday ... 6=Saturday
+        $weekStart = $nowMNL->copy()->subDays($dayOfWeek)->toDateString(); // Go back to Sunday
+
         $periods = [
             'today'   => [$today, $today],
-            'weekly'  => [now()->timezone('Asia/Manila')->startOfWeek()->toDateString(), $today],
-            'monthly' => [now()->timezone('Asia/Manila')->startOfMonth()->toDateString(), $today],
-            'yearly'  => [now()->timezone('Asia/Manila')->startOfYear()->toDateString(), $today]
+            'week'    => [$weekStart, $today],      // Sunday-to-today (matches web JS)
+            'month'   => [$nowMNL->copy()->startOfMonth()->toDateString(), $today],
+            'year'    => [$nowMNL->copy()->startOfYear()->toDateString(), $today],
         ];
+        // Add aliases so both 'weekly'/'monthly'/'yearly' (old) and 'week'/'month'/'year' (web-matching) keys work
+        $periods['weekly']  = $periods['week'];
+        $periods['monthly'] = $periods['month'];
+        $periods['yearly']  = $periods['year'];
 
         $financialBreakdown = [];
         foreach ($periods as $key => [$start, $end]) {
             $rev = (float)(DB::table('boundaries')->whereNull('deleted_at')->whereBetween('date', [$start, $end])->sum('actual_boundary') ?? 0);
-            
-            $gx = (float)(DB::table('expenses')->whereNull('deleted_at')->whereBetween('date', [$start, $end])->sum('amount') ?? 0);
-            $sx = (float)(DB::table('salaries')->whereBetween('pay_date', [$start, $end])->sum('total_salary') ?? 0);
-            $mx = (float)(DB::table('maintenance')->whereNull('deleted_at')->whereBetween('date_started', [$start, $end])->where('status', '!=', 'cancelled')->sum('cost') ?? 0);
-            
+            $gx  = (float)(DB::table('expenses')->whereNull('deleted_at')->whereBetween('date', [$start, $end])->sum('amount') ?? 0);
+            $sx  = (float)(DB::table('salaries')->whereBetween('pay_date', [$start, $end])->sum('total_salary') ?? 0);
+            $mx  = (float)(DB::table('maintenance')->whereNull('deleted_at')->whereBetween('date_started', [$start, $end])->where('status', '!=', 'cancelled')->sum('cost') ?? 0);
+
             $financialBreakdown[$key] = [
                 'total_revenue'  => $rev,
                 'total_expenses' => $gx + $sx + $mx,
+                // Boundaries: no limit — matches web (fetches all, filters client-side)
                 'boundaries'     => DB::table('boundaries as b')
                                     ->join('units as u', 'b.unit_id', '=', 'u.id')
                                     ->leftJoin('drivers as d', 'b.driver_id', '=', 'd.id')
-                                    ->select('b.id', 'b.actual_boundary', 'u.plate_number', DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')) as driver_name"))
+                                    ->select('b.id', 'b.actual_boundary', 'b.date', 'u.plate_number', DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')) as driver_name"))
                                     ->whereNull('b.deleted_at')
                                     ->whereBetween('b.date', [$start, $end])
-                                    ->limit(50)->get(),
+                                    ->orderByDesc('b.date')
+                                    ->get(),
+                // Maintenance: no limit — same structure as web renderExpensesReport
                 'maintenance'    => DB::table('maintenance as m')
                                     ->join('units as u', 'm.unit_id', '=', 'u.id')
-                                    ->select('m.id', 'm.maintenance_type as type', 'm.cost', 'm.description', 'u.plate_number')
+                                    ->select('m.id', 'm.maintenance_type as type', 'm.cost', 'm.description', 'm.date_started as date', 'u.plate_number')
                                     ->whereNull('m.deleted_at')
                                     ->whereBetween('m.date_started', [$start, $end])
-                                    ->limit(50)->get(),
+                                    ->where('m.status', '!=', 'cancelled')
+                                    ->orderByDesc('m.date_started')
+                                    ->get(),
+                // General expenses: no limit, includes date for web-compatible filtering
                 'general'        => DB::table('expenses')
                                     ->whereNull('deleted_at')
                                     ->whereBetween('date', [$start, $end])
                                     ->select('id', 'category', 'description', 'amount', 'date')
-                                    ->limit(50)->get(),
+                                    ->orderByDesc('date')
+                                    ->get(),
                 'salaries'       => DB::table('salaries')
                                     ->whereBetween('pay_date', [$start, $end])
                                     ->select('id', 'total_salary', 'pay_date')
-                                    ->limit(50)->get(),
+                                    ->orderByDesc('pay_date')
+                                    ->get(),
             ];
         }
 
@@ -334,5 +439,20 @@ class DashboardController extends Controller
                 'financialBreakdown'   => $financialBreakdown
             ]
         ]);
+    }
+
+    private function getCodingDay($plateNumber)
+    {
+        if (empty($plateNumber)) return 'Unknown';
+        $lastDigit = @substr(preg_replace('/[^0-9]/', '', $plateNumber), -1);
+        if ($lastDigit === false || $lastDigit === '') return 'Unknown';
+        
+        if ($lastDigit == 1 || $lastDigit == 2) return 'Monday';
+        if ($lastDigit == 3 || $lastDigit == 4) return 'Tuesday';
+        if ($lastDigit == 5 || $lastDigit == 6) return 'Wednesday';
+        if ($lastDigit == 7 || $lastDigit == 8) return 'Thursday';
+        if ($lastDigit == 9 || $lastDigit == 0) return 'Friday';
+        
+        return 'Unknown';
     }
 }

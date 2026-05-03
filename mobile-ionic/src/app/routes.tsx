@@ -6,6 +6,7 @@ import { OwnerPanel } from "./components/OwnerPanel";
 
 import { Dashboard } from "./components/Dashboard";
 import { UnitManagement } from "./components/UnitManagement";
+import { UnitDetail } from "./components/UnitDetail";
 import { BoundaryManagement } from "./components/BoundaryManagement";
 import { Maintenance } from "./components/Maintenance";
 import { DriverManagement } from "./components/DriverManagement";
@@ -59,6 +60,7 @@ export const router = createBrowserRouter([
       { index: true, Component: Dashboard },
       { path: "owner", Component: OwnerPanel },
       { path: "units", Component: UnitManagement },
+      { path: "units/:id", Component: UnitDetail },
       { path: "boundaries", Component: BoundaryManagement },
       { path: "maintenance", Component: Maintenance },
       { path: "drivers", Component: DriverManagement },

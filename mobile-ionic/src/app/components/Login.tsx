@@ -17,17 +17,18 @@ export function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const [showOTP, setShowOTP] = useState(false);
   const [userToken, setUserToken] = useState("");
+  const [errorMsg, setErrorMsg] = useState("");
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
 
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrorMsg("");
     
     if (!formData.email || !formData.password) {
-      toast.error("Please fill in all fields");
+      setErrorMsg("Please fill in all fields.");
       return;
     }
 
@@ -37,17 +38,27 @@ export function Login() {
       const response = await login(formData.email, formData.password);
       
       if (response && response.mfa_required) {
-        setUserToken(response.user_id);
-        setShowOTP(true);
-        // Automatically send the first OTP
-        await resendOTP(response.user_id, 'email');
-        toast.info("A new device was detected. We sent a verification code to your email.");
+        // New device detected — send OTP first, then show OTP screen
+        try {
+          await resendOTP(response.user_id, 'email');
+          setUserToken(response.user_id);
+          setShowOTP(true);
+          toast.info("A new device was detected. A verification code was sent to your email.");
+        } catch (otpError: any) {
+          setErrorMsg(
+            otpError.response?.data?.message || 
+            otpError.message || 
+            "Failed to send verification code. Please try again."
+          );
+        }
       } else {
         toast.success("Login successful! Welcome back!");
         navigate("/");
       }
     } catch (error: any) {
-      toast.error(error.response?.data?.message || error.message || "Login failed. Check your credentials.");
+      const msg = error.response?.data?.message || error.message || "Login failed. Check your credentials.";
+      setErrorMsg(msg);
+      toast.error(msg);
     } finally {
       setIsLoading(false);
     }
@@ -59,7 +70,8 @@ export function Login() {
       toast.success("Device verified successfully!");
       navigate("/");
     } catch (error: any) {
-      toast.error(error.response?.data?.message || error.message || "Invalid OTP code.");
+      const msg = error.response?.data?.message || error.message || "Invalid OTP code.";
+      toast.error(msg);
       throw error;
     }
   };
@@ -69,7 +81,8 @@ export function Login() {
       await resendOTP(userToken, 'email');
       toast.success("A new OTP has been sent to your email.");
     } catch (error: any) {
-      toast.error(error.response?.data?.message || error.message || "Failed to resend OTP.");
+      const msg = error.response?.data?.message || error.message || "Failed to resend OTP.";
+      toast.error(msg);
       throw error;
     }
   };
@@ -211,6 +224,13 @@ export function Login() {
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-4">
+                {/* Error Message Box */}
+                {errorMsg && (
+                  <div className="bg-red-50 border border-red-200 rounded-xl p-3 flex items-start gap-2">
+                    <span className="text-red-500 text-sm mt-0.5">⚠</span>
+                    <p className="text-sm text-red-700 font-medium">{errorMsg}</p>
+                  </div>
+                )}
                 <motion.div 
                   className="space-y-2"
                   initial={{ opacity: 0, x: -20 }}

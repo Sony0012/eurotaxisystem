@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Car, Users, TrendingUp, Wrench, DollarSign, Calendar, Activity, BarChart3, X, ChevronRight, Loader2, RefreshCw, Crown, PieChart as PieChartIcon, LineChart as LineChartIcon } from "lucide-react";
+import { Car, Users, TrendingUp, Wrench, DollarSign, Calendar, Activity, BarChart3, X, ChevronRight, Loader2, RefreshCw, Crown, PieChart as PieChartIcon, LineChart as LineChartIcon, Code, Search, XCircle, CheckCircle, AlertCircle } from "lucide-react";
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, AreaChart, Area, ReferenceLine, LabelList } from "recharts";
 import api from "../services/api";
 import { toast } from "sonner";
@@ -142,7 +142,7 @@ export function Dashboard() {
             iconBg: "bg-green-100/50"
           },
           { 
-            id: 'mnt', 
+            id: 'maintenance', 
             label: "Units Under Mntnc", 
             val: stats?.maintenance_units, 
             sub: "Ongoing Maintenance", 
@@ -498,8 +498,8 @@ export function Dashboard() {
       {activeModal==="income" && <Modal title="Net Income Details" color="bg-emerald-600" onClose={()=>setActiveModal(null)}><IncomeModal stats={stats} modal={modal} /></Modal>}
       {activeModal==="maintenance" && <Modal title="Units Under Maintenance" color="bg-orange-500" onClose={()=>setActiveModal(null)}><MaintenanceModal modal={modal} /></Modal>}
       {activeModal==="drivers" && <Modal title="Active Drivers" color="bg-indigo-600" onClose={()=>setActiveModal(null)}><DriversModal modal={modal} /></Modal>}
-      {activeModal==="expenses" && <Modal title="Total Expenses" color="bg-rose-500" onClose={()=>setActiveModal(null)}><ExpensesModal stats={stats} /></Modal>}
-      {activeModal==="coding" && <Modal title="Coding Units Today" color="bg-violet-600" onClose={()=>setActiveModal(null)}><CodingModal stats={stats} modal={modal} /></Modal>}
+      {activeModal==="expenses" && <Modal title="Total Expenses Today" color="bg-rose-800" onClose={()=>setActiveModal(null)}><ExpensesModal modal={modal} /></Modal>}
+      {activeModal==="coding" && <Modal title="Coding Units" color="bg-gradient-to-r from-fuchsia-600 to-pink-600" onClose={()=>setActiveModal(null)}><CodingModal stats={stats} modal={modal} /></Modal>}
     </div>
   );
 }
@@ -706,6 +706,142 @@ function IncomeModal({stats, modal}: any) {
     salaries: []
   };
 
+  const printReport = () => {
+    const periodLabel = tab.toUpperCase();
+    const timestamp = dayjs().format('MM/DD/YYYY, h:mm:ss A');
+    
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) return;
+
+    const reportHtml = `
+      <html>
+        <head>
+          <title>Financial Report - ${periodLabel}</title>
+          <style>
+            body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 40px; color: #1e293b; line-height: 1.5; }
+            .header { text-align: center; margin-bottom: 40px; border-bottom: 2px solid #e2e8f0; padding-bottom: 20px; }
+            .header h1 { margin: 0; font-size: 28px; font-weight: 900; text-transform: uppercase; letter-spacing: 4px; color: #0f172a; }
+            .header p { margin: 5px 0; color: #64748b; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; }
+            .section { margin-bottom: 30px; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
+            .section-header { background: #0f172a; color: white; padding: 12px 24px; display: flex; justify-content: space-between; align-items: center; }
+            .section-header.expense { background: #991b1b; }
+            .section-header h2 { margin: 0; font-size: 11px; text-transform: uppercase; letter-spacing: 2px; font-weight: 800; }
+            .section-header .amount { font-size: 18px; font-weight: 900; color: #4ade80; }
+            .section-header.expense .amount { color: #fca5a5; }
+            .content { padding: 20px; }
+            table { width: 100% !important; border-collapse: collapse; margin-top: 10px; }
+            th { text-align: left; padding: 10px; border-bottom: 2px solid #f1f5f9; color: #64748b; text-transform: uppercase; font-size: 10px; font-weight: 800; }
+            td { padding: 10px; border-bottom: 1px solid #f8fafc; font-size: 12px; }
+            .text-right { text-align: right; }
+            .font-bold { font-weight: 700; }
+            .font-black { font-weight: 900; }
+            .footer { text-align: center; margin-top: 50px; padding-top: 20px; border-top: 1px solid #e2e8f0; font-size: 10px; color: #94a3b8; font-weight: 600; }
+            .sub-section-title { font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; color: #64748b; margin: 20px 0 10px 0; display: flex; justify-content: space-between; }
+            .total-row { background: #f8fafc; font-weight: 900; }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <h1>Financial Report</h1>
+            <p>Euro Taxi Management System &mdash; ${periodLabel}</p>
+          </div>
+
+          <div class="section">
+            <div class="section-header">
+              <h2>Revenue: Total Boundary Collected</h2>
+              <div class="amount">${fmt(data.total_revenue)}</div>
+            </div>
+            <div class="content">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Unit / Driver Detail</th>
+                    <th class="text-right">Amount Collected</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${data.boundaries.length === 0 ? '<tr><td colspan="2" style="text-align:center; padding: 20px; color: #cbd5e1; font-style: italic;">No records found</td></tr>' : 
+                    data.boundaries.map((b: any) => `
+                    <tr>
+                      <td><span class="font-black">${b.plate_number}</span><br/><span style="font-size: 10px; color: #64748b; text-transform: uppercase;">${b.driver_name || 'No Driver'}</span></td>
+                      <td class="text-right font-black" style="color: #059669;">${fmt(b.actual_boundary)}</td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="section">
+            <div class="section-header expense">
+              <h2>Operating Expenses Breakdown</h2>
+              <div class="amount">${fmt(data.total_expenses)}</div>
+            </div>
+            <div class="content">
+              <div class="sub-section-title">
+                <span>Maintenance & Repairs Itemized</span>
+                <span style="color: #b91c1c;">Total: ${fmt(data.maintenance.reduce((a:any,b:any)=>a+b.cost,0))}</span>
+              </div>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Unit / Type</th>
+                    <th class="text-right">Amount</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${data.maintenance.length === 0 ? '<tr><td colspan="2" style="text-align:center; padding: 10px; color: #cbd5e1;">No maintenance records</td></tr>' : 
+                    data.maintenance.map((m: any) => `
+                    <tr>
+                      <td class="font-bold">${m.plate_number} - ${m.type}</td>
+                      <td class="text-right font-bold" style="color: #b91c1c;">${fmt(m.cost)}</td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+
+              <div class="sub-section-title" style="margin-top: 30px;">
+                <span>General Office Expenses Itemized</span>
+                <span style="color: #b91c1c;">Total: ${fmt(data.general.reduce((a:any,b:any)=>a+b.amount,0))}</span>
+              </div>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Description</th>
+                    <th class="text-right">Amount</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${data.general.length === 0 ? '<tr><td colspan="3" style="text-align:center; padding: 10px; color: #cbd5e1;">No expense records</td></tr>' : 
+                    data.general.map((e: any) => `
+                    <tr>
+                      <td style="color: #64748b;">${dayjs(e.date).format('MM/DD/YYYY')}</td>
+                      <td class="font-bold">${e.description}</td>
+                      <td class="text-right font-bold" style="color: #b91c1c;">${fmt(e.amount)}</td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="footer">
+            <p>Authenticated Financial Statement &bull; Generated on ${timestamp}</p>
+            <p style="margin-top: 5px; font-size: 8px; color: #cbd5e1;">&copy; ${new Date().getFullYear()} Euro Taxi. All rights reserved.</p>
+          </div>
+        </body>
+      </html>
+    `;
+
+    printWindow.document.write(reportHtml);
+    printWindow.document.close();
+    printWindow.focus();
+    setTimeout(() => {
+      printWindow.print();
+    }, 500);
+  };
+
   return (
     <div className="space-y-6">
        {/* Tabs */}
@@ -798,7 +934,9 @@ function IncomeModal({stats, modal}: any) {
           </div>
        </div>
 
-       <button className="w-full bg-emerald-600 text-white font-black py-4 rounded-2xl shadow-lg shadow-emerald-100 flex items-center justify-center gap-2 active:scale-95 transition-all">
+       <button 
+        onClick={printReport}
+        className="w-full bg-emerald-600 text-white font-black py-4 rounded-2xl shadow-lg shadow-emerald-100 flex items-center justify-center gap-2 active:scale-95 transition-all">
           <TrendingUp className="w-4 h-4"/>
           PRINT REPORT
        </button>
@@ -807,59 +945,268 @@ function IncomeModal({stats, modal}: any) {
 }
 
 function MaintenanceModal({modal}: any) {
+  const [filter, setFilter] = useState('all');
+  const [search, setSearch] = useState('');
+  
+  const list = modal?.maintenanceList || [];
+  
+  // Logic: "All" and the first 4 summary cards usually refer to ACTIVE/PENDING maintenance.
+  // "Complete" is treated as a separate category.
+  const filteredList = list.filter((m: any) => {
+    const isComplete = m.status?.toLowerCase() === 'completed';
+    const matchesSearch = m.plate_number.toLowerCase().includes(search.toLowerCase()) || 
+                         m.type?.toLowerCase().includes(search.toLowerCase()) ||
+                         m.description?.toLowerCase().includes(search.toLowerCase());
+    
+    if (!matchesSearch) return false;
+
+    if (filter === 'all') return !isComplete;
+    if (filter === 'complete') return isComplete;
+    return m.type?.toLowerCase() === filter && !isComplete;
+  });
+
+  const getStatusColor = (item: any) => {
+    const isComplete = item.status?.toLowerCase() === 'completed';
+    if (isComplete) return { text: 'text-emerald-600', bg: 'bg-emerald-50', bd: 'border-emerald-100', label: 'COMPLETE' };
+    
+    switch (item.type?.toLowerCase()) {
+      case 'preventive': return { text: 'text-blue-600', bg: 'bg-blue-50', bd: 'border-blue-100', label: 'PREVENTIVE' };
+      case 'corrective': return { text: 'text-amber-600', bg: 'bg-amber-50', bd: 'border-amber-100', label: 'CORRECTIVE' };
+      case 'emergency': return { text: 'text-red-600', bg: 'bg-red-50', bd: 'border-red-100', label: 'EMERGENCY' };
+      default: return { text: 'text-gray-600', bg: 'bg-gray-50', bd: 'border-gray-100', label: 'UNSPECIFIED' };
+    }
+  };
+
+  const activeMaintenance = list.filter((m:any) => m.status?.toLowerCase() !== 'completed');
+
   return (
-    <div className="space-y-4">
-      <div className="grid grid-cols-3 gap-3">
-        {[["Total",(modal?.maintenanceList||[]).length,"text-orange-600"],["Preventive",(modal?.maintenanceList||[]).filter((m:any)=>m.type?.toLowerCase()==="preventive").length,"text-blue-600"],["Emergency",(modal?.maintenanceList||[]).filter((m:any)=>m.type?.toLowerCase()==="emergency").length,"text-red-600"]].map(([l,v,c]:any)=>(
-          <div key={l} className="bg-gray-50 rounded-2xl p-4 text-center border border-gray-100">
-            <p className={`text-2xl font-black ${c}`}>{v}</p>
-            <p className="text-[10px] text-gray-400 font-black uppercase tracking-tighter">{l}</p>
+    <div className="space-y-6">
+      {/* Search Bar */}
+      <div className="relative">
+        <input 
+          type="text" 
+          placeholder="Search by unit number, plate, or maintenance type..." 
+          className="w-full bg-orange-50/50 border border-orange-100 rounded-2xl py-4 pl-12 pr-4 text-sm font-bold text-gray-900 focus:ring-2 focus:ring-orange-500 transition-all placeholder:text-orange-300"
+          value={search}
+          onChange={(e)=>setSearch(e.target.value)}
+        />
+        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-orange-400">
+          <Wrench className="w-5 h-5"/>
+        </div>
+      </div>
+
+      {/* Filter Tabs */}
+      <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+        {['all', 'preventive', 'corrective', 'emergency', 'complete'].map((f) => (
+          <button 
+            key={f}
+            onClick={() => setFilter(f)}
+            className={`px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${filter === f ? 'bg-orange-600 text-white shadow-lg shadow-orange-100' : 'bg-gray-100 text-gray-400 hover:bg-gray-200'}`}
+          >
+            {f}
+          </button>
+        ))}
+      </div>
+
+      {/* Summary Cards - Matching Web Logic (Active vs Complete) */}
+      <div className="grid grid-cols-3 gap-2">
+        {[
+          { l: 'MAINTENANCE', v: activeMaintenance.length, c: 'text-orange-600' },
+          { l: 'PREVENTIVE', v: activeMaintenance.filter((m:any)=>m.type?.toLowerCase()==='preventive').length, c: 'text-blue-600' },
+          { l: 'CORRECTIVE', v: activeMaintenance.filter((m:any)=>m.type?.toLowerCase()==='corrective').length, c: 'text-amber-600' },
+          { l: 'EMERGENCY', v: activeMaintenance.filter((m:any)=>m.type?.toLowerCase()==='emergency').length, c: 'text-red-600' },
+          { l: 'COMPLETE', v: list.filter((m:any)=>m.status?.toLowerCase()==='completed').length, c: 'text-emerald-600' }
+        ].map((s) => (
+          <div key={s.l} className="bg-gray-50 rounded-xl p-3 border border-gray-100 flex flex-col items-center text-center">
+            <p className={`text-lg font-black ${s.c} leading-none mb-1`}>{s.v}</p>
+            <p className="text-[7px] font-black text-gray-400 uppercase tracking-tighter">{s.l}</p>
           </div>
         ))}
       </div>
-      <div className="space-y-3">
-        {(modal?.maintenanceList||[]).map((m:any)=>(
-          <div key={m.id} className="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm">
-            <div className="flex justify-between items-start mb-2">
-              <div>
-                <p className="font-black text-gray-900">{m.plate_number}</p>
-                <p className="text-xs text-gray-400 font-medium">{m.driver_name?.trim()||"No driver assigned"}</p>
-              </div>
-              <span className={`text-[10px] font-black px-3 py-1.5 rounded-xl uppercase tracking-widest ${m.type?.toLowerCase()==="emergency"?"bg-red-50 text-red-600 border border-red-100":"bg-orange-50 text-orange-600 border border-orange-100"}`}>{m.type||"N/A"}</span>
-            </div>
-            <p className="text-xs text-gray-500 leading-relaxed mb-3">{m.description||"System generated maintenance ticket."}</p>
-            <div className="flex items-center justify-between pt-3 border-t border-gray-50">
-               <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Entry: {m.date_started}</span>
-               <span className="text-sm font-black text-gray-900">{fmt(m.cost)}</span>
-            </div>
+
+      {/* Maintenance List */}
+      <div className="space-y-4">
+        {filteredList.length === 0 ? (
+          <div className="text-center py-12">
+            <Wrench className="w-12 h-12 text-gray-200 mx-auto mb-3" />
+            <p className="text-gray-400 font-black uppercase text-[10px] tracking-widest">No records found</p>
           </div>
-        ))}
+        ) : filteredList.map((m: any) => {
+          const s = getStatusColor(m);
+          return (
+            <div key={m.id} className="bg-white rounded-[2rem] border border-gray-100 shadow-sm overflow-hidden flex flex-col">
+              <div className="p-5 flex justify-between items-start">
+                <div className="flex items-center gap-3">
+                  <div className={`w-10 h-10 ${s.bg} rounded-2xl flex items-center justify-center`}>
+                    <Wrench className={`w-5 h-5 ${s.text}`}/>
+                  </div>
+                  <div>
+                    <h4 className="font-black text-gray-900 text-sm">{m.plate_number}</h4>
+                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-tight">Started: {m.date_started}</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <span className={`text-[9px] font-black px-3 py-1.5 rounded-xl uppercase tracking-widest ${s.bg} ${s.text} border ${s.bd}`}>
+                    {s.label}
+                  </span>
+                  <p className="text-[10px] font-bold text-gray-400 mt-2">{m.date_started}</p>
+                </div>
+              </div>
+              
+              <div className="px-5 pb-5 space-y-3">
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-black text-gray-400 uppercase">Status:</span>
+                  <span className="text-[10px] font-black text-orange-600 uppercase">{m.status || 'pending'}</span>
+                </div>
+                
+                <div className="bg-gray-50 rounded-2xl p-4">
+                  <p className="text-xs text-gray-600 leading-relaxed font-medium">
+                    {m.description || "No description available for this maintenance task."}
+                  </p>
+                </div>
+
+                <div className="flex items-center justify-between pt-2 border-t border-gray-50">
+                   <div className="flex items-center gap-1.5">
+                      <div className={`w-1.5 h-1.5 ${m.status?.toLowerCase() === 'completed' ? 'bg-emerald-500' : 'bg-orange-500'} rounded-full`}></div>
+                      <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">{m.status || 'pending'}</span>
+                   </div>
+                   <p className="text-sm font-black text-gray-900">{fmt(m.cost)}</p>
+                </div>
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
 }
 
 function DriversModal({modal}: any) {
+  const [search, setSearch] = useState('');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+  
+  const drivers = modal?.driversList || [];
+  
+  const filteredDrivers = drivers
+    .filter((d: any) => {
+      const fullName = `${d.first_name} ${d.last_name}`.toLowerCase();
+      return fullName.includes(search.toLowerCase()) || 
+             d.license_number?.toLowerCase().includes(search.toLowerCase()) ||
+             d.contact_number?.toLowerCase().includes(search.toLowerCase());
+    })
+    .sort((a: any, b: any) => {
+      const nameA = `${a.first_name} ${a.last_name}`.toLowerCase();
+      const nameB = `${b.first_name} ${b.last_name}`.toLowerCase();
+      return sortOrder === 'asc' ? nameA.localeCompare(nameB) : nameB.localeCompare(nameA);
+    });
+
+  const totalDrivers = drivers.length;
+  const vacantDrivers = drivers.filter((d:any) => !d.plate_number).length;
+  const activeDrivers = drivers.filter((d:any) => d.plate_number).length;
+
   return (
-    <div className="space-y-4">
-      <div className="grid grid-cols-3 gap-3">
-        {[["Total",(modal?.driversList||[]).length,"text-blue-600"],["With Unit",(modal?.driversList||[]).filter((d:any)=>d.plate_number).length,"text-green-600"],["Vacant",(modal?.driversList||[]).filter((d:any)=>!d.plate_number).length,"text-orange-600"]].map(([l,v,c]:any)=>(
-          <div key={l} className="bg-gray-50 rounded-2xl p-4 text-center border border-gray-100">
-            <p className={`text-2xl font-black ${c}`}>{v}</p>
-            <p className="text-[10px] text-gray-400 font-black uppercase tracking-tighter">{l}</p>
+    <div className="space-y-6">
+      {/* Search & Sort Bar */}
+      <div className="flex gap-2">
+        <div className="relative flex-1">
+          <input 
+            type="text" 
+            placeholder="Search by name, license, or contact..." 
+            className="w-full bg-indigo-50/50 border border-indigo-100 rounded-2xl py-4 pl-12 pr-4 text-sm font-bold text-gray-900 focus:ring-2 focus:ring-indigo-500 transition-all placeholder:text-indigo-300"
+            value={search}
+            onChange={(e)=>setSearch(e.target.value)}
+          />
+          <div className="absolute left-4 top-1/2 -translate-y-1/2 text-indigo-400">
+            <Users className="w-5 h-5"/>
+          </div>
+        </div>
+        <button 
+          onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
+          className="bg-indigo-50 border border-indigo-100 p-4 rounded-2xl text-indigo-600 active:scale-95 transition-all flex items-center gap-2"
+        >
+          <span className="text-[10px] font-black uppercase">A-Z</span>
+          <div className={`transition-transform ${sortOrder === 'desc' ? 'rotate-180' : ''}`}>
+             <TrendingUp className="w-4 h-4"/>
+          </div>
+        </button>
+      </div>
+
+      {/* Summary Cards */}
+      <div className="grid grid-cols-2 gap-3">
+        {[
+          { l: 'TOTAL DRIVERS', v: totalDrivers, c: 'text-blue-600', bg: 'bg-blue-50/50' },
+          { l: 'TOTAL VACANT DRIVERS', v: vacantDrivers, c: 'text-emerald-600', bg: 'bg-emerald-50/50' },
+          { l: 'TOTAL ACTIVE DRIVERS', v: activeDrivers, c: 'text-orange-600', bg: 'bg-orange-50/50' },
+          { l: 'TOP PERFORMERS', v: 1, c: 'text-purple-600', bg: 'bg-purple-50/50' }
+        ].map((s) => (
+          <div key={s.l} className={`${s.bg} rounded-2xl p-4 border border-gray-50 flex flex-col items-center text-center`}>
+            <p className={`text-2xl font-black ${s.c} leading-none mb-1`}>{s.v}</p>
+            <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest">{s.l}</p>
           </div>
         ))}
       </div>
-      <div className="space-y-3">
-        {(modal?.driversList||[]).map((d:any)=>(
-          <div key={d.id} className="bg-white rounded-[1.5rem] p-4 border border-gray-100 flex items-center gap-4">
-            <div className="w-12 h-12 bg-indigo-50 rounded-full flex items-center justify-center font-black text-indigo-600 text-lg">{d.first_name?.charAt(0)}</div>
-            <div className="flex-1 min-w-0">
-              <p className="font-black text-gray-900 text-sm leading-none mb-1">{d.first_name} {d.last_name}</p>
-              <p className="text-[10px] text-gray-400 font-medium">{d.contact_number||"NO CONTACT RECORDED"}</p>
-              {d.plate_number && <div className="mt-2 flex items-center gap-1.5"><Car className="w-3 h-3 text-blue-500"/><span className="text-[10px] font-black text-blue-600 uppercase tracking-widest">UNIT: {d.plate_number}</span></div>}
+
+      {/* Drivers List */}
+      <div className="space-y-4">
+        {filteredDrivers.length === 0 ? (
+          <div className="text-center py-12">
+            <Users className="w-12 h-12 text-gray-200 mx-auto mb-3" />
+            <p className="text-gray-400 font-black uppercase text-[10px] tracking-widest">No matching drivers</p>
+          </div>
+        ) : filteredDrivers.map((d: any) => (
+          <div key={d.id} className="bg-white rounded-[2rem] border border-gray-100 shadow-sm overflow-hidden flex flex-col">
+            <div className="p-5 flex justify-between items-start">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-indigo-50 rounded-2xl flex items-center justify-center">
+                  <Users className="w-5 h-5 text-indigo-500"/>
+                </div>
+                <div>
+                  <h4 className="font-black text-gray-900 text-sm">{d.first_name} {d.last_name}</h4>
+                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-tight">{d.license_number || 'TBD-UNKNOWN'}</p>
+                </div>
+              </div>
+              <div className="text-right">
+                <span className={`text-[9px] font-black px-3 py-1.5 rounded-xl uppercase tracking-widest ${d.plate_number ? 'bg-green-50 text-green-600 border-green-100' : 'bg-gray-50 text-gray-400 border-gray-100'} border`}>
+                  {d.plate_number ? 'Assigned' : 'Vacant'}
+                </span>
+                {d.plate_number && <p className="text-[10px] font-black text-gray-400 mt-2 uppercase">{d.plate_number}</p>}
+              </div>
             </div>
-            <span className={`text-[10px] font-black px-3 py-1.5 rounded-xl uppercase tracking-widest ${d.plate_number?"bg-green-50 text-green-600 border border-green-100":"bg-gray-50 text-gray-400 border border-gray-100"}`}>{d.plate_number?"Deployed":"Available"}</span>
+            
+            <div className="px-5 pb-5 space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                 <div>
+                   <p className="text-[8px] font-black text-gray-400 uppercase mb-1">Contact:</p>
+                   <p className="text-[11px] font-bold text-gray-700">{d.phone || 'N/A'}</p>
+                 </div>
+                 <div>
+                   <p className="text-[8px] font-black text-gray-400 uppercase mb-1">Address:</p>
+                   <p className="text-[11px] font-bold text-gray-700">{d.address || 'No address available'}</p>
+                 </div>
+               </div>
+               
+               <div className="flex items-center justify-between pt-4 border-t border-gray-50">
+                 <div className="flex items-center gap-2">
+                    <div className={`w-2 h-2 rounded-full ${d.performance_rating === 'excellent' ? 'bg-green-500' : d.performance_rating === 'good' ? 'bg-yellow-500' : d.performance_rating === 'average' ? 'bg-orange-500' : 'bg-gray-400'} animate-pulse`}></div>
+                    <span className="text-[10px] font-black text-gray-400 uppercase">{d.performance_rating || 'needs_improvement'}</span>
+                 </div>
+                 <div className="text-right">
+                    <p className="text-sm font-black text-blue-600">{fmt(d.total_collected)}</p>
+                    <p className="text-[8px] font-black text-gray-400 uppercase">Total Collected</p>
+                 </div>
+               </div>
+
+              <div className="flex items-center justify-between pt-2">
+                 <div className="flex items-center gap-1.5">
+                    <Calendar className="w-3 h-3 text-gray-300"/>
+                    <span className="text-[9px] font-bold text-gray-400">No hire date</span>
+                 </div>
+                 <div className="flex items-center gap-1.5">
+                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                    <span className="text-[9px] font-black text-green-600 uppercase">Active</span>
+                 </div>
+              </div>
+            </div>
           </div>
         ))}
       </div>
@@ -867,39 +1214,398 @@ function DriversModal({modal}: any) {
   );
 }
 
-function ExpensesModal({stats}: any) {
+function ExpensesModal({modal}: any) {
+  const [tab, setTab] = useState('today');
+  
+  // Map display tab to API key - matches web dashboard exactly
+  // Web uses: 'today', 'week' (Sunday-start), 'month', 'year'
+  const tabToKey: Record<string,string> = {
+    'today': 'today',
+    'weekly': 'week',
+    'monthly': 'month',
+    'yearly': 'year',
+  };
+
+  const data = modal?.financialBreakdown?.[tabToKey[tab] || tab] || {
+    total_expenses: 0,
+    maintenance: [],
+    general: [],
+    salaries: []
+  };
+
+  const totalMaintenance = data.maintenance.reduce((a:any, b:any) => a + Number(b.cost || 0), 0);
+  const totalGeneral = data.general.reduce((a:any, b:any) => a + Number(b.amount || 0), 0);
+  const totalSalaries = data.salaries.reduce((a:any, b:any) => a + Number(b.total_salary || 0), 0);
+
+  const tabs = ['today', 'weekly', 'monthly', 'yearly'];
+  const tabLabels: Record<string,string> = { today: 'Today', weekly: 'Weekly', monthly: 'Monthly', yearly: 'Yearly' };
+
   return (
-    <div className="space-y-4">
-      {[["General Expenses",stats?.expense_general,"#ef4444"],["Salary",stats?.expense_salary,"#f59e0b"],["Maintenance",stats?.expense_maintenance,"#8b5cf6"]].map(([l,v,c]:any)=>(
-        <div key={l} className="flex justify-between items-center p-5 bg-gray-50 rounded-2xl border border-gray-100">
-          <div className="flex items-center gap-3"><div className="w-4 h-4 rounded-lg shadow-sm" style={{background:c}}/><span className="text-sm font-bold text-gray-600 uppercase tracking-widest">{l}</span></div>
-          <span className="font-black text-gray-900">{fmt(v)}</span>
-        </div>
-      ))}
-      <div className="flex justify-between items-center p-6 bg-rose-50 rounded-[2rem] border border-rose-100 mt-4">
-        <span className="font-black text-rose-600 uppercase tracking-[0.2em]">Total Daily</span>
-        <span className="font-black text-rose-600 text-3xl tracking-tighter">{fmt(stats?.today_expenses)}</span>
-      </div>
+    <div className="space-y-6">
+       {/* Tabs */}
+       <div className="bg-rose-900/10 p-1 rounded-2xl flex gap-1">
+          {tabs.map(t => (
+             <button key={t} onClick={()=>setTab(t)}
+                className={`flex-1 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${tab === t ? 'bg-white text-rose-700 shadow-sm' : 'text-gray-400 hover:bg-white/50'}`}>
+                {tabLabels[t]}
+             </button>
+          ))}
+       </div>
+
+       {/* Detailed Breakdown Banner — matches web's red-900 header */}
+       <div className="bg-rose-900 rounded-t-2xl rounded-b-none flex justify-between items-center px-6 py-4">
+          <span className="text-[11px] font-black text-white uppercase tracking-[0.1em]">Detailed Expenses Breakdown</span>
+          <span className="text-xl font-black text-rose-300">{fmt(Number(totalMaintenance + totalGeneral))}</span>
+       </div>
+       <div className="bg-white rounded-b-3xl border border-gray-100 overflow-hidden shadow-sm mb-1">
+
+          {/* Maintenance Section — Date | Description | Amount (matches web) */}
+          <div>
+             <div className="bg-gray-50 px-4 py-2 border-b border-gray-100 flex justify-between text-[9px] font-black text-gray-400 uppercase tracking-widest">
+                <span>Maintenance &amp; Repairs Itemized</span>
+                <span className="text-orange-600 font-black">Total: {fmt(totalMaintenance)}</span>
+             </div>
+
+             {data.maintenance.length === 0 ? (
+                <div className="px-4 py-4 text-center text-[10px] font-bold text-gray-400 uppercase tracking-widest border-b border-gray-50">
+                   No records found
+                </div>
+             ) : (
+                <div>
+                   {/* Table header */}
+                   <div className="flex bg-gray-50/50 border-b border-gray-100 text-[8px] uppercase tracking-widest text-gray-400 font-bold">
+                      <span className="px-4 py-2 w-1/4">Date</span>
+                      <span className="px-4 py-2 flex-1">Description</span>
+                      <span className="px-4 py-2 w-1/4 text-right">Amount</span>
+                   </div>
+                   <div className="divide-y divide-gray-50">
+                      {data.maintenance.map((m: any) => (
+                         <div key={m.id} className="flex items-start hover:bg-gray-50/50 transition-colors">
+                            <span className="px-4 py-2 text-[9px] text-gray-400 font-bold uppercase whitespace-nowrap w-1/4">
+                               {m.date ? dayjs(m.date).format('YYYY-MM-DD') : '—'}
+                            </span>
+                            <span className="px-4 py-2 text-[10px] font-black text-gray-800 tracking-tight flex-1">
+                               Unit {m.plate_number} - {(m.type || 'maintenance').toLowerCase()}
+                            </span>
+                            <span className="px-4 py-2 text-xs font-black text-rose-500 text-right whitespace-nowrap w-1/4">
+                               {fmt(Number(m.cost || 0))}
+                            </span>
+                         </div>
+                      ))}
+                   </div>
+                </div>
+             )}
+          </div>
+
+          {/* General Office Expenses — Date | Description | Amount (matches web) */}
+          <div>
+             <div className="bg-gray-50 px-4 py-2 border-b border-gray-100 flex justify-between text-[9px] font-black text-gray-400 uppercase tracking-widest">
+                <span>General Office Expenses Itemized</span>
+                <span className="text-rose-500 font-black">Total: {fmt(totalGeneral)}</span>
+             </div>
+
+             {data.general.length === 0 ? (
+                <div className="px-4 py-4 text-center text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                   No records found
+                </div>
+             ) : (
+                <div>
+                   <div className="flex bg-gray-50/50 border-b border-gray-100 text-[8px] uppercase tracking-widest text-gray-400 font-bold">
+                      <span className="px-4 py-2 w-1/4">Date</span>
+                      <span className="px-4 py-2 flex-1">Description</span>
+                      <span className="px-4 py-2 w-1/4 text-right">Amount</span>
+                   </div>
+                   <div className="max-h-72 overflow-y-auto divide-y divide-gray-50">
+                      {data.general.map((e: any) => (
+                         <div key={e.id} className="flex items-start hover:bg-gray-50/50 transition-colors">
+                            <span className="px-4 py-2 text-[9px] text-gray-400 font-bold uppercase whitespace-nowrap w-1/4">
+                               {e.date ? dayjs(e.date).format('YYYY-MM-DD') : '—'}
+                            </span>
+                            <span className="px-4 py-2 text-[10px] font-black text-gray-800 tracking-tight flex-1">
+                               {e.description || e.category || 'Office Expense'}
+                            </span>
+                            <span className="px-4 py-2 text-xs font-black text-rose-500 text-right whitespace-nowrap w-1/4">
+                               {fmt(Number(e.amount || 0))}
+                            </span>
+                         </div>
+                      ))}
+                   </div>
+                </div>
+             )}
+          </div>
+       </div>
+
+       {/* Print Button — matches web's printExpensesNewTab() */}
+       <button
+          onClick={() => {
+            const periodLabel = tabLabels[tab] || 'TODAY';
+            const timestamp = dayjs().format('MM/DD/YYYY, h:mm:ss A');
+            const fmt2 = (n: number) => '₱' + Number(n||0).toLocaleString('en-PH',{minimumFractionDigits:2,maximumFractionDigits:2});
+
+            const renderRows = (items: any[], type: 'maintenance'|'general') =>
+              items.length === 0
+                ? `<div class="no-records">No records found</div>`
+                : `<table>
+                    <thead><tr>
+                      <th>Date</th><th>Description</th><th class="text-right">Amount</th>
+                    </tr></thead>
+                    <tbody>
+                      ${items.map((item: any) => `<tr>
+                        <td class="date">${item.date ? dayjs(item.date).format('YYYY-MM-DD') : '—'}</td>
+                        <td>${type === 'maintenance' ? `Unit ${item.plate_number} - ${(item.type||'maintenance').toLowerCase()}` : (item.description || item.category || 'Office Expense')}</td>
+                        <td class="amount">${fmt2(type === 'maintenance' ? Number(item.cost||0) : Number(item.amount||0))}</td>
+                      </tr>`).join('')}
+                    </tbody>
+                  </table>`;
+
+            const win = window.open('', '_blank');
+            if (!win) return;
+            win.document.write(`<!DOCTYPE html><html lang="en"><head>
+              <meta charset="UTF-8">
+              <title>Expense Statement — ${periodLabel}</title>
+              <style>
+                * { box-sizing: border-box; margin: 0; padding: 0; }
+                body { background:#fff; font-family:'Segoe UI',system-ui,sans-serif; padding:40px; color:#111; }
+                h1 { text-align:center; font-size:24px; font-weight:900; text-transform:uppercase; letter-spacing:.15em; margin-bottom:4px; }
+                .subtitle { text-align:center; font-size:11px; color:#64748b; font-weight:700; letter-spacing:.15em; text-transform:uppercase; margin-bottom:32px; }
+                .section-header { display:flex; justify-content:space-between; align-items:center; background:#7f1d1d; color:white; padding:10px 20px; border-radius:6px 6px 0 0; }
+                .section-header span { font-size:11px; font-weight:900; text-transform:uppercase; letter-spacing:.08em; }
+                .sub-header { display:flex; justify-content:space-between; background:#f8f8f8; padding:6px 20px; border-left:1px solid #eee; border-right:1px solid #eee; font-size:9px; font-weight:900; text-transform:uppercase; letter-spacing:.12em; color:#94a3b8; }
+                .sub-total { color:#dc2626; }
+                table { width:100%; border-collapse:collapse; border:1px solid #f0f0f0; border-top:none; margin-bottom:24px; }
+                thead tr { background:#f8fafc; border-bottom:1px solid #e2e8f0; }
+                thead th { padding:8px 20px; font-size:8px; text-transform:uppercase; letter-spacing:.12em; color:#94a3b8; font-weight:700; text-align:left; }
+                th.text-right, td.amount { text-align:right; }
+                tbody tr { border-bottom:1px solid #f8f8f8; }
+                td { padding:8px 20px; font-size:11px; color:#1e293b; }
+                td.date { color:#94a3b8; font-weight:700; font-size:9px; text-transform:uppercase; }
+                td.amount { font-weight:900; color:#dc2626; white-space:nowrap; }
+                .no-records { padding:16px 20px; text-align:center; font-size:10px; font-weight:700; color:#94a3b8; text-transform:uppercase; letter-spacing:.1em; border:1px solid #f0f0f0; border-top:none; margin-bottom:24px; }
+                .footer { text-align:center; margin-top:40px; padding-top:16px; border-top:1px solid #e2e8f0; font-size:9px; color:#94a3b8; }
+              </style>
+            </head><body>
+              <h1>Expense Statement</h1>
+              <p class="subtitle">Euro Taxi Management System &mdash; ${periodLabel}</p>
+
+              <div class="section-header">
+                <span>Maintenance &amp; Repairs Itemized</span>
+                <span class="sub-total">Total: ${fmt2(totalMaintenance)}</span>
+              </div>
+              ${renderRows(data.maintenance, 'maintenance')}
+
+              <div class="section-header">
+                <span>General Office Expenses Itemized</span>
+                <span class="sub-total">Total: ${fmt2(totalGeneral)}</span>
+              </div>
+              ${renderRows(data.general, 'general')}
+
+              <div class="footer">
+                <p>Authenticated Expense Summary &mdash; Generated: ${timestamp}</p>
+              </div>
+            </body></html>`);
+            win.document.close();
+            win.focus();
+            setTimeout(() => { win.print(); }, 300);
+          }}
+          className="w-full bg-rose-700 text-white font-black py-4 rounded-2xl shadow-lg shadow-rose-100 flex items-center justify-center gap-2 active:scale-95 transition-all"
+       >
+          <Activity className="w-4 h-4"/>
+          PRINT EXPENSES REPORT
+       </button>
     </div>
   );
 }
 
 function CodingModal({stats, modal}: any) {
+  const [search, setSearch] = useState('');
+  const [period, setPeriod] = useState('all'); // all, today, tomorrow, past
+  
+  const units = modal?.codingList || [];
+  
+  const today = dayjs().startOf('day');
+  const tomorrow = today.add(1, 'day');
+  const todayDayName = today.format('dddd');
+  const tomorrowDayName = tomorrow.format('dddd');
+  const todayStr = today.format('YYYY-MM-DD');
+  const tomorrowStr = tomorrow.format('YYYY-MM-DD');
+
+  let countToday = 0;
+  let countTomorrow = 0;
+  let countPast = 0;
+  
+  units.forEach((unit: any) => {
+    const unitDate = unit.start_date;
+    const codingDay = unit.coding_day;
+    const isCompleted = unit.coding_status === 'completed';
+    
+    if (isCompleted || (unitDate && unitDate < todayStr)) {
+        countPast++;
+    } else if (unitDate === todayStr || (!unitDate && codingDay === todayDayName)) {
+        countToday++;
+    } else if (unitDate === tomorrowStr || (!unitDate && codingDay === tomorrowDayName)) {
+        countTomorrow++;
+    }
+  });
+
+  const filteredUnits = units.filter((u: any) => {
+    const matchesSearch = u.plate_number?.toLowerCase().includes(search.toLowerCase()) || 
+                          u.description?.toLowerCase().includes(search.toLowerCase()) ||
+                          u.status?.toLowerCase().includes(search.toLowerCase());
+                          
+    const unitDate = u.start_date;
+    const codingDay = u.coding_day;
+    const isCompleted = u.coding_status === 'completed';
+    
+    let isPast = isCompleted || (unitDate && unitDate < todayStr);
+    let isToday = !isPast && (unitDate === todayStr || (!unitDate && codingDay === todayDayName));
+    let isTomorrow = !isPast && !isToday && (unitDate === tomorrowStr || (!unitDate && codingDay === tomorrowDayName));
+
+    let matchesPeriod = true;
+    if (period === 'today') matchesPeriod = isToday;
+    else if (period === 'tomorrow') matchesPeriod = isTomorrow;
+    else if (period === 'past') matchesPeriod = isPast;
+    
+    return matchesSearch && matchesPeriod;
+  });
+
   return (
     <div className="space-y-4">
-      <div className="bg-violet-50 rounded-[2.5rem] p-8 border border-violet-100 text-center">
-        <p className="text-5xl font-black text-violet-700 tracking-tighter mb-1">{stats?.coding_units??0}</p>
-        <p className="text-xs text-violet-500 font-black uppercase tracking-[0.2em] mb-2">Fleet Under Coding</p>
-        <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">{new Date().toLocaleDateString("en-PH",{weekday:"long", month:"long", day:"numeric"})}</p>
-      </div>
-      <div className="grid grid-cols-2 gap-3">
-        {(modal?.codingList||[]).map((u:any,i:number)=>(
-          <div key={i} className="bg-white rounded-2xl p-4 border border-gray-100 flex items-center gap-3 shadow-sm active:bg-gray-50 transition-colors">
-            <div className="p-2 bg-violet-50 rounded-xl"><Calendar className="w-4 h-4 text-violet-500"/></div>
-            <span className="font-black text-gray-900 tracking-tight">{u.plate_number}</span>
+      {/* Search & Tabs Header inside Modal */}
+      <div className="bg-gradient-to-r from-fuchsia-600 to-pink-600 -m-4 mb-4 p-4 shadow-md">
+        <div className="flex flex-col gap-3">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="p-2 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30">
+              <Code className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <p className="text-sm font-bold text-white leading-tight">Complete coding unit management details</p>
+            </div>
           </div>
-        ))}
-        {!(modal?.codingList||[]).length&&<p className="col-span-2 text-center text-gray-400 py-10 text-sm font-medium italic">No units restricted today.</p>}
+          <div className="flex flex-col gap-2">
+            <div className="relative">
+              <input 
+                type="text" 
+                placeholder="Search by unit number, plate, or coding status..." 
+                className="w-full bg-white/20 backdrop-blur-sm border border-white/30 rounded-xl py-3 pl-10 pr-10 text-xs font-medium text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 transition-all"
+                value={search}
+                onChange={(e)=>setSearch(e.target.value)}
+              />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/60"/>
+              {search && (
+                <button onClick={()=>setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2">
+                  <XCircle className="w-4 h-4 text-white/60 hover:text-white" />
+                </button>
+              )}
+            </div>
+            
+            <div className="flex bg-white/10 backdrop-blur-sm border border-white/30 rounded-xl p-1 overflow-x-auto scrollbar-hide">
+              {['all', 'today', 'tomorrow', 'past'].map(p => (
+                <button 
+                  key={p}
+                  onClick={() => setPeriod(p)}
+                  className={`flex-1 min-w-[70px] py-2 text-[10px] font-bold rounded-lg transition-all capitalize ${period === p ? 'bg-white text-fuchsia-700 shadow-sm' : 'text-white/70 hover:bg-white/10 hover:text-white'}`}
+                >
+                  {p}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Summary Stats */}
+      <div className="grid grid-cols-2 gap-2">
+        <div className="bg-white rounded-xl p-3 border border-fuchsia-100 shadow-sm flex items-center gap-2">
+           <div className="p-1.5 bg-fuchsia-50 rounded-lg">
+             <Code className="w-4 h-4 text-fuchsia-600" />
+           </div>
+           <div>
+             <p className="text-base font-black text-fuchsia-600 leading-none mb-0.5">{units.length}</p>
+             <p className="text-[8px] font-bold text-gray-500 uppercase tracking-widest leading-none">Coding</p>
+           </div>
+        </div>
+        <div className="bg-white rounded-xl p-3 border border-blue-100 shadow-sm flex items-center gap-2">
+           <div className="p-1.5 bg-blue-50 rounded-lg">
+             <Calendar className="w-4 h-4 text-blue-600" />
+           </div>
+           <div>
+             <p className="text-base font-black text-blue-600 leading-none mb-0.5">{countToday}</p>
+             <p className="text-[8px] font-bold text-gray-500 uppercase tracking-widest leading-none">Today's Coding</p>
+           </div>
+        </div>
+        <div className="bg-white rounded-xl p-3 border border-green-100 shadow-sm flex items-center gap-2">
+           <div className="p-1.5 bg-green-50 rounded-lg">
+             <CheckCircle className="w-4 h-4 text-green-600" />
+           </div>
+           <div>
+             <p className="text-base font-black text-green-600 leading-none mb-0.5">{countTomorrow}</p>
+             <p className="text-[8px] font-bold text-gray-500 uppercase tracking-widest leading-none">Tomorrow's Coding</p>
+           </div>
+        </div>
+        <div className="bg-white rounded-xl p-3 border border-orange-100 shadow-sm flex items-center gap-2">
+           <div className="p-1.5 bg-orange-50 rounded-lg">
+             <AlertCircle className="w-4 h-4 text-orange-600" />
+           </div>
+           <div>
+             <p className="text-base font-black text-orange-600 leading-none mb-0.5">{countPast}</p>
+             <p className="text-[8px] font-bold text-gray-500 uppercase tracking-widest leading-none">Past Coding</p>
+           </div>
+        </div>
+      </div>
+
+      {/* Coding Units List */}
+      <div className="grid grid-cols-1 gap-3 pb-8">
+        {filteredUnits.length === 0 ? (
+          <div className="text-center py-10 bg-gray-50/50 rounded-2xl border border-dashed border-gray-200">
+            <div className="inline-flex p-3 bg-gray-100 rounded-full mb-3">
+              <Code className="w-6 h-6 text-gray-400" />
+            </div>
+            <p className="text-sm font-bold text-gray-600 mb-1">No coding units found</p>
+            <p className="text-[10px] text-gray-400">Try adjusting your search or date filter</p>
+          </div>
+        ) : (
+          filteredUnits.map((u: any, i: number) => (
+            <div key={i} className="bg-white rounded-2xl border-l-4 border-fuchsia-500 border-y border-r border-gray-100 shadow-sm overflow-hidden">
+              <div className="p-4">
+                <div className="flex justify-between items-start mb-3">
+                  <div className="flex items-center gap-2">
+                    <div className="p-1.5 bg-fuchsia-50 rounded-lg">
+                      <Code className="w-4 h-4 text-fuchsia-600" />
+                    </div>
+                    <p className="text-base font-black text-gray-900 leading-none">{u.plate_number || 'N/A'}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm font-bold text-fuchsia-600 leading-none mb-1">{u.coding_type || 'Coding'}</p>
+                    <p className="text-[9px] font-bold text-gray-400">
+                      {u.start_date ? u.start_date : (u.coding_day !== 'Unknown' ? 'Every ' + u.coding_day : 'No date')}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="bg-gray-50 rounded-xl p-3 mb-3">
+                  <div className="flex justify-between items-center mb-1">
+                    <p className="text-[10px] font-bold text-gray-900">Status: {u.status || 'Unknown'}</p>
+                    <p className="text-[9px] text-gray-500">{u.estimated_completion || 'Not specified'}</p>
+                  </div>
+                  <p className="text-[10px] text-gray-600"><span className="font-bold">Description:</span> {u.description || 'No description available'}</p>
+                </div>
+
+                <div className="flex justify-between items-center border-t border-gray-100 pt-3">
+                  <div className="flex items-center gap-1">
+                    <Calendar className="w-3 h-3 text-gray-400" />
+                    <span className="text-[9px] font-bold text-gray-500">
+                      {u.start_date ? u.start_date : (u.coding_day !== 'Unknown' ? 'Every ' + u.coding_day : 'No start date')}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <CheckCircle className="w-3 h-3 text-gray-400" />
+                    <span className="text-[9px] font-bold text-gray-500">{u.status || 'Unknown'}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))
+        )}
       </div>
     </div>
   );

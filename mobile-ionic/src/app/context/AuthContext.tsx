@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import axios from "axios";
 
-const API_BASE_URL = "https://eurotaxisystem.site/api";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "https://eurotaxisystem.site/api";
 
 interface User {
   id: string;
