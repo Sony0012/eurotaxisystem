@@ -41,12 +41,8 @@ class PageAccessMiddleware
             $allowedPages = json_decode($allowedPages, true) ?? [];
         }
 
-        // We use null to mean "full access/no restrictions" (backward compat)
-        // An explicit empty array [] means "no pages allowed" (blocked)
-        // So if it's null (not set), allow everything
-        if ($allowedPages === null) {
-            return $next($request);
-        }
+        // We use null or [] to mean "no pages allowed" (blocked)
+        // If allowed_pages is null or [], access is denied by default for non-super-admins.
 
         $routeName = $request->route()?->getName() ?? '';
 

@@ -106,13 +106,8 @@ class User extends Authenticatable
             $pages = json_decode($pages, true);
         }
 
-        // 4. Default to full access if no restrictions are defined (null)
-        // Note: Empty array [] means restricted to nothing (blocked).
-        if ($pages === null) {
-            return true;
-        }
-
-        if (!is_array($pages)) {
+        // Default to NO access if no restrictions are defined (null or empty array)
+        if ($pages === null || !is_array($pages)) {
             return false;
         }
 
