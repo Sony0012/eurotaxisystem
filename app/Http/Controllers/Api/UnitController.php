@@ -190,10 +190,16 @@ class UnitController extends Controller
         $d2 = $d2Raw ? (object)array_merge((array)$d2Raw, ['full_name' => trim(($d2Raw->first_name ?? '') . ' ' . ($d2Raw->last_name ?? ''))]) : null;
 
         // Maintenance records
-        $maintenanceRecords = DB::table('maintenance')
-            ->where('unit_id', $id)->whereNull('deleted_at')
-            ->orderByDesc('date_started')->limit(20)
-            ->get(['maintenance_type','status','date_started','date_completed','cost','description','mechanic_name','driver_name']);
+        $maintenanceRecords = DB::table('maintenance as m')
+            ->leftJoin('drivers as d', 'm.driver_id', '=', 'd.id')
+            ->where('m.unit_id', $id)->whereNull('m.deleted_at')
+            ->orderByDesc('m.date_started')->limit(20)
+            ->select(
+                'm.maintenance_type','m.status','m.date_started','m.date_completed',
+                'm.cost','m.description','m.mechanic_name',
+                DB::raw("TRIM(CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,''))) as driver_name")
+            )
+            ->get();
 
         // Boundary history
         $boundaryHistory = DB::table('boundaries as b')
