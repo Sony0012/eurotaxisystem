@@ -35,15 +35,20 @@
 
     <!-- Tailwind CSS (Local) -->
     <script>
-        // Ultimate silence for Tailwind production warning
+        // Ultimate silence for Tailwind and other dev warnings
         (function() {
-            const originalWarn = console.warn;
-            console.warn = function() {
-                if (arguments[0] && typeof arguments[0] === 'string' && arguments[0].includes('cdn.tailwindcss.com')) {
-                    return;
-                }
-                originalWarn.apply(console, arguments);
-            };
+            const suppressStrings = ['cdn.tailwindcss.com', 'Tailwind CSS', 'Play CDN'];
+            const methods = ['warn', 'log', 'info', 'error'];
+            methods.forEach(method => {
+                const original = console[method];
+                console[method] = function() {
+                    const msg = arguments[0];
+                    if (msg && typeof msg === 'string' && suppressStrings.some(s => msg.includes(s))) {
+                        return;
+                    }
+                    if (original) original.apply(console, arguments);
+                };
+            });
         })();
     </script>
     <script src="{{ asset('assets/tailwind.min.js') }}"></script>
