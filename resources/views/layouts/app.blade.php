@@ -5,6 +5,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
+    <!-- Aggressive silence for Tailwind and other dev warnings - MUST BE FIRST -->
+    <script>
+        (function() {
+            window.tailwind = { config: { silent: true } };
+            const suppressStrings = ['cdn.tailwindcss.com', 'Tailwind CSS', 'Play CDN', 'production warning'];
+            const methods = ['warn', 'log', 'info', 'error', 'debug'];
+            methods.forEach(method => {
+                const original = console[method];
+                console[method] = function(...args) {
+                    const msg = args.map(arg => String(arg)).join(' ').toLowerCase();
+                    if (msg && suppressStrings.some(s => msg.includes(s.toLowerCase()))) {
+                        return;
+                    }
+                    if (original) original.apply(console, args);
+                };
+            });
+        })();
+    </script>
+
     <!-- SEO Meta Tags -->
     <meta name="description" content="Euro Taxi System - Professional taxi fleet management system in the Philippines. Real-time tracking, driver management, and comprehensive taxi business solutions.">
     <meta name="keywords" content="euro taxi, taxi system, fleet management, taxi business philippines, vehicle tracking, driver management, taxi dispatch, transportation system">
@@ -28,32 +47,16 @@
     <title>{{ config('app.name', 'Euro Taxi System') }}</title>
 
     <!-- Favicon -->
-    <link rel="shortcut icon" href="{{ asset('favicon_euro_transparent.png') }}?v=1.5">
-    <link rel="icon" type="image/png" href="{{ asset('favicon_euro_transparent.png') }}?v=1.5">
-    <link rel="apple-touch-icon" href="{{ asset('favicon_euro_transparent.png') }}?v=1.5">
-    <link rel="manifest" href="{{ asset('manifest.json') }}?v=1.6">
+    <link rel="shortcut icon" href="{{ asset('favicon_euro_transparent.png') }}?v=1.6">
+    <link rel="icon" type="image/png" href="{{ asset('favicon_euro_transparent.png') }}?v=1.6">
+    <link rel="apple-touch-icon" href="{{ asset('favicon_euro_transparent.png') }}?v=1.6">
+    <link rel="manifest" href="{{ asset('manifest.json') }}?v=1.7">
 
-    <!-- Tailwind CSS (Local) -->
-    <script>
-        // Aggressive silence for Tailwind and other dev warnings
-        (function() {
-            const suppressStrings = ['cdn.tailwindcss.com', 'Tailwind CSS', 'Play CDN', 'production'];
-            const methods = ['warn', 'log', 'info', 'error'];
-            methods.forEach(method => {
-                const original = console[method];
-                console[method] = function(...args) {
-                    const msg = args.map(arg => String(arg)).join(' ');
-                    if (msg && suppressStrings.some(s => msg.includes(s))) {
-                        return;
-                    }
-                    if (original) original.apply(console, args);
-                };
-            });
-        })();
-    </script>
-    <script src="{{ asset('assets/tailwind.min.js') }}?v=2.1"></script>
-    <link rel="stylesheet" href="{{ asset('assets/fontawesome/all.min.css') }}?v=2.1">
-    <link rel="stylesheet" href="{{ asset('assets/inter/inter.css') }}?v=2.1">
+    <!-- Critical Assets (Local) -->
+    <script src="{{ asset('assets/tailwind.min.js') }}?v=stable_3.4.1"></script>
+    <link rel="stylesheet" href="{{ asset('assets/fontawesome/all.min.css') }}?v=stable_6.4.0">
+    <link rel="stylesheet" href="{{ asset('assets/inter/inter.css') }}?v=stable_3.19.3">
+
     <style>
         input::-webkit-outer-spin-button,
         input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }

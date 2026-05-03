@@ -6,25 +6,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     
-    <!-- Cache control headers to prevent back button caching -->
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
-    
-    <!-- Favicon -->
-    <link rel="shortcut icon" href="{{ asset('favicon_euro_transparent.png') }}?v=1.5">
-    <link rel="icon" type="image/png" href="{{ asset('favicon_euro_transparent.png') }}?v=1.5">
-    <link rel="apple-touch-icon" href="{{ asset('favicon_euro_transparent.png') }}?v=1.5">
+    <!-- Aggressive silence for Tailwind and other dev warnings - MUST BE FIRST -->
     <script>
-        // Aggressive silence for Tailwind and other dev warnings
         (function() {
-            const suppressStrings = ['cdn.tailwindcss.com', 'Tailwind CSS', 'Play CDN', 'production'];
-            const methods = ['warn', 'log', 'info', 'error'];
+            window.tailwind = { config: { silent: true } };
+            const suppressStrings = ['cdn.tailwindcss.com', 'Tailwind CSS', 'Play CDN', 'production warning'];
+            const methods = ['warn', 'log', 'info', 'error', 'debug'];
             methods.forEach(method => {
                 const original = console[method];
                 console[method] = function(...args) {
-                    const msg = args.map(arg => String(arg)).join(' ');
-                    if (msg && suppressStrings.some(s => msg.includes(s))) {
+                    const msg = args.map(arg => String(arg)).join(' ').toLowerCase();
+                    if (msg && suppressStrings.some(s => msg.includes(s.toLowerCase()))) {
                         return;
                     }
                     if (original) original.apply(console, args);
@@ -32,10 +24,23 @@
             });
         })();
     </script>
-    <script src="{{ asset('assets/tailwind.min.js') }}?v=2.1"></script>
-    <script src="{{ asset('assets/lottie-player.js') }}?v=2.1"></script>
-    <link rel="stylesheet" href="{{ asset('assets/fontawesome/all.min.css') }}?v=2.1">
-    <link rel="stylesheet" href="{{ asset('assets/inter/inter.css') }}?v=2.1">
+
+    <!-- Cache control headers to prevent back button caching -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="{{ asset('favicon_euro_transparent.png') }}?v=1.6">
+    <link rel="icon" type="image/png" href="{{ asset('favicon_euro_transparent.png') }}?v=1.6">
+    <link rel="apple-touch-icon" href="{{ asset('favicon_euro_transparent.png') }}?v=1.6">
+    
+    <!-- Critical Assets (Local) -->
+    <script src="{{ asset('assets/tailwind.min.js') }}?v=stable_3.4.1"></script>
+    <script src="{{ asset('assets/lottie-player.js') }}?v=stable_2.0.4"></script>
+    <link rel="stylesheet" href="{{ asset('assets/fontawesome/all.min.css') }}?v=stable_6.4.0">
+    <link rel="stylesheet" href="{{ asset('assets/inter/inter.css') }}?v=stable_3.19.3">
+
     
     <script>
         // Prevent back button caching
