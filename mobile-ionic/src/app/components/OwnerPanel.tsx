@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import {
   Crown, Shield, Users, UserPlus, Activity, Lock, ShieldAlert,
   CheckCircle, XCircle, RefreshCw, Loader2, X, ChevronRight,
-  LayoutDashboard, Eye, EyeOff, Search, Key
+  LayoutDashboard, Eye, EyeOff, Search, Key, Archive, Trash2
 } from "lucide-react";
 
 export function OwnerPanel() {
