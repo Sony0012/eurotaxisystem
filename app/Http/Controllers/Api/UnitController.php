@@ -184,8 +184,10 @@ class UnitController extends Controller
         }
 
         // Drivers with contacts
-        $d1 = $unit->driver_id ? DB::table('drivers')->where('id', $unit->driver_id)->first(['full_name','contact_number','license_number','hire_date','license_expiry']) : null;
-        $d2 = $unit->secondary_driver_id ? DB::table('drivers')->where('id', $unit->secondary_driver_id)->first(['full_name','contact_number','license_number','hire_date','license_expiry']) : null;
+        $d1Raw = $unit->driver_id ? DB::table('drivers')->where('id', $unit->driver_id)->first(['first_name','last_name','contact_number','license_number','hire_date','license_expiry']) : null;
+        $d2Raw = $unit->secondary_driver_id ? DB::table('drivers')->where('id', $unit->secondary_driver_id)->first(['first_name','last_name','contact_number','license_number','hire_date','license_expiry']) : null;
+        $d1 = $d1Raw ? (object)array_merge((array)$d1Raw, ['full_name' => trim(($d1Raw->first_name ?? '') . ' ' . ($d1Raw->last_name ?? ''))]) : null;
+        $d2 = $d2Raw ? (object)array_merge((array)$d2Raw, ['full_name' => trim(($d2Raw->first_name ?? '') . ' ' . ($d2Raw->last_name ?? ''))]) : null;
 
         // Maintenance records
         $maintenanceRecords = DB::table('maintenance')
@@ -198,7 +200,8 @@ class UnitController extends Controller
             ->leftJoin('drivers as d', 'b.driver_id', '=', 'd.id')
             ->where('b.unit_id', $id)->whereNull('b.deleted_at')
             ->orderByDesc('b.date')->limit(20)
-            ->get(['b.date','b.actual_boundary','b.status','d.full_name']);
+            ->select('b.date','b.actual_boundary','b.status', DB::raw("CONCAT(d.first_name, ' ', d.last_name) as full_name"))
+            ->get();
 
         // Coding info
         $lastDigit  = substr($unit->plate_number ?? '', -1);
