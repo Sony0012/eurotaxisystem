@@ -103,8 +103,8 @@ export function Dashboard() {
         </div>
       </div>
 
-      {/* 1. STATS CARDS (Matching Web Design) */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+      {/* 1. STATS CARDS (Matching Web Design + User Arrangement) */}
+      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
         {[
           { 
             id: 'units', 
@@ -143,9 +143,9 @@ export function Dashboard() {
           },
           { 
             id: 'mnt', 
-            label: "Units Under Maintenance", 
+            label: "Units Under Mntnc", 
             val: stats?.maintenance_units, 
-            sub: "Units ongoing maintenance", 
+            sub: "Ongoing Maintenance", 
             icon: Wrench, 
             bg: "bg-orange-50/50", 
             bd: "border-orange-100", 
@@ -154,42 +154,44 @@ export function Dashboard() {
           },
         ].map((s) => (
           <div key={s.id} onClick={()=>setActiveModal(s.id)}
-            className={`group relative overflow-hidden rounded-[1.5rem] ${s.bg} border ${s.bd} p-5 active:scale-[0.98] transition-all cursor-pointer shadow-sm`}>
-            {/* Background Illustration (Simplified Wave) */}
-            <div className="absolute bottom-0 right-0 left-0 h-16 opacity-[0.05] pointer-events-none">
+            className={`group relative overflow-hidden rounded-[1.5rem] ${s.bg} border ${s.bd} p-3 active:scale-[0.98] transition-all cursor-pointer shadow-sm`}>
+            {/* Background Illustration */}
+            <div className="absolute bottom-0 right-0 left-0 h-12 opacity-[0.05] pointer-events-none">
                <svg viewBox="0 0 100 20" className="w-full h-full preserve-3d">
                   <path d="M0 10 Q 25 20 50 10 T 100 10 V 20 H 0 Z" fill="currentColor" className={s.c}/>
                </svg>
             </div>
             
-            <div className="flex justify-between items-start relative z-10">
-               <div className="flex-1">
-                  <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">{s.label}</p>
-                  <p className="text-3xl font-black text-gray-900 tracking-tighter leading-none">{s.val}</p>
-                  <p className="text-[9px] font-bold text-gray-500 mt-2 uppercase tracking-tight">{s.sub}</p>
+            <div className="flex justify-between items-start relative z-10 mb-2">
+               <div className={`p-2 ${s.iconBg} rounded-xl shadow-sm`}>
+                  <s.icon className={`w-4 h-4 ${s.c}`}/>
                </div>
-               <div className={`w-12 h-12 ${s.iconBg} rounded-2xl flex items-center justify-center shadow-inner`}>
-                  <s.icon className={`w-6 h-6 ${s.c}`}/>
-               </div>
+               <ChevronRight className="w-3 h-3 text-gray-300"/>
+            </div>
+            
+            <div className="relative z-10">
+               <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1 truncate">{s.label}</p>
+               <p className="text-lg font-black text-gray-900 tracking-tighter leading-none">{s.val}</p>
+               <p className="text-[7px] font-bold text-gray-500 mt-1 uppercase tracking-tight truncate">{s.sub}</p>
             </div>
             
             {s.sub2 && (
-               <div className="mt-4 pt-4 border-t border-black/5 relative z-10">
-                  <p className="text-sm font-black text-gray-900 tracking-tight">{s.sub2.split(' ')[0]}</p>
-                  <p className="text-[8px] font-black text-gray-400 uppercase tracking-tighter">{s.sub2.split(' ').slice(1).join(' ')}</p>
+               <div className="mt-2 pt-2 border-t border-black/5 relative z-10">
+                  <p className="text-[9px] font-black text-gray-900 tracking-tight truncate">{s.sub2.split(' ')[0]}</p>
+                  <p className="text-[7px] font-black text-gray-400 uppercase tracking-tighter truncate">{s.sub2.split(' ').slice(1).join(' ')}</p>
                </div>
             )}
           </div>
         ))}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+      <div className="grid grid-cols-3 md:grid-cols-3 gap-3 mb-4">
         {[
           { 
             id: 'drivers', 
             label: "Active Drivers", 
             val: stats?.active_drivers, 
-            sub: "Registered Drivers", 
+            sub: "Registered", 
             icon: Users, 
             bg: "bg-indigo-50/50", 
             bd: "border-indigo-100", 
@@ -199,20 +201,19 @@ export function Dashboard() {
           { 
             id: 'expenses', 
             label: "Total Expenses Today", 
-            val: fmt(stats?.total_expenses_today), 
-            sub: "Today Total", 
+            val: fmt(stats?.today_expenses), 
+            sub: "Today", 
             icon: Activity, 
             bg: "bg-rose-50/50", 
             bd: "border-rose-100", 
             c: "text-rose-600",
-            iconBg: "bg-rose-100/50",
-            trendIcon: true
+            iconBg: "bg-rose-100/50"
           },
           { 
             id: 'coding', 
             label: "Coding Units Today", 
             val: stats?.coding_units, 
-            sub: dayjs().format('dddd').toUpperCase(), 
+            sub: dayjs().format('dddd'), 
             icon: Calendar, 
             bg: "bg-purple-50/50", 
             bd: "border-purple-100", 
@@ -221,28 +222,16 @@ export function Dashboard() {
           },
         ].map((s) => (
           <div key={s.id} onClick={()=>setActiveModal(s.id)}
-            className={`group relative overflow-hidden rounded-[1.5rem] ${s.bg} border ${s.bd} p-5 active:scale-[0.98] transition-all cursor-pointer shadow-sm`}>
-            {/* Background Illustration */}
-            <div className="absolute bottom-0 right-0 left-0 h-12 opacity-[0.05] pointer-events-none">
-               <svg viewBox="0 0 100 20" className="w-full h-full">
-                  <path d="M0 15 L 20 5 L 40 12 L 60 2 L 80 18 L 100 5 V 20 H 0 Z" fill="currentColor" className={s.c}/>
-               </svg>
+            className={`group relative overflow-hidden rounded-[1.25rem] ${s.bg} border ${s.bd} p-3 active:scale-[0.98] transition-all cursor-pointer shadow-sm`}>
+            <div className="flex items-center gap-2 mb-2 relative z-10">
+               <div className={`p-1.5 ${s.iconBg} rounded-lg shadow-sm`}>
+                  <s.icon className={`w-3 h-3 ${s.c}`}/>
+               </div>
+               <p className="text-[7px] font-black text-gray-500 uppercase tracking-tighter truncate">{s.label.split(' ')[0]}</p>
             </div>
-
-            <div className="flex justify-between items-start relative z-10">
-               <div>
-                  <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">{s.label}</p>
-                  <p className="text-2xl font-black text-gray-900 tracking-tighter leading-none">{s.val}</p>
-                  <p className="text-[9px] font-bold text-gray-400 mt-2 uppercase tracking-tight">{s.sub}</p>
-               </div>
-               <div className={`w-12 h-12 ${s.iconBg} rounded-2xl flex items-center justify-center shadow-inner relative overflow-hidden`}>
-                  {s.trendIcon ? (
-                     <div className="flex items-center justify-center">
-                        <Activity className={`w-6 h-6 ${s.c}`}/>
-                        <div className="absolute top-1 right-1 w-2 h-2 bg-rose-500 rounded-full animate-pulse"></div>
-                     </div>
-                  ) : <s.icon className={`w-6 h-6 ${s.c}`}/>}
-               </div>
+            <div className="relative z-10">
+               <p className="text-xs font-black text-gray-900 tracking-tighter leading-none">{s.val}</p>
+               <p className="text-[6px] font-bold text-gray-400 mt-1 uppercase tracking-tight truncate">{s.sub}</p>
             </div>
           </div>
         ))}
