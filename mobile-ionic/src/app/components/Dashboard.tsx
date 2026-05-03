@@ -130,7 +130,7 @@ export function Dashboard() {
             iconBg: "bg-emerald-100/50"
           },
           { 
-            id: 'net', 
+            id: 'income', 
             label: "Net Income (Kita)", 
             val: fmt(stats?.net_income), 
             sub: "TODAY", 
