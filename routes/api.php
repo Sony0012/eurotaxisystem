@@ -59,11 +59,19 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/users/{id}/archive', [\App\Http\Controllers\SuperAdminController::class, 'archiveUser']);
         Route::post('/users/{id}/restore', [\App\Http\Controllers\SuperAdminController::class, 'restoreUser']);
         Route::delete('/users/{id}', [\App\Http\Controllers\SuperAdminController::class, 'deleteUser']);
+        Route::put('/users/{id}/update', [\App\Http\Controllers\SuperAdminController::class, 'updateUser']);
         Route::post('/archive-password', [\App\Http\Controllers\SuperAdminController::class, 'updateArchivePassword']);
         
         // Roles
         Route::post('/roles', [\App\Http\Controllers\SuperAdminController::class, 'storeRole']);
         Route::delete('/roles/{id}/archive', [\App\Http\Controllers\SuperAdminController::class, 'archiveRole']);
         Route::post('/roles/{id}/restore', [\App\Http\Controllers\SuperAdminController::class, 'restoreRole']);
+        Route::delete('/roles/{id}', [\App\Http\Controllers\SuperAdminController::class, 'deleteRole']);
+        
+        // Incident Classifications
+        Route::post('/classifications', [\App\Http\Controllers\SuperAdminController::class, 'storeClassification']);
+        Route::delete('/classifications/{id}/archive', [\App\Http\Controllers\SuperAdminController::class, 'archiveClassification']);
+        Route::post('/classifications/{id}/restore', [\App\Http\Controllers\SuperAdminController::class, 'restoreClassification']);
+        Route::delete('/classifications/{id}', [\App\Http\Controllers\SuperAdminController::class, 'deleteClassification']);
     });
 });

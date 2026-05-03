@@ -192,6 +192,7 @@ export function OwnerPanel() {
       let url = "";
       if (deleteTarget.type === 'user') url = `/super-admin/users/${deleteTarget.id}`;
       else if (deleteTarget.type === 'role') url = `/super-admin/roles/${deleteTarget.id}`;
+      else if (deleteTarget.type === 'classification') url = `/super-admin/classifications/${deleteTarget.id}`;
       
       const r = await api.delete(url, { data: { archive_password: verifyPassword } });
       toast.success(r.data.message);
