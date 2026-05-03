@@ -530,32 +530,80 @@ export function UnitDetail() {
 
         {/* ── ROI ── */}
         {activeTab === "ROI" && (
-          <div className="space-y-4">
-            <div className="bg-gradient-to-r from-purple-600 to-purple-700 rounded-2xl p-5 text-white">
-              <p className="text-sm font-black uppercase tracking-widest mb-4">ROI Analysis</p>
-              {[
-                { label: "Total Investment", val: fmt(unit.roi?.total_investment) },
-                { label: "Total Revenue", val: fmt(unit.roi?.total_revenue) },
-                { label: "Total Expenses", val: fmt(unit.roi?.total_expenses) },
-              ].map((r, i) => (
-                <div key={i} className="mb-3">
-                  <p className="text-purple-200 text-[10px] font-bold uppercase">{r.label}</p>
-                  <p className="text-2xl font-black">{r.val}</p>
+          <div className="space-y-6">
+            {/* ROI Performance Analysis Header Card */}
+            <div className="bg-indigo-600 rounded-[2.5rem] p-8 shadow-xl shadow-indigo-100 relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-20 -mt-20 blur-3xl" />
+              <div className="absolute bottom-0 left-0 w-32 h-32 bg-white/5 rounded-full -ml-10 -mb-10 blur-2xl" />
+              
+              <div className="relative flex items-center gap-3 mb-8">
+                <div className="p-2 bg-white/10 rounded-xl backdrop-blur-md">
+                  <TrendingUp className="w-5 h-5 text-white" />
                 </div>
-              ))}
+                <h3 className="text-sm font-black text-white uppercase tracking-widest">ROI Performance Analysis</h3>
+              </div>
+
+              <div className="relative grid grid-cols-1 gap-4">
+                {[
+                  { label: "Total Investment", val: unit.roi?.total_investment, bg: "bg-white/10" },
+                  { label: "Total Net Revenue", val: unit.roi?.total_revenue, bg: "bg-white/10", color: "text-green-300" },
+                  { label: "Total Expenses", val: unit.roi?.total_expenses, bg: "bg-white/10", color: "text-orange-300" },
+                ].map((m, i) => (
+                  <div key={i} className={`${m.bg} backdrop-blur-md border border-white/10 rounded-3xl p-6`}>
+                    <p className="text-[10px] font-black text-white/60 uppercase tracking-widest mb-2">{m.label}</p>
+                    <p className={`text-2xl font-black ${m.color || "text-white"} tracking-tight`}>{fmt(m.val)}</p>
+                  </div>
+                ))}
+              </div>
             </div>
-            <div className="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm">
-              <p className="text-sm font-black text-gray-900 uppercase tracking-widest border-b border-gray-100 pb-3 mb-3">ROI Metrics</p>
-              <InfoRow label="ROI %" value={<span className={`font-black ${(unit.roi?.roi_percentage || 0) > 0 ? "text-green-600" : "text-red-600"}`}>{Number(unit.roi?.roi_percentage || 0).toFixed(1)}%</span>} />
-              <InfoRow label="Payback Period" value={`${Number(unit.roi?.payback_period || 0).toFixed(1)} months`} />
-              <InfoRow label="Monthly Revenue" value={fmt(unit.roi?.monthly_revenue)} />
-              <InfoRow label="Monthly Expenses" value={fmt(unit.roi?.monthly_expenses)} />
-              <div className="mt-3 pt-3 border-t border-gray-50">
-                <div className="flex justify-between text-[10px] font-bold text-gray-400 uppercase mb-1">
-                  <span>ROI Achievement</span><span>{Number(unit.roi?.roi_percentage || 0).toFixed(1)}%</span>
+
+            <div className="grid grid-cols-1 gap-6">
+              {/* Key Metrics */}
+              <div className="bg-white border border-gray-100 rounded-3xl p-6 shadow-sm">
+                <p className="text-[10px] font-black text-gray-900 uppercase tracking-widest mb-6 border-b border-gray-50 pb-2">Key Metrics</p>
+                <div className="space-y-5">
+                  <div className="flex justify-between items-center">
+                    <span className="text-[11px] font-black text-gray-400 uppercase tracking-tight">ROI Percentage</span>
+                    <span className={`text-xl font-black ${unit.roi_percentage >= 0 ? "text-green-600" : "text-red-600"}`}>
+                      {unit.roi_percentage}%
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-[11px] font-black text-gray-400 uppercase tracking-tight">Monthly Average</span>
+                    <span className="text-base font-black text-gray-900">{fmt(unit.roi?.monthly_avg)}</span>
+                  </div>
                 </div>
-                <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
-                  <div className="h-full bg-gradient-to-r from-purple-500 to-purple-600 rounded-full" style={{ width: `${Math.min(100, Math.max(0, unit.roi?.roi_percentage || 0))}%` }} />
+              </div>
+
+              {/* Goal Progress */}
+              <div className="bg-white border border-gray-100 rounded-3xl p-6 shadow-sm">
+                <p className="text-[10px] font-black text-gray-900 uppercase tracking-widest mb-6 border-b border-gray-50 pb-2">Goal Progress</p>
+                <div className="space-y-5">
+                  <div className="flex justify-between items-center">
+                    <span className="text-[11px] font-black text-gray-400 uppercase tracking-tight">Investment Achievement</span>
+                    <span className={`text-sm font-black ${unit.roi_percentage >= 0 ? "text-green-600" : "text-red-600"}`}>
+                      {unit.roi_percentage}%
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-[11px] font-black text-gray-400 uppercase tracking-tight">Status</span>
+                    <span className={`px-3 py-1 text-[10px] font-black rounded-full border uppercase ${unit.roi?.roi_status === 'Achieved' ? "bg-green-50 text-green-600 border-green-100" : "bg-blue-50 text-blue-600 border-blue-100"}`}>
+                      {unit.roi?.roi_status}
+                    </span>
+                  </div>
+                </div>
+                {/* Progress Bar */}
+                <div className="mt-8">
+                  <div className="flex justify-between text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">
+                    <span>Progress</span>
+                    <span>{Math.min(Math.max(unit.roi_percentage || 0, 0), 100)}%</span>
+                  </div>
+                  <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                    <div 
+                      className="h-full bg-indigo-600 rounded-full transition-all duration-1000" 
+                      style={{ width: `${Math.min(Math.max(unit.roi_percentage || 0, 0), 100)}%` }}
+                    />
+                  </div>
                 </div>
               </div>
             </div>
