@@ -176,6 +176,30 @@ export function OwnerPanel() {
     } catch(e:any) { toast.error(e?.response?.data?.message || "Failed."); }
   };
 
+  const approveUser = async (id: number) => {
+    try {
+      const r = await api.post(`/super-admin/users/${id}/approve`);
+      toast.success(r.data.message); loadData();
+    } catch(e:any) { toast.error(e?.response?.data?.message || "Failed."); }
+  };
+
+  const rejectUser = async (id: number) => {
+    if (!confirm("Reject this user application?")) return;
+    try {
+      const r = await api.post(`/super-admin/users/${id}/reject`);
+      toast.success(r.data.message); loadData();
+    } catch(e:any) { toast.error(e?.response?.data?.message || "Failed."); }
+  };
+
+  const toggleDisable = async (id: number, currentStatus: boolean) => {
+    const action = currentStatus ? "enable" : "disable";
+    if (!confirm(`Are you sure you want to ${action} this account?`)) return;
+    try {
+      const r = await api.post(`/super-admin/users/${id}/toggle-disable`);
+      toast.success(r.data.message); loadData();
+    } catch(e:any) { toast.error(e?.response?.data?.message || "Failed."); }
+  };
+
   const saveArchivePassword = async (e: React.FormEvent) => {
     e.preventDefault();
     if (archForm.archive_password !== archForm.archive_password_confirmation) { toast.error("Passwords do not match."); return; }
