@@ -34,7 +34,7 @@ class PageAccessMiddleware
             return $next($request);
         }
 
-        $allowedPages = $user->allowed_pages;
+        $allowedPages = $user->allowed_pages ?? [];
 
         // Decode if it's a string
         if (is_string($allowedPages)) {
