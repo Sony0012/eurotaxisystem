@@ -35,15 +35,15 @@
 
     <!-- Tailwind CSS (Local) -->
     <script>
-        // Ultimate silence for Tailwind and other dev warnings
+        // Aggressive silence for Tailwind and other dev warnings
         (function() {
-            const suppressStrings = ['cdn.tailwindcss.com', 'Tailwind CSS', 'Play CDN'];
+            const suppressStrings = ['cdn.tailwindcss.com', 'Tailwind CSS', 'Play CDN', 'production'];
             const methods = ['warn', 'log', 'info', 'error'];
             methods.forEach(method => {
                 const original = console[method];
                 console[method] = function() {
-                    const msg = arguments[0];
-                    if (msg && typeof msg === 'string' && suppressStrings.some(s => msg.includes(s))) {
+                    const msg = String(arguments[0]);
+                    if (msg && suppressStrings.some(s => msg.includes(s))) {
                         return;
                     }
                     if (original) original.apply(console, arguments);
@@ -51,7 +51,9 @@
             });
         })();
     </script>
-    <script src="{{ asset('assets/tailwind.min.js') }}"></script>
+    <script src="{{ asset('assets/tailwind.min.js') }}?v=2.0"></script>
+    <link rel="stylesheet" href="{{ asset('assets/fontawesome/all.min.css') }}?v=2.0">
+    <link rel="stylesheet" href="{{ asset('assets/inter/inter.css') }}?v=2.0">
     <style>
         input::-webkit-outer-spin-button,
         input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }

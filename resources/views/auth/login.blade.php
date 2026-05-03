@@ -16,15 +16,15 @@
     <link rel="icon" type="image/png" href="{{ asset('favicon_euro_transparent.png') }}?v=1.5">
     <link rel="apple-touch-icon" href="{{ asset('favicon_euro_transparent.png') }}?v=1.5">
     <script>
-        // Ultimate silence for Tailwind and other dev warnings
+        // Aggressive silence for Tailwind and other dev warnings
         (function() {
-            const suppressStrings = ['cdn.tailwindcss.com', 'Tailwind CSS', 'Play CDN'];
+            const suppressStrings = ['cdn.tailwindcss.com', 'Tailwind CSS', 'Play CDN', 'production'];
             const methods = ['warn', 'log', 'info', 'error'];
             methods.forEach(method => {
                 const original = console[method];
                 console[method] = function() {
-                    const msg = arguments[0];
-                    if (msg && typeof msg === 'string' && suppressStrings.some(s => msg.includes(s))) {
+                    const msg = String(arguments[0]);
+                    if (msg && suppressStrings.some(s => msg.includes(s))) {
                         return;
                     }
                     if (original) original.apply(console, arguments);
@@ -32,10 +32,10 @@
             });
         })();
     </script>
-    <script src="{{ asset('assets/tailwind.min.js') }}"></script>
-    <script src="{{ asset('assets/lottie-player.js') }}"></script>
-    <link rel="stylesheet" href="{{ asset('assets/fontawesome/all.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('assets/inter/inter.css') }}">
+    <script src="{{ asset('assets/tailwind.min.js') }}?v=2.0"></script>
+    <script src="{{ asset('assets/lottie-player.js') }}?v=2.0"></script>
+    <link rel="stylesheet" href="{{ asset('assets/fontawesome/all.min.css') }}?v=2.0">
+    <link rel="stylesheet" href="{{ asset('assets/inter/inter.css') }}?v=2.0">
     
     <script>
         // Prevent back button caching
