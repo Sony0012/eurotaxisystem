@@ -55,8 +55,15 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/users/{id}/approve', [\App\Http\Controllers\SuperAdminController::class, 'approveUser']);
         Route::post('/users/{id}/reject', [\App\Http\Controllers\SuperAdminController::class, 'rejectUser']);
         Route::post('/users/{id}/toggle-disable', [\App\Http\Controllers\SuperAdminController::class, 'toggleDisable']);
-        Route::post('/users/{id}/access', [\App\Http\Controllers\SuperAdminController::class, 'updatePageAccess']);
+        Route::post('/users/{id}/page-access', [\App\Http\Controllers\SuperAdminController::class, 'updatePageAccess']);
         Route::post('/users/{id}/archive', [\App\Http\Controllers\SuperAdminController::class, 'archiveUser']);
+        Route::post('/users/{id}/restore', [\App\Http\Controllers\SuperAdminController::class, 'restoreUser']);
+        Route::delete('/users/{id}', [\App\Http\Controllers\SuperAdminController::class, 'deleteUser']);
         Route::post('/archive-password', [\App\Http\Controllers\SuperAdminController::class, 'updateArchivePassword']);
+        
+        // Roles
+        Route::post('/roles', [\App\Http\Controllers\SuperAdminController::class, 'storeRole']);
+        Route::delete('/roles/{id}/archive', [\App\Http\Controllers\SuperAdminController::class, 'archiveRole']);
+        Route::post('/roles/{id}/restore', [\App\Http\Controllers\SuperAdminController::class, 'restoreRole']);
     });
 });
