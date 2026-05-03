@@ -135,7 +135,7 @@ export function LiveTracking() {
 
     const interval = setInterval(() => {
       fetchLiveTracking();
-    }, 30000); // 30 seconds real-time update to save DB connections
+    }, 60000); // 60 seconds real-time update to save DB connections
 
     return () => clearInterval(interval);
   }, [isAutoRefresh]);
