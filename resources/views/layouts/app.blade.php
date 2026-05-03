@@ -41,19 +41,19 @@
             const methods = ['warn', 'log', 'info', 'error'];
             methods.forEach(method => {
                 const original = console[method];
-                console[method] = function() {
-                    const msg = String(arguments[0]);
+                console[method] = function(...args) {
+                    const msg = args.map(arg => String(arg)).join(' ');
                     if (msg && suppressStrings.some(s => msg.includes(s))) {
                         return;
                     }
-                    if (original) original.apply(console, arguments);
+                    if (original) original.apply(console, args);
                 };
             });
         })();
     </script>
-    <script src="{{ asset('assets/tailwind.min.js') }}?v=2.0"></script>
-    <link rel="stylesheet" href="{{ asset('assets/fontawesome/all.min.css') }}?v=2.0">
-    <link rel="stylesheet" href="{{ asset('assets/inter/inter.css') }}?v=2.0">
+    <script src="{{ asset('assets/tailwind.min.js') }}?v=2.1"></script>
+    <link rel="stylesheet" href="{{ asset('assets/fontawesome/all.min.css') }}?v=2.1">
+    <link rel="stylesheet" href="{{ asset('assets/inter/inter.css') }}?v=2.1">
     <style>
         input::-webkit-outer-spin-button,
         input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
