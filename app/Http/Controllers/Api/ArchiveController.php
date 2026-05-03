@@ -64,7 +64,7 @@ class ArchiveController extends Controller
                 ]),
             'pricing_rules' => BoundaryRule::onlyTrashed()->get()->map(fn($pr) => [
                 'id' => $pr->id,
-                'name' => $pr->rule_name,
+                'name' => $pr->name,
                 'archived_at' => $pr->deleted_at->format('M d, Y h:i A')
             ]),
             'suppliers' => Supplier::onlyTrashed()->get()->map(fn($sup) => [

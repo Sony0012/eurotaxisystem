@@ -37,8 +37,9 @@ export function Archive() {
       if (res.data.success) {
         setData(res.data.data);
       }
-    } catch (err) {
-      toast.error("Failed to load archive data");
+    } catch (err: any) {
+      const msg = err.response?.data?.message || err.message || "Failed to load archive data";
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
