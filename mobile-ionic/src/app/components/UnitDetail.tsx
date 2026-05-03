@@ -569,8 +569,12 @@ export function UnitDetail() {
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-[11px] font-black text-gray-400 uppercase tracking-tight">Monthly Average</span>
-                    <span className="text-base font-black text-gray-900">{fmt(unit.roi?.monthly_avg)}</span>
+                    <span className="text-[11px] font-black text-gray-400 uppercase tracking-tight">Payback Period</span>
+                    <span className="text-xl font-black text-blue-600">{unit.roi?.payback_period} <span className="text-[10px] uppercase">Mths</span></span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-[11px] font-black text-gray-400 uppercase tracking-tight">Avg Monthly Revenue</span>
+                    <span className="text-xl font-black text-green-600">{fmt(unit.roi?.monthly_avg)}</span>
                   </div>
                 </div>
               </div>
@@ -578,31 +582,42 @@ export function UnitDetail() {
               {/* Goal Progress */}
               <div className="bg-white border border-gray-100 rounded-3xl p-6 shadow-sm">
                 <p className="text-[10px] font-black text-gray-900 uppercase tracking-widest mb-6 border-b border-gray-50 pb-2">Goal Progress</p>
-                <div className="space-y-5">
-                  <div className="flex justify-between items-center">
-                    <span className="text-[11px] font-black text-gray-400 uppercase tracking-tight">Investment Achievement</span>
-                    <span className={`text-sm font-black ${unit.roi_percentage >= 0 ? "text-green-600" : "text-red-600"}`}>
-                      {unit.roi_percentage}%
-                    </span>
+                <div className="space-y-8">
+                  {/* Investment Achievement */}
+                  <div>
+                    <div className="flex justify-between items-center mb-3">
+                      <span className="text-[11px] font-black text-gray-400 uppercase tracking-tight">Investment Achievement</span>
+                      <span className={`text-sm font-black ${unit.roi_percentage >= 0 ? "text-green-600" : "text-red-600"}`}>
+                        {unit.roi_percentage}%
+                      </span>
+                    </div>
+                    <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                      <div 
+                        className="h-full bg-indigo-600 rounded-full transition-all duration-1000" 
+                        style={{ width: `${Math.min(Math.max(unit.roi_percentage || 0, 0), 100)}%` }}
+                      />
+                    </div>
                   </div>
-                  <div className="flex justify-between items-center">
+
+                  {/* Monthly Target Efficiency */}
+                  <div>
+                    <div className="flex justify-between items-center mb-3">
+                      <span className="text-[11px] font-black text-gray-400 uppercase tracking-tight">Monthly Target Efficiency</span>
+                      <span className="text-xs font-black text-green-600">{fmt(unit.roi?.monthly_target)} <span className="text-gray-400 font-bold">Target</span></span>
+                    </div>
+                    <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                      <div 
+                        className="h-full bg-green-500 rounded-full transition-all duration-1000" 
+                        style={{ width: `${Math.min(Math.max(((unit.roi?.monthly_avg || 0) / (unit.roi?.monthly_target || 1)) * 100, 0), 100)}%` }}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex justify-between items-center pt-4 border-t border-gray-50">
                     <span className="text-[11px] font-black text-gray-400 uppercase tracking-tight">Status</span>
                     <span className={`px-3 py-1 text-[10px] font-black rounded-full border uppercase ${unit.roi?.roi_status === 'Achieved' ? "bg-green-50 text-green-600 border-green-100" : "bg-blue-50 text-blue-600 border-blue-100"}`}>
                       {unit.roi?.roi_status}
                     </span>
-                  </div>
-                </div>
-                {/* Progress Bar */}
-                <div className="mt-8">
-                  <div className="flex justify-between text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">
-                    <span>Progress</span>
-                    <span>{Math.min(Math.max(unit.roi_percentage || 0, 0), 100)}%</span>
-                  </div>
-                  <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-                    <div 
-                      className="h-full bg-indigo-600 rounded-full transition-all duration-1000" 
-                      style={{ width: `${Math.min(Math.max(unit.roi_percentage || 0, 0), 100)}%` }}
-                    />
                   </div>
                 </div>
               </div>

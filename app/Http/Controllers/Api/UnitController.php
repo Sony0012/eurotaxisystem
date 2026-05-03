@@ -296,9 +296,10 @@ class UnitController extends Controller
                 'total_revenue'     => round($revenue, 2),
                 'total_expenses'    => round($maintCost, 2),
                 'roi_percentage'    => round($roiPct, 2),
-                'monthly_revenue'   => round($monthly, 2),
-                'monthly_expenses'  => round($maintCost / max(1, \Carbon\Carbon::parse($unit->created_at)->diffInMonths(now()) ?: 1), 2),
+                'monthly_avg'       => round($monthly, 2),
                 'payback_period'    => round($payback, 1),
+                'monthly_target'    => round($investment / 12, 2),
+                'roi_status'        => $roiPct >= 100 ? 'Achieved' : 'In Progress',
             ],
         ]]);
     }
