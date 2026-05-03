@@ -231,13 +231,19 @@ class UnitController extends Controller
             $daysUntil = $diff; $nextCoding = $now->copy()->addDays($diff)->format('M d, Y');
         }
 
-        // ROI
+        // ROI Logic Sync with Web Dashboard
         $revenue    = (float) DB::table('boundaries')->where('unit_id',$id)->whereNull('deleted_at')->whereIn('status',['paid','excess','shortage'])->sum('actual_boundary');
         $maintCost  = (float) DB::table('maintenance')->where('unit_id',$id)->whereNull('deleted_at')->where('status','!=','cancelled')->sum('cost');
-        $investment = (float)($unit->purchase_cost ?? 0) + $maintCost;
-        $roiPct     = $investment > 0 ? ($revenue / $investment) * 100 : 0;
-        $monthly    = $revenue / max(1, \Carbon\Carbon::parse($unit->created_at)->diffInMonths(now()) ?: 1);
-        $payback    = $monthly > 0 ? $investment / $monthly : 0;
+        
+        $purchaseCost = (float)($unit->purchase_cost ?? 0);
+        $netProfit    = $revenue - $maintCost;
+        $roiPct       = $purchaseCost > 0 ? ($netProfit / $purchaseCost) * 100 : 0;
+        
+        $monthly      = $revenue / max(1, \Carbon\Carbon::parse($unit->created_at)->diffInMonths(now()) ?: 1);
+        $payback      = $monthly > 0 ? ($purchaseCost / $monthly) : 0;
+        $target       = $purchaseCost / 12; // 1-year payback goal base on purchase cost
+
+        $investment = $purchaseCost; // Match web's "Total Investment" card which shows purchase cost only
 
         $rateLabel = match(true) {
             str_contains(strtolower($unit->unit_type ?? ''), 'rent') => 'Sunday Discount',
