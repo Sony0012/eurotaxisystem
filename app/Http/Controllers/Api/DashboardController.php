@@ -35,9 +35,15 @@ class DashboardController extends Controller
         $stats['today_boundary'] = (float)(DB::table('boundaries')
             ->whereNull('deleted_at')->whereDate('date', $today)->sum('actual_boundary') ?? 0);
 
-        // Month boundary
+        $month = now()->timezone('Asia/Manila')->month;
+        $year  = now()->timezone('Asia/Manila')->year;
+
+        // Month boundary (Matching Web: whereMonth and whereYear)
         $stats['month_boundary'] = (float)(DB::table('boundaries')
-            ->whereNull('deleted_at')->whereDate('date', '>=', $startOfMonth)->sum('actual_boundary') ?? 0);
+            ->whereNull('deleted_at')
+            ->whereMonth('date', $month)
+            ->whereYear('date', $year)
+            ->sum('actual_boundary') ?? 0);
 
         // Expenses
         $genEx  = (float)(DB::table('expenses')->whereNull('deleted_at')->whereDate('date', $today)->sum('amount') ?? 0);
@@ -49,10 +55,10 @@ class DashboardController extends Controller
         $stats['expense_salary']       = $salEx;
         $stats['expense_maintenance']  = $mntEx;
 
-        // Month expenses
-        $mGenEx = (float)(DB::table('expenses')->whereNull('deleted_at')->whereDate('date', '>=', $startOfMonth)->sum('amount') ?? 0);
-        $mSalEx = (float)(DB::table('salaries')->whereDate('pay_date', '>=', $startOfMonth)->sum('total_salary') ?? 0);
-        $mMntEx = (float)(DB::table('maintenance')->whereNull('deleted_at')->whereDate('date_started', '>=', $startOfMonth)->where('status', '!=', 'cancelled')->sum('cost') ?? 0);
+        // Month expenses (Matching Web: whereMonth and whereYear)
+        $mGenEx = (float)(DB::table('expenses')->whereNull('deleted_at')->whereMonth('date', $month)->whereYear('date', $year)->sum('amount') ?? 0);
+        $mSalEx = (float)(DB::table('salaries')->whereMonth('pay_date', $month)->whereYear('pay_date', $year)->sum('total_salary') ?? 0);
+        $mMntEx = (float)(DB::table('maintenance')->whereNull('deleted_at')->whereMonth('date_started', $month)->whereYear('date_started', $year)->where('status', '!=', 'cancelled')->sum('cost') ?? 0);
         $stats['total_expenses_month'] = $mGenEx + $mSalEx + $mMntEx;
 
         // Net income
@@ -85,52 +91,49 @@ class DashboardController extends Controller
             $d    = now()->timezone('Asia/Manila')->subDays($i)->toDateString();
             $rev  = (float)(DB::table('boundaries')->whereNull('deleted_at')->whereDate('date', $d)->sum('actual_boundary') ?? 0);
             $gx   = (float)(DB::table('expenses')->whereNull('deleted_at')->whereDate('date', $d)->sum('amount') ?? 0);
-            $sx   = (float)(DB::table('salaries')->whereDate('pay_date', $d)->sum('total_salary') ?? 0);
-            $mx   = (float)(DB::table('maintenance')->whereNull('deleted_at')->whereDate('date_started', $d)->where('status', '!=', 'cancelled')->sum('cost') ?? 0);
-            $exp  = $gx + $sx + $mx;
 
             $label = ($days <= 30)
                 ? now()->timezone('Asia/Manila')->subDays($i)->format('M d')
                 : now()->timezone('Asia/Manila')->subDays($i)->format('M d y');
 
-            $revenueTrend[] = ['date' => $label, 'revenue' => $rev, 'expenses' => $exp, 'netIncome' => $rev - $exp];
+            // Matching Web: Trend only shows boundaries vs general expenses
+            $revenueTrend[] = ['date' => $label, 'revenue' => $rev, 'expenses' => $gx, 'netIncome' => $rev - $gx];
         }
 
-        // 2. Unit Performance (Top 10 this month)
-        $topUnits = DB::table('boundaries')
-            ->join('units', 'boundaries.unit_id', '=', 'units.id')
-            ->select('units.plate_number', DB::raw('SUM(boundaries.actual_boundary) as total_collected'))
-            ->whereNull('boundaries.deleted_at')
-            ->whereDate('boundaries.date', '>=', $startOfMonth)
-            ->whereIn('boundaries.status', ['paid', 'excess', 'shortage'])
-            ->groupBy('units.id', 'units.plate_number')
-            ->orderByDesc('total_collected')->limit(10)->get();
+        // 2. Unit Performance (Matching Web: Lifetime performance per unit)
+        $topUnits = DB::table('units as u')
+            ->whereNull('u.deleted_at')
+            ->leftJoin('boundaries as b', function($join) {
+                $join->on('u.id', '=', 'b.unit_id')->whereNull('b.deleted_at');
+            })
+            ->select('u.plate_number', DB::raw('COALESCE(SUM(b.actual_boundary), 0) as total_boundary'), 'u.boundary_rate')
+            ->where('u.status', 'active')
+            ->groupBy('u.id', 'u.plate_number', 'u.boundary_rate')
+            ->orderByDesc('total_boundary')->limit(10)->get();
 
         $unitPerformance = $topUnits->map(fn($u) => [
             'plate' => $u->plate_number,
-            'actual' => (float)$u->total_collected,
-            'target' => 30000
+            'actual' => (float)$u->total_boundary,
+            'target' => (float)$u->boundary_rate * 30
         ])->toArray();
 
-        // 3. Expense Breakdown
+        // 3. Expense Breakdown (Matching Web: Monthly breakdown)
         $expenseBreakdown = [
-            ['name' => 'General', 'value' => $genEx],
-            ['name' => 'Salaries', 'value' => $salEx],
-            ['name' => 'Maintenance', 'value' => $mntEx],
+            ['name' => 'General',     'value' => $mGenEx],
+            ['name' => 'Salaries',    'value' => $mSalEx],
+            ['name' => 'Maintenance', 'value' => $mMntEx],
         ];
 
-        // 4. Weekly Financial Overview (last 7 days grouped)
+        // 4. Weekly Financial Overview (Matching Web: Only boundaries vs general expenses)
         $weeklyData = [];
         for ($i = 6; $i >= 0; $i--) {
             $d   = now()->timezone('Asia/Manila')->subDays($i)->toDateString();
             $rev = (float)(DB::table('boundaries')->whereNull('deleted_at')->whereDate('date', $d)->sum('actual_boundary') ?? 0);
             $gx  = (float)(DB::table('expenses')->whereNull('deleted_at')->whereDate('date', $d)->sum('amount') ?? 0);
-            $sx  = (float)(DB::table('salaries')->whereDate('pay_date', $d)->sum('total_salary') ?? 0);
-            $mx  = (float)(DB::table('maintenance')->whereNull('deleted_at')->whereDate('date_started', $d)->where('status', '!=', 'cancelled')->sum('cost') ?? 0);
             $weeklyData[] = [
                 'day' => now()->timezone('Asia/Manila')->subDays($i)->format('D'),
                 'boundary' => $rev,
-                'expenses' => $gx + $sx + $mx
+                'expenses' => $gx
             ];
         }
 
@@ -145,20 +148,28 @@ class DashboardController extends Controller
             ['name' => 'Coding Today', 'value' => $codingCount],
         ];
 
-        // 6. Top Drivers (by boundary collected this month)
-        $topDrivers = DB::table('boundaries')
-            ->leftJoin('drivers', 'boundaries.driver_id', '=', 'drivers.id')
-            ->select('drivers.first_name', 'drivers.last_name', DB::raw('SUM(boundaries.actual_boundary) as total'))
-            ->whereNull('boundaries.deleted_at')
-            ->whereNotNull('boundaries.driver_id')
-            ->whereDate('boundaries.date', '>=', $startOfMonth)
-            ->whereIn('boundaries.status', ['paid', 'excess', 'shortage'])
-            ->groupBy('drivers.id', 'drivers.first_name', 'drivers.last_name')
-            ->orderByDesc('total')->limit(10)->get();
+        // 6. Top Drivers (Matching Web: Based on good_days and total_boundary)
+        // Web uses CalculatesDriverPerformance trait or direct query with violation check
+        $topDrivers = DB::table('drivers as d')
+            ->whereNull('d.deleted_at')
+            ->leftJoin('boundaries as b', function($join) {
+                $join->on('d.id', '=', 'b.driver_id')->whereNull('b.deleted_at');
+            })
+            ->select(
+                DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')) as full_name"),
+                DB::raw('COUNT(CASE WHEN b.status IN ("paid", "excess", "shortage") THEN 1 END) as good_days'),
+                DB::raw('SUM(b.actual_boundary) as total_boundary')
+            )
+            ->whereIn('d.driver_status', ['available', 'assigned'])
+            ->groupBy('d.id', 'd.first_name', 'd.last_name')
+            ->orderByDesc('good_days')
+            ->orderByDesc('total_boundary')
+            ->limit(10)->get();
 
         $topDriversData = $topDrivers->map(fn($d) => [
-            'name' => trim(($d->first_name ?? '') . ' ' . ($d->last_name ?? '')),
-            'total' => (float)$d->total
+            'name' => $d->full_name,
+            'total' => (float)$d->total_boundary,
+            'score' => (int)$d->good_days
         ])->filter(fn($d) => $d['name'] !== '')->values()->toArray();
 
         // ── MODAL DATA ─────────────────────────────────────────────────────────
