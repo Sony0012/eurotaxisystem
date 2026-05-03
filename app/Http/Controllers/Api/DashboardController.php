@@ -61,6 +61,27 @@ class DashboardController extends Controller
         $mMntEx = (float)(DB::table('maintenance')->whereNull('deleted_at')->whereMonth('date_started', $month)->whereYear('date_started', $year)->where('status', '!=', 'cancelled')->sum('cost') ?? 0);
         $stats['total_expenses_month'] = $mGenEx + $mSalEx + $mMntEx;
 
+        // 3. Expense Breakdown (Detailed Categories from Web)
+        $genExpenses = DB::table('expenses')
+            ->whereNull('deleted_at')
+            ->select('category', DB::raw('SUM(amount) as total'))
+            ->whereMonth('date', $month)
+            ->whereYear('date', $year)
+            ->groupBy('category')
+            ->get();
+
+        $expenseBreakdown = $genExpenses->map(fn($e) => [
+            'name' => $e->category ?: 'General',
+            'value' => (float)$e->total
+        ])->toArray();
+
+        // Add Salaries & Maintenance
+        $expenseBreakdown[] = ['name' => 'Salaries', 'value' => (float)$mSalEx];
+        $expenseBreakdown[] = ['name' => 'Maintenance', 'value' => (float)$mMntEx];
+
+        // Filter out zero values to keep chart clean
+        $expenseBreakdown = array_values(array_filter($expenseBreakdown, fn($e) => $e['value'] > 0));
+
         // Net income
         $stats['net_income']       = $stats['today_boundary'] - $stats['total_expenses_today'];
         $stats['net_income_month'] = $stats['month_boundary'] - $stats['total_expenses_month'];
@@ -142,12 +163,6 @@ class DashboardController extends Controller
             'score' => (int)$d->good_days
         ])->toArray();
 
-        // 3. Expense Breakdown (Matching Web: Monthly breakdown)
-        $expenseBreakdown = [
-            ['name' => 'General',     'value' => $mGenEx],
-            ['name' => 'Salaries',    'value' => $mSalEx],
-            ['name' => 'Maintenance', 'value' => $mMntEx],
-        ];
 
         // 4. Weekly Financial Overview (Matching Web: Only boundaries vs general expenses)
         $weeklyData = [];
