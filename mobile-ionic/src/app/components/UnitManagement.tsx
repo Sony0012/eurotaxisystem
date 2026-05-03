@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, RefreshCw, ChevronRight, Loader2, Car, X, SlidersHorizontal, Grid3X3, List, Printer, Flag, Plus, AlertTriangle, Wrench } from "lucide-react";
+import { Search, RefreshCw, ChevronRight, Loader2, Car, X, SlidersHorizontal, Grid3X3, List, Printer, Flag, Plus, AlertTriangle, Wrench, MoreVertical, Eye, Edit2, History, RotateCcw } from "lucide-react";
 import api from "../services/api";
 import { toast } from "sonner";
 
@@ -30,24 +30,33 @@ function HealthBar({ unit }: { unit: any }) {
   const kmSince = Math.max(0, (unit.current_gps_odo || 0) - (unit.last_service_odo_gps || 0));
   const pct = Math.min(100, Math.round((kmSince / SERVICE_KM) * 100));
   const isOverdue = kmSince >= SERVICE_KM;
-  let bar = "bg-green-500", txt = "text-green-600", lbl = "Optimal Health";
-  if (isOverdue)    { bar = "bg-red-600";    txt = "text-red-600";    lbl = "⚠ SERVICE OVERDUE"; }
-  else if (pct>=85) { bar = "bg-orange-500"; txt = "text-orange-600"; lbl = "SOON: Maintenance Due"; }
-  else if (pct>=60) { bar = "bg-yellow-400"; txt = "text-yellow-600"; lbl = "Maintenance Progress"; }
-  return (
-    <div className="mt-3 pt-3 border-t border-gray-100">
-      <div className="flex justify-between mb-1.5">
-        <span className={`flex items-center gap-1 text-[9px] font-black uppercase tracking-wider ${txt}`}>
-          <span className={`w-1.5 h-1.5 rounded-full ${bar} animate-pulse`} />{lbl}
-        </span>
-        <span className="text-[9px] text-gray-400 font-bold">{Number(kmSince).toLocaleString()} / {Number(SERVICE_KM).toLocaleString()} KM</span>
+  
+  if (!isOverdue) return (
+    <div className="mt-2">
+      <div className="h-1 bg-gray-100 rounded-full overflow-hidden">
+        <div className="h-full bg-green-500 rounded-full" style={{ width: `${pct}%` }} />
       </div>
-      <div className="relative h-2 bg-gray-100 rounded-full overflow-hidden">
-        <div className={`absolute inset-y-0 left-0 ${bar} ${isOverdue?"animate-pulse":""} rounded-full`} style={{ width:`${pct}%` }}>
-          <div className="absolute inset-0 bg-gradient-to-b from-white/20 to-transparent" />
+    </div>
+  );
+
+  return (
+    <div className="mt-4 pt-4 border-t border-red-50">
+      <div className="flex justify-between items-center mb-1.5">
+        <span className="flex items-center gap-1.5 text-[10px] font-black text-red-600 uppercase tracking-widest">
+          <AlertTriangle className="w-3 h-3 animate-pulse" /> SERVICE OVERDUE
+        </span>
+        <span className="text-[10px] text-gray-400 font-bold tabular-nums">
+          {Number(unit.current_gps_odo || 0).toLocaleString()} / {Number(SERVICE_KM).toLocaleString()} KM
+        </span>
+      </div>
+      <div className="relative h-2 bg-red-100 rounded-full overflow-hidden mb-2">
+        <div className="absolute inset-y-0 left-0 bg-red-600 rounded-full animate-pulse" style={{ width: "100%" }}>
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-[shimmer_2s_infinite]" />
         </div>
       </div>
-      {isOverdue && <p className="text-[9px] text-red-500 mt-1 italic">Exceeded by {Number(kmSince-SERVICE_KM).toLocaleString()}km.</p>}
+      <p className="text-[10px] text-red-500 font-bold italic">
+        Unit has exceeded the {Number(SERVICE_KM).toLocaleString()}km service interval by {Number(kmSince).toLocaleString()}km.
+      </p>
     </div>
   );
 }
@@ -171,6 +180,7 @@ export function UnitManagement() {
   const [viewMode, setViewMode] = useState<"table"|"cards">("table");
   const [showFlagged, setShowFlagged] = useState(false);
   const [showAddUnit, setShowAddUnit] = useState(false);
+  const [activeMenu, setActiveMenu] = useState<number|null>(null);
   const navigate = useNavigate();
 
   const fetchUnits = useCallback(async () => {
@@ -327,37 +337,76 @@ export function UnitManagement() {
       ) : viewMode === "table" ? (
         /* ── TABLE VIEW ── */
         <div className="flex-1 divide-y divide-gray-100 bg-white">
-          {/* Column Headers */}
-          <div className="grid grid-cols-3 px-4 py-2 bg-gray-50 border-b border-gray-200">
-            <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Plate No. Info</p>
-            <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Vehicle / Drivers</p>
-            <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest text-right">Rate / Status</p>
+          {/* Column Headers (matching web exactly) */}
+          <div className="grid grid-cols-[1.5fr_1.5fr_1.5fr_1fr_1.2fr_0.5fr] px-4 py-3 bg-gray-50 border-b border-gray-200">
+            <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Plate Number Info</p>
+            <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Vehicle Details</p>
+            <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Assigned Drivers</p>
+            <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest text-center">Status</p>
+            <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest text-right">Boundary Rate</p>
+            <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest text-right">Actions</p>
           </div>
           {units.map(u => (
-            <div key={u.id} onClick={() => navigate(`/units/${u.id}`)}
-              className="px-4 py-4 hover:bg-yellow-50/50 active:bg-yellow-50 cursor-pointer border-l-4 border-transparent hover:border-yellow-400 transition-all">
-              <div className="grid grid-cols-3 gap-2 items-start mb-2">
-                {/* Plate Info */}
-                <div>
-                  <p className="text-sm font-black text-gray-900 tracking-tight leading-none mb-0.5">{u.plate_number}</p>
-                  <p className="text-[8px] font-bold text-gray-400 uppercase leading-none">M: {u.motor_no}</p>
-                  <p className="text-[8px] font-bold text-gray-400 uppercase leading-none">C: {u.chassis_no}</p>
+            <div key={u.id} className="relative group">
+              <div className="px-4 py-4 hover:bg-yellow-50/30 transition-all border-l-4 border-transparent hover:border-yellow-400">
+                <div className="grid grid-cols-[1.5fr_1.5fr_1.5fr_1fr_1.2fr_0.5fr] gap-2 items-center">
+                  {/* Plate Info */}
+                  <div onClick={() => navigate(`/units/${u.id}`)} className="cursor-pointer">
+                    <p className="text-sm font-black text-gray-900 tracking-tight leading-none mb-1.5">{u.plate_number}</p>
+                    <p className="text-[8px] font-bold text-gray-400 uppercase leading-tight">M: {u.motor_no}</p>
+                    <p className="text-[8px] font-bold text-gray-400 uppercase leading-tight">C: {u.chassis_no}</p>
+                  </div>
+                  {/* Vehicle Details */}
+                  <div onClick={() => navigate(`/units/${u.id}`)} className="cursor-pointer">
+                    <p className="text-xs font-black text-gray-900 leading-none mb-1">{u.make} {u.model}</p>
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-[9px] text-gray-400 font-bold">{u.year}</span>
+                      <span className="px-1.5 py-0.5 bg-blue-50 text-blue-600 text-[8px] font-black rounded uppercase tracking-tighter">NEW</span>
+                    </div>
+                  </div>
+                  {/* Assigned Drivers */}
+                  <div onClick={() => navigate(`/units/${u.id}`)} className="cursor-pointer">
+                    <p className="text-[9px] text-gray-500 mb-1 leading-none"><span className="font-black text-gray-400 uppercase text-[8px]">D1:</span> {u.primary_driver || <span className="italic text-gray-300">No D1</span>}</p>
+                    <p className="text-[9px] text-gray-900 font-bold leading-none"><span className="font-black text-gray-400 uppercase text-[8px]">D2:</span> {u.secondary_driver || <span className="italic text-gray-300">No D2</span>}</p>
+                  </div>
+                  {/* Status */}
+                  <div className="text-center" onClick={() => navigate(`/units/${u.id}`)}>
+                    <StatusDot status={u.status} />
+                  </div>
+                  {/* Boundary Rate */}
+                  <div className="text-right" onClick={() => navigate(`/units/${u.id}`)}>
+                    <p className="text-sm font-black text-gray-900 leading-none mb-1.5">{fmtRate(u.boundary_rate)}</p>
+                    <span className="px-2 py-0.5 bg-blue-600 text-white text-[8px] font-black uppercase rounded tracking-widest shadow-sm">SUNDAY DISCOUNT</span>
+                  </div>
+                  {/* Actions */}
+                  <div className="text-right relative">
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); setActiveMenu(activeMenu === u.id ? null : u.id); }}
+                      className="p-1.5 hover:bg-gray-100 rounded-lg text-gray-400 hover:text-gray-900 transition-colors"
+                    >
+                      <MoreVertical className="w-4 h-4" />
+                    </button>
+                    {activeMenu === u.id && (
+                      <div className="absolute right-0 top-full mt-1 w-44 bg-white border border-gray-100 rounded-2xl shadow-2xl z-[100] py-2 animate-in fade-in zoom-in duration-200">
+                        <button onClick={() => navigate(`/units/${u.id}`)} className="w-full px-4 py-2 text-left flex items-center gap-2 hover:bg-gray-50 text-xs font-black text-gray-700 uppercase tracking-widest">
+                          <Eye className="w-3 h-3 text-blue-500" /> View Details
+                        </button>
+                        <button className="w-full px-4 py-2 text-left flex items-center gap-2 hover:bg-gray-50 text-xs font-black text-gray-700 uppercase tracking-widest">
+                          <Edit2 className="w-3 h-3 text-yellow-500" /> Edit Unit
+                        </button>
+                        <button className="w-full px-4 py-2 text-left flex items-center gap-2 hover:bg-gray-50 text-xs font-black text-gray-700 uppercase tracking-widest">
+                          <History className="w-3 h-3 text-indigo-500" /> History
+                        </button>
+                        <div className="my-1 border-t border-gray-50" />
+                        <button className="w-full px-4 py-2 text-left flex items-center gap-2 hover:bg-gray-50 text-xs font-black text-red-600 uppercase tracking-widest">
+                          <RotateCcw className="w-3 h-3" /> Reset Health
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
-                {/* Vehicle + Drivers */}
-                <div>
-                  <p className="text-xs font-black text-gray-900 leading-none">{u.make} {u.model}</p>
-                  <p className="text-[9px] text-gray-400 mb-1">{u.year}</p>
-                  <p className="text-[9px] text-gray-500"><span className="font-black text-gray-400">D1:</span> {u.primary_driver || <span className="italic text-gray-300">No D1</span>}</p>
-                  <p className="text-[9px] text-gray-500"><span className="font-black text-gray-400">D2:</span> {u.secondary_driver || <span className="italic text-gray-300">No D2</span>}</p>
-                </div>
-                {/* Rate + Status */}
-                <div className="text-right">
-                  <p className="text-sm font-black text-gray-900 leading-none mb-1">{fmtRate(u.boundary_rate)}</p>
-                  <span className="px-1.5 py-0.5 bg-blue-600 text-white text-[8px] font-black uppercase rounded">{u.rate_label || "Standard Rate"}</span>
-                  <div className="mt-1.5"><StatusDot status={u.status} /></div>
-                </div>
+                <HealthBar unit={u} />
               </div>
-              <HealthBar unit={u} />
             </div>
           ))}
         </div>
