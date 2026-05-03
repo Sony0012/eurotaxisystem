@@ -195,11 +195,20 @@ class UnitController extends Controller
             ->where('m.unit_id', $id)->whereNull('m.deleted_at')
             ->orderByDesc('m.date_started')->limit(20)
             ->select(
-                'm.maintenance_type','m.status','m.date_started','m.date_completed',
+                'm.id','m.maintenance_type','m.status','m.date_started','m.date_completed',
                 'm.cost','m.description','m.mechanic_name',
                 DB::raw("TRIM(CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,''))) as driver_name")
             )
             ->get();
+
+        // Attach detailed parts and services
+        foreach ($maintenanceRecords as $record) {
+            $items = DB::table('maintenance_parts')->where('maintenance_id', $record->id)->get();
+            $record->parts = $items->whereNotNull('part_id')->values();
+            $record->others = $items->whereNull('part_id')->values();
+            $record->parts_subtotal = (float)$record->parts->sum('total');
+            $record->others_subtotal = (float)$record->others->sum('total');
+        }
 
         // Boundary history
         $boundaryHistory = DB::table('boundaries as b')

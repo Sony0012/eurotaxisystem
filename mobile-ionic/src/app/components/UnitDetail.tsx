@@ -468,6 +468,53 @@ export function UnitDetail() {
                     <p className="text-[9px] text-gray-400 uppercase font-black tracking-widest mb-1">Description</p>
                     <p className="text-xs text-gray-600 leading-relaxed">{m.description || "No description provided."}</p>
                   </div>
+
+                  {/* Parts Replaced Section */}
+                  {m.parts?.length > 0 && (
+                    <div className="mt-6 rounded-2xl overflow-hidden border border-blue-50">
+                      <div className="bg-blue-50 px-4 py-2 flex items-center gap-2">
+                        <Wrench className="w-3 h-3 text-blue-600" />
+                        <span className="text-[9px] font-black text-blue-700 uppercase tracking-widest">Parts Replaced</span>
+                      </div>
+                      <div className="bg-white divide-y divide-blue-50/50">
+                        {m.parts.map((p: any, pi: number) => (
+                          <div key={pi} className="px-4 py-2.5 flex justify-between items-center hover:bg-blue-50/20 transition-colors">
+                            <div>
+                              <p className="text-[11px] font-black text-gray-700">{p.part_name}</p>
+                              {p.quantity > 1 && <p className="text-[9px] text-gray-400 font-bold uppercase">Qty: {p.quantity}</p>}
+                            </div>
+                            <p className="text-xs font-black text-blue-600">{fmt(p.total)}</p>
+                          </div>
+                        ))}
+                        <div className="bg-blue-50/30 px-4 py-2.5 flex justify-between items-center">
+                          <span className="text-[9px] font-black text-blue-700 uppercase tracking-widest">Parts Subtotal</span>
+                          <span className="text-xs font-black text-blue-700">{fmt(m.parts_subtotal)}</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Other Costs Section */}
+                  {m.others?.length > 0 && (
+                    <div className="mt-4 rounded-2xl overflow-hidden border border-orange-50">
+                      <div className="bg-orange-50 px-4 py-2 flex items-center gap-2">
+                        <TrendingUp className="w-3 h-3 text-orange-600" />
+                        <span className="text-[9px] font-black text-orange-700 uppercase tracking-widest">Other Costs & Services</span>
+                      </div>
+                      <div className="bg-white divide-y divide-orange-50/50">
+                        {m.others.map((o: any, oi: number) => (
+                          <div key={oi} className="px-4 py-2.5 flex justify-between items-center hover:bg-orange-50/20 transition-colors">
+                            <p className="text-[11px] font-black text-gray-700">{o.part_name}</p>
+                            <p className="text-xs font-black text-orange-600">{fmt(o.total)}</p>
+                          </div>
+                        ))}
+                        <div className="bg-orange-50/30 px-4 py-2.5 flex justify-between items-center">
+                          <span className="text-[9px] font-black text-orange-700 uppercase tracking-widest">Services Subtotal</span>
+                          <span className="text-xs font-black text-orange-700">{fmt(m.others_subtotal)}</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             )) : (
