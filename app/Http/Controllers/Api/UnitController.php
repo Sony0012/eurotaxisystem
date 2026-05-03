@@ -233,13 +233,22 @@ class UnitController extends Controller
 
         // ROI Logic Sync with Web Dashboard
         $revenue    = (float) DB::table('boundaries')->where('unit_id',$id)->whereNull('deleted_at')->whereIn('status',['paid','excess','shortage'])->sum('actual_boundary');
+        
+        // "Avg Monthly Revenue" in the web actually refers to the CURRENT month's boundary collection
+        $monthly    = (float) DB::table('boundaries')
+                        ->where('unit_id', $id)
+                        ->whereNull('deleted_at')
+                        ->whereIn('status', ['paid', 'excess', 'shortage'])
+                        ->whereMonth('date', now()->month)
+                        ->whereYear('date', now()->year)
+                        ->sum('actual_boundary');
+
         $maintCost  = (float) DB::table('maintenance')->where('unit_id',$id)->whereNull('deleted_at')->where('status','!=','cancelled')->sum('cost');
         
         $purchaseCost = (float)($unit->purchase_cost ?? 0);
         $netProfit    = $revenue - $maintCost;
         $roiPct       = $purchaseCost > 0 ? ($netProfit / $purchaseCost) * 100 : 0;
         
-        $monthly      = $revenue / max(1, \Carbon\Carbon::parse($unit->created_at)->diffInMonths(now()) ?: 1);
         $payback      = $monthly > 0 ? ($purchaseCost / $monthly) : 0;
         $target       = $purchaseCost / 12; // 1-year payback goal base on purchase cost
 
