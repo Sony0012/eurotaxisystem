@@ -6,7 +6,7 @@ import { useAuth } from "../context/AuthContext";
 
 export function Layout() {
   const navigate = useNavigate();
-  const { logout, user } = useAuth();
+  const { logout, user, isLoading } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const handleLogout = async () => {

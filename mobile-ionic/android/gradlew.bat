@@ -24,6 +24,10 @@
 @rem Set local scope for the variables with windows NT shell
 if "%OS%"=="Windows_NT" setlocal
 
+@rem Force JAVA_HOME to Java 17 to avoid jlink.exe errors in Java 21+
+set JAVA_HOME=C:\PROGRA~1\Java\jdk-17
+set GRADLE_OPTS="-Dorg.gradle.java.home=C:\PROGRA~1\Java\jdk-17"
+
 set DIRNAME=%~dp0
 if "%DIRNAME%"=="" set DIRNAME=.
 @rem This is normally unused

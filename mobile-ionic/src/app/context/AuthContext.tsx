@@ -14,9 +14,11 @@ interface AuthContextType {
   user: User | null;
   token: string | null;
   isLoading: boolean;
-  login: (loginIdentifier: string, password: string) => Promise<void>;
+  login: (loginIdentifier: string, password: string) => Promise<any>;
   signup: (formData: any) => Promise<void>;
   logout: () => Promise<void>;
+  verifyOTP: (userToken: string, otp: string, deviceName: string) => Promise<void>;
+  resendOTP: (userToken: string, method: 'email' | 'phone') => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -28,40 +30,88 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const initAuth = async () => {
-      const storedToken = localStorage.getItem("auth_token");
-      const storedUser = localStorage.getItem("user");
-      
-      if (storedToken && storedUser) {
-        setToken(storedToken);
-        setUser(JSON.parse(storedUser));
-        axios.defaults.headers.common["Authorization"] = `Bearer ${storedToken}`;
+      setIsLoading(true);
+      try {
+        const storedToken = localStorage.getItem("auth_token");
+        const storedUser = localStorage.getItem("user");
+
+        if (storedToken && storedUser) {
+          // Validate token with server before trusting it
+          try {
+            const resp = await axios.get(`${API_BASE_URL}/user`, {
+              headers: { Authorization: `Bearer ${storedToken}`, Accept: 'application/json' }
+            });
+            // Token is valid — use stored data
+            setToken(storedToken);
+            setUser(JSON.parse(storedUser));
+            axios.defaults.headers.common["Authorization"] = `Bearer ${storedToken}`;
+          } catch (validationErr: any) {
+            // Token invalid/expired — clear everything
+            localStorage.removeItem("auth_token");
+            localStorage.removeItem("user");
+            setToken(null);
+            setUser(null);
+          }
+        } else {
+          // No stored credentials
+          setToken(null);
+          setUser(null);
+        }
+      } catch (e) {
+        console.error("Auth init error:", e);
+        localStorage.removeItem("auth_token");
+        localStorage.removeItem("user");
+      } finally {
+        setIsLoading(false);
       }
-      setIsLoading(false);
     };
 
     initAuth();
-
-    const interceptor = axios.interceptors.response.use(
-      (response) => response,
-      (error) => {
-        if (error.response?.status === 401) {
-          logout();
-        }
-        return Promise.reject(error);
-      }
-    );
-
-    return () => {
-      axios.interceptors.response.eject(interceptor);
-    };
   }, []);
 
   const login = async (loginIdentifier: string, password: string) => {
     try {
-      const response = await axios.post(`${API_BASE_URL}/login`, {
-        login: loginIdentifier,
-        password,
-        device_name: "mobile_app"
+      const formData = new FormData();
+      formData.append('login', loginIdentifier);
+      formData.append('password', password);
+      formData.append('device_name', 'mobile_app');
+
+      const response = await axios.post(`${API_BASE_URL}/login`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          'Accept': 'application/json'
+        }
+      });
+
+      if (response.data.success) {
+        if (response.data.mfa_required) {
+          // Return the MFA data so the Login component can show the OTP screen
+          return response.data;
+        }
+
+        const { token, user } = response.data;
+        localStorage.setItem("auth_token", token);
+        localStorage.setItem("user", JSON.stringify(user));
+        
+        setToken(token);
+        setUser(user);
+        axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+        return response.data;
+      } else {
+        throw new Error(response.data.message || "Login failed");
+      }
+    } catch (error: any) {
+      console.error("Login error:", error);
+      throw error;
+    }
+  };
+
+  const verifyOTP = async (userToken: string, otp: string, deviceName: string) => {
+    try {
+      const response = await axios.post(`${API_BASE_URL}/verify-device-otp`, {
+        user_token: userToken,
+        otp: otp,
+        device_name: deviceName
       });
 
       if (response.data.success) {
@@ -73,13 +123,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(user);
         axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
       } else {
-        throw new Error(response.data.message || "Login failed");
+        throw new Error(response.data.message || "OTP Verification failed");
       }
     } catch (error: any) {
-      console.error("Login error:", error);
+      console.error("OTP verification error:", error);
       throw error;
     }
   };
+
+  const resendOTP = async (userToken: string, method: 'email' | 'phone') => {
+    try {
+      const response = await axios.post(`${API_BASE_URL}/send-device-otp`, {
+        user_token: userToken,
+        method: method
+      });
+      if (!response.data.success) {
+        throw new Error(response.data.message || "Failed to resend OTP");
+      }
+    } catch (error: any) {
+      console.error("Resend OTP error:", error);
+      throw error;
+    }
+  };
+
 
   const signup = async (formData: any) => {
     try {
@@ -112,7 +178,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, isLoading, login, signup, logout }}>
+    <AuthContext.Provider value={{ user, token, isLoading, login, signup, logout, verifyOTP, resendOTP }}>
       {children}
     </AuthContext.Provider>
   );

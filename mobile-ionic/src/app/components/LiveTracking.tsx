@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
-import { Icon, divIcon } from "leaflet";
+import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { Badge } from "./ui/badge";
@@ -16,13 +16,35 @@ import {
   Video,
   RefreshCw
 } from "lucide-react";
-import { mockGpsData, simulateGpsUpdate, getStatusColor, getStatusLabel, type GpsLocation } from "../utils/mockGpsData";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { useNavigate } from "react-router-dom";
+import api from "../services/api";
+import { toast } from "sonner";
+
+// Define the interface based on your API response
+interface UnitLocation {
+  unit_id: number;
+  driver_id: number | null;
+  plate_number: string;
+  driver_name: string;
+  secondary_driver: string | null;
+  gps_status: string;
+  speed: number;
+  ignition_status: boolean;
+  last_update: string | null;
+  offline_display: string;
+  latitude: number | null;
+  longitude: number | null;
+  angle: number;
+  odo: number;
+  u_status: string;
+  daily_dist: number;
+}
+
 
 // Fix for default marker icon in Leaflet
 const createCustomIcon = (color: string, plateNumber: string) => {
-  return divIcon({
+  return L.divIcon({
     className: 'custom-div-icon',
     html: `
       <div style="position: relative;">
@@ -77,60 +99,93 @@ function MapUpdater({ center }: { center: [number, number] }) {
 
 export function LiveTracking() {
   const navigate = useNavigate();
-  const [locations, setLocations] = useState<GpsLocation[]>(mockGpsData);
+  const [locations, setLocations] = useState<UnitLocation[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
-  const [selectedUnit, setSelectedUnit] = useState<GpsLocation | null>(null);
+  const [selectedUnit, setSelectedUnit] = useState<UnitLocation | null>(null);
   const [mapCenter, setMapCenter] = useState<[number, number]>([14.5547, 121.0244]);
   const [isAutoRefresh, setIsAutoRefresh] = useState(true);
+  const [apiStats, setApiStats] = useState<any>(null);
 
-  // Simulate real-time updates
+  const fetchLiveTracking = async () => {
+    try {
+      const response = await api.get("/live-tracking/units");
+      if (response.data.success) {
+        setLocations(response.data.units);
+        setApiStats(response.data.stats);
+        
+        // Update map center if we have units and no unit is manually selected
+        if (!selectedUnit && response.data.units.length > 0) {
+          const firstValid = response.data.units.find((u: UnitLocation) => u.latitude && u.longitude);
+          if (firstValid) {
+            setMapCenter([firstValid.latitude, firstValid.longitude]);
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Live Tracking API Error:", error);
+      toast.error("Failed to fetch live GPS data.");
+    }
+  };
+
+  // Initial fetch and auto-refresh
   useEffect(() => {
+    fetchLiveTracking();
     if (!isAutoRefresh) return;
 
     const interval = setInterval(() => {
-      setLocations(prevLocations =>
-        prevLocations.map(loc => 
-          loc.status === "active" ? simulateGpsUpdate(loc) : loc
-        )
-      );
-    }, 5000); // Update every 5 seconds
+      fetchLiveTracking();
+    }, 30000); // 30 seconds real-time update to save DB connections
 
     return () => clearInterval(interval);
   }, [isAutoRefresh]);
 
+
   // Filter units
   const filteredLocations = locations.filter(loc => {
     const matchesSearch = 
-      loc.plateNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      loc.driver?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      loc.address?.toLowerCase().includes(searchTerm.toLowerCase());
+      loc.plate_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (loc.driver_name && loc.driver_name.toLowerCase().includes(searchTerm.toLowerCase()));
     
-    const matchesStatus = statusFilter === "all" || loc.status === statusFilter;
+    const matchesStatus = statusFilter === "all" || loc.gps_status === statusFilter;
 
-    return matchesSearch && matchesStatus;
+    // Only show units with valid GPS coordinates on the map
+    return matchesSearch && matchesStatus && loc.latitude !== null && loc.longitude !== null;
   });
 
-  // Statistics
-  const stats = {
+  // Statistics fallback
+  const stats = apiStats || {
     total: locations.length,
-    active: locations.filter(l => l.status === "active").length,
-    idle: locations.filter(l => l.status === "idle").length,
-    offline: locations.filter(l => l.status === "offline").length,
+    active: locations.filter(l => l.gps_status === "moving" || l.gps_status === "idle").length,
+    idle: locations.filter(l => l.gps_status === "idle").length,
+    offline: locations.filter(l => l.gps_status === "offline").length,
     avgSpeed: Math.round(
-      locations.filter(l => l.status === "active").reduce((sum, l) => sum + l.speed, 0) / 
-      locations.filter(l => l.status === "active").length || 0
+      locations.filter(l => l.speed > 0).reduce((sum, l) => sum + l.speed, 0) / 
+      (locations.filter(l => l.speed > 0).length || 1)
     )
   };
 
-  const handleUnitClick = (location: GpsLocation) => {
-    setSelectedUnit(location);
-    setMapCenter([location.latitude, location.longitude]);
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "moving": return "#22c55e"; // green
+      case "idle": return "#eab308"; // yellow
+      case "stopped": return "#f97316"; // orange
+      case "offline": return "#ef4444"; // red
+      default: return "#6b7280"; // gray
+    }
   };
 
-  const viewUnitDetails = (unitId: string) => {
+  const handleUnitClick = (location: UnitLocation) => {
+    setSelectedUnit(location);
+    if (location.latitude && location.longitude) {
+      setMapCenter([location.latitude, location.longitude]);
+    }
+  };
+
+  const viewUnitDetails = (unitId: number) => {
     navigate(`/live-tracking/${unitId}`);
   };
+
 
   return (
     <div className="space-y-6">
@@ -234,9 +289,9 @@ export function LiveTracking() {
                 <MapUpdater center={mapCenter} />
                 {filteredLocations.map((location) => (
                   <Marker
-                    key={location.unitId}
-                    position={[location.latitude, location.longitude]}
-                    icon={createCustomIcon(getStatusColor(location.status), location.plateNumber)}
+                    key={location.unit_id}
+                    position={[location.latitude as number, location.longitude as number]}
+                    icon={createCustomIcon(getStatusColor(location.gps_status), location.plate_number)}
                     eventHandlers={{
                       click: () => handleUnitClick(location)
                     }}
@@ -244,26 +299,28 @@ export function LiveTracking() {
                     <Popup>
                       <div className="space-y-2 min-w-[200px]">
                         <div className="flex items-center justify-between">
-                          <h3 className="font-bold text-lg">{location.plateNumber}</h3>
+                          <h3 className="font-bold text-lg">{location.plate_number}</h3>
                           <Badge variant={
-                            location.status === "active" ? "default" :
-                            location.status === "idle" ? "secondary" : "destructive"
+                            location.gps_status === "moving" ? "default" :
+                            location.gps_status === "idle" ? "secondary" : "destructive"
                           }>
-                            {getStatusLabel(location.status)}
+                            {location.gps_status.toUpperCase()}
                           </Badge>
                         </div>
-                        {location.driver && (
-                          <p className="text-sm"><strong>Driver:</strong> {location.driver}</p>
+                        {location.driver_name && location.driver_name !== 'None' && (
+                          <p className="text-sm"><strong>Driver:</strong> {location.driver_name}</p>
                         )}
                         <p className="text-sm"><strong>Speed:</strong> {location.speed} km/h</p>
-                        <p className="text-sm"><strong>Location:</strong> {location.address}</p>
                         <p className="text-xs text-gray-500">
-                          Last update: {location.lastUpdate.toLocaleTimeString()}
+                          Last update: {location.last_update ? new Date(location.last_update + ' UTC').toLocaleTimeString() : 'Unknown'}
                         </p>
+                        {location.gps_status === 'offline' && location.offline_display && (
+                          <p className="text-xs text-red-500">Offline for: {location.offline_display}</p>
+                        )}
                         <Button 
                           size="sm" 
                           className="w-full mt-2"
-                          onClick={() => viewUnitDetails(location.unitId)}
+                          onClick={() => viewUnitDetails(location.unit_id)}
                         >
                           View Details
                         </Button>
@@ -286,26 +343,26 @@ export function LiveTracking() {
             <div className="max-h-[600px] overflow-y-auto">
               {filteredLocations.map((location) => (
                 <div
-                  key={location.unitId}
+                  key={location.unit_id}
                   className={`p-4 border-b hover:bg-gray-50 cursor-pointer transition-colors ${
-                    selectedUnit?.unitId === location.unitId ? "bg-yellow-50" : ""
+                    selectedUnit?.unit_id === location.unit_id ? "bg-yellow-50" : ""
                   }`}
                   onClick={() => handleUnitClick(location)}
                 >
                   <div className="flex items-start justify-between mb-2">
                     <div className="flex items-center space-x-2">
                       <Car className="h-5 w-5 text-gray-600" />
-                      <span className="font-semibold">{location.plateNumber}</span>
+                      <span className="font-semibold">{location.plate_number}</span>
                     </div>
                     <Badge variant={
-                      location.status === "active" ? "default" :
-                      location.status === "idle" ? "secondary" : "destructive"
+                      location.gps_status === "moving" ? "default" :
+                      location.gps_status === "idle" ? "secondary" : "destructive"
                     }>
-                      {getStatusLabel(location.status)}
+                      {location.gps_status.toUpperCase()}
                     </Badge>
                   </div>
-                  {location.driver && (
-                    <p className="text-sm text-gray-600 mb-1">{location.driver}</p>
+                  {location.driver_name && location.driver_name !== 'None' && (
+                    <p className="text-sm text-gray-600 mb-1">{location.driver_name}</p>
                   )}
                   <div className="flex items-center space-x-4 text-xs text-gray-500 mb-2">
                     <span className="flex items-center">
@@ -314,13 +371,9 @@ export function LiveTracking() {
                     </span>
                     <span className="flex items-center">
                       <Clock className="h-3 w-3 mr-1" />
-                      {new Date(location.lastUpdate).toLocaleTimeString()}
+                      {location.last_update ? new Date(location.last_update + ' UTC').toLocaleTimeString() : 'N/A'}
                     </span>
                   </div>
-                  <p className="text-xs text-gray-500 mb-2">
-                    <MapPin className="h-3 w-3 inline mr-1" />
-                    {location.address}
-                  </p>
                   <div className="flex gap-2">
                     <Button
                       size="sm"
@@ -328,7 +381,7 @@ export function LiveTracking() {
                       className="flex-1"
                       onClick={(e) => {
                         e.stopPropagation();
-                        viewUnitDetails(location.unitId);
+                        viewUnitDetails(location.unit_id);
                       }}
                     >
                       <MapPin className="h-3 w-3 mr-1" />
@@ -340,7 +393,7 @@ export function LiveTracking() {
                       className="flex-1"
                       onClick={(e) => {
                         e.stopPropagation();
-                        navigate(`/live-tracking/${location.unitId}/dashcam`);
+                        navigate(`/live-tracking/${location.unit_id}/dashcam`);
                       }}
                     >
                       <Video className="h-3 w-3 mr-1" />

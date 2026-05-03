@@ -23,6 +23,11 @@ export function BoundaryManagement() {
     unpaid: 0
   });
   const [loading, setLoading] = useState(true);
+  const [boundaryRules] = useState({
+    newUnit: { regular: "1,200", half: "600", coding: "1,000" },
+    oldUnit: { regular: "1,000", half: "500", coding: "800" },
+  });
+  const [overduePayments] = useState<any[]>([]);
 
   useEffect(() => {
     fetchBoundaries();

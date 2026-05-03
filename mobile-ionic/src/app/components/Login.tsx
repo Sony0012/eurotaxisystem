@@ -12,14 +12,16 @@ import { OTPVerification } from "./OTPVerification";
 
 export function Login() {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login, verifyOTP, resendOTP } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [showOTP, setShowOTP] = useState(false);
+  const [userToken, setUserToken] = useState("");
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,26 +34,59 @@ export function Login() {
     setIsLoading(true);
 
     try {
-      await login(formData.email, formData.password);
-      toast.success("Login successful! Welcome back!");
-      navigate("/");
+      const response = await login(formData.email, formData.password);
+      
+      if (response && response.mfa_required) {
+        setUserToken(response.user_id);
+        setShowOTP(true);
+        // Automatically send the first OTP
+        await resendOTP(response.user_id, 'email');
+        toast.info("A new device was detected. We sent a verification code to your email.");
+      } else {
+        toast.success("Login successful! Welcome back!");
+        navigate("/");
+      }
     } catch (error: any) {
-      toast.error(error.response?.data?.message || "Login failed. Check your credentials.");
+      toast.error(error.response?.data?.message || error.message || "Login failed. Check your credentials.");
     } finally {
       setIsLoading(false);
     }
   };
+
+  const handleOTPVerify = async (otp: string) => {
+    try {
+      await verifyOTP(userToken, otp, 'mobile_app');
+      toast.success("Device verified successfully!");
+      navigate("/");
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || error.message || "Invalid OTP code.");
+      throw error;
+    }
+  };
+
+  const handleOTPResend = async () => {
+    try {
+      await resendOTP(userToken, 'email');
+      toast.success("A new OTP has been sent to your email.");
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || error.message || "Failed to resend OTP.");
+      throw error;
+    }
+  };
+
 
   if (showOTP) {
     return (
       <OTPVerification
         email={formData.email}
         onVerify={handleOTPVerify}
+        onResend={handleOTPResend}
         onBack={() => setShowOTP(false)}
         type="login"
       />
     );
   }
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#0a0f1e] via-[#0c1437] to-[#1e3a8a] p-4 relative overflow-hidden">

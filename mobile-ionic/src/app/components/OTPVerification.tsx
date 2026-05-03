@@ -7,20 +7,19 @@ import { toast } from "sonner";
 
 interface OTPVerificationProps {
   email: string;
-  onVerify: () => void;
+  onVerify: (otp: string) => Promise<void>;
+  onResend?: () => Promise<void>;
   onBack: () => void;
   type: "login" | "signup";
 }
 
-export function OTPVerification({ email, onVerify, onBack, type }: OTPVerificationProps) {
+
+export function OTPVerification({ email, onVerify, onResend, onBack, type }: OTPVerificationProps) {
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [isVerifying, setIsVerifying] = useState(false);
   const [timer, setTimer] = useState(60);
   const [canResend, setCanResend] = useState(false);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
-
-  // Mock OTP for demo: 123456
-  const MOCK_OTP = "123456";
 
   useEffect(() => {
     // Focus first input on mount
@@ -90,29 +89,38 @@ export function OTPVerification({ email, onVerify, onBack, type }: OTPVerificati
 
     setIsVerifying(true);
 
-    // Simulate API call
-    setTimeout(() => {
-      if (otpValue === MOCK_OTP) {
-        toast.success("OTP verified successfully!");
-        onVerify();
-      } else {
-        toast.error("Invalid OTP. Please try again.");
-        setOtp(["", "", "", "", "", ""]);
-        inputRefs.current[0]?.focus();
-      }
+    try {
+      await onVerify(otpValue);
+    } catch (error) {
+      setOtp(["", "", "", "", "", ""]);
+      inputRefs.current[0]?.focus();
+    } finally {
       setIsVerifying(false);
-    }, 1000);
+    }
   };
 
-  const handleResend = () => {
+  const handleResend = async () => {
     if (!canResend) return;
     
-    setTimer(60);
-    setCanResend(false);
-    setOtp(["", "", "", "", "", ""]);
-    inputRefs.current[0]?.focus();
-    toast.success("OTP sent to your email!");
+    if (onResend) {
+      try {
+        await onResend();
+        setTimer(60);
+        setCanResend(false);
+        setOtp(["", "", "", "", "", ""]);
+        inputRefs.current[0]?.focus();
+      } catch (error) {
+        // error handled by parent
+      }
+    } else {
+      setTimer(60);
+      setCanResend(false);
+      setOtp(["", "", "", "", "", ""]);
+      inputRefs.current[0]?.focus();
+      toast.success("OTP sent to your email!");
+    }
   };
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#0a0f1e] via-[#0c1437] to-[#1e3a8a] p-4 relative overflow-hidden">
@@ -211,17 +219,8 @@ export function OTPVerification({ email, onVerify, onBack, type }: OTPVerificati
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              {/* Demo Notice */}
-              <motion.div
-                className="bg-yellow-50 border border-yellow-200 rounded-lg p-3"
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.6 }}
-              >
-                <p className="text-xs text-yellow-800 text-center">
-                  <strong>Demo Mode:</strong> Use OTP <span className="font-mono font-bold">123456</span>
-                </p>
-              </motion.div>
+              {/* Demo Notice Removed */}
+
 
               {/* OTP Input */}
               <div className="flex justify-center gap-2" onPaste={handlePaste}>

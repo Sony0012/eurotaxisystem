@@ -29,9 +29,13 @@ api.interceptors.response.use(
     (response) => response,
     (error) => {
         if (error.response && error.response.status === 401) {
-            // Handle unauthorized (e.g., redirect to login)
+            // Clear auth state and redirect to login
             localStorage.removeItem('auth_token');
-            // window.location.href = '/login'; // Optional: auto redirect
+            localStorage.removeItem('user');
+            // Redirect to login page
+            if (window.location.pathname !== '/login') {
+                window.location.href = '/login';
+            }
         }
         return Promise.reject(error);
     }

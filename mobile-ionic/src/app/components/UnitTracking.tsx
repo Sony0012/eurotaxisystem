@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { MapContainer, TileLayer, Marker, Polyline, Popup } from "react-leaflet";
-import { divIcon } from "leaflet";
+import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { Badge } from "./ui/badge";
@@ -23,7 +23,7 @@ import { mockGpsData, generateMockRoute, getStatusColor, getStatusLabel, type Gp
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 
 const createUnitIcon = (color: string) => {
-  return divIcon({
+  return L.divIcon({
     className: 'custom-div-icon',
     html: `
       <div style="
