@@ -16,6 +16,9 @@ export function OwnerPanel() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string|null>(null);
   const [search, setSearch] = useState("");
+  const [auditSearch, setAuditSearch] = useState("");
+  const [auditAction, setAuditAction] = useState("");
+  const [auditRole, setAuditRole] = useState("");
 
   // Staff form
   const [sf, setSf] = useState({first_name:"",last_name:"",email:"",phone_number:"",address:"",role:""});
@@ -38,7 +41,7 @@ export function OwnerPanel() {
   const [roleForm, setRoleForm] = useState({ name: "", label: "", description: "" });
 
   useEffect(() => { loadData(); }, []);
-  useEffect(() => { if (tab === "login_history") loadAudit(); }, [tab]);
+  useEffect(() => { if (tab === "login_history") loadAudit(); }, [tab, auditSearch, auditAction, auditRole]);
 
   const loadData = async () => {
     setLoading(true); setError(null);
@@ -65,7 +68,13 @@ export function OwnerPanel() {
 
   const loadAudit = async () => {
     try {
-      const r = await api.get("/super-admin/audit?per_page=50");
+      const params = new URLSearchParams();
+      params.append("per_page", "50");
+      if (auditSearch) params.append("search", auditSearch);
+      if (auditAction) params.append("action", auditAction);
+      if (auditRole) params.append("role", auditRole);
+      
+      const r = await api.get(`/super-admin/audit?${params.toString()}`);
       setAuditLogs(r.data.data || []);
     } catch(e:any) { toast.error("Audit: " + (e?.response?.data?.message || "Failed")); }
   };
@@ -668,28 +677,97 @@ export function OwnerPanel() {
 
           {/* LOGIN HISTORY */}
           {tab==="login_history" && (
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-              <div className="p-4 border-b bg-gray-50 flex items-center justify-between">
-                <div className="flex items-center gap-2"><Activity className="w-4 h-4 text-blue-500"/><span className="font-bold text-sm">System Audit Trail</span></div>
-                <button onClick={loadAudit} className="p-1.5 bg-white border border-gray-200 hover:bg-gray-50 rounded-lg shadow-sm"><RefreshCw className="w-3 h-3 text-gray-500"/></button>
-              </div>
-              <div className="divide-y divide-gray-50 max-h-[65vh] overflow-y-auto">
-                {auditLogs.length===0 && <p className="p-8 text-center text-gray-400 text-sm">No audit logs found.</p>}
-                {auditLogs.map((log:any)=>(
-                  <div key={log.id} className="p-3 hover:bg-gray-50 transition-colors">
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="flex-1 min-w-0">
-                        <p className="text-xs font-bold text-gray-900">{log.user_name} <span className="text-gray-400 font-normal">({log.user_role})</span></p>
-                        <p className="text-[10px] text-gray-500 mt-0.5 line-clamp-1">{log.notes||"—"}</p>
-                        <p className="text-[9px] text-gray-400 mt-0.5">{new Date(log.created_at).toLocaleString()} · {log.ip_address||"—"}</p>
-                      </div>
-                      <span className={`text-[9px] font-bold px-2 py-1 rounded-full uppercase flex-shrink-0
-                        ${log.action==="login"?"bg-blue-100 text-blue-600":log.action==="failed_login"?"bg-red-100 text-red-600":log.action==="created"?"bg-green-100 text-green-600":"bg-gray-100 text-gray-500"}`}>
-                        {log.action?.replace(/_/g," ")}
-                      </span>
-                    </div>
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col">
+              <div className="p-4 border-b border-gray-100 flex flex-col lg:flex-row items-center justify-between gap-4 bg-white">
+                <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
+                  <div className="relative w-full md:w-64">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"/>
+                    <input type="text" placeholder="Search by name, email or IP..." value={auditSearch} onChange={e=>setAuditSearch(e.target.value)}
+                      className="w-full pl-9 pr-4 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 outline-none"/>
                   </div>
-                ))}
+                  <select value={auditAction} onChange={e=>setAuditAction(e.target.value)}
+                    className="bg-white border border-gray-200 text-sm rounded-xl px-4 py-2 focus:ring-2 focus:ring-amber-500 outline-none w-full md:w-auto">
+                    <option value="">All Actions</option>
+                    <option value="login">Login</option>
+                    <option value="logout">Logout</option>
+                    <option value="failed_login">Failed Login</option>
+                    <option value="created">Created</option>
+                    <option value="approved">Approved</option>
+                    <option value="rejected">Rejected</option>
+                  </select>
+                  <select value={auditRole} onChange={e=>setAuditRole(e.target.value)}
+                    className="bg-white border border-gray-200 text-sm rounded-xl px-4 py-2 focus:ring-2 focus:ring-amber-500 outline-none w-full md:w-auto">
+                    <option value="">All Roles</option>
+                    {(data?.roles||[]).map((r:any)=>(
+                      <option key={r.id} value={r.name}>{r.label}</option>
+                    ))}
+                    <option value="super_admin">Owner</option>
+                  </select>
+                </div>
+                <button onClick={loadAudit} className="p-2 border border-gray-200 hover:bg-gray-50 rounded-xl transition-colors">
+                  <RefreshCw className="w-4 h-4 text-gray-400"/>
+                </button>
+              </div>
+
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse min-w-[1000px]">
+                  <thead>
+                    <tr className="bg-gray-50 border-b border-gray-100">
+                      <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest whitespace-nowrap">User</th>
+                      <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest whitespace-nowrap">Role</th>
+                      <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest whitespace-nowrap">Action</th>
+                      <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest whitespace-nowrap">IP Address</th>
+                      <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest whitespace-nowrap">Browser / Device</th>
+                      <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest whitespace-nowrap">Notes</th>
+                      <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest whitespace-nowrap">Date & Time</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-50">
+                    {auditLogs.length === 0 && (
+                      <tr><td colSpan={7} className="px-6 py-8 text-center text-gray-400 text-sm">No records found.</td></tr>
+                    )}
+                    {auditLogs.map((log: any) => (
+                      <tr key={log.id} className="hover:bg-gray-50/50 transition-colors">
+                        <td className="px-6 py-4">
+                          <div>
+                            <p className="font-bold text-gray-900 text-sm">{log.user_name}</p>
+                            <p className="text-xs text-gray-500">{log.user_email}</p>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className={`inline-block px-3 py-1 border text-[10px] font-black uppercase tracking-wider rounded-full
+                            ${log.user_role==='super_admin'?'bg-amber-50 text-amber-600 border-amber-100':
+                              log.user_role==='manager'?'bg-blue-50 text-blue-600 border-blue-100':
+                              log.user_role==='dispatcher'?'bg-emerald-50 text-emerald-600 border-emerald-100':'bg-indigo-50 text-indigo-600 border-indigo-100'}`}>
+                            {log.user_role?.replace(/_/g, ' ')}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className={`inline-flex items-center gap-1.5 px-3 py-1 text-[10px] font-black uppercase tracking-wider rounded-full border
+                            ${log.action==="login"?"bg-blue-50 text-blue-600 border-blue-100":
+                              log.action==="logout"?"bg-gray-50 text-gray-600 border-gray-100":
+                              log.action==="failed_login"?"bg-red-50 text-red-600 border-red-100":
+                              log.action==="created"?"bg-green-50 text-green-600 border-green-100":"bg-amber-50 text-amber-600 border-amber-100"}`}>
+                            <div className={`w-1 h-1 rounded-full ${log.action==="login"?"bg-blue-600":log.action==="logout"?"bg-gray-600":"bg-amber-600"}`}></div>
+                            {log.action?.replace(/_/g," ")}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-xs text-gray-600 font-mono">
+                          {log.ip_address || "—"}
+                        </td>
+                        <td className="px-6 py-4 text-xs text-gray-500 max-w-xs truncate" title={log.user_agent}>
+                          {log.user_agent || "—"}
+                        </td>
+                        <td className="px-6 py-4 text-xs text-gray-500">
+                          {log.notes || "—"}
+                        </td>
+                        <td className="px-6 py-4 text-xs text-gray-600 whitespace-nowrap">
+                          {new Date(log.created_at).toLocaleString('en-US', { month: 'short', day: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             </div>
           )}
