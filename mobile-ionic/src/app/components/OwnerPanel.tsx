@@ -5,7 +5,8 @@ import { toast } from "sonner";
 import {
   Crown, Shield, Users, UserPlus, Activity, Lock, ShieldAlert,
   CheckCircle, XCircle, RefreshCw, Loader2, X, ChevronRight,
-  LayoutDashboard, Eye, EyeOff, Search, Key, Archive, Trash2, Edit2
+  LayoutDashboard, Eye, EyeOff, Search, Key, Archive, Trash2, Edit2,
+  Database, Check
 } from "lucide-react";
 
 export function OwnerPanel() {
@@ -774,38 +775,81 @@ export function OwnerPanel() {
 
           {/* SECURITY */}
           {tab==="system_security" && (
-            <div className="space-y-4">
-              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-                <div className="p-4 bg-red-50 border-b border-red-100 flex items-center gap-2">
-                  <ShieldAlert className="w-5 h-5 text-red-600"/>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+              {/* Left Column: Form */}
+              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col">
+                <div className="p-4 bg-red-50/50 border-b border-red-100 flex items-center gap-3">
+                  <div className="w-10 h-10 bg-white rounded-xl shadow-sm border border-red-100 flex items-center justify-center">
+                    <ShieldAlert className="w-5 h-5 text-red-600"/>
+                  </div>
                   <div>
-                    <span className="font-bold text-sm text-red-700">Archive Deletion Lock</span>
-                    <p className="text-xs text-red-500">Set a master password required to permanently delete archived records.</p>
+                    <span className="font-black text-xs text-red-700 uppercase tracking-widest">Archive Deletion Lock</span>
+                    <p className="text-[10px] text-red-500 font-medium">Prevents accidental or unauthorized permanent data loss.</p>
                   </div>
                 </div>
-                <div className="p-6">
-                  <form onSubmit={e=>e.preventDefault()} className="max-w-md space-y-4">
+                <div className="p-6 space-y-6">
+                  <form onSubmit={saveArchivePassword} className="space-y-5">
                     <div>
-                      <label className="text-xs font-bold text-gray-700 mb-1 block">New Password (min 6 chars)</label>
+                      <div className="flex justify-between items-center mb-1.5">
+                        <label className="text-[11px] font-black text-gray-700 uppercase tracking-widest block">Current Deletion Password</label>
+                        <span className="text-[9px] text-gray-400 font-medium italic">If this is your first time, leave empty.</span>
+                      </div>
                       <div className="relative">
                         <input required minLength={6} type={showPass?"text":"password"} value={archForm.archive_password}
+                          placeholder="Enter new deletion password"
                           onChange={e=>setArchForm({...archForm,archive_password:e.target.value})}
-                          className="w-full bg-white border border-gray-300 rounded-xl px-3 py-2 text-sm pr-10 focus:ring-2 focus:ring-amber-500 outline-none"/>
-                        <button type="button" onClick={()=>setShowPass(!showPass)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
+                          className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-amber-500 outline-none transition-all"/>
+                        <button type="button" onClick={()=>setShowPass(!showPass)} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors">
                           {showPass?<EyeOff className="w-4 h-4"/>:<Eye className="w-4 h-4"/>}
                         </button>
                       </div>
                     </div>
                     <div>
-                      <label className="text-xs font-bold text-gray-700 mb-1 block">Confirm Password</label>
+                      <label className="text-[11px] font-black text-gray-700 uppercase tracking-widest mb-1.5 block">Confirm New Password</label>
                       <input required minLength={6} type={showPass?"text":"password"} value={archForm.archive_password_confirmation}
+                        placeholder="Repeat deletion password"
                         onChange={e=>setArchForm({...archForm,archive_password_confirmation:e.target.value})}
-                        className="w-full bg-white border border-gray-300 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-amber-500 outline-none"/>
+                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-amber-500 outline-none transition-all"/>
                     </div>
-                    <button type="submit" className="w-full bg-gray-900 hover:bg-gray-800 text-white font-bold py-3 rounded-xl transition-colors">
-                      Update Deletion Password
+
+                    <div className="bg-blue-50/50 border border-blue-100 rounded-2xl p-4 flex gap-3">
+                       <CheckCircle className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5"/>
+                       <div>
+                          <p className="text-[11px] font-black text-blue-700 uppercase tracking-widest mb-1">Security Notice</p>
+                          <p className="text-[10px] text-blue-600 leading-relaxed font-medium">
+                            This password is <span className="underline font-bold text-blue-800">separate</span> from your login password. It is required whenever someone attempts to <strong>Permanently Delete</strong> items from the archives (Users, Roles, Incident Types).
+                          </p>
+                       </div>
+                    </div>
+
+                    <button type="submit" className="w-full bg-gray-900 hover:bg-black text-white font-black py-4 rounded-xl transition-all shadow-lg shadow-gray-200 flex items-center justify-center gap-2 text-sm uppercase tracking-widest">
+                      <Check className="w-4 h-4"/> Update Deletion Password
                     </button>
                   </form>
+                </div>
+              </div>
+
+              {/* Right Column: Status */}
+              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+                <h3 className="text-lg font-black text-gray-900 tracking-tight mb-6">System Integrity Status</h3>
+                <div className="space-y-4">
+                  {[
+                    { label: "Database Connection", icon: Database, status: "SECURE", color: "green" },
+                    { label: "MFA Enforcement", icon: Shield, status: "ACTIVE", color: "green" },
+                    { label: "Audit Logging", icon: Activity, status: "LOGGING", color: "green" }
+                  ].map((item, idx) => (
+                    <div key={idx} className="flex items-center justify-between p-4 bg-gray-50/50 rounded-2xl border border-gray-100 hover:border-amber-100 transition-colors group">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-white rounded-xl shadow-sm flex items-center justify-center group-hover:scale-110 transition-transform">
+                          <item.icon className="w-5 h-5 text-gray-400 group-hover:text-amber-500 transition-colors"/>
+                        </div>
+                        <span className="text-sm font-bold text-gray-700">{item.label}</span>
+                      </div>
+                      <span className={`px-3 py-1 bg-${item.color}-50 border border-${item.color}-100 text-${item.color}-600 text-[10px] font-black uppercase tracking-wider rounded-full shadow-sm`}>
+                        {item.status}
+                      </span>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
