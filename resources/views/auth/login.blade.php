@@ -15,6 +15,18 @@
     <link rel="shortcut icon" href="{{ asset('favicon_euro_transparent.png') }}?v=1.5">
     <link rel="icon" type="image/png" href="{{ asset('favicon_euro_transparent.png') }}?v=1.5">
     <link rel="apple-touch-icon" href="{{ asset('favicon_euro_transparent.png') }}?v=1.5">
+    <script>
+        // Ultimate silence for Tailwind production warning
+        (function() {
+            const originalWarn = console.warn;
+            console.warn = function() {
+                if (arguments[0] && typeof arguments[0] === 'string' && arguments[0].includes('cdn.tailwindcss.com')) {
+                    return;
+                }
+                originalWarn.apply(console, arguments);
+            };
+        })();
+    </script>
     <script src="{{ asset('assets/tailwind.min.js') }}"></script>
     <script src="{{ asset('assets/lottie-player.js') }}"></script>
     <link rel="stylesheet" href="{{ asset('assets/fontawesome/all.min.css') }}">

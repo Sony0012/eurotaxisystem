@@ -42,10 +42,13 @@ async function makeRequest(url, options = {}) {
 
 function updateNotificationCount() {
     const list = document.getElementById('notificationList');
-    const countSpan = document.querySelector('#notificationDropdown .border-b span.text-xs');
+    const totalCountSpan = document.querySelector('#notificationDropdown .uppercase.tracking-widest');
     const badge = document.querySelector('#notificationBell span');
-    const count = list ? list.querySelectorAll('.notification-item').length : 0;
-    if (countSpan) countSpan.textContent = count + ' item(s)';
+    
+    const unreadItems = list ? list.querySelectorAll('.notification-item.unread-notif') : [];
+    const count = unreadItems.length;
+    
+    if (totalCountSpan) totalCountSpan.textContent = count + ' item(s)';
     if (badge) {
         if (count > 0) {
             badge.textContent = count;

@@ -42,10 +42,10 @@ function updateNotificationCount() {
     const totalCountSpan = document.querySelector('#notificationDropdown .uppercase.tracking-widest');
     const badge = document.querySelector('#notificationBell span');
     
-    const allItems = list ? list.querySelectorAll('.notification-item') : [];
-    const count = allItems.length;
-    const stockItems = list ? list.querySelectorAll('.notification-item[data-type="low_stock"]') : [];
-    const stockCount = stockItems.length;
+    const unreadItems = list ? list.querySelectorAll('.notification-item.unread-notif') : [];
+    const count = unreadItems.length;
+    
+    const stockCount = [...unreadItems].filter(i => i.dataset.type === 'low_stock').length;
     const systemCount = count - stockCount;
     
     if (totalCountSpan) totalCountSpan.textContent = count + ' item(s)';

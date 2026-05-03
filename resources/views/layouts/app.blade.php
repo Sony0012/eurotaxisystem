@@ -425,12 +425,10 @@
                                 <button id="notificationBell"
                                     class="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg">
                                     <i data-lucide="bell" class="w-5 h-5"></i>
-                                    @if($headerNotificationCount > 0)
-                                        <span
-                                            class="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-red-500 text-white text-[10px] leading-[18px] rounded-full text-center">
+                                    <span id="main-nav-notif-badge"
+                                            class="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-red-500 text-white text-[10px] leading-[18px] rounded-full text-center {{ $headerNotificationCount > 0 ? '' : 'hidden' }}">
                                             {{ $headerNotificationCount }}
                                         </span>
-                                    @endif
                                 </button>
 
                                 <div id="notificationDropdown"
@@ -438,7 +436,7 @@
                                     <div class="px-4 py-3 border-b bg-gray-50/50 flex items-center justify-between">
                                         <div class="flex flex-col">
                                             <span class="text-sm font-black text-gray-900 tracking-tight">Notifications</span>
-                                            <span class="text-[9px] font-bold text-gray-400 uppercase tracking-widest">{{ $headerNotificationCount }} item(s)</span>
+                                            <span id="notif-dropdown-subtitle" class="text-[9px] font-bold text-gray-400 uppercase tracking-widest">{{ $headerNotificationCount }} item(s)</span>
                                         </div>
                                         @if($headerNotificationCount > 0)
                                             <button onclick="markAllAsRead()" class="text-[10px] font-bold text-yellow-600 hover:text-yellow-700 hover:underline transition-all">
@@ -451,15 +449,11 @@
                                     <div class="flex border-b bg-white">
                                         <button onclick="filterNotifs('system')" id="btn-filter-system" class="flex-1 py-2.5 text-[11px] font-bold uppercase tracking-wider text-yellow-600 border-b-2 border-yellow-500 transition-all">
                                             System
-                                            @if($systemNotifCount > 0)
-                                                <span class="bg-red-500 text-white text-[9px] px-1.5 py-0.5 rounded-full ml-1">{{ $systemNotifCount }}</span>
-                                            @endif
+                                            <span id="badge-filter-system" class="bg-red-500 text-white text-[9px] px-1.5 py-0.5 rounded-full ml-1 {{ $systemNotifCount > 0 ? '' : 'hidden' }}">{{ $systemNotifCount }}</span>
                                         </button>
                                         <button onclick="filterNotifs('low_stock')" id="btn-filter-parts" class="flex-1 py-2.5 text-[11px] font-bold uppercase tracking-wider text-gray-400 hover:text-gray-600 transition-all flex items-center justify-center gap-1.5">
                                             Parts Stock
-                                            @if($stockNotifCount > 0)
-                                                <span class="bg-orange-500 text-white text-[9px] px-1.5 py-0.5 rounded-full">{{ $stockNotifCount }}</span>
-                                            @endif
+                                            <span id="badge-filter-parts" class="bg-orange-500 text-white text-[9px] px-1.5 py-0.5 rounded-full {{ $stockNotifCount > 0 ? '' : 'hidden' }}">{{ $stockNotifCount }}</span>
                                         </button>
                                     </div>
 
@@ -741,6 +735,11 @@
                     el.classList.remove('unread-notif');
                 }
             });
+
+            // Update badge counts after restoring states
+            if (typeof updateNotificationCount === 'function') {
+                updateNotificationCount();
+            }
         });
 
         function filterNotifs(type) {
@@ -779,6 +778,10 @@
             if (el) {
                 el.style.backgroundColor = 'transparent';
                 el.classList.remove('unread-notif');
+                // Decrement badge count
+                if (typeof updateNotificationCount === 'function') {
+                    updateNotificationCount();
+                }
             }
         }
 
@@ -796,6 +799,53 @@
             });
             
             localStorage.setItem('read_notifs', JSON.stringify(readNotifs));
+            
+            // Zero out badge counts
+            if (typeof updateNotificationCount === 'function') {
+                updateNotificationCount();
+            }
+        }
+
+        function updateNotificationCount() {
+            const items = document.querySelectorAll('.notification-item');
+            let systemCount = 0;
+            let partsCount = 0;
+
+            items.forEach(item => {
+                // An item is unread if it doesn't have the background removed or is still marked unread
+                if (item.classList.contains('unread-notif')) {
+                    if (item.dataset.type === 'low_stock') partsCount++;
+                    else systemCount++;
+                }
+            });
+
+            const total = systemCount + partsCount;
+
+            // Update Main Bell Badge
+            const mainBadge = document.getElementById('main-nav-notif-badge');
+            if (mainBadge) {
+                mainBadge.textContent = total;
+                mainBadge.classList.toggle('hidden', total === 0);
+            }
+
+            // Update Dropdown Subtitle
+            const subtitle = document.getElementById('notif-dropdown-subtitle');
+            if (subtitle) {
+                subtitle.textContent = `${total} item(s)`;
+            }
+
+            // Update Filter Tab Badges
+            const systemBadge = document.getElementById('badge-filter-system');
+            if (systemBadge) {
+                systemBadge.textContent = systemCount;
+                systemBadge.classList.toggle('hidden', systemCount === 0);
+            }
+
+            const partsBadge = document.getElementById('badge-filter-parts');
+            if (partsBadge) {
+                partsBadge.textContent = partsCount;
+                partsBadge.classList.toggle('hidden', partsCount === 0);
+            }
         }
     </script>
 

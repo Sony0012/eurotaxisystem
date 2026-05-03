@@ -450,9 +450,11 @@
 
                 <div>
                     <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-1.5">Notes</label>
-                    <textarea name="notes" id="notes" rows="2" 
+                    <textarea name="notes" id="notes" rows="2" maxlength="250"
                               class="w-full px-3 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-sm font-medium shadow-sm"
-                              placeholder="Optional remarks..."></textarea>
+                              placeholder="Optional remarks..."
+                              oninput="let original = this.value; this.value = this.value.replace(/[^a-zA-Z0-9\s.,'-]/g, '').slice(0, 250); if(original !== this.value && this.value.length === 250) { document.getElementById('boundary-notes-notif').classList.remove('hidden'); } else { document.getElementById('boundary-notes-notif').classList.add('hidden'); }"></textarea>
+                    <p id="boundary-notes-notif" class="text-xs text-red-500 hidden font-semibold mt-1">Notes limit reached (250 chars) or invalid character removed.</p>
                 </div>
 
                 {{-- Exception Controls Redesign --}}
