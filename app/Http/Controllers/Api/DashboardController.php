@@ -31,19 +31,29 @@ class DashboardController extends Controller
             })->count();
         $stats['roi_achieved'] = $stats['roi_units'];
 
-        // Today boundary
-        $stats['today_boundary'] = (float)(DB::table('boundaries')
-            ->whereNull('deleted_at')->whereDate('date', $today)->sum('actual_boundary') ?? 0);
+        // Boundary stats (Matching Web)
+        $yesterday = now()->timezone('Asia/Manila')->subDay()->toDateString();
+        $year      = now()->timezone('Asia/Manila')->year;
+        $month     = now()->timezone('Asia/Manila')->month;
 
-        $month = now()->timezone('Asia/Manila')->month;
-        $year  = now()->timezone('Asia/Manila')->year;
+        $stats['today_boundary'] = (float)(DB::table('boundaries')->whereNull('deleted_at')->whereDate('date', $today)->sum('actual_boundary') ?? 0);
+        $stats['yesterday_boundary'] = (float)(DB::table('boundaries')->whereNull('deleted_at')->whereDate('date', $yesterday)->sum('actual_boundary') ?? 0);
+        $stats['month_boundary'] = (float)(DB::table('boundaries')->whereNull('deleted_at')->whereMonth('date', $month)->whereYear('date', $year)->sum('actual_boundary') ?? 0);
+        $stats['year_boundary'] = (float)(DB::table('boundaries')->whereNull('deleted_at')->whereYear('date', $year)->sum('actual_boundary') ?? 0);
 
-        // Month boundary (Matching Web: whereMonth and whereYear)
-        $stats['month_boundary'] = (float)(DB::table('boundaries')
-            ->whereNull('deleted_at')
-            ->whereMonth('date', $month)
-            ->whereYear('date', $year)
-            ->sum('actual_boundary') ?? 0);
+        // Detailed boundaries for today (for modal)
+        $boundaryList = DB::table('boundaries as b')
+            ->join('units as u', 'b.unit_id', '=', 'u.id')
+            ->leftJoin('drivers as d', 'b.driver_id', '=', 'd.id')
+            ->select(
+                'b.id', 'b.actual_boundary', 'b.status', 'b.date',
+                'u.plate_number',
+                DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')) as driver_name")
+            )
+            ->whereNull('b.deleted_at')
+            ->whereDate('b.date', $today)
+            ->orderByDesc('b.created_at')
+            ->get();
 
         // Expenses
         $genEx  = (float)(DB::table('expenses')->whereNull('deleted_at')->whereDate('date', $today)->sum('amount') ?? 0);
@@ -276,6 +286,7 @@ class DashboardController extends Controller
                 'driversList'     => $driversList,
                 'codingList'      => $codingList,
                 'unitsList'       => $unitsList,
+                'boundaryList'    => $boundaryList,
             ]
         ]);
     }

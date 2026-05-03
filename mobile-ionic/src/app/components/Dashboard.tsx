@@ -494,7 +494,7 @@ export function Dashboard() {
 
       {/* MODALS - Minimal Update needed to match new theme */}
       {activeModal==="units" && <Modal title="Units Overview" color="bg-indigo-600" onClose={()=>setActiveModal(null)}><FleetModal stats={stats} modal={modal} navigate={navigate} /></Modal>}
-      {activeModal==="boundary" && <Modal title="Boundary Revenue" color="bg-emerald-600" onClose={()=>setActiveModal(null)}><BoundaryModal stats={stats} navigate={navigate} /></Modal>}
+      {activeModal==="boundary" && <Modal title="Daily Boundary Collections" color="bg-emerald-600" onClose={()=>setActiveModal(null)}><BoundaryModal stats={stats} modal={modal} navigate={navigate} /></Modal>}
       {activeModal==="income" && <Modal title="Net Income" color="bg-green-600" onClose={()=>setActiveModal(null)}><IncomeModal stats={stats} /></Modal>}
       {activeModal==="maintenance" && <Modal title="Units Under Maintenance" color="bg-orange-500" onClose={()=>setActiveModal(null)}><MaintenanceModal modal={modal} /></Modal>}
       {activeModal==="drivers" && <Modal title="Active Drivers" color="bg-indigo-600" onClose={()=>setActiveModal(null)}><DriversModal modal={modal} /></Modal>}
@@ -607,17 +607,86 @@ function FleetModal({stats, modal, navigate}: any) {
   );
 }
 
-function BoundaryModal({stats, navigate}: any) {
+function BoundaryModal({stats, modal, navigate}: any) {
+  const [search, setSearch] = useState('');
+  const [date, setDate] = useState(dayjs().format('MM/DD/YYYY'));
+  
+  const boundaries = modal?.boundaryList || [];
+  const filteredBoundaries = boundaries.filter((b: any) => {
+    const matchesSearch = b.plate_number.toLowerCase().includes(search.toLowerCase()) || 
+                         (b.driver_name || '').toLowerCase().includes(search.toLowerCase());
+    return matchesSearch;
+  });
+
   return (
-    <div className="space-y-4">
-      <div className="p-6 bg-emerald-50 rounded-[2rem] border border-emerald-100">
-        <p className="text-xs font-black text-emerald-600 uppercase tracking-[0.2em] mb-2">Today's Boundary</p>
-        <p className="text-4xl font-black text-gray-900">{fmt(stats?.today_boundary)}</p>
+    <div className="space-y-6">
+      {/* Search & Date Filter Bar */}
+      <div className="flex gap-2">
+        <div className="relative flex-1">
+          <input 
+            type="text" 
+            placeholder="Search by unit number, driver, or amount..." 
+            className="w-full bg-gray-100 border-none rounded-2xl py-4 pl-12 pr-4 text-[11px] font-bold text-gray-900 focus:ring-2 focus:ring-emerald-500 transition-all"
+            value={search}
+            onChange={(e)=>setSearch(e.target.value)}
+          />
+          <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+            <DollarSign className="w-5 h-5"/>
+          </div>
+        </div>
+        <div className="bg-gray-100 px-4 rounded-2xl flex items-center gap-2 border-none">
+           <span className="text-[10px] font-black text-gray-600">{date}</span>
+           <Calendar className="w-4 h-4 text-gray-400"/>
+        </div>
       </div>
-      <div className="p-6 bg-emerald-50 rounded-[2rem] border border-emerald-100">
-        <p className="text-xs font-black text-emerald-600 uppercase tracking-[0.2em] mb-2">This Month's Boundary</p>
-        <p className="text-4xl font-black text-gray-900">{fmt(stats?.month_boundary)}</p>
+
+      {/* Summary Summary Cards */}
+      <div className="grid grid-cols-2 gap-3">
+        {[
+          { l: 'Total Today', v: fmt(stats?.today_boundary), c: 'text-emerald-600', bg: 'bg-emerald-50/50', icon: Calendar },
+          { l: 'Yesterday Total', v: fmt(stats?.yesterday_boundary), c: 'text-blue-600', bg: 'bg-blue-50/50', icon: RefreshCw },
+          { l: 'Monthly Total', v: fmt(stats?.month_boundary), c: 'text-purple-600', bg: 'bg-purple-50/50', icon: BarChart3 },
+          { l: 'Yearly Total Amount', v: fmt(stats?.year_boundary), c: 'text-amber-600', bg: 'bg-amber-50/50', icon: TrendingUp }
+        ].map((s) => (
+          <div key={s.l} className={`${s.bg} rounded-2xl p-4 border border-gray-50 flex items-center gap-3`}>
+            <div className={`p-2 bg-white rounded-xl shadow-sm ${s.c}`}><s.icon className="w-4 h-4"/></div>
+            <div>
+               <p className={`text-[11px] font-black ${s.c} leading-none mb-1`}>{s.v.split('.')[0]}</p>
+               <p className="text-[7px] font-black text-gray-400 uppercase tracking-widest leading-none">{s.l}</p>
+            </div>
+          </div>
+        ))}
       </div>
+
+      {/* Content Area */}
+      {filteredBoundaries.length === 0 ? (
+        <div className="py-20 flex flex-col items-center text-center">
+           <div className="w-16 h-16 bg-gray-50 rounded-[2rem] flex items-center justify-center mb-4 border border-gray-100">
+              <Calendar className="w-8 h-8 text-gray-200"/>
+           </div>
+           <p className="text-sm font-black text-gray-800">No boundary collections found</p>
+           <p className="text-[11px] text-gray-400 font-medium mt-1">Try adjusting your search or date filter</p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+           {filteredBoundaries.map((b: any) => (
+             <div key={b.id} className="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm flex items-center justify-between active:scale-[0.98] transition-all">
+                <div className="flex items-center gap-4">
+                   <div className="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center font-black text-emerald-600 text-xs">TX</div>
+                   <div>
+                      <p className="font-black text-gray-900 text-sm leading-none mb-1">{b.plate_number}</p>
+                      <p className="text-[10px] text-gray-400 font-medium">{b.driver_name || 'No driver'}</p>
+                   </div>
+                </div>
+                <div className="text-right">
+                   <p className="text-sm font-black text-emerald-600">{fmt(b.actual_boundary)}</p>
+                   <span className="text-[8px] font-black text-gray-400 uppercase tracking-widest">{b.status}</span>
+                </div>
+             </div>
+           ))}
+        </div>
+      )}
+
       <button onClick={()=>navigate("/boundaries")} className="w-full bg-emerald-600 text-white font-black py-4 rounded-2xl shadow-lg shadow-emerald-100 flex items-center justify-center gap-2 active:scale-95 transition-all">
         Full Boundary Logs <ChevronRight className="w-5 h-5"/>
       </button>
