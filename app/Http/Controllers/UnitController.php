@@ -562,7 +562,38 @@ class UnitController extends Controller
 
         $gps_device = DB::table('gps_devices')->where('unit_id', $unit_id)->where('status', 'active')->first();
         $dashcam_device = DB::table('dashcam_devices')->where('unit_id', $unit_id)->where('status', 'active')->first();
-        $has_gps = ($gps_device || !empty($unit->gps_link));
+        
+        // Fetch latest location from gps_tracking
+        $latest_gps = DB::table('gps_tracking')
+            ->where('unit_id', $unit_id)
+            ->orderBy('timestamp', 'desc')
+            ->first();
+
+        $has_gps = ($gps_device || !empty($unit->gps_link) || $latest_gps);
+
+        $location_info = [
+            'current_location' => 'Not Available',
+            'last_location_update' => 'Never',
+            'gps_enabled' => $has_gps,
+            'latitude' => null,
+            'longitude' => null,
+            'speed' => 0,
+            'timestamp' => null,
+            'coordinates' => null
+        ];
+
+        if ($latest_gps) {
+            $location_info['latitude'] = $latest_gps->latitude;
+            $location_info['longitude'] = $latest_gps->longitude;
+            $location_info['speed'] = $latest_gps->speed;
+            $location_info['timestamp'] = $latest_gps->timestamp;
+            $location_info['last_location_update'] = Carbon::parse($latest_gps->timestamp)->timezone('Asia/Manila')->diffForHumans();
+            $location_info['current_location'] = $latest_gps->latitude . ', ' . $latest_gps->longitude;
+            $location_info['coordinates'] = $latest_gps->latitude . ', ' . $latest_gps->longitude;
+        } elseif ($unit->gps_link) {
+            $location_info['current_location'] = 'Live Tracking Active';
+            $location_info['last_location_update'] = 'Real-time';
+        }
 
         return response()->json([
             'unit' => $unit,
@@ -571,12 +602,7 @@ class UnitController extends Controller
             'boundary_history' => $boundary_history,
             'maintenance_records' => $maintenance_records,
             'coding_day' => $coding_day,
-            'location_info' => [
-                'current_location' => $has_gps ? 'Live (See Map below)' : 'Not Available',
-                'last_location_update' => ($has_gps && data_get($unit, 'last_location_update')) ? date('M d, Y h:i A', strtotime($unit->last_location_update)) : ($has_gps ? 'Active Tracking' : 'Never'),
-                'gps_enabled' => $has_gps,
-                'coordinates' => (data_get($unit, 'latitude') && data_get($unit, 'longitude')) ? $unit->latitude . ', ' . $unit->longitude : ($gps_device ? '14.6349, 121.0403' : null),
-            ],
+            'location_info' => $location_info,
             'dashcam_info' => [
                 'dashcam_enabled' => $dashcam_device ? true : false,
                 'dashcam_status' => $dashcam_device ? 'Online' : 'Offline',

@@ -1531,7 +1531,10 @@
         // =============================================
         // VIEW UNIT DETAILS - Matching backup's 8-tab structure
         // =============================================
-        let currentViewUnitId = null;
+        let unitDetailMap = null;
+    let unitDetailMarker = null;
+    let currentViewUnitId = null;
+    let currentLocData = null;
 
         function viewUnitDetails(id) {
             currentViewUnitId = id;
@@ -2073,16 +2076,19 @@
                                             <i data-lucide="satellite" class="w-6 h-6 ${locInfo.gps_enabled ? 'text-green-500' : 'text-red-400'}"></i>
                                         </div>
                                     </div>
-                                    <div id="unitDetailMapContainer" class="relative rounded-2xl overflow-hidden border border-gray-100 bg-gray-50 flex flex-col items-center justify-center p-12 text-center shadow-inner" style="height: 400px;">
-                                        <div class="mb-6 p-6 bg-blue-100 rounded-full shadow-sm animate-pulse">
-                                            <i data-lucide="navigation" class="w-12 h-12 text-blue-600"></i>
+                                    <div id="unitDetailMap" class="relative rounded-2xl overflow-hidden border border-gray-100 bg-gray-50 shadow-inner" style="height: 400px; z-index: 1;">
+                                        <div class="flex flex-col items-center justify-center h-full p-12 text-center">
+                                            <div class="mb-6 p-6 bg-blue-100 rounded-full shadow-sm animate-pulse">
+                                                <i data-lucide="navigation" class="w-12 h-12 text-blue-600"></i>
+                                            </div>
+                                            <h4 class="text-lg font-black text-gray-900 mb-2 uppercase tracking-tight">Initializing Map...</h4>
+                                            <p class="text-sm text-gray-500 mb-8 max-w-md mx-auto">Please wait while we connect to the GPS satellite network.</p>
                                         </div>
-                                        <h4 class="text-lg font-black text-gray-900 mb-2 uppercase tracking-tight">Tracksolid Pro Enterprise</h4>
-                                        <p class="text-sm text-gray-500 mb-8 max-w-md mx-auto">This unit is tracked via real-time satellite identification. Access the full live map for movement history and geofencing.</p>
-                                        
+                                    </div>
+                                    <div class="flex justify-center">
                                         <a href="/live-tracking?unit=${unit.id}" class="inline-flex items-center gap-3 px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white text-sm font-black rounded-2xl transition-all shadow-lg hover:shadow-blue-200 hover:-translate-y-1 uppercase tracking-widest">
                                             <i data-lucide="map" class="w-5 h-5"></i>
-                                            Open Live Tracking Map
+                                            Open Full Tracking Map
                                         </a>
                                     </div>
                                 </div>
@@ -2113,172 +2119,13 @@
                                     </div>
                                     <div class="lg:col-span-2 bg-gray-900 rounded-2xl flex flex-col items-center justify-center min-h-[300px] border border-gray-800 shadow-inner relative overflow-hidden">
                                         <div class="absolute top-4 left-4 flex items-center gap-2">
-                                            <div class="w-2 h-2 bg-red-500 rounded-full animate-ping"></div>
-                                            <span class="text-white/40 text-[9px] font-black uppercase tracking-widest">No Active Stream</span>
-                                        </div>
-                                        <i data-lucide="video-off" class="w-16 h-16 text-white/10 mb-4"></i>
-                                        <p class="text-white/30 text-xs font-black uppercase tracking-widest">Preview Unavailable</p>
                                     </div>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 </div>
+                `;
 
-                        <!-- Drivers Tab -->
-                        <div id="drivers-tab" class="tab-content hidden">
-                            <div class="bg-white border border-gray-200 rounded-lg p-3">
-                                <h4 class="text-sm font-semibold text-gray-900 mb-2">Assigned Drivers</h4>
-                                <div class="space-y-2">${driversTabHtml.replace(/p-4/g, 'p-2').replace(/p-6/g, 'p-3').replace(/text-lg/g, 'text-base').replace(/text-sm/g, 'text-xs')}</div>
-                            </div>
-                        </div>
-
-                        <!-- Coding Tab -->
-                        <div id="coding-tab" class="tab-content hidden">
-                            <div class="bg-white border border-gray-200 rounded-lg p-3">
-                                <h4 class="text-sm font-semibold text-gray-900 mb-2">MMDA Coding Schedule</h4>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                    <div>
-                                        <h5 class="font-medium text-xs text-gray-900 mb-1.5">Current Coding Information</h5>
-                                        <div class="space-y-1 text-xs">
-                                            <div class="flex justify-between"><span class="text-gray-600">Coding Day:</span><span class="px-1.5 py-0.5 bg-blue-100 text-blue-800 rounded-full text-[10px] font-medium">${codingDay}</span></div>
-                                            <div class="flex justify-between"><span class="text-gray-600">Last Digit:</span><span class="font-medium">${lastChar || '-'}</span></div>
-                                            <div class="flex justify-between"><span class="text-gray-600">Next Coding:</span><span class="font-medium">${nextCodingDate || '-'}</span></div>
-                                            <div class="flex justify-between"><span class="text-gray-600">Days Until Coding:</span><span class="font-medium ${daysUntilCoding === 0 ? 'text-red-600' : 'text-green-600'}">${daysUntilCoding === 0 ? 'Today' : daysUntilCoding + ' days'}</span></div>
-                                            <div class="flex justify-between"><span class="text-gray-600">Coding Status:</span><span class="px-1.5 py-0.5 text-[10px] rounded-full ${daysUntilCoding === 0 ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}">${daysUntilCoding === 0 ? 'Coding Today' : 'No Coding'}</span></div>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <h5 class="font-medium text-xs text-gray-900 mb-1.5">MMDA Coding Schedule</h5>
-                                        <div class="space-y-0.5 text-[10px]">
-                                            <div class="flex justify-between p-1 bg-blue-50 rounded"><span>Monday</span><span class="font-medium">1, 2</span></div>
-                                            <div class="flex justify-between p-1 bg-green-50 rounded"><span>Tuesday</span><span class="font-medium">3, 4</span></div>
-                                            <div class="flex justify-between p-1 bg-yellow-50 rounded"><span>Wednesday</span><span class="font-medium">5, 6</span></div>
-                                            <div class="flex justify-between p-1 bg-orange-50 rounded"><span>Thursday</span><span class="font-medium">7, 8</span></div>
-                                            <div class="flex justify-between p-1 bg-red-50 rounded"><span>Friday</span><span class="font-medium">9, 0</span></div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Boundary Tab -->
-                        <div id="boundary-tab" class="tab-content hidden">
-                            <div class="bg-white border border-gray-200 rounded-lg p-3">
-                                <h4 class="text-sm font-semibold text-gray-900 mb-2">Boundary Collection History</h4>
-                                ${boundaryRowsHtml ? `<div class="overflow-x-auto"><table class="min-w-full divide-y divide-gray-200"><thead class="bg-gray-50"><tr><th class="px-3 py-2 text-left text-[10px] font-medium text-gray-500 uppercase">Date</th><th class="px-3 py-2 text-left text-[10px] font-medium text-gray-500 uppercase">Driver</th><th class="px-3 py-2 text-left text-[10px] font-medium text-gray-500 uppercase">License</th><th class="px-3 py-2 text-left text-[10px] font-medium text-gray-500 uppercase">Amount</th></tr></thead><tbody class="bg-white divide-y divide-gray-200">${boundaryRowsHtml.replace(/px-6 py-4/g, 'px-3 py-1.5').replace(/text-sm/g, 'text-xs')}</tbody></table></div>` : '<div class="text-center py-6 text-gray-500"><i data-lucide="philippine-peso" class="w-10 h-10 mx-auto mb-2 text-gray-300"></i><p class="text-xs">No boundary history found</p></div>'}
-                            </div>
-                        </div>
-
-                        <!-- Maintenance Tab -->
-                        <div id="maintenance-tab" class="tab-content hidden">
-                            <div class="bg-white border border-gray-200 rounded-lg p-3">
-                                <h4 class="text-sm font-semibold text-gray-900 mb-2">Maintenance Records</h4>
-                                <div class="space-y-2">${maintHtml.replace(/p-4/g, 'p-2').replace(/p-6/g, 'p-3').replace(/text-lg/g, 'text-base').replace(/text-sm/g, 'text-xs')}</div>
-                            </div>
-                        </div>
-
-                        <!-- ROI Tab - Aggressively Miniaturized -->
-                        <div id="roi-tab" class="tab-content hidden">
-                            <div class="space-y-3">
-                                <div class="bg-gradient-to-r from-purple-500 to-purple-600 p-3 rounded-lg text-white">
-                                    <h4 class="text-base font-bold mb-2">ROI Analysis</h4>
-                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
-                                        <div><p class="text-purple-100 text-[10px]">Total Investment</p><p class="text-base font-bold">₱${parseFloat(roi.total_investment || 0).toLocaleString('en-PH', {minimumFractionDigits:2})}</p></div>
-                                        <div><p class="text-purple-100 text-[10px]">Total Revenue</p><p class="text-base font-bold">₱${parseFloat(roi.total_revenue || 0).toLocaleString('en-PH', {minimumFractionDigits:2})}</p></div>
-                                        <div><p class="text-purple-100 text-[10px]">Total Expenses</p><p class="text-base font-bold">₱${parseFloat(roi.total_expenses || 0).toLocaleString('en-PH', {minimumFractionDigits:2})}</p></div>
-                                    </div>
-                                </div>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                    <div class="bg-white border border-gray-200 rounded-lg p-3">
-                                        <h4 class="text-xs font-semibold text-gray-900 mb-2">ROI Metrics</h4>
-                                        <div class="space-y-2 text-xs">
-                                            <div class="flex justify-between items-center"><span class="text-gray-600">ROI %</span><span class="font-bold text-${roiColor}-600">${roiPct.toFixed(1)}%</span></div>
-                                            <div class="flex justify-between items-center"><span class="text-gray-600">Payback</span><span class="font-bold text-blue-600">${parseFloat(roi.payback_period || 0).toFixed(1)} mths</span></div>
-                                            <div class="flex justify-between items-center"><span class="text-gray-600">Mth Rev</span><span class="font-bold text-green-600">₱${parseFloat(roi.monthly_revenue || roi.monthly_boundary || 0).toLocaleString('en-PH', {minimumFractionDigits:2})}</span></div>
-                                        </div>
-                                    </div>
-                                    <div class="bg-white border border-gray-200 rounded-lg p-3">
-                                        <h4 class="text-xs font-semibold text-gray-900 mb-2">ROI Progress</h4>
-                                        <div class="space-y-3">
-                                            <div>
-                                                <div class="flex justify-between items-center mb-1"><span class="text-[10px] text-gray-600">Achievement</span><span class="text-[10px] font-medium">${roiPct.toFixed(1)}%</span></div>
-                                                <div class="w-full bg-gray-200 rounded-full h-2.5"><div class="bg-gradient-to-r from-purple-500 to-purple-600 h-2.5 rounded-full" style="width:${roiPrgW}%"></div></div>
-                                            </div>
-                                            <div>
-                                                <div class="flex justify-between items-center mb-1"><span class="text-[10px] text-gray-600">Monthly Target</span><span class="text-[10px] font-medium">₱${invPerMonth.toLocaleString('en-PH', {minimumFractionDigits:0})}</span></div>
-                                                <div class="w-full bg-gray-200 rounded-full h-2.5"><div class="bg-gradient-to-r from-green-500 to-green-600 h-2.5 rounded-full" style="width:${bndPrgW}%"></div></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Location Tab -->
-                        <div id="location-tab" class="tab-content hidden">
-                            <div class="bg-white border border-gray-200 rounded-lg p-3">
-                                <h4 class="text-sm font-semibold text-gray-900 mb-2">Location Information</h4>
-                                <div class="space-y-3">
-                                    {{-- Info Row --}}
-                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
-                                        <div class="flex justify-between bg-gray-50 rounded-lg px-2 py-1.5">
-                                            <span class="text-gray-500 text-[10px]">Location:</span>
-                                            <span class="font-medium text-[10px] text-right">${locInfo.current_location || 'Not Available'}</span>
-                                        </div>
-                                        <div class="flex justify-between bg-gray-50 rounded-lg px-2 py-1.5">
-                                            <span class="text-gray-500 text-[10px]">Update:</span>
-                                            <span class="font-medium text-[10px] text-right">${locInfo.last_location_update || 'Never'}</span>
-                                        </div>
-                                        <div class="flex justify-between bg-gray-50 rounded-lg px-2 py-1.5 items-center">
-                                            <span class="text-gray-500 text-[10px]">GPS:</span>
-                                            <span class="px-1.5 py-0.5 text-[9px] rounded-full ${locInfo.gps_enabled ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
-                                                ${locInfo.gps_enabled ? 'Enabled' : 'Disabled'}
-                                            </span>
-                                        </div>
-                                    </div>
-
-                                    {{-- Tracking Status Display --}}
-                                    <div id="unitDetailMapContainer" class="relative rounded-lg overflow-hidden border border-gray-200 bg-gray-50 flex flex-col items-center justify-center p-6 text-center" style="height: 320px;">
-                                        <div class="mb-4 p-4 bg-indigo-100 rounded-full">
-                                            <i data-lucide="satellite" class="w-12 h-12 text-indigo-600"></i>
-                                        </div>
-                                        <h4 class="text-sm font-bold text-gray-900 mb-1">Tracksolid Pro Enterprise</h4>
-                                        <p class="text-xs text-gray-500 mb-4 px-4">This unit is tracked via real-time API using IMEI identification.</p>
-                                        
-                                        <div class="w-full max-w-xs space-y-2 mb-6">
-                                            <div class="flex justify-between items-center bg-white p-2 border border-gray-200 rounded text-xs">
-                                                <span class="text-gray-500">Device IMEI:</span>
-                                                <span class="font-mono font-bold text-indigo-700">${unit.imei || 'Not Set'}</span>
-                                            </div>
-                                        </div>
-
-                                        <a href="/live-tracking?unit=${unit.id}" class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-lg transition-colors">
-                                            <i data-lucide="map-pin" class="w-4 h-4"></i>
-                                            View on Live Tracking Map
-                                        </a>
-                                    </div>
-
-                                    ${locInfo.coordinates ? `
-                                        <div class="flex justify-between bg-gray-50 rounded-lg px-2 py-1.5">
-                                            <span class="text-gray-500 text-[10px]">Coordinates:</span>
-                                            <span class="font-medium text-[10px]">${locInfo.coordinates}</span>
-                                        </div>
-                                    ` : ''}
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Dashcam Tab -->
-                        <div id="dashcam-tab" class="tab-content hidden">
-                            <div class="bg-white border border-gray-200 rounded-lg p-3">
-                                <h4 class="text-sm font-semibold text-gray-900 mb-2">Dashcam Information</h4>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                    <div>
-                                        <div class="space-y-1.5 text-xs">
-                                            <div class="flex justify-between"><span class="text-gray-600">Status:</span><span class="px-1.5 py-0.5 text-[9px] rounded-full ${dashcam.dashcam_enabled ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">${dashcam.dashcam_enabled ? 'Enabled' : 'Disabled'}</span></div>
-                                            <div class="flex justify-between"><span class="text-gray-600">Connect:</span><span class="px-1.5 py-0.5 text-[9px] rounded-full ${dashcam.dashcam_status === 'Online' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}">${dashcam.dashcam_status || 'Offline'}</span></div>
-                                            <div class="flex justify-between"><span class="text-gray-600">Storage:</span><span class="font-medium text-[10px]">${parseFloat(dashcam.storage_used || 0).toFixed(1)} / ${parseFloat(dashcam.storage_total || 32).toFixed(0)} GB</span></div>
+                currentLocData = locInfo;
+[10px]">${parseFloat(dashcam.storage_used || 0).toFixed(1)} / ${parseFloat(dashcam.storage_total || 32).toFixed(0)} GB</span></div>
                                         </div>
                                     </div>
                                     <div class="bg-gray-100 rounded-lg h-20 flex items-center justify-center"><div class="text-center text-gray-500"><i data-lucide="video" class="w-6 h-6 mx-auto mb-1"></i><p class="text-[10px]">Video placeholder</p></div></div>
@@ -2325,6 +2172,80 @@
                 activeBtn.classList.remove('border-transparent', 'text-gray-500');
                 activeBtn.classList.add('border-blue-500', 'text-blue-600');
             }
+
+            // Initialize Map if Location tab is shown
+            if (tabName === 'location' && currentLocData && currentLocData.latitude) {
+                setTimeout(() => {
+                    if (unitDetailMap) {
+                        unitDetailMap.remove();
+                        unitDetailMap = null;
+                    }
+                    
+                    const lat = parseFloat(currentLocData.latitude);
+                    const lng = parseFloat(currentLocData.longitude);
+                    
+                    unitDetailMap = L.map('unitDetailMap', {
+                        zoomControl: false,
+                        attributionControl: false
+                    }).setView([lat, lng], 15);
+                    
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(unitDetailMap);
+                    
+                    const markerHtml = `
+                        <div class="relative flex flex-col items-center justify-center marker-wrapper" style="width: 50px; height: 50px;">
+                            <div style="transform: rotate(0deg); transition: transform 0.5s ease-out;" class="drop-shadow-lg pointer-events-auto cursor-pointer flex items-center justify-center">
+                                <svg width="20" height="36" viewBox="0 0 24 42" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <rect x="0" y="6" width="3" height="8" rx="1" fill="#1F2937"/>
+                                    <rect x="21" y="6" width="3" height="8" rx="1" fill="#1F2937"/>
+                                    <rect x="0" y="28" width="3" height="8" rx="1" fill="#1F2937"/>
+                                    <rect x="21" y="28" width="3" height="8" rx="1" fill="#1F2937"/>
+                                    <rect x="2" y="2" width="20" height="38" rx="6" fill="#EAB308" stroke="#713F12" stroke-width="0.5"/>
+                                    <path d="M4 12 L20 12 L18 8 L6 8 Z" fill="#111827" opacity="0.8"/>
+                                    <path d="M5 30 L19 30 L18 34 L6 34 Z" fill="#111827" opacity="0.8"/>
+                                    <rect x="4" y="14" width="16" height="14" rx="2" fill="#FEF08A"/>
+                                    <rect x="8" y="18" width="8" height="4" rx="1" fill="white" stroke="#374151" stroke-width="0.5"/>
+                                    <circle cx="5" cy="3" r="1.5" fill="#FEF08A"/>
+                                    <circle cx="19" cy="3" r="1.5" fill="#FEF08A"/>
+                                    <rect x="4" y="39" width="4" height="2" rx="0.5" fill="#EF4444"/>
+                                    <rect x="16" y="39" width="4" height="2" rx="0.5" fill="#EF4444"/>
+                                </svg>
+                            </div>
+                        </div>
+                    `;
+
+                    const carIcon = L.divIcon({
+                        className: 'bg-transparent border-0',
+                        html: markerHtml,
+                        iconSize: [50, 50],
+                        iconAnchor: [25, 25]
+                    });
+                    
+                    unitDetailMarker = L.marker([lat, lng], {icon: carIcon}).addTo(unitDetailMap);
+                        
+                    // Fix Leaflet gray box issue
+                    setTimeout(() => {
+                        unitDetailMap.invalidateSize();
+                        
+                        // Fetch Address
+                        fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`, {
+                            headers: { 'Accept-Language': 'en' }
+                        })
+                        .then(r => r.json())
+                        .then(data => {
+                            const addr = data.display_name || (lat + ', ' + lng);
+                            const addrEls = document.querySelectorAll('#location-tab .text-xs.font-black.text-gray-900');
+                            if (addrEls.length > 0) {
+                                addrEls[0].textContent = addr; // Update Current Address field
+                            }
+                            unitDetailMarker.bindPopup(`<b>Current Location</b><br><span class="text-xs">${addr}</span>`).openPopup();
+                        })
+                        .catch(() => {
+                            unitDetailMarker.bindPopup(`<b>Current Location</b><br>${lat}, ${lng}`).openPopup();
+                        });
+                    }, 300);
+                }, 200);
+            }
+
             setTimeout(() => { if (typeof lucide !== 'undefined') lucide.createIcons(); }, 100);
         }
     </script>
