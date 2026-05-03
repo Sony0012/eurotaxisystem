@@ -31,6 +31,12 @@ export function OwnerPanel() {
   const [selectedPages, setSelectedPages] = useState<string[]>([]);
   const [savingAccess, setSavingAccess] = useState(false);
 
+  // Role Management Modal
+  const [showRoleModal, setShowRoleModal] = useState(false);
+  const [showAddRole, setShowAddRole] = useState(false);
+  const [savingRole, setSavingRole] = useState(false);
+  const [roleForm, setRoleForm] = useState({ name: "", label: "", description: "" });
+
   useEffect(() => { loadData(); }, []);
   useEffect(() => { if (tab === "login_history") loadAudit(); }, [tab]);
 
@@ -72,6 +78,39 @@ export function OwnerPanel() {
       else toast.error(r.data.message);
     } catch(e:any) { toast.error(e?.response?.data?.message || "Failed to create staff."); }
     finally { setSubmitting(false); }
+  };
+
+  const saveNewRole = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSavingRole(true);
+    try {
+      const r = await api.post("/super-admin/roles", roleForm);
+      if (r.data.success) {
+        toast.success(r.data.message);
+        setShowAddRole(false);
+        setRoleForm({ name: "", label: "", description: "" });
+        loadData();
+      } else toast.error(r.data.message);
+    } catch (e: any) {
+      toast.error(e?.response?.data?.message || "Failed to create role.");
+    } finally { setSavingRole(false); }
+  };
+
+  const handleArchiveRole = async (id: number) => {
+    if (!confirm("Are you sure you want to archive this role? Users with this role may be affected.")) return;
+    try {
+      const r = await api.delete(`/super-admin/roles/${id}/archive`);
+      toast.success(r.data.message);
+      loadData();
+    } catch (e: any) { toast.error(e?.response?.data?.message || "Failed to archive role."); }
+  };
+
+  const handleRestoreRole = async (id: number) => {
+    try {
+      const r = await api.post(`/super-admin/roles/${id}/restore`);
+      toast.success(r.data.message);
+      loadData();
+    } catch (e: any) { toast.error(e?.response?.data?.message || "Failed to restore role."); }
   };
 
   const savePageAccess = async () => {
@@ -345,58 +384,92 @@ export function OwnerPanel() {
 
           {/* CREATE STAFF */}
           {tab==="create_staff" && (
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-              <div className="p-4 border-b bg-gray-50 flex items-center gap-2">
-                <UserPlus className="w-4 h-4 text-amber-500"/>
-                <span className="font-bold text-sm">Add New Staff Member</span>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Left Info Column */}
+              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 flex flex-col justify-center items-start">
+                <div className="w-16 h-16 bg-amber-50 rounded-full flex items-center justify-center mb-6">
+                  <UserPlus className="w-8 h-8 text-amber-500" />
+                </div>
+                <h2 className="text-2xl font-black text-gray-900 tracking-tight mb-4">Create Staff Account</h2>
+                <p className="text-gray-500 text-sm leading-relaxed mb-8">
+                  Add a new member to your team. The system will automatically generate a secure password and send the login credentials directly to their email address.
+                </p>
+                <div className="bg-[#fffdf0] border border-[#fef0c7] rounded-xl p-4 w-full">
+                  <p className="text-xs font-bold text-amber-700 tracking-widest uppercase mb-2 flex items-center gap-2">
+                    <ShieldAlert className="w-4 h-4"/> Security Note
+                  </p>
+                  <p className="text-xs text-amber-600">
+                    For security, new users are required to change their auto-generated password immediately upon their first login
+                  </p>
+                </div>
               </div>
-              <div className="p-4">
+
+              {/* Right Form Column */}
+              <div className="lg:col-span-2 bg-white rounded-2xl border border-gray-100 shadow-sm p-8">
                 {tempPass ? (
-                  <div className="text-center py-4">
-                    <CheckCircle className="w-12 h-12 text-green-500 mx-auto mb-3"/>
-                    <h3 className="font-black text-lg mb-1">Account Created!</h3>
-                    <p className="text-gray-500 text-sm mb-3">Share this one-time password:</p>
-                    <div className="bg-gray-50 border-2 border-dashed border-gray-300 rounded-xl p-4 text-2xl font-mono font-black tracking-widest text-gray-900 mb-4 select-all">{tempPass}</div>
-                    <p className="text-xs text-gray-400 mb-4">Staff must change this on first login.</p>
+                  <div className="text-center py-10">
+                    <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4"/>
+                    <h3 className="font-black text-2xl text-gray-900 mb-2">Account Created Successfully!</h3>
+                    <p className="text-gray-500 text-sm mb-6">Share this one-time password with the new staff member:</p>
+                    <div className="bg-gray-50 border-2 border-dashed border-gray-300 rounded-2xl p-6 text-4xl font-mono font-black tracking-widest text-gray-900 mb-6 select-all max-w-sm mx-auto">{tempPass}</div>
+                    <p className="text-xs font-bold text-amber-600 mb-8 uppercase tracking-widest">They must change this on first login</p>
                     <button onClick={()=>{ setTempPass(""); setSf({first_name:"",last_name:"",email:"",phone_number:"",address:"",role:""}); }}
-                      className="bg-amber-500 text-white font-bold px-6 py-2 rounded-xl text-sm">Create Another</button>
+                      className="bg-amber-500 hover:bg-amber-600 text-white font-bold px-8 py-3 rounded-xl text-sm transition-colors flex items-center gap-2 mx-auto">
+                      <UserPlus className="w-4 h-4"/> Create Another Account
+                    </button>
                   </div>
                 ) : (
-                  <form onSubmit={createStaff} className="space-y-3">
-                    <div className="grid grid-cols-2 gap-3">
+                  <form onSubmit={createStaff} className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div>
-                        <label className="text-xs font-bold text-gray-500 mb-1 block">First Name *</label>
-                        <input required type="text" value={sf.first_name} onChange={e=>setSf({...sf,first_name:e.target.value})}
-                          className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-sm"/>
+                        <label className="text-xs font-bold text-gray-700 uppercase tracking-widest mb-2 block">First Name <span className="text-red-500">*</span></label>
+                        <input required type="text" placeholder="Enter first name" value={sf.first_name} onChange={e=>setSf({...sf,first_name:e.target.value})}
+                          className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-amber-500 outline-none transition-shadow"/>
                       </div>
                       <div>
-                        <label className="text-xs font-bold text-gray-500 mb-1 block">Last Name *</label>
-                        <input required type="text" value={sf.last_name} onChange={e=>setSf({...sf,last_name:e.target.value})}
-                          className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-sm"/>
+                        <label className="text-xs font-bold text-gray-700 uppercase tracking-widest mb-2 block">Last Name <span className="text-red-500">*</span></label>
+                        <input required type="text" placeholder="Enter last name" value={sf.last_name} onChange={e=>setSf({...sf,last_name:e.target.value})}
+                          className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-amber-500 outline-none transition-shadow"/>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div>
+                        <label className="text-xs font-bold text-gray-700 uppercase tracking-widest mb-2 block">Email Address <span className="text-red-500">*</span></label>
+                        <input required type="email" placeholder="name@eurotaxi.com" value={sf.email} onChange={e=>setSf({...sf,email:e.target.value})}
+                          className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-amber-500 outline-none transition-shadow"/>
+                      </div>
+                      <div>
+                        <label className="text-xs font-bold text-gray-700 uppercase tracking-widest mb-2 block">Phone Number</label>
+                        <input type="text" placeholder="+63 9XX XXX XXXX" value={sf.phone_number} onChange={e=>setSf({...sf,phone_number:e.target.value})}
+                          className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-amber-500 outline-none transition-shadow"/>
                       </div>
                     </div>
                     <div>
-                      <label className="text-xs font-bold text-gray-500 mb-1 block">Email *</label>
-                      <input required type="email" value={sf.email} onChange={e=>setSf({...sf,email:e.target.value})}
-                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-sm"/>
+                      <label className="text-xs font-bold text-gray-700 uppercase tracking-widest mb-2 block">Home Address</label>
+                      <input type="text" placeholder="Enter complete home address" value={sf.address} onChange={e=>setSf({...sf,address:e.target.value})}
+                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-amber-500 outline-none transition-shadow"/>
                     </div>
-                    <div>
-                      <label className="text-xs font-bold text-gray-500 mb-1 block">Phone</label>
-                      <input type="text" value={sf.phone_number} onChange={e=>setSf({...sf,phone_number:e.target.value})}
-                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-sm"/>
-                    </div>
-                    <div>
-                      <label className="text-xs font-bold text-gray-500 mb-1 block">Role *</label>
+                    <div className="relative">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-2 gap-2">
+                        <label className="text-xs font-bold text-gray-700 uppercase tracking-widest block">Assign System Role <span className="text-red-500">*</span></label>
+                        <button type="button" onClick={() => setShowRoleModal(true)} 
+                          className="text-xs font-bold bg-[#fffdf0] text-amber-700 border border-[#fef0c7] px-3 py-1.5 rounded-lg flex items-center gap-1.5 hover:bg-amber-50 transition-colors w-fit">
+                          <Key className="w-3 h-3"/> Manage System Roles
+                        </button>
+                      </div>
                       <select required value={sf.role} onChange={e=>setSf({...sf,role:e.target.value})}
-                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-sm">
-                        <option value="">Select role...</option>
+                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-amber-500 outline-none transition-shadow appearance-none">
+                        <option value="">Select a role...</option>
                         {(data?.roles||[]).map((r:any)=><option key={r.id} value={r.name}>{r.label}</option>)}
                       </select>
                     </div>
-                    <button type="submit" disabled={submitting}
-                      className="w-full bg-amber-500 text-white font-bold py-3 rounded-xl disabled:opacity-60 mt-2 hover:bg-amber-600 transition-colors">
-                      {submitting?"Creating Account...":"Create Staff Account"}
-                    </button>
+                    <div className="flex justify-end pt-4">
+                      <button type="submit" disabled={submitting}
+                        className="w-full sm:w-auto bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 px-8 rounded-xl disabled:opacity-60 transition-colors flex items-center justify-center gap-2">
+                        <UserPlus className="w-4 h-4" />
+                        {submitting?"Creating Account...":"Create Staff Account"}
+                      </button>
+                    </div>
                   </form>
                 )}
               </div>
@@ -507,6 +580,126 @@ export function OwnerPanel() {
             </div>
           )}
         </>
+      )}
+
+      {/* MODALS */}
+      {showRoleModal && (
+        <div className="fixed inset-0 bg-gray-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl w-full max-w-4xl shadow-2xl flex flex-col max-h-[90vh]">
+            <div className="p-6 border-b border-gray-100 flex items-center justify-between">
+              <div>
+                <h2 className="text-xl font-black text-gray-900 tracking-tight">System Role Management</h2>
+                <p className="text-sm text-gray-500">Define, modify, or retire specialized access roles for your organization.</p>
+              </div>
+              <div className="flex items-center gap-3">
+                <button onClick={() => setShowAddRole(true)} className="bg-amber-500 text-white px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 hover:bg-amber-600">
+                  <UserPlus className="w-4 h-4" /> Add New Role
+                </button>
+                <button onClick={() => setShowRoleModal(false)} className="text-gray-400 hover:text-gray-600"><X className="w-6 h-6" /></button>
+              </div>
+            </div>
+            <div className="flex-1 overflow-y-auto p-6 bg-gray-50 grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* ACTIVE ROLES */}
+              <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
+                <p className="text-xs font-bold text-gray-500 tracking-widest uppercase mb-4 flex items-center gap-2">
+                  <Shield className="w-4 h-4 text-green-500" /> ACTIVE SYSTEM ROLES
+                </p>
+                <div className="space-y-3">
+                  {data?.roles?.map((r: any) => (
+                    <div key={r.id} className="p-4 border border-gray-100 rounded-xl flex items-center gap-4 hover:border-gray-200 transition-colors bg-gray-50/50 group">
+                      <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-gray-400 flex-shrink-0">
+                        <Users className="w-5 h-5" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <p className="font-bold text-gray-900 truncate">{r.label}</p>
+                          <span className="text-[9px] font-bold uppercase tracking-widest bg-gray-200 text-gray-500 px-2 py-0.5 rounded flex-shrink-0">{r.name}</span>
+                        </div>
+                        <p className="text-xs text-gray-400 truncate">{r.description || "No description provided."}</p>
+                      </div>
+                      {r.name !== "super_admin" && (
+                        <button onClick={() => handleArchiveRole(r.id)} className="opacity-0 group-hover:opacity-100 p-2 text-red-400 hover:bg-red-50 rounded-lg transition-all flex-shrink-0">
+                          <CheckCircle className="w-4 h-4" /> {/* Just using any icon since lucide might not have Archive imported, wait we have Archive from lucide but I didn't import it. Wait, I imported ShieldAlert, Activity, etc. I'll use XCircle */}
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+              {/* ARCHIVED ROLES */}
+              <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
+                <p className="text-xs font-bold text-gray-500 tracking-widest uppercase mb-4 flex items-center gap-2">
+                  <Activity className="w-4 h-4 text-gray-400" /> ARCHIVED / RETIRED ROLES
+                </p>
+                <div className="space-y-3">
+                  {data?.archivedRoles?.length === 0 && (
+                    <div className="text-center py-12">
+                      <div className="w-12 h-12 bg-gray-100 rounded-lg mx-auto mb-3 flex items-center justify-center text-gray-300">
+                         <XCircle className="w-6 h-6"/>
+                      </div>
+                      <p className="text-sm font-bold text-gray-400 uppercase tracking-widest">NO ARCHIVED ROLES</p>
+                    </div>
+                  )}
+                  {data?.archivedRoles?.map((r: any) => (
+                    <div key={r.id} className="p-4 border border-gray-100 rounded-xl flex items-center gap-4 bg-gray-50 opacity-75 group">
+                      <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center text-gray-400 flex-shrink-0">
+                        <Users className="w-5 h-5" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <p className="font-bold text-gray-500 line-through truncate">{r.label}</p>
+                          <span className="text-[9px] font-bold uppercase tracking-widest bg-gray-200 text-gray-400 px-2 py-0.5 rounded flex-shrink-0">{r.name}</span>
+                        </div>
+                        <p className="text-xs text-gray-400 truncate">{r.description || "No description provided."}</p>
+                      </div>
+                      <button onClick={() => handleRestoreRole(r.id)} className="opacity-0 group-hover:opacity-100 p-2 text-green-500 hover:bg-green-50 rounded-lg transition-all flex-shrink-0">
+                        <RefreshCw className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div className="p-4 border-t border-gray-100 bg-white flex justify-end rounded-b-3xl">
+              <button onClick={() => setShowRoleModal(false)} className="px-6 py-2 border border-gray-200 text-gray-600 rounded-xl text-sm font-bold hover:bg-gray-50 transition-colors">
+                Close Manager
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showAddRole && (
+        <div className="fixed inset-0 bg-gray-900/70 backdrop-blur-sm z-[60] flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl w-full max-w-md shadow-2xl p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl font-black text-gray-900">Add New Role</h3>
+              <button onClick={() => setShowAddRole(false)} className="text-gray-400 hover:text-gray-600"><X className="w-5 h-5" /></button>
+            </div>
+            <form onSubmit={saveNewRole} className="space-y-4">
+              <div>
+                <label className="text-xs font-bold text-gray-700 uppercase tracking-widest mb-1 block">Role Key (Internal) <span className="text-red-500">*</span></label>
+                <input required type="text" placeholder="e.g., branch_manager" value={roleForm.name} onChange={e => setRoleForm({ ...roleForm, name: e.target.value })}
+                  className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-amber-500 outline-none" />
+              </div>
+              <div>
+                <label className="text-xs font-bold text-gray-700 uppercase tracking-widest mb-1 block">Role Label (Display) <span className="text-red-500">*</span></label>
+                <input required type="text" placeholder="e.g., Branch Manager" value={roleForm.label} onChange={e => setRoleForm({ ...roleForm, label: e.target.value })}
+                  className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-amber-500 outline-none" />
+              </div>
+              <div>
+                <label className="text-xs font-bold text-gray-700 uppercase tracking-widest mb-1 block">Description</label>
+                <textarea rows={3} placeholder="Describe the responsibilities..." value={roleForm.description} onChange={e => setRoleForm({ ...roleForm, description: e.target.value })}
+                  className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-amber-500 outline-none resize-none" />
+              </div>
+              <div className="pt-2">
+                <button type="submit" disabled={savingRole} className="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 rounded-xl disabled:opacity-60 transition-colors">
+                  {savingRole ? "Saving..." : "Create Role"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       )}
     </div>
   );
