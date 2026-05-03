@@ -495,7 +495,7 @@ export function Dashboard() {
       {/* MODALS - Minimal Update needed to match new theme */}
       {activeModal==="units" && <Modal title="Units Overview" color="bg-indigo-600" onClose={()=>setActiveModal(null)}><FleetModal stats={stats} modal={modal} navigate={navigate} /></Modal>}
       {activeModal==="boundary" && <Modal title="Daily Boundary Collections" color="bg-emerald-600" onClose={()=>setActiveModal(null)}><BoundaryModal stats={stats} modal={modal} navigate={navigate} /></Modal>}
-      {activeModal==="income" && <Modal title="Net Income" color="bg-green-600" onClose={()=>setActiveModal(null)}><IncomeModal stats={stats} /></Modal>}
+      {activeModal==="income" && <Modal title="Net Income Details" color="bg-emerald-600" onClose={()=>setActiveModal(null)}><IncomeModal stats={stats} modal={modal} /></Modal>}
       {activeModal==="maintenance" && <Modal title="Units Under Maintenance" color="bg-orange-500" onClose={()=>setActiveModal(null)}><MaintenanceModal modal={modal} /></Modal>}
       {activeModal==="drivers" && <Modal title="Active Drivers" color="bg-indigo-600" onClose={()=>setActiveModal(null)}><DriversModal modal={modal} /></Modal>}
       {activeModal==="expenses" && <Modal title="Total Expenses" color="bg-rose-500" onClose={()=>setActiveModal(null)}><ExpensesModal stats={stats} /></Modal>}
@@ -694,15 +694,110 @@ function BoundaryModal({stats, modal, navigate}: any) {
   );
 }
 
-function IncomeModal({stats}: any) {
+function IncomeModal({stats, modal}: any) {
+  const [tab, setTab] = useState('today');
+
+  const boundaries = modal?.boundaryList || [];
+  const maintenance = modal?.maintenanceToday || [];
+  const expenses = modal?.expenseGeneralList || [];
+  const salaries = modal?.salaryList || [];
+
   return (
-    <div className="space-y-3">
-      {[["Today Boundary",stats?.today_boundary,"text-blue-600"],["Today Expenses",-(stats?.today_expenses||0),"text-red-600"],["Today Net Income",stats?.net_income,(stats?.net_income||0)>=0?"text-green-600":"text-red-600"],["Month Boundary",stats?.month_boundary,"text-blue-600"],["Month Net Income",stats?.net_income_month,(stats?.net_income_month||0)>=0?"text-green-600":"text-red-600"]].map(([l,v,c]:any)=>(
-        <div key={l} className="flex justify-between items-center p-4 bg-gray-50 rounded-2xl border border-gray-100">
-          <span className="text-xs font-bold text-gray-500 uppercase tracking-widest">{l}</span>
-          <span className={`font-black text-base ${c}`}>{fmt(v)}</span>
-        </div>
-      ))}
+    <div className="space-y-6">
+       {/* Tabs */}
+       <div className="bg-emerald-800/10 p-1 rounded-2xl flex gap-1">
+          {['Today', 'Weekly', 'Monthly', 'Yearly'].map(t => (
+             <button key={t} onClick={()=>setTab(t.toLowerCase())}
+                className={`flex-1 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${tab === t.toLowerCase() ? 'bg-white text-emerald-700 shadow-sm' : 'text-gray-400 hover:bg-white/50'}`}>
+                {t}
+             </button>
+          ))}
+       </div>
+
+       {/* Revenue Section */}
+       <div className="rounded-[1.5rem] overflow-hidden border border-slate-200 shadow-sm">
+          <div className="bg-slate-900 p-4 flex justify-between items-center">
+             <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Revenue: Total Boundary Collected</p>
+             <p className="text-sm font-black text-emerald-400">{fmt(stats?.today_boundary)}</p>
+          </div>
+          <div className="bg-white p-4">
+             <div className="flex justify-between pb-2 mb-2 border-b border-gray-50 text-[8px] font-black text-gray-400 uppercase tracking-widest">
+                <span>Unit / Driver Detail</span>
+                <span className="text-right">Amount Collected</span>
+             </div>
+             <div className="max-h-40 overflow-y-auto space-y-2">
+                {boundaries.length === 0 ? (
+                   <p className="py-4 text-center text-[10px] font-bold text-gray-300 uppercase italic">No records found</p>
+                ) : boundaries.map((b: any) => (
+                   <div key={b.id} className="flex justify-between items-center text-[10px]">
+                      <div className="flex flex-col">
+                         <span className="font-black text-gray-900">{b.plate_number}</span>
+                         <span className="text-[8px] text-gray-400 uppercase font-bold">{b.driver_name || 'No Driver'}</span>
+                      </div>
+                      <span className="font-black text-emerald-600">{fmt(b.actual_boundary)}</span>
+                   </div>
+                ))}
+             </div>
+          </div>
+       </div>
+
+       {/* Expenses Section */}
+       <div className="rounded-[1.5rem] overflow-hidden border border-rose-200 shadow-sm">
+          <div className="bg-rose-800 p-4 flex justify-between items-center">
+             <p className="text-[9px] font-black text-rose-100 uppercase tracking-widest">Operating Expenses Breakdown</p>
+             <p className="text-sm font-black text-white">{fmt(stats?.today_expenses)}</p>
+          </div>
+          <div className="bg-white p-4 space-y-6">
+             {/* Maintenance */}
+             <div>
+                <div className="flex justify-between items-center mb-3">
+                   <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest">Maintenance & Repairs Itemized</p>
+                   <p className="text-[8px] font-black text-rose-600 uppercase">Total: {fmt(maintenance.reduce((a:any,b:any)=>a+b.cost,0))}</p>
+                </div>
+                <div className="space-y-1">
+                   {maintenance.length === 0 ? (
+                      <p className="py-2 text-center text-[9px] font-bold text-gray-200 uppercase italic">No records found</p>
+                   ) : maintenance.map((m: any) => (
+                      <div key={m.id} className="flex justify-between text-[9px] font-bold">
+                         <span className="text-gray-600">{m.plate_number} - {m.type}</span>
+                         <span className="text-rose-600">{fmt(m.cost)}</span>
+                      </div>
+                   ))}
+                </div>
+             </div>
+
+             {/* General Expenses */}
+             <div className="pt-4 border-t border-gray-100">
+                <div className="flex justify-between items-center mb-3">
+                   <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest">General Office Expenses Itemized</p>
+                   <p className="text-[8px] font-black text-rose-600 uppercase">Total: {fmt(expenses.reduce((a:any,b:any)=>a+b.amount,0))}</p>
+                </div>
+                <div className="space-y-3">
+                   <div className="flex justify-between text-[7px] font-black text-gray-300 uppercase">
+                      <span className="w-16">Date</span>
+                      <span className="flex-1 px-4">Description</span>
+                      <span className="w-16 text-right">Amount</span>
+                   </div>
+                   <div className="max-h-48 overflow-y-auto space-y-2">
+                      {expenses.length === 0 ? (
+                         <p className="py-2 text-center text-[9px] font-bold text-gray-200 uppercase italic">No records found</p>
+                      ) : expenses.map((e: any) => (
+                         <div key={e.id} className="flex justify-between text-[9px] font-bold gap-4 items-start">
+                            <span className="text-gray-400 w-16 whitespace-nowrap">{dayjs(e.date).format('M/D/YYYY')}</span>
+                            <span className="flex-1 text-gray-900 leading-tight">{e.description}</span>
+                            <span className="text-rose-600 w-16 text-right">{fmt(e.amount)}</span>
+                         </div>
+                      ))}
+                   </div>
+                </div>
+             </div>
+          </div>
+       </div>
+
+       <button className="w-full bg-emerald-600 text-white font-black py-4 rounded-2xl shadow-lg shadow-emerald-100 flex items-center justify-center gap-2 active:scale-95 transition-all">
+          <TrendingUp className="w-4 h-4"/>
+          PRINT REPORT
+       </button>
     </div>
   );
 }

@@ -260,6 +260,27 @@ class DashboardController extends Controller
                 ];
             });
 
+        // General expenses list for today
+        $expenseGeneralList = DB::table('expenses')
+            ->whereNull('deleted_at')
+            ->whereDate('date', $today)
+            ->select('id', 'category', 'description', 'amount', 'date')
+            ->get();
+
+        // Salary list for today
+        $salaryList = DB::table('salaries')
+            ->whereDate('pay_date', $today)
+            ->select('id', 'total_salary', 'pay_date')
+            ->get();
+
+        // Maintenance for today (itemized)
+        $maintenanceToday = DB::table('maintenance')
+            ->join('units', 'maintenance.unit_id', '=', 'units.id')
+            ->select('maintenance.id', 'maintenance.maintenance_type as type', 'maintenance.cost', 'maintenance.description', 'units.plate_number')
+            ->whereNull('maintenance.deleted_at')
+            ->whereDate('maintenance.date_started', $today)
+            ->get();
+
         // Executive Insights (Harmonizing with Web hardcoded/static values for parity)
         $topPerformerUnit = !empty($unitPerformance) ? $unitPerformance[0]['plate'] : 'N/A';
         $topPerformerDriver = !empty($topDrivers) ? $topDrivers[0]['name'] : 'N/A';
@@ -282,11 +303,14 @@ class DashboardController extends Controller
                 'topPerformerDriver' => $topPerformerDriver
             ],
             'modalData'  => [
-                'maintenanceList' => $maintenanceList,
-                'driversList'     => $driversList,
-                'codingList'      => $codingList,
-                'unitsList'       => $unitsList,
-                'boundaryList'    => $boundaryList,
+                'maintenanceList'      => $maintenanceList,
+                'maintenanceToday'     => $maintenanceToday,
+                'driversList'          => $driversList,
+                'codingList'           => $codingList,
+                'unitsList'            => $unitsList,
+                'boundaryList'         => $boundaryList,
+                'expenseGeneralList'   => $expenseGeneralList,
+                'salaryList'           => $salaryList,
             ]
         ]);
     }
