@@ -152,20 +152,22 @@ export function Dashboard() {
         </div>
         
         <div className="p-4 grid grid-cols-1 gap-6">
-          <div className="h-[280px]">
+          <div className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={charts?.unitPerformance||[]} layout="vertical" margin={{ left: 5, right: 20, top: 0, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f8fafc"/>
+              <BarChart data={charts?.unitPerformance||[]} layout="vertical" margin={{ left: -10, right: 30, top: 0, bottom: 0 }} barGap={-16}>
+                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f1f5f9"/>
                 <XAxis type="number" hide />
-                <YAxis type="category" dataKey="plate" tick={{fontSize:10, fontWeight:900, fill:'#1e293b'}} axisLine={false} tickLine={false} width={80}/>
+                <YAxis type="category" dataKey="plate" tick={{fontSize:9, fontWeight:900, fill:'#64748b'}} axisLine={false} tickLine={false} width={70}/>
                 <Tooltip 
-                  cursor={{fill: '#f8fafc'}}
-                  contentStyle={{borderRadius: 16, border: 'none', boxShadow: '0 10px 30px rgba(0,0,0,0.1)', padding: '12px'}}
+                  cursor={{fill: 'transparent'}}
+                  contentStyle={{borderRadius: 12, border: 'none', boxShadow: '0 8px 24px rgba(0,0,0,0.1)', padding: '10px'}}
                   formatter={(v:any)=>fmt(v)}
                 />
-                <Bar dataKey="actual" name="Actual Collection" fill="#3b82f6" radius={[0, 6, 6, 0]} barSize={12} />
-                <Bar dataKey="target" name="Monthly Target" fill="#fcd34d" radius={[0, 6, 6, 0]} barSize={12} />
-                <Legend iconType="circle" wrapperStyle={{paddingTop: 20, fontSize: 10, fontWeight: 700}} />
+                {/* Target Bar (Hollow/Border only) */}
+                <Bar dataKey="target" name="Monthly Target" fill="transparent" stroke="#fcd34d" strokeWidth={1.5} radius={[0, 4, 4, 0]} barSize={16} />
+                {/* Actual Bar (Solid Blue) */}
+                <Bar dataKey="actual" name="Actual Collection" fill="#3b82f6" radius={[0, 4, 4, 0]} barSize={8} />
+                <Legend iconType="circle" wrapperStyle={{paddingTop: 10, fontSize: 9, fontWeight: 700}} />
               </BarChart>
             </ResponsiveContainer>
           </div>
