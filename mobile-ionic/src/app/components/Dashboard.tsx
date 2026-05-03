@@ -697,10 +697,14 @@ function BoundaryModal({stats, modal, navigate}: any) {
 function IncomeModal({stats, modal}: any) {
   const [tab, setTab] = useState('today');
 
-  const boundaries = modal?.boundaryList || [];
-  const maintenance = modal?.maintenanceToday || [];
-  const expenses = modal?.expenseGeneralList || [];
-  const salaries = modal?.salaryList || [];
+  const data = modal?.financialBreakdown?.[tab] || {
+    total_revenue: 0,
+    total_expenses: 0,
+    boundaries: [],
+    maintenance: [],
+    general: [],
+    salaries: []
+  };
 
   return (
     <div className="space-y-6">
@@ -718,7 +722,7 @@ function IncomeModal({stats, modal}: any) {
        <div className="rounded-[1.5rem] overflow-hidden border border-slate-200 shadow-sm">
           <div className="bg-slate-900 p-4 flex justify-between items-center">
              <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Revenue: Total Boundary Collected</p>
-             <p className="text-sm font-black text-emerald-400">{fmt(stats?.today_boundary)}</p>
+             <p className="text-sm font-black text-emerald-400">{fmt(data.total_revenue)}</p>
           </div>
           <div className="bg-white p-4">
              <div className="flex justify-between pb-2 mb-2 border-b border-gray-50 text-[8px] font-black text-gray-400 uppercase tracking-widest">
@@ -726,9 +730,9 @@ function IncomeModal({stats, modal}: any) {
                 <span className="text-right">Amount Collected</span>
              </div>
              <div className="max-h-40 overflow-y-auto space-y-2">
-                {boundaries.length === 0 ? (
+                {data.boundaries.length === 0 ? (
                    <p className="py-4 text-center text-[10px] font-bold text-gray-300 uppercase italic">No records found</p>
-                ) : boundaries.map((b: any) => (
+                ) : data.boundaries.map((b: any) => (
                    <div key={b.id} className="flex justify-between items-center text-[10px]">
                       <div className="flex flex-col">
                          <span className="font-black text-gray-900">{b.plate_number}</span>
@@ -745,19 +749,19 @@ function IncomeModal({stats, modal}: any) {
        <div className="rounded-[1.5rem] overflow-hidden border border-rose-200 shadow-sm">
           <div className="bg-rose-800 p-4 flex justify-between items-center">
              <p className="text-[9px] font-black text-rose-100 uppercase tracking-widest">Operating Expenses Breakdown</p>
-             <p className="text-sm font-black text-white">{fmt(stats?.today_expenses)}</p>
+             <p className="text-sm font-black text-white">{fmt(data.total_expenses)}</p>
           </div>
           <div className="bg-white p-4 space-y-6">
              {/* Maintenance */}
              <div>
                 <div className="flex justify-between items-center mb-3">
                    <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest">Maintenance & Repairs Itemized</p>
-                   <p className="text-[8px] font-black text-rose-600 uppercase">Total: {fmt(maintenance.reduce((a:any,b:any)=>a+b.cost,0))}</p>
+                   <p className="text-[8px] font-black text-rose-600 uppercase">Total: {fmt(data.maintenance.reduce((a:any,b:any)=>a+b.cost,0))}</p>
                 </div>
                 <div className="space-y-1">
-                   {maintenance.length === 0 ? (
+                   {data.maintenance.length === 0 ? (
                       <p className="py-2 text-center text-[9px] font-bold text-gray-200 uppercase italic">No records found</p>
-                   ) : maintenance.map((m: any) => (
+                   ) : data.maintenance.map((m: any) => (
                       <div key={m.id} className="flex justify-between text-[9px] font-bold">
                          <span className="text-gray-600">{m.plate_number} - {m.type}</span>
                          <span className="text-rose-600">{fmt(m.cost)}</span>
@@ -770,7 +774,7 @@ function IncomeModal({stats, modal}: any) {
              <div className="pt-4 border-t border-gray-100">
                 <div className="flex justify-between items-center mb-3">
                    <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest">General Office Expenses Itemized</p>
-                   <p className="text-[8px] font-black text-rose-600 uppercase">Total: {fmt(expenses.reduce((a:any,b:any)=>a+b.amount,0))}</p>
+                   <p className="text-[8px] font-black text-rose-600 uppercase">Total: {fmt(data.general.reduce((a:any,b:any)=>a+b.amount,0))}</p>
                 </div>
                 <div className="space-y-3">
                    <div className="flex justify-between text-[7px] font-black text-gray-300 uppercase">
@@ -779,9 +783,9 @@ function IncomeModal({stats, modal}: any) {
                       <span className="w-16 text-right">Amount</span>
                    </div>
                    <div className="max-h-48 overflow-y-auto space-y-2">
-                      {expenses.length === 0 ? (
+                      {data.general.length === 0 ? (
                          <p className="py-2 text-center text-[9px] font-bold text-gray-200 uppercase italic">No records found</p>
-                      ) : expenses.map((e: any) => (
+                      ) : data.general.map((e: any) => (
                          <div key={e.id} className="flex justify-between text-[9px] font-bold gap-4 items-start">
                             <span className="text-gray-400 w-16 whitespace-nowrap">{dayjs(e.date).format('M/D/YYYY')}</span>
                             <span className="flex-1 text-gray-900 leading-tight">{e.description}</span>

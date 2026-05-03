@@ -260,26 +260,49 @@ class DashboardController extends Controller
                 ];
             });
 
-        // General expenses list for today
-        $expenseGeneralList = DB::table('expenses')
-            ->whereNull('deleted_at')
-            ->whereDate('date', $today)
-            ->select('id', 'category', 'description', 'amount', 'date')
-            ->get();
+        // ── FINANCIAL BREAKDOWN (Multi-period for Modal) ───────────────────────
+        $periods = [
+            'today'   => [$today, $today],
+            'weekly'  => [now()->timezone('Asia/Manila')->startOfWeek()->toDateString(), $today],
+            'monthly' => [now()->timezone('Asia/Manila')->startOfMonth()->toDateString(), $today],
+            'yearly'  => [now()->timezone('Asia/Manila')->startOfYear()->toDateString(), $today]
+        ];
 
-        // Salary list for today
-        $salaryList = DB::table('salaries')
-            ->whereDate('pay_date', $today)
-            ->select('id', 'total_salary', 'pay_date')
-            ->get();
-
-        // Maintenance for today (itemized)
-        $maintenanceToday = DB::table('maintenance')
-            ->join('units', 'maintenance.unit_id', '=', 'units.id')
-            ->select('maintenance.id', 'maintenance.maintenance_type as type', 'maintenance.cost', 'maintenance.description', 'units.plate_number')
-            ->whereNull('maintenance.deleted_at')
-            ->whereDate('maintenance.date_started', $today)
-            ->get();
+        $financialBreakdown = [];
+        foreach ($periods as $key => [$start, $end]) {
+            $rev = (float)(DB::table('boundaries')->whereNull('deleted_at')->whereBetween('date', [$start, $end])->sum('actual_boundary') ?? 0);
+            
+            $gx = (float)(DB::table('expenses')->whereNull('deleted_at')->whereBetween('date', [$start, $end])->sum('amount') ?? 0);
+            $sx = (float)(DB::table('salaries')->whereBetween('pay_date', [$start, $end])->sum('total_salary') ?? 0);
+            $mx = (float)(DB::table('maintenance')->whereNull('deleted_at')->whereBetween('date_started', [$start, $end])->where('status', '!=', 'cancelled')->sum('cost') ?? 0);
+            
+            $financialBreakdown[$key] = [
+                'total_revenue'  => $rev,
+                'total_expenses' => $gx + $sx + $mx,
+                'boundaries'     => DB::table('boundaries as b')
+                                    ->join('units as u', 'b.unit_id', '=', 'u.id')
+                                    ->leftJoin('drivers as d', 'b.driver_id', '=', 'd.id')
+                                    ->select('b.id', 'b.actual_boundary', 'u.plate_number', DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')) as driver_name"))
+                                    ->whereNull('b.deleted_at')
+                                    ->whereBetween('b.date', [$start, $end])
+                                    ->limit(50)->get(),
+                'maintenance'    => DB::table('maintenance as m')
+                                    ->join('units as u', 'm.unit_id', '=', 'u.id')
+                                    ->select('m.id', 'm.maintenance_type as type', 'm.cost', 'm.description', 'u.plate_number')
+                                    ->whereNull('m.deleted_at')
+                                    ->whereBetween('m.date_started', [$start, $end])
+                                    ->limit(50)->get(),
+                'general'        => DB::table('expenses')
+                                    ->whereNull('deleted_at')
+                                    ->whereBetween('date', [$start, $end])
+                                    ->select('id', 'category', 'description', 'amount', 'date')
+                                    ->limit(50)->get(),
+                'salaries'       => DB::table('salaries')
+                                    ->whereBetween('pay_date', [$start, $end])
+                                    ->select('id', 'total_salary', 'pay_date')
+                                    ->limit(50)->get(),
+            ];
+        }
 
         // Executive Insights (Harmonizing with Web hardcoded/static values for parity)
         $topPerformerUnit = !empty($unitPerformance) ? $unitPerformance[0]['plate'] : 'N/A';
@@ -304,13 +327,11 @@ class DashboardController extends Controller
             ],
             'modalData'  => [
                 'maintenanceList'      => $maintenanceList,
-                'maintenanceToday'     => $maintenanceToday,
                 'driversList'          => $driversList,
                 'codingList'           => $codingList,
                 'unitsList'            => $unitsList,
                 'boundaryList'         => $boundaryList,
-                'expenseGeneralList'   => $expenseGeneralList,
-                'salaryList'           => $salaryList,
+                'financialBreakdown'   => $financialBreakdown
             ]
         ]);
     }
