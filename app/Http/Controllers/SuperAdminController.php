@@ -109,7 +109,6 @@ class SuperAdminController extends Controller
             ->get();
 
         $allUsers = User::whereNotIn('role', ['super_admin'])
-            ->withTrashed()
             ->orderByRaw("FIELD(approval_status, 'pending', 'approved', 'rejected')")
             ->orderByDesc('created_at')
             ->get();

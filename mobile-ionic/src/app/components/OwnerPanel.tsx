@@ -203,11 +203,12 @@ export function OwnerPanel() {
     {id:"system_security", label:"SYSTEM SECURITY", icon:Lock},
   ];
 
-  const filteredUsers = (data?.allUsers||[]).filter((u:any) =>
-    u.full_name?.toLowerCase().includes(search.toLowerCase()) ||
-    u.email?.toLowerCase().includes(search.toLowerCase()) ||
-    u.role?.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredUsers = (data?.allUsers||[]).filter((u:any) => {
+    const matchesSearch = u.full_name?.toLowerCase().includes(search.toLowerCase()) ||
+      u.email?.toLowerCase().includes(search.toLowerCase()) ||
+      u.role?.toLowerCase().includes(search.toLowerCase());
+    return matchesSearch && !u.deleted_at;
+  });
 
   const statusColor = (s:string) => s==="approved"?"bg-green-100 text-green-700":s==="pending"?"bg-amber-100 text-amber-700":"bg-red-100 text-red-700";
 
