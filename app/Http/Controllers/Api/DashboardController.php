@@ -147,18 +147,19 @@ class DashboardController extends Controller
 
         // 6. Top Drivers (by boundary collected this month)
         $topDrivers = DB::table('boundaries')
-            ->join('drivers', 'boundaries.driver_id', '=', 'drivers.id')
+            ->leftJoin('drivers', 'boundaries.driver_id', '=', 'drivers.id')
             ->select('drivers.first_name', 'drivers.last_name', DB::raw('SUM(boundaries.actual_boundary) as total'))
             ->whereNull('boundaries.deleted_at')
+            ->whereNotNull('boundaries.driver_id')
             ->whereDate('boundaries.date', '>=', $startOfMonth)
             ->whereIn('boundaries.status', ['paid', 'excess', 'shortage'])
             ->groupBy('drivers.id', 'drivers.first_name', 'drivers.last_name')
             ->orderByDesc('total')->limit(10)->get();
 
         $topDriversData = $topDrivers->map(fn($d) => [
-            'name' => trim($d->first_name . ' ' . $d->last_name),
+            'name' => trim(($d->first_name ?? '') . ' ' . ($d->last_name ?? '')),
             'total' => (float)$d->total
-        ])->toArray();
+        ])->filter(fn($d) => $d['name'] !== '')->values()->toArray();
 
         // ── MODAL DATA ─────────────────────────────────────────────────────────
 
@@ -170,7 +171,7 @@ class DashboardController extends Controller
                 'maintenance.id', 'maintenance.type', 'maintenance.status',
                 'maintenance.cost', 'maintenance.description',
                 'maintenance.date_started', 'maintenance.date_completed',
-                'units.plate_number', 'units.unit_number',
+                'units.plate_number',
                 DB::raw("CONCAT(COALESCE(drivers.first_name,''), ' ', COALESCE(drivers.last_name,'')) as driver_name")
             )
             ->whereNull('maintenance.deleted_at')->whereNull('units.deleted_at')
@@ -181,8 +182,8 @@ class DashboardController extends Controller
             ->leftJoin('units', 'drivers.id', '=', 'units.driver_id')
             ->select(
                 'drivers.id', 'drivers.first_name', 'drivers.last_name',
-                'drivers.contact_number', 'drivers.license_number', 'drivers.status',
-                'units.plate_number', 'units.unit_number'
+                'drivers.contact_number', 'drivers.license_number', 'drivers.driver_status',
+                'units.plate_number'
             )
             ->whereNull('drivers.deleted_at')
             ->orderBy('drivers.first_name')->limit(100)->get();
