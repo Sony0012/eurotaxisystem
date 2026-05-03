@@ -87,57 +87,54 @@ export function Dashboard() {
   ];
 
   return (
-    <div className="space-y-6 pb-20">
-      {/* Header matching web dashboard precisely */}
-      <div className="flex flex-col gap-1">
+    <div className="space-y-4 pb-20 p-2">
+      {/* Header matching web dashboard precisely but more compact */}
+      <div className="flex flex-col gap-0.5">
         <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-black text-gray-900 tracking-tight">Euro Taxi System</h1>
-          <button onClick={load} className="p-2.5 bg-gray-100 rounded-2xl active:bg-gray-200 transition-colors">
-            <RefreshCw className="w-5 h-5 text-gray-500"/>
+          <h1 className="text-xl font-black text-gray-900 tracking-tight">Euro Taxi System</h1>
+          <button onClick={load} className="p-2 bg-gray-100 rounded-xl active:bg-gray-200 transition-colors">
+            <RefreshCw className="w-4 h-4 text-gray-500"/>
           </button>
         </div>
-        <p className="text-xs font-medium text-gray-400">Professional taxi fleet management and real-time tracking solutions</p>
-        <div className="flex items-center gap-2 mt-2">
-           <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></div>
-           <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Live System Update • {new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}</p>
+        <div className="flex items-center gap-2">
+           <div className="w-1 h-1 bg-green-500 rounded-full animate-pulse"></div>
+           <p className="text-[8px] font-bold text-gray-400 uppercase tracking-widest">Live • {new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}</p>
         </div>
       </div>
 
-      {/* Hero Stats Section - Premium Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* Hero Stats Section - Premium Cards (Small & Compact) */}
+      <div className="grid grid-cols-2 gap-3">
         {cards.slice(0, 4).map(s=>(
           <div key={s.id} onClick={()=>setActiveModal(s.id)}
-            className={`cursor-pointer group relative overflow-hidden rounded-[2rem] ${s.bg} border ${s.bd} p-6 shadow-sm active:scale-[0.98] transition-all`}>
+            className={`cursor-pointer group relative overflow-hidden rounded-[1.5rem] ${s.bg} border ${s.bd} p-4 shadow-sm active:scale-[0.95] transition-all`}>
             {/* Wave Background logic */}
             <div className="absolute bottom-0 right-0 left-0 h-1/2 opacity-20 pointer-events-none" style={{ background: `radial-gradient(circle at 100% 100%, ${s.wave}, transparent)` }}></div>
             
-            <div className="flex items-start justify-between mb-4 relative z-10">
-              <div className="flex items-center gap-3">
-                <div className={`p-3 bg-white rounded-2xl shadow-sm ${s.c}`}><s.icon className="w-5 h-5"/></div>
-                <p className="text-[11px] font-black text-gray-500 uppercase tracking-[0.1em]">{s.label}</p>
-              </div>
-              <ChevronRight className="w-4 h-4 text-gray-300 group-hover:text-gray-400 transition-colors"/>
+            <div className="flex items-start justify-between mb-3 relative z-10">
+              <div className={`p-2 bg-white rounded-xl shadow-sm ${s.c}`}><s.icon className="w-4 h-4"/></div>
+              <ChevronRight className="w-3 h-3 text-gray-300"/>
             </div>
             
             <div className="relative z-10">
-              <p className="text-3xl font-black text-gray-900 leading-none mb-2">{s.val}</p>
-              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">{s.sub}</p>
+              <p className="text-[9px] font-black text-gray-500 uppercase tracking-widest mb-1 truncate">{s.label}</p>
+              <p className="text-lg font-black text-gray-900 leading-none mb-1.5">{s.val}</p>
+              <p className="text-[8px] font-bold text-gray-400 uppercase tracking-tight truncate">{s.sub}</p>
             </div>
           </div>
         ))}
       </div>
 
-      {/* Secondary Stats Row */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      {/* Secondary Stats Row - Even smaller */}
+      <div className="grid grid-cols-3 gap-2">
         {cards.slice(4).map(s=>(
           <div key={s.id} onClick={()=>setActiveModal(s.id)}
-            className={`cursor-pointer group relative overflow-hidden rounded-[2rem] ${s.bg} border ${s.bd} p-5 active:scale-[0.98] transition-all`}>
-             <div className="flex items-center gap-3 mb-3">
-                <div className={`p-2.5 bg-white rounded-xl shadow-sm ${s.c}`}><s.icon className="w-4 h-4"/></div>
-                <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest">{s.label}</p>
+            className={`cursor-pointer group relative overflow-hidden rounded-[1.25rem] ${s.bg} border ${s.bd} p-3 active:scale-[0.95] transition-all`}>
+             <div className="flex items-center gap-2 mb-2">
+                <div className={`p-1.5 bg-white rounded-lg shadow-sm ${s.c}`}><s.icon className="w-3 h-3"/></div>
+                <p className="text-[8px] font-black text-gray-500 uppercase tracking-tighter truncate">{s.label}</p>
              </div>
-             <p className="text-2xl font-black text-gray-900 leading-none">{s.val}</p>
-             <p className="text-[9px] font-bold text-gray-400 mt-1 uppercase tracking-wider">{s.sub}</p>
+             <p className="text-sm font-black text-gray-900 leading-none">{s.val}</p>
+             <p className="text-[7px] font-bold text-gray-400 mt-0.5 uppercase tracking-tighter truncate">{s.sub}</p>
           </div>
         ))}
       </div>
@@ -154,10 +151,10 @@ export function Dashboard() {
           <button className="text-[10px] font-black text-blue-600 bg-blue-50 px-4 py-2 rounded-full uppercase tracking-widest hover:bg-blue-100 transition-colors">Top 10 Performers</button>
         </div>
         
-        <div className="p-6 grid grid-cols-1 lg:grid-cols-4 gap-8">
-          <div className="lg:col-span-3 h-[400px]">
+        <div className="p-4 grid grid-cols-1 gap-6">
+          <div className="h-[280px]">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={charts?.unitPerformance||[]} layout="vertical" margin={{ left: 20, right: 30, top: 10, bottom: 10 }}>
+              <BarChart data={charts?.unitPerformance||[]} layout="vertical" margin={{ left: 5, right: 20, top: 0, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f8fafc"/>
                 <XAxis type="number" hide />
                 <YAxis type="category" dataKey="plate" tick={{fontSize:10, fontWeight:900, fill:'#1e293b'}} axisLine={false} tickLine={false} width={80}/>
@@ -175,31 +172,27 @@ export function Dashboard() {
 
           {/* Executive Insights Sidebar */}
           <div className="space-y-6">
-             <div className="bg-gray-50 rounded-3xl p-6 border border-gray-100">
-                <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-4">Executive Insights</p>
+             <div className="bg-gray-50 rounded-2xl p-4 border border-gray-100">
+                <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-3">Executive Insights</p>
                 
-                <div className="space-y-6">
-                   <div>
-                      <p className="text-[10px] font-bold text-gray-500 uppercase mb-1">Fleet Health</p>
-                      <div className="flex items-end gap-2">
-                         <p className="text-4xl font-black text-gray-900">{insights?.fleetHealth??0}%</p>
-                         <div className="flex items-center text-green-500 text-[10px] font-bold mb-1.5">
-                            <TrendingUp className="w-3 h-3 mr-0.5"/> 2.4%
+                <div className="flex items-center justify-between gap-4">
+                   <div className="flex-1">
+                      <p className="text-[8px] font-bold text-gray-500 uppercase mb-0.5">Fleet Health</p>
+                      <div className="flex items-end gap-1.5">
+                         <p className="text-2xl font-black text-gray-900">{insights?.fleetHealth??0}%</p>
+                         <div className="flex items-center text-green-500 text-[8px] font-bold mb-1">
+                            <TrendingUp className="w-2.5 h-2.5 mr-0.5"/> 2.4%
                          </div>
                       </div>
-                      <p className="text-[10px] text-gray-400 leading-relaxed mt-2">{insights?.healthMessage}</p>
                    </div>
 
-                   <div className="pt-6 border-t border-gray-200/50">
-                      <p className="text-[10px] font-bold text-gray-500 uppercase mb-3">Top Performer</p>
-                      <div className="flex items-center gap-3">
-                         <div className="w-10 h-10 bg-amber-100 rounded-2xl flex items-center justify-center">
-                            <Crown className="w-5 h-5 text-amber-600"/>
+                   <div className="flex-1 border-l border-gray-200/50 pl-4">
+                      <p className="text-[8px] font-bold text-gray-500 uppercase mb-1">Top Performer</p>
+                      <div className="flex items-center gap-2">
+                         <div className="w-7 h-7 bg-amber-100 rounded-lg flex items-center justify-center">
+                            <Crown className="w-3.5 h-3.5 text-amber-600"/>
                          </div>
-                         <div>
-                            <p className="text-sm font-black text-gray-900">{insights?.topPerformerUnit}</p>
-                            <p className="text-[9px] text-gray-400 uppercase font-bold tracking-widest">Monthly High</p>
-                         </div>
+                         <p className="text-xs font-black text-gray-900">{insights?.topPerformerUnit}</p>
                       </div>
                    </div>
                 </div>
@@ -227,19 +220,19 @@ export function Dashboard() {
                </div>
                <h3 className="font-black text-gray-900 uppercase tracking-tight">Expense Distribution</h3>
             </div>
-            <div className="h-64 relative">
+            <div className="h-48 relative">
                <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
-                    <Pie data={charts?.expenseBreakdown||[]} cx="50%" cy="50%" innerRadius={60} outerRadius={85} paddingAngle={8} dataKey="value" stroke="none">
+                    <Pie data={charts?.expenseBreakdown||[]} cx="50%" cy="50%" innerRadius={45} outerRadius={65} paddingAngle={6} dataKey="value" stroke="none">
                       {(charts?.expenseBreakdown||[]).map((_:any,i:number)=><Cell key={i} fill={COLORS[i%COLORS.length]}/>)}
                     </Pie>
-                    <Tooltip contentStyle={{borderRadius: 16, border: 'none', boxShadow: '0 10px 30px rgba(0,0,0,0.1)'}}/>
-                    <Legend verticalAlign="bottom" align="center" iconType="circle" wrapperStyle={{fontSize: 10, fontWeight: 700, paddingTop: 20}} />
+                    <Tooltip contentStyle={{borderRadius: 12, border: 'none', boxShadow: '0 8px 24px rgba(0,0,0,0.1)'}}/>
+                    <Legend verticalAlign="bottom" align="center" iconType="circle" wrapperStyle={{fontSize: 9, fontWeight: 700, paddingTop: 10}} />
                   </PieChart>
                </ResponsiveContainer>
-               <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none mt-[-20px]">
-                  <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Total</p>
-                  <p className="text-xl font-black text-gray-900 tracking-tighter">{fmt(stats?.today_expenses)}</p>
+               <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none mt-[-15px]">
+                  <p className="text-[8px] font-bold text-gray-400 uppercase tracking-widest">Total</p>
+                  <p className="text-sm font-black text-gray-900 tracking-tighter">{fmt(stats?.today_expenses)}</p>
                </div>
             </div>
          </div>
@@ -252,17 +245,17 @@ export function Dashboard() {
                </div>
                <h3 className="font-black text-gray-900 uppercase tracking-tight">Unit Status Distribution</h3>
             </div>
-            <div className="h-64 relative">
+            <div className="h-48 relative">
                <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie 
                       data={charts?.unitStatusDist||[]} 
                       cx="50%" cy="50%" 
-                      innerRadius={65} 
-                      outerRadius={90} 
+                      innerRadius={50} 
+                      outerRadius={70} 
                       startAngle={180} 
                       endAngle={0} 
-                      paddingAngle={4} 
+                      paddingAngle={3} 
                       dataKey="value"
                       stroke="none"
                     >
@@ -270,37 +263,32 @@ export function Dashboard() {
                       <Cell fill="#f59e0b" /> {/* Maintenance */}
                       <Cell fill="#8b5cf6" /> {/* Coding */}
                     </Pie>
-                    <Tooltip contentStyle={{borderRadius: 16, border: 'none', boxShadow: '0 10px 30px rgba(0,0,0,0.1)'}}/>
-                    <Legend verticalAlign="bottom" align="center" iconType="circle" wrapperStyle={{fontSize: 10, fontWeight: 700}} />
+                    <Tooltip contentStyle={{borderRadius: 12, border: 'none', boxShadow: '0 8px 24px rgba(0,0,0,0.1)'}}/>
+                    <Legend verticalAlign="bottom" align="center" iconType="circle" wrapperStyle={{fontSize: 9, fontWeight: 700}} />
                   </PieChart>
                </ResponsiveContainer>
-               <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none mt-[40px]">
-                  <p className="text-3xl font-black text-gray-900 leading-none">{stats?.active_units}</p>
-                  <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Total Fleet</p>
+               <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none mt-[30px]">
+                  <p className="text-xl font-black text-gray-900 leading-none">{stats?.active_units}</p>
+                  <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest">Total Fleet</p>
                </div>
             </div>
          </div>
       </div>
 
       {/* Weekly Financial Overview Section */}
-      <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-xl p-8">
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-indigo-50 rounded-2xl flex items-center justify-center">
-              <LineChartIcon className="w-5 h-5 text-indigo-600"/>
-            </div>
-            <h3 className="font-black text-gray-900 uppercase tracking-tight text-lg">Weekly Financial Overview</h3>
-          </div>
+      <div className="bg-white rounded-[2rem] border border-gray-100 shadow-xl p-4">
+        <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-2">
-             <div className="flex items-center gap-1.5"><div className="w-2 h-2 bg-blue-500 rounded-full"></div><span className="text-[9px] font-bold text-gray-500 uppercase">Boundary</span></div>
-             <div className="flex items-center gap-1.5"><div className="w-2 h-2 bg-red-500 rounded-full"></div><span className="text-[9px] font-bold text-gray-500 uppercase">Expenses</span></div>
-             <div className="flex items-center gap-1.5"><div className="w-2 h-2 bg-green-500 rounded-full"></div><span className="text-[9px] font-bold text-gray-500 uppercase">Net Income</span></div>
+            <div className="w-8 h-8 bg-indigo-50 rounded-xl flex items-center justify-center">
+              <LineChartIcon className="w-4 h-4 text-indigo-600"/>
+            </div>
+            <h3 className="font-black text-gray-900 uppercase tracking-tight text-sm">Weekly Overview</h3>
           </div>
         </div>
         
-        <div className="h-80">
+        <div className="h-56">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={charts?.revenueTrend||[]} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+            <LineChart data={charts?.revenueTrend||[]} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
               <defs>
                 <linearGradient id="colorBoundary" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.1}/>
@@ -308,46 +296,45 @@ export function Dashboard() {
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9"/>
-              <XAxis dataKey="date" tick={{fontSize:9, fontWeight:700, fill:'#94a3b8'}} axisLine={false} tickLine={false}/>
-              <YAxis tick={{fontSize:9, fontWeight:700, fill:'#94a3b8'}} axisLine={false} tickLine={false} width={45} tickFormatter={(v)=>v >= 1000 ? `${v/1000}k` : v}/>
+              <XAxis dataKey="date" tick={{fontSize:8, fontWeight:700, fill:'#94a3b8'}} axisLine={false} tickLine={false}/>
+              <YAxis tick={{fontSize:8, fontWeight:700, fill:'#94a3b8'}} axisLine={false} tickLine={false} width={45} tickFormatter={(v)=>v >= 1000 ? `${v/1000}k` : v}/>
               <Tooltip 
-                contentStyle={{borderRadius: 20, border: 'none', boxShadow: '0 20px 40px rgba(0,0,0,0.1)', padding: '15px'}}
+                contentStyle={{borderRadius: 16, border: 'none', boxShadow: '0 12px 32px rgba(0,0,0,0.1)', padding: '10px'}}
                 formatter={(v:any)=>fmt(v)}
               />
-              <Line type="monotone" dataKey="revenue" name="Boundary" stroke="#3b82f6" strokeWidth={4} dot={{ r: 4, fill: '#3b82f6', strokeWidth: 2, stroke: '#fff' }} activeDot={{ r: 6 }} />
-              <Line type="monotone" dataKey="expenses" name="Expenses" stroke="#ef4444" strokeWidth={4} dot={{ r: 4, fill: '#ef4444', strokeWidth: 2, stroke: '#fff' }} activeDot={{ r: 6 }} />
-              <Line type="monotone" dataKey="netIncome" name="Net Income" stroke="#10b981" strokeWidth={4} dot={{ r: 4, fill: '#10b981', strokeWidth: 2, stroke: '#fff' }} activeDot={{ r: 6 }} />
+              <Line type="monotone" dataKey="revenue" name="Boundary" stroke="#3b82f6" strokeWidth={3} dot={{ r: 3, fill: '#3b82f6', strokeWidth: 2, stroke: '#fff' }} activeDot={{ r: 5 }} />
+              <Line type="monotone" dataKey="expenses" name="Expenses" stroke="#ef4444" strokeWidth={3} dot={{ r: 3, fill: '#ef4444', strokeWidth: 2, stroke: '#fff' }} activeDot={{ r: 5 }} />
+              <Line type="monotone" dataKey="netIncome" name="Net Income" stroke="#10b981" strokeWidth={3} dot={{ r: 3, fill: '#10b981', strokeWidth: 2, stroke: '#fff' }} activeDot={{ r: 5 }} />
             </LineChart>
           </ResponsiveContainer>
         </div>
       </div>
 
       {/* Top Performing Drivers Table/List */}
-      <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-lg overflow-hidden">
-         <div className="p-6 border-b border-gray-50 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-               <div className="w-10 h-10 bg-amber-50 rounded-2xl flex items-center justify-center">
-                  <Users className="w-5 h-5 text-amber-600"/>
+      <div className="bg-white rounded-[2rem] border border-gray-100 shadow-lg overflow-hidden">
+         <div className="p-4 border-b border-gray-50 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+               <div className="w-8 h-8 bg-amber-50 rounded-xl flex items-center justify-center">
+                  <Users className="w-4 h-4 text-amber-600"/>
                </div>
-               <h3 className="font-black text-gray-900 uppercase tracking-tight">Top Performing Drivers</h3>
+               <h3 className="font-black text-gray-900 uppercase tracking-tight text-sm">Top Drivers</h3>
             </div>
          </div>
          <div className="divide-y divide-gray-50">
             {(charts?.topDrivers||[]).slice(0, 5).map((d:any, i:number)=>(
-               <div key={i} className="p-5 flex items-center justify-between hover:bg-gray-50/50 transition-colors">
-                  <div className="flex items-center gap-4">
-                     <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center relative overflow-hidden">
-                        {i === 0 ? <Crown className="w-6 h-6 text-amber-500 absolute z-10 top-0 left-0 -translate-x-1 -translate-y-1 rotate-[-30deg]"/> : null}
-                        <p className="text-lg font-black text-gray-400">{d.name?.charAt(0)}</p>
+               <div key={i} className="p-4 flex items-center justify-between hover:bg-gray-50/50 transition-colors">
+                  <div className="flex items-center gap-3">
+                     <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center relative overflow-hidden">
+                        {i === 0 ? <Crown className="w-4 h-4 text-amber-500 absolute z-10 top-0 left-0 -translate-x-0.5 -translate-y-0.5 rotate-[-30deg]"/> : null}
+                        <p className="text-base font-black text-gray-400">{d.name?.charAt(0)}</p>
                      </div>
                      <div>
-                        <p className="font-black text-gray-900">{d.name}</p>
-                        <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-0.5">Rank #{i+1} • High Reliability</p>
+                        <p className="font-black text-gray-900 text-sm">{d.name}</p>
+                        <p className="text-[8px] text-gray-400 font-bold uppercase tracking-widest mt-0.5">Rank #{i+1}</p>
                      </div>
                   </div>
                   <div className="text-right">
-                     <p className="font-black text-emerald-600 text-lg">{fmt(d.total)}</p>
-                     <p className="text-[9px] text-gray-400 font-bold uppercase">This Month</p>
+                     <p className="font-black text-emerald-600 text-base">{fmt(d.total)}</p>
                   </div>
                </div>
             ))}
