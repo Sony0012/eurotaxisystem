@@ -38,6 +38,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/units', [UnitController::class, 'index']);
     Route::post('/units', [UnitController::class, 'store']);
     Route::get('/units/{id}', [UnitController::class, 'show']);
+    Route::delete('/units/{id}', [UnitController::class, 'destroy']);
     Route::get('/drivers', [DriverController::class, 'index']);
     
     // Boundary & Financials

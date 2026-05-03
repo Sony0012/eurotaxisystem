@@ -317,5 +317,37 @@ class UnitController extends Controller
                 'roi_status'        => $roiPct >= 100 ? 'Achieved' : 'In Progress',
             ],
         ]]);
+    public function destroy($id)
+    {
+        DB::beginTransaction();
+        try {
+            $unit = DB::table('units')->where('id', $id)->whereNull('deleted_at')->first();
+            if (!$unit) {
+                return response()->json(['success' => false, 'message' => 'Unit not found.'], 404);
+            }
+
+            // Remove device links (optional, matching web logic)
+            DB::table('gps_devices')->where('unit_id', $id)->delete();
+            DB::table('dashcam_devices')->where('unit_id', $id)->delete();
+            
+            // Soft delete the unit
+            DB::table('units')->where('id', $id)->update([
+                'deleted_at' => now(),
+                'updated_at' => now(),
+            ]);
+            
+            // Log activity (Try to use ActivityLogController if it exists, else silent)
+            try {
+                if (class_exists(\App\Http\Controllers\ActivityLogController::class)) {
+                    \App\Http\Controllers\ActivityLogController::log('Archived Unit', "Unit: {$unit->plate_number} moved to archive system.");
+                }
+            } catch (\Exception $e) {}
+
+            DB::commit();
+            return response()->json(['success' => true, 'message' => 'Unit archived successfully.']);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+        }
     }
 }

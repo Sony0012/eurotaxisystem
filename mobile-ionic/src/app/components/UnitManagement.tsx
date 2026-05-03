@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, RefreshCw, ChevronRight, Loader2, Car, X, SlidersHorizontal, Grid3X3, List, Printer, Flag, Plus, AlertTriangle, Wrench, MoreVertical, Eye, Edit2, History, RotateCcw } from "lucide-react";
+import { Search, RefreshCw, ChevronRight, Loader2, Car, X, SlidersHorizontal, Grid3X3, List, Printer, Flag, Plus, AlertTriangle, Wrench, MoreVertical, Eye, Edit2, Trash2 } from "lucide-react";
 import api from "../services/api";
 import { toast } from "sonner";
 
@@ -182,6 +182,19 @@ export function UnitManagement() {
   const [showAddUnit, setShowAddUnit] = useState(false);
   const [activeMenu, setActiveMenu] = useState<number|null>(null);
   const navigate = useNavigate();
+
+  const archiveUnit = async (unit: any) => {
+    if (!window.confirm(`Are you sure you want to archive Unit ${unit.plate_number}? This will move it to the archive system.`)) return;
+    try {
+      await api.delete(`/units/${unit.id}`);
+      toast.success(`Unit ${unit.plate_number} archived successfully.`);
+      fetchUnits();
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || "Failed to archive unit.");
+    } finally {
+      setActiveMenu(null);
+    }
+  };
 
   const fetchUnits = useCallback(async () => {
     setIsLoading(true);
@@ -388,18 +401,14 @@ export function UnitManagement() {
                     </button>
                     {activeMenu === u.id && (
                       <div className="absolute right-0 top-full mt-1 w-44 bg-white border border-gray-100 rounded-2xl shadow-2xl z-[100] py-2 animate-in fade-in zoom-in duration-200">
-                        <button onClick={() => navigate(`/units/${u.id}`)} className="w-full px-4 py-2 text-left flex items-center gap-2 hover:bg-gray-50 text-xs font-black text-gray-700 uppercase tracking-widest">
-                          <Eye className="w-3 h-3 text-blue-500" /> View Details
-                        </button>
-                        <button className="w-full px-4 py-2 text-left flex items-center gap-2 hover:bg-gray-50 text-xs font-black text-gray-700 uppercase tracking-widest">
+                        <button className="w-full px-4 py-2 text-left flex items-center gap-2 hover:bg-gray-50 text-xs font-black text-gray-700 uppercase tracking-widest transition-colors">
                           <Edit2 className="w-3 h-3 text-yellow-500" /> Edit Unit
                         </button>
-                        <button className="w-full px-4 py-2 text-left flex items-center gap-2 hover:bg-gray-50 text-xs font-black text-gray-700 uppercase tracking-widest">
-                          <History className="w-3 h-3 text-indigo-500" /> History
-                        </button>
-                        <div className="my-1 border-t border-gray-50" />
-                        <button className="w-full px-4 py-2 text-left flex items-center gap-2 hover:bg-gray-50 text-xs font-black text-red-600 uppercase tracking-widest">
-                          <RotateCcw className="w-3 h-3" /> Reset Health
+                        <button 
+                          onClick={(e) => { e.stopPropagation(); archiveUnit(u); }}
+                          className="w-full px-4 py-2 text-left flex items-center gap-2 hover:bg-red-50 text-xs font-black text-red-600 uppercase tracking-widest transition-colors"
+                        >
+                          <Trash2 className="w-3 h-3" /> Archive Unit
                         </button>
                       </div>
                     )}
