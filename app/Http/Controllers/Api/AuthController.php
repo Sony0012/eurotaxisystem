@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
 use App\Models\User;
 
 class AuthController extends Controller
@@ -16,16 +17,40 @@ class AuthController extends Controller
      */
     public function login(Request $request)
     {
-        $request->validate([
-            'login'       => 'required|string',
-            'password'    => 'required|string',
-            'device_name' => 'required|string',
+        // Debug logging
+        Log::info('Raw Login Request:', [
+            'all' => $request->all(),
+            'input' => $request->input(),
+            'json' => $request->json()->all(),
+            'content_type' => $request->header('Content-Type')
         ]);
 
-        $user = User::where(function ($query) use ($request) {
-                $query->where('email', $request->login)
-                      ->orWhere('phone', $request->login)
-                      ->orWhere('phone_number', $request->login);
+        // Fallback for login field
+        $loginValue = $request->login ?? $request->email ?? $request->username;
+        
+        // Inject back into request for validation if needed, or just validate manually
+        if ($loginValue) {
+            $request->merge(['login' => $loginValue]);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'login'       => 'required|string',
+            'password'    => 'required|string',
+            'device_name' => 'sometimes|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation error: ' . $validator->errors()->first(),
+                'debug_received' => $request->all()
+            ], 422);
+        }
+
+        $user = User::where(function ($query) use ($loginValue) {
+                $query->where('email', $loginValue)
+                      ->orWhere('phone', $loginValue)
+                      ->orWhere('phone_number', $loginValue);
             })
             ->where('is_active', 1)
             ->first();
@@ -50,11 +75,128 @@ class AuthController extends Controller
             ], 401);
         }
 
-        $token = $user->createToken($request->device_name)->plainTextToken;
+        // ─── MFA / DEVICE VERIFICATION CHECK ───
+        $deviceName = $request->device_name ?? 'Unknown Mobile Device';
+        
+        // We check if this device name (acting as browser token) is recognized
+        $isRecognized = $user->verifiedBrowsers()
+            ->where('browser_token', hash('sha256', $deviceName))
+            ->exists();
+
+        // If not recognized, trigger MFA
+        if (!$isRecognized) {
+            return response()->json([
+                'success'      => true,
+                'mfa_required' => true,
+                'user_id'      => encrypt($user->id), // Send encrypted ID for security
+                'email'        => $user->email,
+                'phone'        => $user->phone_number ?? $user->phone,
+                'message'      => 'A new device was detected. Please verify your identity.'
+            ]);
+        }
+
+        // If recognized, login normally
+        $token = $user->createToken($deviceName)->plainTextToken;
 
         return response()->json([
             'success' => true,
             'message' => 'Login successful',
+            'token'   => $token,
+            'user'    => [
+                'id'    => $user->id,
+                'name'  => $user->full_name ?? $user->name,
+                'email' => $user->email,
+                'role'  => $user->role,
+            ],
+        ]);
+    }
+
+    /**
+     * Send Device Verification OTP
+     */
+    public function sendDeviceOtp(Request $request)
+    {
+        $request->validate([
+            'user_token' => 'required|string',
+            'method'     => 'required|in:email,phone'
+        ]);
+
+        try {
+            $userId = decrypt($request->user_token);
+            $user = User::findOrFail($userId);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Invalid session token.'], 401);
+        }
+
+        $otp = str_pad(rand(0, 999999), 6, '0', STR_PAD_LEFT);
+        
+        $user->update([
+            'otp_code' => $otp,
+            'otp_expires_at' => now()->addMinutes(10)
+        ]);
+
+        if ($request->method === 'email') {
+            require_once app_path('Helpers/MailerHelper.php');
+            $emailBody = "
+                <div style='font-family:Arial,sans-serif;max-width:480px;margin:0 auto;padding:24px;background:#f9fafb;border-radius:12px;'>
+                    <h2 style='color:#1d4ed8;margin-bottom:8px;'>New Device Login Detected</h2>
+                    <p style='color:#374151;'>A login attempt was made from a new device on the mobile app. Use the verification code below to authorize this device:</p>
+                    <div style='background:#1d4ed8;color:#fff;font-size:2rem;font-weight:bold;letter-spacing:0.5rem;text-align:center;padding:18px;border-radius:8px;margin:20px 0;'>{$otp}</div>
+                </div>
+            ";
+            if (!send_custom_email($user->email, 'Eurotaxisystem Mobile — Device Verification Code', $emailBody)) {
+                return response()->json(['success' => false, 'message' => 'Failed to send verification email.'], 500);
+            }
+        } else {
+            $phone = $user->phone_number ?? $user->phone;
+            if (!$phone) {
+                return response()->json(['success' => false, 'message' => 'No phone number found.'], 422);
+            }
+            send_sms_otp($phone, $otp);
+        }
+
+        return response()->json(['success' => true, 'message' => 'Verification code sent!']);
+    }
+
+    /**
+     * Verify Device OTP and generate login token
+     */
+    public function verifyDeviceOtp(Request $request)
+    {
+        $request->validate([
+            'user_token'  => 'required|string',
+            'otp'         => 'required|string|size:6',
+            'device_name' => 'required|string'
+        ]);
+
+        try {
+            $userId = decrypt($request->user_token);
+            $user = User::findOrFail($userId);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Invalid session token.'], 401);
+        }
+
+        if ($user->otp_code !== $request->otp || now()->gt($user->otp_expires_at)) {
+            return response()->json(['success' => false, 'message' => 'Invalid or expired code.'], 422);
+        }
+
+        // Verify device
+        $deviceName = $request->device_name;
+        $user->verifiedBrowsers()->create([
+            'browser_token' => hash('sha256', $deviceName),
+            'ip_address'    => $request->ip(),
+            'user_agent'    => $request->userAgent() ?? 'Eurotaxi Mobile App',
+            'verified_at'   => now(),
+            'last_active_at'=> now(),
+        ]);
+
+        $user->update(['otp_code' => null, 'otp_expires_at' => null]);
+
+        $token = $user->createToken($deviceName)->plainTextToken;
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Device verified and login successful',
             'token'   => $token,
             'user'    => [
                 'id'    => $user->id,

@@ -20,6 +20,8 @@ use App\Http\Controllers\Api\DriverController;
 
 // Public routes
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/verify-device-otp', [AuthController::class, 'verifyDeviceOtp']);
+Route::post('/send-device-otp', [AuthController::class, 'sendDeviceOtp']);
 Route::post('/forgot-password', [AuthController::class, 'sendResetOtp']);
 Route::post('/verify-otp', [AuthController::class, 'verifyOtp']);
 Route::post('/reset-password', [AuthController::class, 'resetPassword']);
@@ -39,4 +41,22 @@ Route::middleware('auth:sanctum')->group(function () {
     
     // Boundary & Financials
     Route::get('/boundaries', [\App\Http\Controllers\Api\BoundaryController::class, 'index']);
+
+    // Live Tracking (GPS)
+    Route::get('/live-tracking/units', [\App\Http\Controllers\LiveTrackingController::class, 'getUnitsLive']);
+    Route::get('/live-tracking/unit/{id}', [\App\Http\Controllers\LiveTrackingController::class, 'getUnitLocation']);
+    Route::post('/live-tracking/engine', [\App\Http\Controllers\LiveTrackingController::class, 'engineControl']);
+
+    // Super Admin / Owner Panel
+    Route::prefix('super-admin')->group(function () {
+        Route::get('/overview', [\App\Http\Controllers\SuperAdminController::class, 'indexJson']);
+        Route::get('/audit', [\App\Http\Controllers\SuperAdminController::class, 'loginHistory']);
+        Route::post('/staff', [\App\Http\Controllers\SuperAdminController::class, 'storeStaff']);
+        Route::post('/users/{id}/approve', [\App\Http\Controllers\SuperAdminController::class, 'approveUser']);
+        Route::post('/users/{id}/reject', [\App\Http\Controllers\SuperAdminController::class, 'rejectUser']);
+        Route::post('/users/{id}/toggle-disable', [\App\Http\Controllers\SuperAdminController::class, 'toggleDisable']);
+        Route::post('/users/{id}/access', [\App\Http\Controllers\SuperAdminController::class, 'updatePageAccess']);
+        Route::post('/users/{id}/archive', [\App\Http\Controllers\SuperAdminController::class, 'archiveUser']);
+        Route::post('/archive-password', [\App\Http\Controllers\SuperAdminController::class, 'updateArchivePassword']);
+    });
 });
