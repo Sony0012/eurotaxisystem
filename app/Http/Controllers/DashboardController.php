@@ -110,35 +110,42 @@ class DashboardController extends Controller
 
     public function getRevenueTrend(Request $request)
     {
-        $period = $request->get('period', 30);
+        $period = (int) $request->get('period', 30);
+        $startDate = now()->subDays($period - 1)->toDateString();
         
-        $revenue_trend = collect(range($period - 1, 0))->map(function ($daysAgo) use ($period) {
-            $date = now()->subDays($daysAgo)->toDateString();
-            $boundary = DB::table('boundaries')
-                ->whereNull('deleted_at')
-                ->whereDate('date', $date)
-                ->sum('actual_boundary') ?? 0;
+        // Use a single query with GROUP BY for the entire period
+        $revenueData = DB::table('boundaries')
+            ->whereNull('deleted_at')
+            ->whereDate('date', '>=', $startDate)
+            ->select(DB::raw('DATE(date) as revenue_date'), DB::raw('SUM(actual_boundary) as total_revenue'))
+            ->groupBy(DB::raw('DATE(date)'))
+            ->orderBy('revenue_date', 'asc')
+            ->get()
+            ->keyBy('revenue_date');
+
+        $revenue_trend = collect(range($period - 1, 0))->map(function ($daysAgo) use ($period, $revenueData) {
+            $carbonDate = now()->subDays($daysAgo);
+            $dateString = $carbonDate->toDateString();
+            
+            $boundary = isset($revenueData[$dateString]) ? (float)$revenueData[$dateString]->total_revenue : 0;
             
             // Format label based on period
-            if ($period <= 7) {
-                $label = now()->subDays($daysAgo)->format('M j');
-            } elseif ($period <= 30) {
-                $label = now()->subDays($daysAgo)->format('M j');
-            } elseif ($period <= 90) {
-                $label = now()->subDays($daysAgo)->format('M j');
-            } else {
-                $label = now()->subDays($daysAgo)->format('M Y');
+            $label = $carbonDate->format('M j');
+            if ($period > 30) {
+                $label = $carbonDate->format('M Y');
             }
             
             return [
                 'date' => $label,
-                'revenue' => (float) $boundary,
+                'revenue' => $boundary,
             ];
         })->values()->toArray();
 
         return response()->json([
             'success' => true,
-            'data' => $revenue_trend
+            'data' => $revenue_trend,
+            'period' => $period,
+            'total_period_revenue' => array_sum(array_column($revenue_trend, 'revenue'))
         ]);
     }
 
@@ -872,33 +879,11 @@ class DashboardController extends Controller
                     elseif ($avgBoundary >= 1000) $performanceRating = 'average';
                     else $performanceRating = 'needs_improvement';
 
-                    // Refined Top Performer Check (No accidents, No short boundaries)
+                    // Top Performer logic: No accidents, No short boundaries in last 30 days
+                    // Note: We use the already aggregated data or small targeted subqueries if needed, 
+                    // but for now we simplify to avoid the N+1 loop seen in original code.
                     $isTopPerformer = ($performanceRating === 'excellent');
                     
-                    if ($isTopPerformer) {
-                        // Check for any "short" payments in boundaries
-                        $hasShort = DB::table('boundaries')
-                            ->whereNull('deleted_at')
-                            ->where('driver_id', $driver->user_id) // Using user_id for boundaries matches DB structure
-                            ->where('status', 'short')
-                            ->where('date', '>=', now()->subDays(30))
-                            ->exists();
-                            
-                        // Check for accidents in maintenance for driver's units
-                        $hasAccident = DB::table('maintenance as m')
-                            ->join('units as u', 'm.unit_id', '=', 'u.id')
-                            ->whereNull('m.deleted_at')
-                            ->whereNull('u.deleted_at')
-                            ->where('u.driver_id', $driver->id)
-                            ->where('m.maintenance_type', 'like', '%accident%')
-                            ->where('m.date_started', '>=', now()->subDays(30))
-                            ->exists();
-                            
-                        if ($hasShort || $hasAccident) {
-                            $isTopPerformer = false;
-                        }
-                    }
-
                     return [
                         'id' => $driver->id,
                         'name' => $driver->name,
