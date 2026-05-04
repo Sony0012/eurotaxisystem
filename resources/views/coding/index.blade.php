@@ -53,32 +53,7 @@
 
 
 
-    <!-- Date Filter & Actions -->
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-6">
-        <form method="GET" action="{{ route('coding.index') }}" class="flex flex-col md:flex-row gap-4 items-center">
 
-            <div class="flex-1 w-full">
-                <div class="relative" id="searchContainer">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <i data-lucide="search" class="h-4 w-4 text-gray-400"></i>
-                    </div>
-                    <input type="text" name="search" id="plateSearch" autocomplete="off" value="{{ $search }}" placeholder="Search plate..."
-                        class="block w-full pl-10 pr-3 py-2 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:outline-none text-sm font-bold text-gray-700">
-                    
-                    <!-- Industry Standard Suggestions Dropdown -->
-                    <div id="suggestionsDropdown" class="hidden absolute z-50 mt-2 w-full bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
-                        <div id="suggestionsList" class="max-h-60 overflow-y-auto custom-scrollbar"></div>
-                        <div id="noResults" class="hidden p-4 text-center">
-                            <i data-lucide="search-x" class="w-8 h-8 mx-auto mb-2 text-gray-300"></i>
-                            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Not Found</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-
-        </form>
-    </div>
 
     <script>
         const realTodayName = '{{ $today_name }}';
@@ -225,11 +200,30 @@
 
     <!-- Weekly Coding Calendar (Moved to Top) -->
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 mb-6 overflow-hidden">
-        <div class="px-6 py-4 border-b bg-gray-50/50 flex justify-between items-center">
-            <h3 class="font-black text-gray-800 text-sm flex items-center gap-2">
+        <div class="px-6 py-4 border-b bg-gray-50/50 flex justify-between items-center flex-wrap gap-4">
+            <h3 class="font-black text-gray-800 text-sm flex items-center gap-2 shrink-0">
                 <i data-lucide="calendar-range" class="w-4 h-4 text-yellow-600"></i>
                 Weekly Coding Calendar
             </h3>
+
+            <div class="flex-1 max-w-sm w-full">
+                <form method="GET" action="{{ route('coding.index') }}" class="relative" id="searchContainer">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i data-lucide="search" class="h-4 w-4 text-gray-400"></i>
+                    </div>
+                    <input type="text" name="search" id="plateSearch" autocomplete="off" value="{{ $search }}" placeholder="Search plate..."
+                        class="block w-full pl-10 pr-3 py-1.5 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none text-xs font-bold text-gray-700 shadow-sm transition-all">
+                    
+                    <!-- Industry Standard Suggestions Dropdown -->
+                    <div id="suggestionsDropdown" class="hidden absolute z-50 mt-2 w-full bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
+                        <div id="suggestionsList" class="max-h-60 overflow-y-auto custom-scrollbar"></div>
+                        <div id="noResults" class="hidden p-4 text-center">
+                            <i data-lucide="search-x" class="w-8 h-8 mx-auto mb-2 text-gray-300"></i>
+                            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Not Found</p>
+                        </div>
+                    </div>
+                </form>
+            </div>
         </div>
         <div class="p-6 grid grid-cols-1 md:grid-cols-5 gap-4">
             @php $totalFleet = max(1, \App\Models\Unit::count()); @endphp
