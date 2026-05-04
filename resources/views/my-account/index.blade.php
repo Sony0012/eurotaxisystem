@@ -42,7 +42,7 @@
                         <div>
                             <h1 class="text-2xl font-bold text-gray-900 leading-tight">{{ $user->full_name ?? 'User' }}</h1>
                             <div class="flex flex-wrap items-center gap-2 mt-1">
-                                <span class="text-sm font-semibold text-yellow-700 bg-yellow-100 px-3 py-1 rounded-full">{{ ucfirst($user->role) }}</span>
+                                <span class="text-sm font-semibold text-yellow-700 bg-yellow-100 px-3 py-1 rounded-full">{{ $user->role === 'super_admin' ? 'Owner' : ucfirst($user->role) }}</span>
                                 <span class="text-xs text-gray-400 flex items-center gap-1">
                                     <i data-lucide="clock" class="w-3.5 h-3.5"></i>
                                     Joined {{ $user->created_at->format('M Y') }}
@@ -72,7 +72,7 @@
                                 <i data-lucide="shield-check" class="w-5 h-5"></i>
                             </div>
                             <p class="text-[11px] uppercase font-bold text-gray-400 tracking-widest">Role</p>
-                            <p class="text-sm font-bold text-blue-600 mt-0.5">{{ ucfirst($user->role) }}</p>
+                            <p class="text-sm font-bold text-blue-600 mt-0.5">{{ $user->role === 'super_admin' ? 'Owner' : ucfirst($user->role) }}</p>
                         </div>
                     </div>
                 </div>
@@ -90,32 +90,45 @@
                     @csrf
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
                         <div>
-                            <label class="block text-xs font-medium text-gray-700 mb-1">First Name</label>
-                            <input type="text" name="first_name" value="{{ $user->first_name ?? '' }}" required
-                                   class="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-yellow-500 focus:border-yellow-500">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-medium text-gray-700 mb-1">Middle Name</label>
-                            <input type="text" name="middle_name" value="{{ $user->middle_name ?? '' }}"
-                                   class="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-yellow-500 focus:border-yellow-500">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-medium text-gray-700 mb-1">Last Name</label>
-                            <input type="text" name="last_name" value="{{ $user->last_name ?? '' }}" required
-                                   class="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-yellow-500 focus:border-yellow-500">
-                        </div>
-                        <div>
                             <label class="block text-xs font-medium text-gray-700 mb-1">Email Address</label>
-                            <input type="email" name="email" value="{{ $user->email }}" required
-                                   class="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-yellow-500 focus:border-yellow-500">
+                            <input type="email" value="{{ $user->email }}" readonly
+                                   class="w-full px-3 py-2 text-sm border border-gray-100 bg-gray-50 rounded-xl text-gray-500 cursor-not-allowed font-medium">
+                            <p class="text-[10px] text-gray-400 mt-1 flex items-center gap-1">
+                                <i data-lucide="info" class="w-3 h-3"></i> Use the "Change Email" section below to update this.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-1.5">First Name</label>
+                            <input type="text" name="first_name" value="{{ $user->first_name }}" required
+                                   maxlength="18" oninput="formatName(this)"
+                                   class="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all font-bold">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-1.5">Middle Name</label>
+                            <input type="text" name="middle_name" value="{{ $user->middle_name }}"
+                                   maxlength="18" oninput="formatName(this)"
+                                   class="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all font-bold">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-1.5">Last Name</label>
+                            <input type="text" name="last_name" value="{{ $user->last_name }}" required
+                                   maxlength="18" oninput="formatName(this)"
+                                   class="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all font-bold">
                         </div>
                         <div>
                             <label class="block text-xs font-medium text-gray-700 mb-1">Phone Number (11 Digits)</label>
-                            <input type="text" name="phone_number" id="phone_number" value="{{ $user->phone_number ?? '09' }}" required
+                            <input type="text" name="phone_number" id="phone_number" value="{{ $user->phone_number ?? '' }}" required
                                    maxlength="11"
                                    oninput="validatePhone(this)"
-                                   class="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-yellow-500 focus:border-yellow-500 font-bold tracking-widest"
+                                   class="w-full px-3 py-2 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-yellow-500 focus:border-transparent font-bold tracking-widest transition-all"
                                    placeholder="09XXXXXXXXX">
+                            <p class="text-[10px] text-gray-400 mt-1">Must start with 09 (e.g. 09123456789)</p>
                         </div>
                     </div>
                     <div class="flex justify-end mt-2">
@@ -139,28 +152,106 @@
                         Change Password
                     </h2>
                 </div>
-                <form method="POST" action="{{ route('my-account.change-password') }}" class="p-3">
+                <form method="POST" action="{{ route('my-account.change-password') }}" class="p-4 space-y-4">
                     @csrf
-                    <div class="space-y-2">
+                    <div class="space-y-4">
                         <div>
-                            <label class="block text-xs font-medium text-gray-700 mb-1">Current Password</label>
-                            <input type="password" name="current_password" required
-                                   class="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-yellow-500 focus:border-yellow-500">
+                            <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-1.5">Current Password</label>
+                            <div class="relative group">
+                                <input type="password" name="current_password" id="current_password" required
+                                       class="w-full pl-3 pr-10 py-2 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all">
+                                <button type="button" onclick="togglePassword('current_password')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-yellow-600 transition-colors">
+                                    <i data-lucide="eye" class="w-4 h-4" id="eye-current_password"></i>
+                                </button>
+                            </div>
                         </div>
+
                         <div>
-                            <label class="block text-xs font-medium text-gray-700 mb-1">New Password</label>
-                            <input type="password" name="password" required
-                                   class="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-yellow-500 focus:border-yellow-500">
+                            <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-1.5">New Password</label>
+                            <div class="relative group">
+                                <input type="password" name="password" id="new_password" required
+                                       class="w-full pl-3 pr-10 py-2 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all">
+                                <button type="button" onclick="togglePassword('new_password')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-yellow-600 transition-colors">
+                                    <i data-lucide="eye" class="w-4 h-4" id="eye-new_password"></i>
+                                </button>
+                            </div>
+                            {{-- Password Criteria --}}
+                            <div class="mt-3 p-3 bg-gray-50 rounded-xl border border-gray-100">
+                                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 flex items-center gap-1.5">
+                                    <i data-lucide="shield-check" class="w-3 h-3 text-yellow-500"></i> Required Criteria:
+                                </p>
+                                <ul class="space-y-1.5" id="password-requirements">
+                                    <li id="req-length" class="flex items-center gap-2 text-[10px] font-bold text-gray-400 transition-colors">
+                                        <i data-lucide="circle" class="w-2.5 h-2.5 req-icon"></i> Minimum 8 characters
+                                    </li>
+                                    <li id="req-alphanumeric" class="flex items-center gap-2 text-[10px] font-bold text-gray-400 transition-colors">
+                                        <i data-lucide="circle" class="w-2.5 h-2.5 req-icon"></i> Mix of letters and numbers
+                                    </li>
+                                    <li id="req-special" class="flex items-center gap-2 text-[10px] font-bold text-gray-400 transition-colors">
+                                        <i data-lucide="circle" class="w-2.5 h-2.5 req-icon"></i> At least one special character
+                                    </li>
+                                </ul>
+                            </div>
                         </div>
+
                         <div>
-                            <label class="block text-xs font-medium text-gray-700 mb-1">Confirm New Password</label>
-                            <input type="password" name="password_confirmation" required
-                                   class="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-yellow-500 focus:border-yellow-500">
+                            <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-1.5">Confirm New Password</label>
+                            <div class="relative group">
+                                <input type="password" name="password_confirmation" id="confirm_password" required
+                                       class="w-full pl-3 pr-10 py-2 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all">
+                                <button type="button" onclick="togglePassword('confirm_password')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-yellow-600 transition-colors">
+                                    <i data-lucide="eye" class="w-4 h-4" id="eye-confirm_password"></i>
+                                </button>
+                            </div>
+                            <p id="match-error" class="hidden text-[10px] font-bold text-red-500 mt-1.5 flex items-center gap-1">
+                                <i data-lucide="alert-circle" class="w-3 h-3"></i> Passwords do not match
+                            </p>
+                            <p id="match-success" class="hidden text-[10px] font-bold text-green-500 mt-1.5 flex items-center gap-1">
+                                <i data-lucide="check-circle" class="w-3 h-3"></i> Passwords match
+                            </p>
                         </div>
                     </div>
-                    <button type="submit" class="w-full mt-2 px-3 py-1 text-sm bg-yellow-600 text-white rounded hover:bg-yellow-700 flex items-center justify-center gap-1">
-                        <i data-lucide="key" class="w-3 h-3"></i>
-                        Change Password
+                    <button type="submit" id="submit-btn" disabled
+                            class="w-full mt-2 px-4 py-2.5 bg-gray-200 text-gray-400 text-xs font-black uppercase tracking-widest rounded-xl cursor-not-allowed transition-all flex items-center justify-center gap-2">
+                        <i data-lucide="lock" class="w-4 h-4"></i>
+                        Update Account Password
+                    </button>
+                </form>
+            </div>
+
+            <!-- Change Email -->
+            <div class="bg-white rounded-lg shadow-sm">
+                <div class="p-2 border-b">
+                    <h2 class="text-sm font-semibold text-gray-900 flex items-center gap-1">
+                        <i data-lucide="mail" class="w-4 h-4 text-blue-600"></i>
+                        Change Email Address
+                    </h2>
+                </div>
+                <form method="POST" action="{{ route('my-account.request-email-change') }}" class="p-4 space-y-4">
+                    @csrf
+                    <div>
+                        <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-1.5">New Email Address</label>
+                        <input type="email" name="new_email" required placeholder="newemail@gmail.com"
+                               class="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-1.5">Verify with Password</label>
+                        <input type="password" name="current_password" required placeholder="Enter current password"
+                               class="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                    </div>
+                    
+                    <div class="p-3 bg-blue-50 rounded-xl border border-blue-100">
+                        <p class="text-[10px] font-black text-blue-600 uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
+                            <i data-lucide="shield-alert" class="w-3 h-3"></i> Security Step:
+                        </p>
+                        <p class="text-[10px] font-bold text-blue-500 leading-relaxed">
+                            A confirmation link will be sent to your **current email ({{ $user->email }})**. You must click that link to authorize the change.
+                        </p>
+                    </div>
+
+                    <button type="submit" class="w-full px-4 py-2.5 bg-blue-600 text-white text-xs font-black uppercase tracking-widest rounded-xl hover:bg-blue-700 shadow-lg shadow-blue-100 transition-all flex items-center justify-center gap-2">
+                        <i data-lucide="send" class="w-4 h-4"></i>
+                        Request Email Change
                     </button>
                 </form>
             </div>
@@ -258,13 +349,49 @@
         document.getElementById('iconForm').submit();
     }
 
+    function togglePassword(id) {
+        const input = document.getElementById(id);
+        const icon = document.getElementById('eye-' + id);
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.setAttribute('data-lucide', 'eye-off');
+        } else {
+            input.type = 'password';
+            icon.setAttribute('data-lucide', 'eye');
+        }
+        if (window.lucide) lucide.createIcons();
+    }
+
     function validatePhone(input) {
         // Remove non-digits
         let val = input.value.replace(/\D/g, '');
         
-        // Force starts with 09
-        if (!val.startsWith('09')) {
-            val = '09' + val;
+        // If empty, keep empty
+        if (val === "") {
+            input.value = "";
+            return;
+        }
+
+        // Handle prepending 09
+        if (val.length === 1) {
+            // If they typed 9, make it 09
+            if (val === "9") {
+                val = "09";
+            } else if (val !== "0") {
+                // If they typed any other number (e.g. 8), make it 098
+                val = "09" + val;
+            }
+        } else if (val.length >= 2) {
+            // Ensure starts with 09
+            if (!val.startsWith('09')) {
+                // If it starts with 9 (but not 09), prepend 0
+                if (val.startsWith('9')) {
+                    val = '0' + val;
+                } else {
+                    // Otherwise force 09 prefix
+                    val = '09' + val;
+                }
+            }
         }
         
         // Max 11 digits
@@ -274,6 +401,112 @@
         
         input.value = val;
     }
+
+    function formatName(input) {
+        // 1. Remove numbers and symbols (allow only letters and spaces)
+        let val = input.value.replace(/[^a-zA-Z\s]/g, '');
+        
+        // 2. Prohibit multiple spaces (allow only single space)
+        val = val.replace(/\s\s+/g, ' ');
+        
+        // 3. Prohibit leading space
+        if (val === ' ') {
+            val = '';
+        }
+
+        // 4. Auto-correct: Title Case (First letter Caps, others small)
+        // If it's a multi-word name, capitalize each word
+        let words = val.split(' ');
+        for (let i = 0; i < words.length; i++) {
+            if (words[i].length > 0) {
+                words[i] = words[i].charAt(0).toUpperCase() + words[i].slice(1).toLowerCase();
+            }
+        }
+        val = words.join(' ');
+
+        // 5. Max 18 characters
+        if (val.length > 18) {
+            val = val.slice(0, 18);
+        }
+
+        input.value = val;
+    }
+
+    // Password Validation Logic
+    const newPass = document.getElementById('new_password');
+    const confirmPass = document.getElementById('confirm_password');
+    const submitBtn = document.getElementById('submit-btn');
+
+    const reqs = {
+        length: { el: document.getElementById('req-length'), regex: /.{8,}/ },
+        alphanumeric: { el: document.getElementById('req-alphanumeric'), regex: /^(?=.*[a-zA-Z])(?=.*[0-9])/ },
+        special: { el: document.getElementById('req-special'), regex: /[!@#$%^&*(),.?":{}|<>]/ }
+    };
+
+    function validatePassword() {
+        // Strip spaces in real-time
+        newPass.value = newPass.value.replace(/\s/g, '');
+        confirmPass.value = confirmPass.value.replace(/\s/g, '');
+
+        const val = newPass.value;
+        const confirmVal = confirmPass.value;
+        let allValid = true;
+
+        // Check each requirement
+        for (const key in reqs) {
+            const isValid = reqs[key].regex.test(val);
+            const el = reqs[key].el;
+            const icon = el.querySelector('.req-icon');
+            
+            if (isValid && val.length > 0) {
+                el.classList.remove('text-gray-400');
+                el.classList.add('text-green-500');
+                icon.setAttribute('data-lucide', 'check-circle-2');
+            } else {
+                el.classList.remove('text-green-500');
+                el.classList.add('text-gray-400');
+                icon.setAttribute('data-lucide', 'circle');
+                allValid = false;
+            }
+        }
+
+        // Check Match
+        const matchError = document.getElementById('match-error');
+        const matchSuccess = document.getElementById('match-success');
+        
+        if (confirmVal.length > 0) {
+            if (val === confirmVal) {
+                matchError.classList.add('hidden');
+                matchSuccess.classList.remove('hidden');
+            } else {
+                matchError.classList.remove('hidden');
+                matchSuccess.classList.add('hidden');
+                allValid = false;
+            }
+        } else {
+            matchError.classList.add('hidden');
+            matchSuccess.classList.add('hidden');
+            allValid = false;
+        }
+
+        // Update Submit Button
+        if (allValid) {
+            submitBtn.disabled = false;
+            submitBtn.classList.remove('bg-gray-200', 'text-gray-400', 'cursor-not-allowed');
+            submitBtn.classList.add('bg-yellow-600', 'text-white', 'hover:bg-yellow-700', 'shadow-lg', 'shadow-yellow-100');
+            submitBtn.innerHTML = '<i data-lucide="key" class="w-4 h-4"></i> Update Account Password';
+        } else {
+            submitBtn.disabled = true;
+            submitBtn.classList.add('bg-gray-200', 'text-gray-400', 'cursor-not-allowed');
+            submitBtn.classList.remove('bg-yellow-600', 'text-white', 'hover:bg-yellow-700', 'shadow-lg', 'shadow-yellow-100');
+            submitBtn.innerHTML = '<i data-lucide="lock" class="w-4 h-4"></i> Update Account Password';
+        }
+
+        if (window.lucide) lucide.createIcons();
+    }
+
+    newPass.addEventListener('input', validatePassword);
+    confirmPass.addEventListener('input', validatePassword);
 
     // Close on escape key
     window.addEventListener('keydown', function(event) {

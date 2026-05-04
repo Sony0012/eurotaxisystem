@@ -48,6 +48,8 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/my-account/update-profile-image', [MyAccountController::class, 'updateProfileImage'])->name('my-account.update-profile-image');
     Route::post('/my-account/change-password', [MyAccountController::class, 'changePassword'])->name('my-account.change-password');
     Route::post('/my-account/forgot-password', [MyAccountController::class, 'forgotPassword'])->name('my-account.forgot-password');
+    Route::post('/my-account/request-email-change', [MyAccountController::class, 'requestEmailChange'])->name('my-account.request-email-change');
+    Route::get('/my-account/verify-email/{token}', [MyAccountController::class, 'verifyEmailChange'])->name('my-account.verify-email');
 });
 
 // ─── Forgot Password Routes ────────────────────────────

@@ -61,6 +61,44 @@
         input::-webkit-outer-spin-button,
         input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         input[type=number] { -moz-appearance: textfield; }
+        /* Prevent FOUC: pre-size icon placeholders so sidebar doesn't reflow */
+        i[data-lucide] { display: inline-block; width: 1rem; height: 1rem; vertical-align: middle; flex-shrink: 0; }
+        .sidebar-item i[data-lucide] { width: 1.25rem; height: 1.25rem; }
+        
+        /* Smooth page transitions */
+        #appMainContent { 
+            transition: opacity 0.15s ease-in-out, transform 0.15s ease-in-out; 
+        }
+        .page-transitioning #appMainContent {
+            opacity: 0.7;
+            transform: scale(0.995);
+        }
+        
+        /* Prevent sidebar flicker during navigation */
+        #appSidebar {
+            transition: none;
+            will-change: transform;
+        }
+        
+        /* Loading state for navigation */
+        .nav-loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+        .nav-loading::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 16px;
+            height: 16px;
+            margin: -8px 0 0 -8px;
+            border: 2px solid transparent;
+            border-top-color: #fbbf24;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
     
     <!-- Lucide Icons (Local) -->
@@ -129,7 +167,7 @@
 
                     if ($canView) {
                         $notifs[] = [
-                            'id' => $alert->id,
+                            'id' => (string)$alert->id,
                             'title' => $alert->title,
                             'message' => $alert->message,
                             'type' => 'violation_alert', 
@@ -142,6 +180,8 @@
                 }
                 return $notifs;
             });
+
+
 
             // Convert timestamps back to Carbon objects after cache retrieval
             foreach($headerNotifications as &$n) {
@@ -186,6 +226,32 @@
                     $headerNotifications[] = $n;
                 }
             }
+
+            // ─── SYNC WITH READ STATUS (COOKIE) ───
+            $readNotifIds = [];
+            if (isset($_COOKIE['read_notifs'])) {
+                try {
+                    $readData = json_decode($_COOKIE['read_notifs'], true);
+                    
+                    // Handle legacy array format gracefully
+                    if (is_array($readData) && array_is_list($readData)) {
+                        $readNotifIds = array_map('strval', $readData);
+                    } elseif (is_array($readData)) {
+                        $nowMs = time() * 1000;
+                        foreach ($readData as $id => $timestamp) {
+                            if ($nowMs - $timestamp < 1800000) { // 30 minutes in milliseconds
+                                $readNotifIds[] = (string)$id;
+                            }
+                        }
+                    }
+                } catch (\Exception $e) {}
+            }
+            
+            // Filter out ALL read notifications across all categories
+            $headerNotifications = array_filter($headerNotifications, function($n) use ($readNotifIds) {
+                $notifId = isset($n['id']) ? (string)$n['id'] : md5(($n['title'] ?? '') . ($n['message'] ?? ''));
+                return !in_array($notifId, $readNotifIds);
+            });
 
             $headerNotificationCount = count($headerNotifications);
             
@@ -412,7 +478,7 @@
                         </button>
                     </div>
                 </div>
-            </aside>
+                </aside>
 
             <!-- Main Content -->
             <main id="appMainContent" class="flex-1 flex flex-col overflow-hidden">
@@ -436,7 +502,7 @@
                                     class="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg">
                                     <i data-lucide="bell" class="w-5 h-5"></i>
                                     <span id="main-nav-notif-badge"
-                                            class="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-red-500 text-white text-[10px] leading-[18px] rounded-full text-center {{ $headerNotificationCount > 0 ? '' : 'hidden' }}">
+                                            class="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-red-500 text-white text-[10px] font-black leading-[18px] rounded-full text-center transition-all duration-300 {{ $headerNotificationCount > 0 ? '' : 'hidden' }}">
                                             {{ $headerNotificationCount }}
                                         </span>
                                 </button>
@@ -685,9 +751,12 @@
         </div>
     @endauth
 
-    <!-- Initialize Lucide icons -->
+    <!-- Initialize Lucide icons (page content + bfcache restore) -->
     <script>
         lucide.createIcons();
+        window.addEventListener('pageshow', function(e) {
+            if (e.persisted) { lucide.createIcons(); }
+        });
     </script>
 
     <!-- Common JavaScript -->
@@ -737,14 +806,35 @@
             setInterval(updateHeaderClock, 1000);
 
             // Restore Read States
-            const readNotifs = JSON.parse(localStorage.getItem('read_notifs') || '[]');
-            readNotifs.forEach(id => {
-                const el = document.getElementById('notif-' + id);
-                if (el) {
-                    el.style.backgroundColor = 'transparent';
-                    el.classList.remove('unread-notif');
+            let readNotifs = JSON.parse(localStorage.getItem('read_notifs') || '{}');
+            
+            // Migrate legacy array to object format
+            if (Array.isArray(readNotifs)) {
+                readNotifs = {};
+                localStorage.setItem('read_notifs', JSON.stringify(readNotifs));
+            }
+
+            const nowMs = Date.now();
+            let needsCleanup = false;
+
+            Object.keys(readNotifs).forEach(id => {
+                if (nowMs - readNotifs[id] < 1800000) { // Still within 30 minutes
+                    const el = document.getElementById('notif-' + id);
+                    if (el) {
+                        el.style.backgroundColor = 'transparent';
+                        el.classList.remove('unread-notif');
+                    }
+                } else {
+                    delete readNotifs[id]; // Expired, remove it
+                    needsCleanup = true;
                 }
             });
+            
+            // Self-heal and cleanup expired cookies
+            if (needsCleanup || Object.keys(readNotifs).length > 0) {
+                localStorage.setItem('read_notifs', JSON.stringify(readNotifs));
+                document.cookie = "read_notifs=" + encodeURIComponent(JSON.stringify(readNotifs)) + "; path=/; max-age=" + (30 * 24 * 60 * 60);
+            }
 
             // Update badge counts after restoring states
             if (typeof updateNotificationCount === 'function') {
@@ -779,11 +869,24 @@
         }
 
         function markAsRead(id) {
-            const readNotifs = JSON.parse(localStorage.getItem('read_notifs') || '[]');
-            if (!readNotifs.includes(id)) {
-                readNotifs.push(id);
-                localStorage.setItem('read_notifs', JSON.stringify(readNotifs));
+            id = String(id);
+            let readNotifs = JSON.parse(localStorage.getItem('read_notifs') || '{}');
+            if (Array.isArray(readNotifs)) readNotifs = {};
+
+            readNotifs[id] = Date.now();
+            
+            // Cleanup expired entries
+            const now = Date.now();
+            for (const key in readNotifs) {
+                if (now - readNotifs[key] >= 1800000) {
+                    delete readNotifs[key];
+                }
             }
+
+            localStorage.setItem('read_notifs', JSON.stringify(readNotifs));
+            // Set cookie for PHP awareness (30 days)
+            document.cookie = "read_notifs=" + encodeURIComponent(JSON.stringify(readNotifs)) + "; path=/; max-age=" + (30 * 24 * 60 * 60);
+            
             const el = document.getElementById('notif-' + id);
             if (el) {
                 el.style.backgroundColor = 'transparent';
@@ -797,18 +900,30 @@
 
         function markAllAsRead() {
             const items = document.querySelectorAll('.notification-item');
-            const readNotifs = JSON.parse(localStorage.getItem('read_notifs') || '[]');
+            let readNotifs = JSON.parse(localStorage.getItem('read_notifs') || '{}');
+            if (Array.isArray(readNotifs)) readNotifs = {};
+            
+            const now = Date.now();
             
             items.forEach(item => {
-                const id = item.dataset.notifId;
-                if (id && !readNotifs.includes(id)) {
-                    readNotifs.push(id);
+                const id = String(item.dataset.notifId);
+                if (id) {
+                    readNotifs[id] = now;
                 }
                 item.style.backgroundColor = 'transparent';
                 item.classList.remove('unread-notif');
             });
+
+            // Cleanup expired entries
+            for (const key in readNotifs) {
+                if (now - readNotifs[key] >= 1800000) {
+                    delete readNotifs[key];
+                }
+            }
             
             localStorage.setItem('read_notifs', JSON.stringify(readNotifs));
+            // Set cookie for PHP awareness (30 days)
+            document.cookie = "read_notifs=" + encodeURIComponent(JSON.stringify(readNotifs)) + "; path=/; max-age=" + (30 * 24 * 60 * 60);
             
             // Zero out badge counts
             if (typeof updateNotificationCount === 'function') {
@@ -894,6 +1009,161 @@
                 }
             });
         }
+        // Initialize all Lucide icons after the entire DOM is parsed to prevent FOUC
+        if(window.lucide) {
+            window.lucide.createIcons();
+        }
+        
+        // Client-Side Routing System - No Page Reloads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Ensure Lucide icons are immediately visible
+            if(window.lucide) {
+                window.lucide.createIcons();
+            }
+            
+            // Cache for loaded pages
+            const pageCache = new Map();
+            
+            // Prefetch and cache pages on hover
+            const prefetchTimeout = {};
+            document.querySelectorAll('.sidebar-item').forEach(link => {
+                link.addEventListener('mouseenter', function() {
+                    const href = this.getAttribute('href');
+                    if (href && !href.startsWith('#') && !pageCache.has(href)) {
+                        clearTimeout(prefetchTimeout[href]);
+                        prefetchTimeout[href] = setTimeout(() => {
+                            fetchPage(href, true); // Prefetch without showing
+                        }, 200);
+                    }
+                });
+                
+                link.addEventListener('mouseleave', function() {
+                    const href = this.getAttribute('href');
+                    if (href && prefetchTimeout[href]) {
+                        clearTimeout(prefetchTimeout[href]);
+                    }
+                });
+            });
+            
+            // Fetch page content
+            async function fetchPage(url, prefetch = false) {
+                if (pageCache.has(url)) {
+                    return pageCache.get(url);
+                }
+                
+                try {
+                    const response = await fetch(url, {
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                            'Accept': 'text/html'
+                        }
+                    });
+                    
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    
+                    const html = await response.text();
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    
+                    // Extract main content
+                    const mainContent = doc.querySelector('#appMainContent');
+                    const pageTitle = doc.querySelector('title')?.textContent || '';
+                    
+                    const pageData = { mainContent, pageTitle, html };
+                    pageCache.set(url, pageData);
+                    
+                    return pageData;
+                } catch (error) {
+                    console.error('Error fetching page:', error);
+                    if (!prefetch) {
+                        window.location.href = url; // Fallback to normal navigation
+                    }
+                }
+            }
+            
+            // Update page content without reload
+            async function navigateToPage(url) {
+                // Add loading state
+                document.body.classList.add('page-transitioning');
+                
+                try {
+                    const pageData = await fetchPage(url);
+                    
+                    if (pageData.mainContent) {
+                        // Update main content
+                        const mainContent = document.querySelector('#appMainContent');
+                        mainContent.innerHTML = pageData.mainContent.innerHTML;
+                        
+                        // Update page title
+                        if (pageData.pageTitle) {
+                            document.title = pageData.pageTitle;
+                        }
+                        
+                        // Update URL without reload
+                        history.pushState({}, '', url);
+                        
+                        // Re-initialize Lucide icons in new content
+                        if(window.lucide) {
+                            window.lucide.createIcons();
+                        }
+                        
+                        // Re-run any scripts in the new content
+                        const scripts = mainContent.querySelectorAll('script');
+                        scripts.forEach(script => {
+                            const newScript = document.createElement('script');
+                            if (script.src) {
+                                newScript.src = script.src;
+                            } else {
+                                newScript.textContent = script.textContent;
+                            }
+                            document.head.appendChild(newScript);
+                        });
+                    }
+                } catch (error) {
+                    console.error('Navigation error:', error);
+                    window.location.href = url; // Fallback
+                } finally {
+                    // Remove loading state
+                    setTimeout(() => {
+                        document.body.classList.remove('page-transitioning');
+                        document.querySelectorAll('.nav-loading').forEach(el => {
+                            el.classList.remove('nav-loading');
+                        });
+                    }, 100);
+                }
+            }
+            
+            // Handle sidebar navigation
+            document.querySelectorAll('.sidebar-item').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    const href = this.getAttribute('href');
+                    
+                    // Skip external links, anchors, and if modifier keys are pressed
+                    if (!href || href.startsWith('#') || href.startsWith('http') || e.ctrlKey || e.metaKey || e.shiftKey) {
+                        return;
+                    }
+                    
+                    e.preventDefault();
+                    
+                    // Add loading state
+                    this.classList.add('nav-loading');
+                    
+                    // Navigate without page reload
+                    navigateToPage(href);
+                });
+            });
+            
+            // Handle browser back/forward
+            window.addEventListener('popstate', function(e) {
+                if (e.state !== null) {
+                    navigateToPage(window.location.href);
+                }
+            });
+            
+            // Initialize history state
+            history.replaceState({}, '', window.location.href);
+        });
     </script>
     @stack('scripts')
 </body>
