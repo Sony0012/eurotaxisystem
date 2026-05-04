@@ -72,25 +72,29 @@
                         <div class="flex flex-col gap-1">
                             <div class="flex items-center gap-2">
                                 <span class="text-[10px] font-black text-gray-400 uppercase tracking-tighter">D1:</span>
-                                <span class="text-[11px] font-bold {{ $unit->driver_id ? 'text-gray-900' : 'text-gray-300 italic' }}">
-                                    @if($unit->driver_id && $primary_driver)
-                                        @php $d1 = explode('|', $primary_driver); @endphp
+                                @if($unit->driver_id && $primary_driver)
+                                    @php $d1 = explode('|', $primary_driver); @endphp
+                                    <a href="{{ route('driver-management.show', $unit->driver_id) }}" 
+                                       onclick="event.stopPropagation()"
+                                       class="text-[11px] font-bold text-blue-600 hover:text-blue-800 hover:underline transition-colors">
                                         {{ $d1[0] }}
-                                    @else
-                                        No D1
-                                    @endif
-                                </span>
+                                    </a>
+                                @else
+                                    <span class="text-[11px] font-bold text-gray-300 italic">No D1</span>
+                                @endif
                             </div>
                             <div class="flex items-center gap-2">
                                 <span class="text-[10px] font-black text-gray-400 uppercase tracking-tighter">D2:</span>
-                                <span class="text-[11px] font-bold {{ $unit->secondary_driver_id ? 'text-gray-900' : 'text-gray-300 italic' }}">
-                                    @if($unit->secondary_driver_id && $secondary_driver)
-                                        @php $d2 = explode('|', $secondary_driver); @endphp
+                                @if($unit->secondary_driver_id && $secondary_driver)
+                                    @php $d2 = explode('|', $secondary_driver); @endphp
+                                    <a href="{{ route('driver-management.show', $unit->secondary_driver_id) }}" 
+                                       onclick="event.stopPropagation()"
+                                       class="text-[11px] font-bold text-blue-600 hover:text-blue-800 hover:underline transition-colors">
                                         {{ $d2[0] }}
-                                    @else
-                                        No D2
-                                    @endif
-                                </span>
+                                    </a>
+                                @else
+                                    <span class="text-[11px] font-bold text-gray-300 italic">No D2</span>
+                                @endif
                             </div>
                         </div>
                     </td>
@@ -127,21 +131,36 @@
                         </button>
 
                         <div id="unit-dropdown-{{ $unit->id }}"
-                            class="unit-action-dropdown hidden absolute right-4 mt-1 w-40 bg-white rounded-lg shadow-xl border border-gray-100 z-50 overflow-hidden">
+                            class="unit-action-dropdown hidden absolute right-4 mt-1 w-44 bg-white rounded-lg shadow-xl border border-gray-100 z-50 overflow-hidden">
                             {{-- Edit --}}
                             <button type="button"
                                 class="w-full text-left px-4 py-2.5 text-xs font-bold text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors flex items-center gap-2"
                                 onclick="event.stopPropagation(); document.getElementById('unit-dropdown-{{ $unit->id }}').classList.add('hidden'); editUnit({{ $unit->id }})">
                                 <i data-lucide="edit-2" class="w-4 h-4"></i> Edit Unit
                             </button>
+
+                            {{-- Reset Service (Mileage) --}}
+                            @if(((int)($unit->gps_device_count ?? 0) > 0) || !empty($unit->imei))
+                                <form method="POST" action="{{ route('units.reset-health', $unit->id) }}"
+                                    onsubmit="return confirm('Reset service mileage for unit {{ $unit->plate_number }}? This will restart the 5,000 KM counter from the current odometer.');"
+                                    class="m-0 p-0 border-t border-gray-50">
+                                    @csrf
+                                    <button type="submit"
+                                        onclick="event.stopPropagation()"
+                                        class="w-full text-left px-4 py-2.5 text-xs font-bold text-green-600 hover:bg-green-50 transition-colors flex items-center gap-2">
+                                        <i data-lucide="refresh-cw" class="w-4 h-4"></i> Reset Service
+                                    </button>
+                                </form>
+                            @endif
+
                             {{-- Archive --}}
                             <form method="POST" action="{{ route('units.destroy', $unit->id) }}"
                                 onsubmit="return confirm('Archive unit {{ $unit->plate_number }}? It will be moved to the Archive page.');"
-                                class="m-0 p-0">
+                                class="m-0 p-0 border-t border-gray-50">
                                 @csrf @method('DELETE')
                                 <button type="submit"
                                     onclick="event.stopPropagation()"
-                                    class="w-full text-left px-4 py-2.5 text-xs font-bold text-amber-600 hover:bg-amber-50 transition-colors flex items-center gap-2 border-t border-gray-50">
+                                    class="w-full text-left px-4 py-2.5 text-xs font-bold text-amber-600 hover:bg-amber-50 transition-colors flex items-center gap-2">
                                     <i data-lucide="archive" class="w-4 h-4"></i> Archive Unit
                                 </button>
                             </form>
