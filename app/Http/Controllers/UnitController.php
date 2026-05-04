@@ -798,7 +798,11 @@ class UnitController extends Controller
             ->whereNull('deleted_at')
             ->whereIn('status', ['surveillance', 'missing'])
             ->select('id', 'plate_number', 'make', 'model', 'status', 'driver_id', 'secondary_driver_id')
-            ->get();
+            ->get()
+            ->map(function ($unit) {
+                $unit->flag_source = ($unit->status === 'missing') ? 'manual_stolen' : 'manual_surveillance';
+                return $unit;
+            });
 
         // 2. Auto-detected missing units: has a driver, overdue boundary (>48h), NOT already surveillance
         $autoMissingUnits = DB::table('units')
@@ -811,7 +815,11 @@ class UnitController extends Controller
                   ->orWhereNotNull('secondary_driver_id');
             })
             ->select('id', 'plate_number', 'make', 'model', 'status', 'driver_id', 'secondary_driver_id')
-            ->get();
+            ->get()
+            ->map(function ($unit) {
+                $unit->flag_source = 'auto_boundary';
+                return $unit;
+            });
 
         // Merge and de-duplicate by id
         $allFlagged = $surveillanceUnits->merge($autoMissingUnits)->unique('id')->values();
@@ -879,7 +887,36 @@ class UnitController extends Controller
                 $unit->last_known_driver = 'No boundary record';
                 $unit->last_driver_contact = null;
             }
+
+            // Manual stolen/taken report: use operator-entered days + driver details from latest matching incident
+            if (($unit->flag_source ?? '') === 'manual_stolen') {
+                $stolenMeta = DB::table('driver_behavior')
+                    ->where('unit_id', $unit->id)
+                    ->whereNull('deleted_at')
+                    ->where(function ($q) {
+                        $q->where('incident_type', 'like', '%taken%')
+                            ->orWhere('incident_type', 'like', '%stolen%');
+                    })
+                    ->orderByDesc('id')
+                    ->first();
+
+                if ($stolenMeta) {
+                    if ($stolenMeta->missing_days_reported !== null) {
+                        $unit->days_inactive = (int) $stolenMeta->missing_days_reported;
+                    }
+                    if (!empty($stolenMeta->stolen_driver_detail_name)) {
+                        $unit->suspect_driver = $stolenMeta->stolen_driver_detail_name;
+                        $unit->suspect_contact = $stolenMeta->stolen_driver_detail_contact ?: null;
+                        $unit->is_vacant = false;
+                    }
+                    if (!empty($stolenMeta->stolen_driver_license_no)) {
+                        $unit->stolen_driver_license_no = $stolenMeta->stolen_driver_license_no;
+                    }
+                }
+            }
+
             $unit->is_surveillance = ($unit->status === 'surveillance');
+            $unit->is_at_risk = in_array(($unit->flag_source ?? ''), ['manual_stolen', 'manual_surveillance'], true);
         }
         
         return response()->json($allFlagged);

@@ -1216,10 +1216,16 @@
                     const daysMissing = unit.days_inactive !== null && unit.days_inactive !== undefined ? unit.days_inactive : '?';
                     const daysColor = (daysMissing === '?' || daysMissing > 2) ? 'text-red-600 font-bold' : 'text-orange-600 font-bold';
                     const csrfToken = document.querySelector('meta[name="csrf-token"]') ? document.querySelector('meta[name="csrf-token"]').getAttribute('content') : '';
-                    const badge = unit.is_at_risk 
-                        ? `<span class="text-[9px] px-1.5 py-0.5 bg-red-100 text-red-700 rounded font-bold uppercase tracking-wide">🚨 Manually Flagged</span>`
-                        : `<span class="text-[9px] px-1.5 py-0.5 bg-orange-100 text-orange-700 rounded font-bold uppercase tracking-wide">⚠️ Auto-Detected</span>`;
-                    const borderColor = unit.is_at_risk ? 'border-red-500' : 'border-orange-400';
+                    const flagSrc = unit.flag_source || (unit.is_at_risk ? 'manual_surveillance' : 'auto_boundary');
+                    let badgeHtml = '';
+                    if (flagSrc === 'manual_stolen') {
+                        badgeHtml = `<span class="text-[9px] px-1.5 py-0.5 bg-red-100 text-red-800 rounded font-bold uppercase tracking-wide">Manual input — stolen / taken</span>`;
+                    } else if (flagSrc === 'manual_surveillance') {
+                        badgeHtml = `<span class="text-[9px] px-1.5 py-0.5 bg-rose-100 text-rose-800 rounded font-bold uppercase tracking-wide">Manual — surveillance / at risk</span>`;
+                    } else {
+                        badgeHtml = `<span class="text-[9px] px-1.5 py-0.5 bg-orange-100 text-orange-800 rounded font-bold uppercase tracking-wide">Auto-detected — boundary overdue</span>`;
+                    }
+                    const borderColor = (flagSrc === 'manual_stolen' || flagSrc === 'manual_surveillance') ? 'border-red-500' : 'border-orange-400';
                     
                     const suspectDisplay = unit.is_vacant 
                         ? `<span class="bg-gray-200 text-gray-600 px-1.5 py-0.5 rounded font-bold italic tracking-tight">NO ASSIGNED DRIVER</span>`
@@ -1237,7 +1243,7 @@
                                 <div class="flex-1 min-w-0">
                                     <div class="flex items-center gap-2 mb-0.5 flex-wrap">
                                         <h5 class="font-bold text-base text-gray-900 leading-none">${unit.plate_number}</h5>
-                                        ${badge}
+                                        ${badgeHtml}
                                     </div>
                                     <p class="text-[10px] text-gray-400">${unit.make || ''} ${unit.model || ''}</p>
                                     
@@ -1250,6 +1256,11 @@
                                             <span class="text-gray-400 w-24 flex-shrink-0">Contact # :</span>
                                             ${contactDisplay}
                                         </div>
+                                        ${unit.stolen_driver_license_no ? `
+                                        <div class="flex items-center gap-1.5 text-[10px]">
+                                            <span class="text-gray-400 w-24 flex-shrink-0">License:</span>
+                                            <span class="text-gray-700 font-semibold tracking-tight">${unit.stolen_driver_license_no}</span>
+                                        </div>` : ''}
                                         <div class="flex items-center gap-1.5 text-[10px] pt-1 mt-1 border-t border-gray-100">
                                             <span class="text-gray-400 w-24 flex-shrink-0">Last Return By:</span>
                                             <span class="text-gray-600 italic font-medium">${unit.last_known_driver || 'None'}</span>

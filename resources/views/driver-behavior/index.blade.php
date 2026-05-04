@@ -683,7 +683,7 @@
                             <input type="hidden" name="driver_id" id="incidentDriverId" required>
                             <div id="driverSearchDropdown" class="search-dropdown hidden">
                                 @foreach($drivers as $d)
-                                    <div class="search-option driver-search-option" data-id="{{ $d->id }}" data-name="{{ $d->full_name }}">
+                                    <div class="search-option driver-search-option" data-id="{{ $d->id }}" data-name="{{ $d->full_name }}" data-contact="{{ $d->contact_number ?? '' }}">
                                         <div class="flex justify-between items-start">
                                             <div class="font-black text-xs text-gray-900">{{ $d->full_name }}</div>
                                             <span class="recommend-badge hidden px-1.5 py-0.5 bg-green-100 text-green-700 text-[8px] font-black rounded uppercase tracking-widest animate-pulse">
@@ -801,6 +801,41 @@
                         <p class="text-[12px] font-black text-white uppercase tracking-widest">Security Lockdown Protocol</p>
                     </div>
                     <p class="text-[10px] font-bold text-red-100 leading-relaxed uppercase">Recording this incident will trigger an immediate permanent ban for the driver and flag the vehicle as stolen/missing in the system dashboard.</p>
+                </div>
+
+                {{-- Manual stolen/taken: operator-entered missing days + driver details (does not change auto boundary detection) --}}
+                <div id="manualStolenDetailSection" class="hidden bg-white p-6 rounded-3xl border-2 border-amber-200 shadow-sm space-y-4">
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <span class="text-[10px] font-black uppercase tracking-widest text-amber-900 bg-amber-100 px-2.5 py-1 rounded-lg border border-amber-300">Manual input</span>
+                        <p class="text-[11px] font-black text-gray-700 uppercase tracking-widest">Missing unit — operator report</p>
+                    </div>
+                    <p class="text-[10px] text-gray-500 leading-relaxed">Ilagay ang bilang ng araw na nawawala ang unit at ang detalyadong impormasyon ng driver. Makikita ito sa <strong>Flagged units</strong> bilang manual report (hindi auto-detected).</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="sm:col-span-1">
+                            <label class="block text-[10px] font-black text-gray-500 uppercase mb-2 ml-1">Days unit has been missing *</label>
+                            <input type="number" name="missing_days_reported" id="missing_days_reported" min="0" max="3650" step="1"
+                                class="w-full px-4 py-3.5 bg-amber-50/50 border border-amber-100 rounded-2xl text-sm font-bold text-gray-900 focus:ring-4 focus:ring-amber-500/10 focus:border-amber-400 focus:outline-none transition-all"
+                                placeholder="0" autocomplete="off">
+                        </div>
+                        <div class="sm:col-span-1">
+                            <label class="block text-[10px] font-black text-gray-500 uppercase mb-2 ml-1">Driver full name (detailed) *</label>
+                            <input type="text" name="stolen_driver_detail_name" id="stolen_driver_detail_name" maxlength="255"
+                                class="w-full px-4 py-3.5 bg-amber-50/50 border border-amber-100 rounded-2xl text-sm font-bold text-gray-900 focus:ring-4 focus:ring-amber-500/10 focus:border-amber-400 focus:outline-none transition-all"
+                                placeholder="Buong pangalan ng driver" autocomplete="off">
+                        </div>
+                        <div class="sm:col-span-1">
+                            <label class="block text-[10px] font-black text-gray-500 uppercase mb-2 ml-1">Driver contact #</label>
+                            <input type="text" name="stolen_driver_detail_contact" id="stolen_driver_detail_contact" maxlength="64"
+                                class="w-full px-4 py-3.5 bg-amber-50/50 border border-amber-100 rounded-2xl text-sm font-bold text-gray-900 focus:ring-4 focus:ring-amber-500/10 focus:border-amber-400 focus:outline-none transition-all"
+                                placeholder="Mobile / phone" autocomplete="off">
+                        </div>
+                        <div class="sm:col-span-1">
+                            <label class="block text-[10px] font-black text-gray-500 uppercase mb-2 ml-1">License no. (optional)</label>
+                            <input type="text" name="stolen_driver_license_no" id="stolen_driver_license_no" maxlength="64"
+                                class="w-full px-4 py-3.5 bg-amber-50/50 border border-amber-100 rounded-2xl text-sm font-bold text-gray-900 focus:ring-4 focus:ring-amber-500/10 focus:border-amber-400 focus:outline-none transition-all"
+                                placeholder="Driver license" autocomplete="off">
+                        </div>
+                    </div>
                 </div>
 
                 {{-- ── DAMAGE MODE: Full Assessment ── --}}
@@ -1762,6 +1797,25 @@ window.handleTypeChange = function(val, context = '') {
         if (sec) sec.classList.remove('hidden');
     }
 
+    // Manual stolen/taken fields (record modal only)
+    if (!context) {
+        const stolenSec = document.getElementById('manualStolenDetailSection');
+        if (stolenSec) {
+            if (mode === 'security') {
+                stolenSec.classList.remove('hidden');
+                if (typeof window._prefillManualStolenFromSelectedDriver === 'function') {
+                    window._prefillManualStolenFromSelectedDriver();
+                }
+            } else {
+                stolenSec.classList.add('hidden');
+                ['missing_days_reported', 'stolen_driver_detail_name', 'stolen_driver_detail_contact', 'stolen_driver_license_no'].forEach(function (id) {
+                    const el = document.getElementById(id);
+                    if (el) el.value = '';
+                });
+            }
+        }
+    }
+
     // 5. Explicitly handle Charge Section for Edit Modal
     if (context === 'edit' || (val && document.getElementById('edit_incident_type')?.value === val)) {
         const chargeSection = document.getElementById('edit-total-charge-section');
@@ -1857,6 +1911,29 @@ window._checkAutoBanState = function() {
 // If null/empty, show all drivers.
 let allowedDriverIds = null;
 
+window._prefillManualStolenFromSelectedDriver = function (driverOpt) {
+    const sec = document.getElementById('manualStolenDetailSection');
+    if (!sec || sec.classList.contains('hidden')) return;
+    const nameEl = document.getElementById('stolen_driver_detail_name');
+    const contactEl = document.getElementById('stolen_driver_detail_contact');
+    if (!nameEl || !contactEl) return;
+    let opt = driverOpt;
+    if (!opt) {
+        const hid = document.getElementById('incidentDriverId');
+        const id = hid && hid.value;
+        if (id) {
+            opt = document.querySelector('.driver-search-option[data-id="' + String(id) + '"]');
+        }
+    }
+    if (opt && opt.dataset) {
+        if (!String(nameEl.value).trim()) nameEl.value = opt.dataset.name || '';
+        if (!String(contactEl.value).trim()) contactEl.value = opt.dataset.contact || '';
+    } else {
+        const disp = document.getElementById('driverSearchDisplay');
+        if (disp && disp.value && !String(nameEl.value).trim()) nameEl.value = disp.value;
+    }
+};
+
 function setDriverOptionsVisibility(allowedIds) {
     const allowed = new Set((allowedIds || []).map(String).filter(v => v && v !== '0' && v !== 'null'));
     const opts = document.querySelectorAll('.driver-search-option');
@@ -1924,6 +2001,10 @@ function initializeSearchDropdowns() {
             drop.classList.add('hidden');
             drop.classList.remove('flex');
 
+            if (options === 'driver-search-option' && typeof window._prefillManualStolenFromSelectedDriver === 'function') {
+                window._prefillManualStolenFromSelectedDriver(opt);
+            }
+
             // Robust Unit -> Driver Auto-fill
             if (options === 'unit-search-option') {
                 const driverHidden = document.getElementById('incidentDriverId');
@@ -1946,6 +2027,9 @@ function initializeSearchDropdowns() {
                         if (driverOpt) {
                             driverHidden.value = ids[0];
                             driverDisplay.value = driverOpt.dataset.name;
+                            if (typeof window._prefillManualStolenFromSelectedDriver === 'function') {
+                                window._prefillManualStolenFromSelectedDriver(driverOpt);
+                            }
                         }
                     } else {
                         // For shared units or no assigned: open dropdown immediately so suggestions are visible

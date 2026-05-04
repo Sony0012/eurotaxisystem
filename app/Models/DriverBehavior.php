@@ -19,7 +19,8 @@ class DriverBehavior extends Model
         'third_party_name', 'third_party_vehicle', 'own_unit_damage_cost', 
         'third_party_damage_cost', 'is_driver_fault', 'total_charge_to_driver', 
         'total_paid', 'remaining_balance', 'charge_status', 'latitude', 'longitude', 
-        'timestamp', 'incident_date', 'video_url', 'incentive_released_at'
+        'timestamp', 'incident_date', 'video_url', 'incentive_released_at',
+        'missing_days_reported', 'stolen_driver_detail_name', 'stolen_driver_detail_contact', 'stolen_driver_license_no',
     ];
 
     public function involvedParties()

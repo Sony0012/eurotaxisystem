@@ -101,7 +101,8 @@ class DriverBehaviorController extends Controller
             ->where('d.driver_status', '!=', 'banned')
             ->select('d.id', 
                 DB::raw("TRIM(CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,''))) as full_name"),
-                'u.plate_number as current_plate'
+                'u.plate_number as current_plate',
+                'd.contact_number'
             )
             ->orderBy('d.last_name')->get();
 
@@ -143,6 +144,10 @@ class DriverBehaviorController extends Controller
             'latitude'               => 'nullable|numeric',
             'longitude'              => 'nullable|numeric',
             'video_url'              => 'nullable|string',
+            'missing_days_reported'  => 'nullable|integer|min:0|max:3650',
+            'stolen_driver_detail_name' => 'nullable|string|max:255',
+            'stolen_driver_detail_contact' => 'nullable|string|max:64',
+            'stolen_driver_license_no' => 'nullable|string|max:64',
         ]);
 
         $parties = $request->input('parties', []);
@@ -158,6 +163,24 @@ class DriverBehaviorController extends Controller
         $isTraffic  = $behaviorMode === 'traffic';
         $isComplaint= $behaviorMode === 'complaint';
         $isSecurity = $behaviorMode === 'security';
+
+        if ($isSecurity) {
+            $secData = $request->validate([
+                'missing_days_reported' => 'required|integer|min:0|max:3650',
+                'stolen_driver_detail_name' => 'required|string|max:255',
+                'stolen_driver_detail_contact' => 'nullable|string|max:64',
+                'stolen_driver_license_no' => 'nullable|string|max:64',
+            ]);
+            $data['missing_days_reported'] = $secData['missing_days_reported'];
+            $data['stolen_driver_detail_name'] = $secData['stolen_driver_detail_name'];
+            $data['stolen_driver_detail_contact'] = $secData['stolen_driver_detail_contact'] ?? null;
+            $data['stolen_driver_license_no'] = $secData['stolen_driver_license_no'] ?? null;
+        } else {
+            $data['missing_days_reported'] = null;
+            $data['stolen_driver_detail_name'] = null;
+            $data['stolen_driver_detail_contact'] = null;
+            $data['stolen_driver_license_no'] = null;
+        }
 
         // ── Compute damage costs only for damage mode ──────────────────
         $computedOwnUnitDamage = 0;
@@ -211,6 +234,10 @@ class DriverBehaviorController extends Controller
             'video_url'               => $data['video_url'] ?? '',
             'timestamp'               => now()->timezone('Asia/Manila'),
             'incident_date'           => $data['incident_date'] ?? now()->timezone('Asia/Manila')->toDateString(),
+            'missing_days_reported'   => $data['missing_days_reported'] ?? null,
+            'stolen_driver_detail_name' => $data['stolen_driver_detail_name'] ?? null,
+            'stolen_driver_detail_contact' => $data['stolen_driver_detail_contact'] ?? null,
+            'stolen_driver_license_no' => $data['stolen_driver_license_no'] ?? null,
         ]);
 
         // ── Insert Involved Parties (damage mode only) ─────────────────
