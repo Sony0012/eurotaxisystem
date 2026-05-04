@@ -8,7 +8,7 @@ const config = {
     readyTimeout: 20000
 };
 
-const command = 'cd /home/u747826271/domains/eurotaxisystem.site/public_html && git fetch origin main && git checkout origin/main -- app/Http/Controllers/MyAccountController.php resources/views/my-account/index.blade.php resources/views/layouts/app.blade.php routes/web.php app/Mail/EmailChangeRequested.php app/Mail/VerifyNewEmail.php resources/views/emails/email-change-requested.blade.php resources/views/emails/verify-new-email.blade.php database/migrations/2026_05_04_141234_add_email_change_fields_to_users_table.php && rsync -av --exclude="storage" public/ . && sed -i \'s|../vendor|vendor|g\' index.php && sed -i \'s|../bootstrap|bootstrap|g\' index.php && php artisan migrate --force && php artisan optimize && echo "---SUCCESS_DEPLOY---"';
+const command = 'cd /home/u747826271/domains/eurotaxisystem.site/public_html && git fetch origin main && git checkout origin/main -- app/Http/Controllers/MyAccountController.php resources/views/my-account/index.blade.php resources/views/layouts/app.blade.php routes/web.php app/Mail/EmailChangeRequested.php app/Mail/VerifyNewEmail.php resources/views/emails/email-change-requested.blade.php resources/views/emails/verify-new-email.blade.php database/migrations/2026_05_04_141234_add_email_change_fields_to_users_table.php app/Http/Controllers/SuperAdminController.php && rsync -av --exclude="storage" public/ . && sed -i \'s|../vendor|vendor|g\' index.php && sed -i \'s|../bootstrap|bootstrap|g\' index.php && php artisan migrate --force && php artisan optimize && echo "---SUCCESS_DEPLOY---"';
 
 console.log('--- ROBUST DEPLOYMENT START ---');
 console.log(`Connecting to ${config.host}:${config.port} as ${config.username}...`);
@@ -18,14 +18,14 @@ const conn = new Client();
 conn.on('ready', () => {
     console.log('SSH Connection Ready.');
     console.log('Executing deployment commands...');
-    
+
     conn.exec(command, (err, stream) => {
         if (err) {
             console.error('Execution Error:', err);
             conn.end();
             return;
         }
-        
+
         stream.on('close', (code, signal) => {
             console.log(`\nStream Closed with code: ${code}`);
             conn.end();

@@ -40,6 +40,7 @@ class SuperAdminController extends Controller
 
         // ─── Reports ───────────────────────────
         'analytics.*'                => ['icon' => 'bar-chart',        'label' => 'Analytics',           'group' => '5. Reports'],
+        'unit-profitability.*'       => ['icon' => 'trending-up',      'label' => 'Unit Profitability',  'group' => '5. Reports'],
     ];
 
     // ─── Dashboard ────────────────────────────────────────────────────────────
