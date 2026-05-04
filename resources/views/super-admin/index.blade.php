@@ -520,11 +520,11 @@
                             </td>
                             <td>
                                 @if($u->is_disabled)
-                                    <button onclick="confirmEnable({{ $u->id }}, '{{ $u->full_name }}')" style="background:#fef2f2; border:1px solid #ef4444; color:#b91c1c; border-radius:999px; padding:.2rem .75rem; font-size:.68rem; font-weight:800; cursor:pointer;" title="Click to enable account">
+                                    <button onclick="confirmEnable({{ $u->id }}, '{{ addslashes($u->full_name) }}')" style="background:#fef2f2; border:1px solid #ef4444; color:#b91c1c; border-radius:999px; padding:.2rem .75rem; font-size:.68rem; font-weight:800; cursor:pointer;" title="Click to enable account">
                                         ● Disabled
                                     </button>
                                 @else
-                                    <button onclick="openDisableModal({{ $u->id }}, '{{ $u->full_name }}')" style="background:#f0fdf4; border:1px solid #22c55e; color:#15803d; border-radius:999px; padding:.2rem .75rem; font-size:.68rem; font-weight:800; cursor:pointer;" title="Click to disable account">
+                                    <button onclick="openDisableModal({{ $u->id }}, '{{ addslashes($u->full_name) }}')" style="background:#f0fdf4; border:1px solid #22c55e; color:#15803d; border-radius:999px; padding:.2rem .75rem; font-size:.68rem; font-weight:800; cursor:pointer;" title="Click to disable account">
                                         ● Active
                                     </button>
                                 @endif
@@ -534,13 +534,11 @@
                             </td>
                             <td>
                                 <div class="flex justify-end gap-1.5">
-                                    <button type="button" class="p-2 text-slate-400 hover:text-amber-600 transition-colors edit-user-btn" style="cursor: pointer !important;" title="Edit User" 
-                                            data-user='@json($editData)'>
-                                        <i data-lucide="edit-3" class="w-4 h-4" style="pointer-events: none;"></i>
+                                    <button class="p-2 text-slate-400 hover:text-amber-600 transition-colors" title="Edit User" onclick="openEditUserModal({{ json_encode($editData) }})">
+                                        <i data-lucide="edit-3" class="w-4 h-4"></i>
                                     </button>
-                                    <button type="button" class="p-2 text-slate-400 hover:text-rose-600 transition-colors archive-user-btn" style="cursor: pointer !important;" title="Archive User" 
-                                            data-id="{{ $u->id }}" data-name="{{ $u->full_name }}">
-                                        <i data-lucide="archive" class="w-4 h-4" style="pointer-events: none;"></i>
+                                    <button class="p-2 text-slate-400 hover:text-rose-600 transition-colors" title="Archive User" onclick="archiveUser({{ $u->id }}, '{{ addslashes($u->full_name) }}')">
+                                        <i data-lucide="archive" class="w-4 h-4"></i>
                                     </button>
                                 </div>
                             </td>
@@ -1261,7 +1259,9 @@
     </div>
  </div>
 
+@endsection
 
+@push('scripts')
 <script>
 const CSRF = document.querySelector('meta[name="csrf-token"]').content;
 
@@ -1503,13 +1503,13 @@ async function archiveUser(id, name) {
     if (!confirm(`Move ${name} to archives? They will be unable to log in.`)) return;
     try {
         const res = await fetch(`/super-admin/users/${id}/archive`, { 
-            method: 'POST', 
+            method: 'DELETE', 
             headers: { 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' } 
         });
         const data = await res.json();
         if (data.success) { 
             toast(data.message); 
-            setTimeout(() => location.reload(), 3000); 
+            location.reload(); 
         } else {
             toast(data.message || 'Error.', true);
         }
@@ -1526,7 +1526,7 @@ async function restoreUser(id, name) {
         const data = await res.json();
         if (data.success) { 
             toast(data.message); 
-            setTimeout(() => location.reload(), 3000); 
+            location.reload(); 
         } else {
             toast(data.message || 'Error.', true);
         }
@@ -2137,39 +2137,15 @@ document.getElementById('manageRolesModal').addEventListener('click', function(e
 });
 
 
-// Global Event Delegation for Action Buttons
-document.addEventListener('click', function(e) {
-    // Edit User
-    const editBtn = e.target.closest('.edit-user-btn');
-    if (editBtn) {
-        e.preventDefault();
-        e.stopPropagation();
-        const userData = JSON.parse(editBtn.getAttribute('data-user'));
-        openEditUserModal(userData);
-        return;
-    }
-
-    // Archive User
-    const archiveBtn = e.target.closest('.archive-user-btn');
-    if (archiveBtn) {
-        e.preventDefault();
-        e.stopPropagation();
-        const id = archiveBtn.getAttribute('data-id');
-        const name = archiveBtn.getAttribute('data-name');
-        archiveUser(id, name);
-        return;
-    }
-});
-
 // Init icons on load
 document.addEventListener('DOMContentLoaded', () => {
     if (typeof lucide !== 'undefined') lucide.createIcons();
-    // Auto-refresh audit log (infrequent — reduces MySQL connections/hour on shared hosting)
+    // Auto-refresh audit log every 30s if on audit tab
     setInterval(() => {
         if (!document.getElementById('tab-audit').classList.contains('hidden')) {
             loadAuditLog();
         }
-    }, 120000);
+    }, 30000);
 });
 </script>
-@endsection
+@endpush

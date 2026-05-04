@@ -50,18 +50,9 @@ class SuperAdminController extends Controller
         $tab = $request->get('tab', 'overview');
 
         // Stats
-        // Consolidated counts into one query to save DB connections
-        $stats = User::whereNotIn('role', ['super_admin'])
-            ->selectRaw("
-                COUNT(*) as total,
-                SUM(CASE WHEN is_active = 1 AND approval_status = 'approved' THEN 1 ELSE 0 END) as active,
-                SUM(CASE WHEN approval_status = 'rejected' THEN 1 ELSE 0 END) as rejected
-            ")
-            ->first();
-
-        $totalUsers    = $stats->total ?? 0;
-        $activeUsers   = $stats->active ?? 0;
-        $rejectedUsers = $stats->rejected ?? 0;
+        $totalUsers    = User::whereNotIn('role', ['super_admin'])->count();
+        $activeUsers   = User::whereNotIn('role', ['super_admin'])->where('is_active', true)->where('approval_status', 'approved')->count();
+        $rejectedUsers = User::whereNotIn('role', ['super_admin'])->where('approval_status', 'rejected')->count();
 
         // Recent login audit (for overview) - Filter for only login-related activity
         $recentAudit = LoginAudit::whereIn('action', ['login', 'failed_login', 'logout'])
@@ -109,18 +100,9 @@ class SuperAdminController extends Controller
             return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
         }
 
-        // Consolidated counts into one query to save DB connections
-        $stats = User::whereNotIn('role', ['super_admin'])
-            ->selectRaw("
-                COUNT(*) as total,
-                SUM(CASE WHEN is_active = 1 AND approval_status = 'approved' THEN 1 ELSE 0 END) as active,
-                SUM(CASE WHEN approval_status = 'rejected' THEN 1 ELSE 0 END) as rejected
-            ")
-            ->first();
-
-        $totalUsers    = $stats->total ?? 0;
-        $activeUsers   = $stats->active ?? 0;
-        $rejectedUsers = $stats->rejected ?? 0;
+        $totalUsers    = User::whereNotIn('role', ['super_admin'])->count();
+        $activeUsers   = User::whereNotIn('role', ['super_admin'])->where('is_active', true)->where('approval_status', 'approved')->count();
+        $rejectedUsers = User::whereNotIn('role', ['super_admin'])->where('approval_status', 'rejected')->count();
 
         $recentAudit = LoginAudit::whereIn('action', ['login', 'failed_login', 'logout'])
             ->orderByDesc('created_at')
