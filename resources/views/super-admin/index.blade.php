@@ -1261,9 +1261,7 @@
     </div>
  </div>
 
-@endsection
 
-@push('scripts')
 <script>
 const CSRF = document.querySelector('meta[name="csrf-token"]').content;
 
@@ -2170,4 +2168,4 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 120000);
 });
 </script>
-@endpush
+@endsection
