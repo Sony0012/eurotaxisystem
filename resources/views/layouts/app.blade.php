@@ -694,13 +694,13 @@
             };
 
             document.addEventListener('submit', function(e) {
-                // Intercept forms that look like permanent deletes
+                // Intercept forms that look like permanent deletes (force-delete only)
                 const form = e.target;
                 const action = form.getAttribute('action') || '';
                 const method = form.querySelector('input[name="_method"]')?.value || form.getAttribute('method');
 
-                // Check if it's a permanent delete (contains force-delete, permanent, or delete and is inside an archive context)
-                const isArchiveDelete = (action.includes('force-delete') || action.includes('permanent') || action.includes('delete')) && 
+                // ONLY intercept permanent force-delete forms — not regular archive forms
+                const isArchiveDelete = action.includes('force-delete') && 
                                         (method?.toUpperCase() === 'DELETE' || method?.toUpperCase() === 'POST');
 
                 // Skip if it's already handled or not an archive delete
