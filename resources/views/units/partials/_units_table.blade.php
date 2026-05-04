@@ -72,29 +72,25 @@
                         <div class="flex flex-col gap-1">
                             <div class="flex items-center gap-2">
                                 <span class="text-[10px] font-black text-gray-400 uppercase tracking-tighter">D1:</span>
-                                @if($unit->driver_id && $primary_driver)
-                                    @php $d1 = explode('|', $primary_driver); @endphp
-                                    <a href="{{ route('driver-management.show', $unit->driver_id) }}" 
-                                       onclick="event.stopPropagation()"
-                                       class="text-[11px] font-bold text-blue-600 hover:text-blue-800 hover:underline transition-colors">
+                                <span class="text-[11px] font-bold {{ $unit->driver_id ? 'text-gray-900' : 'text-gray-300 italic' }}">
+                                    @if($unit->driver_id && $primary_driver)
+                                        @php $d1 = explode('|', $primary_driver); @endphp
                                         {{ $d1[0] }}
-                                    </a>
-                                @else
-                                    <span class="text-[11px] font-bold text-gray-300 italic">No D1</span>
-                                @endif
+                                    @else
+                                        No D1
+                                    @endif
+                                </span>
                             </div>
                             <div class="flex items-center gap-2">
                                 <span class="text-[10px] font-black text-gray-400 uppercase tracking-tighter">D2:</span>
-                                @if($unit->secondary_driver_id && $secondary_driver)
-                                    @php $d2 = explode('|', $secondary_driver); @endphp
-                                    <a href="{{ route('driver-management.show', $unit->secondary_driver_id) }}" 
-                                       onclick="event.stopPropagation()"
-                                       class="text-[11px] font-bold text-blue-600 hover:text-blue-800 hover:underline transition-colors">
+                                <span class="text-[11px] font-bold {{ $unit->secondary_driver_id ? 'text-gray-900' : 'text-gray-300 italic' }}">
+                                    @if($unit->secondary_driver_id && $secondary_driver)
+                                        @php $d2 = explode('|', $secondary_driver); @endphp
                                         {{ $d2[0] }}
-                                    </a>
-                                @else
-                                    <span class="text-[11px] font-bold text-gray-300 italic">No D2</span>
-                                @endif
+                                    @else
+                                        No D2
+                                    @endif
+                                </span>
                             </div>
                         </div>
                     </td>
@@ -131,27 +127,32 @@
                         </button>
 
                         <div id="unit-dropdown-{{ $unit->id }}"
-                            class="unit-action-dropdown hidden absolute right-4 mt-1 w-44 bg-white rounded-lg shadow-xl border border-gray-100 z-50 overflow-hidden">
+                            class="unit-action-dropdown hidden absolute right-4 mt-1 w-48 bg-white rounded-lg shadow-xl border border-gray-100 z-50 overflow-hidden">
+                            {{-- Unit Info --}}
+                            <button type="button"
+                                class="w-full text-left px-4 py-2.5 text-xs font-bold text-blue-700 hover:bg-blue-50 transition-colors flex items-center gap-2"
+                                onclick="event.stopPropagation(); document.getElementById('unit-dropdown-{{ $unit->id }}').classList.add('hidden'); viewUnitDetails({{ $unit->id }})">
+                                <i data-lucide="info" class="w-4 h-4"></i> Unit Info
+                            </button>
+                            
                             {{-- Edit --}}
                             <button type="button"
-                                class="w-full text-left px-4 py-2.5 text-xs font-bold text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors flex items-center gap-2"
+                                class="w-full text-left px-4 py-2.5 text-xs font-bold text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2 border-t border-gray-50"
                                 onclick="event.stopPropagation(); document.getElementById('unit-dropdown-{{ $unit->id }}').classList.add('hidden'); editUnit({{ $unit->id }})">
                                 <i data-lucide="edit-2" class="w-4 h-4"></i> Edit Unit
                             </button>
 
-                            {{-- Reset Service (Mileage) --}}
-                            @if(((int)($unit->gps_device_count ?? 0) > 0) || !empty($unit->imei))
-                                <form method="POST" action="{{ route('units.reset-health', $unit->id) }}"
-                                    onsubmit="return confirm('Reset service mileage for unit {{ $unit->plate_number }}? This will restart the 5,000 KM counter from the current odometer.');"
-                                    class="m-0 p-0 border-t border-gray-50">
-                                    @csrf
-                                    <button type="submit"
-                                        onclick="event.stopPropagation()"
-                                        class="w-full text-left px-4 py-2.5 text-xs font-bold text-green-600 hover:bg-green-50 transition-colors flex items-center gap-2">
-                                        <i data-lucide="refresh-cw" class="w-4 h-4"></i> Reset Service
-                                    </button>
-                                </form>
-                            @endif
+                            {{-- Reset Service Overdue --}}
+                            <form method="POST" action="{{ route('units.reset-health', $unit->id) }}"
+                                onsubmit="return confirm('Reset service overdue counter for {{ $unit->plate_number }}? This will set the last service odometer to the current odometer.');"
+                                class="m-0 p-0 border-t border-gray-50">
+                                @csrf
+                                <button type="submit"
+                                    onclick="event.stopPropagation()"
+                                    class="w-full text-left px-4 py-2.5 text-xs font-bold text-green-600 hover:bg-green-50 transition-colors flex items-center gap-2">
+                                    <i data-lucide="refresh-cw" class="w-4 h-4"></i> Reset Service Overdue
+                                </button>
+                            </form>
 
                             {{-- Archive --}}
                             <form method="POST" action="{{ route('units.destroy', $unit->id) }}"

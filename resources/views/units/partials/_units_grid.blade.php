@@ -155,21 +155,41 @@
                     </button>
 
                     <div id="grid-unit-dropdown-{{ $unit->id }}"
-                        class="unit-action-dropdown hidden absolute right-0 bottom-10 w-40 bg-white rounded-lg shadow-xl border border-gray-100 z-50 overflow-hidden">
+                        class="unit-action-dropdown hidden absolute right-0 bottom-10 w-48 bg-white rounded-lg shadow-xl border border-gray-100 z-50 overflow-hidden">
+                        {{-- Unit Info --}}
+                        <button type="button"
+                            class="w-full text-left px-4 py-2.5 text-xs font-bold text-blue-700 hover:bg-blue-50 transition-colors flex items-center gap-2"
+                            onclick="event.stopPropagation(); document.getElementById('grid-unit-dropdown-{{ $unit->id }}').classList.add('hidden'); viewUnitDetails({{ $unit->id }})">
+                            <i data-lucide="info" class="w-4 h-4"></i> Unit Info
+                        </button>
+
                         {{-- Edit --}}
                         <button type="button"
-                            class="w-full text-left px-4 py-2.5 text-xs font-bold text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors flex items-center gap-2"
+                            class="w-full text-left px-4 py-2.5 text-xs font-bold text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2 border-t border-gray-50"
                             onclick="event.stopPropagation(); document.getElementById('grid-unit-dropdown-{{ $unit->id }}').classList.add('hidden'); editUnit({{ $unit->id }})">
                             <i data-lucide="edit-2" class="w-4 h-4"></i> Edit Unit
                         </button>
+
+                        {{-- Reset Service Overdue --}}
+                        <form method="POST" action="{{ route('units.reset-health', $unit->id) }}"
+                            onsubmit="return confirm('Reset service overdue counter for {{ $unit->plate_number }}? This will set the last service odometer to the current odometer.');"
+                            class="m-0 p-0 border-t border-gray-50">
+                            @csrf
+                            <button type="submit"
+                                onclick="event.stopPropagation()"
+                                class="w-full text-left px-4 py-2.5 text-xs font-bold text-green-600 hover:bg-green-50 transition-colors flex items-center gap-2">
+                                <i data-lucide="refresh-cw" class="w-4 h-4"></i> Reset Service Overdue
+                            </button>
+                        </form>
+
                         {{-- Archive --}}
                         <form method="POST" action="{{ route('units.destroy', $unit->id) }}"
                             onsubmit="return confirm('Archive unit {{ $unit->plate_number }}? It will be moved to the Archive page.');"
-                            class="m-0 p-0">
+                            class="m-0 p-0 border-t border-gray-50">
                             @csrf @method('DELETE')
                             <button type="submit"
                                 onclick="event.stopPropagation()"
-                                class="w-full text-left px-4 py-2.5 text-xs font-bold text-amber-600 hover:bg-amber-50 transition-colors flex items-center gap-2 border-t border-gray-50">
+                                class="w-full text-left px-4 py-2.5 text-xs font-bold text-amber-600 hover:bg-amber-50 transition-colors flex items-center gap-2">
                                 <i data-lucide="archive" class="w-4 h-4"></i> Archive Unit
                             </button>
                         </form>

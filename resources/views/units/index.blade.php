@@ -1347,7 +1347,7 @@
             input.value = input.value.replace(/,/g, '');
         }
 
-        function editUnit(id) {
+        window.editUnit = function(id) {
             window.currentEditingUnitId = id;
             fetch('{{ route("units.details") }}?id=' + id, {
                 headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
@@ -1547,7 +1547,7 @@
     let currentViewUnitId = null;
     let currentLocData = null;
 
-        function viewUnitDetails(id) {
+        window.viewUnitDetails = function(id) {
             currentViewUnitId = id;
             document.getElementById('unitDetailsModal').classList.remove('hidden');
 
