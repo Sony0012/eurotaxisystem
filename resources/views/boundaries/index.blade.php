@@ -11,15 +11,19 @@
     <form class="flex flex-col sm:flex-row gap-4" method="GET" action="{{ route('boundaries.index') }}">
         <div class="flex-1">
             <div class="relative">
-    <form class="flex flex-col sm:flex-row gap-4" method="GET" action="{{ route('boundaries.index') }}" id="filterForm">
-        <div class="flex-1 max-w-md relative group">
-            <input type="text" name="search" id="liveSearchInput" value="{{ $search }}" 
-                oninput="performLiveSearch()"
-                autocomplete="off"
-                class="w-full pl-10 pr-4 py-2 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none transition-all font-semibold"
-                placeholder="Search plate, driver, or creator...">
-            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <i data-lucide="search" class="h-4 w-4 text-gray-400 group-focus-within:text-yellow-500 transition-colors"></i>
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <i data-lucide="search" class="h-5 w-5 text-gray-400"></i>
+                </div>
+                <input
+                    type="text"
+                    id="liveSearchInput"
+                    name="search"
+                    value="{{ $search }}"
+                    oninput="performLiveSearch()"
+                    autocomplete="off"
+                    class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none"
+                    placeholder="Search by plate number or driver..."
+                >
             </div>
         </div>
         
@@ -69,10 +73,10 @@
     </form>
 </div>
 
-    <!-- Boundaries Table -->
-    <div id="boundariesTableWrapper">
-        @include('boundaries.partials._boundaries_table')
-    </div>
+<!-- Boundaries Table -->
+<div id="boundariesTableWrapper">
+    @include('boundaries.partials._boundaries_table', ['boundaries' => $boundariesArray])
+</div>
 
 <!-- Boundary Modal -->
 <div id="boundaryModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4 transition-all">
@@ -618,19 +622,6 @@ document.getElementById('viewBoundaryModal').addEventListener('click', function(
     if (e.target === this) closeViewBoundary();
 });
 
-// Search and filter functionality
-document.getElementById('search').addEventListener('input', function() {
-    applyFilters();
-});
-
-document.getElementById('date_filter').addEventListener('change', function() {
-    applyFilters();
-});
-
-document.getElementById('status_filter').addEventListener('change', function() {
-    applyFilters();
-});
-
 // Real-time Search Logic
 let searchTimeout;
 function performLiveSearch() {
@@ -643,15 +634,14 @@ function performLiveSearch() {
 
     searchTimeout = setTimeout(async () => {
         const search = document.getElementById('liveSearchInput').value;
-        const status = document.getElementById('filterStatus').value;
         const date = document.getElementById('filterDate').value;
+        const status = document.getElementById('filterStatus').value;
 
         // Build the URL with current filters
         const params = new URLSearchParams({
             search: search,
-            status: status,
             date: date,
-            format: 'json'
+            status: status
         });
 
         try {
@@ -666,12 +656,7 @@ function performLiveSearch() {
             if (result.html) {
                 // Update Table
                 tableWrapper.innerHTML = result.html;
-                lucide.createIcons();
-                
-                // Update boundaryRecords global for the view modal
-                if (result.boundaries) {
-                    window.boundaryRecords = result.boundaries;
-                }
+                if (typeof lucide !== 'undefined') lucide.createIcons();
             }
         } catch (error) {
             console.error('Search error:', error);
@@ -704,13 +689,7 @@ async function fetchPage(url) {
         const result = await response.json();
         if (result.html) {
             tableWrapper.innerHTML = result.html;
-            lucide.createIcons();
-            
-            // Update boundaryRecords global
-            if (result.boundaries) {
-                window.boundaryRecords = result.boundaries;
-            }
-            
+            if (typeof lucide !== 'undefined') lucide.createIcons();
             // Scroll to top of table
             tableWrapper.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }

@@ -1,32 +1,28 @@
-<!-- Boundaries Table -->
-<div id="boundariesTableContainer" class="bg-white rounded-lg shadow overflow-hidden">
-    <div class="overflow-x-auto">
+<div id="boundariesTableContainer" class="bg-white rounded-lg shadow-lg overflow-hidden border border-gray-100">
+    <div class="overflow-x-auto overflow-y-visible">
         <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
+            <thead class="bg-gray-50/50">
                 <tr>
-                    <th class="px-4 py-3 text-left text-[10px] font-bold text-gray-500 uppercase tracking-wider">Date</th>
-                    <th class="px-4 py-3 text-left text-[10px] font-bold text-gray-500 uppercase tracking-wider">Plate</th>
-                    <th class="px-4 py-3 text-left text-[10px] font-bold text-gray-500 uppercase tracking-wider">Driver</th>
-                    <th class="px-4 py-3 text-left text-[10px] font-bold text-gray-500 uppercase tracking-wider">Boundary</th>
-                    <th class="px-4 py-3 text-left text-[10px] font-bold text-gray-500 uppercase tracking-wider">Actual</th>
-                    <th class="px-4 py-3 text-left text-[10px] font-bold text-gray-500 uppercase tracking-wider">Status</th>
-                    <th class="px-4 py-3 text-right text-[10px] font-bold text-gray-500 uppercase tracking-wider"></th>
+                    <th class="px-4 py-3 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Date</th>
+                    <th class="px-4 py-3 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Unit</th>
+                    <th class="px-4 py-3 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Driver</th>
+                    <th class="px-4 py-3 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Target</th>
+                    <th class="px-4 py-3 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Actual</th>
+                    <th class="px-4 py-3 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Status</th>
+                    <th class="px-4 py-3 text-right text-[10px] font-black text-gray-400 uppercase tracking-widest">Action</th>
                 </tr>
             </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-                @if (empty($boundariesArray))
+            <tbody class="bg-white divide-y divide-gray-100">
+                @if (empty($boundaries))
                     <tr>
-                        <td colspan="8" class="px-6 py-12 text-center text-gray-500">
-                            <i data-lucide="coins" class="w-12 h-12 mx-auto mb-4 text-gray-300"></i>
-                            <p>No boundary records found</p>
-                        </td>
+                        <td colspan="7" class="px-6 py-12 text-center text-gray-400 font-bold uppercase tracking-widest italic">No boundary records found.</td>
                     </tr>
                 @else
-                    @foreach ($boundariesArray as $boundary)
-                        <tr class="hover:bg-yellow-50 cursor-pointer transition-all border-l-4 border-transparent hover:border-yellow-400 group"
-                            onclick="openViewBoundary({{ $boundary['id'] }})">
-                            <td class="px-4 py-3 whitespace-nowrap text-[12px] text-gray-900 group-hover:text-yellow-700 font-bold transition-colors">
-                                {{ formatDate($boundary['date']) }}
+                    @foreach ($boundaries as $boundary)
+                        <tr class="hover:bg-yellow-50/50 transition-colors cursor-pointer group" onclick="openViewBoundary({{ $boundary['id'] }})">
+                            <td class="px-4 py-3 whitespace-nowrap">
+                                <div class="text-[12px] font-black text-gray-900">{{ \Carbon\Carbon::parse($boundary['date'])->format('M d, Y') }}</div>
+                                <div class="text-[9px] text-gray-400 font-bold uppercase tracking-tighter">{{ \Carbon\Carbon::parse($boundary['created_at'])->format('h:i A') }}</div>
                             </td>
                             <td class="px-4 py-3 whitespace-nowrap">
                                 <div class="flex items-center gap-1">

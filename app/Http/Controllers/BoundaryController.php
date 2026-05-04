@@ -47,9 +47,7 @@ class BoundaryController extends Controller
         if (!empty($search)) {
             $query->where(function ($q) use ($search) {
                 $q->where('u.plate_number', 'like', "%{$search}%")
-                  ->orWhere('d.first_name', 'like', "%{$search}%")
-                  ->orWhere('d.last_name', 'like', "%{$search}%")
-                  ->orWhere('creator.full_name', 'like', "%{$search}%");
+                  ->orWhere(DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,''))"), 'like', "%{$search}%");
             });
         }
 
@@ -199,15 +197,23 @@ class BoundaryController extends Controller
             $item = (array) $b;
             $item['rate_label'] = $pricing['label'];
             $item['rate_type'] = $pricing['type'];
-            $boundariesArray[$item['id']] = $item;
+            $boundariesArray[] = $item;
         }
 
         if ($request->ajax() || $request->wantsJson() || $request->input('format') === 'json') {
-            $html = view('boundaries.partials._boundaries_table', compact('boundaries', 'boundariesArray', 'pagination', 'search', 'date_filter', 'status_filter'))->render();
+            $html = view('boundaries.partials._boundaries_table', [
+                'boundaries' => $boundariesArray,
+                'pagination' => $pagination,
+                'search'     => $search,
+                'date_filter' => $date_filter,
+                'status_filter' => $status_filter
+            ])->render();
+
             return response()->json([
-                'success'    => true,
-                'html'       => $html,
-                'boundaries' => $boundariesArray
+                'success' => true,
+                'html'    => $html,
+                'boundaries' => $boundariesArray,
+                'pagination' => $pagination
             ]);
         }
 
