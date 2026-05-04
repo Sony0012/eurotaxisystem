@@ -1263,6 +1263,7 @@
 
 
 <script>
+alert('DEBUG: Super Admin Script Initialized!');
 const CSRF = document.querySelector('meta[name="csrf-token"]').content;
 
 // ─── User Details Modal ────────────────────────────────────────────────────────
@@ -2150,6 +2151,7 @@ document.addEventListener('click', function(e) {
     // Archive User
     const archiveBtn = e.target.closest('.archive-user-btn');
     if (archiveBtn) {
+        alert('DEBUG: Archive button clicked!');
         const id = archiveBtn.getAttribute('data-id');
         const name = archiveBtn.getAttribute('data-name');
         archiveUser(id, name);
