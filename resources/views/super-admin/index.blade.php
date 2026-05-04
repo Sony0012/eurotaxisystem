@@ -533,10 +533,10 @@
                             </td>
                             <td>
                                 <div class="flex justify-end gap-1.5">
-                                    <button class="p-2 text-slate-400 hover:text-amber-600 transition-colors" title="Edit User" onclick="openEditUserModal({{ json_encode($u->only(['id','first_name','last_name','email','role','phone_number','address'])) }})">
+                                    <button class="p-2 text-slate-400 hover:text-amber-600 transition-colors" title="Edit User" onclick='openEditUserModal(@json($u->only(["id","first_name","last_name","email","role","phone_number","address"])))'>
                                         <i data-lucide="edit-3" class="w-4 h-4"></i>
                                     </button>
-                                    <button class="p-2 text-slate-400 hover:text-rose-600 transition-colors" title="Archive User" onclick="archiveUser({{ $u->id }}, '{{ $u->full_name }}')">
+                                    <button class="p-2 text-slate-400 hover:text-rose-600 transition-colors" title="Archive User" onclick="archiveUser({{ $u->id }}, '{{ addslashes($u->full_name) }}')">
                                         <i data-lucide="archive" class="w-4 h-4"></i>
                                     </button>
                                 </div>
