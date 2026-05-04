@@ -1233,19 +1233,33 @@
                 </button>
             </div>
 
-            <div class="flex flex-col gap-3 mb-6 p-4 bg-gray-50 rounded-xl border border-gray-100">
+            <div class="flex flex-col gap-3 mb-6 p-4 bg-gray-50 rounded-xl border border-gray-100 shadow-inner">
                 <input type="hidden" id="supplierId">
-                <input type="text" id="supplierName" maxlength="35" placeholder="Supplier Name" 
-                    class="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-yellow-500 focus:outline-none">
-                <div class="grid grid-cols-2 gap-3">
-                    <input type="text" id="supplierContact" maxlength="25" placeholder="Contact Person" 
-                        class="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-yellow-500 focus:outline-none">
-                    <input type="text" id="supplierPhone" maxlength="11" placeholder="Phone Number" 
-                        class="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-yellow-500 focus:outline-none">
+                <div>
+                    <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1 ml-1">Supplier Name</label>
+                    <input type="text" id="supplierName" maxlength="35" placeholder="Enter supplier name..." 
+                        class="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-yellow-500 focus:outline-none bg-white shadow-sm">
                 </div>
-                <button onclick="saveSupplier()" class="w-full py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 text-sm font-bold transition flex items-center justify-center gap-2 shadow-md">
-                    <i data-lucide="save" class="w-4 h-4"></i> Save Supplier
-                </button>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1 ml-1">Contact Person</label>
+                        <input type="text" id="supplierContact" maxlength="25" placeholder="Full name" 
+                            class="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-yellow-500 focus:outline-none bg-white shadow-sm">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1 ml-1">Phone Number</label>
+                        <input type="text" id="supplierPhone" maxlength="11" placeholder="09xxxxxxxxx" 
+                            class="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-yellow-500 focus:outline-none bg-white shadow-sm">
+                    </div>
+                </div>
+                <div class="flex gap-2">
+                    <button id="btnSaveSupplier" onclick="saveSupplier()" class="flex-1 py-2.5 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 text-sm font-bold transition flex items-center justify-center gap-2 shadow-md">
+                        <i data-lucide="save" class="w-4 h-4"></i> <span id="txtSaveSupplier">Save Supplier</span>
+                    </button>
+                    <button id="btnCancelSupplierEdit" onclick="resetSupplierForm()" class="hidden px-4 py-2.5 bg-gray-200 text-gray-600 rounded-lg hover:bg-gray-300 text-sm font-bold transition">
+                        Cancel
+                    </button>
+                </div>
             </div>
 
             <div class="flex-1 overflow-y-auto pr-2 custom-scrollbar">
@@ -2465,6 +2479,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // --- Supplier Management ---
 function openSuppliersModal() {
     document.getElementById('suppliersModal').classList.remove('hidden');
+    resetSupplierForm(); // Ensure it starts in "Add mode"
     lucide.createIcons();
 }
 
@@ -2476,11 +2491,37 @@ function closeSuppliersModal() {
     document.getElementById('supplierPhone').value = '';
 }
 
+function resetSupplierForm() {
+    document.getElementById('supplierId').value = '';
+    document.getElementById('supplierName').value = '';
+    document.getElementById('supplierContact').value = '';
+    document.getElementById('supplierPhone').value = '';
+    
+    // UI Reset
+    document.getElementById('txtSaveSupplier').innerText = 'Save Supplier';
+    document.getElementById('btnSaveSupplier').classList.remove('bg-blue-600', 'hover:bg-blue-700');
+    document.getElementById('btnSaveSupplier').classList.add('bg-yellow-600', 'hover:bg-yellow-700');
+    document.getElementById('btnCancelSupplierEdit').classList.add('hidden');
+    
+    lucide.createIcons();
+}
+
 function editSupplier(id, name, contact, phone) {
     document.getElementById('supplierId').value = id;
     document.getElementById('supplierName').value = name;
     document.getElementById('supplierContact').value = contact || '';
     document.getElementById('supplierPhone').value = phone || '';
+    
+    // UI Update to "Edit Mode"
+    document.getElementById('txtSaveSupplier').innerText = 'Update Supplier';
+    document.getElementById('btnSaveSupplier').classList.remove('bg-yellow-600', 'hover:bg-yellow-700');
+    document.getElementById('btnSaveSupplier').classList.add('bg-blue-600', 'hover:bg-blue-700');
+    document.getElementById('btnCancelSupplierEdit').classList.remove('hidden');
+    
+    // Scroll to form (top of modal content)
+    document.querySelector('#suppliersModal .bg-white').scrollTop = 0;
+    
+    lucide.createIcons();
 }
 
 async function saveSupplier() {
@@ -2515,7 +2556,7 @@ async function saveSupplier() {
             }
             refreshSuppliersTable();
             refreshSupplierDropdowns();
-            closeSuppliersModal();
+            resetSupplierForm(); // Reset instead of close so user can keep adding/editing
         } else {
             alert(result.message || 'Error saving supplier');
         }
