@@ -73,7 +73,7 @@ class OfficeExpenseController extends Controller
             'this_month' => $thisMonthAmount,
             'last_month' => $lastMonthAmount,
             'monthly_change' => $changePercent,
-            'total_records' => DB::table('expenses')->whereNull('deleted_at')->count(),
+            'total_records' => $totals->total_count,
             'by_category' => DB::table('expenses')
                 ->selectRaw('category, COUNT(*) as count, SUM(amount) as total')
                 ->whereNull('deleted_at')
@@ -82,8 +82,14 @@ class OfficeExpenseController extends Controller
                 ->get(),
         ];
 
-        if ($request->wantsJson() || $request->input('format') === 'json') {
-            return response()->json(['expenses' => $expenses, 'stats' => $stats]);
+        if ($request->ajax() || $request->wantsJson() || $request->input('format') === 'json') {
+            $html = view('office-expenses.partials._expenses_table', compact('expenses'))->render();
+            return response()->json([
+                'success' => true,
+                'html'    => $html,
+                'stats'   => $stats,
+                'expenses' => $expenses
+            ]);
         }
 
         // Get units for dropdown
