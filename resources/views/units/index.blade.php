@@ -4,43 +4,12 @@
 @section('page-heading', 'Unit Management')
 @section('page-subheading', 'Manage your fleet of taxi units')
 @section('main-padding', 'p-0')
+@section('content')
 
-@push('styles')
     <!-- Leaflet CSS for Map -->
     <link rel="stylesheet" href="{{ asset('assets/leaflet/leaflet.css') }}" />
     <style>
         #unitDetailMap { z-index: 1; }
-
-        /* ── Modern Table — Separated Rounded Rows (matching Maintenance page) ── */
-        .modern-table-sep {
-            border-collapse: separate;
-            border-spacing: 0 0.6rem;
-        }
-        .modern-card-tbody {
-            background-color: white;
-            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
-            transition: all 0.2s ease-in-out;
-        }
-        .modern-card-tbody:hover {
-            box-shadow: 0 10px 15px -3px rgba(234, 179, 8, 0.18), 0 4px 6px -2px rgba(234, 179, 8, 0.08);
-            transform: translateY(-1px);
-        }
-        .modern-card-tbody tr:first-child td:first-child {
-            border-top-left-radius: 0.75rem;
-            border-left: 4px solid transparent;
-        }
-        .modern-card-tbody:hover tr:first-child td:first-child {
-            border-left-color: #eab308;
-        }
-        .modern-card-tbody tr:first-child td:last-child {
-            border-top-right-radius: 0.75rem;
-        }
-        .modern-card-tbody tr:last-child td:first-child {
-            border-bottom-left-radius: 0.75rem;
-        }
-        .modern-card-tbody tr:last-child td:last-child {
-            border-bottom-right-radius: 0.75rem;
-        }
 
         /* ── Live Status Dots ─────────────────────────────────── */
         .status-dot {
@@ -107,9 +76,7 @@
             background: #9ca3af;
         }
     </style>
-@endpush
 
-@section('content')
     <!-- Search and Filters -->
     <div class="bg-white px-6 py-4 border-b border-gray-200">
         <form method="GET" action="{{ route('units.index') }}" class="flex flex-col md:flex-row gap-2">
@@ -201,20 +168,20 @@
 
             <span class="text-gray-600 select-none">·</span>
 
-            <!-- Active Units -->
+            <!-- On Road -->
             <div class="flex items-center gap-2 px-3 py-1 rounded-full bg-green-500/20 hover:bg-green-500/30 transition-all cursor-default select-none">
                 <div class="w-2 h-2 rounded-full bg-green-400 animate-pulse shadow-[0_0_6px_rgba(74,222,128,0.8)]"></div>
-                <span class="text-[11px] font-bold text-green-300">Active Units</span>
+                <span class="text-[11px] font-bold text-green-300">On Road</span>
                 <span id="qs-onroad" class="text-[13px] font-black text-green-400 tabular-nums">{{ $stats['on_road'] ?? '—' }}</span>
             </div>
 
             <span class="text-gray-600 select-none">·</span>
 
-            <!-- At Risk -->
-            <div class="flex items-center gap-2 px-3 py-1 rounded-full bg-orange-500/20 hover:bg-orange-500/30 transition-all cursor-default select-none">
-                <div class="w-2 h-2 rounded-full bg-orange-400 animate-pulse shadow-[0_0_6px_rgba(251,146,60,0.8)]"></div>
-                <span class="text-[11px] font-bold text-orange-300">At Risk</span>
-                <span id="qs-garage" class="text-[13px] font-black text-orange-400 tabular-nums">{{ $stats['garage'] ?? '—' }}</span>
+            <!-- Garage / Vacant -->
+            <div class="flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/20 hover:bg-blue-500/30 transition-all cursor-default select-none">
+                <div class="w-2 h-2 rounded-full bg-blue-400 animate-pulse shadow-[0_0_6px_rgba(96,165,250,0.8)]"></div>
+                <span class="text-[11px] font-bold text-blue-300">Garage</span>
+                <span id="qs-garage" class="text-[13px] font-black text-blue-400 tabular-nums">{{ $stats['garage'] ?? '—' }}</span>
             </div>
 
             <span class="text-gray-600 select-none">·</span>
@@ -222,7 +189,7 @@
             <!-- Workshop / Maintenance -->
             <div class="flex items-center gap-2 px-3 py-1 rounded-full bg-yellow-500/20 hover:bg-yellow-500/30 transition-all cursor-default select-none">
                 <div class="w-2 h-2 rounded-full bg-yellow-400 animate-pulse shadow-[0_0_6px_rgba(250,204,21,0.8)]"></div>
-                <span class="text-[11px] font-bold text-yellow-300">Maintenance</span>
+                <span class="text-[11px] font-bold text-yellow-300">Workshop</span>
                 <span id="qs-workshop" class="text-[13px] font-black text-yellow-400 tabular-nums">{{ $stats['workshop'] ?? '—' }}</span>
             </div>
 
@@ -254,34 +221,31 @@
     </div>
 
     {{-- Add Unit Modal --}}
-    <div id="addUnitModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl h-[90vh] flex flex-col overflow-hidden">
+    <div id="addUnitModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden h-full w-full z-50 flex items-center justify-center p-4">
+        <div class="relative bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
 
-            {{-- Modal Header (Dark Navy matching Add Driver) --}}
-            <div class="bg-slate-800 p-4 shrink-0">
+            {{-- Modal Header --}}
+            <div class="bg-gradient-to-r from-yellow-500 to-yellow-600 p-6 rounded-t-lg">
                 <div class="flex justify-between items-center">
                     <div class="flex items-center gap-3">
-                        <div class="p-2 bg-white bg-opacity-20 rounded-lg">
-                            <i data-lucide="car" class="w-5 h-5 text-white"></i>
+                        <div class="p-3 bg-white bg-opacity-20 rounded-lg">
+                            <i data-lucide="car" class="w-6 h-6 text-white"></i>
                         </div>
                         <div>
-                            <h3 class="text-lg font-bold text-white leading-tight">Add New Unit</h3>
-                            <p class="text-sm text-blue-100 leading-tight">Enter vehicle information and add devices</p>
+                            <h3 class="text-2xl font-bold text-white">Add New Unit</h3>
+                            <p class="text-yellow-100 text-sm">Enter vehicle information and add devices</p>
                         </div>
                     </div>
                     <button onclick="document.getElementById('addUnitModal').classList.add('hidden'); resetAddUnitModal()"
-                        class="text-white hover:text-gray-200 transition-colors">
-                        <i data-lucide="x" class="w-5 h-5"></i>
+                        class="text-white hover:bg-white hover:bg-opacity-20 rounded-lg p-2 transition-colors">
+                        <i data-lucide="x" class="w-6 h-6"></i>
                     </button>
                 </div>
             </div>
 
             {{-- Form --}}
-            <form method="POST" action="{{ route('units.store') }}" id="addUnitForm" class="flex flex-col flex-1 overflow-hidden">
+            <form method="POST" action="{{ route('units.store') }}" id="addUnitForm" class="p-6">
                 @csrf
-
-                {{-- Scrollable Content Area --}}
-                <div class="p-6 flex-1 overflow-y-auto space-y-8 custom-scrollbar">
 
                 {{-- Section 1: Basic Information --}}
                 <div class="mb-8">
@@ -298,12 +262,10 @@
                                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                     <i data-lucide="credit-card" class="w-5 h-5 text-gray-400"></i>
                                 </div>
-                                <input type="text" name="plate_number" id="addPlateNumber" required maxlength="8" value="{{ old('plate_number') }}"
-                                    class="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-bold tracking-widest uppercase"
+                                <input type="text" name="plate_number" id="addPlateNumber" required
+                                    class="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
                                     placeholder="e.g., ABC 123"
-                                    pattern="^[A-Z0-9]+ ?[A-Z0-9]*$"
-                                    title="Plate number must be alphanumeric and can contain at most one space."
-                                    oninput="this.value = this.value.toUpperCase().replace(/\s{2,}/g, ' ').slice(0, 8); addUnitUpdateCoding()">
+                                    oninput="this.value = this.value.toUpperCase(); addUnitUpdateCoding()">
                             </div>
                         </div>
                     </div>
@@ -320,46 +282,37 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
                         <div class="space-y-2">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Make <span class="text-red-500">*</span></label>
-                            <input type="text" name="make" required maxlength="15" value="{{ old('make') }}"
-                                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                placeholder="e.g., TOYOTA"
-                                pattern="^(?![0-9\s\W]+$)[a-zA-Z0-9\s\W]+$"
-                                title="Make cannot be pure numbers, spaces, or symbols."
-                                oninput="this.value = this.value.toUpperCase().slice(0, 15)">
+                            <input type="text" name="make" required
+                                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                                placeholder="e.g., Toyota, Honda, Nissan"
+                                oninput="this.value = this.value.toUpperCase()">
                         </div>
                         <div class="space-y-2">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Model <span class="text-red-500">*</span></label>
-                            <input type="text" name="model" required maxlength="15" value="{{ old('model') }}"
-                                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                placeholder="e.g., VIOS"
-                                pattern="^(?![0-9\s\W]+$)[a-zA-Z0-9\s\W]+$"
-                                title="Model cannot be pure numbers, spaces, or symbols."
-                                oninput="this.value = this.value.toUpperCase().slice(0, 15)">
+                            <input type="text" name="model" required
+                                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                                placeholder="e.g., Vios, Civic, Sentra"
+                                oninput="this.value = this.value.toUpperCase()">
                         </div>
                         <div class="space-y-2">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Year <span class="text-red-500">*</span></label>
-                            <input type="number" name="year" required min="1900" max="2026" value="{{ old('year', date('Y')) }}"
-                                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                placeholder="e.g., 2023"
-                                oninput="if(this.value.length > 4) this.value = this.value.slice(0,4)">
+                            <input type="number" name="year" required min="2000" max="{{ date('Y') }}" value="{{ date('Y') }}"
+                                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                                placeholder="e.g., 2023">
                         </div>
                         <div class="space-y-2">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Motor No <span class="text-red-500">*</span></label>
-                            <input type="text" name="motor_no" required maxlength="25" value="{{ old('motor_no') }}"
+                            <input type="text" name="motor_no" required
                                 class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
                                 placeholder="e.g., 2NZ7847183"
-                                pattern="^[A-Z0-9]+$"
-                                title="Motor number must be alphanumeric with no spaces or symbols."
-                                oninput="this.value = this.value.toUpperCase().replace(/\s/g, '').slice(0, 25)">
+                                oninput="this.value = this.value.toUpperCase()">
                         </div>
                         <div class="space-y-2">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Chassis No <span class="text-red-500">*</span></label>
-                            <input type="text" name="chassis_no" required maxlength="25" value="{{ old('chassis_no') }}"
+                            <input type="text" name="chassis_no" required
                                 class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
                                 placeholder="e.g., NCP1512071757"
-                                pattern="^[A-Z0-9]+$"
-                                title="Chassis number must be alphanumeric with no spaces or symbols."
-                                oninput="this.value = this.value.toUpperCase().replace(/\s/g, '').slice(0, 25)">
+                                oninput="this.value = this.value.toUpperCase()">
                         </div>
 
                     </div>
@@ -369,7 +322,7 @@
                 <div class="mb-8">
                     <div class="flex items-center gap-2 mb-4">
                         <div class="p-2 bg-purple-100 rounded-lg">
-                            <i data-lucide="philippine-peso" class="w-5 h-5 text-purple-600"></i>
+                            <i data-lucide="dollar-sign" class="w-5 h-5 text-purple-600"></i>
                         </div>
                         <h4 class="text-lg font-semibold text-gray-900">Financial Information</h4>
                     </div>
@@ -380,8 +333,8 @@
                                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                     <span class="text-gray-500 text-sm">₱</span>
                                 </div>
-                                <input type="text" name="boundary_rate" id="addBoundaryRate" required value="{{ old('boundary_rate', '1,100.00') }}"
-                                    class="w-full pl-8 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                <input type="text" name="boundary_rate" id="addBoundaryRate" required value="1,100.00"
+                                    class="w-full pl-8 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
                                     placeholder="0.00"
                                     onfocus="unformatCurrencyInput(this)"
                                     onblur="formatCurrencyInput(this)">
@@ -394,8 +347,8 @@
                                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                     <span class="text-gray-500 text-sm">₱</span>
                                 </div>
-                                <input type="text" name="purchase_cost" id="addPurchaseCost" value="{{ old('purchase_cost', '0.00') }}"
-                                    class="w-full pl-8 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                <input type="text" name="purchase_cost" id="addPurchaseCost" value="0.00"
+                                    class="w-full pl-8 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
                                     placeholder="0.00"
                                     onfocus="unformatCurrencyInput(this)"
                                     onblur="formatCurrencyInput(this)">
@@ -408,8 +361,8 @@
                                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                     <i data-lucide="calendar" class="w-4 h-4 text-gray-400"></i>
                                 </div>
-                                <input type="date" name="purchase_date" max="{{ date('Y-m-d') }}" value="{{ old('purchase_date') }}"
-                                    class="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                <input type="date" name="purchase_date"
+                                    class="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent">
                             </div>
                             <p class="text-xs text-gray-500">When the unit was purchased</p>
                         </div>
@@ -434,7 +387,7 @@
                                 </div>
                                 <input type="text" id="add_driver1_search" autocomplete="off"
                                     placeholder="Start typing to search drivers..."
-                                    class="w-full pl-10 pr-10 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    class="w-full pl-10 pr-10 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
                                     onkeyup="addUnitFilterDrivers('add_driver1')"
                                     onfocus="addUnitShowDropdown('add_driver1')"
                                     onblur="setTimeout(()=>addUnitHideDropdown('add_driver1'), 200)"
@@ -465,7 +418,7 @@
                                 </div>
                                 <input type="text" id="add_driver2_search" autocomplete="off"
                                     placeholder="Start typing to search drivers..."
-                                    class="w-full pl-10 pr-10 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    class="w-full pl-10 pr-10 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
                                     onkeyup="addUnitFilterDrivers('add_driver2')"
                                     onfocus="addUnitShowDropdown('add_driver2')"
                                     onblur="setTimeout(()=>addUnitHideDropdown('add_driver2'), 200)"
@@ -584,62 +537,56 @@
                                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                     <i data-lucide="hash" class="w-5 h-5 text-gray-400"></i>
                                 </div>
-                                <input type="text" name="imei" id="addImei" maxlength="15" value="{{ old('imei') }}"
+                                <input type="text" name="imei" id="addImei"
                                     class="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent font-mono"
-                                    placeholder="Enter 15-digit IMEI"
-                                    pattern="^[a-zA-Z0-9]{15}$"
-                                    oninput="this.value = this.value.replace(/[^a-zA-Z0-9]/g, '').slice(0, 15)">
+                                    placeholder="Enter 15-digit IMEI">
                             </div>
                             <p class="text-xs text-gray-500">Retrieve the IMEI from the physical device label or the Tracksolid Pro application.</p>
                         </div>
                     </div>
                 </div>
 
-                </div>{{-- End Scrollable Content --}}
-
-                {{-- Fixed Footer (matching Add Driver) --}}
-                <div class="p-4 border-t flex justify-end gap-3 shadow-inner bg-gray-50 shrink-0">
+                {{-- Form Actions --}}
+                <div class="flex gap-3 mt-6 pt-4 border-t">
+                    <button type="submit" class="flex-1 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-semibold flex items-center justify-center gap-2">
+                        <i data-lucide="plus-circle" class="w-5 h-5"></i> Add Unit
+                    </button>
                     <button type="button" onclick="document.getElementById('addUnitModal').classList.add('hidden'); resetAddUnitModal()"
-                        class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 text-sm font-bold transition-all">
-                        Cancel
-                    </button>
-                    <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-bold shadow-lg shadow-blue-200/50 transition-all flex items-center gap-2">
-                        <i data-lucide="plus-circle" class="w-4 h-4"></i> Add Unit
-                    </button>
+                        class="flex-1 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-semibold">Cancel</button>
                 </div>
             </form>
         </div>
     </div>
 
     {{-- Edit Unit Modal --}}
-    <div id="editUnitModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-6xl h-[95vh] flex flex-col overflow-hidden">
-            {{-- Modal Header (Deep Navy matching Unit Details) --}}
-            <div class="bg-slate-800 p-4 shrink-0">
+    <div id="editUnitModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden h-full w-full z-50 flex items-center justify-center p-4">
+        <div class="relative bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+
+            {{-- Modal Header --}}
+            <div class="bg-gradient-to-r from-blue-500 to-blue-700 p-6 rounded-t-lg">
                 <div class="flex justify-between items-center">
                     <div class="flex items-center gap-3">
-                        <div class="p-2 bg-white bg-opacity-20 rounded-lg">
-                            <i data-lucide="edit-2" class="w-5 h-5 text-white"></i>
+                        <div class="p-3 bg-white bg-opacity-20 rounded-lg">
+                            <i data-lucide="edit-2" class="w-6 h-6 text-white"></i>
                         </div>
                         <div>
-                            <h3 class="text-lg font-bold text-white leading-tight">Edit Unit</h3>
-                            <p class="text-sm text-blue-100 leading-tight">Update vehicle information and settings</p>
+                            <h3 class="text-2xl font-bold text-white">Edit Unit</h3>
+                            <p class="text-blue-100 text-sm">Update vehicle information and settings</p>
                         </div>
                     </div>
-                    <button type="button" onclick="closeEditUnitModal()" class="text-white hover:text-gray-200 transition-colors">
-                        <i data-lucide="x" class="w-5 h-5"></i>
+                    <button onclick="closeEditUnitModal()"
+                        class="text-white hover:bg-white hover:bg-opacity-20 rounded-lg p-2 transition-colors">
+                        <i data-lucide="x" class="w-6 h-6"></i>
                     </button>
                 </div>
             </div>
 
             {{-- Form --}}
-            <form method="POST" id="editUnitForm" class="flex flex-col flex-1 overflow-hidden">
+            <form method="POST" id="editUnitForm" class="p-6">
                 @csrf @method('PUT')
-                
-                {{-- Scrolling Content Area --}}
-                <div class="p-6 flex-1 overflow-y-auto custom-scrollbar">
-                    {{-- Section 1: Basic Information --}}
-                    <div class="mb-8">
+
+                {{-- Section 1: Basic Information --}}
+                <div class="mb-8">
                     <div class="flex items-center gap-2 mb-4">
                         <div class="p-2 bg-blue-100 rounded-lg"><i data-lucide="info" class="w-5 h-5 text-blue-600"></i></div>
                         <h4 class="text-lg font-semibold text-gray-900">Basic Information</h4>
@@ -651,56 +598,39 @@
                                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                     <i data-lucide="credit-card" class="w-5 h-5 text-gray-400"></i>
                                 </div>
-                                <input type="text" name="plate_number" id="editPlateNumber" required maxlength="8"
-                                    class="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-bold tracking-widest uppercase"
-                                    placeholder="e.g., ABC 123"
-                                    pattern="^[A-Z0-9]+ ?[A-Z0-9]*$"
-                                    title="Plate number must be alphanumeric and can contain at most one space."
-                                    oninput="this.value = this.value.toUpperCase().replace(/\s{2,}/g, ' ').slice(0, 8); editUnitUpdateCoding()">
+                                <input type="text" name="plate_number" id="editPlateNumber" required
+                                    class="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    oninput="this.value = this.value.toUpperCase(); editUnitUpdateCoding()">
                             </div>
                         </div>
                         <div class="space-y-2">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Make <span class="text-red-500">*</span></label>
-                            <input type="text" name="make" id="editMake" required maxlength="15"
-                                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                placeholder="e.g., TOYOTA"
-                                pattern="^(?![0-9\s\W]+$)[a-zA-Z0-9\s\W]+$"
-                                title="Make cannot be pure numbers, spaces, or symbols."
-                                oninput="this.value = this.value.toUpperCase().slice(0, 15)">
+                            <input type="text" name="make" id="editMake" required
+                                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                oninput="this.value = this.value.toUpperCase()">
                         </div>
                         <div class="space-y-2">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Model <span class="text-red-500">*</span></label>
-                            <input type="text" name="model" id="editModel" required maxlength="15"
-                                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                placeholder="e.g., VIOS"
-                                pattern="^(?![0-9\s\W]+$)[a-zA-Z0-9\s\W]+$"
-                                title="Model cannot be pure numbers, spaces, or symbols."
-                                oninput="this.value = this.value.toUpperCase().slice(0, 15)">
+                            <input type="text" name="model" id="editModel" required
+                                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                oninput="this.value = this.value.toUpperCase()">
                         </div>
                         <div class="space-y-2">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Year <span class="text-red-500">*</span></label>
-                            <input type="number" name="year" id="editYear" required min="1900" max="2026"
-                                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                placeholder="e.g., 2023"
-                                oninput="if(this.value.length > 4) this.value = this.value.slice(0,4)">
+                            <input type="number" name="year" id="editYear" required
+                                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                         </div>
                         <div class="space-y-2">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Motor No <span class="text-red-500">*</span></label>
-                            <input type="text" name="motor_no" id="editMotorNo" required maxlength="25"
-                                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
-                                placeholder="e.g., 2NZ7847183"
-                                pattern="^[A-Z0-9]+$"
-                                title="Motor number must be alphanumeric with no spaces or symbols."
-                                oninput="this.value = this.value.toUpperCase().replace(/\s/g, '').slice(0, 25)">
+                            <input type="text" name="motor_no" id="editMotorNo" required
+                                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                oninput="this.value = this.value.toUpperCase()">
                         </div>
                         <div class="space-y-2">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Chassis No <span class="text-red-500">*</span></label>
-                            <input type="text" name="chassis_no" id="editChassisNo" required maxlength="25"
-                                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
-                                placeholder="e.g., NCP1512071757"
-                                pattern="^[A-Z0-9]+$"
-                                title="Chassis number must be alphanumeric with no spaces or symbols."
-                                oninput="this.value = this.value.toUpperCase().replace(/\s/g, '').slice(0, 25)">
+                            <input type="text" name="chassis_no" id="editChassisNo" required
+                                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                oninput="this.value = this.value.toUpperCase()">
                         </div>
 
                         <div class="space-y-2">
@@ -710,6 +640,7 @@
                                 <option value="active">Active</option>
                                 <option value="at_risk">At Risk / Missing</option>
                                 <option value="maintenance">Maintenance</option>
+                                <option value="coding">Coding</option>
                                 <option value="retired">Retired</option>
                                 <option value="vacant">Vacant</option>
                             </select>
@@ -730,7 +661,7 @@
                 {{-- Section 3: Financial Information --}}
                 <div class="mb-8">
                     <div class="flex items-center gap-2 mb-4">
-                        <div class="p-2 bg-purple-100 rounded-lg"><i data-lucide="philippine-peso" class="w-5 h-5 text-purple-600"></i></div>
+                        <div class="p-2 bg-purple-100 rounded-lg"><i data-lucide="dollar-sign" class="w-5 h-5 text-purple-600"></i></div>
                         <h4 class="text-lg font-semibold text-gray-900">Financial Information</h4>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -767,7 +698,7 @@
                                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                     <i data-lucide="calendar" class="w-4 h-4 text-gray-400"></i>
                                 </div>
-                                <input type="date" name="purchase_date" id="editPurchaseDate" max="{{ date('Y-m-d') }}"
+                                <input type="date" name="purchase_date" id="editPurchaseDate"
                                     class="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                             </div>
                             <p class="text-xs text-gray-500">When the unit was purchased</p>
@@ -928,27 +859,21 @@
                                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                     <i data-lucide="hash" class="w-5 h-5 text-gray-400"></i>
                                 </div>
-                                <input type="text" name="imei" id="editImei" maxlength="15"
+                                <input type="text" name="imei" id="editImei"
                                     class="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent font-mono"
-                                    placeholder="Enter 15-digit IMEI"
-                                    pattern="^[a-zA-Z0-9]{15}$"
-                                    oninput="this.value = this.value.replace(/[^a-zA-Z0-9]/g, '').slice(0, 15)">
+                                    placeholder="Enter 15-digit IMEI">
                             </div>
                             <p class="text-xs text-gray-500">Changing this will update the real-time tracking for this unit.</p>
                         </div>
                     </div>
                 </div>
-                </div> {{-- End Scrolling Content Area --}}
 
-                {{-- Fixed Footer --}}
-                <div class="p-4 border-t flex justify-end gap-3 shadow-inner bg-gray-50 shrink-0">
+                <div class="flex gap-3 mt-6 pt-4 border-t">
+                    <button type="submit" class="flex-1 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold flex items-center justify-center gap-2">
+                        <i data-lucide="save" class="w-5 h-5"></i> Update Unit
+                    </button>
                     <button type="button" onclick="closeEditUnitModal()"
-                        class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 text-sm font-bold transition-all">
-                        Cancel
-                    </button>
-                    <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-bold shadow-lg shadow-blue-200/50 transition-all flex items-center gap-2">
-                        <i data-lucide="save" class="w-4 h-4"></i> Update Unit
-                    </button>
+                        class="flex-1 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-semibold">Cancel</button>
                 </div>
             </form>
         </div>
@@ -1017,33 +942,34 @@
         </div>
     </div>
 
-@push('scripts')
 <script>
     let currentViewMode = localStorage.getItem('unitViewMode') || 'table';
     
-    function applyViewModeUI(mode) {
-        document.getElementById('viewModeInput').value = mode;
-        const btnTable = document.getElementById('btn-view-table');
-        const btnGrid  = document.getElementById('btn-view-grid');
-        if (!btnTable || !btnGrid) return;
-
-        if (mode === 'table') {
-            btnTable.classList.add('bg-white', 'text-yellow-600', 'shadow-md', 'shadow-yellow-100/80');
-            btnTable.classList.remove('text-gray-400');
-            btnGrid.classList.remove('bg-white', 'text-yellow-600', 'shadow-md', 'shadow-yellow-100/80');
-            btnGrid.classList.add('text-gray-400');
-        } else {
-            btnGrid.classList.add('bg-white', 'text-yellow-600', 'shadow-md', 'shadow-yellow-100/80');
-            btnGrid.classList.remove('text-gray-400');
-            btnTable.classList.remove('bg-white', 'text-yellow-600', 'shadow-md', 'shadow-yellow-100/80');
-            btnTable.classList.add('text-gray-400');
-        }
-    }
-
     function setViewMode(mode) {
         currentViewMode = mode;
         localStorage.setItem('unitViewMode', mode);
-        applyViewModeUI(mode);
+        document.getElementById('viewModeInput').value = mode;
+        
+        // Update UI — premium pill toggle active states
+        const btnTable = document.getElementById('btn-view-table');
+        const btnGrid  = document.getElementById('btn-view-grid');
+        
+        if (mode === 'table') {
+            // Table ACTIVE
+            btnTable.classList.add('bg-white', 'text-yellow-600', 'shadow-md', 'shadow-yellow-100/80');
+            btnTable.classList.remove('text-gray-400');
+            // Grid INACTIVE
+            btnGrid.classList.remove('bg-white', 'text-yellow-600', 'shadow-md', 'shadow-yellow-100/80');
+            btnGrid.classList.add('text-gray-400');
+        } else {
+            // Grid ACTIVE
+            btnGrid.classList.add('bg-white', 'text-yellow-600', 'shadow-md', 'shadow-yellow-100/80');
+            btnGrid.classList.remove('text-gray-400');
+            // Table INACTIVE
+            btnTable.classList.remove('bg-white', 'text-yellow-600', 'shadow-md', 'shadow-yellow-100/80');
+            btnTable.classList.add('text-gray-400');
+        }
+        
         performSearch(1); // Re-fetch with new view mode
     }
 
@@ -1107,56 +1033,35 @@
     }
 
     // ── performSearch ───────────────────────────────────────────────
-    let unitsSearchAbort = null;
-    let unitsSearchLoadingTimer = null;
-    let unitsSearchSeq = 0;
-
     function performSearch(page = 1) {
-        unitsSearchSeq += 1;
-        const seq = unitsSearchSeq;
-
         const query = searchInput.value;
         const status = statusFilter.value;
         const sort = sortFilter.value;
 
-        // Cancel in-flight request to prevent late-response flicker
-        if (unitsSearchAbort) {
-            unitsSearchAbort.abort();
-        }
-        unitsSearchAbort = new AbortController();
-
-        // Show a subtle spinner only if request is slow (prevents “flash” on fast responses)
-        if (unitsSearchLoadingTimer) clearTimeout(unitsSearchLoadingTimer);
-        const qsLoading = document.getElementById('qs-loading');
-        unitsSearchLoadingTimer = setTimeout(() => {
-            qsLoading?.classList.remove('hidden');
-        }, 180);
+        // Visual feedback
+        tableContainer.style.opacity = '0.5';
+        tableContainer.style.pointerEvents = 'none';
 
         fetch(`{{ route('units.index') }}?search=${encodeURIComponent(query)}&status=${status}&sort=${sort}&page=${page}&view=${currentViewMode}`, {
             headers: {
                 'X-Requested-With': 'XMLHttpRequest'
-            },
-            signal: unitsSearchAbort.signal
+            }
         })
         .then(response => response.text())
         .then(html => {
-            if (seq !== unitsSearchSeq) return;
-            if (unitsSearchLoadingTimer) clearTimeout(unitsSearchLoadingTimer);
-            qsLoading?.classList.add('hidden');
-
-            // Replace content without dimming (prevents flicker while typing)
             tableContainer.innerHTML = html;
+            tableContainer.style.opacity = '1';
+            tableContainer.style.pointerEvents = 'auto';
             if (typeof lucide !== 'undefined') lucide.createIcons();
         })
         .catch(error => {
-            if (error?.name === 'AbortError') return;
-            if (unitsSearchLoadingTimer) clearTimeout(unitsSearchLoadingTimer);
-            qsLoading?.classList.add('hidden');
             console.error('Search failed:', error);
+            tableContainer.style.opacity = '1';
+            tableContainer.style.pointerEvents = 'auto';
         });
     }
 
-    if (searchInput) searchInput.addEventListener('input', () => {
+    searchInput.addEventListener('input', () => {
         clearTimeout(searchTimer);
         searchTimer = setTimeout(() => {
             performSearch(1);
@@ -1164,24 +1069,19 @@
         }, 300);
     });
 
-    if (statusFilter) statusFilter.addEventListener('change', () => {
+    statusFilter.addEventListener('change', () => {
         performSearch(1);
         refreshQuickStats();
     });
-    if (sortFilter) sortFilter.addEventListener('change', () => performSearch(1));
+    sortFilter.addEventListener('change', () => performSearch(1));
 
     window.changePage = function(page) {
         performSearch(page);
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
-    // Initial UI state (avoid duplicate fetch on load)
-    applyViewModeUI(currentViewMode);
+    // Load quick stats on initial page load
     refreshQuickStats();
-    const initialView = document.getElementById('viewModeInput')?.value || 'table';
-    if (currentViewMode !== initialView) {
-        performSearch(1);
-    }
 
     window.showFlaggedUnitsModal = function() {
         const modal = document.getElementById('flaggedUnitsModal');
@@ -1216,16 +1116,10 @@
                     const daysMissing = unit.days_inactive !== null && unit.days_inactive !== undefined ? unit.days_inactive : '?';
                     const daysColor = (daysMissing === '?' || daysMissing > 2) ? 'text-red-600 font-bold' : 'text-orange-600 font-bold';
                     const csrfToken = document.querySelector('meta[name="csrf-token"]') ? document.querySelector('meta[name="csrf-token"]').getAttribute('content') : '';
-                    const flagSrc = unit.flag_source || (unit.is_at_risk ? 'manual_surveillance' : 'auto_boundary');
-                    let badgeHtml = '';
-                    if (flagSrc === 'manual_stolen') {
-                        badgeHtml = `<span class="text-[9px] px-1.5 py-0.5 bg-red-100 text-red-800 rounded font-bold uppercase tracking-wide">Manual input — stolen / taken</span>`;
-                    } else if (flagSrc === 'manual_surveillance') {
-                        badgeHtml = `<span class="text-[9px] px-1.5 py-0.5 bg-rose-100 text-rose-800 rounded font-bold uppercase tracking-wide">Manual — surveillance / at risk</span>`;
-                    } else {
-                        badgeHtml = `<span class="text-[9px] px-1.5 py-0.5 bg-orange-100 text-orange-800 rounded font-bold uppercase tracking-wide">Auto-detected — boundary overdue</span>`;
-                    }
-                    const borderColor = (flagSrc === 'manual_stolen' || flagSrc === 'manual_surveillance') ? 'border-red-500' : 'border-orange-400';
+                    const badge = unit.is_at_risk 
+                        ? `<span class="text-[9px] px-1.5 py-0.5 bg-red-100 text-red-700 rounded font-bold uppercase tracking-wide">🚨 Manually Flagged</span>`
+                        : `<span class="text-[9px] px-1.5 py-0.5 bg-orange-100 text-orange-700 rounded font-bold uppercase tracking-wide">⚠️ Auto-Detected</span>`;
+                    const borderColor = unit.is_at_risk ? 'border-red-500' : 'border-orange-400';
                     
                     const suspectDisplay = unit.is_vacant 
                         ? `<span class="bg-gray-200 text-gray-600 px-1.5 py-0.5 rounded font-bold italic tracking-tight">NO ASSIGNED DRIVER</span>`
@@ -1243,7 +1137,7 @@
                                 <div class="flex-1 min-w-0">
                                     <div class="flex items-center gap-2 mb-0.5 flex-wrap">
                                         <h5 class="font-bold text-base text-gray-900 leading-none">${unit.plate_number}</h5>
-                                        ${badgeHtml}
+                                        ${badge}
                                     </div>
                                     <p class="text-[10px] text-gray-400">${unit.make || ''} ${unit.model || ''}</p>
                                     
@@ -1256,11 +1150,6 @@
                                             <span class="text-gray-400 w-24 flex-shrink-0">Contact # :</span>
                                             ${contactDisplay}
                                         </div>
-                                        ${unit.stolen_driver_license_no ? `
-                                        <div class="flex items-center gap-1.5 text-[10px]">
-                                            <span class="text-gray-400 w-24 flex-shrink-0">License:</span>
-                                            <span class="text-gray-700 font-semibold tracking-tight">${unit.stolen_driver_license_no}</span>
-                                        </div>` : ''}
                                         <div class="flex items-center gap-1.5 text-[10px] pt-1 mt-1 border-t border-gray-100">
                                             <span class="text-gray-400 w-24 flex-shrink-0">Last Return By:</span>
                                             <span class="text-gray-600 italic font-medium">${unit.last_known_driver || 'None'}</span>
@@ -1277,11 +1166,12 @@
                                         <div class="text-lg ${daysColor} leading-none mt-0.5 font-bold">${daysMissing}</div>
                                         <div class="text-[10px] text-gray-400">day(s)</div>
                                     </div>
-                                    <form method="POST" action="/units/${unit.id}/recover" class="m-0" onsubmit="return confirm('Confirm RECOVERY of Unit ${unit.plate_number}? This will restore its active status and clear security alerts.');">
+                                    <form method="POST" action="/units/toggle-status" class="m-0" onsubmit="return confirm('Clear MISSING flag on ${unit.plate_number}?');">
                                         <input type="hidden" name="_token" value="${csrfToken}">
-                                        <button type="submit" class="p-2 bg-green-600 text-white hover:bg-green-700 rounded-lg transition shadow-md flex items-center gap-2" title="Mark as Recovered">
+                                        <input type="hidden" name="id" value="${unit.id}">
+                                        <input type="hidden" name="new_status" value="active">
+                                        <button type="submit" class="p-2 bg-green-100 text-green-700 hover:bg-green-200 rounded-lg transition shadow-sm" title="Clear Flag">
                                             <i data-lucide="check-circle" class="w-4 h-4"></i>
-                                            <span class="text-[10px] font-bold uppercase">Recover</span>
                                         </button>
                                     </form>
                                 </div>
@@ -1314,29 +1204,47 @@
             window.history.replaceState({}, document.title, newUrl);
         }
     });
+
+    window.toggleUnitDropdown = function(id, event) {
+        event.stopPropagation();
+        document.querySelectorAll('.unit-action-dropdown').forEach(el => {
+            if (el.id !== id) el.classList.add('hidden');
+            const row = el.closest('tr');
+            if (row) { row.style.zIndex = ''; row.style.position = ''; }
+        });
+        const dropdown = document.getElementById(id);
+        if (dropdown) {
+            const isHidden = dropdown.classList.contains('hidden');
+            const row = dropdown.closest('tr');
+            if (isHidden) {
+                dropdown.classList.remove('hidden');
+                if (row) { row.style.position = 'relative'; row.style.zIndex = '50'; }
+            } else {
+                dropdown.classList.add('hidden');
+                if (row) { row.style.zIndex = ''; row.style.position = ''; }
+            }
+        }
+    };
+    if (!window.unitDropdownListenerAdded) {
+        document.addEventListener('click', function () {
+            document.querySelectorAll('.unit-action-dropdown').forEach(el => {
+                el.classList.add('hidden');
+                const row = el.closest('tr');
+                if (row) { row.style.zIndex = ''; row.style.position = ''; }
+            });
+        });
+        window.unitDropdownListenerAdded = true;
+    }
 </script>
     <!-- Leaflet JS for Map -->
     <script src="{{ asset('assets/leaflet/leaflet.js') }}"></script>
-@endpush
-@endsection
 
-@push('scripts')
+
     <script>
         function formatCurrencyInput(input) {
             let value = input.value.replace(/[^0-9.]/g, '');
             if (value === '' || isNaN(parseFloat(value))) return;
             let num = parseFloat(value);
-            
-            // Limit checks
-            if (input.name === 'boundary_rate' && num > 100000) {
-                alert('Boundary rate cannot exceed ₱100,000');
-                num = 100000;
-            }
-            if (input.name === 'purchase_cost' && num > 1000000) {
-                alert('Purchase cost cannot exceed ₱1,000,000');
-                num = 1000000;
-            }
-
             input.value = num.toLocaleString('en-US', {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2
@@ -1347,7 +1255,7 @@
             input.value = input.value.replace(/,/g, '');
         }
 
-        window.editUnit = function(id) {
+        function editUnit(id) {
             window.currentEditingUnitId = id;
             fetch('{{ route("units.details") }}?id=' + id, {
                 headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
@@ -1542,12 +1450,9 @@
         // =============================================
         // VIEW UNIT DETAILS - Matching backup's 8-tab structure
         // =============================================
-        let unitDetailMap = null;
-    let unitDetailMarker = null;
-    let currentViewUnitId = null;
-    let currentLocData = null;
+        let currentViewUnitId = null;
 
-        window.viewUnitDetails = function(id) {
+        function viewUnitDetails(id) {
             currentViewUnitId = id;
             document.getElementById('unitDetailsModal').classList.remove('hidden');
 
@@ -1772,8 +1677,13 @@
 
                 const roiPrgW = Math.min(100, Math.max(0, roiPct)).toFixed(1);
                 const invPerMonth = parseFloat(roi.total_investment || 0) / 12;
-                const mthBnd = parseFloat(roi.monthly_revenue || roi.monthly_boundary || 0);
-                const bndPrgW = invPerMonth > 0 ? Math.min(100, (mthBnd / invPerMonth) * 100).toFixed(1) : 0;
+                const mthBnd = parseFloat(roi.actual_monthly_revenue || roi.monthly_revenue || roi.monthly_boundary || 0);
+                const mthExp = parseFloat(roi.monthly_theoretical_target || 0);
+                
+                // Primary: Operational Efficiency (Actual Collection vs Theoretical Month Max)
+                // Fallback: Financial Target (Actual Collection vs Investment/12)
+                const targetAmount = mthExp > 0 ? mthExp : invPerMonth;
+                const bndPrgW = targetAmount > 0 ? Math.min(100, (mthBnd / targetAmount) * 100).toFixed(1) : 0;
 
                 document.getElementById('unitDetailsContent').innerHTML = `
                 <div class="space-y-6">
@@ -2032,7 +1942,7 @@
                                             </div>
                                             <div class="flex justify-between items-center">
                                                 <span class="text-gray-400 font-bold uppercase text-[10px] tracking-widest">Avg Monthly Revenue</span>
-                                                <span class="text-2xl font-black text-green-600">₱${parseFloat(roi.monthly_revenue || roi.monthly_boundary || 0).toLocaleString('en-PH', {minimumFractionDigits:2})}</span>
+                                                <span class="text-2xl font-black text-green-600">₱${mthBnd.toLocaleString('en-PH', {minimumFractionDigits:2})}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -2051,7 +1961,7 @@
                                             <div>
                                                 <div class="flex justify-between items-center mb-2">
                                                     <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Monthly Target Efficiency</span>
-                                                    <span class="text-sm font-black text-green-600">₱${invPerMonth.toLocaleString('en-PH', {minimumFractionDigits:0})} Target</span>
+                                                    <span class="text-sm font-black text-green-600">₱${targetAmount.toLocaleString('en-PH', {minimumFractionDigits:0})} Target</span>
                                                 </div>
                                                 <div class="w-full bg-gray-100 rounded-full h-4 p-1 shadow-inner">
                                                     <div class="bg-gradient-to-r from-green-400 to-emerald-600 h-2 rounded-full shadow-sm" style="width:${bndPrgW}%"></div>
@@ -2087,19 +1997,16 @@
                                             <i data-lucide="satellite" class="w-6 h-6 ${locInfo.gps_enabled ? 'text-green-500' : 'text-red-400'}"></i>
                                         </div>
                                     </div>
-                                    <div id="unitDetailMap" class="relative rounded-2xl overflow-hidden border border-gray-100 bg-gray-50 shadow-inner" style="height: 400px; z-index: 1;">
-                                        <div class="flex flex-col items-center justify-center h-full p-12 text-center">
-                                            <div class="mb-6 p-6 bg-blue-100 rounded-full shadow-sm animate-pulse">
-                                                <i data-lucide="navigation" class="w-12 h-12 text-blue-600"></i>
-                                            </div>
-                                            <h4 class="text-lg font-black text-gray-900 mb-2 uppercase tracking-tight">Initializing Map...</h4>
-                                            <p class="text-sm text-gray-500 mb-8 max-w-md mx-auto">Please wait while we connect to the GPS satellite network.</p>
+                                    <div id="unitDetailMapContainer" class="relative rounded-2xl overflow-hidden border border-gray-100 bg-gray-50 flex flex-col items-center justify-center p-12 text-center shadow-inner" style="height: 400px;">
+                                        <div class="mb-6 p-6 bg-blue-100 rounded-full shadow-sm animate-pulse">
+                                            <i data-lucide="navigation" class="w-12 h-12 text-blue-600"></i>
                                         </div>
-                                    </div>
-                                    <div class="flex justify-center">
+                                        <h4 class="text-lg font-black text-gray-900 mb-2 uppercase tracking-tight">Tracksolid Pro Enterprise</h4>
+                                        <p class="text-sm text-gray-500 mb-8 max-w-md mx-auto">This unit is tracked via real-time satellite identification. Access the full live map for movement history and geofencing.</p>
+                                        
                                         <a href="/live-tracking?unit=${unit.id}" class="inline-flex items-center gap-3 px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white text-sm font-black rounded-2xl transition-all shadow-lg hover:shadow-blue-200 hover:-translate-y-1 uppercase tracking-widest">
                                             <i data-lucide="map" class="w-5 h-5"></i>
-                                            Open Full Tracking Map
+                                            Open Live Tracking Map
                                         </a>
                                     </div>
                                 </div>
@@ -2130,13 +2037,172 @@
                                     </div>
                                     <div class="lg:col-span-2 bg-gray-900 rounded-2xl flex flex-col items-center justify-center min-h-[300px] border border-gray-800 shadow-inner relative overflow-hidden">
                                         <div class="absolute top-4 left-4 flex items-center gap-2">
+                                            <div class="w-2 h-2 bg-red-500 rounded-full animate-ping"></div>
+                                            <span class="text-white/40 text-[9px] font-black uppercase tracking-widest">No Active Stream</span>
+                                        </div>
+                                        <i data-lucide="video-off" class="w-16 h-16 text-white/10 mb-4"></i>
+                                        <p class="text-white/30 text-xs font-black uppercase tracking-widest">Preview Unavailable</p>
                                     </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                `;
 
-                currentLocData = locInfo;
-[10px]">${parseFloat(dashcam.storage_used || 0).toFixed(1)} / ${parseFloat(dashcam.storage_total || 32).toFixed(0)} GB</span></div>
+                        <!-- Drivers Tab -->
+                        <div id="drivers-tab" class="tab-content hidden">
+                            <div class="bg-white border border-gray-200 rounded-lg p-3">
+                                <h4 class="text-sm font-semibold text-gray-900 mb-2">Assigned Drivers</h4>
+                                <div class="space-y-2">${driversTabHtml.replace(/p-4/g, 'p-2').replace(/p-6/g, 'p-3').replace(/text-lg/g, 'text-base').replace(/text-sm/g, 'text-xs')}</div>
+                            </div>
+                        </div>
+
+                        <!-- Coding Tab -->
+                        <div id="coding-tab" class="tab-content hidden">
+                            <div class="bg-white border border-gray-200 rounded-lg p-3">
+                                <h4 class="text-sm font-semibold text-gray-900 mb-2">MMDA Coding Schedule</h4>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                    <div>
+                                        <h5 class="font-medium text-xs text-gray-900 mb-1.5">Current Coding Information</h5>
+                                        <div class="space-y-1 text-xs">
+                                            <div class="flex justify-between"><span class="text-gray-600">Coding Day:</span><span class="px-1.5 py-0.5 bg-blue-100 text-blue-800 rounded-full text-[10px] font-medium">${codingDay}</span></div>
+                                            <div class="flex justify-between"><span class="text-gray-600">Last Digit:</span><span class="font-medium">${lastChar || '-'}</span></div>
+                                            <div class="flex justify-between"><span class="text-gray-600">Next Coding:</span><span class="font-medium">${nextCodingDate || '-'}</span></div>
+                                            <div class="flex justify-between"><span class="text-gray-600">Days Until Coding:</span><span class="font-medium ${daysUntilCoding === 0 ? 'text-red-600' : 'text-green-600'}">${daysUntilCoding === 0 ? 'Today' : daysUntilCoding + ' days'}</span></div>
+                                            <div class="flex justify-between"><span class="text-gray-600">Coding Status:</span><span class="px-1.5 py-0.5 text-[10px] rounded-full ${daysUntilCoding === 0 ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}">${daysUntilCoding === 0 ? 'Coding Today' : 'No Coding'}</span></div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <h5 class="font-medium text-xs text-gray-900 mb-1.5">MMDA Coding Schedule</h5>
+                                        <div class="space-y-0.5 text-[10px]">
+                                            <div class="flex justify-between p-1 bg-blue-50 rounded"><span>Monday</span><span class="font-medium">1, 2</span></div>
+                                            <div class="flex justify-between p-1 bg-green-50 rounded"><span>Tuesday</span><span class="font-medium">3, 4</span></div>
+                                            <div class="flex justify-between p-1 bg-yellow-50 rounded"><span>Wednesday</span><span class="font-medium">5, 6</span></div>
+                                            <div class="flex justify-between p-1 bg-orange-50 rounded"><span>Thursday</span><span class="font-medium">7, 8</span></div>
+                                            <div class="flex justify-between p-1 bg-red-50 rounded"><span>Friday</span><span class="font-medium">9, 0</span></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Boundary Tab -->
+                        <div id="boundary-tab" class="tab-content hidden">
+                            <div class="bg-white border border-gray-200 rounded-lg p-3">
+                                <h4 class="text-sm font-semibold text-gray-900 mb-2">Boundary Collection History</h4>
+                                ${boundaryRowsHtml ? `<div class="overflow-x-auto"><table class="min-w-full divide-y divide-gray-200"><thead class="bg-gray-50"><tr><th class="px-3 py-2 text-left text-[10px] font-medium text-gray-500 uppercase">Date</th><th class="px-3 py-2 text-left text-[10px] font-medium text-gray-500 uppercase">Driver</th><th class="px-3 py-2 text-left text-[10px] font-medium text-gray-500 uppercase">License</th><th class="px-3 py-2 text-left text-[10px] font-medium text-gray-500 uppercase">Amount</th></tr></thead><tbody class="bg-white divide-y divide-gray-200">${boundaryRowsHtml.replace(/px-6 py-4/g, 'px-3 py-1.5').replace(/text-sm/g, 'text-xs')}</tbody></table></div>` : '<div class="text-center py-6 text-gray-500"><i data-lucide="dollar-sign" class="w-10 h-10 mx-auto mb-2 text-gray-300"></i><p class="text-xs">No boundary history found</p></div>'}
+                            </div>
+                        </div>
+
+                        <!-- Maintenance Tab -->
+                        <div id="maintenance-tab" class="tab-content hidden">
+                            <div class="bg-white border border-gray-200 rounded-lg p-3">
+                                <h4 class="text-sm font-semibold text-gray-900 mb-2">Maintenance Records</h4>
+                                <div class="space-y-2">${maintHtml.replace(/p-4/g, 'p-2').replace(/p-6/g, 'p-3').replace(/text-lg/g, 'text-base').replace(/text-sm/g, 'text-xs')}</div>
+                            </div>
+                        </div>
+
+                        <!-- ROI Tab - Aggressively Miniaturized -->
+                        <div id="roi-tab" class="tab-content hidden">
+                            <div class="space-y-3">
+                                <div class="bg-gradient-to-r from-purple-500 to-purple-600 p-3 rounded-lg text-white">
+                                    <h4 class="text-base font-bold mb-2">ROI Analysis</h4>
+                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+                                        <div><p class="text-purple-100 text-[10px]">Total Investment</p><p class="text-base font-bold">₱${parseFloat(roi.total_investment || 0).toLocaleString('en-PH', {minimumFractionDigits:2})}</p></div>
+                                        <div><p class="text-purple-100 text-[10px]">Total Revenue</p><p class="text-base font-bold">₱${parseFloat(roi.total_revenue || 0).toLocaleString('en-PH', {minimumFractionDigits:2})}</p></div>
+                                        <div><p class="text-purple-100 text-[10px]">Total Expenses</p><p class="text-base font-bold">₱${parseFloat(roi.total_expenses || 0).toLocaleString('en-PH', {minimumFractionDigits:2})}</p></div>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                    <div class="bg-white border border-gray-200 rounded-lg p-3">
+                                        <h4 class="text-xs font-semibold text-gray-900 mb-2">ROI Metrics</h4>
+                                        <div class="space-y-2 text-xs">
+                                            <div class="flex justify-between items-center"><span class="text-gray-600">ROI %</span><span class="font-bold text-${roiColor}-600">${roiPct.toFixed(1)}%</span></div>
+                                            <div class="flex justify-between items-center"><span class="text-gray-600">Payback</span><span class="font-bold text-blue-600">${parseFloat(roi.payback_period || 0).toFixed(1)} mths</span></div>
+                                            <div class="flex justify-between items-center"><span class="text-gray-600">Mth Rev</span><span class="font-bold text-green-600">₱${mthBnd.toLocaleString('en-PH', {minimumFractionDigits:2})}</span></div>
+                                        </div>
+                                    </div>
+                                    <div class="bg-white border border-gray-200 rounded-lg p-3">
+                                        <h4 class="text-xs font-semibold text-gray-900 mb-2">ROI Progress</h4>
+                                        <div class="space-y-3">
+                                            <div>
+                                                <div class="flex justify-between items-center mb-1"><span class="text-[10px] text-gray-600">Achievement</span><span class="text-[10px] font-medium">${roiPct.toFixed(1)}%</span></div>
+                                                <div class="w-full bg-gray-200 rounded-full h-2.5"><div class="bg-gradient-to-r from-purple-500 to-purple-600 h-2.5 rounded-full" style="width:${roiPrgW}%"></div></div>
+                                            </div>
+                                            <div>
+                                                <div class="flex justify-between items-center mb-1"><span class="text-[10px] text-gray-600">Monthly Target</span><span class="text-[10px] font-medium">₱${targetAmount.toLocaleString('en-PH', {minimumFractionDigits:0})}</span></div>
+                                                <div class="w-full bg-gray-200 rounded-full h-2.5"><div class="bg-gradient-to-r from-green-500 to-green-600 h-2.5 rounded-full" style="width:${bndPrgW}%"></div></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Location Tab -->
+                        <div id="location-tab" class="tab-content hidden">
+                            <div class="bg-white border border-gray-200 rounded-lg p-3">
+                                <h4 class="text-sm font-semibold text-gray-900 mb-2">Location Information</h4>
+                                <div class="space-y-3">
+                                    {{-- Info Row --}}
+                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+                                        <div class="flex justify-between bg-gray-50 rounded-lg px-2 py-1.5">
+                                            <span class="text-gray-500 text-[10px]">Location:</span>
+                                            <span class="font-medium text-[10px] text-right">${locInfo.current_location || 'Not Available'}</span>
+                                        </div>
+                                        <div class="flex justify-between bg-gray-50 rounded-lg px-2 py-1.5">
+                                            <span class="text-gray-500 text-[10px]">Update:</span>
+                                            <span class="font-medium text-[10px] text-right">${locInfo.last_location_update || 'Never'}</span>
+                                        </div>
+                                        <div class="flex justify-between bg-gray-50 rounded-lg px-2 py-1.5 items-center">
+                                            <span class="text-gray-500 text-[10px]">GPS:</span>
+                                            <span class="px-1.5 py-0.5 text-[9px] rounded-full ${locInfo.gps_enabled ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
+                                                ${locInfo.gps_enabled ? 'Enabled' : 'Disabled'}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    {{-- Tracking Status Display --}}
+                                    <div id="unitDetailMapContainer" class="relative rounded-lg overflow-hidden border border-gray-200 bg-gray-50 flex flex-col items-center justify-center p-6 text-center" style="height: 320px;">
+                                        <div class="mb-4 p-4 bg-indigo-100 rounded-full">
+                                            <i data-lucide="satellite" class="w-12 h-12 text-indigo-600"></i>
+                                        </div>
+                                        <h4 class="text-sm font-bold text-gray-900 mb-1">Tracksolid Pro Enterprise</h4>
+                                        <p class="text-xs text-gray-500 mb-4 px-4">This unit is tracked via real-time API using IMEI identification.</p>
+                                        
+                                        <div class="w-full max-w-xs space-y-2 mb-6">
+                                            <div class="flex justify-between items-center bg-white p-2 border border-gray-200 rounded text-xs">
+                                                <span class="text-gray-500">Device IMEI:</span>
+                                                <span class="font-mono font-bold text-indigo-700">${unit.imei || 'Not Set'}</span>
+                                            </div>
+                                        </div>
+
+                                        <a href="/live-tracking?unit=${unit.id}" class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-lg transition-colors">
+                                            <i data-lucide="map-pin" class="w-4 h-4"></i>
+                                            View on Live Tracking Map
+                                        </a>
+                                    </div>
+
+                                    ${locInfo.coordinates ? `
+                                        <div class="flex justify-between bg-gray-50 rounded-lg px-2 py-1.5">
+                                            <span class="text-gray-500 text-[10px]">Coordinates:</span>
+                                            <span class="font-medium text-[10px]">${locInfo.coordinates}</span>
+                                        </div>
+                                    ` : ''}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Dashcam Tab -->
+                        <div id="dashcam-tab" class="tab-content hidden">
+                            <div class="bg-white border border-gray-200 rounded-lg p-3">
+                                <h4 class="text-sm font-semibold text-gray-900 mb-2">Dashcam Information</h4>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                    <div>
+                                        <div class="space-y-1.5 text-xs">
+                                            <div class="flex justify-between"><span class="text-gray-600">Status:</span><span class="px-1.5 py-0.5 text-[9px] rounded-full ${dashcam.dashcam_enabled ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">${dashcam.dashcam_enabled ? 'Enabled' : 'Disabled'}</span></div>
+                                            <div class="flex justify-between"><span class="text-gray-600">Connect:</span><span class="px-1.5 py-0.5 text-[9px] rounded-full ${dashcam.dashcam_status === 'Online' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}">${dashcam.dashcam_status || 'Offline'}</span></div>
+                                            <div class="flex justify-between"><span class="text-gray-600">Storage:</span><span class="font-medium text-[10px]">${parseFloat(dashcam.storage_used || 0).toFixed(1)} / ${parseFloat(dashcam.storage_total || 32).toFixed(0)} GB</span></div>
                                         </div>
                                     </div>
                                     <div class="bg-gray-100 rounded-lg h-20 flex items-center justify-center"><div class="text-center text-gray-500"><i data-lucide="video" class="w-6 h-6 mx-auto mb-1"></i><p class="text-[10px]">Video placeholder</p></div></div>
@@ -2183,86 +2249,10 @@
                 activeBtn.classList.remove('border-transparent', 'text-gray-500');
                 activeBtn.classList.add('border-blue-500', 'text-blue-600');
             }
-
-            // Initialize Map if Location tab is shown
-            if (tabName === 'location' && currentLocData && currentLocData.latitude) {
-                setTimeout(() => {
-                    if (unitDetailMap) {
-                        unitDetailMap.remove();
-                        unitDetailMap = null;
-                    }
-                    
-                    const lat = parseFloat(currentLocData.latitude);
-                    const lng = parseFloat(currentLocData.longitude);
-                    
-                    unitDetailMap = L.map('unitDetailMap', {
-                        zoomControl: false,
-                        attributionControl: false
-                    }).setView([lat, lng], 15);
-                    
-                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(unitDetailMap);
-                    
-                    const markerHtml = `
-                        <div class="relative flex flex-col items-center justify-center marker-wrapper" style="width: 50px; height: 50px;">
-                            <div style="transform: rotate(0deg); transition: transform 0.5s ease-out;" class="drop-shadow-lg pointer-events-auto cursor-pointer flex items-center justify-center">
-                                <svg width="20" height="36" viewBox="0 0 24 42" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <rect x="0" y="6" width="3" height="8" rx="1" fill="#1F2937"/>
-                                    <rect x="21" y="6" width="3" height="8" rx="1" fill="#1F2937"/>
-                                    <rect x="0" y="28" width="3" height="8" rx="1" fill="#1F2937"/>
-                                    <rect x="21" y="28" width="3" height="8" rx="1" fill="#1F2937"/>
-                                    <rect x="2" y="2" width="20" height="38" rx="6" fill="#EAB308" stroke="#713F12" stroke-width="0.5"/>
-                                    <path d="M4 12 L20 12 L18 8 L6 8 Z" fill="#111827" opacity="0.8"/>
-                                    <path d="M5 30 L19 30 L18 34 L6 34 Z" fill="#111827" opacity="0.8"/>
-                                    <rect x="4" y="14" width="16" height="14" rx="2" fill="#FEF08A"/>
-                                    <rect x="8" y="18" width="8" height="4" rx="1" fill="white" stroke="#374151" stroke-width="0.5"/>
-                                    <circle cx="5" cy="3" r="1.5" fill="#FEF08A"/>
-                                    <circle cx="19" cy="3" r="1.5" fill="#FEF08A"/>
-                                    <rect x="4" y="39" width="4" height="2" rx="0.5" fill="#EF4444"/>
-                                    <rect x="16" y="39" width="4" height="2" rx="0.5" fill="#EF4444"/>
-                                </svg>
-                            </div>
-                        </div>
-                    `;
-
-                    const carIcon = L.divIcon({
-                        className: 'bg-transparent border-0',
-                        html: markerHtml,
-                        iconSize: [50, 50],
-                        iconAnchor: [25, 25]
-                    });
-                    
-                    unitDetailMarker = L.marker([lat, lng], {icon: carIcon}).addTo(unitDetailMap);
-                        
-                    // Fix Leaflet gray box issue
-                    setTimeout(() => {
-                        unitDetailMap.invalidateSize();
-                        
-                        // Fetch Address
-                        fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`, {
-                            headers: { 'Accept-Language': 'en' }
-                        })
-                        .then(r => r.json())
-                        .then(data => {
-                            const addr = data.display_name || (lat + ', ' + lng);
-                            const addrEls = document.querySelectorAll('#location-tab .text-xs.font-black.text-gray-900');
-                            if (addrEls.length > 0) {
-                                addrEls[0].textContent = addr; // Update Current Address field
-                            }
-                            unitDetailMarker.bindPopup(`<b>Current Location</b><br><span class="text-xs">${addr}</span>`).openPopup();
-                        })
-                        .catch(() => {
-                            unitDetailMarker.bindPopup(`<b>Current Location</b><br>${lat}, ${lng}`).openPopup();
-                        });
-                    }, 300);
-                }, 200);
-            }
-
             setTimeout(() => { if (typeof lucide !== 'undefined') lucide.createIcons(); }, 100);
         }
     </script>
-@endpush
 
-@push('scripts')
 <script>
 // =============================================
 // ADD UNIT MODAL - Driver Searchable Dropdown
@@ -2507,5 +2497,51 @@ function resetAddUnitModal() {
     addUnitRenderGPS(); addUnitRenderDashcam();
 }
 
+// Real-time table filtering
+document.addEventListener('DOMContentLoaded', function() {
+    setViewMode(currentViewMode);
+    const searchInput = document.getElementById('tableSearchInput');
+    const tableBody = document.querySelector('tbody.bg-white.divide-y.divide-gray-200');
+    
+    if (searchInput && tableBody) {
+        searchInput.addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const rows = tableBody.querySelectorAll('tr.cursor-pointer');
+            let visibleCount = 0;
+
+            rows.forEach(row => {
+                const text = row.innerText.toLowerCase();
+                if (text.includes(searchTerm)) {
+                    row.style.display = '';
+                    visibleCount++;
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+
+            // Handle "No units found" message
+            let emptyMsgRow = document.getElementById('clientEmptySearchRow');
+            if (visibleCount === 0 && rows.length > 0) {
+                if (!emptyMsgRow) {
+                    emptyMsgRow = document.createElement('tr');
+                    emptyMsgRow.id = 'clientEmptySearchRow';
+                    emptyMsgRow.innerHTML = `
+                        <td colspan="6" class="px-6 py-12 text-center text-gray-500">
+                            <i data-lucide="search" class="w-12 h-12 mx-auto mb-4 text-gray-300"></i>
+                            <p>No units match your search.</p>
+                        </td>
+                    `;
+                    tableBody.appendChild(emptyMsgRow);
+                    if (typeof lucide !== 'undefined') lucide.createIcons();
+                } else {
+                    emptyMsgRow.style.display = '';
+                }
+            } else if (emptyMsgRow) {
+                emptyMsgRow.style.display = 'none';
+            }
+        });
+    }
+});
 </script>
-@endpush
+
+@endsection

@@ -320,9 +320,7 @@
         </div>
     </div>
 
-@endsection
 
-@push('scripts')
     {{-- Computation Details Modal --}}
     <div id="computationModal" class="fixed inset-0 z-[100] hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
         <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
@@ -567,4 +565,4 @@
         }
     </script>
     <script src="{{ asset('assets/marked.min.js') }}"></script>
-@endpush
+@endsection

@@ -3,7 +3,7 @@
 @section('page-heading', 'Owner Control Center')
 @section('page-subheading', 'System administration, user management & security audit — Owner only')
 
-@push('styles')
+@section('content')
 <style>
     /* ── Premium dark glass palette ── */
     :root {
@@ -193,9 +193,6 @@
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 99px; }
 </style>
-@endpush
-
-@section('content')
 @php
     use App\Http\Controllers\SuperAdminController;
     $pages = SuperAdminController::$pageDefinitions;
@@ -1259,9 +1256,9 @@
     </div>
  </div>
 
-@endsection
 
-@push('scripts')
+
+
 <script>
 const CSRF = document.querySelector('meta[name="csrf-token"]').content;
 
@@ -2148,4 +2145,4 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 30000);
 });
 </script>
-@endpush
+@endsection

@@ -127,41 +127,35 @@
                         </button>
 
                         <div id="unit-dropdown-{{ $unit->id }}"
-                            class="unit-action-dropdown hidden absolute right-4 mt-1 w-48 bg-white rounded-lg shadow-xl border border-gray-100 z-50 overflow-hidden">
-                            {{-- Unit Info --}}
-                            <button type="button"
-                                class="w-full text-left px-4 py-2.5 text-xs font-bold text-blue-700 hover:bg-blue-50 transition-colors flex items-center gap-2"
-                                onclick="event.stopPropagation(); document.getElementById('unit-dropdown-{{ $unit->id }}').classList.add('hidden'); viewUnitDetails({{ $unit->id }})">
-                                <i data-lucide="info" class="w-4 h-4"></i> Unit Info
-                            </button>
-                            
+                            class="unit-action-dropdown hidden absolute right-4 mt-1 w-40 bg-white rounded-lg shadow-xl border border-gray-100 z-50 overflow-hidden">
                             {{-- Edit --}}
                             <button type="button"
-                                class="w-full text-left px-4 py-2.5 text-xs font-bold text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2 border-t border-gray-50"
+                                class="w-full text-left px-4 py-2.5 text-xs font-bold text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors flex items-center gap-2"
                                 onclick="event.stopPropagation(); document.getElementById('unit-dropdown-{{ $unit->id }}').classList.add('hidden'); editUnit({{ $unit->id }})">
                                 <i data-lucide="edit-2" class="w-4 h-4"></i> Edit Unit
                             </button>
-
                             {{-- Reset Service Overdue --}}
+                            @if($has_maintenance_data)
                             <form method="POST" action="{{ route('units.reset-health', $unit->id) }}"
-                                onsubmit="return confirm('Reset service overdue counter for {{ $unit->plate_number }}? This will set the last service odometer to the current odometer.');"
-                                class="m-0 p-0 border-t border-gray-50">
+                                onsubmit="return confirm('Reset service overdue for unit {{ $unit->plate_number }}? This will reset the maintenance counter to zero based on current GPS odometer.');"
+                                class="m-0 p-0">
                                 @csrf
                                 <button type="submit"
                                     onclick="event.stopPropagation()"
-                                    class="w-full text-left px-4 py-2.5 text-xs font-bold text-green-600 hover:bg-green-50 transition-colors flex items-center gap-2">
-                                    <i data-lucide="refresh-cw" class="w-4 h-4"></i> Reset Service Overdue
+                                    class="w-full text-left px-4 py-2.5 text-xs font-bold text-green-600 hover:bg-green-50 transition-colors flex items-center gap-2 border-t border-gray-50">
+                                    <i data-lucide="refresh-cw" class="w-4 h-4 text-green-600"></i> Reset Service
                                 </button>
                             </form>
+                            @endif
 
                             {{-- Archive --}}
                             <form method="POST" action="{{ route('units.destroy', $unit->id) }}"
                                 onsubmit="return confirm('Archive unit {{ $unit->plate_number }}? It will be moved to the Archive page.');"
-                                class="m-0 p-0 border-t border-gray-50">
+                                class="m-0 p-0">
                                 @csrf @method('DELETE')
                                 <button type="submit"
                                     onclick="event.stopPropagation()"
-                                    class="w-full text-left px-4 py-2.5 text-xs font-bold text-amber-600 hover:bg-amber-50 transition-colors flex items-center gap-2">
+                                    class="w-full text-left px-4 py-2.5 text-xs font-bold text-amber-600 hover:bg-amber-50 transition-colors flex items-center gap-2 border-t border-gray-50">
                                     <i data-lucide="archive" class="w-4 h-4"></i> Archive Unit
                                 </button>
                             </form>
@@ -219,53 +213,4 @@
     </div>
 @endif
 
-<script>
-    window.toggleUnitDropdown = function(id, event) {
-        event.stopPropagation();
 
-        // Close all other unit dropdowns and reset their row z-index
-        document.querySelectorAll('.unit-action-dropdown').forEach(el => {
-            if (el.id !== id) el.classList.add('hidden');
-            const row = el.closest('tr');
-            if (row) {
-                row.style.zIndex = '';
-                row.style.position = '';
-            }
-        });
-
-        // Toggle this dropdown
-        const dropdown = document.getElementById(id);
-        if (dropdown) {
-            const isHidden = dropdown.classList.contains('hidden');
-            const row = dropdown.closest('tr');
-            if (isHidden) {
-                dropdown.classList.remove('hidden');
-                if (row) {
-                    row.style.position = 'relative';
-                    row.style.zIndex = '50';
-                }
-            } else {
-                dropdown.classList.add('hidden');
-                if (row) {
-                    row.style.zIndex = '';
-                    row.style.position = '';
-                }
-            }
-        }
-    };
-
-    // Attach document-level close listener only once
-    if (!window.unitDropdownListenerAdded) {
-        document.addEventListener('click', function () {
-            document.querySelectorAll('.unit-action-dropdown').forEach(el => {
-                el.classList.add('hidden');
-                const row = el.closest('tr');
-                if (row) {
-                    row.style.zIndex = '';
-                    row.style.position = '';
-                }
-            });
-        });
-        window.unitDropdownListenerAdded = true;
-    }
-</script>

@@ -5,7 +5,7 @@
 @section('page-subheading', 'Real-time GPS monitoring of all taxi units')
 @section('main-padding', 'p-0')
 
-@push('styles')
+@section('content')
 <link rel="stylesheet" href="{{ asset('assets/leaflet/leaflet.css') }}" />
 <style>
 /* ── Full-height layout fixes ───────────────────────────────────── */
@@ -392,9 +392,6 @@
     #mapHeaderBar { padding-left: 58px; }
 }
 </style>
-@endpush
-
-@section('content')
 <div id="liveTrackingRoot">
 
     {{-- ═══ Unit Explorer Panel ═══════════════════════════════════ --}}
@@ -593,9 +590,7 @@
     </div>{{-- /mapArea --}}
 
 </div>{{-- /liveTrackingRoot --}}
-@endsection
 
-@push('scripts')
 <script src="{{ asset('assets/leaflet/leaflet.js') }}"></script>
 <script src="{{ asset('js/realtime-tracking.js') }}?v={{ time() }}"></script>
 <script>
@@ -779,4 +774,4 @@
     }
 })();
 </script>
-@endpush
+@endsection
