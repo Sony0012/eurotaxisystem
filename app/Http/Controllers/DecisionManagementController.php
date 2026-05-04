@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Validator;
 use App\Http\Controllers\ActivityLogController;
 
 class DecisionManagementController extends Controller
@@ -148,14 +149,82 @@ class DecisionManagementController extends Controller
             }
         }
 
-        $request->validate([
-            'applicant_name' => 'required|string|max:255',
-            'case_no' => 'required|string|max:100',
-            'type_of_application' => 'required|string|max:255',
-            'denomination' => 'required|string|max:255',
-            'date_filed' => 'required|date',
-            'expiry_date' => 'nullable|date',
+        // Normalize (trim + uppercase where needed) before validating/saving
+        $request->merge([
+            'applicant_name' => trim((string) $request->input('applicant_name', '')),
+            'case_no' => trim((string) $request->input('case_no', '')),
+            'type_of_application' => trim((string) $request->input('type_of_application', '')),
+            'denomination' => trim((string) $request->input('denomination', '')),
+            'date_filed' => $request->input('date_filed'),
+            'expiry_date' => $request->input('expiry_date'),
         ]);
+
+        $validator = Validator::make($request->all(), [
+            // Name-like fields: letters only; allowed punctuation: . ,
+            'applicant_name' => ['required', 'string', 'max:35', 'regex:/^(?=.*[A-Za-z])[A-Za-z., ]+$/'],
+            'type_of_application' => ['required', 'string', 'max:35', 'regex:/^(?=.*[A-Za-z])[A-Za-z., ]+$/'],
+            'denomination' => ['required', 'string', 'max:35', 'regex:/^(?=.*[A-Za-z])[A-Za-z., ]+$/'],
+
+            // Case No: digits only, max 25
+            'case_no' => ['required', 'string', 'max:25', 'regex:/^\d+$/'],
+
+            // Dates required
+            'date_filed' => ['required', 'date'],
+            'expiry_date' => ['required', 'date', 'after_or_equal:date_filed'],
+
+            // Units array is optional; row-level validation handled in after()
+            'units' => ['nullable', 'array'],
+        ], [
+            'applicant_name.regex' => 'Name of Applicant: letters only. Allowed: space, period (.), comma (,).',
+            'type_of_application.regex' => 'Type of Application: letters only. Allowed: space, period (.), comma (,).',
+            'denomination.regex' => 'Denomination: letters only. Allowed: space, period (.), comma (,).',
+            'case_no.regex' => 'Case No.: numbers only (no spaces).',
+            'expiry_date.after_or_equal' => 'Expiry Date must be the same as or after Date Filed.',
+        ]);
+
+        $validator->after(function ($v) use ($request) {
+            $units = $request->input('units', []);
+            if (!is_array($units)) return;
+
+            foreach ($units as $idx => $u) {
+                if (!is_array($u)) continue;
+
+                $make = trim((string)($u['make'] ?? ''));
+                $motor = strtoupper(trim((string)($u['motor_no'] ?? '')));
+                $chasis = strtoupper(trim((string)($u['chasis_no'] ?? '')));
+                $plate = strtoupper(trim((string)($u['plate_no'] ?? '')));
+                $year = trim((string)($u['year_model'] ?? ''));
+
+                $anyFilled = ($make !== '' || $motor !== '' || $chasis !== '' || $plate !== '' || $year !== '');
+                if (!$anyFilled) continue;
+
+                // If row started, all are required
+                if ($make === '') $v->errors()->add("units.$idx.make", "Row " . ($idx + 1) . " MAKE is required.");
+                if ($motor === '') $v->errors()->add("units.$idx.motor_no", "Row " . ($idx + 1) . " MOTOR NO. is required.");
+                if ($chasis === '') $v->errors()->add("units.$idx.chasis_no", "Row " . ($idx + 1) . " CHASIS NO. is required.");
+                if ($plate === '') $v->errors()->add("units.$idx.plate_no", "Row " . ($idx + 1) . " PLATE NO. is required.");
+                if ($year === '') $v->errors()->add("units.$idx.year_model", "Row " . ($idx + 1) . " YEAR MODEL is required.");
+
+                // Field rules
+                if ($make !== '' && (strlen($make) > 10 || !preg_match('/^(?=.*[A-Za-z])[A-Za-z ]+$/', $make))) {
+                    $v->errors()->add("units.$idx.make", "Row " . ($idx + 1) . " MAKE must be letters only (spaces allowed), max 10.");
+                }
+                if ($motor !== '' && (strlen($motor) > 15 || !preg_match('/^[A-Z0-9]+$/', $motor))) {
+                    $v->errors()->add("units.$idx.motor_no", "Row " . ($idx + 1) . " MOTOR NO. must be uppercase letters & numbers only, no spaces/symbols, max 15.");
+                }
+                if ($chasis !== '' && (strlen($chasis) > 15 || !preg_match('/^[A-Z0-9]+$/', $chasis))) {
+                    $v->errors()->add("units.$idx.chasis_no", "Row " . ($idx + 1) . " CHASIS NO. must be uppercase letters & numbers only, no spaces/symbols, max 15.");
+                }
+                if ($plate !== '' && (strlen($plate) > 5 || !preg_match('/^[A-Z0-9]+$/', $plate))) {
+                    $v->errors()->add("units.$idx.plate_no", "Row " . ($idx + 1) . " PLATE NO. must be letters & numbers only, no spaces/symbols, max 5.");
+                }
+                if ($year !== '' && !preg_match('/^\d{4}$/', $year)) {
+                    $v->errors()->add("units.$idx.year_model", "Row " . ($idx + 1) . " YEAR MODEL must be 4 digits.");
+                }
+            }
+        });
+
+        $validator->validate();
 
         $data = [
             'applicant_name' => $request->applicant_name,
@@ -163,7 +232,7 @@ class DecisionManagementController extends Controller
             'type_of_application' => $request->type_of_application,
             'denomination' => $request->denomination,
             'date_filed' => $request->date_filed,
-            'expiry_date' => $request->expiry_date ?: null,
+            'expiry_date' => $request->expiry_date,
             'updated_at' => now(),
         ];
 
@@ -186,11 +255,11 @@ class DecisionManagementController extends Controller
                 if (!empty($u['make']) || !empty($u['motor_no']) || !empty($u['plate_no'])) {
                     DB::table('franchise_case_units')->insert([
                         'franchise_case_id' => $id,
-                        'make' => $u['make'] ?? '',
-                        'motor_no' => $u['motor_no'] ?? '',
-                        'chasis_no' => $u['chasis_no'] ?? '',
-                        'plate_no' => $u['plate_no'] ?? '',
-                        'year_model' => $u['year_model'] ?? '',
+                        'make' => trim((string)($u['make'] ?? '')),
+                        'motor_no' => strtoupper(trim((string)($u['motor_no'] ?? ''))),
+                        'chasis_no' => strtoupper(trim((string)($u['chasis_no'] ?? ''))),
+                        'plate_no' => strtoupper(trim((string)($u['plate_no'] ?? ''))),
+                        'year_model' => trim((string)($u['year_model'] ?? '')),
                         'created_at' => now(),
                         'updated_at' => now(),
                     ]);

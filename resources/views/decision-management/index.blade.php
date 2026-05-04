@@ -30,7 +30,7 @@
         <!-- Modal Body -->
         <div class="p-6 flex-1 overflow-y-auto print:overflow-visible">
             <div id="decisionPrintArea">
-                <form method="POST" class="space-y-6">
+                <form id="franchiseCaseForm" method="POST" class="space-y-6">
                     @csrf
                     <input type="hidden" name="action" value="save_case">
                     <input type="hidden" name="case_id" value="<?php echo $edit_case['id'] ?? 0; ?>">
@@ -47,6 +47,13 @@
                             <label class="block text-sm font-semibold text-gray-700">Name of Applicant</label>
                             <input type="text" name="applicant_name"
                                    value="<?php echo htmlspecialchars($edit_case['applicant_name'] ?? ''); ?>"
+                                   required
+                                   maxlength="35"
+                                   autocomplete="off"
+                                   inputmode="text"
+                                   pattern="(?=.*[A-Za-z])[A-Za-z., ]+"
+                                   title="Letters only. Allowed: space, period (.), comma (,). Max 35."
+                                   data-validate="name-like"
                                    class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
                         </div>
 
@@ -54,6 +61,13 @@
                             <label class="block text-sm font-semibold text-gray-700">CASE NO.</label>
                             <input type="text" name="case_no"
                                    value="<?php echo htmlspecialchars($edit_case['case_no'] ?? ''); ?>"
+                                   required
+                                   maxlength="25"
+                                   autocomplete="off"
+                                   inputmode="numeric"
+                                   pattern="[0-9]+"
+                                   title="Numbers only. Max 25."
+                                   data-validate="case-no"
                                    class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
                         </div>
 
@@ -61,6 +75,13 @@
                             <label class="block text-sm font-semibold text-gray-700">Type of Application</label>
                             <input type="text" name="type_of_application"
                                    value="<?php echo htmlspecialchars($edit_case['type_of_application'] ?? ''); ?>"
+                                   required
+                                   maxlength="35"
+                                   autocomplete="off"
+                                   inputmode="text"
+                                   pattern="(?=.*[A-Za-z])[A-Za-z., ]+"
+                                   title="Letters only. Allowed: space, period (.), comma (,). Max 35."
+                                   data-validate="name-like"
                                    class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
                         </div>
 
@@ -68,6 +89,13 @@
                             <label class="block text-sm font-semibold text-gray-700">Denomination</label>
                             <input type="text" name="denomination"
                                    value="<?php echo htmlspecialchars($edit_case['denomination'] ?? ''); ?>"
+                                   required
+                                   maxlength="35"
+                                   autocomplete="off"
+                                   inputmode="text"
+                                   pattern="(?=.*[A-Za-z])[A-Za-z., ]+"
+                                   title="Letters only. Allowed: space, period (.), comma (,). Max 35."
+                                   data-validate="name-like"
                                    class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
                         </div>
 
@@ -75,6 +103,8 @@
                             <label class="block text-sm font-semibold text-gray-700">Date Filed</label>
                             <input type="date" name="date_filed"
                                    value="<?php echo htmlspecialchars($edit_case['date_filed'] ?? ''); ?>"
+                                   required
+                                   data-validate="date-filed"
                                    class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
                         </div>
 
@@ -82,6 +112,8 @@
                             <label class="block text-sm font-semibold text-gray-700">Expiry Date</label>
                             <input type="date" name="expiry_date"
                                    value="<?php echo htmlspecialchars($edit_case['expiry_date'] ?? ''); ?>"
+                                   required
+                                   data-validate="expiry-date"
                                    class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
                         </div>
                     </div>
@@ -117,6 +149,12 @@
                                             <input type="text"
                                                    name="units[<?php echo $i; ?>][make]"
                                                    value="<?php echo htmlspecialchars($u['make'] ?? ''); ?>"
+                                                   maxlength="10"
+                                                   autocomplete="off"
+                                                   inputmode="text"
+                                                   pattern="(?=.*[A-Za-z])[A-Za-z ]+"
+                                                   title="Letters only. Spaces allowed. Max 10."
+                                                   data-unit-field="make"
                                                    class="w-full px-3 py-2 border-2 border-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                                                    placeholder="MAKE">
                                         </td>
@@ -124,6 +162,12 @@
                                             <input type="text"
                                                    name="units[<?php echo $i; ?>][motor_no]"
                                                    value="<?php echo htmlspecialchars($u['motor_no'] ?? ''); ?>"
+                                                   maxlength="15"
+                                                   autocomplete="off"
+                                                   inputmode="text"
+                                                   pattern="[A-Z0-9]+"
+                                                   title="Uppercase letters and numbers only. No spaces/symbols. Max 15."
+                                                   data-unit-field="motor_no"
                                                    class="w-full px-3 py-2 border-2 border-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                                                    placeholder="MOTOR NO.">
                                         </td>
@@ -131,6 +175,12 @@
                                             <input type="text"
                                                    name="units[<?php echo $i; ?>][chasis_no]"
                                                    value="<?php echo htmlspecialchars($u['chasis_no'] ?? ''); ?>"
+                                                   maxlength="15"
+                                                   autocomplete="off"
+                                                   inputmode="text"
+                                                   pattern="[A-Z0-9]+"
+                                                   title="Uppercase letters and numbers only. No spaces/symbols. Max 15."
+                                                   data-unit-field="chasis_no"
                                                    class="w-full px-3 py-2 border-2 border-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                                                    placeholder="CHASIS NO.">
                                         </td>
@@ -138,6 +188,12 @@
                                             <input type="text"
                                                    name="units[<?php echo $i; ?>][plate_no]"
                                                    value="<?php echo htmlspecialchars($u['plate_no'] ?? ''); ?>"
+                                                   maxlength="5"
+                                                   autocomplete="off"
+                                                   inputmode="text"
+                                                   pattern="[A-Z0-9]+"
+                                                   title="Letters and numbers only. No spaces/symbols. Max 5."
+                                                   data-unit-field="plate_no"
                                                    class="w-full px-3 py-2 border-2 border-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all font-bold text-blue-700"
                                                    placeholder="PLATE NO.">
                                         </td>
@@ -145,6 +201,12 @@
                                             <input type="text"
                                                    name="units[<?php echo $i; ?>][year_model]"
                                                    value="<?php echo htmlspecialchars($u['year_model'] ?? ''); ?>"
+                                                   maxlength="4"
+                                                   autocomplete="off"
+                                                   inputmode="numeric"
+                                                   pattern="[0-9]{4}"
+                                                   title="4-digit year only."
+                                                   data-unit-field="year_model"
                                                    class="w-full px-3 py-2 border-2 border-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                                                    placeholder="YEAR">
                                         </td>
@@ -748,5 +810,158 @@ function filterFranchiseItems() {
     const totalBadge = document.getElementById('stat-total-cases');
     if (totalBadge) totalBadge.textContent = visibleCount;
 }
+
+// ---- New Franchise Case: client-side validation ----
+(function setupFranchiseCaseValidation() {
+    const form = document.getElementById('franchiseCaseForm');
+    if (!form) return;
+
+    const nameLikePattern = /^(?=.*[A-Za-z])[A-Za-z., ]+$/;
+    const makePattern = /^(?=.*[A-Za-z])[A-Za-z ]+$/;
+    const caseNoPattern = /^\d+$/;
+    const upperAlnumPattern = /^[A-Z0-9]+$/;
+    const yearPattern = /^\d{4}$/;
+
+    const sanitize = {
+        nameLike: (v) => v.replace(/[^A-Za-z., ]+/g, '').replace(/\s{2,}/g, ' '),
+        make: (v) => v.replace(/[^A-Za-z ]+/g, '').replace(/\s{2,}/g, ' '),
+        digits: (v) => v.replace(/[^\d]+/g, ''),
+        upperAlnum: (v) => v.toUpperCase().replace(/[^A-Z0-9]+/g, ''),
+    };
+
+    function setFieldError(input, message) {
+        if (!input) return;
+        input.setCustomValidity(message || '');
+    }
+
+    function trimOnBlur(input) {
+        input.addEventListener('blur', () => {
+            input.value = input.value.trim();
+        });
+    }
+
+    // Live filtering
+    form.querySelectorAll('input[data-validate="name-like"]').forEach((input) => {
+        input.addEventListener('input', () => { input.value = sanitize.nameLike(input.value); });
+        trimOnBlur(input);
+    });
+
+    const caseNo = form.querySelector('input[name="case_no"]');
+    if (caseNo) {
+        caseNo.addEventListener('input', () => { caseNo.value = sanitize.digits(caseNo.value); });
+        trimOnBlur(caseNo);
+    }
+
+    // Units: enforce caps + allowed chars
+    form.querySelectorAll('input[data-unit-field="motor_no"], input[data-unit-field="chasis_no"], input[data-unit-field="plate_no"]').forEach((input) => {
+        input.addEventListener('input', () => { input.value = sanitize.upperAlnum(input.value); });
+        trimOnBlur(input);
+    });
+    form.querySelectorAll('input[data-unit-field="make"]').forEach((input) => {
+        input.addEventListener('input', () => { input.value = sanitize.make(input.value); });
+        trimOnBlur(input);
+    });
+    form.querySelectorAll('input[data-unit-field="year_model"]').forEach((input) => {
+        input.addEventListener('input', () => { input.value = sanitize.digits(input.value).slice(0, 4); });
+        trimOnBlur(input);
+    });
+
+    // Submit-time validation (including conditional required per unit row)
+    form.addEventListener('submit', (e) => {
+        let firstInvalid = null;
+
+        // Reset
+        form.querySelectorAll('input').forEach((i) => setFieldError(i, ''));
+
+        // Top fields
+        form.querySelectorAll('input[data-validate="name-like"]').forEach((input) => {
+            const v = input.value.trim();
+            input.value = v;
+            if (!v) setFieldError(input, 'This field is required.');
+            else if (v.length > 35) setFieldError(input, 'Maximum of 35 characters.');
+            else if (!nameLikePattern.test(v)) setFieldError(input, 'Letters only. Allowed: space, period (.), comma (,). No numbers/symbols.');
+            if (!firstInvalid && !input.checkValidity()) firstInvalid = input;
+        });
+
+        if (caseNo) {
+            const v = caseNo.value.trim();
+            caseNo.value = v;
+            if (!v) setFieldError(caseNo, 'Case No. is required.');
+            else if (v.length > 25) setFieldError(caseNo, 'Maximum of 25 digits.');
+            else if (!caseNoPattern.test(v)) setFieldError(caseNo, 'Numbers only (no spaces).');
+            if (!firstInvalid && !caseNo.checkValidity()) firstInvalid = caseNo;
+        }
+
+        const dateFiled = form.querySelector('input[name="date_filed"]');
+        const expiryDate = form.querySelector('input[name="expiry_date"]');
+        if (dateFiled) {
+            if (!dateFiled.value) setFieldError(dateFiled, 'Date Filed is required.');
+            if (!firstInvalid && !dateFiled.checkValidity()) firstInvalid = dateFiled;
+        }
+        if (expiryDate) {
+            if (!expiryDate.value) setFieldError(expiryDate, 'Expiry Date is required.');
+            if (dateFiled?.value && expiryDate.value && expiryDate.value < dateFiled.value) {
+                setFieldError(expiryDate, 'Expiry Date must be the same as or after Date Filed.');
+            }
+            if (!firstInvalid && !expiryDate.checkValidity()) firstInvalid = expiryDate;
+        }
+
+        // Units: validate row if any field filled
+        const rows = Array.from(form.querySelectorAll('input[data-unit-field="make"]')).map((makeInput) => makeInput.closest('tr'));
+        rows.forEach((tr) => {
+            if (!tr) return;
+            const make = tr.querySelector('input[data-unit-field="make"]');
+            const motor = tr.querySelector('input[data-unit-field="motor_no"]');
+            const chasis = tr.querySelector('input[data-unit-field="chasis_no"]');
+            const plate = tr.querySelector('input[data-unit-field="plate_no"]');
+            const year = tr.querySelector('input[data-unit-field="year_model"]');
+
+            const vals = [make, motor, chasis, plate, year].map((i) => (i?.value ?? '').trim());
+            const anyFilled = vals.some((v) => v.length > 0);
+            if (!anyFilled) return;
+
+            // normalize
+            if (make) make.value = make.value.trim();
+            if (motor) motor.value = motor.value.trim().toUpperCase();
+            if (chasis) chasis.value = chasis.value.trim().toUpperCase();
+            if (plate) plate.value = plate.value.trim().toUpperCase();
+            if (year) year.value = year.value.trim();
+
+            // required all
+            if (make && !make.value.trim()) setFieldError(make, 'MAKE is required if you add a unit.');
+            if (motor && !motor.value.trim()) setFieldError(motor, 'MOTOR NO. is required if you add a unit.');
+            if (chasis && !chasis.value.trim()) setFieldError(chasis, 'CHASIS NO. is required if you add a unit.');
+            if (plate && !plate.value.trim()) setFieldError(plate, 'PLATE NO. is required if you add a unit.');
+            if (year && !year.value.trim()) setFieldError(year, 'YEAR MODEL is required if you add a unit.');
+
+            // pattern checks
+            if (make?.value && (make.value.length > 10 || !makePattern.test(make.value))) {
+                setFieldError(make, 'MAKE: letters only (spaces allowed), max 10. No numbers/symbols.');
+            }
+            if (motor?.value && (motor.value.length > 15 || !upperAlnumPattern.test(motor.value))) {
+                setFieldError(motor, 'MOTOR NO.: uppercase letters & numbers only, no spaces/symbols, max 15.');
+            }
+            if (chasis?.value && (chasis.value.length > 15 || !upperAlnumPattern.test(chasis.value))) {
+                setFieldError(chasis, 'CHASIS NO.: uppercase letters & numbers only, no spaces/symbols, max 15.');
+            }
+            if (plate?.value && (plate.value.length > 5 || !upperAlnumPattern.test(plate.value))) {
+                setFieldError(plate, 'PLATE NO.: letters & numbers only, no spaces/symbols, max 5.');
+            }
+            if (year?.value && !yearPattern.test(year.value)) {
+                setFieldError(year, 'YEAR MODEL: 4 digits only (e.g., 2026).');
+            }
+
+            [make, motor, chasis, plate, year].forEach((input) => {
+                if (!firstInvalid && input && !input.checkValidity()) firstInvalid = input;
+            });
+        });
+
+        if (firstInvalid) {
+            e.preventDefault();
+            firstInvalid.reportValidity();
+            firstInvalid.focus();
+        }
+    });
+})();
 </script>
 @endsection
