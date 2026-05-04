@@ -1045,6 +1045,7 @@ class UnitController extends Controller
             $unit->update([
                 'status' => 'active',
                 'is_pinned_missing' => false,
+                'shift_deadline_at' => null,
                 'updated_at' => now(),
             ]);
 
