@@ -15,9 +15,7 @@ class OfficeExpenseController extends Controller
         $category = $request->input('category', '');
         $date_from = $request->input('date_from', date('Y-m-01'));
         $date_to = $request->input('date_to', date('Y-m-d'));
-        $page = max(1, (int) $request->input('page', 1));
-        $limit = 15;
-        $offset = ($page - 1) * $limit;
+        $limit = 10;
 
         $query = DB::table('expenses as e')
             ->whereNull('e.deleted_at')
@@ -38,8 +36,6 @@ class OfficeExpenseController extends Controller
             $query->where('e.category', $category);
         }
 
-        $total = $query->count();
-
         // Calculate totals based on the FILTERED query (before pagination)
         $totals = (clone $query)
             ->select(DB::raw('SUM(e.amount) as total_amount'), DB::raw('COUNT(*) as total_count'))
@@ -47,9 +43,7 @@ class OfficeExpenseController extends Controller
 
         $expenses = $query->orderByDesc('e.date')
             ->orderByDesc('e.created_at')
-            ->offset($offset)
-            ->limit($limit)
-            ->get();
+            ->paginate($limit);
 
         $categories = DB::table('expenses')->whereNull('deleted_at')->distinct()->pluck('category');
 
@@ -92,16 +86,6 @@ class OfficeExpenseController extends Controller
             return response()->json(['expenses' => $expenses, 'stats' => $stats]);
         }
 
-        $pagination = [
-            'page' => $page,
-            'total_pages' => ceil($total / $limit),
-            'total_items' => $total,
-            'has_prev' => $page > 1,
-            'has_next' => $page < ceil($total / $limit),
-            'prev_page' => $page - 1,
-            'next_page' => $page + 1,
-        ];
-
         // Get units for dropdown
         $units = DB::table('units')
             ->where('status', 'active')
@@ -113,7 +97,7 @@ class OfficeExpenseController extends Controller
         $suppliers = DB::table('suppliers')->orderBy('name')->get();
         $franchises = \App\Models\FranchiseCase::orderBy('case_no')->get();
 
-        return view('office-expenses.index', compact('expenses', 'pagination', 'search', 'category', 'date_from', 'date_to', 'totals', 'categories', 'stats', 'units', 'spareParts', 'suppliers', 'franchises'));
+        return view('office-expenses.index', compact('expenses', 'search', 'category', 'date_from', 'date_to', 'totals', 'categories', 'stats', 'units', 'spareParts', 'suppliers', 'franchises'));
     }
 
     public function show($id)
