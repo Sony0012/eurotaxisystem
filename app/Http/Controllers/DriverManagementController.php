@@ -728,4 +728,20 @@ class DriverManagementController extends Controller
     }
 
     // calculatePerformanceRating moved to App\Traits\CalculatesDriverPerformance
+
+    public function unban($id)
+    {
+        $driver = Driver::findOrFail($id);
+
+        if ($driver->driver_status !== 'banned') {
+            return response()->json(['success' => false, 'message' => 'Driver is not banned.'], 422);
+        }
+
+        $driver->update(['driver_status' => 'available']);
+
+        $name = trim($driver->first_name . ' ' . $driver->last_name);
+        ActivityLogController::log('Unbanned Driver', "Driver: {$name} has been unbanned and status set to Available.");
+
+        return response()->json(['success' => true, 'message' => "{$name} has been successfully unbanned."]);
+    }
 }

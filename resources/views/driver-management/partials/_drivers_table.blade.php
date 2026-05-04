@@ -198,12 +198,19 @@
                         </button>
 
                         <div id="dropdown-{{ $driver->id }}"
-                            class="driver-action-dropdown hidden absolute right-8 mt-1 w-36 bg-white rounded-lg shadow-xl border border-gray-100 z-50 overflow-hidden transform transition-all">
+                            class="driver-action-dropdown hidden absolute right-8 mt-1 w-40 bg-white rounded-lg shadow-xl border border-gray-100 z-50 overflow-hidden transform transition-all">
                             <button type="button"
                                 class="w-full text-left px-4 py-2.5 text-xs font-bold text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors flex items-center gap-2"
                                 onclick="event.stopPropagation(); document.getElementById('dropdown-{{ $driver->id }}').classList.add('hidden'); openEditDriverModal({{ $driver->id }})">
                                 <i data-lucide="edit-2" class="w-4 h-4"></i> Edit Driver
                             </button>
+                            @if($driver->driver_status === 'banned')
+                            <button type="button"
+                                class="w-full text-left px-4 py-2.5 text-xs font-bold text-green-600 hover:bg-green-50 transition-colors flex items-center gap-2 border-t border-gray-50"
+                                onclick="event.stopPropagation(); document.getElementById('dropdown-{{ $driver->id }}').classList.add('hidden'); unbanDriver({{ $driver->id }}, '{{ $driver->full_name }}')">
+                                <i data-lucide="shield-check" class="w-4 h-4"></i> Unban Driver
+                            </button>
+                            @endif
                             <button type="button"
                                 class="w-full text-left px-4 py-2.5 text-xs font-bold text-orange-600 hover:bg-orange-50 transition-colors flex items-center gap-2 border-t border-gray-50"
                                 onclick="event.stopPropagation(); document.getElementById('dropdown-{{ $driver->id }}').classList.add('hidden'); deleteDriver({{ $driver->id }}, '{{ $driver->full_name }}')">
@@ -288,4 +295,41 @@
         });
         window.driverDropdownListenerAdded = true;
     }
-</script>
+
+    window.unbanDriver = function (driverId, driverName) {
+        if (!confirm('Are you sure you want to UNBAN ' + driverName + '?\nTheir status will be set back to Available.')) return;
+
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ||
+                          document.querySelector('input[name="_token"]')?.value || '';
+
+        fetch(`/driver-management/${driverId}/unban`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken,
+                'Accept': 'application/json'
+            }
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                if (typeof showNotification === 'function') {
+                    showNotification(data.message, 'success');
+                } else {
+                    alert(data.message);
+                }
+                if (typeof loadDriversTable === 'function') {
+                    loadDriversTable();
+                } else {
+                    window.location.reload();
+                }
+            } else {
+                alert('Error: ' + data.message);
+            }
+        })
+        .catch(err => {
+            console.error('Unban error:', err);
+            alert('Failed to unban driver. Please try again.');
+        });
+    };
+</script>

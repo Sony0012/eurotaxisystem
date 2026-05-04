@@ -124,6 +124,8 @@ Route::middleware(['auth', 'page_access'])->group(function () {
     Route::get('/driver-management/pending-debts', [DriverManagementController::class, 'getPendingDebts'])->name('driver-management.pending-debts');
     Route::get('/driver-management/debt-history', [DriverManagementController::class, 'getDebtHistory'])->name('driver-management.debt-history');
     Route::post('/driver-management/pay-debt', [DriverManagementController::class, 'payDebt'])->name('driver-management.pay-debt');
+    Route::post('/driver-management/{id}/unban', [DriverManagementController::class, 'unban'])->name('driver-management.unban');
+
 
     // Driver Management Resource Routes
     Route::resource('driver-management', DriverManagementController::class);
