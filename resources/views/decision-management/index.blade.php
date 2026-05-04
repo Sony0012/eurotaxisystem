@@ -219,12 +219,6 @@
 
                     <div class="p-4 border-t flex justify-end gap-3 shadow-inner bg-gray-50 shrink-0 print:hidden mt-8 -mx-6 -mb-6">
                         <button type="button"
-                                onclick="printDecisionCase()"
-                                class="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm text-gray-700 hover:bg-gray-100 shadow-sm flex items-center gap-2 mr-auto border-dashed">
-                            <i data-lucide="printer" class="w-4 h-4"></i>
-                            <span>Print Form</span>
-                        </button>
-                        <button type="button"
                                 onclick="closeCaseModal()"
                                 class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 text-sm font-bold transition-all">
                            Cancel
@@ -663,49 +657,6 @@ function closeCaseModal() {
         document.getElementById('caseModal').classList.add('hidden');
         document.getElementById('caseModal').classList.remove('flex');
     }
-}
-
-function printDecisionCase() {
-    const area = document.getElementById('decisionPrintArea');
-    if (!area) {
-        window.print();
-        return;
-    }
-
-    const printContents = area.innerHTML;
-    const printWindow = window.open('', '_blank');
-    if (!printWindow) {
-        window.print();
-        return;
-    }
-
-    printWindow.document.write(`<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Decision Case Print</title>
-    <style>
-        body { background-color: #fff; padding: 24px; font-family: system-ui, sans-serif; }
-        .print\\:hidden { display: none !important; }
-        input { border: none !important; background: transparent !important; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-    </style>
-</head>
-<body>
-    <div style="max-width: 900px; margin: 0 auto; text-align: center; margin-bottom: 20px;">
-        <h2>FRANCHISE CASE DETAILS</h2>
-    </div>
-    <div style="max-width: 900px; margin: 0 auto;">
-        ${printContents}
-    </div>
-</body>
-</html>`);
-
-    printWindow.document.close();
-    printWindow.focus();
-    setTimeout(() => { printWindow.print(); }, 200);
 }
 
 function openDocPreviewModal(data) {
