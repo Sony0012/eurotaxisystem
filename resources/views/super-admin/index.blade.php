@@ -534,11 +534,11 @@
                             </td>
                             <td>
                                 <div class="flex justify-end gap-1.5">
-                                    <button class="p-2 text-slate-400 hover:text-amber-600 transition-colors edit-user-btn" style="cursor: pointer !important;" title="Edit User" 
+                                    <button type="button" class="p-2 text-slate-400 hover:text-amber-600 transition-colors edit-user-btn" style="cursor: pointer !important;" title="Edit User" 
                                             data-user='@json($editData)'>
                                         <i data-lucide="edit-3" class="w-4 h-4" style="pointer-events: none;"></i>
                                     </button>
-                                    <button class="p-2 text-slate-400 hover:text-rose-600 transition-colors archive-user-btn" style="cursor: pointer !important;" title="Archive User" 
+                                    <button type="button" class="p-2 text-slate-400 hover:text-rose-600 transition-colors archive-user-btn" style="cursor: pointer !important;" title="Archive User" 
                                             data-id="{{ $u->id }}" data-name="{{ $u->full_name }}">
                                         <i data-lucide="archive" class="w-4 h-4" style="pointer-events: none;"></i>
                                     </button>
@@ -1263,7 +1263,6 @@
 
 
 <script>
-alert('DEBUG: Super Admin Script Initialized!');
 const CSRF = document.querySelector('meta[name="csrf-token"]').content;
 
 // ─── User Details Modal ────────────────────────────────────────────────────────
@@ -2143,6 +2142,8 @@ document.addEventListener('click', function(e) {
     // Edit User
     const editBtn = e.target.closest('.edit-user-btn');
     if (editBtn) {
+        e.preventDefault();
+        e.stopPropagation();
         const userData = JSON.parse(editBtn.getAttribute('data-user'));
         openEditUserModal(userData);
         return;
@@ -2151,7 +2152,8 @@ document.addEventListener('click', function(e) {
     // Archive User
     const archiveBtn = e.target.closest('.archive-user-btn');
     if (archiveBtn) {
-        alert('DEBUG: Archive button clicked!');
+        e.preventDefault();
+        e.stopPropagation();
         const id = archiveBtn.getAttribute('data-id');
         const name = archiveBtn.getAttribute('data-name');
         archiveUser(id, name);
