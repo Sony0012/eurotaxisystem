@@ -1,6 +1,7 @@
 class RealTimeDashboard {
     constructor() {
-        this.updateInterval = 30000; // Increased to 30s to respect Hostinger connection limits
+        // Hostinger MySQL often caps max_connections_per_hour (~500). Slower polling = fewer DB logins.
+        this.updateInterval = 120000; // 2 minutes
         this.isUpdating = false;
         this.lastUpdateTime = Date.now();
         this.stabilityDelay = 3000;

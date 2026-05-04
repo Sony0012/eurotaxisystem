@@ -2162,7 +2162,7 @@ document.addEventListener('click', function(e) {
 // Init icons on load
 document.addEventListener('DOMContentLoaded', () => {
     if (typeof lucide !== 'undefined') lucide.createIcons();
-    // Auto-refresh audit log every 30s if on audit tab
+    // Auto-refresh audit log (infrequent — reduces MySQL connections/hour on shared hosting)
     setInterval(() => {
         if (!document.getElementById('tab-audit').classList.contains('hidden')) {
             loadAuditLog();

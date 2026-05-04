@@ -58,8 +58,13 @@ return [
             'prefix_indexes' => true,
             'strict' => true,
             'engine' => null,
+            // Optional persistent connections: fewer MySQL *logins* per hour (helps Hostinger
+            // max_connections_per_hour). Enable with DB_PERSISTENT=true only if your host allows it.
             'options' => extension_loaded('pdo_mysql') ? array_filter([
                 PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
+                ...((filter_var(env('DB_PERSISTENT', false), FILTER_VALIDATE_BOOLEAN))
+                    ? [PDO::ATTR_PERSISTENT => true]
+                    : []),
             ]) : [],
         ],
 
