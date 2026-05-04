@@ -534,10 +534,10 @@
                             </td>
                             <td>
                                 <div class="flex justify-end gap-1.5">
-                                    <button class="p-2 text-slate-400 hover:text-amber-600 transition-colors" title="Edit User" onclick='openEditUserModal(@json($editData))'>
+                                    <button class="p-2 text-slate-400 hover:text-amber-600 transition-colors" style="cursor: pointer !important;" title="Edit User" onclick='openEditUserModal(@json($editData))'>
                                         <i data-lucide="edit-3" class="w-4 h-4"></i>
                                     </button>
-                                    <button class="p-2 text-slate-400 hover:text-rose-600 transition-colors" title="Archive User" onclick='archiveUser({{ $u->id }}, @json($u->full_name))'>
+                                    <button class="p-2 text-slate-400 hover:text-rose-600 transition-colors" style="cursor: pointer !important;" title="Archive User" onclick='archiveUser({{ $u->id }}, @json($u->full_name))'>
                                         <i data-lucide="archive" class="w-4 h-4"></i>
                                     </button>
                                 </div>
@@ -1500,6 +1500,7 @@ async function confirmEnable(id, name) {
 
 // ─── Archive / Restore ─────────────────────────────────────────────────────────
 async function archiveUser(id, name) {
+    alert('Archive function called for ID: ' + id + ', Name: ' + name);
     if (!confirm(`Move ${name} to archives? They will be unable to log in.`)) return;
     try {
         const res = await fetch(`/super-admin/users/${id}/archive`, { 
