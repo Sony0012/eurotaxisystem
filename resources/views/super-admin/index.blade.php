@@ -492,6 +492,7 @@
                         @php
                             $isActivated = !$u->must_change_password && $u->last_login;
                             $statusSlug = $isActivated ? 'activated' : 'pending';
+                            $editData = $u->only(['id','first_name','last_name','email','role','phone_number','address']);
                         @endphp
                         <tr class="user-row transition-colors" data-name="{{ strtolower($u->full_name) }}" data-email="{{ strtolower($u->email) }}" data-role="{{ strtolower($u->role) }}" data-status="{{ $statusSlug }}">
                             <td onclick="openUserDetailsModal({{ $u->id }})" style="cursor:pointer;">
@@ -533,7 +534,7 @@
                             </td>
                             <td>
                                 <div class="flex justify-end gap-1.5">
-                                    <button class="p-2 text-slate-400 hover:text-amber-600 transition-colors" title="Edit User" onclick='openEditUserModal(@json($u->only(["id","first_name","last_name","email","role","phone_number","address"])))'>
+                                    <button class="p-2 text-slate-400 hover:text-amber-600 transition-colors" title="Edit User" onclick="openEditUserModal({{ json_encode($editData) }})">
                                         <i data-lucide="edit-3" class="w-4 h-4"></i>
                                     </button>
                                     <button class="p-2 text-slate-400 hover:text-rose-600 transition-colors" title="Archive User" onclick="archiveUser({{ $u->id }}, '{{ addslashes($u->full_name) }}')">
