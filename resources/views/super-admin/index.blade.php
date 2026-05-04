@@ -2167,7 +2167,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!document.getElementById('tab-audit').classList.contains('hidden')) {
             loadAuditLog();
         }
-    }, 30000);
+    }, 120000);
 });
 </script>
 @endpush
