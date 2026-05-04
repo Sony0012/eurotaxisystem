@@ -14,8 +14,12 @@ return new class extends Migration
     public function up()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string('pending_email')->nullable()->after('email');
-            $table->string('email_change_token')->nullable()->after('pending_email');
+            if (!Schema::hasColumn('users', 'pending_email')) {
+                $table->string('pending_email')->nullable()->after('email');
+            }
+            if (!Schema::hasColumn('users', 'email_change_token')) {
+                $table->string('email_change_token')->nullable()->after('pending_email');
+            }
         });
     }
 
@@ -27,7 +31,12 @@ return new class extends Migration
     public function down()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn(['pending_email', 'email_change_token']);
+            if (Schema::hasColumn('users', 'pending_email')) {
+                $table->dropColumn('pending_email');
+            }
+            if (Schema::hasColumn('users', 'email_change_token')) {
+                $table->dropColumn('email_change_token');
+            }
         });
     }
 };
