@@ -28,8 +28,10 @@ class OfficeExpenseController extends Controller
 
         if (!empty($search)) {
             $query->where(function ($q) use ($search) {
-                $q->where('e.description', 'like', DB::raw("CONCAT('%', ?, '%') COLLATE utf8mb4_unicode_ci"), [$search])
-                    ->orWhere('e.category', 'like', DB::raw("CONCAT('%', ?, '%') COLLATE utf8mb4_unicode_ci"), [$search]);
+                $q->where('e.description', 'like', '%' . $search . '%')
+                  ->orWhere('e.category', 'like', '%' . $search . '%')
+                  ->orWhere('e.reference_number', 'like', '%' . $search . '%')
+                  ->orWhere('e.vendor_name', 'like', '%' . $search . '%');
             });
         }
         if (!empty($category)) {
