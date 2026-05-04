@@ -1500,17 +1500,16 @@ async function confirmEnable(id, name) {
 
 // ─── Archive / Restore ─────────────────────────────────────────────────────────
 async function archiveUser(id, name) {
-    alert('Archive function called for ID: ' + id + ', Name: ' + name);
     if (!confirm(`Move ${name} to archives? They will be unable to log in.`)) return;
     try {
         const res = await fetch(`/super-admin/users/${id}/archive`, { 
-            method: 'DELETE', 
+            method: 'POST', 
             headers: { 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' } 
         });
         const data = await res.json();
         if (data.success) { 
             toast(data.message); 
-            location.reload(); 
+            setTimeout(() => location.reload(), 3000); 
         } else {
             toast(data.message || 'Error.', true);
         }
@@ -1527,7 +1526,7 @@ async function restoreUser(id, name) {
         const data = await res.json();
         if (data.success) { 
             toast(data.message); 
-            location.reload(); 
+            setTimeout(() => location.reload(), 3000); 
         } else {
             toast(data.message || 'Error.', true);
         }
