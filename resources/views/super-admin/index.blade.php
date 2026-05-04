@@ -534,11 +534,13 @@
                             </td>
                             <td>
                                 <div class="flex justify-end gap-1.5">
-                                    <button class="p-2 text-slate-400 hover:text-amber-600 transition-colors" style="cursor: pointer !important;" title="Edit User" onclick='openEditUserModal(@json($editData))'>
-                                        <i data-lucide="edit-3" class="w-4 h-4"></i>
+                                    <button class="p-2 text-slate-400 hover:text-amber-600 transition-colors edit-user-btn" style="cursor: pointer !important;" title="Edit User" 
+                                            data-user='@json($editData)'>
+                                        <i data-lucide="edit-3" class="w-4 h-4" style="pointer-events: none;"></i>
                                     </button>
-                                    <button class="p-2 text-slate-400 hover:text-rose-600 transition-colors" style="cursor: pointer !important;" title="Archive User" onclick='archiveUser({{ $u->id }}, @json($u->full_name))'>
-                                        <i data-lucide="archive" class="w-4 h-4"></i>
+                                    <button class="p-2 text-slate-400 hover:text-rose-600 transition-colors archive-user-btn" style="cursor: pointer !important;" title="Archive User" 
+                                            data-id="{{ $u->id }}" data-name="{{ $u->full_name }}">
+                                        <i data-lucide="archive" class="w-4 h-4" style="pointer-events: none;"></i>
                                     </button>
                                 </div>
                             </td>
@@ -2136,6 +2138,26 @@ document.getElementById('manageRolesModal').addEventListener('click', function(e
     if (e.target === this) this.classList.remove('open');
 });
 
+
+// Global Event Delegation for Action Buttons
+document.addEventListener('click', function(e) {
+    // Edit User
+    const editBtn = e.target.closest('.edit-user-btn');
+    if (editBtn) {
+        const userData = JSON.parse(editBtn.getAttribute('data-user'));
+        openEditUserModal(userData);
+        return;
+    }
+
+    // Archive User
+    const archiveBtn = e.target.closest('.archive-user-btn');
+    if (archiveBtn) {
+        const id = archiveBtn.getAttribute('data-id');
+        const name = archiveBtn.getAttribute('data-name');
+        archiveUser(id, name);
+        return;
+    }
+});
 
 // Init icons on load
 document.addEventListener('DOMContentLoaded', () => {
