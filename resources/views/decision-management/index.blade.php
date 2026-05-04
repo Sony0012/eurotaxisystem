@@ -30,7 +30,7 @@
         <!-- Modal Body -->
         <div class="p-6 flex-1 overflow-y-auto print:overflow-visible">
             <div id="decisionPrintArea">
-                <form id="franchiseCaseForm" method="POST" class="space-y-6">
+                <form id="franchiseCaseForm" method="POST" class="space-y-6" novalidate>
                     @csrf
                     <input type="hidden" name="action" value="save_case">
                     <input type="hidden" name="case_id" value="<?php echo $edit_case['id'] ?? 0; ?>">
@@ -101,20 +101,22 @@
 
                         <div class="space-y-2">
                             <label class="block text-sm font-semibold text-gray-700">Date Filed</label>
-                            <input type="date" name="date_filed"
+                            <input type="date" id="franchise_date_filed" name="date_filed"
                                    value="<?php echo htmlspecialchars($edit_case['date_filed'] ?? ''); ?>"
                                    required
                                    data-validate="date-filed"
                                    class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                            <p class="text-xs text-gray-500">Pumili muna ng Date Filed. Hindi puwedeng mas maaga ang Expiry kaysa dito.</p>
                         </div>
 
                         <div class="space-y-2">
                             <label class="block text-sm font-semibold text-gray-700">Expiry Date</label>
-                            <input type="date" name="expiry_date"
+                            <input type="date" id="franchise_expiry_date" name="expiry_date"
                                    value="<?php echo htmlspecialchars($edit_case['expiry_date'] ?? ''); ?>"
                                    required
                                    data-validate="expiry-date"
                                    class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                            <p id="franchise_date_hint" class="text-xs text-amber-700 hidden" role="status"></p>
                         </div>
                     </div>
 
@@ -803,6 +805,52 @@ function filterFranchiseItems() {
         trimOnBlur(caseNo);
     }
 
+    const dateFiledEl = form.querySelector('#franchise_date_filed');
+    const expiryEl = form.querySelector('#franchise_expiry_date');
+    const dateHintEl = document.getElementById('franchise_date_hint');
+
+    function syncFranchiseCaseDates(options) {
+        const silent = options && options.silent === true;
+        if (!dateFiledEl || !expiryEl) return;
+        dateFiledEl.setCustomValidity('');
+        expiryEl.setCustomValidity('');
+        if (!dateFiledEl.value) {
+            expiryEl.removeAttribute('min');
+            if (dateHintEl) {
+                dateHintEl.classList.add('hidden');
+                dateHintEl.textContent = '';
+            }
+            return;
+        }
+        expiryEl.min = dateFiledEl.value;
+        if (expiryEl.value && expiryEl.value < dateFiledEl.value) {
+            expiryEl.value = dateFiledEl.value;
+            if (!silent && dateHintEl) {
+                dateHintEl.textContent = 'Na-adjust ang Expiry Date para hindi mas maaga sa Date Filed.';
+                dateHintEl.classList.remove('hidden');
+                window.clearTimeout(syncFranchiseCaseDates._hideT);
+                syncFranchiseCaseDates._hideT = window.setTimeout(function () {
+                    dateHintEl.classList.add('hidden');
+                }, 6000);
+            }
+        } else if (dateHintEl && silent) {
+            dateHintEl.classList.add('hidden');
+            dateHintEl.textContent = '';
+        }
+    }
+
+    ['change', 'input'].forEach(function (ev) {
+        if (dateFiledEl) dateFiledEl.addEventListener(ev, function () { syncFranchiseCaseDates({ silent: false }); });
+    });
+    if (expiryEl) {
+        expiryEl.addEventListener('change', function () {
+            if (dateFiledEl && dateFiledEl.value && expiryEl.value && expiryEl.value < dateFiledEl.value) {
+                syncFranchiseCaseDates({ silent: false });
+            }
+        });
+    }
+    syncFranchiseCaseDates({ silent: true });
+
     // Units: enforce caps + allowed chars
     form.querySelectorAll('input[data-unit-field="motor_no"], input[data-unit-field="chasis_no"], input[data-unit-field="plate_no"]').forEach((input) => {
         input.addEventListener('input', () => { input.value = sanitize.upperAlnum(input.value); });
@@ -824,6 +872,8 @@ function filterFranchiseItems() {
         // Reset
         form.querySelectorAll('input').forEach((i) => setFieldError(i, ''));
 
+        syncFranchiseCaseDates({ silent: true });
+
         // Top fields
         form.querySelectorAll('input[data-validate="name-like"]').forEach((input) => {
             const v = input.value.trim();
@@ -843,16 +893,16 @@ function filterFranchiseItems() {
             if (!firstInvalid && !caseNo.checkValidity()) firstInvalid = caseNo;
         }
 
-        const dateFiled = form.querySelector('input[name="date_filed"]');
-        const expiryDate = form.querySelector('input[name="expiry_date"]');
+        const dateFiled = dateFiledEl;
+        const expiryDate = expiryEl;
         if (dateFiled) {
             if (!dateFiled.value) setFieldError(dateFiled, 'Date Filed is required.');
             if (!firstInvalid && !dateFiled.checkValidity()) firstInvalid = dateFiled;
         }
         if (expiryDate) {
             if (!expiryDate.value) setFieldError(expiryDate, 'Expiry Date is required.');
-            if (dateFiled?.value && expiryDate.value && expiryDate.value < dateFiled.value) {
-                setFieldError(expiryDate, 'Expiry Date must be the same as or after Date Filed.');
+            if (dateFiled && dateFiled.value && expiryDate.value && expiryDate.value < dateFiled.value) {
+                setFieldError(expiryDate, 'Ang Expiry Date ay dapat pareho o mas huli sa Date Filed.');
             }
             if (!firstInvalid && !expiryDate.checkValidity()) firstInvalid = expiryDate;
         }
