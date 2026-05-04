@@ -11,34 +11,34 @@
     <form class="flex flex-col sm:flex-row gap-4" method="GET" action="{{ route('boundaries.index') }}">
         <div class="flex-1">
             <div class="relative">
-                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <i data-lucide="search" class="h-5 w-5 text-gray-400"></i>
-                </div>
-                <input
-                    type="text"
-                    id="search"
-                    name="search"
-                    value="{{ $search }}"
-                    class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none"
-                    placeholder="Search by plate number or driver..."
-                >
+    <form class="flex flex-col sm:flex-row gap-4" method="GET" action="{{ route('boundaries.index') }}" id="filterForm">
+        <div class="flex-1 max-w-md relative group">
+            <input type="text" name="search" id="liveSearchInput" value="{{ $search }}" 
+                oninput="performLiveSearch()"
+                autocomplete="off"
+                class="w-full pl-10 pr-4 py-2 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none transition-all font-semibold"
+                placeholder="Search plate, driver, or creator...">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <i data-lucide="search" class="h-4 w-4 text-gray-400 group-focus-within:text-yellow-500 transition-colors"></i>
             </div>
         </div>
         
         <div class="sm:w-40">
             <input
                 type="date"
-                id="date_filter"
+                id="filterDate"
                 name="date"
                 value="{{ $date_filter }}"
+                onchange="performLiveSearch()"
                 class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none"
             >
         </div>
         
         <div class="sm:w-40">
             <select
-                id="status_filter"
+                id="filterStatus"
                 name="status"
+                onchange="performLiveSearch()"
                 class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none"
             >
                 <option value="">All Status</option>
@@ -69,168 +69,10 @@
     </form>
 </div>
 
-<!-- Boundaries Table -->
-<div class="bg-white rounded-lg shadow overflow-hidden">
-    <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
-                <tr>
-                    <th class="px-4 py-3 text-left text-[10px] font-bold text-gray-500 uppercase tracking-wider">Date</th>
-                    <th class="px-4 py-3 text-left text-[10px] font-bold text-gray-500 uppercase tracking-wider">Plate</th>
-                    <th class="px-4 py-3 text-left text-[10px] font-bold text-gray-500 uppercase tracking-wider">Driver</th>
-                    <th class="px-4 py-3 text-left text-[10px] font-bold text-gray-500 uppercase tracking-wider">Boundary</th>
-                    <th class="px-4 py-3 text-left text-[10px] font-bold text-gray-500 uppercase tracking-wider">Actual</th>
-                    <th class="px-4 py-3 text-left text-[10px] font-bold text-gray-500 uppercase tracking-wider">Status</th>
-                    <th class="px-4 py-3 text-right text-[10px] font-bold text-gray-500 uppercase tracking-wider"></th>
-                </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-                @if (empty($boundariesArray))
-                    <tr>
-                        <td colspan="8" class="px-6 py-12 text-center text-gray-500">
-                            <i data-lucide="coins" class="w-12 h-12 mx-auto mb-4 text-gray-300"></i>
-                            <p>No boundary records found</p>
-                        </td>
-                    </tr>
-                @else
-                    @foreach ($boundariesArray as $boundary)
-                        <tr class="hover:bg-yellow-50 cursor-pointer transition-all border-l-4 border-transparent hover:border-yellow-400 group"
-                            onclick="openViewBoundary({{ $boundary['id'] }})">
-                            <td class="px-4 py-3 whitespace-nowrap text-[12px] text-gray-900 group-hover:text-yellow-700 font-bold transition-colors">
-                                {{ formatDate($boundary['date']) }}
-                            </td>
-                            <td class="px-4 py-3 whitespace-nowrap">
-                                <div class="flex items-center gap-1">
-                                    <span class="text-[12px] font-black text-gray-900 group-hover:text-yellow-700 transition-colors uppercase">{{ $boundary['plate_number'] }}</span>
-                                </div>
-                            </td>
-                            <td class="px-4 py-3 whitespace-nowrap">
-                                <div class="text-[12px] font-bold text-gray-900 leading-tight">{{ $boundary['driver_name'] ?? 'Unassigned' }}
-                                    @if(!empty($boundary['is_extra_driver']))
-                                        <span class="ml-1 px-1 py-0.5 bg-orange-100 text-orange-700 text-[8px] font-black rounded border border-orange-200 uppercase tracking-tighter">Extra</span>
-                                    @endif
-                                </div>
-                                <div class="text-[9px] text-gray-400 mt-0.5 font-bold uppercase tracking-tighter flex gap-2">
-                                    <span title="Input by {{ $boundary['creator_name'] ?? 'System' }}">In: {{ explode(' ', $boundary['creator_name'] ?? 'System')[0] }}</span>
-                                    @if(isset($boundary['editor_name']) && $boundary['editor_name'])
-                                        <span class="text-gray-300">|</span>
-                                        <span title="Last edit by {{ $boundary['editor_name'] }}">Ed: {{ explode(' ', $boundary['editor_name'])[0] }}</span>
-                                    @endif
-                                </div>
-                            </td>
-                            <td class="px-4 py-3 whitespace-nowrap">
-                                <div class="flex flex-col">
-                                    <span class="text-[12px] text-gray-900 font-black">{{ formatCurrency($boundary['boundary_amount']) }}</span>
-                                    @if(isset($boundary['rate_label']) && ($boundary['rate_type'] ?? 'regular') !== 'regular')
-                                        <span class="text-[8px] font-black uppercase tracking-tighter px-1 rounded-[2px] mt-0.5 w-fit
-                                            @if($boundary['rate_type'] === 'coding') bg-red-100 text-red-600 border border-red-200
-                                            @elseif($boundary['rate_type'] === 'discount') bg-blue-100 text-blue-600 border border-blue-200
-                                            @else bg-gray-100 text-gray-500 @endif">
-                                            {{ $boundary['rate_label'] }}
-                                        </span>
-                                    @endif
-                                </div>
-                            </td>
-                            <td class="px-4 py-3 whitespace-nowrap text-[12px] text-gray-900 font-black">
-                                {{ formatCurrency($boundary['actual_boundary'] ?? 0) }}
-                            </td>
-                            <td class="px-4 py-3 whitespace-nowrap">
-                                @php
-                                    $statusClass = 'bg-yellow-100 text-yellow-800 border-yellow-200';
-                                    if ($boundary['status'] === 'paid') $statusClass = 'bg-green-100 text-green-800 border-green-200';
-                                    if ($boundary['status'] === 'shortage') $statusClass = 'bg-red-100 text-red-800 border-red-200';
-                                    if ($boundary['status'] === 'excess') $statusClass = 'bg-blue-100 text-blue-800 border-blue-200';
-                                @endphp
-                                <div class="flex flex-col gap-0.5">
-                                    <span class="px-1.5 py-0.5 inline-flex text-[9px] leading-none font-black rounded border w-fit uppercase tracking-tighter {{ $statusClass }}">
-                                        {{ $boundary['status'] }}
-                                    </span>
-                                    @if (isset($boundary['has_incentive']))
-                                        @if ($boundary['has_incentive'])
-                                            <span class="px-1.5 py-0.5 bg-green-50 text-green-600 text-[8px] font-black rounded border border-green-100 uppercase tracking-tighter w-fit">Incentive ✅</span>
-                                        @else
-                                            @php
-                                                $notes_lc = strtolower($boundary['notes'] ?? '');
-                                                $is_damage_case = str_contains($notes_lc, 'vehicle damaged') || str_contains($notes_lc, 'maintenance') || str_contains($notes_lc, 'breakdown');
-                                            @endphp
-                                            <span class="px-1.5 py-0.5 bg-red-50 text-red-600 text-[8px] font-black rounded border border-red-100 uppercase tracking-tighter w-fit">
-                                                {{ $is_damage_case ? 'Damaged/B-Down' : 'Late Turn ⏰' }}
-                                            </span>
-                                        @endif
-                                    @endif
-                                    @if ($boundary['shortage'] > 0)
-                                        <div class="text-[9px] font-black text-red-600 tracking-tighter">-{{ formatCurrency($boundary['shortage']) }}</div>
-                                    @elseif ($boundary['excess'] > 0)
-                                        <div class="text-[9px] font-black text-blue-600 tracking-tighter">+{{ formatCurrency($boundary['excess']) }}</div>
-                                    @endif
-                                </div>
-                            </td>
-                            <td class="px-4 py-3 whitespace-nowrap text-right" onclick="event.stopPropagation()">
-                                <button
-                                    type="button"
-                                    onclick="editBoundary({{ $boundary['id'] }})"
-                                    class="p-1.5 text-gray-400 hover:text-yellow-600 hover:bg-yellow-50 rounded-lg transition"
-                                    title="Edit Boundary"
-                                >
-                                    <i data-lucide="edit-3" class="w-4 h-4"></i>
-                                </button>
-                            </td>
-                        </tr>
-                    @endforeach
-                @endif
-            </tbody>
-        </table>
+    <!-- Boundaries Table -->
+    <div id="boundariesTableWrapper">
+        @include('boundaries.partials._boundaries_table')
     </div>
-    
-    <!-- Pagination -->
-    @if ($pagination['total_pages'] > 1)
-        <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
-            <div class="flex-1 flex justify-between sm:hidden">
-                @if ($pagination['has_prev'])
-                    <a href="?page={{ $pagination['prev_page'] }}&search={{ urlencode($search) }}&date={{ urlencode($date_filter) }}&status={{ urlencode($status_filter) }}" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">Previous</a>
-                @endif
-                @if ($pagination['has_next'])
-                    <a href="?page={{ $pagination['next_page'] }}&search={{ urlencode($search) }}&date={{ urlencode($date_filter) }}&status={{ urlencode($status_filter) }}" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">Next</a>
-                @endif
-            </div>
-            <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-                <div>
-                    <p class="text-sm text-gray-700">
-                        Showing <span class="font-medium">{{ $pagination['offset'] + 1 }}</span> to 
-                        <span class="font-medium">{{ min($pagination['offset'] + $pagination['items_per_page'], $pagination['total_items']) }}</span> of 
-                        <span class="font-medium">{{ $pagination['total_items'] }}</span> results
-                    </p>
-                </div>
-                <div>
-                    <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
-                        @if ($pagination['has_prev'])
-                            <a href="?page={{ $pagination['prev_page'] }}&search={{ urlencode($search) }}&date={{ urlencode($date_filter) }}&status={{ urlencode($status_filter) }}" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                                <i data-lucide="chevron-left" class="w-4 h-4"></i>
-                            </a>
-                        @endif
-                        
-                        @php
-                        $start_page = max(1, $pagination['page'] - 2);
-                        $end_page = min($pagination['total_pages'], $pagination['page'] + 2);
-                        @endphp
-                        
-                        @for ($i = $start_page; $i <= $end_page; $i++)
-                            <a href="?page={{ $i }}&search={{ urlencode($search) }}&date={{ urlencode($date_filter) }}&status={{ urlencode($status_filter) }}" class="relative inline-flex items-center px-4 py-2 border text-sm font-medium {{ $i === $pagination['page'] ? 'z-10 bg-yellow-50 border-yellow-500 text-yellow-600' : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50' }}">
-                                {{ $i }}
-                            </a>
-                        @endfor
-                        
-                        @if ($pagination['has_next'])
-                            <a href="?page={{ $pagination['next_page'] }}&search={{ urlencode($search) }}&date={{ urlencode($date_filter) }}&status={{ urlencode($status_filter) }}" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                                <i data-lucide="chevron-right" class="w-4 h-4"></i>
-                            </a>
-                        @endif
-                    </nav>
-                </div>
-            </div>
-        </div>
-    @endif
-</div>
 
 <!-- Boundary Modal -->
 <div id="boundaryModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4 transition-all">
@@ -789,17 +631,94 @@ document.getElementById('status_filter').addEventListener('change', function() {
     applyFilters();
 });
 
-function applyFilters() {
-    const search = document.getElementById('search').value;
-    const date = document.getElementById('date_filter').value;
-    const status = document.getElementById('status_filter').value;
-    const params = new URLSearchParams();
+// Real-time Search Logic
+let searchTimeout;
+function performLiveSearch() {
+    clearTimeout(searchTimeout);
     
-    if (search) params.append('search', search);
-    if (date) params.append('date', date);
-    if (status) params.append('status', status);
+    // Add a small loading effect to the table
+    const tableWrapper = document.getElementById('boundariesTableWrapper');
+    tableWrapper.style.opacity = '0.5';
+    tableWrapper.style.pointerEvents = 'none';
+
+    searchTimeout = setTimeout(async () => {
+        const search = document.getElementById('liveSearchInput').value;
+        const status = document.getElementById('filterStatus').value;
+        const date = document.getElementById('filterDate').value;
+
+        // Build the URL with current filters
+        const params = new URLSearchParams({
+            search: search,
+            status: status,
+            date: date,
+            format: 'json'
+        });
+
+        try {
+            const response = await fetch(`{{ route('boundaries.index') }}?${params.toString()}`, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+            
+            const result = await response.json();
+            
+            if (result.html) {
+                // Update Table
+                tableWrapper.innerHTML = result.html;
+                lucide.createIcons();
+                
+                // Update boundaryRecords global for the view modal
+                if (result.boundaries) {
+                    window.boundaryRecords = result.boundaries;
+                }
+            }
+        } catch (error) {
+            console.error('Search error:', error);
+        } finally {
+            tableWrapper.style.opacity = '1';
+            tableWrapper.style.pointerEvents = 'auto';
+        }
+    }, 300); // 300ms debounce
+}
+
+// Handle pagination clicks to remain on AJAX
+document.addEventListener('click', function(e) {
+    if (e.target.closest('.boundaries-pagination a')) {
+        e.preventDefault();
+        const url = e.target.closest('a').href;
+        fetchPage(url);
+    }
+});
+
+async function fetchPage(url) {
+    const tableWrapper = document.getElementById('boundariesTableWrapper');
+    tableWrapper.style.opacity = '0.5';
     
-    window.location.href = '?' + params.toString();
+    try {
+        const response = await fetch(url, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
+        const result = await response.json();
+        if (result.html) {
+            tableWrapper.innerHTML = result.html;
+            lucide.createIcons();
+            
+            // Update boundaryRecords global
+            if (result.boundaries) {
+                window.boundaryRecords = result.boundaries;
+            }
+            
+            // Scroll to top of table
+            tableWrapper.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    } catch (error) {
+        console.error('Pagination error:', error);
+    } finally {
+        tableWrapper.style.opacity = '1';
+    }
 }
 
 // Auto-fill boundary amount and refresh drivers when unit is selected
