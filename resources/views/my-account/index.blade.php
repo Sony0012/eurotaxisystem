@@ -289,11 +289,18 @@
                     @endif
                     </div>
 
-                    <button type="button" id="btnTestPush" onclick="sendTestPush()" 
+                     <button type="button" id="btnTestPush" onclick="sendTestPush()" 
                             {{ auth()->user()->fcm_token ? '' : 'disabled' }}
                             class="w-full px-4 py-2.5 bg-purple-600 text-white text-xs font-black uppercase tracking-widest rounded-xl hover:bg-purple-700 disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed shadow-lg shadow-purple-100 disabled:shadow-none transition-all flex items-center justify-center gap-2">
                         <i data-lucide="send" class="w-4 h-4"></i>
                         Send Test Push
+                    </button>
+
+                    <!-- Real-Time Web-Bridge Chime Test -->
+                    <button type="button" id="btnTestWebChime" onclick="triggerTestNotificationBroadcast()" 
+                            class="w-full px-4 py-2.5 bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-600 hover:to-amber-600 text-white text-xs font-black uppercase tracking-widest rounded-xl shadow-lg shadow-yellow-100 transition-all flex items-center justify-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-volume-2 animate-bounce"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+                        Send Web-Chime Test (Bypass)
                     </button>
                 </div>
             </div>
