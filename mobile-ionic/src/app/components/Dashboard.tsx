@@ -185,7 +185,7 @@ export function Dashboard() {
         ))}
       </div>
 
-      <div className="grid grid-cols-3 md:grid-cols-3 gap-3 mb-4">
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 mb-4">
         {[
           { 
             id: 'drivers', 
@@ -196,7 +196,8 @@ export function Dashboard() {
             bg: "bg-indigo-50/50", 
             bd: "border-indigo-100", 
             c: "text-indigo-600",
-            iconBg: "bg-indigo-100/50"
+            iconBg: "bg-indigo-100/50",
+            span: "col-span-1"
           },
           { 
             id: 'expenses', 
@@ -207,7 +208,8 @@ export function Dashboard() {
             bg: "bg-rose-50/50", 
             bd: "border-rose-100", 
             c: "text-rose-600",
-            iconBg: "bg-rose-100/50"
+            iconBg: "bg-rose-100/50",
+            span: "col-span-1"
           },
           { 
             id: 'coding', 
@@ -218,11 +220,12 @@ export function Dashboard() {
             bg: "bg-purple-50/50", 
             bd: "border-purple-100", 
             c: "text-purple-600",
-            iconBg: "bg-purple-100/50"
+            iconBg: "bg-purple-100/50",
+            span: "col-span-2 lg:col-span-1"
           },
         ].map((s) => (
           <div key={s.id} onClick={()=>setActiveModal(s.id)}
-            className={`group relative overflow-hidden rounded-[1.25rem] ${s.bg} border ${s.bd} p-3 active:scale-[0.98] transition-all cursor-pointer shadow-sm`}>
+            className={`${s.span} group relative overflow-hidden rounded-[1.25rem] ${s.bg} border ${s.bd} p-3 active:scale-[0.98] transition-all cursor-pointer shadow-sm`}>
             <div className="flex items-center gap-2 mb-2 relative z-10">
                <div className={`p-1.5 ${s.iconBg} rounded-lg shadow-sm`}>
                   <s.icon className={`w-3 h-3 ${s.c}`}/>

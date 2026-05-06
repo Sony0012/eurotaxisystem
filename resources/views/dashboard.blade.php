@@ -87,18 +87,18 @@
     </script>
 
     <!-- Stats Grid -->
-    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+    <div class="grid grid-cols-2 gap-3 sm:gap-5 md:grid-cols-2 lg:grid-cols-4">
 
         {{-- Total Units --}}
         <div onclick="showUnitsModal()" class="card-hover cursor-pointer group relative overflow-hidden rounded-2xl shadow-sm border border-blue-100 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl bg-gradient-to-br from-blue-50 to-indigo-50/70">
-            <div class="relative p-5 flex items-center justify-between">
+            <div class="relative p-3.5 sm:p-5 flex items-center justify-between">
                 <div class="flex-1 min-w-0">
-                    <p class="text-blue-400 text-[10px] font-black uppercase tracking-widest mb-1">Total Units</p>
-                    <p class="text-gray-900 text-3xl font-black leading-none mb-1" data-stat="active_units">{{ $stats['active_units'] }}</p>
-                    <p class="text-blue-400 text-xs font-medium"><span class="text-emerald-600 font-bold" data-stat="roi_achieved">{{ $stats['roi_units'] }}</span> ROI Achieved</p>
+                    <p class="text-blue-400 text-[9px] sm:text-[10px] font-black uppercase tracking-widest mb-1">Total Units</p>
+                    <p class="text-gray-900 text-xl sm:text-3xl font-black leading-none mb-1" data-stat="active_units">{{ $stats['active_units'] }}</p>
+                    <p class="text-blue-400 text-[10px] sm:text-xs font-medium"><span class="text-emerald-600 font-bold" data-stat="roi_achieved">{{ $stats['roi_units'] }}</span> ROI Achieved</p>
                 </div>
-                <div class="p-3 bg-blue-100 rounded-2xl border border-blue-200 shadow-sm flex-shrink-0">
-                    <i data-lucide="car" class="w-7 h-7 text-blue-600"></i>
+                <div class="p-1.5 sm:p-3 bg-blue-100 rounded-xl sm:rounded-2xl border border-blue-200 shadow-sm flex-shrink-0">
+                    <i data-lucide="car" class="w-5 h-5 sm:w-7 sm:h-7 text-blue-600"></i>
                 </div>
             </div>
             <i data-lucide="car" class="absolute -right-4 -bottom-4 w-24 h-24 text-blue-300 opacity-[0.12] -rotate-12 pointer-events-none"></i>
@@ -106,20 +106,20 @@
 
         {{-- Daily Boundary Collection --}}
         <div onclick="showDailyBoundaryModal()" class="card-hover cursor-pointer group relative overflow-hidden rounded-2xl shadow-sm border border-emerald-100 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl bg-gradient-to-br from-emerald-50 to-teal-50/70">
-            <div class="relative p-5 flex items-center justify-between">
+            <div class="relative p-3.5 sm:p-5 flex items-center justify-between">
                 <div class="flex-1 min-w-0">
-                    <p class="text-emerald-500 text-[10px] font-black uppercase tracking-widest mb-1">Boundary Revenue</p>
+                    <p class="text-emerald-500 text-[9px] sm:text-[10px] font-black uppercase tracking-widest mb-1">Boundary Revenue</p>
                     <div class="flex flex-col">
-                        <span class="text-gray-900 text-2xl font-black leading-none mb-0.5" data-stat="today_boundary">{{ formatCurrency($stats['today_boundary']) }}</span>
-                        <span class="text-[10px] font-bold text-emerald-600 uppercase">Today</span>
+                        <span class="text-gray-900 text-lg sm:text-2xl font-black leading-none mb-0.5" data-stat="today_boundary">{{ formatCurrency($stats['today_boundary']) }}</span>
+                        <span class="text-[9px] sm:text-[10px] font-bold text-emerald-600 uppercase">Today</span>
                     </div>
-                    <div class="mt-3 pt-3 border-t border-emerald-100/50">
-                        <p class="text-gray-900 text-lg font-black leading-none mb-0.5" data-stat="month_boundary">{{ formatCurrency($stats['month_boundary'] ?? 0) }}</p>
-                        <p class="text-emerald-500 text-[9px] font-black uppercase tracking-widest">This Month</p>
+                    <div class="mt-2 pt-2 sm:mt-3 sm:pt-3 border-t border-emerald-100/50">
+                        <p class="text-gray-900 text-base sm:text-lg font-black leading-none mb-0.5" data-stat="month_boundary">{{ formatCurrency($stats['month_boundary'] ?? 0) }}</p>
+                        <p class="text-emerald-500 text-[8px] sm:text-[9px] font-black uppercase tracking-widest">This Month</p>
                     </div>
                 </div>
-                <div class="p-3 bg-emerald-100 rounded-2xl border border-emerald-200 shadow-sm flex-shrink-0">
-                    <i data-lucide="banknote" class="w-7 h-7 text-emerald-600"></i>
+                <div class="p-1.5 sm:p-3 bg-emerald-100 rounded-xl sm:rounded-2xl border border-emerald-200 shadow-sm flex-shrink-0">
+                    <i data-lucide="banknote" class="w-5 h-5 sm:w-7 sm:h-7 text-emerald-600"></i>
                 </div>
             </div>
             <i data-lucide="banknote" class="absolute -right-4 -bottom-4 w-24 h-24 text-emerald-300 opacity-[0.12] -rotate-12 pointer-events-none"></i>
@@ -127,20 +127,20 @@
 
         {{-- Net Income --}}
         <div onclick="showNetIncomeModal()" class="card-hover cursor-pointer group relative overflow-hidden rounded-2xl shadow-sm border border-green-100 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl bg-gradient-to-br from-green-50 to-lime-50/70">
-            <div class="relative p-5 flex items-center justify-between">
+            <div class="relative p-3.5 sm:p-5 flex items-center justify-between">
                 <div class="flex-1 min-w-0">
-                    <p class="text-green-500 text-[10px] font-black uppercase tracking-widest mb-1">Net Income (Kita)</p>
+                    <p class="text-green-500 text-[9px] sm:text-[10px] font-black uppercase tracking-widest mb-1">Net Income (Kita)</p>
                     <div class="flex flex-col">
-                        <span class="text-gray-900 text-2xl font-black leading-none mb-0.5" data-stat="net_income">{{ formatCurrency($stats['net_income']) }}</span>
-                        <span class="text-[10px] font-bold text-green-600 uppercase">Today</span>
+                        <span class="text-gray-900 text-lg sm:text-2xl font-black leading-none mb-0.5" data-stat="net_income">{{ formatCurrency($stats['net_income']) }}</span>
+                        <span class="text-[9px] sm:text-[10px] font-bold text-green-600 uppercase">Today</span>
                     </div>
-                    <div class="mt-3 pt-3 border-t border-green-100/50">
-                        <p class="text-gray-900 text-lg font-black leading-none mb-0.5" data-stat="net_income_month">{{ formatCurrency($stats['net_income_month'] ?? 0) }}</p>
-                        <p class="text-green-500 text-[9px] font-black uppercase tracking-widest">This Month</p>
+                    <div class="mt-2 pt-2 sm:mt-3 sm:pt-3 border-t border-green-100/50">
+                        <p class="text-gray-900 text-base sm:text-lg font-black leading-none mb-0.5" data-stat="net_income_month">{{ formatCurrency($stats['net_income_month'] ?? 0) }}</p>
+                        <p class="text-green-500 text-[8px] sm:text-[9px] font-black uppercase tracking-widest">This Month</p>
                     </div>
                 </div>
-                <div class="p-3 bg-green-100 rounded-2xl border border-green-200 shadow-sm flex-shrink-0">
-                    <i data-lucide="trending-up" class="w-7 h-7 text-green-600"></i>
+                <div class="p-1.5 sm:p-3 bg-green-100 rounded-xl sm:rounded-2xl border border-green-200 shadow-sm flex-shrink-0">
+                    <i data-lucide="trending-up" class="w-5 h-5 sm:w-7 sm:h-7 text-green-600"></i>
                 </div>
             </div>
             <i data-lucide="trending-up" class="absolute -right-4 -bottom-4 w-24 h-24 text-green-300 opacity-[0.12] -rotate-12 pointer-events-none"></i>
@@ -148,14 +148,14 @@
 
         {{-- Units Under Maintenance --}}
         <div onclick="showMaintenanceUnitsModal()" class="card-hover cursor-pointer group relative overflow-hidden rounded-2xl shadow-sm border border-orange-100 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl bg-gradient-to-br from-orange-50 to-amber-50/70">
-            <div class="relative p-5 flex items-center justify-between">
+            <div class="relative p-3.5 sm:p-5 flex items-center justify-between">
                 <div class="flex-1 min-w-0">
-                    <p class="text-orange-400 text-[10px] font-black uppercase tracking-widest mb-1">Units Under Maintenance</p>
-                    <p class="text-gray-900 text-3xl font-black leading-none mb-1" data-stat="maintenance_units">{{ $stats['maintenance_units'] }}</p>
-                    <p class="text-orange-400 text-xs font-medium" data-stat="maintenance_subtitle">Units ongoing maintenance</p>
+                    <p class="text-orange-400 text-[9px] sm:text-[10px] font-black uppercase tracking-widest mb-1">Under Maintenance</p>
+                    <p class="text-gray-900 text-xl sm:text-3xl font-black leading-none mb-1" data-stat="maintenance_units">{{ $stats['maintenance_units'] }}</p>
+                    <p class="text-orange-400 text-[10px] sm:text-xs font-medium truncate" data-stat="maintenance_subtitle">Ongoing units</p>
                 </div>
-                <div class="p-3 bg-orange-100 rounded-2xl border border-orange-200 shadow-sm flex-shrink-0">
-                    <i data-lucide="wrench" class="w-7 h-7 text-orange-600"></i>
+                <div class="p-1.5 sm:p-3 bg-orange-100 rounded-xl sm:rounded-2xl border border-orange-200 shadow-sm flex-shrink-0">
+                    <i data-lucide="wrench" class="w-5 h-5 sm:w-7 sm:h-7 text-orange-600"></i>
                 </div>
             </div>
             <i data-lucide="wrench" class="absolute -right-4 -bottom-4 w-24 h-24 text-orange-300 opacity-[0.12] -rotate-12 pointer-events-none"></i>
@@ -164,17 +164,17 @@
     </div>
 
     <!-- Quick Stats -->
-    <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div class="mt-4 grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
 
         {{-- Active Drivers --}}
         <div onclick="showActiveDriversModal()" class="card-hover cursor-pointer group relative overflow-hidden rounded-2xl shadow-sm border border-indigo-100 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl bg-gradient-to-br from-indigo-50 to-violet-50/70">
-            <div class="relative p-5 flex items-center justify-between">
+            <div class="relative p-3.5 sm:p-5 flex items-center justify-between">
                 <div class="flex-1 min-w-0">
-                    <p class="text-indigo-400 text-[10px] font-black uppercase tracking-widest mb-1">Active Drivers</p>
-                    <p class="text-gray-900 text-3xl font-black leading-none" data-stat="active_drivers">{{ $stats['active_drivers'] }}</p>
+                    <p class="text-indigo-400 text-[9px] sm:text-[10px] font-black uppercase tracking-widest mb-1">Active Drivers</p>
+                    <p class="text-gray-900 text-xl sm:text-3xl font-black leading-none" data-stat="active_drivers">{{ $stats['active_drivers'] }}</p>
                 </div>
-                <div class="p-3 bg-indigo-100 rounded-2xl border border-indigo-200 shadow-sm flex-shrink-0">
-                    <i data-lucide="users" class="w-7 h-7 text-indigo-600"></i>
+                <div class="p-1.5 sm:p-3 bg-indigo-100 rounded-xl sm:rounded-2xl border border-indigo-200 shadow-sm flex-shrink-0">
+                    <i data-lucide="users" class="w-5 h-5 sm:w-7 sm:h-7 text-indigo-600"></i>
                 </div>
             </div>
             <i data-lucide="users" class="absolute -right-4 -bottom-4 w-24 h-24 text-indigo-300 opacity-[0.12] -rotate-12 pointer-events-none"></i>
@@ -182,28 +182,28 @@
 
         {{-- Total Expenses Today --}}
         <div onclick="showExpensesModal()" class="card-hover cursor-pointer group relative overflow-hidden rounded-2xl shadow-sm border border-rose-100 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl bg-gradient-to-br from-rose-50 to-red-50/70">
-            <div class="relative p-5 flex items-center justify-between">
+            <div class="relative p-3.5 sm:p-5 flex items-center justify-between">
                 <div class="flex-1 min-w-0">
-                    <p class="text-rose-400 text-[10px] font-black uppercase tracking-widest mb-1">Total Expenses Today</p>
-                    <p class="text-gray-900 text-2xl font-black leading-none" data-stat="today_expenses">{{ formatCurrency($stats['total_expenses_today']) }}</p>
+                    <p class="text-rose-400 text-[9px] sm:text-[10px] font-black uppercase tracking-widest mb-1">Expenses Today</p>
+                    <p class="text-gray-900 text-lg sm:text-2xl font-black leading-none" data-stat="today_expenses">{{ formatCurrency($stats['total_expenses_today']) }}</p>
                 </div>
-                <div class="p-3 bg-rose-100 rounded-2xl border border-rose-200 shadow-sm flex-shrink-0">
-                    <i data-lucide="trending-down" class="w-7 h-7 text-rose-600"></i>
+                <div class="p-1.5 sm:p-3 bg-rose-100 rounded-xl sm:rounded-2xl border border-rose-200 shadow-sm flex-shrink-0">
+                    <i data-lucide="trending-down" class="w-5 h-5 sm:w-7 sm:h-7 text-rose-600"></i>
                 </div>
             </div>
             <i data-lucide="trending-down" class="absolute -right-4 -bottom-4 w-24 h-24 text-rose-300 opacity-[0.12] -rotate-12 pointer-events-none"></i>
         </div>
 
         {{-- Coding Units Today --}}
-        <div onclick="showCodingUnitsModal()" class="card-hover cursor-pointer group relative overflow-hidden rounded-2xl shadow-sm border border-violet-100 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl bg-gradient-to-br from-violet-50 to-purple-50/70">
-            <div class="relative p-5 flex items-center justify-between">
+        <div onclick="showCodingUnitsModal()" class="col-span-2 lg:col-span-1 card-hover cursor-pointer group relative overflow-hidden rounded-2xl shadow-sm border border-violet-100 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl bg-gradient-to-br from-violet-50 to-purple-50/70">
+            <div class="relative p-3.5 sm:p-5 flex items-center justify-between">
                 <div class="flex-1 min-w-0">
-                    <p class="text-violet-400 text-[10px] font-black uppercase tracking-widest mb-1">Coding Units Today</p>
-                    <p class="text-gray-900 text-3xl font-black leading-none mb-1" data-stat="coding_units">{{ $stats['coding_units'] }}</p>
-                    <p class="text-violet-400 text-[10px] font-bold uppercase tracking-tight">{{ now()->timezone('Asia/Manila')->format('l') }}</p>
+                    <p class="text-violet-400 text-[9px] sm:text-[10px] font-black uppercase tracking-widest mb-1">Coding Units Today</p>
+                    <p class="text-gray-900 text-xl sm:text-3xl font-black leading-none mb-1" data-stat="coding_units">{{ $stats['coding_units'] }}</p>
+                    <p class="text-violet-400 text-[9px] sm:text-[10px] font-bold uppercase tracking-tight">{{ now()->timezone('Asia/Manila')->format('l') }}</p>
                 </div>
-                <div class="p-3 bg-violet-100 rounded-2xl border border-violet-200 shadow-sm flex-shrink-0">
-                    <i data-lucide="calendar" class="w-7 h-7 text-violet-600"></i>
+                <div class="p-1.5 sm:p-3 bg-violet-100 rounded-xl sm:rounded-2xl border border-violet-200 shadow-sm flex-shrink-0">
+                    <i data-lucide="calendar" class="w-5 h-5 sm:w-7 sm:h-7 text-violet-600"></i>
                 </div>
             </div>
             <i data-lucide="calendar" class="absolute -right-4 -bottom-4 w-24 h-24 text-violet-300 opacity-[0.12] -rotate-12 pointer-events-none"></i>

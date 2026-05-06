@@ -5,7 +5,7 @@
   "webDir": "dist",
   "plugins": {},
   "server": {
-    "androidScheme": "http",
+    "url": "https://eurotaxisystem.site",
     "cleartext": true
   }
 }

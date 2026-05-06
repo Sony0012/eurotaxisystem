@@ -6,6 +6,8 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\UnitController;
 use App\Http\Controllers\Api\DriverController;
+use App\Http\Controllers\Api\AdditionalModulesController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -54,6 +56,49 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/live-tracking/units', [\App\Http\Controllers\LiveTrackingController::class, 'getUnitsLive']);
     Route::get('/live-tracking/unit/{id}', [\App\Http\Controllers\LiveTrackingController::class, 'getUnitLocation']);
     Route::post('/live-tracking/engine', [\App\Http\Controllers\LiveTrackingController::class, 'engineControl']);
+
+    // Franchise Case Management
+    Route::get('/franchise', [AdditionalModulesController::class, 'franchiseIndex']);
+    Route::post('/franchise', [AdditionalModulesController::class, 'franchiseStore']);
+    Route::put('/franchise/{id}', [AdditionalModulesController::class, 'franchiseUpdate']);
+    Route::delete('/franchise/{id}', [AdditionalModulesController::class, 'franchiseDestroy']);
+    Route::post('/franchise/{id}/approve', [AdditionalModulesController::class, 'franchiseApprove']);
+    Route::post('/franchise/{id}/reject', [AdditionalModulesController::class, 'franchiseReject']);
+
+    // Office Expenses
+    Route::get('/office-expenses', [AdditionalModulesController::class, 'expenseIndex']);
+    Route::post('/office-expenses', [AdditionalModulesController::class, 'expenseStore']);
+    Route::put('/office-expenses/{id}', [AdditionalModulesController::class, 'expenseUpdate']);
+    Route::delete('/office-expenses/{id}', [AdditionalModulesController::class, 'expenseDestroy']);
+
+    // Salaries
+    Route::get('/salaries', [AdditionalModulesController::class, 'salaryIndex']);
+    Route::post('/salaries', [AdditionalModulesController::class, 'salaryStore']);
+    Route::put('/salaries/{id}', [AdditionalModulesController::class, 'salaryUpdate']);
+    Route::delete('/salaries/{id}', [AdditionalModulesController::class, 'salaryDestroy']);
+
+    // Staff Records
+    Route::get('/staff', [AdditionalModulesController::class, 'staffIndex']);
+    Route::post('/staff', [AdditionalModulesController::class, 'staffStore']);
+    Route::put('/staff/{id}', [AdditionalModulesController::class, 'staffUpdate']);
+    Route::delete('/staff/{id}', [AdditionalModulesController::class, 'staffDestroy']);
+
+    // Coding Management
+    Route::get('/coding', [AdditionalModulesController::class, 'codingIndex']);
+    Route::post('/coding/update-day', [AdditionalModulesController::class, 'codingUpdateDay']);
+
+    // Unit Profitability & AI DSS
+    Route::get('/unit-profitability', [AdditionalModulesController::class, 'profitabilityIndex']);
+    Route::get('/unit-profitability/details', [AdditionalModulesController::class, 'profitabilityDetails']);
+    Route::get('/unit-profitability/ai-dss', [AdditionalModulesController::class, 'generateAiDss']);
+
+    // Driver Behavior (Incident Management)
+    Route::get('/driver-behavior', [AdditionalModulesController::class, 'incidentIndex']);
+    Route::post('/driver-behavior', [AdditionalModulesController::class, 'incidentStore']);
+    Route::get('/driver-behavior/{id}', [AdditionalModulesController::class, 'incidentShow']);
+    Route::put('/driver-behavior/{id}', [AdditionalModulesController::class, 'incidentUpdate']);
+    Route::delete('/driver-behavior/{id}', [AdditionalModulesController::class, 'incidentDestroy']);
+
 
     // Super Admin / Owner Panel
     Route::prefix('super-admin')->group(function () {

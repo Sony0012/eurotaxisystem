@@ -99,6 +99,35 @@
             animation: spin 0.6s linear infinite;
         }
         @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Responsive Mobile Drawer Styles */
+        @media (max-width: 767px) {
+            #appSidebar {
+                position: fixed !important;
+                top: 0;
+                bottom: 0;
+                left: -260px !important;
+                width: 260px !important;
+                z-index: 100 !important;
+                transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+                display: none;
+            }
+            #appSidebar.show {
+                left: 0 !important;
+                display: flex !important;
+            }
+            #sidebarBackdrop {
+                position: fixed;
+                inset: 0;
+                background-color: rgba(15, 23, 42, 0.5);
+                backdrop-filter: blur(4px);
+                z-index: 90;
+                display: none;
+            }
+            #sidebarBackdrop.show {
+                display: block !important;
+            }
+        }
     </style>
     
     <!-- Lucide Icons (Local) -->
@@ -287,8 +316,11 @@
 
         <!-- Main Layout -->
         <div class="flex h-screen overflow-hidden" id="appLayout">
+            <!-- Sidebar Mobile Backdrop -->
+            <div id="sidebarBackdrop" onclick="toggleMobileSidebar()" class="fixed inset-0 bg-gray-900/50 backdrop-blur-sm z-40 hidden md:hidden"></div>
+
             <!-- Sidebar -->
-            <aside id="appSidebar" class="w-16 lg:w-60 bg-white shadow-lg flex-shrink-0 transition-all duration-300 overflow-x-hidden">
+            <aside id="appSidebar" class="hidden md:flex w-16 lg:w-60 bg-white shadow-lg flex-shrink-0 transition-all duration-300 overflow-x-hidden relative">
                 <div class="h-full flex flex-col">
                     <!-- Logo -->
                     <div class="p-2 lg:p-4 border-b flex flex-col items-center">
@@ -483,13 +515,19 @@
             <!-- Main Content -->
             <main id="appMainContent" class="flex-1 flex flex-col overflow-hidden">
                 <!-- Top Bar -->
-                <header class="bg-white shadow-sm border-b px-6 py-2">
+                <header class="bg-white shadow-sm border-b px-4 md:px-6 py-2">
                     <div class="flex items-center justify-between">
-                        <div>
-                            <h2 class="text-2xl font-semibold text-gray-900">@yield('page-heading', 'Dashboard')</h2>
-                            @hasSection('page-subheading')
-                                <p class="text-sm text-gray-500 mt-1">@yield('page-subheading')</p>
-                            @endif
+                        <div class="flex items-center gap-3">
+                            <!-- Mobile Menu Trigger -->
+                            <button onclick="toggleMobileSidebar()" class="p-2 -ml-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg md:hidden flex items-center justify-center shrink-0">
+                                <i data-lucide="menu" class="w-6 h-6"></i>
+                            </button>
+                            <div>
+                                <h2 class="text-lg md:text-2xl font-black text-gray-900 leading-tight">@yield('page-heading', 'Dashboard')</h2>
+                                @hasSection('page-subheading')
+                                    <p class="text-[11px] md:text-sm text-gray-500 mt-0.5 md:mt-1">@yield('page-subheading')</p>
+                                @endif
+                            </div>
                         </div>
 
                         <div class="flex items-center gap-4">
@@ -508,7 +546,7 @@
                                 </button>
 
                                 <div id="notificationDropdown"
-                                    class="hidden absolute right-0 mt-2 w-80 bg-white shadow-xl rounded-2xl border border-gray-100 z-50 overflow-hidden">
+                                    class="hidden fixed md:absolute inset-x-4 md:inset-x-auto md:right-0 mt-2 md:w-80 bg-white shadow-2xl md:shadow-xl rounded-2xl border border-gray-100 z-[9999] overflow-hidden">
                                     <div class="px-4 py-3 border-b bg-gray-50/50 flex items-center justify-between">
                                         <div class="flex flex-col">
                                             <span class="text-sm font-black text-gray-900 tracking-tight">Notifications</span>
@@ -589,7 +627,7 @@
                             </div>
 
                             <!-- Date/Time -->
-                            <div class="text-right">
+                            <div class="text-right hidden md:block">
                                 <p id="header-date" class="text-[13px] font-medium text-gray-900">{{ date('l, F j, Y') }}</p>
                                 <p id="header-time" class="text-[11px] text-gray-500 transition-all duration-300">{{ date('h:i A') }}</p>
                             </div>
@@ -740,6 +778,16 @@
                 }
                 closeGlobalArchiveSecurityModal();
             });
+
+            // Toggle Mobile Sidebar
+            window.toggleMobileSidebar = function() {
+                const sidebar = document.getElementById('appSidebar');
+                const backdrop = document.getElementById('sidebarBackdrop');
+                if (sidebar && backdrop) {
+                    sidebar.classList.toggle('show');
+                    backdrop.classList.toggle('show');
+                }
+            };
         </script>
 
     @else
@@ -1151,6 +1199,12 @@
                     
                     // Add loading state
                     this.classList.add('nav-loading');
+
+                    // Smoothly close mobile sidebar if active
+                    const sidebar = document.getElementById('appSidebar');
+                    const backdrop = document.getElementById('sidebarBackdrop');
+                    if (sidebar) sidebar.classList.remove('show');
+                    if (backdrop) backdrop.classList.remove('show');
                     
                     // Navigate without page reload
                     navigateToPage(href);
