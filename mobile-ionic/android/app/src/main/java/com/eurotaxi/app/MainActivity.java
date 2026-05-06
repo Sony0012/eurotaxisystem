@@ -289,9 +289,10 @@ public class MainActivity extends BridgeActivity {
             CharSequence name = "EuroTaxi Alerts";
             String description = "Real-time system alerts from EuroTaxi System";
             int importance = NotificationManager.IMPORTANCE_HIGH;
-            NotificationChannel channel = new NotificationChannel("eurotaxi_channel", name, importance);
+            NotificationChannel channel = new NotificationChannel("eurotaxi_bypass_channel", name, importance);
             channel.setDescription(description);
             channel.enableVibration(true);
+            channel.enableLights(true);
             
             NotificationManager notificationManager = getSystemService(NotificationManager.class);
             if (notificationManager != null) {
@@ -310,15 +311,19 @@ public class MainActivity extends BridgeActivity {
             PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_IMMUTABLE
         );
         
+        // Dynamically fetch the local ic_launcher mipmap resource which is required by Android to render the banner visibly!
+        int iconResourceId = getResources().getIdentifier("ic_launcher", "mipmap", getPackageName());
+        int smallIcon = iconResourceId > 0 ? iconResourceId : android.R.drawable.ic_dialog_info;
+        
         Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, "eurotaxi_channel")
-            .setSmallIcon(android.R.drawable.ic_dialog_info)
+        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, "eurotaxi_bypass_channel")
+            .setSmallIcon(smallIcon)
             .setContentTitle(title)
             .setContentText(message)
             .setAutoCancel(true)
             .setSound(defaultSoundUri)
             .setPriority(NotificationCompat.PRIORITY_MAX)
-            .setCategory(NotificationCompat.CATEGORY_ALARM)
+            .setDefaults(NotificationCompat.DEFAULT_ALL) // Force Sound, Vibration, and Lights!
             .setContentIntent(pendingIntent);
             
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
