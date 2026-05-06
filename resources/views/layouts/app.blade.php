@@ -324,16 +324,17 @@
             <aside id="appSidebar" class="hidden md:flex w-16 lg:w-60 bg-white shadow-lg flex-shrink-0 transition-all duration-300 overflow-x-hidden relative h-full">
                 <div class="h-full flex flex-col w-full">
                     <!-- Logo & Mobile Close Trigger -->
-                    <div class="p-3 lg:p-4 border-b flex flex-row md:flex-col items-center justify-between md:justify-center flex-shrink-0 w-full relative">
-                        <div class="flex items-center md:flex-col md:items-center gap-2">
-                            <img src="{{ asset('uploads/logo.png') }}" alt="Euro System Logo" class="h-8 lg:h-12 w-auto">
-                            <p class="text-[10px] text-gray-400 uppercase tracking-widest font-bold block md:hidden lg:block leading-none mt-0.5">Fleet Management</p>
+                    <div class="px-4 py-3 md:p-2 lg:p-4 border-b flex flex-row md:flex-col items-center justify-between md:justify-center flex-shrink-0 w-full relative bg-white">
+                        <!-- Logo & Brand info -->
+                        <div class="flex flex-col items-start md:items-center min-w-0">
+                            <img src="{{ asset('uploads/logo.png') }}" alt="Euro System Logo" class="h-9 md:h-8 lg:h-12 w-auto object-contain">
+                            <span class="text-[9px] text-gray-400 font-bold uppercase tracking-widest leading-none mt-1.5 block md:hidden lg:block">Fleet Management</span>
                         </div>
                         
                         <!-- Close Button on Mobile -->
                         <button type="button" onclick="toggleMobileSidebar()" 
-                            class="p-2 text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-lg md:hidden flex items-center justify-center shrink-0">
-                            <i data-lucide="x" class="w-6 h-6"></i>
+                            class="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-full md:hidden flex items-center justify-center shrink-0 transition-colors focus:outline-none focus:ring-2 focus:ring-yellow-500">
+                            <i data-lucide="x" class="w-5 h-5"></i>
                         </button>
                     </div>
 
