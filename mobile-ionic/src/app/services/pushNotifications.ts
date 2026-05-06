@@ -28,10 +28,7 @@ export async function initPushNotifications() {
       return;
     }
 
-    // 2. Register with Apple/Google FCM Servers
-    await PushNotifications.register();
-
-    // 3. Listeners for Token and Errors
+    // 2. Listeners for Token and Errors (MUST be registered BEFORE calling register()!)
     await PushNotifications.addListener('registration', async (token) => {
       console.log('FCM Device Token retrieved successfully:', token.value);
       
@@ -51,6 +48,9 @@ export async function initPushNotifications() {
     await PushNotifications.addListener('registrationError', (error) => {
       console.error('FCM Registration Error:', JSON.stringify(error));
     });
+
+    // 3. Register with Apple/Google FCM Servers
+    await PushNotifications.register();
 
     // 4. Listener for Foreground Notification (app is OPEN and active)
     await PushNotifications.addListener('pushNotificationReceived', (notification) => {

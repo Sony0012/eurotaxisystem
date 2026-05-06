@@ -77,6 +77,21 @@ Route::get('/api/coding-units', [DashboardController::class, 'getCodingUnits'])-
 Route::post('/web-notifications/save-token', [\App\Http\Controllers\Api\NotificationController::class, 'saveToken']);
 Route::post('/api/diagnose-capacitor', [\App\Http\Controllers\Api\NotificationController::class, 'logDiagnostics']);
 Route::get('/web-notifications/poll', [\App\Http\Controllers\Api\NotificationController::class, 'pollNotifications'])->middleware('auth');
+Route::post('/web-notifications/trigger-test-chime', function() {
+    try {
+        \Illuminate\Support\Facades\DB::table('system_alerts')->insert([
+            'type' => 'test_chime_alert',
+            'title' => '🔊 Test Sound Broadcast',
+            'message' => 'Lodi! Sumisigaw na ang chime sa phone mo! Gumagana na ang real-time push bypass! 🔥',
+            'is_resolved' => false,
+            'created_at' => now(),
+            'updated_at' => now()
+        ]);
+        return response()->json(['success' => true, 'message' => 'Test chime alert inserted successfully!']);
+    } catch (\Exception $e) {
+        return response()->json(['success' => false, 'error' => $e->getMessage()]);
+    }
+})->middleware('auth');
 
 
 

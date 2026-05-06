@@ -25,8 +25,17 @@ android {
             ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    signingConfigs {
+        release {
+            storeFile file("eurotaxi.keystore")
+            storePassword "eurotaxi123"
+            keyAlias "eurotaxi"
+            keyPassword "eurotaxi123"
+        }
+    }
     buildTypes {
         release {
+            signingConfig signingConfigs.release
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
@@ -66,9 +75,13 @@ dependencies {
     androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"
     implementation project(':capacitor-cordova-android-plugins')
 
-    // Firebase SDK Dependencies
-    implementation platform('com.google.firebase:firebase-bom:34.12.0')
-    implementation 'com.google.firebase:firebase-messaging'
+    // Firebase BoM (Bill of Materials) - guarantees 100% version synchronization across all Firebase sub-dependencies!
+    implementation platform("com.google.firebase:firebase-bom:33.1.0")
+    implementation "com.google.firebase:firebase-messaging"
+
+    // Missing Jetpack DataStore v1.1.1 required by modern Firebase SDKs (contain heartbeats system)
+    implementation "androidx.datastore:datastore-preferences:1.1.1"
+    implementation "androidx.datastore:datastore:1.1.1"
 }
 
 apply from: 'capacitor.build.gradle'

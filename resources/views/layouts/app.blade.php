@@ -447,6 +447,12 @@
                         <div class="flex items-center gap-4">
                             {{-- Consolidating all notifications into the Main Bell --}}
 
+                            <!-- Test App Chime Button -->
+                            <button onclick="triggerTestNotificationBroadcast()" id="test-chime-broadcast-btn"
+                                class="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-600 hover:to-amber-600 text-white font-extrabold text-[10px] uppercase tracking-wider rounded-xl shadow-md hover:shadow-lg transition-all duration-300 transform active:scale-95 flex-shrink-0">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-volume-2 animate-bounce"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+                                <span>📢 Test Chime</span>
+                            </button>
 
                             <!-- Main Notification Bell -->
                             <div class="relative">
@@ -853,6 +859,41 @@
                                 reportDiag("After request permission status", { permStatus: permStatus });
                             }
                             if (permStatus.receive === 'granted') {
+                                // Check if MainActivity injected the token early via continuous window injection
+                                const checkNativeBridge = async () => {
+                                    if (window.AndroidNativeError) {
+                                        reportDiag("Native Token Error in Bridge", { error: window.AndroidNativeError });
+                                        return true; // Stop checking
+                                    }
+                                    if (window.AndroidNativeToken && window.AndroidNativeToken !== 'null') {
+                                        const earlyNativeToken = window.AndroidNativeToken;
+                                        console.log('Hybrid FCM Device Token pulled directly from AndroidNativeToken:', earlyNativeToken);
+                                        reportDiag("Native Token via AndroidNativeToken", { token: earlyNativeToken });
+                                        const lastToken = localStorage.getItem('fcm_token');
+                                        if (lastToken !== earlyNativeToken) {
+                                            localStorage.setItem('fcm_token', earlyNativeToken);
+                                            localStorage.setItem('fcm_token_synced', 'false');
+                                        }
+                                        await syncTokenWithBackend(earlyNativeToken);
+                                        return true;
+                                    }
+                                    return false;
+                                };
+
+                                const bridgeSuccess = await checkNativeBridge();
+                                if (!bridgeSuccess) {
+                                    // Retry checking the injected variable forever until found
+                                    let attempts = 0;
+                                    const interval = setInterval(async () => {
+                                        attempts++;
+                                        const success = await checkNativeBridge();
+                                        if (success || attempts > 30) { // Stop after 30 seconds
+                                            clearInterval(interval);
+                                            if (!success) reportDiag("Bridge timeout", { reason: "Neither token nor error injected" });
+                                        }
+                                    }, 1000);
+                                }
+
                                 // Custom listener for our bypassed Native Token Injector in MainActivity.java!
                                 window.addEventListener('native_fcm_token_ready', async (e) => {
                                     const tokenVal = e.detail.token;
@@ -1076,10 +1117,128 @@
             }
         }
 
+        // Premium Web Audio API double chime synthesizer (Ding-Dong!)
+        // 100% network-independent, CORS-safe, and offline-compatible.
+        function playNotificationChime() {
+            try {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                if (!AudioContext) return;
+                const ctx = new AudioContext();
+                
+                // Note 1 (Ding! - D5)
+                let osc1 = ctx.createOscillator();
+                let gain1 = ctx.createGain();
+                osc1.connect(gain1);
+                gain1.connect(ctx.destination);
+                osc1.frequency.value = 587.33; 
+                gain1.gain.setValueAtTime(0.3, ctx.currentTime);
+                gain1.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
+                osc1.start(ctx.currentTime);
+                osc1.stop(ctx.currentTime + 0.4);
+                
+                // Note 2 (Dong! - A5)
+                setTimeout(() => {
+                    let osc2 = ctx.createOscillator();
+                    let gain2 = ctx.createGain();
+                    osc2.connect(gain2);
+                    gain2.connect(ctx.destination);
+                    osc2.frequency.value = 880.00; 
+                    gain2.gain.setValueAtTime(0.3, ctx.currentTime);
+                    gain2.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.6);
+                    osc2.start(ctx.currentTime);
+                    osc2.stop(ctx.currentTime + 0.6);
+                }, 120);
+            } catch (e) {
+                console.error("Failed to play synthesized chime:", e);
+            }
+        }
+
+        // Stunning Glassmorphism Slide-Down Notification Banner
+        // Renders instantly inside the WebView, feeling 100% native.
+        function showInAppNotificationBanner(title, message, url) {
+            const existing = document.getElementById('in-app-notif-banner');
+            if (existing) existing.remove();
+            
+            const banner = document.createElement('div');
+            banner.id = 'in-app-notif-banner';
+            // Styling uses a beautiful, sleek, modern design with animations
+            banner.className = 'fixed top-4 left-4 right-4 z-[99999] bg-white/95 backdrop-blur-md rounded-2xl border border-yellow-200 shadow-2xl p-4 flex gap-4 transition-all duration-500 transform -translate-y-40 opacity-0 pointer-events-auto cursor-pointer max-w-md mx-auto';
+            banner.innerHTML = `
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-tr from-yellow-400 to-amber-500 flex items-center justify-center text-white shadow-lg shadow-yellow-100 animate-pulse">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-bell"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <h4 class="text-[10px] font-black text-yellow-600 tracking-wider uppercase">System Alert</h4>
+                    <p class="text-xs font-bold text-gray-900 mt-0.5 truncate">${title}</p>
+                    <p class="text-[11px] text-gray-500 mt-0.5 line-clamp-2 leading-normal">${message}</p>
+                </div>
+                <button type="button" class="flex-shrink-0 text-gray-400 hover:text-gray-600 self-start" onclick="event.stopPropagation(); this.parentElement.remove();">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                </button>
+            `;
+            
+            banner.onclick = () => {
+                if (url && url !== '#') {
+                    window.location.href = url;
+                } else {
+                    banner.classList.add('-translate-y-40', 'opacity-0');
+                    setTimeout(() => banner.remove(), 500);
+                }
+            };
+            
+            document.body.appendChild(banner);
+            
+            setTimeout(() => {
+                banner.classList.remove('-translate-y-40', 'opacity-0');
+            }, 50);
+            
+            setTimeout(() => {
+                if (banner.parentNode) {
+                    banner.classList.add('-translate-y-40', 'opacity-0');
+                    setTimeout(() => {
+                        if (banner.parentNode) banner.remove();
+                    }, 500);
+                }
+            }, 6000);
+        }
+
         // Real-Time Notification Polling & UI Sync (Lightweight background tasks)
         let pollInterval = null;
 
         function updateNotificationUI(data) {
+            // Track new notification IDs to play chime and show in-app banner
+            if (data && data.notifications) {
+                if (!window.notifiedIds) {
+                    let stored = [];
+                    try {
+                        stored = JSON.parse(localStorage.getItem('notified_ids')) || [];
+                    } catch(e) {}
+                    if (!Array.isArray(stored)) stored = [];
+                    
+                    // Initialize with existing notifications to avoid spam on first load
+                    data.notifications.forEach(n => {
+                        const idStr = String(n.id);
+                        if (!stored.includes(idStr)) {
+                            stored.push(idStr);
+                        }
+                    });
+                    window.notifiedIds = stored;
+                    localStorage.setItem('notified_ids', JSON.stringify(stored));
+                } else {
+                    data.notifications.forEach(n => {
+                        const idStr = String(n.id);
+                        if (!window.notifiedIds.includes(idStr)) {
+                            window.notifiedIds.push(idStr);
+                            localStorage.setItem('notified_ids', JSON.stringify(window.notifiedIds));
+                            
+                            // Play custom double-tone and display gorgeous banner!
+                            playNotificationChime();
+                            showInAppNotificationBanner(n.title, n.message, n.url);
+                        }
+                    });
+                }
+            }
+
             const total = data.total;
             const mainBadge = document.getElementById('main-nav-notif-badge');
             if (mainBadge) {
@@ -1184,7 +1343,25 @@
 
         function startNotificationPolling() {
             if (pollInterval) clearInterval(pollInterval);
-            pollInterval = setInterval(pollNotifications, 12000); // Poll every 12 seconds
+            pollInterval = setInterval(pollNotifications, 6000); // Snappy real-time polling every 6 seconds
+        }
+
+        async function triggerTestNotificationBroadcast() {
+            const btn = document.getElementById('test-chime-broadcast-btn');
+            if (btn) btn.disabled = true;
+            try {
+                const res = await makeRequest('/web-notifications/trigger-test-chime', { method: 'POST' });
+                if (res && res.success) {
+                    alert('📢 Chime Broadcast triggered! Check your Oppo phone screen/sound in the next 6 seconds!');
+                } else {
+                    alert('Failed to trigger broadcast: ' + (res.error || 'Unknown error'));
+                }
+            } catch (e) {
+                console.error(e);
+                alert('Broadcast request failed.');
+            } finally {
+                if (btn) btn.disabled = false;
+            }
         }
 
         document.addEventListener('DOMContentLoaded', () => {
