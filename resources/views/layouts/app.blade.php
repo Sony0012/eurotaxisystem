@@ -323,10 +323,18 @@
             <div id="sidebarBackdrop" onclick="toggleMobileSidebar()" class="fixed inset-0 bg-gray-900/50 backdrop-blur-sm z-40 hidden md:hidden"></div>
             <aside id="appSidebar" class="hidden md:flex w-16 lg:w-60 bg-white shadow-lg flex-shrink-0 transition-all duration-300 overflow-x-hidden relative h-full">
                 <div class="h-full flex flex-col w-full">
-                    <!-- Logo -->
-                    <div class="p-2 lg:p-4 border-b flex flex-col items-center flex-shrink-0 w-full">
-                        <img src="{{ asset('uploads/logo.png') }}" alt="Euro System Logo" class="h-8 lg:h-12 w-auto mb-1">
-                        <p class="text-[10px] text-gray-400 uppercase tracking-widest font-bold block md:hidden lg:block">Fleet Management</p>
+                    <!-- Logo & Mobile Close Trigger -->
+                    <div class="p-3 lg:p-4 border-b flex flex-row md:flex-col items-center justify-between md:justify-center flex-shrink-0 w-full relative">
+                        <div class="flex items-center md:flex-col md:items-center gap-2">
+                            <img src="{{ asset('uploads/logo.png') }}" alt="Euro System Logo" class="h-8 lg:h-12 w-auto">
+                            <p class="text-[10px] text-gray-400 uppercase tracking-widest font-bold block md:hidden lg:block leading-none mt-0.5">Fleet Management</p>
+                        </div>
+                        
+                        <!-- Close Button on Mobile -->
+                        <button type="button" onclick="toggleMobileSidebar()" 
+                            class="p-2 text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-lg md:hidden flex items-center justify-center shrink-0">
+                            <i data-lucide="x" class="w-6 h-6"></i>
+                        </button>
                     </div>
 
                     <!-- Navigation -->
