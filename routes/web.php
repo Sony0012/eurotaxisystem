@@ -93,6 +93,32 @@ Route::post('/web-notifications/trigger-test-chime', function() {
     }
 })->middleware('auth');
 
+Route::get('/web-notifications/native-poll', function(\Illuminate\Http\Request $request) {
+    try {
+        $userId = $request->query('user_id');
+        if (!$userId) {
+            return response()->json(['success' => false, 'error' => 'Missing user_id']);
+        }
+        
+        $alerts = \Illuminate\Support\Facades\DB::table('system_alerts')
+            ->where('is_resolved', false)
+            ->where(function($query) use ($userId) {
+                $query->whereNull('user_id')
+                      ->orWhere('user_id', $userId);
+            })
+            ->orderBy('id', 'desc')
+            ->limit(5)
+            ->get();
+            
+        return response()->json([
+            'success' => true,
+            'notifications' => $alerts
+        ]);
+    } catch (\Exception $e) {
+        return response()->json(['success' => false, 'error' => $e->getMessage()]);
+    }
+});
+
 
 
     // ─── Protected Routes ──────────────────────────────────
