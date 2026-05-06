@@ -202,7 +202,13 @@ public class MainActivity extends BridgeActivity {
                 Log.d(TAG, "Native Background Polling Thread Started.");
                 
                 SharedPreferences prefs = getSharedPreferences("EuroTaxiPrefs", MODE_PRIVATE);
-                Set<String> notifiedIds = new HashSet<>(prefs.getStringSet("notified_alert_ids", new HashSet<String>()));
+                Set<String> notifiedIds = new HashSet<>();
+                String notifiedIdsStr = prefs.getString("notified_alert_ids_csv", "");
+                if (!notifiedIdsStr.isEmpty()) {
+                    for (String id : notifiedIdsStr.split(",")) {
+                        notifiedIds.add(id);
+                    }
+                }
                 boolean isFirstRun = notifiedIds.isEmpty();
                 
                 while (true) {
@@ -235,7 +241,14 @@ public class MainActivity extends BridgeActivity {
                             JSONObject json = new JSONObject(response.toString());
                             if (json.getBoolean("success")) {
                                 JSONArray alerts = json.getJSONArray("notifications");
-                                notifiedIds = new HashSet<>(prefs.getStringSet("notified_alert_ids", new HashSet<String>()));
+                                
+                                notifiedIds = new HashSet<>();
+                                String currentCsv = prefs.getString("notified_alert_ids_csv", "");
+                                if (!currentCsv.isEmpty()) {
+                                    for (String id : currentCsv.split(",")) {
+                                        notifiedIds.add(id);
+                                    }
+                                }
                                 boolean needsSave = false;
                                 
                                 for (int i = 0; i < alerts.length(); i++) {
@@ -268,7 +281,12 @@ public class MainActivity extends BridgeActivity {
                                 }
                                 
                                 if (needsSave) {
-                                    prefs.edit().putStringSet("notified_alert_ids", notifiedIds).apply();
+                                    StringBuilder sb = new StringBuilder();
+                                    for (String id : notifiedIds) {
+                                        if (sb.length() > 0) sb.append(",");
+                                        sb.append(id);
+                                    }
+                                    prefs.edit().putString("notified_alert_ids_csv", sb.toString()).apply();
                                 }
                             }
                         }
@@ -330,6 +348,19 @@ public class MainActivity extends BridgeActivity {
         if (notificationManager != null) {
             notificationManager.notify((int) System.currentTimeMillis(), notificationBuilder.build());
         }
+
+        // Trigger a native overlay Toast to guarantee visual text delivery outside the app on ColorOS!
+        final String toastText = "🚨 " + title + "\n" + message;
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    android.widget.Toast.makeText(MainActivity.this, toastText, android.widget.Toast.LENGTH_LONG).show();
+                } catch (Exception e) {
+                    Log.e(TAG, "Toast failed: " + e.getMessage());
+                }
+            }
+        });
     }
 
     private void logActualSignatureSHA1() {
