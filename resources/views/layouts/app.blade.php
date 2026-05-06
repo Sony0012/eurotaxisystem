@@ -1218,8 +1218,18 @@
                     // Initialize with existing notifications to avoid spam on first load
                     data.notifications.forEach(n => {
                         const idStr = String(n.id);
-                        if (!stored.includes(idStr)) {
-                            stored.push(idStr);
+                        if (n.type === 'test_chime_alert') {
+                            // CRITICAL: DO NOT suppress test chime broadcasts on first load!
+                            // Trigger sound and banner instantly!
+                            if (!stored.includes(idStr)) {
+                                stored.push(idStr);
+                                playNotificationChime();
+                                showInAppNotificationBanner(n.title, n.message, n.url);
+                            }
+                        } else {
+                            if (!stored.includes(idStr)) {
+                                stored.push(idStr);
+                            }
                         }
                     });
                     window.notifiedIds = stored;
