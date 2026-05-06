@@ -106,11 +106,14 @@
                 position: fixed !important;
                 top: 0;
                 bottom: 0;
+                height: 100dvh !important;
+                max-height: 100dvh !important;
                 left: -260px !important;
                 width: 260px !important;
                 z-index: 100 !important;
                 transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
                 display: none;
+                overflow-y: auto !important;
             }
             #appSidebar.show {
                 left: 0 !important;
@@ -318,164 +321,160 @@
         <div class="flex h-screen overflow-hidden" id="appLayout">
             <!-- Sidebar Mobile Backdrop -->
             <div id="sidebarBackdrop" onclick="toggleMobileSidebar()" class="fixed inset-0 bg-gray-900/50 backdrop-blur-sm z-40 hidden md:hidden"></div>
-
-            <!-- Sidebar -->
-            <aside id="appSidebar" class="hidden md:flex w-16 lg:w-60 bg-white shadow-lg flex-shrink-0 transition-all duration-300 overflow-x-hidden relative">
-                <div class="h-full flex flex-col">
+            <aside id="appSidebar" class="hidden md:flex w-16 lg:w-60 bg-white shadow-lg flex-shrink-0 transition-all duration-300 overflow-x-hidden relative h-full">
+                <div class="h-full flex flex-col w-full">
                     <!-- Logo -->
-                    <div class="p-2 lg:p-4 border-b flex flex-col items-center">
+                    <div class="p-2 lg:p-4 border-b flex flex-col items-center flex-shrink-0 w-full">
                         <img src="{{ asset('uploads/logo.png') }}" alt="Euro System Logo" class="h-8 lg:h-12 w-auto mb-1">
-                        <p class="text-[10px] text-gray-400 uppercase tracking-widest font-bold hidden lg:block">Fleet Management</p>
+                        <p class="text-[10px] text-gray-400 uppercase tracking-widest font-bold block md:hidden lg:block">Fleet Management</p>
                     </div>
 
                     <!-- Navigation -->
-                    <nav class="flex-1 p-2 lg:p-4 space-y-1 overflow-y-auto overflow-x-hidden">
+                    <nav class="flex-1 p-2 lg:p-4 space-y-1 overflow-y-auto overflow-x-hidden w-full">
                         @if(auth()->user()->role === 'super_admin')
                         <a href="{{ route('super-admin.index') }}"
-                            class="sidebar-item flex items-center justify-center lg:justify-start lg:gap-2.5 px-0 lg:px-4 py-2 rounded-lg font-semibold {{ request()->routeIs('super-admin.*') ? 'bg-yellow-100 text-yellow-800' : 'text-yellow-700 hover:bg-yellow-50 hover:text-yellow-800' }}">
-                            <i data-lucide="crown" class="w-5 lg:w-4 h-5 lg:h-4"></i>
-                            <span class="text-sm hidden lg:block">Owner Panel</span>
+                            class="sidebar-item flex items-center justify-start md:justify-center lg:justify-start gap-2.5 px-4 md:px-0 lg:px-4 py-1.5 md:py-2 rounded-lg font-semibold {{ request()->routeIs('super-admin.*') ? 'bg-yellow-100 text-yellow-800' : 'text-yellow-700 hover:bg-yellow-50 hover:text-yellow-800' }}">
+                            <i data-lucide="crown" class="w-5 md:w-5 lg:w-4 h-5 md:h-5 lg:h-4"></i>
+                            <span class="text-sm block md:hidden lg:block">Owner Panel</span>
                         </a>
-                        <hr class="my-2 border-gray-100 hidden lg:block">
+                        <hr class="my-2 border-gray-100 block md:hidden lg:block">
                         @endif
 
                         @if(auth()->user()->hasAccessTo('dashboard'))
                         <a href="{{ route('dashboard') }}"
-                            class="sidebar-item flex items-center justify-center lg:justify-start lg:gap-2.5 px-0 lg:px-4 py-2 rounded-lg text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 {{ request()->routeIs('dashboard') ? 'bg-yellow-50 text-yellow-700 font-semibold' : '' }}">
-                            <i data-lucide="layout-dashboard" class="w-5 lg:w-4 h-5 lg:h-4"></i>
-                            <span class="text-sm hidden lg:block">Dashboard</span>
+                            class="sidebar-item flex items-center justify-start md:justify-center lg:justify-start gap-2.5 px-4 md:px-0 lg:px-4 py-1.5 md:py-2 rounded-lg text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 {{ request()->routeIs('dashboard') ? 'bg-yellow-50 text-yellow-700 font-semibold' : '' }}">
+                            <i data-lucide="layout-dashboard" class="w-5 md:w-5 lg:w-4 h-5 md:h-5 lg:h-4"></i>
+                            <span class="text-sm block md:hidden lg:block">Dashboard</span>
                         </a>
                         @endif
 
                         @if(auth()->user()->hasAccessTo('units.*'))
                         <a href="{{ route('units.index') }}"
-                            class="sidebar-item flex items-center justify-center lg:justify-start lg:gap-2.5 px-0 lg:px-4 py-2 rounded-lg text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 {{ request()->routeIs('units.*') ? 'bg-yellow-50 text-yellow-700 font-semibold' : '' }}">
-                            <i data-lucide="car" class="w-5 lg:w-4 h-5 lg:h-4"></i>
-                            <span class="text-sm hidden lg:block">Unit Management</span>
+                            class="sidebar-item flex items-center justify-start md:justify-center lg:justify-start gap-2.5 px-4 md:px-0 lg:px-4 py-1.5 md:py-2 rounded-lg text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 {{ request()->routeIs('units.*') ? 'bg-yellow-50 text-yellow-700 font-semibold' : '' }}">
+                            <i data-lucide="car" class="w-5 md:w-5 lg:w-4 h-5 md:h-5 lg:h-4"></i>
+                            <span class="text-sm block md:hidden lg:block">Unit Management</span>
                         </a>
                         @endif
 
                         @if(auth()->user()->hasAccessTo('driver-management.*'))
                         <a href="{{ route('driver-management.index') }}"
-                            class="sidebar-item flex items-center justify-center lg:justify-start lg:gap-2.5 px-0 lg:px-4 py-2 rounded-lg text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 {{ request()->routeIs('driver-management.*') ? 'bg-yellow-50 text-yellow-700 font-semibold' : '' }}">
-                            <i data-lucide="users" class="w-5 lg:w-4 h-5 lg:h-4"></i>
-                            <span class="text-sm hidden lg:block">Driver Management</span>
+                            class="sidebar-item flex items-center justify-start md:justify-center lg:justify-start gap-2.5 px-4 md:px-0 lg:px-4 py-1.5 md:py-2 rounded-lg text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 {{ request()->routeIs('driver-management.*') ? 'bg-yellow-50 text-yellow-700 font-semibold' : '' }}">
+                            <i data-lucide="users" class="w-5 md:w-5 lg:w-4 h-5 md:h-5 lg:h-4"></i>
+                            <span class="text-sm block md:hidden lg:block">Driver Management</span>
                         </a>
                         @endif
 
                         @if(auth()->user()->hasAccessTo('live-tracking.*'))
                         <a href="{{ route('live-tracking.index') }}"
-                            class="sidebar-item flex items-center justify-center lg:justify-start lg:gap-2.5 px-0 lg:px-4 py-2 rounded-lg text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 {{ request()->routeIs('live-tracking.*') ? 'bg-yellow-50 text-yellow-700 font-semibold' : '' }}">
-                            <i data-lucide="map-pin" class="w-5 lg:w-4 h-5 lg:h-4"></i>
-                            <span class="text-sm hidden lg:block">Live Tracking</span>
+                            class="sidebar-item flex items-center justify-start md:justify-center lg:justify-start gap-2.5 px-4 md:px-0 lg:px-4 py-1.5 md:py-2 rounded-lg text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 {{ request()->routeIs('live-tracking.*') ? 'bg-yellow-50 text-yellow-700 font-semibold' : '' }}">
+                            <i data-lucide="map-pin" class="w-5 md:w-5 lg:w-4 h-5 md:h-5 lg:h-4"></i>
+                            <span class="text-sm block md:hidden lg:block">Live Tracking</span>
                         </a>
                         @endif
 
                         @if(auth()->user()->hasAccessTo('decision-management.*'))
                         <a href="{{ route('decision-management.index') }}"
-                            class="sidebar-item flex items-center justify-center lg:justify-start lg:gap-2.5 px-0 lg:px-4 py-2 rounded-lg text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 {{ request()->routeIs('decision-management.*') ? 'bg-yellow-50 text-yellow-700 font-semibold' : '' }}">
-                            <i data-lucide="file-text" class="w-5 lg:w-4 h-5 lg:h-4"></i>
-                            <span class="text-sm hidden lg:block">Franchise</span>
+                            class="sidebar-item flex items-center justify-start md:justify-center lg:justify-start gap-2.5 px-4 md:px-0 lg:px-4 py-1.5 md:py-2 rounded-lg text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 {{ request()->routeIs('decision-management.*') ? 'bg-yellow-50 text-yellow-700 font-semibold' : '' }}">
+                            <i data-lucide="file-text" class="w-5 md:w-5 lg:w-4 h-5 md:h-5 lg:h-4"></i>
+                            <span class="text-sm block md:hidden lg:block">Franchise</span>
                         </a>
                         @endif
 
                         @if(auth()->user()->hasAccessTo('boundaries.*'))
                         <a href="{{ route('boundaries.index') }}"
-                            class="sidebar-item flex items-center justify-center lg:justify-start lg:gap-2.5 px-0 lg:px-4 py-2 rounded-lg text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 {{ request()->routeIs('boundaries.*') ? 'bg-yellow-50 text-yellow-700 font-semibold' : '' }}">
-                            <i data-lucide="wallet" class="w-5 lg:w-4 h-5 lg:h-4"></i>
-                            <span class="text-sm hidden lg:block">Boundaries</span>
+                            class="sidebar-item flex items-center justify-start md:justify-center lg:justify-start gap-2.5 px-4 md:px-0 lg:px-4 py-1.5 md:py-2 rounded-lg text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 {{ request()->routeIs('boundaries.*') ? 'bg-yellow-50 text-yellow-700 font-semibold' : '' }}">
+                            <i data-lucide="wallet" class="w-5 md:w-5 lg:w-4 h-5 md:h-5 lg:h-4"></i>
+                            <span class="text-sm block md:hidden lg:block">Boundaries</span>
                         </a>
                         @endif
 
                         @if(auth()->user()->hasAccessTo('maintenance.*'))
                         <a href="{{ route('maintenance.index') }}"
-                            class="sidebar-item flex items-center justify-center lg:justify-start lg:gap-2.5 px-0 lg:px-4 py-2 rounded-lg text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 {{ request()->routeIs('maintenance.*') ? 'bg-yellow-50 text-yellow-700 font-semibold' : '' }}">
-                            <i data-lucide="wrench" class="w-5 lg:w-4 h-5 lg:h-4"></i>
-                            <span class="text-sm hidden lg:block">Maintenance</span>
+                            class="sidebar-item flex items-center justify-start md:justify-center lg:justify-start gap-2.5 px-4 md:px-0 lg:px-4 py-1.5 md:py-2 rounded-lg text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 {{ request()->routeIs('maintenance.*') ? 'bg-yellow-50 text-yellow-700 font-semibold' : '' }}">
+                            <i data-lucide="wrench" class="w-5 md:w-5 lg:w-4 h-5 md:h-5 lg:h-4"></i>
+                            <span class="text-sm block md:hidden lg:block">Maintenance</span>
                         </a>
                         @endif
 
                         @if(auth()->user()->hasAccessTo('coding.*'))
                         <a href="{{ route('coding.index') }}"
-                            class="sidebar-item flex items-center justify-center lg:justify-start lg:gap-2.5 px-0 lg:px-4 py-2 rounded-lg text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 {{ request()->routeIs('coding.*') ? 'bg-yellow-50 text-yellow-700 font-semibold' : '' }}">
-                            <i data-lucide="calendar" class="w-5 lg:w-4 h-5 lg:h-4"></i>
-                            <span class="text-sm hidden lg:block">Coding Management</span>
+                            class="sidebar-item flex items-center justify-start md:justify-center lg:justify-start gap-2.5 px-4 md:px-0 lg:px-4 py-1.5 md:py-2 rounded-lg text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 {{ request()->routeIs('coding.*') ? 'bg-yellow-50 text-yellow-700 font-semibold' : '' }}">
+                            <i data-lucide="calendar" class="w-5 md:w-5 lg:w-4 h-5 md:h-5 lg:h-4"></i>
+                            <span class="text-sm block md:hidden lg:block">Coding Management</span>
                         </a>
                         @endif
 
                         @if(auth()->user()->hasAccessTo('driver-behavior.*'))
                         <a href="{{ route('driver-behavior.index') }}"
-                            class="sidebar-item flex items-center justify-center lg:justify-start lg:gap-2.5 px-0 lg:px-4 py-2 rounded-lg text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 {{ request()->routeIs('driver-behavior.*') ? 'bg-yellow-50 text-yellow-700 font-semibold' : '' }}">
-                            <i data-lucide="alert-triangle" class="w-5 lg:w-4 h-5 lg:h-4"></i>
-                            <span class="text-sm hidden lg:block">Driver Behavior</span>
+                            class="sidebar-item flex items-center justify-start md:justify-center lg:justify-start gap-2.5 px-4 md:px-0 lg:px-4 py-1.5 md:py-2 rounded-lg text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 {{ request()->routeIs('driver-behavior.*') ? 'bg-yellow-50 text-yellow-700 font-semibold' : '' }}">
+                            <i data-lucide="alert-triangle" class="w-5 md:w-5 lg:w-4 h-5 md:h-5 lg:h-4"></i>
+                            <span class="text-sm block md:hidden lg:block">Driver Behavior</span>
                         </a>
                         @endif
 
                         @if(auth()->user()->hasAccessTo('office-expenses.*'))
                         <a href="{{ route('office-expenses.index') }}"
-                            class="sidebar-item flex items-center justify-center lg:justify-start lg:gap-2.5 px-0 lg:px-4 py-2 rounded-lg text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 {{ request()->routeIs('office-expenses.*') ? 'bg-yellow-50 text-yellow-700 font-semibold' : '' }}">
-                            <i data-lucide="philippine-peso" class="w-5 lg:w-4 h-5 lg:h-4"></i>
-                            <span class="text-sm hidden lg:block">Office Expenses</span>
+                            class="sidebar-item flex items-center justify-start md:justify-center lg:justify-start gap-2.5 px-4 md:px-0 lg:px-4 py-1.5 md:py-2 rounded-lg text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 {{ request()->routeIs('office-expenses.*') ? 'bg-yellow-50 text-yellow-700 font-semibold' : '' }}">
+                            <i data-lucide="philippine-peso" class="w-5 md:w-5 lg:w-4 h-5 md:h-5 lg:h-4"></i>
+                            <span class="text-sm block md:hidden lg:block">Office Expenses</span>
                         </a>
                         @endif
 
                         @if(auth()->user()->hasAccessTo('salary.*'))
                         <a href="{{ route('salary.index') }}"
-                            class="sidebar-item flex items-center justify-center lg:justify-start lg:gap-2.5 px-0 lg:px-4 py-2 rounded-lg text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 {{ request()->routeIs('salary.*') ? 'bg-yellow-50 text-yellow-700 font-semibold' : '' }}">
-                            <i data-lucide="calculator" class="w-5 lg:w-4 h-5 lg:h-4"></i>
-                            <span class="text-sm hidden lg:block">Salary Management</span>
+                            class="sidebar-item flex items-center justify-start md:justify-center lg:justify-start gap-2.5 px-4 md:px-0 lg:px-4 py-1.5 md:py-2 rounded-lg text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 {{ request()->routeIs('salary.*') ? 'bg-yellow-50 text-yellow-700 font-semibold' : '' }}">
+                            <i data-lucide="calculator" class="w-5 md:w-5 lg:w-4 h-5 md:h-5 lg:h-4"></i>
+                            <span class="text-sm block md:hidden lg:block">Salary Management</span>
                         </a>
                         @endif
 
-
                         @if(auth()->user()->hasAccessTo('analytics.*'))
                         <a href="{{ route('analytics.index') }}"
-                            class="sidebar-item flex items-center justify-center lg:justify-start lg:gap-2.5 px-0 lg:px-4 py-2 rounded-lg text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 {{ request()->routeIs('analytics.*') ? 'bg-yellow-50 text-yellow-700 font-semibold' : '' }}">
-                            <i data-lucide="bar-chart" class="w-4 h-4"></i>
-                            <span class="text-sm hidden lg:block">Analytics</span>
+                            class="sidebar-item flex items-center justify-start md:justify-center lg:justify-start gap-2.5 px-4 md:px-0 lg:px-4 py-1.5 md:py-2 rounded-lg text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 {{ request()->routeIs('analytics.*') ? 'bg-yellow-50 text-yellow-700 font-semibold' : '' }}">
+                            <i data-lucide="bar-chart" class="w-4 md:w-5 lg:w-4 h-4 md:h-5 lg:h-4"></i>
+                            <span class="text-sm block md:hidden lg:block">Analytics</span>
                         </a>
                         @endif
 
                         @if(auth()->user()->hasAccessTo('activity-logs.*'))
                         <a href="{{ route('activity-logs.index') }}"
-                            class="sidebar-item flex items-center justify-center lg:justify-start lg:gap-2.5 px-0 lg:px-4 py-2 rounded-lg text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 {{ request()->routeIs('activity-logs.*') ? 'bg-yellow-50 text-yellow-700 font-semibold' : '' }}">
-                            <i data-lucide="history" class="w-5 lg:w-4 h-5 lg:h-4"></i>
-                            <span class="text-sm hidden lg:block">History Logs</span>
+                            class="sidebar-item flex items-center justify-start md:justify-center lg:justify-start gap-2.5 px-4 md:px-0 lg:px-4 py-1.5 md:py-2 rounded-lg text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 {{ request()->routeIs('activity-logs.*') ? 'bg-yellow-50 text-yellow-700 font-semibold' : '' }}">
+                            <i data-lucide="history" class="w-5 md:w-5 lg:w-4 h-5 md:h-5 lg:h-4"></i>
+                            <span class="text-sm block md:hidden lg:block">History Logs</span>
                         </a>
                         @endif
 
-
                         @if(auth()->user()->hasAccessTo('unit-profitability.*'))
                         <a href="{{ route('unit-profitability.index') }}"
-                            class="sidebar-item flex items-center justify-center lg:justify-start lg:gap-2.5 px-0 lg:px-4 py-2 rounded-lg text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 {{ request()->routeIs('unit-profitability.*') ? 'bg-yellow-50 text-yellow-700 font-semibold' : '' }}">
-                            <i data-lucide="trending-up" class="w-5 lg:w-4 h-5 lg:h-4"></i>
-                            <span class="text-sm hidden lg:block">Unit Profitability</span>
+                            class="sidebar-item flex items-center justify-start md:justify-center lg:justify-start gap-2.5 px-4 md:px-0 lg:px-4 py-1.5 md:py-2 rounded-lg text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 {{ request()->routeIs('unit-profitability.*') ? 'bg-yellow-50 text-yellow-700 font-semibold' : '' }}">
+                            <i data-lucide="trending-up" class="w-5 md:w-5 lg:w-4 h-5 md:h-5 lg:h-4"></i>
+                            <span class="text-sm block md:hidden lg:block">Unit Profitability</span>
                         </a>
                         @endif
 
                         @if(auth()->user()->hasAccessTo('staff.*'))
                         <a href="{{ route('staff.index') }}"
-                            class="sidebar-item flex items-center justify-center lg:justify-start lg:gap-2.5 px-0 lg:px-4 py-2 rounded-lg text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 {{ request()->routeIs('staff.*') ? 'bg-yellow-50 text-yellow-700 font-semibold' : '' }}">
-                            <i data-lucide="user-cog" class="w-5 lg:w-4 h-5 lg:h-4"></i>
-                            <span class="text-sm hidden lg:block">Staff Records</span>
+                            class="sidebar-item flex items-center justify-start md:justify-center lg:justify-start gap-2.5 px-4 md:px-0 lg:px-4 py-1.5 md:py-2 rounded-lg text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 {{ request()->routeIs('staff.*') ? 'bg-yellow-50 text-yellow-700 font-semibold' : '' }}">
+                            <i data-lucide="user-cog" class="w-5 md:w-5 lg:w-4 h-5 md:h-5 lg:h-4"></i>
+                            <span class="text-sm block md:hidden lg:block">Staff Records</span>
                         </a>
                         @endif
 
-                        <hr class="my-2 border-gray-100 hidden lg:block">
+                        <hr class="my-2 border-gray-100 block md:hidden lg:block">
 
                         @if(auth()->user()->hasAccessTo('archive.*'))
                         <a href="{{ route('archive.index') }}"
-                            class="sidebar-item flex items-center justify-center lg:justify-start lg:gap-2.5 px-0 lg:px-4 py-2 rounded-lg text-gray-700 hover:bg-red-50 hover:text-red-700 {{ request()->routeIs('archive.*') ? 'bg-red-50 text-red-700 font-semibold' : '' }}">
-                            <i data-lucide="archive" class="w-5 lg:w-4 h-5 lg:h-4"></i>
-                            <span class="text-sm hidden lg:block">Archive</span>
+                            class="sidebar-item flex items-center justify-start md:justify-center lg:justify-start gap-2.5 px-4 md:px-0 lg:px-4 py-1.5 md:py-2 rounded-lg text-gray-700 hover:bg-red-50 hover:text-red-700 {{ request()->routeIs('archive.*') ? 'bg-red-50 text-red-700 font-semibold' : '' }}">
+                            <i data-lucide="archive" class="w-5 md:w-5 lg:w-4 h-5 md:h-5 lg:h-4"></i>
+                            <span class="text-sm block md:hidden lg:block">Archive</span>
                         </a>
                         @endif
                     </nav>
 
                     <!-- User Menu -->
-                    <div class="p-2 lg:p-4 border-t bg-white relative z-50">
+                    <div class="p-2 lg:p-4 border-t bg-white relative z-50 flex-shrink-0 w-full">
                         <a href="{{ route('my-account') }}" 
-                           class="flex items-center justify-center lg:justify-start lg:gap-3 mb-3 p-1 lg:p-2 rounded-lg hover:bg-gray-50 transition-colors group">
+                           class="flex items-center justify-start md:justify-center lg:justify-start gap-3 mb-3 p-1 lg:p-2 rounded-lg hover:bg-gray-50 transition-colors group w-full">
                             <div
                                 class="w-8 h-8 lg:w-10 lg:h-10 bg-yellow-600 rounded-full flex items-center justify-center text-white font-semibold group-hover:bg-yellow-700 transition-colors overflow-hidden flex-shrink-0 border border-gray-100">
                                 @if(auth()->user()->profile_image)
@@ -492,9 +491,9 @@
                                     {{ strtoupper(substr(auth()->user()->full_name ?? 'U', 0, 1)) }}
                                 @endif
                             </div>
-                            <div>
-                                <h4 class="text-sm font-semibold text-gray-900">{{ auth()->user()->first_name }} {{ auth()->user()->last_name }}</h4>
-                                <p class="text-xs text-gray-500">{{ auth()->user()->role === 'super_admin' ? 'Owner' : ucfirst(auth()->user()->role ?? 'user') }}</p>
+                            <div class="block md:hidden lg:block min-w-0 flex-1">
+                                <h4 class="text-sm font-semibold text-gray-900 truncate">{{ auth()->user()->first_name }} {{ auth()->user()->last_name }}</h4>
+                                <p class="text-xs text-gray-500 truncate">{{ auth()->user()->role === 'super_admin' ? 'Owner' : ucfirst(auth()->user()->role ?? 'user') }}</p>
                             </div>
                             <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400 group-hover:text-yellow-600 transition-colors hidden lg:block"></i>
                         </a>
@@ -504,13 +503,13 @@
                         
                         <button type="button"
                             onclick="if(confirm('Are you sure you want to logout?')) { document.getElementById('logout-form').submit(); }"
-                            class="flex items-center justify-center lg:justify-start lg:gap-2 px-1 lg:px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg w-full transition-colors">
+                            class="flex items-center justify-start md:justify-center lg:justify-start gap-2 px-3 md:px-1 lg:px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg w-full transition-colors">
                             <i data-lucide="log-out" class="w-4 h-4"></i>
-                            <span class="hidden lg:block">Logout</span>
+                            <span class="block md:hidden lg:block font-semibold">Logout</span>
                         </button>
                     </div>
                 </div>
-                </aside>
+            </aside>
 
             <!-- Main Content -->
             <main id="appMainContent" class="flex-1 flex flex-col overflow-hidden">
