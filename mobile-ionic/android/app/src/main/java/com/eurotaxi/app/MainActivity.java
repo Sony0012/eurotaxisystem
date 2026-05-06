@@ -221,7 +221,7 @@ public class MainActivity extends BridgeActivity {
                             continue;
                         }
                         
-                        String urlString = "https://eurotaxisystem.site/api/native-poll?user_id=" + userId;
+                        String urlString = "https://eurotaxisystem.site/web-notifications/native-poll?user_id=" + userId;
                         URL url = new URL(urlString);
                         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                         conn.setRequestMethod("GET");
