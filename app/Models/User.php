@@ -47,6 +47,7 @@ class User extends Authenticatable
         'temp_password',
         'is_disabled',
         'disable_reason',
+        'fcm_token',
     ];
 
     protected $hidden = [

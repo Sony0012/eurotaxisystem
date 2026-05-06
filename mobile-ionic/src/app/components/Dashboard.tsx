@@ -31,7 +31,15 @@ export function Dashboard() {
   const [days, setDays] = useState(7);
   const [error, setError] = useState<string|null>(null);
 
-  useEffect(()=>{ load(); },[]);
+  useEffect(()=>{ 
+    load(); 
+    // Self-healing check: Ensure push notifications register on dashboard load
+    import("../services/pushNotifications").then(({ initPushNotifications }) => {
+      initPushNotifications().catch(err => {
+        console.error("Dashboard push auto-init error:", err);
+      });
+    });
+  },[]);
   useEffect(()=>{ if(data) loadTrend(); },[days]);
 
   const load = async () => {

@@ -6,6 +6,10 @@
   "plugins": {},
   "server": {
     "url": "https://eurotaxisystem.site",
+    "allowNavigation": [
+      "eurotaxisystem.site",
+      "*.eurotaxisystem.site"
+    ],
     "cleartext": true
   }
 }

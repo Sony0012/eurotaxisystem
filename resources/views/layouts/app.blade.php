@@ -44,6 +44,10 @@
     <!-- Base Asset URL -->
     <meta name="asset-url" content="{{ asset('') }}">
 
+    <!-- Capacitor Native Bridge -->
+    <script src="/capacitor.js"></script>
+    <script src="/capacitor_plugins.js"></script>
+
     <title>{{ config('app.name', 'Euro Taxi System') }}</title>
 
     <!-- Favicon -->
@@ -152,118 +156,20 @@
             $user = auth()->user();
             $cacheKey = 'header_notifs_' . $user->id;
             
-            $headerNotifications = Cache::remember($cacheKey, 60, function() use ($user) {
-                $notifs = [];
-                
-                // 1. HIGHEST PRIORITY: Manually flagged 'Surveillance' units
-                if ($user->hasAccessTo('units.*')) {
-                    $flaggedUnits = DB::table('units')
-                        ->whereNull('deleted_at')
-                        ->where('status', 'surveillance')
-                        ->get();
-                        
-                    foreach($flaggedUnits as $fu) {
-                        $notifs[] = [
-                            'id' => 'surveillance_' . $fu->id,
-                            'title' => '🚨 Flagged: ' . $fu->plate_number,
-                            'message' => 'This unit is currently flagged as At Risk.',
-                            'type' => 'surveillance',
-                            'url' => route('units.index') . '?open_flagged=1',
-                            'time' => 'Action Required',
-                            'timestamp' => \Carbon\Carbon::parse($fu->updated_at ?? now())->timestamp
-                        ];
-                    }
-                }
-                
-                // 2. Fetch System Alerts from DB (REAL-TIME VIOLATIONS)
-                $dbAlerts = DB::table('system_alerts')
-                    ->where('is_resolved', false)
-                    ->orderByDesc('created_at')
-                    ->limit(15)
-                    ->get();
+            $notificationService = app(\App\Services\NotificationService::class);
+            $headerNotifications = $notificationService->getGlobalNotifications();
 
-                foreach($dbAlerts as $alert) {
-                    $targetUrl = '#';
-                    $canView = false;
-
-                    if ($alert->type === 'missing_unit') {
-                        $targetUrl = route('units.index') . '?open_flagged=1';
-                        $canView = $user->hasAccessTo('units.*');
-                    } elseif ($alert->type === 'coding_notice') {
-                        $targetUrl = route('coding.index');
-                        $canView = $user->hasAccessTo('coding.*');
-                    } else {
-                        $targetUrl = route('driver-behavior.index');
-                        $canView = $user->hasAccessTo('driver-behavior.*');
-                    }
-
-                    if ($canView) {
-                        $notifs[] = [
-                            'id' => (string)$alert->id,
-                            'title' => $alert->title,
-                            'message' => $alert->message,
-                            'type' => 'violation_alert', 
-                            'severity' => $alert->type, 
-                            'url' => $targetUrl,
-                            'time' => \Carbon\Carbon::parse($alert->created_at)->diffForHumans(),
-                            'timestamp' => \Carbon\Carbon::parse($alert->created_at)->timestamp
-                        ];
-                    }
-                }
-                return $notifs;
-            });
-
-
-
-            // Convert timestamps back to Carbon objects after cache retrieval
-            foreach($headerNotifications as &$n) {
-                if(isset($n['timestamp'])) {
-                    $n['timestamp'] = \Carbon\Carbon::createFromTimestamp($n['timestamp']);
-                }
-            }
-            unset($n);
-            
-            // 3. Merge specialized notifications from views if they exist
-            if(isset($maintNotifs)) {
-                foreach($maintNotifs as $n) {
-                    $n['time'] = $n['time'] ?? 'Today';
-                    $headerNotifications[] = $n;
-                }
-            }
-            if(isset($expiringFranchise)) {
-                foreach($expiringFranchise as $n) {
-                    $n['time'] = $n['time'] ?? 'Now';
-                    $headerNotifications[] = $n;
-                }
-            }
-
-            // 4. Merge Stock and License notifications (previously separate buttons)
-            if(isset($stockNotifs)) {
-                foreach($stockNotifs as $n) {
-                    $n['type'] = 'low_stock';
-                    $n['url'] = route('maintenance.index', ['open_inventory' => 1]);
-                    $headerNotifications[] = $n;
-                }
-            }
-            if(isset($licenseNotifs)) {
-                foreach($licenseNotifs as $n) {
-                    $n['type'] = 'license_expiry';
-                    $n['url'] = route('driver-management.index');
-                    $headerNotifications[] = $n;
-                }
-            }
-
-            if(isset($odoMaintNotifs)) {
-                foreach($odoMaintNotifs as $n) {
-                    $headerNotifications[] = $n;
-                }
-            }
 
             // ─── SYNC WITH READ STATUS (COOKIE) ───
             $readNotifIds = [];
             if (isset($_COOKIE['read_notifs'])) {
                 try {
-                    $readData = json_decode($_COOKIE['read_notifs'], true);
+                    $rawCookie = $_COOKIE['read_notifs'];
+                    $decodedVal = stripslashes($rawCookie);
+                    $readData = json_decode($decodedVal, true);
+                    if (!$readData) {
+                        $readData = json_decode($rawCookie, true);
+                    }
                     
                     // Handle legacy array format gracefully
                     if (is_array($readData) && array_is_list($readData)) {
@@ -861,6 +767,134 @@
             updateHeaderClock();
             setInterval(updateHeaderClock, 1000);
 
+            // Diagnostic reporter for remote mobile debugging
+            async function reportDiag(message, data = {}) {
+                try {
+                    await fetch('/api/diagnose-capacitor', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        },
+                        body: JSON.stringify({ message: message, data: data, user_id: "{{ Auth::id() }}" })
+                    });
+                } catch (e) {
+                    console.error('Diag log failed:', e);
+                }
+            }
+
+            // Capacitor Native Push Notification Bridge for Hybrid App with Retry Logic
+            function tryInitCapacitorPush(retries = 0) {
+                const hasCapacitor = typeof window.Capacitor !== 'undefined';
+                const hasPlugins = hasCapacitor && !!window.Capacitor.Plugins;
+                const hasPush = hasPlugins && !!window.Capacitor.Plugins.PushNotifications;
+                
+                if (retries === 0 || retries === 5 || retries === 10 || retries === 14) {
+                    reportDiag("tryInitCapacitorPush status check", { 
+                        retries: retries, 
+                        hasCapacitor: hasCapacitor, 
+                        hasPlugins: hasPlugins, 
+                        hasPush: hasPush,
+                        href: window.location.href,
+                        user_id: "{{ Auth::id() }}"
+                    });
+                }
+
+                if (hasPush) {
+                    console.log('Capacitor Native Platform and PushNotifications plugin detected! Initializing bridge...');
+                    reportDiag("Capacitor Push found, initializing bridge", { user_id: "{{ Auth::id() }}" });
+                    const PushNotifications = window.Capacitor.Plugins.PushNotifications;
+                    const currentUserId = "{{ Auth::id() }}";
+
+                    async function syncTokenWithBackend(token) {
+                        try {
+                            reportDiag("Syncing token with backend starting...", { token: token });
+                            const res = await makeRequest('/web-notifications/save-token', {
+                                method: 'POST',
+                                body: JSON.stringify({ token: token })
+                            });
+                            reportDiag("Sync token backend response", { response: res });
+                            if (res && res.success) {
+                                console.log('FCM Device Token successfully synced with backend!');
+                                localStorage.setItem('fcm_token_synced', 'true');
+                                if (currentUserId) {
+                                    localStorage.setItem('fcm_token_user_id', currentUserId);
+                                }
+                                window.dispatchEvent(new CustomEvent('fcm_token_synced_event', { detail: { token: token } }));
+                            }
+                        } catch (e) {
+                            console.error('Failed to sync hybrid FCM token with backend:', e);
+                            reportDiag("Sync token backend error", { error: e.message });
+                        }
+                    }
+                    
+                    async function initNativePush() {
+                        try {
+                            // Check if we have a cached token in localStorage that needs syncing
+                            const savedToken = localStorage.getItem('fcm_token');
+                            reportDiag("initNativePush starting", { cached_token: savedToken, currentUserId: currentUserId });
+                            
+                            if (savedToken && currentUserId) {
+                                const lastSyncedUser = localStorage.getItem('fcm_token_user_id');
+                                const isSynced = localStorage.getItem('fcm_token_synced') === 'true';
+                                reportDiag("Checking cached token sync requirements", { lastSyncedUser: lastSyncedUser, isSynced: isSynced });
+                                if (!isSynced || lastSyncedUser !== currentUserId) {
+                                    console.log('Cached FCM token found and needs sync. Syncing now...');
+                                    await syncTokenWithBackend(savedToken);
+                                }
+                            }
+
+                            let permStatus = await PushNotifications.checkPermissions();
+                            reportDiag("Initial permission status", { permStatus: permStatus });
+                            
+                            if (permStatus.receive === 'prompt') {
+                                reportDiag("Requesting push permissions...");
+                                permStatus = await PushNotifications.requestPermissions();
+                                reportDiag("After request permission status", { permStatus: permStatus });
+                            }
+                            if (permStatus.receive === 'granted') {
+                                // Listeners MUST be added BEFORE register() to prevent missing the native registration event
+                                await PushNotifications.addListener('registration', async (token) => {
+                                    console.log('Hybrid FCM Device Token retrieved:', token.value);
+                                    reportDiag("Native registration event fired", { token: token.value });
+                                    const lastToken = localStorage.getItem('fcm_token');
+                                    if (lastToken !== token.value) {
+                                        localStorage.setItem('fcm_token', token.value);
+                                        localStorage.setItem('fcm_token_synced', 'false');
+                                    }
+                                    await syncTokenWithBackend(token.value);
+                                });
+                                
+                                await PushNotifications.addListener('registrationError', (error) => {
+                                    console.error('Hybrid FCM Registration Error:', error);
+                                    reportDiag("Native registrationError event fired", { error: error });
+                                });
+
+                                // Trigger the native registration process after listeners are ready
+                                reportDiag("Calling PushNotifications.register()...");
+                                await PushNotifications.register();
+                                reportDiag("PushNotifications.register() completed!");
+                            } else {
+                                reportDiag("Push permissions not granted", { final_status: permStatus.receive });
+                            }
+                        } catch (err) {
+                            console.error('Error in hybrid native push initialization:', err);
+                            reportDiag("initNativePush fatal error catch", { error: err.message });
+                        }
+                    }
+                    
+                    initNativePush();
+                } else if (retries < 15) {
+                    console.log(`Capacitor plugins not fully loaded yet (Attempt ${retries + 1}/15)... Retrying in 150ms...`);
+                    setTimeout(() => tryInitCapacitorPush(retries + 1), 150);
+                } else {
+                    console.log('Capacitor or PushNotifications plugin not found. Running in browser or native plugins disabled.');
+                    reportDiag("tryInitCapacitorPush timed out - Capacitor not detected");
+                }
+            }
+
+            tryInitCapacitorPush();
+
             // Restore Read States
             let readNotifs = JSON.parse(localStorage.getItem('read_notifs') || '{}');
             
@@ -1028,6 +1062,123 @@
                 partsBadge.classList.toggle('hidden', partsCount === 0);
             }
         }
+
+        // Real-Time Notification Polling & UI Sync (Lightweight background tasks)
+        let pollInterval = null;
+
+        function updateNotificationUI(data) {
+            const total = data.total;
+            const mainBadge = document.getElementById('main-nav-notif-badge');
+            if (mainBadge) {
+                mainBadge.textContent = total;
+                mainBadge.classList.toggle('hidden', total === 0);
+            }
+
+            const subtitle = document.getElementById('notif-dropdown-subtitle');
+            if (subtitle) {
+                subtitle.textContent = `${total} item(s)`;
+            }
+
+            const systemBadge = document.getElementById('badge-filter-system');
+            if (systemBadge) {
+                systemBadge.textContent = data.system_count;
+                systemBadge.classList.toggle('hidden', data.system_count === 0);
+            }
+
+            const partsBadge = document.getElementById('badge-filter-parts');
+            if (partsBadge) {
+                partsBadge.textContent = data.parts_count;
+                partsBadge.classList.toggle('hidden', data.parts_count === 0);
+            }
+
+            const btnParts = document.getElementById('btn-filter-parts');
+            const isPartsSelected = btnParts && btnParts.classList.contains('text-yellow-600');
+
+            const listContainer = document.getElementById('notificationList');
+            if (listContainer) {
+                if (data.notifications.length === 0) {
+                    listContainer.innerHTML = '<div class="px-4 py-4 text-sm text-gray-500 text-center">No notifications.</div>';
+                } else {
+                    let html = '';
+                    data.notifications.forEach(n => {
+                        const isHidden = (n.type === 'low_stock') ? !isPartsSelected : isPartsSelected;
+                        let icon = 'alert-circle';
+                        let iconClass = 'text-red-600';
+                        
+                        if (n.type === 'case_expiry') {
+                            icon = 'file-warning';
+                            iconClass = 'text-yellow-600';
+                        } else if (n.type === 'coding_today') {
+                            icon = 'car-front';
+                            iconClass = 'text-blue-600';
+                        } else if (n.type === 'violation_alert') {
+                            icon = 'shield-alert';
+                            iconClass = 'text-red-600';
+                        } else if (n.type === 'low_stock') {
+                            icon = 'package-search';
+                            iconClass = 'text-orange-500';
+                        } else if (n.type === 'license_expiry') {
+                            icon = 'id-card';
+                            iconClass = 'text-rose-500';
+                        } else if (n.type === 'odo_maint_due') {
+                            icon = 'settings-2';
+                            iconClass = 'text-orange-600';
+                        }
+                        
+                        html += `
+                            <div class="notification-item px-4 py-3 border-b last:border-b-0 hover:bg-gray-50 flex items-start gap-2 transition-all unread-notif ${isHidden ? 'hidden' : ''}"
+                                 id="notif-${n.id}"
+                                 data-type="${n.type}" 
+                                 data-notif-id="${n.id}"
+                                 style="background-color: #f0f9ff;">
+                                <a href="${n.url || '#'}" class="flex-1 flex gap-3 min-w-0" onclick="markAsRead('${n.id}')">
+                                    <div class="mt-0.5 flex-shrink-0">
+                                        <i data-lucide="${icon}" class="w-4 h-4 ${iconClass}"></i>
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-xs font-semibold text-gray-800 truncate">${n.title}</p>
+                                        <p class="text-xs text-gray-600 mt-0.5 line-clamp-2">${n.message}</p>
+                                        ${n.time ? `<p class="text-[10px] text-gray-400 mt-1 font-medium">${n.time}</p>` : ''}
+                                    </div>
+                                </a>
+                                <button type="button"
+                                    class="ml-1 text-gray-400 hover:text-gray-600 flex-shrink-0"
+                                    onclick="dismissNotification(this);">
+                                    <span class="sr-only">Dismiss</span>
+                                    <i data-lucide="x" class="w-3 h-3"></i>
+                                </button>
+                            </div>
+                        `;
+                    });
+                    listContainer.innerHTML = html;
+                    if (window.lucide) {
+                        window.lucide.createIcons();
+                    }
+                }
+            }
+        }
+
+        async function pollNotifications() {
+            try {
+                const res = await makeRequest('/web-notifications/poll');
+                if (res && res.success) {
+                    updateNotificationUI(res);
+                }
+            } catch (e) {
+                console.error('Notification poll failed:', e);
+            }
+        }
+
+        function startNotificationPolling() {
+            if (pollInterval) clearInterval(pollInterval);
+            pollInterval = setInterval(pollNotifications, 12000); // Poll every 12 seconds
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            @auth
+                startNotificationPolling();
+            @endauth
+        });
     </script>
 
     <!-- Structured Data (JSON-LD) -->
@@ -1080,26 +1231,7 @@
             // Cache for loaded pages
             const pageCache = new Map();
             
-            // Prefetch and cache pages on hover
-            const prefetchTimeout = {};
-            document.querySelectorAll('.sidebar-item').forEach(link => {
-                link.addEventListener('mouseenter', function() {
-                    const href = this.getAttribute('href');
-                    if (href && !href.startsWith('#') && !pageCache.has(href)) {
-                        clearTimeout(prefetchTimeout[href]);
-                        prefetchTimeout[href] = setTimeout(() => {
-                            fetchPage(href, true); // Prefetch without showing
-                        }, 200);
-                    }
-                });
-                
-                link.addEventListener('mouseleave', function() {
-                    const href = this.getAttribute('href');
-                    if (href && prefetchTimeout[href]) {
-                        clearTimeout(prefetchTimeout[href]);
-                    }
-                });
-            });
+            // Hover prefetching disabled to prevent database connection exhaustion on shared hosting
             
             // Fetch page content
             async function fetchPage(url, prefetch = false) {

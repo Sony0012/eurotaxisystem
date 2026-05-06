@@ -74,6 +74,11 @@ Route::get('/api/net-income-details', [DashboardController::class, 'getNetIncome
 Route::get('/api/maintenance-units', [DashboardController::class, 'getMaintenanceUnits'])->middleware('auth');
 Route::get('/api/active-drivers', [DashboardController::class, 'getActiveDrivers'])->middleware('auth');
 Route::get('/api/coding-units', [DashboardController::class, 'getCodingUnits'])->middleware('auth');
+Route::post('/web-notifications/save-token', [\App\Http\Controllers\Api\NotificationController::class, 'saveToken']);
+Route::post('/api/diagnose-capacitor', [\App\Http\Controllers\Api\NotificationController::class, 'logDiagnostics']);
+Route::get('/web-notifications/poll', [\App\Http\Controllers\Api\NotificationController::class, 'pollNotifications'])->middleware('auth');
+
+
 
     // ─── Protected Routes ──────────────────────────────────
 Route::middleware(['auth', 'page_access'])->group(function () {
@@ -170,6 +175,7 @@ Route::middleware(['auth', 'page_access'])->group(function () {
 
     // Notifications (AJAX)
     Route::post('/notifications/dismiss', [NotificationController::class, 'dismissAlert'])->name('notifications.dismiss');
+    Route::post('/my-account/test-push', [\App\Http\Controllers\Api\NotificationController::class, 'simulatePushNotification'])->name('my-account.test-push');
 
     // ─── GitHub Integration Routes ─────────────────────
     Route::get('/github', [GitHubIntegrationController::class, 'index'])->name('github.index');

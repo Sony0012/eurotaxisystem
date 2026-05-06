@@ -101,5 +101,14 @@ class Unit extends Model
                 }
             }
         });
+
+        $clearCache = function () {
+            \Illuminate\Support\Facades\Cache::forget('web_dashboard_stats');
+            \Illuminate\Support\Facades\Cache::forget('api_dashboard_stats_7');
+            \Illuminate\Support\Facades\Cache::forget('api_dashboard_stats_30');
+        };
+
+        static::saved($clearCache);
+        static::deleted($clearCache);
     }
 }

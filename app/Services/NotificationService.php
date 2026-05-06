@@ -18,82 +18,135 @@ class NotificationService
         $today = $now->toDateString();
 
         try {
-            // 1. Flagged "At Risk" (Highest Priority)
+            // ─── 1. RUN AUTOMATED SCANNERS & SYNC TO system_alerts ───
+
+            // A. Flagged "At Risk" (Highest Priority)
             $flagged = DB::table('units')->whereNull('deleted_at')->where('status', 'at_risk')->get();
             foreach($flagged as $f) {
-                $headerNotifications[] = [
-                    'id' => 'at_risk_' . $f->id, 'type' => 'at_risk', 'title' => '🚨 Flagged: ' . $f->plate_number,
-                    'message' => 'This unit is currently flagged as At Risk.', 'url' => route('units.index') . '?open_flagged=1',
-                    'time' => 'Action Required', 'timestamp' => Carbon::parse($f->updated_at ?? $now)
-                ];
+                $type = 'at_risk';
+                $title = '🚨 Flagged: ' . $f->plate_number;
+                $message = 'This unit is currently flagged as At Risk.';
+                
+                $exists = DB::table('system_alerts')
+                    ->where('type', $type)
+                    ->where('title', $title)
+                    ->where('is_resolved', false)
+                    ->exists();
+                if (!$exists) {
+                    DB::table('system_alerts')->insert([
+                        'type' => $type,
+                        'title' => $title,
+                        'message' => $message,
+                        'is_resolved' => false,
+                        'created_at' => now(),
+                        'updated_at' => now()
+                    ]);
+                }
             }
 
-            // 2. System Alerts (Violations, Coding, Missing)
-            $dbAlerts = DB::table('system_alerts')
-                ->where('is_resolved', false)->orderByDesc('created_at')->limit(30)->get();
-            foreach($dbAlerts as $a) {
-                $headerNotifications[] = [
-                    'id' => $a->id, 'type' => 'violation_alert', 'title' => $a->title, 'message' => $a->message,
-                    'url' => ($a->type === 'missing_unit' || $a->type === 'coding_notice') ? route('units.index') . '?open_flagged=1' : route('driver-behavior.index'),
-                    'time' => Carbon::parse($a->created_at)->diffForHumans(), 'timestamp' => Carbon::parse($a->created_at)
-                ];
+            // Auto-resolve at_risk alerts if status is no longer at_risk
+            $activeAtRiskAlerts = DB::table('system_alerts')->where('type', 'at_risk')->where('is_resolved', false)->get();
+            foreach ($activeAtRiskAlerts as $ara) {
+                $plateStr = str_replace("🚨 Flagged: ", "", $ara->title);
+                $u = DB::table('units')->where('plate_number', $plateStr)->whereNull('deleted_at')->first();
+                if (!$u || $u->status !== 'at_risk') {
+                    DB::table('system_alerts')->where('id', $ara->id)->update(['is_resolved' => true, 'updated_at' => now()]);
+                }
             }
 
-            // 3. Franchise Renewals
+            // B. Franchise Case Renewals / Expirations
             $cases = DB::table('franchise_cases')->whereNull('deleted_at')->whereNotNull('expiry_date')->get();
             foreach ($cases as $c) {
                 $expDt = Carbon::parse($c->expiry_date);
                 if ($expDt->isPast() || $expDt->isBetween($now, $now->copy()->addYear())) {
                     $isExpired = $expDt->isPast();
-                    $headerNotifications[] = [
-                        'type' => 'case_expiry', 'title' => $isExpired ? 'Expired Franchise' : 'Franchise Renewal',
-                        'message' => 'Case ' . $c->case_no . ' (' . $c->applicant_name . ') ' . ($isExpired ? 'expired on ' : 'expires on ') . $expDt->format('M d, Y'),
-                        'url' => route('decision-management.index'), 'time' => $isExpired ? 'NOW' : 'Upcoming', 'timestamp' => $expDt
-                    ];
+                    $type = 'case_expiry';
+                    $title = $isExpired ? 'Expired Franchise' : 'Franchise Renewal';
+                    $msg = 'Case ' . $c->case_no . ' (' . $c->applicant_name . ') ' . ($isExpired ? 'expired on ' : 'expires on ') . $expDt->format('M d, Y');
+                    
+                    $exists = DB::table('system_alerts')
+                        ->where('type', $type)
+                        ->where('title', $title)
+                        ->where('message', $msg)
+                        ->where('is_resolved', false)
+                        ->exists();
+                    if (!$exists) {
+                        DB::table('system_alerts')->insert([
+                            'type' => $type,
+                            'title' => $title,
+                            'message' => $msg,
+                            'is_resolved' => false,
+                            'created_at' => now(),
+                            'updated_at' => now()
+                        ]);
+                    }
                 }
             }
 
-            // 4. Maintenance Today
+            // C. Maintenance Today Scheduled Alert
             $todayMaint = DB::table('maintenance')
                 ->join('units', 'maintenance.unit_id', '=', 'units.id')->whereNull('maintenance.deleted_at')
                 ->where('maintenance.date_started', $today)->where('maintenance.status', '!=', 'completed')
                 ->select('maintenance.id', 'units.plate_number', 'maintenance.maintenance_type')->get();
             foreach($todayMaint as $tm) {
-                $headerNotifications[] = [
-                    'type' => 'maintenance_today', 'title' => 'Maintenance Today', 'message' => "Unit {$tm->plate_number} schedule: " . ucfirst($tm->maintenance_type),
-                    'url' => route('maintenance.index', ['search' => $tm->plate_number]), 'time' => 'Today', 'timestamp' => $now
-                ];
+                $type = 'maintenance_today';
+                $title = 'Maintenance Today';
+                $msg = "Unit {$tm->plate_number} schedule: " . ucfirst($tm->maintenance_type);
+                
+                $exists = DB::table('system_alerts')
+                    ->where('type', $type)
+                    ->where('title', $title)
+                    ->where('message', $msg)
+                    ->where('is_resolved', false)
+                    ->exists();
+                if (!$exists) {
+                    DB::table('system_alerts')->insert([
+                        'type' => $type,
+                        'title' => $title,
+                        'message' => $msg,
+                        'is_resolved' => false,
+                        'created_at' => now(),
+                        'updated_at' => now()
+                    ]);
+                }
             }
 
-            // 5. Low Stock Spare Parts
-            $lowStock = DB::table('spare_parts')->where('stock_quantity', '<=', 5)->limit(5)->get();
+            // D. Low Stock Spare Parts (<= 5 items)
+            $lowStock = DB::table('spare_parts')->where('stock_quantity', '<=', 5)->get();
             foreach ($lowStock as $p) {
                 $qty = (int)$p->stock_quantity;
-                $headerNotifications[] = [
-                    'type' => 'low_stock', 'title' => ($qty === 0 ? '⚠ OUT OF STOCK: ' : '⚠ Low Stock: ') . $p->name,
-                    'message' => "Stock: {$qty} items. Source: " . ($p->supplier ?? 'Unspecified'), 'url' => route('maintenance.index', ['open_inventory' => 1]),
-                    'time' => $qty === 0 ? 'REORDER NOW' : 'Critical', 'timestamp' => Carbon::parse($p->updated_at ?? $now)
-                ];
-            }
-
-            // 6. Recent Driver Behavior Incidents (Excluding coding duplicates)
-            $recentIncidents = DB::table('driver_behavior as db')
-                ->join('drivers as d', 'db.driver_id', '=', 'd.id')
+                $type = 'low_stock';
+                $title = ($qty === 0 ? '⚠ OUT OF STOCK: ' : '⚠ Low Stock: ') . $p->name;
+                $msg = "Stock: {$qty} items. Source: " . ($p->supplier ?? 'Unspecified');
                 
-                ->where('db.created_at', '>=', $now->copy()->subDays(3))
-                ->select('db.*', DB::raw("CONCAT(d.first_name, ' ', d.last_name) as driver_name"))
-                ->orderByDesc('db.created_at')
-                ->limit(10)
-                ->get();
-            foreach ($recentIncidents as $ri) {
-                $headerNotifications[] = [
-                    'type' => 'driver_incident', 'title' => 'Driver Incident: ' . ($ri->incident_type ?: 'Warning'),
-                    'message' => "{$ri->driver_name}: {$ri->description}", 'url' => route('driver-behavior.index'),
-                    'time' => Carbon::parse($ri->created_at)->diffForHumans(), 'timestamp' => Carbon::parse($ri->created_at)
-                ];
+                $exists = DB::table('system_alerts')
+                    ->where('type', $type)
+                    ->where('title', $title)
+                    ->where('is_resolved', false)
+                    ->exists();
+                if (!$exists) {
+                    DB::table('system_alerts')->insert([
+                        'type' => $type,
+                        'title' => $title,
+                        'message' => $msg,
+                        'is_resolved' => false,
+                        'created_at' => now(),
+                        'updated_at' => now()
+                    ]);
+                }
             }
 
-            // 7. Driver License Expiry
+            // Auto-resolve low stock alerts if stock has been replenished
+            $activeLowStock = DB::table('system_alerts')->where('type', 'low_stock')->where('is_resolved', false)->get();
+            foreach ($activeLowStock as $als) {
+                $partName = str_replace(['⚠ OUT OF STOCK: ', '⚠ Low Stock: '], '', $als->title);
+                $p = DB::table('spare_parts')->where('name', $partName)->first();
+                if (!$p || $p->stock_quantity > 5) {
+                    DB::table('system_alerts')->where('id', $als->id)->update(['is_resolved' => true, 'updated_at' => now()]);
+                }
+            }
+
+            // E. Driver License Expiry Alert (<= 30 days remaining)
             $expiringDrivers = DB::table('drivers')
                 ->whereNull('deleted_at')
                 ->where('license_expiry', '<=', $now->copy()->addDays(30)->toDateString())
@@ -102,25 +155,119 @@ class NotificationService
                 $expDt = Carbon::parse($ed->license_expiry);
                 $isExpired = $expDt->isPast();
                 $driverName = trim(($ed->first_name ?? '') . ' ' . ($ed->last_name ?? ''));
+                $type = 'license_expiry';
+                $title = $isExpired ? '🚫 Expired License: ' . $driverName : '⚠️ License Renewal: ' . $driverName;
+                $msg = "{$driverName}'s license " . ($isExpired ? 'expired on ' : 'expires on ') . $expDt->format('M d, Y') . ". Please update the record.";
+                
+                $exists = DB::table('system_alerts')
+                    ->where('type', $type)
+                    ->where('title', $title)
+                    ->where('is_resolved', false)
+                    ->exists();
+                if (!$exists) {
+                    DB::table('system_alerts')->insert([
+                        'type' => $type,
+                        'title' => $title,
+                        'message' => $msg,
+                        'is_resolved' => false,
+                        'created_at' => now(),
+                        'updated_at' => now()
+                    ]);
+                }
+            }
+
+            // Auto-resolve driver license alerts upon record update
+            $activeLicenseAlerts = DB::table('system_alerts')->where('type', 'license_expiry')->where('is_resolved', false)->get();
+            foreach ($activeLicenseAlerts as $ala) {
+                $driverName = str_replace(['🚫 Expired License: ', '⚠️ License Renewal: '], '', $ala->title);
+                $d = DB::table('drivers')
+                    ->whereNull('deleted_at')
+                    ->whereRaw("CONCAT(first_name, ' ', last_name) = ?", [$driverName])
+                    ->first();
+                if (!$d || Carbon::parse($d->license_expiry)->isAfter($now->copy()->addDays(30))) {
+                    DB::table('system_alerts')->where('id', $ala->id)->update(['is_resolved' => true, 'updated_at' => now()]);
+                }
+            }
+
+            // F. Odometer-based Maintenance Due (>= 5000 KM)
+            $dueUnits = DB::table('units')
+                ->whereNull('deleted_at')
+                ->whereRaw('(current_gps_odo - last_service_odo_gps) >= 5000')
+                ->where('status', '!=', 'maintenance')
+                ->get();
+            foreach ($dueUnits as $du) {
+                $km_since = (float)($du->current_gps_odo - $du->last_service_odo_gps);
+                $type = 'odo_maint_due';
+                $title = '🔧 Service Due: ' . $du->plate_number;
+                $msg = "Unit {$du->plate_number} has reached " . number_format($km_since, 0) . " KM since last service. Maintenance is now REQUIRED.";
+                
+                $exists = DB::table('system_alerts')
+                    ->where('type', $type)
+                    ->where('title', $title)
+                    ->where('is_resolved', false)
+                    ->exists();
+                if (!$exists) {
+                    DB::table('system_alerts')->insert([
+                        'type' => $type,
+                        'title' => $title,
+                        'message' => $msg,
+                        'is_resolved' => false,
+                        'created_at' => now(),
+                        'updated_at' => now()
+                    ]);
+                }
+            }
+
+            // Auto-resolve odometer-based alerts
+            $activeOdoAlerts = DB::table('system_alerts')->where('type', 'odo_maint_due')->where('is_resolved', false)->get();
+            foreach ($activeOdoAlerts as $aoa) {
+                $plateStr = str_replace('🔧 Service Due: ', '', $aoa->title);
+                $u = DB::table('units')->where('plate_number', $plateStr)->whereNull('deleted_at')->first();
+                if (!$u || ($u->current_gps_odo - $u->last_service_odo_gps) < 5000 || $u->status === 'maintenance') {
+                    DB::table('system_alerts')->where('id', $aoa->id)->update(['is_resolved' => true, 'updated_at' => now()]);
+                }
+            }
+
+
+            // ─── 2. RETRIEVE ALL ACTIVE PERSISTED ALERTS FROM DB ───
+            // Fetch everything directly from system_alerts which has 100% parity with pushes!
+            $dbAlerts = DB::table('system_alerts')
+                ->where('is_resolved', false)
+                ->orderByDesc('created_at')
+                ->limit(40)
+                ->get();
+            
+            foreach ($dbAlerts as $a) {
+                $url = '#';
+                if ($a->type === 'missing_unit' || $a->type === 'coding_notice' || $a->type === 'at_risk' || $a->type === 'odo_maint_due') {
+                    $url = route('units.index') . '?open_flagged=1';
+                } elseif ($a->type === 'case_expiry') {
+                    $url = route('decision-management.index');
+                } elseif ($a->type === 'maintenance_today') {
+                    $url = route('maintenance.index');
+                } elseif ($a->type === 'low_stock') {
+                    $url = route('maintenance.index', ['open_inventory' => 1]);
+                } elseif ($a->type === 'license_expiry') {
+                    $url = route('driver-management.index');
+                } else {
+                    $url = route('driver-behavior.index');
+                }
+
                 $headerNotifications[] = [
-                    'id' => 'lic_exp_' . $ed->id,
-                    'type' => 'license_expiry',
-                    'title' => $isExpired ? '🚫 Expired License: ' . $driverName : '⚠️ License Renewal: ' . $driverName,
-                    'message' => "{$driverName}'s license " . ($isExpired ? 'expired on ' : 'expires on ') . $expDt->format('M d, Y') . ". Please update the record.",
-                    'url' => route('driver-management.index') . '?edit_driver=' . $ed->id,
-                    'time' => $isExpired ? 'ACTION REQUIRED' : 'Upcoming',
-                    'timestamp' => $expDt
+                    'id' => $a->id,
+                    'type' => $a->type,
+                    'title' => $a->title,
+                    'message' => $a->message,
+                    'url' => $url,
+                    'time' => Carbon::parse($a->created_at)->diffForHumans(),
+                    'timestamp' => Carbon::parse($a->created_at)
                 ];
             }
 
-            // --- SORTING ---
+            // --- SORTING BY TIMELINE ---
             usort($headerNotifications, function($a, $b) {
-                $prioA = (isset($a['time']) && in_array(strtoupper($a['time']), ['ACTION REQUIRED', 'REORDER NOW', 'NOW', 'CRITICAL'])) ? 1 : 0;
-                $prioB = (isset($b['time']) && in_array(strtoupper($b['time']), ['ACTION REQUIRED', 'REORDER NOW', 'NOW', 'CRITICAL'])) ? 1 : 0;
-                if ($prioA !== $prioB) return $prioB - $prioA;
-                
-                $timeA = isset($a['timestamp']) ? (is_object($a['timestamp']) ? $a['timestamp']->timestamp : strtotime($a['timestamp'])) : 0;
-                $timeB = isset($b['timestamp']) ? (is_object($b['timestamp']) ? $b['timestamp']->timestamp : strtotime($b['timestamp'])) : 0;
+                $timeA = isset($a['timestamp']) ? $a['timestamp']->timestamp : 0;
+                $timeB = isset($b['timestamp']) ? $b['timestamp']->timestamp : 0;
                 return $timeB - $timeA;
             });
 

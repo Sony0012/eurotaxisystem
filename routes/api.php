@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\UnitController;
 use App\Http\Controllers\Api\DriverController;
 use App\Http\Controllers\Api\AdditionalModulesController;
+use App\Http\Controllers\Api\NotificationController;
 
 
 /*
@@ -37,6 +38,13 @@ Route::middleware('auth:sanctum')->group(function () {
     
     // Core Resources
     Route::get('/dashboard', [DashboardController::class, 'index']);
+    
+    // Unified Mobile Notifications & Push Simulations
+    Route::get('/notifications', [NotificationController::class, 'index']);
+    Route::post('/notifications/dismiss', [NotificationController::class, 'dismiss']);
+    Route::post('/notifications/simulate-push', [NotificationController::class, 'simulatePushNotification']);
+    Route::post('/notifications/save-token', [NotificationController::class, 'saveToken']);
+
     Route::get('/units', [UnitController::class, 'index']);
     Route::post('/units', [UnitController::class, 'store']);
     Route::get('/units/{id}', [UnitController::class, 'show']);

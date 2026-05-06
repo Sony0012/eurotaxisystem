@@ -96,20 +96,32 @@ function updateNotificationCount() {
 }
 
 function dismissNotification(button) {
-    if (event) event.stopPropagation();
+    if (typeof event !== 'undefined') event.stopPropagation();
     const item = button.closest('.notification-item');
     if (!item) return;
     const type = item.getAttribute('data-type');
-    const id = item.getAttribute('data-id');
+    const id = item.getAttribute('data-notif-id') || item.getAttribute('data-id');
+
+    // Add to read_notifs local storage & cookie so it doesn't show up in badge count or during polls
+    if (id) {
+        let readNotifs = JSON.parse(localStorage.getItem('read_notifs') || '{}');
+        if (Array.isArray(readNotifs)) readNotifs = {};
+        readNotifs[String(id)] = Date.now();
+        localStorage.setItem('read_notifs', JSON.stringify(readNotifs));
+        document.cookie = "read_notifs=" + encodeURIComponent(JSON.stringify(readNotifs)) + "; path=/; max-age=" + (30 * 24 * 60 * 60);
+    }
 
     // Animate out
     item.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
     item.style.opacity = '0';
     item.style.transform = 'translateX(10px)';
-    setTimeout(() => { item.remove(); updateNotificationCount(); }, 200);
+    setTimeout(() => { 
+        item.remove(); 
+        updateNotificationCount(); 
+    }, 200);
 
-    // Call backend for DB-backed alerts (violation_alert, surveillance)
-    if ((type === 'violation_alert' || type === 'surveillance') && id) {
+    // Call backend for DB-backed alerts if id is numeric
+    if (id && !isNaN(id)) {
         fetch('/notifications/dismiss', {
             method: 'POST',
             headers: {
@@ -118,7 +130,7 @@ function dismissNotification(button) {
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
             },
             body: 'id=' + encodeURIComponent(id)
-        }).catch(err => console.error('Failed to dismiss:', err));
+        }).catch(err => console.error('Failed to dismiss alert:', err));
     }
 }
 

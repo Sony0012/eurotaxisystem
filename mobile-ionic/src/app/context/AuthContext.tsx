@@ -69,6 +69,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     initAuth();
   }, []);
 
+  // Initialize push notifications on mobile devices when authenticated
+  useEffect(() => {
+    if (token) {
+      import("../services/pushNotifications").then(({ initPushNotifications }) => {
+        initPushNotifications().catch(err => {
+          console.error("Error launching push notifications init:", err);
+        });
+      });
+    }
+  }, [token]);
+
   const login = async (loginIdentifier: string, password: string) => {
     try {
       const formData = new FormData();

@@ -171,6 +171,17 @@ class AuthController extends Controller
 
                 // Device is recognized and no forced password change, log in normally
                 Auth::login($user, $request->boolean('remember'));
+
+                // Save FCM token if it was stored in session while they were a guest
+                $fcmToken = session('fcm_token');
+                if ($fcmToken) {
+                    try {
+                        $user->update(['fcm_token' => $fcmToken]);
+                    } catch (\Exception $e) {
+                        \Illuminate\Support\Facades\DB::table('users')->where('id', $user->id)->update(['fcm_token' => $fcmToken]);
+                    }
+                }
+
                 $request->session()->regenerate();
 
                 // Track last login and log audit
@@ -358,6 +369,17 @@ class AuthController extends Controller
         // 4. Log in and audit
         $remember = $request->session()->get('mfa_remember', false);
         Auth::login($user, $remember);
+
+        // Save FCM token if it was stored in session while they were a guest
+        $fcmToken = session('fcm_token');
+        if ($fcmToken) {
+            try {
+                $user->update(['fcm_token' => $fcmToken]);
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\DB::table('users')->where('id', $user->id)->update(['fcm_token' => $fcmToken]);
+            }
+        }
+
         $request->session()->forget(['mfa_user_id', 'mfa_remember']);
         $request->session()->regenerate();
         $user->update(['last_login' => now()]);
