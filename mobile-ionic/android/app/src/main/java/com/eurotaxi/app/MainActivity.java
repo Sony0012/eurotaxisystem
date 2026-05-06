@@ -320,13 +320,21 @@ public class MainActivity extends BridgeActivity {
     }
 
     private void showNativeSystemNotification(String title, String message) {
-        Log.d(TAG, "Posting Native Tray Notification: " + title);
+        Log.d(TAG, "Posting Native Tray Notification with FullScreenIntent: " + title);
         
         Intent intent = new Intent(this, MainActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(
             this, 0, intent, 
             PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_IMMUTABLE
+        );
+        
+        // Setup Full Screen Intent (Incoming Call / Alarm Clock behavior to override ColorOS visual blocks!)
+        Intent fullScreenIntent = new Intent(this, MainActivity.class);
+        fullScreenIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        PendingIntent fullScreenPendingIntent = PendingIntent.getActivity(
+            this, 1, fullScreenIntent, 
+            PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
         );
         
         // Dynamically fetch the local ic_launcher mipmap resource which is required by Android to render the banner visibly!
@@ -341,12 +349,28 @@ public class MainActivity extends BridgeActivity {
             .setAutoCancel(true)
             .setSound(defaultSoundUri)
             .setPriority(NotificationCompat.PRIORITY_MAX)
+            .setCategory(NotificationCompat.CATEGORY_CALL) // Set call category to force heads-up popup outside of the app!
+            .setFullScreenIntent(fullScreenPendingIntent, true) // Force immediate visual popup banner!
             .setDefaults(NotificationCompat.DEFAULT_ALL) // Force Sound, Vibration, and Lights!
             .setContentIntent(pendingIntent);
             
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         if (notificationManager != null) {
             notificationManager.notify((int) System.currentTimeMillis(), notificationBuilder.build());
+        }
+
+        // Force an explicit, deep vibration buzz to guarantee physical feedback!
+        try {
+            android.os.Vibrator vibrator = (android.os.Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+            if (vibrator != null && vibrator.hasVibrator()) {
+                if (android.os.Build.VERSION.SDK_INT >= 26) {
+                    vibrator.vibrate(android.os.VibrationEffect.createOneShot(1000, android.os.VibrationEffect.DEFAULT_AMPLITUDE));
+                } else {
+                    vibrator.vibrate(1000);
+                }
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Vibrator trigger failed: " + e.getMessage());
         }
 
         // Trigger a native overlay Toast to guarantee visual text delivery outside the app on ColorOS!
