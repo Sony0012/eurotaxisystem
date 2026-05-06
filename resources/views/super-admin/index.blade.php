@@ -1260,7 +1260,9 @@
 
 
 <script>
-const CSRF = document.querySelector('meta[name="csrf-token"]').content;
+// Use var to allow re-declaration during AJAX navigation
+var csrfMeta = document.querySelector('meta[name="csrf-token"]');
+var CSRF = csrfMeta ? csrfMeta.content : '';
 
 // ─── User Details Modal ────────────────────────────────────────────────────────
 async function openUserDetailsModal(id) {
@@ -1592,7 +1594,7 @@ function filterUserTable(val) {
 }
 
 // ─── Page Access ──────────────────────────────────────────────────────────────
-let currentAccessUserId = null;
+var currentAccessUserId = null;
 
 function selectAccessUser(el) {
     document.querySelectorAll('.access-user-item').forEach(i => {
@@ -1657,7 +1659,7 @@ async function savePageAccess() {
 }
 
 // ─── Audit Log Pagination ─────────────────────────────────────────────────────
-let auditTimer;
+var auditTimer;
 function debouncedAuditLog() {
     clearTimeout(auditTimer);
     auditTimer = setTimeout(() => loadAuditLog(1), 300);
@@ -1957,7 +1959,7 @@ async function submitClassification(e) {
   }
 
   // ─── Archive Security Logic ───────────────────────────────────────────────────
-  let archiveSecurityCallback = null;
+  var archiveSecurityCallback = null;
 
   function promptArchivePassword(callback) {
       archiveSecurityCallback = callback;
@@ -2134,15 +2136,26 @@ document.getElementById('manageRolesModal').addEventListener('click', function(e
 });
 
 
-// Init icons on load
-document.addEventListener('DOMContentLoaded', () => {
+// Init icons and logic on load or AJAX load
+function initSuperAdmin() {
     if (typeof lucide !== 'undefined') lucide.createIcons();
+    
+    // Clear existing interval if any to prevent duplicates
+    if (window.auditLogInterval) clearInterval(window.auditLogInterval);
+    
     // Auto-refresh audit log every 30s if on audit tab
-    setInterval(() => {
-        if (!document.getElementById('tab-audit').classList.contains('hidden')) {
-            loadAuditLog();
+    window.auditLogInterval = setInterval(() => {
+        const auditTab = document.getElementById('tab-audit');
+        if (auditTab && !auditTab.classList.contains('hidden')) {
+            if (typeof loadAuditLog === 'function') loadAuditLog();
         }
     }, 30000);
-});
+}
+
+document.addEventListener('DOMContentLoaded', initSuperAdmin);
+document.addEventListener('page:loaded', initSuperAdmin);
+
+// Immediate execution in case script is loaded via AJAX after DOMContentLoaded
+initSuperAdmin();
 </script>
 @endsection

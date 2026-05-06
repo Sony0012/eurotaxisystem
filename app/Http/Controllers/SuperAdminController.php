@@ -14,33 +14,33 @@ class SuperAdminController extends Controller
     // ─── Centralized page definitions (route => label) ────────────────────────
     public static array $pageDefinitions = [
         // ─── Core Management ───────────────────
-        'dashboard'                  => ['icon' => 'layout-dashboard', 'label' => 'Dashboard',          'group' => '1. Core Management'],
-        'units.*'                    => ['icon' => 'car',              'label' => 'Unit Management',     'group' => '1. Core Management'],
-        'driver-management.*'        => ['icon' => 'users',            'label' => 'Driver Management',   'group' => '1. Core Management'],
-        'activity-logs.*'            => ['icon' => 'history',          'label' => 'History Logs',        'group' => '1. Core Management'],
+        'dashboard' => ['icon' => 'layout-dashboard', 'label' => 'Dashboard', 'group' => '1. Core Management'],
+        'units.*' => ['icon' => 'car', 'label' => 'Unit Management', 'group' => '1. Core Management'],
+        'driver-management.*' => ['icon' => 'users', 'label' => 'Driver Management', 'group' => '1. Core Management'],
+        'activity-logs.*' => ['icon' => 'history', 'label' => 'History Logs', 'group' => '1. Core Management'],
 
         // ─── Operations ────────────────────────
-        'live-tracking.*'            => ['icon' => 'map-pin',          'label' => 'Live Tracking',       'group' => '2. Operations'],
-        'maintenance.*'              => ['icon' => 'wrench',           'label' => 'Maintenance',         'group' => '2. Operations'],
-        'coding.*'                   => ['icon' => 'calendar',         'label' => 'Coding Management',   'group' => '2. Operations'],
-        'driver-behavior.*'          => ['icon' => 'alert-triangle',   'label' => 'Driver Behavior',     'group' => '2. Operations'],
-        'spare-parts.*'              => ['icon' => 'package',          'label' => 'Spare Parts Inventory','group' => '2. Operations'],
-        'suppliers.*'                => ['icon' => 'truck',            'label' => 'Suppliers',           'group' => '2. Operations'],
+        'live-tracking.*' => ['icon' => 'map-pin', 'label' => 'Live Tracking', 'group' => '2. Operations'],
+        'maintenance.*' => ['icon' => 'wrench', 'label' => 'Maintenance', 'group' => '2. Operations'],
+        'coding.*' => ['icon' => 'calendar', 'label' => 'Coding Management', 'group' => '2. Operations'],
+        'driver-behavior.*' => ['icon' => 'alert-triangle', 'label' => 'Driver Behavior', 'group' => '2. Operations'],
+        'spare-parts.*' => ['icon' => 'package', 'label' => 'Spare Parts Inventory', 'group' => '2. Operations'],
+        'suppliers.*' => ['icon' => 'truck', 'label' => 'Suppliers', 'group' => '2. Operations'],
 
         // ─── Financial ─────────────────────────
-        'boundaries.*'               => ['icon' => 'banknote',         'label' => 'Boundaries',          'group' => '3. Financial'],
-        'office-expenses.*'          => ['icon' => 'receipt',          'label' => 'Office Expenses',     'group' => '3. Financial'],
-        'salary.*'                   => ['icon' => 'calculator',       'label' => 'Salary Management',   'group' => '3. Financial'],
-        'boundary-rules.*'           => ['icon' => 'settings',         'label' => 'Boundary Rules',      'group' => '3. Financial'],
+        'boundaries.*' => ['icon' => 'banknote', 'label' => 'Boundaries', 'group' => '3. Financial'],
+        'office-expenses.*' => ['icon' => 'receipt', 'label' => 'Office Expenses', 'group' => '3. Financial'],
+        'salary.*' => ['icon' => 'calculator', 'label' => 'Salary Management', 'group' => '3. Financial'],
+        'boundary-rules.*' => ['icon' => 'settings', 'label' => 'Boundary Rules', 'group' => '3. Financial'],
 
         // ─── Legal & Admin ─────────────────────
-        'decision-management.*'      => ['icon' => 'file-text',        'label' => 'Franchise',           'group' => '4. Legal & Admin'],
-        'staff.*'                    => ['icon' => 'user-cog',         'label' => 'Staff Records',       'group' => '4. Legal & Admin'],
-        'archive.*'                  => ['icon' => 'archive',          'label' => 'Archive Access',      'group' => '4. Legal & Admin'],
+        'decision-management.*' => ['icon' => 'file-text', 'label' => 'Franchise', 'group' => '4. Legal & Admin'],
+        'staff.*' => ['icon' => 'user-cog', 'label' => 'Staff Records', 'group' => '4. Legal & Admin'],
+        'archive.*' => ['icon' => 'archive', 'label' => 'Archive Access', 'group' => '4. Legal & Admin'],
 
         // ─── Reports ───────────────────────────
-        'analytics.*'                => ['icon' => 'bar-chart',        'label' => 'Analytics',           'group' => '5. Reports'],
-        'unit-profitability.*'       => ['icon' => 'trending-up',      'label' => 'Unit Profitability',  'group' => '5. Reports'],
+        'analytics.*' => ['icon' => 'bar-chart', 'label' => 'Analytics', 'group' => '5. Reports'],
+        'unit-profitability.*' => ['icon' => 'trending-up', 'label' => 'Unit Profitability', 'group' => '5. Reports'],
     ];
 
     // ─── Dashboard ────────────────────────────────────────────────────────────
@@ -50,8 +50,8 @@ class SuperAdminController extends Controller
         $tab = $request->get('tab', 'overview');
 
         // Stats
-        $totalUsers    = User::whereNotIn('role', ['super_admin'])->count();
-        $activeUsers   = User::whereNotIn('role', ['super_admin'])->where('is_active', true)->where('approval_status', 'approved')->count();
+        $totalUsers = User::whereNotIn('role', ['super_admin'])->count();
+        $activeUsers = User::whereNotIn('role', ['super_admin'])->where('is_active', true)->where('approval_status', 'approved')->count();
         $rejectedUsers = User::whereNotIn('role', ['super_admin'])->where('approval_status', 'rejected')->count();
 
         // Recent login audit (for overview) - Filter for only login-related activity
@@ -100,8 +100,8 @@ class SuperAdminController extends Controller
             return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
         }
 
-        $totalUsers    = User::whereNotIn('role', ['super_admin'])->count();
-        $activeUsers   = User::whereNotIn('role', ['super_admin'])->where('is_active', true)->where('approval_status', 'approved')->count();
+        $totalUsers = User::whereNotIn('role', ['super_admin'])->count();
+        $activeUsers = User::whereNotIn('role', ['super_admin'])->where('is_active', true)->where('approval_status', 'approved')->count();
         $rejectedUsers = User::whereNotIn('role', ['super_admin'])->where('approval_status', 'rejected')->count();
 
         $recentAudit = LoginAudit::whereIn('action', ['login', 'failed_login', 'logout'])
@@ -137,9 +137,9 @@ class SuperAdminController extends Controller
 
         $user->update([
             'approval_status' => 'approved',
-            'is_active'       => true,
-            'approved_by'     => Auth::id(),
-            'approved_at'     => now(),
+            'is_active' => true,
+            'approved_by' => Auth::id(),
+            'approved_at' => now(),
         ]);
 
         LoginAudit::log('approved', $user, 'Account approved by ' . Auth::user()->full_name);
@@ -159,7 +159,7 @@ class SuperAdminController extends Controller
 
         $user->update([
             'approval_status' => 'rejected',
-            'is_active'       => false,
+            'is_active' => false,
         ]);
 
         LoginAudit::log('rejected', $user, 'Account rejected by ' . Auth::user()->full_name);
@@ -231,8 +231,8 @@ class SuperAdminController extends Controller
             $s = $request->input('search');
             $query->where(function ($q) use ($s) {
                 $q->where('user_name', 'like', "%$s%")
-                  ->orWhere('user_email', 'like', "%$s%")
-                  ->orWhere('ip_address', 'like', "%$s%");
+                    ->orWhere('user_email', 'like', "%$s%")
+                    ->orWhere('ip_address', 'like', "%$s%");
             });
         }
 
@@ -270,7 +270,7 @@ class SuperAdminController extends Controller
     {
         $user = User::withTrashed()->findOrFail($id);
         $user->restore();
-        
+
         LoginAudit::log('approved', $user, 'Account restored by ' . Auth::user()->full_name);
 
         return response()->json(['success' => true, 'message' => $user->full_name . ' has been restored.']);
@@ -281,20 +281,20 @@ class SuperAdminController extends Controller
         $user = User::withTrashed()->findOrFail($id);
 
         if ($user->role === 'super_admin' && Auth::user()->id != $user->id) {
-             return response()->json(['success' => false, 'message' => 'Unauthorized.'], 403);
+            return response()->json(['success' => false, 'message' => 'Unauthorized.'], 403);
         }
 
         $data = $request->validate([
-            'first_name'   => 'required|string|max:50',
-            'last_name'    => 'required|string|max:50',
-            'email'        => 'required|email|unique:users,email,' . $id,
-            'role'         => 'required|string',
+            'first_name' => 'required|string|max:50',
+            'last_name' => 'required|string|max:50',
+            'email' => 'required|email|unique:users,email,' . $id,
+            'role' => 'required|string',
             'phone_number' => 'nullable|string|max:20',
-            'address'      => 'nullable|string|max:255',
+            'address' => 'nullable|string|max:255',
         ]);
 
         $data['full_name'] = $data['first_name'] . ' ' . $data['last_name'];
-        $data['name']      = $data['full_name'];
+        $data['name'] = $data['full_name'];
 
         $user->update($data);
 
@@ -309,16 +309,16 @@ class SuperAdminController extends Controller
     {
         $user = User::withTrashed()->findOrFail($id);
         $history = LoginAudit::where('user_id', $user->id)
-                             ->orderByDesc('created_at')
-                             ->limit(50)
-                             ->get();
-                             
+            ->orderByDesc('created_at')
+            ->limit(50)
+            ->get();
+
         // Append profile image url for easier frontend handling
         $profileUrl = $user->profile_image ? asset('storage/' . $user->profile_image) : null;
-                             
+
         return response()->json([
             'success' => true,
-            'user'    => [
+            'user' => [
                 'id' => $user->id,
                 'full_name' => $user->full_name,
                 'email' => $user->email,
@@ -383,36 +383,36 @@ class SuperAdminController extends Controller
         $roleIn = implode(',', $validRoles);
 
         $request->validate([
-            'first_name'   => 'required|string|max:50',
-            'last_name'    => 'required|string|max:50',
-            'email'        => 'required|email|unique:users,email',
-            'role'         => 'required|in:' . $roleIn,
+            'first_name' => 'required|string|max:50',
+            'last_name' => 'required|string|max:50',
+            'email' => 'required|email|unique:users,email',
+            'role' => 'required|in:' . $roleIn,
             'phone_number' => 'nullable|string|max:20',
-            'address'      => 'nullable|string|max:255',
+            'address' => 'nullable|string|max:255',
         ]);
 
         // Auto-generate a secure temp password
         $tempPassword = strtoupper(substr(str_shuffle('abcdefghjkmnpqrstuvwxyz'), 0, 3))
-                      . rand(100, 999)
-                      . str_shuffle('!@#$%')[0];
+            . rand(100, 999)
+            . str_shuffle('!@#$%')[0];
 
         $user = User::create([
-            'first_name'           => $request->first_name,
-            'last_name'            => $request->last_name,
-            'full_name'            => $request->first_name . ' ' . $request->last_name,
-            'name'                 => $request->first_name . ' ' . $request->last_name,
-            'username'             => strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $request->first_name . $request->last_name)) . rand(100, 999),
-            'email'                => $request->email,
-            'phone_number'         => $request->phone_number,
-            'address'              => $request->address,
-            'role'                 => $request->role,
-            'password'             => \Illuminate\Support\Facades\Hash::make($tempPassword),
-            'password_hash'        => \Illuminate\Support\Facades\Hash::make($tempPassword),
+            'first_name' => $request->first_name,
+            'last_name' => $request->last_name,
+            'full_name' => $request->first_name . ' ' . $request->last_name,
+            'name' => $request->first_name . ' ' . $request->last_name,
+            'username' => strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $request->first_name . $request->last_name)) . rand(100, 999),
+            'email' => $request->email,
+            'phone_number' => $request->phone_number,
+            'address' => $request->address,
+            'role' => $request->role,
+            'password' => \Illuminate\Support\Facades\Hash::make($tempPassword),
+            'password_hash' => \Illuminate\Support\Facades\Hash::make($tempPassword),
             'must_change_password' => true,
-            'temp_password'        => $tempPassword,
-            'is_active'            => true,
-            'is_verified'          => true,
-            'approval_status'      => 'approved',
+            'temp_password' => $tempPassword,
+            'is_active' => true,
+            'is_verified' => true,
+            'approval_status' => 'approved',
         ]);
 
         // Send welcome email with temp password
@@ -425,8 +425,8 @@ class SuperAdminController extends Controller
         LoginAudit::log('created', $user, 'Staff account created by ' . Auth::user()->full_name . ' with role: ' . $user->role);
 
         return response()->json([
-            'success'       => true,
-            'message'       => 'Staff account created! Credentials sent to ' . $user->email,
+            'success' => true,
+            'message' => 'Staff account created! Credentials sent to ' . $user->email,
             'temp_password' => $tempPassword,
         ]);
     }
@@ -435,22 +435,22 @@ class SuperAdminController extends Controller
     public function storeClassification(Request $request)
     {
         $data = $request->validate([
-            'name'              => 'required|string|unique:incident_classifications,name',
-            'default_severity'  => 'required|in:low,medium,high,critical',
-            'color'             => 'required|string',
-            'icon'              => 'required|string',
-            'behavior_mode'     => 'nullable|in:narrative,complaint,traffic,damage,security',
-            'sub_options'       => 'nullable|array',
-            'sub_options.*'     => 'string|max:100',
-            'auto_ban_trigger'  => 'nullable|boolean',
+            'name' => 'required|string|unique:incident_classifications,name',
+            'default_severity' => 'required|in:low,medium,high,critical',
+            'color' => 'required|string',
+            'icon' => 'required|string',
+            'behavior_mode' => 'nullable|in:narrative,complaint,traffic,damage,security',
+            'sub_options' => 'nullable|array',
+            'sub_options.*' => 'string|max:100',
+            'auto_ban_trigger' => 'nullable|boolean',
             'ban_trigger_value' => 'nullable|string|max:100',
             'show_not_at_fault' => 'nullable|boolean',
         ]);
 
-        $data['behavior_mode']    = $data['behavior_mode'] ?? 'narrative';
-        $data['sub_options']      = $data['sub_options'] ?? null;
-        $data['auto_ban_trigger'] = (bool)($data['auto_ban_trigger'] ?? false);
-        $data['show_not_at_fault']= (bool)($data['show_not_at_fault'] ?? false);
+        $data['behavior_mode'] = $data['behavior_mode'] ?? 'narrative';
+        $data['sub_options'] = $data['sub_options'] ?? null;
+        $data['auto_ban_trigger'] = (bool) ($data['auto_ban_trigger'] ?? false);
+        $data['show_not_at_fault'] = (bool) ($data['show_not_at_fault'] ?? false);
 
         $item = \App\Models\IncidentClassification::create($data);
 
@@ -467,24 +467,24 @@ class SuperAdminController extends Controller
     {
         \Log::info("Updating Classification ID: {$id}", $request->all());
         $item = \App\Models\IncidentClassification::findOrFail($id);
-        
+
         $data = $request->validate([
-            'name'              => 'required|string|unique:incident_classifications,name,' . $id,
-            'default_severity'  => 'required|in:low,medium,high,critical',
-            'color'             => 'required|string',
-            'icon'              => 'required|string',
-            'behavior_mode'     => 'nullable|in:narrative,complaint,traffic,damage,security',
-            'sub_options'       => 'nullable|array',
-            'sub_options.*'     => 'string|max:100',
-            'auto_ban_trigger'  => 'nullable|boolean',
+            'name' => 'required|string|unique:incident_classifications,name,' . $id,
+            'default_severity' => 'required|in:low,medium,high,critical',
+            'color' => 'required|string',
+            'icon' => 'required|string',
+            'behavior_mode' => 'nullable|in:narrative,complaint,traffic,damage,security',
+            'sub_options' => 'nullable|array',
+            'sub_options.*' => 'string|max:100',
+            'auto_ban_trigger' => 'nullable|boolean',
             'ban_trigger_value' => 'nullable|string|max:100',
             'show_not_at_fault' => 'nullable|boolean',
         ]);
 
-        $data['sub_options']      = $data['sub_options'] ?? null;
-        $data['auto_ban_trigger'] = (bool)($data['auto_ban_trigger'] ?? false);
-        $data['show_not_at_fault']= (bool)($data['show_not_at_fault'] ?? false);
-        $data['behavior_mode']    = $data['behavior_mode'] ?? 'narrative';
+        $data['sub_options'] = $data['sub_options'] ?? null;
+        $data['auto_ban_trigger'] = (bool) ($data['auto_ban_trigger'] ?? false);
+        $data['show_not_at_fault'] = (bool) ($data['show_not_at_fault'] ?? false);
+        $data['behavior_mode'] = $data['behavior_mode'] ?? 'narrative';
 
         $item->update($data);
 
@@ -517,8 +517,8 @@ class SuperAdminController extends Controller
     public function storeRole(Request $request)
     {
         $data = $request->validate([
-            'name'        => 'required|string|unique:roles,name',
-            'label'       => 'required|string',
+            'name' => 'required|string|unique:roles,name',
+            'label' => 'required|string',
             'description' => 'nullable|string',
         ]);
 
@@ -530,10 +530,10 @@ class SuperAdminController extends Controller
     public function updateRoleDetail(Request $request, $id)
     {
         $role = \App\Models\Role::findOrFail($id);
-        
+
         $data = $request->validate([
-            'name'        => 'required|string|unique:roles,name,' . $id,
-            'label'       => 'required|string',
+            'name' => 'required|string|unique:roles,name,' . $id,
+            'label' => 'required|string',
             'description' => 'nullable|string',
         ]);
 
@@ -576,7 +576,7 @@ class SuperAdminController extends Controller
         $this->verifyArchivePassword($request);
 
         $user = User::withTrashed()->findOrFail($id);
-        
+
         if ($user->role === 'super_admin') {
             return response()->json(['success' => false, 'message' => 'Cannot delete the Super Admin.'], 403);
         }
@@ -592,7 +592,7 @@ class SuperAdminController extends Controller
         ]);
 
         $hashed = Hash::make($request->archive_password);
-        
+
         SystemSetting::updateOrCreate(
             ['key' => 'archive_deletion_password'],
             ['value' => $hashed, 'group' => 'security']
@@ -619,10 +619,10 @@ class SuperAdminController extends Controller
     private function verifyArchivePassword(Request $request)
     {
         $password = $request->input('archive_password');
-        
+
         if (!SystemSetting::verifyPassword($password)) {
-            $msg = !SystemSetting::get('archive_deletion_password') 
-                ? 'Archive deletion password is not set. Please set it in the System Security tab.' 
+            $msg = !SystemSetting::get('archive_deletion_password')
+                ? 'Archive deletion password is not set. Please set it in the System Security tab.'
                 : 'Invalid archive deletion password.';
             throw new \Exception($msg);
         }

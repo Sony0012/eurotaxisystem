@@ -103,6 +103,30 @@
     // ─── Global Archive Force-Delete Handler ─────────────────────────────────────
     // Called by all archive partial "Delete Permanently" buttons.
     // Hooks into the globalArchiveSecurityModal defined in app.blade.php.
+    async function archiveRestore(restoreUrl) {
+        if (!confirm('Are you sure you want to restore this item?')) return;
+
+        try {
+            const response = await fetch(restoreUrl, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json',
+                }
+            });
+
+            const result = await response.json();
+
+            if (response.ok && result.success !== false) {
+                window.location.reload();
+            } else {
+                alert(result.message || 'Error occurred. Please try again.');
+            }
+        } catch (err) {
+            alert('A network error occurred. Please try again.');
+        }
+    }
+
     async function archiveForceDelete(deleteUrl) {
         if (typeof window.promptArchiveDeletionPassword !== 'function') {
             alert('Security modal is not available. Please refresh the page.');
@@ -158,12 +182,17 @@
     }
 
     // Handle initial tab from URL query parameter
-    document.addEventListener('DOMContentLoaded', function() {
+    function initArchive() {
         const urlParams = new URLSearchParams(window.location.search);
         const initialTab = urlParams.get('tab');
         if (initialTab) {
             switchTab(initialTab);
         }
-    });
+        if(window.lucide) lucide.createIcons();
+    }
+
+    document.addEventListener('DOMContentLoaded', initArchive);
+    document.addEventListener('page:loaded', initArchive);
+    initArchive();
 </script>
 @endsection

@@ -20,12 +20,11 @@
                     </span>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <form action="{{ route('archive.restore', ['type' => 'driver', 'id' => $driver->id]) }}" method="POST" class="inline-block">
-                        @csrf
-                        <button type="submit" class="inline-flex items-center gap-1 text-xs font-bold text-indigo-600 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-lg mr-2 transition-all">
-                            <i data-lucide="undo-2" class="w-3 h-3"></i> Restore
-                        </button>
-                    </form>
+                    <button type="button"
+                        onclick="archiveRestore('{{ route('archive.restore', ['type' => 'driver', 'id' => $driver->id]) }}')"
+                        class="inline-flex items-center gap-1 text-xs font-bold text-indigo-600 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-lg mr-2 transition-all">
+                        <i data-lucide="undo-2" class="w-3 h-3"></i> Restore
+                    </button>
                     <button type="button"
                         onclick="archiveForceDelete('{{ route('archive.forceDelete', ['type' => 'driver', 'id' => $driver->id]) }}')"
                         class="inline-flex items-center gap-1 text-xs font-bold text-red-600 hover:text-red-800 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg transition-all">

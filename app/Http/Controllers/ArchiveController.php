@@ -67,6 +67,10 @@ class ArchiveController extends Controller
 
         system_log("Restored " . ucfirst($type), "Item: {$name} was restored from the system archive.");
 
+        if (request()->wantsJson() || request()->expectsJson()) {
+            return response()->json(['success' => true, 'message' => ucfirst($type) . ' restored successfully.']);
+        }
+
         return back()->with('success', ucfirst($type) . ' restored successfully.');
     }
 

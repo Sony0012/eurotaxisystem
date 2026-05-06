@@ -568,11 +568,8 @@
         </div>
     </div>
 
-@endsection
 
-
-@push('scripts')
-<script>
+    <script>
     // ─── Set hire date max to TODAY (client local time) immediately on page load ───
     document.addEventListener('DOMContentLoaded', function () {
         const _n = new Date();
@@ -1488,4 +1485,4 @@
         }
     });
 </script>
-@endpush
+@endsection

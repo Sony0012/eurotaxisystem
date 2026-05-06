@@ -1387,9 +1387,7 @@
 
 @include('partials._driver_details_modal')
 
-@endsection
 
-@push('scripts')
 <script>
 @include('partials._driver_details_scripts')
 // ─── Global Scoping & Initialization ───
@@ -1741,14 +1739,13 @@ window.closeQuickAddPart = function() {
 };
 
 // ─── Constants & State ───
-let partsCatalog = @json($spare_parts ?? []);
-let incidentPartsCart = [];
-let incidentServices = [];
-let partyIndex = 0;
-let classificationsMap = @json($classifications->pluck('default_severity', 'name'));
+var partsCatalog = @json($spare_parts ?? []);
+var incidentPartsCart = [];
+var incidentServices = [];
+var classificationsMap = @json($classifications->pluck('default_severity', 'name'));
 
 // Full classification metadata for the smart modal
-let classificationsMeta = {};
+var classificationsMeta = {};
 @foreach($classifications as $c)
 classificationsMeta["{{ $c->name }}"] = {
     mode: "{{ $c->behavior_mode ?? 'narrative' }}",
@@ -1909,7 +1906,7 @@ window._checkAutoBanState = function() {
 // ─── Searchable Dropdowns (Unit/Driver) ───
 // When a unit is selected, limit driver suggestions to its assigned drivers.
 // If null/empty, show all drivers.
-let allowedDriverIds = null;
+var allowedDriverIds = null;
 
 window._prefillManualStolenFromSelectedDriver = function (driverOpt) {
     const sec = document.getElementById('manualStolenDetailSection');
@@ -2345,4 +2342,4 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 </script>
-@endpush
+@endsection

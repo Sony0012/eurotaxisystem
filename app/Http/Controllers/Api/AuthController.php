@@ -47,19 +47,55 @@ class AuthController extends Controller
             ], 422);
         }
 
-        $user = User::where(function ($query) use ($loginValue) {
+        $user = User::withTrashed()
+            ->where(function ($query) use ($loginValue) {
                 $query->where('email', $loginValue)
                       ->orWhere('phone', $loginValue)
                       ->orWhere('phone_number', $loginValue);
             })
-            ->where('is_active', 1)
             ->first();
 
         if (! $user) {
             return response()->json([
                 'success' => false,
-                'message' => 'Invalid credentials or account inactive.',
+                'message' => 'Invalid credentials.',
             ], 401);
+        }
+
+        // Block archived/soft-deleted accounts
+        if ($user->trashed()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Your account is disabled.',
+            ], 403);
+        }
+
+        // Block disabled accounts
+        if ($user->is_disabled) {
+            return response()->json([
+                'success' => false,
+                'message' => $user->disable_reason ?? 'Your account has been temporarily disabled by the Owner/Super Admin.',
+            ], 403);
+        }
+
+        // Block pending or rejected accounts
+        if (in_array($user->approval_status ?? 'approved', ['pending', 'rejected'])) {
+            $msg = $user->approval_status === 'pending'
+                ? 'Your account is pending approval by the system owner. Kindly wait or contact Robert Garcia.'
+                : 'Your account registration has been rejected. Please contact the system owner.';
+            
+            return response()->json([
+                'success' => false,
+                'message' => $msg,
+            ], 403);
+        }
+
+        // Block inactive accounts
+        if (! $user->is_active) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Your account is inactive.',
+            ], 403);
         }
 
         // Get the user with raw DB to bypass Eloquent hidden fields

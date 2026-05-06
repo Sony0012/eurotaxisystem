@@ -415,9 +415,9 @@
         </div>
     </div>
 
-@endsection
 
-@push('scripts')
+
+
 <script>
 function openAddSalaryModal() {
     document.getElementById('salaryModalTitle').textContent = 'Add Salary';
@@ -494,4 +494,4 @@ document.getElementById('salaryEmployee').addEventListener('change', function() 
     document.getElementById('salaryType').value = role;
 });
 </script>
-@endpush
+@endsection

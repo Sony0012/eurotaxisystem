@@ -1338,7 +1338,7 @@
         </div>
     </div>
 
-@push('scripts')
+
 <script>
 // Global state for parts catalog and carts
 let partsCatalog = @json($spare_parts);
@@ -2721,5 +2721,5 @@ function showToast(message, type = 'success') {
     }, 5000);
 }
 </script>
-@endpush
+
 @endsection

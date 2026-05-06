@@ -943,7 +943,7 @@
     </div>
 
 <script>
-    let currentViewMode = localStorage.getItem('unitViewMode') || 'table';
+    var currentViewMode = localStorage.getItem('unitViewMode') || 'table';
     
     function setViewMode(mode) {
         currentViewMode = mode;
@@ -980,7 +980,7 @@
     const tableContainer = document.getElementById('unitsTableContainer');
 
     // ── Quick Stats ─────────────────────────────────────────────────
-    const QUICK_STATS_URL = '{{ route("units.quick-stats") }}';
+    var QUICK_STATS_URL = '{{ route("units.quick-stats") }}';
 
     function animateCount(el, target) {
         if (!el) return;
@@ -2049,166 +2049,6 @@
                     </div>
                 </div>
 
-                        <!-- Drivers Tab -->
-                        <div id="drivers-tab" class="tab-content hidden">
-                            <div class="bg-white border border-gray-200 rounded-lg p-3">
-                                <h4 class="text-sm font-semibold text-gray-900 mb-2">Assigned Drivers</h4>
-                                <div class="space-y-2">${driversTabHtml.replace(/p-4/g, 'p-2').replace(/p-6/g, 'p-3').replace(/text-lg/g, 'text-base').replace(/text-sm/g, 'text-xs')}</div>
-                            </div>
-                        </div>
-
-                        <!-- Coding Tab -->
-                        <div id="coding-tab" class="tab-content hidden">
-                            <div class="bg-white border border-gray-200 rounded-lg p-3">
-                                <h4 class="text-sm font-semibold text-gray-900 mb-2">MMDA Coding Schedule</h4>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                    <div>
-                                        <h5 class="font-medium text-xs text-gray-900 mb-1.5">Current Coding Information</h5>
-                                        <div class="space-y-1 text-xs">
-                                            <div class="flex justify-between"><span class="text-gray-600">Coding Day:</span><span class="px-1.5 py-0.5 bg-blue-100 text-blue-800 rounded-full text-[10px] font-medium">${codingDay}</span></div>
-                                            <div class="flex justify-between"><span class="text-gray-600">Last Digit:</span><span class="font-medium">${lastChar || '-'}</span></div>
-                                            <div class="flex justify-between"><span class="text-gray-600">Next Coding:</span><span class="font-medium">${nextCodingDate || '-'}</span></div>
-                                            <div class="flex justify-between"><span class="text-gray-600">Days Until Coding:</span><span class="font-medium ${daysUntilCoding === 0 ? 'text-red-600' : 'text-green-600'}">${daysUntilCoding === 0 ? 'Today' : daysUntilCoding + ' days'}</span></div>
-                                            <div class="flex justify-between"><span class="text-gray-600">Coding Status:</span><span class="px-1.5 py-0.5 text-[10px] rounded-full ${daysUntilCoding === 0 ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}">${daysUntilCoding === 0 ? 'Coding Today' : 'No Coding'}</span></div>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <h5 class="font-medium text-xs text-gray-900 mb-1.5">MMDA Coding Schedule</h5>
-                                        <div class="space-y-0.5 text-[10px]">
-                                            <div class="flex justify-between p-1 bg-blue-50 rounded"><span>Monday</span><span class="font-medium">1, 2</span></div>
-                                            <div class="flex justify-between p-1 bg-green-50 rounded"><span>Tuesday</span><span class="font-medium">3, 4</span></div>
-                                            <div class="flex justify-between p-1 bg-yellow-50 rounded"><span>Wednesday</span><span class="font-medium">5, 6</span></div>
-                                            <div class="flex justify-between p-1 bg-orange-50 rounded"><span>Thursday</span><span class="font-medium">7, 8</span></div>
-                                            <div class="flex justify-between p-1 bg-red-50 rounded"><span>Friday</span><span class="font-medium">9, 0</span></div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Boundary Tab -->
-                        <div id="boundary-tab" class="tab-content hidden">
-                            <div class="bg-white border border-gray-200 rounded-lg p-3">
-                                <h4 class="text-sm font-semibold text-gray-900 mb-2">Boundary Collection History</h4>
-                                ${boundaryRowsHtml ? `<div class="overflow-x-auto"><table class="min-w-full divide-y divide-gray-200"><thead class="bg-gray-50"><tr><th class="px-3 py-2 text-left text-[10px] font-medium text-gray-500 uppercase">Date</th><th class="px-3 py-2 text-left text-[10px] font-medium text-gray-500 uppercase">Driver</th><th class="px-3 py-2 text-left text-[10px] font-medium text-gray-500 uppercase">License</th><th class="px-3 py-2 text-left text-[10px] font-medium text-gray-500 uppercase">Amount</th></tr></thead><tbody class="bg-white divide-y divide-gray-200">${boundaryRowsHtml.replace(/px-6 py-4/g, 'px-3 py-1.5').replace(/text-sm/g, 'text-xs')}</tbody></table></div>` : '<div class="text-center py-6 text-gray-500"><i data-lucide="dollar-sign" class="w-10 h-10 mx-auto mb-2 text-gray-300"></i><p class="text-xs">No boundary history found</p></div>'}
-                            </div>
-                        </div>
-
-                        <!-- Maintenance Tab -->
-                        <div id="maintenance-tab" class="tab-content hidden">
-                            <div class="bg-white border border-gray-200 rounded-lg p-3">
-                                <h4 class="text-sm font-semibold text-gray-900 mb-2">Maintenance Records</h4>
-                                <div class="space-y-2">${maintHtml.replace(/p-4/g, 'p-2').replace(/p-6/g, 'p-3').replace(/text-lg/g, 'text-base').replace(/text-sm/g, 'text-xs')}</div>
-                            </div>
-                        </div>
-
-                        <!-- ROI Tab - Aggressively Miniaturized -->
-                        <div id="roi-tab" class="tab-content hidden">
-                            <div class="space-y-3">
-                                <div class="bg-gradient-to-r from-purple-500 to-purple-600 p-3 rounded-lg text-white">
-                                    <h4 class="text-base font-bold mb-2">ROI Analysis</h4>
-                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
-                                        <div><p class="text-purple-100 text-[10px]">Total Investment</p><p class="text-base font-bold">₱${parseFloat(roi.total_investment || 0).toLocaleString('en-PH', {minimumFractionDigits:2})}</p></div>
-                                        <div><p class="text-purple-100 text-[10px]">Total Revenue</p><p class="text-base font-bold">₱${parseFloat(roi.total_revenue || 0).toLocaleString('en-PH', {minimumFractionDigits:2})}</p></div>
-                                        <div><p class="text-purple-100 text-[10px]">Total Expenses</p><p class="text-base font-bold">₱${parseFloat(roi.total_expenses || 0).toLocaleString('en-PH', {minimumFractionDigits:2})}</p></div>
-                                    </div>
-                                </div>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                    <div class="bg-white border border-gray-200 rounded-lg p-3">
-                                        <h4 class="text-xs font-semibold text-gray-900 mb-2">ROI Metrics</h4>
-                                        <div class="space-y-2 text-xs">
-                                            <div class="flex justify-between items-center"><span class="text-gray-600">ROI %</span><span class="font-bold text-${roiColor}-600">${roiPct.toFixed(1)}%</span></div>
-                                            <div class="flex justify-between items-center"><span class="text-gray-600">Payback</span><span class="font-bold text-blue-600">${parseFloat(roi.payback_period || 0).toFixed(1)} mths</span></div>
-                                            <div class="flex justify-between items-center"><span class="text-gray-600">Mth Rev</span><span class="font-bold text-green-600">₱${mthBnd.toLocaleString('en-PH', {minimumFractionDigits:2})}</span></div>
-                                        </div>
-                                    </div>
-                                    <div class="bg-white border border-gray-200 rounded-lg p-3">
-                                        <h4 class="text-xs font-semibold text-gray-900 mb-2">ROI Progress</h4>
-                                        <div class="space-y-3">
-                                            <div>
-                                                <div class="flex justify-between items-center mb-1"><span class="text-[10px] text-gray-600">Achievement</span><span class="text-[10px] font-medium">${roiPct.toFixed(1)}%</span></div>
-                                                <div class="w-full bg-gray-200 rounded-full h-2.5"><div class="bg-gradient-to-r from-purple-500 to-purple-600 h-2.5 rounded-full" style="width:${roiPrgW}%"></div></div>
-                                            </div>
-                                            <div>
-                                                <div class="flex justify-between items-center mb-1"><span class="text-[10px] text-gray-600">Monthly Target</span><span class="text-[10px] font-medium">₱${targetAmount.toLocaleString('en-PH', {minimumFractionDigits:0})}</span></div>
-                                                <div class="w-full bg-gray-200 rounded-full h-2.5"><div class="bg-gradient-to-r from-green-500 to-green-600 h-2.5 rounded-full" style="width:${bndPrgW}%"></div></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Location Tab -->
-                        <div id="location-tab" class="tab-content hidden">
-                            <div class="bg-white border border-gray-200 rounded-lg p-3">
-                                <h4 class="text-sm font-semibold text-gray-900 mb-2">Location Information</h4>
-                                <div class="space-y-3">
-                                    {{-- Info Row --}}
-                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
-                                        <div class="flex justify-between bg-gray-50 rounded-lg px-2 py-1.5">
-                                            <span class="text-gray-500 text-[10px]">Location:</span>
-                                            <span class="font-medium text-[10px] text-right">${locInfo.current_location || 'Not Available'}</span>
-                                        </div>
-                                        <div class="flex justify-between bg-gray-50 rounded-lg px-2 py-1.5">
-                                            <span class="text-gray-500 text-[10px]">Update:</span>
-                                            <span class="font-medium text-[10px] text-right">${locInfo.last_location_update || 'Never'}</span>
-                                        </div>
-                                        <div class="flex justify-between bg-gray-50 rounded-lg px-2 py-1.5 items-center">
-                                            <span class="text-gray-500 text-[10px]">GPS:</span>
-                                            <span class="px-1.5 py-0.5 text-[9px] rounded-full ${locInfo.gps_enabled ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
-                                                ${locInfo.gps_enabled ? 'Enabled' : 'Disabled'}
-                                            </span>
-                                        </div>
-                                    </div>
-
-                                    {{-- Tracking Status Display --}}
-                                    <div id="unitDetailMapContainer" class="relative rounded-lg overflow-hidden border border-gray-200 bg-gray-50 flex flex-col items-center justify-center p-6 text-center" style="height: 320px;">
-                                        <div class="mb-4 p-4 bg-indigo-100 rounded-full">
-                                            <i data-lucide="satellite" class="w-12 h-12 text-indigo-600"></i>
-                                        </div>
-                                        <h4 class="text-sm font-bold text-gray-900 mb-1">Tracksolid Pro Enterprise</h4>
-                                        <p class="text-xs text-gray-500 mb-4 px-4">This unit is tracked via real-time API using IMEI identification.</p>
-                                        
-                                        <div class="w-full max-w-xs space-y-2 mb-6">
-                                            <div class="flex justify-between items-center bg-white p-2 border border-gray-200 rounded text-xs">
-                                                <span class="text-gray-500">Device IMEI:</span>
-                                                <span class="font-mono font-bold text-indigo-700">${unit.imei || 'Not Set'}</span>
-                                            </div>
-                                        </div>
-
-                                        <a href="/live-tracking?unit=${unit.id}" class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-lg transition-colors">
-                                            <i data-lucide="map-pin" class="w-4 h-4"></i>
-                                            View on Live Tracking Map
-                                        </a>
-                                    </div>
-
-                                    ${locInfo.coordinates ? `
-                                        <div class="flex justify-between bg-gray-50 rounded-lg px-2 py-1.5">
-                                            <span class="text-gray-500 text-[10px]">Coordinates:</span>
-                                            <span class="font-medium text-[10px]">${locInfo.coordinates}</span>
-                                        </div>
-                                    ` : ''}
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Dashcam Tab -->
-                        <div id="dashcam-tab" class="tab-content hidden">
-                            <div class="bg-white border border-gray-200 rounded-lg p-3">
-                                <h4 class="text-sm font-semibold text-gray-900 mb-2">Dashcam Information</h4>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                    <div>
-                                        <div class="space-y-1.5 text-xs">
-                                            <div class="flex justify-between"><span class="text-gray-600">Status:</span><span class="px-1.5 py-0.5 text-[9px] rounded-full ${dashcam.dashcam_enabled ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">${dashcam.dashcam_enabled ? 'Enabled' : 'Disabled'}</span></div>
-                                            <div class="flex justify-between"><span class="text-gray-600">Connect:</span><span class="px-1.5 py-0.5 text-[9px] rounded-full ${dashcam.dashcam_status === 'Online' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}">${dashcam.dashcam_status || 'Offline'}</span></div>
-                                            <div class="flex justify-between"><span class="text-gray-600">Storage:</span><span class="font-medium text-[10px]">${parseFloat(dashcam.storage_used || 0).toFixed(1)} / ${parseFloat(dashcam.storage_total || 32).toFixed(0)} GB</span></div>
-                                        </div>
-                                    </div>
-                                    <div class="bg-gray-100 rounded-lg h-20 flex items-center justify-center"><div class="text-center text-gray-500"><i data-lucide="video" class="w-6 h-6 mx-auto mb-1"></i><p class="text-[10px]">Video placeholder</p></div></div>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 </div>
                 `;
@@ -2498,13 +2338,17 @@ function resetAddUnitModal() {
 }
 
 // Real-time table filtering
-document.addEventListener('DOMContentLoaded', function() {
-    setViewMode(currentViewMode);
+function initUnits() {
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+    if (typeof setViewMode === 'function') setViewMode(currentViewMode);
+    
     const searchInput = document.getElementById('tableSearchInput');
     const tableBody = document.querySelector('tbody.bg-white.divide-y.divide-gray-200');
     
     if (searchInput && tableBody) {
-        searchInput.addEventListener('input', function(e) {
+        // Clear previous listeners if any (though difficult with anonymous functions, 
+        // usually we'd use named functions but here we'll just be careful)
+        searchInput.oninput = function(e) {
             const searchTerm = e.target.value.toLowerCase();
             const rows = tableBody.querySelectorAll('tr.cursor-pointer');
             let visibleCount = 0;
@@ -2539,9 +2383,13 @@ document.addEventListener('DOMContentLoaded', function() {
             } else if (emptyMsgRow) {
                 emptyMsgRow.style.display = 'none';
             }
-        });
+        };
     }
-});
+}
+
+document.addEventListener('DOMContentLoaded', initUnits);
+document.addEventListener('page:loaded', initUnits);
+initUnits();
 </script>
 
 @endsection

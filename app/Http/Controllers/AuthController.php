@@ -36,14 +36,30 @@ class AuthController extends Controller
             'password' => 'required|string',
         ]);
 
-        $user = User::where(function($query) use ($request) {
+        $user = User::withTrashed()
+            ->where(function($query) use ($request) {
                 $query->where('email', $request->email)
                     ->orWhere('username', $request->email);
             })
-            ->where('is_active', 1)
             ->first();
 
         if ($user) {
+            // Block archived/soft-deleted accounts
+            if ($user->trashed()) {
+                LoginAudit::log('failed_login', $user, 'Login blocked: account archived/disabled.');
+                
+                $reason = 'Your account is disabled.';
+                if ($request->ajax() || $request->wantsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'account_disabled' => true,
+                        'message' => $reason,
+                    ]);
+                }
+                
+                return back()->withErrors(['email' => $reason])->onlyInput('email');
+            }
+
             // Block disabled accounts
             if ($user->is_disabled) {
                 $reason = $user->disable_reason ?? 'Your account has been temporarily disabled by the Owner/Super Admin.';
@@ -54,7 +70,7 @@ class AuthController extends Controller
                         'success' => false,
                         'account_disabled' => true,
                         'message' => $reason,
-                    ], 403);
+                    ]);
                 }
                 
                 return back()->withErrors(['email' => $reason])->onlyInput('email');
@@ -63,23 +79,49 @@ class AuthController extends Controller
             // Block pending or rejected accounts
             if (in_array($user->approval_status ?? 'approved', ['pending', 'rejected'])) {
                 LoginAudit::log('failed_login', $user, 'Login blocked: account ' . ($user->approval_status) . '.');
-                return response()->json([
-                    'success' => false,
-                    'message' => $user->approval_status === 'pending'
-                        ? 'Your account is pending approval by the system owner. Kindly wait or contact Robert Garcia.'
-                        : 'Your account registration has been rejected. Please contact the system owner.',
-                ], 403);
+                
+                $msg = $user->approval_status === 'pending'
+                    ? 'Your account is pending approval by the system owner. Kindly wait or contact Robert Garcia.'
+                    : 'Your account registration has been rejected. Please contact the system owner.';
+                
+                if ($request->ajax() || $request->wantsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => $msg,
+                    ], 403);
+                }
+                
+                return back()->withErrors(['email' => $msg])->onlyInput('email');
             }
 
             // Block only accounts explicitly set to unverified (0 or false)
             if ($user->is_verified !== null && !$user->is_verified) {
                 LoginAudit::log('failed_login', $user, 'Login blocked: email not verified.');
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Please verify your email address before logging in.',
-                ], 403);
+                
+                if ($request->ajax() || $request->wantsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Please verify your email address before logging in.',
+                    ], 403);
+                }
+                
+                return back()->withErrors(['email' => 'Please verify your email address before logging in.'])->onlyInput('email');
             }
 
+            // Block inactive accounts
+            if (!$user->is_active) {
+                LoginAudit::log('failed_login', $user, 'Login blocked: account inactive.');
+                
+                $msg = 'Your account is inactive. Please contact the system owner.';
+                if ($request->ajax() || $request->wantsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => $msg,
+                    ], 403);
+                }
+                
+                return back()->withErrors(['email' => $msg])->onlyInput('email');
+            }
 
             // Support both 'password' and legacy 'password_hash' column names
             $storedHash = $user->password ?? $user->password_hash ?? null;

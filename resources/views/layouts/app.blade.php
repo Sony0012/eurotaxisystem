@@ -1119,6 +1119,9 @@
                             }
                             document.head.appendChild(newScript);
                         });
+
+                        // Dispatch custom event for child pages to know they are loaded via AJAX
+                        document.dispatchEvent(new CustomEvent('page:loaded', { detail: { url: url } }));
                     }
                 } catch (error) {
                     console.error('Navigation error:', error);
