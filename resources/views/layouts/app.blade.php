@@ -853,10 +853,23 @@
                                 reportDiag("After request permission status", { permStatus: permStatus });
                             }
                             if (permStatus.receive === 'granted') {
-                                // Listeners MUST be added BEFORE register() to prevent missing the native registration event
+                                // Custom listener for our bypassed Native Token Injector in MainActivity.java!
+                                window.addEventListener('native_fcm_token_ready', async (e) => {
+                                    const tokenVal = e.detail.token;
+                                    console.log('Hybrid FCM Device Token natively injected:', tokenVal);
+                                    reportDiag("Native injection event fired", { token: tokenVal });
+                                    const lastToken = localStorage.getItem('fcm_token');
+                                    if (lastToken !== tokenVal) {
+                                        localStorage.setItem('fcm_token', tokenVal);
+                                        localStorage.setItem('fcm_token_synced', 'false');
+                                    }
+                                    await syncTokenWithBackend(tokenVal);
+                                });
+
+                                // Capacitor's listeners (may drop events on server.url)
                                 await PushNotifications.addListener('registration', async (token) => {
-                                    console.log('Hybrid FCM Device Token retrieved:', token.value);
-                                    reportDiag("Native registration event fired", { token: token.value });
+                                    console.log('Capacitor Listener: Hybrid FCM Device Token retrieved:', token.value);
+                                    reportDiag("Capacitor registration event fired", { token: token.value });
                                     const lastToken = localStorage.getItem('fcm_token');
                                     if (lastToken !== token.value) {
                                         localStorage.setItem('fcm_token', token.value);
