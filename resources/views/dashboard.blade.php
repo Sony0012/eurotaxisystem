@@ -2391,7 +2391,6 @@
             const stats = data.stats || {};
             
             // Update summary stats
-            document.getElementById('codingUnitsCount').textContent = units.length || 0;
             updateCodingSummary(units);
             
             // Store original data for filtering
