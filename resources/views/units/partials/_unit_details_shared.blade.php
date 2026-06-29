@@ -649,6 +649,27 @@
             });
         }
 
+        function showTab(tabName) {
+            document.querySelectorAll('#unitDetailsModal .tab-content').forEach(tab => {
+                tab.classList.add('hidden');
+            });
+            document.querySelectorAll('#unitDetailsModal .tab-btn').forEach(btn => {
+                btn.classList.remove('border-blue-600', 'text-blue-600');
+                btn.classList.add('border-transparent', 'text-gray-400');
+            });
+            
+            const targetTab = document.getElementById(tabName + '-tab');
+            if(targetTab) {
+                targetTab.classList.remove('hidden');
+            }
+            
+            const activeBtn = document.querySelector('#unitDetailsModal .tab-btn[data-tab="' + tabName + '"]');
+            if (activeBtn) {
+                activeBtn.classList.remove('border-transparent', 'text-gray-400');
+                activeBtn.classList.add('border-blue-600', 'text-blue-600');
+            }
+        }
+
         function closeUnitDetailsModal() {
             document.getElementById('unitDetailsModal').classList.add('hidden');
         }
