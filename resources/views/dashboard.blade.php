@@ -675,11 +675,11 @@
                         Today
                     </button>
                     <button 
-                        id="btn-tomorrow-coding" 
-                        onclick="setCodingPeriod('tomorrow')"
+                        id="btn-upcoming-coding" 
+                        onclick="setCodingPeriod('upcoming')"
                         class="px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200 text-white/70 hover:text-white hover:bg-white/10"
                     >
-                        Tomorrow
+                        Upcoming
                     </button>
                     <button 
                         id="btn-past-coding" 
@@ -713,8 +713,8 @@
                                 <i data-lucide="check-circle" class="w-4 h-4 text-green-600"></i>
                             </div>
                             <div>
-                                <div class="text-lg font-bold text-green-600" id="tomorrowCodingCount">0</div>
-                                <div class="text-xs text-gray-600 uppercase tracking-wide font-medium">Tomorrow's Coding</div>
+                                <div class="text-lg font-bold text-green-600" id="upcomingCodingCount">0</div>
+                                <div class="text-xs text-gray-600 uppercase tracking-wide font-medium">Upcoming Coding</div>
                             </div>
                         </div>
                     </div>
@@ -2466,8 +2466,6 @@
         const getUnitPeriod = (unit) => {
             const today = new Date();
             today.setHours(0, 0, 0, 0);
-            const tomorrow = new Date(today);
-            tomorrow.setDate(today.getDate() + 1);
             
             const formatDate = (date) => {
                 const year = date.getFullYear();
@@ -2477,11 +2475,9 @@
             };
             
             const todayStr = formatDate(today);
-            const tomorrowStr = formatDate(tomorrow);
             
             const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
             const todayDayIndex = today.getDay();
-            const tomorrowDayIndex = tomorrow.getDay();
             
             const unitDate = unit.start_date;
             const codingDay = (unit.coding_day || '').trim().toLowerCase();
@@ -2489,26 +2485,29 @@
             
             if (isCompleted || (unitDate && unitDate < todayStr)) return 'past';
             if (unitDate === todayStr || (!unitDate && codingDay === dayNames[todayDayIndex])) return 'today';
-            if (unitDate === tomorrowStr || (!unitDate && codingDay === dayNames[tomorrowDayIndex])) return 'tomorrow';
+            if (unitDate && unitDate > todayStr) return 'upcoming';
             
             const codingDayIndex = dayNames.indexOf(codingDay);
-            if (!unitDate && codingDayIndex !== -1 && codingDayIndex < todayDayIndex) return 'past';
+            if (!unitDate && codingDayIndex !== -1) {
+                if (codingDayIndex < todayDayIndex) return 'past';
+                if (codingDayIndex > todayDayIndex) return 'upcoming';
+            }
             
             return 'future';
         };
 
         function updateCodingSummary(units) {
-            const counts = { today: 0, tomorrow: 0, past: 0 };
+            const counts = { today: 0, upcoming: 0, past: 0 };
             
             units.forEach(unit => {
                 const period = getUnitPeriod(unit);
                 if (period === 'today') counts.today++;
-                else if (period === 'tomorrow') counts.tomorrow++;
+                else if (period === 'upcoming') counts.upcoming++;
                 else if (period === 'past') counts.past++;
             });
             
             document.getElementById('todayCodingCount').textContent = counts.today;
-            document.getElementById('tomorrowCodingCount').textContent = counts.tomorrow;
+            document.getElementById('upcomingCodingCount').textContent = counts.upcoming;
             document.getElementById('pastCodingCount').textContent = counts.past;
         }
         
@@ -2518,7 +2517,7 @@
             window.currentCodingPeriod = period;
             
             // Update UI
-            const periods = ['today', 'tomorrow', 'past'];
+            const periods = ['today', 'upcoming', 'past'];
             periods.forEach(p => {
                 const btn = document.getElementById('btn-' + p + '-coding');
                 if (btn) {
