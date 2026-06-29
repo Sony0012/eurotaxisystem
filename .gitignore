@@ -1,0 +1,15 @@
+/vendor/
+/node_modules/
+/mobile-ionic/node_modules/
+/.env
+/storage/framework/cache/
+/storage/framework/views/
+/storage/framework/sessions/
+/bootstrap/cache/
+*.tar.gz
+*.zip
+/temp_deploy_*/
+/backups/
+/scratch/
+*.log
+firebase-credentials.json

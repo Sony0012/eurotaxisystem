@@ -1,0 +1,79 @@
+﻿
+{"step_index":5538,"source":"MODEL","type":"RUN_COMMAND","status":"DONE","created_at":"2026-06-29T03:24:22Z","content":
+"Created At: 2026-06-29T03:24:22Z\nCompleted At: 2026-06-29T03:24:24Z\n\n\t\t\t\tThe command completed 
+successfully.\n\t\t\t\tOutput:\n\t\t\t\t\r\n  resources\\views\\dashboard.blade.php:3353:        }\r\n  
+resources\\views\\dashboard.blade.php:3354:\r\n  resources\\views\\dashboard.blade.php:3355:        // Units Modal 
+Functions\r\n  resources\\views\\dashboard.blade.php:3356:        function showUnitsModal() {\r\n  
+resources\\views\\dashboard.blade.php:3357:            const modal = document.getElementById('unitsModal');\r\n  
+resources\\views\\dashboard.blade.php:3358:            const grid = document.getElementById('unitsGrid');\r\n  
+resources\\views\\dashboard.blade.php:3359:            \r\n  resources\\views\\dashboard.blade.php:3360:            if 
+(modal && grid) {\r\n  resources\\views\\dashboard.blade.php:3361:                
+modal.classList.remove('hidden');\r\n  resources\\views\\dashboard.blade.php:3362:                loadUnitsData();\r\n 
+ resources\\views\\dashboard.blade.php:3363:            }\r\n  resources\\views\\dashboard.blade.php:3364:        
+}\r\n  resources\\views\\dashboard.blade.php:3365:\r\n  resources\\views\\dashboard.blade.php:3366:        function 
+hideUnitsModal() {\r\n  resources\\views\\dashboard.blade.php:3367:            const modal = 
+document.getElementById('unitsModal');\r\n  resources\\views\\dashboard.blade.php:3368:            if (modal) {\r\n  
+resources\\views\\dashboard.blade.php:3369:                modal.classList.add('hidden');\r\n  
+resources\\views\\dashboard.blade.php:3370:            }\r\n  resources\\views\\dashboard.blade.php:3371:        }\r\n 
+ resources\\views\\dashboard.blade.php:3372:\r\n> resources\\views\\dashboard.blade.php:3373:        function 
+loadUnitsData() {\r\n  resources\\views\\dashboard.blade.php:3374:            const grid = 
+document.getElementById('unitsGrid');\r\n  resources\\views\\dashboard.blade.php:3375:            \r\n  
+resources\\views\\dashboard.blade.php:3376:            // Show loading state\r\n  
+resources\\views\\dashboard.blade.php:3377:            grid.innerHTML = `\r\n  
+resources\\views\\dashboard.blade.php:3378:                <div class=\"col-span-full text-center py-20\">\r\n  
+resources\\views\\dashboard.blade.php:3379:                    <div class=\"inline-flex flex-col items-center\">\r\n  
+resources\\views\\dashboard.blade.php:3380:                        <div class=\"animate-spin rounded-full h-16 w-16 
+\r\nborder-4 border-blue-600 border-t-transparent mb-6\"></div>\r\n  resources\\views\\dashboard.blade.php:3381:       
+                 <span class=\"text-xl text-gray-600 font-semibold \r\nmb-2\">Loading units data...</span>\r\n  
+resources\\views\\dashboard.blade.php:3382:                        <p class=\"text-sm text-gray-400\">Please wait 
+while \r\nwe fetch your fleet information</p>\r\n  resources\\views\\dashboard.blade.php:3383:                    
+</div>\r\n  resources\\views\\dashboard.blade.php:3384:                </div>\r\n  
+resources\\views\\dashboard.blade.php:3385:            `;\r\n  resources\\views\\dashboard.blade.php:3386:            
+\r\n  resources\\views\\dashboard.blade.php:3387:            fetch('/api/units-overview')\r\n  
+resources\\views\\dashboard.blade.php:3388:                .then(response => {\r\n  
+resources\\views\\dashboard.blade.php:3389:                    if (!response.ok) {\r\n  
+resources\\views\\dashboard.blade.php:3390:                        throw new Error(`HTTP error! status: 
+\r\n${response.status}`);\r\n  resources\\views\\dashboard.blade.php:3391:                    }\r\n  
+resources\\views\\dashboard.blade.php:3392:                    return response.json();\r\n  
+resources\\views\\dashboard.blade.php:3393:                })\r\n  resources\\views\\dashboard.blade.php:3394:         
+       .then(data => {\r\n  resources\\views\\dashboard.blade.php:3395:                    if (data.success) {\r\n  
+resources\\views\\dashboard.blade.php:3396:                        displayUnitsData(data);\r\n  
+resources\\views\\dashboard.blade.php:3397:                    } else {\r\n  
+resources\\views\\dashboard.blade.php:3398:                        throw new Error(data.message || 'Unknown error 
+\r\noccurred');\r\n  resources\\views\\dashboard.blade.php:3399:                    }\r\n  
+resources\\views\\dashboard.blade.php:3400:                })\r\n  resources\\views\\dashboard.blade.php:3401:         
+       .catch(error => {\r\n  resources\\views\\dashboard.blade.php:3402:                    console.error('Error 
+loading units:', error);\r\n  resources\\views\\dashboard.blade.php:3403:                    grid.innerHTML = `\r\n  
+resources\\views\\dashboard.blade.php:3404:                        <div class=\"col-span-full text-center py-20\">\r\n 
+ resources\\views\\dashboard.blade.php:3405:                            <div class=\"inline-flex flex-col 
+items-center\">\r\n  resources\\views\\dashboard.blade.php:3406:                                <div class=\"p-4 
+bg-red-100 rounded-full \r\nmb-4\">\r\n  resources\\views\\dashboard.blade.php:3407:                                   
+ <i data-lucide=\"alert-circle\" \r\nclass=\"w-8 h-8 text-red-600\"></i>\r\n  
+resources\\views\\dashboard.blade.php:3408:                                </div>\r\n  
+resources\\views\\dashboard.blade.php:3409:                                <span class=\"text-xl text-red-600 
+\r\nfont-semibold mb-2\">Error Loading Units</span>\r\n  resources\\views\\dashboard.blade.php:3410:                   
+             <p class=\"text-sm text-gray-400 \r\nmb-4\">${error.message}</p>\r\n  
+resources\\views\\dashboard.blade.php:3411:                                <button onclick=\"loadUnitsData()\" 
+\r\nclass=\"px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors\">\r\n  
+resources\\views\\dashboard.blade.php:3412:                                    <i data-lucide=\"refresh-cw\" 
+class=\"w-4 \r\nh-4 mr-2\"></i>\r\n  resources\\views\\dashboard.blade.php:3413:                                    
+Try Again\r\n  resources\\views\\dashboard.blade.php:3414:                                </button>\r\n  
+resources\\views\\dashboard.blade.php:3415:                            </div>\r\n  
+resources\\views\\dashboard.blade.php:3416:                        </div>\r\n  
+resources\\views\\dashboard.blade.php:3417:                    `;\r\n  resources\\views\\dashboard.blade.php:3418:     
+               \r\n  resources\\views\\dashboard.blade.php:3419:                    // Re-initialize Lucide icons for 
+error state\r\n  resources\\views\\dashboard.blade.php:3420:                    if (typeof lucide !== 'undefined') 
+{\r\n  resources\\views\\dashboard.blade.php:3421:                        lucide.createIcons();\r\n  
+resources\\views\\dashboard.blade.php:3422:                    }\r\n  resources\\views\\dashboard.blade.php:3423:      
+          });\r\n  resources\\views\\dashboard.blade.php:3424:        }\r\n  
+resources\\views\\dashboard.blade.php:3425:\r\n  resources\\views\\dashboard.blade.php:3426:        function 
+renderUnits(units, statusColors, statusIcons, \r\nstatusGradients) {\r\n  resources\\views\\dashboard.blade.php:3427:  
+          const grid = document.getElementById('unitsGrid');\r\n  resources\\views\\dashboard.blade.php:3428:          
+  \r\n  resources\\views\\dashboard.blade.php:3429:            if (units.length === 0) {\r\n  
+resources\\views\\dashboard.blade.php:3430:                grid.innerHTML = `\r\n  
+resources\\views\\dashboard.blade.php:3431:                    <div class=\"col-span-full text-center py-20\">\r\n  
+resources\\views\\dashboard.blade.php:3432:                        <div class=\"inline-flex flex-col 
+items-center\">\r\n  resources\\views\\dashboard.blade.php:3433:                            <div class=\"p-4 
+bg-gray-100 rounded-full mb-4\">\r\n\r\n\r\n\n"}
+
+
