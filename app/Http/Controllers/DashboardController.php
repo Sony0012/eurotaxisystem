@@ -901,11 +901,7 @@ class DashboardController extends Controller
 
             $allUnits = $unitsQuery->select($select)->get();
             
-            $codingUnits = $allUnits->filter(function($unit) use ($today) {
-                $plateCodingDay = $this->getCodingDay($unit->plate_number);
-                $isManualCoding = ($unit->status === 'coding' || ($unit->coding_id && $unit->coding_status !== 'completed'));
-                return ($plateCodingDay === $today || $isManualCoding);
-            })->values();
+            $codingUnits = $allUnits;
 
             $codingUnits = $codingUnits->map(function($unit) {
                     $startDate = data_get($unit, 'start_date');
