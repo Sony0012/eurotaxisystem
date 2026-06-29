@@ -1335,37 +1335,66 @@
         try {
             const revenueTrendCtx = document.getElementById('revenueTrendChart').getContext('2d');
             const revenueTrendData = @json($revenue_trend);
+            
+            window.currentRevenueTrendValues = revenueTrendData.map(d => d.revenue);
+            window.isRevenueTrendIntersecting = false;
+            let isRevenueTrendChartInitialized = false;
+
             const rGrad = revenueTrendCtx.createLinearGradient(0, 0, 0, 320);
             rGrad.addColorStop(0, 'rgba(37,99,235,0.3)'); rGrad.addColorStop(0.6, 'rgba(37,99,235,0.08)'); rGrad.addColorStop(1, 'rgba(37,99,235,0)');
-            window.revenueTrendChart = new Chart(revenueTrendCtx, {
-                type: 'line',
-                data: {
-                    labels: revenueTrendData.map(d => d.date),
-                    datasets: [{
-                        label: 'Revenue', data: revenueTrendData.map(d => d.revenue),
-                        borderColor: '#2563eb', backgroundColor: rGrad,
-                        borderWidth: 3, tension: 0.45, fill: true,
-                        pointBackgroundColor: '#fff', pointBorderColor: '#2563eb', pointBorderWidth: 2.5,
-                        pointRadius: 5, pointHoverRadius: 8, pointHoverBackgroundColor: '#2563eb'
-                    }]
-                },
-                options: {
-                    responsive: true, maintainAspectRatio: false,
-                    interaction: { mode: 'index', intersect: false },
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: {
-                            backgroundColor: 'rgba(15,23,42,0.95)', padding: 14, cornerRadius: 12,
-                            callbacks: { label: ctx => ` Revenue: ₱${ctx.parsed.y.toLocaleString()}` }
-                        }
+            
+            function getRevenueTrendChartConfig() {
+                return {
+                    type: 'line',
+                    data: {
+                        labels: revenueTrendData.map(d => d.date),
+                        datasets: [{
+                            label: 'Revenue', data: window.currentRevenueTrendValues.map(d => 0),
+                            borderColor: '#2563eb', backgroundColor: rGrad,
+                            borderWidth: 3, tension: 0.45, fill: true,
+                            pointBackgroundColor: '#fff', pointBorderColor: '#2563eb', pointBorderWidth: 2.5,
+                            pointRadius: 5, pointHoverRadius: 8, pointHoverBackgroundColor: '#2563eb'
+                        }]
                     },
-                    scales: {
-                        x: { grid: { display: false }, ticks: { font: { size: 11, weight: '600' }, color: '#94a3b8', maxRotation: 45 } },
-                        y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)', drawBorder: false },
-                             ticks: { font: { size: 11 }, color: '#94a3b8', callback: v => '₱' + v.toLocaleString() } }
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        animation: { duration: 1500, easing: 'easeOutQuart' },
+                        interaction: { mode: 'index', intersect: false },
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                backgroundColor: 'rgba(15,23,42,0.95)', padding: 14, cornerRadius: 12,
+                                callbacks: { label: ctx => ` Revenue: ₱${ctx.parsed.y.toLocaleString()}` }
+                            }
+                        },
+                        scales: {
+                            x: { grid: { display: false }, ticks: { font: { size: 11, weight: '600' }, color: '#94a3b8', maxRotation: 45 } },
+                            y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)', drawBorder: false },
+                                 ticks: { font: { size: 11 }, color: '#94a3b8', callback: v => '₱' + v.toLocaleString() } }
+                        }
                     }
-                }
-            });
+                };
+            }
+
+            const revenueTrendObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    window.isRevenueTrendIntersecting = entry.isIntersecting;
+                    if (entry.isIntersecting) {
+                        if (!isRevenueTrendChartInitialized) {
+                            window.revenueTrendChart = new Chart(revenueTrendCtx, getRevenueTrendChartConfig());
+                            isRevenueTrendChartInitialized = true;
+                        }
+                        window.revenueTrendChart.data.datasets[0].data = window.currentRevenueTrendValues;
+                        window.revenueTrendChart.update();
+                    } else {
+                        if (isRevenueTrendChartInitialized && window.revenueTrendChart) {
+                            window.revenueTrendChart.data.datasets[0].data = window.currentRevenueTrendValues.map(d => 0);
+                            window.revenueTrendChart.update('none');
+                        }
+                    }
+                });
+            }, { threshold: 0.3 });
+            revenueTrendObserver.observe(document.getElementById('revenueTrendChart'));
         } catch (error) { console.error('Revenue Trend Chart Error:', error); }
 
         // Unit Performance Chart - Modernized Horizontal Enterprise View
@@ -1742,8 +1771,15 @@
                 .then(data => {
                     if (data.success && window.revenueTrendChart) {
                         window.revenueTrendChart.data.labels = data.data.map(d => d.date);
-                        window.revenueTrendChart.data.datasets[0].data = data.data.map(d => d.revenue);
-                        window.revenueTrendChart.update('none');
+                        window.currentRevenueTrendValues = data.data.map(d => d.revenue);
+                        
+                        if (window.isRevenueTrendIntersecting) {
+                            window.revenueTrendChart.data.datasets[0].data = window.currentRevenueTrendValues;
+                            window.revenueTrendChart.update();
+                        } else {
+                            window.revenueTrendChart.data.datasets[0].data = window.currentRevenueTrendValues.map(d => 0);
+                            window.revenueTrendChart.update('none');
+                        }
                     }
                 })
                 .catch(error => console.error('Error updating revenue trend:', error));
