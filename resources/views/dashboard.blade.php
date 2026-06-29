@@ -668,16 +668,9 @@
                 <!-- Coding Period Filters -->
                 <div class="flex bg-white/10 backdrop-blur-sm border border-white/30 rounded-lg p-1">
                     <button 
-                        id="btn-all-coding" 
-                        onclick="setCodingPeriod('all')"
-                        class="px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200 bg-white text-purple-700"
-                    >
-                        All
-                    </button>
-                    <button 
                         id="btn-today-coding" 
                         onclick="setCodingPeriod('today')"
-                        class="px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200 text-white/70 hover:text-white hover:bg-white/10"
+                        class="px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200 bg-white text-purple-700"
                     >
                         Today
                     </button>
@@ -2519,13 +2512,13 @@
             document.getElementById('pastCodingCount').textContent = counts.past;
         }
         
-        window.currentCodingPeriod = 'all';
+        window.currentCodingPeriod = 'today';
 
         function setCodingPeriod(period) {
             window.currentCodingPeriod = period;
             
             // Update UI
-            const periods = ['all', 'today', 'tomorrow', 'past'];
+            const periods = ['today', 'tomorrow', 'past'];
             periods.forEach(p => {
                 const btn = document.getElementById('btn-' + p + '-coding');
                 if (btn) {
@@ -2544,16 +2537,14 @@
 
         function filterCodingUnits() {
             const searchTerm = document.getElementById('codingSearchInput').value.toLowerCase();
-            const currentPeriod = window.currentCodingPeriod || 'all';
+            const currentPeriod = window.currentCodingPeriod || 'today';
             
             let filteredUnits = window.originalCodingUnitsData || [];
 
             // Apply period filter
-            if (currentPeriod !== 'all') {
-                filteredUnits = filteredUnits.filter(unit => {
-                    return getUnitPeriod(unit) === currentPeriod;
-                });
-            }
+            filteredUnits = filteredUnits.filter(unit => {
+                return getUnitPeriod(unit) === currentPeriod;
+            });
             
             // Apply search filter
             if (searchTerm) {
