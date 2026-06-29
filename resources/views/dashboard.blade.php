@@ -1276,29 +1276,56 @@
             wGrad2.addColorStop(0, 'rgba(239,68,68,0.2)'); wGrad2.addColorStop(1, 'rgba(239,68,68,0.01)');
             const wGrad3 = weeklyCtx.createLinearGradient(0, 0, 0, 300);
             wGrad3.addColorStop(0, 'rgba(34,197,94,0.25)'); wGrad3.addColorStop(1, 'rgba(34,197,94,0.01)');
-            window.weeklyChart = new Chart(weeklyCtx, {
-                type: 'line',
-                data: {
-                    labels: weeklyData.map(d => d.day),
-                    datasets: [
-                        { label: 'Boundary', data: weeklyData.map(d => d.boundary), borderColor: '#eab308', backgroundColor: wGrad1, borderWidth: 2.5, tension: 0.45, fill: true, pointBackgroundColor: '#eab308', pointRadius: 4, pointHoverRadius: 7 },
-                        { label: 'Expenses', data: weeklyData.map(d => d.expenses), borderColor: '#ef4444', backgroundColor: wGrad2, borderWidth: 2.5, tension: 0.45, fill: true, pointBackgroundColor: '#ef4444', pointRadius: 4, pointHoverRadius: 7 },
-                        { label: 'Net Income', data: weeklyData.map(d => d.net), borderColor: '#22c55e', backgroundColor: wGrad3, borderWidth: 2.5, tension: 0.45, fill: true, pointBackgroundColor: '#22c55e', pointRadius: 4, pointHoverRadius: 7 }
-                    ]
-                },
-                options: {
-                    responsive: true, maintainAspectRatio: false,
-                    interaction: { mode: 'index', intersect: false },
-                    plugins: {
-                        legend: { position: 'top', labels: { usePointStyle: true, pointStyleWidth: 10, font: { size: 12, weight: '600' }, padding: 18 } },
-                        tooltip: { backgroundColor: 'rgba(15,23,42,0.95)', padding: 14, cornerRadius: 12, callbacks: { label: ctx => ` ${ctx.dataset.label}: ₱${ctx.parsed.y.toLocaleString()}` } }
+            let isWeeklyChartInitialized = false;
+            function getWeeklyChartConfig() {
+                return {
+                    type: 'line',
+                    data: {
+                        labels: weeklyData.map(d => d.day),
+                        datasets: [
+                            { label: 'Boundary', data: weeklyData.map(d => 0), borderColor: '#eab308', backgroundColor: wGrad1, borderWidth: 2.5, tension: 0.45, fill: true, pointBackgroundColor: '#eab308', pointRadius: 4, pointHoverRadius: 7 },
+                            { label: 'Expenses', data: weeklyData.map(d => 0), borderColor: '#ef4444', backgroundColor: wGrad2, borderWidth: 2.5, tension: 0.45, fill: true, pointBackgroundColor: '#ef4444', pointRadius: 4, pointHoverRadius: 7 },
+                            { label: 'Net Income', data: weeklyData.map(d => 0), borderColor: '#22c55e', backgroundColor: wGrad3, borderWidth: 2.5, tension: 0.45, fill: true, pointBackgroundColor: '#22c55e', pointRadius: 4, pointHoverRadius: 7 }
+                        ]
                     },
-                    scales: {
-                        x: { grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { font: { size: 11, weight: '600' }, color: '#64748b' } },
-                        y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { font: { size: 11 }, color: '#64748b', callback: v => '₱' + v.toLocaleString() } }
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        animation: { duration: 1500, easing: 'easeOutQuart' },
+                        interaction: { mode: 'index', intersect: false },
+                        plugins: {
+                            legend: { position: 'top', labels: { usePointStyle: true, pointStyleWidth: 10, font: { size: 12, weight: '600' }, padding: 18 } },
+                            tooltip: { backgroundColor: 'rgba(15,23,42,0.95)', padding: 14, cornerRadius: 12, callbacks: { label: ctx => ` ${ctx.dataset.label}: ₱${ctx.parsed.y.toLocaleString()}` } }
+                        },
+                        scales: {
+                            x: { grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { font: { size: 11, weight: '600' }, color: '#64748b' } },
+                            y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { font: { size: 11 }, color: '#64748b', callback: v => '₱' + v.toLocaleString() } }
+                        }
                     }
-                }
-            });
+                };
+            }
+
+            const weeklyObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        if (!isWeeklyChartInitialized) {
+                            window.weeklyChart = new Chart(weeklyCtx, getWeeklyChartConfig());
+                            isWeeklyChartInitialized = true;
+                        }
+                        window.weeklyChart.data.datasets[0].data = weeklyData.map(d => d.boundary);
+                        window.weeklyChart.data.datasets[1].data = weeklyData.map(d => d.expenses);
+                        window.weeklyChart.data.datasets[2].data = weeklyData.map(d => d.net);
+                        window.weeklyChart.update();
+                    } else {
+                        if (isWeeklyChartInitialized && window.weeklyChart) {
+                            window.weeklyChart.data.datasets[0].data = weeklyData.map(d => 0);
+                            window.weeklyChart.data.datasets[1].data = weeklyData.map(d => 0);
+                            window.weeklyChart.data.datasets[2].data = weeklyData.map(d => 0);
+                            window.weeklyChart.update('none');
+                        }
+                    }
+                });
+            }, { threshold: 0.3 });
+            weeklyObserver.observe(document.getElementById('weeklyChart'));
         } catch (error) { console.error('Weekly Chart Error:', error); }
 
         // Unit Status Chart - (Handled by the premium donut chart below)
@@ -1505,31 +1532,53 @@
             }
             const pieColors = ['#ef4444','#f59e0b','#10b981','#3b82f6','#8b5cf6','#ec4899','#06b6d4'];
             const pieHover = ['#dc2626','#d97706','#059669','#2563eb','#7c3aed','#db2777','#0891b2'];
-            window.expenseBreakdownChart = new Chart(expenseBreakdownCtx, {
-                type: 'pie',
-                data: {
-                    labels: expenseBreakdownData.map(d => d.category),
-                    datasets: [{ data: expenseBreakdownData.map(d => d.amount), backgroundColor: pieColors, hoverBackgroundColor: pieHover, borderWidth: 3, borderColor: '#fff', hoverOffset: 12 }]
-                },
-                options: {
-                    responsive: true, maintainAspectRatio: false,
-                    plugins: {
-                        legend: { position: 'right', labels: { usePointStyle: true, pointStyleWidth: 12, font: { size: 12, weight: '600' }, padding: 16, color: '#374151' } },
-                        tooltip: {
-                            backgroundColor: 'rgba(15,23,42,0.95)', padding: 14, cornerRadius: 12,
-                            callbacks: {
-                                label: function(ctx) {
-                                    const total = ctx.dataset.data.reduce((a,b) => a+b, 0);
-                                    const pct = ((ctx.parsed / total) * 100).toFixed(1);
-                                    return ` ${ctx.label}: ₱${ctx.parsed.toLocaleString()} (${pct}%)`;
-                                }
-                            }
-                        },
-                        datalabels: { color: '#fff', font: { weight: 'bold', size: 12 }, formatter: (val, ctx) => { const total = ctx.dataset.data.reduce((a,b)=>a+b,0); const pct = ((val/total)*100).toFixed(0); return pct > 5 ? pct+'%' : ''; } }
+            let isExpenseChartInitialized = false;
+            function getExpenseChartConfig() {
+                return {
+                    type: 'pie',
+                    data: {
+                        labels: expenseBreakdownData.map(d => d.category),
+                        datasets: [{ data: expenseBreakdownData.map(d => 0), backgroundColor: pieColors, hoverBackgroundColor: pieHover, borderWidth: 3, borderColor: '#fff', hoverOffset: 12 }]
                     },
-                    animation: { animateRotate: true, duration: 900, easing: 'easeOutQuart' }
-                }
-            });
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'right', labels: { usePointStyle: true, pointStyleWidth: 12, font: { size: 12, weight: '600' }, padding: 16, color: '#374151' } },
+                            tooltip: {
+                                backgroundColor: 'rgba(15,23,42,0.95)', padding: 14, cornerRadius: 12,
+                                callbacks: {
+                                    label: function(ctx) {
+                                        const total = ctx.dataset.data.reduce((a,b) => a+b, 0);
+                                        const pct = total > 0 ? ((ctx.parsed / total) * 100).toFixed(1) : 0;
+                                        return ` ${ctx.label}: ₱${ctx.parsed.toLocaleString()} (${pct}%)`;
+                                    }
+                                }
+                            },
+                            datalabels: { color: '#fff', font: { weight: 'bold', size: 12 }, formatter: (val, ctx) => { const total = ctx.dataset.data.reduce((a,b)=>a+b,0); const pct = total > 0 ? ((val/total)*100).toFixed(0) : 0; return pct > 5 ? pct+'%' : ''; } }
+                        },
+                        animation: { animateRotate: true, animateScale: true, duration: 1500, easing: 'easeOutQuart' }
+                    }
+                };
+            }
+
+            const expenseObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        if (!isExpenseChartInitialized) {
+                            window.expenseBreakdownChart = new Chart(expenseBreakdownCtx, getExpenseChartConfig());
+                            isExpenseChartInitialized = true;
+                        }
+                        window.expenseBreakdownChart.data.datasets[0].data = expenseBreakdownData.map(d => d.amount);
+                        window.expenseBreakdownChart.update();
+                    } else {
+                        if (isExpenseChartInitialized && window.expenseBreakdownChart) {
+                            window.expenseBreakdownChart.data.datasets[0].data = expenseBreakdownData.map(d => 0);
+                            window.expenseBreakdownChart.update('none');
+                        }
+                    }
+                });
+            }, { threshold: 0.3 });
+            expenseObserver.observe(document.getElementById('expenseBreakdownChart'));
         } catch (error) { console.error('Expense Chart Error:', error); }
 
 
@@ -1552,33 +1601,55 @@
                 ];
             }
             const barColors = topDriversData.map((_, i) => i===0?'#2563eb':i===1?'#7c3aed':i===2?'#0891b2':'#64748b');
-            window.topDriversChart = new Chart(topDriversCtx, {
-                type: 'bar',
-                data: {
-                    labels: topDriversData.map((d,i) => { const medals=['🥇','🥈','🥉']; return `${medals[i]||'  '} ${d.name}`; }),
-                    datasets: [{ label: 'Reliability Score', data: topDriversData.map(d => d.score),
-                        backgroundColor: barColors, borderColor: barColors, borderWidth: 0,
-                        borderRadius: 10, borderSkipped: false, barThickness: 28 }]
-                },
-                options: {
-                    indexAxis: 'y', responsive: true, maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: { backgroundColor: 'rgba(15,23,42,0.95)', padding: 14, cornerRadius: 12, displayColors: false,
-                            callbacks: {
-                                label: ctx => ` ⭐ Reliability: ${ctx.parsed.x} clean service days`,
-                                footer: items => { const amt = topDriversData[items[0].dataIndex].total; return ` ₱ Total Revenue: ₱${amt.toLocaleString()}`; }
-                            }
+            let isTopDriversChartInitialized = false;
+            function getTopDriversChartConfig() {
+                return {
+                    type: 'bar',
+                    data: {
+                        labels: topDriversData.map((d,i) => { const medals=['🥇','🥈','🥉']; return `${medals[i]||'  '} ${d.name}`; }),
+                        datasets: [{ label: 'Reliability Score', data: topDriversData.map(d => 0),
+                            backgroundColor: barColors, borderColor: barColors, borderWidth: 0,
+                            borderRadius: 10, borderSkipped: false, barThickness: 28 }]
+                    },
+                    options: {
+                        indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: { backgroundColor: 'rgba(15,23,42,0.95)', padding: 14, cornerRadius: 12, displayColors: false,
+                                callbacks: {
+                                    label: ctx => ` ⭐ Reliability: ${ctx.parsed.x} clean service days`,
+                                    footer: items => { const amt = topDriversData[items[0].dataIndex].total; return ` ₱ Total Revenue: ₱${amt.toLocaleString()}`; }
+                                }
+                            },
+                            datalabels: { color: '#fff', font: { weight: 'bold', size: 12 }, anchor: 'end', align: 'start', offset: 8, formatter: v => v>0?v:'' }
                         },
-                        datalabels: { color: '#fff', font: { weight: 'bold', size: 12 }, anchor: 'end', align: 'start', offset: 8, formatter: v => v>0?v:'' }
-                    },
-                    scales: {
-                        x: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.04)', drawBorder: false }, ticks: { font: { size: 11, weight: '500' }, color: '#94a3b8' } },
-                        y: { grid: { display: false, drawBorder: false }, ticks: { font: { size: 13, weight: '600' }, color: '#1e293b' } }
-                    },
-                    animation: { duration: 1200, easing: 'easeOutQuart' }
-                }
-            });
+                        scales: {
+                            x: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.04)', drawBorder: false }, ticks: { font: { size: 11, weight: '500' }, color: '#94a3b8' } },
+                            y: { grid: { display: false, drawBorder: false }, ticks: { font: { size: 13, weight: '600' }, color: '#1e293b' } }
+                        },
+                        animation: { duration: 1500, easing: 'easeOutQuart' }
+                    }
+                };
+            }
+
+            const topDriversObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        if (!isTopDriversChartInitialized) {
+                            window.topDriversChart = new Chart(topDriversCtx, getTopDriversChartConfig());
+                            isTopDriversChartInitialized = true;
+                        }
+                        window.topDriversChart.data.datasets[0].data = topDriversData.map(d => d.score);
+                        window.topDriversChart.update();
+                    } else {
+                        if (isTopDriversChartInitialized && window.topDriversChart) {
+                            window.topDriversChart.data.datasets[0].data = topDriversData.map(d => 0);
+                            window.topDriversChart.update('none');
+                        }
+                    }
+                });
+            }, { threshold: 0.3 });
+            topDriversObserver.observe(document.getElementById('topDriversChart'));
         } catch (error) { console.error('Top Drivers Chart Error:', error); }
 
 
@@ -1600,32 +1671,54 @@
                 distValues = unitStatusDistData.map(d => d.count);
             }
             const totalUnits = distValues.reduce((a,b) => a+b, 0);
-            window.unitStatusChart = new Chart(unitStatusDistCtx, {
-                type: 'doughnut',
-                data: { labels: distLabels, datasets: [{ data: distValues, backgroundColor: donutColors, hoverBackgroundColor: donutHover, borderWidth: 4, borderColor: '#fff', hoverOffset: 16 }] },
-                options: {
-                    responsive: true, maintainAspectRatio: false, cutout: '72%',
-                    plugins: {
-                        legend: { position: 'right', labels: { usePointStyle: true, pointStyleWidth: 12, font: { size: 12, weight: '600' }, padding: 18, color: '#374151',
-                            generateLabels: (chart) => chart.data.labels.map((label, i) => ({ text: `${label}: ${chart.data.datasets[0].data[i]}`, fillStyle: donutColors[i], strokeStyle: '#fff', lineWidth: 2, index: i })) } },
-                        tooltip: { backgroundColor: 'rgba(15,23,42,0.95)', padding: 14, cornerRadius: 12,
-                            callbacks: { label: ctx => { const total = ctx.dataset.data.reduce((a,b)=>a+b,0); const pct = total>0?((ctx.parsed/total)*100).toFixed(1):0; return ` ${ctx.label}: ${ctx.parsed} units (${pct}%)`; } } },
-                        datalabels: { color: '#fff', font: { weight: 'bold', size: 13 }, formatter: (val, ctx) => { const sum = ctx.dataset.data.reduce((a,b)=>a+b,0); const pct = sum>0?((val/sum)*100).toFixed(0):0; return pct>5?pct+'%':''; } }
+            let isUnitStatusChartInitialized = false;
+            function getUnitStatusChartConfig() {
+                return {
+                    type: 'doughnut',
+                    data: { labels: distLabels, datasets: [{ data: distValues.map(d => 0), backgroundColor: donutColors, hoverBackgroundColor: donutHover, borderWidth: 4, borderColor: '#fff', hoverOffset: 16 }] },
+                    options: {
+                        responsive: true, maintainAspectRatio: false, cutout: '72%',
+                        plugins: {
+                            legend: { position: 'right', labels: { usePointStyle: true, pointStyleWidth: 12, font: { size: 12, weight: '600' }, padding: 18, color: '#374151',
+                                generateLabels: (chart) => chart.data.labels.map((label, i) => ({ text: `${label}: ${chart.data.datasets[0].data[i]}`, fillStyle: donutColors[i], strokeStyle: '#fff', lineWidth: 2, index: i })) } },
+                            tooltip: { backgroundColor: 'rgba(15,23,42,0.95)', padding: 14, cornerRadius: 12,
+                                callbacks: { label: ctx => { const total = ctx.dataset.data.reduce((a,b)=>a+b,0); const pct = total>0?((ctx.parsed/total)*100).toFixed(1):0; return ` ${ctx.label}: ${ctx.parsed} units (${pct}%)`; } } },
+                            datalabels: { color: '#fff', font: { weight: 'bold', size: 13 }, formatter: (val, ctx) => { const sum = ctx.dataset.data.reduce((a,b)=>a+b,0); const pct = sum>0?((val/sum)*100).toFixed(0):0; return pct>5?pct+'%':''; } }
+                        },
+                        animation: { animateRotate: true, animateScale: true, duration: 1500, easing: 'easeOutQuart' }
                     },
-                    animation: { animateRotate: true, duration: 900, easing: 'easeOutQuart' }
-                },
-                plugins: [{ id: 'donutCenter', afterDraw(chart) {
-                    const { ctx, chartArea: { left, top, right, bottom } } = chart;
-                    const cx = (left+right)/2, cy = (top+bottom)/2;
-                    const currentTotal = chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-                    ctx.save();
-                    ctx.font = 'bold 28px Inter, sans-serif'; ctx.fillStyle = '#0f172a'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-                    ctx.fillText(currentTotal, cx, cy-10);
-                    ctx.font = '600 11px Inter, sans-serif'; ctx.fillStyle = '#94a3b8';
-                    ctx.fillText('TOTAL UNITS', cx, cy+14);
-                    ctx.restore();
-                }}]
-            });
+                    plugins: [{ id: 'donutCenter', afterDraw(chart) {
+                        const { ctx, chartArea: { left, top, right, bottom } } = chart;
+                        const cx = (left+right)/2, cy = (top+bottom)/2;
+                        const currentTotal = chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                        ctx.save();
+                        ctx.font = 'bold 28px Inter, sans-serif'; ctx.fillStyle = '#0f172a'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                        ctx.fillText(currentTotal, cx, cy-10);
+                        ctx.font = '600 11px Inter, sans-serif'; ctx.fillStyle = '#94a3b8';
+                        ctx.fillText('TOTAL UNITS', cx, cy+14);
+                        ctx.restore();
+                    }}]
+                };
+            }
+
+            const unitStatusObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        if (!isUnitStatusChartInitialized) {
+                            window.unitStatusChart = new Chart(unitStatusDistCtx, getUnitStatusChartConfig());
+                            isUnitStatusChartInitialized = true;
+                        }
+                        window.unitStatusChart.data.datasets[0].data = distValues;
+                        window.unitStatusChart.update();
+                    } else {
+                        if (isUnitStatusChartInitialized && window.unitStatusChart) {
+                            window.unitStatusChart.data.datasets[0].data = distValues.map(d => 0);
+                            window.unitStatusChart.update('none');
+                        }
+                    }
+                });
+            }, { threshold: 0.3 });
+            unitStatusObserver.observe(document.getElementById('unitStatusChart'));
         } catch (error) { console.error('Unit Status Distribution Chart Error:', error); }
 
         // Revenue Trend Period Selection
