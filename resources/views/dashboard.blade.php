@@ -702,18 +702,7 @@
         <div class="flex-1 overflow-hidden flex flex-col min-h-0">
             <!-- Summary Stats -->
             <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-4 border-b border-purple-200 flex-shrink-0">
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div class="bg-white rounded-lg p-3 shadow-sm border border-purple-100 hover:shadow-md transition-shadow">
-                        <div class="flex items-center gap-2">
-                            <div class="p-1.5 bg-purple-100 rounded">
-                                <i data-lucide="code" class="w-4 h-4 text-purple-600"></i>
-                            </div>
-                            <div>
-                                <div class="text-lg font-bold text-purple-600" id="codingUnitsCount">0</div>
-                                <div class="text-xs text-gray-600 uppercase tracking-wide font-medium">Coding</div>
-                            </div>
-                        </div>
-                    </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div class="bg-white rounded-lg p-3 shadow-sm border border-blue-100 hover:shadow-md transition-shadow">
                         <div class="flex items-center gap-2">
                             <div class="p-1.5 bg-blue-100 rounded">
@@ -2482,7 +2471,7 @@
             `).join('');
         }
         
-        function updateCodingSummary(units) {
+        const getUnitPeriod = (unit) => {
             const today = new Date();
             today.setHours(0, 0, 0, 0);
             const tomorrow = new Date(today);
@@ -2498,28 +2487,32 @@
             const todayStr = formatDate(today);
             const tomorrowStr = formatDate(tomorrow);
             
-            const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-            const todayDayName = dayNames[today.getDay()];
-            const tomorrowDayName = dayNames[tomorrow.getDay()];
+            const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+            const todayDayIndex = today.getDay();
+            const tomorrowDayIndex = tomorrow.getDay();
             
-            const counts = {
-                today: 0,
-                tomorrow: 0,
-                past: 0
-            };
+            const unitDate = unit.start_date;
+            const codingDay = (unit.coding_day || '').trim().toLowerCase();
+            const isCompleted = unit.coding_status === 'completed';
+            
+            if (isCompleted || (unitDate && unitDate < todayStr)) return 'past';
+            if (unitDate === todayStr || (!unitDate && codingDay === dayNames[todayDayIndex])) return 'today';
+            if (unitDate === tomorrowStr || (!unitDate && codingDay === dayNames[tomorrowDayIndex])) return 'tomorrow';
+            
+            const codingDayIndex = dayNames.indexOf(codingDay);
+            if (!unitDate && codingDayIndex !== -1 && codingDayIndex < todayDayIndex) return 'past';
+            
+            return 'future';
+        };
+
+        function updateCodingSummary(units) {
+            const counts = { today: 0, tomorrow: 0, past: 0 };
             
             units.forEach(unit => {
-                const unitDate = unit.start_date;
-                const codingDay = unit.coding_day;
-                const isCompleted = unit.coding_status === 'completed';
-                
-                if (isCompleted || (unitDate && unitDate < todayStr)) {
-                    counts.past++;
-                } else if (unitDate === todayStr || (!unitDate && codingDay === todayDayName)) {
-                    counts.today++;
-                } else if (unitDate === tomorrowStr || (!unitDate && codingDay === tomorrowDayName)) {
-                    counts.tomorrow++;
-                }
+                const period = getUnitPeriod(unit);
+                if (period === 'today') counts.today++;
+                else if (period === 'tomorrow') counts.tomorrow++;
+                else if (period === 'past') counts.past++;
             });
             
             document.getElementById('todayCodingCount').textContent = counts.today;
@@ -2556,44 +2549,10 @@
             
             let filteredUnits = window.originalCodingUnitsData || [];
 
-            // Get current dates
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-            
-            const tomorrow = new Date(today);
-            tomorrow.setDate(today.getDate() + 1);
-            
-            const formatDate = (date) => {
-                const year = date.getFullYear();
-                const month = String(date.getMonth() + 1).padStart(2, '0');
-                const day = String(date.getDate()).padStart(2, '0');
-                return `${year}-${month}-${day}`;
-            };
-            
-            const todayStr = formatDate(today);
-            const tomorrowStr = formatDate(tomorrow);
-            
-            const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-            const todayDayName = dayNames[today.getDay()];
-            const tomorrowDayName = dayNames[tomorrow.getDay()];
-            
             // Apply period filter
             if (currentPeriod !== 'all') {
                 filteredUnits = filteredUnits.filter(unit => {
-                    const unitDate = unit.start_date;
-                    const codingDay = unit.coding_day;
-                    const isCompleted = unit.coding_status === 'completed';
-                    
-                    if (currentPeriod === 'today') {
-                        return !isCompleted && (unitDate === todayStr || (!unitDate && codingDay === todayDayName));
-                    }
-                    if (currentPeriod === 'tomorrow') {
-                        return !isCompleted && (unitDate === tomorrowStr || (!unitDate && codingDay === tomorrowDayName));
-                    }
-                    if (currentPeriod === 'past') {
-                        return isCompleted || (unitDate && unitDate < todayStr);
-                    }
-                    return true;
+                    return getUnitPeriod(unit) === currentPeriod;
                 });
             }
             
