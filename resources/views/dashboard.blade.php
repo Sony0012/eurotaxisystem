@@ -2466,6 +2466,8 @@
         const getUnitPeriod = (unit) => {
             const today = new Date();
             today.setHours(0, 0, 0, 0);
+            const tomorrow = new Date(today);
+            tomorrow.setDate(today.getDate() + 1);
             
             const formatDate = (date) => {
                 const year = date.getFullYear();
@@ -2475,9 +2477,11 @@
             };
             
             const todayStr = formatDate(today);
+            const tomorrowStr = formatDate(tomorrow);
             
             const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
             const todayDayIndex = today.getDay();
+            const tomorrowDayIndex = tomorrow.getDay();
             
             const unitDate = unit.start_date;
             const codingDay = (unit.coding_day || '').trim().toLowerCase();
@@ -2485,13 +2489,10 @@
             
             if (isCompleted || (unitDate && unitDate < todayStr)) return 'past';
             if (unitDate === todayStr || (!unitDate && codingDay === dayNames[todayDayIndex])) return 'today';
-            if (unitDate && unitDate > todayStr) return 'tomorrow';
+            if (unitDate === tomorrowStr || (!unitDate && codingDay === dayNames[tomorrowDayIndex])) return 'tomorrow';
             
             const codingDayIndex = dayNames.indexOf(codingDay);
-            if (!unitDate && codingDayIndex !== -1) {
-                if (codingDayIndex < todayDayIndex) return 'past';
-                if (codingDayIndex > todayDayIndex) return 'tomorrow';
-            }
+            if (!unitDate && codingDayIndex !== -1 && codingDayIndex < todayDayIndex) return 'past';
             
             return 'future';
         };
