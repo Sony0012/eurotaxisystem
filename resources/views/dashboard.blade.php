@@ -6,6 +6,13 @@
 
     <style>
         @media print {
+            @page {
+                margin: 0;
+            }
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
             body * {
                 visibility: hidden;
             }
@@ -21,7 +28,7 @@
                 max-width: none !important;
                 border: none !important;
                 box-shadow: none !important;
-                padding: 0 !important;
+                padding: 15mm !important;
                 margin: 0 !important;
                 background: white !important;
             }
@@ -1324,67 +1331,6 @@
     <script>
         // Register Chart.js datalabels plugin
         Chart.register(ChartDataLabels);
-
-        // Modal Animation Helpers
-        let lastClickX = window.innerWidth / 2;
-        let lastClickY = window.innerHeight / 2;
-        document.addEventListener('click', (e) => {
-            lastClickX = e.clientX;
-            lastClickY = e.clientY;
-        }, true);
-
-        function animateModalOpen(modalId) {
-            const modalContainer = document.getElementById(modalId);
-            if (!modalContainer) return;
-            
-            const modalBox = modalContainer.querySelector('.bg-white');
-            if (modalBox) {
-                modalContainer.style.opacity = '0';
-                modalContainer.classList.remove('hidden');
-                
-                const rect = modalBox.getBoundingClientRect();
-                const originX = lastClickX - rect.left;
-                const originY = lastClickY - rect.top;
-                
-                modalBox.style.transformOrigin = `${originX}px ${originY}px`;
-                modalBox.style.transform = 'scale(0.3)';
-                modalBox.style.opacity = '0';
-                
-                modalBox.style.transition = 'transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease-out';
-                modalContainer.style.transition = 'opacity 0.3s ease-out';
-                
-                void modalBox.offsetWidth; // reflow
-                
-                modalContainer.style.opacity = '1';
-                modalBox.style.transform = 'scale(1)';
-                modalBox.style.opacity = '1';
-            } else {
-                modalContainer.classList.remove('hidden');
-            }
-        }
-        
-        function animateModalClose(modalId) {
-            const modalContainer = document.getElementById(modalId);
-            if (!modalContainer) return;
-            
-            const modalBox = modalContainer.querySelector('.bg-white');
-            if (modalBox) {
-                modalBox.style.transform = 'scale(0.3)';
-                modalBox.style.opacity = '0';
-                modalContainer.style.opacity = '0';
-                
-                setTimeout(() => {
-                    modalContainer.classList.add('hidden');
-                    modalBox.style.transform = '';
-                    modalBox.style.opacity = '';
-                    modalContainer.style.opacity = '';
-                    modalBox.style.transition = '';
-                    modalContainer.style.transition = '';
-                }, 400);
-            } else {
-                modalContainer.classList.add('hidden');
-            }
-        }
         
         
         // Weekly Financial Chart
@@ -1908,7 +1854,7 @@
 
         // Maintenance Units Modal Functions
         function showMaintenanceUnitsModal() {
-            animateModalOpen('maintenanceUnitsModal');
+            document.getElementById('maintenanceUnitsModal').classList.remove('hidden');
             document.body.style.overflow = 'hidden';
             
             // Set default filter to all
@@ -1919,7 +1865,7 @@
         }
         
         function hideMaintenanceUnitsModal() {
-            animateModalClose('maintenanceUnitsModal');
+            document.getElementById('maintenanceUnitsModal').classList.add('hidden');
             document.body.style.overflow = 'auto';
         }
         
@@ -2273,13 +2219,13 @@
 
         // Active Drivers Modal Functions
         function showActiveDriversModal() {
-            animateModalOpen('activeDriversModal');
+            document.getElementById('activeDriversModal').classList.remove('hidden');
             document.body.style.overflow = 'hidden';
             loadActiveDriversData();
         }
         
         function hideActiveDriversModal() {
-            animateModalClose('activeDriversModal');
+            document.getElementById('activeDriversModal').classList.add('hidden');
             document.body.style.overflow = 'auto';
         }
         
@@ -2567,13 +2513,13 @@
 
         // Coding Units Modal Functions
         function showCodingUnitsModal() {
-            animateModalOpen('codingUnitsModal');
+            document.getElementById('codingUnitsModal').classList.remove('hidden');
             document.body.style.overflow = 'hidden';
             loadCodingUnitsData();
         }
         
         function hideCodingUnitsModal() {
-            animateModalClose('codingUnitsModal');
+            document.getElementById('codingUnitsModal').classList.add('hidden');
             document.body.style.overflow = 'auto';
         }
         
@@ -2872,7 +2818,7 @@
 
         // Net Income Modal Functions
         function showNetIncomeModal() {
-            animateModalOpen('netIncomeModal');
+            document.getElementById('netIncomeModal').classList.remove('hidden');
             document.body.style.overflow = 'hidden';
             
             // Initialize default period to today
@@ -2883,7 +2829,7 @@
         }
         
         function hideNetIncomeModal() {
-            animateModalClose('netIncomeModal');
+            document.getElementById('netIncomeModal').classList.add('hidden');
             document.body.style.overflow = 'auto';
         }
         
@@ -3162,21 +3108,14 @@
             setTimeout(() => { win.print(); }, 300);
         }
 
-        // Expenses Modal Functions
+        // --- Expenses Modal Functions ---
         function showExpensesModal() {
-            animateModalOpen('expensesModal');
-            document.body.style.overflow = 'hidden';
-            
-            // Initialize default period to today
-            window.currentExpensesPeriod = 'today';
+            document.getElementById('expensesModal').classList.remove('hidden');
             setExpensesPeriod('today');
-            
-            loadExpensesData();
         }
-        
+
         function hideExpensesModal() {
-            animateModalClose('expensesModal');
-            document.body.style.overflow = 'auto';
+            document.getElementById('expensesModal').classList.add('hidden');
         }
 
         function setExpensesPeriod(period) {
@@ -3539,7 +3478,7 @@
 
         // Daily Boundary Collection Modal Functions
         function showDailyBoundaryModal() {
-            animateModalOpen('dailyBoundaryModal');
+            document.getElementById('dailyBoundaryModal').classList.remove('hidden');
             document.body.style.overflow = 'hidden';
             
             // Set default date to today if not set
@@ -3552,7 +3491,7 @@
         }
         
         function hideDailyBoundaryModal() {
-            animateModalClose('dailyBoundaryModal');
+            document.getElementById('dailyBoundaryModal').classList.add('hidden');
             document.body.style.overflow = 'auto';
         }
         
@@ -3732,9 +3671,10 @@
         // Units Modal Functions
         function showUnitsModal() {
             const modal = document.getElementById('unitsModal');
-            if (modal) {
-                animateModalOpen('unitsModal');
-                document.body.style.overflow = 'hidden';
+            const grid = document.getElementById('unitsGrid');
+            
+            if (modal && grid) {
+                modal.classList.remove('hidden');
                 loadUnitsData();
             }
         }
@@ -3742,8 +3682,7 @@
         function hideUnitsModal() {
             const modal = document.getElementById('unitsModal');
             if (modal) {
-                animateModalClose('unitsModal');
-                document.body.style.overflow = 'auto';
+                modal.classList.add('hidden');
             }
         }
 
