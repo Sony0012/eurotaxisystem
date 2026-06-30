@@ -656,7 +656,7 @@
                                 const mapId = `mini-map-${unit.id}`;
                                 const mapElement = document.getElementById(mapId);
                                 if (mapElement && !mapElement._leaflet_id) {
-                                    const previewMap = L.map(mapId, {
+                                    window._miniPreviewMap = L.map(mapId, {
                                         zoomControl: false,
                                         attributionControl: false,
                                         scrollWheelZoom: false,
@@ -667,7 +667,7 @@
                                     L.tileLayer('https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
                                         maxZoom: 20,
                                         subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
-                                    }).addTo(previewMap);
+                                    }).addTo(window._miniPreviewMap);
 
                                     // Custom Car Marker
                                     const carIcon = L.divIcon({
@@ -679,7 +679,7 @@
                                         iconAnchor: [18, 18]
                                     });
 
-                                    L.marker([lat, lon], { icon: carIcon }).addTo(previewMap);
+                                    L.marker([lat, lon], { icon: carIcon }).addTo(window._miniPreviewMap);
                                 }
                             };
 
@@ -729,6 +729,12 @@
             const targetTab = document.getElementById(tabName + '-tab');
             if(targetTab) {
                 targetTab.classList.remove('hidden');
+                // Fix Leaflet map rendering glitch when tab is shown
+                if (tabName === 'location' && window._miniPreviewMap) {
+                    setTimeout(() => {
+                        window._miniPreviewMap.invalidateSize();
+                    }, 50);
+                }
             }
             
             const activeBtn = document.querySelector('#unitDetailsModal .tab-btn[data-tab="' + tabName + '"]');
