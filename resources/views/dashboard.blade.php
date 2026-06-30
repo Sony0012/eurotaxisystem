@@ -509,6 +509,72 @@
     </div>
 </div>
 
+<!-- Maintenance Details Modal -->
+<div id="maintenanceDetailsModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-[60] flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-orange-600 to-amber-600 p-4 sm:p-5 flex justify-between items-center shrink-0">
+            <div class="flex items-center gap-3">
+                <div class="p-2 bg-white/20 rounded-lg backdrop-blur-sm">
+                    <i data-lucide="wrench" class="w-5 h-5 text-white"></i>
+                </div>
+                <div>
+                    <h3 class="text-lg font-black text-white tracking-wide uppercase" id="mdm-plate">PLATE</h3>
+                    <p class="text-[10px] text-orange-100 font-bold uppercase tracking-widest" id="mdm-type">Maintenance Details</p>
+                </div>
+            </div>
+            <button onclick="hideMaintenanceDetailsModal()" class="text-white/80 hover:text-white hover:bg-white/20 p-2 rounded-lg transition-all duration-200">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+        
+        <!-- Content -->
+        <div class="p-4 sm:p-6 overflow-y-auto flex-1 bg-gray-50">
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <div class="bg-white p-3 rounded-xl border border-gray-100 shadow-sm flex flex-col justify-center">
+                    <p class="text-[9px] text-gray-400 font-black uppercase tracking-widest mb-1">Assigned Mechanic</p>
+                    <p class="text-sm font-bold text-gray-800 flex items-center gap-2" id="mdm-mechanic">
+                        <i data-lucide="user-cog" class="w-4 h-4 text-orange-500"></i> <span class="truncate">Name</span>
+                    </p>
+                </div>
+                <div class="bg-white p-3 rounded-xl border border-gray-100 shadow-sm flex flex-col justify-center">
+                    <p class="text-[9px] text-gray-400 font-black uppercase tracking-widest mb-1">Driver</p>
+                    <p class="text-sm font-bold text-gray-800 flex items-center gap-2" id="mdm-driver">
+                        <i data-lucide="user" class="w-4 h-4 text-blue-500"></i> <span class="truncate">Name</span>
+                    </p>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden mb-6">
+                <div class="bg-gray-50 px-4 py-3 border-b border-gray-100 flex items-center gap-2">
+                    <i data-lucide="list-checks" class="w-4 h-4 text-gray-500"></i>
+                    <h4 class="text-[10px] font-black text-gray-700 uppercase tracking-widest">Parts & Services Breakdown</h4>
+                </div>
+                <div class="p-0 min-h-[150px]">
+                    <div id="mdm-parts-loading" class="py-12 text-center text-gray-400">
+                        <i data-lucide="loader-2" class="w-8 h-8 animate-spin mx-auto mb-3 text-orange-500"></i>
+                        <p class="text-[10px] font-bold uppercase tracking-widest">Fetching data...</p>
+                    </div>
+                    <ul id="mdm-parts-list" class="divide-y divide-gray-50 hidden">
+                        <!-- Populated by JS -->
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Totals -->
+            <div class="bg-gradient-to-br from-orange-50 to-amber-50 rounded-xl p-4 border border-orange-100 flex justify-between items-center">
+                <div>
+                    <p class="text-[10px] text-orange-600/70 font-black uppercase tracking-widest">Total Cost</p>
+                    <p class="text-xs font-black uppercase tracking-widest mt-0.5" id="mdm-status-badge">Status</p>
+                </div>
+                <div class="text-right">
+                    <p class="text-2xl font-black text-orange-600" id="mdm-total-cost">₱0.00</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Active Drivers Modal -->
 <div id="activeDriversModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-6xl h-[95vh] flex flex-col overflow-hidden">
@@ -1784,6 +1850,77 @@
             document.body.style.overflow = 'auto';
         }
         
+        function showMaintenanceDetailsModal(maintenanceId) {
+            if (!maintenanceId) return;
+            const unit = window.originalMaintenanceData.find(u => u.maintenance_id === maintenanceId);
+            if (!unit) return;
+
+            document.getElementById('mdm-plate').textContent = unit.plate_number;
+            document.getElementById('mdm-type').textContent = (unit.maintenance_type || 'Maintenance').toUpperCase();
+            document.getElementById('mdm-mechanic').querySelector('span').textContent = unit.mechanic_name || 'Not specified';
+            document.getElementById('mdm-driver').querySelector('span').textContent = unit.driver_name || 'No driver assigned';
+            
+            document.getElementById('mdm-total-cost').textContent = '₱' + (parseFloat(unit.maintenance_cost) || 0).toLocaleString('en-PH', {minimumFractionDigits: 2});
+            
+            const statusBadge = document.getElementById('mdm-status-badge');
+            statusBadge.textContent = (unit.maintenance_status || 'Ongoing').toUpperCase();
+            
+            document.getElementById('maintenanceDetailsModal').classList.remove('hidden');
+            document.getElementById('mdm-parts-loading').classList.remove('hidden');
+            document.getElementById('mdm-parts-list').classList.add('hidden');
+            document.getElementById('mdm-parts-list').innerHTML = '';
+
+            fetch(`/maintenance/${maintenanceId}/parts`, {
+                headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(r => r.json())
+            .then(data => {
+                document.getElementById('mdm-parts-loading').classList.add('hidden');
+                const list = document.getElementById('mdm-parts-list');
+                list.classList.remove('hidden');
+                
+                if (data.success && data.data && data.data.length > 0) {
+                    data.data.forEach(p => {
+                        const supplier = p.supplier ? `<span class="px-1.5 py-0.5 bg-gray-100 text-gray-500 rounded text-[9px] font-bold uppercase truncate max-w-[100px]" title="${p.supplier}">${p.supplier}</span>` : '';
+                        list.innerHTML += `
+                            <li class="px-4 py-3 flex justify-between items-start gap-3 hover:bg-orange-50/30 transition-colors">
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-sm font-semibold text-gray-800 truncate">${p.part_name}</p>
+                                    <div class="flex items-center gap-2 mt-1">
+                                        <span class="text-[10px] text-gray-500 font-bold bg-white border border-gray-200 px-1.5 py-0.5 rounded shadow-sm">x${p.quantity}</span>
+                                        ${supplier}
+                                    </div>
+                                </div>
+                                <div class="text-right shrink-0">
+                                    <p class="text-sm font-black text-orange-600">₱${(parseFloat(p.total) || 0).toLocaleString('en-PH', {minimumFractionDigits:2})}</p>
+                                    <p class="text-[9px] text-gray-400 font-medium">₱${(parseFloat(p.price) || 0).toLocaleString('en-PH', {minimumFractionDigits:2})} / ea</p>
+                                </div>
+                            </li>
+                        `;
+                    });
+                } else {
+                    list.innerHTML = `
+                        <li class="py-8 text-center">
+                            <div class="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-2">
+                                <i data-lucide="package-x" class="w-5 h-5 text-gray-400"></i>
+                            </div>
+                            <p class="text-xs font-bold text-gray-500 uppercase tracking-widest">No specific parts listed</p>
+                            <p class="text-[10px] text-gray-400 mt-1">${unit.description || 'See description for details'}</p>
+                        </li>
+                    `;
+                }
+                if (typeof lucide !== 'undefined') lucide.createIcons();
+            })
+            .catch(err => {
+                document.getElementById('mdm-parts-loading').innerHTML = `<p class="text-xs text-red-500"><i data-lucide="alert-circle" class="w-4 h-4 inline mr-1"></i> Failed to load parts</p>`;
+                if (typeof lucide !== 'undefined') lucide.createIcons();
+            });
+        }
+
+        function hideMaintenanceDetailsModal() {
+            document.getElementById('maintenanceDetailsModal').classList.add('hidden');
+        }
+        
         function loadMaintenanceUnitsData() {
             const filter = window.currentMaintenanceFilter || 'all';
             const url = `/api/maintenance-units?filter=${filter}`;
@@ -1879,7 +2016,7 @@
                 const iconColor = isComplete ? 'text-green-600' : 'text-orange-600';
 
                 return `
-                <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden border-l-4 ${statusColor} hover:scale-102">
+                <div onclick="showMaintenanceDetailsModal(${unit.maintenance_id})" class="cursor-pointer bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden border-l-4 ${statusColor} hover:scale-102">
                     <div class="p-4">
                         <!-- Header -->
                         <div class="flex items-start justify-between mb-3">

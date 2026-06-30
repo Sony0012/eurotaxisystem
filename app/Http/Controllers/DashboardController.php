@@ -669,6 +669,7 @@ class DashboardController extends Controller
                 'm.date_completed as end_date',
                 'm.status as maintenance_status',
                 'm.cost as maintenance_cost',
+                'm.mechanic_name',
             ];
 
             $maintenanceUnits = $unitsQuery
@@ -694,6 +695,8 @@ class DashboardController extends Controller
                         'estimated_completion' => $endDate,
                         'maintenance_status' => $unit->maintenance_status ?: 'Ongoing',
                         'maintenance_cost' => (float) ($unit->maintenance_cost ?? 0),
+                        'maintenance_id' => $unit->maintenance_id,
+                        'mechanic_name' => $unit->mechanic_name ?: 'Unknown',
                         'purchase_cost' => (float) ($unit->purchase_cost ?? 0),
                         'boundary_rate' => (float) ($unit->boundary_rate ?? 0)
                     ];
