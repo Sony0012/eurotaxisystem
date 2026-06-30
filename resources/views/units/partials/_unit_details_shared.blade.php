@@ -521,25 +521,25 @@
                         <!-- ROI Tab -->
                         <div id="roi-tab" class="tab-content hidden animate-in fade-in duration-300">
                             <div class="space-y-6">
-                                <div class="bg-gradient-to-br from-indigo-600 to-purple-700 p-8 rounded-2xl text-white shadow-xl relative overflow-hidden">
-                                    <div class="absolute top-0 right-0 p-8 opacity-10">
+                                <div class="bg-gradient-to-br from-yellow-400 to-amber-500 p-8 rounded-2xl text-yellow-950 shadow-xl relative overflow-hidden">
+                                    <div class="absolute top-0 right-0 p-8 opacity-20 text-yellow-700">
                                         <i data-lucide="trending-up" class="w-32 h-32"></i>
                                     </div>
                                     <h4 class="text-xl font-black mb-6 uppercase tracking-widest flex items-center gap-3">
                                         <i data-lucide="bar-chart-3" class="w-6 h-6"></i> ROI Performance Analysis
                                     </h4>
-                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                                        <div class="bg-white/10 backdrop-blur-md p-6 rounded-2xl border border-white/10">
-                                            <p class="text-indigo-100 text-[10px] font-black uppercase tracking-widest mb-1">Total Investment</p>
-                                            <p class="text-2xl font-black">₱${parseFloat(roi.total_investment || 0).toLocaleString('en-PH', {minimumFractionDigits:2})}</p>
+                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 relative z-10">
+                                        <div class="bg-white/40 backdrop-blur-md p-6 rounded-2xl border border-white/50 shadow-sm hover:bg-white/50 transition-colors">
+                                            <p class="text-yellow-800 text-[10px] font-black uppercase tracking-widest mb-1">Total Investment</p>
+                                            <p class="text-2xl font-black text-gray-900">₱${parseFloat(roi.total_investment || 0).toLocaleString('en-PH', {minimumFractionDigits:2})}</p>
                                         </div>
-                                        <div class="bg-white/10 backdrop-blur-md p-6 rounded-2xl border border-white/10">
-                                            <p class="text-indigo-100 text-[10px] font-black uppercase tracking-widest mb-1">Total Net Revenue</p>
-                                            <p class="text-2xl font-black text-green-300">₱${parseFloat(roi.total_revenue || 0).toLocaleString('en-PH', {minimumFractionDigits:2})}</p>
+                                        <div class="bg-white/40 backdrop-blur-md p-6 rounded-2xl border border-white/50 shadow-sm hover:bg-white/50 transition-colors">
+                                            <p class="text-yellow-800 text-[10px] font-black uppercase tracking-widest mb-1">Total Net Revenue</p>
+                                            <p class="text-2xl font-black text-emerald-700">₱${parseFloat(roi.total_revenue || 0).toLocaleString('en-PH', {minimumFractionDigits:2})}</p>
                                         </div>
-                                        <div class="bg-white/10 backdrop-blur-md p-6 rounded-2xl border border-white/10">
-                                            <p class="text-indigo-100 text-[10px] font-black uppercase tracking-widest mb-1">Total Expenses</p>
-                                            <p class="text-2xl font-black text-red-300">₱${parseFloat(roi.total_expenses || 0).toLocaleString('en-PH', {minimumFractionDigits:2})}</p>
+                                        <div class="bg-white/40 backdrop-blur-md p-6 rounded-2xl border border-white/50 shadow-sm hover:bg-white/50 transition-colors">
+                                            <p class="text-yellow-800 text-[10px] font-black uppercase tracking-widest mb-1">Total Expenses</p>
+                                            <p class="text-2xl font-black text-red-700">₱${parseFloat(roi.total_expenses || 0).toLocaleString('en-PH', {minimumFractionDigits:2})}</p>
                                         </div>
                                     </div>
                                 </div>
