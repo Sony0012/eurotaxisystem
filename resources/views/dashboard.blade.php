@@ -1901,7 +1901,7 @@
                         <div class="bg-gray-50 rounded-lg p-3 mb-3">
                             <div class="flex items-center justify-between mb-2">
                                 <span class="text-sm font-medium text-gray-900">Status: ${unit.maintenance_status || 'Unknown'}</span>
-                                <span class="text-xs font-bold text-orange-600">${isComplete ? '₱' + (unit.maintenance_cost || 0).toLocaleString() : (unit.estimated_completion || 'N/A')}</span>
+                                <span class="text-xs font-bold text-orange-600">${isComplete ? '₱' + (unit.maintenance_cost || 0).toLocaleString('en-PH', {minimumFractionDigits: 2}) : (unit.estimated_completion ? 'Est: ' + unit.estimated_completion : '')}</span>
                             </div>
                             <div class="text-xs text-gray-600">
                                 <span class="font-medium">Description:</span> ${unit.description || 'No description available'}
@@ -2440,7 +2440,7 @@
                         <div class="bg-gray-50 rounded-lg p-3 mb-3">
                             <div class="flex items-center justify-between mb-2">
                                 <span class="text-sm font-medium text-gray-900">Status: ${unit.status || 'Unknown'}</span>
-                                <span class="text-xs text-gray-600">${unit.estimated_completion || 'N/A'}</span>
+                                <span class="text-xs text-gray-600">${unit.estimated_completion ? 'Est: ' + unit.estimated_completion : ''}</span>
                             </div>
                             <div class="text-xs text-gray-600">
                                 <span class="font-medium">Description:</span> ${unit.description || 'No description available'}
