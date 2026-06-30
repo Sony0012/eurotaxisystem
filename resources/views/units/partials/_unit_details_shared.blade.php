@@ -613,24 +613,22 @@
                                         </div>
                                     </div>
                                     <div id="unitDetailMapContainer" class="relative rounded-2xl overflow-hidden border border-gray-200 bg-gray-100 flex flex-col items-center justify-center p-4 text-center shadow-inner group" style="height: 400px;">
-                                        <!-- Functional Mini Map Preview -->
+                                        <!-- Functional Mini Map Preview (Centered without default red pin) -->
                                         ${(locInfo.current_location && locInfo.current_location.includes(',')) 
-                                            ? `<iframe src="https://maps.google.com/maps?q=${locInfo.current_location.replace(/\s+/g, '')}&hl=en&z=16&output=embed" width="100%" height="100%" frameborder="0" style="border:0;" allowfullscreen="" aria-hidden="false" tabindex="0" class="absolute inset-0 z-0"></iframe>
-                                               <!-- Custom Car Marker Overlay (Hides the default red pin in center) -->
-                                               <div class="absolute z-[5] pointer-events-none flex flex-col items-center" style="top: 50%; left: 50%; transform: translate(-50%, -100%); margin-top: 18px;">
-                                                   <div class="bg-blue-600 text-white rounded-xl p-2.5 shadow-xl shadow-blue-500/50 border-2 border-white relative z-10">
-                                                       <i data-lucide="car" class="w-6 h-6"></i>
+                                            ? `<iframe src="https://maps.google.com/maps?ll=${locInfo.current_location.replace(/\s+/g, '')}&hl=en&z=16&output=embed" width="100%" height="100%" frameborder="0" style="border:0;" allowfullscreen="" aria-hidden="false" tabindex="0" class="absolute inset-0 z-0"></iframe>
+                                               <!-- Custom Car Marker -->
+                                               <div class="absolute inset-0 z-0 flex items-center justify-center pointer-events-none">
+                                                   <div class="bg-blue-600 text-white p-2 rounded-full shadow-lg shadow-blue-500/50 border-2 border-white -mt-6">
+                                                       <i data-lucide="car" class="w-5 h-5"></i>
                                                    </div>
-                                                   <div class="w-0 h-0 border-l-[10px] border-r-[10px] border-t-[12px] border-l-transparent border-r-transparent border-t-blue-600 -mt-1 relative z-0 filter drop-shadow-md"></div>
+                                                   <!-- Marker Shadow/Pulse -->
+                                                   <div class="absolute w-4 h-4 bg-blue-600/30 rounded-full animate-ping"></div>
                                                </div>`
                                             : `<div class="absolute inset-0 z-0 flex items-center justify-center bg-gray-200"><span class="text-gray-400 font-bold uppercase text-xs tracking-widest">Map Preview Unavailable</span></div>`
                                         }
 
                                         <!-- Floating Overlay (No Card Background) -->
-                                        <div class="relative z-10 p-5 sm:p-8 flex flex-col items-center max-w-sm sm:max-w-md w-full pointer-events-none">
-                                            <div class="mb-3 sm:mb-4 p-3 sm:p-4 bg-blue-600 rounded-full shadow-lg shadow-blue-500/50 text-white">
-                                                <i data-lucide="navigation" class="w-6 h-6 sm:w-8 sm:h-8"></i>
-                                            </div>
+                                        <div class="relative z-10 p-5 sm:p-8 flex flex-col items-center max-w-sm sm:max-w-md w-full pointer-events-none mt-auto">
                                             <h4 class="text-sm sm:text-base font-black text-gray-900 mb-1.5 sm:mb-2 uppercase tracking-tight drop-shadow-md" style="text-shadow: 0 2px 4px rgba(255,255,255,0.9), 0 -2px 4px rgba(255,255,255,0.9), 2px 0 4px rgba(255,255,255,0.9), -2px 0 4px rgba(255,255,255,0.9);">Tracksolid Pro</h4>
                                             <p class="text-[10px] sm:text-xs text-gray-800 mb-5 sm:mb-6 leading-relaxed font-bold drop-shadow-md" style="text-shadow: 0 1px 3px rgba(255,255,255,1), 0 -1px 3px rgba(255,255,255,1), 1px 0 3px rgba(255,255,255,1), -1px 0 3px rgba(255,255,255,1);">This unit is tracked via real-time satellite identification. Access the full live map for movement history and geofencing.</p>
                                             
