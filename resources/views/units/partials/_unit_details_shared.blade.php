@@ -669,14 +669,45 @@
                                         subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
                                     }).addTo(window._miniPreviewMap);
 
-                                    // Custom Car Marker
+                                    // Custom Taxi Marker (matching live-tracking.js)
+                                    const carBodyColor = '#EAB308'; // Default yellow
+                                    const roofColor = '#FDE047';
+                                    const isOffline = !locInfo.gps_enabled;
+                                    const dotColor = isOffline ? '#9CA3AF' : '#22c55e';
+                                    const angle = locInfo.heading || 0;
+                                    
+                                    const carIconValue = `
+                                        <div class="relative flex flex-col items-center justify-center marker-wrapper" style="width: 60px; height: 60px;">
+                                            <div class="absolute -top-5 px-2 py-0.5 bg-yellow-500 border-yellow-600 text-white font-black text-[10px] rounded shadow-md border whitespace-nowrap z-50 pointer-events-none drop-shadow-md">
+                                                ${unit.plate_number || 'TAXI'}
+                                                <div class="absolute -right-1.5 -top-1.5 w-3 h-3 rounded-full border-2 border-white shadow-sm" style="background-color: ${dotColor};"></div>
+                                            </div>
+
+                                            <div style="transform: rotate(${angle}deg);" class="drop-shadow-lg flex items-center justify-center">
+                                                <svg width="24" height="42" viewBox="0 0 24 42" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <rect x="0" y="6" width="3" height="8" rx="1" fill="#1F2937"/>
+                                                    <rect x="21" y="6" width="3" height="8" rx="1" fill="#1F2937"/>
+                                                    <rect x="0" y="28" width="3" height="8" rx="1" fill="#1F2937"/>
+                                                    <rect x="21" y="28" width="3" height="8" rx="1" fill="#1F2937"/>
+                                                    <rect x="2" y="2" width="20" height="38" rx="6" fill="${carBodyColor}" stroke="#713F12" stroke-width="0.5"/>
+                                                    <path d="M4 12 L20 12 L18 8 L6 8 Z" fill="#111827" opacity="0.8"/>
+                                                    <path d="M5 30 L19 30 L18 34 L6 34 Z" fill="#111827" opacity="0.8"/>
+                                                    <rect x="4" y="14" width="16" height="14" rx="2" fill="${roofColor}"/>
+                                                    <rect x="8" y="18" width="8" height="4" rx="1" fill="white" stroke="#374151" stroke-width="0.5"/>
+                                                    <circle cx="5" cy="3" r="1.5" fill="${isOffline ? '#D1D5DB' : '#FEF08A'}"/>
+                                                    <circle cx="19" cy="3" r="1.5" fill="${isOffline ? '#D1D5DB' : '#FEF08A'}"/>
+                                                    <rect x="4" y="39" width="4" height="2" rx="0.5" fill="#EF4444"/>
+                                                    <rect x="16" y="39" width="4" height="2" rx="0.5" fill="#EF4444"/>
+                                                </svg>
+                                            </div>
+                                        </div>
+                                    `;
+
                                     const carIcon = L.divIcon({
-                                        className: 'custom-car-marker',
-                                        html: `<div style="background-color: #2563eb; color: white; padding: 6px; border-radius: 50%; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.3); border: 2px solid white; display: flex; align-items: center; justify-content: center; width: 36px; height: 36px;">
-                                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/></svg>
-                                               </div>`,
-                                        iconSize: [36, 36],
-                                        iconAnchor: [18, 18]
+                                        className: 'custom-div-icon bg-transparent border-0',
+                                        html: carIconValue,
+                                        iconSize: [60, 60],
+                                        iconAnchor: [30, 30]
                                     });
 
                                     L.marker([lat, lon], { icon: carIcon }).addTo(window._miniPreviewMap);
