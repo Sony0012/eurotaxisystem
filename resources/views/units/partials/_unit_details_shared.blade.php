@@ -613,16 +613,24 @@
                                         </div>
                                     </div>
                                     <div id="unitDetailMapContainer" class="relative rounded-2xl overflow-hidden border border-gray-200 bg-gray-100 flex flex-col items-center justify-center p-4 text-center shadow-inner group" style="height: 400px;">
-                                        <!-- Functional Mini Map Preview -->
-                                        ${(locInfo.current_location && locInfo.current_location.includes(',')) 
-                                            ? `<iframe src="https://maps.google.com/maps?q=${locInfo.current_location.replace(/\s+/g, '')}&hl=en&z=16&output=embed" width="100%" height="100%" frameborder="0" style="border:0;" allowfullscreen="" aria-hidden="false" tabindex="0" class="absolute inset-0 z-0"></iframe>`
-                                            : `<div class="absolute inset-0 z-0 flex items-center justify-center bg-gray-200"><span class="text-gray-400 font-bold uppercase text-xs tracking-widest">Map Preview Unavailable</span></div>`
-                                        }
+                                        <!-- Functional Mini Map Preview (OSM to remove red pin) -->
+                                        ${(() => {
+                                            if (locInfo.current_location && locInfo.current_location.includes(',')) {
+                                                const parts = locInfo.current_location.split(',');
+                                                const lat = parseFloat(parts[0].trim());
+                                                const lon = parseFloat(parts[1].trim());
+                                                if (!isNaN(lat) && !isNaN(lon)) {
+                                                    const offset = 0.008;
+                                                    return `<iframe src="https://www.openstreetmap.org/export/embed.html?bbox=${lon-offset}%2C${lat-offset}%2C${lon+offset}%2C${lat+offset}&layer=mapnik" width="100%" height="100%" frameborder="0" style="border:0;" allowfullscreen="" class="absolute inset-0 z-0 pointer-events-auto"></iframe>`;
+                                                }
+                                            }
+                                            return `<div class="absolute inset-0 z-0 flex items-center justify-center bg-gray-200"><span class="text-gray-400 font-bold uppercase text-xs tracking-widest">Map Preview Unavailable</span></div>`;
+                                        })()}
 
                                         <!-- Floating Overlay (No Card Background) -->
                                         <div class="relative z-10 p-5 sm:p-8 flex flex-col items-center max-w-sm sm:max-w-md w-full pointer-events-none">
                                             <div class="mb-3 sm:mb-4 p-3 sm:p-4 bg-blue-600 rounded-full shadow-lg shadow-blue-500/50 text-white">
-                                                <i data-lucide="navigation" class="w-6 h-6 sm:w-8 sm:h-8"></i>
+                                                <i data-lucide="car" class="w-6 h-6 sm:w-8 sm:h-8"></i>
                                             </div>
                                             <h4 class="text-sm sm:text-base font-black text-gray-900 mb-1.5 sm:mb-2 uppercase tracking-tight drop-shadow-md" style="text-shadow: 0 2px 4px rgba(255,255,255,0.9), 0 -2px 4px rgba(255,255,255,0.9), 2px 0 4px rgba(255,255,255,0.9), -2px 0 4px rgba(255,255,255,0.9);">Tracksolid Pro</h4>
                                             <p class="text-[10px] sm:text-xs text-gray-800 mb-5 sm:mb-6 leading-relaxed font-bold drop-shadow-md" style="text-shadow: 0 1px 3px rgba(255,255,255,1), 0 -1px 3px rgba(255,255,255,1), 1px 0 3px rgba(255,255,255,1), -1px 0 3px rgba(255,255,255,1);">This unit is tracked via real-time satellite identification. Access the full live map for movement history and geofencing.</p>
