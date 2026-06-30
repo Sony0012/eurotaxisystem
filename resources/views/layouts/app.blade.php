@@ -534,7 +534,7 @@
             </aside>
 
             <!-- Main Content -->
-            <main id="appMainContent" class="flex-1 flex flex-col min-h-0">
+            <main id="appMainContent" class="flex-1 flex flex-col min-h-0 min-w-0">
                 <!-- Top Bar -->
                 <header class="bg-white shadow-sm border-b px-4 md:px-6 py-2">
                     <div class="flex items-center justify-between">
