@@ -612,17 +612,26 @@
                                             <i data-lucide="satellite" class="w-6 h-6 ${locInfo.gps_enabled ? 'text-green-500' : 'text-red-400'}"></i>
                                         </div>
                                     </div>
-                                    <div id="unitDetailMapContainer" class="relative rounded-2xl overflow-hidden border border-gray-100 bg-gray-50 flex flex-col items-center justify-center p-4 sm:p-12 text-center shadow-inner" style="height: 400px;">
-                                        <div class="mb-4 sm:mb-6 p-4 sm:p-6 bg-blue-100 rounded-full shadow-sm animate-pulse">
-                                            <i data-lucide="navigation" class="w-8 h-8 sm:w-12 sm:h-12 text-blue-600"></i>
+                                    <div id="unitDetailMapContainer" class="relative rounded-2xl overflow-hidden border border-gray-200 bg-gray-100 flex flex-col items-center justify-center p-4 text-center shadow-inner group" style="height: 400px;">
+                                        <!-- Functional Mini Map Preview -->
+                                        ${(locInfo.current_location && locInfo.current_location.includes(',')) 
+                                            ? `<iframe src="https://maps.google.com/maps?q=${locInfo.current_location.replace(/\s+/g, '')}&hl=en&z=16&output=embed" width="100%" height="100%" frameborder="0" style="border:0;" allowfullscreen="" aria-hidden="false" tabindex="0" class="absolute inset-0 z-0"></iframe>`
+                                            : `<div class="absolute inset-0 z-0 flex items-center justify-center bg-gray-200"><span class="text-gray-400 font-bold uppercase text-xs tracking-widest">Map Preview Unavailable</span></div>`
+                                        }
+
+                                        <!-- Glassmorphism Overlay -->
+                                        <div class="relative z-10 bg-white/85 backdrop-blur-md p-5 sm:p-8 rounded-3xl shadow-2xl flex flex-col items-center max-w-sm sm:max-w-md w-full border border-white/40 transition-all duration-300 hover:bg-white/95">
+                                            <div class="mb-3 sm:mb-4 p-3 sm:p-4 bg-blue-100 rounded-full shadow-inner">
+                                                <i data-lucide="navigation" class="w-6 h-6 sm:w-8 sm:h-8 text-blue-600"></i>
+                                            </div>
+                                            <h4 class="text-sm sm:text-base font-black text-slate-800 mb-1.5 sm:mb-2 uppercase tracking-tight">Tracksolid Pro</h4>
+                                            <p class="text-[10px] sm:text-xs text-slate-500 mb-5 sm:mb-6 leading-relaxed font-medium">This unit is tracked via real-time satellite identification. Access the full live map for movement history and geofencing.</p>
+                                            
+                                            <a href="/live-tracking?unit=${unit.id}" class="inline-flex items-center gap-2 px-5 sm:px-6 py-3 sm:py-3.5 bg-blue-600 hover:bg-blue-700 text-white text-[10px] sm:text-xs font-black rounded-xl transition-all shadow-md hover:shadow-lg hover:shadow-blue-500/30 hover:-translate-y-0.5 uppercase tracking-widest pointer-events-auto">
+                                                <i data-lucide="map" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
+                                                Open Live Tracking Map
+                                            </a>
                                         </div>
-                                        <h4 class="text-base sm:text-lg font-black text-gray-900 mb-1.5 sm:mb-2 uppercase tracking-tight">Tracksolid Pro Enterprise</h4>
-                                        <p class="text-xs sm:text-sm text-gray-500 mb-6 sm:mb-8 max-w-md mx-auto">This unit is tracked via real-time satellite identification. Access the full live map for movement history and geofencing.</p>
-                                        
-                                        <a href="/live-tracking?unit=${unit.id}" class="inline-flex items-center gap-2.5 sm:gap-3 px-6 sm:px-8 py-3.5 sm:py-4 bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-black rounded-2xl transition-all shadow-lg hover:shadow-blue-200 hover:-translate-y-1 uppercase tracking-widest">
-                                            <i data-lucide="map" class="w-4 h-4 sm:w-5 sm:h-5"></i>
-                                            Open Live Tracking Map
-                                        </a>
                                     </div>
                                 </div>
                             </div>
