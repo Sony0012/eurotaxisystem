@@ -520,12 +520,7 @@
                 </div>
                 <div>
                     <h3 class="text-lg font-black text-white tracking-wide uppercase" id="mdm-plate">PLATE</h3>
-                    <div class="flex items-center gap-2 mt-0.5">
-                        <p class="text-[10px] text-orange-100 font-bold uppercase tracking-widest" id="mdm-type">Maintenance Details</p>
-                        <span id="mdm-expected-date-container" class="hidden items-center px-2 py-0.5 bg-black/20 rounded-full text-[9px] font-bold text-white border border-white/10 uppercase tracking-widest">
-                            <i data-lucide="clock" class="w-3 h-3 mr-1"></i> Est: <span id="mdm-expected-date" class="ml-1"></span>
-                        </span>
-                    </div>
+                    <p class="text-[10px] text-orange-100 font-bold uppercase tracking-widest" id="mdm-type">Maintenance Details</p>
                 </div>
             </div>
             <button onclick="hideMaintenanceDetailsModal()" class="text-white/80 hover:text-white hover:bg-white/20 p-2 rounded-lg transition-all duration-200">
@@ -535,7 +530,7 @@
         
         <!-- Content -->
         <div class="p-4 sm:p-6 overflow-y-auto flex-1 bg-gray-50">
-            <div class="grid grid-cols-2 gap-4 mb-6">
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
                 <div class="bg-white p-3 rounded-xl border border-gray-100 shadow-sm flex flex-col justify-center">
                     <p class="text-[9px] text-gray-400 font-black uppercase tracking-widest mb-1">Assigned Mechanic</p>
                     <p class="text-sm font-bold text-gray-800 flex items-center gap-2" id="mdm-mechanic">
@@ -546,6 +541,18 @@
                     <p class="text-[9px] text-gray-400 font-black uppercase tracking-widest mb-1">Driver</p>
                     <p class="text-sm font-bold text-gray-800 flex items-center gap-2" id="mdm-driver">
                         <i data-lucide="user" class="w-4 h-4 text-blue-500"></i> <span class="truncate">Name</span>
+                    </p>
+                </div>
+                <div class="bg-white p-3 rounded-xl border border-gray-100 shadow-sm flex flex-col justify-center">
+                    <p class="text-[9px] text-gray-400 font-black uppercase tracking-widest mb-1">Date Started</p>
+                    <p class="text-sm font-bold text-gray-800 flex items-center gap-2" id="mdm-start-date">
+                        <i data-lucide="calendar" class="w-4 h-4 text-green-500"></i> <span class="truncate">Date</span>
+                    </p>
+                </div>
+                <div class="bg-white p-3 rounded-xl border border-gray-100 shadow-sm flex flex-col justify-center">
+                    <p class="text-[9px] text-gray-400 font-black uppercase tracking-widest mb-1">Target Completion</p>
+                    <p class="text-sm font-bold text-gray-800 flex items-center gap-2" id="mdm-end-date">
+                        <i data-lucide="clock" class="w-4 h-4 text-purple-500"></i> <span class="truncate">TBD</span>
                     </p>
                 </div>
             </div>
@@ -1863,15 +1870,8 @@
             document.getElementById('mdm-plate').textContent = unit.plate_number;
             document.getElementById('mdm-type').textContent = (unit.maintenance_type || 'Maintenance').toUpperCase();
             
-            const expectedContainer = document.getElementById('mdm-expected-date-container');
-            if (unit.estimated_completion) {
-                document.getElementById('mdm-expected-date').textContent = unit.estimated_completion;
-                expectedContainer.classList.remove('hidden');
-                expectedContainer.classList.add('inline-flex');
-            } else {
-                expectedContainer.classList.add('hidden');
-                expectedContainer.classList.remove('inline-flex');
-            }
+            document.getElementById('mdm-start-date').querySelector('span').textContent = unit.start_date || 'N/A';
+            document.getElementById('mdm-end-date').querySelector('span').textContent = unit.estimated_completion || 'TBD';
 
             document.getElementById('mdm-mechanic').querySelector('span').textContent = unit.mechanic_name || 'Not specified';
             document.getElementById('mdm-driver').querySelector('span').textContent = unit.driver_name || 'No driver assigned';
