@@ -619,15 +619,15 @@
                                             : `<div class="absolute inset-0 z-0 flex items-center justify-center bg-gray-200"><span class="text-gray-400 font-bold uppercase text-xs tracking-widest">Map Preview Unavailable</span></div>`
                                         }
 
-                                        <!-- Glassmorphism Overlay -->
-                                        <div class="relative z-10 bg-white/85 backdrop-blur-md p-5 sm:p-8 rounded-3xl shadow-2xl flex flex-col items-center max-w-sm sm:max-w-md w-full border border-white/40 transition-all duration-300 hover:bg-white/95">
-                                            <div class="mb-3 sm:mb-4 p-3 sm:p-4 bg-blue-100 rounded-full shadow-inner">
-                                                <i data-lucide="navigation" class="w-6 h-6 sm:w-8 sm:h-8 text-blue-600"></i>
+                                        <!-- Floating Overlay (No Card Background) -->
+                                        <div class="relative z-10 p-5 sm:p-8 flex flex-col items-center max-w-sm sm:max-w-md w-full pointer-events-none">
+                                            <div class="mb-3 sm:mb-4 p-3 sm:p-4 bg-blue-600 rounded-full shadow-lg shadow-blue-500/50 text-white">
+                                                <i data-lucide="navigation" class="w-6 h-6 sm:w-8 sm:h-8"></i>
                                             </div>
-                                            <h4 class="text-sm sm:text-base font-black text-slate-800 mb-1.5 sm:mb-2 uppercase tracking-tight">Tracksolid Pro</h4>
-                                            <p class="text-[10px] sm:text-xs text-slate-500 mb-5 sm:mb-6 leading-relaxed font-medium">This unit is tracked via real-time satellite identification. Access the full live map for movement history and geofencing.</p>
+                                            <h4 class="text-sm sm:text-base font-black text-gray-900 mb-1.5 sm:mb-2 uppercase tracking-tight drop-shadow-md" style="text-shadow: 0 2px 4px rgba(255,255,255,0.9), 0 -2px 4px rgba(255,255,255,0.9), 2px 0 4px rgba(255,255,255,0.9), -2px 0 4px rgba(255,255,255,0.9);">Tracksolid Pro</h4>
+                                            <p class="text-[10px] sm:text-xs text-gray-800 mb-5 sm:mb-6 leading-relaxed font-bold drop-shadow-md" style="text-shadow: 0 1px 3px rgba(255,255,255,1), 0 -1px 3px rgba(255,255,255,1), 1px 0 3px rgba(255,255,255,1), -1px 0 3px rgba(255,255,255,1);">This unit is tracked via real-time satellite identification. Access the full live map for movement history and geofencing.</p>
                                             
-                                            <a href="/live-tracking?unit=${unit.id}" class="inline-flex items-center gap-2 px-5 sm:px-6 py-3 sm:py-3.5 bg-blue-600 hover:bg-blue-700 text-white text-[10px] sm:text-xs font-black rounded-xl transition-all shadow-md hover:shadow-lg hover:shadow-blue-500/30 hover:-translate-y-0.5 uppercase tracking-widest pointer-events-auto">
+                                            <a href="/live-tracking?unit=${unit.id}" class="inline-flex items-center gap-2 px-5 sm:px-6 py-3 sm:py-3.5 bg-blue-600 hover:bg-blue-700 text-white text-[10px] sm:text-xs font-black rounded-xl transition-all shadow-lg shadow-blue-500/40 hover:shadow-xl hover:shadow-blue-500/50 hover:-translate-y-0.5 uppercase tracking-widest pointer-events-auto">
                                                 <i data-lucide="map" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
                                                 Open Live Tracking Map
                                             </a>
