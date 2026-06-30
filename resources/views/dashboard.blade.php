@@ -511,7 +511,7 @@
 
 <!-- Maintenance Details Modal -->
 <div id="maintenanceDetailsModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-[60] flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+    <div class="bg-white rounded-2xl w-full max-w-4xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
         <!-- Header -->
         <div class="bg-gradient-to-r from-orange-600 to-amber-600 p-4 sm:p-5 flex justify-between items-center shrink-0">
             <div class="flex items-center gap-3">
@@ -534,25 +534,25 @@
                 <div class="bg-white p-3 rounded-xl border border-gray-100 shadow-sm flex flex-col justify-center">
                     <p class="text-[9px] text-gray-400 font-black uppercase tracking-widest mb-1">Assigned Mechanic</p>
                     <p class="text-sm font-bold text-gray-800 flex items-center gap-2" id="mdm-mechanic">
-                        <i data-lucide="user-cog" class="w-4 h-4 text-orange-500"></i> <span class="truncate">Name</span>
+                        <i data-lucide="user-cog" class="w-4 h-4 text-orange-500 flex-shrink-0"></i> <span>Name</span>
                     </p>
                 </div>
                 <div class="bg-white p-3 rounded-xl border border-gray-100 shadow-sm flex flex-col justify-center">
                     <p class="text-[9px] text-gray-400 font-black uppercase tracking-widest mb-1">Driver</p>
                     <p class="text-sm font-bold text-gray-800 flex items-center gap-2" id="mdm-driver">
-                        <i data-lucide="user" class="w-4 h-4 text-blue-500"></i> <span class="truncate">Name</span>
+                        <i data-lucide="user" class="w-4 h-4 text-blue-500 flex-shrink-0"></i> <span>Name</span>
                     </p>
                 </div>
                 <div class="bg-white p-3 rounded-xl border border-gray-100 shadow-sm flex flex-col justify-center">
                     <p class="text-[9px] text-gray-400 font-black uppercase tracking-widest mb-1">Date Started</p>
                     <p class="text-sm font-bold text-gray-800 flex items-center gap-2" id="mdm-start-date">
-                        <i data-lucide="calendar" class="w-4 h-4 text-green-500"></i> <span class="truncate">Date</span>
+                        <i data-lucide="calendar" class="w-4 h-4 text-green-500 flex-shrink-0"></i> <span>Date</span>
                     </p>
                 </div>
                 <div class="bg-white p-3 rounded-xl border border-gray-100 shadow-sm flex flex-col justify-center">
                     <p class="text-[9px] text-gray-400 font-black uppercase tracking-widest mb-1">Target Completion</p>
                     <p class="text-sm font-bold text-gray-800 flex items-center gap-2" id="mdm-end-date">
-                        <i data-lucide="clock" class="w-4 h-4 text-purple-500"></i> <span class="truncate">TBD</span>
+                        <i data-lucide="clock" class="w-4 h-4 text-purple-500 flex-shrink-0"></i> <span>TBD</span>
                     </p>
                 </div>
             </div>
