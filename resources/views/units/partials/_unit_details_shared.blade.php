@@ -513,7 +513,7 @@
                                     ${parseFloat(roi.total_expenses || 0) > 0 ? `<span class="ml-2 px-2 py-0.5 bg-orange-50 text-orange-600 border border-orange-100 rounded text-[10px] font-black uppercase">Total: ₱${parseFloat(roi.total_expenses || 0).toLocaleString('en-PH', {minimumFractionDigits:2})}</span>` : ''}
                                 </h4>
                                 <div class="flex flex-col gap-6 max-w-3xl mx-auto">
-                                    ${maintHtml.replace(/border border-gray-200 bg-white/g, 'bg-gray-50 border border-gray-100 shadow-sm').replace(/p-4/g, 'p-6').replace(/rounded-lg/g, 'rounded-2xl')}
+                                    ${maintHtml.replace(/bg-white border border-gray-200/g, 'bg-gray-50 border border-gray-100 shadow-sm').replace(/p-4/g, 'p-6').replace(/rounded-lg/g, 'rounded-2xl')}
                                 </div>
                             </div>
                         </div>
