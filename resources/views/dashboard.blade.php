@@ -520,7 +520,12 @@
                 </div>
                 <div>
                     <h3 class="text-lg font-black text-white tracking-wide uppercase" id="mdm-plate">PLATE</h3>
-                    <p class="text-[10px] text-orange-100 font-bold uppercase tracking-widest" id="mdm-type">Maintenance Details</p>
+                    <div class="flex items-center gap-2 mt-0.5">
+                        <p class="text-[10px] text-orange-100 font-bold uppercase tracking-widest" id="mdm-type">Maintenance Details</p>
+                        <span id="mdm-expected-date-container" class="hidden items-center px-2 py-0.5 bg-black/20 rounded-full text-[9px] font-bold text-white border border-white/10 uppercase tracking-widest">
+                            <i data-lucide="clock" class="w-3 h-3 mr-1"></i> Est: <span id="mdm-expected-date" class="ml-1"></span>
+                        </span>
+                    </div>
                 </div>
             </div>
             <button onclick="hideMaintenanceDetailsModal()" class="text-white/80 hover:text-white hover:bg-white/20 p-2 rounded-lg transition-all duration-200">
@@ -555,7 +560,7 @@
                         <i data-lucide="loader-2" class="w-8 h-8 animate-spin mx-auto mb-3 text-orange-500"></i>
                         <p class="text-[10px] font-bold uppercase tracking-widest">Fetching data...</p>
                     </div>
-                    <ul id="mdm-parts-list" class="divide-y divide-gray-50 hidden">
+                    <ul id="mdm-parts-list" class="divide-y divide-gray-50 hidden max-h-[320px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent">
                         <!-- Populated by JS -->
                     </ul>
                 </div>
@@ -1857,6 +1862,17 @@
 
             document.getElementById('mdm-plate').textContent = unit.plate_number;
             document.getElementById('mdm-type').textContent = (unit.maintenance_type || 'Maintenance').toUpperCase();
+            
+            const expectedContainer = document.getElementById('mdm-expected-date-container');
+            if (unit.estimated_completion) {
+                document.getElementById('mdm-expected-date').textContent = unit.estimated_completion;
+                expectedContainer.classList.remove('hidden');
+                expectedContainer.classList.add('inline-flex');
+            } else {
+                expectedContainer.classList.add('hidden');
+                expectedContainer.classList.remove('inline-flex');
+            }
+
             document.getElementById('mdm-mechanic').querySelector('span').textContent = unit.mechanic_name || 'Not specified';
             document.getElementById('mdm-driver').querySelector('span').textContent = unit.driver_name || 'No driver assigned';
             
