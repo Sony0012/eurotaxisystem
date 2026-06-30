@@ -613,22 +613,14 @@
                                         </div>
                                     </div>
                                     <div id="unitDetailMapContainer" class="relative rounded-2xl overflow-hidden border border-gray-200 bg-gray-100 flex flex-col items-center justify-center p-4 text-center shadow-inner group" style="height: 400px;">
-                                        <!-- Functional Mini Map Preview (Centered without default red pin) -->
-                                        ${(locInfo.current_location && locInfo.current_location.includes(',')) 
-                                            ? `<iframe src="https://maps.google.com/maps?ll=${locInfo.current_location.replace(/\s+/g, '')}&hl=en&z=16&output=embed" width="100%" height="100%" frameborder="0" style="border:0;" allowfullscreen="" aria-hidden="false" tabindex="0" class="absolute inset-0 z-0"></iframe>
-                                               <!-- Custom Car Marker -->
-                                               <div class="absolute inset-0 z-0 flex items-center justify-center pointer-events-none">
-                                                   <div class="bg-blue-600 text-white p-2 rounded-full shadow-lg shadow-blue-500/50 border-2 border-white -mt-6">
-                                                       <i data-lucide="car" class="w-5 h-5"></i>
-                                                   </div>
-                                                   <!-- Marker Shadow/Pulse -->
-                                                   <div class="absolute w-4 h-4 bg-blue-600/30 rounded-full animate-ping"></div>
-                                               </div>`
-                                            : `<div class="absolute inset-0 z-0 flex items-center justify-center bg-gray-200"><span class="text-gray-400 font-bold uppercase text-xs tracking-widest">Map Preview Unavailable</span></div>`
-                                        }
+                                        <!-- Leaflet Map Container -->
+                                        <div id="mini-map-${unit.id}" class="absolute inset-0 z-0"></div>
 
                                         <!-- Floating Overlay (No Card Background) -->
-                                        <div class="relative z-10 p-5 sm:p-8 flex flex-col items-center max-w-sm sm:max-w-md w-full pointer-events-none mt-auto">
+                                        <div class="relative z-10 p-5 sm:p-8 flex flex-col items-center max-w-sm sm:max-w-md w-full pointer-events-none">
+                                            <div class="mb-3 sm:mb-4 p-3 sm:p-4 bg-blue-600 rounded-full shadow-lg shadow-blue-500/50 text-white">
+                                                <i data-lucide="navigation" class="w-6 h-6 sm:w-8 sm:h-8"></i>
+                                            </div>
                                             <h4 class="text-sm sm:text-base font-black text-gray-900 mb-1.5 sm:mb-2 uppercase tracking-tight drop-shadow-md" style="text-shadow: 0 2px 4px rgba(255,255,255,0.9), 0 -2px 4px rgba(255,255,255,0.9), 2px 0 4px rgba(255,255,255,0.9), -2px 0 4px rgba(255,255,255,0.9);">Tracksolid Pro</h4>
                                             <p class="text-[10px] sm:text-xs text-gray-800 mb-5 sm:mb-6 leading-relaxed font-bold drop-shadow-md" style="text-shadow: 0 1px 3px rgba(255,255,255,1), 0 -1px 3px rgba(255,255,255,1), 1px 0 3px rgba(255,255,255,1), -1px 0 3px rgba(255,255,255,1);">This unit is tracked via real-time satellite identification. Access the full live map for movement history and geofencing.</p>
                                             
@@ -651,6 +643,68 @@
                 if (typeof lucide !== 'undefined') lucide.createIcons();
                 // Show overview tab by default
                 setTimeout(() => { showTab('overview'); }, 50);
+
+                // Initialize Map Preview
+                setTimeout(() => {
+                    if (locInfo.current_location && locInfo.current_location.includes(',')) {
+                        const coords = locInfo.current_location.split(',');
+                        const lat = parseFloat(coords[0].trim());
+                        const lon = parseFloat(coords[1].trim());
+
+                        if (!isNaN(lat) && !isNaN(lon)) {
+                            const initMap = () => {
+                                const mapId = `mini-map-${unit.id}`;
+                                const mapElement = document.getElementById(mapId);
+                                if (mapElement && !mapElement._leaflet_id) {
+                                    const previewMap = L.map(mapId, {
+                                        zoomControl: false,
+                                        attributionControl: false,
+                                        scrollWheelZoom: false,
+                                        dragging: true
+                                    }).setView([lat, lon], 16);
+
+                                    // Google Maps Tiles
+                                    L.tileLayer('https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
+                                        maxZoom: 20,
+                                        subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
+                                    }).addTo(previewMap);
+
+                                    // Custom Car Marker
+                                    const carIcon = L.divIcon({
+                                        className: 'custom-car-marker',
+                                        html: `<div style="background-color: #2563eb; color: white; padding: 6px; border-radius: 50%; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.3); border: 2px solid white; display: flex; align-items: center; justify-content: center; width: 36px; height: 36px;">
+                                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/></svg>
+                                               </div>`,
+                                        iconSize: [36, 36],
+                                        iconAnchor: [18, 18]
+                                    });
+
+                                    L.marker([lat, lon], { icon: carIcon }).addTo(previewMap);
+                                }
+                            };
+
+                            if (typeof L === 'undefined') {
+                                const link = document.createElement('link');
+                                link.rel = 'stylesheet';
+                                link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+                                document.head.appendChild(link);
+
+                                const script = document.createElement('script');
+                                script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+                                script.onload = () => initMap();
+                                document.head.appendChild(script);
+                            } else {
+                                initMap();
+                            }
+                        }
+                    } else {
+                        const mapId = `mini-map-${unit.id}`;
+                        const mapElement = document.getElementById(mapId);
+                        if (mapElement) {
+                            mapElement.innerHTML = '<div class="w-full h-full flex items-center justify-center bg-gray-200"><span class="text-gray-400 font-bold uppercase text-xs tracking-widest">Map Preview Unavailable</span></div>';
+                        }
+                    }
+                }, 100);
             })
             .catch(err => {
                 document.getElementById('unitDetailsContent').innerHTML = `
