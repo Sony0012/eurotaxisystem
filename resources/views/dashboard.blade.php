@@ -3056,56 +3056,7 @@
         }
 
         function printReport() {
-            const content = document.getElementById('incomeReport').innerHTML;
-            const periodLabel = document.getElementById('reportPeriodLabelPrint');
-            const period = periodLabel ? periodLabel.textContent : 'TODAY';
-
-            const win = window.open('', '_blank');
-            if (!win) {
-                window.print();
-                return;
-            }
-
-            win.document.write(`<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Financial Report &mdash; ${period}</title>
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background: #fff; font-family: 'Segoe UI', system-ui, sans-serif; padding: 40px; color: #111; }
-        h1 { text-align: center; font-size: 24px; font-weight: 900; text-transform: uppercase; letter-spacing: .15em; margin-bottom: 4px; }
-        .subtitle { text-align: center; font-size: 11px; color: #64748b; font-weight: 700; letter-spacing: .15em; text-transform: uppercase; margin-bottom: 32px; }
-        .section-header { display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; border-radius: 6px 6px 0 0; }
-        .sub-header { display: flex; justify-content: space-between; background: #f8f8f8; padding: 6px 20px; border-left: 1px solid #eee; border-right: 1px solid #eee; font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: .12em; color: #94a3b8; }
-        table { width: 100%; border-collapse: collapse; border: 1px solid #f0f0f0; border-top: none; margin-bottom: 24px; }
-        thead tr { background: #f8fafc; border-bottom: 1px solid #e2e8f0; }
-        thead th { padding: 8px 20px; font-size: 8px; text-transform: uppercase; letter-spacing: .12em; color: #94a3b8; font-weight: 700; text-align: left; }
-        thead th:last-child { text-align: right; }
-        tbody tr { border-bottom: 1px solid #f8f8f8; }
-        td { padding: 8px 20px; font-size: 11px; color: #1e293b; }
-        td:last-child { text-align: right; font-weight: 900; white-space: nowrap; }
-        .no-records { padding: 16px 20px; text-align: center; font-size: 10px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: .1em; border: 1px solid #f0f0f0; border-top: none; margin-bottom: 24px; }
-        .footer { text-align: center; margin-top: 40px; padding-top: 16px; border-top: 1px solid #e2e8f0; font-size: 9px; color: #94a3b8; }
-        img { max-height: 64px !important; width: auto !important; display: block; margin: 0 auto 8px auto; }
-        .print-only { display: block !important; }
-        @media print { body { padding: 20px; } }
-    </style>
-</head>
-<body>
-    <h1>Financial Report</h1>
-    <p class="subtitle">Euro Taxi Management System &mdash; ${period}</p>
-    ${content}
-    <div class="footer">
-        <p>Authenticated Financial Statement &mdash; Generated: ${new Date().toLocaleString()}</p>
-    </div>
-</body>
-</html>`);
-
-            win.document.close();
-            win.focus();
-            setTimeout(() => { win.print(); }, 300);
+            window.print();
         }
 
         // --- Expenses Modal Functions ---
@@ -3161,60 +3112,7 @@
         }
 
         function printExpensesNewTab() {
-            const content = document.getElementById('expensesReport').innerHTML;
-            const periodLabel = document.getElementById('expensesPeriodLabelPrint');
-            const period = periodLabel ? periodLabel.textContent : 'TODAY';
-
-            const win = window.open('', '_blank');
-            if (!win) {
-                window.print();
-                return;
-            }
-
-            win.document.write(`<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Expense Statement &mdash; ${period}</title>
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background: #fff; font-family: 'Segoe UI', system-ui, sans-serif; padding: 40px; color: #111; }
-        h1 { text-align: center; font-size: 24px; font-weight: 900; text-transform: uppercase; letter-spacing: .15em; margin-bottom: 4px; }
-        .subtitle { text-align: center; font-size: 11px; color: #64748b; font-weight: 700; letter-spacing: .15em; text-transform: uppercase; margin-bottom: 32px; }
-        .section-header { display: flex; justify-content: space-between; align-items: center; background: #7f1d1d; color: white; padding: 10px 20px; border-radius: 6px 6px 0 0; }
-        .section-header span { font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: .08em; }
-        .sub-header { display: flex; justify-content: space-between; background: #f8f8f8; padding: 6px 20px; border-left: 1px solid #eee; border-right: 1px solid #eee; font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: .12em; color: #94a3b8; }
-        .sub-total { color: #dc2626; }
-        table { width: 100%; border-collapse: collapse; border: 1px solid #f0f0f0; border-top: none; margin-bottom: 24px; }
-        thead tr { background: #f8fafc; border-bottom: 1px solid #e2e8f0; }
-        thead th { padding: 8px 20px; font-size: 8px; text-transform: uppercase; letter-spacing: .12em; color: #94a3b8; font-weight: 700; text-align: left; }
-        thead th:last-child { text-align: right; }
-        tbody tr { border-bottom: 1px solid #f8f8f8; }
-        tbody tr:hover { background: #fafafa; }
-        td { padding: 8px 20px; font-size: 11px; color: #1e293b; }
-        td.date { color: #94a3b8; font-weight: 700; font-size: 9px; text-transform: uppercase; }
-        td.amount { text-align: right; font-weight: 900; color: #dc2626; white-space: nowrap; }
-        .no-records { padding: 16px 20px; text-align: center; font-size: 10px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: .1em; border: 1px solid #f0f0f0; border-top: none; margin-bottom: 24px; }
-        .footer { text-align: center; margin-top: 40px; padding-top: 16px; border-top: 1px solid #e2e8f0; font-size: 9px; color: #94a3b8; }
-        img { max-height: 64px !important; width: auto !important; display: block; margin: 0 auto 8px auto; }
-        .print-only { display: block !important; }
-        @media print { body { padding: 20px; } }
-    </style>
-</head>
-<body>
-    <h1>Expense Statement</h1>
-    <p class="subtitle">Euro Taxi Management System &mdash; ${period}</p>
-    ${content}
-    <div class="footer">
-        <p>Authenticated Expense Summary &mdash; Generated: ${new Date().toLocaleString()}</p>
-    </div>
-</body>
-</html>`);
-
-            win.document.close();
-            win.focus();
-            setTimeout(() => { win.print(); }, 300);
+            window.print();
         }
 
         function renderExpensesReport(data) {
