@@ -1,5 +1,5 @@
 {{-- Driver Details Modal with Tabs --}}
-<div id="driverDetailsModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden h-full w-full z-50 flex items-center justify-center p-4 transition-all duration-300">
+<div id="driverDetailsModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden h-full w-full z-[60] flex items-center justify-center p-4 transition-all duration-300">
     <div class="relative bg-white rounded-2xl shadow-2xl max-w-5xl w-full h-[90vh] overflow-hidden flex flex-col scale-95 transition-transform duration-300" id="driverDetailsModalContainer">
         {{-- Modal Header (Deep Navy) --}}
         <div class="bg-slate-800 p-5 shrink-0">
@@ -209,7 +209,7 @@
                             <div class="text-right">
                                 <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Fleet Status</span>
                                 <div class="mt-1">
-                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-widest ${data.driver_status === 'banned' ? 'bg-red-100 text-red-700 ring-1 ring-red-300 animate-pulse' : (data.is_active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700')}">
+                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-widest ${data.driver_status === 'banned' ? 'bg-red-100 text-red-700 ring-1 ring-red-300 animate-pulse' : (data.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700')}">
                                         ${(data.driver_status || 'Unknown')}
                                     </span>
                                 </div>
@@ -222,7 +222,7 @@
                             </div>
                             <div class="flex justify-between items-center py-2 border-b border-slate-200/50">
                                 <span class="text-xs font-bold text-slate-500">Active Targeted Rate</span>
-                                <span class="text-sm font-black text-blue-600">₱${data.current_pricing ? data.current_pricing.rate.toFixed(2) : '0.00'}</span>
+                                <span class="text-sm font-black text-blue-600">₱${data.daily_boundary_target ? parseFloat(data.daily_boundary_target).toLocaleString('en-PH', {minimumFractionDigits:2}) : '0.00'}</span>
                             </div>
                             ${data.current_pricing && data.current_pricing.label ? `
                                 <div class="mt-2 text-right">

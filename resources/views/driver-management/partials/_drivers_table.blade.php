@@ -23,7 +23,7 @@
             @forelse($drivers as $driver)
                 @php $has_shortage = isset($driver->net_shortage) && $driver->net_shortage > 0; @endphp
                 <tr class="modern-row cursor-pointer group {{ $has_shortage ? 'shortage-row' : '' }}"
-                    onclick="openDriverDetails({{ $driver->uuid }})">
+                    onclick="openDriverDetails({{ $driver->id }})">
 
                     {{-- Driver Profile --}}
                     <td class="px-3 md:px-6 py-4 md:py-5">

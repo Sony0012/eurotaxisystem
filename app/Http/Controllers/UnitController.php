@@ -1250,8 +1250,8 @@ class UnitController extends Controller
 
         foreach ($units as $unit) {
             $driverCount = 0;
-            if ($unit->driver1_name) $driverCount++;
-            if ($unit->driver2_name) $driverCount++;
+            if (trim($unit->driver1_name)) $driverCount++;
+            if (trim($unit->driver2_name)) $driverCount++;
             $unit->driver_count = $driverCount;
         }
 

@@ -221,7 +221,7 @@
                     <input type="hidden" name="view" id="viewModeInput" value="table">
                 </div>
 
-                <button type="button" onclick="window.open('{{ route('units.print') }}', '_blank')"
+                <button type="button" onclick="printInHiddenIframe('{{ route('units.print') }}')"
                     class="px-3 py-1 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center justify-center gap-1.5 lg:gap-2 text-xs font-semibold shadow-sm h-[38px] flex-1 min-w-0 lg:flex-initial lg:w-[135px]">
                     <i data-lucide="printer" class="w-3.5 h-3.5"></i> Print to PDF
                 </button>
@@ -482,7 +482,7 @@
                                 <select id="add_driver1" name="driver_id" class="hidden">
                                     <option value="">Select Primary Driver</option>
                                     @foreach($all_drivers as $driver)
-                                        <option value="{{ $driver->uuid }}" data-name="{{ $driver->full_name }}" data-license="{{ $driver->license_number ?? '' }}" data-assigned-unit="{{ $driver->assigned_unit_id }}">
+                                        <option value="{{ $driver->id }}" data-name="{{ $driver->full_name }}" data-license="{{ $driver->license_number ?? '' }}" data-assigned-unit="{{ $driver->assigned_unit_id }}">
                                             {{ $driver->full_name }} - {{ $driver->license_number ?? 'No License' }}
                                         </option>
                                     @endforeach
@@ -513,7 +513,7 @@
                                 <select id="add_driver2" name="secondary_driver_id" class="hidden">
                                     <option value="">Select Secondary Driver</option>
                                     @foreach($all_drivers as $driver)
-                                        <option value="{{ $driver->uuid }}" data-name="{{ $driver->full_name }}" data-license="{{ $driver->license_number ?? '' }}" data-assigned-unit="{{ $driver->assigned_unit_id }}">
+                                        <option value="{{ $driver->id }}" data-name="{{ $driver->full_name }}" data-license="{{ $driver->license_number ?? '' }}" data-assigned-unit="{{ $driver->assigned_unit_id }}">
                                             {{ $driver->full_name }} - {{ $driver->license_number ?? 'No License' }}
                                         </option>
                                     @endforeach
@@ -837,7 +837,7 @@
                                 <select id="edit_driver1" name="driver_id" class="hidden">
                                     <option value="">No Driver</option>
                                     @foreach($all_drivers as $d)
-                                        <option value="{{ $d->uuid }}" data-name="{{ $d->full_name }}" data-license="{{ $d->license_number ?? '' }}" data-assigned-unit="{{ $d->assigned_unit_id }}">
+                                        <option value="{{ $d->id }}" data-name="{{ $d->full_name }}" data-license="{{ $d->license_number ?? '' }}" data-assigned-unit="{{ $d->assigned_unit_id }}">
                                             {{ $d->full_name }} - {{ $d->license_number ?? 'No License' }}
                                         </option>
                                     @endforeach
@@ -868,7 +868,7 @@
                                 <select id="edit_driver2" name="secondary_driver_id" class="hidden">
                                     <option value="">No Driver</option>
                                     @foreach($all_drivers as $d)
-                                        <option value="{{ $d->uuid }}" data-name="{{ $d->full_name }}" data-license="{{ $d->license_number ?? '' }}" data-assigned-unit="{{ $d->assigned_unit_id }}">
+                                        <option value="{{ $d->id }}" data-name="{{ $d->full_name }}" data-license="{{ $d->license_number ?? '' }}" data-assigned-unit="{{ $d->assigned_unit_id }}">
                                             {{ $d->full_name }} - {{ $d->license_number ?? 'No License' }}
                                         </option>
                                     @endforeach

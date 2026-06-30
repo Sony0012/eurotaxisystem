@@ -188,8 +188,42 @@
     <link href="{{ asset('assets/app.css') }}?v=1.8" rel="stylesheet">
     @stack('styles')
 
+    <!-- Scripts -->
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    
+    <style>
+        @media print {
+            @page {
+                margin: 0;
+            }
+            body {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+        }
+    </style>
+
     <!-- Custom JS -->
     <script src="{{ asset('assets/app.js') }}?v=1.8"></script>
+    <script>
+        function printInHiddenIframe(url) {
+            const iframe = document.createElement('iframe');
+            iframe.style.position = 'absolute';
+            iframe.style.top = '-9999px';
+            iframe.style.left = '-9999px';
+            iframe.style.width = '0';
+            iframe.style.height = '0';
+            iframe.src = url;
+            document.body.appendChild(iframe);
+            // The loaded page should call window.print() on load
+            // Cleanup iframe after some time
+            setTimeout(() => {
+                if (document.body.contains(iframe)) {
+                    document.body.removeChild(iframe);
+                }
+            }, 60000); // 60 seconds is enough for the print dialog to open
+        }
+    </script>
 
     <!-- Chart.js for Dashboard (Local) -->
     <script src="{{ asset('assets/chart.min.js') }}"></script>

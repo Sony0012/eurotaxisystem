@@ -4,6 +4,7 @@
 @section('page-heading', 'Euro Taxi System')
 @section('page-subheading', 'Professional taxi fleet management and real-time tracking solutions')
 
+@push('styles')
     <style>
         @media print {
             @page {
@@ -94,19 +95,27 @@
             content: '';
             position: absolute;
             left: 0;
-            bottom: 10px;
+            bottom: 0;
             width: 100%;
-            height: 40px;
-            background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 100 40" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><polyline fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="0,35 15,25 30,30 45,15 60,20 75,5 90,10 100,0" /></svg>');
+            height: 75px;
             background-size: 100% 100%;
             background-repeat: no-repeat;
             opacity: 0;
             transition: none !important;
+            z-index: 0;
         }
+        .wave-blue::after { background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 100 50" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><polygon fill="rgba(59,130,246,0.15)" stroke="rgba(59,130,246,0.4)" stroke-width="1.5" vector-effect="non-scaling-stroke" stroke-linejoin="miter" points="0,50 0,35 15,20 30,30 45,10 60,25 75,5 90,15 100,0 100,50" /></svg>'); }
+        .wave-emerald::after { background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 100 50" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><polygon fill="rgba(16,185,129,0.15)" stroke="rgba(16,185,129,0.4)" stroke-width="1.5" vector-effect="non-scaling-stroke" stroke-linejoin="miter" points="0,50 0,35 15,20 30,30 45,10 60,25 75,5 90,15 100,0 100,50" /></svg>'); }
+        .wave-green::after { background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 100 50" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><polygon fill="rgba(34,197,94,0.15)" stroke="rgba(34,197,94,0.4)" stroke-width="1.5" vector-effect="non-scaling-stroke" stroke-linejoin="miter" points="0,50 0,35 15,20 30,30 45,10 60,25 75,5 90,15 100,0 100,50" /></svg>'); }
+        .wave-orange::after { background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 100 50" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><polygon fill="rgba(249,115,22,0.15)" stroke="rgba(249,115,22,0.4)" stroke-width="1.5" vector-effect="non-scaling-stroke" stroke-linejoin="miter" points="0,50 0,35 15,20 30,30 45,10 60,25 75,5 90,15 100,0 100,50" /></svg>'); }
+        .wave-indigo::after { background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 100 50" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><polygon fill="rgba(99,102,241,0.15)" stroke="rgba(99,102,241,0.4)" stroke-width="1.5" vector-effect="non-scaling-stroke" stroke-linejoin="miter" points="0,50 0,35 15,20 30,30 45,10 60,25 75,5 90,15 100,0 100,50" /></svg>'); }
+        .wave-rose::after { background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 100 50" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><polygon fill="rgba(244,63,94,0.15)" stroke="rgba(244,63,94,0.4)" stroke-width="1.5" vector-effect="non-scaling-stroke" stroke-linejoin="miter" points="0,50 0,35 15,20 30,30 45,10 60,25 75,5 90,15 100,0 100,50" /></svg>'); }
+        .wave-violet::after { background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 100 50" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><polygon fill="rgba(139,92,246,0.15)" stroke="rgba(139,92,246,0.4)" stroke-width="1.5" vector-effect="non-scaling-stroke" stroke-linejoin="miter" points="0,50 0,35 15,20 30,30 45,10 60,25 75,5 90,15 100,0 100,50" /></svg>'); }
         .card-hover.in-view::after {
             animation: drawChart 1s ease-out forwards !important;
         }
     </style>
+@endpush
 @section('content')
 
 
@@ -119,9 +128,9 @@
     <div class="grid grid-cols-2 gap-3 sm:gap-5 md:grid-cols-2 lg:grid-cols-4">
 
         {{-- Total Units --}}
-        <div onclick="showUnitsModal()" class="card-hover cursor-pointer group relative overflow-hidden rounded-2xl shadow-sm border border-blue-100 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl bg-gradient-to-br from-blue-50 to-indigo-50/70">
+        <div onclick="showUnitsModal()" class="card-hover wave-blue cursor-pointer group relative overflow-hidden rounded-2xl shadow-sm border border-blue-100 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl bg-gradient-to-br from-blue-50 to-indigo-50/70">
             
-            <div class="relative p-3.5 sm:p-5 flex items-center justify-between z-10">
+            <div class="relative p-3.5 sm:p-5 flex items-center justify-between z-20">
                 <div class="flex-1 min-w-0">
                     <p class="text-blue-400 text-[9px] sm:text-[10px] font-black uppercase tracking-widest mb-1">Total Units</p>
                     <p class="text-gray-900 text-xl sm:text-3xl font-black leading-none mb-1" data-stat="active_units">{{ $stats['active_units'] }}</p>
@@ -131,13 +140,13 @@
                     <i data-lucide="car" class="w-5 h-5 sm:w-7 sm:h-7 text-blue-600"></i>
                 </div>
             </div>
-            <i data-lucide="car" class="absolute -right-4 -bottom-4 w-24 h-24 text-blue-300 opacity-[0.12] -rotate-12 pointer-events-none"></i>
+            <i data-lucide="car" class="absolute right-0 bottom-0 w-24 h-24 -rotate-12 pointer-events-none" style="opacity: 0.6 !important; color: #2563eb !important; z-index: 5 !important;"></i>
         </div>
 
         {{-- Daily Boundary Collection --}}
-        <div onclick="showDailyBoundaryModal()" class="card-hover cursor-pointer group relative overflow-hidden rounded-2xl shadow-sm border border-emerald-100 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl bg-gradient-to-br from-emerald-50 to-teal-50/70">
+        <div onclick="showDailyBoundaryModal()" class="card-hover wave-emerald cursor-pointer group relative overflow-hidden rounded-2xl shadow-sm border border-emerald-100 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl bg-gradient-to-br from-emerald-50 to-teal-50/70">
             
-            <div class="relative p-3.5 sm:p-5 flex items-center justify-between z-10">
+            <div class="relative p-3.5 sm:p-5 flex items-center justify-between z-20">
                 <div class="flex-1 min-w-0">
                     <p class="text-emerald-500 text-[9px] sm:text-[10px] font-black uppercase tracking-widest mb-1">Boundary Revenue</p>
                     <div class="flex flex-col">
@@ -153,13 +162,13 @@
                     <i data-lucide="banknote" class="w-5 h-5 sm:w-7 sm:h-7 text-emerald-600"></i>
                 </div>
             </div>
-            <i data-lucide="banknote" class="absolute -right-4 -bottom-4 w-24 h-24 text-emerald-300 opacity-[0.12] -rotate-12 pointer-events-none"></i>
+            <i data-lucide="banknote" class="absolute right-0 bottom-0 w-24 h-24 -rotate-12 pointer-events-none" style="opacity: 0.6 !important; color: #059669 !important; z-index: 5 !important;"></i>
         </div>
 
         {{-- Net Income --}}
-        <div onclick="showNetIncomeModal()" class="card-hover cursor-pointer group relative overflow-hidden rounded-2xl shadow-sm border border-green-100 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl bg-gradient-to-br from-green-50 to-lime-50/70">
+        <div onclick="showNetIncomeModal()" class="card-hover wave-green cursor-pointer group relative overflow-hidden rounded-2xl shadow-sm border border-green-100 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl bg-gradient-to-br from-green-50 to-lime-50/70">
             
-            <div class="relative p-3.5 sm:p-5 flex items-center justify-between z-10">
+            <div class="relative p-3.5 sm:p-5 flex items-center justify-between z-20">
                 <div class="flex-1 min-w-0">
                     <p class="text-green-500 text-[9px] sm:text-[10px] font-black uppercase tracking-widest mb-1">Net Income (Kita)</p>
                     <div class="flex flex-col">
@@ -175,13 +184,13 @@
                     <i data-lucide="trending-up" class="w-5 h-5 sm:w-7 sm:h-7 text-green-600"></i>
                 </div>
             </div>
-            <i data-lucide="trending-up" class="absolute -right-4 -bottom-4 w-24 h-24 text-green-300 opacity-[0.12] -rotate-12 pointer-events-none"></i>
+            <i data-lucide="trending-up" class="absolute right-0 bottom-0 w-24 h-24 -rotate-12 pointer-events-none" style="opacity: 0.6 !important; color: #16a34a !important; z-index: 5 !important;"></i>
         </div>
 
         {{-- Units Under Maintenance --}}
-        <div onclick="showMaintenanceUnitsModal()" class="card-hover cursor-pointer group relative overflow-hidden rounded-2xl shadow-sm border border-orange-100 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl bg-gradient-to-br from-orange-50 to-amber-50/70">
+        <div onclick="showMaintenanceUnitsModal()" class="card-hover wave-orange cursor-pointer group relative overflow-hidden rounded-2xl shadow-sm border border-orange-100 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl bg-gradient-to-br from-orange-50 to-amber-50/70">
             
-            <div class="relative p-3.5 sm:p-5 flex items-center justify-between z-10">
+            <div class="relative p-3.5 sm:p-5 flex items-center justify-between z-20">
                 <div class="flex-1 min-w-0">
                     <p class="text-orange-400 text-[9px] sm:text-[10px] font-black uppercase tracking-widest mb-1">Under Maintenance</p>
                     <p class="text-gray-900 text-xl sm:text-3xl font-black leading-none mb-1" data-stat="maintenance_units">{{ $stats['maintenance_units'] }}</p>
@@ -191,7 +200,7 @@
                     <i data-lucide="wrench" class="w-5 h-5 sm:w-7 sm:h-7 text-orange-600"></i>
                 </div>
             </div>
-            <i data-lucide="wrench" class="absolute -right-4 -bottom-4 w-24 h-24 text-orange-300 opacity-[0.12] -rotate-12 pointer-events-none"></i>
+            <i data-lucide="wrench" class="absolute right-0 bottom-0 w-24 h-24 -rotate-12 pointer-events-none" style="opacity: 0.6 !important; color: #ea580c !important; z-index: 5 !important;"></i>
         </div>
 
     </div>
@@ -200,9 +209,9 @@
     <div class="mt-4 grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
 
         {{-- Active Drivers --}}
-        <div onclick="showActiveDriversModal()" class="card-hover cursor-pointer group relative overflow-hidden rounded-2xl shadow-sm border border-indigo-100 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl bg-gradient-to-br from-indigo-50 to-violet-50/70">
+        <div onclick="showActiveDriversModal()" class="card-hover wave-indigo cursor-pointer group relative overflow-hidden rounded-2xl shadow-sm border border-indigo-100 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl bg-gradient-to-br from-indigo-50 to-violet-50/70">
             
-            <div class="relative p-3.5 sm:p-5 flex items-center justify-between z-10">
+            <div class="relative p-3.5 sm:p-5 flex items-center justify-between z-20">
                 <div class="flex-1 min-w-0">
                     <p class="text-indigo-400 text-[9px] sm:text-[10px] font-black uppercase tracking-widest mb-1">Active Drivers</p>
                     <p class="text-gray-900 text-xl sm:text-3xl font-black leading-none" data-stat="active_drivers">{{ $stats['active_drivers'] }}</p>
@@ -211,13 +220,13 @@
                     <i data-lucide="users" class="w-5 h-5 sm:w-7 sm:h-7 text-indigo-600"></i>
                 </div>
             </div>
-            <i data-lucide="users" class="absolute -right-4 -bottom-4 w-24 h-24 text-indigo-300 opacity-[0.12] -rotate-12 pointer-events-none"></i>
+            <i data-lucide="users" class="absolute right-0 bottom-0 w-24 h-24 -rotate-12 pointer-events-none" style="opacity: 0.6 !important; color: #4f46e5 !important; z-index: 5 !important;"></i>
         </div>
 
         {{-- Total Expenses Today --}}
-        <div onclick="showExpensesModal()" class="card-hover cursor-pointer group relative overflow-hidden rounded-2xl shadow-sm border border-rose-100 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl bg-gradient-to-br from-rose-50 to-red-50/70">
+        <div onclick="showExpensesModal()" class="card-hover wave-rose cursor-pointer group relative overflow-hidden rounded-2xl shadow-sm border border-rose-100 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl bg-gradient-to-br from-rose-50 to-red-50/70">
             
-            <div class="relative p-3.5 sm:p-5 flex items-center justify-between z-10">
+            <div class="relative p-3.5 sm:p-5 flex items-center justify-between z-20">
                 <div class="flex-1 min-w-0">
                     <p class="text-rose-400 text-[9px] sm:text-[10px] font-black uppercase tracking-widest mb-1">Expenses Today</p>
                     <p class="text-gray-900 text-lg sm:text-2xl font-black leading-none" data-stat="today_expenses">{{ formatCurrency($stats['total_expenses_today']) }}</p>
@@ -226,13 +235,13 @@
                     <i data-lucide="trending-down" class="w-5 h-5 sm:w-7 sm:h-7 text-rose-600"></i>
                 </div>
             </div>
-            <i data-lucide="trending-down" class="absolute -right-4 -bottom-4 w-24 h-24 text-rose-300 opacity-[0.12] -rotate-12 pointer-events-none"></i>
+            <i data-lucide="trending-down" class="absolute right-0 bottom-0 w-24 h-24 -rotate-12 pointer-events-none" style="opacity: 0.6 !important; color: #e11d48 !important; z-index: 5 !important;"></i>
         </div>
 
         {{-- Coding Units Today --}}
-        <div onclick="showCodingUnitsModal()" class="col-span-2 lg:col-span-1 card-hover cursor-pointer group relative overflow-hidden rounded-2xl shadow-sm border border-violet-100 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl bg-gradient-to-br from-violet-50 to-purple-50/70">
+        <div onclick="showCodingUnitsModal()" class="col-span-2 lg:col-span-1 card-hover wave-violet cursor-pointer group relative overflow-hidden rounded-2xl shadow-sm border border-violet-100 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl bg-gradient-to-br from-violet-50 to-purple-50/70">
             
-            <div class="relative p-3.5 sm:p-5 flex items-center justify-between z-10">
+            <div class="relative p-3.5 sm:p-5 flex items-center justify-between z-20">
                 <div class="flex-1 min-w-0">
                     <p class="text-violet-400 text-[9px] sm:text-[10px] font-black uppercase tracking-widest mb-1">Coding Units Today</p>
                     <p class="text-gray-900 text-xl sm:text-3xl font-black leading-none mb-1" data-stat="coding_units">{{ $stats['coding_units'] }}</p>
@@ -242,7 +251,7 @@
                     <i data-lucide="calendar" class="w-5 h-5 sm:w-7 sm:h-7 text-violet-600"></i>
                 </div>
             </div>
-            <i data-lucide="calendar" class="absolute -right-4 -bottom-4 w-24 h-24 text-violet-300 opacity-[0.12] -rotate-12 pointer-events-none"></i>
+            <i data-lucide="calendar" class="absolute right-0 bottom-0 w-24 h-24 -rotate-12 pointer-events-none" style="opacity: 0.6 !important; color: #7c3aed !important; z-index: 5 !important;"></i>
         </div>
 
     </div>
@@ -632,14 +641,31 @@
                         </button>
                     </div>
                 </div>
+                
                 <button 
                     onclick="toggleDriversSort()" 
                     id="driversSortBtn"
-                    class="px-3 py-2 bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg text-white hover:bg-white/30 transition-all duration-200 text-sm flex items-center gap-2 min-w-[100px] justify-center"
+                    class="px-3 py-2 bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg text-white hover:bg-white/30 transition-all duration-200 text-sm flex items-center gap-2 min-w-[90px] justify-center"
                 >
                     <i data-lucide="sort-asc" id="driversSortIcon" class="w-4 h-4"></i>
                     <span id="driversSortText">A-Z</span>
                 </button>
+
+                <!-- Category Filter Buttons -->
+                <div class="hidden md:flex items-center gap-1 bg-white/20 backdrop-blur-sm p-1 rounded-xl border border-white/30">
+                    <button onclick="setDriversFilter('all')" id="dFilterAll" class="px-4 py-1.5 rounded-lg text-sm font-bold transition-all duration-200 bg-white text-blue-600 shadow-sm">
+                        All
+                    </button>
+                    <button onclick="setDriversFilter('vacant')" id="dFilterVacant" class="px-4 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 text-white hover:bg-white/10">
+                        Vacant
+                    </button>
+                    <button onclick="setDriversFilter('active')" id="dFilterActive" class="px-4 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 text-white hover:bg-white/10">
+                        Active
+                    </button>
+                    <button onclick="setDriversFilter('top')" id="dFilterTop" class="px-4 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 text-white hover:bg-white/10">
+                        Top Performers
+                    </button>
+                </div>
             </div>
         </div>
         
@@ -885,20 +911,62 @@
                         <div class="text-base text-gray-600 uppercase font-black tracking-widest" id="reportPeriodLabelPrint">Period: TODAY</div>
                         <div class="text-[12px] text-gray-400 mt-3 font-bold tracking-[0.2em]">EURO TAXI MANAGEMENT SYSTEM • OFFICIAL RECORD</div>
                         <div class="border-t-2 border-gray-100 mt-8 pt-2 h-0 border-dashed"></div>
+                        
+                        <!-- Print-Only Summary Box -->
+                        <div class="mt-6 border border-gray-200 p-4 text-left mx-auto max-w-sm" style="font-family: monospace;">
+                            <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #eee; padding-bottom: 4px; margin-bottom: 4px; font-weight: bold;">
+                                <span style="text-transform: uppercase; font-size: 10px; letter-spacing: 0.1em; color: #666;">Total Revenue</span> 
+                                <span id="reportTotalIncomePrint">₱0.00</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #eee; padding-bottom: 4px; margin-bottom: 4px; font-weight: bold;">
+                                <span style="text-transform: uppercase; font-size: 10px; letter-spacing: 0.1em; color: #666;">Total Expenses</span> 
+                                <span id="reportTotalExpensesPrint" style="color: #dc2626;">₱0.00</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; font-weight: 900; font-size: 12px; margin-top: 8px;">
+                                <span style="text-transform: uppercase; letter-spacing: 0.1em;">Net Income</span> 
+                                <span id="reportNetIncomePrint">₱0.00</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Net Income Summary Section (Screen Only) -->
+                    <div class="mb-8 p-6 bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl shadow-lg border border-gray-700 text-white relative overflow-hidden no-print">
+                        <!-- Decorative element -->
+                        <div class="absolute top-0 right-0 opacity-10 pointer-events-none">
+                            <i data-lucide="calculator" class="w-48 h-48 -mt-8 -mr-8"></i>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10">
+                            <!-- Revenue -->
+                            <div class="flex flex-col border-b md:border-b-0 md:border-r border-gray-700 pb-4 md:pb-0 md:pr-6">
+                                <span class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Total Revenue</span>
+                                <span class="text-3xl font-black text-emerald-400" id="reportTotalIncome">₱0.00</span>
+                            </div>
+                            
+                            <!-- Expenses -->
+                            <div class="flex flex-col border-b md:border-b-0 md:border-r border-gray-700 pb-4 md:pb-0 md:pr-6 md:pl-2">
+                                <span class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Total Expenses</span>
+                                <span class="text-3xl font-black text-red-400" id="reportTotalExpenses">₱0.00</span>
+                            </div>
+                            
+                            <!-- Net Income -->
+                            <div class="flex flex-col md:pl-2">
+                                <span class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1 flex items-center">
+                                    Net Income 
+                                    <span id="reportProfitMargin" class="ml-2 text-[9px] bg-white/10 px-2 py-0.5 rounded-full text-gray-300">0.0% Margin</span>
+                                </span>
+                                <span class="text-4xl font-black text-white" id="reportNetIncome">₱0.00</span>
+                            </div>
+                        </div>
                     </div>
                     
                     <!-- Revenue Section -->
                     <div class="mb-6">
-                        <div class="flex justify-between items-center bg-gray-900 text-white px-6 py-3 rounded-t-lg">
-                            <span class="text-[11px] uppercase font-black tracking-[0.1em]">Revenue: Total Boundary Collected</span>
-                            <span class="text-xl font-black text-emerald-400" id="reportTotalIncome">₱0.00</span>
+                        <div class="flex justify-between items-center bg-gray-100 text-gray-800 px-6 py-3 rounded-t-lg border-x border-t border-gray-200">
+                            <span class="text-[11px] uppercase font-black tracking-[0.1em]">Revenue Breakdown</span>
                         </div>
-                        <div class="border-x border-b border-gray-100 rounded-b-lg">
-                            <div class="bg-gray-50 px-6 py-1 border-b border-gray-100 flex justify-between text-[9px] font-black text-gray-400 uppercase tracking-widest">
-                                <span>Unit / Driver Detail</span>
-                                <span>Amount Collected</span>
-                            </div>
-                            <div id="revenueDetailList" class="divide-y divide-gray-50 min-h-[0px]">
+                        <div class="border-x border-b border-gray-200 rounded-b-lg">
+                            <div id="revenueDetailList" class="min-h-[100px] flex flex-col justify-center">
                                 <!-- Dynamically populated -->
                             </div>
                         </div>
@@ -906,36 +974,33 @@
                     
                     <!-- Operating Expenses Section -->
                     <div class="mb-6">
-                        <div class="flex justify-between items-center bg-red-900 text-white px-6 py-3 rounded-t-lg">
+                        <div class="flex justify-between items-center bg-red-50 text-red-900 px-6 py-3 rounded-t-lg border-x border-t border-red-100">
                             <span class="text-[11px] uppercase font-black tracking-[0.1em]">Operating Expenses Breakdown</span>
-                            <span class="text-xl font-black text-red-300" id="reportTotalExpenses">₱0.00</span>
                         </div>
-                        <div class="border-x border-b border-gray-100 rounded-b-lg p-0">
+                        <div class="border-x border-b border-gray-200 rounded-b-lg p-0">
                             <!-- Maintenance Breakdown -->
-                            <div class="border-b border-gray-100">
-                                <div class="bg-gray-50 px-6 py-1 border-b border-gray-100 flex justify-between text-[9px] font-black text-gray-400 uppercase tracking-widest">
+                            <div class="border-b border-gray-200">
+                                <div class="bg-gray-50 px-6 py-2 border-b border-gray-200 flex justify-between text-[9px] font-black text-gray-400 uppercase tracking-widest">
                                     <span>Maintenance & Repairs Itemized</span>
                                     <span id="reportMaintenanceTotal" class="text-orange-600 font-black">Total: ₱0.00</span>
                                 </div>
-                                <div id="maintenanceDetailList" class="divide-y divide-gray-50 bg-white">
+                                <div id="maintenanceDetailList" class="bg-white min-h-[60px] flex flex-col justify-center">
                                     <!-- Dynamically populated -->
                                 </div>
                             </div>
 
                             <!-- Office Breakdown -->
                             <div>
-                                <div class="bg-gray-50 px-6 py-1 border-b border-gray-100 flex justify-between text-[9px] font-black text-gray-400 uppercase tracking-widest">
+                                <div class="bg-gray-50 px-6 py-2 border-b border-gray-200 flex justify-between text-[9px] font-black text-gray-400 uppercase tracking-widest">
                                     <span>General Office Expenses Itemized</span>
                                     <span id="reportGeneralExpensesTotal" class="text-red-500 font-black">Total: ₱0.00</span>
                                 </div>
-                                <div id="officeExpensesDetailList" class="divide-y divide-gray-50 bg-white">
+                                <div id="officeExpensesDetailList" class="bg-white min-h-[60px] flex flex-col justify-center rounded-b-lg">
                                     <!-- Dynamically populated -->
                                 </div>
                             </div>
                         </div>
                     </div>
-                    
-                    
                     
                     <!-- Report Footer (Print Only) -->
                     <div class="text-center mt-8 pt-6 border-t border-gray-100 print-only">
@@ -999,31 +1064,74 @@
                         <div class="text-base text-gray-600 uppercase font-black tracking-widest" id="expensesPeriodLabelPrint">Period: TODAY</div>
                         <div class="text-[12px] text-gray-400 mt-3 font-bold tracking-[0.2em]">EURO TAXI MANAGEMENT SYSTEM • OFFICIAL EXPENSE RECORD</div>
                         <div class="border-t-2 border-gray-100 mt-8 pt-2 h-0 border-dashed"></div>
+                        
+                        <!-- Print-Only Summary Box -->
+                        <div class="mt-6 border border-gray-200 p-4 text-left mx-auto max-w-sm" style="font-family: monospace;">
+                            <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #eee; padding-bottom: 4px; margin-bottom: 4px; font-weight: bold;">
+                                <span style="text-transform: uppercase; font-size: 10px; letter-spacing: 0.1em; color: #666;">Maintenance Total</span> 
+                                <span id="expensesMaintenanceTotalPrint">₱0.00</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #eee; padding-bottom: 4px; margin-bottom: 4px; font-weight: bold;">
+                                <span style="text-transform: uppercase; font-size: 10px; letter-spacing: 0.1em; color: #666;">Office Expenses Total</span> 
+                                <span id="expensesOfficeTotalPrint" style="color: #dc2626;">₱0.00</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; font-weight: 900; font-size: 12px; margin-top: 8px;">
+                                <span style="text-transform: uppercase; letter-spacing: 0.1em;">Total Expenses</span> 
+                                <span id="expensesTotalValuePrint">₱0.00</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Total Expenses Summary Section (Screen Only) -->
+                    <div class="mb-8 p-6 bg-gradient-to-br from-red-900 to-red-800 rounded-xl shadow-lg border border-red-700 text-white relative overflow-hidden no-print">
+                        <!-- Decorative element -->
+                        <div class="absolute top-0 right-0 opacity-10 pointer-events-none">
+                            <i data-lucide="receipt" class="w-48 h-48 -mt-8 -mr-8"></i>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-10">
+                            <!-- Maintenance Expenses -->
+                            <div class="flex flex-col border-b md:border-b-0 md:border-r border-red-700 pb-4 md:pb-0 md:pr-6">
+                                <span class="text-xs font-bold text-red-200 uppercase tracking-widest mb-1">Maintenance Total</span>
+                                <span class="text-2xl font-black text-white" id="expensesMaintenanceTotal">₱0.00</span>
+                            </div>
+                            
+                            <!-- Office Expenses -->
+                            <div class="flex flex-col md:pl-2">
+                                <span class="text-xs font-bold text-red-200 uppercase tracking-widest mb-1 flex items-center">
+                                    Office Expenses Total 
+                                </span>
+                                <span class="text-2xl font-black text-white" id="expensesOfficeTotal">₱0.00</span>
+                            </div>
+                        </div>
+
+                        <!-- Grand Total -->
+                        <div class="mt-6 pt-4 border-t border-red-700/50">
+                            <span class="text-xs font-bold text-red-200 uppercase tracking-widest mb-1 block">Total Expenses</span>
+                            <span class="text-5xl font-black text-white drop-shadow-md" id="expensesTotalValue">₱0.00</span>
+                        </div>
                     </div>
                     
                     <!-- Operating Expenses Section -->
                     <div class="mb-6">
-                        <div class="flex justify-between items-center bg-red-900 text-white px-6 py-3 rounded-t-lg">
+                        <div class="flex justify-between items-center bg-red-50 text-red-900 px-6 py-3 rounded-t-lg border-x border-t border-red-100">
                             <span class="text-[11px] uppercase font-black tracking-[0.1em]">Detailed Expenses Breakdown</span>
-                            <span class="text-xl font-black text-red-300" id="expensesTotalValue">₱0.00</span>
                         </div>
-                        <div class="border-x border-b border-gray-100 rounded-b-lg p-0">
+                        <div class="border-x border-b border-gray-200 rounded-b-lg p-0">
                             <!-- Maintenance Breakdown -->
-                            <div class="border-b border-gray-100">
-                                <div class="bg-gray-50 px-6 py-1 border-b border-gray-100 flex justify-between text-[9px] font-black text-gray-400 uppercase tracking-widest">
+                            <div class="border-b border-gray-200">
+                                <div class="bg-gray-50 px-6 py-2 border-b border-gray-200 flex justify-between text-[9px] font-black text-gray-400 uppercase tracking-widest">
                                     <span>Maintenance & Repairs Itemized</span>
-                                    <span id="expensesMaintenanceTotal" class="text-orange-600 font-black text-[10px]">Total: ₱0.00</span>
                                 </div>
-                                <div id="expensesMaintenanceList" class="divide-y divide-gray-50 bg-white"></div>
+                                <div id="expensesMaintenanceList" class="bg-white min-h-[60px] flex flex-col justify-center"></div>
                             </div>
 
                             <!-- Office Breakdown -->
                             <div>
-                                <div class="bg-gray-50 px-6 py-1 border-b border-gray-100 flex justify-between text-[9px] font-black text-gray-400 uppercase tracking-widest">
+                                <div class="bg-gray-50 px-6 py-2 border-b border-gray-200 flex justify-between text-[9px] font-black text-gray-400 uppercase tracking-widest">
                                     <span>General Office Expenses Itemized</span>
-                                    <span id="expensesOfficeTotal" class="text-red-500 font-black text-[10px]">Total: ₱0.00</span>
                                 </div>
-                                <div id="expensesOfficeList" class="divide-y divide-gray-50 bg-white"></div>
+                                <div id="expensesOfficeList" class="bg-white min-h-[60px] flex flex-col justify-center rounded-b-lg"></div>
                             </div>
                         </div>
                     </div>
@@ -1324,8 +1432,8 @@
         </div>
     </div>
 
+    @include('driver-management.partials._driver_details_modal')
 @endsection
-
 @push('scripts')
     <script src="{{ asset('js/realtime-dashboard.js') }}"></script>
     <script>
@@ -2291,7 +2399,7 @@
             }
             
             grid.innerHTML = drivers.map(driver => `
-                <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden border-l-4 border-blue-500 hover:scale-102">
+                <div onclick="openDriverDetails(${driver.id})" class="bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden border-l-4 border-blue-500 hover:scale-102 cursor-pointer">
                     <div class="p-4">
                         <!-- Header -->
                         <div class="flex items-start justify-between mb-3">
@@ -2313,22 +2421,14 @@
                             </div>
                         </div>
                         
-                        <!-- Driver Details -->
-                        <div class="bg-gray-50 rounded-lg p-3 mb-3">
-                            <div class="flex items-center justify-between mb-2">
-                                <span class="text-sm font-medium text-gray-900">Contact: ${driver.phone || 'N/A'}</span>
-                            </div>
-                            <div class="text-xs text-gray-600">
-                                <span class="font-medium">Address:</span> ${driver.address || 'No address available'}
-                            </div>
-                        </div>
+
                         
                         <!-- Performance Stats -->
                         <div class="flex items-center justify-between mb-3">
                             <div class="flex items-center gap-2">
                                 <div class="w-1.5 h-1.5 rounded-full ${driver.performance_rating === 'excellent' ? 'bg-green-500' : driver.performance_rating === 'good' ? 'bg-yellow-500' : driver.performance_rating === 'average' ? 'bg-orange-500' : 'bg-gray-400'} animate-pulse"></div>
                                 <span class="text-xs font-medium text-gray-600">
-                                    ${driver.performance_rating ? driver.performance_rating.charAt(0).toUpperCase() + driver.performance_rating.slice(1) : 'Unknown'}
+                                    ${driver.performance_rating ? driver.performance_rating.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) : 'Unknown'}
                                 </span>
                             </div>
                             <div class="text-right">
@@ -2375,7 +2475,18 @@
                     ].join(' ').toLowerCase();
                     
                     return searchableText.includes(searchTerm);
+                    return searchableText.includes(searchTerm);
                 });
+            }
+            
+            // Apply Category Filter
+            const category = window.currentDriversFilterCategory || 'all';
+            if (category === 'vacant') {
+                filteredDrivers = filteredDrivers.filter(driver => driver.assigned_units === 0);
+            } else if (category === 'active') {
+                filteredDrivers = filteredDrivers.filter(driver => driver.assigned_units > 0);
+            } else if (category === 'top') {
+                filteredDrivers = filteredDrivers.filter(driver => driver.is_top_performer === true);
             }
 
             // Apply Sorting (Alphabetical by Name)
@@ -2423,6 +2534,30 @@
 
         function clearDriversSearch() {
             document.getElementById('driversSearchInput').value = '';
+            filterActiveDrivers();
+        }
+        
+        function setDriversFilter(category) {
+            window.currentDriversFilterCategory = category;
+            
+            const buttons = {
+                'all': document.getElementById('dFilterAll'),
+                'vacant': document.getElementById('dFilterVacant'),
+                'active': document.getElementById('dFilterActive'),
+                'top': document.getElementById('dFilterTop')
+            };
+            
+            Object.keys(buttons).forEach(key => {
+                const btn = buttons[key];
+                if (!btn) return;
+                
+                if (key === category) {
+                    btn.className = 'px-4 py-1.5 rounded-lg text-sm font-bold transition-all duration-200 bg-white text-blue-600 shadow-sm';
+                } else {
+                    btn.className = 'px-4 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 text-white hover:bg-white/10';
+                }
+            });
+            
             filterActiveDrivers();
         }
         
@@ -2576,51 +2711,89 @@
                 `;
                 return;
             }
-            
-            grid.innerHTML = units.map(unit => `
-                <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden border-l-4 border-purple-500 hover:scale-102">
-                    <div class="p-4">
+            grid.innerHTML = units.map(unit => {
+                const hasDriver1 = unit.driver1_name && unit.driver1_name.trim() !== '';
+                const hasDriver2 = unit.driver2_name && unit.driver2_name.trim() !== '';
+                const hasAnyDriver = hasDriver1 || hasDriver2;
+
+                let driverOverlayHTML = `
+                    <div class="absolute inset-0 bg-slate-900/95 opacity-0 group-hover:opacity-100 transition-all duration-250 flex flex-col items-center justify-center gap-1.5 z-10 pointer-events-none rounded-xl">
+                        <p class="text-white/60 text-[9px] font-black uppercase tracking-widest mb-0.5">Assigned Drivers</p>
+                `;
+
+                if (hasAnyDriver) {
+                    if (hasDriver1) {
+                        driverOverlayHTML += `
+                            <div class="flex items-center gap-2.5 bg-white/10 rounded-lg px-3 py-1.5 w-[90%]">
+                                <div class="w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center flex-shrink-0 shadow">
+                                    <span class="text-white text-[8px] font-black">P1</span>
+                                </div>
+                                <div class="text-left overflow-hidden min-w-0">
+                                    <p class="text-[7px] text-blue-300 font-bold uppercase tracking-wider leading-none truncate">Primary 1</p>
+                                    <p class="text-white text-[11px] font-black leading-tight truncate">${unit.driver1_name.trim()}</p>
+                                </div>
+                            </div>
+                        `;
+                    }
+                    if (hasDriver2) {
+                        driverOverlayHTML += `
+                            <div class="flex items-center gap-2.5 bg-white/10 rounded-lg px-3 py-1.5 w-[90%]">
+                                <div class="w-5 h-5 rounded-full bg-purple-500 flex items-center justify-center flex-shrink-0 shadow">
+                                    <span class="text-white text-[8px] font-black">P2</span>
+                                </div>
+                                <div class="text-left overflow-hidden min-w-0">
+                                    <p class="text-[7px] text-purple-300 font-bold uppercase tracking-wider leading-none truncate">Primary 2</p>
+                                    <p class="text-white text-[11px] font-black leading-tight truncate">${unit.driver2_name.trim()}</p>
+                                </div>
+                            </div>
+                        `;
+                    }
+                } else {
+                    driverOverlayHTML += `
+                        <div class="flex flex-col items-center justify-center opacity-50">
+                            <i data-lucide="user-x" class="w-5 h-5 text-white mb-1.5"></i>
+                            <span class="text-[9px] text-white font-bold uppercase tracking-widest text-center leading-tight">No Driver<br>Assigned</span>
+                        </div>
+                    `;
+                }
+
+                driverOverlayHTML += `</div>`;
+
+                return `
+                <div class="bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden border border-gray-100 hover:border-purple-200 relative group min-h-[130px]">
+                    ${driverOverlayHTML}
+                    <div class="p-4 border-l-4 border-purple-500 h-full flex flex-col relative z-0">
                         <!-- Header -->
-                        <div class="flex items-start justify-between mb-3">
+                        <div class="flex items-center justify-between mb-4">
                             <div class="flex items-center gap-3">
-                                <div class="p-2 bg-purple-100 rounded-lg">
-                                    <i data-lucide="code" class="w-4 h-4 text-purple-600"></i>
+                                <div class="p-2.5 bg-purple-50 rounded-lg text-purple-600">
+                                    <i data-lucide="car" class="w-5 h-5"></i>
                                 </div>
                                 <div>
-                                    <h4 class="text-lg font-bold text-gray-900">${unit.plate_number || 'N/A'}</h4>
+                                    <h4 class="text-xl font-black text-gray-900 tracking-tight leading-none">${unit.plate_number || 'N/A'}</h4>
                                 </div>
                             </div>
                             <div class="text-right">
-                                <div class="text-lg font-bold text-purple-600">${unit.coding_type || 'Coding'}</div>
-                                <div class="text-xs text-gray-500">${unit.start_date ? unit.start_date : (unit.coding_day !== 'Unknown' ? 'Every ' + unit.coding_day : 'No date')}</div>
+                                <span class="px-2.5 py-1 bg-purple-50 text-purple-700 text-[10px] font-black uppercase tracking-widest rounded-md border border-purple-100">${unit.coding_type || 'Coding'}</span>
                             </div>
                         </div>
                         
-                        <!-- Coding Details -->
-                        <div class="bg-gray-50 rounded-lg p-3 mb-3">
-                            <div class="flex items-center justify-between mb-2">
-                                <span class="text-sm font-medium text-gray-900">Status: ${unit.status || 'Unknown'}</span>
-                                <span class="text-xs text-gray-600">${unit.estimated_completion ? 'Est: ' + unit.estimated_completion : ''}</span>
+                        <div class="mt-auto">
+                            <!-- Details / Footer -->
+                            <div class="pt-3 border-t border-gray-100 flex items-center justify-between">
+                                <div class="flex items-center gap-1.5 text-[11px] font-bold text-gray-500 uppercase tracking-wide">
+                                    <i data-lucide="calendar" class="w-3.5 h-3.5 text-gray-400"></i>
+                                    ${unit.start_date ? unit.start_date : (unit.coding_day !== 'Unknown' ? 'Every ' + unit.coding_day : 'No date')}
+                                </div>
+                                <div class="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-gray-400">
+                                    <i data-lucide="activity" class="w-3.5 h-3.5 text-gray-400"></i>
+                                    ${unit.status || 'Unknown'}
+                                </div>
                             </div>
-                            <div class="text-xs text-gray-600">
-                                <span class="font-medium">Description:</span> ${unit.description || 'No description available'}
-                            </div>
-                        </div>
-                        
-                        <!-- Footer -->
-                        <div class="flex items-center justify-between text-xs text-gray-500">
-                            <span class="flex items-center gap-1">
-                                <i data-lucide="calendar" class="w-3 h-3"></i>
-                                ${unit.start_date ? unit.start_date : (unit.coding_day !== 'Unknown' ? 'Every ' + unit.coding_day : 'No start date')}
-                            </span>
-                            <span class="flex items-center gap-1">
-                                <i data-lucide="check-circle" class="w-3 h-3"></i>
-                                ${unit.status || 'Unknown'}
-                            </span>
                         </div>
                     </div>
                 </div>
-            `).join('');
+            `}).join('');
         }
         
         const getUnitPeriod = (unit) => {
@@ -2989,6 +3162,38 @@
                 }
             });
             
+            // Summarize items for Yearly and Monthly views
+            if (window.currentIncomePeriod === 'year' || window.currentIncomePeriod === 'month') {
+                const summarizeItems = (items) => {
+                    const map = {};
+                    
+                    // Generate dynamic period label
+                    let periodLabel = '';
+                    if (window.currentIncomePeriod === 'year') {
+                        periodLabel = new Date().getFullYear() + ' SUMMARY';
+                    } else if (window.currentIncomePeriod === 'month') {
+                        const date = new Date();
+                        periodLabel = date.toLocaleString('default', { month: 'long', year: 'numeric' }).toUpperCase() + ' SUMMARY';
+                    }
+
+                    items.forEach(item => {
+                        if (!map[item.description]) {
+                            map[item.description] = { 
+                                description: item.description, 
+                                amount: 0, 
+                                date: periodLabel
+                            };
+                        }
+                        map[item.description].amount += item.amount;
+                    });
+                    return Object.values(map).sort((a, b) => b.amount - a.amount);
+                };
+                
+                breakdown.revenueItems = summarizeItems(breakdown.revenueItems);
+                breakdown.maintenanceItems = summarizeItems(breakdown.maintenanceItems);
+                breakdown.officeItems = summarizeItems(breakdown.officeItems);
+            }
+            
             const netIncome = totalIncome - totalExpenses;
             const profitMargin = totalIncome > 0 ? (netIncome / totalIncome) * 100 : 0;
             
@@ -3002,12 +3207,27 @@
             };
 
             safeSet('reportTotalIncome', fmt(totalIncome));
+            safeSet('reportTotalIncomePrint', fmt(totalIncome));
             /* Tailwind imports removed to prevent 404s in production */
             safeSet('reportTotalExpenses', fmt(totalExpenses));
+            safeSet('reportTotalExpensesPrint', fmt(totalExpenses));
             safeSet('reportMaintenanceTotal', 'Total: ' + fmt(breakdown.maintenanceTotal));
             safeSet('reportGeneralExpensesTotal', 'Total: ' + fmt(breakdown.officeTotal));
             safeSet('reportNetIncome', fmt(netIncome));
-            safeSet('reportProfitMargin', profitMargin.toFixed(1) + '%');
+            safeSet('reportNetIncomePrint', fmt(netIncome));
+            
+            const netIncomeEl = document.getElementById('reportNetIncome');
+            if (netIncomeEl) {
+                netIncomeEl.className = 'text-4xl font-black ' + (netIncome > 0 ? 'text-emerald-400' : (netIncome < 0 ? 'text-red-400' : 'text-white'));
+            }
+            
+            const profitMarginEl = document.getElementById('reportProfitMargin');
+            if (profitMarginEl) {
+                profitMarginEl.textContent = profitMargin.toFixed(1) + '% Margin';
+                profitMarginEl.className = 'ml-2 text-[9px] px-2 py-0.5 rounded-full font-bold ' + 
+                    (netIncome > 0 ? 'bg-emerald-500/20 text-emerald-300' : (netIncome < 0 ? 'bg-red-500/20 text-red-300' : 'bg-white/10 text-gray-300'));
+            }
+            
             safeSet('reportTimestamp', new Date().toLocaleString());
             
             // Helper to render lists
@@ -3056,7 +3276,65 @@
         }
 
         function printReport() {
-            window.print();
+            const content = document.getElementById('incomeReport').innerHTML;
+            const periodLabel = document.getElementById('reportPeriodLabelPrint');
+            const period = periodLabel ? periodLabel.textContent : 'TODAY';
+
+            const iframe = document.createElement('iframe');
+            iframe.style.position = 'absolute';
+            iframe.style.top = '-9999px';
+            iframe.style.left = '-9999px';
+            iframe.style.width = '0';
+            iframe.style.height = '0';
+            document.body.appendChild(iframe);
+
+            const doc = iframe.contentWindow.document;
+            doc.open();
+            doc.write(`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial Report &mdash; ${period}</title>
+    <style>
+        @page { margin: 0; size: auto; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: #fff; font-family: 'Segoe UI', system-ui, sans-serif; padding: 20mm; color: #111; }
+        h1 { text-align: center; font-size: 24px; font-weight: 900; text-transform: uppercase; letter-spacing: .15em; margin-bottom: 4px; }
+        .subtitle { text-align: center; font-size: 11px; color: #64748b; font-weight: 700; letter-spacing: .15em; text-transform: uppercase; margin-bottom: 32px; }
+        .section-header { display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; border-radius: 6px 6px 0 0; }
+        .sub-header { display: flex; justify-content: space-between; background: #f8f8f8; padding: 6px 20px; border-left: 1px solid #eee; border-right: 1px solid #eee; font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: .12em; color: #94a3b8; }
+        table { width: 100%; border-collapse: collapse; border: 1px solid #f0f0f0; border-top: none; margin-bottom: 24px; }
+        thead tr { background: #f8fafc; border-bottom: 1px solid #e2e8f0; }
+        thead th { padding: 8px 20px; font-size: 8px; text-transform: uppercase; letter-spacing: .12em; color: #94a3b8; font-weight: 700; text-align: left; }
+        thead th:last-child { text-align: right; }
+        tr { page-break-inside: avoid; break-inside: avoid; }
+        tbody tr { border-bottom: 1px solid #f8f8f8; }
+        td { padding: 8px 20px; font-size: 11px; color: #1e293b; }
+        td:last-child { text-align: right; font-weight: 900; white-space: nowrap; }
+        .no-records { padding: 16px 20px; text-align: center; font-size: 10px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: .1em; border: 1px solid #f0f0f0; border-top: none; margin-bottom: 24px; }
+        .footer { text-align: center; margin-top: 40px; padding-top: 16px; border-top: 1px solid #e2e8f0; font-size: 9px; color: #94a3b8; }
+        img { max-height: 64px !important; width: auto !important; display: block; margin: 0 auto 8px auto; }
+        .print-only { display: block !important; }
+        .no-print { display: none !important; }
+    </style>
+</head>
+<body>
+    <h1>Financial Report</h1>
+    <p class="subtitle">Euro Taxi Management System &mdash; ${period}</p>
+    ${content}
+    <div class="footer">
+        <p>Authenticated Financial Statement &mdash; Generated: ${new Date().toLocaleString()}</p>
+    </div>
+</body>
+</html>`);
+            doc.close();
+            
+            setTimeout(() => {
+                iframe.contentWindow.focus();
+                iframe.contentWindow.print();
+                setTimeout(() => { document.body.removeChild(iframe); }, 1000);
+            }, 300);
         }
 
         // --- Expenses Modal Functions ---
@@ -3112,11 +3390,73 @@
         }
 
         function printExpensesNewTab() {
-            window.print();
+            const content = document.getElementById('expensesReport').innerHTML;
+            const periodLabel = document.getElementById('expensesPeriodLabelPrint');
+            const period = periodLabel ? periodLabel.textContent : 'TODAY';
+
+            const iframe = document.createElement('iframe');
+            iframe.style.position = 'absolute';
+            iframe.style.top = '-9999px';
+            iframe.style.left = '-9999px';
+            iframe.style.width = '0';
+            iframe.style.height = '0';
+            document.body.appendChild(iframe);
+
+            const doc = iframe.contentWindow.document;
+            doc.open();
+            doc.write(`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expense Statement &mdash; ${period}</title>
+    <style>
+        @page { margin: 0; size: auto; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: #fff; font-family: 'Segoe UI', system-ui, sans-serif; padding: 20mm; color: #111; }
+        h1 { text-align: center; font-size: 24px; font-weight: 900; text-transform: uppercase; letter-spacing: .15em; margin-bottom: 4px; }
+        .subtitle { text-align: center; font-size: 11px; color: #64748b; font-weight: 700; letter-spacing: .15em; text-transform: uppercase; margin-bottom: 32px; }
+        .section-header { display: flex; justify-content: space-between; align-items: center; background: #7f1d1d; color: white; padding: 10px 20px; border-radius: 6px 6px 0 0; }
+        .section-header span { font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: .08em; }
+        .sub-header { display: flex; justify-content: space-between; background: #f8f8f8; padding: 6px 20px; border-left: 1px solid #eee; border-right: 1px solid #eee; font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: .12em; color: #94a3b8; }
+        .sub-total { color: #dc2626; }
+        table { width: 100%; border-collapse: collapse; border: 1px solid #f0f0f0; border-top: none; margin-bottom: 24px; }
+        thead tr { background: #f8fafc; border-bottom: 1px solid #e2e8f0; }
+        thead th { padding: 8px 20px; font-size: 8px; text-transform: uppercase; letter-spacing: .12em; color: #94a3b8; font-weight: 700; text-align: left; }
+        thead th:last-child { text-align: right; }
+        tr { page-break-inside: avoid; break-inside: avoid; }
+        tbody tr { border-bottom: 1px solid #f8f8f8; }
+        tbody tr:hover { background: #fafafa; }
+        td { padding: 8px 20px; font-size: 11px; color: #1e293b; }
+        td.date { color: #94a3b8; font-weight: 700; font-size: 9px; text-transform: uppercase; }
+        td.amount { text-align: right; font-weight: 900; color: #dc2626; white-space: nowrap; }
+        .no-records { padding: 16px 20px; text-align: center; font-size: 10px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: .1em; border: 1px solid #f0f0f0; border-top: none; margin-bottom: 24px; }
+        .footer { text-align: center; margin-top: 40px; padding-top: 16px; border-top: 1px solid #e2e8f0; font-size: 9px; color: #94a3b8; }
+        img { max-height: 64px !important; width: auto !important; display: block; margin: 0 auto 8px auto; }
+        .print-only { display: block !important; }
+        .no-print { display: none !important; }
+    </style>
+</head>
+<body>
+    <h1>Expense Statement</h1>
+    <p class="subtitle">Euro Taxi Management System &mdash; ${period}</p>
+    ${content}
+    <div class="footer">
+        <p>Authenticated Expense Summary &mdash; Generated: ${new Date().toLocaleString()}</p>
+    </div>
+</body>
+</html>`);
+            doc.close();
+            
+            setTimeout(() => {
+                iframe.contentWindow.focus();
+                iframe.contentWindow.print();
+                setTimeout(() => { document.body.removeChild(iframe); }, 1000);
+            }, 300);
         }
 
         function renderExpensesReport(data) {
-            const breakdown = {
+            let breakdown = {
                 maintenanceTotal: 0,
                 maintenanceItems: [],
                 officeTotal: 0,
@@ -3137,6 +3477,36 @@
                 }
             });
 
+            // Summarize items for Yearly and Monthly views
+            if (window.currentExpensesPeriod === 'year' || window.currentExpensesPeriod === 'month') {
+                const summarizeItems = (items) => {
+                    const map = {};
+                    
+                    let periodLabel = '';
+                    if (window.currentExpensesPeriod === 'year') {
+                        periodLabel = new Date().getFullYear() + ' SUMMARY';
+                    } else if (window.currentExpensesPeriod === 'month') {
+                        const date = new Date();
+                        periodLabel = date.toLocaleString('default', { month: 'long', year: 'numeric' }).toUpperCase() + ' SUMMARY';
+                    }
+
+                    items.forEach(item => {
+                        if (!map[item.description]) {
+                            map[item.description] = { 
+                                description: item.description, 
+                                amount: 0, 
+                                date: periodLabel
+                            };
+                        }
+                        map[item.description].amount += item.amount;
+                    });
+                    return Object.values(map).sort((a, b) => b.amount - a.amount);
+                };
+                
+                breakdown.maintenanceItems = summarizeItems(breakdown.maintenanceItems);
+                breakdown.officeItems = summarizeItems(breakdown.officeItems);
+            }
+
             const totalExpenses = breakdown.maintenanceTotal + breakdown.officeTotal;
             const fmt = (num) => '₱' + num.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
 
@@ -3146,9 +3516,11 @@
             };
 
             safeSet('expensesTotalValue', fmt(totalExpenses));
-            safeSet('expensesMaintenanceTotal', 'Total: ' + fmt(breakdown.maintenanceTotal));
-            safeSet('expensesOfficeTotal', 'Total: ' + fmt(breakdown.officeTotal));
-            safeSet('finalExpensesTotal', fmt(totalExpenses));
+            safeSet('expensesTotalValuePrint', fmt(totalExpenses));
+            safeSet('expensesMaintenanceTotal', fmt(breakdown.maintenanceTotal));
+            safeSet('expensesMaintenanceTotalPrint', fmt(breakdown.maintenanceTotal));
+            safeSet('expensesOfficeTotal', fmt(breakdown.officeTotal));
+            safeSet('expensesOfficeTotalPrint', fmt(breakdown.officeTotal));
             safeSet('expensesTimestamp', new Date().toLocaleString());
 
             const renderList = (id, items) => {
@@ -3159,18 +3531,18 @@
                     el.innerHTML = `
                         <table class="w-full text-left border-collapse">
                             <thead>
-                                <tr class="bg-gray-50/50 border-b border-gray-100 text-[8px] uppercase tracking-widest text-gray-400">
-                                    <th class="px-6 py-2 font-bold w-1/4">Date</th>
-                                    <th class="px-6 py-2 font-bold w-1/2">Description</th>
-                                    <th class="px-6 py-2 font-bold text-right w-1/4">Amount</th>
+                                <tr class="bg-gray-50 border-b border-gray-200 text-[9px] uppercase tracking-widest text-gray-500">
+                                    <th class="px-6 py-2 font-black w-1/4 border-r border-gray-200">Date</th>
+                                    <th class="px-6 py-2 font-black w-1/2 border-r border-gray-200">Description</th>
+                                    <th class="px-6 py-2 font-black text-right w-1/4">Amount</th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-gray-50">
+                            <tbody class="divide-y divide-gray-100">
                                 ${items.map(item => `
-                                    <tr class="hover:bg-gray-50/50 transition-colors">
-                                        <td class="px-6 py-2 text-[9px] text-gray-400 font-bold uppercase whitespace-nowrap">${item.date}</td>
-                                        <td class="px-6 py-2 text-[10px] font-black text-gray-800 tracking-tight">${item.description}</td>
-                                        <td class="px-6 py-2 text-xs font-black text-red-500 text-right whitespace-nowrap">${fmt(item.amount)}</td>
+                                    <tr class="hover:bg-gray-50 transition-colors">
+                                        <td class="px-6 py-2.5 text-[10px] text-gray-500 font-bold uppercase whitespace-nowrap border-r border-gray-100">${item.date}</td>
+                                        <td class="px-6 py-2.5 text-[10px] font-black text-gray-800 tracking-tight border-r border-gray-100">${item.description}</td>
+                                        <td class="px-6 py-2.5 text-[11px] font-black text-red-600 text-right whitespace-nowrap">${fmt(item.amount)}</td>
                                     </tr>
                                 `).join('')}
                             </tbody>
@@ -3178,8 +3550,8 @@
                     `;
                 } else {
                     el.innerHTML = `
-                        <div class="px-6 py-4 text-center text-[10px] font-bold text-gray-400 uppercase tracking-widest border-b border-gray-50">
-                            No records found
+                        <div class="py-6 w-full flex flex-col items-center justify-center text-gray-400">
+                            <span class="text-[10px] font-bold uppercase tracking-widest bg-gray-50 px-4 py-1.5 rounded-full border border-gray-100">No records found for this period</span>
                         </div>
                     `;
                 }

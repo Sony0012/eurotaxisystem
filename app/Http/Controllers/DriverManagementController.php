@@ -251,7 +251,10 @@ class DriverManagementController extends Controller
                 DB::raw("(SELECT COUNT(*) FROM boundaries WHERE driver_id = d.id AND status IN ('paid', 'excess') AND deleted_at IS NULL AND date >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY)) as paid_shifts_count"),
                 DB::raw("(SELECT COUNT(*) FROM driver_behavior WHERE driver_id = d.id AND deleted_at IS NULL AND created_at >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY) AND " . $this->getViolationQuerySnippet() . ") as incidents_count"),
                 DB::raw("(SELECT COUNT(*) FROM boundaries WHERE driver_id = d.id AND has_incentive = 0 AND deleted_at IS NULL AND date >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY)) as missed_incentive_count"),
-                DB::raw("(SELECT COUNT(*) FROM boundaries WHERE expected_driver_id = d.id AND driver_id != d.id AND deleted_at IS NULL AND date >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY)) as absent_count")
+                DB::raw("(SELECT COUNT(*) FROM boundaries WHERE expected_driver_id = d.id AND driver_id != d.id AND deleted_at IS NULL AND date >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY)) as absent_count"),
+                // Outstanding Liabilities
+                DB::raw("(SELECT COALESCE(SUM(shortage), 0) FROM boundaries WHERE driver_id = d.id AND deleted_at IS NULL) - (SELECT COALESCE(SUM(amount), 0) FROM driver_debts WHERE driver_id = d.id AND debt_type = 'shortage' AND deleted_at IS NULL AND is_paid = 1) as net_shortage"),
+                DB::raw("(SELECT COALESCE(SUM(amount), 0) FROM driver_debts WHERE driver_id = d.id AND deleted_at IS NULL AND is_paid = 0) as total_pending_debt")
             )
             ->first();
 

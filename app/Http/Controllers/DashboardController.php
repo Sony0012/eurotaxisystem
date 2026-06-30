@@ -769,37 +769,22 @@ class DashboardController extends Controller
                 'd.user_id',
                 DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')) as name"),
                 DB::raw('NULL as email'),
-                DB::raw('COUNT(DISTINCT unit.id) as assigned_units'),
-                DB::raw('COALESCE(SUM(b.actual_boundary), 0) as total_boundary'),
-                DB::raw('COALESCE(AVG(b.actual_boundary), 0) as avg_boundary'),
-                DB::raw('GROUP_CONCAT(DISTINCT unit.plate_number) as plate_numbers'),
+                DB::raw('(SELECT COUNT(id) FROM units WHERE (driver_id = d.id OR secondary_driver_id = d.id) AND deleted_at IS NULL) as assigned_units'),
+                DB::raw('(SELECT COALESCE(SUM(actual_boundary), 0) FROM boundaries WHERE driver_id = d.id AND deleted_at IS NULL) as total_boundary'),
+                DB::raw('(SELECT COALESCE(AVG(actual_boundary), 0) FROM boundaries WHERE driver_id = d.id AND deleted_at IS NULL) as avg_boundary'),
+                DB::raw('(SELECT GROUP_CONCAT(DISTINCT plate_number) FROM units WHERE (driver_id = d.id OR secondary_driver_id = d.id) AND deleted_at IS NULL) as plate_numbers'),
                 'd.hire_date',
                 'd.license_number',
                 'd.contact_number as phone',
                 'd.address'
             ];
-            
-            $groupBy = [
-                'd.id', 'd.user_id', 'd.first_name', 'd.last_name',
-                'd.hire_date', 'd.license_number', 'd.contact_number', 'd.address'
-            ];
 
             $query = DB::table('drivers as d')
-                ->leftJoin('units as unit', function($join) {
-                    $join->on('d.id', '=', 'unit.driver_id')
-                         ->orOn('d.id', '=', 'unit.secondary_driver_id')
-                         ->whereNull('unit.deleted_at');
-                })
-                ->leftJoin('boundaries as b', function($join) {
-                    $join->on('unit.id', '=', 'b.unit_id')
-                         ->whereNull('b.deleted_at');
-                })
                 ->select($select)
                 ->whereNull('d.deleted_at')
                 ->whereIn('d.driver_status', ['available', 'assigned', 'active']);
 
             $activeDrivers = $query
-                ->groupBy($groupBy)
                 ->orderBy('d.first_name', 'asc')
                 ->get()
                 ->map(function($driver) {
@@ -874,7 +859,8 @@ class DashboardController extends Controller
             $unitsQuery = DB::table('units as u')->whereNull('u.deleted_at');
             $today = now()->format('l');
 
-            $unitsQuery->leftJoin('drivers as d', 'u.driver_id', '=', 'd.id');
+            $unitsQuery->leftJoin('drivers as d1', 'u.driver_id', '=', 'd1.id');
+            $unitsQuery->leftJoin('drivers as d2', 'u.secondary_driver_id', '=', 'd2.id');
 
             $latestC = DB::table('coding_records')
                 ->select('unit_id', DB::raw('MAX(id) as latest_id'))
@@ -892,7 +878,8 @@ class DashboardController extends Controller
                 'u.purchase_cost',
                 'u.boundary_rate',
                 'u.created_at',
-                DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')) as driver_name"),
+                DB::raw("TRIM(CONCAT(COALESCE(d1.first_name, ''), ' ', COALESCE(d1.last_name, ''))) as driver1_name"),
+                DB::raw("TRIM(CONCAT(COALESCE(d2.first_name, ''), ' ', COALESCE(d2.last_name, ''))) as driver2_name"),
                 'c.id as coding_id',
                 DB::raw("'Coding' as coding_type"),
                 'c.description',
@@ -917,7 +904,8 @@ class DashboardController extends Controller
                         'id' => $unit->id,
                         'plate_number' => $unit->plate_number,
                         'status' => $unit->status,
-                        'driver_name' => $unit->driver_name,
+                        'driver1_name' => $unit->driver1_name,
+                        'driver2_name' => $unit->driver2_name,
                         'coding_type' => $unit->coding_type ?: 'Coding',
                         'coding_day' => $codingDay,
                         'description' => $unit->description ?: 'No description available',
