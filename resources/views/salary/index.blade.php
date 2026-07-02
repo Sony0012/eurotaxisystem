@@ -399,38 +399,40 @@
 @push('styles')
 <style>
     @media print {
-        /* Hide everything except the report */
-        html, body {
-            margin: 0 !important;
-            padding: 0 !important;
-            background: white !important;
-        }
-        body > *:not(#printableReportContainer) {
-            display: none !important;
-            visibility: hidden !important;
-        }
-        #printableReportContainer {
-            display: block !important;
-            visibility: visible !important;
-            position: static !important;
-            width: auto !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            background: white !important;
-            color: black !important;
-        }
-        * {
-            -webkit-print-color-adjust: exact !important;
-            print-color-adjust: exact !important;
-            box-sizing: border-box !important;
-        }
         @page {
             size: A4 portrait;
-            margin: 1.5cm 2cm 1.5cm 2cm;
+            margin: 0;
         }
+        /* Hide EVERYTHING on the page */
+        * {
+            visibility: hidden !important;
+        }
+        /* Show only our report and its children */
+        #printableReportContainer,
+        #printableReportContainer * {
+            visibility: visible !important;
+        }
+        /* Position report to cover full page with manual padding as margins */
+        #printableReportContainer {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100% !important;
+            height: auto !important;
+            margin: 0 !important;
+            padding: 1.5cm 2cm !important;
+            background: white !important;
+            color: black !important;
+            z-index: 99999 !important;
+            box-sizing: border-box !important;
+            overflow: visible !important;
+        }
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
     }
 </style>
 @endpush
+
 
 <!-- Hidden Printable Report -->
 <div id="printableReportContainer" class="hidden" style="font-family: Arial, sans-serif; font-size: 12px; background: white; color: black;">
@@ -642,16 +644,15 @@ document.getElementById('salaryEmployee').addEventListener('change', function() 
 
 function printSalaryReport() {
     const container = document.getElementById('printableReportContainer');
-    
-    // Move to direct child of body so `body > *:not(#printableReportContainer)` CSS works perfectly
-    document.body.appendChild(container);
-    
-    // Briefly remove the 'hidden' class just for printing
+
+    // Make visible before printing
     container.classList.remove('hidden');
-    
+    container.style.display = 'block';
+
     window.print();
-    
-    // Add it back after printing
+
+    // Restore after printing dialog closes
+    container.style.display = '';
     container.classList.add('hidden');
 }
 </script>
