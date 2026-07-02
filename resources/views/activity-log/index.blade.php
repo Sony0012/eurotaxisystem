@@ -226,7 +226,7 @@
                             $icon = 'activity';
                             
                             // Category: Creation/Addition
-                            if (str_contains($action, 'create') || str_contains($action, 'add') || str_contains($action, 'recorded')) { 
+                            if (str_contains($action, 'create') || str_contains($action, 'add') || str_contains($action, 'recorded') || str_contains($action, 'register')) { 
                                 $class = 'badge-create'; 
                                 $icon = 'plus-circle'; 
                             }
@@ -236,7 +236,7 @@
                                 $icon = 'edit-3'; 
                             }
                             // Category: Deletion/Archive/Rejection
-                            elseif (str_contains($action, 'delete') || str_contains($action, 'reject') || str_contains($action, 'archive') || str_contains($action, 'dismissed')) { 
+                            elseif (str_contains($action, 'delete') || str_contains($action, 'reject') || str_contains($action, 'archive') || str_contains($action, 'dismissed') || str_contains($action, 'banned') || str_contains($action, 'suspend')) { 
                                 $class = 'badge-delete'; 
                                 $icon = 'trash-2'; 
                             }
@@ -246,14 +246,9 @@
                                 $icon = 'philippine-peso'; 
                             }
                             // Category: Restoration
-                            elseif (str_contains($action, 'restore')) { 
+                            elseif (str_contains($action, 'restore') || str_contains($action, 'unbanned') || str_contains($action, 'recover') || str_contains($action, 'approve')) { 
                                 $class = 'badge-create'; 
                                 $icon = 'rotate-ccw'; 
-                            }
-                            // Category: Approval
-                            elseif (str_contains($action, 'approve')) { 
-                                $class = 'badge-create'; 
-                                $icon = 'check-circle'; 
                             }
                             // Category: Security/Auth (if visible)
                             elseif (str_contains($action, 'login') || str_contains($action, 'logout')) { 
