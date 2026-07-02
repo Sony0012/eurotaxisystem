@@ -920,7 +920,9 @@ class DriverAppController extends Controller
                 'driver_behavior.timestamp',
                 'driver_behavior.description',
                 'driver_behavior.severity',
-                'driver_behavior.total_charge_to_driver',
+                // Hack: Pass remaining_balance as total_charge_to_driver so the mobile app visually updates the debt amount
+                DB::raw('driver_behavior.remaining_balance as total_charge_to_driver'),
+                DB::raw('driver_behavior.total_charge_to_driver as original_charge'),
                 'driver_behavior.total_paid',
                 'driver_behavior.remaining_balance',
                 'driver_behavior.charge_status',  // 'pending' or 'paid'
