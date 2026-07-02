@@ -488,15 +488,35 @@ class NotificationService
             ->get();
 
         foreach ($systemAlerts as $a) {
+            // Use the actual type stored in DB (e.g. 'notice' for payment received)
+            // Do NOT hardcode 'system' — that overrides the real type and loses the notification appearance
+            $alertType     = $a->type ?? 'system';
+            $alertSeverity = 'info';
+            $alertIcon     = 'megaphone-outline';
+
+            if ($alertType === 'notice') {
+                $alertSeverity = 'success';
+                $alertIcon     = 'checkmark-circle-outline';
+            } elseif ($alertType === 'at_risk') {
+                $alertSeverity = 'danger';
+                $alertIcon     = 'alert-octagon-outline';
+            } elseif ($alertType === 'violation_alert') {
+                $alertSeverity = 'warning';
+                $alertIcon     = 'alert-circle-outline';
+            } elseif ($alertType === 'remittance') {
+                $alertSeverity = 'success';
+                $alertIcon     = 'cash-outline';
+            }
+
              $feed[] = [
-                'id' => 'system_' . $a->id,
-                'type' => 'system',
-                'title' => $a->title,
-                'message' => $a->message,
-                'timestamp' => $a->created_at,
+                'id'           => 'system_' . $a->id,
+                'type'         => $alertType,
+                'title'        => $a->title,
+                'message'      => $a->message,
+                'timestamp'    => $a->created_at,
                 'time_display' => Carbon::parse($a->created_at)->diffForHumans(),
-                'severity' => 'info',
-                'icon' => 'megaphone-outline'
+                'severity'     => $alertSeverity,
+                'icon'         => $alertIcon,
             ];
         }
 

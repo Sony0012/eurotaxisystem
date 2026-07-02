@@ -907,11 +907,26 @@ class DriverAppController extends Controller
         if (!$driver)
             return response()->json(['success' => false, 'message' => 'Driver not found'], 404);
 
+        // Fetch all charges — explicitly include debt tracking fields
         $charges = DB::table('driver_behavior')
-            ->where('driver_id', $driver->id)
-            ->where('total_charge_to_driver', '>', 0)
-            ->whereNull('deleted_at')
-            ->orderByDesc('incident_date')
+            ->leftJoin('units', 'driver_behavior.unit_id', '=', 'units.id')
+            ->where('driver_behavior.driver_id', $driver->id)
+            ->where('driver_behavior.total_charge_to_driver', '>', 0)
+            ->whereNull('driver_behavior.deleted_at')
+            ->select([
+                'driver_behavior.id',
+                'driver_behavior.incident_type',
+                'driver_behavior.incident_date',
+                'driver_behavior.timestamp',
+                'driver_behavior.description',
+                'driver_behavior.severity',
+                'driver_behavior.total_charge_to_driver',
+                'driver_behavior.total_paid',
+                'driver_behavior.remaining_balance',
+                'driver_behavior.charge_status',  // 'pending' or 'paid'
+                'units.plate_number',
+            ])
+            ->orderByDesc('driver_behavior.incident_date')
             ->get();
 
         $incentives = DB::table('boundaries')
@@ -921,10 +936,21 @@ class DriverAppController extends Controller
             ->orderByDesc('date')
             ->get();
 
+        // Calculate total pending debt so the app can show a summary badge
+        $totalPendingDebt = $charges
+            ->where('charge_status', 'pending')
+            ->sum('remaining_balance');
+
+        $pendingChargesCount = $charges
+            ->where('charge_status', 'pending')
+            ->count();
+
         return response()->json([
-            'success' => true,
-            'charges' => $charges,
-            'incentives' => $incentives,
+            'success'              => true,
+            'charges'              => $charges,
+            'incentives'           => $incentives,
+            'total_pending_debt'   => round((float) $totalPendingDebt, 2),
+            'pending_charges_count'=> (int) $pendingChargesCount,
         ]);
     }
 

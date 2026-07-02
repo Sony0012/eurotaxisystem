@@ -555,28 +555,70 @@ class BoundaryV2Controller extends Controller
 
                     // --- AUTOMATIC DEBT DEDUCTION LOGIC ---
                     if ($damage_payment > 0) {
-                        $remaining_to_pay = $damage_payment;
-                        
+                        $remaining_to_pay   = $damage_payment;
+                        $totalActuallyPaid  = 0;
+                        $fullySettledDebts  = [];
+                        $partialDebts       = [];
+
                         // Get all at-fault pending charges for this driver, oldest first
                         $pending_debts = \App\Models\DriverBehavior::where('driver_id', $driver_id)
                             ->where('charge_status', 'pending')
                             ->where('remaining_balance', '>', 0)
                             ->orderBy('timestamp', 'asc')
                             ->get();
-                            
+
                         foreach ($pending_debts as $debt) {
                             if ($remaining_to_pay <= 0) break;
-                            
+
                             $to_deduct = min($remaining_to_pay, $debt->remaining_balance);
-                            $debt->total_paid += $to_deduct;
+                            $debt->total_paid       += $to_deduct;
                             $debt->remaining_balance -= $to_deduct;
-                            
+
                             if ($debt->remaining_balance <= 0) {
                                 $debt->charge_status = 'paid';
+                                $fullySettledDebts[] = $debt->incident_type ?? 'charge';
+                            } else {
+                                $partialDebts[] = ['type' => $debt->incident_type ?? 'charge', 'remaining' => $debt->remaining_balance];
                             }
-                            
+
                             $debt->save();
-                            $remaining_to_pay -= $to_deduct;
+                            $totalActuallyPaid += $to_deduct;
+                            $remaining_to_pay  -= $to_deduct;
+                        }
+
+                        // Notify driver about the auto-deduction from pending debts
+                        if ($totalActuallyPaid > 0) {
+                            $notifTitle = '💳 Auto-Deduction Applied';
+                            if (!empty($fullySettledDebts)) {
+                                $notifBody = "₱" . number_format($totalActuallyPaid, 2) . " was auto-deducted from your boundary remittance to settle your pending charge(s). ✅ Fully settled: " . implode(', ', $fullySettledDebts) . ".";
+                            } else {
+                                $firstPartial = $partialDebts[0] ?? null;
+                                $notifBody = "₱" . number_format($totalActuallyPaid, 2) . " was auto-deducted from your boundary remittance toward your pending charge(s)."
+                                    . ($firstPartial ? " Remaining balance: ₱" . number_format($firstPartial['remaining'], 2) . "." : "");
+                            }
+
+                            try {
+                                app(\App\Services\NotificationService::class)->notifyDriver(
+                                    $driver_id,
+                                    $notifTitle,
+                                    $notifBody,
+                                    'notice'
+                                );
+
+                                // Persist in system_alerts for in-app Notifications feed
+                                $driverUserId = DB::table('drivers')->where('id', $driver_id)->value('user_id');
+                                if ($driverUserId) {
+                                    DB::table('system_alerts')->insert([
+                                        'type'        => 'notice',
+                                        'title'       => $notifTitle,
+                                        'message'     => $notifBody,
+                                        'user_id'     => $driverUserId,
+                                        'is_resolved' => false,
+                                        'created_at'  => now(),
+                                        'updated_at'  => now(),
+                                    ]);
+                                }
+                            } catch (\Exception $e) {}
                         }
                     }
 
