@@ -1155,7 +1155,10 @@ class DashboardController extends Controller
             $driverName = $unit->first_name ? trim($unit->first_name . ' ' . $unit->last_name) : 'Unknown Driver';
             
             $alertTitle = "🚨 Missing Unit: {$unit->plate_number}";
-            $existingAlert = DB::table('system_alerts')->where('type', 'missing_unit')->where('title', $alertTitle)->where('is_resolved', false)->first();
+            $existingAlert = DB::table('system_alerts')->where('type', 'missing_unit')->where('title', $alertTitle)->where(function($q) {
+                $q->where('is_resolved', false)
+                  ->orWhereDate('created_at', today());
+            })->first();
             $msg = "Unit {$unit->plate_number} has not remitted a boundary for {$diffDays} day(s). The last driver on record is {$driverName}.";
 
             if (!$existingAlert) {

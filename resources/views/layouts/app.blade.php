@@ -1420,6 +1420,24 @@
         let pollInterval = null;
 
         function updateNotificationUI(data) {
+            // BULLETPROOF FIX: Check local storage for read notifications and filter the server response
+            // This prevents flickering if the browser drops the 'read_notifs' cookie because it got too big.
+            let readNotifsObj = {};
+            try {
+                readNotifsObj = JSON.parse(localStorage.getItem('read_notifs')) || {};
+            } catch(e) {}
+            const readNotifIds = Object.keys(readNotifsObj);
+
+            if (data && data.notifications) {
+                // Filter out notifications that the frontend already knows are read
+                data.notifications = data.notifications.filter(n => !readNotifIds.includes(String(n.id)));
+                
+                // Recalculate totals
+                data.total = data.notifications.length;
+                data.parts_count = data.notifications.filter(n => n.type === 'low_stock').length;
+                data.system_count = data.total - data.parts_count;
+            }
+
             // Track new notification IDs to play chime and show in-app banner
             if (data && data.notifications) {
                 if (!window.notifiedIds) {
