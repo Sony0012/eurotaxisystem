@@ -553,6 +553,23 @@ class BoundaryV2Controller extends Controller
                         'created_by'      => Auth::id(),
                     ]);
 
+                    if ($shortage > 0) {
+                        \App\Models\DriverBehavior::create([
+                            'boundary_id'     => $boundary->id,
+                            'unit_id'         => $unit_id,
+                            'driver_id'       => $driver_id,
+                            'incident_type'   => 'Short Boundary',
+                            'severity'        => 'medium',
+                            'description'     => 'Auto-logged: Boundary Shortage for ' . Carbon::parse($date)->format('M d, Y'),
+                            'incident_date'   => $date,
+                            'timestamp'       => $now,
+                            'total_charge_to_driver' => $shortage,
+                            'total_paid'      => 0,
+                            'remaining_balance'=> $shortage,
+                            'charge_status'   => 'pending',
+                        ]);
+                    }
+
                     // --- AUTOMATIC DEBT DEDUCTION LOGIC ---
                     if ($damage_payment > 0) {
                         $remaining_to_pay   = $damage_payment;
@@ -814,10 +831,20 @@ class BoundaryV2Controller extends Controller
                 ]);
 
                 // --- Auto-log Shortage to Driver Performance for UPDATES ---
-                $existingDebt = \App\Models\DriverBehavior::where('unit_id', $boundary->unit_id)
-                    ->where('incident_date', $boundary->date)
-                    ->where('incident_type', 'Short Boundary')
+                $existingDebt = \App\Models\DriverBehavior::where('boundary_id', $boundary->id)
                     ->first();
+
+                // Fallback for old records that don't have boundary_id yet
+                if (!$existingDebt) {
+                    $existingDebt = \App\Models\DriverBehavior::where('unit_id', $boundary->unit_id)
+                        ->where('incident_date', $boundary->date)
+                        ->where('incident_type', 'Short Boundary')
+                        ->first();
+                    
+                    if ($existingDebt) {
+                        $existingDebt->update(['boundary_id' => $boundary->id]);
+                    }
+                }
 
                 if ($shortage > 0) {
                     if ($existingDebt) {
@@ -831,6 +858,7 @@ class BoundaryV2Controller extends Controller
                         ]);
                     } else {
                         \App\Models\DriverBehavior::create([
+                            'boundary_id'             => $boundary->id,
                             'unit_id'                 => $boundary->unit_id,
                             'driver_id'               => $boundary->driver_id,
                             'incident_type'           => 'Short Boundary',
@@ -848,6 +876,7 @@ class BoundaryV2Controller extends Controller
                     if ($existingDebt) {
                         $existingDebt->update([
                             'driver_id'         => $boundary->driver_id,
+                            'total_charge_to_driver' => 0,
                             'remaining_balance' => 0,
                             'charge_status'     => 'paid',
                         ]);
@@ -874,6 +903,14 @@ class BoundaryV2Controller extends Controller
         $boundary = Boundary::where('id', $id)->firstOrFail();
         $plate = DB::table('units')->where('id', $boundary->unit_id)->value('plate_number');
         $date = $boundary->date;
+
+        // Delete associated short boundary debt if any
+        \App\Models\DriverBehavior::where('boundary_id', $boundary->id)->delete();
+        \App\Models\DriverBehavior::where('unit_id', $boundary->unit_id)
+            ->where('incident_date', $boundary->date)
+            ->where('incident_type', 'Short Boundary')
+            ->delete();
+
         $boundary->delete();
 
         ActivityLogController::log('Archived Boundary Record', "Unit: {$plate}\nDate: {$date}");

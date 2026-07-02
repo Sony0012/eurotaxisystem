@@ -143,9 +143,9 @@ class DriverManagementController extends Controller
                 
                 // is_active derived from driver_status
                 DB::raw("CASE WHEN d.driver_status IN ('available','assigned') THEN 1 ELSE 0 END as is_active"),
-                // Net unpaid shortage: sum of all shortages minus sum of all excess
-                DB::raw("(SELECT GREATEST(0, COALESCE(SUM(shortage),0) - COALESCE(SUM(excess),0)) FROM boundaries WHERE driver_id = d.id AND deleted_at IS NULL) as net_shortage"),
-                // Total Pending Accident/Incident Debt
+                // Net unpaid shortage: merged into total_pending_debt via driver_behavior
+                DB::raw("0 as net_shortage"),
+                // Total Pending Accident/Incident/Shortage Debt
                 DB::raw("(SELECT COALESCE(SUM(remaining_balance), 0) FROM driver_behavior WHERE driver_id = d.id AND deleted_at IS NULL AND charge_status = 'pending') as total_pending_debt")
             );
 
@@ -287,9 +287,9 @@ class DriverManagementController extends Controller
                 DB::raw("(SELECT COUNT(*) FROM driver_behavior WHERE driver_id = d.id AND deleted_at IS NULL AND created_at >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY) AND " . $this->getViolationQuerySnippet() . ") as incidents_count"),
                 DB::raw("(SELECT COUNT(*) FROM boundaries WHERE driver_id = d.id AND has_incentive = 0 AND deleted_at IS NULL AND date >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY)) as missed_incentive_count"),
                 DB::raw("(SELECT COUNT(*) FROM boundaries WHERE expected_driver_id = d.id AND driver_id != d.id AND deleted_at IS NULL AND date >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY)) as absent_count"),
-                // Outstanding Liabilities
-                DB::raw("(SELECT COALESCE(SUM(shortage), 0) FROM boundaries WHERE driver_id = d.id AND deleted_at IS NULL) - (SELECT COALESCE(SUM(amount), 0) FROM driver_debts WHERE driver_id = d.id AND debt_type = 'shortage' AND deleted_at IS NULL AND is_paid = 1) as net_shortage"),
-                DB::raw("(SELECT COALESCE(SUM(amount), 0) FROM driver_debts WHERE driver_id = d.id AND deleted_at IS NULL AND is_paid = 0) as total_pending_debt")
+                // Outstanding Liabilities (Shortages are now tracked in driver_behavior)
+                DB::raw("0 as net_shortage"),
+                DB::raw("(SELECT COALESCE(SUM(remaining_balance), 0) FROM driver_behavior WHERE driver_id = d.id AND deleted_at IS NULL AND charge_status = 'pending') as total_pending_debt")
             )
             ->first();
 
