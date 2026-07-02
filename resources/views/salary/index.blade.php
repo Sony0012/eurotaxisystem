@@ -389,7 +389,7 @@
                 <button onclick="closeMonthlyReport()" class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 text-sm font-bold transition-all">
                     Close
                 </button>
-                <button onclick="window.print()" class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-bold shadow-lg shadow-green-200/50 transition-all flex items-center gap-2">
+                <button onclick="printSalaryReport()" class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-bold shadow-lg shadow-green-200/50 transition-all flex items-center gap-2">
                     <i data-lucide="printer" class="w-4 h-4"></i> Print Report
                 </button>
             </div>
@@ -410,8 +410,8 @@
             width: 100%;
             margin: 0;
             padding: 0;
-            background: white;
-            z-index: 999999;
+            background: white !important;
+            color: black !important;
         }
         /* Ensure table borders and background colors print correctly */
         * {
@@ -426,7 +426,7 @@
 @endpush
 
 <!-- Hidden Printable Report -->
-<div id="printableReportContainer" class="hidden print:block bg-white text-black p-8 w-full min-h-screen">
+<div id="printableReportContainer" class="hidden bg-white text-black p-8 w-full min-h-screen">
     <div class="text-center mb-8 border-b-2 border-gray-800 pb-4">
         <h1 class="text-3xl font-black uppercase tracking-widest text-gray-900">Euro Taxi System</h1>
         <h2 class="text-xl font-bold mt-2 text-gray-800">Monthly Salary Report</h2>
@@ -618,5 +618,20 @@ document.getElementById('salaryEmployee').addEventListener('change', function() 
     const role = selectedOption.getAttribute('data-role') || '';
     document.getElementById('salaryType').value = role;
 });
+
+function printSalaryReport() {
+    const container = document.getElementById('printableReportContainer');
+    
+    // Move to direct child of body so `body > *:not(#printableReportContainer)` CSS works perfectly
+    document.body.appendChild(container);
+    
+    // Briefly remove the 'hidden' class just for printing
+    container.classList.remove('hidden');
+    
+    window.print();
+    
+    // Add it back after printing
+    container.classList.add('hidden');
+}
 </script>
 @endsection
