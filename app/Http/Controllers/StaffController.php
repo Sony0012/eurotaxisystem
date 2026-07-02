@@ -142,12 +142,33 @@ class StaffController extends Controller
         // Revoke tokens
         $user->tokens()->delete();
 
-        // Hard-delete the user account only to free up email/phone
-        $user->forceDelete();
+        // Soft-delete the user account so it goes to the Archive
+        // If they need to free up the email/phone, they can permanently delete it from the Archive
+        $user->delete();
 
-        ActivityLogController::log('Deleted Mobile App Driver', "Driver Account: {$name} deleted from the system.");
+        ActivityLogController::log('Deleted Mobile App Driver', "Driver Account: {$name} moved to archive.");
 
         return back()->with('success', 'Mobile App Driver account deleted successfully.');
+    }
+
+    public function toggleAppDriverStatus($id)
+    {
+        $user = \App\Models\User::where('id', $id)->where('role', 'driver')->firstOrFail();
+
+        // Ensure only drivers can be toggled here
+        if ($user->role !== 'driver') {
+            return back()->with('error', 'Cannot toggle status for this account.');
+        }
+
+        $user->is_active = !$user->is_active;
+        $user->save();
+
+        $name = $user->full_name ?? $user->name;
+        $statusLabel = $user->is_active ? 'Activated' : 'Deactivated';
+
+        ActivityLogController::log('Toggled App Driver Status', "Driver: {$name} — {$statusLabel}");
+
+        return back()->with('success', "Driver account {$statusLabel} successfully.");
     }
 }
 

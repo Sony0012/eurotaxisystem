@@ -43,9 +43,9 @@
                             <td class="px-6 py-4">
                                 <div class="flex items-center gap-3">
                                     <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold text-xs uppercase">
-                                        {{ substr($admin->full_name, 0, 1) }}
+                                        {{ substr($admin->full_name ?? $admin->name ?? '?', 0, 1) }}
                                     </div>
-                                    <span class="font-medium text-gray-900">{{ $admin->full_name }}</span>
+                                    <span class="font-medium text-gray-900">{{ $admin->full_name ?? $admin->name ?? '—' }}</span>
                                 </div>
                             </td>
                             <td class="px-6 py-4 text-sm text-gray-600 capitalize">{{ $admin->role }}</td>

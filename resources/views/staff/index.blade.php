@@ -92,18 +92,18 @@
                         <td class="px-6 py-4 text-right relative">
                             <div class="inline-block text-left">
                                 <button type="button" 
-                                    onclick="toggleStaffDropdown('staff-dropdown-{{ $member->uuid }}', event)"
+                                    onclick="toggleStaffDropdown('staff-dropdown-{{ $member->id }}', event)"
                                     class="p-2 hover:bg-gray-100 rounded-full transition-colors focus:outline-none">
                                     <i data-lucide="more-vertical" class="w-4 h-4 text-gray-500"></i>
                                 </button>
-                                <div id="staff-dropdown-{{ $member->uuid }}" 
+                                <div id="staff-dropdown-{{ $member->id }}" 
                                     class="staff-action-dropdown absolute right-6 mt-1 w-32 bg-white border border-gray-100 rounded-xl shadow-xl z-50 hidden animate-in fade-in zoom-in-95 duration-200 overflow-hidden">
                                     <div class="p-1.5 space-y-1">
                                         <button onclick="editStaff({{ json_encode($member) }})" class="w-full flex items-center gap-2 px-3 py-2 text-xs font-bold text-gray-600 hover:bg-yellow-50 hover:text-yellow-700 rounded-lg transition-all text-left">
                                             <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
                                             Edit Record
                                         </button>
-                                        <form action="{{ route('staff.destroy', $member->uuid) }}" method="POST" onsubmit="return confirm('Archive this staff record?')">
+                                        <form class="staff-destroy-form" action="{{ route('staff.destroy', $member->id) }}" method="POST" onsubmit="return confirm('Archive this staff record?')">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="w-full flex items-center gap-2 px-3 py-2 text-xs font-bold text-red-600 hover:bg-red-50 rounded-lg transition-all text-left">
@@ -416,7 +416,8 @@
     }
 
     document.addEventListener('DOMContentLoaded', function() {
-        const nameInputs = ['add_name', 'edit_name', 'add_contact_person', 'edit_contact_person', 'add_custom_role', 'edit_custom_role'];
+        // Name validation only for actual name/contact fields (NOT custom role)
+        const nameInputs = ['add_name', 'edit_name', 'add_contact_person', 'edit_contact_person'];
         const phoneInputs = ['add_phone', 'edit_phone', 'add_emergency_phone', 'edit_emergency_phone'];
 
         nameInputs.forEach(id => {
@@ -430,31 +431,38 @@
         });
     });
 
-    document.querySelectorAll('form').forEach(form => {
-        if (form.action.includes('/staff')) {
-            form.addEventListener('submit', (e) => {
-                form.querySelectorAll('input[type="text"], textarea').forEach(input => {
-                    input.value = input.value.trim();
-                });
+    // Attach submit validation ONLY to the staff create/edit forms, NOT destroy forms
+    ['addStaffModal', 'editStaffForm'].forEach(formId => {
+        const form = formId === 'addStaffModal'
+            ? document.querySelector('#addStaffModal form')
+            : document.getElementById('editStaffForm');
 
-                const prefix = form.id === 'editStaffForm' ? 'edit' : 'add';
-                const select = document.getElementById(`${prefix}_role_select`);
-                const customInput = document.getElementById(`${prefix}_custom_role`);
+        if (!form) return;
 
-                if (select && select.value === 'Others') {
-                    if (!customInput.value.trim()) {
-                        alert('Please enter a role name.');
-                        e.preventDefault();
-                        return;
-                    }
-                    const tempOption = document.createElement('option');
-                    tempOption.value = customInput.value;
-                    tempOption.text = customInput.value;
-                    tempOption.selected = true;
-                    select.add(tempOption);
-                }
+        form.addEventListener('submit', (e) => {
+            form.querySelectorAll('input[type="text"], textarea').forEach(input => {
+                input.value = input.value.trim();
             });
-        }
+
+            const prefix = form.id === 'editStaffForm' ? 'edit' : 'add';
+            const select = document.getElementById(`${prefix}_role_select`);
+            const customInput = document.getElementById(`${prefix}_custom_role`);
+
+            if (select && select.value === 'Others') {
+                if (!customInput.value.trim()) {
+                    alert('Please enter a role name.');
+                    e.preventDefault();
+                    return;
+                }
+                // Replace select value with custom role text before submitting
+                const tempOption = document.createElement('option');
+                tempOption.value = customInput.value.trim();
+                tempOption.text = customInput.value.trim();
+                tempOption.selected = true;
+                select.add(tempOption);
+                select.value = customInput.value.trim();
+            }
+        });
     });
 
     function editStaff(member) {

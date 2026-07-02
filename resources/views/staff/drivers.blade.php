@@ -78,14 +78,14 @@
                             <td class="px-6 py-4 text-right relative">
                                 <div class="inline-block text-left">
                                     <button type="button" 
-                                        onclick="toggleDriversDropdown('app-driver-dropdown-{{ $driver->uuid }}', event)"
+                                        onclick="toggleDriversDropdown('app-driver-dropdown-{{ $driver->id }}', event)"
                                         class="p-2 hover:bg-gray-100 rounded-full transition-colors focus:outline-none">
                                         <i data-lucide="more-vertical" class="w-4 h-4 text-gray-500"></i>
                                     </button>
-                                    <div id="app-driver-dropdown-{{ $driver->uuid }}" 
+                                    <div id="app-driver-dropdown-{{ $driver->id }}" 
                                         class="driver-action-dropdown absolute right-6 mt-1 w-32 bg-white border border-gray-100 rounded-xl shadow-xl z-50 hidden animate-in fade-in zoom-in-95 duration-200 overflow-hidden">
                                         <div class="p-1.5 space-y-1">
-                                            <form action="{{ route('staff.destroyAppDriver', $driver->uuid) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this Driver\'s Mobile App Account? They will lose access to the app immediately.')">
+                                            <form action="{{ route('staff.destroyAppDriver', $driver->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this Driver\'s Mobile App Account? They will lose access to the app immediately.')">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="w-full flex items-center gap-2 px-3 py-2 text-xs font-bold text-red-600 hover:bg-red-50 rounded-lg transition-all text-left">
