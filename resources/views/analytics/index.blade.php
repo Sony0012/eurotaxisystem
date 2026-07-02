@@ -1454,7 +1454,7 @@
 
     // Revenue vs Expenses Chart
     const revCtx = document.getElementById('revenueChart').getContext('2d');
-    new Chart(revCtx, {
+    const revConfig = {
         type: 'line',
         data: {
             labels: monthlyRevenueData.map(d => d.month),
@@ -1466,17 +1466,40 @@
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            animation: {
+                duration: 2000,
+                easing: 'easeOutQuart',
+                delay: (context) => {
+                    let delay = 0;
+                    if (context.type === 'data' && context.mode === 'default') {
+                        delay = context.dataIndex * 100 + context.datasetIndex * 100;
+                    }
+                    return delay;
+                }
+            },
             plugins: { legend: { position: 'top', labels: { usePointStyle: true, font: { weight: 'bold', size: 11 } } } },
             scales: { y: { beginAtZero: true, grid: { color: '#f1f5f9' }, ticks: { callback: v => '₱' + v.toLocaleString(), font: { size: 10 } } }, x: { grid: { display: false }, ticks: { font: { size: 10 } } } }
         }
-    });
+    };
+    
+    let revChartInst = null;
+    const revObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                if (!revChartInst) revChartInst = new Chart(revCtx, revConfig);
+            } else {
+                if (revChartInst) { revChartInst.destroy(); revChartInst = null; }
+            }
+        });
+    }, { threshold: 0.1 });
+    if (revCtx.canvas.parentElement) revObserver.observe(revCtx.canvas.parentElement);
 
     // Expense Distribution Chart
     const expCanvas = document.getElementById('expenseChart');
     if (expCanvas) {
         if (expenseData.length > 0) {
             const expCtx = expCanvas.getContext('2d');
-            new Chart(expCtx, {
+            const expConfig = {
                 type: 'doughnut',
                 data: {
                     labels: expenseData.map(d => d.category),
@@ -1486,9 +1509,26 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     cutout: '75%',
+                    animation: {
+                        duration: 2000,
+                        easing: 'easeOutQuart',
+                        animateScale: true,
+                        animateRotate: true
+                    },
                     plugins: { legend: { position: 'right', labels: { boxWidth: 12, padding: 20, font: { weight: 'bold', size: 11 } } } }
                 }
-            });
+            };
+            let expChartInst = null;
+            const expObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        if (!expChartInst) expChartInst = new Chart(expCtx, expConfig);
+                    } else {
+                        if (expChartInst) { expChartInst.destroy(); expChartInst = null; }
+                    }
+                });
+            }, { threshold: 0.1 });
+            if (expCtx.canvas.parentElement) expObserver.observe(expCtx.canvas.parentElement);
         } else {
             const parent = expCanvas.parentElement;
             parent.innerHTML = `
@@ -1506,7 +1546,7 @@
 
     // Daily Boundary Trend Chart
     const dailyCtx = document.getElementById('dailyTrendChart').getContext('2d');
-    new Chart(dailyCtx, {
+    const dailyConfig = {
         type: 'bar',
         data: {
             labels: dailyData.map(d => d.day),
@@ -1515,13 +1555,38 @@
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            animation: {
+                y: {
+                    duration: 2000,
+                    easing: 'easeOutQuart',
+                    delay: (context) => {
+                        let delay = 0;
+                        if (context.type === 'data' && context.mode === 'default') {
+                            delay = context.dataIndex * 50;
+                        }
+                        return delay;
+                    }
+                }
+            },
             scales: { y: { beginAtZero: true, grid: { color: '#f1f5f9' }, ticks: { callback: v => '₱' + v.toLocaleString(), font: { size: 10 } } }, x: { grid: { display: false }, ticks: { font: { size: 10 } } } }
         }
-    });
+    };
+    
+    let dailyChartInst = null;
+    const dailyObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                if (!dailyChartInst) dailyChartInst = new Chart(dailyCtx, dailyConfig);
+            } else {
+                if (dailyChartInst) { dailyChartInst.destroy(); dailyChartInst = null; }
+            }
+        });
+    }, { threshold: 0.1 });
+    if (dailyCtx.canvas.parentElement) dailyObserver.observe(dailyCtx.canvas.parentElement);
 
     // Maintenance Cost Chart
     const maintCtx = document.getElementById('maintenanceChart').getContext('2d');
-    new Chart(maintCtx, {
+    const maintConfig = {
         type: 'bar',
         data: {
             labels: maintenanceCostData.map(d => d.unit),
@@ -1530,9 +1595,34 @@
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            animation: {
+                y: {
+                    duration: 2000,
+                    easing: 'easeOutQuart',
+                    delay: (context) => {
+                        let delay = 0;
+                        if (context.type === 'data' && context.mode === 'default') {
+                            delay = context.dataIndex * 50;
+                        }
+                        return delay;
+                    }
+                }
+            },
             scales: { y: { beginAtZero: true, grid: { color: '#f1f5f9' }, ticks: { callback: v => '₱' + v.toLocaleString(), font: { size: 10 } } }, x: { grid: { display: false }, ticks: { font: { size: 10 } } } }
         }
-    });
+    };
+    
+    let maintChartInst = null;
+    const maintObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                if (!maintChartInst) maintChartInst = new Chart(maintCtx, maintConfig);
+            } else {
+                if (maintChartInst) { maintChartInst.destroy(); maintChartInst = null; }
+            }
+        });
+    }, { threshold: 0.1 });
+    if (maintCtx.canvas.parentElement) maintObserver.observe(maintCtx.canvas.parentElement);
 
     // ── AI DSS Logic ──────────────────────────────────────────────────────────
     const priorityConfig = {
@@ -1697,7 +1787,7 @@
             const barBorderWidth = histNet.map(() => 0).concat([3]);
             const barBorderDash = histNet.map(() => []).concat([[6, 4]]);
 
-            new Chart(fCtx.getContext('2d'), {
+            const forecastConfig = {
                 type: 'bar',
                 data: {
                     labels: allLabels,
@@ -1750,6 +1840,17 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     interaction: { mode: 'index', intersect: false },
+                    animation: {
+                        duration: 2000,
+                        easing: 'easeOutQuart',
+                        delay: (context) => {
+                            let delay = 0;
+                            if (context.type === 'data' && context.mode === 'default') {
+                                delay = context.dataIndex * 150 + context.datasetIndex * 100;
+                            }
+                            return delay;
+                        }
+                    },
                     plugins: {
                         legend: {
                             display: true,
@@ -1789,7 +1890,19 @@
                         }
                     }
                 }
-            });
+            };
+            
+            let forecastChartInst = null;
+            const forecastObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        if (!forecastChartInst) forecastChartInst = new Chart(fCtx.getContext('2d'), forecastConfig);
+                    } else {
+                        if (forecastChartInst) { forecastChartInst.destroy(); forecastChartInst = null; }
+                    }
+                });
+            }, { threshold: 0.1 });
+            if (fCtx.parentElement) forecastObserver.observe(fCtx.parentElement);
         }
 
         // 2. Health Gauge (Canvas arc)
