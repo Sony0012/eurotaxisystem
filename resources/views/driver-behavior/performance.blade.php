@@ -263,9 +263,8 @@
         </div>
         @endforeach
     </div>
-@include('partials._driver_details_modal')
+@include('driver-management.partials._driver_details_modal')
 <script>
-@include('partials._driver_details_scripts')
 window.filterProfiles = function(term) {
     term = term.toLowerCase();
     document.querySelectorAll('.profile-card').forEach(card => {
