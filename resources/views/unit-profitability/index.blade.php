@@ -134,44 +134,7 @@
         </div>
     </div>
 
-    {{-- Filters --}}
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6">
-        <form method="GET" action="{{ route('unit-profitability.index') }}" class="flex flex-col md:flex-row gap-4">
-            <div class="flex-1">
-                <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">From Date</label>
-                <div class="relative group">
-                    <i data-lucide="calendar" class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-yellow-600 transition-colors"></i>
-                    <input type="date" name="date_from" value="{{ $date_from ?? date('Y-m-01') }}"
-                        onchange="this.form.submit()"
-                        class="block w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl text-xs font-black shadow-sm focus:ring-4 focus:ring-yellow-500/10 focus:border-yellow-400 transition-all outline-none">
-                </div>
-            </div>
-            <div class="flex-1">
-                <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-1">To Date</label>
-                <div class="relative group">
-                    <i data-lucide="calendar" class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-yellow-600 transition-colors"></i>
-                    <input type="date" name="date_to" value="{{ $date_to ?? date('Y-m-d') }}"
-                        onchange="this.form.submit()"
-                        class="block w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl text-xs font-black shadow-sm focus:ring-4 focus:ring-yellow-500/10 focus:border-yellow-400 transition-all outline-none">
-                </div>
-            </div>
-            <div class="flex-1">
-                <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-1">Unit Selection</label>
-                <div class="relative group">
-                    <i data-lucide="car-front" class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-yellow-600 transition-colors"></i>
-                    <select name="unit" onchange="this.form.submit()"
-                        class="block w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl text-xs font-black shadow-sm focus:ring-4 focus:ring-yellow-500/10 focus:border-yellow-400 transition-all outline-none appearance-none cursor-pointer">
-                        <option value="">All Units</option>
-                        @foreach($units as $unit)
-                            <option value="{{ $unit->plate_number }}" {{ ($selected_unit ?? '') == $unit->plate_number ? 'selected' : '' }}>
-                                {{ $unit->plate_number }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-            </div>
-        </form>
-    </div>
+
     {{-- ┌─────────────────────────────────────────────────────────────────────┐
          │  TOP PERFORMERS – Top 10 Highest Earning Units                     │
          └─────────────────────────────────────────────────────────────────────┘ --}}
@@ -568,8 +531,10 @@
             document.getElementById('modal-loading').classList.remove('hidden');
             document.getElementById('modal-data').classList.add('hidden');
 
-            const dateFrom = document.querySelector('input[name="date_from"]').value;
-            const dateTo = document.querySelector('input[name="date_to"]').value;
+            const dateFromInput = document.querySelector('input[name="date_from"]');
+            const dateToInput = document.querySelector('input[name="date_to"]');
+            const dateFrom = dateFromInput ? dateFromInput.value : '{{ $date_from ?? date("Y-m-01") }}';
+            const dateTo = dateToInput ? dateToInput.value : '{{ $date_to ?? date("Y-m-d") }}';
 
             fetch(`/unit-profitability/details?unit_id=${unitId}&date_from=${dateFrom}&date_to=${dateTo}`)
                 .then(response => response.json())
@@ -730,8 +695,10 @@
             loader.classList.remove('hidden');
             resultContainer.classList.add('hidden');
 
-            const dateFrom = document.querySelector('input[name="date_from"]').value;
-            const dateTo = document.querySelector('input[name="date_to"]').value;
+            const dateFromInput = document.querySelector('input[name="date_from"]');
+            const dateToInput = document.querySelector('input[name="date_to"]');
+            const dateFrom = dateFromInput ? dateFromInput.value : '{{ $date_from ?? date("Y-m-01") }}';
+            const dateTo = dateToInput ? dateToInput.value : '{{ $date_to ?? date("Y-m-d") }}';
 
             try {
                 const url = `{{ route('unit-profitability.ai-dss') }}?date_from=${encodeURIComponent(dateFrom)}&date_to=${encodeURIComponent(dateTo)}`;
