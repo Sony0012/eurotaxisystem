@@ -77,9 +77,11 @@
                     <span class="text-[10px] font-black text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-full uppercase tracking-widest">Real-time</span>
                 </div>
                 <h3 class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-1">Fleet Utilization</h3>
-                <div class="flex items-end gap-2 mb-2">
-                    <span class="text-3xl font-black text-slate-800 leading-none animate-number" data-value="{{ $fleet_utilization }}" data-is-pct="true">0%</span>
-                    <span class="text-xs font-bold text-slate-500 pb-0.5">Active Now</span>
+                <div class="flex items-end gap-2 mb-2 cursor-pointer group/modal" onclick="document.getElementById('utilizationModal').classList.remove('hidden')">
+                    @php $total_fleet = array_sum($fleet_pulse); @endphp
+                    <span class="text-3xl font-black text-slate-800 leading-none animate-number" data-value="{{ $fleet_pulse['active_units'] ?? 0 }}" data-is-int="true">0</span>
+                    <span class="text-xl font-bold text-slate-400 leading-none pb-0.5">/ <span class="animate-number" data-value="{{ $total_fleet }}" data-is-int="true">0</span></span>
+                    <span class="text-[10px] font-bold text-indigo-500 pb-0.5 ml-1 bg-indigo-50 px-2 rounded-md group-hover/modal:bg-indigo-100 transition-colors flex items-center gap-1" title="Click to view percentage breakdown"><i data-lucide="info" class="w-3 h-3"></i> Details</span>
                 </div>
                 <div class="h-2 bg-slate-100 rounded-full overflow-hidden p-0.5 border border-slate-200/30">
                     <div class="animate-width h-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-full transition-all duration-[1500ms] ease-out shadow-[0_0_8px_rgba(99,102,241,0.5)]" data-width="{{ $fleet_utilization }}%" style="width: 0%"></div>
@@ -115,9 +117,10 @@
                     <span class="text-[10px] font-black text-rose-600 bg-rose-50 px-2.5 py-1 rounded-full uppercase tracking-widest">Risk Factor</span>
                 </div>
                 <h3 class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-1">Revenue Leakage</h3>
-                <div class="flex items-end gap-2 mb-2">
-                    <span class="text-3xl font-black text-slate-800 leading-none animate-number" data-value="{{ $revenue_leakage_pct }}" data-is-pct="true">0%</span>
-                    <span class="text-xs font-bold text-rose-500 pb-0.5">Shortage</span>
+                <div class="flex items-end gap-2 mb-2 cursor-pointer group/modal" onclick="document.getElementById('leakageModal').classList.remove('hidden')">
+                    <span class="text-3xl font-black text-slate-800 leading-none animate-number" data-value="{{ $total_shortage }}" data-is-currency="true">₱0.00</span>
+                    <span class="text-xs font-bold text-slate-500 pb-0.5">Shortage</span>
+                    <span class="text-[10px] font-bold text-rose-500 pb-0.5 ml-1 bg-rose-50 px-2 rounded-md group-hover/modal:bg-rose-100 transition-colors flex items-center gap-1" title="Click to view percentage breakdown"><i data-lucide="info" class="w-3 h-3"></i> Details</span>
                 </div>
                 <p class="text-[10px] text-slate-500 mt-3 leading-relaxed">
                     Uncollected boundary revenue (shortages) relative to total expected revenue.
@@ -1314,6 +1317,69 @@
 @endsection
 
 @push('scripts')
+<!-- Modals for Percentage Details -->
+<div id="utilizationModal" class="hidden fixed inset-0 bg-slate-900/50 z-[100] flex items-center justify-center p-4 backdrop-blur-sm transition-opacity">
+    <div class="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl relative border border-slate-100">
+        <button onclick="document.getElementById('utilizationModal').classList.add('hidden')" class="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-full transition-colors"><i data-lucide="x" class="w-5 h-5"></i></button>
+        
+        <div class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center mb-6">
+            <i data-lucide="activity" class="w-6 h-6"></i>
+        </div>
+        
+        <h3 class="text-xl font-black text-slate-800 mb-2">Fleet Utilization ({{ $fleet_utilization }}%)</h3>
+        <p class="text-sm text-slate-500 mb-6 leading-relaxed">This percentage represents the portion of your total fleet that is currently on the road and generating revenue.</p>
+        
+        <div class="space-y-4 bg-slate-50 p-4 rounded-2xl border border-slate-100">
+            <div class="flex justify-between items-center">
+                <span class="text-sm font-bold text-slate-600">Active Units:</span>
+                <span class="text-sm font-black text-indigo-600">{{ $fleet_pulse['active_units'] ?? 0 }}</span>
+            </div>
+            <div class="flex justify-between items-center">
+                <span class="text-sm font-bold text-slate-600">Total Fleet:</span>
+                <span class="text-sm font-black text-slate-800">{{ array_sum($fleet_pulse) }}</span>
+            </div>
+            <div class="h-px bg-slate-200"></div>
+            <div class="flex justify-between items-center">
+                <span class="text-sm font-bold text-slate-600">Utilization Rate:</span>
+                <span class="text-lg font-black text-emerald-600">{{ $fleet_utilization }}%</span>
+            </div>
+        </div>
+        
+        <button onclick="document.getElementById('utilizationModal').classList.add('hidden')" class="w-full mt-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-xl transition-colors">Got it</button>
+    </div>
+</div>
+
+<div id="leakageModal" class="hidden fixed inset-0 bg-slate-900/50 z-[100] flex items-center justify-center p-4 backdrop-blur-sm transition-opacity">
+    <div class="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl relative border border-slate-100">
+        <button onclick="document.getElementById('leakageModal').classList.add('hidden')" class="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-full transition-colors"><i data-lucide="x" class="w-5 h-5"></i></button>
+        
+        <div class="w-12 h-12 bg-rose-50 text-rose-600 rounded-2xl flex items-center justify-center mb-6">
+            <i data-lucide="trending-down" class="w-6 h-6"></i>
+        </div>
+        
+        <h3 class="text-xl font-black text-slate-800 mb-2">Revenue Leakage ({{ $revenue_leakage_pct }}%)</h3>
+        <p class="text-sm text-slate-500 mb-6 leading-relaxed">This percentage indicates how much of your expected boundary collections were uncollected (shortages).</p>
+        
+        <div class="space-y-4 bg-slate-50 p-4 rounded-2xl border border-slate-100">
+            <div class="flex justify-between items-center">
+                <span class="text-sm font-bold text-slate-600">Total Shortages:</span>
+                <span class="text-sm font-black text-rose-600">₱{{ number_format($total_shortage, 2) }}</span>
+            </div>
+            <div class="flex justify-between items-center">
+                <span class="text-sm font-bold text-slate-600">Actual Collections:</span>
+                <span class="text-sm font-black text-emerald-600">₱{{ number_format($total_boundary, 2) }}</span>
+            </div>
+            <div class="h-px bg-slate-200"></div>
+            <div class="flex justify-between items-center">
+                <span class="text-sm font-bold text-slate-600">Expected Total:</span>
+                <span class="text-sm font-black text-slate-800">₱{{ number_format($total_boundary + $total_shortage, 2) }}</span>
+            </div>
+        </div>
+        
+        <button onclick="document.getElementById('leakageModal').classList.add('hidden')" class="w-full mt-6 py-3 bg-rose-600 hover:bg-rose-700 text-white text-sm font-bold rounded-xl transition-colors">Understood</button>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     // ── Tab Switching Logic ──────────────────────────────────────────────────
     function switchTab(tab) {
