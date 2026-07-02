@@ -185,6 +185,30 @@
         </div>
     </div>
 
+    {{-- Search and Filter --}}
+    <div class="flex flex-col sm:flex-row gap-3 mb-5 p-4 bg-white rounded-2xl shadow-sm border border-gray-100 items-end">
+        <div class="flex-1 w-full">
+            <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Search</label>
+            <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <i data-lucide="search" class="w-4 h-4 text-gray-400"></i>
+                </div>
+                <input type="text" id="incentiveSearch" placeholder="Search driver or plate number..." 
+                    class="w-full pl-9 pr-4 py-2 bg-gray-50 border border-gray-100 rounded-xl text-sm font-medium focus:ring-2 focus:ring-yellow-500 focus:outline-none transition-all">
+            </div>
+        </div>
+        <div class="w-full sm:w-64">
+            <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Status</label>
+            <select id="incentiveStatus" class="w-full px-3 py-2 bg-gray-50 border border-gray-100 rounded-xl text-sm font-medium focus:ring-2 focus:ring-yellow-500 focus:outline-none">
+                <option value="all">All Drivers</option>
+                <option value="eligible">Eligible Only</option>
+                <option value="disqualified">Disqualified Only</option>
+                <option value="has_violations">Has Violations</option>
+                <option value="insufficient_days">Insufficient Days</option>
+            </select>
+        </div>
+    </div>
+
     {{-- Eligible Drivers --}}
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-5">
         <div class="px-5 py-4 border-b bg-green-50/50 flex items-center gap-2">
@@ -205,7 +229,7 @@
             </thead>
             <tbody class="divide-y divide-gray-50">
                 @forelse($incentive_summary['eligible'] as $d)
-                <tr class="hover:bg-green-50/30 transition-colors">
+                <tr class="hover:bg-green-50/30 transition-colors incentive-row" data-search="{{ strtolower($d['name'] . ' ' . ($d['unit'] ?? '')) }}" data-status="eligible">
                     <td class="px-5 py-3.5"><span class="text-xs font-black text-gray-800">{{ $d['name'] }}</span></td>
                     <td class="px-5 py-3.5"><span class="text-xs font-black text-blue-600 uppercase">{{ $d['unit'] ?? '—' }}</span></td>
                     <td class="px-5 py-3.5">
@@ -255,8 +279,11 @@
             </thead>
             <tbody class="divide-y divide-gray-50">
                 @forelse($incentive_summary['ineligible'] as $d)
-                @php $reason = $d['violations'] > 0 ? 'Has Violations' : 'Insufficient Days'; @endphp
-                <tr class="hover:bg-red-50/20 transition-colors">
+                @php 
+                    $reason = $d['violations'] > 0 ? 'Has Violations' : 'Insufficient Days'; 
+                    $statusKey = $d['violations'] > 0 ? 'has_violations' : 'insufficient_days';
+                @endphp
+                <tr class="hover:bg-red-50/20 transition-colors incentive-row" data-search="{{ strtolower($d['name'] . ' ' . ($d['unit'] ?? '')) }}" data-status="{{ $statusKey }}">
                     <td class="px-5 py-3.5"><span class="text-xs font-bold text-gray-700">{{ $d['name'] }}</span></td>
                     <td class="px-5 py-3.5"><span class="text-xs font-black text-blue-600 uppercase">{{ $d['unit'] ?? '—' }}</span></td>
                     <td class="px-5 py-3.5">
@@ -280,4 +307,42 @@
         </table>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('incentiveSearch');
+    const statusSelect = document.getElementById('incentiveStatus');
+    const rows = document.querySelectorAll('.incentive-row');
+
+    function filterRows() {
+        const query = searchInput ? searchInput.value.toLowerCase() : '';
+        const status = statusSelect ? statusSelect.value : 'all';
+
+        rows.forEach(row => {
+            const searchData = row.getAttribute('data-search') || '';
+            const rowStatus = row.getAttribute('data-status');
+            
+            let matchesSearch = searchData.includes(query);
+            let matchesStatus = true;
+
+            if (status !== 'all') {
+                if (status === 'disqualified') {
+                    matchesStatus = ['has_violations', 'insufficient_days'].includes(rowStatus);
+                } else {
+                    matchesStatus = rowStatus === status;
+                }
+            }
+
+            if (matchesSearch && matchesStatus) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+
+    if(searchInput) searchInput.addEventListener('input', filterRows);
+    if(statusSelect) statusSelect.addEventListener('change', filterRows);
+});
+</script>
 @endsection
