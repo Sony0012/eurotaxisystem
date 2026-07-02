@@ -105,6 +105,7 @@ class UnitProfitabilityController extends Controller
             'net_income' => array_sum(array_column($profitability, 'net_income')),
             'total_units' => count($profitability),
             'avg_margin' => count($profitability) > 0 ? array_sum(array_column($profitability, 'profit_margin')) / count($profitability) : 0,
+            'avg_profit' => count($profitability) > 0 ? array_sum(array_column($profitability, 'net_income')) / count($profitability) : 0,
             'roi_units' => count(array_filter($profitability, function($u) { return $u->roi_achieved; })),
         ];
 
