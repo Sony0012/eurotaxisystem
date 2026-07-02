@@ -50,6 +50,16 @@
                             <span class="text-xs font-black text-blue-600 uppercase">{{ !empty(trim($inc->plate_number)) ? $inc->plate_number : '—' }}</span>
                         </td>
                         <td class="px-5 py-3.5 max-w-[450px]">
+                            {{-- Incident Type & Severity Badges --}}
+                            <div class="flex items-center gap-1.5 mb-2">
+                                <span class="px-2 py-0.5 {{ $tc }} text-[10px] font-black uppercase tracking-widest rounded-md shadow-sm">
+                                    {{ $inc->incident_type }}
+                                </span>
+                                <span class="px-2 py-0.5 {{ $sc }} text-[9px] font-black uppercase tracking-widest rounded-md shadow-sm">
+                                    {{ $inc->severity }}
+                                </span>
+                            </div>
+
                             {{-- Unified Tags Row --}}
                             <div class="flex flex-wrap gap-1.5 mb-2">
                                 {{-- Driver Fault Status --}}
