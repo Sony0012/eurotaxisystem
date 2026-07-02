@@ -1589,8 +1589,16 @@
         data: {
             labels: monthlyRevenueData.map(d => d.month),
             datasets: [
-                { label: 'Revenue (₱)', data: monthlyRevenueData.map(d => d.boundary), borderColor: '#10b981', backgroundColor: 'rgba(16, 185, 129, 0.1)', fill: true, tension: 0.4, borderWidth: 3, pointRadius: 4, pointBackgroundColor: '#fff' },
-                { label: 'Expenses (₱)', data: monthlyRevenueData.map(d => d.expenses), borderColor: '#3b82f6', backgroundColor: 'rgba(59, 130, 246, 0.1)', fill: true, tension: 0.4, borderWidth: 3, pointRadius: 4, pointBackgroundColor: '#fff' }
+                { 
+                    label: `Revenue (₱${monthlyRevenueData.reduce((a, b) => a + parseFloat(b.boundary), 0).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})})`, 
+                    data: monthlyRevenueData.map(d => d.boundary), 
+                    borderColor: '#10b981', backgroundColor: 'rgba(16, 185, 129, 0.1)', fill: true, tension: 0.4, borderWidth: 3, pointRadius: 4, pointBackgroundColor: '#fff' 
+                },
+                { 
+                    label: `Expenses (₱${monthlyRevenueData.reduce((a, b) => a + parseFloat(b.expenses), 0).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})})`, 
+                    data: monthlyRevenueData.map(d => d.expenses), 
+                    borderColor: '#3b82f6', backgroundColor: 'rgba(59, 130, 246, 0.1)', fill: true, tension: 0.4, borderWidth: 3, pointRadius: 4, pointBackgroundColor: '#fff' 
+                }
             ]
         },
         options: {
@@ -1730,7 +1738,11 @@
         type: 'bar',
         data: {
             labels: dailyData.map(d => d.day),
-            datasets: [{ label: 'Daily Collection (₱)', data: dailyData.map(d => d.total), backgroundColor: '#6366f1', borderRadius: 8, barThickness: 12 }]
+            datasets: [{ 
+                label: `Daily Collection (₱${dailyData.reduce((a, b) => a + parseFloat(b.total), 0).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})})`, 
+                data: dailyData.map(d => d.total), 
+                backgroundColor: '#6366f1', borderRadius: 8, barThickness: 12 
+            }]
         },
         options: {
             responsive: true,
@@ -1771,7 +1783,11 @@
         type: 'bar',
         data: {
             labels: maintenanceCostData.map(d => d.unit),
-            datasets: [{ label: 'Repair Cost (₱)', data: maintenanceCostData.map(d => d.cost), backgroundColor: d => d.raw > 30000 ? '#ef4444' : '#f59e0b', borderRadius: 8 }]
+            datasets: [{ 
+                label: `Repair Cost (₱${maintenanceCostData.reduce((a, b) => a + parseFloat(b.cost), 0).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})})`, 
+                data: maintenanceCostData.map(d => d.cost), 
+                backgroundColor: d => d.raw > 30000 ? '#ef4444' : '#f59e0b', borderRadius: 8 
+            }]
         },
         options: {
             responsive: true,
