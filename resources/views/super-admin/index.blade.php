@@ -530,7 +530,15 @@
                             <td onclick="openUserDetailsModal({{ $u->uuid }})" style="cursor:pointer;">
                                 <div class="flex items-center gap-2.5">
                                     @if($u->profile_image)
-                                        <img src="{{ asset('storage/' . $u->profile_image) }}" style="width:34px;height:34px;border-radius:50%;object-fit:cover;border:2px solid #e5e7eb;" alt="">
+                                        @php
+                                            $imagePath = str_replace('resources/', '', $u->profile_image);
+                                            $isIcon = str_starts_with($imagePath, 'image/') || str_contains($imagePath, 'resources/assets/');
+                                        @endphp
+                                        @if($isIcon)
+                                            <img src="{{ asset($imagePath) }}" style="width:34px;height:34px;border-radius:50%;object-fit:cover;border:2px solid #e5e7eb;" alt="">
+                                        @else
+                                            <img src="{{ asset('storage/' . $u->profile_image) }}" style="width:34px;height:34px;border-radius:50%;object-fit:cover;border:2px solid #e5e7eb;" alt="">
+                                        @endif
                                     @else
                                         <div style="width:34px;height:34px;background:#e2e8f0;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:.8rem;color:#64748b;flex-shrink:0;">
                                             {{ strtoupper(substr($u->full_name ?? 'U', 0, 1)) }}

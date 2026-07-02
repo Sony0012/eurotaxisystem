@@ -29,7 +29,15 @@
                     <div class="relative flex-shrink-0">
                         <div class="w-12 h-12 rounded-xl bg-gray-200 flex items-center justify-center font-bold text-lg border-2 border-white shadow-sm overflow-hidden">
                             @if($driver->profile_image)
-                                <img src="{{ asset('storage/' . $driver->profile_image) }}" class="w-full h-full object-cover">
+                                @php
+                                    $imagePath = str_replace('resources/', '', $driver->profile_image);
+                                    $isIcon = str_starts_with($imagePath, 'image/') || str_contains($imagePath, 'resources/assets/');
+                                @endphp
+                                @if($isIcon)
+                                    <img src="{{ asset($imagePath) }}" class="w-full h-full object-cover">
+                                @else
+                                    <img src="{{ asset('storage/' . $driver->profile_image) }}" class="w-full h-full object-cover">
+                                @endif
                             @else
                                 {{ strtoupper(substr($driver->full_name ?? 'D', 0, 1)) }}
                             @endif

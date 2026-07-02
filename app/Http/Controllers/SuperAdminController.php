@@ -343,7 +343,15 @@ class SuperAdminController extends Controller
             ->get();
 
         // Append profile image url for easier frontend handling
-        $profileUrl = $user->profile_image ? asset('storage/' . $user->profile_image) : null;
+        $profileUrl = null;
+        if ($user->profile_image) {
+            $isIcon = str_starts_with($user->profile_image, 'image/') || str_contains($user->profile_image, 'resources/assets/');
+            if ($isIcon) {
+                $profileUrl = asset(str_replace('resources/', '', $user->profile_image));
+            } else {
+                $profileUrl = asset('storage/' . $user->profile_image);
+            }
+        }
 
         return response()->json([
             'success' => true,

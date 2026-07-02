@@ -248,7 +248,7 @@
                     } elseif (is_array($readData)) {
                         $nowMs = time() * 1000;
                         foreach ($readData as $id => $timestamp) {
-                            if ($nowMs - $timestamp < 1800000) { // 30 minutes in milliseconds
+                            if ($nowMs - $timestamp < 2592000000) { // 30 days in milliseconds
                                 $readNotifIds[] = (string)$id;
                             }
                         }
@@ -565,9 +565,8 @@
                                 @if(auth()->user()->profile_image)
                                     @php
                                         $imagePath = str_replace('resources/', '', auth()->user()->profile_image);
-                                        $isIcon = str_contains($imagePath, 'image/') && !str_contains($imagePath, 'storage/');
                                     @endphp
-                                    @if($isIcon)
+                                    @if(str_contains(auth()->user()->profile_image, 'resources/assets/') || str_starts_with(auth()->user()->profile_image, 'image/'))
                                         <img src="{{ asset($imagePath) }}" alt="Profile" class="w-full h-full object-cover">
                                     @else
                                         <img src="{{ asset('storage/' . auth()->user()->profile_image) }}" alt="Profile" class="w-full h-full object-cover">
