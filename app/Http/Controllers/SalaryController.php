@@ -44,9 +44,8 @@ class SalaryController extends Controller
             });
         }
 
-        if ($request->filled('date_from') && $request->filled('date_to')) {
-            $query->whereBetween('s.pay_date', [$date_from, $date_to]);
-        }
+        // Always filter by date range so table and summary are synchronized
+        $query->whereBetween('s.pay_date', [$date_from, $date_to]);
 
         // Table shows all recent records regardless of month, ordered by latest creation
         $salaries = $query->orderBy('s.created_at', 'desc')->get();

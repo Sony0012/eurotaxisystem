@@ -419,18 +419,20 @@
             print-color-adjust: exact !important;
         }
         @page {
-            margin: 1cm;
+            size: A4 portrait;
+            margin: 1.5cm;
         }
     }
 </style>
 @endpush
 
 <!-- Hidden Printable Report -->
-<div id="printableReportContainer" class="hidden bg-white text-black p-8 w-full min-h-screen">
-    <div class="text-center mb-8 border-b-2 border-gray-800 pb-4">
-        <h1 class="text-3xl font-black uppercase tracking-widest text-gray-900">Euro Taxi System</h1>
-        <h2 class="text-xl font-bold mt-2 text-gray-800">Monthly Salary Report</h2>
-        <p class="text-gray-600 mt-1">Period: {{ \Carbon\Carbon::parse($date_from)->format('F d, Y') }} - {{ \Carbon\Carbon::parse($date_to)->format('F d, Y') }}</p>
+<div id="printableReportContainer" class="hidden bg-white text-black p-0 w-full min-h-screen font-sans">
+    <div class="text-center mb-6 border-b-2 border-black pb-4">
+        <img src="{{ asset('uploads/logo.png') }}" alt="Euro Taxi System" class="h-16 mx-auto mb-2 object-contain" onerror="this.style.display='none'">
+        <h1 class="text-2xl font-black uppercase tracking-widest text-black">Euro Taxi System</h1>
+        <h2 class="text-lg font-bold mt-1 text-gray-800">Monthly Salary Report</h2>
+        <p class="text-sm text-gray-700 mt-1">Period: {{ \Carbon\Carbon::parse($date_from)->format('F d, Y') }} - {{ \Carbon\Carbon::parse($date_to)->format('F d, Y') }}</p>
     </div>
 
     <div class="mb-8 flex justify-between text-sm">
@@ -469,27 +471,27 @@
             @endforeach
         </tbody>
         <tfoot>
-            <tr class="border-t-2 border-gray-800 bg-gray-50">
-                <td colspan="2" class="py-3 px-2 text-right font-bold text-gray-900">GRAND TOTAL</td>
-                <td class="py-3 px-2 text-right font-bold text-gray-900">{{ formatCurrency($salaries->sum('basic_salary')) }}</td>
-                <td class="py-3 px-2 text-right font-bold text-gray-900">{{ formatCurrency($salaries->sum('overtime_pay')) }}</td>
-                <td class="py-3 px-2 text-right text-lg font-bold text-gray-900">{{ formatCurrency($summary['total_salaries'] ?? 0) }}</td>
+            <tr class="border-t-4 border-black bg-gray-100">
+                <td colspan="2" class="py-3 px-2 text-right font-black text-black">GRAND TOTAL</td>
+                <td class="py-3 px-2 text-right font-black text-black">{{ formatCurrency($salaries->sum('basic_salary')) }}</td>
+                <td class="py-3 px-2 text-right font-black text-black">{{ formatCurrency($salaries->sum('overtime_pay')) }}</td>
+                <td class="py-3 px-2 text-right text-lg font-black text-black">{{ formatCurrency($summary['total_salaries'] ?? 0) }}</td>
             </tr>
         </tfoot>
     </table>
 
-    <div class="mt-20 grid grid-cols-3 gap-8 text-center text-sm">
+    <div class="mt-24 grid grid-cols-3 gap-12 text-center text-sm">
         <div>
-            <div class="border-b border-black mb-2 mx-4"></div>
-            <p class="font-bold text-gray-800">Prepared By</p>
+            <div class="border-b border-black mb-2 mx-6"></div>
+            <p class="font-bold text-black uppercase tracking-wider">Prepared By</p>
         </div>
         <div>
-            <div class="border-b border-black mb-2 mx-4"></div>
-            <p class="font-bold text-gray-800">Approved By</p>
+            <div class="border-b border-black mb-2 mx-6"></div>
+            <p class="font-bold text-black uppercase tracking-wider">Approved By</p>
         </div>
         <div>
-            <div class="border-b border-black mb-2 mx-4"></div>
-            <p class="font-bold text-gray-800">Received By</p>
+            <div class="border-b border-black mb-2 mx-6"></div>
+            <p class="font-bold text-black uppercase tracking-wider">Received By</p>
         </div>
     </div>
 </div>
