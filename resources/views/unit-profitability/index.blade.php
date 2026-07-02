@@ -399,7 +399,7 @@
                                 }
                             }
                         @endphp
-                        <tr class="hover:bg-gray-50 cursor-pointer group transition-all" onclick="openComputationModal('{{ $item->uuid }}', '{{ $item->plate_number }}')">
+                        <tr class="hover:bg-gray-50 cursor-pointer group transition-all" onclick="openComputationModal('{{ $item->id }}', '{{ $item->plate_number }}')">
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="flex items-center gap-3">
                                     <div class="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center text-[10px] font-black text-gray-500 group-hover:bg-yellow-100 group-hover:text-yellow-600 transition-colors">
