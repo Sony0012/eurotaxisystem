@@ -758,7 +758,7 @@
                 <div class="relative w-48 h-48 mb-6">
                     <canvas id="healthGaugeCanvas" width="192" height="192"></canvas>
                     <div class="absolute inset-0 flex flex-col items-center justify-center">
-                        <span class="text-5xl font-black text-slate-800">{{ $healthScore }}</span>
+                        <span id="healthScoreDisplay" class="text-5xl font-black text-slate-800">0</span>
                         <span class="text-xs font-bold text-slate-400">/ 100</span>
                     </div>
                 </div>
@@ -2132,15 +2132,33 @@
             gCtx.stroke();
 
             // Animated score arc
-            let currentAngle = startAngle;
-            const animationDuration = 1200;
+            const animationDuration1 = 1200; // 0 to 100
+            const animationDuration2 = 800;  // 100 to actual
             const startTime = performance.now();
 
             function animateGauge(currentTime) {
                 const elapsed = currentTime - startTime;
-                const progress = Math.min(elapsed / animationDuration, 1);
-                const eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
-                currentAngle = startAngle + (scoreAngle - startAngle) * eased;
+                let currentScore = 0;
+
+                if (elapsed < animationDuration1) {
+                    // Phase 1: 0 to 100
+                    const progress = elapsed / animationDuration1;
+                    const eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+                    currentScore = 100 * eased;
+                } else if (elapsed < animationDuration1 + animationDuration2) {
+                    // Phase 2: 100 down to accurate score
+                    const progress = (elapsed - animationDuration1) / animationDuration2;
+                    const eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+                    currentScore = 100 - ((100 - score) * eased);
+                } else {
+                    currentScore = score;
+                }
+
+                // Update text display
+                const displayEl = document.getElementById('healthScoreDisplay');
+                if (displayEl) displayEl.innerText = Math.round(currentScore);
+
+                const currentAngle = startAngle + (totalArc * (currentScore / 100));
 
                 // Clear and redraw
                 gCtx.clearRect(0, 0, gaugeCanvas.width, gaugeCanvas.height);
@@ -2168,7 +2186,7 @@
                 }
 
                 // Small dot at the end
-                if (progress < 1) {
+                if (elapsed < animationDuration1 + animationDuration2) {
                     requestAnimationFrame(animateGauge);
                 } else {
                     // Draw endpoint dot
