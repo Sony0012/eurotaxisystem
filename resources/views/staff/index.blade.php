@@ -38,7 +38,9 @@
             <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"></i>
             <input type="text" id="staffSearchInput" value="{{ request('search') }}"
                 placeholder="Search general staff by name or role..."
-                autocomplete="off"
+                autocomplete="new-password"
+                spellcheck="false" autocorrect="off" autocapitalize="off"
+                readonly onfocus="this.removeAttribute('readonly');"
                 class="w-full pl-10 pr-10 py-2 border rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none text-sm transition-all">
             <button id="staffSearchClear" onclick="clearStaffSearch()" class="absolute right-3 top-1/2 -translate-y-1/2 hidden text-gray-400 hover:text-gray-600">
                 <i data-lucide="x" class="w-4 h-4"></i>
