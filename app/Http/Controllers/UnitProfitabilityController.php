@@ -136,22 +136,26 @@ class UnitProfitabilityController extends Controller
             ) as m"), 'm.unit_id', '=', 'u.id')
             ->selectRaw('
                 u.id,
-                u.plate_number,
+                u.plate_number as plate,
                 u.boundary_rate,
                 COALESCE(b.avg_daily_boundary, 0) as avg_daily_boundary,
-                COALESCE(b.operating_days, 0) as operating_days,
+                COALESCE(b.operating_days, 0) as operating_days_90d,
                 COALESCE(m.total_maint_cost, 0) as total_maint_cost,
                 COALESCE(m.maint_days, 0) as maint_days
             ')
             ->orderByDesc('avg_daily_boundary')
             ->limit(10)
-            ->get();
+            ->get()
+            ->map(function ($item) {
+                return (array) $item;
+            })
+            ->toArray();
 
         // Calculate final daily averages
-        foreach ($forecast_unit_profits as $unit) {
-            $unit->avg_daily_maint = $unit->operating_days > 0 ? ($unit->total_maint_cost / $unit->operating_days) : 0;
-            $unit->daily_net_profit = $unit->avg_daily_boundary - $unit->avg_daily_maint;
-            $unit->monthly_projection = $unit->daily_net_profit * 30; // Standard 30 day month
+        foreach ($forecast_unit_profits as &$unit) {
+            $unit['avg_daily_maint'] = $unit['operating_days_90d'] > 0 ? ($unit['total_maint_cost'] / $unit['operating_days_90d']) : 0;
+            $unit['daily_profit'] = $unit['avg_daily_boundary'] - $unit['avg_daily_maint'];
+            $unit['monthly_profit'] = $unit['daily_profit'] * 30; // Standard 30 day month
         }
 
         // Manual Pagination (10 per page)
