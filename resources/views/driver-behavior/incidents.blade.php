@@ -237,7 +237,7 @@
                     class="w-full px-3 py-2 bg-gray-50 border border-gray-100 rounded-xl text-sm font-medium focus:ring-2 focus:ring-yellow-500 focus:outline-none">
             </div>
 
-            <div class="ml-auto">
+            <div class="ml-auto mt-2 sm:mt-0 lg:-mt-2 flex items-center self-end">
                 <button type="button" onclick="openIncidentModal()" class="px-5 py-2.5 bg-red-600 text-white font-black text-xs uppercase tracking-widest rounded-xl hover:bg-red-700 hover:scale-105 hover:shadow-xl hover:shadow-red-200 transition-all active:scale-95 flex items-center gap-2 shadow-sm">
                     <i data-lucide="plus" class="w-4 h-4"></i> Record Incident
                 </button>
