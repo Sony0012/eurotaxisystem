@@ -1247,10 +1247,16 @@ class DashboardController extends Controller
 
     private function getUnitPerformanceData()
     {
+        $month = now()->month;
+        $year = now()->year;
+
         return DB::table('units as u')
             ->whereNull('u.deleted_at')
-            ->leftJoin('boundaries as b', function($join) {
-                $join->on('u.id', '=', 'b.unit_id')->whereNull('b.deleted_at');
+            ->leftJoin('boundaries as b', function($join) use ($month, $year) {
+                $join->on('u.id', '=', 'b.unit_id')
+                     ->whereNull('b.deleted_at')
+                     ->whereMonth('b.date', $month)
+                     ->whereYear('b.date', $year);
             })
             ->select('u.plate_number', DB::raw('COALESCE(SUM(b.actual_boundary), 0) as total_boundary'), 'u.boundary_rate')
             ->where('u.status', 'active')
