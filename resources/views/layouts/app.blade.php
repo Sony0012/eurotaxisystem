@@ -100,13 +100,28 @@
         i[data-lucide] { display: inline-block; width: 1rem; height: 1rem; vertical-align: middle; flex-shrink: 0; }
         .sidebar-item i[data-lucide] { width: 1.25rem; height: 1.25rem; }
         
-        /* Smooth page transitions */
+        /* Smooth page transitions — overlay loader, never blank */
         #appMainContent { 
-            transition: opacity 0.15s ease-in-out, transform 0.15s ease-in-out; 
+            position: relative;
         }
-        .page-transitioning #appMainContent {
-            opacity: 0.7;
-            transform: scale(0.995);
+        /* Loading overlay sits ON TOP of old content — page never goes blank */
+        #pageLoadOverlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            background: rgba(15,23,42,0.35);
+            backdrop-filter: blur(2px);
+        }
+        #pageLoadOverlay.active { display: flex; }
+        #pageLoadOverlay .loader-ring {
+            width: 48px; height: 48px;
+            border: 4px solid rgba(251,191,36,0.2);
+            border-top-color: #fbbf24;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
         }
         
         /* Prevent sidebar flicker during navigation on desktop only */
@@ -1639,16 +1654,22 @@
                 }
             }
             
+            // Create page-load overlay element once
+            const pageLoadOverlay = document.createElement('div');
+            pageLoadOverlay.id = 'pageLoadOverlay';
+            pageLoadOverlay.innerHTML = '<div class="loader-ring"></div>';
+            document.body.appendChild(pageLoadOverlay);
+
             // Update page content without reload
             async function navigateToPage(url) {
-                // Add loading state
-                document.body.classList.add('page-transitioning');
+                // Show overlay on TOP of existing content — no blank screen
+                pageLoadOverlay.classList.add('active');
                 
                 try {
                     const pageData = await fetchPage(url);
                     
-                    if (pageData.mainContent) {
-                        // Update main content
+                    if (pageData && pageData.mainContent) {
+                        // Update main content ONLY after fetch completes
                         const mainContent = document.querySelector('#appMainContent');
                         mainContent.innerHTML = pageData.mainContent.innerHTML;
                         
@@ -1679,18 +1700,19 @@
 
                         // Dispatch custom event for child pages to know they are loaded via AJAX
                         document.dispatchEvent(new CustomEvent('page:loaded', { detail: { url: url } }));
+                    } else {
+                        // pageData is null (fetchPage already fell back via window.location)
+                        return;
                     }
                 } catch (error) {
                     console.error('Navigation error:', error);
                     window.location.href = url; // Fallback
                 } finally {
-                    // Remove loading state
-                    setTimeout(() => {
-                        document.body.classList.remove('page-transitioning');
-                        document.querySelectorAll('.nav-loading').forEach(el => {
-                            el.classList.remove('nav-loading');
-                        });
-                    }, 100);
+                    // Hide overlay and clear nav-loading state
+                    pageLoadOverlay.classList.remove('active');
+                    document.querySelectorAll('.nav-loading').forEach(el => {
+                        el.classList.remove('nav-loading');
+                    });
                 }
             }
             
@@ -1700,7 +1722,7 @@
                     const href = this.getAttribute('href');
                     
                     // Skip external links, anchors, and if modifier keys are pressed
-                    if (!href || href.startsWith('#') || href.startsWith('http') || e.ctrlKey || e.metaKey || e.shiftKey) {
+                    if (!href || href.startsWith('#') || (href.startsWith('http') && !href.includes(window.location.host)) || e.ctrlKey || e.metaKey || e.shiftKey) {
                         return;
                     }
                     
