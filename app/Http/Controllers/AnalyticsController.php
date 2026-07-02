@@ -110,11 +110,19 @@ class AnalyticsController extends Controller
         
         $total_expenses = DB::table('expenses')->whereNull('deleted_at')
             ->whereBetween('date', [$date_from, $date_to])->sum('amount') ?? 0;
+            
+        $total_maintenance = DB::table('maintenance')->whereNull('deleted_at')
+            ->whereBetween('date_started', [$date_from, $date_to])->sum('cost') ?? 0;
+            
+        $total_salaries = DB::table('salaries')
+            ->whereBetween('pay_date', [$date_from, $date_to])->sum('total_salary') ?? 0;
+            
+        $grand_total_expenses = $total_expenses + $total_maintenance + $total_salaries;
         
         $avg_boundary_rate = DB::table('units')->whereNull('deleted_at')->avg('boundary_rate') ?? 1000;
-        $break_even_days   = $avg_boundary_rate > 0 ? ceil($total_expenses / $avg_boundary_rate) : 0;
+        $break_even_days   = $avg_boundary_rate > 0 ? ceil($grand_total_expenses / $avg_boundary_rate) : 0;
         
-        $net_income = $total_boundary - $total_expenses;
+        $net_income = $total_boundary - $grand_total_expenses;
         $revenue_leakage_pct = $total_boundary > 0 ? round(($total_shortage / ($total_boundary + $total_shortage)) * 100, 1) : 0;
 
         // ── Operational Efficiency ───────────────────────────────────────────
