@@ -32,7 +32,7 @@
 </style>
 
     {{-- AI Decision Support System (DSS) Section --}}
-    <div class="bg-gradient-to-br from-indigo-900 via-slate-900 to-black rounded-3xl p-8 mb-8 relative shadow-2xl border border-indigo-500/20 transition-all duration-500">
+    <div class="bg-gradient-to-br from-indigo-900 via-slate-900 to-black rounded-3xl p-8 mb-8 relative overflow-hidden shadow-2xl border border-indigo-500/20 transition-all duration-500">
         <div class="absolute top-0 right-0 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl -mr-48 -mt-48"></div>
         <div class="absolute bottom-0 left-0 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl -ml-32 -mb-32"></div>
         
