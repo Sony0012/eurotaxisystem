@@ -449,7 +449,7 @@
                             <div class="hidden group-hover:block lg:pl-10 pl-0 space-y-1 mt-1 transition-all duration-300">
                                 <a href="{{ route('driver-behavior.incidents') }}" class="{{ request()->routeIs('driver-behavior.incidents') ? 'text-orange-600 font-bold bg-orange-50/50 block rounded-xl py-2 px-3' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50 block rounded-xl py-2 px-3' }} flex items-center gap-2">
                                     <i data-lucide="alert-circle" class="w-3.5 h-3.5 {{ request()->routeIs('driver-behavior.incidents') ? 'text-orange-600' : 'text-slate-400' }}"></i> 
-                                    <span class="text-[10px] uppercase tracking-wider font-bold">Incidents Record</span>
+                                    <span class="text-[10px] uppercase tracking-wider font-bold">Incident Log</span>
                                 </a>
                                 <a href="{{ route('driver-behavior.incentives') }}" class="{{ request()->routeIs('driver-behavior.incentives') ? 'text-green-600 font-bold bg-green-50/50 block rounded-xl py-2 px-3' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50 block rounded-xl py-2 px-3' }} flex items-center gap-2">
                                     <i data-lucide="award" class="w-3.5 h-3.5 {{ request()->routeIs('driver-behavior.incentives') ? 'text-green-600' : 'text-slate-400' }}"></i> 
