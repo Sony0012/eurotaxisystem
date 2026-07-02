@@ -193,7 +193,7 @@
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <i data-lucide="search" class="w-4 h-4 text-gray-400"></i>
                 </div>
-                <input type="text" id="incentiveSearch" placeholder="Search driver or plate number..." 
+                <input type="text" id="incentiveSearch" autocomplete="off" placeholder="Search driver or plate number..." 
                     class="w-full pl-9 pr-4 py-2 bg-gray-50 border border-gray-100 rounded-xl text-sm font-medium focus:ring-2 focus:ring-yellow-500 focus:outline-none transition-all">
             </div>
         </div>
@@ -256,6 +256,7 @@
                 @empty
                 <tr><td colspan="7" class="px-5 py-8 text-center text-xs text-gray-400 font-medium italic">No drivers eligible yet this period.</td></tr>
                 @endforelse
+                <tr id="eligibleNoResults" style="display: none;"><td colspan="7" class="px-5 py-8 text-center text-xs text-gray-400 font-medium italic">No matching eligible drivers found.</td></tr>
             </tbody>
         </table>
     </div>
@@ -303,6 +304,7 @@
                 @empty
                 <tr><td colspan="6" class="px-5 py-8 text-center text-xs text-gray-400 font-medium italic">All drivers are eligible! 🎉</td></tr>
                 @endforelse
+                <tr id="ineligibleNoResults" style="display: none;"><td colspan="6" class="px-5 py-8 text-center text-xs text-gray-400 font-medium italic">No matching disqualified drivers found.</td></tr>
             </tbody>
         </table>
     </div>
@@ -317,6 +319,8 @@ document.addEventListener('DOMContentLoaded', function() {
     function filterRows() {
         const query = searchInput ? searchInput.value.toLowerCase() : '';
         const status = statusSelect ? statusSelect.value : 'all';
+        let visibleEligible = 0;
+        let visibleIneligible = 0;
 
         rows.forEach(row => {
             const searchData = row.getAttribute('data-search') || '';
@@ -335,10 +339,27 @@ document.addEventListener('DOMContentLoaded', function() {
 
             if (matchesSearch && matchesStatus) {
                 row.style.display = '';
+                if (rowStatus === 'eligible') {
+                    visibleEligible++;
+                } else {
+                    visibleIneligible++;
+                }
             } else {
                 row.style.display = 'none';
             }
         });
+
+        const eligibleNoResults = document.getElementById('eligibleNoResults');
+        if (eligibleNoResults) {
+            const hasEligibleRows = document.querySelectorAll('.incentive-row[data-status="eligible"]').length > 0;
+            eligibleNoResults.style.display = (visibleEligible === 0 && hasEligibleRows) ? '' : 'none';
+        }
+
+        const ineligibleNoResults = document.getElementById('ineligibleNoResults');
+        if (ineligibleNoResults) {
+            const hasIneligibleRows = document.querySelectorAll('.incentive-row:not([data-status="eligible"])').length > 0;
+            ineligibleNoResults.style.display = (visibleIneligible === 0 && hasIneligibleRows) ? '' : 'none';
+        }
     }
 
     if(searchInput) searchInput.addEventListener('input', filterRows);
