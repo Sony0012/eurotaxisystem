@@ -680,10 +680,12 @@
                                                         <div class="mt-0.5 flex-shrink-0">
                                                             @if($n['type'] === 'case_expiry')
                                                                 <i data-lucide="file-warning" class="w-4 h-4 text-yellow-600"></i>
-                                                            @elseif($n['type'] === 'coding_today')
+                                                            @elseif($n['type'] === 'coding_today' || $n['type'] === 'coding_notice' || str_contains(strtolower($n['title']), 'coding'))
                                                                 <i data-lucide="car-front" class="w-4 h-4 text-blue-600"></i>
                                                             @elseif($n['type'] === 'violation_alert' || str_contains(strtolower($n['title']), 'violation'))
                                                                 <i data-lucide="shield-alert" class="w-4 h-4 text-red-600"></i>
+                                                            @elseif($n['type'] === 'missing_unit' || str_contains(strtolower($n['title']), 'missing unit'))
+                                                                <i data-lucide="map-pin-off" class="w-4 h-4 text-red-500"></i>
                                                             @elseif($n['type'] === 'low_stock')
                                                                 <i data-lucide="package-search" class="w-4 h-4 text-orange-500"></i>
                                                             @elseif($n['type'] === 'license_expiry')
