@@ -91,12 +91,12 @@
                                     <div id="app-driver-dropdown-{{ $driver->id }}" 
                                         class="driver-action-dropdown absolute right-6 mt-1 w-32 bg-white border border-gray-100 rounded-xl shadow-xl z-50 hidden animate-in fade-in zoom-in-95 duration-200 overflow-hidden">
                                         <div class="p-1.5 space-y-1">
-                                            <form action="{{ route('staff.destroyAppDriver', $driver->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this Driver\'s Mobile App Account? They will lose access to the app immediately.')">
+                                            <form action="{{ route('staff.destroyAppDriver', $driver->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to archive this Driver\'s Mobile App Account? They will lose access to the app immediately.')">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="w-full flex items-center gap-2 px-3 py-2 text-xs font-bold text-red-600 hover:bg-red-50 rounded-lg transition-all text-left">
-                                                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-                                                    Delete Account
+                                                    <i data-lucide="archive" class="w-3.5 h-3.5"></i>
+                                                    Archive Account
                                                 </button>
                                             </form>
                                         </div>
