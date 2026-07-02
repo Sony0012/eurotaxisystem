@@ -188,12 +188,7 @@
     </div>
 </div>
 
-{{-- ════════ PAGE ACTIONS ════════ --}}
-<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-3 mb-5 flex justify-end gap-2">
-    <button onclick="openIncidentModal()" class="px-5 py-2.5 bg-red-600 text-white font-black text-xs uppercase tracking-widest rounded-xl hover:bg-red-700 hover:scale-105 hover:shadow-xl hover:shadow-red-200 transition-all active:scale-95 flex items-center gap-2 shadow-sm">
-        <i data-lucide="plus" class="w-4 h-4"></i> Record Incident
-    </button>
-</div>
+{{-- Button moved to filter bar --}}
 
 {{-- ════════════════════════════════════════
      INCIDENT LOG
@@ -240,6 +235,12 @@
                 <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">To</label>
                 <input type="date" name="date_to" value="{{ $date_to }}" onchange="this.form.submit()"
                     class="w-full px-3 py-2 bg-gray-50 border border-gray-100 rounded-xl text-sm font-medium focus:ring-2 focus:ring-yellow-500 focus:outline-none">
+            </div>
+
+            <div class="ml-auto">
+                <button type="button" onclick="openIncidentModal()" class="px-5 py-2.5 bg-red-600 text-white font-black text-xs uppercase tracking-widest rounded-xl hover:bg-red-700 hover:scale-105 hover:shadow-xl hover:shadow-red-200 transition-all active:scale-95 flex items-center gap-2 shadow-sm">
+                    <i data-lucide="plus" class="w-4 h-4"></i> Record Incident
+                </button>
             </div>
         </form>
     </div>
