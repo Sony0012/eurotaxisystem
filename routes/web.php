@@ -175,6 +175,7 @@ Route::middleware(['auth', 'page_access'])->group(function () {
     Route::get('/driver-behavior/incidents', [DriverBehaviorController::class, 'incidents'])->name('driver-behavior.incidents');
     Route::get('/driver-behavior/incentives', [DriverBehaviorController::class, 'incentives'])->name('driver-behavior.incentives');
     Route::get('/driver-behavior/performance', [DriverBehaviorController::class, 'performance'])->name('driver-behavior.performance');
+    Route::get('/driver-behavior/accidents', [DriverBehaviorController::class, 'accidents'])->name('driver-behavior.accidents');
     Route::post('/driver-behavior', [DriverBehaviorController::class, 'store'])->name('driver-behavior.store');
 
     // Accident SOS Alerts
