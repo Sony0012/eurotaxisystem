@@ -1143,7 +1143,7 @@
             let needsCleanup = false;
 
             Object.keys(readNotifs).forEach(id => {
-                if (nowMs - readNotifs[id] < 1800000) { // Still within 30 minutes
+                if (nowMs - readNotifs[id] < 2592000000) { // Still within 30 days
                     const el = document.getElementById('notif-' + id);
                     if (el) {
                         el.style.backgroundColor = 'transparent';
@@ -1203,7 +1203,7 @@
             // Cleanup expired entries
             const now = Date.now();
             for (const key in readNotifs) {
-                if (now - readNotifs[key] >= 1800000) {
+                if (now - readNotifs[key] >= 2592000000) {
                     delete readNotifs[key];
                 }
             }
@@ -1231,6 +1231,11 @@
             const now = Date.now();
             
             items.forEach(item => {
+                // Do not bulk mark 'low_stock' / important items as read
+                if (item.dataset.type === 'low_stock') {
+                    return;
+                }
+
                 const id = String(item.dataset.notifId);
                 if (id) {
                     readNotifs[id] = now;
@@ -1241,7 +1246,7 @@
 
             // Cleanup expired entries
             for (const key in readNotifs) {
-                if (now - readNotifs[key] >= 1800000) {
+                if (now - readNotifs[key] >= 2592000000) { // 30 days
                     delete readNotifs[key];
                 }
             }
