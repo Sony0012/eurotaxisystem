@@ -78,11 +78,11 @@
                 </div>
                 <h3 class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-1">Fleet Utilization</h3>
                 <div class="flex items-end gap-2 mb-2">
-                    <span class="text-3xl font-black text-slate-800 leading-none">{{ $fleet_utilization }}%</span>
+                    <span class="text-3xl font-black text-slate-800 leading-none animate-number" data-value="{{ $fleet_utilization }}" data-is-pct="true">0%</span>
                     <span class="text-xs font-bold text-slate-500 pb-0.5">Active Now</span>
                 </div>
                 <div class="h-2 bg-slate-100 rounded-full overflow-hidden p-0.5 border border-slate-200/30">
-                    <div class="h-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-full transition-all duration-1000 shadow-[0_0_8px_rgba(99,102,241,0.5)]" style="width: {{ $fleet_utilization }}%"></div>
+                    <div class="animate-width h-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-full transition-all duration-[1500ms] ease-out shadow-[0_0_8px_rgba(99,102,241,0.5)]" data-width="{{ $fleet_utilization }}%" style="width: 0%"></div>
                 </div>
                 <p class="text-[10px] text-slate-500 mt-3 leading-relaxed">
                     Percentage of units currently generating revenue versus idle or in maintenance.
@@ -99,7 +99,7 @@
                 </div>
                 <h3 class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-1">Net Margin</h3>
                 <div class="flex items-end gap-2 mb-2">
-                    <span class="text-3xl font-black text-slate-800 leading-none">{{ formatCurrency($net_income) }}</span>
+                    <span class="text-3xl font-black text-slate-800 leading-none animate-number" data-value="{{ $net_income }}" data-is-currency="true">₱0.00</span>
                 </div>
                 <p class="text-[10px] text-slate-500 mt-3 leading-relaxed">
                     Total boundary collections minus all operating expenses for the selected period.
@@ -116,7 +116,7 @@
                 </div>
                 <h3 class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-1">Revenue Leakage</h3>
                 <div class="flex items-end gap-2 mb-2">
-                    <span class="text-3xl font-black text-slate-800 leading-none">{{ $revenue_leakage_pct }}%</span>
+                    <span class="text-3xl font-black text-slate-800 leading-none animate-number" data-value="{{ $revenue_leakage_pct }}" data-is-pct="true">0%</span>
                     <span class="text-xs font-bold text-rose-500 pb-0.5">Shortage</span>
                 </div>
                 <p class="text-[10px] text-slate-500 mt-3 leading-relaxed">
@@ -134,7 +134,7 @@
                 </div>
                 <h3 class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-1">Break-even Cycle</h3>
                 <div class="flex items-end gap-2 mb-2">
-                    <span class="text-3xl font-black text-slate-800 leading-none">{{ $break_even_days }}</span>
+                    <span class="text-3xl font-black text-slate-800 leading-none animate-number" data-value="{{ $break_even_days }}" data-is-int="true">0</span>
                     <span class="text-xs font-bold text-slate-500 pb-0.5">Oper. Days</span>
                 </div>
                 <p class="text-[10px] text-slate-500 mt-3 leading-relaxed">
@@ -177,38 +177,38 @@
                     @endphp
                     <div class="flex h-10 w-full rounded-3xl overflow-hidden shadow-inner border border-slate-200/40 p-1 bg-slate-50 gap-1 mb-8">
                         @if($actPct > 0)
-                            <div class="h-full bg-gradient-to-r from-emerald-400 to-emerald-500 rounded-l-2xl transition-all hover:scale-[1.01] hover:brightness-105 cursor-help" style="width: {{ $actPct }}%" title="Active: {{ $fleet_pulse['active_units'] }}"></div>
+                            <div class="animate-width h-full bg-gradient-to-r from-emerald-400 to-emerald-500 rounded-l-2xl transition-all duration-[1500ms] ease-out hover:scale-[1.01] hover:brightness-105 cursor-help" data-width="{{ $actPct }}%" style="width: 0%" title="Active: {{ $fleet_pulse['active_units'] }}"></div>
                         @endif
                         @if($idlPct > 0)
-                            <div class="h-full bg-gradient-to-r from-slate-300 to-slate-400 transition-all hover:scale-[1.01] hover:brightness-105 cursor-help" style="width: {{ $idlPct }}%" title="Idle: {{ $fleet_pulse['idle_units'] }}"></div>
+                            <div class="animate-width h-full bg-gradient-to-r from-slate-300 to-slate-400 transition-all duration-[1500ms] ease-out hover:scale-[1.01] hover:brightness-105 cursor-help" data-width="{{ $idlPct }}%" style="width: 0%" title="Idle: {{ $fleet_pulse['idle_units'] }}"></div>
                         @endif
                         @if($mntPct > 0)
-                            <div class="h-full bg-gradient-to-r from-amber-400 to-amber-500 transition-all hover:scale-[1.01] hover:brightness-105 cursor-help" style="width: {{ $mntPct }}%" title="Maintenance: {{ $fleet_pulse['maintenance'] }}"></div>
+                            <div class="animate-width h-full bg-gradient-to-r from-amber-400 to-amber-500 transition-all duration-[1500ms] ease-out hover:scale-[1.01] hover:brightness-105 cursor-help" data-width="{{ $mntPct }}%" style="width: 0%" title="Maintenance: {{ $fleet_pulse['maintenance'] }}"></div>
                         @endif
                         @if($surPct > 0)
-                            <div class="h-full bg-gradient-to-r from-rose-400 to-rose-500 rounded-r-2xl transition-all hover:scale-[1.01] hover:brightness-105 cursor-help" style="width: {{ $surPct }}%" title="Surveillance: {{ $fleet_pulse['surveillance'] }}"></div>
+                            <div class="animate-width h-full bg-gradient-to-r from-rose-400 to-rose-500 rounded-r-2xl transition-all duration-[1500ms] ease-out hover:scale-[1.01] hover:brightness-105 cursor-help" data-width="{{ $surPct }}%" style="width: 0%" title="Surveillance: {{ $fleet_pulse['surveillance'] }}"></div>
                         @endif
                     </div>
 
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-6">
                         <div class="space-y-1">
                             <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Active Fleet</span>
-                            <p class="text-2xl font-black text-emerald-600">{{ $fleet_pulse['active_units'] }}</p>
+                            <p class="text-2xl font-black text-emerald-600 animate-number" data-value="{{ $fleet_pulse['active_units'] }}" data-is-int="true">0</p>
                             <p class="text-[10px] text-slate-500 leading-tight">Units currently assigned to drivers and on the road.</p>
                         </div>
                         <div class="space-y-1">
                             <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Awaiting Drivers</span>
-                            <p class="text-2xl font-black text-slate-600">{{ $fleet_pulse['idle_units'] }}</p>
+                            <p class="text-2xl font-black text-slate-600 animate-number" data-value="{{ $fleet_pulse['idle_units'] }}" data-is-int="true">0</p>
                             <p class="text-[10px] text-slate-500 leading-tight">Functional units parked due to lack of available drivers.</p>
                         </div>
                         <div class="space-y-1">
                             <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Under Repair</span>
-                            <p class="text-2xl font-black text-amber-600">{{ $fleet_pulse['maintenance'] }}</p>
+                            <p class="text-2xl font-black text-amber-600 animate-number" data-value="{{ $fleet_pulse['maintenance'] }}" data-is-int="true">0</p>
                             <p class="text-[10px] text-slate-500 leading-tight">Units in the garage for scheduled or emergency service.</p>
                         </div>
                         <div class="space-y-1">
                             <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Under Watch</span>
-                            <p class="text-2xl font-black text-rose-600">{{ $fleet_pulse['surveillance'] }}</p>
+                            <p class="text-2xl font-black text-rose-600 animate-number" data-value="{{ $fleet_pulse['surveillance'] }}" data-is-int="true">0</p>
                             <p class="text-[10px] text-slate-500 leading-tight">Units flagged for suspicious activity or non-payment.</p>
                         </div>
                     </div>
@@ -2012,5 +2012,51 @@
         }
     });
 })();
+// Animate width
+setTimeout(() => {
+    document.querySelectorAll('.animate-width').forEach(el => {
+        el.style.width = el.getAttribute('data-width');
+    });
+}, 100);
+
+// Animate numbers
+document.querySelectorAll('.animate-number').forEach(el => {
+    const finalValue = parseFloat(el.getAttribute('data-value'));
+    if (isNaN(finalValue)) return;
+    const isCurrency = el.getAttribute('data-is-currency') === 'true';
+    const isPct = el.getAttribute('data-is-pct') === 'true';
+    const isInt = el.getAttribute('data-is-int') === 'true';
+    
+    let ticks = 0;
+    const maxTicks = 30; // 30 frames of random spinning
+    const interval = setInterval(() => {
+        ticks++;
+        if (ticks >= maxTicks) {
+            clearInterval(interval);
+            // set final value
+            if (isCurrency) {
+                el.innerText = '₱' + finalValue.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+            } else if (isPct) {
+                el.innerText = finalValue.toFixed(1) + '%';
+            } else if (isInt) {
+                el.innerText = finalValue;
+            } else {
+                el.innerText = finalValue.toLocaleString();
+            }
+        } else {
+            // random number
+            let rand = Math.random() * finalValue * 1.5;
+            if (isCurrency) {
+                el.innerText = '₱' + rand.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+            } else if (isPct) {
+                el.innerText = rand.toFixed(1) + '%';
+            } else if (isInt) {
+                el.innerText = Math.floor(rand);
+            } else {
+                el.innerText = Math.floor(rand).toLocaleString();
+            }
+        }
+    }, 30);
+});
 </script>
 @endpush
