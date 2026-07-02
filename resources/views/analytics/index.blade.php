@@ -100,8 +100,9 @@
                     <span class="text-[10px] font-black text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full uppercase tracking-widest">Net Pulse</span>
                 </div>
                 <h3 class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-1">Net Margin</h3>
-                <div class="flex items-end gap-2 mb-2">
+                <div class="flex items-end gap-2 mb-2 cursor-pointer group/modal" onclick="document.getElementById('netMarginModal').classList.remove('hidden')">
                     <span class="text-3xl font-black text-slate-800 leading-none animate-number" data-value="{{ $net_income }}" data-is-currency="true">₱0.00</span>
+                    <span class="text-[10px] font-bold text-emerald-500 pb-0.5 ml-1 bg-emerald-50 px-2 rounded-md group-hover/modal:bg-emerald-100 transition-colors flex items-center gap-1" title="Click to view breakdown"><i data-lucide="info" class="w-3 h-3"></i> Details</span>
                 </div>
                 <p class="text-[10px] text-slate-500 mt-3 leading-relaxed">
                     Total boundary collections minus all operating expenses for the selected period.
@@ -136,9 +137,10 @@
                     <span class="text-[10px] font-black text-amber-600 bg-amber-50 px-2.5 py-1 rounded-full uppercase tracking-widest">KPI Target</span>
                 </div>
                 <h3 class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-1">Break-even Cycle</h3>
-                <div class="flex items-end gap-2 mb-2">
+                <div class="flex items-end gap-2 mb-2 cursor-pointer group/modal" onclick="document.getElementById('breakEvenModal').classList.remove('hidden')">
                     <span class="text-3xl font-black text-slate-800 leading-none animate-number" data-value="{{ $break_even_days }}" data-is-int="true">0</span>
                     <span class="text-xs font-bold text-slate-500 pb-0.5">Oper. Days</span>
+                    <span class="text-[10px] font-bold text-amber-500 pb-0.5 ml-1 bg-amber-50 px-2 rounded-md group-hover/modal:bg-amber-100 transition-colors flex items-center gap-1" title="Click to view breakdown"><i data-lucide="info" class="w-3 h-3"></i> Details</span>
                 </div>
                 <p class="text-[10px] text-slate-500 mt-3 leading-relaxed">
                     Estimated number of full-revenue days needed each month to cover all fixed expenses.
@@ -1377,6 +1379,68 @@
         </div>
         
         <button onclick="document.getElementById('leakageModal').classList.add('hidden')" class="w-full mt-6 py-3 bg-rose-600 hover:bg-rose-700 text-white text-sm font-bold rounded-xl transition-colors">Understood</button>
+    </div>
+</div>
+
+<div id="netMarginModal" class="hidden fixed inset-0 bg-slate-900/50 z-[100] flex items-center justify-center p-4 backdrop-blur-sm transition-opacity">
+    <div class="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl relative border border-slate-100">
+        <button onclick="document.getElementById('netMarginModal').classList.add('hidden')" class="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-full transition-colors"><i data-lucide="x" class="w-5 h-5"></i></button>
+        
+        <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mb-6">
+            <i data-lucide="wallet" class="w-6 h-6"></i>
+        </div>
+        
+        <h3 class="text-xl font-black text-slate-800 mb-2">Net Margin</h3>
+        <p class="text-sm text-slate-500 mb-6 leading-relaxed">This shows your actual profit after deducting all recorded expenses, maintenance costs, and salaries from your boundary collections.</p>
+        
+        <div class="space-y-4 bg-slate-50 p-4 rounded-2xl border border-slate-100">
+            <div class="flex justify-between items-center">
+                <span class="text-sm font-bold text-slate-600">Gross Collections:</span>
+                <span class="text-sm font-black text-emerald-600">₱{{ number_format($total_boundary, 2) }}</span>
+            </div>
+            <div class="flex justify-between items-center">
+                <span class="text-sm font-bold text-slate-600">Total Expenses:</span>
+                <span class="text-sm font-black text-rose-600">- ₱{{ number_format($total_boundary - $net_income, 2) }}</span>
+            </div>
+            <div class="h-px bg-slate-200"></div>
+            <div class="flex justify-between items-center">
+                <span class="text-sm font-bold text-slate-600">Net Profit/Loss:</span>
+                <span class="text-lg font-black {{ $net_income >= 0 ? 'text-emerald-600' : 'text-rose-600' }}">₱{{ number_format($net_income, 2) }}</span>
+            </div>
+        </div>
+        
+        <button onclick="document.getElementById('netMarginModal').classList.add('hidden')" class="w-full mt-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold rounded-xl transition-colors">Got it</button>
+    </div>
+</div>
+
+<div id="breakEvenModal" class="hidden fixed inset-0 bg-slate-900/50 z-[100] flex items-center justify-center p-4 backdrop-blur-sm transition-opacity">
+    <div class="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl relative border border-slate-100">
+        <button onclick="document.getElementById('breakEvenModal').classList.add('hidden')" class="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-full transition-colors"><i data-lucide="x" class="w-5 h-5"></i></button>
+        
+        <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center mb-6">
+            <i data-lucide="target" class="w-6 h-6"></i>
+        </div>
+        
+        <h3 class="text-xl font-black text-slate-800 mb-2">Break-even Cycle</h3>
+        <p class="text-sm text-slate-500 mb-6 leading-relaxed">Estimated number of operational days required to cover all operating expenses based on the average daily boundary rate.</p>
+        
+        <div class="space-y-4 bg-slate-50 p-4 rounded-2xl border border-slate-100">
+            <div class="flex justify-between items-center">
+                <span class="text-sm font-bold text-slate-600">Total Expenses:</span>
+                <span class="text-sm font-black text-rose-600">₱{{ number_format($total_boundary - $net_income, 2) }}</span>
+            </div>
+            <div class="flex justify-between items-center">
+                <span class="text-sm font-bold text-slate-600">Avg. Daily Rate:</span>
+                <span class="text-sm font-black text-slate-800">₱{{ number_format(DB::table('units')->whereNull('deleted_at')->avg('boundary_rate') ?? 1000, 2) }}</span>
+            </div>
+            <div class="h-px bg-slate-200"></div>
+            <div class="flex justify-between items-center">
+                <span class="text-sm font-bold text-slate-600">Required Days:</span>
+                <span class="text-lg font-black text-amber-600">{{ $break_even_days }} Days</span>
+            </div>
+        </div>
+        
+        <button onclick="document.getElementById('breakEvenModal').classList.add('hidden')" class="w-full mt-6 py-3 bg-amber-600 hover:bg-amber-700 text-white text-sm font-bold rounded-xl transition-colors">Understood</button>
     </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
