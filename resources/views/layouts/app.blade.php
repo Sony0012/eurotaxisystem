@@ -483,10 +483,6 @@
                             
                             {{-- Dropdown Sub-menu on Hover --}}
                             <div class="hidden group-hover:block lg:pl-10 pl-0 space-y-1 mt-1 transition-all duration-300">
-                                <a href="{{ route('analytics.index') }}" class="{{ request()->routeIs('analytics.index') ? 'text-indigo-600 font-bold bg-indigo-50/50 block rounded-xl py-2 px-3' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50 block rounded-xl py-2 px-3' }} flex items-center gap-2">
-                                    <i data-lucide="bar-chart-2" class="w-3.5 h-3.5 {{ request()->routeIs('analytics.index') ? 'text-indigo-600' : 'text-slate-400' }}"></i> 
-                                    <span class="text-[10px] uppercase tracking-wider font-bold">Overview</span>
-                                </a>
                                 <a href="{{ route('analytics.history') }}" class="{{ request()->routeIs('analytics.history') ? 'text-indigo-600 font-bold bg-indigo-50/50 block rounded-xl py-2 px-3' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50 block rounded-xl py-2 px-3' }} flex items-center gap-2">
                                     <i data-lucide="history" class="w-3.5 h-3.5 {{ request()->routeIs('analytics.history') ? 'text-indigo-600' : 'text-slate-400' }}"></i> 
                                     <span class="text-[10px] uppercase tracking-wider font-bold">Daily Ledger</span>
