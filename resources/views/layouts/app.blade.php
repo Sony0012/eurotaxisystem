@@ -473,11 +473,26 @@
                         @endif
 
                         @if(auth()->user()->hasAccessTo('analytics.*'))
-                        <a href="{{ route('analytics.index') }}"
-                            class="sidebar-item flex items-center justify-start md:justify-center lg:justify-start gap-2.5 px-4 md:px-0 lg:px-4 py-1.5 md:py-2 rounded-lg text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 {{ request()->routeIs('analytics.*') ? 'bg-yellow-50 text-yellow-700 font-semibold' : '' }}">
-                            <i data-lucide="bar-chart" class="w-4 md:w-5 lg:w-4 h-4 md:h-5 lg:h-4"></i>
-                            <span class="text-sm block md:hidden lg:block">Analytics</span>
-                        </a>
+                        <div class="relative group w-full">
+                            <a href="{{ route('analytics.index') }}"
+                                class="sidebar-item flex items-center justify-start md:justify-center lg:justify-start gap-2.5 px-4 md:px-0 lg:px-4 py-1.5 md:py-2 rounded-lg text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 {{ request()->routeIs('analytics.*') ? 'bg-yellow-50 text-yellow-700 font-semibold' : '' }}">
+                                <i data-lucide="bar-chart" class="w-4 md:w-5 lg:w-4 h-4 md:h-5 lg:h-4"></i>
+                                <span class="text-sm block md:hidden lg:block flex-1 whitespace-nowrap">Analytics</span>
+                                <i data-lucide="chevron-down" class="w-3 h-3 text-gray-400 group-hover:text-yellow-700 hidden lg:block transition-transform duration-200 group-hover:rotate-180"></i>
+                            </a>
+                            
+                            {{-- Dropdown Sub-menu on Hover --}}
+                            <div class="hidden group-hover:block lg:pl-10 pl-0 space-y-1 mt-1 transition-all duration-300">
+                                <a href="{{ route('analytics.index') }}" class="{{ request()->routeIs('analytics.index') ? 'text-indigo-600 font-bold bg-indigo-50/50 block rounded-xl py-2 px-3' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50 block rounded-xl py-2 px-3' }} flex items-center gap-2">
+                                    <i data-lucide="layout-dashboard" class="w-3.5 h-3.5 {{ request()->routeIs('analytics.index') ? 'text-indigo-600' : 'text-slate-400' }}"></i> 
+                                    <span class="text-[10px] uppercase tracking-wider font-bold">Dashboard Pulse</span>
+                                </a>
+                                <a href="{{ route('analytics.history') }}" class="{{ request()->routeIs('analytics.history') ? 'text-indigo-600 font-bold bg-indigo-50/50 block rounded-xl py-2 px-3' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50 block rounded-xl py-2 px-3' }} flex items-center gap-2">
+                                    <i data-lucide="history" class="w-3.5 h-3.5 {{ request()->routeIs('analytics.history') ? 'text-indigo-600' : 'text-slate-400' }}"></i> 
+                                    <span class="text-[10px] uppercase tracking-wider font-bold">Daily Ledger</span>
+                                </a>
+                            </div>
+                        </div>
                         @endif
 
                         @if(auth()->user()->hasAccessTo('activity-logs.*'))

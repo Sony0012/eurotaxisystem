@@ -21,11 +21,6 @@
 
             {{-- Action Buttons --}}
             <div class="flex flex-wrap items-center gap-2">
-                <a href="{{ route('analytics.history') }}"
-                   class="flex items-center gap-1.5 px-4 py-2.5 bg-indigo-600 text-white text-xs font-black rounded-xl hover:bg-indigo-700 shadow-md shadow-indigo-200/50 transition-all">
-                    <i data-lucide="history" class="w-4 h-4"></i> Daily History Ledger
-                </a>
-                <span class="w-px h-6 bg-slate-200 mx-1 hidden lg:block"></span>
                 <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest hidden sm:block">Quick Export:</span>
                 <a href="{{ route('analytics.export.csv', ['type' => 'revenue', 'date_from' => $date_from, 'date_to' => $date_to]) }}"
                    class="flex items-center gap-1.5 px-3 py-2 bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold rounded-xl hover:bg-emerald-100 transition-all">
