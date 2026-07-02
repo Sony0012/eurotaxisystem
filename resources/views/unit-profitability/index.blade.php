@@ -175,7 +175,7 @@
     {{-- ┌─────────────────────────────────────────────────────────────────────┐
          │  TOP PERFORMERS – Top 10 Highest Earning Units                     │
          └─────────────────────────────────────────────────────────────────────┘ --}}
-    <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden mb-6">
+    <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden mb-6 w-full max-w-full">
         {{-- Header --}}
         <div class="px-8 py-6 border-b border-slate-100 bg-gradient-to-r from-amber-50/60 to-white flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div class="flex items-center gap-4">
@@ -219,7 +219,7 @@
                         $opDays = $unit['operating_days_90d'] ?? 0;
                         $avgMaint = $unit['avg_daily_maint'] ?? 0;
                     @endphp
-                    <div class="relative rounded-2xl border-2 {{ $pc['border'] }} {{ $pc['bg_light'] }} p-5 overflow-hidden group hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+                    <div class="relative rounded-2xl border-2 {{ $pc['border'] }} {{ $pc['bg_light'] }} p-5 overflow-hidden group hover:shadow-lg transition-all duration-300 hover:-translate-y-1 min-w-0 w-full">
                         {{-- Rank Badge --}}
                         <div class="absolute -top-3 -right-3 w-14 h-14 bg-gradient-to-br {{ $pc['bg'] }} rounded-2xl flex items-center justify-center shadow-lg transform rotate-12 group-hover:rotate-0 transition-transform duration-300">
                             <span class="text-2xl">{{ $pc['icon'] }}</span>
@@ -269,39 +269,39 @@
 
                 {{-- Ranks 4-10 Table --}}
                 @if(count($forecast_unit_profits) > 3)
-                <div class="bg-slate-50 rounded-2xl border border-slate-100 overflow-hidden">
+                <div class="bg-slate-50 rounded-2xl border border-slate-100 overflow-hidden w-full">
                     <div class="px-5 py-3 border-b border-slate-100 flex items-center gap-2">
                         <i data-lucide="list-ordered" class="w-4 h-4 text-slate-500"></i>
                         <h4 class="text-[11px] font-black text-slate-600 uppercase tracking-widest">Ranks 4–{{ min(10, count($forecast_unit_profits)) }} — Unit Profitability Breakdown</h4>
                     </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-sm">
+                    <div class="overflow-x-auto w-full">
+                        <table class="min-w-full text-sm">
                             <thead>
                                 <tr class="border-b border-slate-200">
-                                    <th class="text-left text-[10px] font-black text-slate-400 uppercase tracking-widest py-3 px-4">Rank</th>
-                                    <th class="text-left text-[10px] font-black text-slate-400 uppercase tracking-widest py-3">Unit</th>
-                                    <th class="text-right text-[10px] font-black text-slate-400 uppercase tracking-widest py-3">Avg Daily Boundary</th>
-                                    <th class="text-right text-[10px] font-black text-slate-400 uppercase tracking-widest py-3">Avg Daily Maint.</th>
-                                    <th class="text-right text-[10px] font-black text-slate-400 uppercase tracking-widest py-3">Daily Net Profit</th>
-                                    <th class="text-right text-[10px] font-black text-slate-400 uppercase tracking-widest py-3">Monthly Projection</th>
-                                    <th class="text-right text-[10px] font-black text-slate-400 uppercase tracking-widest py-3 pr-4">Op. Days (90d)</th>
+                                    <th class="text-left text-[10px] font-black text-slate-400 uppercase tracking-widest py-3 px-4 whitespace-nowrap">Rank</th>
+                                    <th class="text-left text-[10px] font-black text-slate-400 uppercase tracking-widest py-3 whitespace-nowrap">Unit</th>
+                                    <th class="text-right text-[10px] font-black text-slate-400 uppercase tracking-widest py-3 whitespace-nowrap">Avg Daily Boundary</th>
+                                    <th class="text-right text-[10px] font-black text-slate-400 uppercase tracking-widest py-3 whitespace-nowrap">Avg Daily Maint.</th>
+                                    <th class="text-right text-[10px] font-black text-slate-400 uppercase tracking-widest py-3 whitespace-nowrap">Daily Net Profit</th>
+                                    <th class="text-right text-[10px] font-black text-slate-400 uppercase tracking-widest py-3 whitespace-nowrap">Monthly Projection</th>
+                                    <th class="text-right text-[10px] font-black text-slate-400 uppercase tracking-widest py-3 pr-4 whitespace-nowrap">Op. Days (90d)</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-slate-100">
                                 @foreach(array_slice($forecast_unit_profits, 3) as $idx => $unit)
                                 @php $rank = $idx + 4; @endphp
                                 <tr class="hover:bg-white transition-colors">
-                                    <td class="py-3 px-4 font-black text-slate-400 text-sm">#{{ $rank }}</td>
-                                    <td class="py-3 font-black text-slate-800">{{ $unit['plate'] }}</td>
-                                    <td class="py-3 text-right font-semibold text-emerald-700">₱{{ number_format($unit['avg_daily_boundary'] ?? 0) }}</td>
-                                    <td class="py-3 text-right font-semibold text-rose-500">₱{{ number_format($unit['avg_daily_maint'] ?? 0) }}</td>
-                                    <td class="py-3 text-right font-black {{ ($unit['daily_profit'] ?? 0) >= 0 ? 'text-emerald-700' : 'text-rose-600' }}">
+                                    <td class="py-3 px-4 font-black text-slate-400 text-sm whitespace-nowrap">#{{ $rank }}</td>
+                                    <td class="py-3 font-black text-slate-800 whitespace-nowrap">{{ $unit['plate'] }}</td>
+                                    <td class="py-3 text-right font-semibold text-emerald-700 whitespace-nowrap">₱{{ number_format($unit['avg_daily_boundary'] ?? 0) }}</td>
+                                    <td class="py-3 text-right font-semibold text-rose-500 whitespace-nowrap">₱{{ number_format($unit['avg_daily_maint'] ?? 0) }}</td>
+                                    <td class="py-3 text-right font-black whitespace-nowrap {{ ($unit['daily_profit'] ?? 0) >= 0 ? 'text-emerald-700' : 'text-rose-600' }}">
                                         {{ ($unit['daily_profit'] ?? 0) >= 0 ? '+' : '' }}₱{{ number_format($unit['daily_profit'] ?? 0) }}
                                     </td>
-                                    <td class="py-3 text-right font-black {{ ($unit['monthly_profit'] ?? 0) >= 0 ? 'text-indigo-700' : 'text-rose-600' }}">
+                                    <td class="py-3 text-right font-black whitespace-nowrap {{ ($unit['monthly_profit'] ?? 0) >= 0 ? 'text-indigo-700' : 'text-rose-600' }}">
                                         {{ ($unit['monthly_profit'] ?? 0) >= 0 ? '+' : '' }}₱{{ number_format($unit['monthly_profit'] ?? 0) }}
                                     </td>
-                                    <td class="py-3 text-right font-semibold text-slate-600 pr-4">{{ $unit['operating_days_90d'] ?? 0 }}d</td>
+                                    <td class="py-3 text-right font-semibold text-slate-600 pr-4 whitespace-nowrap">{{ $unit['operating_days_90d'] ?? 0 }}d</td>
                                 </tr>
                                 @endforeach
                             </tbody>
