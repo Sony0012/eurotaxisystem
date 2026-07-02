@@ -559,7 +559,6 @@
                         <p class="text-[11px] font-black text-orange-700 uppercase tracking-widest">Traffic Violation Details</p>
                     </div>
                     <div id="trafficSubOptionsContainer" class="grid grid-cols-2 gap-2 mb-4"></div>
-                    <input type="hidden" name="sub_classification" id="trafficSubClassificationInput">
                     <div>
                         <label class="block text-[10px] font-black text-orange-600 uppercase mb-2 ml-1">Traffic Fine Amount (₱) — charged to driver</label>
                         <div class="relative">
@@ -869,7 +868,6 @@
                         <p class="text-[11px] font-black text-orange-700 uppercase tracking-widest">Traffic Violation Details</p>
                     </div>
                     <div id="edit-trafficSubOptionsContainer" class="grid grid-cols-2 gap-2 mb-4"></div>
-                    <input type="hidden" name="sub_classification" id="edit-trafficSubClassificationInput">
                     <div>
                         <label class="block text-[10px] font-black text-orange-600 uppercase mb-2 ml-1">Traffic Fine Amount (₱)</label>
                         <div class="relative">
@@ -1585,9 +1583,7 @@ window.handleTypeChange = function(val, context = '') {
 
     // 3. Clear any previous sub_classification inputs
     const subInput = document.getElementById(prefix + 'subClassificationInput');
-    const trafInput = document.getElementById(prefix + 'trafficSubClassificationInput');
     if (subInput) subInput.value = '';
-    if (trafInput) trafInput.value = '';
 
     // 4. Show relevant section
     if (mode === 'complaint') {
@@ -1597,7 +1593,7 @@ window.handleTypeChange = function(val, context = '') {
     } else if (mode === 'traffic' || val === 'Traffic Violation') {
         const sec = document.getElementById(prefix + 'section-traffic');
         if (sec) sec.classList.remove('hidden');
-        _renderSubOptions(prefix + 'trafficSubOptionsContainer', meta.subOptions, prefix + 'trafficSubClassificationInput', false, '', 'orange');
+        _renderSubOptions(prefix + 'trafficSubOptionsContainer', meta.subOptions, prefix + 'subClassificationInput', false, '', 'orange');
     } else if (mode === 'damage') {
         const sec = document.getElementById(prefix + 'section-damage');
         if (sec) sec.classList.remove('hidden');
@@ -1686,10 +1682,7 @@ window._checkAutoBanState = function() {
     const typeVal = document.getElementById('incidentTypeSelect').value;
     const sevVal = document.getElementById('severitySelect').value;
     
-    // Check both potential sub-classification inputs based on mode
-    const subInput = document.getElementById('subClassificationInput')?.value || '';
-    const trafSubInput = document.getElementById('trafficSubClassificationInput')?.value || '';
-    const activeSubValue = subInput || trafSubInput;
+    const activeSubValue = document.getElementById('subClassificationInput')?.value || '';
     
     const meta = classificationsMeta[typeVal] || { autoBan: false, banValue: '' };
     const warning = document.getElementById('autoBanWarning');
@@ -2059,9 +2052,7 @@ window.IncidentManager = {
             // Populate sub-fields if any
             if (data.sub_classification) {
                 const subInput = document.getElementById('edit-subClassificationInput');
-                const trafInput = document.getElementById('edit-trafficSubClassificationInput');
                 if (subInput) subInput.value = data.sub_classification;
-                if (trafInput) trafInput.value = data.sub_classification;
                 
                 // Find and select in the dropdowns
                 const selects = document.querySelectorAll('#editIncidentModal select');
