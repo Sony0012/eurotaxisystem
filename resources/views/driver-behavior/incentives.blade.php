@@ -193,7 +193,9 @@
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <i data-lucide="search" class="w-4 h-4 text-gray-400"></i>
                 </div>
-                <input type="text" id="incentiveSearch" autocomplete="off" placeholder="Search driver or plate number..." 
+                <!-- Hidden input to trick browser autofill -->
+                <input type="text" style="display:none" autocomplete="username">
+                <input type="text" id="incentiveSearch" name="incentive_search_query" autocomplete="new-password" placeholder="Search driver or plate number..." 
                     class="w-full pl-9 pr-4 py-2 bg-gray-50 border border-gray-100 rounded-xl text-sm font-medium focus:ring-2 focus:ring-yellow-500 focus:outline-none transition-all">
             </div>
         </div>
@@ -315,6 +317,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const searchInput = document.getElementById('incentiveSearch');
     const statusSelect = document.getElementById('incentiveStatus');
     const rows = document.querySelectorAll('.incentive-row');
+
+    // Force clear the input on load to defeat aggressive browser autofills
+    if (searchInput) {
+        searchInput.value = '';
+    }
 
     function filterRows() {
         const query = searchInput ? searchInput.value.toLowerCase() : '';
