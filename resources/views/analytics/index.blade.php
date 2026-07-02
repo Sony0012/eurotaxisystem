@@ -2134,9 +2134,10 @@
             // Animated score arc
             const animationDuration1 = 1200; // 0 to 100
             const animationDuration2 = 800;  // 100 to actual
-            const startTime = performance.now();
+            let startTime = null;
 
             function animateGauge(currentTime) {
+                if (!startTime) startTime = currentTime;
                 const elapsed = currentTime - startTime;
                 let currentScore = 0;
 
