@@ -461,87 +461,17 @@
         @endif
     </div>
 
-    {{-- Top Performers & Needs Attention --}}
-    <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
-        {{-- Top Performers (Top 10 Pinakamalaking Kita na Unit) --}}
-        <div class="xl:col-span-2 bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
-            <div class="px-6 py-4 border-b border-gray-200 bg-green-50/50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <div>
-                    <h3 class="text-md font-semibold text-green-800 flex items-center gap-2">
-                        <i data-lucide="trending-up" class="w-5 h-5 text-green-600"></i>
-                        Top 10 Pinakamalaking Kita na Unit (Top Performers)
-                    </h3>
-                    <p class="text-xs text-gray-500 mt-1">Mga taxi unit na may pinakamataas na inaasahang monthly profit</p>
-                </div>
-                <div class="flex items-center gap-2 px-3 py-1.5 bg-green-50 rounded-xl border border-green-100">
-                    <i data-lucide="database" class="w-3.5 h-3.5 text-green-600"></i>
-                    <span class="text-[9px] font-black text-green-700 uppercase tracking-widest">90d Records</span>
-                </div>
-            </div>
-            <div class="overflow-x-auto">
-                <table class="w-full">
-                    <thead>
-                        <tr class="border-b border-slate-100 bg-slate-50/30">
-                            <th class="px-6 py-3 text-left text-[9px] font-black text-slate-400 uppercase tracking-widest">#</th>
-                            <th class="px-4 py-3 text-left text-[9px] font-black text-slate-400 uppercase tracking-widest">Plate Number</th>
-                            <th class="px-4 py-3 text-right text-[9px] font-black text-slate-400 uppercase tracking-widest">Avg Daily Boundary</th>
-                            <th class="px-4 py-3 text-right text-[9px] font-black text-slate-400 uppercase tracking-widest">Avg Daily Gastos</th>
-                            <th class="px-4 py-3 text-right text-[9px] font-black text-slate-400 uppercase tracking-widest">Daily Profit</th>
-                            <th class="px-4 py-3 text-right text-[9px] font-black text-slate-400 uppercase tracking-widest">Monthly Prediction</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-50">
-                        @forelse($forecast_unit_profits ?? [] as $index => $unit)
-                            @php
-                                $mp = $unit['monthly_profit'] ?? 0;
-                                $rowColor = $mp >= 35000 ? 'hover:bg-emerald-50/30' : ($mp >= 20000 ? 'hover:bg-amber-50/30' : 'hover:bg-rose-50/30');
-                                $profitColor = $mp >= 35000 ? 'text-emerald-600' : ($mp >= 20000 ? 'text-amber-600' : 'text-rose-600');
-                                $badge = $mp >= 35000 ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : ($mp >= 20000 ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-rose-50 text-rose-700 border-rose-200');
-                                $badgeText = $mp >= 35000 ? 'Mataas' : ($mp >= 20000 ? 'Katamtaman' : 'Mababa');
-                            @endphp
-                            <tr class="transition-colors {{ $rowColor }}">
-                                <td class="px-6 py-3.5 text-xs font-black text-slate-300">{{ $index + 1 }}</td>
-                                <td class="px-4 py-3.5">
-                                    <div class="flex items-center gap-3">
-                                        <div class="w-7 h-7 bg-slate-100 rounded-lg flex items-center justify-center">
-                                            <i data-lucide="car" class="w-3.5 h-3.5 text-slate-500"></i>
-                                        </div>
-                                        <div>
-                                            <p class="text-xs font-black text-slate-800">{{ $unit['plate'] }}</p>
-                                            <span class="px-2 py-0.5 text-[8px] font-black rounded-full border {{ $badge }}">{{ $badgeText }}</span>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="px-4 py-3.5 text-right text-xs font-bold text-slate-700">{{ formatCurrency($unit['avg_daily_boundary'] ?? 0) }}</td>
-                                <td class="px-4 py-3.5 text-right text-xs font-bold text-slate-500">{{ formatCurrency($unit['avg_daily_maint'] ?? 0) }}</td>
-                                <td class="px-4 py-3.5 text-right text-xs font-black {{ $profitColor }}">{{ formatCurrency($unit['daily_profit'] ?? 0) }}</td>
-                                <td class="px-4 py-3.5 text-right">
-                                    <span class="text-sm font-black {{ $profitColor }}">{{ formatCurrency($mp) }}</span>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="6" class="px-6 py-8 text-center text-xs text-slate-400">
-                                    <i data-lucide="inbox" class="w-6 h-6 mx-auto mb-2 text-slate-300"></i>
-                                    <p class="font-bold">No active top performers data found.</p>
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        {{-- Needs Attention --}}
-        <div class="xl:col-span-1 bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
-            <div class="px-6 py-4 border-b border-gray-200 bg-red-50">
+    {{-- Needs Attention --}}
+    <div class="mb-8 w-full max-w-full">
+        <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200 bg-red-50/80">
                 <h3 class="text-md font-semibold text-red-800 flex items-center gap-2">
                     <i data-lucide="alert-triangle" class="w-5 h-5 text-red-600"></i>
                     Needs Attention
                 </h3>
-                <p class="text-xs text-red-500 mt-1">Mga unit na nangangailangan ng pansin o may mababang margin</p>
+                <p class="text-xs text-red-500 mt-1">Mga unit na nangangailangan ng pansin o may mababang margin (Top 12)</p>
             </div>
-            <div class="divide-y divide-gray-100">
+            <div class="p-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 bg-slate-50/50">
                 @php
                     $needsAttention = collect($full_profitability)
                         ->filter(function($u) {
@@ -550,23 +480,41 @@
                             return $hasActivity && $isLowPerformer;
                         })
                         ->sortBy('profit_margin')
-                        ->take(5);
+                        ->take(12);
                 @endphp
                 @forelse($needsAttention as $unit)
-                    <div class="px-5 py-3.5 flex items-center justify-between hover:bg-red-50/20 transition-colors">
-                        <div>
-                            <p class="text-xs font-black text-slate-800">{{ $unit->plate_number }}</p>
-                            <p class="text-[9px] text-gray-500">{{ $unit->make ?? '' }} {{ $unit->model ?? '' }}</p>
-                        </div>
-                        <div class="text-right">
-                            <p class="text-xs font-bold {{ ($unit->net_income ?? 0) >= 0 ? 'text-yellow-600' : 'text-red-600' }}">
-                                {{ formatCurrency($unit->net_income ?? 0) }}
+                    <div class="p-4 bg-white rounded-2xl border border-red-100 shadow-sm hover:shadow-md transition-all flex flex-col justify-between group">
+                        <div class="mb-4">
+                            <div class="flex items-center justify-between mb-1.5">
+                                <p class="text-sm font-black text-slate-800 group-hover:text-red-700 transition-colors">{{ $unit->plate_number }}</p>
+                                <span class="px-2 py-0.5 bg-red-50 text-red-600 text-[9px] font-black rounded-full border border-red-100 uppercase tracking-widest">Low Margin</span>
+                            </div>
+                            <p class="text-[10px] text-slate-400 flex items-center gap-1">
+                                <i data-lucide="car" class="w-3 h-3"></i>
+                                {{ $unit->vehicle->name ?? ($unit->make . ' ' . $unit->model) ?? 'Unknown Vehicle' }}
                             </p>
-                            <p class="text-[10px] text-gray-500">{{ number_format($unit->profit_margin ?? 0, 1) }}% margin</p>
+                        </div>
+                        <div class="pt-3 border-t border-red-50 flex items-center justify-between">
+                            <div>
+                                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Net Income</p>
+                                <p class="text-xs font-bold {{ ($unit->net_income ?? 0) >= 0 ? 'text-yellow-600' : 'text-red-600' }}">
+                                    {{ formatCurrency($unit->net_income ?? 0) }}
+                                </p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Margin</p>
+                                <p class="text-xs font-bold text-red-600">{{ number_format($unit->profit_margin ?? 0, 1) }}%</p>
+                            </div>
                         </div>
                     </div>
                 @empty
-                    <div class="px-5 py-4 text-xs text-gray-400 text-center">All units are performing well!</div>
+                    <div class="col-span-full py-10 text-center bg-white rounded-2xl border border-slate-100 shadow-sm">
+                        <div class="w-12 h-12 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <i data-lucide="check-circle" class="w-6 h-6 text-green-500"></i>
+                        </div>
+                        <p class="text-sm font-bold text-slate-700">All units are performing well!</p>
+                        <p class="text-xs text-slate-500 mt-1">No units currently require attention based on their margins.</p>
+                    </div>
                 @endforelse
             </div>
         </div>

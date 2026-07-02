@@ -730,7 +730,7 @@
                 </header>
 
                 <!-- Page Content -->
-                <div id="appContentArea" class="flex-1 overflow-y-auto @yield('main-padding', 'p-4')">
+                <div id="appContentArea" class="flex-1 overflow-y-auto overflow-x-hidden @yield('main-padding', 'p-4')">
                     {{-- Flash Messages --}}
                     @foreach(['success', 'error', 'warning', 'info'] as $type)
                         @if(session($type))
