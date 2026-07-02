@@ -1195,14 +1195,7 @@ function filterParts(query) {
     });
 }
 
-
-function markAsModified() {
-    const badge = document.getElementById('editModeBadge');
-    const priceBadge = document.getElementById('priceEditBadge');
-    if (badge) badge.classList.remove('hidden');
-    if (priceBadge) priceBadge.classList.remove('hidden');
-}
-
+// Duplicate markAsModified removed
 function toggleNewPartRegistration() {
     const isNew = document.getElementById('newPartGroup').classList.contains('hidden');
     const existingGroup = document.getElementById('existingPartGroup');
@@ -1229,9 +1222,15 @@ function toggleNewPartRegistration() {
         btn.textContent = '+ REGISTER NEW ITEM';
         btn.classList.replace('bg-gray-100', 'bg-rose-50');
         btn.classList.replace('text-gray-600', 'text-rose-600');
-        
         partSelectId.value = '';
-        updatePartDetails(partSelectId);
+        document.getElementById('selectedPartLabel').textContent = '-- Select Existing Part to Restock --';
+        document.getElementById('selectedPartLabel').classList.remove('text-gray-900');
+        document.getElementById('selectedPartLabel').classList.add('text-gray-400');
+        document.getElementById('expenseUnitPrice').value = '';
+        document.getElementById('expenseDescription').value = '';
+        document.getElementById('syncSupplierHidden').value = '';
+        document.getElementById('expenseVendor').value = '';
+        document.getElementById('selectedSupplierLabel').textContent = '-- Choose or Type Supplier --';
     }
     lucide.createIcons();
 }
@@ -1251,31 +1250,8 @@ function handleSupplierChange(select) {
     }
 }
 
-function updateSyncSupplierValue(val) {
-    document.getElementById('syncSupplierHidden').value = val;
-}
-
-function updatePartDetails(select) {
-    const val = select.value;
-    const option = select.options[select.selectedIndex];
-    const unitPriceInput = document.getElementById('expenseUnitPrice');
-
-    if (!val || val === 'new') return;
-
-    if (unitPriceInput) unitPriceInput.value = option.dataset.price;
-    
-    const supplier = option.dataset.supplier || 'Unspecified Supplier';
-    const syncHidden = document.getElementById('syncSupplierHidden');
-    const expVendor = document.getElementById('expenseVendor');
-    
-    if (syncHidden) syncHidden.value = supplier;
-    if (expVendor) expVendor.value = supplier;
-
-    const descInput = document.getElementById('expenseDescription');
-    if (descInput) descInput.value = "PURCHASED: " + option.text.split(' (Stock:')[0];
-    
-    calcInventoryTotal();
-}
+// Duplicate updateSyncSupplierValue removed
+// updatePartDetails removed as it is obsolete
 
 // Update the hidden vendor field when typing in the supplier field (for other modes)
 const expNewSup = document.getElementById('expenseNewSupplier');

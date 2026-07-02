@@ -78,10 +78,10 @@
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                             <div class="flex items-center gap-2">
-                                <button type="button" onclick="openEditExpenseModal({{ $expense->uuid }})" class="text-blue-600 hover:text-blue-900">
+                                <button type="button" onclick="openEditExpenseModal({{ $expense->id }})" class="text-blue-600 hover:text-blue-900">
                                     <i data-lucide="edit" class="w-4 h-4"></i>
                                 </button>
-                                <form method="POST" action="{{ route('office-expenses.destroy', $expense->uuid) }}" class="inline"
+                                <form method="POST" action="{{ route('office-expenses.destroy', $expense->id) }}" class="inline"
                                     onsubmit="return confirm('Archive this expense?')">
                                     @csrf @method('DELETE')
                                     <button type="submit" class="text-rose-500 hover:text-rose-700 transition-colors">
