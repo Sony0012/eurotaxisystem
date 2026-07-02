@@ -900,6 +900,35 @@ class DriverAppController extends Controller
             }
         }
 
+        // --- INJECT DEBT PAYMENTS AS RECENT COLLECTIONS ---
+        $driverName = $driver->first_name . ' ' . $driver->last_name;
+        $payments = DB::table('expenses')
+            ->where('category', 'Damage Recovery')
+            ->where('description', 'like', "%{$driverName}%")
+            ->where('amount', '<', 0)
+            ->get();
+
+        foreach ($payments as $payment) {
+            $boundaries->push((object)[
+                'id' => 9000000 + $payment->id, // Prevent ID collision
+                'date' => \Carbon\Carbon::parse($payment->created_at)->toDateString(),
+                'boundary_amount' => abs($payment->amount),
+                'actual_boundary' => abs($payment->amount),
+                'status' => 'paid',
+                'shortage' => 0,
+                'excess' => 0,
+                'notes' => 'Debt Payment Settled',
+                'plate_number' => 'DEBT PAY',
+                'is_extra' => 0,
+                'created_at' => $payment->created_at // Used for sorting
+            ]);
+        }
+
+        // Re-sort the combined collection by date/created_at descending
+        $boundaries = $boundaries->sortByDesc(function ($item) {
+            return $item->created_at ?? $item->date;
+        })->values();
+
         return response()->json(['success' => true, 'data' => $boundaries]);
     }
 
