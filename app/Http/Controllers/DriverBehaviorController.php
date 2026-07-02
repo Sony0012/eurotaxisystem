@@ -119,7 +119,7 @@ class DriverBehaviorController extends Controller
 
         if ($request->ajax()) {
             return view('driver-behavior.partials._incidents_table', compact(
-                'incidents', 'pagination', 'search'
+                'incidents', 'pagination', 'search', 'classifications'
             ))->render();
         }
 
@@ -129,6 +129,16 @@ class DriverBehaviorController extends Controller
             'drivers', 'units', 'spare_parts', 'classifications', 'archivedClassifications', 'accident_reports',
             'incentive_summary'
         ));
+    }
+
+    public function accidents(Request $request)
+    {
+        $accident_reports = \App\Models\RescueRequest::with(['driver', 'unit'])
+            ->where('type', 'accident')
+            ->orderByDesc('created_at')
+            ->get();
+
+        return view('driver-behavior.accidents', compact('accident_reports'));
     }
 
     public function incentives(Request $request)
@@ -1003,9 +1013,9 @@ class DriverBehaviorController extends Controller
         try {
             $alert = \App\Models\RescueRequest::where('id', $id)->firstOrFail();
             $alert->delete();
-            return response()->json(['success' => true, 'message' => 'Accident report archived successfully.']);
+            return redirect()->back()->with('success', 'Accident report archived successfully.');
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => 'Failed to archive: ' . $e->getMessage()], 500);
+            return redirect()->back()->with('error', 'Failed to archive: ' . $e->getMessage());
         }
     }
 
