@@ -1,4 +1,4 @@
-﻿@extends('layouts.app')
+@extends('layouts.app')
 
 @section('title', 'Unit Profitability - Euro System')
 @section('page-heading', 'Unit Profitability Analysis')
@@ -182,9 +182,9 @@
                         $opDays = $unit['operating_days_90d'] ?? 0;
                         $avgMaint = $unit['avg_daily_maint'] ?? 0;
                     @endphp
-                    <div class="relative rounded-2xl border-2 {{ $pc['border'] }} {{ $pc['bg_light'] }} p-5 overflow-hidden group hover:shadow-lg transition-all duration-300 hover:-translate-y-1 min-w-0 w-full">
+                    <div class="relative rounded-2xl border-2 {{ $pc['border'] }} {{ $pc['bg_light'] }} p-5 overflow-hidden min-w-0 w-full">
                         {{-- Rank Badge --}}
-                        <div class="absolute -top-3 -right-3 w-14 h-14 bg-gradient-to-br {{ $pc['bg'] }} rounded-2xl flex items-center justify-center shadow-lg transform rotate-12 group-hover:rotate-0 transition-transform duration-300">
+                        <div class="absolute -top-3 -right-3 w-14 h-14 bg-gradient-to-br {{ $pc['bg'] }} rounded-2xl flex items-center justify-center shadow-lg transform rotate-12">
                             <span class="text-2xl">{{ $pc['icon'] }}</span>
                         </div>
 
@@ -253,7 +253,7 @@
                             <tbody class="divide-y divide-slate-100">
                                 @foreach(array_slice($forecast_unit_profits, 3) as $idx => $unit)
                                 @php $rank = $idx + 4; @endphp
-                                <tr class="hover:bg-white transition-colors">
+                                <tr>
                                     <td class="py-3 px-4 font-black text-slate-400 text-sm whitespace-nowrap">#{{ $rank }}</td>
                                     <td class="py-3 font-black text-slate-800 whitespace-nowrap">{{ $unit['plate'] }}</td>
                                     <td class="py-3 text-right font-semibold text-emerald-700 whitespace-nowrap">₱{{ number_format($unit['avg_daily_boundary'] ?? 0) }}</td>
@@ -364,10 +364,10 @@
                                 }
                             }
                         @endphp
-                        <tr class="hover:bg-gray-50 cursor-pointer group transition-all" onclick="openComputationModal('{{ $item->id }}', '{{ $item->plate_number }}')">
+                        <tr class="cursor-pointer transition-all" onclick="openComputationModal('{{ $item->id }}', '{{ $item->plate_number }}')">
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="flex items-center gap-3">
-                                    <div class="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center text-[10px] font-black text-gray-500 group-hover:bg-yellow-100 group-hover:text-yellow-600 transition-colors">
+                                    <div class="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center text-[10px] font-black text-gray-500">
                                         {{ substr($item->plate_number, 0, 3) }}
                                     </div>
                                     <div class="text-sm font-black text-gray-900">{{ $item->plate_number }}</div>
@@ -448,10 +448,10 @@
                         ->take(12);
                 @endphp
                 @forelse($needsAttention as $unit)
-                    <div class="p-4 bg-white rounded-2xl border border-red-100 shadow-sm hover:shadow-md transition-all flex flex-col justify-between group">
+                    <div class="p-4 bg-white rounded-2xl border border-red-100 shadow-sm flex flex-col justify-between">
                         <div class="mb-4">
                             <div class="flex items-center justify-between mb-1.5">
-                                <p class="text-sm font-black text-slate-800 group-hover:text-red-700 transition-colors">{{ $unit->plate_number }}</p>
+                                <p class="text-sm font-black text-slate-800">{{ $unit->plate_number }}</p>
                                 <span class="px-2 py-0.5 bg-red-50 text-red-600 text-[9px] font-black rounded-full border border-red-100 uppercase tracking-widest">Low Margin</span>
                             </div>
                             <p class="text-[10px] text-slate-400 flex items-center gap-1">
@@ -601,7 +601,7 @@
                                 </thead>
                                 <tbody class="divide-y divide-gray-100">
                                     ${data.boundaries.map(b => `
-                                        <tr class="hover:bg-white transition-colors">
+                                        <tr>
                                             <td class="px-4 py-4 text-gray-600 font-medium">${new Date(b.date).toLocaleDateString(undefined, {month: 'long', day: 'numeric', year: 'numeric'})}</td>
                                             <td class="px-4 py-4 text-right font-black text-green-600 font-mono tracking-tighter">${formatCurr(b.actual_boundary)}</td>
                                         </tr>
@@ -631,7 +631,7 @@
                                     </thead>
                                     <tbody class="divide-y divide-gray-100">
                                         ${data.maintenances.map(m => `
-                                            <tr class="hover:bg-white transition-colors">
+                                            <tr>
                                                 <td class="px-3 py-4 text-gray-600 font-medium">${new Date(m.date_started).toLocaleDateString(undefined, {month: 'short', day: 'numeric'})}</td>
                                                 <td class="px-3 py-4 text-gray-900 font-semibold truncate max-w-[120px]" title="${m.description}">${m.description}</td>
                                                 <td class="px-3 py-4 text-right font-black text-red-600 font-mono tracking-tighter">${formatCurr(m.cost)}</td>
@@ -661,7 +661,7 @@
                                     </thead>
                                     <tbody class="divide-y divide-gray-100">
                                         ${data.expenses.map(e => `
-                                            <tr class="hover:bg-white transition-colors">
+                                            <tr>
                                                 <td class="px-3 py-4 text-gray-600 font-medium">${new Date(e.date).toLocaleDateString(undefined, {month: 'short', day: 'numeric'})}</td>
                                                 <td class="px-3 py-4 text-gray-900 font-semibold truncate max-w-[120px]" title="${e.description}">${e.description}</td>
                                                 <td class="px-3 py-4 text-right font-black text-red-600 font-mono tracking-tighter">${formatCurr(e.amount)}</td>
