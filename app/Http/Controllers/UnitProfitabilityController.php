@@ -113,6 +113,47 @@ class UnitProfitabilityController extends Controller
         $selected_unit = $unit_filter;
         $full_profitability = $profitability; // Keep original for summary sections
 
+        // Calculate top 10 forecasting unit profitability
+        $ninetyDaysAgo = date('Y-m-d', strtotime('-90 days'));
+        $forecast_unit_profits = DB::table('units as u')
+            ->whereNull('u.deleted_at')
+            ->where('u.status', 'active')
+            ->leftJoin(DB::raw("(
+                SELECT unit_id,
+                       AVG(actual_boundary) as avg_daily_boundary,
+                       COUNT(DISTINCT date) as operating_days
+                FROM boundaries
+                WHERE deleted_at IS NULL AND date >= '{$ninetyDaysAgo}'
+                GROUP BY unit_id
+            ) as b"), 'b.unit_id', '=', 'u.id')
+            ->leftJoin(DB::raw("(
+                SELECT unit_id,
+                       SUM(cost) as total_maint_cost,
+                       COUNT(DISTINCT DATE(date_started)) as maint_days
+                FROM maintenance
+                WHERE deleted_at IS NULL AND date_started >= '{$ninetyDaysAgo}'
+                GROUP BY unit_id
+            ) as m"), 'm.unit_id', '=', 'u.id')
+            ->selectRaw('
+                u.id,
+                u.plate_number,
+                u.boundary_rate,
+                COALESCE(b.avg_daily_boundary, 0) as avg_daily_boundary,
+                COALESCE(b.operating_days, 0) as operating_days,
+                COALESCE(m.total_maint_cost, 0) as total_maint_cost,
+                COALESCE(m.maint_days, 0) as maint_days
+            ')
+            ->orderByDesc('avg_daily_boundary')
+            ->limit(10)
+            ->get();
+
+        // Calculate final daily averages
+        foreach ($forecast_unit_profits as $unit) {
+            $unit->avg_daily_maint = $unit->operating_days > 0 ? ($unit->total_maint_cost / $unit->operating_days) : 0;
+            $unit->daily_net_profit = $unit->avg_daily_boundary - $unit->avg_daily_maint;
+            $unit->monthly_projection = $unit->daily_net_profit * 30; // Standard 30 day month
+        }
+
         // Manual Pagination (10 per page)
         $currentPage = \Illuminate\Pagination\Paginator::resolveCurrentPage() ?: 1;
         $perPage = 10;
@@ -125,7 +166,7 @@ class UnitProfitabilityController extends Controller
             ['path' => \Illuminate\Pagination\Paginator::resolveCurrentPath(), 'query' => $request->query()]
         );
 
-        return view('unit-profitability.index', compact('profitability', 'full_profitability', 'units', 'overview', 'date_from', 'date_to', 'selected_unit'));
+        return view('unit-profitability.index', compact('profitability', 'full_profitability', 'units', 'overview', 'date_from', 'date_to', 'selected_unit', 'forecast_unit_profits'));
     }
 
     public function getDetails(Request $request)
