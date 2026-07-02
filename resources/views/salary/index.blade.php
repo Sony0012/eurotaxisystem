@@ -399,35 +399,35 @@
 @push('styles')
 <style>
     @media print {
+        /* Hide everything except the report */
         body > *:not(#printableReportContainer) {
             display: none !important;
         }
+        /* Let the report flow normally so @page margins apply correctly */
         #printableReportContainer {
             display: block !important;
-            position: fixed;
-            left: 0;
-            top: 0;
-            width: 100%;
-            margin: 0;
-            padding: 0;
+            width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
             background: white !important;
             color: black !important;
+            overflow: visible !important;
         }
         * {
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
-            box-sizing: border-box;
+            box-sizing: border-box !important;
         }
         @page {
-            size: letter portrait;
-            margin: 1.8cm 1.5cm 1.8cm 1.5cm;
+            size: A4 portrait;
+            margin: 1.5cm 2cm 1.5cm 2cm;
         }
     }
 </style>
 @endpush
 
 <!-- Hidden Printable Report -->
-<div id="printableReportContainer" class="hidden bg-white text-black w-full font-sans" style="font-family: Arial, sans-serif; font-size: 12px;">
+<div id="printableReportContainer" class="hidden" style="font-family: Arial, sans-serif; font-size: 12px; background: white; color: black; width: 100%;">
     
     {{-- HEADER --}}
     <div style="text-align:center; border-bottom: 2px solid #000; padding-bottom: 12px; margin-bottom: 12px;">
