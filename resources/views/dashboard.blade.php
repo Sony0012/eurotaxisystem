@@ -263,7 +263,10 @@
                 <div class="p-1.5 bg-blue-100 rounded-lg">
                     <i data-lucide="bar-chart-3" class="w-4 h-4 text-blue-600"></i>
                 </div>
-                <h3 class="text-base font-bold text-gray-900 uppercase tracking-tight">Unit Performance</h3>
+                <div>
+                    <h3 class="text-base font-bold text-gray-900 uppercase tracking-tight">Unit Performance</h3>
+                    <p class="text-[11px] text-gray-500 mt-0.5 leading-tight">Total actual boundary collections over the <strong>last 30 days</strong> vs their 30-day target.</p>
+                </div>
             </div>
             <span class="text-[10px] font-black text-blue-600 bg-blue-50 px-2 py-1 rounded-full uppercase tracking-widest border border-blue-100">Top 10 Performers</span>
         </div>
