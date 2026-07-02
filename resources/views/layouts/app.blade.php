@@ -491,14 +491,6 @@
                         </div>
                         @endif
 
-                        @if(auth()->user()->hasAccessTo('activity-logs.*'))
-                        <a href="{{ route('activity-logs.index') }}"
-                            class="sidebar-item flex items-center justify-start md:justify-center lg:justify-start gap-2.5 px-4 md:px-0 lg:px-4 py-1.5 md:py-2 rounded-lg text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 {{ request()->routeIs('activity-logs.*') ? 'bg-yellow-50 text-yellow-700 font-semibold' : '' }}">
-                            <i data-lucide="history" class="w-5 md:w-5 lg:w-4 h-5 md:h-5 lg:h-4"></i>
-                            <span class="text-sm block md:hidden lg:block">History Logs</span>
-                        </a>
-                        @endif
-
                         @if(auth()->user()->hasAccessTo('unit-profitability.*'))
                         <a href="{{ route('unit-profitability.index') }}"
                             class="sidebar-item flex items-center justify-start md:justify-center lg:justify-start gap-2.5 px-4 md:px-0 lg:px-4 py-1.5 md:py-2 rounded-lg text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 {{ request()->routeIs('unit-profitability.*') ? 'bg-yellow-50 text-yellow-700 font-semibold' : '' }}">
@@ -548,6 +540,14 @@
                             class="sidebar-item flex items-center justify-start md:justify-center lg:justify-start gap-2.5 px-4 md:px-0 lg:px-4 py-1.5 md:py-2 rounded-lg text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 {{ request()->routeIs('announcements.*') ? 'bg-yellow-50 text-yellow-700 font-semibold' : '' }}">
                             <i data-lucide="megaphone" class="w-5 md:w-5 lg:w-4 h-5 md:h-5 lg:h-4"></i>
                             <span class="text-sm block md:hidden lg:block">Announcements</span>
+                        </a>
+                        @endif
+
+                        @if(auth()->user()->hasAccessTo('activity-logs.*'))
+                        <a href="{{ route('activity-logs.index') }}"
+                            class="sidebar-item flex items-center justify-start md:justify-center lg:justify-start gap-2.5 px-4 md:px-0 lg:px-4 py-1.5 md:py-2 rounded-lg text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 {{ request()->routeIs('activity-logs.*') ? 'bg-yellow-50 text-yellow-700 font-semibold' : '' }}">
+                            <i data-lucide="history" class="w-5 md:w-5 lg:w-4 h-5 md:h-5 lg:h-4"></i>
+                            <span class="text-sm block md:hidden lg:block">History Logs</span>
                         </a>
                         @endif
 
