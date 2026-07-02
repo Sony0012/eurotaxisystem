@@ -1516,7 +1516,47 @@
                         animateScale: true,
                         animateRotate: true
                     },
-                    plugins: { legend: { position: 'right', labels: { boxWidth: 12, padding: 20, font: { weight: 'bold', size: 11 } } } }
+                    plugins: { 
+                        legend: { 
+                            position: 'right', 
+                            labels: { 
+                                boxWidth: 12, 
+                                padding: 20, 
+                                font: { weight: 'bold', size: 11 },
+                                generateLabels: function(chart) {
+                                    const data = chart.data;
+                                    if (data.labels.length && data.datasets.length) {
+                                        const expTotal = data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                        return data.labels.map(function(label, i) {
+                                            const meta = chart.getDatasetMeta(0);
+                                            const style = meta.controller.getStyle(i);
+                                            const value = data.datasets[0].data[i];
+                                            const percentage = expTotal > 0 ? ((value / expTotal) * 100).toFixed(1) : 0;
+                                            return {
+                                                text: `${label} (${percentage}%)`,
+                                                fillStyle: style.backgroundColor,
+                                                strokeStyle: style.borderColor,
+                                                lineWidth: style.borderWidth,
+                                                hidden: isNaN(data.datasets[0].data[i]) || meta.data[i].hidden,
+                                                index: i
+                                            };
+                                        });
+                                    }
+                                    return [];
+                                }
+                            } 
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const value = context.parsed;
+                                    const expTotal = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = expTotal > 0 ? ((value / expTotal) * 100).toFixed(1) : 0;
+                                    return ` ₱${value.toLocaleString()} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
                 }
             };
             let expChartInst = null;
