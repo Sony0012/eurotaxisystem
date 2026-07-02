@@ -873,6 +873,31 @@ class DriverAppController extends Controller
             )
             ->get();
 
+        // Cross-reference with driver_behavior to see if these shortages have been paid
+        $shortageDates = $boundaries->where('status', 'shortage')->pluck('date')->toArray();
+        if (count($shortageDates) > 0) {
+            $behaviorRecords = DB::table('driver_behavior')
+                ->where('driver_id', $driver->id)
+                ->where('incident_type', 'Short Boundary')
+                ->whereIn('incident_date', $shortageDates)
+                ->whereNull('deleted_at')
+                ->get()->keyBy('incident_date');
+                
+            if ($behaviorRecords->isNotEmpty()) {
+                foreach ($boundaries as $b) {
+                    if ($b->status === 'shortage' && $behaviorRecords->has($b->date)) {
+                        $debt = $behaviorRecords->get($b->date);
+                        // Adjust the Android app's view of the boundary so the shortage matches the remaining balance
+                        $b->actual_boundary = $b->boundary_amount - $debt->remaining_balance;
+                        
+                        if ($debt->remaining_balance <= 0) {
+                            $b->status = 'paid';
+                        }
+                    }
+                }
+            }
+        }
+
         return response()->json(['success' => true, 'data' => $boundaries]);
     }
 
