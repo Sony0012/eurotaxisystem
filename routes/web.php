@@ -10,7 +10,8 @@ use App\Http\Controllers\MaintenanceController;
 use App\Http\Controllers\CodingController;
 use App\Http\Controllers\DriverBehaviorController;
 use App\Http\Controllers\DriverManagementController;
-use App\Http\Controllers\OfficeExpenseController;
+use App\Http\Controllers\DriverManagementV2Controller;
+use App\Http\Controllers\OfficeExpenseV4Controller;
 use App\Http\Controllers\SalaryController;
 use App\Http\Controllers\AnalyticsController;
 use App\Http\Controllers\LiveTrackingController;
@@ -170,7 +171,10 @@ Route::middleware(['auth', 'page_access'])->group(function () {
     Route::get('/driver-behavior/driver/{id}', [DriverBehaviorController::class, 'getDriverPerformance'])->name('driver-behavior.driver-performance');
     Route::post('/driver-behavior/release-incentive', [DriverBehaviorController::class, 'releaseIncentive'])->name('driver-behavior.release-incentive');
     
-    Route::get('/driver-behavior', [DriverBehaviorController::class, 'index'])->name('driver-behavior.index');
+    Route::get('/driver-behavior', function() { return redirect()->route('driver-behavior.incidents'); })->name('driver-behavior.index');
+    Route::get('/driver-behavior/incidents', [DriverBehaviorController::class, 'incidents'])->name('driver-behavior.incidents');
+    Route::get('/driver-behavior/incentives', [DriverBehaviorController::class, 'incentives'])->name('driver-behavior.incentives');
+    Route::get('/driver-behavior/performance', [DriverBehaviorController::class, 'performance'])->name('driver-behavior.performance');
     Route::post('/driver-behavior', [DriverBehaviorController::class, 'store'])->name('driver-behavior.store');
 
     // Accident SOS Alerts
@@ -182,23 +186,28 @@ Route::middleware(['auth', 'page_access'])->group(function () {
     Route::get('/driver-management/banned', [DriverManagementController::class, 'banned'])->name('driver-management.banned');
     Route::get('/driver-management/debts', [DriverManagementController::class, 'debtsPage'])->name('driver-management.debts');
     Route::get('/driver-management/pending-debts', [DriverManagementController::class, 'getPendingDebts'])->name('driver-management.pending-debts');
-    Route::get('/driver-management/debt-history', [DriverManagementController::class, 'getDebtHistory'])->name('driver-management.debt-history');
-    Route::post('/driver-management/pay-debt', [DriverManagementController::class, 'payDebt'])->name('driver-management.pay-debt');
-    Route::get('/driver-management/terms', [DriverManagementController::class, 'terms'])->name('driver-management.terms');
-    Route::post('/driver-management/terms', [DriverManagementController::class, 'uploadTerm'])->name('driver-management.terms.upload');
-    Route::post('/driver-management/terms/{filename}', [DriverManagementController::class, 'deleteTerm'])->name('driver-management.terms.delete');
-    Route::post('/driver-management/{id}/unban', [DriverManagementController::class, 'unban'])->name('driver-management.unban');
-    Route::post('/driver-management/{id}/suspend-or-ban', [DriverManagementController::class, 'suspendOrBan'])->name('driver-management.suspend-or-ban');
+    Route::get('/driver-management/banned', [DriverManagementV2Controller::class, 'banned'])->name('driver-management.banned');
+    Route::get('/driver-management/debts', [DriverManagementV2Controller::class, 'debtsPage'])->name('driver-management.debts');
+    Route::get('/driver-management/pending-debts', [DriverManagementV2Controller::class, 'getPendingDebts'])->name('driver-management.pending-debts');
+    Route::get('/driver-management/debt-history', [DriverManagementV2Controller::class, 'getDebtHistory'])->name('driver-management.debt-history');
+    Route::post('/driver-management/pay-debt', [DriverManagementV2Controller::class, 'payDebt'])->name('driver-management.pay-debt');
+    Route::get('/driver-management/terms', [DriverManagementV2Controller::class, 'terms'])->name('driver-management.terms');
+    Route::post('/driver-management/terms', [DriverManagementV2Controller::class, 'uploadTerm'])->name('driver-management.terms.upload');
+    Route::post('/driver-management/terms/{filename}', [DriverManagementV2Controller::class, 'deleteTerm'])->name('driver-management.terms.delete');
+    Route::post('/driver-management/terms/{filename}/restore', [DriverManagementV2Controller::class, 'restoreTerm'])->name('driver-management.terms.restore');
+    Route::delete('/driver-management/terms/{filename}/force', [DriverManagementV2Controller::class, 'forceDeleteTerm'])->name('driver-management.terms.force-delete');
+    Route::post('/driver-management/{id}/unban', [DriverManagementV2Controller::class, 'unban'])->name('driver-management.unban');
+    Route::post('/driver-management/{id}/suspend-or-ban', [DriverManagementV2Controller::class, 'suspendOrBan'])->name('driver-management.suspend-or-ban');
 
 
     // Driver Management Resource Routes
-    Route::resource('driver-management', DriverManagementController::class);
-    Route::post('/driver-management/upload-documents/{id}', [DriverManagementController::class, 'uploadDocuments'])->name('driver-management.upload-documents');
+    Route::resource('driver-management', DriverManagementV2Controller::class);
+    Route::post('/driver-management/upload-documents/{id}', [DriverManagementV2Controller::class, 'uploadDocuments'])->name('driver-management.upload-documents');
 
     // Office Expenses Resource Routes
-    Route::resource('office-expenses', OfficeExpenseController::class);
-    Route::post('/office-expenses/approve/{id}', [OfficeExpenseController::class, 'approve'])->name('office-expenses.approve');
-    Route::post('/office-expenses/reject/{id}', [OfficeExpenseController::class, 'reject'])->name('office-expenses.reject');
+    Route::resource('office-expenses', OfficeExpenseV4Controller::class);
+    Route::post('/office-expenses/approve/{id}', [OfficeExpenseV4Controller::class, 'approve'])->name('office-expenses.approve');
+    Route::post('/office-expenses/reject/{id}', [OfficeExpenseV4Controller::class, 'reject'])->name('office-expenses.reject');
 
     // Salary Management
     Route::get('/salary', [SalaryController::class, 'index'])->name('salary.index');
@@ -266,6 +275,7 @@ Route::middleware(['auth', 'page_access'])->group(function () {
     Route::delete('/boundary-rules/{id}', [BoundarySettingsController::class, 'destroy'])->name('boundary-rules.destroy');
 
     // ─── Spare Parts Management ───────────────────────────
+    Route::get('/inventory-management', [SparePartController::class, 'manage'])->name('inventory.manage');
     Route::get('/spare-parts', [SparePartController::class, 'index'])->name('spare-parts.index');
     Route::get('/spare-parts/archived', [SparePartController::class, 'archived'])->name('spare-parts.archived');
     Route::get('/spare-parts/history', [SparePartController::class, 'history'])->name('spare-parts.history');
