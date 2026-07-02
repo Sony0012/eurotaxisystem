@@ -123,9 +123,12 @@
         </div>
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 card-hover overflow-hidden card-number-container relative">
             <div class="px-2 py-4 sm:p-6 text-center relative z-10">
-                <p class="text-[9px] sm:text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1 text-violet-600">Avg Profit Margin</p>
+                <p class="text-[9px] sm:text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1 text-violet-600">Computation</p>
                 <div class="flex justify-center items-center h-10 sm:h-12">
-                    <p class="auto-scale-text font-black text-violet-600 whitespace-nowrap">{{ number_format($overview['avg_margin'] ?? 0, 1) }}%</p>
+                    <div class="inline-flex flex-col items-center justify-center">
+                        <p class="text-[10px] sm:text-xs font-black text-violet-600 border-b border-violet-300 pb-0.5 leading-none">{{ formatCurrency($ni) }}</p>
+                        <p class="text-[10px] sm:text-xs font-black text-violet-600 pt-0.5 leading-none">{{ formatCurrency($overview['total_boundary'] ?? 0) }}</p>
+                    </div>
                 </div>
             </div>
             <div class="absolute bottom-0 left-0 w-full h-1/2 opacity-10 pointer-events-none">
