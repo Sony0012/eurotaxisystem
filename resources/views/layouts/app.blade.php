@@ -100,29 +100,36 @@
         i[data-lucide] { display: inline-block; width: 1rem; height: 1rem; vertical-align: middle; flex-shrink: 0; }
         .sidebar-item i[data-lucide] { width: 1.25rem; height: 1.25rem; }
         
-        /* Smooth page transitions — overlay loader, never blank */
-        #appMainContent { 
-            position: relative;
-        }
-        /* Loading overlay sits ON TOP of old content — page never goes blank */
-        #pageLoadOverlay {
+        /* Page Navigation - Loading Overlay (never blank/white) */
+        #navLoadOverlay {
             display: none;
             position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            z-index: 9999;
+            inset: 0;
+            z-index: 99999;
+            background: rgba(10, 18, 35, 0.55);
+            backdrop-filter: blur(3px);
+            -webkit-backdrop-filter: blur(3px);
             align-items: center;
             justify-content: center;
-            background: rgba(15,23,42,0.35);
-            backdrop-filter: blur(2px);
+            flex-direction: column;
+            gap: 14px;
         }
-        #pageLoadOverlay.active { display: flex; }
-        #pageLoadOverlay .loader-ring {
-            width: 48px; height: 48px;
-            border: 4px solid rgba(251,191,36,0.2);
+        #navLoadOverlay.is-loading { display: flex; }
+        #navLoadOverlay .nav-spinner {
+            width: 46px; height: 46px;
+            border: 4px solid rgba(251,191,36,0.25);
             border-top-color: #fbbf24;
             border-radius: 50%;
-            animation: spin 0.7s linear infinite;
+            animation: navSpin 0.65s linear infinite;
         }
+        #navLoadOverlay .nav-load-text {
+            color: #fbbf24;
+            font-size: 13px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            opacity: 0.9;
+        }
+        @keyframes navSpin { to { transform: rotate(360deg); } }
         
         /* Prevent sidebar flicker during navigation on desktop only */
         @media (min-width: 768px) {
@@ -454,7 +461,7 @@
                         @if(auth()->user()->hasAccessTo('driver-behavior.*'))
                         <div class="relative group w-full">
                             <a href="{{ route('driver-behavior.incidents') }}"
-                                class="sidebar-item flex items-center justify-start md:justify-center lg:justify-start gap-2.5 px-4 md:px-0 lg:px-4 py-1.5 md:py-2 rounded-lg text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 {{ request()->routeIs('driver-behavior.*') && !request()->routeIs('driver-behavior.incentives') && !request()->routeIs('driver-behavior.performance') ? 'bg-yellow-50 text-yellow-700 font-semibold' : '' }}">
+                                class="sidebar-item flex items-center justify-start md:justify-center lg:justify-start gap-2.5 px-4 md:px-0 lg:px-4 py-1.5 md:py-2 rounded-lg text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 {{ request()->routeIs('driver-behavior.*') && !request()->routeIs('driver-behavior.incentives') && !request()->routeIs('driver-behavior.performance') && !request()->routeIs('driver-behavior.accidents') ? 'bg-yellow-50 text-yellow-700 font-semibold' : '' }}">
                                 <i data-lucide="alert-triangle" class="w-5 md:w-5 lg:w-4 h-5 md:h-5 lg:h-4"></i>
                                 <span class="text-sm block md:hidden lg:block flex-1 whitespace-nowrap">Driver Behavior</span>
                                 <i data-lucide="chevron-down" class="w-3 h-3 text-gray-400 group-hover:text-yellow-700 hidden lg:block transition-transform duration-200 group-hover:rotate-180"></i>
@@ -469,6 +476,10 @@
                                 <a href="{{ route('driver-behavior.performance') }}" class="{{ request()->routeIs('driver-behavior.performance') ? 'text-blue-600 font-bold bg-blue-50/50 block rounded-xl py-2 px-3' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50 block rounded-xl py-2 px-3' }} flex items-center gap-2">
                                     <i data-lucide="bar-chart-2" class="w-3.5 h-3.5 {{ request()->routeIs('driver-behavior.performance') ? 'text-blue-600' : 'text-slate-400' }}"></i> 
                                     <span class="text-[10px] uppercase tracking-wider font-bold">Performance Summary</span>
+                                </a>
+                                <a href="{{ route('driver-behavior.accidents') }}" class="{{ request()->routeIs('driver-behavior.accidents') ? 'text-red-600 font-bold bg-red-50/50 block rounded-xl py-2 px-3' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50 block rounded-xl py-2 px-3' }} flex items-center gap-2">
+                                    <i data-lucide="alert-octagon" class="w-3.5 h-3.5 {{ request()->routeIs('driver-behavior.accidents') ? 'text-red-600' : 'text-slate-400' }}"></i> 
+                                    <span class="text-[10px] uppercase tracking-wider font-bold">Accident Reports</span>
                                 </a>
                             </div>
                         </div>
@@ -1654,39 +1665,40 @@
                 }
             }
             
-            // Create page-load overlay element once
-            const pageLoadOverlay = document.createElement('div');
-            pageLoadOverlay.id = 'pageLoadOverlay';
-            pageLoadOverlay.innerHTML = '<div class="loader-ring"></div>';
-            document.body.appendChild(pageLoadOverlay);
+            // Create loading overlay once — sits on TOP of existing content, page never goes blank
+            const navOverlay = document.createElement('div');
+            navOverlay.id = 'navLoadOverlay';
+            navOverlay.innerHTML = '<div class="nav-spinner"></div><div class="nav-load-text">Loading...</div>';
+            document.body.appendChild(navOverlay);
 
             // Update page content without reload
             async function navigateToPage(url) {
-                // Show overlay on TOP of existing content — no blank screen
-                pageLoadOverlay.classList.add('active');
-                
+                // Show overlay ON TOP of current page — old content stays visible
+                navOverlay.classList.add('is-loading');
+                document.querySelectorAll('.nav-loading').forEach(el => el.classList.add('nav-loading'));
+
                 try {
                     const pageData = await fetchPage(url);
-                    
+
                     if (pageData && pageData.mainContent) {
-                        // Update main content ONLY after fetch completes
+                        // Swap content ONLY after fetch is done — no blank screen
                         const mainContent = document.querySelector('#appMainContent');
                         mainContent.innerHTML = pageData.mainContent.innerHTML;
-                        
+
                         // Update page title
                         if (pageData.pageTitle) {
                             document.title = pageData.pageTitle;
                         }
-                        
+
                         // Update URL without reload
                         history.pushState({}, '', url);
-                        
+
                         // Re-initialize Lucide icons in new content
-                        if(window.lucide) {
+                        if (window.lucide) {
                             window.lucide.createIcons();
                         }
-                        
-                        // Re-run any scripts in the new content
+
+                        // Re-run inline scripts in the new content
                         const scripts = mainContent.querySelectorAll('script');
                         scripts.forEach(script => {
                             const newScript = document.createElement('script');
@@ -1698,21 +1710,19 @@
                             document.head.appendChild(newScript);
                         });
 
-                        // Dispatch custom event for child pages to know they are loaded via AJAX
+                        // Notify child pages they were loaded via AJAX
                         document.dispatchEvent(new CustomEvent('page:loaded', { detail: { url: url } }));
-                    } else {
-                        // pageData is null (fetchPage already fell back via window.location)
+                    } else if (!pageData) {
+                        // fetchPage already did window.location.href fallback, just return
                         return;
                     }
                 } catch (error) {
                     console.error('Navigation error:', error);
-                    window.location.href = url; // Fallback
+                    window.location.href = url;
                 } finally {
-                    // Hide overlay and clear nav-loading state
-                    pageLoadOverlay.classList.remove('active');
-                    document.querySelectorAll('.nav-loading').forEach(el => {
-                        el.classList.remove('nav-loading');
-                    });
+                    // Always hide overlay and clear loading states
+                    navOverlay.classList.remove('is-loading');
+                    document.querySelectorAll('.nav-loading').forEach(el => el.classList.remove('nav-loading'));
                 }
             }
             
@@ -1722,7 +1732,7 @@
                     const href = this.getAttribute('href');
                     
                     // Skip external links, anchors, and if modifier keys are pressed
-                    if (!href || href.startsWith('#') || (href.startsWith('http') && !href.includes(window.location.host)) || e.ctrlKey || e.metaKey || e.shiftKey) {
+                    if (!href || href.startsWith('#') || href.startsWith('http') || e.ctrlKey || e.metaKey || e.shiftKey) {
                         return;
                     }
                     
@@ -2053,7 +2063,7 @@
                     if (data.success) {
                         hideSosAlert();
                         // Redirect to the Accident Reports tab
-                        window.location.href = '/driver-behavior?tab=accidents';
+                        window.location.href = '{{ route("driver-behavior.accidents") }}';
                     } else {
                         alert('Failed to acknowledge alert.');
                     }
