@@ -152,10 +152,10 @@
                                 {{ isset($salary->pay_date) ? \Carbon\Carbon::parse($salary->pay_date)->format('M d, Y') : '-' }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                <button type="button" onclick="openEditSalaryModal({{ $salary->uuid }})" class="text-blue-600 hover:text-blue-900 mr-2">
+                                <button type="button" onclick="openEditSalaryModal({{ $salary->id }})" class="text-blue-600 hover:text-blue-900 mr-2">
                                     <i data-lucide="edit" class="w-4 h-4"></i>
                                 </button>
-                                <form method="POST" action="{{ route('salaries.destroy', $salary->uuid) }}" class="inline"
+                                <form method="POST" action="{{ route('salaries.destroy', $salary->id) }}" class="inline"
                                     onsubmit="return confirm('Archive this salary record?')">
                                     @csrf @method('DELETE')
                                     <button type="submit" class="text-rose-500 hover:text-rose-700 transition-colors">
@@ -215,7 +215,7 @@
                                     class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none font-bold text-sm text-gray-700 appearance-none">
                                     <option value="">Select Employee</option>
                                     @foreach($employees as $employee)
-                                        <option value="{{ $employee->source }}_{{ $employee->uuid }}" data-role="{{ ucfirst($employee->role) }}">{{ $employee->name }} ({{ ucfirst($employee->role) }})</option>
+                                        <option value="{{ $employee->source }}_{{ $employee->id }}" data-role="{{ ucfirst($employee->role) }}">{{ $employee->name }} ({{ ucfirst($employee->role) }})</option>
                                     @endforeach
                                 </select>
                                 <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
