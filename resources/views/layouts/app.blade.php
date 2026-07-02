@@ -682,7 +682,7 @@
                                                                 <i data-lucide="file-warning" class="w-4 h-4 text-yellow-600"></i>
                                                             @elseif($n['type'] === 'coding_today')
                                                                 <i data-lucide="car-front" class="w-4 h-4 text-blue-600"></i>
-                                                            @elseif($n['type'] === 'violation_alert')
+                                                            @elseif($n['type'] === 'violation_alert' || str_contains(strtolower($n['title']), 'violation'))
                                                                 <i data-lucide="shield-alert" class="w-4 h-4 text-red-600"></i>
                                                             @elseif($n['type'] === 'low_stock')
                                                                 <i data-lucide="package-search" class="w-4 h-4 text-orange-500"></i>
@@ -690,8 +690,16 @@
                                                                 <i data-lucide="id-card" class="w-4 h-4 text-rose-500"></i>
                                                             @elseif($n['type'] === 'odo_maint_due')
                                                                 <i data-lucide="settings-2" class="w-4 h-4 text-orange-600"></i>
-                                                            @else
+                                                            @elseif(str_contains(strtolower($n['title']), 'payment') || str_contains(strtolower($n['title']), 'remit'))
+                                                                <i data-lucide="credit-card" class="w-4 h-4 text-emerald-600"></i>
+                                                            @elseif(str_contains(strtolower($n['title']), 'broadcast') || str_contains(strtolower($n['title']), 'chime') || str_contains(strtolower($n['title']), 'sound') || $n['type'] === 'push_broadcast')
+                                                                <i data-lucide="volume-2" class="w-4 h-4 text-indigo-500"></i>
+                                                            @elseif(str_contains(strtolower($n['title']), 'success') || str_contains(strtolower($n['title']), 'approved'))
+                                                                <i data-lucide="check-circle" class="w-4 h-4 text-emerald-500"></i>
+                                                            @elseif(str_contains(strtolower($n['title']), 'alert') || str_contains(strtolower($n['title']), 'warning') || str_contains(strtolower($n['title']), 'failed') || str_contains(strtolower($n['title']), 'error'))
                                                                 <i data-lucide="alert-circle" class="w-4 h-4 text-red-600"></i>
+                                                            @else
+                                                                <i data-lucide="bell" class="w-4 h-4 text-blue-500"></i>
                                                             @endif
                                                         </div>
                                                         <div class="flex-1 min-w-0">
