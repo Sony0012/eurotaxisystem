@@ -62,10 +62,10 @@ class DriverBehaviorController extends Controller
         }
 
         if (!empty($date_from)) {
-            $query->whereDate('driver_behavior.timestamp', '>=', $date_from);
+            $query->whereDate('driver_behavior.incident_date', '>=', $date_from);
         }
         if (!empty($date_to)) {
-            $query->whereDate('driver_behavior.timestamp', '<=', $date_to);
+            $query->whereDate('driver_behavior.incident_date', '<=', $date_to);
         }
 
         $total     = $query->count();
@@ -114,10 +114,14 @@ class DriverBehaviorController extends Controller
             ->orderByDesc('created_at')
             ->get();
 
+        // ── Incentive Summary (Header Stats) ─────────────────────────
+        $incentive_summary = $this->getIncentiveSummary();
+
         return view('driver-behavior.incidents', compact(
             'incidents', 'search', 'type_filter', 'severity_filter',
             'date_from', 'date_to', 'pagination', 'stats',
-            'drivers', 'units', 'spare_parts', 'classifications', 'archivedClassifications', 'accident_reports'
+            'drivers', 'units', 'spare_parts', 'classifications', 'archivedClassifications', 'accident_reports',
+            'incentive_summary'
         ));
     }
 
@@ -139,8 +143,9 @@ class DriverBehaviorController extends Controller
         
         $driver_profiles = $this->getDriverProfiles($date_from, $date_to);
         $stats = $this->getStats($date_from, $date_to);
+        $incentive_summary = $this->getIncentiveSummary();
 
-        return view('driver-behavior.performance', compact('driver_profiles', 'stats', 'date_from', 'date_to'));
+        return view('driver-behavior.performance', compact('driver_profiles', 'stats', 'date_from', 'date_to', 'incentive_summary'));
     }
 
     // ─── ACCIDENT SOS METHODS ──────────────────────────────────────────
@@ -814,15 +819,15 @@ class DriverBehaviorController extends Controller
     {
         $base  = DB::table('driver_behavior')
             ->whereNull('deleted_at')
-            ->whereDate('timestamp', '>=', $from)
-            ->whereDate('timestamp', '<=', $to);
+            ->whereDate('incident_date', '>=', $from)
+            ->whereDate('incident_date', '<=', $to);
         $bySev = (clone $base)->selectRaw('severity, COUNT(*) as count')->groupBy('severity')->get()->pluck('count', 'severity')->toArray();
         $byType = (clone $base)->selectRaw('incident_type, COUNT(*) as count')->groupBy('incident_type')->orderByDesc('count')->limit(8)->get();
 
         $totalViolators = DB::table('driver_behavior')
             ->whereNull('deleted_at')
-            ->whereDate('timestamp', '>=', $from)
-            ->whereDate('timestamp', '<=', $to)
+            ->whereDate('incident_date', '>=', $from)
+            ->whereDate('incident_date', '<=', $to)
             ->distinct('driver_id')
             ->count('driver_id');
 
@@ -834,9 +839,8 @@ class DriverBehaviorController extends Controller
             ->where('charge_status', 'pending')
             ->sum('total_charge_to_driver');
         
-        $violationsToday = DB::table('driver_behavior')
-            ->whereNull('deleted_at')
-            ->whereDate('timestamp', now()->format('Y-m-d'))
+        $violationsToday = \App\Models\DriverBehavior::violations()
+            ->whereDate('incident_date', now()->timezone('Asia/Manila')->toDateString())
             ->count();
 
         return [

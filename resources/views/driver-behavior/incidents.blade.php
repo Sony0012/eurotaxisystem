@@ -287,7 +287,7 @@
                     @endphp
                     <tr class="hover:bg-gray-50/50 transition-colors group">
                         <td class="px-5 py-3.5 whitespace-nowrap">
-                            <div class="text-xs font-bold text-gray-800">{{ \Carbon\Carbon::parse($inc->timestamp)->timezone('Asia/Manila')->format('M d, Y') }}</div>
+                            <div class="text-xs font-bold text-gray-800">{{ \Carbon\Carbon::parse($inc->incident_date)->timezone('Asia/Manila')->format('M d, Y') }}</div>
                             <div class="text-[10px] text-gray-400 font-medium">{{ \Carbon\Carbon::parse($inc->timestamp)->timezone('Asia/Manila')->format('h:i A') }}</div>
                         </td>
                         <td class="px-5 py-3.5 whitespace-nowrap">
