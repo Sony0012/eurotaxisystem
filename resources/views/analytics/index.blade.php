@@ -1951,7 +1951,7 @@
         // Day cells
         w.days.forEach(d => {
             const cell = document.createElement('div');
-            cell.className = `w-3 h-3 rounded-sm transition-all hover:scale-125 cursor-pointer ${d ? getColor(d.total) : 'bg-transparent'}`;
+            cell.className = `w-3 h-3 rounded-sm transition-all duration-500 opacity-0 scale-50 hover:scale-125 cursor-pointer ${d ? getColor(d.total) : 'bg-transparent'}`;
             if (d && d.total > 0) {
                 cell.title = `${d.date}: \u20b1${d.total.toLocaleString()}`;
             }
@@ -1959,6 +1959,17 @@
         });
         grid.appendChild(col);
     });
+
+    // Animate heatmap cells with stagger
+    setTimeout(() => {
+        const cells = grid.querySelectorAll('.w-3.h-3');
+        cells.forEach((cell, index) => {
+            setTimeout(() => {
+                cell.classList.remove('opacity-0', 'scale-50');
+                cell.classList.add('opacity-100', 'scale-100');
+            }, index * 1.5); // Fast staggered animation
+        });
+    }, 100);
 })();
 
 // Driver Utilization Chart
@@ -1994,6 +2005,19 @@
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            animation: {
+                y: {
+                    duration: 2000,
+                    easing: 'easeOutQuart',
+                    delay: (context) => {
+                        let delay = 0;
+                        if (context.type === 'data' && context.mode === 'default') {
+                            delay = context.dataIndex * 50 + context.datasetIndex * 100;
+                        }
+                        return delay;
+                    }
+                }
+            },
             plugins: {
                 legend: { position: 'bottom', labels: { font: { size: 11, weight: 'bold' } } },
                 tooltip: {
