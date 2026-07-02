@@ -347,7 +347,7 @@
                                             <div class="max-h-60 overflow-y-auto custom-scrollbar p-2 space-y-1" id="partListContainer">
                                                 @foreach($spareParts as $part)
                                                     <button type="button" 
-                                                        onclick="selectPart('{{ $part->uuid }}', '{{ addslashes($part->name) }}', '{{ $part->price }}', '{{ addslashes($part->supplier) }}', '{{ $part->stock_quantity }}')" 
+                                                        onclick="selectPart('{{ $part->id }}', '{{ addslashes($part->name) }}', '{{ $part->price }}', '{{ addslashes($part->supplier) }}', '{{ $part->stock_quantity }}')" 
                                                         class="part-item w-full px-4 py-2.5 text-left text-sm font-bold text-gray-600 hover:bg-amber-50 hover:text-amber-600 rounded-xl transition-all flex items-center justify-between">
                                                         <span class="truncate">{{ $part->name }}</span>
                                                         <span class="text-[10px] bg-amber-100 px-1.5 py-0.5 rounded ml-2 whitespace-nowrap">Stock: {{ $part->stock_quantity }}</span>
@@ -498,7 +498,7 @@
                                             </div>
                                             <div class="max-h-48 overflow-y-auto custom-scrollbar p-2 space-y-1" id="franListContainer">
                                                 @foreach($franchises as $f)
-                                                    <button type="button" onclick="selectFranchise('{{ $f->uuid }}', '{{ $f->case_no }}', '{{ addslashes($f->applicant_name) }}')" 
+                                                    <button type="button" onclick="selectFranchise('{{ $f->id }}', '{{ $f->case_no }}', '{{ addslashes($f->applicant_name) }}')" 
                                                         class="fran-item w-full px-4 py-2.5 text-left text-sm font-bold text-gray-600 hover:bg-emerald-50 hover:text-emerald-600 rounded-xl transition-all flex items-center justify-between">
                                                         <div class="flex flex-col">
                                                             <span class="font-black">Case #{{ $f->case_no }}</span>
@@ -694,7 +694,7 @@
                                 <button onclick="editSupplier({{ json_encode($s) }})" class="p-2 text-blue-500 hover:bg-blue-50 rounded-lg">
                                     <i data-lucide="edit-2" class="w-4 h-4"></i>
                                 </button>
-                                <button onclick="deleteSupplier({{ $s->uuid }})" class="p-2 text-rose-500 hover:bg-rose-50 rounded-lg">
+                                <button onclick="deleteSupplier({{ $s->id }})" class="p-2 text-rose-500 hover:bg-rose-50 rounded-lg">
                                     <i data-lucide="trash-2" class="w-4 h-4"></i>
                                 </button>
                             </div>
