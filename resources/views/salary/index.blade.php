@@ -9,31 +9,25 @@
     {{-- Page Header with Action Buttons & Filters --}}
     <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
         <form id="filterForm" action="{{ route('salary.index') }}" method="GET" class="flex flex-wrap items-center gap-3">
-            <div class="relative min-w-[140px]">
+            <div class="relative">
                 <i data-lucide="calendar" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
-                <select name="month" onchange="this.form.submit()" class="w-full pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:outline-none font-bold text-sm text-gray-700 appearance-none shadow-sm">
-                    @for($i = 1; $i <= 12; $i++)
-                        <option value="{{ $i }}" {{ $month == $i ? 'selected' : '' }}>{{ date('F', mktime(0, 0, 0, $i, 1)) }}</option>
-                    @endfor
-                </select>
-                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
-                    <i data-lucide="chevron-down" class="w-3 h-3"></i>
-                </div>
+                <input type="date" name="date_from" value="{{ $date_from }}" onchange="this.form.submit()" 
+                    class="pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:outline-none font-bold text-sm text-gray-700 shadow-sm" title="Date From">
             </div>
-            <div class="relative min-w-[100px]">
+            <span class="text-gray-400 font-bold">-</span>
+            <div class="relative">
                 <i data-lucide="calendar" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
-                <select name="year" onchange="this.form.submit()" class="w-full pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:outline-none font-bold text-sm text-gray-700 appearance-none shadow-sm">
-                    @for($i = 2024; $i <= 2030; $i++)
-                        <option value="{{ $i }}" {{ $year == $i ? 'selected' : '' }}>{{ $i }}</option>
-                    @endfor
-                </select>
-                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
-                    <i data-lucide="chevron-down" class="w-3 h-3"></i>
-                </div>
+                <input type="date" name="date_to" value="{{ $date_to }}" onchange="this.form.submit()" 
+                    class="pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:outline-none font-bold text-sm text-gray-700 shadow-sm" title="Date To">
             </div>
-            @if($search)
-                <input type="hidden" name="search" value="{{ $search }}">
-            @endif
+            <div class="relative min-w-[200px]">
+                <input type="search" name="search" value="{{ $search ?? '' }}"
+                    class="block w-full pl-9 pr-3 py-2 border border-gray-200 rounded-lg font-bold text-sm text-gray-700 shadow-sm focus:ring-2 focus:ring-yellow-500 focus:outline-none"
+                    placeholder="Search employee..." autocomplete="off">
+                <button type="submit" class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400 hover:text-yellow-600">
+                    <i data-lucide="search" class="w-4 h-4"></i>
+                </button>
+            </div>
         </form>
 
         <div class="flex gap-3">
@@ -74,7 +68,7 @@
                 <div class="min-w-0">
                     <div class="text-xl font-black text-gray-900 tracking-tight truncate tabular-nums">{{ formatCurrency($summary['total_salaries'] ?? 0) }}</div>
                     <div class="text-[10px] font-black text-green-400 uppercase tracking-widest truncate">Total Salaries</div>
-                    <div class="text-[9px] text-green-300 truncate font-medium">{{ date('F', mktime(0, 0, 0, $month, 1)) }} {{ $year }}</div>
+                    <div class="text-[9px] text-green-300 truncate font-medium">{{ \Carbon\Carbon::parse($date_from)->format('M d') }} - {{ \Carbon\Carbon::parse($date_to)->format('M d, Y') }}</div>
                 </div>
             </div>
             <i data-lucide="philippine-peso" class="absolute -right-3 -bottom-3 w-24 h-24 text-green-400 opacity-[0.12] -rotate-12 z-0 pointer-events-none"></i>
@@ -94,7 +88,7 @@
                         {{ formatCurrency($net) }}
                     </div>
                     <div class="text-[10px] font-black {{ $net >= 0 ? 'text-emerald-400' : 'text-red-400' }} uppercase tracking-widest truncate">Net Profit</div>
-                    <div class="text-[9px] {{ $net >= 0 ? 'text-emerald-300' : 'text-red-300' }} truncate font-medium">After payroll for {{ date('M', mktime(0, 0, 0, $month, 1)) }}</div>
+                    <div class="text-[9px] {{ $net >= 0 ? 'text-emerald-300' : 'text-red-300' }} truncate font-medium">After payroll</div>
                 </div>
             </div>
             <i data-lucide="{{ $net >= 0 ? 'trending-up' : 'trending-down' }}" class="absolute -right-3 -bottom-3 w-24 h-24 {{ $net >= 0 ? 'text-emerald-400' : 'text-red-400' }} opacity-[0.12] -rotate-12 z-0 pointer-events-none"></i>

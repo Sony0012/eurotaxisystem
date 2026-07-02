@@ -10,8 +10,8 @@ class SalaryController extends Controller
 {
     public function index(Request $request)
     {
-        $month = $request->input('month', date('m'));
-        $year = $request->input('year', date('Y'));
+        $date_from = $request->input('date_from', date('Y-m-01'));
+        $date_to = $request->input('date_to', date('Y-m-d'));
         $search = $request->input('search', '');
 
         // 1. Table Query (Recent Salaries)
@@ -44,24 +44,22 @@ class SalaryController extends Controller
             });
         }
 
-        if ($request->filled('date')) {
-            $query->whereDate('s.pay_date', $request->date);
+        if ($request->filled('date_from') && $request->filled('date_to')) {
+            $query->whereBetween('s.pay_date', [$date_from, $date_to]);
         }
 
         // Table shows all recent records regardless of month, ordered by latest creation
         $salaries = $query->orderBy('s.created_at', 'desc')->get();
 
-        // 2. Summary Query (Strictly Filtered Month)
+        // 2. Summary Query (Strictly Filtered Date)
         $monthlyRecords = DB::table('salaries')
-            ->where('month', $month)
-            ->where('year', $year)
+            ->whereBetween('pay_date', [$date_from, $date_to])
             ->get();
  
         // Calculate income from boundaries for net profit
         $total_income = DB::table('boundaries')
             ->whereNull('deleted_at')
-            ->whereMonth('date', $month)
-            ->whereYear('date', $year)
+            ->whereBetween('date', [$date_from, $date_to])
             ->sum('actual_boundary') ?? 0;
  
         // Calculate totals/summary using filtered records
@@ -113,7 +111,7 @@ class SalaryController extends Controller
             ->orderBy('name')
             ->get();
 
-        return view('salary.index', compact('salaries', 'summary', 'search', 'employees', 'month', 'year'));
+        return view('salary.index', compact('salaries', 'summary', 'search', 'employees', 'date_from', 'date_to'));
     }
 
     public function store(Request $request)
