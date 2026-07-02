@@ -32,11 +32,15 @@ class DriverBehaviorController extends Controller
         $limit           = 10;
         $offset          = ($page - 1) * $limit;
 
+        $classifications = \App\Models\IncidentClassification::orderBy('name')->get();
+        $validTypes = $classifications->pluck('name')->toArray();
+
         // ── Unified incident feed: driver_behavior with eager loading ──
         $query = \App\Models\DriverBehavior::query()
             ->with(['involvedParties', 'partsEstimates.part'])
             ->leftJoin('units as u', 'driver_behavior.unit_id', '=', 'u.id')
             ->leftJoin('drivers as d', 'driver_behavior.driver_id', '=', 'd.id')
+            ->whereIn('driver_behavior.incident_type', $validTypes)
             ->select(
                 'driver_behavior.*',
                 'u.plate_number',
@@ -82,7 +86,7 @@ class DriverBehaviorController extends Controller
         ];
 
         // ── Summary Stats ──────────────────────────────────────────────
-        $stats = $this->getStats($date_from, $date_to);
+        $stats = $this->getStats($date_from, $date_to, $validTypes);
 
         // ── Dropdowns ─────────────────────────────────────────────────
         $drivers = DB::table('drivers as d')
@@ -105,7 +109,7 @@ class DriverBehaviorController extends Controller
             ->orderBy('plate_number')->get();
 
         $spare_parts = \App\Models\SparePart::orderBy('name')->get();
-        $classifications = \App\Models\IncidentClassification::orderBy('name')->get();
+        // Classifications are already fetched above
         $archivedClassifications = \App\Models\IncidentClassification::onlyTrashed()->orderBy('name')->get();
 
         // ── Accident Reports ─────────────────────────────────────────
@@ -821,10 +825,11 @@ class DriverBehaviorController extends Controller
     }
 
     // ─── PRIVATE: Summary Stats ─────────────────────────────────────────
-    private function getStats($from, $to)
+    private function getStats($from, $to, $validTypes = [])
     {
         $base  = DB::table('driver_behavior')
             ->whereNull('deleted_at')
+            ->whereIn('incident_type', $validTypes)
             ->whereDate('incident_date', '>=', $from)
             ->whereDate('incident_date', '<=', $to);
         $bySev = (clone $base)->selectRaw('severity, COUNT(*) as count')->groupBy('severity')->get()->pluck('count', 'severity')->toArray();
@@ -832,6 +837,7 @@ class DriverBehaviorController extends Controller
 
         $totalViolators = DB::table('driver_behavior')
             ->whereNull('deleted_at')
+            ->whereIn('incident_type', $validTypes)
             ->whereDate('incident_date', '>=', $from)
             ->whereDate('incident_date', '<=', $to)
             ->distinct('driver_id')
@@ -839,13 +845,16 @@ class DriverBehaviorController extends Controller
 
         $totalCharges   = DB::table('driver_behavior')
             ->whereNull('deleted_at')
+            ->whereIn('incident_type', $validTypes)
             ->sum('total_charge_to_driver');
         $pendingCharges = DB::table('driver_behavior')
             ->whereNull('deleted_at')
+            ->whereIn('incident_type', $validTypes)
             ->where('charge_status', 'pending')
             ->sum('total_charge_to_driver');
         
         $violationsToday = \App\Models\DriverBehavior::violations()
+            ->whereIn('incident_type', $validTypes)
             ->whereDate('incident_date', now()->timezone('Asia/Manila')->toDateString())
             ->count();
 
