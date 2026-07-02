@@ -159,11 +159,11 @@
                 <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-1">Unit Selection</label>
                 <div class="relative group">
                     <i data-lucide="car-front" class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-yellow-600 transition-colors"></i>
-                    <select name="unit_id" onchange="this.form.submit()"
+                    <select name="unit" onchange="this.form.submit()"
                         class="block w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl text-xs font-black shadow-sm focus:ring-4 focus:ring-yellow-500/10 focus:border-yellow-400 transition-all outline-none appearance-none cursor-pointer">
                         <option value="">All Units</option>
                         @foreach($units as $unit)
-                            <option value="{{ $unit->uuid }}" {{ ($selected_unit ?? '') == $unit->uuid ? 'selected' : '' }}>
+                            <option value="{{ $unit->plate_number }}" {{ ($selected_unit ?? '') == $unit->plate_number ? 'selected' : '' }}>
                                 {{ $unit->plate_number }}
                             </option>
                         @endforeach
