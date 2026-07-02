@@ -872,10 +872,14 @@
                             </div>
                             <h4 class="text-sm font-black text-slate-800">Expected Collections (Boundary)</h4>
                         </div>
-                        <p class="text-xs text-slate-600 leading-relaxed">
+                        <p class="text-xs text-slate-600 leading-relaxed mb-3">
                             We calculate the <strong>average boundary collected across the past 6 months</strong>. More recent months carry higher weights to reflect recent fleet productivity and trends accurately.
                         </p>
-                        <div class="mt-3 flex items-center gap-2 text-[10px] font-bold text-emerald-600">
+                        <div class="p-3 bg-white rounded-xl border border-emerald-100 mb-3 shadow-sm">
+                            <p class="text-[10px] font-bold text-slate-400 mb-1">COMPUTATION:</p>
+                            <p class="text-sm font-black text-slate-700">6-Month WMA = <span class="text-emerald-600">{{ formatCurrency($forecast_predicted['predicted_boundary'] ?? 0) }}</span></p>
+                        </div>
+                        <div class="mt-auto flex items-center gap-2 text-[10px] font-bold text-emerald-600">
                             <i data-lucide="database" class="w-3 h-3"></i>
                             Source: Boundary Management System
                         </div>
@@ -889,10 +893,14 @@
                             </div>
                             <h4 class="text-sm font-black text-slate-800">Expected Expenses (Office Expenses)</h4>
                         </div>
-                        <p class="text-xs text-slate-600 leading-relaxed">
+                        <p class="text-xs text-slate-600 leading-relaxed mb-3">
                             We analyze the <strong>recurring patterns in monthly office expenses</strong> — including utility bills, office supplies, and administrative fees, calculating the trend line.
                         </p>
-                        <div class="mt-3 flex items-center gap-2 text-[10px] font-bold text-rose-600">
+                        <div class="p-3 bg-white rounded-xl border border-rose-100 mb-3 shadow-sm">
+                            <p class="text-[10px] font-bold text-slate-400 mb-1">COMPUTATION:</p>
+                            <p class="text-sm font-black text-slate-700">6-Month WMA = <span class="text-rose-600">{{ formatCurrency($forecast_predicted['predicted_expenses'] ?? 0) }}</span></p>
+                        </div>
+                        <div class="mt-auto flex items-center gap-2 text-[10px] font-bold text-rose-600">
                             <i data-lucide="database" class="w-3 h-3"></i>
                             Source: Office Expenses Module
                         </div>
@@ -906,10 +914,14 @@
                             </div>
                             <h4 class="text-sm font-black text-slate-800">Expected Repairs (Maintenance)</h4>
                         </div>
-                        <p class="text-xs text-slate-600 leading-relaxed">
+                        <p class="text-xs text-slate-600 leading-relaxed mb-3">
                             Based on <strong>maintenance logs from all active vehicles</strong>, we average the monthly repair costs (parts, labor, and emergency servicing), adjusted by vehicle age.
                         </p>
-                        <div class="mt-3 flex items-center gap-2 text-[10px] font-bold text-amber-600">
+                        <div class="p-3 bg-white rounded-xl border border-amber-100 mb-3 shadow-sm">
+                            <p class="text-[10px] font-bold text-slate-400 mb-1">COMPUTATION:</p>
+                            <p class="text-sm font-black text-slate-700">6-Month WMA = <span class="text-amber-600">{{ formatCurrency($forecast_predicted['predicted_maintenance'] ?? 0) }}</span></p>
+                        </div>
+                        <div class="mt-auto flex items-center gap-2 text-[10px] font-bold text-amber-600">
                             <i data-lucide="database" class="w-3 h-3"></i>
                             Source: Maintenance & Parts Records
                         </div>
@@ -923,10 +935,14 @@
                             </div>
                             <h4 class="text-sm font-black text-slate-800">Expected Salaries (Salaries)</h4>
                         </div>
-                        <p class="text-xs text-slate-600 leading-relaxed">
+                        <p class="text-xs text-slate-600 leading-relaxed mb-3">
                             We compile the <strong>payroll metrics over the past 6 months</strong> — including fixed base salaries, overtime pay, and adjustments, computing a reliable forward average.
                         </p>
-                        <div class="mt-3 flex items-center gap-2 text-[10px] font-bold text-indigo-600">
+                        <div class="p-3 bg-white rounded-xl border border-indigo-100 mb-3 shadow-sm">
+                            <p class="text-[10px] font-bold text-slate-400 mb-1">COMPUTATION:</p>
+                            <p class="text-sm font-black text-slate-700">6-Month WMA = <span class="text-indigo-600">{{ formatCurrency($forecast_predicted['predicted_salaries'] ?? 0) }}</span></p>
+                        </div>
+                        <div class="mt-auto flex items-center gap-2 text-[10px] font-bold text-indigo-600">
                             <i data-lucide="database" class="w-3 h-3"></i>
                             Source: Salary & Payroll Module
                         </div>
@@ -939,9 +955,23 @@
                         <i data-lucide="calculator" class="w-5 h-5 text-indigo-600 flex-shrink-0 mt-0.5"></i>
                         <div>
                             <p class="text-[11px] font-black text-indigo-700 uppercase tracking-widest mb-2">Simple Formula</p>
-                            <p class="text-sm font-bold text-slate-700 mb-2">
+                            <p class="text-sm font-bold text-slate-700 mb-3">
                                 Net Income = Expected Collections − Expected Expenses − Expected Repairs − Expected Salaries
                             </p>
+                            <div class="p-3 bg-white rounded-xl border border-indigo-100 mb-3 shadow-sm inline-block w-full">
+                                <p class="text-[10px] font-bold text-slate-400 mb-1">EXACT CALCULATION:</p>
+                                <div class="flex flex-wrap items-center gap-2 text-sm font-black text-slate-700">
+                                    <span class="text-emerald-600">{{ formatCurrency($forecast_predicted['predicted_boundary'] ?? 0) }}</span>
+                                    <span class="text-slate-400">-</span> 
+                                    <span class="text-rose-600">{{ formatCurrency($forecast_predicted['predicted_expenses'] ?? 0) }}</span>
+                                    <span class="text-slate-400">-</span> 
+                                    <span class="text-amber-600">{{ formatCurrency($forecast_predicted['predicted_maintenance'] ?? 0) }}</span>
+                                    <span class="text-slate-400">-</span> 
+                                    <span class="text-indigo-600">{{ formatCurrency($forecast_predicted['predicted_salaries'] ?? 0) }}</span>
+                                    <span class="text-slate-400">=</span> 
+                                    <span class="text-lg {{ ($forecast_predicted['net_income'] ?? 0) >= 0 ? 'text-emerald-600' : 'text-rose-600' }}">{{ formatCurrency($forecast_predicted['net_income'] ?? 0) }}</span>
+                                </div>
+                            </div>
                             <p class="text-xs text-slate-500 leading-relaxed">
                                 Each component is computed using a <strong>weighted moving average</strong> of the last 6 months, prioritizing recent performance. Best/Worst Case represents a ±15% margin based on historical fleet volatility.
                             </p>
