@@ -252,6 +252,7 @@ Route::middleware(['auth', 'page_access'])->group(function () {
 
     // Notifications (AJAX)
     Route::post('/notifications/dismiss', [NotificationController::class, 'dismissAlert'])->name('notifications.dismiss');
+    Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.markAllAsRead');
     Route::post('/my-account/test-push', [\App\Http\Controllers\Api\NotificationController::class, 'simulatePushNotification'])->name('my-account.test-push');
 
     // ─── GitHub Integration Routes ─────────────────────

@@ -1133,7 +1133,13 @@
             tryInitCapacitorPush();
 
             // Restore Read States
-            let readNotifs = JSON.parse(localStorage.getItem('read_notifs') || '{}');
+            let readNotifs = {};
+            try {
+                readNotifs = JSON.parse(localStorage.getItem('read_notifs') || '{}');
+            } catch (e) {
+                readNotifs = {};
+                localStorage.removeItem('read_notifs');
+            }
             
             // Migrate legacy array to object format
             if (Array.isArray(readNotifs)) {
@@ -1197,7 +1203,12 @@
 
         function markAsRead(id) {
             id = String(id);
-            let readNotifs = JSON.parse(localStorage.getItem('read_notifs') || '{}');
+            let readNotifs = {};
+            try {
+                readNotifs = JSON.parse(localStorage.getItem('read_notifs') || '{}');
+            } catch (e) {
+                readNotifs = {};
+            }
             if (Array.isArray(readNotifs)) readNotifs = {};
 
             readNotifs[id] = Date.now();
@@ -1227,7 +1238,12 @@
 
         function markAllAsRead() {
             const items = document.querySelectorAll('.notification-item');
-            let readNotifs = JSON.parse(localStorage.getItem('read_notifs') || '{}');
+            let readNotifs = {};
+            try {
+                readNotifs = JSON.parse(localStorage.getItem('read_notifs') || '{}');
+            } catch (e) {
+                readNotifs = {};
+            }
             if (Array.isArray(readNotifs)) readNotifs = {};
             
             const now = Date.now();
@@ -1261,6 +1277,16 @@
             if (typeof updateNotificationCount === 'function') {
                 updateNotificationCount();
             }
+
+            // PERMANENT FIX: Tell the backend to resolve all these notifications so they never return!
+            fetch('/notifications/mark-all-read', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                }
+            }).catch(err => console.error('Failed to mark all as read in DB:', err));
         }
 
         function updateNotificationCount() {

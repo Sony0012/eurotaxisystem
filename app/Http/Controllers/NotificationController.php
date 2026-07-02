@@ -25,4 +25,21 @@ class NotificationController extends Controller
 
         return response()->json(['success' => true]);
     }
+
+    public function markAllAsRead(Request $request)
+    {
+        // Resolve all system alerts EXCEPT 'low_stock' (parts stock)
+        DB::table('system_alerts')
+            ->where('is_resolved', false)
+            ->where('type', '!=', 'low_stock')
+            ->update([
+                'is_resolved' => true,
+                'resolved_at' => now(),
+                'resolved_by' => auth()->id(),
+            ]);
+
+        \App\Http\Controllers\ActivityLogController::log('Marked All Alerts as Read', "User bulk resolved all system alerts.");
+
+        return response()->json(['success' => true]);
+    }
 }
