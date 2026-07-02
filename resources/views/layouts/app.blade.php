@@ -437,34 +437,26 @@
                         @endif
 
                         @if(auth()->user()->hasAccessTo('driver-behavior.*'))
-                        <div class="relative group" x-data="{ open: {{ request()->routeIs('driver-behavior.*') ? 'true' : 'false' }} }">
-                            <button @click="open = !open" 
-                                class="w-full sidebar-item flex items-center justify-between px-4 md:px-0 lg:px-4 py-1.5 md:py-2 rounded-lg text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 {{ request()->routeIs('driver-behavior.*') ? 'bg-yellow-50 text-yellow-700 font-semibold' : '' }}">
-                                <div class="flex items-center gap-2.5 justify-center md:justify-center lg:justify-start w-full md:w-auto lg:w-full">
-                                    <i data-lucide="alert-triangle" class="w-5 md:w-5 lg:w-4 h-5 md:h-5 lg:h-4"></i>
-                                    <span class="text-sm block md:hidden lg:block">Driver Behavior</span>
-                                </div>
-                                <i data-lucide="chevron-down" class="w-4 h-4 transition-transform duration-200 block md:hidden lg:block" :class="{'rotate-180': open}"></i>
-                            </button>
+                        <div class="relative group w-full">
+                            <a href="{{ route('driver-behavior.incidents') }}"
+                                class="sidebar-item flex items-center justify-start md:justify-center lg:justify-start gap-2.5 px-4 md:px-0 lg:px-4 py-1.5 md:py-2 rounded-lg text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 {{ request()->routeIs('driver-behavior.*') ? 'bg-yellow-50 text-yellow-700 font-semibold' : '' }}">
+                                <i data-lucide="alert-triangle" class="w-5 md:w-5 lg:w-4 h-5 md:h-5 lg:h-4"></i>
+                                <span class="text-sm block md:hidden lg:block flex-1 whitespace-nowrap">Driver Behavior</span>
+                                <i data-lucide="chevron-down" class="w-3 h-3 text-gray-400 group-hover:text-yellow-700 hidden lg:block transition-transform duration-200 group-hover:rotate-180"></i>
+                            </a>
                             
-                            <div x-show="open" 
-                                x-transition:enter="transition ease-out duration-200"
-                                x-transition:enter-start="opacity-0 -translate-y-2"
-                                x-transition:enter-end="opacity-100 translate-y-0"
-                                class="mt-1 space-y-1 block md:hidden lg:block">
-                                <a href="{{ route('driver-behavior.incidents') }}" 
-                                    class="flex items-center gap-2 px-4 py-1.5 ml-6 text-sm text-gray-600 hover:text-yellow-700 rounded-lg {{ request()->routeIs('driver-behavior.incidents') ? 'text-yellow-700 font-semibold bg-yellow-50/50' : '' }}">
-                                    <div class="w-1 h-1 rounded-full bg-current"></div>
+                            {{-- Dropdown Sub-menu on Hover --}}
+                            <div class="hidden group-hover:block lg:pl-10 pl-0 space-y-1 mt-1 transition-all duration-300">
+                                <a href="{{ route('driver-behavior.incidents') }}" class="{{ request()->routeIs('driver-behavior.incidents') ? 'text-orange-600 font-bold bg-orange-50/50 block rounded-xl py-2 px-3' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50 block rounded-xl py-2 px-3' }} flex items-center gap-2">
+                                    <i data-lucide="alert-circle" class="w-3.5 h-3.5 {{ request()->routeIs('driver-behavior.incidents') ? 'text-orange-600' : 'text-slate-400' }}"></i> 
                                     <span class="text-[10px] uppercase tracking-wider font-bold">Incidents Record</span>
                                 </a>
-                                <a href="{{ route('driver-behavior.incentives') }}" 
-                                    class="flex items-center gap-2 px-4 py-1.5 ml-6 text-sm text-gray-600 hover:text-yellow-700 rounded-lg {{ request()->routeIs('driver-behavior.incentives') ? 'text-yellow-700 font-semibold bg-yellow-50/50' : '' }}">
-                                    <div class="w-1 h-1 rounded-full bg-current"></div>
+                                <a href="{{ route('driver-behavior.incentives') }}" class="{{ request()->routeIs('driver-behavior.incentives') ? 'text-green-600 font-bold bg-green-50/50 block rounded-xl py-2 px-3' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50 block rounded-xl py-2 px-3' }} flex items-center gap-2">
+                                    <i data-lucide="award" class="w-3.5 h-3.5 {{ request()->routeIs('driver-behavior.incentives') ? 'text-green-600' : 'text-slate-400' }}"></i> 
                                     <span class="text-[10px] uppercase tracking-wider font-bold">Weekly Incentives</span>
                                 </a>
-                                <a href="{{ route('driver-behavior.performance') }}" 
-                                    class="flex items-center gap-2 px-4 py-1.5 ml-6 text-sm text-gray-600 hover:text-yellow-700 rounded-lg {{ request()->routeIs('driver-behavior.performance') ? 'text-yellow-700 font-semibold bg-yellow-50/50' : '' }}">
-                                    <div class="w-1 h-1 rounded-full bg-current"></div>
+                                <a href="{{ route('driver-behavior.performance') }}" class="{{ request()->routeIs('driver-behavior.performance') ? 'text-blue-600 font-bold bg-blue-50/50 block rounded-xl py-2 px-3' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50 block rounded-xl py-2 px-3' }} flex items-center gap-2">
+                                    <i data-lucide="bar-chart-2" class="w-3.5 h-3.5 {{ request()->routeIs('driver-behavior.performance') ? 'text-blue-600' : 'text-slate-400' }}"></i> 
                                     <span class="text-[10px] uppercase tracking-wider font-bold">Performance Summary</span>
                                 </a>
                             </div>
