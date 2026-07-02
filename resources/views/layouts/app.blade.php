@@ -100,36 +100,7 @@
         i[data-lucide] { display: inline-block; width: 1rem; height: 1rem; vertical-align: middle; flex-shrink: 0; }
         .sidebar-item i[data-lucide] { width: 1.25rem; height: 1.25rem; }
         
-        /* Page Navigation - Loading Overlay (never blank/white) */
-        #navLoadOverlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            z-index: 99999;
-            background: rgba(10, 18, 35, 0.55);
-            backdrop-filter: blur(3px);
-            -webkit-backdrop-filter: blur(3px);
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            gap: 14px;
-        }
-        #navLoadOverlay.is-loading { display: flex; }
-        #navLoadOverlay .nav-spinner {
-            width: 46px; height: 46px;
-            border: 4px solid rgba(251,191,36,0.25);
-            border-top-color: #fbbf24;
-            border-radius: 50%;
-            animation: navSpin 0.65s linear infinite;
-        }
-        #navLoadOverlay .nav-load-text {
-            color: #fbbf24;
-            font-size: 13px;
-            font-weight: 500;
-            letter-spacing: 0.5px;
-            opacity: 0.9;
-        }
-        @keyframes navSpin { to { transform: rotate(360deg); } }
+        /* Smooth page transitions are handled by instant swap after fetch now. No fade/blanking. */
         
         /* Prevent sidebar flicker during navigation on desktop only */
         @media (min-width: 768px) {
@@ -1665,23 +1636,13 @@
                 }
             }
             
-            // Create loading overlay once — sits on TOP of existing content, page never goes blank
-            const navOverlay = document.createElement('div');
-            navOverlay.id = 'navLoadOverlay';
-            navOverlay.innerHTML = '<div class="nav-spinner"></div><div class="nav-load-text">Loading...</div>';
-            document.body.appendChild(navOverlay);
-
             // Update page content without reload
             async function navigateToPage(url) {
-                // Show overlay ON TOP of current page — old content stays visible
-                navOverlay.classList.add('is-loading');
-                document.querySelectorAll('.nav-loading').forEach(el => el.classList.add('nav-loading'));
-
                 try {
                     const pageData = await fetchPage(url);
 
                     if (pageData && pageData.mainContent) {
-                        // Swap content ONLY after fetch is done — no blank screen
+                        // Swap content ONLY after fetch is done — no blank screen, no fade
                         const mainContent = document.querySelector('#appMainContent');
                         mainContent.innerHTML = pageData.mainContent.innerHTML;
 
@@ -1720,8 +1681,7 @@
                     console.error('Navigation error:', error);
                     window.location.href = url;
                 } finally {
-                    // Always hide overlay and clear loading states
-                    navOverlay.classList.remove('is-loading');
+                    // Always clear loading states from the sidebar links
                     document.querySelectorAll('.nav-loading').forEach(el => el.classList.remove('nav-loading'));
                 }
             }
