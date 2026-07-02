@@ -1146,7 +1146,7 @@
                 if (nowMs - readNotifs[id] < 2592000000) { // Still within 30 days
                     const el = document.getElementById('notif-' + id);
                     if (el) {
-                        el.style.backgroundColor = 'transparent';
+                        el.style.display = 'none';
                         el.classList.remove('unread-notif');
                     }
                 } else {
@@ -1214,7 +1214,7 @@
             
             const el = document.getElementById('notif-' + id);
             if (el) {
-                el.style.backgroundColor = 'transparent';
+                el.style.display = 'none';
                 el.classList.remove('unread-notif');
                 // Decrement badge count
                 if (typeof updateNotificationCount === 'function') {
@@ -1240,7 +1240,7 @@
                 if (id) {
                     readNotifs[id] = now;
                 }
-                item.style.backgroundColor = 'transparent';
+                item.style.display = 'none';
                 item.classList.remove('unread-notif');
             });
 
