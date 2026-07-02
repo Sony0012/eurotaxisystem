@@ -879,6 +879,7 @@ class DriverAppController extends Controller
             $behaviorRecords = DB::table('driver_behavior')
                 ->where('driver_id', $driver->id)
                 ->where('incident_type', 'Short Boundary')
+                ->where('total_charge_to_driver', '>', 0) // IGNORE THE DUMMY 0-CHARGE RECORDS
                 ->whereIn('incident_date', $shortageDates)
                 ->whereNull('deleted_at')
                 ->get()->keyBy('incident_date');
