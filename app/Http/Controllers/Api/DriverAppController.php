@@ -889,6 +889,7 @@ class DriverAppController extends Controller
                         $debt = $behaviorRecords->get($b->date);
                         // Adjust the Android app's view of the boundary so the shortage matches the remaining balance
                         $b->actual_boundary = $b->boundary_amount - $debt->remaining_balance;
+                        $b->shortage = $debt->remaining_balance; // Update the shortage column!
                         
                         if ($debt->remaining_balance <= 0) {
                             $b->status = 'paid';
