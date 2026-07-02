@@ -9,9 +9,9 @@ class UnitProfitabilityController extends Controller
 {
     public function index(Request $request)
     {
-        // Get date range filter
-        $date_from = $request->input('date_from', date('Y-m-01'));
-        $date_to = $request->input('date_to', date('Y-m-t'));
+        // Get date range filter (default to all-time since UI filters were removed)
+        $date_from = $request->input('date_from', '2000-01-01');
+        $date_to = $request->input('date_to', '2100-12-31');
         $unit_filter = $request->input('unit', '');
 
         // Build WHERE conditions
@@ -113,64 +113,6 @@ class UnitProfitabilityController extends Controller
         $selected_unit = $unit_filter;
         $full_profitability = $profitability; // Keep original for summary sections
 
-        // Calculate top 10 forecasting unit profitability
-        $ninetyDaysAgo = date('Y-m-d', strtotime('-90 days'));
-        $forecast_unit_profits = DB::table('units as u')
-            ->whereNull('u.deleted_at')
-            ->where('u.status', 'active')
-            ->leftJoin(DB::raw("(
-                SELECT unit_id,
-                       AVG(actual_boundary) as avg_daily_boundary,
-                       COUNT(DISTINCT date) as operating_days
-                FROM boundaries
-                WHERE deleted_at IS NULL AND date >= '{$ninetyDaysAgo}'
-                GROUP BY unit_id
-            ) as b"), 'b.unit_id', '=', 'u.id')
-            ->leftJoin(DB::raw("(
-                SELECT unit_id,
-                       SUM(cost) as total_maint_cost,
-                       COUNT(DISTINCT DATE(date_started)) as maint_days
-                FROM maintenance
-                WHERE deleted_at IS NULL AND date_started >= '{$ninetyDaysAgo}'
-                GROUP BY unit_id
-            ) as m"), 'm.unit_id', '=', 'u.id')
-            ->selectRaw('
-                u.id,
-                u.plate_number,
-                u.boundary_rate,
-                COALESCE(b.avg_daily_boundary, 0) as avg_daily_boundary,
-                COALESCE(b.operating_days, 0) as operating_days,
-                COALESCE(m.total_maint_cost, 0) as total_maint_cost,
-                COALESCE(m.maint_days, 0) as maint_days
-            ')
-            ->orderByDesc('avg_daily_boundary')
-            ->limit(10)
-            ->get()
-            ->map(function ($unit) {
-                $avgDailyBoundary = (float)$unit->avg_daily_boundary;
-                $operatingDays    = (int)$unit->operating_days;
-
-                // Average daily maintenance cost over 90 days
-                $avgDailyMaint = $operatingDays > 0
-                    ? round((float)$unit->total_maint_cost / 90, 2)
-                    : 0;
-
-                $netDailyProfit     = round($avgDailyBoundary - $avgDailyMaint, 2);
-                $predictedMonthly   = round($netDailyProfit * 30, 2);
-
-                return [
-                    'plate'               => $unit->plate_number,
-                    'boundary_rate'       => (float)$unit->boundary_rate,
-                    'avg_daily_boundary'  => round($avgDailyBoundary, 2),
-                    'avg_daily_maint'     => $avgDailyMaint,
-                    'daily_profit'        => $netDailyProfit,
-                    'monthly_profit'      => $predictedMonthly,
-                    'operating_days_90d'  => $operatingDays,
-                ];
-            })
-            ->values()
-            ->toArray();
-
         // Manual Pagination (10 per page)
         $currentPage = \Illuminate\Pagination\Paginator::resolveCurrentPage() ?: 1;
         $perPage = 10;
@@ -183,14 +125,14 @@ class UnitProfitabilityController extends Controller
             ['path' => \Illuminate\Pagination\Paginator::resolveCurrentPath(), 'query' => $request->query()]
         );
 
-        return view('unit-profitability.index', compact('profitability', 'full_profitability', 'units', 'overview', 'date_from', 'date_to', 'selected_unit', 'forecast_unit_profits'));
+        return view('unit-profitability.index', compact('profitability', 'full_profitability', 'units', 'overview', 'date_from', 'date_to', 'selected_unit'));
     }
 
     public function getDetails(Request $request)
     {
         $unit_id = $request->unit_id;
-        $date_from = $request->date_from ?? date('Y-m-01');
-        $date_to = $request->date_to ?? date('Y-m-d');
+        $date_from = $request->date_from ?? '2000-01-01';
+        $date_to = $request->date_to ?? '2100-12-31';
 
         $unit = \DB::table('units')->where('id', $unit_id)->first();
         if (!$unit) {
@@ -231,8 +173,8 @@ class UnitProfitabilityController extends Controller
 
     public function generateAiDss(Request $request)
     {
-        $date_from = $request->input('date_from', date('Y-m-01'));
-        $date_to = $request->input('date_to', date('Y-m-t'));
+        $date_from = $request->input('date_from', '2000-01-01');
+        $date_to = $request->input('date_to', '2100-12-31');
 
         // Gather critical data for AI
         $boundariesSub = DB::table('boundaries')
