@@ -220,6 +220,7 @@ Route::middleware(['auth', 'page_access'])->group(function () {
     Route::get('/analytics/heatmap', [AnalyticsController::class, 'heatmap'])->name('analytics.heatmap');
     Route::get('/analytics/history', [AnalyticsController::class, 'history'])->name('analytics.history');
     Route::get('/analytics/export/csv', [AnalyticsController::class, 'exportCsv'])->name('analytics.export.csv');
+    Route::get('/analytics/expenses-breakdown', [AnalyticsController::class, 'expensesBreakdown'])->name('analytics.expenses-breakdown');
 
     // Activity Logs
     Route::get('/activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');
