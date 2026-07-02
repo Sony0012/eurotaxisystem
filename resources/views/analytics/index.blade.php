@@ -1960,16 +1960,26 @@
         grid.appendChild(col);
     });
 
-    // Animate heatmap cells with stagger
-    setTimeout(() => {
-        const cells = grid.querySelectorAll('.w-3.h-3');
-        cells.forEach((cell, index) => {
-            setTimeout(() => {
-                cell.classList.remove('opacity-0', 'scale-50');
-                cell.classList.add('opacity-100', 'scale-100');
-            }, index * 1.5); // Fast staggered animation
+    // IntersectionObserver for Heatmap
+    const heatmapObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            const cells = grid.querySelectorAll('.w-3.h-3');
+            if (entry.isIntersecting) {
+                cells.forEach((cell, index) => {
+                    setTimeout(() => {
+                        cell.classList.remove('opacity-0', 'scale-50');
+                        cell.classList.add('opacity-100', 'scale-100');
+                    }, index * 1.5);
+                });
+            } else {
+                cells.forEach(cell => {
+                    cell.classList.remove('opacity-100', 'scale-100');
+                    cell.classList.add('opacity-0', 'scale-50');
+                });
+            }
         });
-    }, 100);
+    }, { threshold: 0.1 });
+    heatmapObserver.observe(grid);
 })();
 
 // Driver Utilization Chart
@@ -1984,7 +1994,7 @@
         'rgba(251,113,133,0.85)'
     );
 
-    new Chart(ctx, {
+    const config = {
         type: 'bar',
         data: {
             labels: utilData.map(d => d.name.split(' ')[0]), // First name only
@@ -2034,17 +2044,42 @@
                 y: { stacked: true, max: 30, grid: { color: 'rgba(148,163,184,0.1)' }, ticks: { stepSize: 5 } }
             }
         }
-    });
+    };
+
+    let driverChart = null;
+    const chartObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                if (!driverChart) {
+                    driverChart = new Chart(ctx, config);
+                }
+            } else {
+                if (driverChart) {
+                    driverChart.destroy();
+                    driverChart = null;
+                }
+            }
+        });
+    }, { threshold: 0.1 });
+    
+    if (ctx.parentElement) {
+        chartObserver.observe(ctx.parentElement);
+    }
 })();
 // Animate width
-setTimeout(() => {
-    document.querySelectorAll('.animate-width').forEach(el => {
-        el.style.width = el.getAttribute('data-width');
+const widthObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.style.width = entry.target.getAttribute('data-width');
+        } else {
+            entry.target.style.width = '0%';
+        }
     });
-}, 100);
+}, { threshold: 0.1 });
+document.querySelectorAll('.animate-width').forEach(el => widthObserver.observe(el));
 
 // Animate numbers
-document.querySelectorAll('.animate-number').forEach(el => {
+function animateNumber(el) {
     const finalValue = parseFloat(el.getAttribute('data-value'));
     if (isNaN(finalValue)) return;
     const isCurrency = el.getAttribute('data-is-currency') === 'true';
@@ -2053,34 +2088,35 @@ document.querySelectorAll('.animate-number').forEach(el => {
     
     let ticks = 0;
     const maxTicks = 30; // 30 frames of random spinning
-    const interval = setInterval(() => {
+    if (el.interval) clearInterval(el.interval);
+    
+    el.interval = setInterval(() => {
         ticks++;
         if (ticks >= maxTicks) {
-            clearInterval(interval);
-            // set final value
-            if (isCurrency) {
-                el.innerText = '₱' + finalValue.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
-            } else if (isPct) {
-                el.innerText = finalValue.toFixed(1) + '%';
-            } else if (isInt) {
-                el.innerText = finalValue;
-            } else {
-                el.innerText = finalValue.toLocaleString();
-            }
+            clearInterval(el.interval);
+            if (isCurrency) el.innerText = '₱' + finalValue.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+            else if (isPct) el.innerText = finalValue.toFixed(1) + '%';
+            else if (isInt) el.innerText = finalValue;
+            else el.innerText = finalValue.toLocaleString();
         } else {
-            // random number
             let rand = Math.random() * finalValue * 1.5;
-            if (isCurrency) {
-                el.innerText = '₱' + rand.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
-            } else if (isPct) {
-                el.innerText = rand.toFixed(1) + '%';
-            } else if (isInt) {
-                el.innerText = Math.floor(rand);
-            } else {
-                el.innerText = Math.floor(rand).toLocaleString();
-            }
+            if (isCurrency) el.innerText = '₱' + rand.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+            else if (isPct) el.innerText = rand.toFixed(1) + '%';
+            else if (isInt) el.innerText = Math.floor(rand);
+            else el.innerText = Math.floor(rand).toLocaleString();
         }
     }, 30);
-});
+}
+
+const numberObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            animateNumber(entry.target);
+        } else {
+            entry.target.innerText = '0';
+        }
+    });
+}, { threshold: 0.1 });
+document.querySelectorAll('.animate-number').forEach(el => numberObserver.observe(el));
 </script>
 @endpush
