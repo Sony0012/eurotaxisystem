@@ -75,7 +75,7 @@ class AnalyticsController extends Controller
         // ── Expense Trends ─────────────────────────────────────────────────────
         $expenseTrends = DB::table('expenses')
             ->whereNull('deleted_at')
-            ->selectRaw('DATE_FORMAT(date, "%Y-%m") as month, SUM(ABS(amount)) as total, COUNT(*) as count')
+            ->selectRaw('DATE_FORMAT(date, "%Y-%m") as month, SUM(amount) as total, COUNT(*) as count')
             ->whereBetween('date', [$date_from, $date_to])
             ->groupBy('month')->orderBy('month')->get();
 
@@ -94,7 +94,7 @@ class AnalyticsController extends Controller
 
         $fleet_pulse = [
             'active_units' => $fleetCounts['active'] ?? 0,
-            'idle_units'   => $fleetCounts['idle'] ?? 0,
+            'idle_units'   => ($fleetCounts['idle'] ?? 0) + ($fleetCounts['vacant'] ?? 0) + ($fleetCounts['coding'] ?? 0),
             'maintenance'  => $fleetCounts['maintenance'] ?? 0,
             'surveillance' => $fleetCounts['surveillance'] ?? 0,
         ];
@@ -109,7 +109,7 @@ class AnalyticsController extends Controller
         $total_shortage = $financial_totals->total_shortage ?? 0;
         
         $total_expenses = DB::table('expenses')->whereNull('deleted_at')
-            ->whereBetween('date', [$date_from, $date_to])->sum(DB::raw('ABS(amount)')) ?? 0;
+            ->whereBetween('date', [$date_from, $date_to])->sum('amount') ?? 0;
         
         $avg_boundary_rate = DB::table('units')->whereNull('deleted_at')->avg('boundary_rate') ?? 1000;
         $break_even_days   = $avg_boundary_rate > 0 ? ceil($total_expenses / $avg_boundary_rate) : 0;
@@ -145,7 +145,7 @@ class AnalyticsController extends Controller
 
         $expense_by_category = DB::table('expenses')
             ->whereNull('deleted_at')
-            ->selectRaw('category, SUM(ABS(amount)) as total, COUNT(*) as count')
+            ->selectRaw('category, SUM(amount) as total, COUNT(*) as count')
             ->whereBetween('date', [$date_from, $date_to])
             ->groupBy('category')->orderByDesc('total')->get();
 
@@ -215,7 +215,7 @@ class AnalyticsController extends Controller
         $monthlyExpenses = DB::table('expenses')
             ->whereNull('deleted_at')
             ->whereBetween('date', [$sixMonthsAgo, $today])
-            ->selectRaw('DATE_FORMAT(date, "%Y-%m") as month, SUM(ABS(amount)) as total')
+            ->selectRaw('DATE_FORMAT(date, "%Y-%m") as month, SUM(amount) as total')
             ->groupByRaw('DATE_FORMAT(date, "%Y-%m")')
             ->get()->pluck('total', 'month');
 
@@ -792,7 +792,7 @@ class AnalyticsController extends Controller
         $expenses = DB::table('expenses')
             ->whereNull('deleted_at')
             ->whereBetween('date', [$date_from, $date_to])
-            ->selectRaw('date, SUM(ABS(amount)) as expenses')
+            ->selectRaw('date, SUM(amount) as expenses')
             ->groupBy('date')
             ->get()
             ->keyBy('date');
@@ -865,7 +865,7 @@ class AnalyticsController extends Controller
                 'expenses.category',
                 'expenses.description',
                 'expenses.vendor_name',
-                DB::raw('ABS(expenses.amount) as amount'),
+                DB::raw('expenses.amount as amount'),
                 'expenses.payment_method',
                 'expenses.reference_number',
                 'expenses.status',
