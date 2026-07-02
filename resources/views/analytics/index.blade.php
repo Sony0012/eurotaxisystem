@@ -232,7 +232,7 @@
                                 <i data-lucide="info" class="w-4 h-4 text-indigo-300"></i>
                             </div>
                             <p class="text-sm text-indigo-100/90 leading-relaxed">
-                                Your fleet is operating at <span class="text-white font-bold">{{ $fleet_utilization }}% capacity</span>. 
+                                Your fleet currently has <span class="text-white font-bold">{{ $fleet_pulse['active_units'] ?? 0 }} active units out of {{ array_sum($fleet_pulse) }}</span>. 
                                 @if($fleet_utilization < 80)
                                     @php
                                         $lostRevenue = ($fleet_pulse['idle_units'] + $fleet_pulse['maintenance'] + $fleet_pulse['surveillance']) * 1200;
@@ -249,7 +249,7 @@
                             </div>
                             <p class="text-sm text-indigo-100/90 leading-relaxed">
                                 Financial health is <span class="text-white font-bold">{{ $net_income > 0 ? 'Stable' : 'At Risk' }}</span>. 
-                                Current shortage leakage is <span class="text-rose-300 font-bold">{{ $revenue_leakage_pct }}%</span>. Reducing this to < 3% would add <span class="text-emerald-300 font-bold">₱{{ number_format($total_shortage * 0.5) }}</span> to your bottom line.
+                                Current shortage leakage is <span class="text-rose-300 font-bold">₱{{ number_format($total_shortage, 2) }}</span>. Reducing this by half would add <span class="text-emerald-300 font-bold">₱{{ number_format($total_shortage * 0.5, 2) }}</span> to your bottom line.
                             </p>
                         </div>
                     </div>
