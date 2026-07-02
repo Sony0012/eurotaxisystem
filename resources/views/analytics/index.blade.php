@@ -1486,9 +1486,10 @@
     const revObserver = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
-                if (!revChartInst) revChartInst = new Chart(revCtx, revConfig);
-            } else {
-                if (revChartInst) { revChartInst.destroy(); revChartInst = null; }
+                if (!revChartInst) {
+                    revChartInst = new Chart(revCtx, revConfig);
+                    revObserver.unobserve(entry.target);
+                }
             }
         });
     }, { threshold: 0.1 });
@@ -1522,9 +1523,10 @@
             const expObserver = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
-                        if (!expChartInst) expChartInst = new Chart(expCtx, expConfig);
-                    } else {
-                        if (expChartInst) { expChartInst.destroy(); expChartInst = null; }
+                        if (!expChartInst) {
+                            expChartInst = new Chart(expCtx, expConfig);
+                            expObserver.unobserve(entry.target);
+                        }
                     }
                 });
             }, { threshold: 0.1 });
@@ -1576,9 +1578,10 @@
     const dailyObserver = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
-                if (!dailyChartInst) dailyChartInst = new Chart(dailyCtx, dailyConfig);
-            } else {
-                if (dailyChartInst) { dailyChartInst.destroy(); dailyChartInst = null; }
+                if (!dailyChartInst) {
+                    dailyChartInst = new Chart(dailyCtx, dailyConfig);
+                    dailyObserver.unobserve(entry.target);
+                }
             }
         });
     }, { threshold: 0.1 });
@@ -1616,9 +1619,10 @@
     const maintObserver = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
-                if (!maintChartInst) maintChartInst = new Chart(maintCtx, maintConfig);
-            } else {
-                if (maintChartInst) { maintChartInst.destroy(); maintChartInst = null; }
+                if (!maintChartInst) {
+                    maintChartInst = new Chart(maintCtx, maintConfig);
+                    maintObserver.unobserve(entry.target);
+                }
             }
         });
     }, { threshold: 0.1 });
@@ -1896,9 +1900,10 @@
             const forecastObserver = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
-                        if (!forecastChartInst) forecastChartInst = new Chart(fCtx.getContext('2d'), forecastConfig);
-                    } else {
-                        if (forecastChartInst) { forecastChartInst.destroy(); forecastChartInst = null; }
+                        if (!forecastChartInst) {
+                            forecastChartInst = new Chart(fCtx.getContext('2d'), forecastConfig);
+                            forecastObserver.unobserve(entry.target);
+                        }
                     }
                 });
             }, { threshold: 0.1 });
@@ -2062,13 +2067,21 @@
         col.appendChild(monthLabel);
 
         // Day cells
+        let cellIndex = 0;
         w.days.forEach(d => {
             const cell = document.createElement('div');
-            cell.className = `w-3 h-3 rounded-sm transition-all duration-500 opacity-0 scale-50 hover:scale-125 cursor-pointer ${d ? getColor(d.total) : 'bg-transparent'}`;
+            // Remove initial opacity-0 and scale-50 classes here
+            cell.className = `w-3 h-3 rounded-sm transition-all hover:scale-125 cursor-pointer ${d ? getColor(d.total) : 'bg-transparent'}`;
+            // Apply a base inline style for the animation state
+            cell.style.opacity = '0';
+            cell.style.transform = 'scale(0.5)';
+            cell.style.transition = `all 0.5s ease ${cellIndex * 1.5}ms`;
+            
             if (d && d.total > 0) {
                 cell.title = `${d.date}: \u20b1${d.total.toLocaleString()}`;
             }
             col.appendChild(cell);
+            cellIndex++;
         });
         grid.appendChild(col);
     });
@@ -2076,19 +2089,13 @@
     // IntersectionObserver for Heatmap
     const heatmapObserver = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
-            const cells = grid.querySelectorAll('.w-3.h-3');
             if (entry.isIntersecting) {
-                cells.forEach((cell, index) => {
-                    setTimeout(() => {
-                        cell.classList.remove('opacity-0', 'scale-50');
-                        cell.classList.add('opacity-100', 'scale-100');
-                    }, index * 1.5);
-                });
-            } else {
+                const cells = grid.querySelectorAll('.w-3.h-3');
                 cells.forEach(cell => {
-                    cell.classList.remove('opacity-100', 'scale-100');
-                    cell.classList.add('opacity-0', 'scale-50');
+                    cell.style.opacity = '1';
+                    cell.style.transform = 'scale(1)';
                 });
+                heatmapObserver.unobserve(grid);
             }
         });
     }, { threshold: 0.1 });
@@ -2165,11 +2172,7 @@
             if (entry.isIntersecting) {
                 if (!driverChart) {
                     driverChart = new Chart(ctx, config);
-                }
-            } else {
-                if (driverChart) {
-                    driverChart.destroy();
-                    driverChart = null;
+                    chartObserver.unobserve(entry.target);
                 }
             }
         });
@@ -2184,8 +2187,7 @@ const widthObserver = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
         if (entry.isIntersecting) {
             entry.target.style.width = entry.target.getAttribute('data-width');
-        } else {
-            entry.target.style.width = '0%';
+            widthObserver.unobserve(entry.target);
         }
     });
 }, { threshold: 0.1 });
@@ -2225,8 +2227,7 @@ const numberObserver = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
         if (entry.isIntersecting) {
             animateNumber(entry.target);
-        } else {
-            entry.target.innerText = '0';
+            numberObserver.unobserve(entry.target);
         }
     });
 }, { threshold: 0.1 });
