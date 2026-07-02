@@ -1526,12 +1526,16 @@
                                 generateLabels: function(chart) {
                                     const data = chart.data;
                                     if (data.labels.length && data.datasets.length) {
-                                        const expTotal = data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                        const expTotal = data.datasets[0].data.reduce((a, b) => parseFloat(a) + parseFloat(b), 0);
                                         return data.labels.map(function(label, i) {
                                             const meta = chart.getDatasetMeta(0);
                                             const style = meta.controller.getStyle(i);
-                                            const value = data.datasets[0].data[i];
-                                            const percentage = expTotal > 0 ? ((value / expTotal) * 100).toFixed(1) : 0;
+                                            const value = parseFloat(data.datasets[0].data[i]);
+                                            let percentage = 0;
+                                            if (expTotal > 0) {
+                                                const rawPct = (value / expTotal) * 100;
+                                                percentage = rawPct % 1 === 0 ? rawPct.toFixed(0) : rawPct.toFixed(1);
+                                            }
                                             return {
                                                 text: `${label} (${percentage}%)`,
                                                 fillStyle: style.backgroundColor,
@@ -1549,9 +1553,13 @@
                         tooltip: {
                             callbacks: {
                                 label: function(context) {
-                                    const value = context.parsed;
-                                    const expTotal = context.dataset.data.reduce((a, b) => a + b, 0);
-                                    const percentage = expTotal > 0 ? ((value / expTotal) * 100).toFixed(1) : 0;
+                                    const value = parseFloat(context.raw);
+                                    const expTotal = context.dataset.data.reduce((a, b) => parseFloat(a) + parseFloat(b), 0);
+                                    let percentage = 0;
+                                    if (expTotal > 0) {
+                                        const rawPct = (value / expTotal) * 100;
+                                        percentage = rawPct % 1 === 0 ? rawPct.toFixed(0) : rawPct.toFixed(1);
+                                    }
                                     return ` ₱${value.toLocaleString()} (${percentage}%)`;
                                 }
                             }
