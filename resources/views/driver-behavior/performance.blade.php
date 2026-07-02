@@ -188,10 +188,19 @@
     </div>
 </div>
 
-    <div class="mb-4">
-        <input type="search" id="profileSearch" placeholder="Search driver name..."
-            class="w-full md:w-80 px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-medium focus:ring-2 focus:ring-yellow-500 focus:outline-none shadow-sm"
-            onkeyup="filterProfiles(this.value)" autocomplete="new-password" spellcheck="false" autocorrect="off" autocapitalize="off" readonly onfocus="this.removeAttribute('readonly');">
+    <div class="mb-4 flex flex-col sm:flex-row gap-3">
+        <!-- Hidden input to trick browser autofill -->
+        <input type="text" style="display:none" autocomplete="username">
+        <input type="search" id="profileSearch" placeholder="Search driver name..." name="perf_search_query"
+            class="w-full sm:flex-1 md:w-80 px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-medium focus:ring-2 focus:ring-yellow-500 focus:outline-none shadow-sm"
+            autocomplete="new-password" spellcheck="false" autocorrect="off" autocapitalize="off" readonly onfocus="this.removeAttribute('readonly');">
+        
+        <select id="profileStatusFilter" class="w-full sm:w-64 px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-medium focus:ring-2 focus:ring-yellow-500 focus:outline-none shadow-sm">
+            <option value="all">All Drivers</option>
+            <option value="violators_today">Violators Today</option>
+            <option value="total_violators">Total Violators</option>
+            <option value="eligible">Eligible Incentives</option>
+        </select>
     </div>
 
     <div id="profileGrid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
@@ -200,7 +209,12 @@
             $inc = $profile['incentive'];
             $eligible = $inc['eligible'];
         @endphp
-        <div class="profile-card bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-all cursor-pointer" data-name="{{ strtolower($profile['name']) }}" onclick="openDriverDetails({{ $profile['id'] }})">
+        <div class="profile-card bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-all cursor-pointer" 
+            data-name="{{ strtolower($profile['name']) }}" 
+            data-eligible="{{ $eligible ? '1' : '0' }}"
+            data-violators-today="{{ $profile['incidents_today'] > 0 ? '1' : '0' }}"
+            data-total-violators="{{ $profile['incidents'] > 0 ? '1' : '0' }}"
+            onclick="openDriverDetails({{ $profile['id'] }})">
             {{-- Card Header --}}
             <div class="p-5 border-b border-gray-50 flex items-center gap-3 {{ $eligible ? 'bg-gradient-to-r from-green-50 to-emerald-50' : 'bg-gray-50/50' }}">
                 <div class="w-11 h-11 rounded-xl {{ $eligible ? 'bg-green-500' : 'bg-gray-300' }} flex items-center justify-center text-white font-black text-lg shadow-sm flex-shrink-0">
@@ -265,12 +279,46 @@
     </div>
 @include('driver-management.partials._driver_details_modal')
 <script>
-window.filterProfiles = function(term) {
-    term = term.toLowerCase();
-    document.querySelectorAll('.profile-card').forEach(card => {
-        if (card.dataset.name.includes(term)) card.style.display = 'block';
-        else card.style.display = 'none';
-    });
-};
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('profileSearch');
+    const statusSelect = document.getElementById('profileStatusFilter');
+    const cards = document.querySelectorAll('.profile-card');
+
+    if (searchInput) {
+        searchInput.value = '';
+    }
+
+    window.filterProfiles = function() {
+        const term = searchInput ? searchInput.value.toLowerCase() : '';
+        const status = statusSelect ? statusSelect.value : 'all';
+
+        cards.forEach(card => {
+            const name = card.dataset.name || '';
+            const isEligible = card.dataset.eligible === '1';
+            const isViolatorToday = card.dataset.violatorsToday === '1';
+            const isTotalViolator = card.dataset.totalViolators === '1';
+
+            let matchesSearch = name.includes(term);
+            let matchesStatus = true;
+
+            if (status === 'violators_today') {
+                matchesStatus = isViolatorToday;
+            } else if (status === 'total_violators') {
+                matchesStatus = isTotalViolator;
+            } else if (status === 'eligible') {
+                matchesStatus = isEligible;
+            }
+
+            if (matchesSearch && matchesStatus) {
+                card.style.display = 'block';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    };
+
+    if (searchInput) searchInput.addEventListener('input', filterProfiles);
+    if (statusSelect) statusSelect.addEventListener('change', filterProfiles);
+});
 </script>
 @endsection

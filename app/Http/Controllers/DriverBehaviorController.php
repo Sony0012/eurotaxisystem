@@ -878,11 +878,17 @@ class DriverBehaviorController extends Controller
             ->distinct('d.id')
             ->get();
 
-        // ── OPTIMIZATION: Bulk fetch statistics to avoid N+1 queries ──
         $incidentCounts = DB::table('driver_behavior')
             ->select('driver_id', DB::raw('count(*) as aggregate'))
             ->whereNull('deleted_at')
             ->whereNull('incentive_released_at')
+            ->groupBy('driver_id')
+            ->pluck('aggregate', 'driver_id');
+
+        $incidentCountsToday = DB::table('driver_behavior')
+            ->select('driver_id', DB::raw('count(*) as aggregate'))
+            ->whereNull('deleted_at')
+            ->whereDate('incident_date', \Carbon\Carbon::today('Asia/Manila'))
             ->groupBy('driver_id')
             ->pluck('aggregate', 'driver_id');
 
@@ -928,6 +934,7 @@ class DriverBehaviorController extends Controller
                 'unit'        => $d->plate_number,
                 'unit_id'     => $d->unit_id,
                 'incidents'   => $incidentCounts[$d->id] ?? 0,
+                'incidents_today' => $incidentCountsToday[$d->id] ?? 0,
                 'boundaries'  => $boundaryCounts[$d->id] ?? 0,
                 'shortages'   => $shortageSum[$d->id] ?? 0,
                 'charges'     => $chargeSum[$d->id] ?? 0,
