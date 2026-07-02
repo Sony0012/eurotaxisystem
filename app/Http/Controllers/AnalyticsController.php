@@ -210,38 +210,38 @@ class AnalyticsController extends Controller
         // ─────────────────────────────────────────────────────────────────────
 
         // Batch-query all monthly boundaries in one go
-        $sixMonthsAgo = date('Y-m-01', strtotime('-5 months'));
-        $today        = date('Y-m-t');
+        $sixMonthsAgo = date('Y-m-01', strtotime('first day of -6 months'));
+        $lastMonthEnd = date('Y-m-t', strtotime('last day of -1 month'));
 
         $monthlyBoundaries = DB::table('boundaries')
             ->whereNull('deleted_at')
-            ->whereBetween('date', [$sixMonthsAgo, $today])
+            ->whereBetween('date', [$sixMonthsAgo, $lastMonthEnd])
             ->selectRaw('DATE_FORMAT(date, "%Y-%m") as month, SUM(actual_boundary) as total')
             ->groupByRaw('DATE_FORMAT(date, "%Y-%m")')
             ->get()->pluck('total', 'month');
 
         $monthlyExpenses = DB::table('expenses')
             ->whereNull('deleted_at')
-            ->whereBetween('date', [$sixMonthsAgo, $today])
+            ->whereBetween('date', [$sixMonthsAgo, $lastMonthEnd])
             ->selectRaw('DATE_FORMAT(date, "%Y-%m") as month, SUM(amount) as total')
             ->groupByRaw('DATE_FORMAT(date, "%Y-%m")')
             ->get()->pluck('total', 'month');
 
         $monthlyMaintenance = DB::table('maintenance')
             ->whereNull('deleted_at')
-            ->whereBetween('date_started', [$sixMonthsAgo, $today])
+            ->whereBetween('date_started', [$sixMonthsAgo, $lastMonthEnd])
             ->selectRaw('DATE_FORMAT(date_started, "%Y-%m") as month, SUM(cost) as total')
             ->groupByRaw('DATE_FORMAT(date_started, "%Y-%m")')
             ->get()->pluck('total', 'month');
 
         $monthlySalaries = DB::table('salaries')
-            ->whereBetween('pay_date', [$sixMonthsAgo, $today])
+            ->whereBetween('pay_date', [$sixMonthsAgo, $lastMonthEnd])
             ->selectRaw('DATE_FORMAT(pay_date, "%Y-%m") as month, SUM(total_salary) as total')
             ->groupByRaw('DATE_FORMAT(pay_date, "%Y-%m")')
             ->get()->pluck('total', 'month');
 
         $income_history = [];
-        for ($i = 5; $i >= 0; $i--) {
+        for ($i = 6; $i >= 1; $i--) {
             $monthKey   = date('Y-m', strtotime("-$i months"));
             $monthLabel = date('M Y', strtotime("-$i months"));
 
@@ -375,14 +375,19 @@ class AnalyticsController extends Controller
             ->map(function ($unit) {
                 $avgDailyBoundary = (float)$unit->avg_daily_boundary;
                 $operatingDays    = (int)$unit->operating_days;
-
-                // Average daily maintenance cost over 90 days
-                $avgDailyMaint = $operatingDays > 0
-                    ? round((float)$unit->total_maint_cost / 90, 2)
-                    : 0;
-
-                $netDailyProfit     = round($avgDailyBoundary - $avgDailyMaint, 2);
-                $predictedMonthly   = round($netDailyProfit * 30, 2);
+                
+                // Total boundary over the 90-day period
+                $totalBoundary = $avgDailyBoundary * $operatingDays;
+                
+                // Calculate actual monthly averages based on the 3-month (90 day) window
+                $monthlyBoundary = $totalBoundary / 3;
+                $monthlyMaint = (float)$unit->total_maint_cost / 3;
+                
+                $predictedMonthly = round($monthlyBoundary - $monthlyMaint, 2);
+                $netDailyProfit   = round($predictedMonthly / 30, 2);
+                
+                // Average daily maintenance cost over 90 calendar days
+                $avgDailyMaint = round((float)$unit->total_maint_cost / 90, 2);
 
                 return [
                     'plate'               => $unit->plate_number,
