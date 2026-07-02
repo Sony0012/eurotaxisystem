@@ -152,7 +152,7 @@
                                 {{ isset($salary->pay_date) ? \Carbon\Carbon::parse($salary->pay_date)->format('M d, Y') : '-' }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                <button type="button" onclick="openEditSalaryModal({{ $salary->id }})" class="text-blue-600 hover:text-blue-900 mr-2">
+                                <button type="button" onclick='openEditSalaryModal(@json($salary))' class="text-blue-600 hover:text-blue-900 mr-2">
                                     <i data-lucide="edit" class="w-4 h-4"></i>
                                 </button>
                                 <form method="POST" action="{{ route('salaries.destroy', $salary->id) }}" class="inline"
@@ -417,7 +417,11 @@ function openAddSalaryModal() {
     document.getElementById('salaryModalTitle').textContent = 'Add Salary';
     document.getElementById('salaryMethod').value = 'POST';
     document.getElementById('salaryForm').action = '{{ route('salaries.store') }}';
-    document.getElementById('salaryEmployee').value = '';
+    
+    const empSelect = document.getElementById('salaryEmployee');
+    empSelect.value = '';
+    empSelect.style.pointerEvents = 'auto';
+    
     document.getElementById('salaryType').value = '';
     document.getElementById('salaryBasic').value = '';
     document.getElementById('salaryOvertime').value = '';
@@ -425,8 +429,11 @@ function openAddSalaryModal() {
     document.getElementById('salaryNight').value = '';
     document.getElementById('salaryAllowance').value = '';
     document.getElementById('salaryPayDate').value = '{{ date('Y-m-d') }}';
-    document.getElementById('salaryMonth').value = '{{ date('m') }}';
-    document.getElementById('salaryYear').value = '{{ date('Y') }}';
+    
+    if (document.getElementById('salaryMonth')) {
+        document.getElementById('salaryMonth').value = '{{ date('m') }}';
+        document.getElementById('salaryYear').value = '{{ date('Y') }}';
+    }
     
     const modal = document.getElementById('addSalaryModal');
     modal.classList.remove('hidden');
@@ -439,14 +446,36 @@ function openAddSalaryModal() {
 function updateMonthYear(dateString) {
     if (!dateString) return;
     const date = new Date(dateString);
-    document.getElementById('salaryMonth').value = date.getMonth() + 1;
-    document.getElementById('salaryYear').value = date.getFullYear();
+    if (document.getElementById('salaryMonth')) {
+        document.getElementById('salaryMonth').value = date.getMonth() + 1;
+        document.getElementById('salaryYear').value = date.getFullYear();
+    }
 }
 
-function openEditSalaryModal(id) {
+function openEditSalaryModal(salary) {
     document.getElementById('salaryModalTitle').textContent = 'Edit Salary Details';
     document.getElementById('salaryMethod').value = 'PUT';
-    document.getElementById('salaryForm').action = '{{ url('salaries') }}/' + id;
+    document.getElementById('salaryForm').action = '{{ url('salaries') }}/' + salary.id;
+    
+    const empSelect = document.getElementById('salaryEmployee');
+    empSelect.value = salary.source + '_' + salary.employee_id;
+    empSelect.style.pointerEvents = 'none';
+
+    document.getElementById('salaryType').value = salary.employee_type || '';
+    document.getElementById('salaryBasic').value = salary.basic_salary || '';
+    document.getElementById('salaryOvertime').value = salary.overtime_pay || '';
+    document.getElementById('salaryHoliday').value = salary.holiday_pay || '';
+    document.getElementById('salaryNight').value = salary.night_differential || '';
+    document.getElementById('salaryAllowance').value = salary.allowance || '';
+    
+    if (salary.pay_date) {
+        document.getElementById('salaryPayDate').value = salary.pay_date;
+    }
+
+    if (document.getElementById('salaryMonth')) {
+        document.getElementById('salaryMonth').value = salary.month;
+        document.getElementById('salaryYear').value = salary.year;
+    }
     
     const modal = document.getElementById('addSalaryModal');
     modal.classList.remove('hidden');
