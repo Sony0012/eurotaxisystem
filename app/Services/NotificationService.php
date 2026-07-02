@@ -32,7 +32,10 @@ class NotificationService
                     $exists = DB::table('system_alerts')
                         ->where('type', $type)
                         ->where('title', $title)
-                        ->where('is_resolved', false)
+                        ->where(function($q) {
+                            $q->where('is_resolved', false)
+                              ->orWhereDate('created_at', today());
+                        })
                         ->exists();
                     if (!$exists) {
                         DB::table('system_alerts')->insert([
@@ -70,7 +73,10 @@ class NotificationService
                             ->where('type', $type)
                             ->where('title', $title)
                             ->where('message', $msg)
-                            ->where('is_resolved', false)
+                            ->where(function($q) {
+                                $q->where('is_resolved', false)
+                                  ->orWhereDate('created_at', today());
+                            })
                             ->exists();
                         if (!$exists) {
                             DB::table('system_alerts')->insert([
@@ -99,7 +105,10 @@ class NotificationService
                         ->where('type', $type)
                         ->where('title', $title)
                         ->where('message', $msg)
-                        ->where('is_resolved', false)
+                        ->where(function($q) {
+                            $q->where('is_resolved', false)
+                              ->orWhereDate('created_at', today());
+                        })
                         ->exists();
                     if (!$exists) {
                         DB::table('system_alerts')->insert([
@@ -123,7 +132,10 @@ class NotificationService
                     $existingAlert = DB::table('system_alerts')
                         ->where('type', $type)
                         ->where('title', 'like', '%: ' . $p->name)
-                        ->where('is_resolved', false)
+                        ->where(function($q) {
+                            $q->where('is_resolved', false)
+                              ->orWhereDate('created_at', today());
+                        })
                         ->first();
                     if (!$existingAlert) {
                         DB::table('system_alerts')->insert([
@@ -169,7 +181,10 @@ class NotificationService
                     $exists = DB::table('system_alerts')
                         ->where('type', $type)
                         ->where('title', $title)
-                        ->where('is_resolved', false)
+                        ->where(function($q) {
+                            $q->where('is_resolved', false)
+                              ->orWhereDate('created_at', today());
+                        })
                         ->exists();
                     if (!$exists) {
                         DB::table('system_alerts')->insert([
@@ -211,7 +226,10 @@ class NotificationService
                     $exists = DB::table('system_alerts')
                         ->where('type', $type)
                         ->where('title', $title)
-                        ->where('is_resolved', false)
+                        ->where(function($q) {
+                            $q->where('is_resolved', false)
+                              ->orWhereDate('created_at', today());
+                        })
                         ->exists();
                     if (!$exists) {
                         DB::table('system_alerts')->insert([

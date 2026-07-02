@@ -21,6 +21,7 @@ class NotificationController extends Controller
             ]);
 
             \App\Http\Controllers\ActivityLogController::log('Dismissed Alert', "Alert: {$title}\nMarked as resolved by user.");
+            \Illuminate\Support\Facades\Cache::forget('global_notifications');
         }
 
         return response()->json(['success' => true]);
@@ -39,6 +40,7 @@ class NotificationController extends Controller
             ]);
 
         \App\Http\Controllers\ActivityLogController::log('Marked All Alerts as Read', "User bulk resolved all system alerts.");
+        \Illuminate\Support\Facades\Cache::forget('global_notifications');
 
         return response()->json(['success' => true]);
     }
