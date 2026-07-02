@@ -34,14 +34,14 @@
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-right">
                     <div class="flex justify-end gap-2">
-                        <form action="{{ route('archive.restore', ['type' => 'incident', 'id' => $item->uuid]) }}" method="POST" class="inline">
+                        <form action="{{ route('archive.restore', ['type' => 'incident', 'id' => $item->id]) }}" method="POST" class="inline">
                             @csrf
                             <button type="submit" class="inline-flex items-center gap-1 text-xs font-bold text-indigo-600 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-lg transition-all" title="Restore Incident">
                                 <i data-lucide="undo-2" class="w-3 h-3"></i> Restore
                             </button>
                         </form>
                         <button type="button"
-                            onclick="archiveForceDelete('{{ route('archive.forceDelete', ['type' => 'incident', 'id' => $item->uuid]) }}')"
+                            onclick="archiveForceDelete('{{ route('archive.forceDelete', ['type' => 'incident', 'id' => $item->id]) }}')"
                             class="inline-flex items-center gap-1 text-xs font-bold text-red-600 hover:text-red-800 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg transition-all" title="Delete Permanently">
                             <i data-lucide="trash-2" class="w-3 h-3"></i> Delete Permanently
                         </button>

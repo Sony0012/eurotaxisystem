@@ -23,12 +23,12 @@
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <button type="button"
-                        onclick="archiveRestore('{{ route('archive.restore', ['type' => 'staff', 'id' => $s->uuid]) }}')"
+                        onclick="archiveRestore('{{ route('archive.restore', ['type' => 'staff', 'id' => $s->id]) }}')"
                         class="inline-flex items-center gap-1 text-xs font-bold text-indigo-600 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-lg mr-2 transition-all">
                         <i data-lucide="undo-2" class="w-3 h-3"></i> Restore
                     </button>
                     <button type="button"
-                        onclick="archiveForceDelete('{{ route('archive.forceDelete', ['type' => 'staff', 'id' => $s->uuid]) }}')"
+                        onclick="archiveForceDelete('{{ route('archive.forceDelete', ['type' => 'staff', 'id' => $s->id]) }}')"
                         class="inline-flex items-center gap-1 text-xs font-bold text-red-600 hover:text-red-800 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg transition-all">
                         <i data-lucide="trash-2" class="w-3 h-3"></i> Delete Permanently
                     </button>

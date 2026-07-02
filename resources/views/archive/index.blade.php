@@ -4,56 +4,112 @@
 @section('page-heading', 'Archive Management')
 @section('page-subheading', 'View and restore archived records from various modules')
 
+@push('styles')
+<style>
+    /* ── Folder UI Tabs ── */
+    .folder-tabs-container {
+        background-color: #f1f5f9;
+        padding: 0.75rem 0.75rem 0 0.75rem;
+        border-top-left-radius: 0.75rem;
+        border-top-right-radius: 0.75rem;
+        border: 1px solid #e2e8f0;
+        border-bottom: none;
+    }
+
+    .folder-tabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.25rem;
+    }
+
+    .folder-tab {
+        padding: 0.6rem 1.25rem;
+        background-color: #e2e8f0;
+        color: #64748b;
+        border-top-left-radius: 0.5rem;
+        border-top-right-radius: 0.5rem;
+        font-size: 0.85rem;
+        font-weight: 700;
+        transition: all 0.2s;
+        border: 1px solid transparent;
+        border-bottom: none;
+        margin-bottom: -1px;
+        position: relative;
+        z-index: 1;
+    }
+
+    .folder-tab.active {
+        background-color: #ffffff;
+        color: #2563eb;
+        border-color: #e2e8f0;
+        z-index: 2;
+    }
+
+    .folder-tab:hover:not(.active) {
+        background-color: #cbd5e1;
+        color: #334155;
+    }
+    
+    .folder-content-area {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-bottom-left-radius: 0.75rem;
+        border-bottom-right-radius: 0.75rem;
+        position: relative;
+        z-index: 1;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    }
+</style>
+@endpush
+
 @section('content')
-<div class="px-4 py-6 mx-auto max-w-7xl sm:px-6 lg:px-8">
+<div class="px-4 py-6 mx-auto max-w-[95rem] sm:px-6 lg:px-8">
     <!-- Archive Tabs -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-        <div class="border-b border-gray-100 overflow-x-auto custom-scrollbar">
-            <nav class="flex -mb-px px-6 space-x-8 min-w-max" aria-label="Tabs" id="archive-tabs">
-                <button onclick="switchTab('units')" class="tab-btn active border-blue-500 text-blue-600 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-all" data-tab="units">
-                    Units ({{ count($archivedUnits) }})
-                </button>
-                <button onclick="switchTab('drivers')" class="tab-btn border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-all" data-tab="drivers">
-                    Drivers ({{ count($archivedDrivers) }})
-                </button>
-                <button onclick="switchTab('user_accounts')" class="tab-btn border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-all" data-tab="user_accounts">
-                    User Accounts ({{ count($archivedUserAccounts) }})
-                </button>
-                <button onclick="switchTab('expenses')" class="tab-btn border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-all" data-tab="expenses">
-                    Expenses ({{ count($archivedExpenses) }})
-                </button>
-                <button onclick="switchTab('maintenance')" class="tab-btn border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-all" data-tab="maintenance">
-                    Maintenance ({{ count($archivedMaintenance) }})
-                </button>
-                <button onclick="switchTab('boundaries')" class="tab-btn border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-all" data-tab="boundaries">
-                    Boundaries ({{ count($archivedBoundaries) }})
-                </button>
-                <button onclick="switchTab('staff')" class="tab-btn border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-all" data-tab="staff">
-                    Staff ({{ count($archivedStaff) }})
-                </button>
-                <button onclick="switchTab('incidents')" class="tab-btn border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-all" data-tab="incidents">
-                    Incidents ({{ count($archivedIncidents) }})
-                </button>
-                <button onclick="switchTab('pricing_rules')" class="tab-btn border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-all" data-tab="pricing_rules">
-                    Pricing Rules ({{ count($archivedPricingRules) }})
-                </button>
-                <button onclick="switchTab('suppliers')" class="tab-btn border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-all" data-tab="suppliers">
-                    Suppliers ({{ count($archivedSuppliers) }})
-                </button>
-                <button onclick="switchTab('spare_parts')" class="tab-btn border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-all" data-tab="spare_parts">
-                    Spare Parts ({{ count($archivedSpareParts) }})
-                </button>
-                <button onclick="switchTab('franchise_cases')" class="tab-btn border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-all" data-tab="franchise_cases">
-                    Franchise Cases ({{ count($archivedFranchiseCases) }})
-                </button>
-                <button onclick="switchTab('driver_terms')" class="tab-btn border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-all" data-tab="driver_terms">
-                    Driver Terms ({{ count($archivedDriverTerms) }})
-                </button>
+    <div class="folder-tabs-container">
+        <nav class="folder-tabs" aria-label="Tabs" id="archive-tabs">
+            <button onclick="switchTab('units')" class="folder-tab active" data-tab="units">
+                Units ({{ count($archivedUnits) }})
+            </button>
+            <button onclick="switchTab('drivers')" class="folder-tab" data-tab="drivers">
+                Drivers ({{ count($archivedDrivers) }})
+            </button>
+            <button onclick="switchTab('user_accounts')" class="folder-tab" data-tab="user_accounts">
+                User Accounts ({{ count($archivedUserAccounts) }})
+            </button>
+            <button onclick="switchTab('expenses')" class="folder-tab" data-tab="expenses">
+                Expenses ({{ count($archivedExpenses) }})
+            </button>
+            <button onclick="switchTab('maintenance')" class="folder-tab" data-tab="maintenance">
+                Maintenance ({{ count($archivedMaintenance) }})
+            </button>
+            <button onclick="switchTab('boundaries')" class="folder-tab" data-tab="boundaries">
+                Boundaries ({{ count($archivedBoundaries) }})
+            </button>
+            <button onclick="switchTab('staff')" class="folder-tab" data-tab="staff">
+                Staff ({{ count($archivedStaff) }})
+            </button>
+            <button onclick="switchTab('incidents')" class="folder-tab" data-tab="incidents">
+                Incidents ({{ count($archivedIncidents) }})
+            </button>
+            <button onclick="switchTab('pricing_rules')" class="folder-tab" data-tab="pricing_rules">
+                Pricing Rules ({{ count($archivedPricingRules) }})
+            </button>
+            <button onclick="switchTab('suppliers')" class="folder-tab" data-tab="suppliers">
+                Suppliers ({{ count($archivedSuppliers) }})
+            </button>
+            <button onclick="switchTab('spare_parts')" class="folder-tab" data-tab="spare_parts">
+                Spare Parts ({{ count($archivedSpareParts) }})
+            </button>
+            <button onclick="switchTab('franchise_cases')" class="folder-tab" data-tab="franchise_cases">
+                Franchise Cases ({{ count($archivedFranchiseCases) }})
+            </button>
+            <button onclick="switchTab('driver_terms')" class="folder-tab" data-tab="driver_terms">
+                Driver Terms ({{ count($archivedDriverTerms) }})
+            </button>
+        </nav>
+    </div>
 
-            </nav>
-        </div>
-
-        <div class="p-6">
+    <div class="folder-content-area p-6 mb-8">
             <!-- Units Tab -->
             <div id="tab-units" class="tab-content">
                 @include('archive.partials._units_table', ['items' => $archivedUnits])
@@ -201,15 +257,13 @@
         document.getElementById('tab-' + tabId).classList.remove('hidden');
 
         // Update tab button styles
-        document.querySelectorAll('.tab-btn').forEach(btn => {
-            btn.classList.remove('border-blue-500', 'text-blue-600');
-            btn.classList.add('border-transparent', 'text-gray-500');
+        document.querySelectorAll('.folder-tab').forEach(btn => {
+            btn.classList.remove('active');
         });
 
         const activeBtn = document.querySelector(`[data-tab="${tabId}"]`);
         if (activeBtn) {
-            activeBtn.classList.remove('border-transparent', 'text-gray-500');
-            activeBtn.classList.add('border-blue-500', 'text-blue-600');
+            activeBtn.classList.add('active');
         }
     }
 
