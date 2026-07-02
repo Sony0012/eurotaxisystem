@@ -1996,7 +1996,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let searchTimer;
     const searchInput = document.querySelector('input[name="search"]');
     const tableContainer = document.getElementById('incidentsTableContainer');
-    const filterForm = document.querySelector('form[action="{{ route(\'driver-behavior.index\') }}"]');
+    const filterForm = document.querySelector('form[action="{{ route("driver-behavior.index") }}"]');
 
     function performSearch(page = 1) {
         if (!filterForm) return;
