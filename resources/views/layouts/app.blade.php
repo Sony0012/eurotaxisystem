@@ -504,7 +504,7 @@
                             <a href="{{ route('staff.index') }}"
                                 class="sidebar-item flex items-center justify-start md:justify-center lg:justify-start gap-2.5 px-4 md:px-0 lg:px-4 py-1.5 md:py-2 rounded-lg text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 {{ request()->routeIs('staff.*') ? 'bg-yellow-50 text-yellow-700 font-semibold' : '' }}">
                                 <i data-lucide="user-cog" class="w-5 md:w-5 lg:w-4 h-5 md:h-5 lg:h-4"></i>
-                                <span class="text-sm block md:hidden lg:block flex-1 whitespace-nowrap">Staff Records</span>
+                                <span class="text-sm block md:hidden lg:block flex-1 whitespace-nowrap">General Staff Records</span>
                                 <i data-lucide="chevron-down" class="w-3 h-3 text-gray-400 group-hover:text-yellow-700 hidden lg:block transition-transform duration-200 group-hover:rotate-180"></i>
                             </a>
                             {{-- Dropdown Sub-menu on Hover --}}
