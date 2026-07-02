@@ -102,13 +102,13 @@ class SalaryController extends Controller
             ->where('is_active', 1)
             ->where('role', '!=', 'driver')
             ->where('role', '!=', 'super_admin')
-            ->select('id', 'uuid', 'full_name as name', 'role', DB::raw("'user' as source"))
+            ->select('id', 'full_name as name', 'role', DB::raw("'user' as source"))
             ->union(
                 DB::table('staff')
                     ->whereNull('deleted_at')
                     ->where('status', 'active')
                     ->where('role', '!=', 'driver')
-                    ->select('id', 'uuid', 'name', 'role', DB::raw("'staff' as source"))
+                    ->select('id', 'name', 'role', DB::raw("'staff' as source"))
             )
             ->orderBy('name')
             ->get();

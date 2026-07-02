@@ -117,10 +117,10 @@
     <div id="bannedDriversGrid" class="grid grid-cols-1 md:grid-cols-2 gap-6">
         @forelse($bannedDrivers as $driver)
             <div class="banned-profile-card bg-white rounded-[2rem] border border-gray-100 shadow-sm overflow-hidden flex flex-col cursor-pointer"
-                 id="driver-card-{{ $driver->uuid }}"
+                 id="driver-card-{{ $driver->id }}"
                  data-status="{{ $driver->driver_status }}"
-                 data-search-terms="{{ strtolower($driver->full_name . ' ' . $driver->license_number . ' ' . $driver->contact_number) }}"
-                 onclick="openDriverDetails({{ $driver->uuid }})">
+                 data-search-terms="{{ strtolower($driver->full_name . ' ' . ($driver->license_number ?? '') . ' ' . ($driver->contact_number ?? '')) }}"
+                 onclick="openDriverDetails({{ $driver->id }})">
                 
                 {{-- Card Header --}}
                 <div class="p-6 border-b border-gray-50 flex items-start gap-4 bg-slate-50/50">
@@ -136,7 +136,7 @@
                                 <span class="px-2 py-0.5 bg-red-100 text-red-700 rounded-md text-[9px] font-black uppercase tracking-widest border border-red-200">Banned</span>
                             @endif
                         </div>
-                        <p class="text-[10px] text-slate-400 mt-1 font-bold">REG KEY: DRV-{{ str_pad($driver->uuid, 4, '0', STR_PAD_LEFT) }}</p>
+                        <p class="text-[10px] text-slate-400 mt-1 font-bold">REG KEY: DRV-{{ str_pad($driver->id, 4, '0', STR_PAD_LEFT) }}</p>
                         @if($driver->driver_status === 'suspended')
                             @if(($driver->days_left ?? 0) > 0)
                                 <p class="text-[10px] text-amber-600 mt-1 font-black flex items-center gap-1">
@@ -217,7 +217,7 @@
                     {{-- Re-Suspend Button (for banned drivers) / Extend Suspension (for suspended) --}}
                     <button type="button"
                         class="modify-suspension-btn px-4 py-2.5 bg-amber-50 hover:bg-amber-100 text-amber-700 text-xs font-black rounded-xl transition-all flex items-center gap-2 border border-amber-200 hover:border-amber-300 active:scale-95 cursor-pointer relative z-50"
-                        data-id="{{ $driver->uuid }}"
+                        data-id="{{ $driver->id }}"
                         data-name="{{ $driver->full_name }}"
                         data-status="{{ $driver->driver_status }}">
                         <i data-lucide="shield-alert" class="w-4 h-4 pointer-events-none"></i>
@@ -225,7 +225,7 @@
                     </button>
                     <button type="button"
                             class="restore-driver-btn px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-black rounded-xl transition-all flex items-center gap-2 shadow-md hover:shadow-lg active:scale-95 cursor-pointer relative z-50"
-                            data-id="{{ $driver->uuid }}"
+                            data-id="{{ $driver->id }}"
                             data-name="{{ $driver->full_name }}">
                         <i data-lucide="shield-check" class="w-4 h-4 pointer-events-none text-emerald-400"></i> Restore Driver
                     </button>
@@ -302,10 +302,10 @@
                     <div id="driverDropdown" class="absolute z-50 w-full mt-1 bg-white rounded-xl border border-slate-100 shadow-2xl hidden">
                         @forelse($activeDrivers as $d)
                             <div class="driver-search-item px-4 py-3 cursor-pointer flex items-center gap-3"
-                                 data-id="{{ $d->uuid }}"
+                                 data-id="{{ $d->id }}"
                                  data-name="{{ $d->full_name }}"
                                  data-status="{{ $d->driver_status }}"
-                                 onclick="selectDriver({{ $d->uuid }}, '{{ addslashes($d->full_name) }}', '{{ $d->driver_status }}')">
+                                 onclick="selectDriver({{ $d->id }}, '{{ addslashes($d->full_name) }}', '{{ $d->driver_status }}')">
                                 <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 text-xs font-black shrink-0">
                                     {{ substr($d->first_name, 0, 1) }}{{ substr($d->last_name, 0, 1) }}
                                 </div>

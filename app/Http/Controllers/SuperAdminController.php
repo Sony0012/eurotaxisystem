@@ -151,7 +151,7 @@ class SuperAdminController extends Controller
 
     public function approveUser(Request $request, $id)
     {
-        $user = User::where('uuid', $id)->firstOrFail();
+        $user = User::where('id', $id)->firstOrFail();
 
         $user->update([
             'approval_status' => 'approved',
@@ -173,7 +173,7 @@ class SuperAdminController extends Controller
 
     public function rejectUser(Request $request, $id)
     {
-        $user = User::where('uuid', $id)->firstOrFail();
+        $user = User::where('id', $id)->firstOrFail();
 
         $user->update([
             'approval_status' => 'rejected',
@@ -193,7 +193,7 @@ class SuperAdminController extends Controller
 
     public function toggleDisable(Request $request, $id)
     {
-        $user = User::where('uuid', $id)->firstOrFail();
+        $user = User::where('id', $id)->firstOrFail();
 
         if ($user->role === 'super_admin') {
             return response()->json(['success' => false, 'message' => 'Cannot disable the Super Admin account.'], 403);
@@ -221,7 +221,7 @@ class SuperAdminController extends Controller
 
     public function updatePageAccess(Request $request, $id)
     {
-        $user = User::where('uuid', $id)->firstOrFail();
+        $user = User::where('id', $id)->firstOrFail();
 
         if ($user->role === 'super_admin') {
             return response()->json(['success' => false, 'message' => 'Cannot restrict Super Admin pages.'], 403);
@@ -272,7 +272,7 @@ class SuperAdminController extends Controller
 
     public function archiveUser(Request $request, $id)
     {
-        $user = User::where('uuid', $id)->firstOrFail();
+        $user = User::where('id', $id)->firstOrFail();
 
         if ($user->role === 'super_admin') {
             return response()->json(['success' => false, 'message' => 'Cannot archive the Super Admin account.'], 403);
@@ -286,7 +286,7 @@ class SuperAdminController extends Controller
 
     public function restoreUser(Request $request, $id)
     {
-        $user = User::withTrashed()->where('uuid', $id)->firstOrFail();
+        $user = User::withTrashed()->where('id', $id)->firstOrFail();
         $user->restore();
 
         LoginAudit::log('approved', $user, 'Account restored by ' . Auth::user()->full_name);
@@ -296,7 +296,7 @@ class SuperAdminController extends Controller
 
     public function updateUser(Request $request, $id)
     {
-        $user = User::withTrashed()->where('uuid', $id)->firstOrFail();
+        $user = User::withTrashed()->where('id', $id)->firstOrFail();
 
         if ($user->role === 'super_admin' && Auth::user()->id != $user->id) {
             return response()->json(['success' => false, 'message' => 'Unauthorized.'], 403);
@@ -336,7 +336,7 @@ class SuperAdminController extends Controller
 
     public function getUserDetails(Request $request, $id)
     {
-        $user = User::withTrashed()->where('uuid', $id)->firstOrFail();
+        $user = User::withTrashed()->where('id', $id)->firstOrFail();
         $history = LoginAudit::where('user_id', $user->id)
             ->orderByDesc('created_at')
             ->limit(50)
@@ -373,7 +373,7 @@ class SuperAdminController extends Controller
     {
         $request->validate(['password' => 'required|string|min:6']);
 
-        $user = User::where('uuid', $id)->firstOrFail();
+        $user = User::where('id', $id)->firstOrFail();
 
         if ($user->role === 'super_admin' && Auth::user()->role !== 'super_admin') {
             return response()->json(['success' => false, 'message' => 'Unauthorized.'], 403);
@@ -391,7 +391,7 @@ class SuperAdminController extends Controller
     {
         $request->validate(['role' => 'required|string|in:manager,dispatcher,secretary,staff']);
 
-        $user = User::where('uuid', $id)->firstOrFail();
+        $user = User::where('id', $id)->firstOrFail();
 
         if ($user->role === 'super_admin') {
             return response()->json(['success' => false, 'message' => 'Cannot change the Super Admin role.'], 403);
@@ -511,14 +511,14 @@ class SuperAdminController extends Controller
 
     public function getClassificationDetails($id)
     {
-        $item = IncidentClassification::withTrashed()->where('uuid', $id)->firstOrFail();
+        $item = IncidentClassification::withTrashed()->where('id', $id)->firstOrFail();
         return response()->json(['success' => true, 'data' => $item]);
     }
 
     public function updateClassification(Request $request, $id)
     {
         Log::info("Updating Classification ID: {$id}", $request->all());
-        $item = IncidentClassification::where('uuid', $id)->firstOrFail();
+        $item = IncidentClassification::where('id', $id)->firstOrFail();
 
         $data = $request->validate([
             'name' => 'required|string|unique:incident_classifications,name,' . $id,
@@ -546,7 +546,7 @@ class SuperAdminController extends Controller
     public function archiveClassification($id, Request $request)
     {
         try {
-            $item = IncidentClassification::where('uuid', $id)->firstOrFail();
+            $item = IncidentClassification::where('id', $id)->firstOrFail();
             $item->delete();
             return response()->json(['success' => true, 'message' => 'Classification moved to Archive.']);
         } catch (\Exception $e) {
@@ -557,7 +557,7 @@ class SuperAdminController extends Controller
 
     public function restoreClassification($id)
     {
-        $item = IncidentClassification::withTrashed()->where('uuid', $id)->firstOrFail();
+        $item = IncidentClassification::withTrashed()->where('id', $id)->firstOrFail();
         $item->restore();
 
         return response()->json(['success' => true, 'message' => 'Classification restored.']);
@@ -581,7 +581,7 @@ class SuperAdminController extends Controller
 
     public function updateRoleDetail(Request $request, $id)
     {
-        $role = Role::where('uuid', $id)->firstOrFail();
+        $role = Role::where('id', $id)->firstOrFail();
 
         $data = $request->validate([
             'name' => 'required|string|unique:roles,name,' . $id,
@@ -596,7 +596,7 @@ class SuperAdminController extends Controller
 
     public function archiveRole($id)
     {
-        $role = Role::where('uuid', $id)->firstOrFail();
+        $role = Role::where('id', $id)->firstOrFail();
         $role->delete();
 
         return response()->json(['success' => true, 'message' => 'Role moved to archive.']);
@@ -604,7 +604,7 @@ class SuperAdminController extends Controller
 
     public function restoreRole($id)
     {
-        $role = Role::withTrashed()->where('uuid', $id)->firstOrFail();
+        $role = Role::withTrashed()->where('id', $id)->firstOrFail();
         $role->restore();
 
         return response()->json(['success' => true, 'message' => 'Role restored.']);
@@ -614,7 +614,7 @@ class SuperAdminController extends Controller
     {
         try {
             $this->verifyArchivePassword($request);
-            $role = Role::withTrashed()->where('uuid', $id)->firstOrFail();
+            $role = Role::withTrashed()->where('id', $id)->firstOrFail();
             $role->forceDelete();
             return response()->json(['success' => true, 'message' => 'Role permanently deleted.']);
         } catch (\Exception $e) {
@@ -627,7 +627,7 @@ class SuperAdminController extends Controller
     {
         $this->verifyArchivePassword($request);
 
-        $user = User::withTrashed()->where('uuid', $id)->firstOrFail();
+        $user = User::withTrashed()->where('id', $id)->firstOrFail();
 
         if ($user->role === 'super_admin') {
             return response()->json(['success' => false, 'message' => 'Cannot delete the Super Admin.'], 403);
@@ -661,7 +661,7 @@ class SuperAdminController extends Controller
         try {
             $this->verifyArchivePassword($request);
 
-            $item = IncidentClassification::withTrashed()->where('uuid', $id)->firstOrFail();
+            $item = IncidentClassification::withTrashed()->where('id', $id)->firstOrFail();
             $item->forceDelete();
 
             return response()->json(['success' => true, 'message' => 'Classification permanently deleted.']);

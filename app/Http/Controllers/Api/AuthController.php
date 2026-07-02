@@ -171,7 +171,7 @@ class AuthController extends Controller
 
         try {
             $userId = decrypt($request->user_token);
-            $user = User::where('uuid', $userId)->firstOrFail();
+            $user = User::where('id', $userId)->firstOrFail();
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'Invalid session token.'], 401);
         }
@@ -220,7 +220,7 @@ class AuthController extends Controller
 
         try {
             $userId = decrypt($request->user_token);
-            $user = User::where('uuid', $userId)->firstOrFail();
+            $user = User::where('id', $userId)->firstOrFail();
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'Invalid session token.'], 401);
         }

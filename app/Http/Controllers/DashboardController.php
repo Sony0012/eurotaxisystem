@@ -38,6 +38,13 @@ class DashboardController extends Controller
             Cache::put($cacheKey, true, now()->endOfDay());
         }
 
+        // AUTO-TRIGGER: Daily Missed Boundary Charges
+        $autoChargeKey = 'daily_missed_boundary_charged_' . now()->toDateString();
+        if (!Cache::has($autoChargeKey)) {
+            $this->dispatchDailyMissedBoundaryCharge();
+            Cache::put($autoChargeKey, true, now()->endOfDay());
+        }
+
         // Get dashboard statistics using centralized method
         $stats = $this->getDashboardStats();
         
@@ -1333,5 +1340,61 @@ class DashboardController extends Controller
         }
         return $data;
     }
-}
 
+    private function dispatchDailyMissedBoundaryCharge()
+    {
+        try {
+            $units = DB::table('units')
+                ->whereNull('deleted_at')
+                ->whereNotNull('shift_deadline_at')
+                ->whereNotIn('status', ['retired', 'maintenance'])
+                ->get();
+
+            $now = Carbon::now();
+
+            foreach ($units as $unit) {
+                $deadline = Carbon::parse($unit->shift_deadline_at);
+                if ($deadline->isPast()) {
+                    $diffHours = $deadline->diffInHours($now);
+                    $diffDays = floor($diffHours / 24);
+                    
+                    if ($diffDays >= 1) {
+                        $targetRate = $unit->boundary_rate;
+                        $driverId = $unit->current_turn_driver_id ?: $unit->driver_id;
+                        
+                        if ($targetRate > 0 && $driverId) {
+                            for ($i = 1; $i <= $diffDays; $i++) {
+                                $missedDate = $deadline->copy()->addDays($i)->toDateString();
+                                
+                                $exists = DB::table('driver_behavior')
+                                    ->where('driver_id', $driverId)
+                                    ->where('incident_type', 'Missed Boundary')
+                                    ->where('incident_date', $missedDate)
+                                    ->exists();
+                                    
+                                if (!$exists) {
+                                    DB::table('driver_behavior')->insert([
+                                        'unit_id' => $unit->id,
+                                        'driver_id' => $driverId,
+                                        'incident_type' => 'Missed Boundary',
+                                        'severity' => 'high',
+                                        'description' => "Auto-logged [Missed Boundary]: Unit not returned on $missedDate.",
+                                        'incident_date' => $missedDate,
+                                        'timestamp' => Carbon::parse($missedDate),
+                                        'total_charge_to_driver' => $targetRate,
+                                        'remaining_balance' => $targetRate,
+                                        'charge_status' => 'pending',
+                                        'created_at' => now(),
+                                        'updated_at' => now(),
+                                    ]);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (\Exception $e) {
+            Log::error('Error in dispatchDailyMissedBoundaryCharge: ' . $e->getMessage());
+        }
+    }
+}

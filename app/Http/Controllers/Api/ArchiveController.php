@@ -85,7 +85,7 @@ class ArchiveController extends Controller
         $model = $this->getModelByType($type);
         if (!$model) return response()->json(['success' => false, 'message' => 'Invalid type.'], 400);
 
-        $item = $model::withTrashed()->where('uuid', $id)->first();
+        $item = $model::withTrashed()->where('id', $id)->first();
         if (!$item) return response()->json(['success' => false, 'message' => 'Item not found.'], 404);
 
         $item->restore();
@@ -102,7 +102,7 @@ class ArchiveController extends Controller
         $model = $this->getModelByType($type);
         if (!$model) return response()->json(['success' => false, 'message' => 'Invalid type.'], 400);
 
-        $item = $model::withTrashed()->where('uuid', $id)->first();
+        $item = $model::withTrashed()->where('id', $id)->first();
         if (!$item) return response()->json(['success' => false, 'message' => 'Item not found.'], 404);
 
         $item->forceDelete();

@@ -140,7 +140,7 @@
                     <i data-lucide="car" class="w-5 h-5 sm:w-7 sm:h-7 text-blue-600"></i>
                 </div>
             </div>
-            <i data-lucide="car" class="absolute right-0 bottom-0 w-24 h-24 -rotate-12 pointer-events-none" style="opacity: 0.6 !important; color: #2563eb !important; z-index: 5 !important;"></i>
+            <i data-lucide="car" stroke-width="1" class="absolute right-0 bottom-0 w-24 h-24 -rotate-12 pointer-events-none" style="opacity: 0.15 !important; color: #2563eb !important; z-index: 5 !important;"></i>
         </div>
 
         {{-- Daily Boundary Collection --}}
@@ -162,7 +162,7 @@
                     <i data-lucide="banknote" class="w-5 h-5 sm:w-7 sm:h-7 text-emerald-600"></i>
                 </div>
             </div>
-            <i data-lucide="banknote" class="absolute right-0 bottom-0 w-24 h-24 -rotate-12 pointer-events-none" style="opacity: 0.6 !important; color: #059669 !important; z-index: 5 !important;"></i>
+            <i data-lucide="banknote" stroke-width="1" class="absolute right-0 bottom-0 w-24 h-24 -rotate-12 pointer-events-none" style="opacity: 0.15 !important; color: #059669 !important; z-index: 5 !important;"></i>
         </div>
 
         {{-- Net Income --}}
@@ -184,7 +184,7 @@
                     <i data-lucide="trending-up" class="w-5 h-5 sm:w-7 sm:h-7 text-green-600"></i>
                 </div>
             </div>
-            <i data-lucide="trending-up" class="absolute right-0 bottom-0 w-24 h-24 -rotate-12 pointer-events-none" style="opacity: 0.6 !important; color: #16a34a !important; z-index: 5 !important;"></i>
+            <i data-lucide="trending-up" stroke-width="1" class="absolute right-0 bottom-0 w-24 h-24 -rotate-12 pointer-events-none" style="opacity: 0.15 !important; color: #16a34a !important; z-index: 5 !important;"></i>
         </div>
 
         {{-- Units Under Maintenance --}}
@@ -200,7 +200,7 @@
                     <i data-lucide="wrench" class="w-5 h-5 sm:w-7 sm:h-7 text-orange-600"></i>
                 </div>
             </div>
-            <i data-lucide="wrench" class="absolute right-0 bottom-0 w-24 h-24 -rotate-12 pointer-events-none" style="opacity: 0.6 !important; color: #ea580c !important; z-index: 5 !important;"></i>
+            <i data-lucide="wrench" stroke-width="1" class="absolute right-0 bottom-0 w-24 h-24 -rotate-12 pointer-events-none" style="opacity: 0.15 !important; color: #ea580c !important; z-index: 5 !important;"></i>
         </div>
 
     </div>
@@ -220,7 +220,7 @@
                     <i data-lucide="users" class="w-5 h-5 sm:w-7 sm:h-7 text-indigo-600"></i>
                 </div>
             </div>
-            <i data-lucide="users" class="absolute right-0 bottom-0 w-24 h-24 -rotate-12 pointer-events-none" style="opacity: 0.6 !important; color: #4f46e5 !important; z-index: 5 !important;"></i>
+            <i data-lucide="users" stroke-width="1" class="absolute right-0 bottom-0 w-24 h-24 -rotate-12 pointer-events-none" style="opacity: 0.15 !important; color: #4f46e5 !important; z-index: 5 !important;"></i>
         </div>
 
         {{-- Total Expenses Today --}}
@@ -235,7 +235,7 @@
                     <i data-lucide="trending-down" class="w-5 h-5 sm:w-7 sm:h-7 text-rose-600"></i>
                 </div>
             </div>
-            <i data-lucide="trending-down" class="absolute right-0 bottom-0 w-24 h-24 -rotate-12 pointer-events-none" style="opacity: 0.6 !important; color: #e11d48 !important; z-index: 5 !important;"></i>
+            <i data-lucide="trending-down" stroke-width="1" class="absolute right-0 bottom-0 w-24 h-24 -rotate-12 pointer-events-none" style="opacity: 0.15 !important; color: #e11d48 !important; z-index: 5 !important;"></i>
         </div>
 
         {{-- Coding Units Today --}}
@@ -251,7 +251,7 @@
                     <i data-lucide="calendar" class="w-5 h-5 sm:w-7 sm:h-7 text-violet-600"></i>
                 </div>
             </div>
-            <i data-lucide="calendar" class="absolute right-0 bottom-0 w-24 h-24 -rotate-12 pointer-events-none" style="opacity: 0.6 !important; color: #7c3aed !important; z-index: 5 !important;"></i>
+            <i data-lucide="calendar" stroke-width="1" class="absolute right-0 bottom-0 w-24 h-24 -rotate-12 pointer-events-none" style="opacity: 0.15 !important; color: #7c3aed !important; z-index: 5 !important;"></i>
         </div>
 
     </div>

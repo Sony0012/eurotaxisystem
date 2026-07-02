@@ -78,14 +78,18 @@
     {{-- ── Controls Bar ─────────────────────────────────── --}}
     <div class="flex flex-col lg:flex-row gap-4 justify-between items-center bg-white p-4 rounded-2xl border border-gray-100 shadow-sm">
 
-        {{-- Search --}}
+        @php $searchId = 'search_' . Str::random(10); @endphp
         <div class="relative w-full lg:max-w-xs">
+            <!-- Ultimate Chrome Autofill Defeater -->
+            <input type="email" name="fake_email_1" style="opacity: 0; position: absolute; height: 1px; width: 1px; z-index: -1;" tabindex="-1" autocomplete="username">
+            <input type="password" name="fake_pass_1" style="opacity: 0; position: absolute; height: 1px; width: 1px; z-index: -1;" tabindex="-1" autocomplete="current-password">
+            
             <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
                 <i data-lucide="search" class="w-4 h-4"></i>
             </span>
-            <input type="text" id="flagSearchInput" placeholder="Search plate, make, model…"
-                   autocomplete="off" spellcheck="false" readonly onfocus="this.removeAttribute('readonly');"
-                   class="w-full pl-11 pr-4 py-3 text-sm border-2 border-gray-100 rounded-xl focus:border-orange-400/40 focus:ring-4 focus:ring-orange-400/8 transition-all outline-none bg-slate-50/50">
+            <input type="text" id="{{ $searchId }}" name="{{ $searchId }}" placeholder="Search plate, make, model, driver…"
+                   autocomplete="new-password" spellcheck="false" role="presentation"
+                   class="js-flag-search w-full pl-11 pr-4 py-3 text-sm border-2 border-gray-100 rounded-xl focus:border-orange-400/40 focus:ring-4 focus:ring-orange-400/8 transition-all outline-none bg-slate-50/50">
         </div>
 
         {{-- Filter tabs --}}
@@ -138,7 +142,7 @@
         <div class="flag-card bg-white rounded-[2rem] border border-gray-100 shadow-sm overflow-hidden flex flex-col"
              id="flagcard-{{ $unit->uuid }}"
              data-flag-source="{{ $unit->flag_source }}"
-             data-search-terms="{{ strtolower($unit->plate_number . ' ' . $unit->make . ' ' . $unit->model) }}">
+             data-search-terms="{{ strtolower($unit->plate_number . ' ' . $unit->make . ' ' . $unit->model . ' ' . ($unit->suspect_driver ?? '') . ' ' . ($unit->last_known_driver ?? '')) }}">
 
             {{-- Card Header --}}
             <div class="p-6 bg-slate-50/60 border-b border-gray-50 flex items-start gap-4">
@@ -160,7 +164,15 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div class="space-y-0.5">
                         <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Status</span>
-                        <span class="text-xs font-black text-slate-800 capitalize">{{ str_replace('_', ' ', $unit->status) }}</span>
+                        <span class="text-xs font-black text-red-600 capitalize">
+                            @if(($unit->flag_source ?? '') === 'auto_boundary')
+                                Missing (Auto-Flagged)
+                            @elseif(($unit->flag_source ?? '') === 'manual_stolen')
+                                Missing (Manual Flag)
+                            @else
+                                {{ str_replace('_', ' ', $unit->status) }}
+                            @endif
+                        </span>
                     </div>
                     <div class="space-y-0.5">
                         <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Days Inactive</span>
@@ -423,7 +435,7 @@
                     <div class="p-4 bg-amber-50 rounded-xl border border-amber-200 flex gap-3">
                         <i data-lucide="info" class="w-5 h-5 text-amber-500 shrink-0 mt-0.5"></i>
                         <p class="text-xs text-amber-700 font-medium leading-relaxed">
-                            Flagging a unit as <strong>Missing/Stolen</strong> will log a critical incident on the assigned driver's behavior record. The unit will remain flagged until manually recovered.
+                            Flagging a unit as <strong>Missing/Stolen</strong> will log a critical incident on the suspect driver's behavior record (if selected).<br> The unit will remain flagged until manually recovered.
                         </p>
                     </div>
                 </div>
@@ -667,7 +679,8 @@
     }
 
     function filterCards() {
-        const query = (document.getElementById('flagSearchInput')?.value || '').trim().toLowerCase();
+        const searchInput = document.querySelector('.js-flag-search');
+        const query = (searchInput?.value || '').trim().toLowerCase();
         const cards = document.querySelectorAll('.flag-card');
         const noResults = document.getElementById('noSearchResults');
         let visible = 0;
@@ -708,7 +721,8 @@
         filterCards();
     }
 
-    document.getElementById('flagSearchInput')?.addEventListener('input', filterCards);
+    const searchInput = document.querySelector('.js-flag-search');
+    searchInput?.addEventListener('input', filterCards);
 
     function recoverUnit(unitId, plateName) {
         if (!confirm(`Mark unit "${plateName}" as RECOVERED?\nThis will reset its status back to Active.`)) return;

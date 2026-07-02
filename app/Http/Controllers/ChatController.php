@@ -19,7 +19,7 @@ class ChatController extends Controller
             ->where('id', '!=', $currentUserId)
             ->whereNull('deleted_at')
             ->whereIn('role', ['admin', 'cashier', 'manager', 'super_admin'])
-            ->select('id', 'uuid', 'first_name', 'last_name', 'role', 'profile_image')
+            ->select('id', 'first_name', 'last_name', 'role', 'profile_image')
             ->orderBy('first_name')
             ->get()
             ->map(function ($u) use ($currentUserId) {

@@ -245,7 +245,7 @@ class AuthController extends Controller
             'new_password.regex' => 'Password must contain at least 1 uppercase letter, 1 number, and 1 special character.'
         ]);
 
-        $user = User::where('uuid', $userId)->first();
+        $user = User::where('id', $userId)->first();
         $storedHash = $user->password ?? $user->password_hash ?? null;
 
         // Verify temporary password
@@ -289,7 +289,7 @@ class AuthController extends Controller
             return response()->json(['success' => false, 'message' => 'Session expired. Please log in again.'], 401);
         }
 
-        $user = User::where('uuid', $userId)->first();
+        $user = User::where('id', $userId)->first();
         $otp = str_pad(rand(0, 999999), 6, '0', STR_PAD_LEFT);
         
         $user->update([
@@ -333,7 +333,7 @@ class AuthController extends Controller
             return response()->json(['success' => false, 'message' => 'Session expired.'], 401);
         }
 
-        $user = User::where('uuid', $userId)->first();
+        $user = User::where('id', $userId)->first();
 
         if ($user->otp_code !== $request->otp || now()->gt($user->otp_expires_at)) {
             return response()->json(['success' => false, 'message' => 'Invalid or expired code.'], 422);

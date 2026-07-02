@@ -403,12 +403,12 @@ class DashboardController extends Controller
                     'general'        => DB::table('expenses')
                                         ->whereNull('deleted_at')
                                         ->whereBetween('date', [$start, $end])
-                                        ->select('id', 'uuid', 'category', 'description', 'amount', 'date')
+                                        ->select('id', 'category', 'description', 'amount', 'date')
                                         ->orderByDesc('date')
                                         ->get(),
                     'salaries'       => DB::table('salaries')
                                         ->whereBetween('pay_date', [$start, $end])
-                                        ->select('id', 'uuid', 'total_salary', 'pay_date')
+                                        ->select('id', 'total_salary', 'pay_date')
                                         ->orderByDesc('pay_date')
                                         ->get(),
                 ];

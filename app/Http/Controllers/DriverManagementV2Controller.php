@@ -10,7 +10,7 @@ use App\Traits\CalculatesBoundary;
 use App\Traits\CalculatesDriverPerformance;
 use App\Http\Controllers\ActivityLogController;
 
-class DriverManagementController extends Controller
+class DriverManagementV2Controller extends Controller
 {
     use CalculatesBoundary, CalculatesDriverPerformance;
 

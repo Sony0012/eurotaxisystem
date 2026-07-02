@@ -4,14 +4,17 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Models\DriverBehavior;
+use App\Models\Driver;
+use App\Models\Unit;
+use App\Models\IncidentClassification;
 use Carbon\Carbon;
 
 use App\Http\Controllers\ActivityLogController;
 
-use App\Models\Driver;
 use App\Traits\CalculatesDriverPerformance;
 
-class DriverBehaviorController extends Controller
+class DriverBehaviorV2Controller extends Controller
 {
     use CalculatesDriverPerformance;
     // Incident types are now managed in the database (IncidentClassification model)
@@ -21,13 +24,14 @@ class DriverBehaviorController extends Controller
     }
 
     // ─── INDEX: Unified Incident + Driver Dashboard ─────────────────────
-    public function incidents(Request $request)
+    public function index(Request $request)
     {
         $search          = $request->input('search', '');
         $type_filter     = $request->input('type', '');
         $severity_filter = $request->input('severity', '');
         $date_from       = $request->input('date_from', now()->timezone('Asia/Manila')->startOfMonth()->toDateString());
         $date_to         = $request->input('date_to', now()->timezone('Asia/Manila')->toDateString());
+        $tab             = $request->input('tab', 'incidents');
         $page            = max(1, (int) $request->input('page', 1));
         $limit           = 10;
         $offset          = ($page - 1) * $limit;
@@ -62,14 +66,15 @@ class DriverBehaviorController extends Controller
         }
 
         if (!empty($date_from)) {
-            $query->whereDate('driver_behavior.incident_date', '>=', $date_from);
+            $query->whereDate('driver_behavior.timestamp', '>=', $date_from);
         }
         if (!empty($date_to)) {
-            $query->whereDate('driver_behavior.incident_date', '<=', $date_to);
+            $query->whereDate('driver_behavior.timestamp', '<=', $date_to);
         }
 
         $total     = $query->count();
         $incidents = $query->orderByDesc('driver_behavior.timestamp')->offset($offset)->limit($limit)->get();
+
 
         $pagination = [
             'page'        => $page,
@@ -84,16 +89,20 @@ class DriverBehaviorController extends Controller
         // ── Summary Stats ──────────────────────────────────────────────
         $stats = $this->getStats($date_from, $date_to);
 
+        // ── Driver Performance Profiles ────────────────────────────────
+        $driver_profiles = $this->getDriverProfiles($date_from, $date_to);
+
+        // ── Incentive Eligibility ─────────────────────────────────────
+        $incentive_summary = $this->getIncentiveSummary();
+
         // ── Dropdowns ─────────────────────────────────────────────────
         $drivers = DB::table('drivers as d')
             ->leftJoin('units as u', function($j) {
-                $j->on(function($q) {
-                    $q->on('d.id', '=', 'u.driver_id')->orOn('d.id', '=', 'u.secondary_driver_id');
-                })->whereNull('u.deleted_at');
+                $j->on('d.id', '=', 'u.driver_id')->orOn('d.id', '=', 'u.secondary_driver_id');
             })
             ->whereNull('d.deleted_at')
             ->where('d.driver_status', '!=', 'banned')
-            ->select('d.id', 
+            ->select('d.id', 'd.uuid', 
                 DB::raw("TRIM(CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,''))) as full_name"),
                 'u.plate_number as current_plate',
                 'd.contact_number'
@@ -114,44 +123,12 @@ class DriverBehaviorController extends Controller
             ->orderByDesc('created_at')
             ->get();
 
-        // ── Incentive Summary (Header Stats) ─────────────────────────
-        $incentive_summary = $this->getIncentiveSummary();
-
-        if ($request->ajax()) {
-            return view('driver-behavior.partials._incidents_table', compact(
-                'incidents', 'pagination', 'search'
-            ))->render();
-        }
-
-        return view('driver-behavior.incidents', compact(
+        return view('driver-behavior.index', compact(
             'incidents', 'search', 'type_filter', 'severity_filter',
             'date_from', 'date_to', 'pagination', 'stats',
-            'drivers', 'units', 'spare_parts', 'classifications', 'archivedClassifications', 'accident_reports',
-            'incentive_summary'
+            'driver_profiles', 'incentive_summary',
+            'drivers', 'units', 'tab', 'spare_parts', 'classifications', 'archivedClassifications', 'accident_reports'
         ));
-    }
-
-    public function incentives(Request $request)
-    {
-        $date_from = $request->input('date_from', now()->timezone('Asia/Manila')->startOfMonth()->toDateString());
-        $date_to   = $request->input('date_to', now()->timezone('Asia/Manila')->toDateString());
-        
-        $incentive_summary = $this->getIncentiveSummary();
-        $stats = $this->getStats($date_from, $date_to);
-
-        return view('driver-behavior.incentives', compact('incentive_summary', 'stats', 'date_from', 'date_to'));
-    }
-
-    public function performance(Request $request)
-    {
-        $date_from = $request->input('date_from', now()->timezone('Asia/Manila')->startOfMonth()->toDateString());
-        $date_to   = $request->input('date_to', now()->timezone('Asia/Manila')->toDateString());
-        
-        $driver_profiles = $this->getDriverProfiles($date_from, $date_to);
-        $stats = $this->getStats($date_from, $date_to);
-        $incentive_summary = $this->getIncentiveSummary();
-
-        return view('driver-behavior.performance', compact('driver_profiles', 'stats', 'date_from', 'date_to', 'incentive_summary'));
     }
 
     // ─── ACCIDENT SOS METHODS ──────────────────────────────────────────
@@ -825,15 +802,15 @@ class DriverBehaviorController extends Controller
     {
         $base  = DB::table('driver_behavior')
             ->whereNull('deleted_at')
-            ->whereDate('incident_date', '>=', $from)
-            ->whereDate('incident_date', '<=', $to);
+            ->whereDate('timestamp', '>=', $from)
+            ->whereDate('timestamp', '<=', $to);
         $bySev = (clone $base)->selectRaw('severity, COUNT(*) as count')->groupBy('severity')->get()->pluck('count', 'severity')->toArray();
         $byType = (clone $base)->selectRaw('incident_type, COUNT(*) as count')->groupBy('incident_type')->orderByDesc('count')->limit(8)->get();
 
         $totalViolators = DB::table('driver_behavior')
             ->whereNull('deleted_at')
-            ->whereDate('incident_date', '>=', $from)
-            ->whereDate('incident_date', '<=', $to)
+            ->whereDate('timestamp', '>=', $from)
+            ->whereDate('timestamp', '<=', $to)
             ->distinct('driver_id')
             ->count('driver_id');
 
@@ -845,8 +822,9 @@ class DriverBehaviorController extends Controller
             ->where('charge_status', 'pending')
             ->sum('total_charge_to_driver');
         
-        $violationsToday = \App\Models\DriverBehavior::violations()
-            ->whereDate('incident_date', now()->timezone('Asia/Manila')->toDateString())
+        $violationsToday = DB::table('driver_behavior')
+            ->whereNull('deleted_at')
+            ->whereDate('timestamp', now()->format('Y-m-d'))
             ->count();
 
         return [
@@ -867,10 +845,9 @@ class DriverBehaviorController extends Controller
             ->whereNull('d.deleted_at')
             ->where('d.driver_status', '!=', 'banned')
             ->leftJoin('units as u', function($j) {
-                $j->on(function($q) {
-                    $q->on('u.driver_id', '=', 'd.id')->orOn('u.secondary_driver_id', '=', 'd.id');
-                })->whereNull('u.deleted_at');
+                $j->on('u.driver_id', '=', 'd.id')->orOn('u.secondary_driver_id', '=', 'd.id');
             })
+            ->whereNull('u.deleted_at')
             ->select(
                 'd.id', 'd.first_name', 'd.last_name', 'd.driver_status',
                 'u.id as unit_id', 'u.plate_number', 'u.driver_id', 'u.secondary_driver_id'
@@ -946,11 +923,10 @@ class DriverBehaviorController extends Controller
             ->whereNull('d.deleted_at')
             ->where('d.driver_status', '!=', 'banned')
             ->leftJoin('units as u', function($j) {
-                $j->on(function($q) {
-                    $q->on('u.driver_id', '=', 'd.id')->orOn('u.secondary_driver_id', '=', 'd.id');
-                })->whereNull('u.deleted_at');
+                $j->on('u.driver_id', '=', 'd.id')->orOn('u.secondary_driver_id', '=', 'd.id');
             })
-            ->select('d.id', 'd.first_name', 'd.last_name', 'u.plate_number', 'u.driver_id', 'u.secondary_driver_id')
+            ->whereNull('u.deleted_at')
+            ->select('d.id', 'd.uuid', 'd.first_name', 'd.last_name', 'u.plate_number', 'u.driver_id', 'u.secondary_driver_id')
             ->distinct('d.id')->get();
 
         $eligible   = [];

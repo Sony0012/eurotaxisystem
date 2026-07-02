@@ -40,8 +40,14 @@
                 <button onclick="switchTab('suppliers')" class="tab-btn border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-all" data-tab="suppliers">
                     Suppliers ({{ count($archivedSuppliers) }})
                 </button>
+                <button onclick="switchTab('spare_parts')" class="tab-btn border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-all" data-tab="spare_parts">
+                    Spare Parts ({{ count($archivedSpareParts) }})
+                </button>
                 <button onclick="switchTab('franchise_cases')" class="tab-btn border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-all" data-tab="franchise_cases">
                     Franchise Cases ({{ count($archivedFranchiseCases) }})
+                </button>
+                <button onclick="switchTab('driver_terms')" class="tab-btn border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-all" data-tab="driver_terms">
+                    Driver Terms ({{ count($archivedDriverTerms) }})
                 </button>
 
             </nav>
@@ -98,13 +104,31 @@
                 @include('archive.partials._suppliers_table', ['items' => $archivedSuppliers])
             </div>
 
+            <!-- Spare Parts Tab -->
+            <div id="tab-spare_parts" class="tab-content hidden">
+                @include('archive.partials._spare_parts_table', ['items' => $archivedSpareParts])
+            </div>
+
             <!-- Franchise Cases Tab -->
             <div id="tab-franchise_cases" class="tab-content hidden">
                 @include('archive.partials._franchise_cases_table', ['items' => $archivedFranchiseCases])
             </div>
 
+            <!-- Driver Terms Tab -->
+            <div id="tab-driver_terms" class="tab-content hidden">
+                @include('archive.partials._driver_terms_table', ['items' => $archivedDriverTerms])
+            </div>
+
         </div>
     </div>
+</div>
+
+<!-- Lightbox Modal -->
+<div id="lightbox" class="fixed inset-0 z-[100] hidden bg-black bg-opacity-90 flex items-center justify-center p-4 transition-opacity" onclick="this.classList.add('hidden')">
+    <button class="absolute top-6 right-6 text-white hover:text-gray-300 transition-colors p-2" onclick="document.getElementById('lightbox').classList.add('hidden')">
+        <i data-lucide="x" class="w-8 h-8"></i>
+    </button>
+    <img id="lightbox-img" src="" alt="Zoomed Document" class="max-w-full max-h-full object-contain rounded-lg shadow-2xl select-none" style="-webkit-user-drag: none;" oncontextmenu="return false;" draggable="false" onclick="event.stopPropagation()">
 </div>
 
 <script>
@@ -187,6 +211,12 @@
             activeBtn.classList.remove('border-transparent', 'text-gray-500');
             activeBtn.classList.add('border-blue-500', 'text-blue-600');
         }
+    }
+
+    // Lightbox Functionality
+    function openLightbox(src) {
+        document.getElementById('lightbox-img').src = src;
+        document.getElementById('lightbox').classList.remove('hidden');
     }
 
     // Handle initial tab from URL query parameter

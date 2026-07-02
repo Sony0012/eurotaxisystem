@@ -37,13 +37,19 @@ class ArchiveController extends Controller
         
         $archivedPricingRules = BoundaryRule::onlyTrashed()->get();
         $archivedSuppliers = Supplier::onlyTrashed()->get();
+        $archivedSpareParts = \App\Models\SparePart::onlyTrashed()->get();
 
         // ─── Archived User Accounts (System Login Access) ───
         $archivedUserAccounts = \App\Models\User::onlyTrashed()
             ->where('role', '!=', 'super_admin')
             ->get();
 
-
+        // ─── Archived Driver Terms ───
+        $termsArchiveDir = public_path('uploads/archives/terms');
+        $archivedDriverTerms = [];
+        if (file_exists($termsArchiveDir)) {
+            $archivedDriverTerms = array_values(array_diff(scandir($termsArchiveDir), ['.', '..']));
+        }
 
         return view('archive.index', compact(
             'archivedUnits',
@@ -56,7 +62,9 @@ class ArchiveController extends Controller
             'archivedIncidents',
             'archivedPricingRules',
             'archivedSuppliers',
-            'archivedUserAccounts'
+            'archivedSpareParts',
+            'archivedUserAccounts',
+            'archivedDriverTerms'
         ));
     }
 
@@ -67,7 +75,7 @@ class ArchiveController extends Controller
             return back()->with('error', 'Invalid model type.');
         }
 
-        $item = $model::withTrashed()->where('uuid', $id)->firstOrFail();
+        $item = $model::withTrashed()->where('id', $id)->firstOrFail();
         $name = $item->plate_number ?? ($item->full_name ?? ($item->name ?? ($item->case_no ?? ($item->description ?? ("ID# " . $item->id)))));
         $item->restore();
 
@@ -102,7 +110,7 @@ class ArchiveController extends Controller
             return back()->with('error', 'Invalid model type.');
         }
 
-        $item = $model::withTrashed()->where('uuid', $id)->firstOrFail();
+        $item = $model::withTrashed()->where('id', $id)->firstOrFail();
         $name = $item->plate_number ?? ($item->full_name ?? ($item->name ?? ($item->case_no ?? ($item->description ?? ("ID# " . $item->id)))));
 
         // Safety: Unlink any driver records before permanently deleting a User
@@ -133,6 +141,7 @@ class ArchiveController extends Controller
             'incident' => \App\Models\DriverBehavior::class,
             'pricing_rule' => BoundaryRule::class,
             'supplier' => Supplier::class,
+            'spare_part' => \App\Models\SparePart::class,
             'user' => \App\Models\User::class,
 
             default => null,

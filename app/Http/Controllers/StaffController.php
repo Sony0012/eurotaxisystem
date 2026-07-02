@@ -90,7 +90,7 @@ class StaffController extends Controller
 
     public function update(Request $request, $id)
     {
-        $staff = \App\Models\Staff::where('uuid', $id)->firstOrFail();
+        $staff = \App\Models\Staff::where('id', $id)->firstOrFail();
 
         $data = $request->validate([
             'name' => ['required', 'string', 'max:20', 'regex:/^[A-Za-z]+( [A-Za-z]+){0,5}$/'],
@@ -116,7 +116,7 @@ class StaffController extends Controller
 
     public function destroy($id)
     {
-        $staff = \App\Models\Staff::where('uuid', $id)->firstOrFail();
+        $staff = \App\Models\Staff::where('id', $id)->firstOrFail();
         $name = $staff->name;
         $staff->delete();
 
@@ -127,7 +127,7 @@ class StaffController extends Controller
 
     public function destroyAppDriver($id)
     {
-        $user = \App\Models\User::where('uuid', $id)->firstOrFail();
+        $user = \App\Models\User::where('id', $id)->firstOrFail();
         
         // Ensure they are actually an app driver
         if ($user->role !== 'driver') {

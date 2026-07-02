@@ -69,7 +69,11 @@ class UnitController extends Controller
             $query->where(function ($q) use ($search) {
                 $q->where('u.plate_number', 'like', "%{$search}%")
                     ->orWhere('u.make', 'like', "%{$search}%")
-                    ->orWhere('u.model', 'like', "%{$search}%");
+                    ->orWhere('u.model', 'like', "%{$search}%")
+                    ->orWhere('drv1.first_name', 'like', "%{$search}%")
+                    ->orWhere('drv1.last_name', 'like', "%{$search}%")
+                    ->orWhere('drv2.first_name', 'like', "%{$search}%")
+                    ->orWhere('drv2.last_name', 'like', "%{$search}%");
             });
         }
 
@@ -925,6 +929,7 @@ class UnitController extends Controller
             ->get()
             ->map(function ($unit) {
                 $unit->flag_source = 'manual_stolen';
+                $unit->uuid = $unit->id;
                 return $unit;
             });
 
@@ -942,6 +947,7 @@ class UnitController extends Controller
             ->get()
             ->map(function ($unit) {
                 $unit->flag_source = 'auto_boundary';
+                $unit->uuid = $unit->id;
                 return $unit;
             });
 
@@ -1090,14 +1096,22 @@ class UnitController extends Controller
             ->where('status', '!=', 'missing')
             ->select('id', 'plate_number', 'make', 'model', 'driver_id', 'secondary_driver_id')
             ->orderBy('plate_number')
-            ->get();
+            ->get()
+            ->map(function ($unit) {
+                $unit->uuid = $unit->id;
+                return $unit;
+            });
             
         $availableDrivers = DB::table('drivers')
             ->whereNull('deleted_at')
             ->whereNotIn('driver_status', ['banned'])
             ->select('id', 'first_name', 'last_name', 'contact_number', 'license_number')
             ->orderBy('first_name')
-            ->get();
+            ->get()
+            ->map(function ($driver) {
+                $driver->uuid = $driver->id;
+                return $driver;
+            });
 
         return view('units.flagged', compact(
             'allFlagged',

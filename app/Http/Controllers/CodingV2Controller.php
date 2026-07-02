@@ -4,8 +4,12 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Models\Unit;
+use App\Models\CodingRecord;
+use Carbon\Carbon;
+use App\Http\Controllers\ActivityLogController;
 
-class CodingController extends Controller
+class CodingV2Controller extends Controller
 {
     public function index(Request $request)
     {
@@ -89,6 +93,7 @@ class CodingController extends Controller
             'total_rules' => DB::table('coding_rules')->count(),
             'active_rules' => DB::table('coding_rules')->where('status', 'active')->count(),
             'today_coding' => $coding_today_count,
+            'on_road' => $on_road_count,
             'on_road' => $on_road_count,
             'active_coding_fleet' => $violations_count,
         ];
@@ -214,20 +219,9 @@ class CodingController extends Controller
         $q = $request->input('q');
         if (empty($q)) return response()->json([]);
 
-        $units = DB::table('units as u')
-            ->leftJoin('drivers as drv1', 'u.driver_id', '=', 'drv1.id')
-            ->leftJoin('drivers as drv2', 'u.secondary_driver_id', '=', 'drv2.id')
-            ->where(function($query) use ($q) {
-                $query->where('u.plate_number', 'like', "%{$q}%")
-                      ->orWhere(DB::raw("CONCAT(COALESCE(drv1.first_name,''), ' ', COALESCE(drv1.last_name,''))"), 'like', "%{$q}%")
-                      ->orWhere(DB::raw("CONCAT(COALESCE(drv2.first_name,''), ' ', COALESCE(drv2.last_name,''))"), 'like', "%{$q}%");
-            })
-            ->select(
-                'u.plate_number', 
-                'u.coding_day',
-                DB::raw("CONCAT(COALESCE(drv1.first_name,''), ' ', COALESCE(drv1.last_name,'')) as driver1_name"),
-                DB::raw("CONCAT(COALESCE(drv2.first_name,''), ' ', COALESCE(drv2.last_name,'')) as driver2_name")
-            )
+        $units = DB::table('units')
+            ->where('plate_number', 'like', "%{$q}%")
+            ->select('plate_number', 'coding_day')
             ->limit(10)
             ->get();
 

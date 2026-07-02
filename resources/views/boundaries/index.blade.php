@@ -241,21 +241,6 @@
                     </div>
                 </div>
 
-                <div id="shortageBalanceAlert" class="hidden px-4 py-3 bg-red-50 border border-red-200 rounded-xl shadow-sm">
-                    <div class="flex items-start gap-3 mb-3">
-                        <span class="text-red-500 mt-0.5"><i data-lucide="alert-circle" class="w-5 h-5"></i></span>
-                        <div class="flex-1">
-                            <p class="text-sm font-black text-red-800">Past Balance Due</p>
-                            <p class="text-xs font-medium text-red-700 mt-0.5">This driver has an unpaid balance of <strong id="shortageBalanceAmount" class="font-black">₱0.00</strong> from previous shortages.</p>
-                        </div>
-                    </div>
-                    <button type="button" onclick="payFullBalance()" 
-                            class="w-full py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-black uppercase tracking-widest rounded-lg transition-colors shadow-sm focus:ring-2 focus:ring-red-500 focus:ring-offset-1">
-                        Pay Full Balance & Clear Debt
-                    </button>
-                    <input type="hidden" id="rawShortageAmount" value="0">
-                </div>
-
                 {{-- Shift Status --}}
                 <div id="shiftInfoGroup" class="hidden rounded-xl border border-gray-200 transition-all duration-300 overflow-hidden shadow-sm">
                     <div class="px-4 py-2.5 flex items-center justify-between border-b border-gray-100 bg-gray-50" id="shiftInfoHeader">
@@ -276,6 +261,8 @@
                         <p id="shiftExtraText" class="text-xs text-orange-800 font-bold leading-snug pt-0.5"></p>
                     </div>
                 </div>
+
+
 
                 {{-- Three-Column Grid for Date, Target, Actual --}}
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
@@ -316,7 +303,7 @@
                     <div class="flex items-center justify-between gap-2 mb-3">
                         <div class="flex items-center gap-2">
                             <i data-lucide="shield-alert" class="w-4 h-4 text-red-600"></i>
-                            <span class="text-xs font-black text-red-800 uppercase tracking-widest">Incident/Shortage Payment</span>
+                            <span class="text-xs font-black text-red-800 uppercase tracking-widest">Outstanding Liabilities</span>
                         </div>
                         <div class="text-right">
                             <div class="text-[10px] text-red-500 font-bold uppercase tracking-widest">Outstanding Debt</div>
@@ -1112,22 +1099,21 @@ function initializeDriverDropdown() {
                     extraAlert.classList.add('hidden');
                 }
 
-                // Handle Shortage Balance Alert
-                const shortageAlert = document.getElementById('shortageBalanceAlert');
-                const shortageAmountSpan = document.getElementById('shortageBalanceAmount');
-                const rawShortageInput = document.getElementById('rawShortageAmount');
-
-                if (shortage > 0) {
-                    shortageAlert.classList.remove('hidden');
-                    shortageAmountSpan.textContent = "₱" + shortage.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
-                    rawShortageInput.value = shortage;
-                } else {
-                    shortageAlert.classList.add('hidden');
-                    rawShortageInput.value = 0;
-                }
+                // Handle Shortage Balance Alert (Legacy logic removed)
 
                 // Toggle Damage Payment field visibility based on accident debt
                 updateDriverDebtDisplay(driverId);
+
+                document.getElementById('driverId').dispatchEvent(new Event('change'));
+
+                // Refresh shift status notice (extra driver vs expected driver)
+                if (typeof refreshShiftStatusForDriver === 'function') {
+                    refreshShiftStatusForDriver(this.getAttribute('data-id'));
+                }
+            });
+        });
+    }
+}
 
 function updateDriverDebtDisplay(driverId, savedPayment = 0) {
     const damageContainer = document.getElementById('damagePaymentContainer');
@@ -1230,29 +1216,6 @@ function renderDriverDebtsList(optionEl) {
     }
 }
 
-                document.getElementById('driverId').dispatchEvent(new Event('change'));
-
-                // Refresh shift status notice (extra driver vs expected driver)
-                if (typeof refreshShiftStatusForDriver === 'function') {
-                    refreshShiftStatusForDriver(this.getAttribute('data-id'));
-                }
-            });
-        });
-    }
-}
-
-function payFullBalance() {
-    const dailyTarget = parseFloat(document.getElementById('boundaryAmount').value || 0);
-    const pastShortage = parseFloat(document.getElementById('rawShortageAmount').value || 0);
-    const actualCollectedInput = document.getElementById('actualBoundary');
-
-    const totalToPay = dailyTarget + pastShortage;
-    actualCollectedInput.value = totalToPay.toFixed(2);
-    
-    // Visual feedback/confirmation
-    actualCollectedInput.classList.add('ring-4', 'ring-green-400');
-    setTimeout(() => actualCollectedInput.classList.remove('ring-4', 'ring-green-400'), 1000);
-}
 
 // Actual Collected must NOT exceed the target boundary
 function validateActualCollected() {
@@ -1448,9 +1411,7 @@ function editBoundary(id) {
         
         // Hide alerts on fresh open
         const extraAlert = document.getElementById('extraDriverAlert');
-        const shortageAlert = document.getElementById('shortageBalanceAlert');
         if (extraAlert) extraAlert.classList.add('hidden');
-        if (shortageAlert) shortageAlert.classList.add('hidden');
 
         // Set Unit Display (guaranteed to fill required field even if inactive)
         const unitDisplay = document.getElementById('unitDisplay');
@@ -1656,6 +1617,8 @@ function updateShiftInfo(unitElement) {
             shiftInfoGroup.className = shiftInfoGroup.className.replace(/border-\S+/g, '').trim();
             shiftInfoGroup.classList.add(borderColor, bgColor);
             badgeContainer.innerHTML = badgeHtml;
+
+
         } else {
             // Shift still active
             mainLabel.textContent = expectedName ? `${expectedName} — On Shift` : 'Driver On Shift';
@@ -1666,6 +1629,9 @@ function updateShiftInfo(unitElement) {
             shiftInfoGroup.className = shiftInfoGroup.className.replace(/border-\S+/g, '').trim();
             shiftInfoGroup.classList.add('border-green-200', 'bg-green-50/20');
             badgeContainer.innerHTML = '<span class="px-1.5 py-0.5 bg-green-100 text-green-700 text-[9px] font-bold rounded-full border border-green-300 uppercase tracking-tighter shadow-sm">Incentive Eligible</span>';
+            
+            const missedChargeContainer = document.getElementById('chargeMissedDaysContainer');
+            if (missedChargeContainer) missedChargeContainer.classList.add('hidden');
         }
     } else {
         // No deadline set — first time or schedule cleared

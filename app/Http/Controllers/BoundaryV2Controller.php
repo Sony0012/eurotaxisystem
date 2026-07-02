@@ -12,7 +12,7 @@ use App\Http\Controllers\ActivityLogController;
 use App\Traits\CalculatesBoundary;
 use App\Traits\CalculatesDriverPerformance;
 
-class BoundaryController extends Controller
+class BoundaryV2Controller extends Controller
 {
     use CalculatesBoundary, CalculatesDriverPerformance;
     /**
@@ -77,38 +77,27 @@ class BoundaryController extends Controller
             ->toArray();
 
         // --- Fleet Utilization Tracking ---
+        $deployable_units = DB::table('units')
+            ->whereNull('deleted_at')
+            ->whereNotIn('status', ['retired', 'missing', 'maintenance'])
+            ->orderBy('plate_number')
+            ->get(['id', 'plate_number']);
+
         $remitted_unit_ids = DB::table('boundaries')
             ->whereNull('deleted_at')
             ->whereDate('date', $date_filter)
             ->pluck('unit_id')
             ->toArray();
 
-        $deployable_units = DB::table('units')
-            ->whereNull('deleted_at')
-            ->where(function($q) use ($remitted_unit_ids) {
-                $q->whereNotIn('status', ['retired', 'missing', 'maintenance']);
-                if (!empty($remitted_unit_ids)) {
-                    $q->orWhereIn('id', $remitted_unit_ids);
-                }
-            })
-            ->orderBy('plate_number')
-            ->get(['id', 'plate_number']);
-
         $vacant_units = [];
         $remitted_plates = [];
         $total_remitted = 0;
         
-        // Fetch plate numbers for all remitted units today, regardless of current status (e.g. if they went to maintenance after remitting)
-        if (!empty($remitted_unit_ids)) {
-            $remitted_plates = DB::table('units')
-                ->whereIn('id', $remitted_unit_ids)
-                ->pluck('plate_number')
-                ->toArray();
-            $total_remitted = count(array_unique($remitted_unit_ids));
-        }
-
         foreach($deployable_units as $unit) {
-            if(!in_array($unit->id, $remitted_unit_ids)) {
+            if(in_array($unit->id, $remitted_unit_ids)) {
+                $total_remitted++;
+                $remitted_plates[] = $unit->plate_number;
+            } else {
                 $vacant_units[] = $unit->plate_number;
             }
         }
@@ -149,6 +138,7 @@ class BoundaryController extends Controller
                    COALESCE(ua.plate_number, 'No Assignment') as current_unit,
                    COALESCE(ua.plate_number, '') as current_plate,
                    (SELECT COUNT(*) FROM units WHERE (driver_id = d.id OR secondary_driver_id = d.id) AND deleted_at IS NULL) as assigned_units_count,
+                   (SELECT GREATEST(0, COALESCE(SUM(shortage),0) - COALESCE(SUM(excess),0)) FROM boundaries WHERE driver_id = d.id AND deleted_at IS NULL) as net_shortage,
                    (SELECT COUNT(*) FROM driver_behavior WHERE driver_id = d.id AND charge_status = 'pending' AND remaining_balance > 0 AND deleted_at IS NULL) as has_accident_debt,
                    (SELECT COALESCE(SUM(remaining_balance), 0) FROM driver_behavior WHERE driver_id = d.id AND charge_status = 'pending' AND remaining_balance > 0 AND deleted_at IS NULL) as total_accident_debt
             FROM drivers d 
@@ -342,13 +332,9 @@ class BoundaryController extends Controller
 
             if ($unit_id > 0 && $driver_id > 0 && $is_valid_amount) {
                 // Check duplicate
-                $existing = DB::table('boundaries')
-                    ->where('unit_id', $unit_id)
-                    ->where('driver_id', $driver_id)
-                    ->where('date', $date)
-                    ->first();
+                $existing = DB::table('boundaries')->where('unit_id', $unit_id)->where('date', $date)->first();
                 if ($existing) {
-                    return back()->with('error', 'Boundary record already exists for this driver, unit, and date');
+                    return back()->with('error', 'Boundary record already exists for this unit and date');
                 } else {
                     $shortage = max(0, $boundary_amount - $actual_boundary);
                     $excess   = max(0, $actual_boundary - $boundary_amount);
@@ -356,55 +342,23 @@ class BoundaryController extends Controller
 
                     $has_incentive = true;
 
-
-
-                    $is_absent = $request->has('is_absent');
-
                     if ($shortage > 0) {
                         $has_incentive = false;
+                        $notes = trim($notes . " [Automatic Violation: Short Boundary]");
                         
-                        if ($is_absent) {
-                            $notes = trim($notes . " [Automatic Violation: Driver Absent/No Show]");
-                            \App\Models\DriverBehavior::create([
-                                'unit_id'                 => $unit_id,
-                                'driver_id'               => $driver_id,
-                                'incident_type'           => 'Absent / No Show',
-                                'severity'                => 'high',
-                                'description'             => "Auto-logged [Absent]: Driver failed to report. Manually recorded by dispatcher.",
-                                'incident_date'           => $date,
-                                'timestamp'               => now(),
-                                'total_charge_to_driver'  => $shortage,
-                                'total_paid'              => 0,
-                                'remaining_balance'       => $shortage,
-                                'charge_status'           => 'pending',
-                            ]);
-                        } else {
-                            $notes = trim($notes . " [Automatic Violation: Short Boundary]");
-                            \App\Models\DriverBehavior::create([
-                                'unit_id'                 => $unit_id,
-                                'driver_id'               => $driver_id,
-                                'incident_type'           => 'Short Boundary',
-                                'severity'                => 'medium',
-                                'description'             => "Auto-logged [Shortage]: Driver remitted ₱" . number_format($actual_boundary, 2) . " instead of ₱" . number_format($boundary_amount, 2),
-                                'incident_date'           => $date,
-                                'timestamp'               => now(),
-                                'total_charge_to_driver'  => $shortage,
-                                'total_paid'              => 0,
-                                'remaining_balance'       => $shortage,
-                                'charge_status'           => 'pending',
-                            ]);
-                        }
-                    } elseif ($is_absent) {
-                        $has_incentive = false;
-                        $notes = trim($notes . " [Automatic Violation: Driver Absent/No Show]");
+                        // Auto-log to Driver Performance
                         \App\Models\DriverBehavior::create([
                             'unit_id'                 => $unit_id,
                             'driver_id'               => $driver_id,
-                            'incident_type'           => 'Absent / No Show',
-                            'severity'                => 'high',
-                            'description'             => "Auto-logged [Absent]: Driver failed to report. Manually recorded by dispatcher.",
+                            'incident_type'           => 'Short Boundary',
+                            'severity'                => 'medium',
+                            'description'             => "Auto-logged [Shortage]: Driver remitted ₱" . number_format($actual_boundary, 2) . " instead of ₱" . number_format($boundary_amount, 2),
                             'incident_date'           => $date,
                             'timestamp'               => now(),
+                            'total_charge_to_driver'  => $shortage,
+                            'total_paid'              => 0,
+                            'remaining_balance'       => $shortage,
+                            'charge_status'           => 'pending',
                         ]);
                     }
 
@@ -435,6 +389,8 @@ class BoundaryController extends Controller
                             'timestamp'     => $now,
                         ]);
                     }
+
+                    $is_absent = false; // "Absent / No Show" logic removed per user request
 
                     if ($unit) {
                         

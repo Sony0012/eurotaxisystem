@@ -85,7 +85,7 @@ class DriverBehaviorController extends Controller
             ->orderBy('d.last_name')->get();
 
         $units = DB::table('units')->whereNull('deleted_at')->where('status', '!=', 'retired')
-            ->select('id', 'uuid', 'plate_number', 'driver_id', 'secondary_driver_id')
+            ->select('id', 'plate_number', 'driver_id', 'secondary_driver_id')
             ->orderBy('plate_number')->get();
 
         $classifications = IncidentClassification::orderBy('name')->get();
@@ -424,7 +424,7 @@ class DriverBehaviorController extends Controller
 
     public function update(Request $request, $id)
     {
-        $incident = DriverBehavior::where('uuid', $id)->firstOrFail();
+        $incident = DriverBehavior::where('id', $id)->firstOrFail();
         
         $data = $request->validate([
             'incident_type'          => 'required|string',
@@ -463,7 +463,7 @@ class DriverBehaviorController extends Controller
 
     public function destroy($id)
     {
-        $incident = DriverBehavior::where('uuid', $id)->firstOrFail();
+        $incident = DriverBehavior::where('id', $id)->firstOrFail();
         $incident->delete();
 
         return response()->json([

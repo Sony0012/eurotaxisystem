@@ -17,7 +17,7 @@ class StaffController extends Controller
 
     public function show($id)
     {
-        $staff = User::where('uuid', $id)->firstOrFail();
+        $staff = User::where('id', $id)->firstOrFail();
         return response()->json(['success' => true, 'data' => $staff]);
     }
 

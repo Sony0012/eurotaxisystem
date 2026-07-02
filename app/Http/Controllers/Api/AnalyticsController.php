@@ -30,7 +30,7 @@ class AnalyticsController extends Controller
     public function profitability()
     {
         // Mock profitability data
-        $data = DB::table('units')->select('id', 'uuid', 'plate_number')->get()->map(function($u) {
+        $data = DB::table('units')->select('id', 'plate_number')->get()->map(function($u) {
             return [
                 'id' => $u->id,
                 'plate_number' => $u->plate_number,

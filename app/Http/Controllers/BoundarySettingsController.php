@@ -36,7 +36,7 @@ class BoundarySettingsController extends Controller
 
     public function update(Request $request, $id)
     {
-        $rule = BoundaryRule::where('uuid', $id)->firstOrFail();
+        $rule = BoundaryRule::where('id', $id)->firstOrFail();
 
         $request->validate([
             'name'           => 'required|string|max:100',
@@ -58,7 +58,7 @@ class BoundarySettingsController extends Controller
 
     public function destroy($id)
     {
-        $rule = BoundaryRule::where('uuid', $id)->firstOrFail();
+        $rule = BoundaryRule::where('id', $id)->firstOrFail();
         $name = $rule->name;
         $rule->delete(); // soft delete
 

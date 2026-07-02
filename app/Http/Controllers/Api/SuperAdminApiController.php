@@ -23,7 +23,7 @@ class SuperAdminApiController extends Controller
 
     public function approveUser($id)
     {
-        $user = User::where('uuid', $id)->firstOrFail();
+        $user = User::where('id', $id)->firstOrFail();
         $user->is_active = 1;
         $user->save();
         return response()->json(['success' => true, 'message' => 'User approved successfully.']);
@@ -31,14 +31,14 @@ class SuperAdminApiController extends Controller
 
     public function rejectUser($id)
     {
-        $user = User::where('uuid', $id)->firstOrFail();
+        $user = User::where('id', $id)->firstOrFail();
         $user->delete();
         return response()->json(['success' => true, 'message' => 'User rejected and deleted.']);
     }
 
     public function toggleActive($id)
     {
-        $user = User::where('uuid', $id)->firstOrFail();
+        $user = User::where('id', $id)->firstOrFail();
         $user->is_active = !$user->is_active;
         $user->save();
         return response()->json(['success' => true, 'is_active' => $user->is_active]);
@@ -46,7 +46,7 @@ class SuperAdminApiController extends Controller
 
     public function updatePageAccess(Request $request, $id)
     {
-        $user = User::where('uuid', $id)->firstOrFail();
+        $user = User::where('id', $id)->firstOrFail();
         $user->page_access = json_encode($request->pages);
         $user->save();
         return response()->json(['success' => true]);
@@ -54,7 +54,7 @@ class SuperAdminApiController extends Controller
 
     public function updateRole(Request $request, $id)
     {
-        $user = User::where('uuid', $id)->firstOrFail();
+        $user = User::where('id', $id)->firstOrFail();
         $user->role = $request->role;
         $user->save();
         return response()->json(['success' => true]);
@@ -62,7 +62,7 @@ class SuperAdminApiController extends Controller
 
     public function deleteUser($id)
     {
-        User::where('uuid', $id)->firstOrFail()->delete();
+        User::where('id', $id)->firstOrFail()->delete();
         return response()->json(['success' => true]);
     }
 

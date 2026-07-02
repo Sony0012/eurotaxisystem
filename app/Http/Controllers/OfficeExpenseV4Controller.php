@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\ActivityLogController;
 
-class OfficeExpenseController extends Controller
+class OfficeExpenseV4Controller extends Controller
 {
     public function index(Request $request)
     {
@@ -97,7 +97,7 @@ class OfficeExpenseController extends Controller
         // Get units for dropdown
         $units = DB::table('units')
             ->where('status', 'active')
-            ->select('id', 'uuid', 'plate_number')
+            ->select('id', 'plate_number')
             ->orderBy('plate_number')
             ->get();
 
@@ -218,7 +218,7 @@ class OfficeExpenseController extends Controller
             'unit_id' => 'nullable|integer',
         ]);
 
-        $expense = Expense::where('uuid', $id)->firstOrFail();
+        $expense = Expense::where('id', $id)->firstOrFail();
         
         // Handle Inventory Reversal if it was a Spare Parts Purchase
         if ($expense->category === 'Spare Parts Purchase' && $expense->spare_part_id && $expense->quantity > 0) {
@@ -255,7 +255,7 @@ class OfficeExpenseController extends Controller
 
     public function destroy($id)
     {
-        $expense = Expense::where('uuid', $id)->firstOrFail();
+        $expense = Expense::where('id', $id)->firstOrFail();
         
         // Reverse inventory stock if applicable
         if ($expense->category === 'Spare Parts Purchase' && $expense->spare_part_id && $expense->quantity > 0) {
