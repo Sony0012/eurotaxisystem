@@ -21,7 +21,7 @@
                     class="pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:outline-none font-bold text-sm text-gray-700 shadow-sm" title="Date To">
             </div>
             <div class="relative min-w-[200px]">
-                <input type="search" name="search" value="{{ $search ?? '' }}"
+                <input type="search" name="search" id="employeeSearchInput" value="{{ $search ?? '' }}"
                     class="block w-full pl-9 pr-3 py-2 border border-gray-200 rounded-lg font-bold text-sm text-gray-700 shadow-sm focus:ring-2 focus:ring-yellow-500 focus:outline-none"
                     placeholder="Search employee..." autocomplete="off">
                 <button type="submit" class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400 hover:text-yellow-600">
@@ -126,10 +126,9 @@
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Overtime</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Total</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Pay Date</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
                     </tr>
                 </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
+                <tbody id="salariesTableBody" class="bg-white divide-y divide-gray-200">
                     @forelse($salaries as $salary)
                         <tr class="hover:bg-gray-50">
                             <td class="px-6 py-4 whitespace-nowrap">
@@ -151,22 +150,10 @@
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                 {{ isset($salary->pay_date) ? \Carbon\Carbon::parse($salary->pay_date)->format('M d, Y') : '-' }}
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                <button type="button" onclick='openEditSalaryModal(@json($salary))' class="text-blue-600 hover:text-blue-900 mr-2">
-                                    <i data-lucide="edit" class="w-4 h-4"></i>
-                                </button>
-                                <form method="POST" action="{{ route('salaries.destroy', $salary->id) }}" class="inline"
-                                    onsubmit="return confirm('Archive this salary record?')">
-                                    @csrf @method('DELETE')
-                                    <button type="submit" class="text-rose-500 hover:text-rose-700 transition-colors">
-                                        <i data-lucide="archive" class="w-4 h-4"></i>
-                                    </button>
-                                </form>
-                            </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="px-6 py-10 text-center text-gray-500">
+                            <td colspan="6" class="px-6 py-10 text-center text-gray-500">
                                 <i data-lucide="users" class="w-10 h-10 mx-auto mb-3 text-gray-300"></i>
                                 <p>No salary records found.</p>
                             </td>
@@ -509,6 +496,23 @@ function closeMonthlyReport() {
         document.getElementById('monthlyReportModal').classList.add('hidden');
     }, 150);
 }
+
+document.getElementById('employeeSearchInput').addEventListener('input', function(e) {
+    const searchTerm = e.target.value.toLowerCase();
+    const rows = document.querySelectorAll('#salariesTableBody tr');
+    
+    rows.forEach(row => {
+        if (row.querySelector('td[colspan]')) return; // Skip empty row message
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(searchTerm) ? '' : 'none';
+    });
+});
+
+document.getElementById('employeeSearchInput').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+    }
+});
 
 // Auto-fill Employee Type based on selected Employee
 document.getElementById('salaryEmployee').addEventListener('change', function() {
