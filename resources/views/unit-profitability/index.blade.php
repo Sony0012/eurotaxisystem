@@ -539,7 +539,6 @@
                 if (data.success) {
                     resultContent.innerHTML = marked.parse(data.analysis);
                     resultContainer.classList.remove('hidden');
-                    resultContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 } else {
                     alert('AI Analysis failed: ' + (data.message || 'Unknown error'));
                     loader.classList.add('hidden');
