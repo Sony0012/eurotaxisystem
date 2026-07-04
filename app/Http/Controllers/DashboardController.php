@@ -29,6 +29,17 @@ class DashboardController extends Controller
         $this->notificationService = $notificationService;
     }
 
+    public function completeTutorial(Request $request)
+    {
+        $user = \Illuminate\Support\Facades\Auth::user();
+        if ($user) {
+            $user->tutorial_completed = true;
+            $user->save();
+            return response()->json(['success' => true]);
+        }
+        return response()->json(['success' => false], 401);
+    }
+
     public function index(Request $request)
     {
         // AUTO-TRIGGER: Daily Coding Alerts (runs once per day when first staff visits dashboard)

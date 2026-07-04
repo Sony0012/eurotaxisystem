@@ -92,6 +92,10 @@
     <link rel="stylesheet" href="{{ asset('assets/fontawesome/all.min.css') }}?v=stable_6.4.0">
     <link rel="stylesheet" href="{{ asset('assets/inter/inter.css') }}?v=stable_3.19.3">
 
+    <!-- Interactive Tutorial Assets -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/driver.js@1.3.1/dist/driver.css"/>
+    <link rel="stylesheet" href="{{ asset('assets/css/tutorial.css') }}?v=1.0">
+
     <style>
         input::-webkit-outer-spin-button,
         input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
@@ -588,6 +592,14 @@
                             </div>
                             <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400 group-hover:text-yellow-600 transition-colors hidden lg:block"></i>
                         </a>
+                        
+                        <!-- Take the Tour Again -->
+                        <button type="button"
+                            onclick="if(window.TutorialManager) window.TutorialManager.restart();"
+                            class="flex items-center justify-start md:justify-center lg:justify-start gap-2 px-3 md:px-1 lg:px-3 py-2 mb-1 text-sm text-blue-600 hover:bg-blue-50 rounded-lg w-full transition-colors">
+                            <i data-lucide="help-circle" class="w-4 h-4"></i>
+                            <span class="block md:hidden lg:block font-semibold">Take the Tour Again</span>
+                        </button>
                         
                         <!-- Logout Form -->
                         <form id="logout-form" action="{{ route('logout') }}" method="GET" class="hidden"></form>
@@ -2172,6 +2184,17 @@
             // Send one immediately on load
             setTimeout(sendHeartbeat, 2000);
         })();
+    </script>
+    
+    <!-- Interactive Tutorial System -->
+    <script src="https://cdn.jsdelivr.net/npm/driver.js@1.3.1/dist/driver.js.iife.js"></script>
+    <script src="{{ asset('assets/js/tutorial.js') }}?v=1.0"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof window.TutorialManager !== 'undefined') {
+                window.TutorialManager.init({{ auth()->user()->tutorial_completed ? 'true' : 'false' }});
+            }
+        });
     </script>
     @endauth
 </body>

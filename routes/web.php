@@ -70,6 +70,7 @@ Route::get('/auth/github', [GitHubAuthController::class, 'redirectToGitHub'])->n
 Route::get('/auth/github/callback', [GitHubAuthController::class, 'handleGitHubCallback'])->name('auth.github.callback');
 
 // Real-time dashboard data
+Route::post('/api/tutorial/complete', [DashboardController::class, 'completeTutorial'])->middleware('auth');
 Route::get('/api/dashboard/realtime', [DashboardController::class, 'getRealTimeData'])->middleware('auth');
 Route::get('/api/revenue-trend', [DashboardController::class, 'getRevenueTrend'])->middleware('auth');
 Route::get('/api/units-overview', [DashboardController::class, 'getUnitsOverview'])->middleware('auth');
