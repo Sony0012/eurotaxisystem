@@ -251,7 +251,7 @@ class NotificationController extends Controller
                     } elseif (is_array($readData)) {
                         $nowMs = time() * 1000;
                         foreach ($readData as $id => $timestamp) {
-                            if ($nowMs - $timestamp < 1800000) {
+                            if ($nowMs - $timestamp < 2592000000) {
                                 $readNotifIds[] = (string)$id;
                             }
                         }

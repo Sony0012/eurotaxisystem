@@ -128,7 +128,7 @@
     <div class="grid grid-cols-2 gap-3 sm:gap-5 md:grid-cols-2 lg:grid-cols-4">
 
         {{-- Total Units --}}
-        <div onclick="showUnitsModal()" class="card-hover wave-blue cursor-pointer group relative overflow-hidden rounded-2xl shadow-sm border border-blue-100 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl bg-gradient-to-br from-blue-50 to-indigo-50/70">
+        <div onclick="showUnitsModal()" class="card-hover wave-blue cursor-pointer group relative overflow-hidden rounded-2xl shadow-sm border border-blue-100 bg-gradient-to-br from-blue-50 to-indigo-50/70">
             
             <div class="relative p-3.5 sm:p-5 flex items-center justify-between z-20">
                 <div class="flex-1 min-w-0">
@@ -144,7 +144,7 @@
         </div>
 
         {{-- Daily Boundary Collection --}}
-        <div onclick="showDailyBoundaryModal()" class="card-hover wave-emerald cursor-pointer group relative overflow-hidden rounded-2xl shadow-sm border border-emerald-100 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl bg-gradient-to-br from-emerald-50 to-teal-50/70">
+        <div onclick="showDailyBoundaryModal()" class="card-hover wave-emerald cursor-pointer group relative overflow-hidden rounded-2xl shadow-sm border border-emerald-100 bg-gradient-to-br from-emerald-50 to-teal-50/70">
             
             <div class="relative p-3.5 sm:p-5 flex items-center justify-between z-20">
                 <div class="flex-1 min-w-0">
@@ -166,7 +166,7 @@
         </div>
 
         {{-- Net Income --}}
-        <div onclick="showNetIncomeModal()" class="card-hover wave-green cursor-pointer group relative overflow-hidden rounded-2xl shadow-sm border border-green-100 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl bg-gradient-to-br from-green-50 to-lime-50/70">
+        <div onclick="showNetIncomeModal()" class="card-hover wave-green cursor-pointer group relative overflow-hidden rounded-2xl shadow-sm border border-green-100 bg-gradient-to-br from-green-50 to-lime-50/70">
             
             <div class="relative p-3.5 sm:p-5 flex items-center justify-between z-20">
                 <div class="flex-1 min-w-0">
@@ -188,7 +188,7 @@
         </div>
 
         {{-- Units Under Maintenance --}}
-        <div onclick="showMaintenanceUnitsModal()" class="card-hover wave-orange cursor-pointer group relative overflow-hidden rounded-2xl shadow-sm border border-orange-100 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl bg-gradient-to-br from-orange-50 to-amber-50/70">
+        <div onclick="showMaintenanceUnitsModal()" class="card-hover wave-orange cursor-pointer group relative overflow-hidden rounded-2xl shadow-sm border border-orange-100 bg-gradient-to-br from-orange-50 to-amber-50/70">
             
             <div class="relative p-3.5 sm:p-5 flex items-center justify-between z-20">
                 <div class="flex-1 min-w-0">
@@ -209,7 +209,7 @@
     <div class="mt-4 grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
 
         {{-- Active Drivers --}}
-        <div onclick="showActiveDriversModal()" class="card-hover wave-indigo cursor-pointer group relative overflow-hidden rounded-2xl shadow-sm border border-indigo-100 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl bg-gradient-to-br from-indigo-50 to-violet-50/70">
+        <div onclick="showActiveDriversModal()" class="card-hover wave-indigo cursor-pointer group relative overflow-hidden rounded-2xl shadow-sm border border-indigo-100 bg-gradient-to-br from-indigo-50 to-violet-50/70">
             
             <div class="relative p-3.5 sm:p-5 flex items-center justify-between z-20">
                 <div class="flex-1 min-w-0">
@@ -224,7 +224,7 @@
         </div>
 
         {{-- Total Expenses Today --}}
-        <div onclick="showExpensesModal()" class="card-hover wave-rose cursor-pointer group relative overflow-hidden rounded-2xl shadow-sm border border-rose-100 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl bg-gradient-to-br from-rose-50 to-red-50/70">
+        <div onclick="showExpensesModal()" class="card-hover wave-rose cursor-pointer group relative overflow-hidden rounded-2xl shadow-sm border border-rose-100 bg-gradient-to-br from-rose-50 to-red-50/70">
             
             <div class="relative p-3.5 sm:p-5 flex items-center justify-between z-20">
                 <div class="flex-1 min-w-0">
@@ -239,7 +239,7 @@
         </div>
 
         {{-- Coding Units Today --}}
-        <div onclick="showCodingUnitsModal()" class="col-span-2 lg:col-span-1 card-hover wave-violet cursor-pointer group relative overflow-hidden rounded-2xl shadow-sm border border-violet-100 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl bg-gradient-to-br from-violet-50 to-purple-50/70">
+        <div onclick="showCodingUnitsModal()" class="col-span-2 lg:col-span-1 card-hover wave-violet cursor-pointer group relative overflow-hidden rounded-2xl shadow-sm border border-violet-100 bg-gradient-to-br from-violet-50 to-purple-50/70">
             
             <div class="relative p-3.5 sm:p-5 flex items-center justify-between z-20">
                 <div class="flex-1 min-w-0">

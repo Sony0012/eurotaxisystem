@@ -123,8 +123,8 @@ class SalaryController extends Controller
             'holiday_pay' => 'nullable|integer|min:1|max:99999',
             'night_differential' => 'nullable|integer|min:1|max:99999',
             'allowance' => 'nullable|integer|min:1|max:99999',
-            'month' => 'required|integer|min:1|max:12',
-            'year' => 'required|integer|min:2020|max:2030',
+            'month' => 'required|numeric|min:1|max:12',
+            'year' => 'required|numeric|min:2020|max:2030',
             'pay_date' => 'required|date',
         ]);
 

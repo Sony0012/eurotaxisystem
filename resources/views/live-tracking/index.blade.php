@@ -414,6 +414,18 @@
         z-index: 500;
     }
     #mapHeaderBar { padding-left: 58px; }
+
+    /* Move buttons to the right of the panel to avoid overlapping and blocking clicks */
+    #unitExplorerPanel:not(.panel-collapsed) ~ #mapArea #navMenuBtn,
+    #unitExplorerPanel:not(.panel-collapsed) ~ #mapArea #mapToggleBtn {
+        left: 266px;
+    }
+}
+
+/* ── Shift buttons on mobile when the main App Sidebar is open ── */
+body:has(#appSidebar.show) #navMenuBtn,
+body:has(#appSidebar.show) #mapToggleBtn {
+    left: 290px !important;
 }
 </style>
 <div id="liveTrackingRoot">
@@ -553,7 +565,7 @@
         <div class="unit-scroll" id="unitList">
             @forelse($tracked_units as $unit)
                 <div class="unit-item p-2.5 border-b border-gray-100 {{ $unit->gps_status === 'offline' ? 'opacity-70' : '' }}"
-                    data-unit-id="{{ $unit->uuid }}"
+                    data-unit-id="{{ $unit->id }}"
                     data-plate-number="{{ $unit->plate_number }}"
                     data-driver-name="{{ $unit->driver_name ?? '' }}"
                     data-secondary-driver="{{ $unit->secondary_driver ?? '' }}"
@@ -564,7 +576,7 @@
                         <div class="font-black text-[15px] text-gray-900 tracking-tight leading-none uppercase">
                             {{ $unit->plate_number }}
                         </div>
-                        <div class="status-badge" id="status-unit-{{ $unit->uuid }}">
+                        <div class="status-badge" id="status-unit-{{ $unit->id }}">
                             @php
                                 $sc = ['moving'=>'bg-green-50 text-green-700 border-green-100','idle'=>'bg-yellow-50 text-yellow-700 border-yellow-100','stopped'=>'bg-blue-50 text-blue-700 border-blue-100','offline'=>'bg-gray-50 text-gray-400 border-gray-100'][$unit->gps_status] ?? 'bg-gray-50 text-gray-400 border-gray-100';
                             @endphp
@@ -588,7 +600,7 @@
                     </div>
 
                     <div class="flex justify-between items-center text-[10px] font-bold text-gray-400 uppercase tracking-tighter">
-                        <div class="flex items-center gap-1" id="engine-status-container-{{ $unit->uuid }}">
+                        <div class="flex items-center gap-1" id="engine-status-container-{{ $unit->id }}">
                             <i data-lucide="zap" class="w-3 h-3 {{ $unit->ignition_status ? 'text-green-500' : 'text-gray-300' }}"></i>
                             <span>{{ $unit->ignition_status ? 'Engine ON' : 'Engine OFF' }}</span>
                         </div>
@@ -813,6 +825,13 @@
         // Simply un-collapse the sidebar — flex layout pushes content right
         appSidebar.classList.remove('tracking-collapsed');
         if (navMenuBtn) navMenuBtn.classList.add('nav-open');
+        
+        // On mobile, the sidebar needs the 'show' class to be visible
+        if (window.innerWidth <= 768) {
+            appSidebar.classList.add('show');
+            const backdrop = document.getElementById('sidebarBackdrop');
+            if (backdrop) backdrop.classList.add('show');
+        }
     }
 
     window.closeNavOverlay = function () {
@@ -820,6 +839,22 @@
         navOpen = false;
         appSidebar.classList.add('tracking-collapsed');
         if (navMenuBtn) navMenuBtn.classList.remove('nav-open');
+        
+        // On mobile, remove 'show' class to hide sidebar
+        appSidebar.classList.remove('show');
+        const backdrop = document.getElementById('sidebarBackdrop');
+        if (backdrop) backdrop.classList.remove('show');
+    };
+
+    // Hook into global toggleMobileSidebar to sync state if sidebar is closed via backdrop
+    const origToggle = window.toggleMobileSidebar;
+    window.toggleMobileSidebar = function() {
+        if (origToggle) origToggle();
+        if (appSidebar && !appSidebar.classList.contains('show')) {
+            navOpen = false;
+            if (navMenuBtn) navMenuBtn.classList.remove('nav-open');
+            appSidebar.classList.add('tracking-collapsed');
+        }
     };
 
     /* ── Restore nav when user navigates away ───────────────────── */

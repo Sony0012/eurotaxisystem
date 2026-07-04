@@ -32,10 +32,7 @@ class NotificationService
                     $exists = DB::table('system_alerts')
                         ->where('type', $type)
                         ->where('title', $title)
-                        ->where(function($q) {
-                            $q->where('is_resolved', false)
-                              ->orWhereDate('created_at', today());
-                        })
+                        ->where('created_at', '>=', now()->subDays(30)) // Only prevent re-insertion within 30 days
                         ->exists();
                     if (!$exists) {
                         DB::table('system_alerts')->insert([
@@ -73,10 +70,7 @@ class NotificationService
                             ->where('type', $type)
                             ->where('title', $title)
                             ->where('message', $msg)
-                            ->where(function($q) {
-                                $q->where('is_resolved', false)
-                                  ->orWhereDate('created_at', today());
-                            })
+                            ->where('created_at', '>=', now()->subDays(30)) // Only prevent re-insertion within 30 days
                             ->exists();
                         if (!$exists) {
                             DB::table('system_alerts')->insert([
@@ -105,10 +99,7 @@ class NotificationService
                         ->where('type', $type)
                         ->where('title', $title)
                         ->where('message', $msg)
-                        ->where(function($q) {
-                            $q->where('is_resolved', false)
-                              ->orWhereDate('created_at', today());
-                        })
+                        ->where('created_at', '>=', now()->subDays(30))
                         ->exists();
                     if (!$exists) {
                         DB::table('system_alerts')->insert([
@@ -132,10 +123,7 @@ class NotificationService
                     $existingAlert = DB::table('system_alerts')
                         ->where('type', $type)
                         ->where('title', 'like', '%: ' . $p->name)
-                        ->where(function($q) {
-                            $q->where('is_resolved', false)
-                              ->orWhereDate('created_at', today());
-                        })
+                        ->where('created_at', '>=', now()->subDays(30))
                         ->first();
                     if (!$existingAlert) {
                         DB::table('system_alerts')->insert([
@@ -181,10 +169,7 @@ class NotificationService
                     $exists = DB::table('system_alerts')
                         ->where('type', $type)
                         ->where('title', $title)
-                        ->where(function($q) {
-                            $q->where('is_resolved', false)
-                              ->orWhereDate('created_at', today());
-                        })
+                        ->where('created_at', '>=', now()->subDays(30))
                         ->exists();
                     if (!$exists) {
                         DB::table('system_alerts')->insert([
@@ -226,10 +211,7 @@ class NotificationService
                     $exists = DB::table('system_alerts')
                         ->where('type', $type)
                         ->where('title', $title)
-                        ->where(function($q) {
-                            $q->where('is_resolved', false)
-                              ->orWhereDate('created_at', today());
-                        })
+                        ->where('created_at', '>=', now()->subDays(30))
                         ->exists();
                     if (!$exists) {
                         DB::table('system_alerts')->insert([
@@ -258,6 +240,7 @@ class NotificationService
                 // Fetch everything directly from system_alerts which has 100% parity with pushes!
                 $dbAlerts = DB::table('system_alerts')
                     ->where('is_resolved', false)
+                    ->whereNull('user_id') // Exclude driver-specific targeted alerts
                     ->orderByDesc('created_at')
                     ->limit(500)
                     ->get();

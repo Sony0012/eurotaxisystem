@@ -38,6 +38,7 @@ class ArchiveController extends Controller
         $archivedPricingRules = BoundaryRule::onlyTrashed()->get();
         $archivedSuppliers = Supplier::onlyTrashed()->get();
         $archivedSpareParts = \App\Models\SparePart::onlyTrashed()->get();
+        $archivedAccidents = \App\Models\RescueRequest::with(['driver', 'unit'])->onlyTrashed()->get();
 
         // ─── Archived User Accounts (System Login Access) ───
         $archivedUserAccounts = \App\Models\User::onlyTrashed()
@@ -60,6 +61,7 @@ class ArchiveController extends Controller
             'archivedFranchiseCases',
             'archivedStaff',
             'archivedIncidents',
+            'archivedAccidents',
             'archivedPricingRules',
             'archivedSuppliers',
             'archivedSpareParts',
@@ -139,6 +141,7 @@ class ArchiveController extends Controller
             'franchise_case' => FranchiseCase::class,
             'staff' => Staff::class,
             'incident' => \App\Models\DriverBehavior::class,
+            'accident' => \App\Models\RescueRequest::class,
             'pricing_rule' => BoundaryRule::class,
             'supplier' => Supplier::class,
             'spare_part' => \App\Models\SparePart::class,

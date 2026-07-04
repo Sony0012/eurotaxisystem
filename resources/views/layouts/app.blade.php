@@ -185,6 +185,10 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     
     <style>
+        .card-hover:hover {
+            transform: none !important;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
+        }
         @media print {
             @page {
                 margin: 0;
@@ -255,6 +259,9 @@
                     }
                 } catch (\Exception $e) {}
             }
+            
+            file_put_contents(storage_path('logs/notif_debug.log'), "Time: " . date('Y-m-d H:i:s') . "\nCookie: " . (isset($_COOKIE['read_notifs']) ? $_COOKIE['read_notifs'] : 'NULL') . "\nParsed IDs: " . json_encode($readNotifIds) . "\n", FILE_APPEND);
+
             
             // Filter out ALL read notifications across all categories
             $headerNotifications = array_filter($headerNotifications, function($n) use ($readNotifIds) {
@@ -616,12 +623,6 @@
                         <div class="flex items-center gap-4">
                             {{-- Consolidating all notifications into the Main Bell --}}
 
-                            <!-- Test App Chime Button -->
-                            <button onclick="triggerTestNotificationBroadcast()" id="test-chime-broadcast-btn"
-                                class="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-600 hover:to-amber-600 text-white font-extrabold text-[10px] uppercase tracking-wider rounded-xl shadow-md hover:shadow-lg transition-all duration-300 transform active:scale-95 flex-shrink-0">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-volume-2 animate-bounce"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
-                                <span>📢 Test Chime</span>
-                            </button>
 
                             <!-- Main Notification Bell -->
                             <div class="relative">
@@ -720,6 +721,40 @@
                                                     </button>
                                                 </div>
                                             @endforeach
+                                            <script>
+                                                (function() {
+                                                    try {
+                                                        const readNotifs = JSON.parse(localStorage.getItem('read_notifs') || '{}');
+                                                        const items = document.querySelectorAll('.notification-item');
+                                                        let sysCnt = 0; let partCnt = 0;
+                                                        items.forEach(i => {
+                                                            const id = i.dataset.notifId;
+                                                            if (id && readNotifs[id]) {
+                                                                i.style.display = 'none';
+                                                                i.classList.remove('unread-notif');
+                                                                i.style.backgroundColor = 'transparent';
+                                                            } else if (i.classList.contains('unread-notif') && i.style.display !== 'none') {
+                                                                if(i.dataset.type === 'low_stock') partCnt++;
+                                                                else sysCnt++;
+                                                            }
+                                                        });
+                                                        const total = sysCnt + partCnt;
+                                                        const badge = document.getElementById('main-nav-notif-badge');
+                                                        if (badge) {
+                                                            badge.textContent = total;
+                                                            if (total > 0) badge.classList.remove('hidden'); else badge.classList.add('hidden');
+                                                        }
+                                                        const subtitle = document.getElementById('notif-dropdown-subtitle');
+                                                        if (subtitle) subtitle.textContent = total + ' item(s)';
+                                                        
+                                                        const sysBadge = document.getElementById('badge-filter-system');
+                                                        if(sysBadge) { sysBadge.textContent = sysCnt; if(sysCnt > 0) sysBadge.classList.remove('hidden'); else sysBadge.classList.add('hidden'); }
+                                                        
+                                                        const partsBadge = document.getElementById('badge-filter-parts');
+                                                        if(partsBadge) { partsBadge.textContent = partCnt; if(partCnt > 0) partsBadge.classList.remove('hidden'); else partsBadge.classList.add('hidden'); }
+                                                    } catch(e) {}
+                                                })();
+                                            </script>
                                         @endif
                                     </div>
                                 </div>
@@ -1233,6 +1268,17 @@
                     updateNotificationCount();
                 }
             }
+
+            // PERMANENT FIX: Tell the backend to resolve this notification so it never returns!
+            fetch('/notifications/dismiss', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                },
+                body: 'id=' + encodeURIComponent(id)
+            }).catch(err => console.error('Failed to mark as read in DB:', err));
         }
 
         function markAllAsRead() {

@@ -7,14 +7,15 @@ const config = {
     password: 'Password123!' // Using password from previous deploy scripts
 };
 
-const localFile = 'public/migrate_prod.php';
-const remotePath = '/home/u446869818/domains/eurotaxisystem.site/public_html/public/migrate_prod.php';
+const filesToUpload = [
+    'public/migrate_prod.php',
+    'database/migrations/2026_07_03_220711_add_reactions_to_chat_messages_table.php'
+];
 
 async function main() {
     try {
         await sftp.connect(config);
         console.log('Connected via SFTP');
-        await sftp.fastPut(localFile, remotePath);
         console.log('Uploaded migrate_prod.php to Hostinger');
     } catch (err) {
         console.error(err.message);

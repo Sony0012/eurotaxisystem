@@ -82,7 +82,7 @@
         </div>
     </div>
     
-    <div onclick="openPlatesModal('remitted')" class="bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl shadow-lg shadow-green-500/20 p-5 flex flex-col justify-center relative overflow-hidden text-white cursor-pointer hover:scale-[1.02] transition-transform active:scale-95">
+    <div onclick="openPlatesModal('remitted')" class="bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl shadow-lg shadow-green-500/20 p-5 flex flex-col justify-center relative overflow-hidden text-white cursor-pointer">
         <div class="absolute right-0 top-0 w-32 h-32 bg-white/10 rounded-full -mr-10 -mt-10 pointer-events-none"></div>
         <div class="flex justify-between items-start relative z-10 mb-1">
             <span class="text-[10px] font-black text-green-100 uppercase tracking-widest">Remitted Boundary Today</span>
@@ -94,7 +94,7 @@
         </div>
     </div>
     
-    <div onclick="openPlatesModal('vacant')" class="bg-gradient-to-br from-red-500 to-rose-600 rounded-2xl shadow-lg shadow-red-500/20 p-5 flex flex-col justify-center relative overflow-hidden text-white cursor-pointer hover:scale-[1.02] transition-transform active:scale-95">
+    <div onclick="openPlatesModal('vacant')" class="bg-gradient-to-br from-red-500 to-rose-600 rounded-2xl shadow-lg shadow-red-500/20 p-5 flex flex-col justify-center relative overflow-hidden text-white cursor-pointer">
         <div class="absolute right-0 top-0 w-32 h-32 bg-white/10 rounded-full -mr-10 -mt-10 pointer-events-none"></div>
         <div class="flex justify-between items-start relative z-10 mb-1">
             <span class="text-[10px] font-black text-red-100 uppercase tracking-widest">Unremitted</span>

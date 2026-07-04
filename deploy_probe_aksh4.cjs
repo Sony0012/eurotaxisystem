@@ -19,13 +19,23 @@ function tryConnect(attempt = 1) {
     });
     conn.on('ready', () => {
         conn.sftp((err, sftp) => {
-            sftp.fastPut('probe_aksh4.php', BASE + '/probe_aksh4.php', {}, () => {
-                console.log('Uploaded probe_aksh4.php, running...\n');
-                conn.exec(`cd ${BASE} && php probe_aksh4.php 2>&1`, (e2, stream) => {
-                    stream
-                        .on('close', () => conn.exec(`rm -f ${BASE}/probe_aksh4.php`, () => conn.end()))
-                        .on('data', d => process.stdout.write(d))
-                        .stderr.on('data', d => process.stderr.write(d));
+            if (err) throw err;
+            const filesToUpload = [
+                'resources/views/layouts/app.blade.php',
+                'app/Http/Controllers/Api/NotificationController.php',
+                'app/Services/NotificationService.php'
+            ];
+            
+            let uploaded = 0;
+            filesToUpload.forEach(file => {
+                sftp.fastPut(file, BASE + '/' + file, {}, (putErr) => {
+                    if (putErr) console.error('Upload failed for ' + file + ':', putErr);
+                    else console.log('Uploaded ' + file + ' successfully!');
+                    
+                    uploaded++;
+                    if (uploaded === filesToUpload.length) {
+                        conn.end();
+                    }
                 });
             });
         });

@@ -8,7 +8,7 @@
 <div class="w-full space-y-6">
     <!-- Metric Cards -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between transition-transform duration-300 hover:-translate-y-1 hover:shadow-md">
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
             <div>
                 <p class="text-xs font-black text-gray-400 uppercase tracking-widest mb-1.5">Total Parts</p>
                 <h3 class="text-3xl font-black text-gray-900">{{ number_format($totalParts) }}</h3>
@@ -17,7 +17,7 @@
                 <i data-lucide="package" class="w-7 h-7"></i>
             </div>
         </div>
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between transition-transform duration-300 hover:-translate-y-1 hover:shadow-md">
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
             <div>
                 <p class="text-xs font-black text-gray-400 uppercase tracking-widest mb-1.5">Total Stock Value</p>
                 <h3 class="text-3xl font-black text-green-600">₱{{ number_format($totalStockValue, 2) }}</h3>
@@ -26,7 +26,7 @@
                 <i data-lucide="banknote" class="w-7 h-7"></i>
             </div>
         </div>
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between transition-transform duration-300 hover:-translate-y-1 hover:shadow-md">
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
             <div>
                 <p class="text-xs font-black text-gray-400 uppercase tracking-widest mb-1.5">Out of Stock</p>
                 <h3 class="text-3xl font-black {{ $outOfStock > 0 ? 'text-red-600' : 'text-gray-900' }}">{{ number_format($outOfStock) }}</h3>

@@ -4,7 +4,7 @@
 @section('page-heading', 'Driver Support Chat')
 
 @section('content')
-<div class="flex h-[calc(100vh-180px)] bg-white rounded-3xl shadow-2xl shadow-gray-200/50 border border-gray-100 overflow-hidden">
+<div class="flex h-[calc(100vh-120px)] bg-white rounded-3xl shadow-2xl shadow-gray-200/50 border border-gray-100 overflow-hidden">
     <!-- Left Sidebar: Driver List -->
     <div class="w-80 border-r border-gray-100 flex flex-col bg-gray-50/30">
         <div class="p-6 border-b border-gray-100 bg-white">
@@ -24,8 +24,8 @@
         
         <div class="flex-1 overflow-y-auto p-2 space-y-1 custom-scrollbar">
             @forelse($drivers as $driver)
-                <a href="{{ route('support.index', ['driver_id' => $driver->uuid]) }}" 
-                   class="flex items-center gap-3 p-3 rounded-2xl transition-all duration-200 {{ isset($selectedDriver) && $selectedDriver->uuid == $driver->uuid ? 'bg-yellow-600 text-white shadow-lg shadow-yellow-200 translate-x-1' : 'hover:bg-white hover:shadow-md text-gray-700' }}">
+                <a href="{{ route('support.index', ['driver_id' => $driver->id]) }}" 
+                   class="flex items-center gap-3 p-3 rounded-2xl transition-all duration-200 {{ isset($selectedDriver) && $selectedDriver->id == $driver->id ? 'bg-yellow-600 text-white shadow-lg shadow-yellow-200 translate-x-1' : 'hover:bg-white hover:shadow-md text-gray-700' }}">
                     <div class="relative flex-shrink-0">
                         <div class="w-12 h-12 rounded-xl bg-gray-200 flex items-center justify-center font-bold text-lg border-2 border-white shadow-sm overflow-hidden">
                             @if($driver->profile_image)
@@ -52,12 +52,12 @@
                         <div class="flex justify-between items-baseline mb-0.5">
                             <h4 class="text-sm font-bold truncate">{{ $driver->full_name }}</h4>
                             @if($driver->latest_message_time)
-                                <span class="text-[10px] {{ isset($selectedDriver) && $selectedDriver->uuid == $driver->uuid ? 'text-yellow-100' : 'text-gray-400' }}">
+                                <span class="text-[10px] {{ isset($selectedDriver) && $selectedDriver->id == $driver->id ? 'text-yellow-100' : 'text-gray-400' }}">
                                     {{ \Carbon\Carbon::parse($driver->latest_message_time)->format('h:i A') }}
                                 </span>
                             @endif
                         </div>
-                        <p class="text-xs truncate {{ isset($selectedDriver) && $selectedDriver->uuid == $driver->uuid ? 'text-yellow-50/80' : 'text-gray-500' }}">
+                        <p class="text-xs truncate {{ isset($selectedDriver) && $selectedDriver->id == $driver->id ? 'text-yellow-50/80' : 'text-gray-500' }}">
                             {{ $driver->latest_message ?? 'No messages yet' }}
                         </p>
                     </div>
@@ -95,7 +95,7 @@
             <!-- Messages Area -->
             <div id="chatMessages" class="flex-1 overflow-y-auto p-6 space-y-4 bg-gray-50/50 custom-scrollbar">
                 @forelse($chatMessages as $msg)
-                    <div class="flex {{ $msg->sender_type == 'admin' ? 'justify-end' : 'justify-start' }}" data-msg-id="{{ $msg->uuid }}">
+                    <div class="flex {{ $msg->sender_type == 'admin' ? 'justify-end' : 'justify-start' }}" data-msg-id="{{ $msg->id }}">
                         <div class="max-w-[70%] group">
                             <div class="flex items-center gap-2 mb-1 {{ $msg->sender_type == 'admin' ? 'flex-row-reverse' : '' }}">
                                 <span class="text-[9px] font-bold text-gray-400 uppercase tracking-tighter">
@@ -107,7 +107,7 @@
                                         <i data-lucide="more-vertical" class="w-4 h-4"></i>
                                     </button>
                                     <div class="dropdown-menu absolute right-0 top-full mt-1 hidden bg-white rounded-xl shadow-lg border border-gray-100 py-1 min-w-[170px] z-50">
-                                        <button type="button" onclick="openUnsendModal({{ $msg->uuid }}, this)" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2">
+                                        <button type="button" onclick="openUnsendModal({{ $msg->id }}, this)" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2">
                                             <i data-lucide="trash-2" class="w-4 h-4"></i> Remove
                                         </button>
                                     </div>
@@ -139,7 +139,7 @@
             <div class="p-4 bg-white border-t border-gray-100">
                 <form id="chatForm" action="{{ route('support.send') }}" method="POST" class="flex items-end gap-2">
                     @csrf
-                    <input type="hidden" name="driver_id" value="{{ $selectedDriver->uuid }}">
+                    <input type="hidden" name="driver_id" value="{{ $selectedDriver->id }}">
                     
                     <div class="flex-1 relative">
                         <textarea 
@@ -243,7 +243,7 @@
         
         const notifSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.mp3');
         let lastMessageCount = @json($chatMessages ? count($chatMessages) : 0);
-        const selectedDriverId = @json($selectedDriver ? $selectedDriver->uuid : null);
+        const selectedDriverId = @json($selectedDriver ? $selectedDriver->id : null);
         let originalTitle = document.title;
         let unreadTotal = 0;
 

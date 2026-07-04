@@ -35,8 +35,7 @@ class NotificationController extends Controller
             ->where('type', '!=', 'low_stock')
             ->update([
                 'is_resolved' => true,
-                'resolved_at' => now(),
-                'resolved_by' => auth()->id(),
+                'updated_at' => now(),
             ]);
 
         \App\Http\Controllers\ActivityLogController::log('Marked All Alerts as Read', "User bulk resolved all system alerts.");

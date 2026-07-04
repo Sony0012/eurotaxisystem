@@ -1,0 +1,110 @@
+<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
+<head>
+<meta charset="utf-8">
+<title>EuroTaxi System IPO Analysis</title>
+<style>
+    body { font-family: 'Calibri', 'Arial', sans-serif; font-size: 12pt; line-height: 1.5; }
+    h1 { color: #2F5496; font-size: 24pt; border-bottom: 2px solid #2F5496; padding-bottom: 5px; }
+    h2 { color: #1F3864; font-size: 16pt; margin-top: 20px; }
+    p { margin: 10px 0; }
+    ul { margin-top: 5px; margin-bottom: 15px; }
+    li { margin-bottom: 5px; }
+    b { color: #000; }
+    .feature-desc { font-style: italic; color: #595959; margin-top: -10px; margin-bottom: 15px; display: block; }
+</style>
+</head>
+<body>
+
+    <h1>EuroTaxi System - Input, Process, and Output (IPO) Analysis</h1>
+    <p>Batay sa source code at modules ng iyong system (eurotaxisystem), narito ang pagsusuri ng mga pangunahing features gamit ang IPO (Input, Process, Output) model.</p>
+
+    <h2>1. Authentication & Security (Login, MFA, Account)</h2>
+    <span class="feature-desc">Ang feature na nagpapatunay kung sino ang gumagamit ng system.</span>
+    <ul>
+        <li><b>Input:</b> Username, Email, Password, OTP (One-Time Password) / MFA code.</li>
+        <li><b>Process:</b> Bine-verify ng system ang credentials laban sa database (AuthController). Nagpapadala at nagbe-verify ng OTP para sa karagdagang seguridad.</li>
+        <li><b>Output:</b> Successful login, pag-redirect sa Dashboard, o error messages (invalid credentials).</li>
+    </ul>
+
+    <h2>2. Dashboard & Analytics</h2>
+    <span class="feature-desc">Ang sentro ng impormasyon na nagpapakita ng takbo ng negosyo.</span>
+    <ul>
+        <li><b>Input:</b> Raw data mula sa database (revenues, bilang ng mga active na units, driver incidents).</li>
+        <li><b>Process:</b> Kino-compute at ina-aggregate ng system ang data (Hal. sum ng collections, pagbibilang ng active at maintenance na sasakyan) gamit ang DashboardController at AnalyticsController. Paggamit ng AI para bumuo ng insights.</li>
+        <li><b>Output:</b> Real-time charts, revenue trends, heatmap ng kita, at AI insights.</li>
+    </ul>
+
+    <h2>3. Unit (Vehicle) Management</h2>
+    <span class="feature-desc">Para sa pamamahala ng mga taxi / sasakyan ng kumpanya.</span>
+    <ul>
+        <li><b>Input:</b> Detalye ng sasakyan (Plate number, engine number, status), Manual flagging ng problema.</li>
+        <li><b>Process:</b> Nire-record ang mga impormasyon sa system. Ina-update ang status ng sasakyan (Hal. Active, Maintenance, Flagged).</li>
+        <li><b>Output:</b> Listahan ng mga units, quick stats, Unit Details page, at PDF report.</li>
+    </ul>
+
+    <h2>4. Boundary & Financial Management</h2>
+    <span class="feature-desc">Para sa pag-track ng kita mula sa mga drivers (Boundaries).</span>
+    <ul>
+        <li><b>Input:</b> Halaga ng ibinayad na boundary, pangalan ng driver, date ng byahe, at mga patakaran sa boundary (BoundarySettingsController).</li>
+        <li><b>Process:</b> Kina-kalkula ang kulang o utang ng driver. Nila-log ang transaction sa system at ina-update ang revenue records.</li>
+        <li><b>Output:</b> Resibo ng boundary, listahan ng daily boundary collections, at pag-update sa financial reports.</li>
+    </ul>
+
+    <h2>5. Maintenance & Spare Parts (Inventory)</h2>
+    <span class="feature-desc">Para sa pag-aayos ng sasakyan at pag-track ng mga piyesa.</span>
+    <ul>
+        <li><b>Input:</b> Request para sa maintenance, ginamit na piyesa (Spare parts), pangalan ng mekaniko, at detalye ng biniling parts.</li>
+        <li><b>Process:</b> Ibinabawas sa inventory ang mga nagamit na piyesa (SparePartController). Binabago ang status ng maintenance mula 'In-progress' papuntang 'Complete'.</li>
+        <li><b>Output:</b> Updated na bilang ng stock ng piyesa, record ng maintenance history ng bawat sasakyan.</li>
+    </ul>
+
+    <h2>6. Driver Management & Behavior (Incidents & Debts)</h2>
+    <span class="feature-desc">Pamamahala sa pag-uugali, utang, at status ng mga drivers.</span>
+    <ul>
+        <li><b>Input:</b> Mga reports ng violations, aksidente (SOS), record ng utang (debts), at pag-upload ng documents (hal. lisensya).</li>
+        <li><b>Process:</b> Iniipon ng system ang mga utang at ina-update kapag may bayad (DriverManagementV2Controller). Nagre-record ng mga violations o SOS alerts (DriverBehaviorController). Nagdedesisyon kung isa-suspend o iba-ban ang driver base sa rules.</li>
+        <li><b>Output:</b> Listahan ng mga banned drivers, pending debts, driver performance report, at release ng incentives.</li>
+    </ul>
+
+    <h2>7. Live Tracking (GPS & Engine Control)</h2>
+    <span class="feature-desc">Pag-monitor sa lokasyon at control ng sasakyan.</span>
+    <ul>
+        <li><b>Input:</b> Real-time GPS coordinates mula sa hardware tracker ng sasakyan. Command (katulad ng remote engine cut-off).</li>
+        <li><b>Process:</b> Nire-receive ng system ang coordinates at tinutukoy ang lokasyon sa mapa. Nagpapadala ng command (engine kill/resume) sa hardware via API (LiveTrackingController).</li>
+        <li><b>Output:</b> Live map view ng mga sasakyan, mileage tracking, at success/fail message sa engine control.</li>
+    </ul>
+
+    <h2>8. Office Expenses & Salary</h2>
+    <span class="feature-desc">Para sa internal na gastusin ng opisina at pasweldo.</span>
+    <ul>
+        <li><b>Input:</b> Detalye ng gastusin sa opisina, amount, staff attendance, at pay rate.</li>
+        <li><b>Process:</b> Ina-add ang expenses at naghihintay ng approval (Approve/Reject ng admin). Kino-compute ang sweldo ng mga empleyado (SalaryController).</li>
+        <li><b>Output:</b> Monthly salary report, listahan ng mga approved/rejected office expenses.</li>
+    </ul>
+
+    <h2>9. Super Admin & Role Management</h2>
+    <span class="feature-desc">Kontrol sa kabuuan ng system access.</span>
+    <ul>
+        <li><b>Input:</b> Bagong user accounts, role permissions, at system settings.</li>
+        <li><b>Process:</b> Pinapayagan o tinatanggalan ng karapatan ang isang user na ma-access ang iba't ibang pages (SuperAdminController). Nagse-set ng archive password para sa seguridad.</li>
+        <li><b>Output:</b> Updated access levels ng bawat employee, security logs, at system configuration.</li>
+    </ul>
+
+    <h2>10. Chat & Support System</h2>
+    <span class="feature-desc">Internal na komunikasyon at tulong sa mga drivers.</span>
+    <ul>
+        <li><b>Input:</b> Mensahe (chat) mula sa staff o driver.</li>
+        <li><b>Process:</b> Sine-save ng system ang mensahe at ipinapadala sa kabilang user (ChatController).</li>
+        <li><b>Output:</b> Real-time chat interface, unread message notifications.</li>
+    </ul>
+
+    <h2>11. Archive System</h2>
+    <span class="feature-desc">Pamamahala sa mga binurang files o records.</span>
+    <ul>
+        <li><b>Input:</b> ID ng item na gustong i-restore o tuluyang burahin (force delete).</li>
+        <li><b>Process:</b> Binabalik ng system ang record sa active database, o tuluyan na itong binubura (ArchiveController).</li>
+        <li><b>Output:</b> Na-restore na data o kumpirmasyon ng permanenteng pagbura.</li>
+    </ul>
+
+</body>
+</html>

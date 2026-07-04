@@ -38,7 +38,7 @@
     }
     .tab-btn:active { transform: scale(0.95); }
     .incident-tag { @apply px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-widest border; }
-    .stat-card-premium { @apply transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl cursor-default; }
+    .stat-card-premium { @apply transition-all duration-500 cursor-default; }
     .custom-scroll::-webkit-scrollbar { width: 4px; }
     .custom-scroll::-webkit-scrollbar-thumb { background: #eab308; border-radius: 99px; }
     
@@ -133,7 +133,7 @@
      ════════════════════════════════════════ --}}
 <div id="tab-incentives">
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
-        <div class="card-hover in-view wave-green cursor-default group relative overflow-hidden rounded-2xl shadow-sm border border-green-100 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl bg-gradient-to-br from-green-50 to-emerald-50/70">
+        <div class="card-hover in-view wave-green cursor-default group relative overflow-hidden rounded-2xl shadow-sm border border-green-100 bg-gradient-to-br from-green-50 to-emerald-50/70">
             <div class="relative p-3.5 sm:p-5 flex items-center justify-between z-20">
                 <div class="flex-1 min-w-0">
                     <p class="text-green-500 text-[9px] sm:text-[10px] font-black uppercase tracking-widest mb-1">Eligible for Incentive</p>
@@ -145,7 +145,7 @@
             </div>
             <i data-lucide="trophy" stroke-width="1" class="absolute right-0 bottom-0 w-24 h-24 -rotate-12 pointer-events-none" style="opacity: 0.15 !important; color: #22c55e !important; z-index: 5 !important;"></i>
         </div>
-        <div class="card-hover in-view wave-red cursor-default group relative overflow-hidden rounded-2xl shadow-sm border border-red-100 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl bg-gradient-to-br from-red-50 to-rose-50/70">
+        <div class="card-hover in-view wave-red cursor-default group relative overflow-hidden rounded-2xl shadow-sm border border-red-100 bg-gradient-to-br from-red-50 to-rose-50/70">
             <div class="relative p-3.5 sm:p-5 flex items-center justify-between z-20">
                 <div class="flex-1 min-w-0">
                     <p class="text-red-400 text-[9px] sm:text-[10px] font-black uppercase tracking-widest mb-1">Disqualified</p>
@@ -157,7 +157,7 @@
             </div>
             <i data-lucide="x-circle" stroke-width="1" class="absolute right-0 bottom-0 w-24 h-24 -rotate-12 pointer-events-none" style="opacity: 0.15 !important; color: #ef4444 !important; z-index: 5 !important;"></i>
         </div>
-        <div class="card-hover in-view wave-yellow cursor-default group relative overflow-hidden rounded-2xl shadow-sm border border-yellow-100 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl bg-gradient-to-br from-yellow-50 to-amber-50/70">
+        <div class="card-hover in-view wave-yellow cursor-default group relative overflow-hidden rounded-2xl shadow-sm border border-yellow-100 bg-gradient-to-br from-yellow-50 to-amber-50/70">
             <div class="relative p-3.5 sm:p-5 flex items-center justify-between z-20">
                 <div class="flex-1 min-w-0">
                     <p class="text-yellow-500 text-[9px] sm:text-[10px] font-black uppercase tracking-widest mb-1">Next Payout Sunday</p>

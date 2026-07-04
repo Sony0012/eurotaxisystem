@@ -9,8 +9,6 @@
 
 <style>
 /* ── General ── */
-.stat-card   { transition: box-shadow .2s, border-color .2s; }
-.stat-card:hover { box-shadow: 0 4px 24px -4px rgba(15,23,42,.1); }
 
 /* ── Driver summary cards ── */
 .driver-card {

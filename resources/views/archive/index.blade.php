@@ -91,6 +91,9 @@
             <button onclick="switchTab('incidents')" class="folder-tab" data-tab="incidents">
                 Incidents ({{ count($archivedIncidents) }})
             </button>
+            <button onclick="switchTab('accidents')" class="folder-tab" data-tab="accidents">
+                Accidents/SOS ({{ count($archivedAccidents) }})
+            </button>
             <button onclick="switchTab('pricing_rules')" class="folder-tab" data-tab="pricing_rules">
                 Pricing Rules ({{ count($archivedPricingRules) }})
             </button>
@@ -148,6 +151,11 @@
             <!-- Incidents Tab -->
             <div id="tab-incidents" class="tab-content hidden">
                 @include('archive.partials._incidents_table', ['items' => $archivedIncidents])
+            </div>
+
+            <!-- Accidents Tab -->
+            <div id="tab-accidents" class="tab-content hidden">
+                @include('archive.partials._accidents_table', ['items' => $archivedAccidents])
             </div>
 
             <!-- Pricing Rules Tab -->

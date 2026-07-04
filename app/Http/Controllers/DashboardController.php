@@ -484,7 +484,7 @@ class DashboardController extends Controller
                             'type' => 'expense',
                             'description' => $item->description ?: $item->expense_type,
                             'category' => $item->expense_type,
-                            'amount' => (float) $item->amount,
+                            'amount' => abs((float) $item->amount),
                             'date' => $item->date,
                             'source' => $item->user_name ?: 'Office / System',
                             'reference' => 'Expense #' . $item->id,
@@ -511,7 +511,7 @@ class DashboardController extends Controller
                         'type' => 'maintenance',
                         'description' => 'Unit ' . $item->plate_number . ' - ' . ($item->maintenance_type ?: 'Maintenance'),
                         'category' => 'Maintenance',
-                        'amount' => (float) $item->cost,
+                        'amount' => abs((float) $item->cost),
                         'date' => $item->date_started,
                         'source' => $item->mechanic_name ?: 'Workshop',
                         'reference' => 'MNT-#' . $item->id,
@@ -532,7 +532,7 @@ class DashboardController extends Controller
                         'type' => 'coding',
                         'description' => 'Unit ' . $item->plate_number . ' - Coding Fee',
                         'category' => 'Coding',
-                        'amount' => (float) $item->cost,
+                        'amount' => abs((float) $item->cost),
                         'date' => $item->date,
                         'source' => 'System',
                         'reference' => 'COD-#' . $item->id,
@@ -557,7 +557,7 @@ class DashboardController extends Controller
                         'type' => 'salary',
                         'description' => 'Salary Payment - ' . $item->employee_name,
                         'category' => 'Payroll',
-                        'amount' => (float) $item->total_salary,
+                        'amount' => abs((float) $item->total_salary),
                         'date' => $item->pay_date,
                         'source' => 'Finance',
                         'reference' => 'SAL-#' . $item->id,
@@ -1040,7 +1040,7 @@ class DashboardController extends Controller
             $salExToday = DB::table('salaries')->whereDate('pay_date', $today)->sum('total_salary') ?? 0;
             $mntExToday = DB::table('maintenance')->whereNull('deleted_at')->whereDate('date_started', $today)->where('status', '!=', 'cancelled')->sum('cost') ?? 0;
             
-            $stats['total_expenses_today'] = $genExToday + $salExToday + $mntExToday;
+            $stats['total_expenses_today'] = abs($genExToday) + abs($salExToday) + abs($mntExToday);
             $stats['net_income'] = $stats['today_boundary'] - $stats['total_expenses_today'];
 
             // 6. Financials (This Month)
@@ -1057,7 +1057,7 @@ class DashboardController extends Controller
             $salExMonth = DB::table('salaries')->whereMonth('pay_date', $month)->whereYear('pay_date', $year)->sum('total_salary') ?? 0;
             $mntExMonth = DB::table('maintenance')->whereNull('deleted_at')->whereMonth('date_started', $month)->whereYear('date_started', $year)->where('status', '!=', 'cancelled')->sum('cost') ?? 0;
             
-            $stats['total_expenses_month'] = $genExMonth + $salExMonth + $mntExMonth;
+            $stats['total_expenses_month'] = abs($genExMonth) + abs($salExMonth) + abs($mntExMonth);
             $stats['net_income_month'] = $stats['month_boundary'] - $stats['total_expenses_month'];
 
             $stats['roi_achieved'] = $stats['roi_units']; // Harmonize for JS
@@ -1196,7 +1196,7 @@ class DashboardController extends Controller
         return collect(range(6, 0))->map(function ($daysAgo) {
             $date = now()->subDays($daysAgo)->toDateString();
             $boundary = DB::table('boundaries')->whereNull('deleted_at')->whereDate('date', $date)->sum('actual_boundary') ?? 0;
-            $expenses = DB::table('expenses')->whereNull('deleted_at')->whereDate('date', $date)->sum('amount') ?? 0;
+            $expenses = abs((float)(DB::table('expenses')->whereNull('deleted_at')->whereDate('date', $date)->sum('amount') ?? 0));
             return [
                 'day'      => now()->subDays($daysAgo)->format('D'),
                 'boundary' => (float) $boundary,

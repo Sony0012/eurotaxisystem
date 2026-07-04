@@ -171,6 +171,7 @@ Route::middleware(['auth', 'page_access'])->group(function () {
     Route::get('/driver-behavior/driver/{id}', [DriverBehaviorController::class, 'getDriverPerformance'])->name('driver-behavior.driver-performance');
     Route::post('/driver-behavior/release-incentive', [DriverBehaviorController::class, 'releaseIncentive'])->name('driver-behavior.release-incentive');
     
+
     Route::get('/driver-behavior', function() { return redirect()->route('driver-behavior.incidents'); })->name('driver-behavior.index');
     Route::get('/driver-behavior/incidents', [DriverBehaviorController::class, 'incidents'])->name('driver-behavior.incidents');
     Route::get('/driver-behavior/incentives', [DriverBehaviorController::class, 'incentives'])->name('driver-behavior.incentives');
@@ -297,9 +298,10 @@ Route::middleware(['auth', 'page_access'])->group(function () {
     Route::post('/push/unsubscribe', [PushSubscriptionController::class, 'destroy'])->name('push.unsubscribe');
 
     // ─── Chat Routes ──────────────────────────────────────────────────────
-    Route::get('/chat/users', [ChatController::class, 'users'])->name('chat.users');
+    Route::get('/chat/staff-users', [ChatController::class, 'users'])->name('chat.users');
     Route::get('/chat/messages/{userId}', [ChatController::class, 'messages'])->name('chat.messages');
     Route::post('/chat/send', [ChatController::class, 'send'])->name('chat.send');
+    Route::post('/chat/react/{messageId}', [ChatController::class, 'react'])->name('chat.react');
     Route::get('/chat/unread', [ChatController::class, 'unreadCount'])->name('chat.unread');
 
     // ─── Archive Routes ──────────────────────────────────────
