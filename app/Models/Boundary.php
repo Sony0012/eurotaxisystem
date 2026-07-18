@@ -38,6 +38,8 @@ class Boundary extends Model
         'is_extra_driver',
         'vehicle_damaged',
         'has_incentive',
+        'damage_payment',
+        'is_absent',
     ];
 
     protected $casts = [

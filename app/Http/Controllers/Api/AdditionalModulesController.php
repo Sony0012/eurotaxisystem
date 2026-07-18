@@ -40,10 +40,10 @@ class AdditionalModulesController extends Controller
 
         if ($search) {
             $query->where(function ($q) use ($search) {
-                $q->where('applicant_name', 'like', DB::raw("CONCAT('%', ?, '%') COLLATE utf8mb4_unicode_ci"), [$search])
-                  ->orWhere('case_no', 'like', DB::raw("CONCAT('%', ?, '%') COLLATE utf8mb4_unicode_ci"), [$search])
-                  ->orWhere('type_of_application', 'like', DB::raw("CONCAT('%', ?, '%') COLLATE utf8mb4_unicode_ci"), [$search])
-                  ->orWhere('denomination', 'like', DB::raw("CONCAT('%', ?, '%') COLLATE utf8mb4_unicode_ci"), [$search]);
+                $q->whereRaw("applicant_name LIKE CONCAT('%', ?, '%') COLLATE utf8mb4_unicode_ci", [$search])
+                  ->orWhereRaw("case_no LIKE CONCAT('%', ?, '%') COLLATE utf8mb4_unicode_ci", [$search])
+                  ->orWhereRaw("type_of_application LIKE CONCAT('%', ?, '%') COLLATE utf8mb4_unicode_ci", [$search])
+                  ->orWhereRaw("denomination LIKE CONCAT('%', ?, '%') COLLATE utf8mb4_unicode_ci", [$search]);
             });
         }
 
@@ -167,33 +167,44 @@ class AdditionalModulesController extends Controller
             ], 422);
         }
 
-        $id = DB::table('franchise_cases')->insertGetId([
-            'applicant_name' => $request->applicant_name,
-            'case_no' => $request->case_no,
-            'type_of_application' => $request->type_of_application,
-            'denomination' => $request->denomination,
-            'date_filed' => $request->date_filed,
-            'expiry_date' => $request->expiry_date,
-            'status' => 'pending',
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+        DB::beginTransaction();
+        try {
+            $id = DB::table('franchise_cases')->insertGetId([
+                'applicant_name' => $request->applicant_name,
+                'case_no' => $request->case_no,
+                'type_of_application' => $request->type_of_application,
+                'denomination' => $request->denomination,
+                'date_filed' => $request->date_filed,
+                'expiry_date' => $request->expiry_date,
+                'status' => 'pending',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
 
-        if ($request->has('units') && Schema::hasTable('franchise_case_units')) {
-            foreach ($request->units as $u) {
-                if (!empty($u['make']) || !empty($u['motor_no']) || !empty($u['plate_no'])) {
-                    DB::table('franchise_case_units')->insert([
-                        'franchise_case_id' => $id,
-                        'make' => trim((string)($u['make'] ?? '')),
-                        'motor_no' => strtoupper(trim((string)($u['motor_no'] ?? ''))),
-                        'chasis_no' => strtoupper(trim((string)($u['chasis_no'] ?? ''))),
-                        'plate_no' => strtoupper(trim((string)($u['plate_no'] ?? ''))),
-                        'year_model' => trim((string)($u['year_model'] ?? '')),
-                        'created_at' => now(),
-                        'updated_at' => now(),
-                    ]);
+            if ($request->has('units') && Schema::hasTable('franchise_case_units')) {
+                foreach ($request->units as $u) {
+                    if (!empty($u['make']) || !empty($u['motor_no']) || !empty($u['plate_no'])) {
+                        DB::table('franchise_case_units')->insert([
+                            'franchise_case_id' => $id,
+                            'make' => trim((string)($u['make'] ?? '')),
+                            'motor_no' => strtoupper(trim((string)($u['motor_no'] ?? ''))),
+                            'chasis_no' => strtoupper(trim((string)($u['chasis_no'] ?? ''))),
+                            'plate_no' => strtoupper(trim((string)($u['plate_no'] ?? ''))),
+                            'year_model' => trim((string)($u['year_model'] ?? '')),
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ]);
+                    }
                 }
             }
+
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to create franchise case: ' . $e->getMessage()
+            ], 500);
         }
 
         ActivityLogController::log('Created Franchise Case via Mobile', "Case No: {$request->case_no}\nApplicant: {$request->applicant_name}");

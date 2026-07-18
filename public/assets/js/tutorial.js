@@ -378,28 +378,35 @@ const TutorialManager = (function () {
                             closeBtn.onclick = () => finishTutorial();
                         }
 
-                        // Add custom Continue button since we disabled default ones
+                        // Add custom Skip/Next button
                         const footerEl = popover.footer || wrapper.querySelector('.driver-popover-footer');
-                        if (footerEl && !footerEl.querySelector('.tutorial-continue-btn')) {
-                            const btnText = isLastStep ? "Finish Tour" : "Next Step";
+                        if (footerEl && !footerEl.querySelector('.tutorial-skip-link')) {
+                            const btnAction = isLastStep ? "if(window.TutorialManager) window.TutorialManager.finishTutorial();" : "if(window.TutorialManager) window.TutorialManager.moveToNextStep(" + stepIndex + ");";
                             footerEl.insertAdjacentHTML('beforeend', `
-                                <button class="driver-popover-next-btn tutorial-continue-btn" style="width:100%; margin-top:10px;">${btnText}</button>
-                                <button class="tutorial-skip-link" onclick="if(window.TutorialManager) window.TutorialManager.finishTutorial();">Skip Tour</button>
+                                <button class="tutorial-skip-link" style="width:100%; margin-top:10px; background-color: white !important; color: #111827 !important; text-shadow: none !important;" onclick="${btnAction}">Skip Tour</button>
                             `);
-                            footerEl.querySelector('.tutorial-continue-btn').addEventListener('click', (e) => {
-                                e.stopPropagation();
-                                logDebug("Continue button clicked in popover.");
-                                moveToNextStep(stepIndex);
-                            });
                         }
 
-                        // Explicitly hide the Previous button on Step 1
+                        // Explicitly hide the native Next/Done AND Previous buttons to avoid Driver.js interference
+                        const nextBtn = popover.nextButton || popover.nextBtn || wrapper.querySelector('.driver-popover-next-btn');
+                        if (nextBtn) {
+                            nextBtn.style.setProperty('display', 'none', 'important');
+                        }
+
                         const prevBtn = popover.previousButton || popover.prevBtn || wrapper.querySelector('.driver-popover-prev-btn');
                         if (prevBtn) {
-                            if (stepIndex === 0) {
-                                prevBtn.style.display = 'none';
+                            prevBtn.style.setProperty('display', 'none', 'important');
+                        }
+
+                        // Inject custom Previous button (only if not on the first step)
+                        if (stepIndex > 0 && footerEl && !footerEl.querySelector('.tutorial-custom-prev-btn')) {
+                            const skipBtn = footerEl.querySelector('.tutorial-skip-link');
+                            const prevHtml = `<button class="tutorial-custom-prev-btn" style="background:none !important; border:none !important; color:#9ca3af !important; font-size:0.85rem !important; font-weight:600 !important; cursor:pointer !important; margin-bottom:5px; padding:0 !important; text-align:left; width:100%;" onclick="if(window.TutorialManager) window.TutorialManager.moveToPrevStep(${stepIndex});">&larr; Previous</button>`;
+                            
+                            if (skipBtn) {
+                                skipBtn.insertAdjacentHTML('beforebegin', prevHtml);
                             } else {
-                                prevBtn.style.display = ''; // Restore default display for other steps
+                                footerEl.insertAdjacentHTML('afterbegin', prevHtml);
                             }
                         }
 
@@ -556,13 +563,34 @@ const TutorialManager = (function () {
             finishTutorial();
         } else {
             setTimeout(() => {
-                if (driverObj) {
-                    logDebug("Destroying current driver instance.");
-                    driverObj.destroy();
+                try {
+                    if (driverObj) {
+                        logDebug("Destroying current driver instance.");
+                        driverObj.destroy();
+                    }
+                } catch (e) {
+                    logDebug("Safe destroy next catch: " + e.message);
                 }
                 startTutorial(nextIndex);
             }, 300); // Shorter delay
         }
+    }
+
+    function moveToPrevStep(currentIndex) {
+        logDebug(`Moving to prev step from ${currentIndex}`);
+        if (currentIndex <= 0) return;
+        const prevIndex = currentIndex - 1;
+        localStorage.setItem('tutorial_current_step', prevIndex);
+        setTimeout(() => {
+            try {
+                if (driverObj) {
+                    driverObj.destroy();
+                }
+            } catch (e) {
+                logDebug("Safe destroy prev catch: " + e.message);
+            }
+            startTutorial(prevIndex);
+        }, 300);
     }
 
     function finishTutorial() {
@@ -604,7 +632,9 @@ const TutorialManager = (function () {
     return {
         init,
         restart,
-        finishTutorial
+        finishTutorial,
+        moveToNextStep,
+        moveToPrevStep
     };
 })();
 window.TutorialManager = TutorialManager;

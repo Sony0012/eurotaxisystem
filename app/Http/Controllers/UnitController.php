@@ -147,6 +147,7 @@ class UnitController extends Controller
         $boundary_rules = DB::table('boundary_rules')->get();
 
         foreach ($units as $unit) {
+            $unit->uuid = $unit->id; // Fix for undefined property in views
             $net_income = (data_get($unit, 'total_collected', 0)) - (data_get($unit, 'maintenance_cost', 0));
             $unit->roi_achieved = (data_get($unit, 'purchase_cost', 0)) > 0 && $net_income >= (data_get($unit, 'purchase_cost', 0));
 

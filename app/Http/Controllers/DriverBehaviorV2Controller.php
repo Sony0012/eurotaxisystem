@@ -551,6 +551,7 @@ class DriverBehaviorV2Controller extends Controller
             'traffic_fine_amount'    => $data['traffic_fine_amount'] ?? 0,
             'total_charge_to_driver' => $finalCharge,
             'remaining_balance'      => $finalCharge, // Reset for simplicity in this edit flow
+            'charge_status'          => $finalCharge > 0 ? 'pending' : 'none',
             'incident_date'          => $data['incident_date'] ?? $incident->incident_date,
         ]);
 

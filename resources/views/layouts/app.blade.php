@@ -94,7 +94,7 @@
 
     <!-- Interactive Tutorial Assets -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/driver.js@1.3.1/dist/driver.css"/>
-    <link rel="stylesheet" href="{{ asset('assets/css/tutorial.css') }}?v=3.9">
+    <link rel="stylesheet" href="{{ asset('assets/css/tutorial.css') }}?v=4.0">
 
     <style>
         input::-webkit-outer-spin-button,
@@ -782,7 +782,7 @@
                 </header>
 
                 <!-- Page Content -->
-                <div id="appContentArea" class="flex-1 overflow-y-auto overflow-x-hidden @yield('main-padding', 'p-4')">
+                <div id="appContentArea" class="flex-1 overflow-y-auto overflow-x-hidden @yield('main-padding', 'p-4') pb-20 md:pb-0">
                     {{-- Flash Messages --}}
                     @foreach(['success', 'error', 'warning', 'info'] as $type)
                         @if(session($type))
@@ -935,6 +935,40 @@
                 }
             };
         </script>
+
+        {{-- Mobile Bottom Navigation Bar (visible on mobile only, hidden on md+) --}}
+        <nav id="mobileBottomNav" class="fixed bottom-0 left-0 right-0 z-[1060] bg-white border-t border-gray-200 shadow-lg md:hidden flex items-stretch" style="padding-bottom: env(safe-area-inset-bottom);">
+            @auth
+            @if(auth()->user()->hasAccessTo('dashboard'))
+            <a href="{{ route('dashboard') }}" class="flex-1 flex flex-col items-center justify-center py-2 gap-0.5 {{ request()->routeIs('dashboard') ? 'text-yellow-600' : 'text-gray-500' }} hover:text-yellow-600 transition-colors">
+                <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+                <span class="text-[9px] font-bold uppercase tracking-wider">Home</span>
+            </a>
+            @endif
+            @if(auth()->user()->hasAccessTo('boundaries.*'))
+            <a href="{{ route('boundaries.index') }}" class="flex-1 flex flex-col items-center justify-center py-2 gap-0.5 {{ request()->routeIs('boundaries.*') ? 'text-yellow-600' : 'text-gray-500' }} hover:text-yellow-600 transition-colors">
+                <i data-lucide="wallet" class="w-5 h-5"></i>
+                <span class="text-[9px] font-bold uppercase tracking-wider">Boundary</span>
+            </a>
+            @endif
+            @if(auth()->user()->hasAccessTo('live-tracking.*'))
+            <a href="{{ route('live-tracking.index') }}" class="flex-1 flex flex-col items-center justify-center py-2 gap-0.5 {{ request()->routeIs('live-tracking.*') ? 'text-yellow-600' : 'text-gray-500' }} hover:text-yellow-600 transition-colors">
+                <i data-lucide="map-pin" class="w-5 h-5"></i>
+                <span class="text-[9px] font-bold uppercase tracking-wider">Tracking</span>
+            </a>
+            @endif
+            @if(auth()->user()->hasAccessTo('analytics.*'))
+            <a href="{{ route('analytics.index') }}" class="flex-1 flex flex-col items-center justify-center py-2 gap-0.5 {{ request()->routeIs('analytics.*') ? 'text-yellow-600' : 'text-gray-500' }} hover:text-yellow-600 transition-colors">
+                <i data-lucide="bar-chart" class="w-5 h-5"></i>
+                <span class="text-[9px] font-bold uppercase tracking-wider">Analytics</span>
+            </a>
+            @endif
+            <button onclick="toggleMobileSidebar()" class="flex-1 flex flex-col items-center justify-center py-2 gap-0.5 text-gray-500 hover:text-yellow-600 transition-colors">
+                <i data-lucide="menu" class="w-5 h-5"></i>
+                <span class="text-[9px] font-bold uppercase tracking-wider">More</span>
+            </button>
+            @endauth
+        </nav>
 
     @else
         <!-- Login/Signup Layout -->
@@ -2188,7 +2222,7 @@
     
     <!-- Interactive Tutorial System -->
     <script src="https://cdn.jsdelivr.net/npm/driver.js@1.3.1/dist/driver.js.iife.js"></script>
-    <script src="{{ asset('assets/js/tutorial.js') }}?v=3.9"></script>
+    <script src="{{ asset('assets/js/tutorial.js') }}?v=4.7"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             if (typeof window.TutorialManager !== 'undefined') {

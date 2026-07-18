@@ -383,7 +383,24 @@ class DriverAppController extends Controller
 
         $actual = $boundaryData ? (float) $boundaryData->total_actual : 0;
         $status = ($boundaryData && $boundaryData->last_status) ? $boundaryData->last_status : 'pending';
-        $shortage = $boundaryData ? (float) $boundaryData->total_shortage : 0;
+
+        // Get today's shortage from driver_behavior (remaining unpaid portion)
+        $todayShortageTotal = $boundaryData ? (float)$boundaryData->total_shortage : 0;
+        $shortage = 0;
+        if ($todayShortageTotal > 0) {
+            // remaining_balance = still unpaid portion; paid = original shortage - remaining
+            $remainingShortage = (float) DB::table('driver_behavior')
+                ->where('driver_id', $driver->id)
+                ->where('incident_type', 'Short Boundary')
+                ->whereDate('incident_date', $today)
+                ->sum('remaining_balance');
+            $paidShortage = $todayShortageTotal - $remainingShortage;
+
+            // Add paid shortage to actual so progress bar reflects it
+            $actual += $paidShortage;
+            $shortage = $remainingShortage; // Only show what's still unpaid
+        }
+
         $excess = $boundaryData ? (float) $boundaryData->total_excess : 0;
 
         $progress = $target > 0 ? ($actual / $target) * 100 : 0;
@@ -403,7 +420,7 @@ class DriverAppController extends Controller
 
             if ($dayOfWeek === $codingDay) {
                 $is_coding = true;
-                $coding_message = 'ALERTO: Coding po kayo ngayon!';
+                $coding_message = 'ALERT: Your unit is coding today!';
                 $next_coding_date = Carbon::now('Asia/Manila')->format('Y-m-d');
             } else {
                 $daysToAdd = ($codingDay - $dayOfWeek + 7) % 7;
@@ -506,18 +523,39 @@ class DriverAppController extends Controller
                     $gps = $liveData[0];
                     $ignition = ($gps['accStatus'] ?? 0) == 1;
                     $speed = $ignition ? (float)($gps['speed'] ?? 0) : 0;
-                    
+                    $updateData = [
+                        'latitude' => $gps['lat'],
+                        'longitude' => $gps['lng'],
+                        'speed' => $speed,
+                        'heading' => $gps['direction'] ?? 0,
+                        'ignition_status' => $ignition,
+                        'timestamp' => $gps['gpsTime'] ?? now(),
+                        'updated_at' => now()
+                    ];
+
+                    if (isset($gps['currentMileage'])) {
+                        $updateData['odo'] = $gps['currentMileage'];
+                        
+                        $todayStr = \Carbon\Carbon::now('Asia/Manila')->format('Y-m-d');
+                        $existingTracking = DB::table('gps_tracking')->where('unit_id', $unit->id)->first();
+                        
+                        if ($existingTracking) {
+                            if ($existingTracking->daily_start_date === $todayStr) {
+                                $updateData['daily_start_mileage'] = $existingTracking->daily_start_mileage ?? $gps['currentMileage'];
+                                $updateData['daily_start_date'] = $existingTracking->daily_start_date;
+                            } else {
+                                $updateData['daily_start_mileage'] = $gps['currentMileage'];
+                                $updateData['daily_start_date'] = $todayStr;
+                            }
+                        } else {
+                            $updateData['daily_start_mileage'] = $gps['currentMileage'];
+                            $updateData['daily_start_date'] = $todayStr;
+                        }
+                    }
+
                     DB::table('gps_tracking')->updateOrInsert(
                         ['unit_id' => $unit->id],
-                        [
-                            'latitude' => $gps['lat'],
-                            'longitude' => $gps['lng'],
-                            'speed' => $speed,
-                            'heading' => $gps['direction'] ?? 0,
-                            'ignition_status' => $ignition,
-                            'timestamp' => $gps['gpsTime'] ?? now(),
-                            'updated_at' => now()
-                        ]
+                        $updateData
                     );
                 }
             }
@@ -776,34 +814,33 @@ class DriverAppController extends Controller
                 'excess',
                 'notes'
             ])
-            ->get();
-            
-        // --- INJECT DEBT PAYMENTS AS RECENT COLLECTIONS ---
-        $driverName = $driver->first_name . ' ' . $driver->last_name;
-        $payments = DB::table('expenses')
-            ->where('category', 'Damage Recovery')
-            ->where('description', 'like', "%{$driverName}%")
-            ->where('amount', '<', 0)
+            ->orderBy('date', 'desc')
+            ->limit(30)
             ->get();
 
-        foreach ($payments as $payment) {
-            $earnings->push((object)[
-                'id' => 9000000 + $payment->id, // Prevent ID collision
-                'date' => \Carbon\Carbon::parse($payment->created_at)->toDateString(),
-                'boundary_amount' => abs($payment->amount),
-                'actual_boundary' => abs($payment->amount),
-                'status' => 'paid',
-                'shortage' => 0,
-                'excess' => 0,
-                'notes' => 'Debt Payment Settled',
-                'plate_number' => 'DEBT PAY',
-                'is_extra' => 0,
-                'created_at' => $payment->created_at // Used for sorting
-            ]);
-        }
+        // Enrich: reflect paid shortages so driver sees correct status/amounts
+        $debtsPerDate = DB::table('driver_behavior')
+            ->where('driver_id', $driver->id)
+            ->where('incident_type', 'Short Boundary')
+            ->select('incident_date', DB::raw('SUM(remaining_balance) as remaining'), DB::raw('SUM(total_charge_to_driver) as original_shortage'))
+            ->groupBy('incident_date')
+            ->get()
+            ->keyBy(function($d) { return \Carbon\Carbon::parse($d->incident_date)->toDateString(); });
 
-        // Sort by date descending and limit to 30
-        $earnings = $earnings->sortByDesc('date')->values()->take(30);
+        $earnings = $earnings->map(function($b) use ($debtsPerDate) {
+            $date = \Carbon\Carbon::parse($b->date)->toDateString();
+            if (isset($debtsPerDate[$date])) {
+                $debt = $debtsPerDate[$date];
+                $remaining = (float) $debt->remaining;
+                $paidAmount = (float)$debt->original_shortage - $remaining;
+                $b->shortage = $remaining;
+                $b->actual_boundary = (float)$b->actual_boundary + $paidAmount;
+                if ($remaining <= 0 && in_array(strtolower($b->status ?? ''), ['shortage', 'pending'])) {
+                    $b->status = 'paid';
+                }
+            }
+            return $b;
+        });
 
         return response()->json([
             'success' => true,
@@ -898,61 +935,32 @@ class DriverAppController extends Controller
             )
             ->get();
 
-        // Cross-reference with driver_behavior to see if these shortages have been paid
-        $shortageDates = $boundaries->where('status', 'shortage')->pluck('date')->toArray();
-        if (count($shortageDates) > 0) {
-            $behaviorRecords = DB::table('driver_behavior')
-                ->where('driver_id', $driver->id)
-                ->where('incident_type', 'Short Boundary')
-                ->where('total_charge_to_driver', '>', 0) // IGNORE THE DUMMY 0-CHARGE RECORDS
-                ->whereIn('incident_date', $shortageDates)
-                ->whereNull('deleted_at')
-                ->get()->keyBy('incident_date');
-                
-            if ($behaviorRecords->isNotEmpty()) {
-                foreach ($boundaries as $b) {
-                    if ($b->status === 'shortage' && $behaviorRecords->has($b->date)) {
-                        $debt = $behaviorRecords->get($b->date);
-                        // Adjust the Android app's view of the boundary so the shortage matches the remaining balance
-                        $b->actual_boundary = $b->boundary_amount - $debt->remaining_balance;
-                        $b->shortage = $debt->remaining_balance; // Update the shortage column!
-                        
-                        if ($debt->remaining_balance <= 0) {
-                            $b->status = 'paid';
-                        }
-                    }
+        // Enrich each boundary: replace raw shortage with actual remaining debt from driver_behavior
+        // so that paid shortages no longer appear as shortage to the driver
+        $debtsPerDate = DB::table('driver_behavior')
+            ->where('driver_id', $driver->id)
+            ->where('incident_type', 'Short Boundary')
+            ->select('incident_date', DB::raw('SUM(remaining_balance) as remaining'), DB::raw('SUM(total_charge_to_driver) as original_shortage'))
+            ->groupBy('incident_date')
+            ->get()
+            ->keyBy(function($d) { return \Carbon\Carbon::parse($d->incident_date)->toDateString(); });
+
+        $boundaries = $boundaries->map(function($b) use ($debtsPerDate) {
+            $date = \Carbon\Carbon::parse($b->date)->toDateString();
+            if (isset($debtsPerDate[$date])) {
+                $debt = $debtsPerDate[$date];
+                $remaining = (float) $debt->remaining;
+                $b->shortage = $remaining; // Show only what's still unpaid
+                // Update effective actual_boundary: add what's been paid toward shortage
+                $paidAmount = (float)$debt->original_shortage - $remaining;
+                $b->actual_boundary = (float)$b->actual_boundary + $paidAmount;
+                // If shortage is fully paid, elevate status to 'paid'
+                if ($remaining <= 0 && in_array(strtolower($b->status ?? ''), ['shortage', 'pending'])) {
+                    $b->status = 'paid';
                 }
             }
-        }
-
-        // --- INJECT DEBT PAYMENTS AS RECENT COLLECTIONS ---
-        $driverName = $driver->first_name . ' ' . $driver->last_name;
-        $payments = DB::table('expenses')
-            ->where('category', 'Damage Recovery')
-            ->where('description', 'like', "%{$driverName}%")
-            ->where('amount', '<', 0)
-            ->get();
-
-        foreach ($payments as $payment) {
-            $boundaries->push((object)[
-                'id' => 9000000 + $payment->id, // Prevent ID collision
-                'date' => \Carbon\Carbon::parse($payment->created_at)->toDateString(),
-                'boundary_amount' => abs($payment->amount),
-                'actual_boundary' => abs($payment->amount),
-                'status' => 'paid',
-                'shortage' => 0,
-                'excess' => 0,
-                'notes' => 'Debt Payment Settled',
-                'plate_number' => 'DEBT PAY',
-                'is_extra' => 0,
-                'created_at' => $payment->created_at // Used for sorting
-            ]);
-        }
-
-        // Re-sort the combined collection by date/created_at descending
-        $boundaries = $boundaries->sortByDesc(function ($item) {
-            return $item->created_at ?? $item->date;
-        })->values();
+            return $b;
+        });
 
         return response()->json(['success' => true, 'data' => $boundaries]);
     }
@@ -975,6 +983,18 @@ class DriverAppController extends Controller
             ->orderByDesc('driver_behavior.timestamp')
             ->get();
 
+        $incidents = $incidents->map(function ($incident) {
+            // Auto-correct cases where admin added a charge via Edit but status remained 'none'
+            if ($incident->remaining_balance > 0 && strtolower($incident->charge_status) === 'none') {
+                $incident->charge_status = 'pending';
+            }
+
+            if (strtolower($incident->charge_status) !== 'pending') {
+                $incident->remaining_balance = 0;
+            }
+            return $incident;
+        });
+
         return response()->json([
             'success' => true,
             'data' => $incidents
@@ -988,28 +1008,13 @@ class DriverAppController extends Controller
         if (!$driver)
             return response()->json(['success' => false, 'message' => 'Driver not found'], 404);
 
-        // Fetch all charges — explicitly include debt tracking fields
         $charges = DB::table('driver_behavior')
-            ->leftJoin('units', 'driver_behavior.unit_id', '=', 'units.id')
-            ->where('driver_behavior.driver_id', $driver->id)
-            ->where('driver_behavior.total_charge_to_driver', '>', 0)
-            ->whereNull('driver_behavior.deleted_at')
-            ->select([
-                'driver_behavior.id',
-                'driver_behavior.incident_type',
-                'driver_behavior.incident_date',
-                'driver_behavior.timestamp',
-                'driver_behavior.description',
-                'driver_behavior.severity',
-                // Hack: Pass remaining_balance as total_charge_to_driver so the mobile app visually updates the debt amount
-                DB::raw('driver_behavior.remaining_balance as total_charge_to_driver'),
-                DB::raw('driver_behavior.total_charge_to_driver as original_charge'),
-                'driver_behavior.total_paid',
-                'driver_behavior.remaining_balance',
-                'driver_behavior.charge_status',  // 'pending' or 'paid'
-                'units.plate_number',
-            ])
-            ->orderByDesc('driver_behavior.incident_date')
+            ->where('driver_id', $driver->id)
+            ->where('total_charge_to_driver', '>', 0)
+            ->where('charge_status', 'pending')
+            ->where('remaining_balance', '>', 0)
+            ->whereNull('deleted_at')
+            ->orderByDesc('incident_date')
             ->get();
 
         $incentives = DB::table('boundaries')
@@ -1019,21 +1024,10 @@ class DriverAppController extends Controller
             ->orderByDesc('date')
             ->get();
 
-        // Calculate total pending debt so the app can show a summary badge
-        $totalPendingDebt = $charges
-            ->where('charge_status', 'pending')
-            ->sum('remaining_balance');
-
-        $pendingChargesCount = $charges
-            ->where('charge_status', 'pending')
-            ->count();
-
         return response()->json([
-            'success'              => true,
-            'charges'              => $charges,
-            'incentives'           => $incentives,
-            'total_pending_debt'   => round((float) $totalPendingDebt, 2),
-            'pending_charges_count'=> (int) $pendingChargesCount,
+            'success' => true,
+            'charges' => $charges,
+            'incentives' => $incentives,
         ]);
     }
 
@@ -1238,6 +1232,27 @@ class DriverAppController extends Controller
                 'units.plate_number',
                 DB::raw("IF(boundaries.expected_driver_id != boundaries.driver_id AND boundaries.expected_driver_id IS NOT NULL, 1, boundaries.is_extra_driver) as is_extra")
             ]);
+
+        // Enrich actual_boundary: add paid shortage amounts so Performance chart/list reflects paid debts
+        $debtsPerDate = DB::table('driver_behavior')
+            ->where('driver_id', $driver->id)
+            ->where('incident_type', 'Short Boundary')
+            ->where('incident_date', '>=', now()->subDays(7)->toDateString())
+            ->select('incident_date', DB::raw('SUM(remaining_balance) as remaining'), DB::raw('SUM(total_charge_to_driver) as original_shortage'))
+            ->groupBy('incident_date')
+            ->get()
+            ->keyBy(function($d) { return \Carbon\Carbon::parse($d->incident_date)->toDateString(); });
+
+        $history = $history->map(function($b) use ($debtsPerDate) {
+            $date = \Carbon\Carbon::parse($b->date)->toDateString();
+            if (isset($debtsPerDate[$date])) {
+                $debt = $debtsPerDate[$date];
+                $remaining = (float) $debt->remaining;
+                $paidAmount = (float)$debt->original_shortage - $remaining;
+                $b->actual_boundary = (float)$b->actual_boundary + $paidAmount;
+            }
+            return $b;
+        });
 
         // Include the official rating so Performance.tsx gets it in one call
         $rating = $this->getDriverRatingObject($driver);
