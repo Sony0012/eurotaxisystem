@@ -427,7 +427,7 @@
                     const totalReactions = Object.keys(m.reactions).length;
                     const emojiIconsHtml = uniqueEmojis.map(e => `<span class="inline-block text-xs leading-none select-none">${e}</span>`).join('');
                     reactionsHtml = `
-                        <div class="absolute -bottom-2.5 ${m.is_mine ? 'left-2' : 'right-2'} bg-white text-gray-800 rounded-full px-2 py-1 text-xs leading-none flex flex-row items-center justify-center gap-1 shadow-md cursor-pointer z-30 border border-gray-200 select-none hover:scale-105 transition-transform whitespace-nowrap shrink-0" title="${tooltipText}" onclick="chatShowReactionPicker(event, ${m.id})">
+                        <div class="absolute -bottom-2.5 ${m.is_mine ? 'right-2' : 'left-2'} bg-white text-gray-800 rounded-full px-2 py-1 text-xs leading-none flex flex-row items-center justify-center gap-1 shadow-md cursor-pointer z-30 border border-gray-200 select-none hover:scale-105 transition-transform whitespace-nowrap shrink-0" title="${tooltipText}" onclick="chatShowReactionPicker(event, ${m.id})">
                             <div class="flex flex-row items-center gap-0.5 whitespace-nowrap">${emojiIconsHtml}</div>
                             ${totalReactions > 1 ? `<span class="text-gray-500 font-bold text-[10px] ml-0.5">${totalReactions}</span>` : ''}
                         </div>
