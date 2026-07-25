@@ -832,7 +832,7 @@
                                     <!-- Dropdown Footer: "View more messages >" -->
                                     <div class="p-3 bg-gray-50/50 border-t text-center">
                                         <button type="button" onclick="openFullStaffChat()"
-                                            class="text-xs font-black text-emerald-600 hover:text-emerald-700 inline-flex items-center gap-1 transition-colors hover:underline">
+                                            class="text-xs font-black text-yellow-600 hover:text-amber-700 inline-flex items-center gap-1 transition-colors hover:underline">
                                             View more messages <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
                                         </button>
                                     </div>

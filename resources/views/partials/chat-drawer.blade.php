@@ -13,38 +13,38 @@
          class="w-full md:w-[360px] max-w-full md:max-w-[calc(100vw-2rem)] bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden flex flex-col transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] transform origin-bottom-right opacity-0 pointer-events-none scale-95 translate-y-4"
          style="height: 480px; max-height: calc(100vh - 7rem);">
 
-        {{-- Header Bar (Green background matching Image 3) --}}
+        {{-- Header Bar (Euro Taxi Gold/Yellow gradient header) --}}
         <div id="chatDragHandle"
-             class="bg-[#0f6838] px-4 py-3 flex items-center justify-between select-none shrink-0"
+             class="bg-gradient-to-r from-yellow-500 via-amber-500 to-yellow-600 px-4 py-3 flex items-center justify-between select-none shrink-0 shadow-md"
              style="cursor: grab;">
             <div class="flex items-center gap-2.5 min-w-0 flex-1">
                 <button onclick="chatBackToList()"
                         id="chatBackBtn"
-                        class="text-white/85 hover:text-white transition-colors hidden shrink-0"
+                        class="text-white/90 hover:text-white transition-colors hidden shrink-0"
                         style="cursor:pointer; pointer-events:auto;"
                         title="Back to list">
                     <i data-lucide="arrow-left" class="w-5 h-5 pointer-events-none"></i>
                 </button>
                 <div class="min-w-0 flex-1">
                     <h3 class="font-black text-white text-sm flex items-center gap-1.5 pointer-events-none truncate" id="chatHeaderTitle">
-                        <i data-lucide="message-square" class="w-4 h-4 text-emerald-200 shrink-0"></i>
+                        <i data-lucide="message-square" class="w-4 h-4 text-yellow-100 shrink-0"></i>
                         <span class="truncate">Staff Chat</span>
                     </h3>
-                    <p class="text-emerald-100/90 text-[10px] pointer-events-none font-medium truncate" id="chatHeaderSub">Internal Chat</p>
+                    <p class="text-yellow-100/90 text-[10px] pointer-events-none font-bold truncate" id="chatHeaderSub">Internal Chat</p>
                 </div>
             </div>
 
             <div class="flex items-center gap-1 shrink-0">
                 {{-- Minimize Button (-) --}}
                 <button onclick="chatMinimizeDrawer()"
-                        class="text-white/85 hover:text-white p-1.5 transition-colors rounded-lg hover:bg-white/10"
+                        class="text-white/90 hover:text-white p-1.5 transition-colors rounded-lg hover:bg-white/10"
                         title="Minimize"
                         style="cursor:pointer; pointer-events:auto;">
                     <i data-lucide="minus" class="w-4 h-4 pointer-events-none"></i>
                 </button>
                 {{-- Close Button (x) --}}
                 <button onclick="chatCloseDrawer()"
-                        class="text-white/85 hover:text-white p-1.5 transition-colors rounded-lg hover:bg-white/10"
+                        class="text-white/90 hover:text-white p-1.5 transition-colors rounded-lg hover:bg-white/10"
                         title="Close"
                         style="cursor:pointer; pointer-events:auto;">
                     <i data-lucide="x" class="w-4 h-4 pointer-events-none"></i>
@@ -56,7 +56,7 @@
         <div id="chatDrawerBody" class="bg-white flex-1 overflow-hidden flex flex-col border-t border-gray-100 relative pointer-events-auto">
             
             {{-- Drag overlay for file dropping --}}
-            <div id="chatDropOverlay" class="absolute inset-0 bg-[#0f6838]/90 z-50 flex flex-col items-center justify-center text-white hidden">
+            <div id="chatDropOverlay" class="absolute inset-0 bg-gradient-to-br from-yellow-500/95 to-amber-600/95 z-50 flex flex-col items-center justify-center text-white hidden">
                 <i data-lucide="upload-cloud" class="w-12 h-12 mb-2 animate-bounce"></i>
                 <p class="font-bold">Drop file to send</p>
             </div>
@@ -64,21 +64,21 @@
             {{-- User List --}}
             <div id="chatUserList" class="flex flex-col flex-1 overflow-y-auto" style="max-height: 420px;">
                 <div class="px-4 py-8 text-center text-gray-400 text-sm" id="chatUserListLoading">
-                    <i data-lucide="loader-2" class="w-5 h-5 animate-spin inline-block mr-2 text-emerald-600"></i> Loading...
+                    <i data-lucide="loader-2" class="w-5 h-5 animate-spin inline-block mr-2 text-yellow-500"></i> Loading...
                 </div>
             </div>
 
             {{-- Message Thread --}}
             <div id="chatThread" class="hidden flex-col flex-1 overflow-hidden relative">
                 <div id="staffChatMessages" onscroll="chatHandleScroll()" class="flex-1 overflow-y-auto px-4 py-4 space-y-3 bg-gray-50/50" style="min-height: 280px;"></div>
-                <button id="chatScrollBottomBtn" onclick="chatScrollToBottom()" class="absolute bottom-[80px] left-1/2 -translate-x-1/2 bg-[#0f6838] text-white rounded-full p-2 shadow-lg hover:bg-emerald-700 transition-all duration-200 opacity-0 pointer-events-none translate-y-4 z-40">
+                <button id="chatScrollBottomBtn" onclick="chatScrollToBottom()" class="absolute bottom-[80px] left-1/2 -translate-x-1/2 bg-yellow-500 text-white rounded-full p-2 shadow-lg hover:bg-amber-600 transition-all duration-200 opacity-0 pointer-events-none translate-y-4 z-40">
                     <i data-lucide="arrow-down" class="w-4 h-4 pointer-events-none"></i>
                 </button>
                      
                 {{-- Reply Preview --}}
-                <div id="chatReplyPreview" class="hidden border-t bg-emerald-50/50 px-3 py-2 flex items-center justify-between shrink-0 border-l-4 border-l-[#0f6838]">
+                <div id="chatReplyPreview" class="hidden border-t bg-yellow-50/50 px-3 py-2 flex items-center justify-between shrink-0 border-l-4 border-l-yellow-500">
                     <div class="flex-1 min-w-0 pr-2">
-                        <div class="text-[10px] font-bold text-emerald-700 mb-0.5">Replying to <span id="chatReplyName"></span></div>
+                        <div class="text-[10px] font-bold text-yellow-700 mb-0.5">Replying to <span id="chatReplyName"></span></div>
                         <div id="chatReplyText" class="text-xs text-gray-500 truncate"></div>
                     </div>
                     <button onclick="chatClearReply()" class="text-gray-400 hover:text-gray-600 p-1 shrink-0 bg-gray-100 hover:bg-gray-200 rounded-full transition-colors">
@@ -97,9 +97,9 @@
                     </button>
                 </div>
 
-                {{-- Input Bar (Pill Input + Circular Green Send Button matching Image 3) --}}
+                {{-- Input Bar (Pill Input + Circular Yellow/Gold Send Button) --}}
                 <div class="border-t bg-white px-3 py-3 flex items-center gap-2 shrink-0">
-                    <button onclick="document.getElementById('chatAttachmentInput').click()" class="text-gray-400 hover:text-emerald-600 transition-colors p-2 rounded-full hover:bg-gray-100 shrink-0" title="Attach file">
+                    <button onclick="document.getElementById('chatAttachmentInput').click()" class="text-gray-400 hover:text-yellow-600 transition-colors p-2 rounded-full hover:bg-gray-100 shrink-0" title="Attach file">
                         <i data-lucide="paperclip" class="w-5 h-5"></i>
                     </button>
                     <input type="file" id="chatAttachmentInput" class="hidden" onchange="chatHandleFileSelect(event)">
@@ -107,11 +107,11 @@
                     <input type="text"
                            id="staffChatMessageInput"
                            placeholder="Type a message..."
-                           class="flex-1 px-4 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all"
+                           class="flex-1 px-4 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 focus:bg-white transition-all"
                            onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();chatSendMessage();}">
                     
                     <button onclick="chatSendMessage()"
-                            class="w-10 h-10 bg-[#0f6838] hover:bg-emerald-700 text-white rounded-full transition-all duration-200 flex-shrink-0 flex items-center justify-center shadow-md active:scale-95">
+                            class="w-10 h-10 bg-gradient-to-r from-yellow-500 to-amber-600 hover:from-yellow-600 hover:to-amber-700 text-white rounded-full transition-all duration-200 flex-shrink-0 flex items-center justify-center shadow-md active:scale-95">
                         <i data-lucide="send-horizontal" class="w-4.5 h-4.5 ml-0.5 pointer-events-none"></i>
                     </button>
                 </div>
