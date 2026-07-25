@@ -128,15 +128,15 @@
     <div class="grid grid-cols-2 gap-3 sm:gap-5 md:grid-cols-2 lg:grid-cols-4">
 
         {{-- Total Units --}}
-        <div onclick="showUnitsModal()" class="card-hover wave-blue cursor-pointer group relative overflow-hidden rounded-2xl shadow-sm border border-blue-100 bg-gradient-to-br from-blue-50 to-indigo-50/70">
+        <div onclick="showUnitsModal()" class="card-hover wave-blue cursor-pointer group relative overflow-hidden rounded-2xl shadow-md shadow-slate-200/40 border border-blue-100 bg-gradient-to-br from-blue-50 to-indigo-50/70">
             
             <div class="relative p-3.5 sm:p-5 flex items-center justify-between z-20">
                 <div class="flex-1 min-w-0">
-                    <p class="text-blue-400 text-[9px] sm:text-[10px] font-black uppercase tracking-widest mb-1">Total Units</p>
-                    <p class="text-gray-900 text-xl sm:text-3xl font-black leading-none mb-1" data-stat="active_units">{{ $stats['active_units'] }}</p>
+                    <p class="text-blue-400 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest mb-1">Total Units</p>
+                    <p class="text-slate-800 text-xl sm:text-3xl font-bold tracking-tight leading-none mb-1" data-stat="active_units">{{ $stats['active_units'] }}</p>
                     <p class="text-blue-400 text-[10px] sm:text-xs font-medium"><span class="text-emerald-600 font-bold" data-stat="roi_achieved">{{ $stats['roi_units'] }}</span> ROI Achieved</p>
                 </div>
-                <div class="p-1.5 sm:p-3 bg-blue-100 rounded-xl sm:rounded-2xl border border-blue-200 shadow-sm flex-shrink-0">
+                <div class="p-1.5 sm:p-3 bg-blue-100 rounded-xl sm:rounded-2xl border border-blue-200 shadow-md shadow-slate-200/40 flex-shrink-0">
                     <i data-lucide="car" class="w-5 h-5 sm:w-7 sm:h-7 text-blue-600"></i>
                 </div>
             </div>
@@ -144,21 +144,21 @@
         </div>
 
         {{-- Daily Boundary Collection --}}
-        <div onclick="showDailyBoundaryModal()" class="card-hover wave-emerald cursor-pointer group relative overflow-hidden rounded-2xl shadow-sm border border-emerald-100 bg-gradient-to-br from-emerald-50 to-teal-50/70">
+        <div onclick="showDailyBoundaryModal()" class="card-hover wave-emerald cursor-pointer group relative overflow-hidden rounded-2xl shadow-md shadow-slate-200/40 border border-emerald-100 bg-gradient-to-br from-emerald-50 to-teal-50/70">
             
             <div class="relative p-3.5 sm:p-5 flex items-center justify-between z-20">
                 <div class="flex-1 min-w-0">
-                    <p class="text-emerald-500 text-[9px] sm:text-[10px] font-black uppercase tracking-widest mb-1">Boundary Revenue</p>
+                    <p class="text-emerald-500 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest mb-1">Boundary Revenue</p>
                     <div class="flex flex-col">
-                        <span class="text-gray-900 text-lg sm:text-2xl font-black leading-none mb-0.5" data-stat="today_boundary">{{ formatCurrency($stats['today_boundary']) }}</span>
+                        <span class="text-slate-800 text-lg sm:text-2xl font-bold tracking-tight leading-none mb-0.5" data-stat="today_boundary">{{ formatCurrency($stats['today_boundary']) }}</span>
                         <span class="text-[9px] sm:text-[10px] font-bold text-emerald-600 uppercase">Today</span>
                     </div>
                     <div class="mt-2 pt-2 sm:mt-3 sm:pt-3 border-t border-emerald-100/50">
-                        <p class="text-gray-900 text-base sm:text-lg font-black leading-none mb-0.5" data-stat="month_boundary">{{ formatCurrency($stats['month_boundary'] ?? 0) }}</p>
-                        <p class="text-emerald-500 text-[8px] sm:text-[9px] font-black uppercase tracking-widest">This Month</p>
+                        <p class="text-slate-800 text-base sm:text-lg font-bold leading-none mb-0.5" data-stat="month_boundary">{{ formatCurrency($stats['month_boundary'] ?? 0) }}</p>
+                        <p class="text-emerald-500 text-[8px] sm:text-[9px] font-bold uppercase tracking-widest">This Month</p>
                     </div>
                 </div>
-                <div class="p-1.5 sm:p-3 bg-emerald-100 rounded-xl sm:rounded-2xl border border-emerald-200 shadow-sm flex-shrink-0">
+                <div class="p-1.5 sm:p-3 bg-emerald-100 rounded-xl sm:rounded-2xl border border-emerald-200 shadow-md shadow-slate-200/40 flex-shrink-0">
                     <i data-lucide="banknote" class="w-5 h-5 sm:w-7 sm:h-7 text-emerald-600"></i>
                 </div>
             </div>
@@ -166,21 +166,21 @@
         </div>
 
         {{-- Net Income --}}
-        <div onclick="showNetIncomeModal()" class="card-hover wave-green cursor-pointer group relative overflow-hidden rounded-2xl shadow-sm border border-green-100 bg-gradient-to-br from-green-50 to-lime-50/70">
+        <div onclick="showNetIncomeModal()" class="card-hover wave-green cursor-pointer group relative overflow-hidden rounded-2xl shadow-md shadow-slate-200/40 border border-green-100 bg-gradient-to-br from-green-50 to-lime-50/70">
             
             <div class="relative p-3.5 sm:p-5 flex items-center justify-between z-20">
                 <div class="flex-1 min-w-0">
-                    <p class="text-green-500 text-[9px] sm:text-[10px] font-black uppercase tracking-widest mb-1">Net Income (Kita)</p>
+                    <p class="text-green-500 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest mb-1">Net Income (Kita)</p>
                     <div class="flex flex-col">
-                        <span class="text-gray-900 text-lg sm:text-2xl font-black leading-none mb-0.5" data-stat="net_income">{{ formatCurrency($stats['net_income']) }}</span>
+                        <span class="text-slate-800 text-lg sm:text-2xl font-bold tracking-tight leading-none mb-0.5" data-stat="net_income">{{ formatCurrency($stats['net_income']) }}</span>
                         <span class="text-[9px] sm:text-[10px] font-bold text-green-600 uppercase">Today</span>
                     </div>
                     <div class="mt-2 pt-2 sm:mt-3 sm:pt-3 border-t border-green-100/50">
-                        <p class="text-gray-900 text-base sm:text-lg font-black leading-none mb-0.5" data-stat="net_income_month">{{ formatCurrency($stats['net_income_month'] ?? 0) }}</p>
-                        <p class="text-green-500 text-[8px] sm:text-[9px] font-black uppercase tracking-widest">This Month</p>
+                        <p class="text-slate-800 text-base sm:text-lg font-bold leading-none mb-0.5" data-stat="net_income_month">{{ formatCurrency($stats['net_income_month'] ?? 0) }}</p>
+                        <p class="text-green-500 text-[8px] sm:text-[9px] font-bold uppercase tracking-widest">This Month</p>
                     </div>
                 </div>
-                <div class="p-1.5 sm:p-3 bg-green-100 rounded-xl sm:rounded-2xl border border-green-200 shadow-sm flex-shrink-0">
+                <div class="p-1.5 sm:p-3 bg-green-100 rounded-xl sm:rounded-2xl border border-green-200 shadow-md shadow-slate-200/40 flex-shrink-0">
                     <i data-lucide="trending-up" class="w-5 h-5 sm:w-7 sm:h-7 text-green-600"></i>
                 </div>
             </div>
@@ -188,15 +188,15 @@
         </div>
 
         {{-- Units Under Maintenance --}}
-        <div onclick="showMaintenanceUnitsModal()" class="card-hover wave-orange cursor-pointer group relative overflow-hidden rounded-2xl shadow-sm border border-orange-100 bg-gradient-to-br from-orange-50 to-amber-50/70">
+        <div onclick="showMaintenanceUnitsModal()" class="card-hover wave-orange cursor-pointer group relative overflow-hidden rounded-2xl shadow-md shadow-slate-200/40 border border-orange-100 bg-gradient-to-br from-orange-50 to-amber-50/70">
             
             <div class="relative p-3.5 sm:p-5 flex items-center justify-between z-20">
                 <div class="flex-1 min-w-0">
-                    <p class="text-orange-400 text-[9px] sm:text-[10px] font-black uppercase tracking-widest mb-1">Under Maintenance</p>
-                    <p class="text-gray-900 text-xl sm:text-3xl font-black leading-none mb-1" data-stat="maintenance_units">{{ $stats['maintenance_units'] }}</p>
+                    <p class="text-orange-400 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest mb-1">Under Maintenance</p>
+                    <p class="text-slate-800 text-xl sm:text-3xl font-bold tracking-tight leading-none mb-1" data-stat="maintenance_units">{{ $stats['maintenance_units'] }}</p>
                     <p class="text-orange-400 text-[10px] sm:text-xs font-medium truncate" data-stat="maintenance_subtitle">Ongoing units</p>
                 </div>
-                <div class="p-1.5 sm:p-3 bg-orange-100 rounded-xl sm:rounded-2xl border border-orange-200 shadow-sm flex-shrink-0">
+                <div class="p-1.5 sm:p-3 bg-orange-100 rounded-xl sm:rounded-2xl border border-orange-200 shadow-md shadow-slate-200/40 flex-shrink-0">
                     <i data-lucide="wrench" class="w-5 h-5 sm:w-7 sm:h-7 text-orange-600"></i>
                 </div>
             </div>
@@ -209,14 +209,14 @@
     <div class="mt-4 grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
 
         {{-- Active Drivers --}}
-        <div onclick="showActiveDriversModal()" class="card-hover wave-indigo cursor-pointer group relative overflow-hidden rounded-2xl shadow-sm border border-indigo-100 bg-gradient-to-br from-indigo-50 to-violet-50/70">
+        <div onclick="showActiveDriversModal()" class="card-hover wave-indigo cursor-pointer group relative overflow-hidden rounded-2xl shadow-md shadow-slate-200/40 ring-1 ring-indigo-900/5 bg-gradient-to-br from-indigo-50 to-violet-50/70">
             
             <div class="relative p-3.5 sm:p-5 flex items-center justify-between z-20">
                 <div class="flex-1 min-w-0">
-                    <p class="text-indigo-400 text-[9px] sm:text-[10px] font-black uppercase tracking-widest mb-1">Active Drivers</p>
-                    <p class="text-gray-900 text-xl sm:text-3xl font-black leading-none" data-stat="active_drivers">{{ $stats['active_drivers'] }}</p>
+                    <p class="text-indigo-400 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest mb-1">Active Drivers</p>
+                    <p class="text-slate-800 text-xl sm:text-3xl font-bold tracking-tight leading-none" data-stat="active_drivers">{{ $stats['active_drivers'] }}</p>
                 </div>
-                <div class="p-1.5 sm:p-3 bg-indigo-100 rounded-xl sm:rounded-2xl border border-indigo-200 shadow-sm flex-shrink-0">
+                <div class="p-1.5 sm:p-3 bg-indigo-100 rounded-xl sm:rounded-2xl border border-indigo-200 shadow-md shadow-slate-200/40 flex-shrink-0">
                     <i data-lucide="users" class="w-5 h-5 sm:w-7 sm:h-7 text-indigo-600"></i>
                 </div>
             </div>
@@ -224,14 +224,14 @@
         </div>
 
         {{-- Total Expenses Today --}}
-        <div onclick="showExpensesModal()" class="card-hover wave-rose cursor-pointer group relative overflow-hidden rounded-2xl shadow-sm border border-rose-100 bg-gradient-to-br from-rose-50 to-red-50/70">
+        <div onclick="showExpensesModal()" class="card-hover wave-rose cursor-pointer group relative overflow-hidden rounded-2xl shadow-md shadow-slate-200/40 ring-1 ring-rose-900/5 bg-gradient-to-br from-rose-50 to-red-50/70">
             
             <div class="relative p-3.5 sm:p-5 flex items-center justify-between z-20">
                 <div class="flex-1 min-w-0">
-                    <p class="text-rose-400 text-[9px] sm:text-[10px] font-black uppercase tracking-widest mb-1">Expenses Today</p>
-                    <p class="text-gray-900 text-lg sm:text-2xl font-black leading-none" data-stat="today_expenses">{{ formatCurrency($stats['total_expenses_today']) }}</p>
+                    <p class="text-rose-400 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest mb-1">Expenses Today</p>
+                    <p class="text-slate-800 text-lg sm:text-2xl font-bold tracking-tight leading-none" data-stat="today_expenses">{{ formatCurrency($stats['total_expenses_today']) }}</p>
                 </div>
-                <div class="p-1.5 sm:p-3 bg-rose-100 rounded-xl sm:rounded-2xl border border-rose-200 shadow-sm flex-shrink-0">
+                <div class="p-1.5 sm:p-3 bg-rose-100 rounded-xl sm:rounded-2xl border border-rose-200 shadow-md shadow-slate-200/40 flex-shrink-0">
                     <i data-lucide="trending-down" class="w-5 h-5 sm:w-7 sm:h-7 text-rose-600"></i>
                 </div>
             </div>
@@ -239,15 +239,15 @@
         </div>
 
         {{-- Coding Units Today --}}
-        <div onclick="showCodingUnitsModal()" class="col-span-2 lg:col-span-1 card-hover wave-violet cursor-pointer group relative overflow-hidden rounded-2xl shadow-sm border border-violet-100 bg-gradient-to-br from-violet-50 to-purple-50/70">
+        <div onclick="showCodingUnitsModal()" class="col-span-2 lg:col-span-1 card-hover wave-violet cursor-pointer group relative overflow-hidden rounded-2xl shadow-md shadow-slate-200/40 ring-1 ring-violet-900/5 bg-gradient-to-br from-violet-50 to-purple-50/70">
             
             <div class="relative p-3.5 sm:p-5 flex items-center justify-between z-20">
                 <div class="flex-1 min-w-0">
-                    <p class="text-violet-400 text-[9px] sm:text-[10px] font-black uppercase tracking-widest mb-1">Coding Units Today</p>
-                    <p class="text-gray-900 text-xl sm:text-3xl font-black leading-none mb-1" data-stat="coding_units">{{ $stats['coding_units'] }}</p>
+                    <p class="text-violet-400 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest mb-1">Coding Units Today</p>
+                    <p class="text-slate-800 text-xl sm:text-3xl font-bold tracking-tight leading-none mb-1" data-stat="coding_units">{{ $stats['coding_units'] }}</p>
                     <p class="text-violet-400 text-[9px] sm:text-[10px] font-bold uppercase tracking-tight">{{ now()->timezone('Asia/Manila')->format('l') }}</p>
                 </div>
-                <div class="p-1.5 sm:p-3 bg-violet-100 rounded-xl sm:rounded-2xl border border-violet-200 shadow-sm flex-shrink-0">
+                <div class="p-1.5 sm:p-3 bg-violet-100 rounded-xl sm:rounded-2xl border border-violet-200 shadow-md shadow-slate-200/40 flex-shrink-0">
                     <i data-lucide="calendar" class="w-5 h-5 sm:w-7 sm:h-7 text-violet-600"></i>
                 </div>
             </div>
@@ -257,18 +257,18 @@
     </div>
 
     <!-- Unit Performance (Full Width) -->
-    <div class="mt-4 bg-white rounded-lg shadow-lg border border-gray-100 overflow-hidden">
+    <div class="mt-4 bg-white rounded-lg shadow-lg ring-1 ring-slate-900/5 overflow-hidden">
         <div class="p-4 border-b bg-gray-50/50 flex justify-between items-center">
             <div class="flex items-center gap-2">
                 <div class="p-1.5 bg-blue-100 rounded-lg">
                     <i data-lucide="bar-chart-3" class="w-4 h-4 text-blue-600"></i>
                 </div>
                 <div>
-                    <h3 class="text-base font-bold text-gray-900 uppercase tracking-tight">Unit Performance</h3>
-                    <p class="text-[11px] text-gray-500 mt-0.5 leading-tight">Total actual boundary collections over the <strong>last 30 days</strong> vs their 30-day target.</p>
+                    <h3 class="text-base font-bold text-slate-800 uppercase tracking-tight">Unit Performance</h3>
+                    <p class="text-[11px] text-slate-500 mt-0.5 leading-tight">Total actual boundary collections over the <strong>last 30 days</strong> vs their 30-day target.</p>
                 </div>
             </div>
-            <span class="text-[10px] font-black text-blue-600 bg-blue-50 px-2 py-1 rounded-full uppercase tracking-widest border border-blue-100">Top 10 Performers</span>
+            <span class="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-full uppercase tracking-widest border border-blue-100">Top 10 Performers</span>
         </div>
         <div class="grid grid-cols-1 lg:grid-cols-4">
             <div class="lg:col-span-3 p-6">
@@ -278,35 +278,35 @@
             </div>
             <!-- Executive Insight Panel -->
             <div class="bg-gray-50 p-6 border-l border-gray-100 flex flex-col justify-center">
-                <h4 class="text-xs font-black text-gray-400 uppercase tracking-widest mb-6">Executive Insights</h4>
+                <h4 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-6">Executive Insights</h4>
                 <div class="space-y-8">
                     <div>
-                        <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-2">Fleet Health</p>
+                        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-2">Fleet Health</p>
                         <div class="flex items-end gap-2">
-                            <p class="text-3xl font-black text-gray-900 leading-none">82%</p>
+                            <p class="text-3xl font-bold text-slate-800 leading-none">82%</p>
                             <p class="text-xs font-bold text-green-600 flex items-center mb-0.5">
                                 <i data-lucide="trending-up" class="w-3 h-3 mr-0.5"></i> +2.4%
                             </p>
                         </div>
-                        <p class="text-[11px] text-gray-500 mt-2 leading-relaxed font-medium">Most units are meeting over 80% of their monthly boundary targets.</p>
+                        <p class="text-[11px] text-slate-500 mt-2 leading-relaxed font-medium">Most units are meeting over 80% of their monthly boundary targets.</p>
                     </div>
                     
                     <div class="pt-6 border-t border-gray-200">
-                        <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-2">Top Performer</p>
-                        <p class="text-base font-black text-gray-900" id="insightTopPlate">--</p>
-                        <p class="text-[11px] text-gray-500 mt-2 font-medium">Consistency in daily collections makes this your most reliable asset.</p>
+                        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-2">Top Performer</p>
+                        <p class="text-base font-bold text-slate-800" id="insightTopPlate">--</p>
+                        <p class="text-[11px] text-slate-500 mt-2 font-medium">Consistency in daily collections makes this your most reliable asset.</p>
                     </div>
 
                     <div class="pt-6 border-t border-gray-200">
-                        <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-3">Legend</p>
+                        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-3">Legend</p>
                         <div class="space-y-3">
                             <div class="flex items-center gap-3">
-                                <div class="w-3 h-3 rounded bg-blue-500 shadow-sm"></div>
-                                <span class="text-[10px] font-black text-gray-600 uppercase tracking-widest">Actual Collection</span>
+                                <div class="w-3 h-3 rounded bg-blue-500 shadow-md shadow-slate-200/40"></div>
+                                <span class="text-[10px] font-bold text-gray-600 uppercase tracking-widest">Actual Collection</span>
                             </div>
                             <div class="flex items-center gap-3">
                                 <div class="w-3 h-3 rounded border-2 border-amber-500 bg-amber-500/20"></div>
-                                <span class="text-[10px] font-black text-gray-600 uppercase tracking-widest">Monthly Target</span>
+                                <span class="text-[10px] font-bold text-gray-600 uppercase tracking-widest">Monthly Target</span>
                             </div>
                         </div>
                     </div>
@@ -323,10 +323,10 @@
                     <div class="p-1.5 bg-blue-50 rounded-lg">
                         <i data-lucide="trending-up" class="w-4 h-4 text-blue-600"></i>
                     </div>
-                    <h3 class="text-base font-bold text-gray-900 uppercase tracking-tight">Revenue Trend</h3>
+                    <h3 class="text-base font-bold text-slate-800 uppercase tracking-tight">Revenue Trend</h3>
                 </div>
                 <div class="flex gap-2">
-                    <button onclick="updateRevenueTrend('7')" id="btn-7days" class="px-3 py-1 text-[10px] font-bold uppercase rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-all shadow-sm">
+                    <button onclick="updateRevenueTrend('7')" id="btn-7days" class="px-3 py-1 text-[10px] font-bold uppercase rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-all shadow-md shadow-slate-200/40">
                         7 Days
                     </button>
                     <button onclick="updateRevenueTrend('30')" id="btn-30days" class="px-3 py-1 text-[10px] font-bold uppercase rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200 transition-all border border-gray-200">
@@ -351,7 +351,7 @@
 
         <div class="bg-white rounded-lg shadow">
             <div class="p-4 border-b">
-                <h3 class="text-base font-semibold text-gray-900">Expense Breakdown & Distribution</h3>
+                <h3 class="text-base font-semibold text-slate-800">Expense Breakdown & Distribution</h3>
             </div>
             <div class="p-4">
                 <canvas id="expenseBreakdownChart" width="400" height="200"></canvas>
@@ -360,7 +360,7 @@
 
         <div class="bg-white rounded-lg shadow">
             <div class="p-4 border-b">
-                <h3 class="text-base font-semibold text-gray-900">Weekly Financial Overview</h3>
+                <h3 class="text-base font-semibold text-slate-800">Weekly Financial Overview</h3>
             </div>
             <div class="p-4">
                 <canvas id="weeklyChart" width="400" height="200"></canvas>
@@ -369,7 +369,7 @@
 
         <div class="bg-white rounded-lg shadow">
             <div class="p-4 border-b">
-                <h3 class="text-base font-semibold text-gray-900">Unit Status Distribution</h3>
+                <h3 class="text-base font-semibold text-slate-800">Unit Status Distribution</h3>
             </div>
             <div class="p-4">
                 <canvas id="unitStatusChart" width="400" height="200"></canvas>
@@ -378,7 +378,7 @@
 
         <div class="bg-white rounded-lg shadow">
             <div class="p-4 border-b">
-                <h3 class="text-base font-semibold text-gray-900">Top Performing Drivers</h3>
+                <h3 class="text-base font-semibold text-slate-800">Top Performing Drivers</h3>
             </div>
             <div class="p-4">
                 <canvas id="topDriversChart" width="400" height="200"></canvas>
@@ -425,7 +425,7 @@
                     </div>
                 </div>
                 <div class="flex items-center gap-1 bg-white/20 backdrop-blur-sm p-1 rounded-xl border border-white/30">
-                    <button onclick="setMaintenanceFilter('all')" id="mFilterAll" class="px-4 py-1.5 rounded-lg text-sm font-bold transition-all duration-200 bg-white text-orange-600 shadow-sm">
+                    <button onclick="setMaintenanceFilter('all')" id="mFilterAll" class="px-4 py-1.5 rounded-lg text-sm font-bold transition-all duration-200 bg-white text-orange-600 shadow-md shadow-slate-200/40">
                         All
                     </button>
                     <button onclick="setMaintenanceFilter('preventive')" id="mFilterPreventive" class="px-4 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 text-white hover:bg-white/10">
@@ -449,7 +449,7 @@
             <div class="bg-gradient-to-r from-orange-50 to-amber-50 p-4 border-b border-orange-200 flex-shrink-0">
                 <div class="grid grid-cols-2 lg:grid-cols-5 gap-3">
                     <!-- Total Maintenance -->
-                    <div class="bg-white rounded-lg p-3 shadow-sm border border-orange-100 hover:shadow-md transition-shadow">
+                    <div class="bg-white rounded-lg p-3 shadow-md shadow-slate-200/40 border border-orange-100 hover:shadow-md transition-shadow">
                         <div class="flex items-center gap-2">
                             <div class="p-1.5 bg-orange-100 rounded">
                                 <i data-lucide="wrench" class="w-4 h-4 text-orange-600"></i>
@@ -461,7 +461,7 @@
                         </div>
                     </div>
                     <!-- Preventive -->
-                    <div class="bg-white rounded-lg p-3 shadow-sm border border-blue-100 hover:shadow-md transition-shadow">
+                    <div class="bg-white rounded-lg p-3 shadow-md shadow-slate-200/40 border border-blue-100 hover:shadow-md transition-shadow">
                         <div class="flex items-center gap-2">
                             <div class="p-1.5 bg-blue-100 rounded">
                                 <i data-lucide="shield-check" class="w-4 h-4 text-blue-600"></i>
@@ -473,7 +473,7 @@
                         </div>
                     </div>
                     <!-- Corrective -->
-                    <div class="bg-white rounded-lg p-3 shadow-sm border border-amber-100 hover:shadow-md transition-shadow">
+                    <div class="bg-white rounded-lg p-3 shadow-md shadow-slate-200/40 border border-amber-100 hover:shadow-md transition-shadow">
                         <div class="flex items-center gap-2">
                             <div class="p-1.5 bg-amber-100 rounded">
                                 <i data-lucide="wrench" class="w-4 h-4 text-amber-600"></i>
@@ -485,7 +485,7 @@
                         </div>
                     </div>
                     <!-- Emergency -->
-                    <div class="bg-white rounded-lg p-3 shadow-sm border border-red-100 hover:shadow-md transition-shadow">
+                    <div class="bg-white rounded-lg p-3 shadow-md shadow-slate-200/40 border border-red-100 hover:shadow-md transition-shadow">
                         <div class="flex items-center gap-2">
                             <div class="p-1.5 bg-red-100 rounded">
                                 <i data-lucide="alert-triangle" class="w-4 h-4 text-red-600"></i>
@@ -497,7 +497,7 @@
                         </div>
                     </div>
                     <!-- Completed -->
-                    <div class="bg-white rounded-lg p-3 shadow-sm border border-green-100 hover:shadow-md transition-shadow">
+                    <div class="bg-white rounded-lg p-3 shadow-md shadow-slate-200/40 border border-green-100 hover:shadow-md transition-shadow">
                         <div class="flex items-center gap-2">
                             <div class="p-1.5 bg-green-100 rounded">
                                 <i data-lucide="check-circle" class="w-4 h-4 text-green-600"></i>
@@ -519,7 +519,7 @@
                         <div class="inline-flex flex-col items-center">
                             <div class="animate-spin rounded-full h-12 w-12 border-4 border-orange-600 border-t-transparent mb-4"></div>
                             <span class="text-lg text-gray-600 font-semibold mb-2">Loading maintenance data...</span>
-                            <p class="text-sm text-gray-400">Please wait while we fetch maintenance details</p>
+                            <p class="text-sm text-slate-400">Please wait while we fetch maintenance details</p>
                         </div>
                     </div>
                 </div>
@@ -538,7 +538,7 @@
                     <i data-lucide="wrench" class="w-5 h-5 text-white"></i>
                 </div>
                 <div>
-                    <h3 class="text-lg font-black text-white tracking-wide uppercase" id="mdm-plate">PLATE</h3>
+                    <h3 class="text-lg font-bold text-white tracking-wide uppercase" id="mdm-plate">PLATE</h3>
                     <p class="text-[10px] text-orange-100 font-bold uppercase tracking-widest" id="mdm-type">Maintenance Details</p>
                 </div>
             </div>
@@ -550,39 +550,39 @@
         <!-- Content -->
         <div class="p-4 sm:p-6 overflow-y-auto flex-1 bg-gray-50">
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
-                <div class="bg-white p-3 rounded-xl border border-gray-100 shadow-sm flex flex-col justify-center">
-                    <p class="text-[9px] text-gray-400 font-black uppercase tracking-widest mb-1">Assigned Mechanic</p>
+                <div class="bg-white p-3 rounded-xl ring-1 ring-slate-900/5 shadow-md shadow-slate-200/40 flex flex-col justify-center">
+                    <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mb-1">Assigned Mechanic</p>
                     <p class="text-sm font-bold text-gray-800 flex items-center gap-2" id="mdm-mechanic">
                         <i data-lucide="user-cog" class="w-4 h-4 text-orange-500 flex-shrink-0"></i> <span>Name</span>
                     </p>
                 </div>
-                <div class="bg-white p-3 rounded-xl border border-gray-100 shadow-sm flex flex-col justify-center">
-                    <p class="text-[9px] text-gray-400 font-black uppercase tracking-widest mb-1">Driver</p>
+                <div class="bg-white p-3 rounded-xl ring-1 ring-slate-900/5 shadow-md shadow-slate-200/40 flex flex-col justify-center">
+                    <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mb-1">Driver</p>
                     <p class="text-sm font-bold text-gray-800 flex items-center gap-2" id="mdm-driver">
                         <i data-lucide="user" class="w-4 h-4 text-blue-500 flex-shrink-0"></i> <span>Name</span>
                     </p>
                 </div>
-                <div class="bg-white p-3 rounded-xl border border-gray-100 shadow-sm flex flex-col justify-center">
-                    <p class="text-[9px] text-gray-400 font-black uppercase tracking-widest mb-1">Date Started</p>
+                <div class="bg-white p-3 rounded-xl ring-1 ring-slate-900/5 shadow-md shadow-slate-200/40 flex flex-col justify-center">
+                    <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mb-1">Date Started</p>
                     <p class="text-sm font-bold text-gray-800 flex items-center gap-2" id="mdm-start-date">
                         <i data-lucide="calendar" class="w-4 h-4 text-green-500 flex-shrink-0"></i> <span>Date</span>
                     </p>
                 </div>
-                <div class="bg-white p-3 rounded-xl border border-gray-100 shadow-sm flex flex-col justify-center">
-                    <p class="text-[9px] text-gray-400 font-black uppercase tracking-widest mb-1">Target Completion</p>
+                <div class="bg-white p-3 rounded-xl ring-1 ring-slate-900/5 shadow-md shadow-slate-200/40 flex flex-col justify-center">
+                    <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mb-1">Target Completion</p>
                     <p class="text-sm font-bold text-gray-800 flex items-center gap-2" id="mdm-end-date">
                         <i data-lucide="clock" class="w-4 h-4 text-purple-500 flex-shrink-0"></i> <span>TBD</span>
                     </p>
                 </div>
             </div>
 
-            <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden mb-6">
+            <div class="bg-white rounded-xl ring-1 ring-slate-900/5 shadow-md shadow-slate-200/40 overflow-hidden mb-6">
                 <div class="bg-gray-50 px-4 py-3 border-b border-gray-100 flex items-center gap-2">
-                    <i data-lucide="list-checks" class="w-4 h-4 text-gray-500"></i>
-                    <h4 class="text-[10px] font-black text-gray-700 uppercase tracking-widest">Parts & Services Breakdown</h4>
+                    <i data-lucide="list-checks" class="w-4 h-4 text-slate-500"></i>
+                    <h4 class="text-[10px] font-bold text-gray-700 uppercase tracking-widest">Parts & Services Breakdown</h4>
                 </div>
                 <div class="p-0 min-h-[150px]">
-                    <div id="mdm-parts-loading" class="py-12 text-center text-gray-400">
+                    <div id="mdm-parts-loading" class="py-12 text-center text-slate-400">
                         <i data-lucide="loader-2" class="w-8 h-8 animate-spin mx-auto mb-3 text-orange-500"></i>
                         <p class="text-[10px] font-bold uppercase tracking-widest">Fetching data...</p>
                     </div>
@@ -595,11 +595,11 @@
             <!-- Totals -->
             <div class="bg-gradient-to-br from-orange-50 to-amber-50 rounded-xl p-4 border border-orange-100 flex justify-between items-center">
                 <div>
-                    <p class="text-[10px] text-orange-600/70 font-black uppercase tracking-widest">Total Cost</p>
-                    <p class="text-xs font-black uppercase tracking-widest mt-0.5" id="mdm-status-badge">Status</p>
+                    <p class="text-[10px] text-orange-600/70 font-bold uppercase tracking-widest">Total Cost</p>
+                    <p class="text-xs font-bold uppercase tracking-widest mt-0.5" id="mdm-status-badge">Status</p>
                 </div>
                 <div class="text-right">
-                    <p class="text-2xl font-black text-orange-600" id="mdm-total-cost">₱0.00</p>
+                    <p class="text-2xl font-bold text-orange-600" id="mdm-total-cost">₱0.00</p>
                 </div>
             </div>
         </div>
@@ -656,7 +656,7 @@
 
                 <!-- Category Filter Buttons -->
                 <div class="hidden md:flex items-center gap-1 bg-white/20 backdrop-blur-sm p-1 rounded-xl border border-white/30">
-                    <button onclick="setDriversFilter('all')" id="dFilterAll" class="px-4 py-1.5 rounded-lg text-sm font-bold transition-all duration-200 bg-white text-blue-600 shadow-sm">
+                    <button onclick="setDriversFilter('all')" id="dFilterAll" class="px-4 py-1.5 rounded-lg text-sm font-bold transition-all duration-200 bg-white text-blue-600 shadow-md shadow-slate-200/40">
                         All
                     </button>
                     <button onclick="setDriversFilter('vacant')" id="dFilterVacant" class="px-4 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 text-white hover:bg-white/10">
@@ -676,7 +676,7 @@
             <!-- Summary Stats -->
             <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 border-b border-blue-200 flex-shrink-0">
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div class="bg-white rounded-lg p-3 shadow-sm border border-blue-100 hover:shadow-md transition-shadow">
+                    <div class="bg-white rounded-lg p-3 shadow-md shadow-slate-200/40 border border-blue-100 hover:shadow-md transition-shadow">
                         <div class="flex items-center gap-2">
                             <div class="p-1.5 bg-blue-100 rounded">
                                 <i data-lucide="users" class="w-4 h-4 text-blue-600"></i>
@@ -687,7 +687,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="bg-white rounded-lg p-3 shadow-sm border border-green-100 hover:shadow-md transition-shadow">
+                    <div class="bg-white rounded-lg p-3 shadow-md shadow-slate-200/40 border border-green-100 hover:shadow-md transition-shadow">
                         <div class="flex items-center gap-2">
                             <div class="p-1.5 bg-green-100 rounded">
                                 <i data-lucide="user-minus" class="w-4 h-4 text-green-600"></i>
@@ -698,7 +698,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="bg-white rounded-lg p-3 shadow-sm border border-orange-100 hover:shadow-md transition-shadow">
+                    <div class="bg-white rounded-lg p-3 shadow-md shadow-slate-200/40 border border-orange-100 hover:shadow-md transition-shadow">
                         <div class="flex items-center gap-2">
                             <div class="p-1.5 bg-orange-100 rounded">
                                 <i data-lucide="user-check" class="w-4 h-4 text-orange-600"></i>
@@ -709,7 +709,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="bg-white rounded-lg p-3 shadow-sm border border-purple-100 hover:shadow-md transition-shadow">
+                    <div class="bg-white rounded-lg p-3 shadow-md shadow-slate-200/40 border border-purple-100 hover:shadow-md transition-shadow">
                         <div class="flex items-center gap-2">
                             <div class="p-1.5 bg-purple-100 rounded">
                                 <i data-lucide="award" class="w-4 h-4 text-purple-600"></i>
@@ -731,7 +731,7 @@
                         <div class="inline-flex flex-col items-center">
                             <div class="animate-spin rounded-full h-12 w-12 border-4 border-blue-600 border-t-transparent mb-4"></div>
                             <span class="text-lg text-gray-600 font-semibold mb-2">Loading driver data...</span>
-                            <p class="text-sm text-gray-400">Please wait while we fetch driver details</p>
+                            <p class="text-sm text-slate-400">Please wait while we fetch driver details</p>
                         </div>
                     </div>
                 </div>
@@ -810,7 +810,7 @@
             <!-- Summary Stats -->
             <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-4 border-b border-purple-200 flex-shrink-0">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div class="bg-white rounded-lg p-3 shadow-sm border border-blue-100 hover:shadow-md transition-shadow">
+                    <div class="bg-white rounded-lg p-3 shadow-md shadow-slate-200/40 border border-blue-100 hover:shadow-md transition-shadow">
                         <div class="flex items-center gap-2">
                             <div class="p-1.5 bg-blue-100 rounded">
                                 <i data-lucide="calendar" class="w-4 h-4 text-blue-600"></i>
@@ -821,7 +821,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="bg-white rounded-lg p-3 shadow-sm border border-green-100 hover:shadow-md transition-shadow">
+                    <div class="bg-white rounded-lg p-3 shadow-md shadow-slate-200/40 border border-green-100 hover:shadow-md transition-shadow">
                         <div class="flex items-center gap-2">
                             <div class="p-1.5 bg-green-100 rounded">
                                 <i data-lucide="check-circle" class="w-4 h-4 text-green-600"></i>
@@ -832,7 +832,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="bg-white rounded-lg p-3 shadow-sm border border-orange-100 hover:shadow-md transition-shadow">
+                    <div class="bg-white rounded-lg p-3 shadow-md shadow-slate-200/40 border border-orange-100 hover:shadow-md transition-shadow">
                         <div class="flex items-center gap-2">
                             <div class="p-1.5 bg-orange-100 rounded">
                                 <i data-lucide="alert-circle" class="w-4 h-4 text-orange-600"></i>
@@ -854,7 +854,7 @@
                         <div class="inline-flex flex-col items-center">
                             <div class="animate-spin rounded-full h-12 w-12 border-4 border-purple-600 border-t-transparent mb-4"></div>
                             <span class="text-lg text-gray-600 font-semibold mb-2">Loading coding data...</span>
-                            <p class="text-sm text-gray-400">Please wait while we fetch coding details</p>
+                            <p class="text-sm text-slate-400">Please wait while we fetch coding details</p>
                         </div>
                     </div>
                 </div>
@@ -893,10 +893,10 @@
             <!-- Centered Period Filters (Net Income) -->
             <div class="mt-6 flex justify-center bg-black/10 rounded-xl p-1.5 backdrop-blur-sm border border-white/10">
                 <div class="flex gap-1 p-0.5 bg-black/20 rounded-lg shadow-inner">
-                    <button id="btn-today-income" onclick="setIncomePeriod('today')" class="px-3 py-1.5 text-xs font-black rounded-md transition-all duration-200">Today</button>
-                    <button id="btn-week-income" onclick="setIncomePeriod('week')" class="px-3 py-1.5 text-xs font-black rounded-md transition-all duration-200">Weekly</button>
-                    <button id="btn-month-income" onclick="setIncomePeriod('month')" class="px-3 py-1.5 text-xs font-black rounded-md transition-all duration-200">Monthly</button>
-                    <button id="btn-year-income" onclick="setIncomePeriod('year')" class="px-3 py-1.5 text-xs font-black rounded-md transition-all duration-200">Yearly</button>
+                    <button id="btn-today-income" onclick="setIncomePeriod('today')" class="px-3 py-1.5 text-xs font-bold rounded-md transition-all duration-200">Today</button>
+                    <button id="btn-week-income" onclick="setIncomePeriod('week')" class="px-3 py-1.5 text-xs font-bold rounded-md transition-all duration-200">Weekly</button>
+                    <button id="btn-month-income" onclick="setIncomePeriod('month')" class="px-3 py-1.5 text-xs font-bold rounded-md transition-all duration-200">Monthly</button>
+                    <button id="btn-year-income" onclick="setIncomePeriod('year')" class="px-3 py-1.5 text-xs font-bold rounded-md transition-all duration-200">Yearly</button>
                 </div>
             </div>
         </div>
@@ -904,15 +904,15 @@
         <div class="flex-1 overflow-hidden flex flex-col min-h-0">
             <!-- Detailed Report Document (Integrated) -->
             <div class="bg-gray-50 p-4 border-b border-gray-200 flex-shrink-0 print-section overflow-y-auto max-h-[85vh]">
-                <div class="max-w-5xl mx-auto bg-white border border-gray-200 rounded-xl p-6 shadow-sm relative" id="incomeReport">
+                <div class="max-w-5xl mx-auto bg-white border border-gray-200 rounded-xl p-6 shadow-md shadow-slate-200/40 relative" id="incomeReport">
                     <!-- Report Header (Print Only) -->
                     <div class="text-center mb-10 print-only">
                         <div class="flex flex-col items-center mb-4">
                             <img src="{{ asset('image/logo.png') }}" alt="Euro Taxi Logo" class="h-16 w-auto mb-2">
                         </div>
-                        <h4 class="text-4xl font-black uppercase tracking-[0.4em] text-gray-900 mb-2">Financial Report</h4>
-                        <div class="text-base text-gray-600 uppercase font-black tracking-widest" id="reportPeriodLabelPrint">Period: TODAY</div>
-                        <div class="text-[12px] text-gray-400 mt-3 font-bold tracking-[0.2em]">EURO TAXI MANAGEMENT SYSTEM • OFFICIAL RECORD</div>
+                        <h4 class="text-4xl font-bold uppercase tracking-[0.4em] text-slate-800 mb-2">Financial Report</h4>
+                        <div class="text-base text-gray-600 uppercase font-bold tracking-widest" id="reportPeriodLabelPrint">Period: TODAY</div>
+                        <div class="text-[12px] text-slate-400 mt-3 font-bold tracking-[0.2em]">EURO TAXI MANAGEMENT SYSTEM • OFFICIAL RECORD</div>
                         <div class="border-t-2 border-gray-100 mt-8 pt-2 h-0 border-dashed"></div>
                         
                         <!-- Print-Only Summary Box -->
@@ -942,23 +942,23 @@
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10">
                             <!-- Revenue -->
                             <div class="flex flex-col border-b md:border-b-0 md:border-r border-gray-700 pb-4 md:pb-0 md:pr-6">
-                                <span class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Total Revenue</span>
-                                <span class="text-3xl font-black text-emerald-400" id="reportTotalIncome">₱0.00</span>
+                                <span class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Total Revenue</span>
+                                <span class="text-3xl font-bold text-emerald-400" id="reportTotalIncome">₱0.00</span>
                             </div>
                             
                             <!-- Expenses -->
                             <div class="flex flex-col border-b md:border-b-0 md:border-r border-gray-700 pb-4 md:pb-0 md:pr-6 md:pl-2">
-                                <span class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Total Expenses</span>
-                                <span class="text-3xl font-black text-red-400" id="reportTotalExpenses">₱0.00</span>
+                                <span class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Total Expenses</span>
+                                <span class="text-3xl font-bold text-red-400" id="reportTotalExpenses">₱0.00</span>
                             </div>
                             
                             <!-- Net Income -->
                             <div class="flex flex-col md:pl-2">
-                                <span class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1 flex items-center">
+                                <span class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1 flex items-center">
                                     Net Income 
                                     <span id="reportProfitMargin" class="ml-2 text-[9px] bg-white/10 px-2 py-0.5 rounded-full text-gray-300">0.0% Margin</span>
                                 </span>
-                                <span class="text-4xl font-black text-white" id="reportNetIncome">₱0.00</span>
+                                <span class="text-4xl font-bold text-white" id="reportNetIncome">₱0.00</span>
                             </div>
                         </div>
                     </div>
@@ -966,7 +966,7 @@
                     <!-- Revenue Section -->
                     <div class="mb-6">
                         <div class="flex justify-between items-center bg-gray-100 text-gray-800 px-6 py-3 rounded-t-lg border-x border-t border-gray-200">
-                            <span class="text-[11px] uppercase font-black tracking-[0.1em]">Revenue Breakdown</span>
+                            <span class="text-[11px] uppercase font-bold tracking-[0.1em]">Revenue Breakdown</span>
                         </div>
                         <div class="border-x border-b border-gray-200 rounded-b-lg">
                             <div id="revenueDetailList" class="min-h-[100px] flex flex-col justify-center">
@@ -978,14 +978,14 @@
                     <!-- Operating Expenses Section -->
                     <div class="mb-6">
                         <div class="flex justify-between items-center bg-red-50 text-red-900 px-6 py-3 rounded-t-lg border-x border-t border-red-100">
-                            <span class="text-[11px] uppercase font-black tracking-[0.1em]">Operating Expenses Breakdown</span>
+                            <span class="text-[11px] uppercase font-bold tracking-[0.1em]">Operating Expenses Breakdown</span>
                         </div>
                         <div class="border-x border-b border-gray-200 rounded-b-lg p-0">
                             <!-- Maintenance Breakdown -->
                             <div class="border-b border-gray-200">
-                                <div class="bg-gray-50 px-6 py-2 border-b border-gray-200 flex justify-between text-[9px] font-black text-gray-400 uppercase tracking-widest">
+                                <div class="bg-gray-50 px-6 py-2 border-b border-gray-200 flex justify-between text-[9px] font-bold text-slate-400 uppercase tracking-widest">
                                     <span>Maintenance & Repairs Itemized</span>
-                                    <span id="reportMaintenanceTotal" class="text-orange-600 font-black">Total: ₱0.00</span>
+                                    <span id="reportMaintenanceTotal" class="text-orange-600 font-bold">Total: ₱0.00</span>
                                 </div>
                                 <div id="maintenanceDetailList" class="bg-white min-h-[60px] flex flex-col justify-center">
                                     <!-- Dynamically populated -->
@@ -994,9 +994,9 @@
 
                             <!-- Office Breakdown -->
                             <div>
-                                <div class="bg-gray-50 px-6 py-2 border-b border-gray-200 flex justify-between text-[9px] font-black text-gray-400 uppercase tracking-widest">
+                                <div class="bg-gray-50 px-6 py-2 border-b border-gray-200 flex justify-between text-[9px] font-bold text-slate-400 uppercase tracking-widest">
                                     <span>General Office Expenses Itemized</span>
-                                    <span id="reportGeneralExpensesTotal" class="text-red-500 font-black">Total: ₱0.00</span>
+                                    <span id="reportGeneralExpensesTotal" class="text-red-500 font-bold">Total: ₱0.00</span>
                                 </div>
                                 <div id="officeExpensesDetailList" class="bg-white min-h-[60px] flex flex-col justify-center rounded-b-lg">
                                     <!-- Dynamically populated -->
@@ -1007,7 +1007,7 @@
                     
                     <!-- Report Footer (Print Only) -->
                     <div class="text-center mt-8 pt-6 border-t border-gray-100 print-only">
-                        <p class="text-[10px] text-gray-400 font-black uppercase tracking-[0.2em] mb-1">Authenticated Financial Statement</p>
+                        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em] mb-1">Authenticated Financial Statement</p>
                         <p class="text-[9px] text-gray-300 font-medium tracking-widest">TIMESTAMP: <span id="reportTimestamp"></span></p>
                     </div>
                 </div>
@@ -1028,12 +1028,12 @@
                         <i data-lucide="trending-down" class="w-7 h-7"></i>
                     </div>
                     <div>
-                        <h3 class="text-2xl font-black tracking-tight leading-none mb-1">Total Expenses Today</h3>
+                        <h3 class="text-2xl font-bold tracking-tight leading-none mb-1">Total Expenses Today</h3>
                         <p class="text-red-100 text-[11px] font-bold uppercase tracking-widest opacity-80">Detailed expense records and computation</p>
                     </div>
                 </div>
                 <div class="flex items-center gap-3">
-                    <button onclick="printExpensesNewTab()" class="flex items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg font-black text-xs uppercase tracking-widest transition-all border border-white/20">
+                    <button onclick="printExpensesNewTab()" class="flex items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg font-bold text-xs uppercase tracking-widest transition-all border border-white/20">
                         <i data-lucide="printer" class="w-4 h-4"></i>
                         Print Expenses
                     </button>
@@ -1046,10 +1046,10 @@
             <!-- Period Filters (Expenses Only) -->
             <div class="mt-6 flex justify-center bg-black/10 rounded-xl p-1.5 backdrop-blur-sm border border-white/10">
                 <div class="flex gap-1 p-0.5 bg-black/20 rounded-lg shadow-inner">
-                    <button id="btn-today-expenses" onclick="setExpensesPeriod('today')" class="px-3 py-1.5 text-xs font-black rounded-md transition-all duration-200">Today</button>
-                    <button id="btn-week-expenses" onclick="setExpensesPeriod('week')" class="px-3 py-1.5 text-xs font-black rounded-md transition-all duration-200">Weekly</button>
-                    <button id="btn-month-expenses" onclick="setExpensesPeriod('month')" class="px-3 py-1.5 text-xs font-black rounded-md transition-all duration-200">Monthly</button>
-                    <button id="btn-year-expenses" onclick="setExpensesPeriod('year')" class="px-3 py-1.5 text-xs font-black rounded-md transition-all duration-200">Yearly</button>
+                    <button id="btn-today-expenses" onclick="setExpensesPeriod('today')" class="px-3 py-1.5 text-xs font-bold rounded-md transition-all duration-200">Today</button>
+                    <button id="btn-week-expenses" onclick="setExpensesPeriod('week')" class="px-3 py-1.5 text-xs font-bold rounded-md transition-all duration-200">Weekly</button>
+                    <button id="btn-month-expenses" onclick="setExpensesPeriod('month')" class="px-3 py-1.5 text-xs font-bold rounded-md transition-all duration-200">Monthly</button>
+                    <button id="btn-year-expenses" onclick="setExpensesPeriod('year')" class="px-3 py-1.5 text-xs font-bold rounded-md transition-all duration-200">Yearly</button>
                 </div>
             </div>
         </div>
@@ -1057,15 +1057,15 @@
         <div class="flex-1 overflow-hidden flex flex-col min-h-0">
             <!-- Detailed Report Document (Expenses Focused) -->
             <div class="bg-gray-50 p-4 border-b border-gray-200 flex-shrink-0 print-section overflow-y-auto max-h-[85vh]">
-                <div class="max-w-5xl mx-auto bg-white border border-gray-200 rounded-xl p-6 shadow-sm relative" id="expensesReport">
+                <div class="max-w-5xl mx-auto bg-white border border-gray-200 rounded-xl p-6 shadow-md shadow-slate-200/40 relative" id="expensesReport">
                     <!-- Report Header (Print Only) -->
                     <div class="text-center mb-10 print-only">
                         <div class="flex flex-col items-center mb-4">
                             <img src="{{ asset('image/logo.png') }}" alt="Euro Taxi Logo" class="h-16 w-auto mb-2" style="height:64px; width:auto;">
                         </div>
-                        <h4 class="text-4xl font-black uppercase tracking-[0.4em] text-gray-900 mb-2">Expense Statement</h4>
-                        <div class="text-base text-gray-600 uppercase font-black tracking-widest" id="expensesPeriodLabelPrint">Period: TODAY</div>
-                        <div class="text-[12px] text-gray-400 mt-3 font-bold tracking-[0.2em]">EURO TAXI MANAGEMENT SYSTEM • OFFICIAL EXPENSE RECORD</div>
+                        <h4 class="text-4xl font-bold uppercase tracking-[0.4em] text-slate-800 mb-2">Expense Statement</h4>
+                        <div class="text-base text-gray-600 uppercase font-bold tracking-widest" id="expensesPeriodLabelPrint">Period: TODAY</div>
+                        <div class="text-[12px] text-slate-400 mt-3 font-bold tracking-[0.2em]">EURO TAXI MANAGEMENT SYSTEM • OFFICIAL EXPENSE RECORD</div>
                         <div class="border-t-2 border-gray-100 mt-8 pt-2 h-0 border-dashed"></div>
                         
                         <!-- Print-Only Summary Box -->
@@ -1096,7 +1096,7 @@
                             <!-- Maintenance Expenses -->
                             <div class="flex flex-col border-b md:border-b-0 md:border-r border-red-700 pb-4 md:pb-0 md:pr-6">
                                 <span class="text-xs font-bold text-red-200 uppercase tracking-widest mb-1">Maintenance Total</span>
-                                <span class="text-2xl font-black text-white" id="expensesMaintenanceTotal">₱0.00</span>
+                                <span class="text-2xl font-bold text-white" id="expensesMaintenanceTotal">₱0.00</span>
                             </div>
                             
                             <!-- Office Expenses -->
@@ -1104,26 +1104,26 @@
                                 <span class="text-xs font-bold text-red-200 uppercase tracking-widest mb-1 flex items-center">
                                     Office Expenses Total 
                                 </span>
-                                <span class="text-2xl font-black text-white" id="expensesOfficeTotal">₱0.00</span>
+                                <span class="text-2xl font-bold text-white" id="expensesOfficeTotal">₱0.00</span>
                             </div>
                         </div>
 
                         <!-- Grand Total -->
                         <div class="mt-6 pt-4 border-t border-red-700/50">
                             <span class="text-xs font-bold text-red-200 uppercase tracking-widest mb-1 block">Total Expenses</span>
-                            <span class="text-5xl font-black text-white drop-shadow-md" id="expensesTotalValue">₱0.00</span>
+                            <span class="text-5xl font-bold text-white drop-shadow-md" id="expensesTotalValue">₱0.00</span>
                         </div>
                     </div>
                     
                     <!-- Operating Expenses Section -->
                     <div class="mb-6">
                         <div class="flex justify-between items-center bg-red-50 text-red-900 px-6 py-3 rounded-t-lg border-x border-t border-red-100">
-                            <span class="text-[11px] uppercase font-black tracking-[0.1em]">Detailed Expenses Breakdown</span>
+                            <span class="text-[11px] uppercase font-bold tracking-[0.1em]">Detailed Expenses Breakdown</span>
                         </div>
                         <div class="border-x border-b border-gray-200 rounded-b-lg p-0">
                             <!-- Maintenance Breakdown -->
                             <div class="border-b border-gray-200">
-                                <div class="bg-gray-50 px-6 py-2 border-b border-gray-200 flex justify-between text-[9px] font-black text-gray-400 uppercase tracking-widest">
+                                <div class="bg-gray-50 px-6 py-2 border-b border-gray-200 flex justify-between text-[9px] font-bold text-slate-400 uppercase tracking-widest">
                                     <span>Maintenance & Repairs Itemized</span>
                                 </div>
                                 <div id="expensesMaintenanceList" class="bg-white min-h-[60px] flex flex-col justify-center"></div>
@@ -1131,7 +1131,7 @@
 
                             <!-- Office Breakdown -->
                             <div>
-                                <div class="bg-gray-50 px-6 py-2 border-b border-gray-200 flex justify-between text-[9px] font-black text-gray-400 uppercase tracking-widest">
+                                <div class="bg-gray-50 px-6 py-2 border-b border-gray-200 flex justify-between text-[9px] font-bold text-slate-400 uppercase tracking-widest">
                                     <span>General Office Expenses Itemized</span>
                                 </div>
                                 <div id="expensesOfficeList" class="bg-white min-h-[60px] flex flex-col justify-center rounded-b-lg"></div>
@@ -1143,7 +1143,7 @@
 
                     <!-- Report Footer (Print Only) -->
                     <div class="text-center mt-8 pt-6 border-t border-gray-100 print-only">
-                        <p class="text-[10px] text-gray-400 font-black uppercase tracking-[0.2em] mb-1">Authenticated Expense Summary</p>
+                        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em] mb-1">Authenticated Expense Summary</p>
                         <p class="text-[9px] text-gray-300 font-medium tracking-widest">TIMESTAMP: <span id="expensesTimestamp"></span></p>
                     </div>
                 </div>
@@ -1203,7 +1203,7 @@
             <!-- Summary Stats -->
             <div class="bg-gradient-to-r from-green-50 to-emerald-50 p-4 border-b border-green-200 flex-shrink-0">
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div class="bg-white rounded-lg p-3 shadow-sm border border-green-100 hover:shadow-md transition-shadow">
+                    <div class="bg-white rounded-lg p-3 shadow-md shadow-slate-200/40 border border-green-100 hover:shadow-md transition-shadow">
                         <div class="flex items-center gap-2">
                             <div class="p-1.5 bg-green-100 rounded">
                                 <i data-lucide="calendar" class="w-4 h-4 text-green-600"></i>
@@ -1214,7 +1214,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="bg-white rounded-lg p-3 shadow-sm border border-green-100 hover:shadow-md transition-shadow">
+                    <div class="bg-white rounded-lg p-3 shadow-md shadow-slate-200/40 border border-green-100 hover:shadow-md transition-shadow">
                         <div class="flex items-center gap-2">
                             <div class="p-1.5 bg-blue-100 rounded">
                                 <i data-lucide="history" class="w-4 h-4 text-blue-600"></i>
@@ -1225,7 +1225,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="bg-white rounded-lg p-3 shadow-sm border border-green-100 hover:shadow-md transition-shadow">
+                    <div class="bg-white rounded-lg p-3 shadow-md shadow-slate-200/40 border border-green-100 hover:shadow-md transition-shadow">
                         <div class="flex items-center gap-2">
                             <div class="p-1.5 bg-purple-100 rounded">
                                 <i data-lucide="bar-chart-2" class="w-4 h-4 text-purple-600"></i>
@@ -1236,7 +1236,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="bg-white rounded-lg p-3 shadow-sm border border-green-100 hover:shadow-md transition-shadow">
+                    <div class="bg-white rounded-lg p-3 shadow-md shadow-slate-200/40 border border-green-100 hover:shadow-md transition-shadow">
                         <div class="flex items-center gap-2">
                             <div class="p-1.5 bg-yellow-100 rounded">
                                 <i data-lucide="trending-up" class="w-4 h-4 text-yellow-600"></i>
@@ -1258,7 +1258,7 @@
                         <div class="inline-flex flex-col items-center">
                             <div class="animate-spin rounded-full h-12 w-12 border-4 border-green-600 border-t-transparent mb-4"></div>
                             <span class="text-lg text-gray-600 font-semibold mb-2">Loading boundary collections...</span>
-                            <p class="text-sm text-gray-400">Please wait while we fetch collection details</p>
+                            <p class="text-sm text-slate-400">Please wait while we fetch collection details</p>
                         </div>
                     </div>
                 </div>
@@ -1269,7 +1269,7 @@
 
 <!-- Units Overview Modal -->
     <div id="unitsModal" class="hidden fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-white rounded-2xl shadow-2xl max-w-7xl w-full mx-4 h-[95vh] flex flex-col border border-gray-100 overflow-hidden">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-7xl w-full mx-4 h-[95vh] flex flex-col ring-1 ring-slate-900/5 overflow-hidden">
             <!-- Compact Header with Search -->
             <div class="p-4 border-b bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 flex-shrink-0">
                 <div class="flex items-center justify-between mb-3">
@@ -1345,47 +1345,47 @@
                 <!-- Compact Summary Stats -->
                 <div class="bg-gradient-to-r from-gray-50 to-blue-50 p-3 border-b border-gray-200 flex-shrink-0">
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                        <div class="bg-white rounded-lg p-2 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                        <div class="bg-white rounded-lg p-2 shadow-md shadow-slate-200/40 ring-1 ring-slate-900/5 hover:shadow-md transition-shadow">
                             <div class="flex items-center gap-2">
                                 <div class="p-1 bg-blue-100 rounded">
                                     <i data-lucide="car" class="w-3.5 h-3.5 text-blue-600"></i>
                                 </div>
                                 <div class="flex-1">
                                     <div class="text-base font-bold text-blue-600 leading-tight" id="totalUnitsCount">0</div>
-                                    <div class="text-[10px] text-gray-500 uppercase tracking-tight font-bold">Total</div>
+                                    <div class="text-[10px] text-slate-500 uppercase tracking-tight font-bold">Total</div>
                                 </div>
                             </div>
                         </div>
-                        <div class="bg-white rounded-lg p-2 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                        <div class="bg-white rounded-lg p-2 shadow-md shadow-slate-200/40 ring-1 ring-slate-900/5 hover:shadow-md transition-shadow">
                             <div class="flex items-center gap-2">
                                 <div class="p-1 bg-green-100 rounded">
                                     <i data-lucide="user-x" class="w-3.5 h-3.5 text-green-600"></i>
                                 </div>
                                 <div class="flex-1">
                                     <div class="text-base font-bold text-green-600 leading-tight" id="activeUnitsCount">0</div>
-                                    <div class="text-[10px] text-gray-500 uppercase tracking-tight font-bold">Vacant (No Driver)</div>
+                                    <div class="text-[10px] text-slate-500 uppercase tracking-tight font-bold">Vacant (No Driver)</div>
                                 </div>
                             </div>
                         </div>
-                        <div class="bg-white rounded-lg p-2 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                        <div class="bg-white rounded-lg p-2 shadow-md shadow-slate-200/40 ring-1 ring-slate-900/5 hover:shadow-md transition-shadow">
                             <div class="flex items-center gap-2">
                                 <div class="p-1 bg-yellow-100 rounded">
                                     <i data-lucide="activity" class="w-3.5 h-3.5 text-yellow-600"></i>
                                 </div>
                                 <div class="flex-1">
                                     <div class="text-base font-bold text-yellow-600 leading-tight" id="roiUnitsCount">0</div>
-                                    <div class="text-[10px] text-gray-500 uppercase tracking-tight font-bold">Active Units (With Driver)</div>
+                                    <div class="text-[10px] text-slate-500 uppercase tracking-tight font-bold">Active Units (With Driver)</div>
                                 </div>
                             </div>
                         </div>
-                        <div class="bg-white rounded-lg p-2 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                        <div class="bg-white rounded-lg p-2 shadow-md shadow-slate-200/40 ring-1 ring-slate-900/5 hover:shadow-md transition-shadow">
                             <div class="flex items-center gap-2">
                                 <div class="p-1 bg-purple-100 rounded">
                                     <i data-lucide="pie-chart" class="w-3.5 h-3.5 text-purple-600"></i>
                                 </div>
                                 <div class="flex-1">
                                     <div class="text-base font-bold text-purple-600 leading-tight" id="avgRoiCount">0%</div>
-                                    <div class="text-[10px] text-gray-500 uppercase tracking-tight font-bold">Avg ROI</div>
+                                    <div class="text-[10px] text-slate-500 uppercase tracking-tight font-bold">Avg ROI</div>
                                 </div>
                             </div>
                         </div>
@@ -1400,7 +1400,7 @@
                             <div class="inline-flex flex-col items-center">
                                 <div class="animate-spin rounded-full h-12 w-12 border-4 border-blue-600 border-t-transparent mb-4"></div>
                                 <span class="text-lg text-gray-600 font-semibold mb-2">Loading units data...</span>
-                                <p class="text-sm text-gray-400">Please wait while we fetch your fleet information</p>
+                                <p class="text-sm text-slate-400">Please wait while we fetch your fleet information</p>
                             </div>
                         </div>
                     </div>
@@ -1418,7 +1418,7 @@
                         <i data-lucide="shield-alert" class="w-5 h-5 text-white"></i>
                     </div>
                     <div>
-                        <h3 class="text-lg font-black text-white uppercase tracking-tight">Security Flags / Missing Units</h3>
+                        <h3 class="text-lg font-bold text-white uppercase tracking-tight">Security Flags / Missing Units</h3>
                         <p class="text-red-100 text-[10px] font-bold uppercase tracking-widest">Fleet Lockdown Management</p>
                     </div>
                 </div>
@@ -1429,7 +1429,7 @@
             <div id="flaggedUnitsList" class="max-h-[70vh] overflow-y-auto p-4 space-y-4 bg-gray-50/50">
                 <div class="text-center py-12">
                     <div class="animate-spin rounded-full h-10 w-10 border-4 border-red-600 border-t-transparent mx-auto mb-3"></div>
-                    <p class="text-gray-500 font-bold uppercase tracking-widest text-[10px]">Loading security status...</p>
+                    <p class="text-slate-500 font-bold uppercase tracking-widest text-[10px]">Loading security status...</p>
                 </div>
             </div>
         </div>
@@ -1761,7 +1761,7 @@
                                     }
                                 }
                             },
-                            datalabels: { color: '#fff', font: { weight: 'bold', size: 12 }, formatter: (val, ctx) => { const total = ctx.dataset.data.reduce((a,b)=>a+b,0); const pct = total > 0 ? ((val/total)*100).toFixed(0) : 0; return pct > 5 ? pct+'%' : ''; } }
+                            datalabels: { display: true, color: '#fff', font: { weight: 'bold', size: 16 }, formatter: (val, ctx) => { let sum = 0; ctx.dataset.data.forEach(n => { sum += Number(n) || 0; }); const v = Number(val) || 0; if (sum === 0 || v === 0) return ''; return Math.round((v / sum) * 100) + '%'; } }
                         },
                         animation: { animateRotate: true, animateScale: true, duration: 1500, easing: 'easeOutQuart' }
                     }
@@ -2015,19 +2015,19 @@
                 
                 if (data.success && data.data && data.data.length > 0) {
                     data.data.forEach(p => {
-                        const supplier = p.supplier ? `<span class="px-1.5 py-0.5 bg-gray-100 text-gray-500 rounded text-[9px] font-bold uppercase truncate max-w-[100px]" title="${p.supplier}">${p.supplier}</span>` : '';
+                        const supplier = p.supplier ? `<span class="px-1.5 py-0.5 bg-gray-100 text-slate-500 rounded text-[9px] font-bold uppercase truncate max-w-[100px]" title="${p.supplier}">${p.supplier}</span>` : '';
                         list.innerHTML += `
                             <li class="px-4 py-3 flex justify-between items-start gap-3 hover:bg-orange-50/30 transition-colors">
                                 <div class="flex-1 min-w-0">
                                     <p class="text-sm font-semibold text-gray-800 truncate">${p.part_name}</p>
                                     <div class="flex items-center gap-2 mt-1">
-                                        <span class="text-[10px] text-gray-500 font-bold bg-white border border-gray-200 px-1.5 py-0.5 rounded shadow-sm">x${p.quantity}</span>
+                                        <span class="text-[10px] text-slate-500 font-bold bg-white border border-gray-200 px-1.5 py-0.5 rounded shadow-md shadow-slate-200/40">x${p.quantity}</span>
                                         ${supplier}
                                     </div>
                                 </div>
                                 <div class="text-right shrink-0">
-                                    <p class="text-sm font-black text-orange-600">₱${(parseFloat(p.total) || 0).toLocaleString('en-PH', {minimumFractionDigits:2})}</p>
-                                    <p class="text-[9px] text-gray-400 font-medium">₱${(parseFloat(p.price) || 0).toLocaleString('en-PH', {minimumFractionDigits:2})} / ea</p>
+                                    <p class="text-sm font-bold text-orange-600">₱${(parseFloat(p.total) || 0).toLocaleString('en-PH', {minimumFractionDigits:2})}</p>
+                                    <p class="text-[9px] text-slate-400 font-medium">₱${(parseFloat(p.price) || 0).toLocaleString('en-PH', {minimumFractionDigits:2})} / ea</p>
                                 </div>
                             </li>
                         `;
@@ -2036,10 +2036,10 @@
                     list.innerHTML = `
                         <li class="py-8 text-center">
                             <div class="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-2">
-                                <i data-lucide="package-x" class="w-5 h-5 text-gray-400"></i>
+                                <i data-lucide="package-x" class="w-5 h-5 text-slate-400"></i>
                             </div>
-                            <p class="text-xs font-bold text-gray-500 uppercase tracking-widest">No specific parts listed</p>
-                            <p class="text-[10px] text-gray-400 mt-1">${unit.description || 'See description for details'}</p>
+                            <p class="text-xs font-bold text-slate-500 uppercase tracking-widest">No specific parts listed</p>
+                            <p class="text-[10px] text-slate-400 mt-1">${unit.description || 'See description for details'}</p>
                         </li>
                     `;
                 }
@@ -2087,10 +2087,10 @@
                 if (btn) {
                     if (f === filter) {
                         btn.classList.remove('text-white', 'hover:bg-white/10', 'font-medium');
-                        btn.classList.add('bg-white', 'text-orange-600', 'font-bold', 'shadow-sm');
+                        btn.classList.add('bg-white', 'text-orange-600', 'font-bold', 'shadow-md shadow-slate-200/40');
                     } else {
                         btn.classList.add('text-white', 'hover:bg-white/10', 'font-medium');
-                        btn.classList.remove('bg-white', 'text-orange-600', 'font-bold', 'shadow-sm');
+                        btn.classList.remove('bg-white', 'text-orange-600', 'font-bold', 'shadow-md shadow-slate-200/40');
                     }
                 }
             });
@@ -2131,10 +2131,10 @@
                     <div class="col-span-full text-center py-20">
                         <div class="inline-flex flex-col items-center">
                             <div class="p-4 bg-gray-100 rounded-full mb-4">
-                                <i data-lucide="wrench" class="w-8 h-8 text-gray-400"></i>
+                                <i data-lucide="wrench" class="w-8 h-8 text-slate-400"></i>
                             </div>
                             <span class="text-xl text-gray-600 font-semibold mb-2">No maintenance units found</span>
-                            <p class="text-sm text-gray-400">Try adjusting your search or filter</p>
+                            <p class="text-sm text-slate-400">Try adjusting your search or filter</p>
                         </div>
                     </div>
                 `;
@@ -2159,19 +2159,19 @@
                                     <i data-lucide="wrench" class="w-4 h-4 ${iconColor}"></i>
                                 </div>
                                 <div>
-                                    <h4 class="text-lg font-bold text-gray-900">${unit.plate_number || 'N/A'}</h4>
+                                    <h4 class="text-lg font-bold text-slate-800">${unit.plate_number || 'N/A'}</h4>
                                 </div>
                             </div>
                             <div class="text-right">
                                 <div class="text-lg font-bold ${typeColor}">${unit.maintenance_type || 'Unknown'}</div>
-                                <div class="text-xs text-gray-500">${mainDate || 'N/A'}</div>
+                                <div class="text-xs text-slate-500">${mainDate || 'N/A'}</div>
                             </div>
                         </div>
                         
                         <!-- Maintenance Details -->
                         <div class="bg-gray-50 rounded-lg p-3 mb-3">
                             <div class="flex items-center justify-between mb-2">
-                                <span class="text-sm font-medium text-gray-900">Status: ${unit.maintenance_status || 'Unknown'}</span>
+                                <span class="text-sm font-medium text-slate-800">Status: ${unit.maintenance_status || 'Unknown'}</span>
                                 <span class="text-xs font-bold text-orange-600">${isComplete ? '₱' + (unit.maintenance_cost || 0).toLocaleString('en-PH', {minimumFractionDigits: 2}) : (unit.estimated_completion ? 'Est: ' + unit.estimated_completion : '')}</span>
                             </div>
                             <div class="text-xs text-gray-600">
@@ -2180,7 +2180,7 @@
                         </div>
                         
                         <!-- Footer -->
-                        <div class="flex items-center justify-between text-xs text-gray-500">
+                        <div class="flex items-center justify-between text-xs text-slate-500">
                             <span class="flex items-center gap-1">
                                 <i data-lucide="calendar" class="w-3 h-3"></i>
                                 ${isComplete ? 'Completed: ' + (unit.end_date || 'N/A') : 'Started: ' + (unit.start_date || 'N/A')}
@@ -2259,7 +2259,7 @@
                             <i data-lucide="alert-circle" class="w-8 h-8 text-red-600"></i>
                         </div>
                         <span class="text-xl text-gray-600 font-semibold mb-2">Error Loading Maintenance Data</span>
-                        <p class="text-sm text-gray-400 mb-4">${message}</p>
+                        <p class="text-sm text-slate-400 mb-4">${message}</p>
                         <div class="flex gap-2">
                             <button onclick="loadMaintenanceUnitsData()" class="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors">
                                 <i data-lucide="refresh-cw" class="w-4 h-4 inline mr-2"></i>
@@ -2290,7 +2290,7 @@
                             <i data-lucide="bug" class="w-8 h-8 text-blue-600"></i>
                         </div>
                         <span class="text-xl text-gray-600 font-semibold mb-2">Testing API Connection</span>
-                        <p class="text-sm text-gray-400 mb-4">Checking API endpoint...</p>
+                        <p class="text-sm text-slate-400 mb-4">Checking API endpoint...</p>
                         <div class="w-64 bg-gray-200 rounded-full h-2 mb-4">
                             <div class="bg-blue-600 h-2 rounded-full animate-pulse" style="width: 60%"></div>
                         </div>
@@ -2391,10 +2391,10 @@
                     <div class="col-span-full text-center py-20">
                         <div class="inline-flex flex-col items-center">
                             <div class="p-4 bg-gray-100 rounded-full mb-4">
-                                <i data-lucide="users" class="w-8 h-8 text-gray-400"></i>
+                                <i data-lucide="users" class="w-8 h-8 text-slate-400"></i>
                             </div>
                             <span class="text-xl text-gray-600 font-semibold mb-2">No active drivers found</span>
-                            <p class="text-sm text-gray-400">Try adjusting your search or date filter</p>
+                            <p class="text-sm text-slate-400">Try adjusting your search or date filter</p>
                         </div>
                     </div>
                 `;
@@ -2411,14 +2411,14 @@
                                     <i data-lucide="users" class="w-4 h-4 text-blue-600"></i>
                                 </div>
                                 <div>
-                                    <h4 class="text-lg font-bold text-gray-900">${driver.name || 'Unknown'}</h4>
-                                    <span class="text-xs text-gray-500">${driver.license_number || 'N/A'}</span>
+                                    <h4 class="text-lg font-bold text-slate-800">${driver.name || 'Unknown'}</h4>
+                                    <span class="text-xs text-slate-500">${driver.license_number || 'N/A'}</span>
                                 </div>
                             </div>
                             <div class="text-right mt-1 flex flex-col items-end gap-1">
                                 ${driver.assigned_units > 0 
                                     ? `<span class="px-2.5 py-1 text-xs font-bold text-green-700 bg-green-100 rounded-full border border-green-200">Assigned</span>
-                                       ${driver.plate_numbers ? `<span class="text-[10px] font-black text-gray-400 capitalize bg-gray-100 px-2 rounded-md">${driver.plate_numbers}</span>` : ''}`
+                                       ${driver.plate_numbers ? `<span class="text-[10px] font-bold text-slate-400 capitalize bg-gray-100 px-2 rounded-md">${driver.plate_numbers}</span>` : ''}`
                                     : `<span class="px-2.5 py-1 text-xs font-bold text-red-700 bg-red-100 rounded-full border border-red-200">Unassigned</span>`
                                 }
                             </div>
@@ -2436,12 +2436,12 @@
                             </div>
                             <div class="text-right">
                                 <div class="text-lg font-bold text-blue-600">₱${driver.total_boundary ? driver.total_boundary.toLocaleString() : '0'}</div>
-                                <div class="text-xs text-gray-500">Total Collected</div>
+                                <div class="text-xs text-slate-500">Total Collected</div>
                             </div>
                         </div>
                         
                         <!-- Footer -->
-                        <div class="flex items-center justify-between text-xs text-gray-500">
+                        <div class="flex items-center justify-between text-xs text-slate-500">
                             <span class="flex items-center gap-1">
                                 <i data-lucide="calendar" class="w-3 h-3"></i>
                                 ${driver.hire_date || 'No hire date'}
@@ -2555,7 +2555,7 @@
                 if (!btn) return;
                 
                 if (key === category) {
-                    btn.className = 'px-4 py-1.5 rounded-lg text-sm font-bold transition-all duration-200 bg-white text-blue-600 shadow-sm';
+                    btn.className = 'px-4 py-1.5 rounded-lg text-sm font-bold transition-all duration-200 bg-white text-blue-600 shadow-md shadow-slate-200/40';
                 } else {
                     btn.className = 'px-4 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 text-white hover:bg-white/10';
                 }
@@ -2580,7 +2580,7 @@
                             <i data-lucide="alert-circle" class="w-8 h-8 text-red-600"></i>
                         </div>
                         <span class="text-xl text-gray-600 font-semibold mb-2">Error Loading Driver Data</span>
-                        <p class="text-sm text-gray-400 mb-4">${message}</p>
+                        <p class="text-sm text-slate-400 mb-4">${message}</p>
                         <div class="flex gap-2">
                             <button onclick="loadActiveDriversData()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
                                 <i data-lucide="refresh-cw" class="w-4 h-4 inline mr-2"></i>
@@ -2611,7 +2611,7 @@
                             <i data-lucide="bug" class="w-8 h-8 text-blue-600"></i>
                         </div>
                         <span class="text-xl text-gray-600 font-semibold mb-2">Testing API Connection</span>
-                        <p class="text-sm text-gray-400 mb-4">Checking API endpoint...</p>
+                        <p class="text-sm text-slate-400 mb-4">Checking API endpoint...</p>
                         <div class="w-64 bg-gray-200 rounded-full h-2 mb-4">
                             <div class="bg-blue-600 h-2 rounded-full animate-pulse" style="width: 60%"></div>
                         </div>
@@ -2705,10 +2705,10 @@
                     <div class="col-span-full text-center py-20">
                         <div class="inline-flex flex-col items-center">
                             <div class="p-4 bg-gray-100 rounded-full mb-4">
-                                <i data-lucide="code" class="w-8 h-8 text-gray-400"></i>
+                                <i data-lucide="code" class="w-8 h-8 text-slate-400"></i>
                             </div>
                             <span class="text-xl text-gray-600 font-semibold mb-2">No coding units found</span>
-                            <p class="text-sm text-gray-400">Try adjusting your search or date filter</p>
+                            <p class="text-sm text-slate-400">Try adjusting your search or date filter</p>
                         </div>
                     </div>
                 `;
@@ -2721,7 +2721,7 @@
 
                 let driverOverlayHTML = `
                     <div class="absolute inset-0 bg-slate-900/95 opacity-0 group-hover:opacity-100 transition-all duration-250 flex flex-col items-center justify-center gap-1.5 z-10 pointer-events-none rounded-xl">
-                        <p class="text-white/60 text-[9px] font-black uppercase tracking-widest mb-0.5">Assigned Drivers</p>
+                        <p class="text-white/60 text-[9px] font-bold uppercase tracking-widest mb-0.5">Assigned Drivers</p>
                 `;
 
                 if (hasAnyDriver) {
@@ -2729,11 +2729,11 @@
                         driverOverlayHTML += `
                             <div class="flex items-center gap-2.5 bg-white/10 rounded-lg px-3 py-1.5 w-[90%]">
                                 <div class="w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center flex-shrink-0 shadow">
-                                    <span class="text-white text-[8px] font-black">P1</span>
+                                    <span class="text-white text-[8px] font-bold">P1</span>
                                 </div>
                                 <div class="text-left overflow-hidden min-w-0">
                                     <p class="text-[7px] text-blue-300 font-bold uppercase tracking-wider leading-none truncate">Primary 1</p>
-                                    <p class="text-white text-[11px] font-black leading-tight truncate">${unit.driver1_name.trim()}</p>
+                                    <p class="text-white text-[11px] font-bold leading-tight truncate">${unit.driver1_name.trim()}</p>
                                 </div>
                             </div>
                         `;
@@ -2742,11 +2742,11 @@
                         driverOverlayHTML += `
                             <div class="flex items-center gap-2.5 bg-white/10 rounded-lg px-3 py-1.5 w-[90%]">
                                 <div class="w-5 h-5 rounded-full bg-purple-500 flex items-center justify-center flex-shrink-0 shadow">
-                                    <span class="text-white text-[8px] font-black">P2</span>
+                                    <span class="text-white text-[8px] font-bold">P2</span>
                                 </div>
                                 <div class="text-left overflow-hidden min-w-0">
                                     <p class="text-[7px] text-purple-300 font-bold uppercase tracking-wider leading-none truncate">Primary 2</p>
-                                    <p class="text-white text-[11px] font-black leading-tight truncate">${unit.driver2_name.trim()}</p>
+                                    <p class="text-white text-[11px] font-bold leading-tight truncate">${unit.driver2_name.trim()}</p>
                                 </div>
                             </div>
                         `;
@@ -2763,7 +2763,7 @@
                 driverOverlayHTML += `</div>`;
 
                 return `
-                <div class="bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden border border-gray-100 hover:border-purple-200 relative group min-h-[130px]">
+                <div class="bg-white rounded-xl shadow-md shadow-slate-200/40 hover:shadow-md transition-all duration-300 overflow-hidden ring-1 ring-slate-900/5 hover:border-purple-200 relative group min-h-[130px]">
                     ${driverOverlayHTML}
                     <div class="p-4 border-l-4 border-purple-500 h-full flex flex-col relative z-0">
                         <!-- Header -->
@@ -2773,23 +2773,23 @@
                                     <i data-lucide="car" class="w-5 h-5"></i>
                                 </div>
                                 <div>
-                                    <h4 class="text-xl font-black text-gray-900 tracking-tight leading-none">${unit.plate_number || 'N/A'}</h4>
+                                    <h4 class="text-xl font-bold text-slate-800 tracking-tight leading-none">${unit.plate_number || 'N/A'}</h4>
                                 </div>
                             </div>
                             <div class="text-right">
-                                <span class="px-2.5 py-1 bg-purple-50 text-purple-700 text-[10px] font-black uppercase tracking-widest rounded-md border border-purple-100">${unit.coding_type || 'Coding'}</span>
+                                <span class="px-2.5 py-1 bg-purple-50 text-purple-700 text-[10px] font-bold uppercase tracking-widest rounded-md border border-purple-100">${unit.coding_type || 'Coding'}</span>
                             </div>
                         </div>
                         
                         <div class="mt-auto">
                             <!-- Details / Footer -->
                             <div class="pt-3 border-t border-gray-100 flex items-center justify-between">
-                                <div class="flex items-center gap-1.5 text-[11px] font-bold text-gray-500 uppercase tracking-wide">
-                                    <i data-lucide="calendar" class="w-3.5 h-3.5 text-gray-400"></i>
+                                <div class="flex items-center gap-1.5 text-[11px] font-bold text-slate-500 uppercase tracking-wide">
+                                    <i data-lucide="calendar" class="w-3.5 h-3.5 text-slate-400"></i>
                                     ${unit.start_date ? unit.start_date : (unit.coding_day !== 'Unknown' ? 'Every ' + unit.coding_day : 'No date')}
                                 </div>
-                                <div class="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-gray-400">
-                                    <i data-lucide="activity" class="w-3.5 h-3.5 text-gray-400"></i>
+                                <div class="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                                    <i data-lucide="activity" class="w-3.5 h-3.5 text-slate-400"></i>
                                     ${unit.status || 'Unknown'}
                                 </div>
                             </div>
@@ -2923,7 +2923,7 @@
                             <i data-lucide="alert-circle" class="w-8 h-8 text-red-600"></i>
                         </div>
                         <span class="text-xl text-gray-600 font-semibold mb-2">Error Loading Coding Data</span>
-                        <p class="text-sm text-gray-400 mb-4">${message}</p>
+                        <p class="text-sm text-slate-400 mb-4">${message}</p>
                         <div class="flex gap-2">
                             <button onclick="loadCodingUnitsData()" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">
                                 <i data-lucide="refresh-cw" class="w-4 h-4 inline mr-2"></i>
@@ -2954,7 +2954,7 @@
                             <i data-lucide="bug" class="w-8 h-8 text-blue-600"></i>
                         </div>
                         <span class="text-xl text-gray-600 font-semibold mb-2">Testing API Connection</span>
-                        <p class="text-sm text-gray-400 mb-4">Checking API endpoint...</p>
+                        <p class="text-sm text-slate-400 mb-4">Checking API endpoint...</p>
                         <div class="w-64 bg-gray-200 rounded-full h-2 mb-4">
                             <div class="bg-blue-600 h-2 rounded-full animate-pulse" style="width: 60%"></div>
                         </div>
@@ -3060,7 +3060,7 @@
                     <div class="col-span-full py-12 text-center">
                         <div class="bg-gray-50 rounded-xl p-8 border-2 border-dashed border-gray-200">
                             <i data-lucide="info" class="w-8 h-8 text-gray-300 mx-auto mb-3"></i>
-                            <p class="text-gray-500 font-medium font-mono">NO TRANSACTIONS FOUND FOR THIS PERIOD</p>
+                            <p class="text-slate-500 font-medium font-mono">NO TRANSACTIONS FOUND FOR THIS PERIOD</p>
                         </div>
                     </div>
                 `;
@@ -3072,8 +3072,8 @@
             grid.classList.add('grid-cols-1');
             
             grid.innerHTML = `
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden font-mono text-sm max-w-4xl mx-auto">
-                    <div class="bg-gray-100 px-6 py-3 border-b-2 border-gray-200 flex justify-between text-[11px] font-black text-gray-500 uppercase tracking-widest">
+                <div class="bg-white rounded-xl shadow-md shadow-slate-200/40 border border-gray-200 overflow-hidden font-mono text-sm max-w-4xl mx-auto">
+                    <div class="bg-gray-100 px-6 py-3 border-b-2 border-gray-200 flex justify-between text-[11px] font-bold text-slate-500 uppercase tracking-widest">
                         <span>Description / Category</span>
                         <span class="text-right">Amount (₱)</span>
                     </div>
@@ -3085,25 +3085,25 @@
                                         <i data-lucide="${item.type === 'income' ? 'arrow-down-left' : 'arrow-up-right'}" class="w-4 h-4"></i>
                                     </div>
                                     <div>
-                                        <div class="font-black text-gray-900 tracking-tight">${(item.description || 'Unknown').toUpperCase()}</div>
-                                        <div class="flex items-center gap-3 text-[10px] text-gray-400 font-bold mt-0.5">
-                                            <span class="text-gray-500">${(item.category || 'GENERAL').toUpperCase()}</span>
+                                        <div class="font-bold text-slate-800 tracking-tight">${(item.description || 'Unknown').toUpperCase()}</div>
+                                        <div class="flex items-center gap-3 text-[10px] text-slate-400 font-bold mt-0.5">
+                                            <span class="text-slate-500">${(item.category || 'GENERAL').toUpperCase()}</span>
                                             <span class="text-gray-300">•</span>
                                             <span>${(item.date || '').split(' ')[0]}</span>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="text-right">
-                                    <div class="font-black text-lg ${item.type === 'income' ? 'text-green-600' : 'text-red-600'}">
+                                    <div class="font-bold text-lg ${item.type === 'income' ? 'text-green-600' : 'text-red-600'}">
                                         ${item.type === 'income' ? '+' : '-'} ₱${Math.abs(parseFloat(item.amount) || 0).toLocaleString(undefined, {minimumFractionDigits: 2})}
                                     </div>
-                                    <div class="text-[9px] text-gray-400 font-bold uppercase tracking-tighter">${item.source || 'OFFICE'}</div>
+                                    <div class="text-[9px] text-slate-400 font-bold uppercase tracking-tighter">${item.source || 'OFFICE'}</div>
                                 </div>
                             </div>
                         `).join('')}
                     </div>
                     <div class="bg-gray-50 px-6 py-4 border-t-2 border-dashed border-gray-200 text-center">
-                        <p class="text-[10px] text-gray-400 uppercase font-black tracking-[0.2em]">End of transaction list</p>
+                        <p class="text-[10px] text-slate-400 uppercase font-bold tracking-[0.2em]">End of transaction list</p>
                     </div>
                 </div>
             `;
@@ -3221,7 +3221,7 @@
             
             const netIncomeEl = document.getElementById('reportNetIncome');
             if (netIncomeEl) {
-                netIncomeEl.className = 'text-4xl font-black ' + (netIncome > 0 ? 'text-emerald-400' : (netIncome < 0 ? 'text-red-400' : 'text-white'));
+                netIncomeEl.className = 'text-4xl font-bold ' + (netIncome > 0 ? 'text-emerald-400' : (netIncome < 0 ? 'text-red-400' : 'text-white'));
             }
             
             const profitMarginEl = document.getElementById('reportProfitMargin');
@@ -3242,7 +3242,7 @@
                     el.innerHTML = `
                         <table class="w-full text-left border-collapse">
                             <thead>
-                                <tr class="bg-gray-50/50 border-b border-gray-100 text-[8px] uppercase tracking-widest text-gray-400">
+                                <tr class="bg-gray-50/50 border-b border-gray-100 text-[8px] uppercase tracking-widest text-slate-400">
                                     <th class="px-6 py-2 font-bold w-1/4">Date</th>
                                     <th class="px-6 py-2 font-bold w-1/2">Description</th>
                                     <th class="px-6 py-2 font-bold text-right w-1/4">Amount</th>
@@ -3251,9 +3251,9 @@
                             <tbody class="divide-y divide-gray-50">
                                 ${items.map(item => `
                                     <tr class="hover:bg-gray-50/50 transition-colors">
-                                        <td class="px-6 py-2 text-[9px] text-gray-400 font-bold uppercase whitespace-nowrap">${item.date}</td>
-                                        <td class="px-6 py-2 text-[10px] font-black text-gray-800 tracking-tight">${item.description}</td>
-                                        <td class="px-6 py-2 text-xs font-black ${id === 'revenueDetailList' ? 'text-emerald-600' : 'text-red-500'} text-right whitespace-nowrap">${fmt(item.amount)}</td>
+                                        <td class="px-6 py-2 text-[9px] text-slate-400 font-bold uppercase whitespace-nowrap">${item.date}</td>
+                                        <td class="px-6 py-2 text-[10px] font-bold text-gray-800 tracking-tight">${item.description}</td>
+                                        <td class="px-6 py-2 text-xs font-bold ${id === 'revenueDetailList' ? 'text-emerald-600' : 'text-red-500'} text-right whitespace-nowrap">${fmt(item.amount)}</td>
                                     </tr>
                                 `).join('')}
                             </tbody>
@@ -3261,7 +3261,7 @@
                     `;
                 } else {
                     el.innerHTML = `
-                        <div class="px-6 py-4 text-center text-[10px] font-bold text-gray-400 uppercase tracking-widest border-b border-gray-50">
+                        <div class="px-6 py-4 text-center text-[10px] font-bold text-slate-400 uppercase tracking-widest border-b border-gray-50">
                             No records found
                         </div>
                     `;
@@ -3534,18 +3534,18 @@
                     el.innerHTML = `
                         <table class="w-full text-left border-collapse">
                             <thead>
-                                <tr class="bg-gray-50 border-b border-gray-200 text-[9px] uppercase tracking-widest text-gray-500">
-                                    <th class="px-6 py-2 font-black w-1/4 border-r border-gray-200">Date</th>
-                                    <th class="px-6 py-2 font-black w-1/2 border-r border-gray-200">Description</th>
-                                    <th class="px-6 py-2 font-black text-right w-1/4">Amount</th>
+                                <tr class="bg-gray-50 border-b border-gray-200 text-[9px] uppercase tracking-widest text-slate-500">
+                                    <th class="px-6 py-2 font-bold w-1/4 border-r border-gray-200">Date</th>
+                                    <th class="px-6 py-2 font-bold w-1/2 border-r border-gray-200">Description</th>
+                                    <th class="px-6 py-2 font-bold text-right w-1/4">Amount</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-100">
                                 ${items.map(item => `
                                     <tr class="hover:bg-gray-50 transition-colors">
-                                        <td class="px-6 py-2.5 text-[10px] text-gray-500 font-bold uppercase whitespace-nowrap border-r border-gray-100">${item.date}</td>
-                                        <td class="px-6 py-2.5 text-[10px] font-black text-gray-800 tracking-tight border-r border-gray-100">${item.description}</td>
-                                        <td class="px-6 py-2.5 text-[11px] font-black text-red-600 text-right whitespace-nowrap">${fmt(item.amount)}</td>
+                                        <td class="px-6 py-2.5 text-[10px] text-slate-500 font-bold uppercase whitespace-nowrap border-r border-gray-100">${item.date}</td>
+                                        <td class="px-6 py-2.5 text-[10px] font-bold text-gray-800 tracking-tight border-r border-gray-100">${item.description}</td>
+                                        <td class="px-6 py-2.5 text-[11px] font-bold text-red-600 text-right whitespace-nowrap">${fmt(item.amount)}</td>
                                     </tr>
                                 `).join('')}
                             </tbody>
@@ -3553,8 +3553,8 @@
                     `;
                 } else {
                     el.innerHTML = `
-                        <div class="py-6 w-full flex flex-col items-center justify-center text-gray-400">
-                            <span class="text-[10px] font-bold uppercase tracking-widest bg-gray-50 px-4 py-1.5 rounded-full border border-gray-100">No records found for this period</span>
+                        <div class="py-6 w-full flex flex-col items-center justify-center text-slate-400">
+                            <span class="text-[10px] font-bold uppercase tracking-widest bg-gray-50 px-4 py-1.5 rounded-full ring-1 ring-slate-900/5">No records found for this period</span>
                         </div>
                     `;
                 }
@@ -3669,7 +3669,7 @@
                             <i data-lucide="alert-circle" class="w-8 h-8 text-red-600"></i>
                         </div>
                         <span class="text-xl text-gray-600 font-semibold mb-2">Error Loading Income Data</span>
-                        <p class="text-sm text-gray-400 mb-4">${message}</p>
+                        <p class="text-sm text-slate-400 mb-4">${message}</p>
                         <div class="flex gap-2">
                             <button onclick="loadIncomeData()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
                                 <i data-lucide="refresh-cw" class="w-4 h-4 inline mr-2"></i>
@@ -3700,7 +3700,7 @@
                             <i data-lucide="bug" class="w-8 h-8 text-blue-600"></i>
                         </div>
                         <span class="text-xl text-gray-600 font-semibold mb-2">Testing API Connection</span>
-                        <p class="text-sm text-gray-400 mb-4">Checking API endpoint...</p>
+                        <p class="text-sm text-slate-400 mb-4">Checking API endpoint...</p>
                         <div class="w-64 bg-gray-200 rounded-full h-2 mb-4">
                             <div class="bg-blue-600 h-2 rounded-full animate-pulse" style="width: 60%"></div>
                         </div>
@@ -3824,10 +3824,10 @@
                     <div class="col-span-full text-center py-20">
                         <div class="inline-flex flex-col items-center">
                             <div class="p-4 bg-gray-100 rounded-full mb-4">
-                                <i data-lucide="calendar" class="w-8 h-8 text-gray-400"></i>
+                                <i data-lucide="calendar" class="w-8 h-8 text-slate-400"></i>
                             </div>
                             <span class="text-xl text-gray-600 font-semibold mb-2">No boundary collections found</span>
-                            <p class="text-sm text-gray-400">Try adjusting your search or date filter</p>
+                            <p class="text-sm text-slate-400">Try adjusting your search or date filter</p>
                         </div>
                     </div>
                 `;
@@ -3844,13 +3844,13 @@
                                     <i data-lucide="car" class="w-4 h-4 text-green-600"></i>
                                 </div>
                                 <div>
-                                    <h4 class="text-lg font-bold text-gray-900">${collection.plate_number}</h4>
-                                    <span class="text-xs text-gray-500">${collection.plate_number || 'N/A'}</span>
+                                    <h4 class="text-lg font-bold text-slate-800">${collection.plate_number}</h4>
+                                    <span class="text-xs text-slate-500">${collection.plate_number || 'N/A'}</span>
                                 </div>
                             </div>
                             <div class="text-right">
                                 <div class="text-lg font-bold text-green-600">₱${collection.boundary_amount.toLocaleString()}</div>
-                                <div class="text-xs text-gray-500">${collection.date}</div>
+                                <div class="text-xs text-slate-500">${collection.date}</div>
                             </div>
                         </div>
                         
@@ -3858,7 +3858,7 @@
                         <div class="bg-gray-50 rounded-lg p-3 mb-3">
                             <div class="flex items-center gap-2 mb-2">
                                 <i data-lucide="user" class="w-4 h-4 text-gray-600"></i>
-                                <span class="text-sm font-medium text-gray-900">Driver: ${collection.driver_name || 'N/A'}</span>
+                                <span class="text-sm font-medium text-slate-800">Driver: ${collection.driver_name || 'N/A'}</span>
                             </div>
                             <div class="flex items-center gap-2">
                                 <i data-lucide="clock" class="w-4 h-4 text-gray-600"></i>
@@ -3867,7 +3867,7 @@
                         </div>
                         
                         <!-- Collection Details -->
-                        <div class="flex items-center justify-between text-xs text-gray-500">
+                        <div class="flex items-center justify-between text-xs text-slate-500">
                             <span class="flex items-center gap-1">
                                 <i data-lucide="map-pin" class="w-3 h-3"></i>
                                 ${collection.location || 'Main Office'}
@@ -3931,7 +3931,7 @@
                             <i data-lucide="alert-circle" class="w-8 h-8 text-red-600"></i>
                         </div>
                         <span class="text-xl text-gray-600 font-semibold mb-2">Error Loading Collections</span>
-                        <p class="text-sm text-gray-400 mb-4">${message}</p>
+                        <p class="text-sm text-slate-400 mb-4">${message}</p>
                         <button onclick="loadBoundaryCollections()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
                             <i data-lucide="refresh-cw" class="w-4 h-4 inline mr-2"></i>
                             Retry
@@ -3968,7 +3968,7 @@
                     <div class="inline-flex flex-col items-center">
                         <div class="animate-spin rounded-full h-16 w-16 border-4 border-blue-600 border-t-transparent mb-6"></div>
                         <span class="text-xl text-gray-600 font-semibold mb-2">Loading units data...</span>
-                        <p class="text-sm text-gray-400">Please wait while we fetch your fleet information</p>
+                        <p class="text-sm text-slate-400">Please wait while we fetch your fleet information</p>
                     </div>
                 </div>
             `;
@@ -3996,7 +3996,7 @@
                                     <i data-lucide="alert-circle" class="w-8 h-8 text-red-600"></i>
                                 </div>
                                 <span class="text-xl text-red-600 font-semibold mb-2">Error Loading Units</span>
-                                <p class="text-sm text-gray-400 mb-4">${error.message}</p>
+                                <p class="text-sm text-slate-400 mb-4">${error.message}</p>
                                 <button onclick="loadUnitsData()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
                                     <i data-lucide="refresh-cw" class="w-4 h-4 mr-2"></i>
                                     Try Again
@@ -4020,10 +4020,10 @@
                     <div class="col-span-full text-center py-20">
                         <div class="inline-flex flex-col items-center">
                             <div class="p-4 bg-gray-100 rounded-full mb-4">
-                                <i data-lucide="search" class="w-8 h-8 text-gray-400"></i>
+                                <i data-lucide="search" class="w-8 h-8 text-slate-400"></i>
                             </div>
                             <span class="text-xl text-gray-600 font-semibold mb-2">No units found</span>
-                            <p class="text-sm text-gray-400">Try adjusting your search or filters</p>
+                            <p class="text-sm text-slate-400">Try adjusting your search or filters</p>
                         </div>
                     </div>
                 `;
@@ -4035,27 +4035,27 @@
                     
                     <!-- Hover Driver Overlay -->
                     <div class="absolute inset-0 bg-slate-900/95 opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col items-center justify-center z-10 pointer-events-none p-2">
-                        <p class="text-white/70 text-[9px] font-black uppercase tracking-[0.2em] mb-1">Assigned Drivers</p>
+                        <p class="text-white/70 text-[9px] font-bold uppercase tracking-[0.2em] mb-1">Assigned Drivers</p>
                         ${(unit.driver1_name || unit.driver2_name) ? `
                             ${unit.driver1_name ? `
                             <div class="flex items-center gap-2 bg-white/10 rounded-md px-2 py-1 w-[95%] border border-white/10 shadow-lg mb-1">
                                 <div class="w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center flex-shrink-0 shadow-inner">
-                                    <span class="text-white text-[8px] font-black">P1</span>
+                                    <span class="text-white text-[8px] font-bold">P1</span>
                                 </div>
                                 <div class="min-w-0">
                                     <p class="text-[6px] text-blue-300 font-bold uppercase tracking-widest leading-none mb-0.5">Primary 1</p>
-                                    <p class="text-white text-[10px] font-black leading-tight truncate tracking-wide">${unit.driver1_name}</p>
+                                    <p class="text-white text-[10px] font-bold leading-tight truncate tracking-wide">${unit.driver1_name}</p>
                                 </div>
                             </div>
                             ` : ''}
                             ${unit.driver2_name ? `
                             <div class="flex items-center gap-2 bg-white/10 rounded-md px-2 py-1 w-[95%] border border-white/10 shadow-lg">
                                 <div class="w-5 h-5 rounded-full bg-purple-500 flex items-center justify-center flex-shrink-0 shadow-inner">
-                                    <span class="text-white text-[8px] font-black">P2</span>
+                                    <span class="text-white text-[8px] font-bold">P2</span>
                                 </div>
                                 <div class="min-w-0">
                                     <p class="text-[6px] text-purple-300 font-bold uppercase tracking-widest leading-none mb-0.5">Primary 2</p>
-                                    <p class="text-white text-[10px] font-black leading-tight truncate tracking-wide">${unit.driver2_name}</p>
+                                    <p class="text-white text-[10px] font-bold leading-tight truncate tracking-wide">${unit.driver2_name}</p>
                                 </div>
                             </div>
                             ` : ''}
@@ -4073,8 +4073,8 @@
                         <!-- Summary Header -->
                         <div class="flex items-center justify-between gap-2 mb-2">
                             <div class="flex items-center gap-1.5 min-w-0">
-                                <i data-lucide="car" class="w-3.5 h-3.5 text-gray-400"></i>
-                                <h4 class="text-sm font-bold text-gray-900 truncate">${unit.plate_number}</h4>
+                                <i data-lucide="car" class="w-3.5 h-3.5 text-slate-400"></i>
+                                <h4 class="text-sm font-bold text-slate-800 truncate">${unit.plate_number}</h4>
                             </div>
                             <span class="px-2 py-0.5 text-[9px] font-bold rounded-full ${statusColors[unit.status] || 'bg-gray-100'} uppercase">
                                 ${unit.status}
@@ -4084,17 +4084,17 @@
                         <!-- Essential Stats -->
                         <div class="grid grid-cols-2 gap-2 text-center py-1.5 bg-gray-50/80 rounded mb-2">
                             <div>
-                                <div class="text-[8px] text-gray-500 uppercase font-bold tracking-tighter">Total Coll.</div>
+                                <div class="text-[8px] text-slate-500 uppercase font-bold tracking-tighter">Total Coll.</div>
                                 <div class="text-xs font-bold text-green-600">₱${unit.total_boundary ? unit.total_boundary.toLocaleString() : '0'}</div>
                             </div>
                             <div>
-                                <div class="text-[8px] text-gray-500 uppercase font-bold tracking-tighter">ROI</div>
-                                <div class="text-xs font-bold ${unit.roi_percentage >= 100 ? 'text-blue-600' : 'text-gray-900'}">${unit.roi_percentage.toFixed(1)}%</div>
+                                <div class="text-[8px] text-slate-500 uppercase font-bold tracking-tighter">ROI</div>
+                                <div class="text-xs font-bold ${unit.roi_percentage >= 100 ? 'text-blue-600' : 'text-slate-800'}">${unit.roi_percentage.toFixed(1)}%</div>
                             </div>
                         </div>
 
                         <!-- Mini Footer -->
-                        <div class="flex items-center justify-between text-[8px] font-bold text-gray-400 uppercase tracking-tighter">
+                        <div class="flex items-center justify-between text-[8px] font-bold text-slate-400 uppercase tracking-tighter">
                             <span>ID: ${unit.plate_number || 'N/A'}</span>
                             <span class="${unit.today_boundary > 0 ? 'text-blue-500' : ''}">
                                 ${unit.today_boundary > 0 ? `+₱${unit.today_boundary.toLocaleString()}` : 'No Daily'}
@@ -4283,12 +4283,12 @@
                 .then(data => {
                     if (!data.success || data.units.length === 0) {
                         container.innerHTML = `
-                            <div class="text-center py-12 bg-white rounded-2xl border border-gray-100 shadow-sm">
+                            <div class="text-center py-12 bg-white rounded-2xl ring-1 ring-slate-900/5 shadow-md shadow-slate-200/40">
                                 <div class="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4 border border-green-100">
                                     <i data-lucide="shield-check" class="w-8 h-8 text-green-600"></i>
                                 </div>
-                                <h4 class="text-lg font-black text-gray-900 uppercase tracking-tight">All Clear</h4>
-                                <p class="text-gray-500 text-xs px-8 mt-1 font-medium">No units are currently flagged or missing. Fleet integrity is secured.</p>
+                                <h4 class="text-lg font-bold text-slate-800 uppercase tracking-tight">All Clear</h4>
+                                <p class="text-slate-500 text-xs px-8 mt-1 font-medium">No units are currently flagged or missing. Fleet integrity is secured.</p>
                             </div>
                         `;
                         if (typeof lucide !== 'undefined') lucide.createIcons();
@@ -4308,56 +4308,56 @@
                         const contactDisplay = unit.driver_phone ? 
                             `<a href="tel:${unit.driver_phone}" class="text-blue-600 font-bold hover:underline flex items-center gap-1">
                                 <i data-lucide="phone" class="w-3 h-3"></i> ${unit.driver_phone}
-                            </a>` : '<span class="text-gray-400">Not recorded</span>';
+                            </a>` : '<span class="text-slate-400">Not recorded</span>';
 
                         html += `
-                            <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 border-l-4 ${isMissing ? 'border-red-600' : 'border-amber-600'} hover:shadow-md transition-all relative overflow-hidden group">
-                                ${isMissing ? '<div class="absolute top-0 right-0 p-1 bg-red-600 text-white text-[8px] font-black uppercase tracking-widest px-3">Lockdown</div>' : ''}
+                            <div class="bg-white p-4 rounded-2xl shadow-md shadow-slate-200/40 ring-1 ring-slate-900/5 border-l-4 ${isMissing ? 'border-red-600' : 'border-amber-600'} hover:shadow-md transition-all relative overflow-hidden group">
+                                ${isMissing ? '<div class="absolute top-0 right-0 p-1 bg-red-600 text-white text-[8px] font-bold uppercase tracking-widest px-3">Lockdown</div>' : ''}
                                 <div class="flex justify-between items-start">
                                     <div class="flex-1">
                                         <div class="flex items-center gap-2 mb-2">
-                                            <span class="text-lg font-black text-gray-900 tracking-tighter">${unit.plate_number}</span>
-                                            <span class="px-2 py-0.5 rounded text-[9px] font-black border ${badgeClass} flex items-center gap-1 uppercase tracking-widest shadow-sm">
+                                            <span class="text-lg font-bold text-slate-800 tracking-tighter">${unit.plate_number}</span>
+                                            <span class="px-2 py-0.5 rounded text-[9px] font-bold border ${badgeClass} flex items-center gap-1 uppercase tracking-widest shadow-md shadow-slate-200/40">
                                                 <i data-lucide="${icon}" class="w-3 h-3"></i> ${statusText}
                                             </span>
                                         </div>
                                         <div class="space-y-1.5">
                                             <div class="flex items-center gap-2 text-[10px]">
-                                                <span class="text-gray-400 w-24 flex-shrink-0 font-bold uppercase tracking-tight">Current Driver:</span>
-                                                <span class="text-gray-800 font-black uppercase tracking-tighter">${unit.driver_name || 'No Driver'}</span>
+                                                <span class="text-slate-400 w-24 flex-shrink-0 font-bold uppercase tracking-tight">Current Driver:</span>
+                                                <span class="text-gray-800 font-bold uppercase tracking-tighter">${unit.driver_name || 'No Driver'}</span>
                                             </div>
                                             <div class="flex items-center gap-2 text-[10px]">
-                                                <span class="text-gray-400 w-24 flex-shrink-0 font-bold uppercase tracking-tight">Contact # :</span>
+                                                <span class="text-slate-400 w-24 flex-shrink-0 font-bold uppercase tracking-tight">Contact # :</span>
                                                 ${contactDisplay}
                                             </div>
                                             <div class="flex items-center gap-2 text-[10px] pt-1.5 mt-1.5 border-t border-gray-100">
-                                                <span class="text-gray-400 w-24 flex-shrink-0 font-bold uppercase tracking-tight">Last Return:</span>
-                                                <span class="text-gray-600 italic font-black uppercase tracking-tighter">${unit.last_known_driver || 'None'}</span>
+                                                <span class="text-slate-400 w-24 flex-shrink-0 font-bold uppercase tracking-tight">Last Return:</span>
+                                                <span class="text-gray-600 italic font-bold uppercase tracking-tighter">${unit.last_known_driver || 'None'}</span>
                                             </div>
                                             <div class="flex items-center gap-2 text-[10px]">
-                                                <span class="text-gray-400 w-24 flex-shrink-0 font-bold uppercase tracking-tight">Return Date:</span>
+                                                <span class="text-slate-400 w-24 flex-shrink-0 font-bold uppercase tracking-tight">Return Date:</span>
                                                 <span class="text-gray-600 font-bold uppercase">${unit.last_boundary_date || 'No record'}</span>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="flex flex-col items-center gap-3 flex-shrink-0 ml-4">
-                                        <div class="text-center bg-gray-50 p-2 rounded-xl border border-gray-100 min-w-[70px]">
-                                            <div class="text-[9px] uppercase font-black text-gray-400 tracking-widest">Time Elapsed</div>
-                                            <div class="text-xl ${daysColor} leading-none mt-1 font-black">${daysMissing}</div>
-                                            <div class="text-[9px] font-bold text-gray-400 uppercase tracking-tighter">day(s)</div>
+                                        <div class="text-center bg-gray-50 p-2 rounded-xl ring-1 ring-slate-900/5 min-w-[70px]">
+                                            <div class="text-[9px] uppercase font-bold text-slate-400 tracking-widest">Time Elapsed</div>
+                                            <div class="text-xl ${daysColor} leading-none mt-1 font-bold">${daysMissing}</div>
+                                            <div class="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">day(s)</div>
                                         </div>
                                         ${isMissing ? `
                                         <form method="POST" action="/units/${unit.id}/recover" class="m-0 w-full" onsubmit="return confirm('Confirm RECOVERY of Unit ${unit.plate_number}? This will restore its active status and clear security alerts.');">
                                             <input type="hidden" name="_token" value="${csrfToken}">
                                             <button type="submit" class="w-full py-2 bg-green-600 text-white hover:bg-green-700 rounded-xl transition-all shadow-lg shadow-green-200 flex items-center justify-center gap-2 group/btn" title="Mark as Recovered">
                                                 <i data-lucide="check-circle" class="w-4 h-4 group-hover/btn:scale-110 transition-transform"></i>
-                                                <span class="text-[10px] font-black uppercase tracking-widest">Recover</span>
+                                                <span class="text-[10px] font-bold uppercase tracking-widest">Recover</span>
                                             </button>
                                         </form>
                                         ` : `
                                         <a href="/units?id=${unit.id}" class="w-full py-2 bg-gray-100 text-gray-600 hover:bg-gray-200 rounded-xl transition-all flex items-center justify-center gap-2 border border-gray-200">
                                             <i data-lucide="edit-3" class="w-4 h-4"></i>
-                                            <span class="text-[10px] font-black uppercase tracking-widest text-center">Manage</span>
+                                            <span class="text-[10px] font-bold uppercase tracking-widest text-center">Manage</span>
                                         </a>
                                         `}
                                     </div>
@@ -4373,7 +4373,7 @@
                     container.innerHTML = `
                         <div class="text-center py-12 bg-red-50 rounded-2xl border border-red-100">
                             <i data-lucide="alert-circle" class="w-12 h-12 text-red-500 mx-auto mb-3"></i>
-                            <p class="text-red-700 font-black uppercase tracking-widest text-xs">Failed to load security flags.</p>
+                            <p class="text-red-700 font-bold uppercase tracking-widest text-xs">Failed to load security flags.</p>
                             <button onclick="showFlaggedUnitsModal()" class="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg text-xs font-bold uppercase tracking-widest">Retry</button>
                         </div>
                     `;

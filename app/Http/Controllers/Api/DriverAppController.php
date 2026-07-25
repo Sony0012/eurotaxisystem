@@ -946,6 +946,7 @@ class DriverAppController extends Controller
             ->keyBy(function($d) { return \Carbon\Carbon::parse($d->incident_date)->toDateString(); });
 
         $boundaries = $boundaries->map(function($b) use ($debtsPerDate) {
+            $b->record_type = 'boundary';
             $date = \Carbon\Carbon::parse($b->date)->toDateString();
             if (isset($debtsPerDate[$date])) {
                 $debt = $debtsPerDate[$date];
@@ -962,7 +963,37 @@ class DriverAppController extends Controller
             return $b;
         });
 
-        return response()->json(['success' => true, 'data' => $boundaries]);
+        // Fetch paid debt payments (Missed Boundary, Short Boundary, etc.) from driver_behavior
+        $paidDebts = DB::table('driver_behavior')
+            ->leftJoin('units', 'driver_behavior.unit_id', '=', 'units.id')
+            ->where('driver_behavior.driver_id', $driver->id)
+            ->where('driver_behavior.charge_status', 'paid')
+            ->where('driver_behavior.total_paid', '>', 0)
+            ->whereNull('driver_behavior.deleted_at')
+            ->select(
+                'driver_behavior.id',
+                'driver_behavior.incident_date as date',
+                'driver_behavior.incident_type',
+                'driver_behavior.description',
+                'driver_behavior.total_charge_to_driver as boundary_amount',
+                'driver_behavior.total_paid as actual_boundary',
+                'driver_behavior.remaining_balance',
+                'driver_behavior.charge_status',
+                'driver_behavior.updated_at',
+                'units.plate_number'
+            )
+            ->orderByDesc('driver_behavior.updated_at')
+            ->get()
+            ->map(function($d) {
+                $d->record_type = 'debt_payment';
+                $d->status = 'paid';
+                $d->shortage = 0;
+                $d->excess = 0;
+                $d->is_extra = 0;
+                return $d;
+            });
+
+        return response()->json(['success' => true, 'data' => $boundaries, 'debt_payments' => $paidDebts]);
     }
 
     public function incidents(Request $request)

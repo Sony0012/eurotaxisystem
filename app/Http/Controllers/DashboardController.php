@@ -367,6 +367,7 @@ class DashboardController extends Controller
                     'b.actual_boundary',
                     'b.boundary_amount',
                     'b.date',
+                    'b.created_at',
                     'u.plate_number',
                     'd.first_name',
                     'd.last_name',
@@ -389,7 +390,7 @@ class DashboardController extends Controller
                         'driver_id' => $collection->driver_id,
                         'boundary_amount' => (float) ($collection->actual_boundary ?? 0),
                         'date' => $collection->date,
-                        'time' => 'N/A', 
+                        'time' => isset($collection->created_at) ? \Carbon\Carbon::parse($collection->created_at)->format('h:i A') : 'N/A', 
                         'location' => 'Main Office', 
                         'status' => 'verified' 
                     ];

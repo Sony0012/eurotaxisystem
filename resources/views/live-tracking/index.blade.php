@@ -3,7 +3,7 @@
 @section('title', 'Live Tracking - Euro System')
 @section('page-heading', 'Live Tracking')
 @section('page-subheading', 'Real-time GPS monitoring of all taxi units')
-@section('main-padding', 'p-0')
+@section('main-padding', 'p-0 pb-14 md:pb-0')
 
 @section('content')
 <link rel="stylesheet" href="{{ asset('assets/leaflet/leaflet.css') }}" />
@@ -312,34 +312,10 @@
 /* ── Fullscreen Badge ───────────────────────────────────────────────
    Shown below the map type switcher when unit panel is hidden.     */
 #fsBadge {
-    position: absolute;
-    /* below: 56px top + (34px btn × 2) + (5px gap × 2) + 10px margin = 145px */
-    top: 145px;
-    right: 10px;
-    z-index: 800;
-    display: flex;
-    align-items: center;
-    gap: 7px;
-    padding: 6px 12px 6px 9px;
-    background: rgba(15,23,42,0.85);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255,255,255,0.12);
-    border-radius: 9px;
-    color: #fff;
-    font-size: 9.5px;
-    font-weight: 800;
-    letter-spacing: 0.09em;
-    text-transform: uppercase;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.28);
-    opacity: 0;
-    transform: translateY(-10px) scale(0.93);
-    transition: opacity 0.32s ease, transform 0.32s cubic-bezier(0.4,0,0.2,1);
-    pointer-events: none;
-    user-select: none;
+    display: none !important;
 }
 #fsBadge.show {
-    opacity: 1;
-    transform: translateY(0) scale(1);
+    display: none !important;
 }
 .fs-dot {
     width: 7px; height: 7px;
@@ -426,6 +402,18 @@
 body:has(#appSidebar.show) #navMenuBtn,
 body:has(#appSidebar.show) #mapToggleBtn {
     left: 290px !important;
+}
+
+/* ── Leaflet Attribution Glass Styling (no white box) ── */
+.leaflet-control-attribution {
+    background: rgba(15, 23, 42, 0.65) !important;
+    color: #cbd5e1 !important;
+    backdrop-filter: blur(6px);
+    border-radius: 6px 0 0 0;
+    font-size: 9px !important;
+}
+.leaflet-control-attribution a {
+    color: #fef08a !important;
 }
 </style>
 <div id="liveTrackingRoot">
