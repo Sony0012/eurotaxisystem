@@ -459,7 +459,7 @@
                 const swipeDataStr = escapeHtml(JSON.stringify({ id: m.id, name: m.sender, text: m.message || (m.attachment_type || 'Attachment') }));
                 
                 let actionMenuHtml = `
-                    <div class="flex opacity-60 md:opacity-0 group-hover:opacity-100 transition-opacity items-center gap-1 ${m.is_mine ? 'mr-2' : 'ml-2'} shrink-0 z-10 self-center">
+                    <div class="flex opacity-60 md:opacity-0 group-hover:opacity-100 transition-opacity items-center gap-1 ${m.is_mine ? (reactionsHtml ? 'mr-14 shrink-0' : 'mr-3 shrink-0') : (reactionsHtml ? 'ml-14 shrink-0' : 'ml-3 shrink-0')} z-30 self-center">
                         <button onclick="chatShowReactionPicker(event, ${m.id})" class="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-200 rounded-full bg-black/5 transition-colors" title="React">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         </button>
