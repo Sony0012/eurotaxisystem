@@ -90,8 +90,19 @@
     <!-- Critical Assets (Local) -->
     <script src="{{ asset('assets/tailwind.min.js') }}?v=stable_3.4.1"></script>
     <link rel="stylesheet" href="{{ asset('assets/fontawesome/all.min.css') }}?v=stable_6.4.0">
-    <link rel="stylesheet" href="{{ asset('assets/inter/inter.css') }}?v=stable_3.19.3">
-
+    <!-- Premium Typography: Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        body, p, h1, h2, h3, h4, h5, h6, span:not(.fa):not(.fas):not(.far):not(.fab), div, a, button, input, select, textarea {
+            font-family: 'Outfit', sans-serif !important;
+        }
+        i[class*="fa-"], .fa, .fas, .far, .fab {
+            font-family: "Font Awesome 6 Free" !important;
+        }
+        .fab { font-family: "Font Awesome 6 Brands" !important; }
+    </style>
     <!-- Interactive Tutorial Assets -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/driver.js@1.3.1/dist/driver.css"/>
     <link rel="stylesheet" href="{{ asset('assets/css/tutorial.css') }}?v=4.0">
@@ -189,9 +200,12 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     
     <style>
+        .card-hover {
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        }
         .card-hover:hover {
-            transform: none !important;
-            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.08), 0 4px 12px -4px rgba(0, 0, 0, 0.04) !important;
         }
         @media print {
             @page {
@@ -772,6 +786,59 @@
                                 </div>
                             </div>
 
+                            <!-- Staff Chat Header Dropdown (Right beside Notification Bell - matching Image 2) -->
+                            <div class="relative">
+                                <button id="headerChatBtn" type="button" onclick="toggleHeaderChatDropdown(event)"
+                                    class="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors flex items-center justify-center"
+                                    title="Staff Chat & Messages">
+                                    <i data-lucide="mail" class="w-5 h-5"></i>
+                                    <span id="headerChatBadge"
+                                        class="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-blue-600 text-white text-[10px] font-black leading-[18px] rounded-full text-center transition-all duration-300 hidden">
+                                        0
+                                    </span>
+                                </button>
+
+                                <!-- Chat Dropdown Panel (Exact match with Image 2) -->
+                                <div id="headerChatDropdown"
+                                    class="hidden absolute right-0 mt-2 w-[340px] max-w-[calc(100vw-2rem)] bg-white shadow-2xl rounded-2xl border border-gray-100 z-[9999] overflow-hidden transition-all duration-200">
+                                    
+                                    <!-- Dropdown Header: "Messages" on left, "GC" on right -->
+                                    <div class="px-4 py-3 border-b bg-gray-50/50 flex items-center justify-between">
+                                        <span class="text-sm font-black text-gray-900 tracking-tight">Messages</span>
+                                        <span class="text-xs font-black text-gray-400 uppercase tracking-wider">GC</span>
+                                    </div>
+
+                                    <!-- Segmented Tab Toggle: [ GC ] [ PM ] -->
+                                    <div class="p-3 border-b bg-white flex justify-center">
+                                        <div class="inline-flex rounded-lg border border-blue-500 p-0.5 bg-white text-xs font-bold shadow-sm">
+                                            <button type="button" id="btnHeaderChatTabGC" onclick="switchHeaderChatTab('GC', event)"
+                                                class="px-5 py-1.5 rounded-md text-white bg-blue-600 font-black transition-all shadow-sm">
+                                                GC
+                                            </button>
+                                            <button type="button" id="btnHeaderChatTabPM" onclick="switchHeaderChatTab('PM', event)"
+                                                class="px-5 py-1.5 rounded-md text-blue-600 hover:bg-blue-50 font-black transition-all">
+                                                PM
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <!-- Chat List Items Container -->
+                                    <div id="headerChatItems" class="max-h-80 overflow-y-auto divide-y divide-gray-50">
+                                        <div class="p-4 text-center text-gray-400 text-xs flex items-center justify-center gap-2">
+                                            <i data-lucide="loader-2" class="w-4 h-4 animate-spin text-blue-600"></i> Loading messages...
+                                        </div>
+                                    </div>
+
+                                    <!-- Dropdown Footer: "View more messages >" -->
+                                    <div class="p-3 bg-gray-50/50 border-t text-center">
+                                        <button type="button" onclick="openFullStaffChat()"
+                                            class="text-xs font-black text-emerald-600 hover:text-emerald-700 inline-flex items-center gap-1 transition-colors hover:underline">
+                                            View more messages <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
                             <!-- Date/Time -->
                             <div class="text-right hidden md:block">
                                 <p id="header-date" class="text-[13px] font-medium text-gray-900">{{ date('l, F j, Y') }}</p>
@@ -782,7 +849,11 @@
                 </header>
 
                 <!-- Page Content -->
-                <div id="appContentArea" class="flex-1 overflow-y-auto overflow-x-hidden @yield('main-padding', 'p-4') pb-20 md:pb-0">
+                @hasSection('main-padding')
+                    <div id="appContentArea" class="flex-1 overflow-y-auto overflow-x-hidden @yield('main-padding')">
+                @else
+                    <div id="appContentArea" class="flex-1 overflow-y-auto overflow-x-hidden p-4 pb-16 md:p-6 md:pb-0">
+                @endif
                     {{-- Flash Messages --}}
                     @foreach(['success', 'error', 'warning', 'info'] as $type)
                         @if(session($type))
@@ -952,9 +1023,15 @@
             </a>
             @endif
             @if(auth()->user()->hasAccessTo('live-tracking.*'))
-            <a href="{{ route('live-tracking.index') }}" class="flex-1 flex flex-col items-center justify-center py-2 gap-0.5 {{ request()->routeIs('live-tracking.*') ? 'text-yellow-600' : 'text-gray-500' }} hover:text-yellow-600 transition-colors">
-                <i data-lucide="map-pin" class="w-5 h-5"></i>
-                <span class="text-[9px] font-bold uppercase tracking-wider">Tracking</span>
+            <a href="{{ route('live-tracking.index') }}" onclick="window.location.href='{{ route('live-tracking.index') }}'" class="flex-1 flex flex-col items-center justify-end pb-2 group relative z-[1070] cursor-pointer">
+                {{-- Seamless White Dome Arch --}}
+                <div onclick="event.stopPropagation(); window.location.href='{{ route('live-tracking.index') }}'" class="absolute -top-7 w-[60px] h-[60px] rounded-full bg-white shadow-md flex items-center justify-center pointer-events-auto cursor-pointer z-[1075]">
+                    {{-- Yellow Elevated Action Button --}}
+                    <div class="w-[46px] h-[46px] rounded-full bg-gradient-to-tr from-yellow-500 via-amber-500 to-yellow-400 text-white flex items-center justify-center shadow-md shadow-amber-500/40 transition-all duration-200 group-hover:scale-110 active:scale-95 z-[1080] {{ request()->routeIs('live-tracking.*') ? 'ring-2 ring-yellow-400 scale-105' : '' }}">
+                        <i data-lucide="map-pin" class="w-5.5 h-5.5 stroke-[2.5] pointer-events-none"></i>
+                    </div>
+                </div>
+                <span class="text-[9px] font-bold uppercase tracking-wider {{ request()->routeIs('live-tracking.*') ? 'text-yellow-600 font-extrabold' : 'text-gray-500' }} group-hover:text-yellow-600 pointer-events-none leading-none">Tracking</span>
             </a>
             @endif
             @if(auth()->user()->hasAccessTo('analytics.*'))
@@ -963,9 +1040,12 @@
                 <span class="text-[9px] font-bold uppercase tracking-wider">Analytics</span>
             </a>
             @endif
-            <button onclick="toggleMobileSidebar()" class="flex-1 flex flex-col items-center justify-center py-2 gap-0.5 text-gray-500 hover:text-yellow-600 transition-colors">
-                <i data-lucide="menu" class="w-5 h-5"></i>
-                <span class="text-[9px] font-bold uppercase tracking-wider">More</span>
+            <button onclick="chatToggleDrawer()" class="flex-1 flex flex-col items-center justify-center py-2 gap-0.5 text-gray-500 hover:text-yellow-600 transition-colors relative">
+                <div class="relative flex items-center justify-center">
+                    <i data-lucide="message-circle" class="w-5 h-5"></i>
+                    <span id="mobileChatUnreadBadge" class="absolute -top-1 -right-2.5 min-w-[16px] h-4 px-1 bg-red-500 text-white text-[9px] font-black leading-4 rounded-full text-center hidden animate-pulse">0</span>
+                </div>
+                <span class="text-[9px] font-bold uppercase tracking-wider">Staff Chat</span>
             </button>
             @endauth
         </nav>
@@ -2062,6 +2142,230 @@
             }, 1000);
         })();
     </script>
+
+    <!-- ─── HEADER STAFF CHAT DROPDOWN SCRIPT (Exact match with Image 2) ─── -->
+    <script>
+        (function() {
+            window._headerChatTab = 'GC';
+            window._headerChatData = [];
+
+            window.toggleHeaderChatDropdown = function(e) {
+                if (e) e.stopPropagation();
+                const dropdown = document.getElementById('headerChatDropdown');
+                const notifDropdown = document.getElementById('notificationDropdown');
+                
+                // Close notification dropdown if open
+                if (notifDropdown && !notifDropdown.classList.contains('hidden')) {
+                    notifDropdown.classList.add('hidden');
+                }
+
+                if (dropdown) {
+                    const isHidden = dropdown.classList.contains('hidden');
+                    if (isHidden) {
+                        dropdown.classList.remove('hidden');
+                        window.loadHeaderChatData();
+                    } else {
+                        dropdown.classList.add('hidden');
+                    }
+                }
+            };
+
+            // Global click listener to close header chat dropdown on outside click
+            document.addEventListener('click', function(e) {
+                const dropdown = document.getElementById('headerChatDropdown');
+                const btn = document.getElementById('headerChatBtn');
+                if (dropdown && !dropdown.classList.contains('hidden')) {
+                    if (!dropdown.contains(e.target) && !btn?.contains(e.target)) {
+                        dropdown.classList.add('hidden');
+                    }
+                }
+            });
+
+            // Make sure notification bell click closes header chat dropdown
+            document.addEventListener('DOMContentLoaded', function() {
+                const notifBtn = document.getElementById('notificationBell');
+                if (notifBtn) {
+                    notifBtn.addEventListener('click', function() {
+                        const chatDropdown = document.getElementById('headerChatDropdown');
+                        if (chatDropdown && !chatDropdown.classList.contains('hidden')) {
+                            chatDropdown.classList.add('hidden');
+                        }
+                    });
+                }
+            });
+
+            window.switchHeaderChatTab = function(tab, e) {
+                if (e) e.stopPropagation();
+                window._headerChatTab = tab;
+                
+                const btnGC = document.getElementById('btnHeaderChatTabGC');
+                const btnPM = document.getElementById('btnHeaderChatTabPM');
+                
+                if (tab === 'GC') {
+                    btnGC.className = 'px-5 py-1.5 rounded-md text-white bg-blue-600 font-black transition-all shadow-sm';
+                    btnPM.className = 'px-5 py-1.5 rounded-md text-blue-600 hover:bg-blue-50 font-black transition-all';
+                } else {
+                    btnPM.className = 'px-5 py-1.5 rounded-md text-white bg-blue-600 font-black transition-all shadow-sm';
+                    btnGC.className = 'px-5 py-1.5 rounded-md text-blue-600 hover:bg-blue-50 font-black transition-all';
+                }
+
+                window.renderHeaderChatList();
+            };
+
+            window.loadHeaderChatData = async function() {
+                const container = document.getElementById('headerChatItems');
+
+                try {
+                    const response = await fetch('/chat/staff-users', {
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+                        }
+                    });
+                    const users = await response.json();
+                    window._headerChatData = Array.isArray(users) ? users : [];
+
+                    // Calculate total unread count across all users/group
+                    let totalUnread = 0;
+                    window._headerChatData.forEach(u => {
+                        totalUnread += parseInt(u.unread || 0);
+                    });
+
+                    const badge = document.getElementById('headerChatBadge');
+                    if (badge) {
+                        badge.textContent = totalUnread > 99 ? '99+' : totalUnread;
+                        if (totalUnread > 0) {
+                            badge.classList.remove('hidden');
+                        } else {
+                            badge.classList.add('hidden');
+                        }
+                    }
+
+                    window.renderHeaderChatList();
+                } catch (e) {
+                    console.error('Error loading header chat data', e);
+                    if (container) {
+                        container.innerHTML = '<div class="p-4 text-center text-red-500 text-xs">Failed to load messages.</div>';
+                    }
+                }
+            };
+
+            window.renderHeaderChatList = function() {
+                const container = document.getElementById('headerChatItems');
+                if (!container) return;
+
+                const data = window._headerChatData || [];
+                const tab = window._headerChatTab || 'GC';
+
+                let filtered = [];
+                if (tab === 'GC') {
+                    // Group Chat items (id === 0 or role === 'Group')
+                    filtered = data.filter(u => u.id === 0 || u.role === 'Group');
+                } else {
+                    // PM (Private Messages) items (individual staff members)
+                    filtered = data.filter(u => u.id !== 0 && u.role !== 'Group');
+                }
+
+                if (filtered.length === 0) {
+                    container.innerHTML = `
+                        <div class="p-6 text-center text-gray-400 text-xs">
+                            <i data-lucide="message-square-off" class="w-8 h-8 mx-auto mb-2 text-gray-300"></i>
+                            No ${tab === 'GC' ? 'group chats' : 'private messages'} available.
+                        </div>
+                    `;
+                    if (window.lucide) lucide.createIcons();
+                    return;
+                }
+
+                // Color palette matching Image 2 circular badges
+                const bgColors = [
+                    'bg-emerald-500', 'bg-blue-600', 'bg-indigo-600', 'bg-purple-600', 
+                    'bg-amber-500', 'bg-rose-500', 'bg-teal-600'
+                ];
+
+                container.innerHTML = filtered.map((u, idx) => {
+                    const colorClass = bgColors[idx % bgColors.length];
+                    const isGC = u.id === 0 || u.role === 'Group';
+                    const badgeText = isGC ? 'GC' : (u.avatar || u.name.substring(0, 2).toUpperCase());
+                    
+                    return `
+                        <div onclick="selectHeaderChatItem(${u.id}, '${escapeHtml(u.name)}', ${u.is_online ? 'true' : 'false'}, '${escapeHtml(u.last_active || '')}')"
+                             class="px-4 py-3 hover:bg-gray-50/80 transition-colors flex items-center justify-between cursor-pointer group">
+                            <div class="flex items-center gap-3 min-w-0 flex-1">
+                                <!-- Circle Icon Badge (Exact match Image 2) -->
+                                <div class="relative shrink-0">
+                                    <div class="w-10 h-10 rounded-full ${colorClass} text-white font-black text-xs flex items-center justify-center shadow-sm">
+                                        ${badgeText}
+                                    </div>
+                                    ${u.is_online ? '<span class="absolute bottom-0 right-0 w-3 h-3 bg-green-400 border-2 border-white rounded-full"></span>' : ''}
+                                </div>
+                                
+                                <!-- Details -->
+                                <div class="min-w-0 flex-1">
+                                    <div class="flex items-center justify-between gap-1 mb-0.5">
+                                        <h4 class="text-xs font-black text-gray-900 truncate group-hover:text-blue-600 transition-colors">${escapeHtml(u.name)}</h4>
+                                        ${u.last_time ? `<span class="text-[10px] text-gray-400 shrink-0 font-medium">${escapeHtml(u.last_time)}</span>` : ''}
+                                    </div>
+                                    <p class="text-[11px] text-gray-500 truncate font-medium">${escapeHtml(u.last_msg || u.role || 'No messages yet')}</p>
+                                </div>
+                            </div>
+
+                            ${u.unread > 0 ? `
+                                <span class="ml-2 bg-blue-600 text-white text-[10px] font-black px-2 py-0.5 rounded-full shrink-0">
+                                    ${u.unread}
+                                </span>
+                            ` : ''}
+                        </div>
+                    `;
+                }).join('');
+
+                if (window.lucide) lucide.createIcons();
+            };
+
+            window.selectHeaderChatItem = function(id, name, isOnline, lastActive) {
+                // Close header dropdown
+                const dropdown = document.getElementById('headerChatDropdown');
+                if (dropdown) dropdown.classList.add('hidden');
+
+                // Open chat thread in staff chat drawer
+                if (typeof window.chatOpenThread === 'function') {
+                    if (typeof window.chatToggleDrawer === 'function') {
+                        const drawer = document.getElementById('chatDrawer');
+                        if (drawer && drawer.classList.contains('opacity-0')) {
+                            window.chatToggleDrawer();
+                        }
+                    }
+                    window.chatOpenThread(id, name, isOnline, lastActive);
+                }
+            };
+
+            window.openFullStaffChat = function() {
+                const dropdown = document.getElementById('headerChatDropdown');
+                if (dropdown) dropdown.classList.add('hidden');
+
+                if (typeof window.chatToggleDrawer === 'function') {
+                    const drawer = document.getElementById('chatDrawer');
+                    if (drawer && drawer.classList.contains('opacity-0')) {
+                        window.chatToggleDrawer();
+                    }
+                }
+            };
+
+            function escapeHtml(text) {
+                if (!text) return '';
+                return String(text)
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;")
+                    .replace(/"/g, "&quot;")
+                    .replace(/'/g, "&#039;");
+            }
+
+            // Auto refresh header chat data periodically
+            setInterval(window.loadHeaderChatData, 10000);
+            setTimeout(window.loadHeaderChatData, 1500);
+        })();
+    </script>
     <style>
         @keyframes bounce-in {
             0% { transform: scale(0.9); opacity: 0; }
@@ -2231,6 +2535,117 @@
         });
     </script>
     @endauth
+
+    {{-- Global Page Loader Overlay (Smooth SVG Euro Self-Drawing Loader) --}}
+    <div id="globalPageLoader"
+         class="fixed inset-0 z-[999998] bg-slate-950/80 backdrop-blur-md flex flex-col items-center justify-center transition-opacity duration-200 opacity-0 pointer-events-none select-none">
+        <div class="flex flex-col items-center justify-center gap-4">
+            <div class="relative flex items-center justify-center w-28 h-28">
+                <!-- Glowing Center Logo Image -->
+                <img src="{{ asset('favicon_euro_transparent.png') }}" class="absolute w-14 h-14 object-contain opacity-40 animate-pulse drop-shadow-[0_0_12px_rgba(234,179,8,0.6)]" alt="Euro Taxi">
+                
+                <!-- Smooth Self-Drawing Euro SVG Paths -->
+                <svg class="w-28 h-28 relative z-10" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <path class="euro-stroke euro-arc" d="M 72 22 A 36 36 0 1 0 72 78" />
+                    <path class="euro-stroke euro-bar1" d="M 18 42 L 68 42" />
+                    <path class="euro-stroke euro-bar2" d="M 18 58 L 62 58" />
+                </svg>
+            </div>
+            
+            <span class="text-xs font-black text-amber-400 tracking-widest uppercase text-shadow-md z-10" id="globalPageLoaderText">Loading...</span>
+        </div>
+    </div>
+
+    <style>
+    /* ── Smooth Euro SVG Self-Drawing Animation (Uiverse.io Style) ── */
+    .euro-stroke {
+        fill: none;
+        stroke: #eab308; /* Euro Gold Yellow */
+        stroke-width: 7px;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        filter: drop-shadow(0 0 8px rgba(234, 179, 8, 0.9));
+        will-change: stroke-dashoffset;
+    }
+
+    .euro-arc {
+        stroke-dasharray: 240;
+        stroke-dashoffset: 240;
+        animation: drawEuroArc 1.8s ease-in-out infinite;
+    }
+
+    .euro-bar1 {
+        stroke-dasharray: 80;
+        stroke-dashoffset: 80;
+        animation: drawEuroBar 1.8s ease-in-out infinite 0.12s;
+    }
+
+    .euro-bar2 {
+        stroke-dasharray: 80;
+        stroke-dashoffset: 80;
+        animation: drawEuroBar 1.8s ease-in-out infinite 0.24s;
+    }
+
+    @keyframes drawEuroArc {
+        0% {
+            stroke-dashoffset: 240;
+        }
+        45%, 55% {
+            stroke-dashoffset: 0;
+        }
+        100% {
+            stroke-dashoffset: -240;
+        }
+    }
+
+    @keyframes drawEuroBar {
+        0% {
+            stroke-dashoffset: 80;
+        }
+        45%, 55% {
+            stroke-dashoffset: 0;
+        }
+        100% {
+            stroke-dashoffset: -80;
+        }
+    }
+    </style>
+
+    <script>
+    (function() {
+        const loader = document.getElementById('globalPageLoader');
+        const loaderText = document.getElementById('globalPageLoaderText');
+        let hideTimer = null;
+
+        window.showGlobalLoader = function(text = 'Loading...') {
+            if (!loader) return;
+            if (loaderText) loaderText.textContent = text;
+            loader.classList.remove('opacity-0', 'pointer-events-none');
+            loader.classList.add('opacity-100', 'pointer-events-auto');
+
+            // Auto-hide after 2 seconds max so it never hangs
+            if (hideTimer) clearTimeout(hideTimer);
+            hideTimer = setTimeout(window.hideGlobalLoader, 2000);
+        };
+
+        window.hideGlobalLoader = function() {
+            if (!loader) return;
+            if (hideTimer) clearTimeout(hideTimer);
+            loader.classList.remove('opacity-100', 'pointer-events-auto');
+            loader.classList.add('opacity-0', 'pointer-events-none');
+        };
+
+        // Trigger loader ONLY when browser confirms actual page unload navigation!
+        window.addEventListener('beforeunload', function() {
+            showGlobalLoader('Loading...');
+        });
+
+        // Hide loader when page finishes rendering or restores from cache
+        window.addEventListener('pageshow', hideGlobalLoader);
+        window.addEventListener('load', hideGlobalLoader);
+        document.addEventListener('DOMContentLoaded', hideGlobalLoader);
+    })();
+    </script>
 </body>
 
 </html>
