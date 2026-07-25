@@ -426,8 +426,8 @@
                 const tooltipText = tooltipParts.join("\n");
                     const totalReactions = Object.keys(m.reactions).length;
                     reactionsHtml = `
-                        <div class="absolute -bottom-2 ${m.is_mine ? '-left-2' : '-right-2'} bg-white text-gray-800 rounded-full px-1 py-0.5 text-[11px] leading-none flex items-center justify-center shadow-md cursor-pointer z-20 border border-gray-100" title="${tooltipText}" onclick="chatShowReactionPicker(event, ${m.id})">
-                            ${uniqueEmojis.join('')} ${totalReactions > 1 ? `<span class="text-gray-500 font-bold ml-0.5">${totalReactions}</span>` : ''}
+                        <div class="absolute -bottom-2.5 ${m.is_mine ? 'left-2' : 'right-2'} bg-white text-gray-800 rounded-full px-2 py-0.5 text-[11px] leading-none flex items-center justify-center shadow-md cursor-pointer z-30 border border-gray-200 select-none hover:scale-105 transition-transform" title="${tooltipText}" onclick="chatShowReactionPicker(event, ${m.id})">
+                            ${uniqueEmojis.join('')} ${totalReactions > 1 ? `<span class="text-gray-500 font-bold ml-1">${totalReactions}</span>` : ''}
                         </div>
                     `;
                 }
@@ -471,7 +471,7 @@
                 `;
 
                 return `
-                <div class="flex ${m.is_mine ? 'justify-end' : 'justify-start'} ${marginTopClass} ${marginBottomClass} group px-1 pb-1 w-full max-w-full overflow-hidden">
+                <div class="flex ${m.is_mine ? 'justify-end' : 'justify-start'} ${marginTopClass} ${marginBottomClass} group px-1 pb-1 w-full max-w-full overflow-visible">
                     ${m.is_mine ? actionMenuHtml : ''}
                     
                     ${(!m.is_mine && chatActiveUser.id === 0) ? `
@@ -491,20 +491,22 @@
                         
                         ${m.is_forwarded ? `<div class="flex items-center gap-1 text-[10px] text-gray-400 mb-0.5 italic ${m.is_mine ? 'mr-2' : 'ml-2'}"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 10h-10a8 8 0 00-8 8v2M21 10l-6 6m6-6l-6-6"></path></svg> Forwarded message</div>` : ''}
                         
-                        <div class="px-3 py-2 shadow-sm relative transition-transform duration-200 touch-pan-y z-10 w-full overflow-hidden break-words ${m.is_mine
-                            ? 'bg-gradient-to-br from-yellow-500 to-amber-500 text-white rounded-2xl rounded-tr-sm'
-                            : 'bg-white text-gray-800 rounded-2xl rounded-tl-sm border border-gray-100'}"
-                            oncontextmenu="chatShowReactionPicker(event, ${m.id})"
-                            ontouchstart="chatSwipeStart(event, this, '${swipeDataStr}')"
-                            ontouchmove="chatSwipeMove(event)"
-                            ontouchend="chatSwipeEnd(event)"
-                            onmousedown="chatSwipeStart(event, this, '${swipeDataStr}')">
-                            
-                            ${m.message ? `<p class="text-[13px] leading-relaxed break-words whitespace-pre-wrap max-w-full overflow-hidden">${escapeHtml(m.message)}</p>` : ''}
-                            ${attachmentHtml}
-                            
+                        <div class="relative w-full ${reactionsHtml ? 'mb-2.5' : ''}">
+                            <div class="px-3 py-2 shadow-sm relative transition-transform duration-200 touch-pan-y z-10 w-full rounded-2xl ${m.is_mine
+                                ? 'bg-gradient-to-br from-yellow-500 to-amber-500 text-white rounded-tr-sm'
+                                : 'bg-white text-gray-800 rounded-tl-sm border border-gray-100'}"
+                                oncontextmenu="chatShowReactionPicker(event, ${m.id})"
+                                ontouchstart="chatSwipeStart(event, this, '${swipeDataStr}')"
+                                ontouchmove="chatSwipeMove(event)"
+                                ontouchend="chatSwipeEnd(event)"
+                                onmousedown="chatSwipeStart(event, this, '${swipeDataStr}')">
+                                
+                                ${m.message ? `<p class="text-[13px] leading-relaxed break-words whitespace-pre-wrap max-w-full overflow-hidden">${escapeHtml(m.message)}</p>` : ''}
+                                ${attachmentHtml}
+                            </div>
                             ${reactionsHtml}
                         </div>
+
                         <div class="flex items-center ${m.is_mine ? 'justify-end' : 'justify-start'} gap-1 mt-1 px-1 w-full">
                             ${isLastInCluster ? `<span class="text-[9px] text-gray-400">${m.time}</span>` : ''}
                             ${isLastInCluster ? statusHtml : ''}
