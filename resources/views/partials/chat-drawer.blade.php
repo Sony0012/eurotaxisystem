@@ -415,19 +415,21 @@
                 let reactionsHtml = '';
                 if (m.reactions && Object.keys(m.reactions).length > 0) {
                     const uniqueEmojis = [...new Set(Object.values(m.reactions))];
-                let tooltipParts = [];
-                for (const [uId, emj] of Object.entries(m.reactions)) {
-                    if (String(uId) === String(chatActiveUser.id)) {
-                        tooltipParts.push(chatActiveUser.name + " " + emj);
-                    } else {
-                        tooltipParts.push("You " + emj);
+                    let tooltipParts = [];
+                    for (const [uId, emj] of Object.entries(m.reactions)) {
+                        if (String(uId) === String(chatActiveUser.id)) {
+                            tooltipParts.push(chatActiveUser.name + " " + emj);
+                        } else {
+                            tooltipParts.push("You " + emj);
+                        }
                     }
-                }
-                const tooltipText = tooltipParts.join("\n");
+                    const tooltipText = tooltipParts.join("\n");
                     const totalReactions = Object.keys(m.reactions).length;
+                    const emojiIconsHtml = uniqueEmojis.map(e => `<span class="inline-block text-xs leading-none select-none">${e}</span>`).join('');
                     reactionsHtml = `
-                        <div class="absolute -bottom-2.5 ${m.is_mine ? 'left-2' : 'right-2'} bg-white text-gray-800 rounded-full px-2 py-0.5 text-[11px] leading-none flex items-center justify-center shadow-md cursor-pointer z-30 border border-gray-200 select-none hover:scale-105 transition-transform" title="${tooltipText}" onclick="chatShowReactionPicker(event, ${m.id})">
-                            ${uniqueEmojis.join('')} ${totalReactions > 1 ? `<span class="text-gray-500 font-bold ml-1">${totalReactions}</span>` : ''}
+                        <div class="absolute -bottom-2.5 ${m.is_mine ? 'left-2' : 'right-2'} bg-white text-gray-800 rounded-full px-2 py-1 text-xs leading-none flex flex-row items-center justify-center gap-1 shadow-md cursor-pointer z-30 border border-gray-200 select-none hover:scale-105 transition-transform whitespace-nowrap shrink-0" title="${tooltipText}" onclick="chatShowReactionPicker(event, ${m.id})">
+                            <div class="flex flex-row items-center gap-0.5 whitespace-nowrap">${emojiIconsHtml}</div>
+                            ${totalReactions > 1 ? `<span class="text-gray-500 font-bold text-[10px] ml-0.5">${totalReactions}</span>` : ''}
                         </div>
                     `;
                 }
