@@ -793,7 +793,7 @@
                                     title="Staff Chat & Messages">
                                     <i data-lucide="mail" class="w-5 h-5"></i>
                                     <span id="headerChatBadge"
-                                        class="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-blue-600 text-white text-[10px] font-black leading-[18px] rounded-full text-center transition-all duration-300 hidden">
+                                        class="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 bg-red-500 text-white text-[10px] font-black leading-[18px] rounded-full text-center shadow-md animate-pulse transition-all duration-300 hidden">
                                         0
                                     </span>
                                 </button>
@@ -2363,9 +2363,10 @@
                     .replace(/'/g, "&#039;");
             }
 
-            // Auto refresh header chat data periodically
-            setInterval(window.loadHeaderChatData, 10000);
-            setTimeout(window.loadHeaderChatData, 1500);
+            // Auto refresh header chat data periodically and immediately
+            window.loadHeaderChatData();
+            document.addEventListener('DOMContentLoaded', window.loadHeaderChatData);
+            setInterval(window.loadHeaderChatData, 5000);
         })();
     </script>
     <style>
