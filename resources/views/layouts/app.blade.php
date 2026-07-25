@@ -802,10 +802,9 @@
                                 <div id="headerChatDropdown"
                                     class="hidden fixed md:absolute inset-x-4 md:inset-x-auto md:right-0 mt-2 md:w-[340px] max-w-[calc(100vw-2rem)] bg-white shadow-2xl rounded-2xl border border-gray-100 z-[9999] overflow-hidden transition-all duration-200">
                                     
-                                    <!-- Dropdown Header: "Messages" on left, "GC" on right -->
+                                    <!-- Dropdown Header: "Messages" -->
                                     <div class="px-4 py-3 border-b bg-gray-50/50 flex items-center justify-between">
                                         <span class="text-sm font-black text-gray-900 tracking-tight">Messages</span>
-                                        <span class="text-xs font-black text-gray-400 uppercase tracking-wider">GC</span>
                                     </div>
 
                                     <!-- Segmented Tab Toggle: [ GC ] [ PM ] -->
