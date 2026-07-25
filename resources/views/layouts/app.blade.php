@@ -798,9 +798,9 @@
                                     </span>
                                 </button>
 
-                                <!-- Chat Dropdown Panel (Exact match with Image 2) -->
+                                <!-- Chat Dropdown Panel (Exact match with Image 2 - Mobile Fixed & Responsive) -->
                                 <div id="headerChatDropdown"
-                                    class="hidden absolute right-0 mt-2 w-[340px] max-w-[calc(100vw-2rem)] bg-white shadow-2xl rounded-2xl border border-gray-100 z-[9999] overflow-hidden transition-all duration-200">
+                                    class="hidden fixed md:absolute inset-x-4 md:inset-x-auto md:right-0 mt-2 md:w-[340px] max-w-[calc(100vw-2rem)] bg-white shadow-2xl rounded-2xl border border-gray-100 z-[9999] overflow-hidden transition-all duration-200">
                                     
                                     <!-- Dropdown Header: "Messages" on left, "GC" on right -->
                                     <div class="px-4 py-3 border-b bg-gray-50/50 flex items-center justify-between">
@@ -2232,13 +2232,16 @@
                     });
 
                     const badge = document.getElementById('headerChatBadge');
+                    const mobileBadge = document.getElementById('mobileChatUnreadBadge');
+                    const badgeText = totalUnread > 99 ? '99+' : totalUnread;
+
                     if (badge) {
-                        badge.textContent = totalUnread > 99 ? '99+' : totalUnread;
-                        if (totalUnread > 0) {
-                            badge.classList.remove('hidden');
-                        } else {
-                            badge.classList.add('hidden');
-                        }
+                        badge.textContent = badgeText;
+                        badge.classList.toggle('hidden', totalUnread === 0);
+                    }
+                    if (mobileBadge) {
+                        mobileBadge.textContent = badgeText;
+                        mobileBadge.classList.toggle('hidden', totalUnread === 0);
                     }
 
                     window.renderHeaderChatList();

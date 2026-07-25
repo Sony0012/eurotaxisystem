@@ -6,12 +6,12 @@
 {{-- Single Draggable Wrapper: contains BOTH the panel and the button --}}
 {{-- Single Draggable Wrapper: Chat Window Popup --}}
 <div id="chatWidgetContainer"
-     class="fixed z-[1200] flex flex-col items-end gap-3 bottom-4 right-4 md:bottom-6 md:right-6 pointer-events-none">
+     class="fixed z-[1200] flex flex-col items-end gap-3 bottom-20 right-2 left-2 md:left-auto md:bottom-6 md:right-6 pointer-events-none">
 
-    {{-- Chat Window Panel (Exact match with Image 3) --}}
+    {{-- Chat Window Panel (Exact match with Image 3 - Mobile Responsive) --}}
     <div id="chatDrawer"
-         class="w-[360px] max-w-[calc(100vw-2rem)] bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden flex flex-col transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] transform origin-bottom-right opacity-0 pointer-events-none scale-95 translate-y-4"
-         style="height: 480px; max-height: 480px;">
+         class="w-full md:w-[360px] max-w-full md:max-w-[calc(100vw-2rem)] bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden flex flex-col transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] transform origin-bottom-right opacity-0 pointer-events-none scale-95 translate-y-4"
+         style="height: 480px; max-height: calc(100vh - 7rem);">
 
         {{-- Header Bar (Green background matching Image 3) --}}
         <div id="chatDragHandle"
