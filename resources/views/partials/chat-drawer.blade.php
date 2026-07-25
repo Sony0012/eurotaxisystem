@@ -53,7 +53,7 @@
         </div>
 
         {{-- Panel Body --}}
-        <div id="chatDrawerBody" class="bg-white flex-1 overflow-hidden flex flex-col border-t border-gray-100 relative pointer-events-auto">
+        <div id="chatDrawerBody" class="bg-white flex-1 overflow-hidden overflow-x-hidden flex flex-col border-t border-gray-100 relative pointer-events-auto w-full max-w-full">
             
             {{-- Drag overlay for file dropping --}}
             <div id="chatDropOverlay" class="absolute inset-0 bg-gradient-to-br from-yellow-500/95 to-amber-600/95 z-50 flex flex-col items-center justify-center text-white hidden">
@@ -62,15 +62,15 @@
             </div>
 
             {{-- User List --}}
-            <div id="chatUserList" class="flex flex-col flex-1 overflow-y-auto" style="max-height: 420px;">
+            <div id="chatUserList" class="flex flex-col flex-1 overflow-y-auto overflow-x-hidden w-full max-w-full" style="max-height: 420px;">
                 <div class="px-4 py-8 text-center text-gray-400 text-sm" id="chatUserListLoading">
                     <i data-lucide="loader-2" class="w-5 h-5 animate-spin inline-block mr-2 text-yellow-500"></i> Loading...
                 </div>
             </div>
 
             {{-- Message Thread --}}
-            <div id="chatThread" class="hidden flex-col flex-1 overflow-hidden relative">
-                <div id="staffChatMessages" onscroll="chatHandleScroll()" class="flex-1 overflow-y-auto px-4 py-4 space-y-3 bg-gray-50/50" style="min-height: 280px;"></div>
+            <div id="chatThread" class="hidden flex-col flex-1 overflow-hidden overflow-x-hidden relative w-full max-w-full">
+                <div id="staffChatMessages" onscroll="chatHandleScroll()" class="flex-1 overflow-y-auto overflow-x-hidden px-3 py-4 space-y-3 bg-gray-50/50 w-full max-w-full" style="min-height: 280px; overflow-x: hidden !important;"></div>
                 <button id="chatScrollBottomBtn" onclick="chatScrollToBottom()" class="absolute bottom-[80px] left-1/2 -translate-x-1/2 bg-yellow-500 text-white rounded-full p-2 shadow-lg hover:bg-amber-600 transition-all duration-200 opacity-0 pointer-events-none translate-y-4 z-40">
                     <i data-lucide="arrow-down" class="w-4 h-4 pointer-events-none"></i>
                 </button>
@@ -471,11 +471,11 @@
                 `;
 
                 return `
-                <div class="flex ${m.is_mine ? 'justify-end' : 'justify-start'} ${marginTopClass} ${marginBottomClass} group pl-1 pr-1 pb-1">
+                <div class="flex ${m.is_mine ? 'justify-end' : 'justify-start'} ${marginTopClass} ${marginBottomClass} group px-1 pb-1 w-full max-w-full overflow-hidden">
                     ${m.is_mine ? actionMenuHtml : ''}
                     
                     ${(!m.is_mine && chatActiveUser.id === 0) ? `
-                    <div class="w-7 h-7 shrink-0 flex items-center justify-center mr-2 self-end mb-4">
+                    <div class="w-7 h-7 shrink-0 flex items-center justify-center mr-1.5 self-end mb-4">
                         ${isLastInCluster ? `
                         <div class="w-7 h-7 rounded-full bg-gradient-to-br from-yellow-400 to-amber-500 flex items-center justify-center text-white font-bold text-[10px] shadow-sm border border-white">
                             ${m.sender_avatar || 'U'}
@@ -484,14 +484,14 @@
                     </div>
                     ` : ''}
                     
-                    <div class="flex flex-col ${m.is_mine ? 'items-end' : 'items-start'} max-w-[75%] relative">
+                    <div class="flex flex-col ${m.is_mine ? 'items-end' : 'items-start'} max-w-[calc(100%-2.5rem)] min-w-0 relative">
                         ${(!m.is_mine && chatActiveUser.id === 0 && isFirstInCluster) ? `<span class="text-[10px] text-gray-500 font-bold ml-1 mb-0.5">${escapeHtml(m.sender)}</span>` : ''}
                         ${repliedTopHtml}
                         ${repliedMessageBubbleHtml}
                         
                         ${m.is_forwarded ? `<div class="flex items-center gap-1 text-[10px] text-gray-400 mb-0.5 italic ${m.is_mine ? 'mr-2' : 'ml-2'}"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 10h-10a8 8 0 00-8 8v2M21 10l-6 6m6-6l-6-6"></path></svg> Forwarded message</div>` : ''}
                         
-                        <div class="px-3 py-2 shadow-sm relative transition-transform duration-200 touch-pan-y z-10 w-full ${m.is_mine
+                        <div class="px-3 py-2 shadow-sm relative transition-transform duration-200 touch-pan-y z-10 w-full overflow-hidden break-words ${m.is_mine
                             ? 'bg-gradient-to-br from-yellow-500 to-amber-500 text-white rounded-2xl rounded-tr-sm'
                             : 'bg-white text-gray-800 rounded-2xl rounded-tl-sm border border-gray-100'}"
                             oncontextmenu="chatShowReactionPicker(event, ${m.id})"
@@ -500,7 +500,7 @@
                             ontouchend="chatSwipeEnd(event)"
                             onmousedown="chatSwipeStart(event, this, '${swipeDataStr}')">
                             
-                            ${m.message ? `<p class="text-[13px] leading-relaxed break-words">${escapeHtml(m.message)}</p>` : ''}
+                            ${m.message ? `<p class="text-[13px] leading-relaxed break-words whitespace-pre-wrap max-w-full overflow-hidden">${escapeHtml(m.message)}</p>` : ''}
                             ${attachmentHtml}
                             
                             ${reactionsHtml}
