@@ -39,7 +39,15 @@
         </div>
         <div class="flex flex-col sm:flex-row items-center gap-3">
             <div class="relative w-full sm:w-64">
-                <input type="search" id="accidentSearchInput" name="search_query" autocomplete="off" aria-autocomplete="none" data-lpignore="true" data-form-type="other" class="block w-full pl-9 pr-3 py-2 text-xs border border-gray-200 rounded-lg focus:ring-red-500 focus:border-red-500" placeholder="Search driver, description...">
+                <!-- Dummy hidden inputs to trap browser password manager autofill -->
+                <input type="text" style="position:absolute; opacity:0; width:0; height:0; z-index:-1; pointer-events:none;" tabindex="-1" autocomplete="username">
+                <input type="password" style="position:absolute; opacity:0; width:0; height:0; z-index:-1; pointer-events:none;" tabindex="-1" autocomplete="current-password">
+
+                <input type="search" id="accidentSearchInput" name="q_search_feed_no_autofill"
+                       readonly onfocus="this.removeAttribute('readonly');"
+                       autocomplete="off" aria-autocomplete="none" data-lpignore="true" data-form-type="other"
+                       class="block w-full pl-9 pr-3 py-2 text-xs border border-gray-200 rounded-lg focus:ring-red-500 focus:border-red-500 cursor-text bg-white" 
+                       placeholder="Search driver, description...">
                 <i data-lucide="search" class="absolute left-3 top-2.5 w-4 h-4 text-gray-400"></i>
             </div>
             <div class="relative w-full sm:w-48">
@@ -371,20 +379,29 @@
                 noResultsRow.style.display = 'none';
             }
         if (searchInput) {
-            const checkAndClearAutofill = () => {
-                if (searchInput.value && (searchInput.value.includes('@') || searchInput.value.includes('.com'))) {
+            let isUserTyping = false;
+
+            searchInput.addEventListener('keydown', function() { isUserTyping = true; });
+            searchInput.addEventListener('input', function() { 
+                isUserTyping = true;
+                filterTable();
+            });
+
+            const killAutofill = () => {
+                if (!isUserTyping && searchInput.value && (searchInput.value.includes('@') || searchInput.value.includes('.com') || searchInput.value.includes('gmail'))) {
                     searchInput.value = '';
                     filterTable();
                 }
             };
-            checkAndClearAutofill();
-            setTimeout(checkAndClearAutofill, 200);
-            setTimeout(checkAndClearAutofill, 600);
 
-            searchInput.addEventListener('focus', checkAndClearAutofill);
-            searchInput.addEventListener('input', function() {
-                checkAndClearAutofill();
-                filterTable();
+            killAutofill();
+            window.addEventListener('pageshow', killAutofill);
+            const autofillCheckInterval = setInterval(killAutofill, 50);
+            setTimeout(() => clearInterval(autofillCheckInterval), 3500);
+
+            searchInput.addEventListener('focus', function() {
+                this.removeAttribute('readonly');
+                killAutofill();
             });
         }
         if (dateFilter) dateFilter.addEventListener('change', filterTable);
