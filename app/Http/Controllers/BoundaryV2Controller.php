@@ -230,29 +230,9 @@ class BoundaryV2Controller extends Controller
             $pricing = $this->getCurrentPricing([
                 'year' => $b->unit_year,
                 'plate_number' => $b->plate_number,
-                'boundary_rate' => $b->boundary_amount, // Use the target recorded
+                'boundary_rate' => $b->boundary_amount,
                 'coding_day' => $b->unit_coding_day
-            ], $boundary_rules);
-
-            // Re-calculate specifically for the record's day if it's not today
-            if ($dayOfWeek === 'Saturday') {
-                $rule = $boundary_rules->where('start_year', '<=', $b->unit_year)->where('end_year', '>=', $b->unit_year)->first();
-                $pricing['label'] = 'Saturday Discount';
-                $pricing['type'] = 'discount';
-            } elseif ($dayOfWeek === 'Sunday') {
-                $pricing['label'] = 'Sunday Discount';
-                $pricing['type'] = 'discount';
-            } else {
-                // Coding check for that day
-                $cDay = $pricing['coding_day'] ?? null;
-                if ($cDay && strtolower($dayOfWeek) === strtolower($cDay)) {
-                    $pricing['label'] = 'Coding Rate';
-                    $pricing['type'] = 'coding';
-                } else {
-                    $pricing['label'] = 'Regular Rate';
-                    $pricing['type'] = 'regular';
-                }
-            }
+            ], $boundary_rules, $b->date);
 
             $item = (array) $b;
             $item['rate_label'] = $pricing['label'];
@@ -336,6 +316,19 @@ class BoundaryV2Controller extends Controller
                 if ($existing) {
                     return back()->with('error', 'Boundary record already exists for this unit and date');
                 } else {
+                    $unit = \App\Models\Unit::find($unit_id);
+                    $boundary_rules = DB::table('boundary_rules')->get();
+                    $datePricing = $this->getCurrentPricing([
+                        'year' => $unit ? $unit->year : 0,
+                        'plate_number' => $unit ? $unit->plate_number : '',
+                        'boundary_rate' => $unit ? $unit->boundary_rate : 0,
+                        'coding_day' => $unit ? $unit->coding_day : null
+                    ], $boundary_rules, $date);
+
+                    if ($boundary_amount <= 0 || !$request->has('boundary_amount')) {
+                        $boundary_amount = (float) $datePricing['rate'];
+                    }
+
                     $shortage = max(0, $boundary_amount - $actual_boundary);
                     $excess   = max(0, $actual_boundary - $boundary_amount);
                     $status   = $shortage > 0 ? 'shortage' : ($excess > 0 ? 'excess' : 'paid');
@@ -344,6 +337,7 @@ class BoundaryV2Controller extends Controller
 
                     if ($shortage > 0) {
                         $has_incentive = false;
+                        $rateTag = isset($datePricing['label']) ? " ({$datePricing['label']})" : "";
                         $notes = trim($notes . " [Automatic Violation: Short Boundary]");
                         
                         // Auto-log to Driver Performance
@@ -352,7 +346,7 @@ class BoundaryV2Controller extends Controller
                             'driver_id'               => $driver_id,
                             'incident_type'           => 'Short Boundary',
                             'severity'                => 'medium',
-                            'description'             => "Auto-logged [Shortage]: Driver remitted ₱" . number_format($actual_boundary, 2) . " instead of ₱" . number_format($boundary_amount, 2),
+                            'description'             => "Auto-logged [Shortage]: Driver remitted ₱" . number_format($actual_boundary, 2) . " instead of ₱" . number_format($boundary_amount, 2) . $rateTag,
                             'incident_date'           => $date,
                             'timestamp'               => now(),
                             'total_charge_to_driver'  => $shortage,
