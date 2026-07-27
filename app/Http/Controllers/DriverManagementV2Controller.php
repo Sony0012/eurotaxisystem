@@ -1198,8 +1198,8 @@ class DriverManagementV2Controller extends Controller
                 DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')) as full_name"),
                 DB::raw("(SELECT plate_number FROM units WHERE (driver_id = d.id OR secondary_driver_id = d.id) AND deleted_at IS NULL LIMIT 1) as assigned_plate")
             )
-            ->orderBy('d.last_name')
-            ->orderBy('d.first_name')
+            ->orderBy('d.first_name', 'asc')
+            ->orderBy('d.last_name', 'asc')
             ->get();
 
         return view('driver-management.print', compact('drivers'));
