@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Driver Roster Report &mdash; {{ date('Y-m-d') }}</title>
+    <title>Driver Master List Report &mdash; {{ date('Y-m-d') }}</title>
     <style>
         @page { margin: 0; size: auto; }
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -20,7 +20,7 @@
         td { padding: 8px 10px; font-size: 11px; vertical-align: middle; }
         td.center { text-align: center; font-weight: bold; }
         td.right { text-align: right; font-weight: 900; }
-        .driver-name { font-weight: 900; font-size: 12px; color: #000; }
+        .driver-name { font-weight: 900; font-size: 12px; color: #000; text-transform: capitalize; }
         .badge { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 9px; font-weight: 800; text-transform: uppercase; }
         .badge-active { background: #dcfce7; color: #166534; }
         .badge-inactive { background: #f3f4f6; color: #4b5563; }
@@ -31,7 +31,7 @@
 </head>
 <body onload="window.print()">
     <img src="{{ asset('image/logo.png') }}" alt="Euro System Logo">
-    <h1>DRIVER ROSTER & RECORDS REPORT</h1>
+    <h1>DRIVER MASTER LIST & RECORDS REPORT</h1>
     <p class="subtitle">EURO TAXI MANAGEMENT SYSTEM &mdash; OFFICIAL RECORD</p>
     
     <div class="header-meta">
@@ -54,7 +54,7 @@
             @foreach($drivers as $driver)
             <tr>
                 <td>
-                    <div class="driver-name">{{ $driver->full_name }}</div>
+                    <div class="driver-name">{{ ucwords(strtolower($driver->full_name)) }}</div>
                 </td>
                 <td>{{ $driver->license_number ?: '---' }}</td>
                 <td>{{ $driver->contact_number ?: '---' }}</td>

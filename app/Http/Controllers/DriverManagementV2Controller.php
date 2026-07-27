@@ -204,6 +204,7 @@ class DriverManagementV2Controller extends Controller
         $rules = DB::table('boundary_rules')->get();
 
         foreach ($drivers as $driver) {
+            $driver->full_name = ucwords(strtolower(trim($driver->full_name)));
             if (!empty($driver->assigned_plate) || !empty($driver->assigned_unit)) {
                 // Smart Pricing Calculation
                 $pricing = $this->getCurrentPricing([
@@ -1218,6 +1219,10 @@ class DriverManagementV2Controller extends Controller
             ->orderBy('d.first_name', 'asc')
             ->orderBy('d.last_name', 'asc')
             ->get();
+
+        foreach ($drivers as $d) {
+            $d->full_name = ucwords(strtolower(trim($d->full_name)));
+        }
 
         return view('driver-management.print', compact('drivers'));
     }
