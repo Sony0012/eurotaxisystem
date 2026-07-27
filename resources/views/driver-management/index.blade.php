@@ -112,7 +112,11 @@
                         display: none;
                     }
                 </style>
-                <button type="button" onclick="openAddDriverModal()" class="px-3 py-1 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center justify-center gap-1.5 lg:gap-2 text-xs font-semibold shadow-sm h-[38px] flex-1 min-w-0 lg:flex-initial lg:w-[150px]">
+                <button type="button" onclick="printInHiddenIframe('{{ route('driver-management.print') }}')"
+                    class="px-3 py-1 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center justify-center gap-1.5 lg:gap-2 text-xs font-semibold shadow-sm h-[38px] flex-1 min-w-0 lg:flex-initial lg:w-[135px]">
+                    <i data-lucide="printer" class="w-3.5 h-3.5"></i> Print to PDF
+                </button>
+                <button type="button" onclick="openAddDriverModal()" class="px-3 py-1 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center justify-center gap-1.5 lg:gap-2 text-xs font-semibold shadow-sm h-[38px] flex-1 min-w-0 lg:flex-initial lg:w-[135px]">
                     <i data-lucide="plus" class="w-3.5 h-3.5"></i> Add Driver
                 </button>
             </div>
