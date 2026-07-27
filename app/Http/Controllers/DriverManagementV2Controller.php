@@ -235,6 +235,25 @@ class DriverManagementV2Controller extends Controller
             'on_leave'  => DB::table('drivers')->whereNull('deleted_at')->where('driver_status', 'on_leave')->count(),
         ];
 
+        // Status Filter Counts for Dropdown Options
+        $status_counts = [
+            'all'      => DB::table('drivers')->whereNull('deleted_at')->whereNotIn('driver_status', ['banned', 'suspended'])->count(),
+            'active'   => DB::table('drivers')->whereNull('deleted_at')->whereIn('driver_status', ['available', 'assigned'])->count(),
+            'inactive' => DB::table('drivers')->whereNull('deleted_at')->whereNotIn('driver_status', ['available', 'assigned', 'banned', 'suspended'])->count(),
+            'no_unit'  => DB::table('drivers as d')
+                ->whereNull('d.deleted_at')
+                ->whereNotIn('d.driver_status', ['banned', 'suspended'])
+                ->whereNotExists(function($q) {
+                    $q->select(DB::raw(1))
+                      ->from('units')
+                      ->whereNull('deleted_at')
+                      ->where(function($q2) {
+                          $q2->whereColumn('units.driver_id', 'd.id')
+                             ->orWhereColumn('units.secondary_driver_id', 'd.id');
+                      });
+                })->count(),
+        ];
+
         // Expiring licenses within 30 days
         $expiring_licenses = DB::table('drivers as d')
             ->whereNull('d.deleted_at')
@@ -257,14 +276,14 @@ class DriverManagementV2Controller extends Controller
 
         if ($request->ajax()) {
             return view('driver-management.partials._drivers_table', compact(
-                'drivers', 'pagination', 'search', 'status_filter', 'sort'
+                'drivers', 'pagination', 'search', 'status_filter', 'sort', 'status_counts'
             ))->render();
         }
 
         $boundary_rules = \App\Models\BoundaryRule::all();
 
         return view('driver-management.index', compact(
-            'drivers', 'search', 'pagination', 'stats', 'expiring_licenses', 'status_filter', 'sort', 'boundary_rules'
+            'drivers', 'search', 'pagination', 'stats', 'expiring_licenses', 'status_filter', 'sort', 'boundary_rules', 'status_counts'
         ));
     }
 
