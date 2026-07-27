@@ -192,7 +192,7 @@
                     <i data-lucide="search" class="w-4 h-4 text-gray-400"></i>
                 </div>
                 <input type="text" id="searchInput" name="driver_search_xq9"
-                    autocomplete="new-password" readonly
+                    autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');"
                     placeholder="Search driver or plate…"
                     class="w-full pl-10 pr-4 py-2.5 text-sm font-semibold text-gray-700 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-slate-400 focus:ring-0 outline-none transition-all cursor-text">
             </div>

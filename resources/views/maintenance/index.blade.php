@@ -188,7 +188,7 @@
     <form onsubmit="event.preventDefault(); performMaintenanceSearch(1);" class="flex flex-wrap gap-3">
         <div class="relative flex-1 min-w-[150px]">
             <input type="search" id="liveSearchInput" name="search" value="{{ $search }}" placeholder="Search plate, mechanic, or driver..."
-                class="w-full pl-3 pr-10 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-yellow-500 focus:outline-none" autocomplete="new-password" spellcheck="false" autocorrect="off" autocapitalize="off" oninput="filterMaintenanceTable(this.value)">
+                class="w-full pl-3 pr-10 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-yellow-500 focus:outline-none" autocomplete="new-password" spellcheck="false" autocorrect="off" autocapitalize="off" readonly onfocus="this.removeAttribute('readonly');" oninput="filterMaintenanceTable(this.value)">
             <div id="maintLoadingSpinner" class="hidden absolute right-3 top-1/2 transform -translate-y-1/2">
                 <i data-lucide="loader-2" class="w-4 h-4 text-gray-400 animate-spin"></i>
             </div>
