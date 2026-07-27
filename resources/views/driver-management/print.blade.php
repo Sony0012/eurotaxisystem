@@ -22,7 +22,8 @@
         td.right { text-align: right; font-weight: 900; }
         .driver-name { font-weight: 900; font-size: 12px; color: #000; text-transform: capitalize; }
         .badge { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 9px; font-weight: 800; text-transform: uppercase; }
-        .badge-active { background: #dcfce7; color: #166534; }
+        .badge-assigned { background: #dcfce7; color: #166534; }
+        .badge-available { background: #e0f2fe; color: #0369a1; }
         .badge-inactive { background: #f3f4f6; color: #4b5563; }
         .footer { text-align: center; margin-top: 40px; padding-top: 16px; border-top: 1px dashed #ccc; font-size: 9px; color: #777; }
         img { max-height: 60px !important; width: auto !important; display: block; margin: 0 auto 15px auto; }
@@ -54,17 +55,30 @@
             @foreach($drivers as $driver)
             <tr>
                 <td>
-                    <div class="driver-name">{{ ucwords(strtolower($driver->full_name)) }}</div>
+                    <div class="driver-name">{{ $driver->full_name }}</div>
                 </td>
                 <td>{{ $driver->license_number ?: '---' }}</td>
                 <td>{{ $driver->contact_number ?: '---' }}</td>
                 <td class="center">{{ $driver->assigned_plate ?: 'NO UNIT' }}</td>
                 <td class="center">
-                    <span class="badge {{ in_array($driver->driver_status, ['active', 'available', 'assigned']) ? 'badge-active' : 'badge-inactive' }}">
-                        {{ strtoupper($driver->driver_status) }}
+                    <span class="badge {{ $driver->display_status === 'ASSIGNED' ? 'badge-assigned' : ($driver->display_status === 'AVAILABLE' ? 'badge-available' : 'badge-inactive') }}">
+                        {{ $driver->display_status }}
                     </span>
                 </td>
-                <td class="right">₱{{ number_format($driver->daily_boundary_target ?? 0, 2) }}</td>
+                <td class="right">
+                    @if(($driver->current_target ?? 0) > 0)
+                        <div style="font-weight: 900; font-size: 11px; color: #000;">
+                            ₱{{ number_format($driver->current_target, 2) }}
+                        </div>
+                        @if(!empty($driver->target_label))
+                            <div style="font-size: 8px; font-weight: 800; text-transform: uppercase; color: {{ str_contains(strtolower($driver->target_label), 'coding') ? '#2563eb' : '#64748b' }}; margin-top: 1px;">
+                                {{ $driver->target_label }}
+                            </div>
+                        @endif
+                    @else
+                        <div style="font-size: 10px; color: #94a3b8; font-style: italic;">---</div>
+                    @endif
+                </td>
             </tr>
             @endforeach
         </tbody>

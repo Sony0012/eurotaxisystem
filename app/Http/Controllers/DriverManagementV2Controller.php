@@ -1192,36 +1192,57 @@ class DriverManagementV2Controller extends Controller
 
     public function printPdf()
     {
+        $rules = DB::table('boundary_rules')->get();
+
         $drivers = DB::table('drivers as d')
             ->whereNull('d.deleted_at')
             ->whereNotIn('d.driver_status', ['banned', 'suspended'])
             ->select(
                 'd.*',
                 DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')) as full_name"),
+                DB::raw("(SELECT plate_number FROM units WHERE (driver_id = d.id OR secondary_driver_id = d.id) AND deleted_at IS NULL LIMIT 1) as assigned_unit"),
                 DB::raw("(SELECT plate_number FROM units WHERE (driver_id = d.id OR secondary_driver_id = d.id) AND deleted_at IS NULL LIMIT 1) as assigned_plate"),
-                DB::raw("
-                    (SELECT CONCAT(COALESCE(p.first_name,''), ' ', COALESCE(p.last_name,''))
-                     FROM units u
-                     JOIN drivers p ON (
-                         CASE 
-                             WHEN u.driver_id = d.id THEN u.secondary_driver_id
-                             WHEN u.secondary_driver_id = d.id THEN u.driver_id
-                             ELSE NULL
-                         END = p.id
-                     )
-                     WHERE (u.driver_id = d.id OR u.secondary_driver_id = d.id) 
-                       AND u.deleted_at IS NULL 
-                       AND p.deleted_at IS NULL
-                     LIMIT 1
-                    ) as partner_driver_name
-                ")
+                DB::raw("(SELECT boundary_rate FROM units WHERE (driver_id = d.id OR secondary_driver_id = d.id) AND deleted_at IS NULL LIMIT 1) as assigned_boundary_rate"),
+                DB::raw("(SELECT coding_day FROM units WHERE (driver_id = d.id OR secondary_driver_id = d.id) AND deleted_at IS NULL LIMIT 1) as assigned_coding_day"),
+                DB::raw("(SELECT year FROM units WHERE (driver_id = d.id OR secondary_driver_id = d.id) AND deleted_at IS NULL LIMIT 1) as assigned_unit_year")
             )
             ->orderBy('d.first_name', 'asc')
             ->orderBy('d.last_name', 'asc')
             ->get();
 
-        foreach ($drivers as $d) {
-            $d->full_name = ucwords(strtolower(trim($d->full_name)));
+        foreach ($drivers as $driver) {
+            $driver->full_name = ucwords(strtolower(trim($driver->full_name)));
+
+            if (!empty($driver->assigned_plate) || !empty($driver->assigned_unit)) {
+                // Smart Pricing Calculation for Today's Date
+                $pricing = $this->getCurrentPricing([
+                    'year' => $driver->assigned_unit_year,
+                    'boundary_rate' => $driver->assigned_boundary_rate,
+                    'plate_number' => $driver->assigned_plate,
+                    'coding_day' => $driver->assigned_coding_day,
+                    'daily_boundary_target' => $driver->daily_boundary_target
+                ], $rules);
+
+                $driver->current_target = $pricing['rate'];
+                $driver->target_label = $pricing['label'];
+                $driver->target_type = $pricing['type'];
+
+                if (in_array($driver->driver_status, ['available', 'assigned'])) {
+                    $driver->display_status = 'ASSIGNED';
+                } else {
+                    $driver->display_status = strtoupper($driver->driver_status);
+                }
+            } else {
+                $driver->current_target = 0;
+                $driver->target_label = null;
+                $driver->target_type = null;
+
+                if (in_array($driver->driver_status, ['available', 'assigned'])) {
+                    $driver->display_status = 'AVAILABLE';
+                } else {
+                    $driver->display_status = strtoupper($driver->driver_status);
+                }
+            }
         }
 
         return view('driver-management.print', compact('drivers'));
