@@ -1196,7 +1196,23 @@ class DriverManagementV2Controller extends Controller
             ->select(
                 'd.*',
                 DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')) as full_name"),
-                DB::raw("(SELECT plate_number FROM units WHERE (driver_id = d.id OR secondary_driver_id = d.id) AND deleted_at IS NULL LIMIT 1) as assigned_plate")
+                DB::raw("(SELECT plate_number FROM units WHERE (driver_id = d.id OR secondary_driver_id = d.id) AND deleted_at IS NULL LIMIT 1) as assigned_plate"),
+                DB::raw("
+                    (SELECT CONCAT(COALESCE(p.first_name,''), ' ', COALESCE(p.last_name,''))
+                     FROM units u
+                     JOIN drivers p ON (
+                         CASE 
+                             WHEN u.driver_id = d.id THEN u.secondary_driver_id
+                             WHEN u.secondary_driver_id = d.id THEN u.driver_id
+                             ELSE NULL
+                         END = p.id
+                     )
+                     WHERE (u.driver_id = d.id OR u.secondary_driver_id = d.id) 
+                       AND u.deleted_at IS NULL 
+                       AND p.deleted_at IS NULL
+                     LIMIT 1
+                    ) as partner_driver_name
+                ")
             )
             ->orderBy('d.first_name', 'asc')
             ->orderBy('d.last_name', 'asc')

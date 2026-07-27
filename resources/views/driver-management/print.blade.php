@@ -21,7 +21,8 @@
         td.center { text-align: center; font-weight: bold; }
         td.right { text-align: right; font-weight: 900; }
         .driver-name { font-weight: 900; font-size: 12px; color: #000; }
-        .driver-desc { font-size: 9px; color: #64748b; text-transform: uppercase; margin-top: 2px; }
+        .partner-name { font-weight: 700; font-size: 11px; color: #334155; }
+        .no-partner { font-size: 10px; color: #94a3b8; font-style: italic; }
         .badge { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 9px; font-weight: 800; text-transform: uppercase; }
         .badge-active { background: #dcfce7; color: #166534; }
         .badge-inactive { background: #f3f4f6; color: #4b5563; }
@@ -44,6 +45,7 @@
         <thead>
             <tr>
                 <th>Driver Name</th>
+                <th>Partner Driver</th>
                 <th>License Number</th>
                 <th>Contact Phone</th>
                 <th class="center">Assigned Unit</th>
@@ -56,7 +58,13 @@
             <tr>
                 <td>
                     <div class="driver-name">{{ $driver->full_name }}</div>
-                    <div class="driver-desc">ID: DRV-{{ str_pad($driver->id, 4, '0', STR_PAD_LEFT) }}</div>
+                </td>
+                <td>
+                    @if(!empty(trim($driver->partner_driver_name ?? '')))
+                        <div class="partner-name">{{ $driver->partner_driver_name }}</div>
+                    @else
+                        <div class="no-partner">---</div>
+                    @endif
                 </td>
                 <td>{{ $driver->license_number ?: '---' }}</td>
                 <td>{{ $driver->contact_number ?: '---' }}</td>
