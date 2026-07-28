@@ -360,15 +360,15 @@
                         @endif
 
                         @if(auth()->user()->hasAccessTo('units.*'))
-                        <div class="relative group w-full">
+                        <div class="relative group w-full sidebar-dropdown-container">
                             <a href="{{ route('units.index') }}"
-                                class="sidebar-item flex items-center justify-start md:justify-center lg:justify-start gap-2.5 px-4 md:px-0 lg:px-4 py-1.5 md:py-2 rounded-lg text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 {{ request()->routeIs('units.*') && !request()->routeIs('units.flagged') ? 'bg-yellow-50 text-yellow-700 font-semibold' : '' }}">
+                                class="sidebar-item sidebar-has-dropdown flex items-center justify-start md:justify-center lg:justify-start gap-2.5 px-4 md:px-0 lg:px-4 py-1.5 md:py-2 rounded-lg text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 {{ request()->routeIs('units.*') && !request()->routeIs('units.flagged') ? 'bg-yellow-50 text-yellow-700 font-semibold' : '' }}">
                                 <i data-lucide="car" class="w-5 md:w-5 lg:w-4 h-5 md:h-5 lg:h-4"></i>
                                 <span class="text-sm block md:hidden lg:block flex-1 whitespace-nowrap">Unit Management</span>
-                                <i data-lucide="chevron-down" class="w-3 h-3 text-gray-400 group-hover:text-yellow-700 hidden lg:block transition-transform duration-200 group-hover:rotate-180"></i>
+                                <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-gray-400 group-hover:text-yellow-700 transition-transform duration-200 group-hover:rotate-180 sidebar-chevron"></i>
                             </a>
-                            {{-- Dropdown Sub-menu on Hover --}}
-                            <div class="hidden group-hover:block lg:pl-10 pl-0 space-y-1 mt-1 transition-all duration-300">
+                            {{-- Dropdown Sub-menu --}}
+                            <div class="sidebar-dropdown-menu hidden group-hover:block lg:pl-10 pl-4 space-y-1 mt-1 transition-all duration-300 {{ request()->routeIs('units.*') ? 'active-route-menu !block' : '' }}">
                                 <a href="{{ route('units.flagged') }}"
                                    class="sidebar-sub-item flex items-center justify-start md:justify-center lg:justify-start gap-2 px-4 md:px-0 lg:px-4 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider text-orange-600 hover:bg-orange-50 hover:text-orange-700 {{ request()->routeIs('units.flagged') ? 'bg-orange-50 text-orange-700 font-black' : '' }}">
                                     <i data-lucide="flag" class="w-3.5 h-3.5 text-orange-500"></i>
@@ -379,15 +379,15 @@
                         @endif
 
                         @if(auth()->user()->hasAccessTo('driver-management.*'))
-                        <div class="relative group w-full">
+                        <div class="relative group w-full sidebar-dropdown-container">
                             <a href="{{ route('driver-management.index') }}"
-                                class="sidebar-item flex items-center justify-start md:justify-center lg:justify-start gap-2.5 px-4 md:px-0 lg:px-4 py-1.5 md:py-2 rounded-lg text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 {{ request()->routeIs('driver-management.*') && !request()->routeIs('driver-management.banned') ? 'bg-yellow-50 text-yellow-700 font-semibold' : '' }}">
+                                class="sidebar-item sidebar-has-dropdown flex items-center justify-start md:justify-center lg:justify-start gap-2.5 px-4 md:px-0 lg:px-4 py-1.5 md:py-2 rounded-lg text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 {{ request()->routeIs('driver-management.*') && !request()->routeIs('driver-management.banned') ? 'bg-yellow-50 text-yellow-700 font-semibold' : '' }}">
                                 <i data-lucide="users" class="w-5 md:w-5 lg:w-4 h-5 md:h-5 lg:h-4"></i>
                                 <span class="text-sm block md:hidden lg:block flex-1 whitespace-nowrap">Driver Management</span>
-                                <i data-lucide="chevron-down" class="w-3 h-3 text-gray-400 group-hover:text-yellow-700 hidden lg:block transition-transform duration-200 group-hover:rotate-180"></i>
+                                <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-gray-400 group-hover:text-yellow-700 transition-transform duration-200 group-hover:rotate-180 sidebar-chevron"></i>
                             </a>
-                            {{-- Dropdown Sub-menu on Hover --}}
-                            <div class="hidden group-hover:block lg:pl-10 pl-0 space-y-1 mt-1 transition-all duration-300">
+                            {{-- Dropdown Sub-menu --}}
+                            <div class="sidebar-dropdown-menu hidden group-hover:block lg:pl-10 pl-4 space-y-1 mt-1 transition-all duration-300 {{ request()->routeIs('driver-management.*') ? 'active-route-menu !block' : '' }}">
                                 <a href="{{ route('driver-management.banned') }}" class="{{ request()->routeIs('driver-management.banned') ? 'text-red-500 font-bold bg-red-50/50 block rounded-xl py-2 px-3' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50 block rounded-xl py-2 px-3' }} flex items-center gap-2">
                                     <i data-lucide="ban" class="w-3.5 h-3.5 {{ request()->routeIs('driver-management.banned') ? 'text-red-500' : 'text-slate-400' }}"></i> 
                                     <span class="text-[10px] uppercase tracking-wider font-bold">Banned Drivers</span>
@@ -429,15 +429,15 @@
                         @endif
 
                         @if(auth()->user()->hasAccessTo('maintenance.*'))
-                        <div class="relative group w-full">
+                        <div class="relative group w-full sidebar-dropdown-container">
                             <a href="{{ route('maintenance.index') }}"
-                                class="sidebar-item flex items-center justify-start md:justify-center lg:justify-start gap-2.5 px-4 md:px-0 lg:px-4 py-1.5 md:py-2 rounded-lg text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 {{ request()->routeIs('maintenance.*') && !request()->has('open_inventory') ? 'bg-yellow-50 text-yellow-700 font-semibold' : '' }}">
+                                class="sidebar-item sidebar-has-dropdown flex items-center justify-start md:justify-center lg:justify-start gap-2.5 px-4 md:px-0 lg:px-4 py-1.5 md:py-2 rounded-lg text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 {{ request()->routeIs('maintenance.*') && !request()->has('open_inventory') ? 'bg-yellow-50 text-yellow-700 font-semibold' : '' }}">
                                 <i data-lucide="wrench" class="w-5 md:w-5 lg:w-4 h-5 md:h-5 lg:h-4"></i>
                                 <span class="text-sm block md:hidden lg:block flex-1 whitespace-nowrap">Maintenance</span>
-                                <i data-lucide="chevron-down" class="w-3 h-3 text-gray-400 group-hover:text-yellow-700 hidden lg:block transition-transform duration-200 group-hover:rotate-180"></i>
+                                <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-gray-400 group-hover:text-yellow-700 transition-transform duration-200 group-hover:rotate-180 sidebar-chevron"></i>
                             </a>
-                            {{-- Dropdown Sub-menu on Hover --}}
-                            <div class="hidden group-hover:block lg:pl-10 pl-0 space-y-1 mt-1 transition-all duration-300">
+                            {{-- Dropdown Sub-menu --}}
+                            <div class="sidebar-dropdown-menu hidden group-hover:block lg:pl-10 pl-4 space-y-1 mt-1 transition-all duration-300 {{ request()->routeIs('maintenance.*') || request()->routeIs('inventory.*') ? 'active-route-menu !block' : '' }}">
                                 <a href="{{ route('inventory.manage') }}" class="{{ request()->routeIs('inventory.manage') ? 'text-blue-600 font-bold bg-blue-50/50 block rounded-xl py-2 px-3' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50 block rounded-xl py-2 px-3' }} flex items-center gap-2">
                                     <i data-lucide="package" class="w-3.5 h-3.5 {{ request()->routeIs('inventory.manage') ? 'text-blue-600' : 'text-slate-400' }}"></i> 
                                     <span class="text-[10px] uppercase tracking-wider font-bold">Manage Inventory</span>
@@ -455,16 +455,16 @@
                         @endif
 
                         @if(auth()->user()->hasAccessTo('driver-behavior.*'))
-                        <div class="relative group w-full">
+                        <div class="relative group w-full sidebar-dropdown-container">
                             <a href="{{ route('driver-behavior.incidents') }}"
-                                class="sidebar-item flex items-center justify-start md:justify-center lg:justify-start gap-2.5 px-4 md:px-0 lg:px-4 py-1.5 md:py-2 rounded-lg text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 {{ request()->routeIs('driver-behavior.*') && !request()->routeIs('driver-behavior.incentives') && !request()->routeIs('driver-behavior.performance') && !request()->routeIs('driver-behavior.accidents') ? 'bg-yellow-50 text-yellow-700 font-semibold' : '' }}">
+                                class="sidebar-item sidebar-has-dropdown flex items-center justify-start md:justify-center lg:justify-start gap-2.5 px-4 md:px-0 lg:px-4 py-1.5 md:py-2 rounded-lg text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 {{ request()->routeIs('driver-behavior.*') && !request()->routeIs('driver-behavior.incentives') && !request()->routeIs('driver-behavior.performance') && !request()->routeIs('driver-behavior.accidents') ? 'bg-yellow-50 text-yellow-700 font-semibold' : '' }}">
                                 <i data-lucide="alert-triangle" class="w-5 md:w-5 lg:w-4 h-5 md:h-5 lg:h-4"></i>
                                 <span class="text-sm block md:hidden lg:block flex-1 whitespace-nowrap">Driver Behavior</span>
-                                <i data-lucide="chevron-down" class="w-3 h-3 text-gray-400 group-hover:text-yellow-700 hidden lg:block transition-transform duration-200 group-hover:rotate-180"></i>
+                                <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-gray-400 group-hover:text-yellow-700 transition-transform duration-200 group-hover:rotate-180 sidebar-chevron"></i>
                             </a>
                             
-                            {{-- Dropdown Sub-menu on Hover --}}
-                            <div class="hidden group-hover:block lg:pl-10 pl-0 space-y-1 mt-1 transition-all duration-300">
+                            {{-- Dropdown Sub-menu --}}
+                            <div class="sidebar-dropdown-menu hidden group-hover:block lg:pl-10 pl-4 space-y-1 mt-1 transition-all duration-300 {{ request()->routeIs('driver-behavior.*') ? 'active-route-menu !block' : '' }}">
                                 <a href="{{ route('driver-behavior.incentives') }}" class="{{ request()->routeIs('driver-behavior.incentives') ? 'text-green-600 font-bold bg-green-50/50 block rounded-xl py-2 px-3' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50 block rounded-xl py-2 px-3' }} flex items-center gap-2">
                                     <i data-lucide="award" class="w-3.5 h-3.5 {{ request()->routeIs('driver-behavior.incentives') ? 'text-green-600' : 'text-slate-400' }}"></i> 
                                     <span class="text-[10px] uppercase tracking-wider font-bold">Weekly Incentives</span>
@@ -498,16 +498,16 @@
                         @endif
 
                         @if(auth()->user()->hasAccessTo('analytics.*'))
-                        <div class="relative group w-full">
+                        <div class="relative group w-full sidebar-dropdown-container">
                             <a href="{{ route('analytics.index') }}"
-                                class="sidebar-item flex items-center justify-start md:justify-center lg:justify-start gap-2.5 px-4 md:px-0 lg:px-4 py-1.5 md:py-2 rounded-lg text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 {{ request()->routeIs('analytics.*') ? 'bg-yellow-50 text-yellow-700 font-semibold' : '' }}">
+                                class="sidebar-item sidebar-has-dropdown flex items-center justify-start md:justify-center lg:justify-start gap-2.5 px-4 md:px-0 lg:px-4 py-1.5 md:py-2 rounded-lg text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 {{ request()->routeIs('analytics.*') ? 'bg-yellow-50 text-yellow-700 font-semibold' : '' }}">
                                 <i data-lucide="bar-chart" class="w-4 md:w-5 lg:w-4 h-4 md:h-5 lg:h-4"></i>
                                 <span class="text-sm block md:hidden lg:block flex-1 whitespace-nowrap">Analytics</span>
-                                <i data-lucide="chevron-down" class="w-3 h-3 text-gray-400 group-hover:text-yellow-700 hidden lg:block transition-transform duration-200 group-hover:rotate-180"></i>
+                                <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-gray-400 group-hover:text-yellow-700 transition-transform duration-200 group-hover:rotate-180 sidebar-chevron"></i>
                             </a>
                             
-                            {{-- Dropdown Sub-menu on Hover --}}
-                            <div class="hidden group-hover:block lg:pl-10 pl-0 space-y-1 mt-1 transition-all duration-300">
+                            {{-- Dropdown Sub-menu --}}
+                            <div class="sidebar-dropdown-menu hidden group-hover:block lg:pl-10 pl-4 space-y-1 mt-1 transition-all duration-300 {{ request()->routeIs('analytics.*') ? 'active-route-menu !block' : '' }}">
                                 <a href="{{ route('analytics.history') }}" class="{{ request()->routeIs('analytics.history') ? 'text-indigo-600 font-bold bg-indigo-50/50 block rounded-xl py-2 px-3' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50 block rounded-xl py-2 px-3' }} flex items-center gap-2">
                                     <i data-lucide="history" class="w-3.5 h-3.5 {{ request()->routeIs('analytics.history') ? 'text-indigo-600' : 'text-slate-400' }}"></i> 
                                     <span class="text-[10px] uppercase tracking-wider font-bold">Daily Ledger</span>
@@ -525,15 +525,15 @@
                         @endif
 
                         @if(auth()->user()->hasAccessTo('staff.*'))
-                        <div class="relative group w-full">
+                        <div class="relative group w-full sidebar-dropdown-container">
                             <a href="{{ route('staff.index') }}"
-                                class="sidebar-item flex items-center justify-start md:justify-center lg:justify-start gap-2.5 px-4 md:px-0 lg:px-4 py-1.5 md:py-2 rounded-lg text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 {{ request()->routeIs('staff.*') ? 'bg-yellow-50 text-yellow-700 font-semibold' : '' }}">
+                                class="sidebar-item sidebar-has-dropdown flex items-center justify-start md:justify-center lg:justify-start gap-2.5 px-4 md:px-0 lg:px-4 py-1.5 md:py-2 rounded-lg text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 {{ request()->routeIs('staff.*') ? 'bg-yellow-50 text-yellow-700 font-semibold' : '' }}">
                                 <i data-lucide="user-cog" class="w-5 md:w-5 lg:w-5 h-5 md:h-5 lg:h-5"></i>
                                 <span class="text-sm block md:hidden lg:block flex-1 whitespace-nowrap">General Staff Records</span>
-                                <i data-lucide="chevron-down" class="w-3 h-3 text-gray-400 group-hover:text-yellow-700 hidden lg:block transition-transform duration-200 group-hover:rotate-180"></i>
+                                <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-gray-400 group-hover:text-yellow-700 transition-transform duration-200 group-hover:rotate-180 sidebar-chevron"></i>
                             </a>
-                            {{-- Dropdown Sub-menu on Hover --}}
-                            <div class="hidden group-hover:block lg:pl-10 pl-0 space-y-1 mt-1 transition-all duration-300">
+                            {{-- Dropdown Sub-menu --}}
+                            <div class="sidebar-dropdown-menu hidden group-hover:block lg:pl-10 pl-4 space-y-1 mt-1 transition-all duration-300 {{ request()->routeIs('staff.*') ? 'active-route-menu !block' : '' }}">
                                 <a href="{{ route('staff.admin') }}" class="{{ request()->routeIs('staff.admin') ? 'text-blue-600 font-bold bg-blue-50/50 block rounded-xl py-2 px-3' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50 block rounded-xl py-2 px-3' }} flex items-center gap-2">
                                     <i data-lucide="shield-check" class="w-3.5 h-3.5 {{ request()->routeIs('staff.admin') ? 'text-blue-600' : 'text-slate-400' }}"></i> 
                                     <span class="text-[10px] uppercase tracking-wider font-bold">Admin Staff</span>
@@ -1004,6 +1004,59 @@
                     backdrop.classList.toggle('show');
                 }
             };
+
+            // Mobile & Touch Sidebar Dropdown Handler (Single-tap expands sub-menu dropdown, 2nd tap/double-click navigates)
+            const dropdownContainers = document.querySelectorAll('.sidebar-dropdown-container');
+            dropdownContainers.forEach(container => {
+                const link = container.querySelector('.sidebar-has-dropdown');
+                const menu = container.querySelector('.sidebar-dropdown-menu');
+                const chevron = container.querySelector('.sidebar-chevron');
+                let lastClickTime = 0;
+
+                if (link && menu) {
+                    link.addEventListener('click', function(e) {
+                        const isMobileView = window.innerWidth < 1024 || ('ontouchstart' in window);
+
+                        if (isMobileView) {
+                            const isMenuHidden = menu.classList.contains('hidden') || getComputedStyle(menu).display === 'none';
+                            const now = Date.now();
+                            const isDoubleTap = (now - lastClickTime < 500);
+                            lastClickTime = now;
+
+                            if (isMenuHidden) {
+                                // 1st click/tap: Prevent navigation & expand dropdown menu!
+                                e.preventDefault();
+
+                                // Close other open sidebar dropdowns for clean mobile UI
+                                dropdownContainers.forEach(c => {
+                                    const m = c.querySelector('.sidebar-dropdown-menu');
+                                    const ch = c.querySelector('.sidebar-chevron');
+                                    if (m && m !== menu && !m.classList.contains('active-route-menu')) {
+                                        m.classList.add('hidden');
+                                        m.style.setProperty('display', 'none', 'important');
+                                    }
+                                    if (ch && ch !== chevron) {
+                                        ch.classList.remove('rotate-180');
+                                    }
+                                });
+
+                                // Expand target dropdown menu
+                                menu.classList.remove('hidden');
+                                menu.style.setProperty('display', 'block', 'important');
+                                if (chevron) chevron.classList.add('rotate-180');
+                            } else if (!isDoubleTap) {
+                                // Dropdown is already open. Single click -> toggle collapse (or wait for 2nd tap to navigate)
+                                e.preventDefault();
+                                menu.classList.add('hidden');
+                                menu.style.setProperty('display', 'none', 'important');
+                                if (chevron) chevron.classList.remove('rotate-180');
+                            } else {
+                                // 2nd click / double click -> allow default navigation link to proceed!
+                            }
+                        }
+                    });
+                }
+            });
         </script>
 
         {{-- Mobile Bottom Navigation Bar (visible on mobile only, hidden on md+) --}}
