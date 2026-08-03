@@ -137,7 +137,11 @@ const TutorialManager = (function () {
         {
             id: 'sidebar-units',
             getElement: () => findSidebarLink(['Unit Management']),
-            popover: { title: 'Unit Management', description: 'Add new cars, monitor their status, and manage the entire fleet inventory.', position: 'right' }
+            popover: { 
+                title: 'Unit Management', 
+                description: '<b>Pindutin ang Unit Management menu na ito sa kaliwa (o i-click ang Next)</b> para pumunta sa pamamahala ng mga sasakyan. Dito mo makikita ang listahan ng mga kotse, status, at ang buong fleet inventory.', 
+                position: 'right' 
+            }
         },
         {
             id: 'sidebar-drivers',
