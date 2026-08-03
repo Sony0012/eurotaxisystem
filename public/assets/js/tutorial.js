@@ -137,11 +137,55 @@ const TutorialManager = (function () {
         {
             id: 'sidebar-units',
             getElement: () => findSidebarLink(['Unit Management']),
-            popover: { 
-                title: 'Unit Management', 
-                description: '<b>Pindutin ang Unit Management menu na ito sa kaliwa (o i-click ang Next)</b> para pumunta sa pamamahala ng mga sasakyan. Dito mo makikita ang listahan ng mga kotse, status, at ang buong fleet inventory.', 
-                position: 'right' 
-            }
+            popover: { title: 'Unit Management', description: 'Add new cars, monitor their status, and manage the entire fleet inventory.', position: 'right' }
+        },
+        {
+            id: 'units-stats-bar',
+            route: '/units',
+            getElement: () => document.getElementById('quickStatsBar'),
+            popover: { title: 'Fleet Status Counters', description: 'Real-time counters showing Total Fleet Units, Active Units on the road, Units under Maintenance in the garage, and Coding Units restricted for today.', position: 'bottom' }
+        },
+        {
+            id: 'units-filter-search',
+            route: '/units',
+            getElement: () => document.getElementById('tableSearchInput') ? document.getElementById('tableSearchInput').closest('.bg-white') : null,
+            popover: { title: 'Search, Sort & Filters', description: 'Quickly search any car by plate number or driver name, sort A-Z, or filter by Active, Coding, Maintenance, or Vacant status.', position: 'bottom' }
+        },
+        {
+            id: 'units-actions-bar',
+            route: '/units',
+            getElement: () => document.getElementById('unitActionButtonsBar'),
+            popover: { title: 'Action Controls & Add Unit', description: 'Switch between Table and Cards view, print/export the Driver Master List report to PDF, or click "+ Add Unit" to register a new car to your fleet.', position: 'bottom' }
+        },
+        {
+            id: 'units-table-sep',
+            route: '/units',
+            getElement: () => document.querySelector('.modern-table-sep, table'),
+            popover: { title: 'Fleet Master Inventory Table', description: 'Detailed table listing all taxi units in your fleet with live status indicators, assigned drivers, and boundary pricing tags.', position: 'top' }
+        },
+        {
+            id: 'units-col-plate',
+            route: '/units',
+            getElement: () => document.querySelector('tbody tr td:first-child, .modern-row td:first-child'),
+            popover: { title: 'Plate & Vehicle Details', description: 'Displays the unit plate number, model year, and registered Engine & Chassis numbers for complete vehicle legal tracking.', position: 'top' }
+        },
+        {
+            id: 'units-col-drivers',
+            route: '/units',
+            getElement: () => document.querySelector('tbody tr td:nth-child(3), .modern-row td:nth-child(3)'),
+            popover: { title: 'Assigned Drivers (D1 & D2)', description: 'Shows the assigned Day (D1) and Night (D2) drivers for each car. Vacant slots are highlighted for quick driver pairing.', position: 'top' }
+        },
+        {
+            id: 'units-col-status-pricing',
+            route: '/units',
+            getElement: () => document.querySelector('tbody tr td:nth-child(4), .modern-row td:nth-child(4)') || document.querySelector('tbody tr td:nth-child(5)'),
+            popover: { title: 'Live Status & Smart Boundary Rate', description: 'Displays real-time status (Active, Maintenance, Coding) and Smart Boundary Rates (Regular Rate vs Coding Rate vs Weekend Discount).', position: 'top' }
+        },
+        {
+            id: 'units-pms-alert',
+            route: '/units',
+            getElement: () => document.querySelector('.modern-sub-row') || document.querySelector('[class*="progress"]') || document.querySelector('#quickStatsBar'),
+            popover: { title: 'Odometer & Maintenance Alerts', description: 'Tracks mileage progress towards 5,000 km oil change and alerts you automatically when a unit is due for PMS or repair service.', position: 'top' }
         },
         {
             id: 'sidebar-drivers',
@@ -313,6 +357,15 @@ const TutorialManager = (function () {
 
         const step = steps[stepIndex];
         logDebug(`Attempting to find element for step: ${step.id}`);
+
+        // Auto-navigate to step route if specified and browser is not currently on that route
+        if (step.route && !window.location.pathname.startsWith(step.route)) {
+            logDebug(`Navigating to route ${step.route} for step '${step.id}'`);
+            localStorage.setItem('tutorial_current_step', stepIndex.toString());
+            window.location.href = step.route;
+            return;
+        }
+
         const targetElement = step.getElement ? step.getElement() : null;
         
         if (!targetElement) {
