@@ -685,7 +685,7 @@
                 </div> {{-- End Scrollable Content --}}
 
                 {{-- Fixed Footer --}}
-                <div class="p-4 border-t flex justify-end items-center gap-3 shadow-inner bg-gray-50 shrink-0">
+                <div id="addUnitSectionFooter" class="p-4 border-t flex justify-end items-center gap-3 shadow-inner bg-gray-50 shrink-0">
                     <button type="button" onclick="document.getElementById('addUnitModal').classList.add('hidden'); resetAddUnitModal()"
                         class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 text-sm font-bold transition-all">
                         Cancel

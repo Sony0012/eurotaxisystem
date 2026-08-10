@@ -25,6 +25,21 @@ const TutorialManager = (function () {
         return null;
     }
 
+    // Helper to scroll smoothly inside modal overflow container
+    function scrollModalToElement(elementId) {
+        const modal = document.getElementById('addUnitModal');
+        if (modal) modal.classList.remove('hidden');
+        const target = document.getElementById(elementId);
+        if (!target) return;
+        const scrollContainer = modal ? modal.querySelector('.overflow-y-auto') : null;
+        if (scrollContainer) {
+            const topPos = target.offsetTop - scrollContainer.offsetTop - 15;
+            scrollContainer.scrollTo({ top: Math.max(0, topPos), behavior: 'smooth' });
+        } else {
+            target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }
+
     // Helper to find dashboard cards by their headers
     function findDashboardCard(textMatches) {
         const els = Array.from(document.querySelectorAll('h1, h2, h3, h4, h5, h6, span, p, div'));
@@ -196,86 +211,51 @@ const TutorialManager = (function () {
         {
             id: 'units-add-modal-plate',
             route: '/units',
-            onBeforeShow: () => { 
-                const m = document.getElementById('addUnitModal'); 
-                if (m) m.classList.remove('hidden'); 
-                const el = document.getElementById('addUnitSectionBasicInfo'); 
-                if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' }); 
-            },
+            onBeforeShow: () => scrollModalToElement('addUnitSectionBasicInfo'),
             getElement: () => document.getElementById('addUnitSectionBasicInfo') || document.getElementById('addPlateNumber'),
             popover: { title: '1. Basic Info & Plate Number', description: 'Enter the vehicle plate number (e.g. ABC 1234). The system automatically detects the MMDA coding day based on the last digit!', position: 'bottom' }
         },
         {
             id: 'units-add-modal-details',
             route: '/units',
-            onBeforeShow: () => { 
-                const m = document.getElementById('addUnitModal'); 
-                if (m) m.classList.remove('hidden'); 
-                const el = document.getElementById('addUnitSectionVehicleDetails'); 
-                if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' }); 
-            },
+            onBeforeShow: () => scrollModalToElement('addUnitSectionVehicleDetails'),
             getElement: () => document.getElementById('addUnitSectionVehicleDetails'),
             popover: { title: '2. Vehicle Specs (Make, Model, Year & IDs)', description: 'Specify vehicle brand (e.g. Toyota), model (e.g. Vios), year model, and official Engine & Chassis serial numbers for legal LTO compliance.', position: 'bottom' }
         },
         {
             id: 'units-add-modal-finance',
             route: '/units',
-            onBeforeShow: () => { 
-                const m = document.getElementById('addUnitModal'); 
-                if (m) m.classList.remove('hidden'); 
-                const el = document.getElementById('addUnitSectionFinancialInfo'); 
-                if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' }); 
-            },
+            onBeforeShow: () => scrollModalToElement('addUnitSectionFinancialInfo'),
             getElement: () => document.getElementById('addUnitSectionFinancialInfo'),
             popover: { title: '3. Financial Info & Daily Boundary Target', description: 'Set the base daily boundary collection target (e.g. ₱1,100.00) and vehicle purchase cost for automated ROI calculations.', position: 'bottom' }
         },
         {
             id: 'units-add-modal-driver-assignment',
             route: '/units',
-            onBeforeShow: () => { 
-                const m = document.getElementById('addUnitModal'); 
-                if (m) m.classList.remove('hidden'); 
-                const el = document.getElementById('addUnitSectionDriverAssignment'); 
-                if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' }); 
-            },
+            onBeforeShow: () => scrollModalToElement('addUnitSectionDriverAssignment'),
             getElement: () => document.getElementById('addUnitSectionDriverAssignment'),
             popover: { title: '4. Driver Assignment (Primary D1 & Secondary D2)', description: 'Search and pair active drivers to this vehicle! Assign the Primary Day Driver (D1) and optional Secondary Relief Driver (D2) right during vehicle registration.', position: 'top' }
         },
         {
             id: 'units-add-modal-coding-info',
             route: '/units',
-            onBeforeShow: () => { 
-                const m = document.getElementById('addUnitModal'); 
-                if (m) m.classList.remove('hidden'); 
-                const el = document.getElementById('addUnitSectionCodingInfo'); 
-                if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' }); 
-            },
+            onBeforeShow: () => scrollModalToElement('addUnitSectionCodingInfo'),
             getElement: () => document.getElementById('addUnitSectionCodingInfo'),
             popover: { title: '5. MMDA Coding Schedule & Auto Detection', description: 'View the MMDA Metro Manila coding schedule (Mon: 1,2 | Tue: 3,4 | Wed: 5,6 | Thu: 7,8 | Fri: 9,0). The system automatically calculates the Next Coding Date and Days Remaining!', position: 'top' }
         },
         {
             id: 'units-add-modal-gps-integration',
             route: '/units',
-            onBeforeShow: () => { 
-                const m = document.getElementById('addUnitModal'); 
-                if (m) m.classList.remove('hidden'); 
-                const el = document.getElementById('addUnitSectionGpsIntegration'); 
-                if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' }); 
-            },
+            onBeforeShow: () => scrollModalToElement('addUnitSectionGpsIntegration'),
             getElement: () => document.getElementById('addUnitSectionGpsIntegration'),
             popover: { title: '6. Live GPS Tracker Integration (IMEI & Provider)', description: 'Configure real-time GPS tracking! Select the provider (Tracksolid Pro or AKSH Aika168) and enter the device IMEI number for live map tracking.', position: 'top' }
         },
         {
             id: 'units-add-modal-close',
             route: '/units',
-            onBeforeShow: () => { 
-                const m = document.getElementById('addUnitModal'); 
-                if (m) m.classList.remove('hidden'); 
-                const el = document.querySelector('#addUnitForm button[type="submit"]'); 
-                if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' }); 
-            },
+            onBeforeShow: () => scrollModalToElement('addUnitSectionFooter'),
             onAfterNext: () => { const m = document.getElementById('addUnitModal'); if (m) m.classList.add('hidden'); },
-            getElement: () => document.querySelector('#addUnitForm button[type="submit"]') ? document.querySelector('#addUnitForm button[type="submit"]').parentElement : document.getElementById('addUnitModal'),
+            getElement: () => document.getElementById('addUnitSectionFooter') || document.querySelector('#addUnitForm button[type="submit"]'),
             popover: { title: '7. Save & Register Unit', description: 'Clicking Save Unit validates all vehicle details, pairs assigned drivers, sets up MMDA coding, and immediately registers the new car into your active fleet roster!', position: 'top' }
         },
         {
