@@ -28,7 +28,7 @@
         .print-only { display: block !important; }
     </style>
 </head>
-<body onload="window.print()">
+<body @if(!request()->has('preview')) onload="window.print()" @endif>
     <img src="{{ asset('image/logo.png') }}" alt="Euro System Logo">
     <h1>UNITS & DRIVERS MANAGEMENT REPORT</h1>
     <p class="subtitle">EURO TAXI MANAGEMENT SYSTEM &mdash; OFFICIAL RECORD</p>

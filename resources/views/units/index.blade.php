@@ -329,7 +329,7 @@
             const modal = document.getElementById('tutorialPrintPdfModal');
             const iframe = document.getElementById('tutorialPdfIframe');
             if (modal && iframe) {
-                iframe.src = "{{ route('units.print') }}";
+                iframe.src = "{{ route('units.print') }}?preview=1";
                 modal.classList.remove('hidden');
             }
         }

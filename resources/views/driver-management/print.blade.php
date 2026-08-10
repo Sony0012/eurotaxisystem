@@ -30,7 +30,7 @@
         .header-meta { display: flex; justify-content: space-between; font-size: 10px; font-weight: bold; margin-bottom: 20px; text-transform: uppercase; border-bottom: 1px solid #000; padding-bottom: 10px; color: #333; }
     </style>
 </head>
-<body onload="window.print()">
+<body @if(!request()->has('preview')) onload="window.print()" @endif>
     <img src="{{ asset('image/logo.png') }}" alt="Euro System Logo">
     <h1>DRIVER MASTER LIST & RECORDS REPORT</h1>
     <p class="subtitle">EURO TAXI MANAGEMENT SYSTEM &mdash; OFFICIAL RECORD</p>
