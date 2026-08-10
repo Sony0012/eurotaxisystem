@@ -303,6 +303,44 @@
         @endif
     </div>
 
+    <!-- Print PDF Tutorial Preview Modal -->
+    <div id="tutorialPrintPdfModal" class="hidden fixed inset-0 z-[999999] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl h-[85vh] flex flex-col overflow-hidden border border-gray-200">
+            <div class="bg-blue-600 px-6 py-4 flex items-center justify-between text-white shrink-0">
+                <div class="flex items-center gap-3">
+                    <div class="p-2 bg-white/20 rounded-lg">
+                        <i data-lucide="printer" class="w-5 h-5 text-white"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg leading-tight">Fleet Master Roster PDF Preview</h3>
+                        <p class="text-xs text-blue-100">Live generated PDF report document</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeTutorialPdfPreview()" class="text-white/80 hover:text-white p-1.5 rounded-lg hover:bg-white/20 transition-colors">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <iframe id="tutorialPdfIframe" class="w-full flex-1 border-0" src="about:blank"></iframe>
+        </div>
+    </div>
+
+    <script>
+        function openTutorialPdfPreview() {
+            const modal = document.getElementById('tutorialPrintPdfModal');
+            const iframe = document.getElementById('tutorialPdfIframe');
+            if (modal && iframe) {
+                iframe.src = "{{ route('units.print') }}";
+                modal.classList.remove('hidden');
+            }
+        }
+        function closeTutorialPdfPreview() {
+            const modal = document.getElementById('tutorialPrintPdfModal');
+            const iframe = document.getElementById('tutorialPdfIframe');
+            if (modal) modal.classList.add('hidden');
+            if (iframe) iframe.src = "about:blank";
+        }
+    </script>
+
     {{-- Add Unit Modal --}}
     <div id="addUnitModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl h-[90vh] flex flex-col overflow-hidden">
