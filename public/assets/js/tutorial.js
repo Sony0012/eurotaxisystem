@@ -158,6 +158,20 @@ const TutorialManager = (function () {
             popover: { title: 'Table & Cards View Toggle', description: 'Switch between detailed Table view and grid-based Cards view to monitor your fleet inventory based on your visual preference.', position: 'bottom' }
         },
         {
+            id: 'units-cards-deepdive',
+            route: '/units',
+            onBeforeShow: () => { if (typeof setViewMode === 'function') setViewMode('grid'); },
+            getElement: () => document.getElementById('unitsTableContainer') || document.querySelector('.grid') || document.getElementById('unitViewTogglePill'),
+            popover: { title: 'Cards View Deep Dive', description: 'In Cards View, each taxi unit is presented as a visual card with real-time status badges, assigned D1/D2 driver partners, and current odometer progress.', position: 'top' }
+        },
+        {
+            id: 'units-table-restore',
+            route: '/units',
+            onBeforeShow: () => { if (typeof setViewMode === 'function') setViewMode('table'); },
+            getElement: () => document.getElementById('btn-view-table'),
+            popover: { title: 'Switching Back to Table View', description: 'Tapping Table view restores the structured row layout with full column details for deep analysis.', position: 'bottom' }
+        },
+        {
             id: 'units-print-pdf',
             route: '/units',
             getElement: () => document.getElementById('btn-print-pdf') || document.querySelector('button[onclick*="printInHiddenIframe"]'),
@@ -167,11 +181,48 @@ const TutorialManager = (function () {
             id: 'units-add-unit',
             route: '/units',
             getElement: () => document.getElementById('btn-add-unit') || document.querySelector('button[onclick*="addUnitModal"]'),
-            popover: { title: 'Add New Unit', description: 'Register a new taxi unit into the fleet system with its plate number, model year, engine/chassis details, and initial boundary rate.', position: 'bottom' }
+            popover: { title: 'Add New Unit Button', description: 'Clicking this button opens the Add Unit registration modal to onboard a new taxi into your fleet.', position: 'bottom' }
+        },
+        {
+            id: 'units-add-modal-overview',
+            route: '/units',
+            onBeforeShow: () => { const m = document.getElementById('addUnitModal'); if (m) m.classList.remove('hidden'); },
+            getElement: () => document.querySelector('#addUnitModal > div') || document.getElementById('addUnitModal'),
+            popover: { title: 'Add Unit Registration Form', description: 'This modal allows you to register a new vehicle into the fleet with its legal plate number, vehicle specifications, and financial boundary rates.', position: 'top' }
+        },
+        {
+            id: 'units-add-modal-plate',
+            route: '/units',
+            onBeforeShow: () => { const m = document.getElementById('addUnitModal'); if (m) m.classList.remove('hidden'); },
+            getElement: () => document.getElementById('addPlateNumber'),
+            popover: { title: 'Plate Number & Coding Detection', description: 'Enter the vehicle plate number. The system automatically detects the MMDA coding day based on the last digit!', position: 'bottom' }
+        },
+        {
+            id: 'units-add-modal-details',
+            route: '/units',
+            onBeforeShow: () => { const m = document.getElementById('addUnitModal'); if (m) m.classList.remove('hidden'); },
+            getElement: () => document.querySelector('input[name="make"]') ? document.querySelector('input[name="make"]').closest('.mb-8') : document.getElementById('addUnitModal'),
+            popover: { title: 'Make, Model, Year & Motor/Chassis Numbers', description: 'Specify the vehicle brand (e.g. Toyota), model (e.g. Vios), year model, and registered Engine & Chassis numbers for legal compliance.', position: 'top' }
+        },
+        {
+            id: 'units-add-modal-finance',
+            route: '/units',
+            onBeforeShow: () => { const m = document.getElementById('addUnitModal'); if (m) m.classList.remove('hidden'); },
+            getElement: () => document.getElementById('addBoundaryRate') ? document.getElementById('addBoundaryRate').closest('.mb-8') : document.getElementById('addUnitModal'),
+            popover: { title: 'Daily Boundary Rate & Purchase Cost', description: 'Set the base daily boundary collection target (e.g. ₱1,100.00) and vehicle purchase cost for ROI tracking.', position: 'top' }
+        },
+        {
+            id: 'units-add-modal-close',
+            route: '/units',
+            onBeforeShow: () => { const m = document.getElementById('addUnitModal'); if (m) m.classList.remove('hidden'); },
+            onAfterNext: () => { const m = document.getElementById('addUnitModal'); if (m) m.classList.add('hidden'); },
+            getElement: () => document.querySelector('#addUnitForm button[type="submit"]') ? document.querySelector('#addUnitForm button[type="submit"]').parentElement : document.getElementById('addUnitModal'),
+            popover: { title: 'Save & Register Unit', description: 'Clicking Save Unit validates the vehicle data and immediately adds the new car to your active fleet roster.', position: 'top' }
         },
         {
             id: 'units-table-sep',
             route: '/units',
+            onBeforeShow: () => { const m = document.getElementById('addUnitModal'); if (m) m.classList.add('hidden'); if (typeof setViewMode === 'function') setViewMode('table'); },
             getElement: () => document.querySelector('.modern-table-sep, table'),
             popover: { title: 'Fleet Master Inventory Table', description: 'Detailed table listing all taxi units in your fleet with live status indicators, assigned drivers, and boundary pricing tags.', position: 'top' }
         },
@@ -376,6 +427,15 @@ const TutorialManager = (function () {
             localStorage.setItem('tutorial_current_step', stepIndex.toString());
             window.location.href = step.route;
             return;
+        }
+
+        // Run onBeforeShow hook if defined
+        if (typeof step.onBeforeShow === 'function') {
+            try {
+                step.onBeforeShow();
+            } catch (e) {
+                logDebug(`Error in onBeforeShow for step ${step.id}: ${e.message}`);
+            }
         }
 
         const targetElement = step.getElement ? step.getElement() : null;
@@ -626,6 +686,15 @@ const TutorialManager = (function () {
 
     function moveToNextStep(currentIndex) {
         logDebug(`Moving to next step after ${currentIndex}`);
+        const currentStep = steps[currentIndex];
+        if (currentStep && typeof currentStep.onAfterNext === 'function') {
+            try {
+                currentStep.onAfterNext();
+            } catch (e) {
+                logDebug(`Error in onAfterNext for step ${currentIndex}: ${e.message}`);
+            }
+        }
+
         const nextIndex = currentIndex + 1;
         localStorage.setItem('tutorial_current_step', nextIndex);
         if (nextIndex >= steps.length) {
@@ -648,6 +717,15 @@ const TutorialManager = (function () {
     function moveToPrevStep(currentIndex) {
         logDebug(`Moving to prev step from ${currentIndex}`);
         if (currentIndex <= 0) return;
+        const currentStep = steps[currentIndex];
+        if (currentStep && typeof currentStep.onAfterPrev === 'function') {
+            try {
+                currentStep.onAfterPrev();
+            } catch (e) {
+                logDebug(`Error in onAfterPrev for step ${currentIndex}: ${e.message}`);
+            }
+        }
+
         const prevIndex = currentIndex - 1;
         localStorage.setItem('tutorial_current_step', prevIndex);
         setTimeout(() => {
@@ -668,6 +746,11 @@ const TutorialManager = (function () {
         const progress = document.getElementById('tutorial-global-progress');
         if (progress) progress.remove();
         
+        // Clean up open modals & view state
+        const addModal = document.getElementById('addUnitModal');
+        if (addModal) addModal.classList.add('hidden');
+        if (typeof setViewMode === 'function') setViewMode('table');
+
         const debuggerEl = document.getElementById('tutorial-debugger');
         if (debuggerEl) {
             debuggerEl.innerHTML += `<div>> <strong>Tutorial Finished!</strong> You can safely refresh the page.</div>`;
