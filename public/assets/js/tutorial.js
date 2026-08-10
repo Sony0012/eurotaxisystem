@@ -268,26 +268,74 @@ const TutorialManager = (function () {
         {
             id: 'units-col-plate',
             route: '/units',
-            getElement: () => document.querySelector('tbody tr td:first-child, .modern-row td:first-child'),
-            popover: { title: 'Plate & Vehicle Details', description: 'Displays the unit plate number, model year, and registered Engine & Chassis numbers for complete vehicle legal tracking.', position: 'top' }
+            getElement: () => document.querySelector('tbody.modern-card-tbody tr td:first-child') || document.querySelector('tbody tr td:first-child'),
+            popover: { title: 'Plate Number, Motor & Chassis Serial IDs', description: 'Displays the unit plate number (e.g. AAA 4591), registered Engine/Motor number, and Chassis serial number for complete vehicle legal tracking.', position: 'top' }
+        },
+        {
+            id: 'units-col-specs',
+            route: '/units',
+            getElement: () => document.querySelector('tbody.modern-card-tbody tr td:nth-child(2)') || document.querySelector('tbody tr td:nth-child(2)'),
+            popover: { title: 'Vehicle Make, Model & Year', description: 'Shows the vehicle brand (e.g. Toyota), model name (e.g. Vios), model year (e.g. 2014), and NEW vehicle status tag.', position: 'top' }
         },
         {
             id: 'units-col-drivers',
             route: '/units',
-            getElement: () => document.querySelector('tbody tr td:nth-child(3), .modern-row td:nth-child(3)'),
-            popover: { title: 'Assigned Drivers (D1 & D2)', description: 'Shows the assigned Day (D1) and Night (D2) drivers for each car. Vacant slots are highlighted for quick driver pairing.', position: 'top' }
+            getElement: () => document.querySelector('tbody.modern-card-tbody tr td:nth-child(3)') || document.querySelector('tbody tr td:nth-child(3)'),
+            popover: { title: 'Assigned Drivers (D1 & D2)', description: 'Shows the assigned Day Driver (D1) and Night Driver (D2) for each car. Vacant driver slots are highlighted for quick driver pairing.', position: 'top' }
         },
         {
-            id: 'units-col-status-pricing',
+            id: 'units-col-status',
             route: '/units',
-            getElement: () => document.querySelector('tbody tr td:nth-child(4), .modern-row td:nth-child(4)') || document.querySelector('tbody tr td:nth-child(5)'),
-            popover: { title: 'Live Status & Smart Boundary Rate', description: 'Displays real-time status (Active, Maintenance, Coding) and Smart Boundary Rates (Regular Rate vs Coding Rate vs Weekend Discount).', position: 'top' }
+            getElement: () => document.querySelector('tbody.modern-card-tbody tr td:nth-child(4)') || document.querySelector('tbody tr td:nth-child(4)'),
+            popover: { title: 'Live Vehicle Status Badge', description: 'Real-time unit status indicator (Active on road, Maintenance in garage, MMDA Coding restriction, or Vacant).', position: 'top' }
         },
         {
-            id: 'units-pms-alert',
+            id: 'units-col-pricing',
             route: '/units',
-            getElement: () => document.querySelector('.modern-sub-row') || document.querySelector('[class*="progress"]') || document.querySelector('#quickStatsBar'),
-            popover: { title: 'Odometer & Maintenance Alerts', description: 'Tracks mileage progress towards 5,000 km oil change and alerts you automatically when a unit is due for PMS or repair service.', position: 'top' }
+            getElement: () => document.querySelector('tbody.modern-card-tbody tr td:nth-child(5)') || document.querySelector('tbody tr td:nth-child(5)'),
+            popover: { title: 'Smart Boundary Rate & Pricing Tag', description: 'Displays the active daily boundary rate (e.g. ₱1,100.00) and pricing tag (Regular Rate vs Coding Discount vs Sunday Discount).', position: 'top' }
+        },
+        {
+            id: 'units-col-pms-alert',
+            route: '/units',
+            getElement: () => document.querySelector('.modern-sub-row') || document.querySelector('[class*="progress"]'),
+            popover: { title: '5,000 KM Maintenance & PMS Odometer Alert', description: 'Tracks mileage progress towards 5,000 km oil change intervals and alerts you automatically with a red warning banner when PMS is overdue!', position: 'top' }
+        },
+        {
+            id: 'units-actions-dropdown-open',
+            route: '/units',
+            onBeforeShow: () => { const dd = document.querySelector('.unit-action-dropdown'); if (dd) dd.classList.remove('hidden'); },
+            getElement: () => document.querySelector('.unit-action-dropdown') ? document.querySelector('.unit-action-dropdown').parentElement : document.querySelector('tbody tr td:last-child'),
+            popover: { title: 'Unit Actions Menu (⋮)', description: 'Clicking the 3-dots icon on the right side of any unit row opens the unit action menu with 3 essential management controls!', position: 'left' }
+        },
+        {
+            id: 'units-actions-edit',
+            route: '/units',
+            onBeforeShow: () => { const dd = document.querySelector('.unit-action-dropdown'); if (dd) dd.classList.remove('hidden'); },
+            getElement: () => document.querySelector('.unit-action-dropdown button[onclick*="editUnit"]') || document.querySelector('.unit-action-dropdown'),
+            popover: { title: '✏️ Edit Unit Action', description: 'Opens the unit editor modal to update plate numbers, vehicle specs, boundary rates, or re-assign D1/D2 drivers anytime.', position: 'left' }
+        },
+        {
+            id: 'units-actions-reset',
+            route: '/units',
+            onBeforeShow: () => { const dd = document.querySelector('.unit-action-dropdown'); if (dd) dd.classList.remove('hidden'); },
+            getElement: () => document.querySelector('.unit-action-dropdown form[action*="reset-health"]') ? document.querySelector('.unit-action-dropdown form[action*="reset-health"]').firstElementChild : document.querySelector('.unit-action-dropdown'),
+            popover: { title: '🔄 Reset Service Action', description: 'Resets the 5,000 km oil change mileage counter back to zero after mechanic maintenance or oil replacement is completed!', position: 'left' }
+        },
+        {
+            id: 'units-actions-archive',
+            route: '/units',
+            onBeforeShow: () => { const dd = document.querySelector('.unit-action-dropdown'); if (dd) dd.classList.remove('hidden'); },
+            onAfterNext: () => { const dd = document.querySelector('.unit-action-dropdown'); if (dd) dd.classList.add('hidden'); },
+            getElement: () => document.querySelector('.unit-action-dropdown form[action*="units/"]') ? document.querySelector('.unit-action-dropdown form[action*="units/"]').firstElementChild : document.querySelector('.unit-action-dropdown'),
+            popover: { title: '📦 Archive Unit Action', description: 'Safely deactivates and archives the taxi unit without deleting its historical financial, boundary, and driver records.', position: 'left' }
+        },
+        {
+            id: 'units-row-click-deepdive',
+            route: '/units',
+            onBeforeShow: () => { const dd = document.querySelector('.unit-action-dropdown'); if (dd) dd.classList.add('hidden'); },
+            getElement: () => document.querySelector('tbody.modern-card-tbody tr.modern-row-has-sub, tbody.modern-card-tbody tr.modern-row'),
+            popover: { title: 'Click Any Unit Row to View Full Details', description: 'Clicking anywhere on a taxi row opens the complete Unit Details profile page with live GPS map location, historical boundary receipts, repair history, and driver logs!', position: 'top' }
         },
         {
             id: 'sidebar-drivers',
