@@ -196,31 +196,63 @@ const TutorialManager = (function () {
         {
             id: 'units-add-modal-plate',
             route: '/units',
-            onBeforeShow: () => { const m = document.getElementById('addUnitModal'); if (m) m.classList.remove('hidden'); const el = document.getElementById('addPlateNumber'); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' }); },
-            getElement: () => document.getElementById('addPlateNumber'),
-            popover: { title: '1. Plate Number & Auto Coding Detection', description: 'Enter the vehicle plate number (e.g. ABC 1234). The system automatically detects the MMDA coding day based on the last digit!', position: 'bottom' }
+            onBeforeShow: () => { 
+                const m = document.getElementById('addUnitModal'); 
+                if (m) m.classList.remove('hidden'); 
+                const el = document.getElementById('addUnitSectionBasicInfo'); 
+                if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' }); 
+            },
+            getElement: () => document.getElementById('addUnitSectionBasicInfo') || document.getElementById('addPlateNumber'),
+            popover: { title: '1. Basic Info & Plate Number', description: 'Enter the vehicle plate number (e.g. ABC 1234). The system automatically detects the MMDA coding day based on the last digit!', position: 'bottom' }
         },
         {
             id: 'units-add-modal-details',
             route: '/units',
-            onBeforeShow: () => { const m = document.getElementById('addUnitModal'); if (m) m.classList.remove('hidden'); const el = document.querySelector('input[name="make"]'); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' }); },
-            getElement: () => document.querySelector('input[name="make"]') ? document.querySelector('input[name="make"]').closest('.mb-8') : document.getElementById('addUnitModal'),
-            popover: { title: '2. Vehicle Make, Model, Year & Serial Numbers', description: 'Specify the vehicle brand (e.g. Toyota), model (e.g. Vios), year model, and registered Engine & Chassis numbers for legal compliance.', position: 'bottom' }
+            onBeforeShow: () => { 
+                const m = document.getElementById('addUnitModal'); 
+                if (m) m.classList.remove('hidden'); 
+                const el = document.getElementById('addUnitSectionVehicleDetails'); 
+                if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' }); 
+            },
+            getElement: () => document.getElementById('addUnitSectionVehicleDetails'),
+            popover: { title: '2. Vehicle Specs (Make, Model, Year & IDs)', description: 'Specify vehicle brand (e.g. Toyota), model (e.g. Vios), year model, and official Engine & Chassis serial numbers for legal LTO compliance.', position: 'bottom' }
         },
         {
             id: 'units-add-modal-finance',
             route: '/units',
-            onBeforeShow: () => { const m = document.getElementById('addUnitModal'); if (m) m.classList.remove('hidden'); const el = document.getElementById('addBoundaryRate'); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' }); },
-            getElement: () => document.getElementById('addBoundaryRate') ? document.getElementById('addBoundaryRate').closest('.mb-8') : document.getElementById('addUnitModal'),
-            popover: { title: '3. Daily Boundary Rate Target & Purchase Cost', description: 'Set the base daily boundary collection target (e.g. ₱1,100.00). Smart pricing will dynamically adjust this for coding days and weekend discounts!', position: 'bottom' }
+            onBeforeShow: () => { 
+                const m = document.getElementById('addUnitModal'); 
+                if (m) m.classList.remove('hidden'); 
+                const el = document.getElementById('addUnitSectionFinancialInfo'); 
+                if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' }); 
+            },
+            getElement: () => document.getElementById('addUnitSectionFinancialInfo'),
+            popover: { title: '3. Financial Info & Daily Boundary Target', description: 'Set the base daily boundary collection target (e.g. ₱1,100.00) and vehicle purchase cost for automated ROI calculations.', position: 'bottom' }
+        },
+        {
+            id: 'units-add-modal-driver-assignment',
+            route: '/units',
+            onBeforeShow: () => { 
+                const m = document.getElementById('addUnitModal'); 
+                if (m) m.classList.remove('hidden'); 
+                const el = document.getElementById('addUnitSectionDriverAssignment'); 
+                if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' }); 
+            },
+            getElement: () => document.getElementById('addUnitSectionDriverAssignment'),
+            popover: { title: '4. Driver Assignment (Primary D1 & Secondary D2)', description: 'Search and pair active drivers to this vehicle! Assign the Primary Day Driver (D1) and optional Secondary Relief Driver (D2) right during vehicle registration.', position: 'top' }
         },
         {
             id: 'units-add-modal-close',
             route: '/units',
-            onBeforeShow: () => { const m = document.getElementById('addUnitModal'); if (m) m.classList.remove('hidden'); const el = document.querySelector('#addUnitForm button[type="submit"]'); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' }); },
+            onBeforeShow: () => { 
+                const m = document.getElementById('addUnitModal'); 
+                if (m) m.classList.remove('hidden'); 
+                const el = document.querySelector('#addUnitForm button[type="submit"]'); 
+                if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' }); 
+            },
             onAfterNext: () => { const m = document.getElementById('addUnitModal'); if (m) m.classList.add('hidden'); },
             getElement: () => document.querySelector('#addUnitForm button[type="submit"]') ? document.querySelector('#addUnitForm button[type="submit"]').parentElement : document.getElementById('addUnitModal'),
-            popover: { title: '4. Save & Register Unit', description: 'Clicking Save Unit validates all vehicle details and adds the new car to your active fleet roster immediately!', position: 'top' }
+            popover: { title: '5. Save & Register Unit', description: 'Clicking Save Unit validates all vehicle details, pairs assigned drivers, and immediately adds the new car to your active fleet roster!', position: 'top' }
         },
         {
             id: 'units-table-sep',

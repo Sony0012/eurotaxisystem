@@ -369,7 +369,7 @@
                 <div class="p-6 flex-1 overflow-y-auto space-y-8">
 
                 {{-- Section 1: Basic Information --}}
-                <div class="mb-8">
+                <div id="addUnitSectionBasicInfo" class="mb-8">
                     <div class="flex items-center gap-2 mb-4">
                         <div class="p-2 bg-blue-100 rounded-lg">
                             <i data-lucide="info" class="w-5 h-5 text-blue-600"></i>
@@ -393,7 +393,7 @@
                 </div>
 
                 {{-- Section 2: Vehicle Details --}}
-                <div class="mb-8">
+                <div id="addUnitSectionVehicleDetails" class="mb-8">
                     <div class="flex items-center gap-2 mb-4">
                         <div class="p-2 bg-green-100 rounded-lg">
                             <i data-lucide="truck" class="w-5 h-5 text-green-600"></i>
@@ -440,7 +440,7 @@
                 </div>
 
                 {{-- Section 3: Financial Information --}}
-                <div class="mb-8">
+                <div id="addUnitSectionFinancialInfo" class="mb-8">
                     <div class="flex items-center gap-2 mb-4">
                         <div class="p-2 bg-purple-100 rounded-lg">
                             <i data-lucide="dollar-sign" class="w-5 h-5 text-purple-600"></i>
@@ -491,7 +491,7 @@
                 </div>
 
                 {{-- Section 4: Driver Assignment --}}
-                <div class="mb-8">
+                <div id="addUnitSectionDriverAssignment" class="mb-8">
                     <div class="flex items-center gap-2 mb-4">
                         <div class="p-2 bg-blue-100 rounded-lg">
                             <i data-lucide="users" class="w-5 h-5 text-blue-600"></i>
