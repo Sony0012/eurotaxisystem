@@ -242,6 +242,30 @@ const TutorialManager = (function () {
             popover: { title: '4. Driver Assignment (Primary D1 & Secondary D2)', description: 'Search and pair active drivers to this vehicle! Assign the Primary Day Driver (D1) and optional Secondary Relief Driver (D2) right during vehicle registration.', position: 'top' }
         },
         {
+            id: 'units-add-modal-coding-info',
+            route: '/units',
+            onBeforeShow: () => { 
+                const m = document.getElementById('addUnitModal'); 
+                if (m) m.classList.remove('hidden'); 
+                const el = document.getElementById('addUnitSectionCodingInfo'); 
+                if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' }); 
+            },
+            getElement: () => document.getElementById('addUnitSectionCodingInfo'),
+            popover: { title: '5. MMDA Coding Schedule & Auto Detection', description: 'View the MMDA Metro Manila coding schedule (Mon: 1,2 | Tue: 3,4 | Wed: 5,6 | Thu: 7,8 | Fri: 9,0). The system automatically calculates the Next Coding Date and Days Remaining!', position: 'top' }
+        },
+        {
+            id: 'units-add-modal-gps-integration',
+            route: '/units',
+            onBeforeShow: () => { 
+                const m = document.getElementById('addUnitModal'); 
+                if (m) m.classList.remove('hidden'); 
+                const el = document.getElementById('addUnitSectionGpsIntegration'); 
+                if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' }); 
+            },
+            getElement: () => document.getElementById('addUnitSectionGpsIntegration'),
+            popover: { title: '6. Live GPS Tracker Integration (IMEI & Provider)', description: 'Configure real-time GPS tracking! Select the provider (Tracksolid Pro or AKSH Aika168) and enter the device IMEI number for live map tracking.', position: 'top' }
+        },
+        {
             id: 'units-add-modal-close',
             route: '/units',
             onBeforeShow: () => { 
@@ -252,7 +276,7 @@ const TutorialManager = (function () {
             },
             onAfterNext: () => { const m = document.getElementById('addUnitModal'); if (m) m.classList.add('hidden'); },
             getElement: () => document.querySelector('#addUnitForm button[type="submit"]') ? document.querySelector('#addUnitForm button[type="submit"]').parentElement : document.getElementById('addUnitModal'),
-            popover: { title: '5. Save & Register Unit', description: 'Clicking Save Unit validates all vehicle details, pairs assigned drivers, and immediately adds the new car to your active fleet roster!', position: 'top' }
+            popover: { title: '7. Save & Register Unit', description: 'Clicking Save Unit validates all vehicle details, pairs assigned drivers, sets up MMDA coding, and immediately registers the new car into your active fleet roster!', position: 'top' }
         },
         {
             id: 'units-table-sep',

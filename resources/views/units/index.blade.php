@@ -573,7 +573,7 @@
                 </div>
 
                 {{-- Section 5: Coding Information --}}
-                <div class="mb-8">
+                <div id="addUnitSectionCodingInfo" class="mb-8">
                     <div class="flex items-center gap-2 mb-4">
                         <div class="p-2 bg-indigo-100 rounded-lg">
                             <i data-lucide="calendar" class="w-5 h-5 text-indigo-600"></i>
@@ -639,7 +639,7 @@
                 </div>
 
                 {{-- Section 6: GPS Integration --}}
-                <div class="mb-8">
+                <div id="addUnitSectionGpsIntegration" class="mb-8">
                     <div class="flex items-center gap-2 mb-4">
                         <div class="p-2 bg-indigo-100 rounded-lg">
                             <i data-lucide="satellite" class="w-5 h-5 text-indigo-600"></i>
