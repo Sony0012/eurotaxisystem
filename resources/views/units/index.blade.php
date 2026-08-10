@@ -207,7 +207,7 @@
                     }
                 </style>
                 {{-- ── View Mode Toggle (Premium Labeled Pill) ─────── --}}
-                <div class="flex items-stretch bg-gray-900/5 p-0.5 rounded-xl border border-gray-200/80 gap-0.5 shadow-inner h-[38px] flex-shrink-0">
+                <div id="unitViewTogglePill" class="flex items-stretch bg-gray-900/5 p-0.5 rounded-xl border border-gray-200/80 gap-0.5 shadow-inner h-[38px] flex-shrink-0">
                     <button type="button" onclick="setViewMode('table')" id="btn-view-table"
                         class="flex items-center justify-center gap-1.5 lg:gap-2 px-3 lg:px-4 rounded-lg text-xs font-black transition-all duration-200 uppercase tracking-wide whitespace-nowrap">
                         <i data-lucide="table-properties" class="w-3.5 h-3.5"></i>
@@ -221,11 +221,11 @@
                     <input type="hidden" name="view" id="viewModeInput" value="table">
                 </div>
 
-                <button type="button" onclick="printInHiddenIframe('{{ route('units.print') }}')"
+                <button id="btn-print-pdf" type="button" onclick="printInHiddenIframe('{{ route('units.print') }}')"
                     class="px-3 py-1 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center justify-center gap-1.5 lg:gap-2 text-xs font-semibold shadow-sm h-[38px] flex-1 min-w-0 lg:flex-initial lg:w-[135px]">
                     <i data-lucide="printer" class="w-3.5 h-3.5"></i> Print to PDF
                 </button>
-                <button type="button" onclick="document.getElementById('addUnitModal').classList.remove('hidden')"
+                <button id="btn-add-unit" type="button" onclick="document.getElementById('addUnitModal').classList.remove('hidden')"
                     class="px-3 py-1 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center justify-center gap-1.5 lg:gap-2 text-xs font-semibold shadow-sm h-[38px] flex-1 min-w-0 lg:flex-initial lg:w-[135px]">
                     <i data-lucide="plus" class="w-3.5 h-3.5"></i> Add Unit
                 </button>

@@ -152,10 +152,22 @@ const TutorialManager = (function () {
             popover: { title: 'Search, Sort & Filters', description: 'Quickly search any car by plate number or driver name, sort A-Z, or filter by Active, Coding, Maintenance, or Vacant status.', position: 'bottom' }
         },
         {
-            id: 'units-actions-bar',
+            id: 'units-view-toggle',
             route: '/units',
-            getElement: () => document.getElementById('unitActionButtonsBar'),
-            popover: { title: 'Action Controls & Add Unit', description: 'Switch between Table and Cards view, print/export the Driver Master List report to PDF, or click "+ Add Unit" to register a new car to your fleet.', position: 'bottom' }
+            getElement: () => document.getElementById('unitViewTogglePill') || document.getElementById('btn-view-table'),
+            popover: { title: 'Table & Cards View Toggle', description: 'Switch between detailed Table view and grid-based Cards view to monitor your fleet inventory based on your visual preference.', position: 'bottom' }
+        },
+        {
+            id: 'units-print-pdf',
+            route: '/units',
+            getElement: () => document.getElementById('btn-print-pdf') || document.querySelector('button[onclick*="printInHiddenIframe"]'),
+            popover: { title: 'Print Master List to PDF', description: 'Export and print the complete active fleet roster and driver master list to a clean, formatted PDF document.', position: 'bottom' }
+        },
+        {
+            id: 'units-add-unit',
+            route: '/units',
+            getElement: () => document.getElementById('btn-add-unit') || document.querySelector('button[onclick*="addUnitModal"]'),
+            popover: { title: 'Add New Unit', description: 'Register a new taxi unit into the fleet system with its plate number, model year, engine/chassis details, and initial boundary rate.', position: 'bottom' }
         },
         {
             id: 'units-table-sep',
