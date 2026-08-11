@@ -1355,6 +1355,29 @@ const TutorialManager = (function () {
     function moveToPrevStep(currentIndex) {
         logDebug(`Moving to prev step from ${currentIndex}`);
         if (currentIndex <= 0) return;
+
+        clearElevatedTarget();
+
+        // Clean up portal dropdowns and modals before starting previous step
+        if (typeof window._tutorialUnportalDropdown === 'function') {
+            window._tutorialUnportalDropdown();
+        }
+        
+        const portalDiv = document.querySelector('.unit-action-dropdown--portal');
+        if (portalDiv) portalDiv.remove();
+
+        const prevStepObj = steps[currentIndex - 1];
+        const prevStepId = prevStepObj ? prevStepObj.id : '';
+
+        const addModal = document.getElementById('addUnitModal');
+        if (addModal && !prevStepId.includes('add-modal')) addModal.classList.add('hidden');
+
+        const editModal = document.getElementById('editUnitModal');
+        if (editModal && !prevStepId.includes('edit-modal')) editModal.classList.add('hidden');
+
+        const pdfModal = document.getElementById('tutorialPrintPdfModal');
+        if (pdfModal && !prevStepId.includes('pdf-preview')) pdfModal.classList.add('hidden');
+
         const currentStep = steps[currentIndex];
         if (currentStep && typeof currentStep.onAfterPrev === 'function') {
             try {
@@ -1375,7 +1398,7 @@ const TutorialManager = (function () {
                 logDebug("Safe destroy prev catch: " + e.message);
             }
             startTutorial(prevIndex);
-        }, 300);
+        }, 150);
     }
 
     function finishTutorial() {

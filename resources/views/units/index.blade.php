@@ -1059,30 +1059,52 @@
     function setViewMode(mode, forceFetch = true) {
         currentViewMode = mode;
         localStorage.setItem('unitViewMode', mode);
-        document.getElementById('viewModeInput').value = mode;
+        if (document.getElementById('viewModeInput')) document.getElementById('viewModeInput').value = mode;
         
         // Update UI — premium pill toggle active states
         const btnTable = document.getElementById('btn-view-table');
         const btnGrid  = document.getElementById('btn-view-grid');
         
         if (mode === 'table') {
-            // Table ACTIVE
-            btnTable.classList.add('bg-white', 'text-yellow-600', 'shadow-md', 'shadow-yellow-100/80');
-            btnTable.classList.remove('text-gray-400');
-            // Grid INACTIVE
-            btnGrid.classList.remove('bg-white', 'text-yellow-600', 'shadow-md', 'shadow-yellow-100/80');
-            btnGrid.classList.add('text-gray-400');
+            if (btnTable) {
+                btnTable.classList.add('bg-white', 'text-yellow-600', 'shadow-md', 'shadow-yellow-100/80');
+                btnTable.classList.remove('text-gray-400');
+            }
+            if (btnGrid) {
+                btnGrid.classList.remove('bg-white', 'text-yellow-600', 'shadow-md', 'shadow-yellow-100/80');
+                btnGrid.classList.add('text-gray-400');
+            }
         } else {
-            // Grid ACTIVE
-            btnGrid.classList.add('bg-white', 'text-yellow-600', 'shadow-md', 'shadow-yellow-100/80');
-            btnGrid.classList.remove('text-gray-400');
-            // Table INACTIVE
-            btnTable.classList.remove('bg-white', 'text-yellow-600', 'shadow-md', 'shadow-yellow-100/80');
-            btnTable.classList.add('text-gray-400');
+            if (btnGrid) {
+                btnGrid.classList.add('bg-white', 'text-yellow-600', 'shadow-md', 'shadow-yellow-100/80');
+                btnGrid.classList.remove('text-gray-400');
+            }
+            if (btnTable) {
+                btnTable.classList.remove('bg-white', 'text-yellow-600', 'shadow-md', 'shadow-yellow-100/80');
+                btnTable.classList.add('text-gray-400');
+            }
+        }
+
+        const isTutorialActive = !!localStorage.getItem('tutorial_current_step') || window.location.search.includes('tutorial=1');
+        if (isTutorialActive) {
+            // Instant 0ms client-side DOM view toggle during tutorial!
+            const tableView = document.getElementById('units-table-view') || document.querySelector('.modern-table-sep') || document.getElementById('unitsTableScrollContainer');
+            const gridView = document.getElementById('units-grid-view') || document.querySelector('.grid-cards-container') || document.querySelector('.grid');
+            
+            if (tableView && gridView) {
+                if (mode === 'table') {
+                    tableView.classList.remove('hidden');
+                    gridView.classList.add('hidden');
+                } else {
+                    gridView.classList.remove('hidden');
+                    tableView.classList.add('hidden');
+                }
+            }
+            return; // Skip server fetch in tutorial mode for 100% instant switching!
         }
         
         if (forceFetch) {
-            performSearch(1); // Re-fetch with new view mode
+            performSearch(1); // Re-fetch with new view mode for live application
         }
     }
 
