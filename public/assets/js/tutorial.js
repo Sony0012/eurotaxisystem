@@ -682,8 +682,8 @@ const TutorialManager = (function () {
                 }
                 if (typeof showTab === 'function') showTab('overview');
             },
-            getElement: () => document.querySelector('#unitDetailsModal .tab-btn[data-tab="overview"]') || document.querySelector('#unitDetailsContent nav') || document.querySelector('#unitDetailsModal > div'),
-            popover: { title: 'Unit Details Profile & Navigation Tabs', description: 'Welcome inside the Unit Details profile! This header features interactive tabs: Overview, Drivers, Coding, Boundary, Maintenance, ROI, and Location.', position: 'bottom' }
+            getElement: () => document.querySelector('#unitDetailsContent .bg-gradient-to-r') || document.querySelector('#unitDetailsModal > div'),
+            popover: { title: 'Unit Overview Header & Status Badge', description: 'Welcome inside the Unit Details profile! This summary header displays the unit plate number, status indicator (Active, Maintenance, Coding), vehicle make and model, and current daily boundary rate.', position: 'bottom' }
         },
         {
             id: 'unit-details-overview-tab',
