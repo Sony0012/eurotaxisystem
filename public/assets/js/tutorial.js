@@ -309,17 +309,16 @@ const TutorialManager = (function () {
                     window.removeEventListener('click', window._step38ClickListener, true);
                     window._step38ClickListener = null;
                 }
+                // Ensure dropdown is closed on entry — user must click 3-dots to open it
+                window._tutorialUnportalDropdown();
                 const btn = document.querySelector('tbody tr button[onclick*="toggleUnitDropdown"]');
                 if (btn) {
                     btn.scrollIntoView({ behavior: 'auto', block: 'center' });
                 }
-                setTimeout(() => {
-                    window._tutorialPortalDropdown();
-                }, 200);
             },
             onAfterNext: () => {},
             getElement: () => document.querySelector('tbody tr button[onclick*="toggleUnitDropdown"]'),
-            popover: { title: 'Unit Actions Menu (⋮)', description: 'Clicking the 3-dots icon opens the Actions menu with 3 management controls: Edit, Reset Service, and Archive. Click Next Step to explore each action.', position: 'left-center' }
+            popover: { title: 'Unit Actions Menu (⋮)', description: '👆 Click the 3-dots (⋮) icon now to open the Actions menu and see the 3 management controls available!', position: 'left-center' }
         },
         {
             id: 'units-actions-edit',
@@ -1204,6 +1203,10 @@ window._tutorialPortalDropdown = function() {
     clone.style.setProperty('overflow', 'hidden', 'important');
 
     document.body.appendChild(clone);
+
+    // IMPORTANT: Hide the original so the portal clone is the only one visible
+    dd.classList.add('hidden');
+    dd.style.removeProperty('display');
 };
 
 window._tutorialUnportalDropdown = function() {
