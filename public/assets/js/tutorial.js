@@ -305,25 +305,7 @@ const TutorialManager = (function () {
             id: 'units-actions-dropdown-open',
             route: '/units',
             onBeforeShow: () => { 
-                const btn = document.querySelector('tbody tr button[onclick*="toggleUnitDropdown"]');
-                if (btn) {
-                    btn.scrollIntoView({ behavior: 'auto', block: 'center' });
-                    const rect = btn.getBoundingClientRect();
-                    const dd = document.querySelector('.unit-action-dropdown'); 
-                    if (dd) {
-                        dd.classList.remove('hidden');
-                        dd.style.setProperty('position', 'fixed', 'important');
-                        dd.style.setProperty('top', Math.round(rect.bottom + 4) + 'px', 'important');
-                        dd.style.setProperty('left', Math.max(10, Math.round(rect.right - 170)) + 'px', 'important');
-                        dd.style.setProperty('z-index', '9999999', 'important');
-                        dd.style.setProperty('width', '170px', 'important');
-                        setTimeout(() => {
-                            const bRect = btn.getBoundingClientRect();
-                            dd.style.setProperty('top', Math.round(bRect.bottom + 4) + 'px', 'important');
-                            dd.style.setProperty('left', Math.max(10, Math.round(bRect.right - 170)) + 'px', 'important');
-                        }, 50);
-                    }
-                }
+                startActionDropdownSync();
             },
             getElement: () => document.querySelector('.unit-action-dropdown'),
             popover: { title: 'Unit Actions Menu (⋮)', description: 'Clicking the 3-dots icon on the right side of any unit row opens the unit action menu with 3 essential management controls!', position: 'left-center' }
@@ -332,25 +314,7 @@ const TutorialManager = (function () {
             id: 'units-actions-edit',
             route: '/units',
             onBeforeShow: () => { 
-                const btn = document.querySelector('tbody tr button[onclick*="toggleUnitDropdown"]');
-                if (btn) {
-                    btn.scrollIntoView({ behavior: 'auto', block: 'center' });
-                    const rect = btn.getBoundingClientRect();
-                    const dd = document.querySelector('.unit-action-dropdown'); 
-                    if (dd) {
-                        dd.classList.remove('hidden');
-                        dd.style.setProperty('position', 'fixed', 'important');
-                        dd.style.setProperty('top', Math.round(rect.bottom + 4) + 'px', 'important');
-                        dd.style.setProperty('left', Math.max(10, Math.round(rect.right - 170)) + 'px', 'important');
-                        dd.style.setProperty('z-index', '9999999', 'important');
-                        dd.style.setProperty('width', '170px', 'important');
-                        setTimeout(() => {
-                            const bRect = btn.getBoundingClientRect();
-                            dd.style.setProperty('top', Math.round(bRect.bottom + 4) + 'px', 'important');
-                            dd.style.setProperty('left', Math.max(10, Math.round(bRect.right - 170)) + 'px', 'important');
-                        }, 50);
-                    }
-                }
+                startActionDropdownSync();
             },
             getElement: () => document.querySelector('.unit-action-dropdown'),
             popover: { title: '✏️ Edit Unit Action', description: 'Clicking Edit Unit opens the unit editor modal where you can update vehicle specs, plate numbers, daily boundary rates, or re-assign drivers.', position: 'left-center' }
@@ -359,6 +323,7 @@ const TutorialManager = (function () {
             id: 'units-edit-modal-overview',
             route: '/units',
             onBeforeShow: () => {
+                stopActionDropdownSync();
                 const dd = document.querySelector('.unit-action-dropdown'); 
                 if (dd) dd.classList.add('hidden'); 
                 if (typeof editUnit === 'function') editUnit(1);
@@ -376,25 +341,7 @@ const TutorialManager = (function () {
             onBeforeShow: () => { 
                 const editModal = document.getElementById('editUnitModal');
                 if (editModal) editModal.classList.add('hidden');
-                const btn = document.querySelector('tbody tr button[onclick*="toggleUnitDropdown"]');
-                if (btn) {
-                    btn.scrollIntoView({ behavior: 'auto', block: 'center' });
-                    const rect = btn.getBoundingClientRect();
-                    const dd = document.querySelector('.unit-action-dropdown'); 
-                    if (dd) {
-                        dd.classList.remove('hidden');
-                        dd.style.setProperty('position', 'fixed', 'important');
-                        dd.style.setProperty('top', Math.round(rect.bottom + 4) + 'px', 'important');
-                        dd.style.setProperty('left', Math.max(10, Math.round(rect.right - 170)) + 'px', 'important');
-                        dd.style.setProperty('z-index', '9999999', 'important');
-                        dd.style.setProperty('width', '170px', 'important');
-                        setTimeout(() => {
-                            const bRect = btn.getBoundingClientRect();
-                            dd.style.setProperty('top', Math.round(bRect.bottom + 4) + 'px', 'important');
-                            dd.style.setProperty('left', Math.max(10, Math.round(bRect.right - 170)) + 'px', 'important');
-                        }, 50);
-                    }
-                }
+                startActionDropdownSync();
             },
             getElement: () => document.querySelector('.unit-action-dropdown'),
             popover: { title: '🔄 Reset Service Action', description: 'Resets the 5,000 km oil change mileage counter back to zero after mechanic maintenance or oil replacement is completed!', position: 'left-center' }
@@ -403,25 +350,7 @@ const TutorialManager = (function () {
             id: 'units-actions-archive',
             route: '/units',
             onBeforeShow: () => { 
-                const btn = document.querySelector('tbody tr button[onclick*="toggleUnitDropdown"]');
-                if (btn) {
-                    btn.scrollIntoView({ behavior: 'auto', block: 'center' });
-                    const rect = btn.getBoundingClientRect();
-                    const dd = document.querySelector('.unit-action-dropdown'); 
-                    if (dd) {
-                        dd.classList.remove('hidden');
-                        dd.style.setProperty('position', 'fixed', 'important');
-                        dd.style.setProperty('top', Math.round(rect.bottom + 4) + 'px', 'important');
-                        dd.style.setProperty('left', Math.max(10, Math.round(rect.right - 170)) + 'px', 'important');
-                        dd.style.setProperty('z-index', '9999999', 'important');
-                        dd.style.setProperty('width', '170px', 'important');
-                        setTimeout(() => {
-                            const bRect = btn.getBoundingClientRect();
-                            dd.style.setProperty('top', Math.round(bRect.bottom + 4) + 'px', 'important');
-                            dd.style.setProperty('left', Math.max(10, Math.round(bRect.right - 170)) + 'px', 'important');
-                        }, 50);
-                    }
-                }
+                startActionDropdownSync();
             },
             getElement: () => document.querySelector('.unit-action-dropdown'),
             popover: { title: '📦 Archive Unit Action', description: 'Safely deactivates and archives the taxi unit without deleting its historical financial, boundary, and driver records.', position: 'left-center' }
@@ -430,6 +359,7 @@ const TutorialManager = (function () {
             id: 'units-row-click-deepdive',
             route: '/units',
             onBeforeShow: () => { 
+                stopActionDropdownSync();
                 const dd = document.querySelector('.unit-action-dropdown'); 
                 if (dd) dd.classList.add('hidden'); 
                 const container = document.getElementById('unitsTableScrollContainer') || document.querySelector('.overflow-x-auto');
