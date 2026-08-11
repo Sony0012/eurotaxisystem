@@ -1204,6 +1204,12 @@
         
         document.querySelectorAll('.unit-action-dropdown').forEach(el => {
             if (el.id !== id) el.classList.add('hidden');
+            const tr = el.closest('tr');
+            const tbody = el.closest('tbody');
+            const td = el.closest('td');
+            if (tr) { tr.style.zIndex = ''; tr.style.position = ''; }
+            if (tbody) { tbody.style.zIndex = ''; tbody.style.position = ''; }
+            if (td) { td.style.zIndex = ''; td.style.position = ''; }
         });
         
         const dropdown = document.getElementById(id);
@@ -1212,15 +1218,14 @@
         const isHidden = dropdown.classList.contains('hidden');
         if (isHidden) {
             dropdown.classList.remove('hidden');
-            const btn = event ? (event.currentTarget || event.target.closest('button')) : dropdown.previousElementSibling;
-            if (btn) {
-                const rect = btn.getBoundingClientRect();
-                dropdown.style.setProperty('position', 'fixed', 'important');
-                dropdown.style.setProperty('top', Math.round(rect.bottom + 4) + 'px', 'important');
-                dropdown.style.setProperty('left', Math.max(10, Math.round(rect.right - 165)) + 'px', 'important');
-                dropdown.style.setProperty('z-index', '9999999', 'important');
-                dropdown.style.setProperty('width', '165px', 'important');
-            }
+            const td = dropdown.closest('td');
+            const tr = dropdown.closest('tr');
+            const tbody = dropdown.closest('tbody');
+            if (td) { td.style.position = 'relative'; td.style.setProperty('z-index', '999999', 'important'); }
+            if (tr) { tr.style.position = 'relative'; tr.style.setProperty('z-index', '999999', 'important'); }
+            if (tbody) { tbody.style.position = 'relative'; tbody.style.setProperty('z-index', '999999', 'important'); }
+            const container = document.getElementById('unitsTableScrollContainer') || dropdown.closest('.overflow-x-auto');
+            if (container) container.style.setProperty('overflow', 'visible', 'important');
         } else {
             dropdown.classList.add('hidden');
         }
