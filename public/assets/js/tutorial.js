@@ -1035,9 +1035,13 @@ const TutorialManager = (function () {
             return;
         }
 
-        // Enforce Table view layout for early unit management steps before Step 19
-        if (stepIndex < 18 && window.location.pathname.startsWith('/units') && typeof setViewMode === 'function') {
-            setViewMode('table');
+        // Enforce strict View Mode for Unit Management steps: Step 19 ('units-cards-deepdive') is Cards view; ALL other steps are Table view.
+        if (window.location.pathname.startsWith('/units') && typeof setViewMode === 'function') {
+            if (step.id === 'units-cards-deepdive') {
+                setViewMode('grid');
+            } else {
+                setViewMode('table');
+            }
         }
 
         // Run onBeforeShow hook if defined
