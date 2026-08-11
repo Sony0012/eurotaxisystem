@@ -3,12 +3,14 @@
 /* Driver.js Custom Overrides for Premium SaaS Look */
 .driver-overlay {
     background: transparent !important;
+    pointer-events: none !important;
 }
 
-/* Style the SVG cutout path directly so the hole remains transparent */
+/* Style the SVG cutout path directly so the hole remains transparent and passes clicks to target elements */
 .driver-overlay path {
     fill: rgb(15, 23, 42) !important;
     opacity: 0.7 !important;
+    pointer-events: auto !important;
 }
 
 .driver-popover {

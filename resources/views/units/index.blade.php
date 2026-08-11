@@ -1226,13 +1226,13 @@
             if (container) container.style.setProperty('overflow', 'visible', 'important');
 
             // If tutorial is currently at Step 38 (3-dots button), move to Step 39 automatically
-            if (window.driverObj && typeof window.driverObj.moveNext === 'function') {
-                const step = window.driverObj.getActiveStep ? window.driverObj.getActiveStep() : null;
-                if (step && step.id === 'units-actions-dropdown-open') {
-                    setTimeout(() => {
-                        if (window.driverObj) window.driverObj.moveNext();
-                    }, 150);
-                }
+            const currentStepStr = localStorage.getItem('tutorial_current_step');
+            if (currentStepStr === '37' || currentStepStr === '38') {
+                setTimeout(() => {
+                    if (window.TutorialManager) {
+                        window.TutorialManager.moveToNextStep(parseInt(currentStepStr));
+                    }
+                }, 150);
             }
         } else {
             dropdown.classList.add('hidden');
