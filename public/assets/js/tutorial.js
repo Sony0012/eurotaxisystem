@@ -313,21 +313,13 @@ const TutorialManager = (function () {
                 if (btn) {
                     btn.scrollIntoView({ behavior: 'auto', block: 'center' });
                 }
-                // Auto-open the dropdown so users can see it demonstrated
                 setTimeout(() => {
-                    const dd = document.querySelector('.unit-action-dropdown');
-                    if (dd) {
-                        dd.classList.remove('hidden');
-                        dd.style.setProperty('z-index', '100005', 'important');
-                        dd.style.setProperty('pointer-events', 'none', 'important');
-                    }
-                    const container = document.getElementById('unitsTableScrollContainer') || document.querySelector('.overflow-x-auto');
-                    if (container) container.style.setProperty('overflow', 'visible', 'important');
-                }, 100);
+                    window._tutorialPortalDropdown();
+                }, 200);
             },
             onAfterNext: () => {},
             getElement: () => document.querySelector('tbody tr button[onclick*="toggleUnitDropdown"]'),
-            popover: { title: 'Unit Actions Menu (⋮)', description: 'Clicking the 3-dots icon on the right side of any unit row opens the unit action menu with 3 essential management controls! Click Next Step to explore each action.', position: 'left-center' }
+            popover: { title: 'Unit Actions Menu (⋮)', description: 'Clicking the 3-dots icon opens the Actions menu with 3 management controls: Edit, Reset Service, and Archive. Click Next Step to explore each action.', position: 'left-center' }
         },
         {
             id: 'units-actions-edit',
@@ -335,24 +327,18 @@ const TutorialManager = (function () {
             onBeforeShow: () => { 
                 const btn = document.querySelector('tbody tr button[onclick*="toggleUnitDropdown"]');
                 if (btn) btn.scrollIntoView({ behavior: 'auto', block: 'center' });
-                const dd = document.querySelector('.unit-action-dropdown'); 
-                if (dd) {
-                    dd.classList.remove('hidden');
-                    dd.style.setProperty('z-index', '100005', 'important');
-                    dd.style.setProperty('pointer-events', 'none', 'important');
-                }
-                const container = document.getElementById('unitsTableScrollContainer') || document.querySelector('.overflow-x-auto');
-                if (container) container.style.setProperty('overflow', 'visible', 'important');
+                setTimeout(() => {
+                    window._tutorialPortalDropdown();
+                }, 100);
             },
-            getElement: () => document.querySelector('.unit-action-dropdown button[onclick*="editUnit"]') || document.querySelector('tbody tr button[onclick*="toggleUnitDropdown"]'),
+            getElement: () => document.querySelector('.unit-action-dropdown--portal button[onclick*="editUnit"]') || document.querySelector('.unit-action-dropdown button[onclick*="editUnit"]') || document.querySelector('tbody tr button[onclick*="toggleUnitDropdown"]'),
             popover: { title: '✏️ Edit Unit Action', description: 'Clicking Edit Unit opens the unit editor modal where you can update vehicle specs, plate numbers, daily boundary rates, or re-assign drivers.', position: 'left-center' }
         },
         {
             id: 'units-edit-modal-overview',
             route: '/units',
             onBeforeShow: () => {
-                const dd = document.querySelector('.unit-action-dropdown'); 
-                if (dd) dd.classList.add('hidden'); 
+                window._tutorialUnportalDropdown();
                 if (typeof editUnit === 'function') editUnit(1);
             },
             onAfterNext: () => {
@@ -370,16 +356,11 @@ const TutorialManager = (function () {
                 if (editModal) editModal.classList.add('hidden');
                 const btn = document.querySelector('tbody tr button[onclick*="toggleUnitDropdown"]');
                 if (btn) btn.scrollIntoView({ behavior: 'auto', block: 'center' });
-                const dd = document.querySelector('.unit-action-dropdown'); 
-                if (dd) {
-                    dd.classList.remove('hidden');
-                    dd.style.setProperty('z-index', '100005', 'important');
-                    dd.style.setProperty('pointer-events', 'none', 'important');
-                }
-                const container = document.getElementById('unitsTableScrollContainer') || document.querySelector('.overflow-x-auto');
-                if (container) container.style.setProperty('overflow', 'visible', 'important');
+                setTimeout(() => {
+                    window._tutorialPortalDropdown();
+                }, 100);
             },
-            getElement: () => document.querySelector('.unit-action-dropdown form[action*="reset-health"]') || document.querySelector('tbody tr button[onclick*="toggleUnitDropdown"]'),
+            getElement: () => document.querySelector('.unit-action-dropdown--portal form[action*="reset-health"]') || document.querySelector('.unit-action-dropdown form[action*="reset-health"]') || document.querySelector('tbody tr button[onclick*="toggleUnitDropdown"]'),
             popover: { title: '🔄 Reset Service Action', description: 'Resets the 5,000 km oil change mileage counter back to zero after mechanic maintenance or oil replacement is completed!', position: 'left-center' }
         },
         {
@@ -388,22 +369,18 @@ const TutorialManager = (function () {
             onBeforeShow: () => { 
                 const btn = document.querySelector('tbody tr button[onclick*="toggleUnitDropdown"]');
                 if (btn) btn.scrollIntoView({ behavior: 'auto', block: 'center' });
-                const dd = document.querySelector('.unit-action-dropdown'); 
-                if (dd) {
-                    dd.classList.remove('hidden');
-                    dd.style.setProperty('z-index', '100005', 'important');
-                    dd.style.setProperty('pointer-events', 'none', 'important');
-                }
-                const container = document.getElementById('unitsTableScrollContainer') || document.querySelector('.overflow-x-auto');
-                if (container) container.style.setProperty('overflow', 'visible', 'important');
+                setTimeout(() => {
+                    window._tutorialPortalDropdown();
+                }, 100);
             },
-            getElement: () => document.querySelector('.unit-action-dropdown form[action*="destroy"]') || document.querySelector('tbody tr button[onclick*="toggleUnitDropdown"]'),
+            getElement: () => document.querySelector('.unit-action-dropdown--portal form[action*="destroy"]') || document.querySelector('.unit-action-dropdown form[action*="destroy"]') || document.querySelector('tbody tr button[onclick*="toggleUnitDropdown"]'),
             popover: { title: '📦 Archive Unit Action', description: 'Safely deactivates and archives the taxi unit without deleting its historical financial, boundary, and driver records.', position: 'left-center' }
         },
         {
             id: 'units-row-click-deepdive',
             route: '/units',
             onBeforeShow: () => { 
+                window._tutorialUnportalDropdown();
                 stopActionDropdownSync();
                 const dd = document.querySelector('.unit-action-dropdown'); 
                 if (dd) dd.classList.add('hidden'); 
@@ -1186,3 +1163,54 @@ const TutorialManager = (function () {
     };
 })();
 window.TutorialManager = TutorialManager;
+
+/**
+ * Portal technique: Move the dropdown to document.body with fixed positioning
+ * so it escapes the z-30 stacking context of the parent <td> and appears
+ * ABOVE the Driver.js overlay (z-index 100000).
+ */
+window._tutorialPortalDropdown = function() {
+    // Clean up any previous portal
+    const existing = document.getElementById('__tutorial-portal-dd');
+    if (existing) existing.remove();
+
+    const btn = document.querySelector('tbody tr button[onclick*="toggleUnitDropdown"]');
+    if (!btn) return;
+
+    const dd = btn.closest('td').querySelector('.unit-action-dropdown');
+    if (!dd) return;
+
+    const rect = btn.getBoundingClientRect();
+
+    // Clone the dropdown so we don't disturb the original DOM
+    const clone = dd.cloneNode(true);
+    clone.id = '__tutorial-portal-dd';
+    clone.classList.remove('hidden');
+    clone.classList.add('unit-action-dropdown--portal');
+
+    // Position it fixed near the button
+    clone.style.setProperty('position', 'fixed', 'important');
+    clone.style.setProperty('top', (rect.bottom + 4) + 'px', 'important');
+    clone.style.setProperty('right', (window.innerWidth - rect.right) + 'px', 'important');
+    clone.style.setProperty('left', 'auto', 'important');
+    clone.style.setProperty('z-index', '100010', 'important');
+    clone.style.setProperty('pointer-events', 'none', 'important');
+    clone.style.setProperty('display', 'block', 'important');
+    clone.style.setProperty('min-width', '11rem', 'important');
+    clone.style.setProperty('background', 'white', 'important');
+    clone.style.setProperty('border-radius', '0.75rem', 'important');
+    clone.style.setProperty('box-shadow', '0 25px 50px -12px rgba(0,0,0,0.25)', 'important');
+    clone.style.setProperty('border', '1px solid #e5e7eb', 'important');
+    clone.style.setProperty('overflow', 'hidden', 'important');
+
+    document.body.appendChild(clone);
+};
+
+window._tutorialUnportalDropdown = function() {
+    const portal = document.getElementById('__tutorial-portal-dd');
+    if (portal) portal.remove();
+    // Also ensure original is hidden
+    const dd = document.querySelector('.unit-action-dropdown');
+    if (dd) dd.classList.add('hidden');
+};
+
