@@ -296,11 +296,12 @@
 
     <!-- Units Container — renders table or grid based on view_mode -->
     <div id="unitsTableContainer" class="bg-white overflow-hidden">
-        @if(($view_mode ?? 'table') === 'grid')
+        <div id="units-grid-view" class="{{ ($view_mode ?? 'table') === 'grid' ? '' : 'hidden' }}">
             @include('units.partials._units_grid')
-        @else
+        </div>
+        <div id="units-table-view" class="{{ ($view_mode ?? 'table') === 'grid' ? 'hidden' : '' }}">
             @include('units.partials._units_table')
-        @endif
+        </div>
     </div>
 
     <!-- Print PDF Tutorial Preview Modal -->

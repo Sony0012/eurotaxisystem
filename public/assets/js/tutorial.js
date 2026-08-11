@@ -372,7 +372,7 @@ const TutorialManager = (function () {
             id: 'units-cards-deepdive',
             route: '/units',
             onBeforeShow: () => { if (typeof setViewMode === 'function') setViewMode('grid'); },
-            getElement: () => document.getElementById('unitsTableContainer') || document.querySelector('.grid') || document.getElementById('unitViewTogglePill'),
+            getElement: () => document.getElementById('units-grid-view') || document.querySelector('.grid-cards-container') || document.querySelector('.grid'),
             popover: { title: 'Cards View Deep Dive', description: 'In Cards View, each taxi unit is presented as a visual card with real-time status badges, assigned D1/D2 driver partners, and current odometer progress.', position: 'top' }
         },
         {
