@@ -298,7 +298,7 @@ const TutorialManager = (function () {
         {
             id: 'units-col-pms-alert',
             route: '/units',
-            getElement: () => document.querySelector('.modern-sub-row') || document.querySelector('[class*="progress"]'),
+            getElement: () => document.querySelector('.modern-sub-row'),
             popover: { title: '5,000 KM Maintenance & PMS Odometer Alert', description: 'Tracks mileage progress towards 5,000 km oil change intervals and alerts you automatically with a red warning banner when PMS is overdue!', position: 'top' }
         },
         {
@@ -314,14 +314,16 @@ const TutorialManager = (function () {
                     const td = dd.closest('td');
                     const tr = dd.closest('tr');
                     const tbody = dd.closest('tbody');
-                    if (td) { td.style.position = 'relative'; td.style.zIndex = '999999'; }
-                    if (tr) { tr.style.position = 'relative'; tr.style.zIndex = '999999'; }
-                    if (tbody) { tbody.style.position = 'relative'; tbody.style.zIndex = '999999'; }
+                    if (td) { td.style.position = 'relative'; td.style.setProperty('z-index', '999999', 'important'); }
+                    if (tr) { tr.style.position = 'relative'; tr.style.setProperty('z-index', '999999', 'important'); }
+                    if (tbody) { tbody.style.position = 'relative'; tbody.style.setProperty('z-index', '999999', 'important'); }
+                    const subRow = tbody ? tbody.querySelector('.modern-sub-row') : null;
+                    if (subRow) { subRow.style.setProperty('z-index', '1', 'important'); }
                     const container = document.getElementById('unitsTableScrollContainer') || dd.closest('.overflow-x-auto');
                     if (container) container.style.setProperty('overflow', 'visible', 'important');
                 }
             },
-            getElement: () => document.querySelector('.unit-action-dropdown') || document.querySelector('tbody tr td:last-child'),
+            getElement: () => document.querySelector('.unit-action-dropdown'),
             popover: { title: 'Unit Actions Menu (⋮)', description: 'Clicking the 3-dots icon on the right side of any unit row opens the unit action menu with 3 essential management controls!', position: 'left-center' }
         },
         {
@@ -335,14 +337,16 @@ const TutorialManager = (function () {
                     const td = dd.closest('td');
                     const tr = dd.closest('tr');
                     const tbody = dd.closest('tbody');
-                    if (td) { td.style.position = 'relative'; td.style.zIndex = '999999'; }
-                    if (tr) { tr.style.position = 'relative'; tr.style.zIndex = '999999'; }
-                    if (tbody) { tbody.style.position = 'relative'; tbody.style.zIndex = '999999'; }
+                    if (td) { td.style.position = 'relative'; td.style.setProperty('z-index', '999999', 'important'); }
+                    if (tr) { tr.style.position = 'relative'; tr.style.setProperty('z-index', '999999', 'important'); }
+                    if (tbody) { tbody.style.position = 'relative'; tbody.style.setProperty('z-index', '999999', 'important'); }
+                    const subRow = tbody ? tbody.querySelector('.modern-sub-row') : null;
+                    if (subRow) { subRow.style.setProperty('z-index', '1', 'important'); }
                     const container = document.getElementById('unitsTableScrollContainer') || dd.closest('.overflow-x-auto');
                     if (container) container.style.setProperty('overflow', 'visible', 'important');
                 }
             },
-            getElement: () => document.querySelector('.unit-action-dropdown button[onclick*="editUnit"]') || document.querySelector('.unit-action-dropdown'),
+            getElement: () => document.querySelector('.unit-action-dropdown'),
             popover: { title: '✏️ Edit Unit Action', description: 'Clicking Edit Unit opens the unit editor modal where you can update vehicle specs, plate numbers, daily boundary rates, or re-assign drivers.', position: 'left-center' }
         },
         {
@@ -373,14 +377,16 @@ const TutorialManager = (function () {
                     const td = dd.closest('td');
                     const tr = dd.closest('tr');
                     const tbody = dd.closest('tbody');
-                    if (td) { td.style.position = 'relative'; td.style.zIndex = '999999'; }
-                    if (tr) { tr.style.position = 'relative'; tr.style.zIndex = '999999'; }
-                    if (tbody) { tbody.style.position = 'relative'; tbody.style.zIndex = '999999'; }
+                    if (td) { td.style.position = 'relative'; td.style.setProperty('z-index', '999999', 'important'); }
+                    if (tr) { tr.style.position = 'relative'; tr.style.setProperty('z-index', '999999', 'important'); }
+                    if (tbody) { tbody.style.position = 'relative'; tbody.style.setProperty('z-index', '999999', 'important'); }
+                    const subRow = tbody ? tbody.querySelector('.modern-sub-row') : null;
+                    if (subRow) { subRow.style.setProperty('z-index', '1', 'important'); }
                     const container = document.getElementById('unitsTableScrollContainer') || dd.closest('.overflow-x-auto');
                     if (container) container.style.setProperty('overflow', 'visible', 'important');
                 }
             },
-            getElement: () => document.querySelector('.unit-action-dropdown form[action*="reset-health"]') ? document.querySelector('.unit-action-dropdown form[action*="reset-health"]').firstElementChild : document.querySelector('.unit-action-dropdown'),
+            getElement: () => document.querySelector('.unit-action-dropdown'),
             popover: { title: '🔄 Reset Service Action', description: 'Resets the 5,000 km oil change mileage counter back to zero after mechanic maintenance or oil replacement is completed!', position: 'left-center' }
         },
         {
@@ -394,14 +400,16 @@ const TutorialManager = (function () {
                     const td = dd.closest('td');
                     const tr = dd.closest('tr');
                     const tbody = dd.closest('tbody');
-                    if (td) { td.style.position = 'relative'; td.style.zIndex = '999999'; }
-                    if (tr) { tr.style.position = 'relative'; tr.style.zIndex = '999999'; }
-                    if (tbody) { tbody.style.position = 'relative'; tbody.style.zIndex = '999999'; }
+                    if (td) { td.style.position = 'relative'; td.style.setProperty('z-index', '999999', 'important'); }
+                    if (tr) { tr.style.position = 'relative'; tr.style.setProperty('z-index', '999999', 'important'); }
+                    if (tbody) { tbody.style.position = 'relative'; tbody.style.setProperty('z-index', '999999', 'important'); }
+                    const subRow = tbody ? tbody.querySelector('.modern-sub-row') : null;
+                    if (subRow) { subRow.style.setProperty('z-index', '1', 'important'); }
                     const container = document.getElementById('unitsTableScrollContainer') || dd.closest('.overflow-x-auto');
                     if (container) container.style.setProperty('overflow', 'visible', 'important');
                 }
             },
-            getElement: () => document.querySelector('.unit-action-dropdown form[action*="units/"]') ? document.querySelector('.unit-action-dropdown form[action*="units/"]').firstElementChild : document.querySelector('.unit-action-dropdown'),
+            getElement: () => document.querySelector('.unit-action-dropdown'),
             popover: { title: '📦 Archive Unit Action', description: 'Safely deactivates and archives the taxi unit without deleting its historical financial, boundary, and driver records.', position: 'left-center' }
         },
         {
