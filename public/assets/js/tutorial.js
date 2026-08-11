@@ -305,16 +305,27 @@ const TutorialManager = (function () {
             id: 'units-actions-dropdown-open',
             route: '/units',
             onBeforeShow: () => {
+                window._tutorialUnportalDropdown();
+                const btn = document.querySelector('tbody tr button[onclick*="toggleUnitDropdown"]');
+                if (btn) {
+                    window._step38ClickListener = () => {
+                        const currentStep = parseInt(localStorage.getItem('tutorial_current_step') || '0');
+                        if (window.TutorialManager) {
+                            window.TutorialManager.moveToNextStep(currentStep);
+                        }
+                    };
+                    btn.addEventListener('click', window._step38ClickListener, { once: true });
+                }
+            },
+            onAfterNext: () => {
                 if (window._step38ClickListener) {
-                    window.removeEventListener('click', window._step38ClickListener, true);
+                    const btn = document.querySelector('tbody tr button[onclick*="toggleUnitDropdown"]');
+                    if (btn) btn.removeEventListener('click', window._step38ClickListener);
                     window._step38ClickListener = null;
                 }
-                // Ensure dropdown is CLOSED on entry
-                window._tutorialUnportalDropdown();
             },
-            onAfterNext: () => {},
             getElement: () => document.querySelector('tbody tr button[onclick*="toggleUnitDropdown"]'),
-            popover: { title: 'Unit Actions Menu (⋮)', description: '👆 Click the 3-dots (⋮) icon now to open the Actions menu and see the 3 management controls available!', position: 'left-center' }
+            popover: { title: 'Unit Actions Menu (⋮)', description: 'Clicking the 3-dots icon opens the Actions menu with 3 management controls: Edit, Reset Service, and Archive. Click Next Step to explore each action.', position: 'left-center' }
         },
         {
             id: 'units-actions-edit',
@@ -761,59 +772,8 @@ const TutorialManager = (function () {
         }
     }
 
-    function restoreTargetAncestors() {
-        document.querySelectorAll('[data-tutorial-elevated="true"]').forEach(el => {
-            if (el.dataset.origZIndex !== undefined && el.dataset.origZIndex !== '') {
-                el.style.zIndex = el.dataset.origZIndex;
-            } else {
-                el.style.removeProperty('z-index');
-            }
-            if (el.dataset.origPosition !== undefined && el.dataset.origPosition !== '') {
-                el.style.position = el.dataset.origPosition;
-            } else {
-                el.style.removeProperty('position');
-            }
-            if (el.dataset.origPointerEvents !== undefined && el.dataset.origPointerEvents !== '') {
-                el.style.pointerEvents = el.dataset.origPointerEvents;
-            } else {
-                el.style.removeProperty('pointer-events');
-            }
-            delete el.dataset.tutorialElevated;
-            delete el.dataset.origZIndex;
-            delete el.dataset.origPosition;
-            delete el.dataset.origPointerEvents;
-        });
-    }
-
-    function elevateTargetAncestors(targetEl) {
-        restoreTargetAncestors();
-        if (!targetEl) return;
-        let p = targetEl.parentElement;
-        while (p && p !== document.body && p !== document.documentElement) {
-            const cs = window.getComputedStyle(p);
-            if (cs.position !== 'static' || ['TD', 'TR', 'TH', 'TBODY', 'THEAD', 'TABLE'].includes(p.tagName) || p.classList.contains('relative')) {
-                p.dataset.tutorialElevated = 'true';
-                p.dataset.origZIndex = p.style.zIndex || '';
-                p.dataset.origPosition = p.style.position || '';
-                p.style.setProperty('z-index', '100004', 'important');
-                if (cs.position === 'static') {
-                    p.style.setProperty('position', 'relative', 'important');
-                }
-            }
-            p = p.parentElement;
-        }
-        targetEl.dataset.tutorialElevated = 'true';
-        targetEl.dataset.origZIndex = targetEl.style.zIndex || '';
-        targetEl.dataset.origPosition = targetEl.style.position || '';
-        targetEl.dataset.origPointerEvents = targetEl.style.pointerEvents || '';
-        targetEl.style.setProperty('z-index', '100005', 'important');
-        targetEl.style.setProperty('position', 'relative', 'important');
-        targetEl.style.setProperty('pointer-events', 'auto', 'important');
-    }
-
     function startTutorial(stepIndex) {
         logDebug(`startTutorial called with stepIndex: ${stepIndex}`);
-        restoreTargetAncestors();
         
         if (stepIndex >= steps.length) {
             logDebug("Reached end of steps. Finishing tutorial.");
@@ -856,9 +816,6 @@ const TutorialManager = (function () {
         targetElement.id = dynamicId;
         logDebug(`Target element found. Assigned ID: #${dynamicId}`);
 
-        // Elevate targetElement and its parent stacking contexts above Driver.js overlay (z-index 100000)
-        elevateTargetAncestors(targetElement);
-
         const isLastStep = stepIndex === steps.length - 1;
 
         initProgressBar(steps.length);
@@ -898,12 +855,6 @@ const TutorialManager = (function () {
                         
                         if (wrapper && wrapper.classList) {
                             wrapper.classList.add('tutorial-force-click');
-                        }
-
-                        // Ensure overlay doesn't intercept pointer-events
-                        const driverOverlay = document.querySelector('.driver-overlay');
-                        if (driverOverlay) {
-                            driverOverlay.style.setProperty('pointer-events', 'none', 'important');
                         }
 
                         // Inject Step number
@@ -1169,7 +1120,6 @@ const TutorialManager = (function () {
 
     function finishTutorial() {
         logDebug("finishTutorial called.");
-        restoreTargetAncestors();
         if (driverObj) driverObj.destroy();
         const progress = document.getElementById('tutorial-global-progress');
         if (progress) progress.remove();
