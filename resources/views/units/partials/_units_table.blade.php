@@ -3,7 +3,7 @@
      Matching the user-provided screenshot aesthetic.
      ═══════════════════════════════════════════════════════════════ --}}
 
-<div class="overflow-x-auto bg-gray-50/50 px-2 md:px-4 py-3">
+<div id="unitsTableScrollContainer" class="overflow-x-auto bg-gray-50/50 px-2 md:px-4 py-3">
     <table class="min-w-full text-sm modern-table-sep">
         <thead>
             <tr>

@@ -262,7 +262,7 @@ const TutorialManager = (function () {
             id: 'units-table-sep',
             route: '/units',
             onBeforeShow: () => { const m = document.getElementById('addUnitModal'); if (m) m.classList.add('hidden'); if (typeof setViewMode === 'function') setViewMode('table'); },
-            getElement: () => document.querySelector('.modern-table-sep, table'),
+            getElement: () => document.querySelector('.modern-table-sep thead') || document.querySelector('table thead') || document.querySelector('.modern-table-sep'),
             popover: { title: 'Fleet Master Inventory Table', description: 'Detailed table listing all taxi units in your fleet with live status indicators, assigned drivers, and boundary pricing tags.', position: 'top' }
         },
         {
@@ -306,35 +306,62 @@ const TutorialManager = (function () {
             route: '/units',
             onBeforeShow: () => { 
                 const btn = document.querySelector('tbody tr button[onclick*="toggleUnitDropdown"]');
-                if (btn) {
-                    btn.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    const dd = document.querySelector('.unit-action-dropdown'); 
-                    if (dd) dd.classList.remove('hidden');
+                if (btn) btn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                const dd = document.querySelector('.unit-action-dropdown'); 
+                if (dd) {
+                    dd.classList.remove('hidden');
+                    dd.style.setProperty('z-index', '999999', 'important');
+                    const container = document.getElementById('unitsTableScrollContainer') || dd.closest('.overflow-x-auto');
+                    if (container) container.style.setProperty('overflow', 'visible', 'important');
                 }
             },
             getElement: () => document.querySelector('.unit-action-dropdown') || document.querySelector('tbody tr td:last-child'),
-            popover: { title: 'Unit Actions Menu (⋮)', description: 'Clicking the 3-dots icon on the right side of any unit row opens the unit action menu with 3 essential management controls!', position: 'left' }
+            popover: { title: 'Unit Actions Menu (⋮)', description: 'Clicking the 3-dots icon on the right side of any unit row opens the unit action menu with 3 essential management controls!', position: 'left-center' }
         },
         {
             id: 'units-actions-edit',
             route: '/units',
-            onBeforeShow: () => { const dd = document.querySelector('.unit-action-dropdown'); if (dd) dd.classList.remove('hidden'); },
+            onBeforeShow: () => { 
+                const dd = document.querySelector('.unit-action-dropdown'); 
+                if (dd) {
+                    dd.classList.remove('hidden');
+                    dd.style.setProperty('z-index', '999999', 'important');
+                    const container = document.getElementById('unitsTableScrollContainer') || dd.closest('.overflow-x-auto');
+                    if (container) container.style.setProperty('overflow', 'visible', 'important');
+                }
+            },
             getElement: () => document.querySelector('.unit-action-dropdown button[onclick*="editUnit"]') || document.querySelector('.unit-action-dropdown'),
-            popover: { title: '✏️ Edit Unit Action', description: 'Opens the unit editor modal to update plate numbers, vehicle specs, boundary rates, or re-assign D1/D2 drivers anytime.', position: 'left' }
+            popover: { title: '✏️ Edit Unit Action', description: 'Opens the unit editor modal to update plate numbers, vehicle specs, boundary rates, or re-assign D1/D2 drivers anytime.', position: 'left-center' }
         },
         {
             id: 'units-actions-reset',
             route: '/units',
-            onBeforeShow: () => { const dd = document.querySelector('.unit-action-dropdown'); if (dd) dd.classList.remove('hidden'); },
+            onBeforeShow: () => { 
+                const dd = document.querySelector('.unit-action-dropdown'); 
+                if (dd) {
+                    dd.classList.remove('hidden');
+                    dd.style.setProperty('z-index', '999999', 'important');
+                    const container = document.getElementById('unitsTableScrollContainer') || dd.closest('.overflow-x-auto');
+                    if (container) container.style.setProperty('overflow', 'visible', 'important');
+                }
+            },
             getElement: () => document.querySelector('.unit-action-dropdown form[action*="reset-health"]') ? document.querySelector('.unit-action-dropdown form[action*="reset-health"]').firstElementChild : document.querySelector('.unit-action-dropdown'),
-            popover: { title: '🔄 Reset Service Action', description: 'Resets the 5,000 km oil change mileage counter back to zero after mechanic maintenance or oil replacement is completed!', position: 'left' }
+            popover: { title: '🔄 Reset Service Action', description: 'Resets the 5,000 km oil change mileage counter back to zero after mechanic maintenance or oil replacement is completed!', position: 'left-center' }
         },
         {
             id: 'units-actions-archive',
             route: '/units',
-            onBeforeShow: () => { const dd = document.querySelector('.unit-action-dropdown'); if (dd) dd.classList.remove('hidden'); },
+            onBeforeShow: () => { 
+                const dd = document.querySelector('.unit-action-dropdown'); 
+                if (dd) {
+                    dd.classList.remove('hidden');
+                    dd.style.setProperty('z-index', '999999', 'important');
+                    const container = document.getElementById('unitsTableScrollContainer') || dd.closest('.overflow-x-auto');
+                    if (container) container.style.setProperty('overflow', 'visible', 'important');
+                }
+            },
             getElement: () => document.querySelector('.unit-action-dropdown form[action*="units/"]') ? document.querySelector('.unit-action-dropdown form[action*="units/"]').firstElementChild : document.querySelector('.unit-action-dropdown'),
-            popover: { title: '📦 Archive Unit Action', description: 'Safely deactivates and archives the taxi unit without deleting its historical financial, boundary, and driver records.', position: 'left' }
+            popover: { title: '📦 Archive Unit Action', description: 'Safely deactivates and archives the taxi unit without deleting its historical financial, boundary, and driver records.', position: 'left-center' }
         },
         {
             id: 'units-row-click-deepdive',
@@ -342,6 +369,8 @@ const TutorialManager = (function () {
             onBeforeShow: () => { 
                 const dd = document.querySelector('.unit-action-dropdown'); 
                 if (dd) dd.classList.add('hidden'); 
+                const container = document.getElementById('unitsTableScrollContainer') || document.querySelector('.overflow-x-auto');
+                if (container) container.style.overflow = '';
                 const firstUnit = document.querySelector('tr.modern-row-has-sub, tr.modern-row');
                 if (firstUnit && typeof viewUnitDetails === 'function') {
                     const onclickStr = firstUnit.getAttribute('onclick') || '';
@@ -885,7 +914,12 @@ const TutorialManager = (function () {
                 }, 400);
                 targetElement.removeEventListener('click', clickHandler, true);
             };
-            targetElement.addEventListener('click', clickHandler, true);
+            const tag = targetElement ? targetElement.tagName.toUpperCase() : '';
+            if (['A', 'BUTTON', 'INPUT', 'SELECT'].includes(tag) || (targetElement && (targetElement.classList.contains('cursor-pointer') || targetElement.onclick))) {
+                if (tag !== 'TABLE' && tag !== 'THEAD' && tag !== 'TBODY') {
+                    targetElement.addEventListener('click', clickHandler, true);
+                }
+            }
 
             logDebug("Calling driverObj.drive()");
             driverObj.drive();
