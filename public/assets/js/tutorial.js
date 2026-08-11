@@ -308,7 +308,23 @@ const TutorialManager = (function () {
                 const dd = document.querySelector('.unit-action-dropdown'); 
                 if (dd) dd.classList.add('hidden');
                 const btn = document.querySelector('tbody tr button[onclick*="toggleUnitDropdown"]');
-                if (btn) btn.scrollIntoView({ behavior: 'auto', block: 'center' });
+                if (btn) {
+                    btn.scrollIntoView({ behavior: 'auto', block: 'center' });
+                    btn.style.setProperty('position', 'relative', 'important');
+                    btn.style.setProperty('z-index', '100005', 'important');
+                    btn.style.setProperty('pointer-events', 'auto', 'important');
+                    btn.style.setProperty('cursor', 'pointer', 'important');
+                    btn.onclick = (e) => {
+                        e.stopPropagation();
+                        if (dd) {
+                            dd.classList.remove('hidden');
+                            dd.style.setProperty('z-index', '100005', 'important');
+                        }
+                        if (window.driverObj && typeof window.driverObj.moveNext === 'function') {
+                            window.driverObj.moveNext();
+                        }
+                    };
+                }
             },
             getElement: () => document.querySelector('tbody tr button[onclick*="toggleUnitDropdown"]'),
             popover: { title: 'Unit Actions Menu (⋮)', description: 'Clicking the 3-dots icon on the right side of any unit row opens the unit action menu with 3 essential management controls!', position: 'left-center' }
