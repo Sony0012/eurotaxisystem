@@ -3,7 +3,7 @@
      Matching the user-provided screenshot aesthetic.
      ═══════════════════════════════════════════════════════════════ --}}
 
-<div class="p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6 bg-gray-50/50 min-h-screen">
+<div class="p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6 bg-gray-50/50 items-start">
     @forelse($units as $unit)
         @php
             $primary_driver = $unit->primary_driver ?? null;
