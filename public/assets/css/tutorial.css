@@ -23,7 +23,7 @@
     border: 1px solid rgba(255, 255, 255, 0.1) !important;
     max-width: 380px !important;
     color: #f3f4f6 !important;
-    z-index: 100020 !important;
+    z-index: 2000000 !important;
     animation: popover-fade-in 0.4s ease forwards !important;
 }
 
@@ -201,7 +201,7 @@
     width: 120px;
     height: 120px;
     pointer-events: none;
-    z-index: 100021;
+    z-index: 2000001;
 }
 
 .tutorial-curved-arrow {

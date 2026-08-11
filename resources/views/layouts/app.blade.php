@@ -105,7 +105,7 @@
     </style>
     <!-- Interactive Tutorial Assets -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/driver.js@1.3.1/dist/driver.css"/>
-    <link rel="stylesheet" href="{{ asset('assets/css/tutorial.css') }}?v=9.0">
+    <link rel="stylesheet" href="{{ asset('assets/css/tutorial.css') }}?v=9.1">
 
     <style>
         input::-webkit-outer-spin-button,
