@@ -306,9 +306,16 @@ const TutorialManager = (function () {
             route: '/units',
             onBeforeShow: () => { 
                 const btn = document.querySelector('tbody tr button[onclick*="toggleUnitDropdown"]');
-                if (btn) btn.scrollIntoView({ behavior: 'auto', block: 'center' });
+                if (btn) {
+                    btn.scrollIntoView({ behavior: 'auto', block: 'center' });
+                    btn.style.setProperty('pointer-events', 'auto', 'important');
+                }
                 const dd = document.querySelector('.unit-action-dropdown'); 
-                if (dd) dd.classList.remove('hidden');
+                if (dd) {
+                    dd.classList.remove('hidden');
+                    dd.style.setProperty('z-index', '100005', 'important');
+                    dd.style.setProperty('pointer-events', 'auto', 'important');
+                }
                 const container = document.getElementById('unitsTableScrollContainer') || document.querySelector('.overflow-x-auto');
                 if (container) container.style.setProperty('overflow', 'visible', 'important');
             },
@@ -320,9 +327,16 @@ const TutorialManager = (function () {
             route: '/units',
             onBeforeShow: () => { 
                 const btn = document.querySelector('tbody tr button[onclick*="toggleUnitDropdown"]');
-                if (btn) btn.scrollIntoView({ behavior: 'auto', block: 'center' });
+                if (btn) {
+                    btn.scrollIntoView({ behavior: 'auto', block: 'center' });
+                    btn.style.setProperty('pointer-events', 'auto', 'important');
+                }
                 const dd = document.querySelector('.unit-action-dropdown'); 
-                if (dd) dd.classList.remove('hidden');
+                if (dd) {
+                    dd.classList.remove('hidden');
+                    dd.style.setProperty('z-index', '100005', 'important');
+                    dd.style.setProperty('pointer-events', 'auto', 'important');
+                }
                 const container = document.getElementById('unitsTableScrollContainer') || document.querySelector('.overflow-x-auto');
                 if (container) container.style.setProperty('overflow', 'visible', 'important');
             },
@@ -351,9 +365,16 @@ const TutorialManager = (function () {
                 const editModal = document.getElementById('editUnitModal');
                 if (editModal) editModal.classList.add('hidden');
                 const btn = document.querySelector('tbody tr button[onclick*="toggleUnitDropdown"]');
-                if (btn) btn.scrollIntoView({ behavior: 'auto', block: 'center' });
+                if (btn) {
+                    btn.scrollIntoView({ behavior: 'auto', block: 'center' });
+                    btn.style.setProperty('pointer-events', 'auto', 'important');
+                }
                 const dd = document.querySelector('.unit-action-dropdown'); 
-                if (dd) dd.classList.remove('hidden');
+                if (dd) {
+                    dd.classList.remove('hidden');
+                    dd.style.setProperty('z-index', '100005', 'important');
+                    dd.style.setProperty('pointer-events', 'auto', 'important');
+                }
                 const container = document.getElementById('unitsTableScrollContainer') || document.querySelector('.overflow-x-auto');
                 if (container) container.style.setProperty('overflow', 'visible', 'important');
             },
@@ -365,9 +386,16 @@ const TutorialManager = (function () {
             route: '/units',
             onBeforeShow: () => { 
                 const btn = document.querySelector('tbody tr button[onclick*="toggleUnitDropdown"]');
-                if (btn) btn.scrollIntoView({ behavior: 'auto', block: 'center' });
+                if (btn) {
+                    btn.scrollIntoView({ behavior: 'auto', block: 'center' });
+                    btn.style.setProperty('pointer-events', 'auto', 'important');
+                }
                 const dd = document.querySelector('.unit-action-dropdown'); 
-                if (dd) dd.classList.remove('hidden');
+                if (dd) {
+                    dd.classList.remove('hidden');
+                    dd.style.setProperty('z-index', '100005', 'important');
+                    dd.style.setProperty('pointer-events', 'auto', 'important');
+                }
                 const container = document.getElementById('unitsTableScrollContainer') || document.querySelector('.overflow-x-auto');
                 if (container) container.style.setProperty('overflow', 'visible', 'important');
             },
