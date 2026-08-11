@@ -552,10 +552,9 @@ const TutorialManager = (function () {
             onBeforeShow: () => { 
                 const btn = document.querySelector('tbody tr button[onclick*="toggleUnitDropdown"]');
                 if (btn) btn.scrollIntoView({ behavior: 'auto', block: 'center' });
-                // Call synchronously so portal div exists before getElement() is invoked
                 window._tutorialPortalDropdown();
             },
-            getElement: () => document.querySelector('.unit-action-dropdown--portal button[onclick*="editUnit"]') || document.querySelector('.unit-action-dropdown button[onclick*="editUnit"]') || document.querySelector('tbody tr button[onclick*="toggleUnitDropdown"]'),
+            getElement: () => document.querySelector('#__tutorial-portal-dd button[onclick*="editUnit"]') || document.querySelector('.unit-action-dropdown--portal button[onclick*="editUnit"]') || document.querySelector('tbody tr button[onclick*="toggleUnitDropdown"]'),
             popover: { title: '✏️ Edit Unit Action', description: 'Clicking Edit Unit opens the unit editor modal where you can update vehicle specs, plate numbers, daily boundary rates, or re-assign drivers.', position: 'left-center' }
         },
         {
@@ -580,11 +579,9 @@ const TutorialManager = (function () {
                 if (editModal) editModal.classList.add('hidden');
                 const btn = document.querySelector('tbody tr button[onclick*="toggleUnitDropdown"]');
                 if (btn) btn.scrollIntoView({ behavior: 'auto', block: 'center' });
-                setTimeout(() => {
-                    window._tutorialPortalDropdown();
-                }, 100);
+                window._tutorialPortalDropdown();
             },
-            getElement: () => document.querySelector('.unit-action-dropdown--portal form[action*="reset-health"]') || document.querySelector('.unit-action-dropdown form[action*="reset-health"]') || document.querySelector('tbody tr button[onclick*="toggleUnitDropdown"]'),
+            getElement: () => document.querySelector('#__tutorial-portal-dd form[action*="reset-health"] button') || document.querySelector('#__tutorial-portal-dd button.text-green-600') || document.querySelector('.unit-action-dropdown--portal form[action*="reset-health"]') || document.querySelector('tbody tr button[onclick*="toggleUnitDropdown"]'),
             popover: { title: '🔄 Reset Service Action', description: 'Resets the 5,000 km oil change mileage counter back to zero after mechanic maintenance or oil replacement is completed!', position: 'left-center' }
         },
         {
@@ -593,11 +590,9 @@ const TutorialManager = (function () {
             onBeforeShow: () => { 
                 const btn = document.querySelector('tbody tr button[onclick*="toggleUnitDropdown"]');
                 if (btn) btn.scrollIntoView({ behavior: 'auto', block: 'center' });
-                setTimeout(() => {
-                    window._tutorialPortalDropdown();
-                }, 100);
+                window._tutorialPortalDropdown();
             },
-            getElement: () => document.querySelector('.unit-action-dropdown--portal form[action*="destroy"]') || document.querySelector('.unit-action-dropdown form[action*="destroy"]') || document.querySelector('tbody tr button[onclick*="toggleUnitDropdown"]'),
+            getElement: () => document.querySelector('#__tutorial-portal-dd form[action*="destroy"] button') || document.querySelector('#__tutorial-portal-dd button.text-amber-600') || document.querySelector('.unit-action-dropdown--portal form[action*="destroy"]') || document.querySelector('tbody tr button[onclick*="toggleUnitDropdown"]'),
             popover: { title: '📦 Archive Unit Action', description: 'Safely deactivates and archives the taxi unit without deleting its historical financial, boundary, and driver records.', position: 'left-center' }
         },
         {
