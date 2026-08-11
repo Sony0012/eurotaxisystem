@@ -305,31 +305,14 @@ const TutorialManager = (function () {
             id: 'units-actions-dropdown-open',
             route: '/units',
             onBeforeShow: () => {
-                window._tutorialUnportalDropdown();
-                setTimeout(() => {
-                    const btn = document.querySelector('tbody tr button[onclick*="toggleUnitDropdown"]');
-                    if (btn) {
-                        btn.style.setProperty('pointer-events', 'auto', 'important');
-                        btn.style.setProperty('position', 'relative', 'important');
-                        btn.style.setProperty('z-index', '100005', 'important');
-                        btn.onclick = (e) => {
-                            if (e) {
-                                e.stopPropagation();
-                                e.preventDefault();
-                            }
-                            logDebug("Step 38 3-dots button clicked! Opening portal dropdown and advancing to Step 39.");
-                            window._tutorialPortalDropdown();
-                            const cur = parseInt(localStorage.getItem('tutorial_current_step') || '37');
-                            if (window.TutorialManager) {
-                                window.TutorialManager.moveToNextStep(cur);
-                            }
-                        };
-                    }
-                }, 100);
+                const btn = document.querySelector('tbody tr button[onclick*="toggleUnitDropdown"]');
+                if (btn) btn.scrollIntoView({ behavior: 'auto', block: 'center' });
+                // Open portal dropdown synchronously so the Actions menu is visible above overlay
+                window._tutorialPortalDropdown();
             },
             onAfterNext: () => {},
-            getElement: () => document.querySelector('tbody tr button[onclick*="toggleUnitDropdown"]'),
-            popover: { title: 'Unit Actions Menu (⋮)', description: '👆 Click the 3-dots (⋮) icon now to open the Actions menu and see the 3 management controls available!', position: 'left-center' }
+            getElement: () => document.getElementById('__tutorial-portal-dd') || document.querySelector('tbody tr button[onclick*="toggleUnitDropdown"]'),
+            popover: { title: 'Unit Actions Menu (⋮)', description: '👆 Here is the Unit Actions menu! It provides 3 key controls: Edit Unit, Reset Service Overdue, and Archive Unit. Click Next Step to explore each action.', position: 'left-center' }
         },
         {
             id: 'units-actions-edit',
@@ -1209,7 +1192,7 @@ window._tutorialPortalDropdown = function() {
     clone.style.setProperty('right', (window.innerWidth - rect.right) + 'px', 'important');
     clone.style.setProperty('left', 'auto', 'important');
     clone.style.setProperty('z-index', '100010', 'important');
-    clone.style.setProperty('pointer-events', 'none', 'important');
+    clone.style.setProperty('pointer-events', 'auto', 'important');
     clone.style.setProperty('display', 'block', 'important');
     clone.style.setProperty('min-width', '11rem', 'important');
     clone.style.setProperty('background', 'white', 'important');
