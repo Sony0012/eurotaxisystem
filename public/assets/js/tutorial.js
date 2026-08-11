@@ -308,10 +308,36 @@ const TutorialManager = (function () {
                 window._tutorialUnportalDropdown();
                 const btn = document.querySelector('tbody tr button[onclick*="toggleUnitDropdown"]');
                 if (btn) btn.scrollIntoView({ behavior: 'auto', block: 'center' });
+
+                if (window._step38GlobalClick) {
+                    window.removeEventListener('click', window._step38GlobalClick, true);
+                }
+                window._step38GlobalClick = function(e) {
+                    const currentStep = parseInt(localStorage.getItem('tutorial_current_step') || '0');
+                    if (currentStep === 37) { // Step 38 is 0-indexed index 37
+                        const hitBtn = e.target && e.target.closest ? e.target.closest('button[onclick*="toggleUnitDropdown"]') : null;
+                        if (hitBtn) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            e.stopImmediatePropagation();
+                            logDebug("Step 38 global window capture click caught! Opening portal and advancing to Step 39.");
+                            window._tutorialPortalDropdown();
+                            if (window.TutorialManager) {
+                                window.TutorialManager.moveToNextStep(37);
+                            }
+                        }
+                    }
+                };
+                window.addEventListener('click', window._step38GlobalClick, true);
             },
-            onAfterNext: () => {},
+            onAfterNext: () => {
+                if (window._step38GlobalClick) {
+                    window.removeEventListener('click', window._step38GlobalClick, true);
+                    window._step38GlobalClick = null;
+                }
+            },
             getElement: () => document.querySelector('tbody tr button[onclick*="toggleUnitDropdown"]'),
-            popover: { title: 'Unit Actions Menu (⋮)', description: '👆 Click the 3-dots (⋮) icon or click Next Step to open the Actions menu and explore the 3 management controls available!', position: 'left-center' }
+            popover: { title: 'Unit Actions Menu (⋮)', description: '👆 Click the 3-dots (⋮) icon now to open the Actions menu and see the 3 management controls available!', position: 'left-center' }
         },
         {
             id: 'units-actions-edit',
