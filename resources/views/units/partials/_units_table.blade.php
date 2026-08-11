@@ -118,7 +118,7 @@
                     </td>
 
                     {{-- Actions --}}
-                    <td class="px-2 md:px-6 py-3 md:py-5 whitespace-nowrap text-center relative" onclick="event.stopPropagation()">
+                    <td class="px-2 md:px-6 py-3 md:py-5 whitespace-nowrap text-center relative z-30" onclick="event.stopPropagation()">
                         <button type="button"
                             class="p-1 md:p-2 text-gray-400 hover:text-gray-800 hover:bg-gray-200 rounded-full transition-colors focus:outline-none inline-flex items-center justify-center"
                             onclick="toggleUnitDropdown('unit-dropdown-{{ $unit->uuid }}', event)"
@@ -127,7 +127,7 @@
                         </button>
 
                         <div id="unit-dropdown-{{ $unit->uuid }}"
-                            class="unit-action-dropdown hidden absolute right-2 mt-1 w-44 bg-white rounded-xl shadow-2xl border border-gray-200 z-[999999] overflow-hidden">
+                            class="unit-action-dropdown hidden absolute right-2 top-full mt-1 w-44 bg-white rounded-xl shadow-2xl border border-gray-200 z-[99999] overflow-hidden">
                             {{-- Edit --}}
                             <button type="button"
                                 class="w-full text-left px-4 py-2.5 text-xs font-bold text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors flex items-center gap-2"
