@@ -306,26 +306,10 @@ const TutorialManager = (function () {
             route: '/units',
             onBeforeShow: () => {
                 window._tutorialUnportalDropdown();
-                const btn = document.querySelector('tbody tr button[onclick*="toggleUnitDropdown"]');
-                if (btn) {
-                    window._step38ClickListener = () => {
-                        const currentStep = parseInt(localStorage.getItem('tutorial_current_step') || '0');
-                        if (window.TutorialManager) {
-                            window.TutorialManager.moveToNextStep(currentStep);
-                        }
-                    };
-                    btn.addEventListener('click', window._step38ClickListener, { once: true });
-                }
             },
-            onAfterNext: () => {
-                if (window._step38ClickListener) {
-                    const btn = document.querySelector('tbody tr button[onclick*="toggleUnitDropdown"]');
-                    if (btn) btn.removeEventListener('click', window._step38ClickListener);
-                    window._step38ClickListener = null;
-                }
-            },
+            onAfterNext: () => {},
             getElement: () => document.querySelector('tbody tr button[onclick*="toggleUnitDropdown"]'),
-            popover: { title: 'Unit Actions Menu (⋮)', description: 'Clicking the 3-dots icon opens the Actions menu with 3 management controls: Edit, Reset Service, and Archive. Click Next Step to explore each action.', position: 'left-center' }
+            popover: { title: 'Unit Actions Menu (⋮)', description: '👆 Click the 3-dots (⋮) icon now to open the Actions menu and see the 3 management controls available!', position: 'left-center' }
         },
         {
             id: 'units-actions-edit',
@@ -816,6 +800,11 @@ const TutorialManager = (function () {
         targetElement.id = dynamicId;
         logDebug(`Target element found. Assigned ID: #${dynamicId}`);
 
+        // Ensure the highlighted element itself sits above Driver overlay (z-index 100005) and receives pointer events directly
+        targetElement.style.setProperty('z-index', '100005', 'important');
+        targetElement.style.setProperty('position', 'relative', 'important');
+        targetElement.style.setProperty('pointer-events', 'auto', 'important');
+
         const isLastStep = stepIndex === steps.length - 1;
 
         initProgressBar(steps.length);
@@ -826,6 +815,7 @@ const TutorialManager = (function () {
             driverObj = window.driver.js.driver({
                 showProgress: false,
                 allowClose: false,
+                disableActiveInteraction: false,
                 overlayColor: 'rgba(15, 23, 42, 0.8)',
                 popoverOffset: 80, // Move the popover further away to give the arrow space
                 animate: true,
