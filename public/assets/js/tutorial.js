@@ -305,14 +305,13 @@ const TutorialManager = (function () {
             id: 'units-actions-dropdown-open',
             route: '/units',
             onBeforeShow: () => {
+                window._tutorialUnportalDropdown();
                 const btn = document.querySelector('tbody tr button[onclick*="toggleUnitDropdown"]');
                 if (btn) btn.scrollIntoView({ behavior: 'auto', block: 'center' });
-                // Open portal dropdown synchronously so the Actions menu is visible above overlay
-                window._tutorialPortalDropdown();
             },
             onAfterNext: () => {},
-            getElement: () => document.getElementById('__tutorial-portal-dd') || document.querySelector('tbody tr button[onclick*="toggleUnitDropdown"]'),
-            popover: { title: 'Unit Actions Menu (⋮)', description: '👆 Here is the Unit Actions menu! It provides 3 key controls: Edit Unit, Reset Service Overdue, and Archive Unit. Click Next Step to explore each action.', position: 'left-center' }
+            getElement: () => document.querySelector('tbody tr button[onclick*="toggleUnitDropdown"]'),
+            popover: { title: 'Unit Actions Menu (⋮)', description: '👆 Click the 3-dots (⋮) icon or click Next Step to open the Actions menu and explore the 3 management controls available!', position: 'left-center' }
         },
         {
             id: 'units-actions-edit',
