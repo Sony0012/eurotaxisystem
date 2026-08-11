@@ -353,6 +353,7 @@ const TutorialManager = (function () {
         {
             id: 'units-stats-bar',
             route: '/units',
+            onBeforeShow: () => { if (typeof setViewMode === 'function') setViewMode('table'); },
             getElement: () => document.getElementById('quickStatsBar'),
             popover: { title: 'Fleet Status Counters', description: 'Real-time counters showing Total Fleet Units, Active Units on the road, Units under Maintenance in the garage, and Coding Units restricted for today.', position: 'bottom' }
         },
@@ -1032,6 +1033,11 @@ const TutorialManager = (function () {
             localStorage.setItem('tutorial_current_step', stepIndex.toString());
             window.location.href = step.route;
             return;
+        }
+
+        // Enforce Table view layout for early unit management steps before Step 19
+        if (stepIndex < 18 && window.location.pathname.startsWith('/units') && typeof setViewMode === 'function') {
+            setViewMode('table');
         }
 
         // Run onBeforeShow hook if defined
