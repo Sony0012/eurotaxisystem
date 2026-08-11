@@ -604,18 +604,18 @@ const TutorialManager = (function () {
             id: 'units-row-click-deepdive',
             route: '/units',
             onBeforeShow: () => { 
-                window._tutorialUnportalDropdown();
-                stopActionDropdownSync();
+                if (typeof window._tutorialUnportalDropdown === 'function') {
+                    window._tutorialUnportalDropdown();
+                }
                 const dd = document.querySelector('.unit-action-dropdown'); 
                 if (dd) dd.classList.add('hidden'); 
-                const container = document.getElementById('unitsTableScrollContainer') || document.querySelector('.overflow-x-auto');
-                if (container) container.style.overflow = '';
-                const firstUnit = document.querySelector('tr.modern-row-has-sub, tr.modern-row');
-                if (firstUnit && typeof viewUnitDetails === 'function') {
-                    const onclickStr = firstUnit.getAttribute('onclick') || '';
-                    const match = onclickStr.match(/viewUnitDetails\((\d+)\)/);
-                    if (match) viewUnitDetails(match[1]);
-                    else viewUnitDetails(1);
+                const modal = document.getElementById('unitDetailsModal');
+                if (modal) {
+                    modal.classList.remove('hidden');
+                    modal.style.setProperty('display', 'flex', 'important');
+                }
+                if (typeof viewUnitDetails === 'function') {
+                    viewUnitDetails(1);
                 }
             },
             getElement: () => document.querySelector('#unitDetailsContent .bg-gradient-to-r') || document.querySelector('#unitDetailsModal > div'),

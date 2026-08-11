@@ -121,7 +121,12 @@
 
         function viewUnitDetails(id) {
             currentViewUnitId = id;
-            document.getElementById('unitDetailsModal').classList.remove('hidden');
+            const modal = document.getElementById('unitDetailsModal');
+            if (modal) {
+                modal.classList.remove('hidden');
+                modal.style.setProperty('display', 'flex', 'important');
+                modal.style.setProperty('z-index', '100005', 'important');
+            }
 
             const isTutorialActive = !!localStorage.getItem('tutorial_current_step') || window.location.search.includes('tutorial=1');
             if (isTutorialActive) {
