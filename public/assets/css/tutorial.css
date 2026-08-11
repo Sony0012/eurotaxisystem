@@ -6,6 +6,10 @@
     pointer-events: none !important;
 }
 
+.driver-stage {
+    pointer-events: none !important;
+}
+
 /* Style the SVG cutout path directly so the hole remains transparent and passes clicks to target elements */
 .driver-overlay path {
     fill: rgb(15, 23, 42) !important;

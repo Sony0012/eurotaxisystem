@@ -314,16 +314,27 @@ const TutorialManager = (function () {
                 }
                 window._step38GlobalClick = function(e) {
                     const currentStep = parseInt(localStorage.getItem('tutorial_current_step') || '0');
-                    if (currentStep === 37) { // Step 38 is 0-indexed index 37
-                        const hitBtn = e.target && e.target.closest ? e.target.closest('button[onclick*="toggleUnitDropdown"]') : null;
-                        if (hitBtn) {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            e.stopImmediatePropagation();
-                            logDebug("Step 38 global window capture click caught! Opening portal and advancing to Step 39.");
-                            window._tutorialPortalDropdown();
-                            if (window.TutorialManager) {
-                                window.TutorialManager.moveToNextStep(37);
+                    if (currentStep === 37) { // Step 38
+                        const targetBtn = document.querySelector('tbody tr button[onclick*="toggleUnitDropdown"]');
+                        if (targetBtn) {
+                            const rect = targetBtn.getBoundingClientRect();
+                            const isInsideBox = (
+                                e.clientX >= rect.left - 20 &&
+                                e.clientX <= rect.right + 20 &&
+                                e.clientY >= rect.top - 20 &&
+                                e.clientY <= rect.bottom + 20
+                            );
+                            const isClosestBtn = e.target && e.target.closest && e.target.closest('button[onclick*="toggleUnitDropdown"]');
+
+                            if (isInsideBox || isClosestBtn) {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                e.stopImmediatePropagation();
+                                logDebug("Step 38 3-dots click caught via Geometry/DOM! Opening portal and advancing to Step 39.");
+                                window._tutorialPortalDropdown();
+                                if (window.TutorialManager) {
+                                    window.TutorialManager.moveToNextStep(37);
+                                }
                             }
                         }
                     }
