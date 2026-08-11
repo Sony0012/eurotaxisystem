@@ -309,14 +309,58 @@ const TutorialManager = (function () {
                     window.removeEventListener('click', window._step38ClickListener, true);
                     window._step38ClickListener = null;
                 }
-                // Ensure dropdown is closed on entry — user must click 3-dots to open it
+                // Ensure dropdown is closed on entry
                 window._tutorialUnportalDropdown();
+                // Remove any leftover trap
+                const oldTrap = document.getElementById('__tutorial-click-trap');
+                if (oldTrap) oldTrap.remove();
+
                 const btn = document.querySelector('tbody tr button[onclick*="toggleUnitDropdown"]');
                 if (btn) {
-                    btn.scrollIntoView({ behavior: 'auto', block: 'center' });
+                    btn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+                    // Wait for scroll to settle, then place invisible click trap
+                    // directly above Driver.js overlay (z-index 100010 > Driver.js z-index 100000)
+                    setTimeout(() => {
+                        const existingTrap = document.getElementById('__tutorial-click-trap');
+                        if (existingTrap) existingTrap.remove();
+
+                        const rect = btn.getBoundingClientRect();
+                        const trap = document.createElement('div');
+                        trap.id = '__tutorial-click-trap';
+                        trap.title = 'Click here to open Actions menu';
+                        trap.style.cssText = [
+                            'position: fixed',
+                            `top: ${rect.top - 10}px`,
+                            `left: ${rect.left - 10}px`,
+                            `width: ${rect.width + 20}px`,
+                            `height: ${rect.height + 20}px`,
+                            'z-index: 100010',
+                            'cursor: pointer',
+                            'background: transparent',
+                            'border-radius: 50%',
+                        ].join(' !important; ') + ' !important;';
+
+                        trap.addEventListener('click', () => {
+                            trap.remove();
+                            // Open the portal dropdown above the overlay
+                            window._tutorialPortalDropdown();
+                            // Advance to Step 39 (edit action step)
+                            const currentStep = parseInt(localStorage.getItem('tutorial_current_step') || '0');
+                            if (window.TutorialManager) {
+                                window.TutorialManager.moveToNextStep(currentStep);
+                            }
+                        });
+
+                        document.body.appendChild(trap);
+                    }, 400);
                 }
             },
-            onAfterNext: () => {},
+            onAfterNext: () => {
+                // Clean up trap if user pressed Next Step instead of clicking 3-dots
+                const trap = document.getElementById('__tutorial-click-trap');
+                if (trap) trap.remove();
+            },
             getElement: () => document.querySelector('tbody tr button[onclick*="toggleUnitDropdown"]'),
             popover: { title: 'Unit Actions Menu (⋮)', description: '👆 Click the 3-dots (⋮) icon now to open the Actions menu and see the 3 management controls available!', position: 'left-center' }
         },
