@@ -92,7 +92,8 @@
                 </div>
 
                 <!-- Tab Content Area -->
-                <div id="tabContent" class="min-h-[300px]">
+                <div id="tabContent" class="min-h-[250px]">
+                    <!-- 1. Overview Tab -->
                     <div id="overview-tab" class="tab-content">
                         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                             <div class="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm">
@@ -110,6 +111,104 @@
                             <div class="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm">
                                 <div class="text-xs text-gray-500 font-semibold mb-1">Coding Day</div>
                                 <div class="text-sm font-bold text-blue-600">Tuesday</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2. Drivers Tab -->
+                    <div id="drivers-tab" class="tab-content hidden">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="border border-gray-200 rounded-xl p-4 bg-white shadow-sm">
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="text-xs font-bold text-blue-600 uppercase tracking-wider">Day Shift (D1)</span>
+                                    <span class="px-2 py-0.5 bg-green-100 text-green-800 rounded-full text-xs font-bold">Active</span>
+                                </div>
+                                <h4 class="text-base font-bold text-gray-900">Ria Jane Perocho</h4>
+                                <p class="text-xs text-gray-500 mt-1">License: N02-14-98401</p>
+                                <p class="text-xs text-gray-500">Contact: 0917-882-9901</p>
+                            </div>
+                            <div class="border border-gray-200 rounded-xl p-4 bg-white shadow-sm">
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">Night Shift (D2)</span>
+                                    <span class="px-2 py-0.5 bg-gray-100 text-gray-600 rounded-full text-xs font-bold">Unassigned</span>
+                                </div>
+                                <h4 class="text-base font-bold text-gray-400">No Secondary Driver</h4>
+                                <p class="text-xs text-gray-400 mt-1">Ready for driver assignment</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 3. Coding Tab -->
+                    <div id="coding-tab" class="tab-content hidden">
+                        <div class="bg-blue-50 border border-blue-100 rounded-2xl p-5">
+                            <div class="flex items-center gap-3 mb-3">
+                                <div class="p-2 bg-blue-600 text-white rounded-lg">
+                                    <i data-lucide="calendar" class="w-5 h-5"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-gray-900">MMDA Number Coding Schedule</h4>
+                                    <p class="text-xs text-gray-600">Restricted on Tuesday (Plate ends in 6)</p>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4 mt-4 text-xs">
+                                <div><span class="text-gray-500 font-semibold">Restriction Day:</span> <span class="font-bold text-gray-900">Tuesday</span></div>
+                                <div><span class="text-gray-500 font-semibold">Hours:</span> <span class="font-bold text-gray-900">7:00 AM - 8:00 PM</span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 4. Boundary Tab -->
+                    <div id="boundary-tab" class="tab-content hidden">
+                        <div class="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm">
+                            <div class="px-4 py-3 bg-gray-50 border-b border-gray-200 font-bold text-xs uppercase tracking-wider text-gray-700">Recent Boundary Collections</div>
+                            <table class="w-full text-left text-xs">
+                                <thead class="bg-gray-50 text-gray-500">
+                                    <tr><th class="p-3">Date</th><th class="p-3">Driver</th><th class="p-3 text-right">Amount</th></tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-100">
+                                    <tr><td class="p-3 font-medium">2026-08-11</td><td class="p-3">Ria Jane Perocho</td><td class="p-3 text-right font-bold text-green-600">₱1,000.00</td></tr>
+                                    <tr><td class="p-3 font-medium">2026-08-10</td><td class="p-3">Ria Jane Perocho</td><td class="p-3 text-right font-bold text-green-600">₱1,000.00</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- 5. Maintenance Tab -->
+                    <div id="maintenance-tab" class="tab-content hidden">
+                        <div class="space-y-3">
+                            <div class="bg-white border border-gray-200 rounded-2xl p-4 shadow-sm">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <span class="px-2 py-0.5 bg-blue-100 text-blue-800 rounded text-[10px] font-bold uppercase">Oil Change</span>
+                                        <h4 class="font-bold text-gray-900 text-sm mt-1">5,000 KM Periodic Maintenance Service</h4>
+                                    </div>
+                                    <span class="font-bold text-xs text-gray-900">₱2,450.00</span>
+                                </div>
+                                <p class="text-xs text-gray-500 mt-2">Mechanic: Jun Mechanic | Completed at 4,800 KM</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 6. ROI Tab -->
+                    <div id="roi-tab" class="tab-content hidden">
+                        <div class="bg-gradient-to-r from-emerald-700 to-teal-800 p-5 rounded-2xl text-white shadow-md">
+                            <h4 class="text-xs uppercase font-bold text-emerald-200 tracking-wider">Financial Return on Investment</h4>
+                            <div class="text-3xl font-black mt-1">100.0%</div>
+                            <p class="text-xs text-emerald-100 mt-2">Strong revenue generator covering boundary target rates consistently.</p>
+                        </div>
+                    </div>
+
+                    <!-- 7. Location Tab -->
+                    <div id="location-tab" class="tab-content hidden">
+                        <div class="bg-slate-900 text-white p-5 rounded-2xl shadow-md">
+                            <div class="flex items-center gap-3">
+                                <div class="p-2 bg-blue-500/20 text-blue-400 rounded-lg">
+                                    <i data-lucide="map-pin" class="w-6 h-6"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-sm">GPS Tracking Device (IMEI: 8649020491823)</h4>
+                                    <p class="text-xs text-slate-400">Live Status: Online | Location: Quezon City, Metro Manila</p>
+                                </div>
                             </div>
                         </div>
                     </div>
