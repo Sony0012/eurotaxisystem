@@ -477,43 +477,89 @@ const TutorialManager = (function () {
         {
             id: 'units-table-sep',
             route: '/units',
-            onBeforeShow: () => { const m = document.getElementById('addUnitModal'); if (m) m.classList.add('hidden'); if (typeof setViewMode === 'function') setViewMode('table'); },
-            getElement: () => document.getElementById('unitsTableScrollContainer') || document.querySelector('.modern-table-sep') || document.querySelector('table'),
-            popover: { title: 'Fleet Master Inventory Table', description: 'Detailed table listing all taxi units in your fleet with live status indicators, assigned drivers, and boundary pricing tags.', position: 'top' }
+            onBeforeShow: () => { 
+                const m = document.getElementById('addUnitModal'); 
+                if (m) m.classList.add('hidden'); 
+                if (typeof setViewMode === 'function') setViewMode('table'); 
+                const tv = document.getElementById('units-table-view');
+                const gv = document.getElementById('units-grid-view');
+                if (tv) tv.style.setProperty('display', 'block', 'important');
+                if (gv) gv.style.setProperty('display', 'none', 'important');
+                const container = document.getElementById('unitsTableScrollContainer') || document.querySelector('table');
+                if (container) container.scrollIntoView({ behavior: 'auto', block: 'center' });
+            },
+            getElement: () => document.getElementById('unitsTableScrollContainer') || document.querySelector('#units-table-view table') || document.querySelector('table'),
+            popover: { title: 'Fleet Master Inventory Table', description: 'Detailed table listing all taxi units in your fleet with live status indicators, assigned drivers, and boundary pricing tags.', position: 'bottom' }
         },
         {
             id: 'units-col-plate',
             route: '/units',
+            onBeforeShow: () => {
+                const tv = document.getElementById('units-table-view');
+                const gv = document.getElementById('units-grid-view');
+                if (tv) tv.style.setProperty('display', 'block', 'important');
+                if (gv) gv.style.setProperty('display', 'none', 'important');
+            },
             getElement: () => document.querySelector('tbody.modern-card-tbody tr td:first-child') || document.querySelector('tbody tr td:first-child'),
             popover: { title: 'Plate Number, Motor & Chassis Serial IDs', description: 'Displays the unit plate number (e.g. AAA 4591), registered Engine/Motor number, and Chassis serial number for complete vehicle legal tracking.', position: 'top' }
         },
         {
             id: 'units-col-specs',
             route: '/units',
+            onBeforeShow: () => {
+                const tv = document.getElementById('units-table-view');
+                const gv = document.getElementById('units-grid-view');
+                if (tv) tv.style.setProperty('display', 'block', 'important');
+                if (gv) gv.style.setProperty('display', 'none', 'important');
+            },
             getElement: () => document.querySelector('tbody.modern-card-tbody tr td:nth-child(2)') || document.querySelector('tbody tr td:nth-child(2)'),
             popover: { title: 'Vehicle Make, Model & Year', description: 'Shows the vehicle brand (e.g. Toyota), model name (e.g. Vios), model year (e.g. 2014), and NEW vehicle status tag.', position: 'top' }
         },
         {
             id: 'units-col-drivers',
             route: '/units',
+            onBeforeShow: () => {
+                const tv = document.getElementById('units-table-view');
+                const gv = document.getElementById('units-grid-view');
+                if (tv) tv.style.setProperty('display', 'block', 'important');
+                if (gv) gv.style.setProperty('display', 'none', 'important');
+            },
             getElement: () => document.querySelector('tbody.modern-card-tbody tr td:nth-child(3)') || document.querySelector('tbody tr td:nth-child(3)'),
             popover: { title: 'Assigned Drivers (D1 & D2)', description: 'Shows the assigned Day Driver (D1) and Night Driver (D2) for each car. Vacant driver slots are highlighted for quick driver pairing.', position: 'top' }
         },
         {
             id: 'units-col-status',
             route: '/units',
+            onBeforeShow: () => {
+                const tv = document.getElementById('units-table-view');
+                const gv = document.getElementById('units-grid-view');
+                if (tv) tv.style.setProperty('display', 'block', 'important');
+                if (gv) gv.style.setProperty('display', 'none', 'important');
+            },
             getElement: () => document.querySelector('tbody.modern-card-tbody tr td:nth-child(4)') || document.querySelector('tbody tr td:nth-child(4)'),
             popover: { title: 'Live Vehicle Status Badge', description: 'Real-time unit status indicator (Active on road, Maintenance in garage, MMDA Coding restriction, or Vacant).', position: 'top' }
         },
         {
             id: 'units-col-pricing',
             route: '/units',
+            onBeforeShow: () => {
+                const tv = document.getElementById('units-table-view');
+                const gv = document.getElementById('units-grid-view');
+                if (tv) tv.style.setProperty('display', 'block', 'important');
+                if (gv) gv.style.setProperty('display', 'none', 'important');
+            },
             getElement: () => document.querySelector('tbody.modern-card-tbody tr td:nth-child(5)') || document.querySelector('tbody tr td:nth-child(5)'),
             popover: { title: 'Smart Boundary Rate & Pricing Tag', description: 'Displays the active daily boundary rate (e.g. ₱1,100.00) and pricing tag (Regular Rate vs Coding Discount vs Sunday Discount).', position: 'top' }
         },
         {
             id: 'units-col-pms-alert',
             route: '/units',
+            onBeforeShow: () => {
+                const tv = document.getElementById('units-table-view');
+                const gv = document.getElementById('units-grid-view');
+                if (tv) tv.style.setProperty('display', 'block', 'important');
+                if (gv) gv.style.setProperty('display', 'none', 'important');
+            },
             getElement: () => document.querySelector('.modern-sub-row'),
             popover: { title: '5,000 KM Maintenance & PMS Odometer Alert', description: 'Tracks mileage progress towards 5,000 km oil change intervals and alerts you automatically with a red warning banner when PMS is overdue!', position: 'top' }
         },
