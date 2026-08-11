@@ -359,12 +359,14 @@ const TutorialManager = (function () {
         {
             id: 'units-filter-search',
             route: '/units',
+            onBeforeShow: () => { if (typeof setViewMode === 'function') setViewMode('table'); },
             getElement: () => document.getElementById('tableSearchInput') ? document.getElementById('tableSearchInput').closest('.bg-white') : null,
             popover: { title: 'Search, Sort & Filters', description: 'Quickly search any car by plate number or driver name, sort A-Z, or filter by Active, Coding, Maintenance, or Vacant status.', position: 'bottom' }
         },
         {
             id: 'units-view-toggle',
             route: '/units',
+            onBeforeShow: () => { if (typeof setViewMode === 'function') setViewMode('table'); },
             getElement: () => document.getElementById('unitViewTogglePill') || document.getElementById('btn-view-table'),
             popover: { title: 'Table & Cards View Toggle', description: 'Switch between detailed Table view and grid-based Cards view to monitor your fleet inventory based on your visual preference.', position: 'bottom' }
         },
@@ -1353,6 +1355,15 @@ const TutorialManager = (function () {
 
         clearElevatedTarget();
 
+        try {
+            if (driverObj) {
+                driverObj.destroy();
+                driverObj = null;
+            }
+        } catch (e) {
+            logDebug("Safe destroy prev catch: " + e.message);
+        }
+
         // Clean up portal dropdowns and modals before starting previous step
         if (typeof window._tutorialUnportalDropdown === 'function') {
             window._tutorialUnportalDropdown();
@@ -1385,15 +1396,8 @@ const TutorialManager = (function () {
         const prevIndex = currentIndex - 1;
         localStorage.setItem('tutorial_current_step', prevIndex);
         setTimeout(() => {
-            try {
-                if (driverObj) {
-                    driverObj.destroy();
-                }
-            } catch (e) {
-                logDebug("Safe destroy prev catch: " + e.message);
-            }
             startTutorial(prevIndex);
-        }, 150);
+        }, 50);
     }
 
     function finishTutorial() {
