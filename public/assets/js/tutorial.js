@@ -306,6 +306,26 @@ const TutorialManager = (function () {
             route: '/units',
             onBeforeShow: () => {
                 window._tutorialUnportalDropdown();
+                setTimeout(() => {
+                    const btn = document.querySelector('tbody tr button[onclick*="toggleUnitDropdown"]');
+                    if (btn) {
+                        btn.style.setProperty('pointer-events', 'auto', 'important');
+                        btn.style.setProperty('position', 'relative', 'important');
+                        btn.style.setProperty('z-index', '100005', 'important');
+                        btn.onclick = (e) => {
+                            if (e) {
+                                e.stopPropagation();
+                                e.preventDefault();
+                            }
+                            logDebug("Step 38 3-dots button clicked! Opening portal dropdown and advancing to Step 39.");
+                            window._tutorialPortalDropdown();
+                            const cur = parseInt(localStorage.getItem('tutorial_current_step') || '37');
+                            if (window.TutorialManager) {
+                                window.TutorialManager.moveToNextStep(cur);
+                            }
+                        };
+                    }
+                }, 100);
             },
             onAfterNext: () => {},
             getElement: () => document.querySelector('tbody tr button[onclick*="toggleUnitDropdown"]'),
