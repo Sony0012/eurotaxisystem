@@ -307,16 +307,16 @@ const TutorialManager = (function () {
             onBeforeShow: () => { 
                 const btn = document.querySelector('tbody tr button[onclick*="toggleUnitDropdown"]');
                 if (btn) {
-                    btn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    btn.scrollIntoView({ behavior: 'auto', block: 'center' });
                     const rect = btn.getBoundingClientRect();
                     const dd = document.querySelector('.unit-action-dropdown'); 
                     if (dd) {
                         dd.classList.remove('hidden');
                         dd.style.setProperty('position', 'fixed', 'important');
-                        dd.style.setProperty('top', (rect.bottom + 4) + 'px', 'important');
-                        dd.style.setProperty('left', Math.max(10, rect.right - 170) + 'px', 'important');
+                        dd.style.setProperty('top', Math.round(rect.bottom + 4) + 'px', 'important');
+                        dd.style.setProperty('left', Math.max(10, Math.round(rect.right - 165)) + 'px', 'important');
                         dd.style.setProperty('z-index', '9999999', 'important');
-                        dd.style.setProperty('width', '170px', 'important');
+                        dd.style.setProperty('width', '165px', 'important');
                     }
                 }
             },
@@ -329,15 +329,16 @@ const TutorialManager = (function () {
             onBeforeShow: () => { 
                 const btn = document.querySelector('tbody tr button[onclick*="toggleUnitDropdown"]');
                 if (btn) {
+                    btn.scrollIntoView({ behavior: 'auto', block: 'center' });
                     const rect = btn.getBoundingClientRect();
                     const dd = document.querySelector('.unit-action-dropdown'); 
                     if (dd) {
                         dd.classList.remove('hidden');
                         dd.style.setProperty('position', 'fixed', 'important');
-                        dd.style.setProperty('top', (rect.bottom + 4) + 'px', 'important');
-                        dd.style.setProperty('left', Math.max(10, rect.right - 170) + 'px', 'important');
+                        dd.style.setProperty('top', Math.round(rect.bottom + 4) + 'px', 'important');
+                        dd.style.setProperty('left', Math.max(10, Math.round(rect.right - 165)) + 'px', 'important');
                         dd.style.setProperty('z-index', '9999999', 'important');
-                        dd.style.setProperty('width', '170px', 'important');
+                        dd.style.setProperty('width', '165px', 'important');
                     }
                 }
             },
@@ -367,15 +368,16 @@ const TutorialManager = (function () {
                 if (editModal) editModal.classList.add('hidden');
                 const btn = document.querySelector('tbody tr button[onclick*="toggleUnitDropdown"]');
                 if (btn) {
+                    btn.scrollIntoView({ behavior: 'auto', block: 'center' });
                     const rect = btn.getBoundingClientRect();
                     const dd = document.querySelector('.unit-action-dropdown'); 
                     if (dd) {
                         dd.classList.remove('hidden');
                         dd.style.setProperty('position', 'fixed', 'important');
-                        dd.style.setProperty('top', (rect.bottom + 4) + 'px', 'important');
-                        dd.style.setProperty('left', Math.max(10, rect.right - 170) + 'px', 'important');
+                        dd.style.setProperty('top', Math.round(rect.bottom + 4) + 'px', 'important');
+                        dd.style.setProperty('left', Math.max(10, Math.round(rect.right - 165)) + 'px', 'important');
                         dd.style.setProperty('z-index', '9999999', 'important');
-                        dd.style.setProperty('width', '170px', 'important');
+                        dd.style.setProperty('width', '165px', 'important');
                     }
                 }
             },
@@ -388,15 +390,16 @@ const TutorialManager = (function () {
             onBeforeShow: () => { 
                 const btn = document.querySelector('tbody tr button[onclick*="toggleUnitDropdown"]');
                 if (btn) {
+                    btn.scrollIntoView({ behavior: 'auto', block: 'center' });
                     const rect = btn.getBoundingClientRect();
                     const dd = document.querySelector('.unit-action-dropdown'); 
                     if (dd) {
                         dd.classList.remove('hidden');
                         dd.style.setProperty('position', 'fixed', 'important');
-                        dd.style.setProperty('top', (rect.bottom + 4) + 'px', 'important');
-                        dd.style.setProperty('left', Math.max(10, rect.right - 170) + 'px', 'important');
+                        dd.style.setProperty('top', Math.round(rect.bottom + 4) + 'px', 'important');
+                        dd.style.setProperty('left', Math.max(10, Math.round(rect.right - 165)) + 'px', 'important');
                         dd.style.setProperty('z-index', '9999999', 'important');
-                        dd.style.setProperty('width', '170px', 'important');
+                        dd.style.setProperty('width', '165px', 'important');
                     }
                 }
             },
@@ -595,6 +598,111 @@ const TutorialManager = (function () {
 
     let driverObj = null;
 
+    function showProtectionToast(msg) {
+        let toast = document.getElementById('tutorial-protection-toast');
+        if (!toast) {
+            toast = document.createElement('div');
+            toast.id = 'tutorial-protection-toast';
+            toast.className = 'fixed top-4 right-4 z-[9999999] bg-slate-900/95 text-amber-300 border border-amber-500/40 text-xs font-bold px-4 py-3 rounded-2xl shadow-2xl backdrop-blur-md flex items-center gap-2.5 transition-all duration-300';
+            document.body.appendChild(toast);
+        }
+        toast.innerHTML = `<span class="relative flex h-2.5 w-2.5"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-500"></span></span> <span>${msg}</span>`;
+        toast.style.opacity = '1';
+        toast.style.transform = 'translateY(0)';
+        
+        clearTimeout(window.__protectionToastTimeout);
+        window.__protectionToastTimeout = setTimeout(() => {
+            if (toast) {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(-10px)';
+            }
+        }, 3500);
+    }
+
+    function enableTutorialDataProtection() {
+        if (window.__tutorialProtectionEnabled) return;
+        window.__tutorialProtectionEnabled = true;
+
+        logDebug("Enabling Global Tutorial Data Protection (Dummy Sandbox Mode)");
+
+        // 1. Intercept fetch API calls (DELETE, POST, PUT, PATCH requests)
+        const originalFetch = window.fetch;
+        window.fetch = function (resource, config) {
+            const isTutorialActive = !!localStorage.getItem('tutorial_current_step') || window.location.search.includes('tutorial=1');
+            if (isTutorialActive && config && config.method) {
+                const method = config.method.toUpperCase();
+                const url = typeof resource === 'string' ? resource : (resource ? resource.url : '');
+                
+                // Allow GET read requests and tutorial completion endpoint
+                if (method !== 'GET' && !url.includes('/api/tutorial/complete') && !url.includes('/heartbeat')) {
+                    logDebug(`[Tutorial Protection] Intercepted live ${method} request to: ${url}`);
+                    showProtectionToast(`🛡️ Tutorial Sandbox: ${method} request simulated with dummy data. Real DB protected!`);
+                    
+                    return Promise.resolve(new Response(JSON.stringify({
+                        success: true,
+                        tutorial_mock: true,
+                        message: 'Tutorial mode: Action simulated on dummy data. Real database untouched!'
+                    }), {
+                        status: 200,
+                        headers: { 'Content-Type': 'application/json' }
+                    }));
+                }
+            }
+            return originalFetch.apply(this, arguments);
+        };
+
+        // 2. Intercept XMLHttpRequest (for jQuery / Axios / AJAX requests)
+        const originalXhrOpen = XMLHttpRequest.prototype.open;
+        const originalXhrSend = XMLHttpRequest.prototype.send;
+        
+        XMLHttpRequest.prototype.open = function(method, url) {
+            this._tutorialMethod = (method || 'GET').toUpperCase();
+            this._tutorialUrl = url || '';
+            return originalXhrOpen.apply(this, arguments);
+        };
+
+        XMLHttpRequest.prototype.send = function(body) {
+            const isTutorialActive = !!localStorage.getItem('tutorial_current_step');
+            if (isTutorialActive && this._tutorialMethod !== 'GET' && !this._tutorialUrl.includes('/api/tutorial/complete') && !this._tutorialUrl.includes('/heartbeat')) {
+                logDebug(`[Tutorial Protection] Intercepted XHR ${this._tutorialMethod} to: ${this._tutorialUrl}`);
+                showProtectionToast(`🛡️ Tutorial Sandbox: Live ${this._tutorialMethod} call prevented!`);
+                
+                try {
+                    Object.defineProperty(this, 'status', { value: 200, writable: false });
+                    Object.defineProperty(this, 'responseText', { value: JSON.stringify({ success: true, tutorial_mock: true, message: 'Simulated' }), writable: false });
+                    Object.defineProperty(this, 'readyState', { value: 4, writable: false });
+                } catch(e) {}
+                
+                if (typeof this.onreadystatechange === 'function') {
+                    this.onreadystatechange();
+                }
+                if (typeof this.onload === 'function') {
+                    this.onload();
+                }
+                return;
+            }
+            return originalXhrSend.apply(this, arguments);
+        };
+
+        // 3. Intercept Form Submissions (prevent forms from submitting & refreshing/deleting)
+        document.addEventListener('submit', function(e) {
+            const isTutorialActive = !!localStorage.getItem('tutorial_current_step');
+            if (isTutorialActive) {
+                const form = e.target;
+                if (form && !form.action.includes('/api/tutorial/complete')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    logDebug(`[Tutorial Protection] Intercepted native form submit to: ${form.action}`);
+                    showProtectionToast(`🛡️ Tutorial Sandbox: Form submission simulated using dummy data!`);
+                    
+                    // Close any active modal gracefully
+                    const modal = form.closest('.modal, [id*="Modal"]');
+                    if (modal) modal.classList.add('hidden');
+                }
+            }
+        }, true);
+    }
+
     function init(tutorialCompleted) {
         logDebug("Tutorial init() called. Completed status: " + tutorialCompleted);
         if (!window.driver) {
@@ -606,6 +714,8 @@ const TutorialManager = (function () {
             logDebug("Tutorial already completed. Exiting.");
             return;
         }
+
+        enableTutorialDataProtection();
 
         const currentStepIndex = parseInt(localStorage.getItem('tutorial_current_step') || '0', 10);
         logDebug("Current step index loaded: " + currentStepIndex);
