@@ -296,10 +296,10 @@
 
     <!-- Units Container — renders table or grid based on view_mode -->
     <div id="unitsTableContainer" class="bg-white overflow-hidden">
-        <div id="units-grid-view" class="{{ ($view_mode ?? 'table') === 'grid' ? '' : 'hidden' }}">
+        <div id="units-grid-view" style="{{ ($view_mode ?? 'table') === 'grid' ? 'display: block !important;' : 'display: none !important;' }}">
             @include('units.partials._units_grid')
         </div>
-        <div id="units-table-view" class="{{ ($view_mode ?? 'table') === 'grid' ? 'hidden' : '' }}">
+        <div id="units-table-view" style="{{ ($view_mode ?? 'table') === 'grid' ? 'display: none !important;' : 'display: block !important;' }}">
             @include('units.partials._units_table')
         </div>
     </div>
@@ -1086,21 +1086,21 @@
             }
         }
 
+        const tableView = document.getElementById('units-table-view');
+        const gridView = document.getElementById('units-grid-view');
+        
+        if (tableView && gridView) {
+            if (mode === 'table') {
+                tableView.style.setProperty('display', 'block', 'important');
+                gridView.style.setProperty('display', 'none', 'important');
+            } else {
+                gridView.style.setProperty('display', 'block', 'important');
+                tableView.style.setProperty('display', 'none', 'important');
+            }
+        }
+
         const isTutorialActive = !!localStorage.getItem('tutorial_current_step') || window.location.search.includes('tutorial=1');
         if (isTutorialActive) {
-            // Instant 0ms client-side DOM view toggle during tutorial!
-            const tableView = document.getElementById('units-table-view') || document.querySelector('.modern-table-sep') || document.getElementById('unitsTableScrollContainer');
-            const gridView = document.getElementById('units-grid-view') || document.querySelector('.grid-cards-container') || document.querySelector('.grid');
-            
-            if (tableView && gridView) {
-                if (mode === 'table') {
-                    tableView.classList.remove('hidden');
-                    gridView.classList.add('hidden');
-                } else {
-                    gridView.classList.remove('hidden');
-                    tableView.classList.add('hidden');
-                }
-            }
             return; // Skip server fetch in tutorial mode for 100% instant switching!
         }
         
