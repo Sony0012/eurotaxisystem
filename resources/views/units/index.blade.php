@@ -329,7 +329,11 @@
             const modal = document.getElementById('tutorialPrintPdfModal');
             const iframe = document.getElementById('tutorialPdfIframe');
             if (modal && iframe) {
-                iframe.src = "{{ route('units.print') }}?preview=1";
+                if (typeof window.generateStaticTutorialPdfReport === 'function') {
+                    iframe.srcdoc = window.generateStaticTutorialPdfReport();
+                } else {
+                    iframe.src = "{{ route('units.print') }}?preview=1";
+                }
                 modal.classList.remove('hidden');
             }
         }
@@ -1270,6 +1274,37 @@
 
         function editUnit(id) {
             window.currentEditingUnitId = id;
+            const isTutorialActive = !!localStorage.getItem('tutorial_current_step') || window.location.search.includes('tutorial=1');
+            if (isTutorialActive && typeof window.TutorialStaticData !== 'undefined' && window.TutorialStaticData.units) {
+                const mockUnit = window.TutorialStaticData.units[0];
+                if (document.getElementById('editPlateNumber')) document.getElementById('editPlateNumber').value = mockUnit.plate_number || '';
+                if (document.getElementById('editMake')) document.getElementById('editMake').value = mockUnit.make || '';
+                if (document.getElementById('editModel')) document.getElementById('editModel').value = mockUnit.model || '';
+                if (document.getElementById('editYear')) document.getElementById('editYear').value = mockUnit.year || '';
+                if (document.getElementById('editMotorNo')) document.getElementById('editMotorNo').value = mockUnit.engine_number || '';
+                if (document.getElementById('editChassisNo')) document.getElementById('editChassisNo').value = mockUnit.chassis_number || '';
+                if (document.getElementById('editStatus')) document.getElementById('editStatus').value = (mockUnit.status || 'ACTIVE').toLowerCase();
+                if (document.getElementById('editUnitType')) document.getElementById('editUnitType').value = mockUnit.unit_type || 'new';
+                if (document.getElementById('editImei')) document.getElementById('editImei').value = mockUnit.gps ? mockUnit.gps.imei : '';
+                const brInput = document.getElementById('editBoundaryRate');
+                if (brInput) {
+                    brInput.value = mockUnit.boundary_rate ? mockUnit.boundary_rate.toFixed(2) : '1100.00';
+                    formatCurrencyInput(brInput);
+                }
+                const pcInput = document.getElementById('editPurchaseCost');
+                if (pcInput) {
+                    pcInput.value = mockUnit.purchase_cost ? mockUnit.purchase_cost.toFixed(2) : '650000.00';
+                    formatCurrencyInput(pcInput);
+                }
+                if (document.getElementById('editPurchaseDate')) document.getElementById('editPurchaseDate').value = mockUnit.purchase_date || '2014-03-15';
+                document.getElementById('edit_driver1_search').value = mockUnit.day_driver ? mockUnit.day_driver.name : '';
+                document.getElementById('edit_driver2_search').value = mockUnit.night_driver ? mockUnit.night_driver.name : '';
+                document.getElementById('editCodingDay').value = mockUnit.coding_day || 'Monday';
+                document.getElementById('editUnitForm').action = 'javascript:void(0);';
+                document.getElementById('editUnitModal').classList.remove('hidden');
+                lucide.createIcons();
+                return;
+            }
             fetch('{{ route("units.details") }}?id=' + id, {
                 headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
             })

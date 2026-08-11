@@ -1,4 +1,200 @@
 /* public/assets/js/tutorial.js */
+const TUTORIAL_DATA_VERSION = "9.5";
+
+/**
+ * Dedicated Static Tutorial Dataset
+ * Isolated, Cached, Immutable Sample Data matching production schema.
+ */
+const TutorialStaticData = {
+    version: TUTORIAL_DATA_VERSION,
+    
+    dashboard: {
+        totalUnits: 91,
+        roiAchievedUnits: 48,
+        boundaryRevenueToday: 42500.00,
+        boundaryRevenueMonth: 1185000.00,
+        netIncomeToday: 32400.00,
+        netIncomeMonth: 890000.00,
+        underMaintenanceUnits: 3,
+        activeDriversCount: 104,
+        expensesToday: 10100.00,
+        codingUnitsToday: 18,
+        unitPerformance: [
+            { plate: "AAA 4591", target: 33000, actual: 35200, roiPercent: 106.6 },
+            { plate: "AAK 9196", target: 30000, actual: 31000, roiPercent: 103.3 },
+            { plate: "AAQ 1743", target: 27000, actual: 28500, roiPercent: 105.5 }
+        ],
+        statusDistribution: { active: 70, maintenance: 3, coding: 18 }
+    },
+    
+    units: [
+        {
+            id: "tut-unit-1",
+            uuid: "tut-uuid-1",
+            plate_number: "AAA 4591",
+            make: "Toyota",
+            model: "Vios",
+            year: 2014,
+            engine_number: "2NZ7307868",
+            chassis_number: "NCP1522031009",
+            status: "ACTIVE",
+            unit_type: "new",
+            boundary_rate: 1100.00,
+            purchase_cost: 650000.00,
+            purchase_date: "2014-03-15",
+            pricing_type: "REGULAR RATE",
+            pms_odometer: 5424,
+            pms_interval: 5000,
+            is_pms_overdue: true,
+            day_driver: { id: "tut-d1", name: "July Sunico", phone: "0917-111-2233" },
+            night_driver: { id: "tut-d2", name: "Arwin Azarcon", phone: "0918-444-5566" },
+            coding_day: "Monday",
+            next_coding_date: "2026-08-17",
+            gps: { provider: "Tracksolid Pro", imei: "864209041234567" }
+        },
+        {
+            id: "tut-unit-2",
+            uuid: "tut-uuid-2",
+            plate_number: "AAK 9196",
+            make: "Toyota",
+            model: "Vios",
+            year: 2015,
+            engine_number: "2NZ7747086",
+            chassis_number: "NCP151-2042785",
+            status: "ACTIVE",
+            unit_type: "new",
+            boundary_rate: 1000.00,
+            purchase_cost: 680000.00,
+            purchase_date: "2015-05-20",
+            pricing_type: "REGULAR RATE",
+            pms_odometer: 2150,
+            pms_interval: 5000,
+            is_pms_overdue: false,
+            day_driver: { id: "tut-d3", name: "Ria Jane Perocho", phone: "0919-888-9900" },
+            night_driver: null,
+            coding_day: "Tuesday",
+            next_coding_date: "2026-08-18",
+            gps: { provider: "AKSH Aika168", imei: "868123049876543" }
+        },
+        {
+            id: "tut-unit-3",
+            uuid: "tut-uuid-3",
+            plate_number: "ABC 1234",
+            make: "Honda",
+            model: "Civic",
+            year: 2026,
+            engine_number: "R18Z1-884920",
+            chassis_number: "FDB-9920148",
+            status: "MAINTENANCE",
+            unit_type: "new",
+            boundary_rate: 1200.00,
+            purchase_cost: 950000.00,
+            purchase_date: "2026-01-10",
+            pricing_type: "REGULAR RATE",
+            pms_odometer: 4980,
+            pms_interval: 5000,
+            is_pms_overdue: false,
+            day_driver: null,
+            night_driver: null,
+            coding_day: "Friday",
+            next_coding_date: "2026-08-14",
+            gps: { provider: "Tracksolid Pro", imei: "864991045566778" }
+        }
+    ],
+
+    drivers: [
+        { id: "tut-d1", name: "July Sunico", phone: "0917-111-2233", license: "N01-12-345678", status: "ACTIVE", assigned_unit: "AAA 4591" },
+        { id: "tut-d2", name: "Arwin Azarcon", phone: "0918-444-5566", license: "N02-98-765432", status: "ACTIVE", assigned_unit: "AAA 4591" },
+        { id: "tut-d3", name: "Ria Jane Perocho", phone: "0919-888-9900", license: "N03-55-112233", status: "ACTIVE", assigned_unit: "AAK 9196" }
+    ],
+
+    expenses: [
+        { id: "tut-exp-1", category: "Spare Parts & Maintenance", amount: 4500.00, date: "2026-08-10", notes: "PMS Oil & Filter Change" },
+        { id: "tut-exp-2", category: "Office Supplies & Utilities", amount: 1200.00, date: "2026-08-09", notes: "Printer Ink & Forms" },
+        { id: "tut-exp-3", category: "Insurance & LTO Permits", amount: 4400.00, date: "2026-08-05", notes: "Annual Franchise Renewal" }
+    ],
+
+    pdfReport: {
+        title: "UNITS & DRIVERS MANAGEMENT REPORT",
+        subtitle: "EURO TAXI MANAGEMENT SYSTEM — OFFICIAL RECORD",
+        totalUnits: 91,
+        timestamp: "AUG 11, 2026 15:45:00"
+    }
+};
+window.TutorialStaticData = TutorialStaticData;
+
+window.generateStaticTutorialPdfReport = function() {
+    const data = window.TutorialStaticData ? window.TutorialStaticData.pdfReport : null;
+    const units = window.TutorialStaticData ? window.TutorialStaticData.units : [];
+    
+    let rowsHtml = '';
+    units.forEach(u => {
+        rowsHtml += `
+            <tr style="border-bottom: 1px solid #f1f5f9; font-size: 11px;">
+                <td style="padding: 8px 12px; font-weight: bold; color: #1e293b;">
+                    ${u.plate_number}<br>
+                    <span style="font-size: 9px; color: #64748b; font-weight: normal;">${u.make} ${u.model} (${u.year})</span>
+                </td>
+                <td style="padding: 8px 12px; color: #334155;">${u.day_driver ? u.day_driver.name : '<span style="color:#94a3b8;">Vacant</span>'}</td>
+                <td style="padding: 8px 12px; color: #334155;">${u.night_driver ? u.night_driver.name : '<span style="color:#94a3b8;">Vacant</span>'}</td>
+                <td style="padding: 8px 12px; text-align: center; font-weight: bold; color: #0284c7;">${(u.day_driver ? 1 : 0) + (u.night_driver ? 1 : 0)}</td>
+                <td style="padding: 8px 12px; text-align: right; font-weight: bold; color: #16a34a;">₱${u.boundary_rate.toLocaleString('en-US', {minimumFractionDigits: 2})}</td>
+            </tr>
+        `;
+    });
+
+    return `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="utf-8">
+            <style>
+                body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 24px; color: #1e293b; background: #ffffff; margin: 0; }
+                .header { text-align: center; margin-bottom: 24px; border-bottom: 2px solid #2563eb; padding-bottom: 16px; }
+                .logo { font-size: 24px; font-weight: 900; color: #1e3a8a; letter-spacing: -0.5px; }
+                .logo span { color: #f59e0b; }
+                .title { font-size: 14px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: #0f172a; margin-top: 4px; }
+                .subtitle { font-size: 10px; color: #64748b; margin-top: 2px; }
+                .meta-bar { display: flex; justify-content: space-between; font-size: 10px; font-weight: bold; color: #475569; margin-bottom: 12px; text-transform: uppercase; border-bottom: 1px dashed #cbd5e1; padding-bottom: 8px; }
+                table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+                th { background: #f8fafc; color: #475569; font-size: 9px; font-weight: 800; text-transform: uppercase; text-align: left; padding: 8px 12px; border-bottom: 2px solid #e2e8f0; }
+                .signature-box { margin-top: 40px; display: flex; justify-content: space-between; font-size: 11px; }
+                .sig-line { width: 200px; border-top: 1px solid #94a3b8; text-align: center; padding-top: 4px; font-weight: bold; color: #475569; }
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <div class="logo">EURO<span>TAXI</span> INC.</div>
+                <div class="title">${data ? data.title : 'UNITS & DRIVERS MANAGEMENT REPORT'}</div>
+                <div class="subtitle">${data ? data.subtitle : 'EURO TAXI MANAGEMENT SYSTEM — OFFICIAL RECORD'}</div>
+            </div>
+            <div class="meta-bar">
+                <span>TOTAL REGISTERED UNITS: ${data ? data.totalUnits : 91}</span>
+                <span>TIMESTAMP: ${data ? data.timestamp : 'AUG 11, 2026 15:45:00'}</span>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>UNIT INFO</th>
+                        <th>PRIMARY DRIVER (D1)</th>
+                        <th>SECONDARY DRIVER (D2)</th>
+                        <th style="text-align:center;">DRIVERS</th>
+                        <th style="text-align:right;">BOUNDARY RATE</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${rowsHtml}
+                </tbody>
+            </table>
+            <div class="signature-box">
+                <div class="sig-line">Prepared By: Dispatch Officer</div>
+                <div class="sig-line">Approved By: Operations Manager</div>
+            </div>
+        </body>
+        </html>
+    `;
+};
+
 const TutorialManager = (function () {
     // VISUAL DEBUGGER (Removed UI, keeping console logs only)
     function logDebug(msg) {
