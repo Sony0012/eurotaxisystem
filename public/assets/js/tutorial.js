@@ -262,7 +262,7 @@ const TutorialManager = (function () {
             id: 'units-table-sep',
             route: '/units',
             onBeforeShow: () => { const m = document.getElementById('addUnitModal'); if (m) m.classList.add('hidden'); if (typeof setViewMode === 'function') setViewMode('table'); },
-            getElement: () => document.querySelector('.modern-table-sep thead') || document.querySelector('table thead') || document.querySelector('.modern-table-sep'),
+            getElement: () => document.getElementById('unitsTableScrollContainer') || document.querySelector('.modern-table-sep') || document.querySelector('table'),
             popover: { title: 'Fleet Master Inventory Table', description: 'Detailed table listing all taxi units in your fleet with live status indicators, assigned drivers, and boundary pricing tags.', position: 'top' }
         },
         {
