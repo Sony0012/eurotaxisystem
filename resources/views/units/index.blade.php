@@ -1215,11 +1215,11 @@
             const btn = event ? (event.currentTarget || event.target.closest('button')) : dropdown.previousElementSibling;
             if (btn) {
                 const rect = btn.getBoundingClientRect();
-                dropdown.style.position = 'fixed';
-                dropdown.style.top = (rect.bottom + 4) + 'px';
-                dropdown.style.left = Math.max(10, rect.right - 170) + 'px';
-                dropdown.style.zIndex = '9999999';
-                dropdown.style.width = '170px';
+                dropdown.style.setProperty('position', 'fixed', 'important');
+                dropdown.style.setProperty('top', Math.round(rect.bottom + 4) + 'px', 'important');
+                dropdown.style.setProperty('left', Math.max(10, Math.round(rect.right - 165)) + 'px', 'important');
+                dropdown.style.setProperty('z-index', '9999999', 'important');
+                dropdown.style.setProperty('width', '165px', 'important');
             }
         } else {
             dropdown.classList.add('hidden');
