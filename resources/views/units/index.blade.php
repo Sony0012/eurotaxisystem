@@ -1201,32 +1201,28 @@
 
     window.toggleUnitDropdown = function(id, event) {
         if (event) event.stopPropagation();
+        
         document.querySelectorAll('.unit-action-dropdown').forEach(el => {
             if (el.id !== id) el.classList.add('hidden');
-            const tr = el.closest('tr');
-            const tbody = el.closest('tbody');
-            const td = el.closest('td');
-            if (tr) { tr.style.zIndex = ''; tr.style.position = ''; }
-            if (tbody) { tbody.style.zIndex = ''; tbody.style.position = ''; }
-            if (td) { td.style.zIndex = ''; td.style.position = ''; }
         });
+        
         const dropdown = document.getElementById(id);
-        if (dropdown) {
-            const isHidden = dropdown.classList.contains('hidden');
-            const tr = dropdown.closest('tr');
-            const tbody = dropdown.closest('tbody');
-            const td = dropdown.closest('td');
-            if (isHidden) {
-                dropdown.classList.remove('hidden');
-                if (td) { td.style.position = 'relative'; td.style.zIndex = '999999'; }
-                if (tr) { tr.style.position = 'relative'; tr.style.zIndex = '999999'; }
-                if (tbody) { tbody.style.position = 'relative'; tbody.style.zIndex = '999999'; }
-            } else {
-                dropdown.classList.add('hidden');
-                if (td) { td.style.zIndex = ''; td.style.position = ''; }
-                if (tr) { tr.style.zIndex = ''; tr.style.position = ''; }
-                if (tbody) { tbody.style.zIndex = ''; tbody.style.position = ''; }
+        if (!dropdown) return;
+        
+        const isHidden = dropdown.classList.contains('hidden');
+        if (isHidden) {
+            dropdown.classList.remove('hidden');
+            const btn = event ? (event.currentTarget || event.target.closest('button')) : dropdown.previousElementSibling;
+            if (btn) {
+                const rect = btn.getBoundingClientRect();
+                dropdown.style.position = 'fixed';
+                dropdown.style.top = (rect.bottom + 4) + 'px';
+                dropdown.style.left = Math.max(10, rect.right - 170) + 'px';
+                dropdown.style.zIndex = '9999999';
+                dropdown.style.width = '170px';
             }
+        } else {
+            dropdown.classList.add('hidden');
         }
     };
     if (!window.unitDropdownListenerAdded) {
