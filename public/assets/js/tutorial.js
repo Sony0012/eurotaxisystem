@@ -310,7 +310,13 @@ const TutorialManager = (function () {
                 const dd = document.querySelector('.unit-action-dropdown'); 
                 if (dd) {
                     dd.classList.remove('hidden');
-                    dd.style.setProperty('z-index', '999999', 'important');
+                    dd.style.setProperty('z-index', '9999999', 'important');
+                    const td = dd.closest('td');
+                    const tr = dd.closest('tr');
+                    const tbody = dd.closest('tbody');
+                    if (td) { td.style.position = 'relative'; td.style.zIndex = '999999'; }
+                    if (tr) { tr.style.position = 'relative'; tr.style.zIndex = '999999'; }
+                    if (tbody) { tbody.style.position = 'relative'; tbody.style.zIndex = '999999'; }
                     const container = document.getElementById('unitsTableScrollContainer') || dd.closest('.overflow-x-auto');
                     if (container) container.style.setProperty('overflow', 'visible', 'important');
                 }
@@ -325,22 +331,51 @@ const TutorialManager = (function () {
                 const dd = document.querySelector('.unit-action-dropdown'); 
                 if (dd) {
                     dd.classList.remove('hidden');
-                    dd.style.setProperty('z-index', '999999', 'important');
+                    dd.style.setProperty('z-index', '9999999', 'important');
+                    const td = dd.closest('td');
+                    const tr = dd.closest('tr');
+                    const tbody = dd.closest('tbody');
+                    if (td) { td.style.position = 'relative'; td.style.zIndex = '999999'; }
+                    if (tr) { tr.style.position = 'relative'; tr.style.zIndex = '999999'; }
+                    if (tbody) { tbody.style.position = 'relative'; tbody.style.zIndex = '999999'; }
                     const container = document.getElementById('unitsTableScrollContainer') || dd.closest('.overflow-x-auto');
                     if (container) container.style.setProperty('overflow', 'visible', 'important');
                 }
             },
             getElement: () => document.querySelector('.unit-action-dropdown button[onclick*="editUnit"]') || document.querySelector('.unit-action-dropdown'),
-            popover: { title: '✏️ Edit Unit Action', description: 'Opens the unit editor modal to update plate numbers, vehicle specs, boundary rates, or re-assign D1/D2 drivers anytime.', position: 'left-center' }
+            popover: { title: '✏️ Edit Unit Action', description: 'Clicking Edit Unit opens the unit editor modal where you can update vehicle specs, plate numbers, daily boundary rates, or re-assign drivers.', position: 'left-center' }
+        },
+        {
+            id: 'units-edit-modal-overview',
+            route: '/units',
+            onBeforeShow: () => {
+                const dd = document.querySelector('.unit-action-dropdown'); 
+                if (dd) dd.classList.add('hidden'); 
+                if (typeof editUnit === 'function') editUnit(1);
+            },
+            onAfterNext: () => {
+                const modal = document.getElementById('editUnitModal');
+                if (modal) modal.classList.add('hidden');
+            },
+            getElement: () => document.querySelector('#editUnitModal > div') || document.getElementById('editUnitModal'),
+            popover: { title: '✏️ Deep-Dive: Edit Unit Form Modal', description: 'Welcome inside the Edit Unit Modal! Here you can modify plate numbers, chassis/motor IDs, status, daily boundary targets, driver pairings, and GPS tracker details.', position: 'bottom' }
         },
         {
             id: 'units-actions-reset',
             route: '/units',
             onBeforeShow: () => { 
+                const editModal = document.getElementById('editUnitModal');
+                if (editModal) editModal.classList.add('hidden');
                 const dd = document.querySelector('.unit-action-dropdown'); 
                 if (dd) {
                     dd.classList.remove('hidden');
-                    dd.style.setProperty('z-index', '999999', 'important');
+                    dd.style.setProperty('z-index', '9999999', 'important');
+                    const td = dd.closest('td');
+                    const tr = dd.closest('tr');
+                    const tbody = dd.closest('tbody');
+                    if (td) { td.style.position = 'relative'; td.style.zIndex = '999999'; }
+                    if (tr) { tr.style.position = 'relative'; tr.style.zIndex = '999999'; }
+                    if (tbody) { tbody.style.position = 'relative'; tbody.style.zIndex = '999999'; }
                     const container = document.getElementById('unitsTableScrollContainer') || dd.closest('.overflow-x-auto');
                     if (container) container.style.setProperty('overflow', 'visible', 'important');
                 }
@@ -355,7 +390,13 @@ const TutorialManager = (function () {
                 const dd = document.querySelector('.unit-action-dropdown'); 
                 if (dd) {
                     dd.classList.remove('hidden');
-                    dd.style.setProperty('z-index', '999999', 'important');
+                    dd.style.setProperty('z-index', '9999999', 'important');
+                    const td = dd.closest('td');
+                    const tr = dd.closest('tr');
+                    const tbody = dd.closest('tbody');
+                    if (td) { td.style.position = 'relative'; td.style.zIndex = '999999'; }
+                    if (tr) { tr.style.position = 'relative'; tr.style.zIndex = '999999'; }
+                    if (tbody) { tbody.style.position = 'relative'; tbody.style.zIndex = '999999'; }
                     const container = document.getElementById('unitsTableScrollContainer') || dd.closest('.overflow-x-auto');
                     if (container) container.style.setProperty('overflow', 'visible', 'important');
                 }
