@@ -177,6 +177,7 @@ button[onclick*="toggleUnitDropdown"] *,
 .unit-action-dropdown--portal button,
 .unit-action-dropdown--portal button * {
     cursor: pointer !important;
+    pointer-events: auto !important;
 }
 
 .driver-active-element {
