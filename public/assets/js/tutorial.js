@@ -784,8 +784,34 @@ const TutorialManager = (function () {
         }
     }
 
+    let currentElevatedElement = null;
+    let originalElementStyles = {};
+
+    function clearElevatedTarget() {
+        if (currentElevatedElement) {
+            if (originalElementStyles.zIndex !== undefined && originalElementStyles.zIndex !== '') {
+                currentElevatedElement.style.zIndex = originalElementStyles.zIndex;
+            } else {
+                currentElevatedElement.style.removeProperty('z-index');
+            }
+            if (originalElementStyles.position !== undefined && originalElementStyles.position !== '') {
+                currentElevatedElement.style.position = originalElementStyles.position;
+            } else {
+                currentElevatedElement.style.removeProperty('position');
+            }
+            if (originalElementStyles.pointerEvents !== undefined && originalElementStyles.pointerEvents !== '') {
+                currentElevatedElement.style.pointerEvents = originalElementStyles.pointerEvents;
+            } else {
+                currentElevatedElement.style.removeProperty('pointer-events');
+            }
+            currentElevatedElement = null;
+            originalElementStyles = {};
+        }
+    }
+
     function startTutorial(stepIndex) {
         logDebug(`startTutorial called with stepIndex: ${stepIndex}`);
+        clearElevatedTarget();
         
         if (stepIndex >= steps.length) {
             logDebug("Reached end of steps. Finishing tutorial.");
@@ -828,7 +854,15 @@ const TutorialManager = (function () {
         targetElement.id = dynamicId;
         logDebug(`Target element found. Assigned ID: #${dynamicId}`);
 
-        // Ensure the highlighted element itself sits above Driver overlay (z-index 100005) and receives pointer events directly
+        // Save original styles of current target element so we can cleanly restore them on step change
+        currentElevatedElement = targetElement;
+        originalElementStyles = {
+            zIndex: targetElement.style.zIndex || '',
+            position: targetElement.style.position || '',
+            pointerEvents: targetElement.style.pointerEvents || ''
+        };
+
+        // Ensure ONLY the current highlighted element sits above Driver overlay (z-index 100005) and receives pointer events directly
         targetElement.style.setProperty('z-index', '100005', 'important');
         targetElement.style.setProperty('position', 'relative', 'important');
         targetElement.style.setProperty('pointer-events', 'auto', 'important');
@@ -1048,6 +1082,8 @@ const TutorialManager = (function () {
                 ripple.style.top = `${e.clientY - rect.top - size/2}px`;
                 targetElement.appendChild(ripple);
 
+                clearElevatedTarget();
+
                 // Destroy driver early so it doesn't block the click navigation
                 if (driverObj) {
                     driverObj.destroy();
@@ -1062,15 +1098,10 @@ const TutorialManager = (function () {
                     } else {
                         startTutorial(nextIndex);
                     }
-                }, 400);
+                }, 200);
                 targetElement.removeEventListener('click', clickHandler, true);
             };
-            const tag = targetElement ? targetElement.tagName.toUpperCase() : '';
-            if (['A', 'BUTTON', 'INPUT', 'SELECT'].includes(tag) || (targetElement && (targetElement.classList.contains('cursor-pointer') || targetElement.onclick))) {
-                if (tag !== 'TABLE' && tag !== 'THEAD' && tag !== 'TBODY') {
-                    targetElement.addEventListener('click', clickHandler, true);
-                }
-            }
+            targetElement.addEventListener('click', clickHandler, true);
 
             logDebug("Calling driverObj.drive()");
             driverObj.drive();
@@ -1138,6 +1169,7 @@ const TutorialManager = (function () {
 
     function finishTutorial() {
         logDebug("finishTutorial called.");
+        clearElevatedTarget();
         if (driverObj) driverObj.destroy();
         const progress = document.getElementById('tutorial-global-progress');
         if (progress) progress.remove();

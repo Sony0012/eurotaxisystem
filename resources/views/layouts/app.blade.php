@@ -2596,7 +2596,7 @@
     
     <!-- Interactive Tutorial System -->
     <script src="https://cdn.jsdelivr.net/npm/driver.js@1.3.1/dist/driver.js.iife.js"></script>
-    <script src="{{ asset('assets/js/tutorial.js') }}?v=8.8"></script>
+    <script src="{{ asset('assets/js/tutorial.js') }}?v=8.9"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             if (typeof window.TutorialManager !== 'undefined') {
