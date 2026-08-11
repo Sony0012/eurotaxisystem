@@ -551,6 +551,38 @@ class DriverAppController extends Controller
                             $updateData['daily_start_mileage'] = $gps['currentMileage'];
                             $updateData['daily_start_date'] = $todayStr;
                         }
+
+                        // --- HYBRID SYNC (MATCH WEB DISTANCE) ---
+                        // The app polls this every 5 seconds. We sync with Tracksolid's accurate 
+                        // getMileage API every 10 minutes to prevent API limits while keeping distance exact.
+                        $hybridSyncCacheKey = 'hybrid_sync_' . $unit->id . '_' . $todayStr;
+                        if (!\Illuminate\Support\Facades\Cache::has($hybridSyncCacheKey) && $gps['currentMileage'] > 0) {
+                            try {
+                                $beginTime = now()->timezone('Asia/Manila')->startOfDay()->timezone('UTC')->format('Y-m-d H:i:s');
+                                $endTime = gmdate('Y-m-d H:i:s');
+                                $mileageData = $this->tracksolid->getMileage($unit->imei, $beginTime, $endTime);
+                                
+                                $totalDistanceMeters = 0;
+                                if ($mileageData && is_array($mileageData)) {
+                                    foreach ($mileageData as $record) {
+                                        $totalDistanceMeters += (float)($record['distance'] ?? 0);
+                                    }
+                                }
+                                $totalDistance = $totalDistanceMeters / 1000;
+                                
+                                if ($totalDistance > 0) {
+                                    $correctedBaseline = $gps['currentMileage'] - $totalDistance;
+                                    $updateData['daily_start_mileage'] = $correctedBaseline;
+                                    $updateData['daily_start_date'] = $todayStr;
+                                    
+                                    // Cache for 10 minutes (600 seconds)
+                                    \Illuminate\Support\Facades\Cache::put($hybridSyncCacheKey, true, 600);
+                                }
+                            } catch (\Exception $e) {
+                                \Log::error("App Hybrid Sync Error for unit {$unit->plate_number}: " . $e->getMessage());
+                            }
+                        }
+                        // --- END HYBRID SYNC ---
                     }
 
                     DB::table('gps_tracking')->updateOrInsert(
@@ -645,11 +677,31 @@ class DriverAppController extends Controller
             ->where('is_read', false)
             ->count();
 
+        // Fetch daily track points from Tracksolid
+        $trackPoints = [];
+        if ($unit && $unit->imei && !$request->has('skip_gps')) {
+            try {
+                $beginTime = Carbon::now('Asia/Manila')->startOfDay()->timezone('UTC')->format('Y-m-d H:i:s');
+                $endTime = Carbon::now('Asia/Manila')->timezone('UTC')->format('Y-m-d H:i:s');
+                $trackData = $this->tracksolid->getTrackList($unit->imei, $beginTime, $endTime);
+                if (is_array($trackData)) {
+                    foreach ($trackData as $point) {
+                        if (isset($point['lat']) && isset($point['lng'])) {
+                            $trackPoints[] = [(float)$point['lat'], (float)$point['lng']];
+                        }
+                    }
+                }
+            } catch (\Exception $e) {
+                \Log::error("Failed to fetch track points for unit {$unit->plate_number}: " . $e->getMessage());
+            }
+        }
+
         return response()->json([
             'success' => true,
             'data' => [
                 'unread_support_messages' => $unread_support_messages,
                 'has_unit' => $unit ? true : false,
+                'path' => $trackPoints,
                 'driver_name' => $driver->first_name . ' ' . $driver->last_name,
                 'unit' => ($unit ? ($unit->make ? $unit->make . ' ' : '') . $unit->model . ' (' . $unit->plate_number . ')' : 'No Unit'),
                 'plate_number' => $unit ? $unit->plate_number : '',
