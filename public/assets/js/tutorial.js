@@ -895,6 +895,26 @@ const TutorialManager = (function () {
                 }
             }
         }, true);
+
+        // 4. Strict Click Isolation (Lock clicks to ONLY highlighted target, popovers, or active modals)
+        document.addEventListener('click', function(e) {
+            const isTutorialActive = !!localStorage.getItem('tutorial_current_step') || window.location.search.includes('tutorial=1');
+            if (!isTutorialActive) return;
+
+            const isInsideActiveTarget = e.target.closest && e.target.closest('.driver-active-element, [id^="tutorial-active-target-"]');
+            const isInsidePopover = e.target.closest && e.target.closest('.driver-popover, .tutorial-next-btn, .tutorial-custom-prev-btn, .tutorial-skip-link, .driver-popover-close-btn, #tutorial-global-progress, .driver-overlay');
+            const isInsidePortalDropdown = e.target.closest && e.target.closest('.unit-action-dropdown--portal, #__tutorial-portal-dd');
+            const isInsideTutorialModal = e.target.closest && e.target.closest('#addUnitModal:not(.hidden), #editUnitModal:not(.hidden), #tutorialPrintPdfModal:not(.hidden)');
+            const isInsideToast = e.target.closest && e.target.closest('#tutorial-protection-toast');
+
+            if (!isInsideActiveTarget && !isInsidePopover && !isInsidePortalDropdown && !isInsideTutorialModal && !isInsideToast) {
+                e.preventDefault();
+                e.stopPropagation();
+                e.stopImmediatePropagation();
+                logDebug(`[Tutorial Protection] Blocked click outside highlighted target on: ${e.target.tagName}`);
+                showProtectionToast(`🔒 Click Locked: Only highlighted tutorial elements are clickable!`);
+            }
+        }, true);
     }
 
     function init(tutorialCompleted) {
