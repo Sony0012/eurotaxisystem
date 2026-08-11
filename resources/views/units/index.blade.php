@@ -1214,15 +1214,26 @@
         const isHidden = dropdown.classList.contains('hidden');
         if (isHidden) {
             dropdown.classList.remove('hidden');
+            dropdown.style.setProperty('z-index', '100005', 'important');
             const td = dropdown.closest('td');
             const tbody = dropdown.closest('tbody');
-            if (td) { td.style.position = 'relative'; td.style.setProperty('z-index', '999999', 'important'); }
+            if (td) { td.style.position = 'relative'; td.style.setProperty('z-index', '100005', 'important'); }
             if (tbody) {
                 const subRow = tbody.querySelector('.modern-sub-row');
                 if (subRow) subRow.style.setProperty('z-index', '1', 'important');
             }
             const container = document.getElementById('unitsTableScrollContainer') || dropdown.closest('.overflow-x-auto');
             if (container) container.style.setProperty('overflow', 'visible', 'important');
+
+            // If tutorial is currently at Step 38 (3-dots button), move to Step 39 automatically
+            if (window.driverObj && typeof window.driverObj.moveNext === 'function') {
+                const step = window.driverObj.getActiveStep ? window.driverObj.getActiveStep() : null;
+                if (step && step.id === 'units-actions-dropdown-open') {
+                    setTimeout(() => {
+                        if (window.driverObj) window.driverObj.moveNext();
+                    }, 150);
+                }
+            }
         } else {
             dropdown.classList.add('hidden');
         }

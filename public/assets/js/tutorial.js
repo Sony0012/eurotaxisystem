@@ -1021,15 +1021,21 @@ const TutorialManager = (function () {
             const clickHandler = (e) => {
                 logDebug(`Target element #${dynamicId} clicked directly.`);
                 
-                // Determine if we should allow native behavior (only if it's a link to another page)
+                // Determine if we should allow native behavior (if it's a link or an in-page button with onclick)
                 let shouldNavigate = false;
                 const linkEl = targetElement.tagName === 'A' ? targetElement : targetElement.closest('a');
+                const btnEl = targetElement.tagName === 'BUTTON' ? targetElement : targetElement.closest('button');
+                
                 if (linkEl && linkEl.href) {
                     const currentUrl = window.location.href.split('?')[0].split('#')[0];
                     const linkUrl = linkEl.href.split('?')[0].split('#')[0];
                     if (linkUrl !== currentUrl && !linkUrl.includes('javascript:')) {
                         shouldNavigate = true;
                     }
+                }
+                
+                if (btnEl && (btnEl.getAttribute('onclick') || btnEl.onclick || btnEl.type === 'button')) {
+                    shouldNavigate = true;
                 }
 
                 if (!shouldNavigate) {
@@ -1038,7 +1044,7 @@ const TutorialManager = (function () {
                     e.stopImmediatePropagation();
                     logDebug("Native click behavior blocked (Tutorial mode).");
                 } else {
-                    logDebug("Cross-page navigation allowed.");
+                    logDebug("Native click behavior allowed for element.");
                 }
                 
                 // CRITICAL FIX: Immediately save progress BEFORE the browser navigates away on links!
