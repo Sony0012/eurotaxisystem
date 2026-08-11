@@ -634,9 +634,10 @@ const TutorialManager = (function () {
                 if (typeof viewUnitDetails === 'function') {
                     viewUnitDetails(1);
                 }
+                if (typeof showTab === 'function') showTab('overview');
             },
-            getElement: () => document.querySelector('#unitDetailsContent .bg-gradient-to-r') || document.querySelector('#unitDetailsModal > div'),
-            popover: { title: 'Unit Overview Header & Status Badge', description: 'Welcome inside the Unit Details profile! This summary header displays the unit plate number, status indicator (Active, Maintenance, Coding), vehicle make and model, and current daily boundary rate.', position: 'bottom' }
+            getElement: () => document.querySelector('#unitDetailsModal .tab-btn[data-tab="overview"]') || document.querySelector('#unitDetailsContent nav') || document.querySelector('#unitDetailsModal > div'),
+            popover: { title: 'Unit Details Profile & Navigation Tabs', description: 'Welcome inside the Unit Details profile! This header features interactive tabs: Overview, Drivers, Coding, Boundary, Maintenance, ROI, and Location.', position: 'bottom' }
         },
         {
             id: 'unit-details-overview-tab',
@@ -647,6 +648,8 @@ const TutorialManager = (function () {
                     if (typeof viewUnitDetails === 'function') viewUnitDetails(1);
                 }
                 if (typeof showTab === 'function') showTab('overview');
+                const btn = document.querySelector('#unitDetailsModal .tab-btn[data-tab="overview"]');
+                if (btn) btn.scrollIntoView({ behavior: 'auto', block: 'nearest', inline: 'center' });
             },
             getElement: () => document.querySelector('#unitDetailsModal .tab-btn[data-tab="overview"]') || document.querySelector('#overview-tab') || document.querySelector('#unitDetailsModal > div'),
             popover: { title: '1. Overview Tab', description: 'Overview displays primary driver assignment, current status (Active/On Road), daily boundary target, and MMDA coding day at a glance.', position: 'bottom' }
@@ -660,6 +663,8 @@ const TutorialManager = (function () {
                     if (typeof viewUnitDetails === 'function') viewUnitDetails(1);
                 }
                 if (typeof showTab === 'function') showTab('drivers');
+                const btn = document.querySelector('#unitDetailsModal .tab-btn[data-tab="drivers"]');
+                if (btn) btn.scrollIntoView({ behavior: 'auto', block: 'nearest', inline: 'center' });
             },
             getElement: () => document.querySelector('#unitDetailsModal .tab-btn[data-tab="drivers"]') || document.querySelector('#drivers-tab') || document.querySelector('#unitDetailsModal > div'),
             popover: { title: '2. Drivers Tab', description: 'Displays assigned Day Shift (D1) and Night Shift (D2) driver profiles, license details, and contact numbers.', position: 'bottom' }
@@ -673,6 +678,8 @@ const TutorialManager = (function () {
                     if (typeof viewUnitDetails === 'function') viewUnitDetails(1);
                 }
                 if (typeof showTab === 'function') showTab('coding');
+                const btn = document.querySelector('#unitDetailsModal .tab-btn[data-tab="coding"]');
+                if (btn) btn.scrollIntoView({ behavior: 'auto', block: 'nearest', inline: 'center' });
             },
             getElement: () => document.querySelector('#unitDetailsModal .tab-btn[data-tab="coding"]') || document.querySelector('#coding-tab') || document.querySelector('#unitDetailsModal > div'),
             popover: { title: '3. Coding Tab', description: 'Monitors Metro Manila MMDA number coding schedule, restriction day, and active time window.', position: 'bottom' }
@@ -686,6 +693,8 @@ const TutorialManager = (function () {
                     if (typeof viewUnitDetails === 'function') viewUnitDetails(1);
                 }
                 if (typeof showTab === 'function') showTab('boundary');
+                const btn = document.querySelector('#unitDetailsModal .tab-btn[data-tab="boundary"]');
+                if (btn) btn.scrollIntoView({ behavior: 'auto', block: 'nearest', inline: 'center' });
             },
             getElement: () => document.querySelector('#unitDetailsModal .tab-btn[data-tab="boundary"]') || document.querySelector('#boundary-tab') || document.querySelector('#unitDetailsModal > div'),
             popover: { title: '4. Boundary Tab', description: 'Complete daily boundary payment history, actual collected amounts, shortages/excesses, payment dates, and cashier remarks.', position: 'bottom' }
@@ -699,6 +708,8 @@ const TutorialManager = (function () {
                     if (typeof viewUnitDetails === 'function') viewUnitDetails(1);
                 }
                 if (typeof showTab === 'function') showTab('maintenance');
+                const btn = document.querySelector('#unitDetailsModal .tab-btn[data-tab="maintenance"]');
+                if (btn) btn.scrollIntoView({ behavior: 'auto', block: 'nearest', inline: 'center' });
             },
             getElement: () => document.querySelector('#unitDetailsModal .tab-btn[data-tab="maintenance"]') || document.querySelector('#maintenance-tab') || document.querySelector('#unitDetailsModal > div'),
             popover: { title: '5. Maintenance Tab', description: 'Full breakdown of past repairs, oil changes, mechanic names, total repair costs, and itemized spare parts subtotal.', position: 'bottom' }
@@ -712,6 +723,8 @@ const TutorialManager = (function () {
                     if (typeof viewUnitDetails === 'function') viewUnitDetails(1);
                 }
                 if (typeof showTab === 'function') showTab('roi');
+                const btn = document.querySelector('#unitDetailsModal .tab-btn[data-tab="roi"]');
+                if (btn) btn.scrollIntoView({ behavior: 'auto', block: 'nearest', inline: 'center' });
             },
             getElement: () => document.querySelector('#unitDetailsModal .tab-btn[data-tab="roi"]') || document.querySelector('#roi-tab') || document.querySelector('#unitDetailsModal > div'),
             popover: { title: '6. ROI Tab', description: 'Tracks financial return on investment percentage, vehicle purchase payback timeline, and profit performance.', position: 'bottom' }
@@ -725,6 +738,8 @@ const TutorialManager = (function () {
                     if (typeof viewUnitDetails === 'function') viewUnitDetails(1);
                 }
                 if (typeof showTab === 'function') showTab('location');
+                const btn = document.querySelector('#unitDetailsModal .tab-btn[data-tab="location"]');
+                if (btn) btn.scrollIntoView({ behavior: 'auto', block: 'nearest', inline: 'center' });
             },
             getElement: () => document.querySelector('#unitDetailsModal .tab-btn[data-tab="location"]') || document.querySelector('#location-tab') || document.querySelector('#unitDetailsModal > div'),
             popover: { title: '7. Location Tab', description: 'Displays real-time GPS map coordinates, device IMEI number, signal strength, and live vehicle location tracking!', position: 'bottom' }
