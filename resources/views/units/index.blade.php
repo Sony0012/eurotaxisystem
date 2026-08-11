@@ -1204,11 +1204,7 @@
         
         document.querySelectorAll('.unit-action-dropdown').forEach(el => {
             if (el.id !== id) el.classList.add('hidden');
-            const tr = el.closest('tr');
-            const tbody = el.closest('tbody');
             const td = el.closest('td');
-            if (tr) { tr.style.zIndex = ''; tr.style.position = ''; }
-            if (tbody) { tbody.style.zIndex = ''; tbody.style.position = ''; }
             if (td) { td.style.zIndex = ''; td.style.position = ''; }
         });
         
@@ -1219,11 +1215,12 @@
         if (isHidden) {
             dropdown.classList.remove('hidden');
             const td = dropdown.closest('td');
-            const tr = dropdown.closest('tr');
             const tbody = dropdown.closest('tbody');
             if (td) { td.style.position = 'relative'; td.style.setProperty('z-index', '999999', 'important'); }
-            if (tr) { tr.style.position = 'relative'; tr.style.setProperty('z-index', '999999', 'important'); }
-            if (tbody) { tbody.style.position = 'relative'; tbody.style.setProperty('z-index', '999999', 'important'); }
+            if (tbody) {
+                const subRow = tbody.querySelector('.modern-sub-row');
+                if (subRow) subRow.style.setProperty('z-index', '1', 'important');
+            }
             const container = document.getElementById('unitsTableScrollContainer') || dropdown.closest('.overflow-x-auto');
             if (container) container.style.setProperty('overflow', 'visible', 'important');
         } else {

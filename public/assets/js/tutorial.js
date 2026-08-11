@@ -315,13 +315,12 @@ const TutorialManager = (function () {
                     dd.style.removeProperty('left');
                     dd.style.setProperty('z-index', '9999999', 'important');
                     const td = dd.closest('td');
-                    const tr = dd.closest('tr');
                     const tbody = dd.closest('tbody');
                     if (td) { td.style.position = 'relative'; td.style.setProperty('z-index', '999999', 'important'); }
-                    if (tr) { tr.style.position = 'relative'; tr.style.setProperty('z-index', '999999', 'important'); }
-                    if (tbody) { tbody.style.position = 'relative'; tbody.style.setProperty('z-index', '999999', 'important'); }
-                    const subRow = tbody ? tbody.querySelector('.modern-sub-row') : null;
-                    if (subRow) { subRow.style.setProperty('z-index', '1', 'important'); }
+                    if (tbody) {
+                        const subRow = tbody.querySelector('.modern-sub-row');
+                        if (subRow) subRow.style.setProperty('z-index', '1', 'important');
+                    }
                     const container = document.getElementById('unitsTableScrollContainer') || dd.closest('.overflow-x-auto');
                     if (container) container.style.setProperty('overflow', 'visible', 'important');
                 }
@@ -343,13 +342,12 @@ const TutorialManager = (function () {
                     dd.style.removeProperty('left');
                     dd.style.setProperty('z-index', '9999999', 'important');
                     const td = dd.closest('td');
-                    const tr = dd.closest('tr');
                     const tbody = dd.closest('tbody');
                     if (td) { td.style.position = 'relative'; td.style.setProperty('z-index', '999999', 'important'); }
-                    if (tr) { tr.style.position = 'relative'; tr.style.setProperty('z-index', '999999', 'important'); }
-                    if (tbody) { tbody.style.position = 'relative'; tbody.style.setProperty('z-index', '999999', 'important'); }
-                    const subRow = tbody ? tbody.querySelector('.modern-sub-row') : null;
-                    if (subRow) { subRow.style.setProperty('z-index', '1', 'important'); }
+                    if (tbody) {
+                        const subRow = tbody.querySelector('.modern-sub-row');
+                        if (subRow) subRow.style.setProperty('z-index', '1', 'important');
+                    }
                     const container = document.getElementById('unitsTableScrollContainer') || dd.closest('.overflow-x-auto');
                     if (container) container.style.setProperty('overflow', 'visible', 'important');
                 }
@@ -388,13 +386,12 @@ const TutorialManager = (function () {
                     dd.style.removeProperty('left');
                     dd.style.setProperty('z-index', '9999999', 'important');
                     const td = dd.closest('td');
-                    const tr = dd.closest('tr');
                     const tbody = dd.closest('tbody');
                     if (td) { td.style.position = 'relative'; td.style.setProperty('z-index', '999999', 'important'); }
-                    if (tr) { tr.style.position = 'relative'; tr.style.setProperty('z-index', '999999', 'important'); }
-                    if (tbody) { tbody.style.position = 'relative'; tbody.style.setProperty('z-index', '999999', 'important'); }
-                    const subRow = tbody ? tbody.querySelector('.modern-sub-row') : null;
-                    if (subRow) { subRow.style.setProperty('z-index', '1', 'important'); }
+                    if (tbody) {
+                        const subRow = tbody.querySelector('.modern-sub-row');
+                        if (subRow) subRow.style.setProperty('z-index', '1', 'important');
+                    }
                     const container = document.getElementById('unitsTableScrollContainer') || dd.closest('.overflow-x-auto');
                     if (container) container.style.setProperty('overflow', 'visible', 'important');
                 }
@@ -416,13 +413,12 @@ const TutorialManager = (function () {
                     dd.style.removeProperty('left');
                     dd.style.setProperty('z-index', '9999999', 'important');
                     const td = dd.closest('td');
-                    const tr = dd.closest('tr');
                     const tbody = dd.closest('tbody');
                     if (td) { td.style.position = 'relative'; td.style.setProperty('z-index', '999999', 'important'); }
-                    if (tr) { tr.style.position = 'relative'; tr.style.setProperty('z-index', '999999', 'important'); }
-                    if (tbody) { tbody.style.position = 'relative'; tbody.style.setProperty('z-index', '999999', 'important'); }
-                    const subRow = tbody ? tbody.querySelector('.modern-sub-row') : null;
-                    if (subRow) { subRow.style.setProperty('z-index', '1', 'important'); }
+                    if (tbody) {
+                        const subRow = tbody.querySelector('.modern-sub-row');
+                        if (subRow) subRow.style.setProperty('z-index', '1', 'important');
+                    }
                     const container = document.getElementById('unitsTableScrollContainer') || dd.closest('.overflow-x-auto');
                     if (container) container.style.setProperty('overflow', 'visible', 'important');
                 }
