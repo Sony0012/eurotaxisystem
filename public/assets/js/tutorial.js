@@ -1,6 +1,19 @@
 /* public/assets/js/tutorial.js */
 const TUTORIAL_DATA_VERSION = "9.5";
 
+// Suppress native browser print dialog during tutorial mode to prevent UI blocking
+const _originalWindowPrint = window.print;
+window.print = function() {
+    const isTutorialActive = !!localStorage.getItem('tutorial_current_step') || window.location.search.includes('tutorial=1');
+    if (isTutorialActive) {
+        console.log('[Tutorial Sandbox] Native window.print() suppressed during tutorial mode.');
+        return false;
+    }
+    if (typeof _originalWindowPrint === 'function') {
+        return _originalWindowPrint.apply(this, arguments);
+    }
+};
+
 /**
  * Dedicated Static Tutorial Dataset
  * Isolated, Cached, Immutable Sample Data matching production schema.
