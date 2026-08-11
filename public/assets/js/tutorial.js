@@ -591,6 +591,8 @@ const TutorialManager = (function () {
             id: 'units-actions-archive',
             route: '/units',
             onBeforeShow: () => { 
+                const detailsModal = document.getElementById('unitDetailsModal');
+                if (detailsModal) detailsModal.classList.add('hidden');
                 const btn = document.querySelector('tbody tr button[onclick*="toggleUnitDropdown"]');
                 if (btn) btn.scrollIntoView({ behavior: 'auto', block: 'center' });
                 window._tutorialPortalDropdown();

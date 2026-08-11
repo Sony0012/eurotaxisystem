@@ -37,9 +37,97 @@
         // =============================================
         let currentViewUnitId = null;
 
+        function renderMockUnitDetails(id) {
+            const mockUnit = (window.TutorialStaticData && window.TutorialStaticData.units && window.TutorialStaticData.units[0]) ? window.TutorialStaticData.units[0] : {
+                plate_number: 'AAK 9196',
+                status: 'active',
+                unit_type: 'New',
+                make: 'Toyota',
+                model: 'Vios',
+                year: 2015,
+                boundary_rate: 1000.00
+            };
+
+            document.getElementById('unitDetailsContent').innerHTML = `
+            <div class="space-y-4 sm:space-y-6">
+                <!-- Unit Summary Card (Top) -->
+                <div class="bg-gradient-to-r from-slate-800 to-slate-900 p-4 sm:p-6 rounded-2xl text-white shadow-lg">
+                    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+                        <div class="flex items-center gap-3 sm:gap-4">
+                            <div class="p-2.5 sm:p-3 bg-white bg-opacity-10 rounded-xl">
+                                <i data-lucide="car" class="w-6 h-6 sm:w-8 sm:h-8 text-white"></i>
+                            </div>
+                            <div>
+                                <div class="flex flex-wrap items-center gap-1.5 sm:gap-3 mb-1">
+                                    <h3 class="text-base sm:text-2xl font-black tracking-tight leading-none">${mockUnit.plate_number || 'AAK 9196'}</h3>
+                                    <span class="px-2 py-0.5 bg-green-500 text-white rounded text-[9px] font-bold uppercase tracking-wider">ACTIVE</span>
+                                    <span class="px-2 py-0.5 bg-white bg-opacity-10 rounded text-[9px] font-bold uppercase tracking-wider">${mockUnit.unit_type || 'New'}</span>
+                                </div>
+                                <p class="text-slate-300 text-xs font-semibold">${(mockUnit.make || 'Toyota') + ' ' + (mockUnit.model || 'Vios') + ' (' + (mockUnit.year || '2015') + ')'}</p>
+                            </div>
+                        </div>
+                        <div class="sm:text-right flex sm:flex-col justify-between items-center sm:items-end bg-white bg-opacity-5 p-2.5 rounded-xl sm:p-0 sm:bg-transparent">
+                            <p class="text-slate-400 text-[9px] font-black uppercase tracking-widest sm:hidden">Daily Boundary Rate</p>
+                            <div class="text-right">
+                                <div class="text-base sm:text-2xl font-black text-blue-400 sm:text-white">₱${parseFloat(mockUnit.boundary_rate || 1000).toLocaleString('en-PH', {minimumFractionDigits:2})}</div>
+                                <p class="text-slate-300 text-[10px] sm:text-xs font-bold hidden sm:block">Daily Boundary Rate</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Swipeable Tabs Navigation -->
+                <div class="border-b border-gray-200">
+                    <div class="overflow-x-auto scrollbar-none" style="-webkit-overflow-scrolling: touch;">
+                        <nav class="-mb-px flex space-x-1 min-w-max px-1">
+                            <button onclick="showTab('overview')" class="tab-btn py-3 px-3.5 border-b-2 border-blue-600 font-black text-[10px] uppercase tracking-widest text-blue-600 transition-all duration-200 whitespace-nowrap" data-tab="overview">Overview</button>
+                            <button onclick="showTab('drivers')" class="tab-btn py-3 px-3.5 border-b-2 border-transparent font-black text-[10px] uppercase tracking-widest text-gray-400 hover:text-gray-600 hover:border-gray-300 transition-all duration-200 whitespace-nowrap" data-tab="drivers">Drivers</button>
+                            <button onclick="showTab('coding')" class="tab-btn py-3 px-3.5 border-b-2 border-transparent font-black text-[10px] uppercase tracking-widest text-gray-400 hover:text-gray-600 hover:border-gray-300 transition-all duration-200 whitespace-nowrap" data-tab="coding">Coding</button>
+                            <button onclick="showTab('boundary')" class="tab-btn py-3 px-3.5 border-b-2 border-transparent font-black text-[10px] uppercase tracking-widest text-gray-400 hover:text-gray-600 hover:border-gray-300 transition-all duration-200 whitespace-nowrap" data-tab="boundary">Boundary</button>
+                            <button onclick="showTab('maintenance')" class="tab-btn py-3 px-3.5 border-b-2 border-transparent font-black text-[10px] uppercase tracking-widest text-gray-400 hover:text-gray-600 hover:border-gray-300 transition-all duration-200 whitespace-nowrap" data-tab="maintenance">Maintenance</button>
+                            <button onclick="showTab('roi')" class="tab-btn py-3 px-3.5 border-b-2 border-transparent font-black text-[10px] uppercase tracking-widest text-gray-400 hover:text-gray-600 hover:border-gray-300 transition-all duration-200 whitespace-nowrap" data-tab="roi">ROI</button>
+                            <button onclick="showTab('location')" class="tab-btn py-3 px-3.5 border-b-2 border-transparent font-black text-[10px] uppercase tracking-widest text-gray-400 hover:text-gray-600 hover:border-gray-300 transition-all duration-200 whitespace-nowrap" data-tab="location">Location</button>
+                        </nav>
+                    </div>
+                </div>
+
+                <!-- Tab Content Area -->
+                <div id="tabContent" class="min-h-[300px]">
+                    <div id="overview-tab" class="tab-content">
+                        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                            <div class="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm">
+                                <div class="text-xs text-gray-500 font-semibold mb-1">Primary Driver</div>
+                                <div class="text-sm font-bold text-gray-900">Ria Jane Perocho</div>
+                            </div>
+                            <div class="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm">
+                                <div class="text-xs text-gray-500 font-semibold mb-1">Status</div>
+                                <div class="text-sm font-bold text-green-600">Active (On Road)</div>
+                            </div>
+                            <div class="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm">
+                                <div class="text-xs text-gray-500 font-semibold mb-1">Daily Target</div>
+                                <div class="text-sm font-bold text-gray-900">₱1,000.00</div>
+                            </div>
+                            <div class="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm">
+                                <div class="text-xs text-gray-500 font-semibold mb-1">Coding Day</div>
+                                <div class="text-sm font-bold text-blue-600">Tuesday</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
         function viewUnitDetails(id) {
             currentViewUnitId = id;
             document.getElementById('unitDetailsModal').classList.remove('hidden');
+
+            const isTutorialActive = !!localStorage.getItem('tutorial_current_step') || window.location.search.includes('tutorial=1');
+            if (isTutorialActive) {
+                renderMockUnitDetails(id);
+                return;
+            }
 
             // Show loading state inside content div (same as backup)
             document.getElementById('unitDetailsContent').innerHTML = `
