@@ -304,8 +304,15 @@ const TutorialManager = (function () {
         {
             id: 'units-actions-dropdown-open',
             route: '/units',
-            onBeforeShow: () => { const dd = document.querySelector('.unit-action-dropdown'); if (dd) dd.classList.remove('hidden'); },
-            getElement: () => document.querySelector('.unit-action-dropdown') ? document.querySelector('.unit-action-dropdown').parentElement : document.querySelector('tbody tr td:last-child'),
+            onBeforeShow: () => { 
+                const btn = document.querySelector('tbody tr button[onclick*="toggleUnitDropdown"]');
+                if (btn) {
+                    btn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    const dd = document.querySelector('.unit-action-dropdown'); 
+                    if (dd) dd.classList.remove('hidden');
+                }
+            },
+            getElement: () => document.querySelector('.unit-action-dropdown') || document.querySelector('tbody tr td:last-child'),
             popover: { title: 'Unit Actions Menu (⋮)', description: 'Clicking the 3-dots icon on the right side of any unit row opens the unit action menu with 3 essential management controls!', position: 'left' }
         },
         {
@@ -326,16 +333,129 @@ const TutorialManager = (function () {
             id: 'units-actions-archive',
             route: '/units',
             onBeforeShow: () => { const dd = document.querySelector('.unit-action-dropdown'); if (dd) dd.classList.remove('hidden'); },
-            onAfterNext: () => { const dd = document.querySelector('.unit-action-dropdown'); if (dd) dd.classList.add('hidden'); },
             getElement: () => document.querySelector('.unit-action-dropdown form[action*="units/"]') ? document.querySelector('.unit-action-dropdown form[action*="units/"]').firstElementChild : document.querySelector('.unit-action-dropdown'),
             popover: { title: '📦 Archive Unit Action', description: 'Safely deactivates and archives the taxi unit without deleting its historical financial, boundary, and driver records.', position: 'left' }
         },
         {
             id: 'units-row-click-deepdive',
             route: '/units',
-            onBeforeShow: () => { const dd = document.querySelector('.unit-action-dropdown'); if (dd) dd.classList.add('hidden'); },
-            getElement: () => document.querySelector('tbody.modern-card-tbody tr.modern-row-has-sub, tbody.modern-card-tbody tr.modern-row'),
-            popover: { title: 'Click Any Unit Row to View Full Details', description: 'Clicking anywhere on a taxi row opens the complete Unit Details profile page with live GPS map location, historical boundary receipts, repair history, and driver logs!', position: 'top' }
+            onBeforeShow: () => { 
+                const dd = document.querySelector('.unit-action-dropdown'); 
+                if (dd) dd.classList.add('hidden'); 
+                const firstUnit = document.querySelector('tr.modern-row-has-sub, tr.modern-row');
+                if (firstUnit && typeof viewUnitDetails === 'function') {
+                    const onclickStr = firstUnit.getAttribute('onclick') || '';
+                    const match = onclickStr.match(/viewUnitDetails\((\d+)\)/);
+                    if (match) viewUnitDetails(match[1]);
+                    else viewUnitDetails(1);
+                }
+            },
+            getElement: () => document.querySelector('#unitDetailsContent .bg-gradient-to-r') || document.getElementById('unitDetailsModal'),
+            popover: { title: 'Unit Overview Header & Status Badge', description: 'Welcome inside the Unit Details profile! This summary header displays the unit plate number, status indicator (Active, Maintenance, Coding), vehicle make and model, and current daily boundary rate.', position: 'bottom' }
+        },
+        {
+            id: 'unit-details-quick-stats',
+            route: '/units',
+            onBeforeShow: () => {
+                const m = document.getElementById('unitDetailsModal');
+                if (!m || m.classList.contains('hidden')) {
+                    if (typeof viewUnitDetails === 'function') viewUnitDetails(1);
+                }
+            },
+            getElement: () => document.querySelector('#overview-tab .grid-cols-2') || document.getElementById('unitDetailsModal'),
+            popover: { title: 'Quick Operational Performance Stats', description: 'Shows key operational indicators at a glance: assigned driver count (e.g. 2/2), days until next MMDA coding date, financial ROI percentage, and total maintenance jobs completed.', position: 'bottom' }
+        },
+        {
+            id: 'unit-details-basic-info',
+            route: '/units',
+            onBeforeShow: () => {
+                const m = document.getElementById('unitDetailsModal');
+                if (!m || m.classList.contains('hidden')) {
+                    if (typeof viewUnitDetails === 'function') viewUnitDetails(1);
+                }
+            },
+            getElement: () => document.querySelector('#overview-tab .grid-cols-1 > div:first-child') || document.getElementById('unitDetailsModal'),
+            popover: { title: 'Vehicle Basic Information Card', description: 'Contains official vehicle specifications, plate number, make, model year, created by staff member, last updated timestamp, and active boundary rate.', position: 'top' }
+        },
+        {
+            id: 'unit-details-drivers-tab',
+            route: '/units',
+            onBeforeShow: () => {
+                const m = document.getElementById('unitDetailsModal');
+                if (!m || m.classList.contains('hidden')) {
+                    if (typeof viewUnitDetails === 'function') viewUnitDetails(1);
+                }
+                if (typeof showTab === 'function') showTab('drivers');
+            },
+            getElement: () => document.getElementById('tabContent') || document.getElementById('unitDetailsModal'),
+            popover: { title: 'Assigned Drivers Profile & Targets', description: 'Displays full driver contact cards, license numbers, license expiry dates, emergency contact numbers, and daily boundary targets.', position: 'top' }
+        },
+        {
+            id: 'unit-details-coding-tab',
+            route: '/units',
+            onBeforeShow: () => {
+                const m = document.getElementById('unitDetailsModal');
+                if (!m || m.classList.contains('hidden')) {
+                    if (typeof viewUnitDetails === 'function') viewUnitDetails(1);
+                }
+                if (typeof showTab === 'function') showTab('coding');
+            },
+            getElement: () => document.getElementById('tabContent') || document.getElementById('unitDetailsModal'),
+            popover: { title: 'MMDA Coding Schedule & Restriction Status', description: 'Monitors Metro Manila MMDA coding rules, next scheduled coding date, and days remaining until restriction.', position: 'top' }
+        },
+        {
+            id: 'unit-details-boundary-tab',
+            route: '/units',
+            onBeforeShow: () => {
+                const m = document.getElementById('unitDetailsModal');
+                if (!m || m.classList.contains('hidden')) {
+                    if (typeof viewUnitDetails === 'function') viewUnitDetails(1);
+                }
+                if (typeof showTab === 'function') showTab('boundary');
+            },
+            getElement: () => document.getElementById('tabContent') || document.getElementById('unitDetailsModal'),
+            popover: { title: 'Historical Boundary Collection Receipts', description: 'Complete daily boundary payment history, actual collected amounts, shortages/excesses, payment dates, and cashier remarks.', position: 'top' }
+        },
+        {
+            id: 'unit-details-maint-tab',
+            route: '/units',
+            onBeforeShow: () => {
+                const m = document.getElementById('unitDetailsModal');
+                if (!m || m.classList.contains('hidden')) {
+                    if (typeof viewUnitDetails === 'function') viewUnitDetails(1);
+                }
+                if (typeof showTab === 'function') showTab('maintenance');
+            },
+            getElement: () => document.getElementById('tabContent') || document.getElementById('unitDetailsModal'),
+            popover: { title: 'Maintenance & Mechanical Repair Logs', description: 'Full breakdown of past repairs, oil changes, mechanic names, total repair costs, and itemized spare parts subtotal.', position: 'top' }
+        },
+        {
+            id: 'unit-details-location-tab',
+            route: '/units',
+            onBeforeShow: () => {
+                const m = document.getElementById('unitDetailsModal');
+                if (!m || m.classList.contains('hidden')) {
+                    if (typeof viewUnitDetails === 'function') viewUnitDetails(1);
+                }
+                if (typeof showTab === 'function') showTab('location');
+            },
+            getElement: () => document.getElementById('tabContent') || document.getElementById('unitDetailsModal'),
+            popover: { title: 'Live GPS Map Tracking & Device Status', description: 'Displays real-time GPS map coordinates, device IMEI number, signal strength, and live vehicle location tracking!', position: 'top' }
+        },
+        {
+            id: 'unit-details-close',
+            route: '/units',
+            onBeforeShow: () => {
+                const m = document.getElementById('unitDetailsModal');
+                if (!m || m.classList.contains('hidden')) {
+                    if (typeof viewUnitDetails === 'function') viewUnitDetails(1);
+                }
+            },
+            onAfterNext: () => {
+                if (typeof closeUnitDetailsModal === 'function') closeUnitDetailsModal();
+            },
+            getElement: () => document.querySelector('#unitDetailsModal button[onclick*="closeUnitDetailsModal"]') || document.getElementById('unitDetailsModal'),
+            popover: { title: 'Close Unit Details Profile', description: 'Clicking close returns you to the main fleet management dashboard.', position: 'bottom' }
         },
         {
             id: 'sidebar-drivers',
@@ -594,12 +714,14 @@ const TutorialManager = (function () {
                             closeBtn.onclick = () => finishTutorial();
                         }
 
-                        // Add custom Skip/Next button
+                        // Add custom Next/Finish and Skip buttons
                         const footerEl = popover.footer || wrapper.querySelector('.driver-popover-footer');
-                        if (footerEl && !footerEl.querySelector('.tutorial-skip-link')) {
+                        if (footerEl && !footerEl.querySelector('.tutorial-next-btn')) {
+                            const nextText = isLastStep ? "Finish Tour 🎉" : "Next Step →";
                             const btnAction = isLastStep ? "if(window.TutorialManager) window.TutorialManager.finishTutorial();" : "if(window.TutorialManager) window.TutorialManager.moveToNextStep(" + stepIndex + ");";
                             footerEl.insertAdjacentHTML('beforeend', `
-                                <button class="tutorial-skip-link" style="width:100%; margin-top:10px; background-color: white !important; color: #111827 !important; text-shadow: none !important;" onclick="${btnAction}">Skip Tour</button>
+                                <button class="tutorial-next-btn" style="width:100%; margin-top:8px; padding:10px 16px; background-color: #2563eb !important; color: white !important; font-weight: 700 !important; border-radius: 8px !important; border: none !important; cursor: pointer !important; font-size: 0.9rem !important; shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.3) !important;" onclick="${btnAction}">${nextText}</button>
+                                <button class="tutorial-skip-link" style="width:100%; margin-top:6px; background: none !important; border: none !important; color: #9ca3af !important; text-shadow: none !important; font-size: 0.75rem !important; cursor: pointer !important;" onclick="if(window.TutorialManager) window.TutorialManager.finishTutorial();">Skip Entire Tour</button>
                             `);
                         }
 
@@ -616,11 +738,11 @@ const TutorialManager = (function () {
 
                         // Inject custom Previous button (only if not on the first step)
                         if (stepIndex > 0 && footerEl && !footerEl.querySelector('.tutorial-custom-prev-btn')) {
-                            const skipBtn = footerEl.querySelector('.tutorial-skip-link');
+                            const mainNextBtn = footerEl.querySelector('.tutorial-next-btn');
                             const prevHtml = `<button class="tutorial-custom-prev-btn" style="background:none !important; border:none !important; color:#9ca3af !important; font-size:0.85rem !important; font-weight:600 !important; cursor:pointer !important; margin-bottom:5px; padding:0 !important; text-align:left; width:100%;" onclick="if(window.TutorialManager) window.TutorialManager.moveToPrevStep(${stepIndex});">&larr; Previous</button>`;
                             
-                            if (skipBtn) {
-                                skipBtn.insertAdjacentHTML('beforebegin', prevHtml);
+                            if (mainNextBtn) {
+                                mainNextBtn.insertAdjacentHTML('beforebegin', prevHtml);
                             } else {
                                 footerEl.insertAdjacentHTML('afterbegin', prevHtml);
                             }
