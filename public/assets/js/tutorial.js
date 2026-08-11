@@ -381,9 +381,13 @@ const TutorialManager = (function () {
         {
             id: 'units-table-restore',
             route: '/units',
-            onBeforeShow: () => { if (typeof setViewMode === 'function') setViewMode('table'); },
-            getElement: () => document.getElementById('units-table-view') || document.querySelector('.modern-table-sep') || document.getElementById('btn-view-table'),
-            popover: { title: 'Switching Back to Table View', description: 'Tapping Table view restores the structured row layout with full column details for deep analysis.', position: 'top' }
+            onBeforeShow: () => { 
+                if (typeof setViewMode === 'function') setViewMode('table'); 
+                const btn = document.getElementById('btn-view-table');
+                if (btn) btn.scrollIntoView({ behavior: 'auto', block: 'center' });
+            },
+            getElement: () => document.getElementById('btn-view-table') || document.getElementById('unitViewTogglePill'),
+            popover: { title: 'Switching Back to Table View', description: 'Tapping Table view restores the structured row layout with full column details for deep analysis.', position: 'bottom' }
         },
         {
             id: 'units-print-pdf-btn',
