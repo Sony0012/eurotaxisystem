@@ -167,7 +167,15 @@
 
 /* Highlighted Target Element Styling */
 .driver-active-element,
-.driver-active-element * {
+.driver-active-element *,
+[id^="tutorial-active-target-"],
+[id^="tutorial-active-target-"] *,
+button[onclick*="toggleUnitDropdown"],
+button[onclick*="toggleUnitDropdown"] *,
+.unit-action-dropdown button,
+.unit-action-dropdown button *,
+.unit-action-dropdown--portal button,
+.unit-action-dropdown--portal button * {
     cursor: pointer !important;
 }
 

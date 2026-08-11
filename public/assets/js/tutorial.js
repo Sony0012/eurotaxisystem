@@ -878,6 +878,9 @@ const TutorialManager = (function () {
         targetElement.style.setProperty('position', 'relative', 'important');
         targetElement.style.setProperty('pointer-events', 'auto', 'important');
         targetElement.style.setProperty('cursor', 'pointer', 'important');
+        try {
+            targetElement.querySelectorAll('*').forEach(child => child.style.setProperty('cursor', 'pointer', 'important'));
+        } catch (e) {}
 
         const isLastStep = stepIndex === steps.length - 1;
 
