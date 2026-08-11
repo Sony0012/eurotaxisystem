@@ -304,64 +304,30 @@ const TutorialManager = (function () {
         {
             id: 'units-actions-dropdown-open',
             route: '/units',
-            onBeforeShow: () => { 
-                const dd = document.querySelector('.unit-action-dropdown'); 
-                if (dd) dd.classList.add('hidden');
-                
-                const btn = document.querySelector('tbody tr button[onclick*="toggleUnitDropdown"]');
-                if (btn) {
-                    btn.scrollIntoView({ behavior: 'auto', block: 'center' });
-                    btn.style.setProperty('position', 'relative', 'important');
-                    btn.style.setProperty('z-index', '100005', 'important');
-                    btn.style.setProperty('pointer-events', 'auto', 'important');
-                    btn.style.setProperty('cursor', 'pointer', 'important');
-                }
-
-                if (window._step38ClickListener) {
-                    window.removeEventListener('click', window._step38ClickListener, true);
-                }
-
-                window._step38ClickListener = function(e) {
-                    const activeBtn = document.querySelector('tbody tr button[onclick*="toggleUnitDropdown"]');
-                    if (!activeBtn) return;
-                    
-                    const rect = activeBtn.getBoundingClientRect();
-                    const isInside = e.clientX >= (rect.left - 15) && 
-                                     e.clientX <= (rect.right + 15) && 
-                                     e.clientY >= (rect.top - 15) && 
-                                     e.clientY <= (rect.bottom + 15);
-                                     
-                    if (isInside || activeBtn.contains(e.target)) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        
-                        const actionDd = document.querySelector('.unit-action-dropdown');
-                        if (actionDd) {
-                            actionDd.classList.remove('hidden');
-                            actionDd.style.setProperty('z-index', '100005', 'important');
-                        }
-                        
-                        if (window._step38ClickListener) {
-                            window.removeEventListener('click', window._step38ClickListener, true);
-                            window._step38ClickListener = null;
-                        }
-                        
-                        if (window.driverObj && typeof window.driverObj.moveNext === 'function') {
-                            window.driverObj.moveNext();
-                        }
-                    }
-                };
-
-                window.addEventListener('click', window._step38ClickListener, true);
-            },
-            onAfterNext: () => {
+            onBeforeShow: () => {
                 if (window._step38ClickListener) {
                     window.removeEventListener('click', window._step38ClickListener, true);
                     window._step38ClickListener = null;
                 }
+                const btn = document.querySelector('tbody tr button[onclick*="toggleUnitDropdown"]');
+                if (btn) {
+                    btn.scrollIntoView({ behavior: 'auto', block: 'center' });
+                }
+                // Auto-open the dropdown so users can see it demonstrated
+                setTimeout(() => {
+                    const dd = document.querySelector('.unit-action-dropdown');
+                    if (dd) {
+                        dd.classList.remove('hidden');
+                        dd.style.setProperty('z-index', '100005', 'important');
+                        dd.style.setProperty('pointer-events', 'none', 'important');
+                    }
+                    const container = document.getElementById('unitsTableScrollContainer') || document.querySelector('.overflow-x-auto');
+                    if (container) container.style.setProperty('overflow', 'visible', 'important');
+                }, 100);
             },
+            onAfterNext: () => {},
             getElement: () => document.querySelector('tbody tr button[onclick*="toggleUnitDropdown"]'),
-            popover: { title: 'Unit Actions Menu (⋮)', description: 'Clicking the 3-dots icon on the right side of any unit row opens the unit action menu with 3 essential management controls!', position: 'left-center' }
+            popover: { title: 'Unit Actions Menu (⋮)', description: 'Clicking the 3-dots icon on the right side of any unit row opens the unit action menu with 3 essential management controls! Click Next Step to explore each action.', position: 'left-center' }
         },
         {
             id: 'units-actions-edit',
@@ -370,7 +336,11 @@ const TutorialManager = (function () {
                 const btn = document.querySelector('tbody tr button[onclick*="toggleUnitDropdown"]');
                 if (btn) btn.scrollIntoView({ behavior: 'auto', block: 'center' });
                 const dd = document.querySelector('.unit-action-dropdown'); 
-                if (dd) dd.classList.remove('hidden');
+                if (dd) {
+                    dd.classList.remove('hidden');
+                    dd.style.setProperty('z-index', '100005', 'important');
+                    dd.style.setProperty('pointer-events', 'none', 'important');
+                }
                 const container = document.getElementById('unitsTableScrollContainer') || document.querySelector('.overflow-x-auto');
                 if (container) container.style.setProperty('overflow', 'visible', 'important');
             },
@@ -401,7 +371,11 @@ const TutorialManager = (function () {
                 const btn = document.querySelector('tbody tr button[onclick*="toggleUnitDropdown"]');
                 if (btn) btn.scrollIntoView({ behavior: 'auto', block: 'center' });
                 const dd = document.querySelector('.unit-action-dropdown'); 
-                if (dd) dd.classList.remove('hidden');
+                if (dd) {
+                    dd.classList.remove('hidden');
+                    dd.style.setProperty('z-index', '100005', 'important');
+                    dd.style.setProperty('pointer-events', 'none', 'important');
+                }
                 const container = document.getElementById('unitsTableScrollContainer') || document.querySelector('.overflow-x-auto');
                 if (container) container.style.setProperty('overflow', 'visible', 'important');
             },
@@ -415,7 +389,11 @@ const TutorialManager = (function () {
                 const btn = document.querySelector('tbody tr button[onclick*="toggleUnitDropdown"]');
                 if (btn) btn.scrollIntoView({ behavior: 'auto', block: 'center' });
                 const dd = document.querySelector('.unit-action-dropdown'); 
-                if (dd) dd.classList.remove('hidden');
+                if (dd) {
+                    dd.classList.remove('hidden');
+                    dd.style.setProperty('z-index', '100005', 'important');
+                    dd.style.setProperty('pointer-events', 'none', 'important');
+                }
                 const container = document.getElementById('unitsTableScrollContainer') || document.querySelector('.overflow-x-auto');
                 if (container) container.style.setProperty('overflow', 'visible', 'important');
             },
