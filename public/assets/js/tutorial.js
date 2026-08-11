@@ -304,24 +304,15 @@ const TutorialManager = (function () {
         {
             id: 'units-actions-dropdown-open',
             route: '/units',
-            clickTrap: true, // FLAG: tells onPopoverRender to place a click-trap div above Driver.js overlay
             onBeforeShow: () => {
                 if (window._step38ClickListener) {
                     window.removeEventListener('click', window._step38ClickListener, true);
                     window._step38ClickListener = null;
                 }
-                // Ensure dropdown is CLOSED and any leftover portal/trap is cleaned up
+                // Ensure dropdown is CLOSED on entry
                 window._tutorialUnportalDropdown();
-                const oldTrap = document.getElementById('__tutorial-click-trap');
-                if (oldTrap) oldTrap.remove();
-                // NOTE: Do NOT create trap here — Driver.js hasn't scrolled yet.
-                // Trap will be placed in onPopoverRender after Driver.js completes.
             },
-            onAfterNext: () => {
-                // Clean up trap if user pressed Next Step instead of clicking 3-dots
-                const trap = document.getElementById('__tutorial-click-trap');
-                if (trap) trap.remove();
-            },
+            onAfterNext: () => {},
             getElement: () => document.querySelector('tbody tr button[onclick*="toggleUnitDropdown"]'),
             popover: { title: 'Unit Actions Menu (⋮)', description: '👆 Click the 3-dots (⋮) icon now to open the Actions menu and see the 3 management controls available!', position: 'left-center' }
         },
@@ -770,8 +761,59 @@ const TutorialManager = (function () {
         }
     }
 
+    function restoreTargetAncestors() {
+        document.querySelectorAll('[data-tutorial-elevated="true"]').forEach(el => {
+            if (el.dataset.origZIndex !== undefined && el.dataset.origZIndex !== '') {
+                el.style.zIndex = el.dataset.origZIndex;
+            } else {
+                el.style.removeProperty('z-index');
+            }
+            if (el.dataset.origPosition !== undefined && el.dataset.origPosition !== '') {
+                el.style.position = el.dataset.origPosition;
+            } else {
+                el.style.removeProperty('position');
+            }
+            if (el.dataset.origPointerEvents !== undefined && el.dataset.origPointerEvents !== '') {
+                el.style.pointerEvents = el.dataset.origPointerEvents;
+            } else {
+                el.style.removeProperty('pointer-events');
+            }
+            delete el.dataset.tutorialElevated;
+            delete el.dataset.origZIndex;
+            delete el.dataset.origPosition;
+            delete el.dataset.origPointerEvents;
+        });
+    }
+
+    function elevateTargetAncestors(targetEl) {
+        restoreTargetAncestors();
+        if (!targetEl) return;
+        let p = targetEl.parentElement;
+        while (p && p !== document.body && p !== document.documentElement) {
+            const cs = window.getComputedStyle(p);
+            if (cs.position !== 'static' || ['TD', 'TR', 'TH', 'TBODY', 'THEAD', 'TABLE'].includes(p.tagName) || p.classList.contains('relative')) {
+                p.dataset.tutorialElevated = 'true';
+                p.dataset.origZIndex = p.style.zIndex || '';
+                p.dataset.origPosition = p.style.position || '';
+                p.style.setProperty('z-index', '100004', 'important');
+                if (cs.position === 'static') {
+                    p.style.setProperty('position', 'relative', 'important');
+                }
+            }
+            p = p.parentElement;
+        }
+        targetEl.dataset.tutorialElevated = 'true';
+        targetEl.dataset.origZIndex = targetEl.style.zIndex || '';
+        targetEl.dataset.origPosition = targetEl.style.position || '';
+        targetEl.dataset.origPointerEvents = targetEl.style.pointerEvents || '';
+        targetEl.style.setProperty('z-index', '100005', 'important');
+        targetEl.style.setProperty('position', 'relative', 'important');
+        targetEl.style.setProperty('pointer-events', 'auto', 'important');
+    }
+
     function startTutorial(stepIndex) {
         logDebug(`startTutorial called with stepIndex: ${stepIndex}`);
+        restoreTargetAncestors();
         
         if (stepIndex >= steps.length) {
             logDebug("Reached end of steps. Finishing tutorial.");
@@ -814,6 +856,9 @@ const TutorialManager = (function () {
         targetElement.id = dynamicId;
         logDebug(`Target element found. Assigned ID: #${dynamicId}`);
 
+        // Elevate targetElement and its parent stacking contexts above Driver.js overlay (z-index 100000)
+        elevateTargetAncestors(targetElement);
+
         const isLastStep = stepIndex === steps.length - 1;
 
         initProgressBar(steps.length);
@@ -855,39 +900,11 @@ const TutorialManager = (function () {
                             wrapper.classList.add('tutorial-force-click');
                         }
 
-                        // ── CLICK-TRAP: Disable overlay pointer-events so 3-dots is directly clickable ──
-                        // Previous approach (invisible div trap) failed because the Driver.js overlay SVG
-                        // has pointer-events:fill which blocks ALL events regardless of z-index.
-                        // FIX: Set pointer-events:none on the overlay SVG itself — makes it fully
-                        // transparent to mouse events. The highlighted button can now be clicked directly.
-                        if (step.clickTrap) {
-                            // Remove any stale trap div from previous attempts
-                            const stale = document.getElementById('__tutorial-click-trap');
-                            if (stale) stale.remove();
-
-                            setTimeout(() => {
-                                // Driver.js v1.3.1 overlay is an SVG with class 'driver-overlay'
-                                const driverOverlay = document.querySelector('.driver-overlay');
-                                if (driverOverlay) {
-                                    driverOverlay.style.setProperty('pointer-events', 'none', 'important');
-                                    logDebug('clickTrap: .driver-overlay pointer-events=none — 3-dots button is now directly clickable.');
-                                } else {
-                                    // Fallback: disable pointer-events on all fixed driver elements (except popover)
-                                    logDebug('clickTrap: WARNING — .driver-overlay not found. Trying fallback...');
-                                    document.querySelectorAll('[class*="driver"]').forEach(el => {
-                                        try {
-                                            if (el.closest && el.closest('.driver-popover')) return;
-                                            const st = window.getComputedStyle(el);
-                                            if (st.position === 'fixed') {
-                                                el.style.setProperty('pointer-events', 'none', 'important');
-                                                logDebug(`clickTrap fallback: disabled pointer-events on ${el.tagName}.${el.className}`);
-                                            }
-                                        } catch(e) {}
-                                    });
-                                }
-                            }, 300);
+                        // Ensure overlay doesn't intercept pointer-events
+                        const driverOverlay = document.querySelector('.driver-overlay');
+                        if (driverOverlay) {
+                            driverOverlay.style.setProperty('pointer-events', 'none', 'important');
                         }
-                        // ────────────────────────────────────────────────────────────────────────────────
 
                         // Inject Step number
                         const titleEl = popover.title || wrapper.querySelector('.driver-popover-title');
@@ -1152,6 +1169,7 @@ const TutorialManager = (function () {
 
     function finishTutorial() {
         logDebug("finishTutorial called.");
+        restoreTargetAncestors();
         if (driverObj) driverObj.destroy();
         const progress = document.getElementById('tutorial-global-progress');
         if (progress) progress.remove();
