@@ -307,6 +307,7 @@ const TutorialManager = (function () {
             onBeforeShow: () => { 
                 const dd = document.querySelector('.unit-action-dropdown'); 
                 if (dd) dd.classList.add('hidden');
+                
                 const btn = document.querySelector('tbody tr button[onclick*="toggleUnitDropdown"]');
                 if (btn) {
                     btn.scrollIntoView({ behavior: 'auto', block: 'center' });
@@ -314,16 +315,49 @@ const TutorialManager = (function () {
                     btn.style.setProperty('z-index', '100005', 'important');
                     btn.style.setProperty('pointer-events', 'auto', 'important');
                     btn.style.setProperty('cursor', 'pointer', 'important');
-                    btn.onclick = (e) => {
+                }
+
+                if (window._step38ClickListener) {
+                    window.removeEventListener('click', window._step38ClickListener, true);
+                }
+
+                window._step38ClickListener = function(e) {
+                    const activeBtn = document.querySelector('tbody tr button[onclick*="toggleUnitDropdown"]');
+                    if (!activeBtn) return;
+                    
+                    const rect = activeBtn.getBoundingClientRect();
+                    const isInside = e.clientX >= (rect.left - 15) && 
+                                     e.clientX <= (rect.right + 15) && 
+                                     e.clientY >= (rect.top - 15) && 
+                                     e.clientY <= (rect.bottom + 15);
+                                     
+                    if (isInside || activeBtn.contains(e.target)) {
+                        e.preventDefault();
                         e.stopPropagation();
-                        if (dd) {
-                            dd.classList.remove('hidden');
-                            dd.style.setProperty('z-index', '100005', 'important');
+                        
+                        const actionDd = document.querySelector('.unit-action-dropdown');
+                        if (actionDd) {
+                            actionDd.classList.remove('hidden');
+                            actionDd.style.setProperty('z-index', '100005', 'important');
                         }
+                        
+                        if (window._step38ClickListener) {
+                            window.removeEventListener('click', window._step38ClickListener, true);
+                            window._step38ClickListener = null;
+                        }
+                        
                         if (window.driverObj && typeof window.driverObj.moveNext === 'function') {
                             window.driverObj.moveNext();
                         }
-                    };
+                    }
+                };
+
+                window.addEventListener('click', window._step38ClickListener, true);
+            },
+            onAfterNext: () => {
+                if (window._step38ClickListener) {
+                    window.removeEventListener('click', window._step38ClickListener, true);
+                    window._step38ClickListener = null;
                 }
             },
             getElement: () => document.querySelector('tbody tr button[onclick*="toggleUnitDropdown"]'),
