@@ -331,9 +331,8 @@ const TutorialManager = (function () {
             onBeforeShow: () => { 
                 const btn = document.querySelector('tbody tr button[onclick*="toggleUnitDropdown"]');
                 if (btn) btn.scrollIntoView({ behavior: 'auto', block: 'center' });
-                setTimeout(() => {
-                    window._tutorialPortalDropdown();
-                }, 100);
+                // Call synchronously so portal div exists before getElement() is invoked
+                window._tutorialPortalDropdown();
             },
             getElement: () => document.querySelector('.unit-action-dropdown--portal button[onclick*="editUnit"]') || document.querySelector('.unit-action-dropdown button[onclick*="editUnit"]') || document.querySelector('tbody tr button[onclick*="toggleUnitDropdown"]'),
             popover: { title: '✏️ Edit Unit Action', description: 'Clicking Edit Unit opens the unit editor modal where you can update vehicle specs, plate numbers, daily boundary rates, or re-assign drivers.', position: 'left-center' }
@@ -856,54 +855,36 @@ const TutorialManager = (function () {
                             wrapper.classList.add('tutorial-force-click');
                         }
 
-                        // ── CLICK-TRAP for steps that need user to click a DOM element ──────────────────
-                        // onPopoverRender fires AFTER Driver.js has scrolled the element into view.
-                        // This is the ONLY safe place to get the element's final viewport coordinates.
+                        // ── CLICK-TRAP: Disable overlay pointer-events so 3-dots is directly clickable ──
+                        // Previous approach (invisible div trap) failed because the Driver.js overlay SVG
+                        // has pointer-events:fill which blocks ALL events regardless of z-index.
+                        // FIX: Set pointer-events:none on the overlay SVG itself — makes it fully
+                        // transparent to mouse events. The highlighted button can now be clicked directly.
                         if (step.clickTrap) {
-                            // Remove any stale trap first
+                            // Remove any stale trap div from previous attempts
                             const stale = document.getElementById('__tutorial-click-trap');
                             if (stale) stale.remove();
 
-                            // Wait 300ms for smooth-scroll to fully settle before measuring position
                             setTimeout(() => {
-                                const trapBtn = document.querySelector('tbody tr button[onclick*="toggleUnitDropdown"]');
-                                if (!trapBtn) { logDebug('clickTrap: button not found'); return; }
-
-                                const r = trapBtn.getBoundingClientRect();
-                                logDebug(`clickTrap placing at top:${r.top} left:${r.left} w:${r.width} h:${r.height}`);
-
-                                if (r.width === 0 || r.height === 0) { logDebug('clickTrap: button has no size, skipping'); return; }
-
-                                const trap = document.createElement('div');
-                                trap.id = '__tutorial-click-trap';
-                                trap.title = 'Click the 3-dots to open Actions menu';
-                                // Use setProperty to correctly apply !important — cssText with !important is IGNORED by browsers
-                                trap.style.setProperty('position', 'fixed', 'important');
-                                trap.style.setProperty('top',    (r.top  - 8) + 'px', 'important');
-                                trap.style.setProperty('left',   (r.left - 8) + 'px', 'important');
-                                trap.style.setProperty('width',  (r.width + 16) + 'px', 'important');
-                                trap.style.setProperty('height', (r.height + 16) + 'px', 'important');
-                                // z-index 9999998 — ABOVE Driver.js overlay (~10000) and popover (100005)
-                                trap.style.setProperty('z-index',       '9999998',                  'important');
-                                trap.style.setProperty('cursor',        'pointer',                  'important');
-                                // rgba with near-zero alpha so it IS a painted surface (receives events)
-                                // but is invisible to the user
-                                trap.style.setProperty('background',    'rgba(59,130,246,0.001)',   'important');
-                                trap.style.setProperty('border-radius', '50%',                      'important');
-
-                                trap.addEventListener('click', (e) => {
-                                    e.stopPropagation();
-                                    logDebug('clickTrap: clicked! Opening portal dropdown.');
-                                    trap.remove();
-                                    window._tutorialPortalDropdown();
-                                    const idx = parseInt(localStorage.getItem('tutorial_current_step') || '0');
-                                    if (window.TutorialManager) {
-                                        window.TutorialManager.moveToNextStep(idx);
-                                    }
-                                });
-
-                                document.body.appendChild(trap);
-                                logDebug('clickTrap: trap appended to body, z-index 9999998');
+                                // Driver.js v1.3.1 overlay is an SVG with class 'driver-overlay'
+                                const driverOverlay = document.querySelector('.driver-overlay');
+                                if (driverOverlay) {
+                                    driverOverlay.style.setProperty('pointer-events', 'none', 'important');
+                                    logDebug('clickTrap: .driver-overlay pointer-events=none — 3-dots button is now directly clickable.');
+                                } else {
+                                    // Fallback: disable pointer-events on all fixed driver elements (except popover)
+                                    logDebug('clickTrap: WARNING — .driver-overlay not found. Trying fallback...');
+                                    document.querySelectorAll('[class*="driver"]').forEach(el => {
+                                        try {
+                                            if (el.closest && el.closest('.driver-popover')) return;
+                                            const st = window.getComputedStyle(el);
+                                            if (st.position === 'fixed') {
+                                                el.style.setProperty('pointer-events', 'none', 'important');
+                                                logDebug(`clickTrap fallback: disabled pointer-events on ${el.tagName}.${el.className}`);
+                                            }
+                                        } catch(e) {}
+                                    });
+                                }
                             }, 300);
                         }
                         // ────────────────────────────────────────────────────────────────────────────────
