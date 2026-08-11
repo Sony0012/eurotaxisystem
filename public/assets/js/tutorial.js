@@ -350,7 +350,7 @@ const TutorialManager = (function () {
                     else viewUnitDetails(1);
                 }
             },
-            getElement: () => document.querySelector('#unitDetailsContent .bg-gradient-to-r') || document.getElementById('unitDetailsModal'),
+            getElement: () => document.querySelector('#unitDetailsContent .bg-gradient-to-r') || document.querySelector('#unitDetailsModal > div'),
             popover: { title: 'Unit Overview Header & Status Badge', description: 'Welcome inside the Unit Details profile! This summary header displays the unit plate number, status indicator (Active, Maintenance, Coding), vehicle make and model, and current daily boundary rate.', position: 'bottom' }
         },
         {
@@ -362,7 +362,7 @@ const TutorialManager = (function () {
                     if (typeof viewUnitDetails === 'function') viewUnitDetails(1);
                 }
             },
-            getElement: () => document.querySelector('#overview-tab .grid-cols-2') || document.getElementById('unitDetailsModal'),
+            getElement: () => document.querySelector('#overview-tab .grid-cols-2') || document.querySelector('#unitDetailsModal > div'),
             popover: { title: 'Quick Operational Performance Stats', description: 'Shows key operational indicators at a glance: assigned driver count (e.g. 2/2), days until next MMDA coding date, financial ROI percentage, and total maintenance jobs completed.', position: 'bottom' }
         },
         {
@@ -374,7 +374,7 @@ const TutorialManager = (function () {
                     if (typeof viewUnitDetails === 'function') viewUnitDetails(1);
                 }
             },
-            getElement: () => document.querySelector('#overview-tab .grid-cols-1 > div:first-child') || document.getElementById('unitDetailsModal'),
+            getElement: () => document.querySelector('#overview-tab .grid-cols-1 > div:first-child') || document.querySelector('#unitDetailsModal > div'),
             popover: { title: 'Vehicle Basic Information Card', description: 'Contains official vehicle specifications, plate number, make, model year, created by staff member, last updated timestamp, and active boundary rate.', position: 'top' }
         },
         {
@@ -387,7 +387,7 @@ const TutorialManager = (function () {
                 }
                 if (typeof showTab === 'function') showTab('drivers');
             },
-            getElement: () => document.getElementById('tabContent') || document.getElementById('unitDetailsModal'),
+            getElement: () => document.getElementById('tabContent') || document.querySelector('#unitDetailsModal > div'),
             popover: { title: 'Assigned Drivers Profile & Targets', description: 'Displays full driver contact cards, license numbers, license expiry dates, emergency contact numbers, and daily boundary targets.', position: 'top' }
         },
         {
@@ -400,7 +400,7 @@ const TutorialManager = (function () {
                 }
                 if (typeof showTab === 'function') showTab('coding');
             },
-            getElement: () => document.getElementById('tabContent') || document.getElementById('unitDetailsModal'),
+            getElement: () => document.getElementById('tabContent') || document.querySelector('#unitDetailsModal > div'),
             popover: { title: 'MMDA Coding Schedule & Restriction Status', description: 'Monitors Metro Manila MMDA coding rules, next scheduled coding date, and days remaining until restriction.', position: 'top' }
         },
         {
@@ -413,7 +413,7 @@ const TutorialManager = (function () {
                 }
                 if (typeof showTab === 'function') showTab('boundary');
             },
-            getElement: () => document.getElementById('tabContent') || document.getElementById('unitDetailsModal'),
+            getElement: () => document.getElementById('tabContent') || document.querySelector('#unitDetailsModal > div'),
             popover: { title: 'Historical Boundary Collection Receipts', description: 'Complete daily boundary payment history, actual collected amounts, shortages/excesses, payment dates, and cashier remarks.', position: 'top' }
         },
         {
@@ -426,7 +426,7 @@ const TutorialManager = (function () {
                 }
                 if (typeof showTab === 'function') showTab('maintenance');
             },
-            getElement: () => document.getElementById('tabContent') || document.getElementById('unitDetailsModal'),
+            getElement: () => document.getElementById('tabContent') || document.querySelector('#unitDetailsModal > div'),
             popover: { title: 'Maintenance & Mechanical Repair Logs', description: 'Full breakdown of past repairs, oil changes, mechanic names, total repair costs, and itemized spare parts subtotal.', position: 'top' }
         },
         {
@@ -439,7 +439,7 @@ const TutorialManager = (function () {
                 }
                 if (typeof showTab === 'function') showTab('location');
             },
-            getElement: () => document.getElementById('tabContent') || document.getElementById('unitDetailsModal'),
+            getElement: () => document.getElementById('tabContent') || document.querySelector('#unitDetailsModal > div'),
             popover: { title: 'Live GPS Map Tracking & Device Status', description: 'Displays real-time GPS map coordinates, device IMEI number, signal strength, and live vehicle location tracking!', position: 'top' }
         },
         {
@@ -454,7 +454,7 @@ const TutorialManager = (function () {
             onAfterNext: () => {
                 if (typeof closeUnitDetailsModal === 'function') closeUnitDetailsModal();
             },
-            getElement: () => document.querySelector('#unitDetailsModal button[onclick*="closeUnitDetailsModal"]') || document.getElementById('unitDetailsModal'),
+            getElement: () => document.querySelector('#unitDetailsModal button[onclick*="closeUnitDetailsModal"]') || document.querySelector('#unitDetailsModal > div'),
             popover: { title: 'Close Unit Details Profile', description: 'Clicking close returns you to the main fleet management dashboard.', position: 'bottom' }
         },
         {
@@ -849,9 +849,11 @@ const TutorialManager = (function () {
                 const nextIndex = stepIndex + 1;
                 localStorage.setItem('tutorial_current_step', nextIndex.toString());
 
-                if (targetElement.style.position !== 'relative' && targetElement.style.position !== 'absolute') {
-                    targetElement.style.position = 'relative';
-                    targetElement.style.overflow = 'hidden';
+                if (targetElement && targetElement.id !== 'unitDetailsModal' && targetElement.id !== 'addUnitModal' && !targetElement.classList.contains('fixed') && window.getComputedStyle(targetElement).position !== 'fixed') {
+                    if (targetElement.style.position !== 'relative' && targetElement.style.position !== 'absolute') {
+                        targetElement.style.position = 'relative';
+                        targetElement.style.overflow = 'hidden';
+                    }
                 }
                 
                 const ripple = document.createElement('div');
