@@ -306,20 +306,13 @@ const TutorialManager = (function () {
             route: '/units',
             onBeforeShow: () => { 
                 const btn = document.querySelector('tbody tr button[onclick*="toggleUnitDropdown"]');
-                if (btn) {
-                    btn.scrollIntoView({ behavior: 'auto', block: 'center' });
-                    btn.style.setProperty('pointer-events', 'auto', 'important');
-                }
+                if (btn) btn.scrollIntoView({ behavior: 'auto', block: 'center' });
                 const dd = document.querySelector('.unit-action-dropdown'); 
-                if (dd) {
-                    dd.classList.remove('hidden');
-                    dd.style.setProperty('z-index', '100005', 'important');
-                    dd.style.setProperty('pointer-events', 'auto', 'important');
-                }
+                if (dd) dd.classList.remove('hidden');
                 const container = document.getElementById('unitsTableScrollContainer') || document.querySelector('.overflow-x-auto');
                 if (container) container.style.setProperty('overflow', 'visible', 'important');
             },
-            getElement: () => document.querySelector('tbody tr button[onclick*="toggleUnitDropdown"]'),
+            getElement: () => document.querySelector('tbody tr td:last-child') || document.querySelector('tbody tr button[onclick*="toggleUnitDropdown"]'),
             popover: { title: 'Unit Actions Menu (⋮)', description: 'Clicking the 3-dots icon on the right side of any unit row opens the unit action menu with 3 essential management controls!', position: 'left-center' }
         },
         {
@@ -327,20 +320,13 @@ const TutorialManager = (function () {
             route: '/units',
             onBeforeShow: () => { 
                 const btn = document.querySelector('tbody tr button[onclick*="toggleUnitDropdown"]');
-                if (btn) {
-                    btn.scrollIntoView({ behavior: 'auto', block: 'center' });
-                    btn.style.setProperty('pointer-events', 'auto', 'important');
-                }
+                if (btn) btn.scrollIntoView({ behavior: 'auto', block: 'center' });
                 const dd = document.querySelector('.unit-action-dropdown'); 
-                if (dd) {
-                    dd.classList.remove('hidden');
-                    dd.style.setProperty('z-index', '100005', 'important');
-                    dd.style.setProperty('pointer-events', 'auto', 'important');
-                }
+                if (dd) dd.classList.remove('hidden');
                 const container = document.getElementById('unitsTableScrollContainer') || document.querySelector('.overflow-x-auto');
                 if (container) container.style.setProperty('overflow', 'visible', 'important');
             },
-            getElement: () => document.querySelector('.unit-action-dropdown button[onclick*="editUnit"]') || document.querySelector('tbody tr button[onclick*="toggleUnitDropdown"]'),
+            getElement: () => document.querySelector('.unit-action-dropdown button[onclick*="editUnit"]') || document.querySelector('tbody tr td:last-child'),
             popover: { title: '✏️ Edit Unit Action', description: 'Clicking Edit Unit opens the unit editor modal where you can update vehicle specs, plate numbers, daily boundary rates, or re-assign drivers.', position: 'left-center' }
         },
         {
@@ -365,20 +351,13 @@ const TutorialManager = (function () {
                 const editModal = document.getElementById('editUnitModal');
                 if (editModal) editModal.classList.add('hidden');
                 const btn = document.querySelector('tbody tr button[onclick*="toggleUnitDropdown"]');
-                if (btn) {
-                    btn.scrollIntoView({ behavior: 'auto', block: 'center' });
-                    btn.style.setProperty('pointer-events', 'auto', 'important');
-                }
+                if (btn) btn.scrollIntoView({ behavior: 'auto', block: 'center' });
                 const dd = document.querySelector('.unit-action-dropdown'); 
-                if (dd) {
-                    dd.classList.remove('hidden');
-                    dd.style.setProperty('z-index', '100005', 'important');
-                    dd.style.setProperty('pointer-events', 'auto', 'important');
-                }
+                if (dd) dd.classList.remove('hidden');
                 const container = document.getElementById('unitsTableScrollContainer') || document.querySelector('.overflow-x-auto');
                 if (container) container.style.setProperty('overflow', 'visible', 'important');
             },
-            getElement: () => document.querySelector('.unit-action-dropdown form[action*="reset-health"]') || document.querySelector('tbody tr button[onclick*="toggleUnitDropdown"]'),
+            getElement: () => document.querySelector('.unit-action-dropdown form[action*="reset-health"]') || document.querySelector('tbody tr td:last-child'),
             popover: { title: '🔄 Reset Service Action', description: 'Resets the 5,000 km oil change mileage counter back to zero after mechanic maintenance or oil replacement is completed!', position: 'left-center' }
         },
         {
@@ -386,20 +365,13 @@ const TutorialManager = (function () {
             route: '/units',
             onBeforeShow: () => { 
                 const btn = document.querySelector('tbody tr button[onclick*="toggleUnitDropdown"]');
-                if (btn) {
-                    btn.scrollIntoView({ behavior: 'auto', block: 'center' });
-                    btn.style.setProperty('pointer-events', 'auto', 'important');
-                }
+                if (btn) btn.scrollIntoView({ behavior: 'auto', block: 'center' });
                 const dd = document.querySelector('.unit-action-dropdown'); 
-                if (dd) {
-                    dd.classList.remove('hidden');
-                    dd.style.setProperty('z-index', '100005', 'important');
-                    dd.style.setProperty('pointer-events', 'auto', 'important');
-                }
+                if (dd) dd.classList.remove('hidden');
                 const container = document.getElementById('unitsTableScrollContainer') || document.querySelector('.overflow-x-auto');
                 if (container) container.style.setProperty('overflow', 'visible', 'important');
             },
-            getElement: () => document.querySelector('.unit-action-dropdown form[action*="destroy"]') || document.querySelector('tbody tr button[onclick*="toggleUnitDropdown"]'),
+            getElement: () => document.querySelector('.unit-action-dropdown form[action*="destroy"]') || document.querySelector('tbody tr td:last-child'),
             popover: { title: '📦 Archive Unit Action', description: 'Safely deactivates and archives the taxi unit without deleting its historical financial, boundary, and driver records.', position: 'left-center' }
         },
         {
