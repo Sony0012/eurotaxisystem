@@ -304,57 +304,18 @@ const TutorialManager = (function () {
         {
             id: 'units-actions-dropdown-open',
             route: '/units',
+            clickTrap: true, // FLAG: tells onPopoverRender to place a click-trap div above Driver.js overlay
             onBeforeShow: () => {
                 if (window._step38ClickListener) {
                     window.removeEventListener('click', window._step38ClickListener, true);
                     window._step38ClickListener = null;
                 }
-                // Ensure dropdown is closed on entry
+                // Ensure dropdown is CLOSED and any leftover portal/trap is cleaned up
                 window._tutorialUnportalDropdown();
-                // Remove any leftover trap
                 const oldTrap = document.getElementById('__tutorial-click-trap');
                 if (oldTrap) oldTrap.remove();
-
-                const btn = document.querySelector('tbody tr button[onclick*="toggleUnitDropdown"]');
-                if (btn) {
-                    btn.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
-                    // Wait for scroll to settle, then place invisible click trap
-                    // directly above Driver.js overlay (z-index 100010 > Driver.js z-index 100000)
-                    setTimeout(() => {
-                        const existingTrap = document.getElementById('__tutorial-click-trap');
-                        if (existingTrap) existingTrap.remove();
-
-                        const rect = btn.getBoundingClientRect();
-                        const trap = document.createElement('div');
-                        trap.id = '__tutorial-click-trap';
-                        trap.title = 'Click here to open Actions menu';
-                        trap.style.cssText = [
-                            'position: fixed',
-                            `top: ${rect.top - 10}px`,
-                            `left: ${rect.left - 10}px`,
-                            `width: ${rect.width + 20}px`,
-                            `height: ${rect.height + 20}px`,
-                            'z-index: 100010',
-                            'cursor: pointer',
-                            'background: transparent',
-                            'border-radius: 50%',
-                        ].join(' !important; ') + ' !important;';
-
-                        trap.addEventListener('click', () => {
-                            trap.remove();
-                            // Open the portal dropdown above the overlay
-                            window._tutorialPortalDropdown();
-                            // Advance to Step 39 (edit action step)
-                            const currentStep = parseInt(localStorage.getItem('tutorial_current_step') || '0');
-                            if (window.TutorialManager) {
-                                window.TutorialManager.moveToNextStep(currentStep);
-                            }
-                        });
-
-                        document.body.appendChild(trap);
-                    }, 400);
-                }
+                // NOTE: Do NOT create trap here — Driver.js hasn't scrolled yet.
+                // Trap will be placed in onPopoverRender after Driver.js completes.
             },
             onAfterNext: () => {
                 // Clean up trap if user pressed Next Step instead of clicking 3-dots
@@ -894,6 +855,58 @@ const TutorialManager = (function () {
                         if (wrapper && wrapper.classList) {
                             wrapper.classList.add('tutorial-force-click');
                         }
+
+                        // ── CLICK-TRAP for steps that need user to click a DOM element ──────────────────
+                        // onPopoverRender fires AFTER Driver.js has scrolled the element into view.
+                        // This is the ONLY safe place to get the element's final viewport coordinates.
+                        if (step.clickTrap) {
+                            // Remove any stale trap first
+                            const stale = document.getElementById('__tutorial-click-trap');
+                            if (stale) stale.remove();
+
+                            // Wait 300ms for smooth-scroll to fully settle before measuring position
+                            setTimeout(() => {
+                                const trapBtn = document.querySelector('tbody tr button[onclick*="toggleUnitDropdown"]');
+                                if (!trapBtn) { logDebug('clickTrap: button not found'); return; }
+
+                                const r = trapBtn.getBoundingClientRect();
+                                logDebug(`clickTrap placing at top:${r.top} left:${r.left} w:${r.width} h:${r.height}`);
+
+                                if (r.width === 0 || r.height === 0) { logDebug('clickTrap: button has no size, skipping'); return; }
+
+                                const trap = document.createElement('div');
+                                trap.id = '__tutorial-click-trap';
+                                trap.title = 'Click the 3-dots to open Actions menu';
+                                // Use setProperty to correctly apply !important — cssText with !important is IGNORED by browsers
+                                trap.style.setProperty('position', 'fixed', 'important');
+                                trap.style.setProperty('top',    (r.top  - 8) + 'px', 'important');
+                                trap.style.setProperty('left',   (r.left - 8) + 'px', 'important');
+                                trap.style.setProperty('width',  (r.width + 16) + 'px', 'important');
+                                trap.style.setProperty('height', (r.height + 16) + 'px', 'important');
+                                // z-index 9999998 — ABOVE Driver.js overlay (~10000) and popover (100005)
+                                trap.style.setProperty('z-index',       '9999998',                  'important');
+                                trap.style.setProperty('cursor',        'pointer',                  'important');
+                                // rgba with near-zero alpha so it IS a painted surface (receives events)
+                                // but is invisible to the user
+                                trap.style.setProperty('background',    'rgba(59,130,246,0.001)',   'important');
+                                trap.style.setProperty('border-radius', '50%',                      'important');
+
+                                trap.addEventListener('click', (e) => {
+                                    e.stopPropagation();
+                                    logDebug('clickTrap: clicked! Opening portal dropdown.');
+                                    trap.remove();
+                                    window._tutorialPortalDropdown();
+                                    const idx = parseInt(localStorage.getItem('tutorial_current_step') || '0');
+                                    if (window.TutorialManager) {
+                                        window.TutorialManager.moveToNextStep(idx);
+                                    }
+                                });
+
+                                document.body.appendChild(trap);
+                                logDebug('clickTrap: trap appended to body, z-index 9999998');
+                            }, 300);
+                        }
+                        // ────────────────────────────────────────────────────────────────────────────────
 
                         // Inject Step number
                         const titleEl = popover.title || wrapper.querySelector('.driver-popover-title');
