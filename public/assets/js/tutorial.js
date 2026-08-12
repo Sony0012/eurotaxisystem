@@ -730,7 +730,7 @@ const TutorialManager = (function () {
                 }
                 if (typeof showTab === 'function') showTab('overview');
             },
-            getElement: () => document.querySelector('#unitDetailsModal > div') || document.getElementById('unitDetailsContent'),
+            getElement: () => document.querySelector('#unitDetailsModal .tab-btn[data-tab="overview"]') || document.querySelector('#unitDetailsModal > div'),
             popover: { title: 'Unit Details Profile Showcase', description: 'Welcome inside the Unit Details profile! Here you can monitor complete unit specs, assigned D1/D2 driver partners, financial ROI, PMS maintenance logs, and live GPS tracking.', position: 'left-center' }
         },
         {

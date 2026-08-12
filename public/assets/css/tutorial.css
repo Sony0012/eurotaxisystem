@@ -390,23 +390,4 @@ button[onclick*="toggleUnitDropdown"] *,
     animation: tutorialArrowFadeIn 0.3s ease forwards;
 }
 
-/* Ensure modals align to the right side during tutorial so popover fits 100% cleanly on the left backdrop without overlapping modal content */
-body.driver-active #unitDetailsModal > div,
-body.driver-active #addUnitModal > div,
-body.driver-active #editUnitModal > div,
-body.driver-active #tutorialPrintPdfModal > div {
-    margin-left: auto !important;
-    margin-right: 40px !important;
-    max-width: 780px !important;
-    transition: margin 0.3s ease, max-width 0.3s ease !important;
-}
 
-@media (max-width: 1280px) {
-    body.driver-active #unitDetailsModal > div,
-    body.driver-active #addUnitModal > div,
-    body.driver-active #editUnitModal > div,
-    body.driver-active #tutorialPrintPdfModal > div {
-        margin-right: 20px !important;
-        max-width: 680px !important;
-    }
-}
