@@ -380,16 +380,24 @@ const TutorialManager = (function () {
         {
             id: 'units-view-toggle',
             route: '/units',
-            onBeforeShow: () => { if (typeof setViewMode === 'function') setViewMode('table'); },
-            getElement: () => document.getElementById('unitViewTogglePill') || document.getElementById('btn-view-table'),
-            popover: { title: 'Table & Cards View Toggle', description: 'Switch between detailed Table view and grid-based Cards view to monitor your fleet inventory based on your visual preference.', position: 'bottom' }
+            onBeforeShow: () => { 
+                if (typeof setViewMode === 'function') setViewMode('table'); 
+                const btn = document.getElementById('btn-view-cards');
+                if (btn) btn.scrollIntoView({ behavior: 'auto', block: 'center' });
+            },
+            getElement: () => document.getElementById('btn-view-cards') || document.getElementById('unitViewTogglePill'),
+            popover: { title: 'Switch to Cards View Toggle', description: 'Click the CARDS button on the view toggle pill to switch from Table view to visual grid-based Cards view!', position: 'bottom' }
         },
         {
             id: 'units-cards-deepdive',
             route: '/units',
-            onBeforeShow: () => { if (typeof setViewMode === 'function') setViewMode('grid'); },
+            onBeforeShow: () => { 
+                if (typeof setViewMode === 'function') setViewMode('grid'); 
+                const gv = document.getElementById('units-grid-view');
+                if (gv) gv.scrollIntoView({ behavior: 'auto', block: 'center' });
+            },
             getElement: () => document.getElementById('units-grid-view') || document.querySelector('.grid-cards-container') || document.querySelector('.grid'),
-            popover: { title: 'Cards View Deep Dive', description: 'In Cards View, each taxi unit is presented as a visual card with real-time status badges, assigned D1/D2 driver partners, and current odometer progress.', position: 'top' }
+            popover: { title: 'Cards Grid View Showcase', description: 'In Cards View, each taxi unit is presented as a visual card with real-time status badges, assigned D1/D2 driver partners, and current odometer progress.', position: 'top' }
         },
         {
             id: 'units-table-restore',
@@ -400,7 +408,7 @@ const TutorialManager = (function () {
                 if (btn) btn.scrollIntoView({ behavior: 'auto', block: 'center' });
             },
             getElement: () => document.getElementById('btn-view-table') || document.getElementById('unitViewTogglePill'),
-            popover: { title: 'Switching Back to Table View', description: 'Tapping Table view restores the structured row layout with full column details for deep analysis.', position: 'bottom' }
+            popover: { title: 'Switching Back to Table View', description: 'Clicking the TABLE button restores the structured row layout with full column details for deep analysis.', position: 'bottom' }
         },
         {
             id: 'units-print-pdf-btn',
