@@ -730,8 +730,8 @@ const TutorialManager = (function () {
                 }
                 if (typeof showTab === 'function') showTab('overview');
             },
-            getElement: () => document.querySelector('#unitDetailsContent .bg-gradient-to-r') || document.querySelector('#unitDetailsModal > div'),
-            popover: { title: 'Unit Overview Header & Status Badge', description: 'Welcome inside the Unit Details profile! This summary header displays the unit plate number, status indicator (Active, Maintenance, Coding), vehicle make and model, and current daily boundary rate.', position: 'bottom' }
+            getElement: () => document.querySelector('#unitDetailsModal > div') || document.getElementById('unitDetailsContent'),
+            popover: { title: 'Unit Details Profile Showcase', description: 'Welcome inside the Unit Details profile! Here you can monitor complete unit specs, assigned D1/D2 driver partners, financial ROI, PMS maintenance logs, and live GPS tracking.', position: 'left-center' }
         },
         {
             id: 'unit-details-overview-tab',
