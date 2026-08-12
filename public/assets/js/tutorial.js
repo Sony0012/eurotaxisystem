@@ -416,11 +416,11 @@ const TutorialManager = (function () {
             route: '/units',
             onBeforeShow: () => { 
                 if (typeof enforceTutorialViewMode === 'function') enforceTutorialViewMode('grid'); 
-                const gv = document.getElementById('units-grid-view');
-                if (gv) gv.scrollIntoView({ behavior: 'auto', block: 'center' });
+                const card = document.querySelector('#units-grid-view > div > div:first-child') || document.querySelector('#units-grid-view .grid > div') || document.getElementById('units-grid-view');
+                if (card) card.scrollIntoView({ behavior: 'auto', block: 'center' });
             },
-            getElement: () => document.getElementById('units-grid-view') || document.querySelector('.grid-cards-container') || document.querySelector('.grid'),
-            popover: { title: 'Cards Grid View Showcase', description: 'In Cards View, each taxi unit is presented as a visual card with real-time status badges, assigned D1/D2 driver partners, and current odometer progress.', position: 'top' }
+            getElement: () => document.querySelector('#units-grid-view > div > div:first-child') || document.querySelector('#units-grid-view .grid > div') || document.getElementById('units-grid-view'),
+            popover: { title: 'Cards Grid View Showcase', description: 'In Cards View, each taxi unit is presented as a visual card with real-time status badges, assigned D1/D2 driver partners, and current odometer progress.', position: 'bottom' }
         },
         {
             id: 'units-table-restore',
