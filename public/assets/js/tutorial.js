@@ -426,11 +426,10 @@ const TutorialManager = (function () {
             id: 'units-table-restore',
             route: '/units',
             onBeforeShow: () => { 
-                if (typeof enforceTutorialViewMode === 'function') enforceTutorialViewMode('table'); 
-                const tv = document.getElementById('units-table-view');
-                if (tv) tv.scrollIntoView({ behavior: 'auto', block: 'center' });
+                if (typeof enforceTutorialViewMode === 'function') enforceTutorialViewMode('grid'); 
                 const btnTable = document.getElementById('btn-view-table');
                 if (btnTable) {
+                    btnTable.scrollIntoView({ behavior: 'auto', block: 'center' });
                     btnTable.onclick = function() {
                         if (typeof enforceTutorialViewMode === 'function') enforceTutorialViewMode('table');
                         if (window.TutorialManager) window.TutorialManager.moveToNextStep(19);
