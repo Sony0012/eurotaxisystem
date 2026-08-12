@@ -383,14 +383,14 @@ const TutorialManager = (function () {
         {
             id: 'units-stats-bar',
             route: '/units',
-            onBeforeShow: () => { if (typeof setViewMode === 'function') setViewMode('table'); },
+            onBeforeShow: () => { if (typeof enforceTutorialViewMode === 'function') enforceTutorialViewMode('table'); },
             getElement: () => document.getElementById('quickStatsBar'),
             popover: { title: 'Fleet Status Counters', description: 'Real-time counters showing Total Fleet Units, Active Units on the road, Units under Maintenance in the garage, and Coding Units restricted for today.', position: 'bottom' }
         },
         {
             id: 'units-filter-search',
             route: '/units',
-            onBeforeShow: () => { if (typeof setViewMode === 'function') setViewMode('table'); },
+            onBeforeShow: () => { if (typeof enforceTutorialViewMode === 'function') enforceTutorialViewMode('table'); },
             getElement: () => document.getElementById('tableSearchInput') ? document.getElementById('tableSearchInput').closest('.bg-white') : null,
             popover: { title: 'Search, Sort & Filters', description: 'Quickly search any car by plate number or driver name, sort A-Z, or filter by Active, Coding, Maintenance, or Vacant status.', position: 'bottom' }
         },
@@ -399,16 +399,16 @@ const TutorialManager = (function () {
             route: '/units',
             onBeforeShow: () => { 
                 if (typeof enforceTutorialViewMode === 'function') enforceTutorialViewMode('table'); 
-                const btnCards = document.getElementById('btn-view-cards');
-                if (btnCards) {
-                    btnCards.scrollIntoView({ behavior: 'auto', block: 'center' });
-                    btnCards.onclick = function() {
+                const btnGrid = document.getElementById('btn-view-grid');
+                if (btnGrid) {
+                    btnGrid.scrollIntoView({ behavior: 'auto', block: 'center' });
+                    btnGrid.onclick = function() {
                         if (typeof enforceTutorialViewMode === 'function') enforceTutorialViewMode('grid');
                         if (window.TutorialManager) window.TutorialManager.moveToNextStep(17);
                     };
                 }
             },
-            getElement: () => document.getElementById('btn-view-cards') || document.getElementById('unitViewTogglePill'),
+            getElement: () => document.getElementById('btn-view-grid') || document.getElementById('unitViewTogglePill'),
             popover: { title: 'Switch to Cards View Toggle', description: 'Click the CARDS button on the view toggle pill to switch from Table view to visual grid-based Cards view!', position: 'bottom' }
         },
         {

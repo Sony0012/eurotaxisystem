@@ -1089,7 +1089,7 @@
         const tableView = document.getElementById('units-table-view');
         const gridView = document.getElementById('units-grid-view');
         
-        if (tableView && gridView) {
+        if (tableView && gridView && (mode === 'table' ? tableView.children.length > 0 : gridView.children.length > 0)) {
             if (mode === 'table') {
                 tableView.style.setProperty('display', 'block', 'important');
                 gridView.style.setProperty('display', 'none', 'important');
@@ -1097,11 +1097,15 @@
                 gridView.style.setProperty('display', 'block', 'important');
                 tableView.style.setProperty('display', 'none', 'important');
             }
+        } else {
+            if (forceFetch || !!localStorage.getItem('tutorial_current_step')) {
+                performSearch(1);
+            }
         }
 
         const isTutorialActive = !!localStorage.getItem('tutorial_current_step') || window.location.search.includes('tutorial=1');
         if (isTutorialActive) {
-            return; // Skip server fetch in tutorial mode for 100% instant switching!
+            return; // Skip duplicate server fetch in tutorial mode if DOM elements already populated!
         }
         
         if (forceFetch) {
@@ -1169,13 +1173,15 @@
 
     // ── performSearch ───────────────────────────────────────────────
     function performSearch(page = 1) {
-        const query = searchInput.value;
-        const status = statusFilter.value;
-        const sort = sortFilter.value;
+        const query = searchInput ? searchInput.value : '';
+        const status = statusFilter ? statusFilter.value : '';
+        const sort = sortFilter ? sortFilter.value : '';
 
         // Visual feedback
-        tableContainer.style.opacity = '0.5';
-        tableContainer.style.pointerEvents = 'none';
+        if (tableContainer) {
+            tableContainer.style.opacity = '0.5';
+            tableContainer.style.pointerEvents = 'none';
+        }
 
         const finalUrl = `{{ route('units.index') }}?search=${encodeURIComponent(query)}&status=${status}&sort=${sort}&page=${page}&view=${currentViewMode}`;
         
@@ -1191,7 +1197,22 @@
         })
         .then(response => response.text())
         .then(html => {
-            tableContainer.innerHTML = html;
+            if (!tableContainer) return;
+            if (html.includes('id="units-grid-view"') || html.includes('id="units-table-view"')) {
+                tableContainer.innerHTML = html;
+            } else {
+                if (currentViewMode === 'table') {
+                    tableContainer.innerHTML = `
+                        <div id="units-grid-view" style="display: none !important;"></div>
+                        <div id="units-table-view" style="display: block !important;">${html}</div>
+                    `;
+                } else {
+                    tableContainer.innerHTML = `
+                        <div id="units-grid-view" style="display: block !important;">${html}</div>
+                        <div id="units-table-view" style="display: none !important;"></div>
+                    `;
+                }
+            }
             tableContainer.style.opacity = '1';
             tableContainer.style.pointerEvents = 'auto';
             if (typeof lucide !== 'undefined') lucide.createIcons();
