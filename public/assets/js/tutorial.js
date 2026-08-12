@@ -1331,7 +1331,9 @@ const TutorialManager = (function () {
                                     const dx = pCenter.x - tCenter.x;
                                     const dy = pCenter.y - tCenter.y;
                                     
-                                    if (Math.abs(dx) > Math.abs(dy)) {
+                                    if (step.id === 'units-row-click-deepdive' || step.id.startsWith('unit-details-')) {
+                                        pos = 'left';
+                                    } else if (Math.abs(dx) > Math.abs(dy)) {
                                         pos = dx > 0 ? 'right' : 'left';
                                     } else {
                                         pos = dy > 0 ? 'bottom' : 'top';

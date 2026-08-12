@@ -390,10 +390,21 @@ button[onclick*="toggleUnitDropdown"] *,
     animation: tutorialArrowFadeIn 0.3s ease forwards;
 }
 
-/* Force driver popover to sit cleanly outside the centered modal box on the far left screen edge during modal showcase */
-#unitDetailsModal ~ .driver-popover,
-.driver-popover-side-left-center {
-    margin-right: 20px !important;
+/* Force driver popover to sit 100% cleanly on the far left screen edge outside the centered modal */
+.driver-popover:has(~ #unitDetailsModal),
+body:has(#unitDetailsModal:not(.hidden)) .driver-popover {
+    left: 40px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    max-width: 320px !important;
+}
+
+@media (max-width: 1400px) {
+    .driver-popover:has(~ #unitDetailsModal),
+    body:has(#unitDetailsModal:not(.hidden)) .driver-popover {
+        left: 20px !important;
+        max-width: 280px !important;
+    }
 }
 
 
