@@ -1198,21 +1198,30 @@
         .then(response => response.text())
         .then(html => {
             if (!tableContainer) return;
-            if (html.includes('id="units-grid-view"') || html.includes('id="units-table-view"')) {
-                tableContainer.innerHTML = html;
-            } else {
-                if (currentViewMode === 'table') {
-                    tableContainer.innerHTML = `
-                        <div id="units-grid-view" style="display: none !important;"></div>
-                        <div id="units-table-view" style="display: block !important;">${html}</div>
-                    `;
-                } else {
-                    tableContainer.innerHTML = `
-                        <div id="units-grid-view" style="display: block !important;">${html}</div>
-                        <div id="units-table-view" style="display: none !important;"></div>
-                    `;
-                }
+            let tv = document.getElementById('units-table-view');
+            let gv = document.getElementById('units-grid-view');
+
+            if (!tv || !gv) {
+                tableContainer.innerHTML = `
+                    <div id="units-grid-view" style="${currentViewMode === 'grid' ? 'display: block !important;' : 'display: none !important;'}"></div>
+                    <div id="units-table-view" style="${currentViewMode === 'table' ? 'display: block !important;' : 'display: none !important;'}"></div>
+                `;
+                tv = document.getElementById('units-table-view');
+                gv = document.getElementById('units-grid-view');
             }
+
+            if (html.includes('id="units-grid-view"') && html.includes('id="units-table-view"')) {
+                tableContainer.innerHTML = html;
+            } else if (currentViewMode === 'table') {
+                tv.innerHTML = html;
+                tv.style.setProperty('display', 'block', 'important');
+                gv.style.setProperty('display', 'none', 'important');
+            } else {
+                gv.innerHTML = html;
+                gv.style.setProperty('display', 'block', 'important');
+                tv.style.setProperty('display', 'none', 'important');
+            }
+
             tableContainer.style.opacity = '1';
             tableContainer.style.pointerEvents = 'auto';
             if (typeof lucide !== 'undefined') lucide.createIcons();
