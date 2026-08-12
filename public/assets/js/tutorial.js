@@ -14,6 +14,23 @@ window.print = function() {
     }
 };
 
+window.enforceTutorialViewMode = function(mode) {
+    if (typeof setViewMode === 'function') {
+        setViewMode(mode);
+    }
+    const tv = document.getElementById('units-table-view');
+    const gv = document.getElementById('units-grid-view');
+    if (tv && gv) {
+        if (mode === 'table') {
+            tv.style.setProperty('display', 'block', 'important');
+            gv.style.setProperty('display', 'none', 'important');
+        } else if (mode === 'grid') {
+            gv.style.setProperty('display', 'block', 'important');
+            tv.style.setProperty('display', 'none', 'important');
+        }
+    }
+};
+
 /**
  * Dedicated Static Tutorial Dataset
  * Isolated, Cached, Immutable Sample Data matching production schema.
@@ -381,9 +398,15 @@ const TutorialManager = (function () {
             id: 'units-view-toggle',
             route: '/units',
             onBeforeShow: () => { 
-                if (typeof setViewMode === 'function') setViewMode('table'); 
-                const btn = document.getElementById('btn-view-cards');
-                if (btn) btn.scrollIntoView({ behavior: 'auto', block: 'center' });
+                if (typeof enforceTutorialViewMode === 'function') enforceTutorialViewMode('table'); 
+                const btnCards = document.getElementById('btn-view-cards');
+                if (btnCards) {
+                    btnCards.scrollIntoView({ behavior: 'auto', block: 'center' });
+                    btnCards.onclick = function() {
+                        if (typeof enforceTutorialViewMode === 'function') enforceTutorialViewMode('grid');
+                        if (window.TutorialManager) window.TutorialManager.moveToNextStep(17);
+                    };
+                }
             },
             getElement: () => document.getElementById('btn-view-cards') || document.getElementById('unitViewTogglePill'),
             popover: { title: 'Switch to Cards View Toggle', description: 'Click the CARDS button on the view toggle pill to switch from Table view to visual grid-based Cards view!', position: 'bottom' }
@@ -392,7 +415,7 @@ const TutorialManager = (function () {
             id: 'units-cards-deepdive',
             route: '/units',
             onBeforeShow: () => { 
-                if (typeof setViewMode === 'function') setViewMode('grid'); 
+                if (typeof enforceTutorialViewMode === 'function') enforceTutorialViewMode('grid'); 
                 const gv = document.getElementById('units-grid-view');
                 if (gv) gv.scrollIntoView({ behavior: 'auto', block: 'center' });
             },
@@ -403,13 +426,15 @@ const TutorialManager = (function () {
             id: 'units-table-restore',
             route: '/units',
             onBeforeShow: () => { 
-                if (typeof setViewMode === 'function') setViewMode('table'); 
-                const tv = document.getElementById('units-table-view');
-                const gv = document.getElementById('units-grid-view');
-                if (tv) tv.style.setProperty('display', 'block', 'important');
-                if (gv) gv.style.setProperty('display', 'none', 'important');
-                const btn = document.getElementById('btn-view-table');
-                if (btn) btn.scrollIntoView({ behavior: 'auto', block: 'center' });
+                if (typeof enforceTutorialViewMode === 'function') enforceTutorialViewMode('table'); 
+                const btnTable = document.getElementById('btn-view-table');
+                if (btnTable) {
+                    btnTable.scrollIntoView({ behavior: 'auto', block: 'center' });
+                    btnTable.onclick = function() {
+                        if (typeof enforceTutorialViewMode === 'function') enforceTutorialViewMode('table');
+                        if (window.TutorialManager) window.TutorialManager.moveToNextStep(19);
+                    };
+                }
             },
             getElement: () => document.getElementById('btn-view-table') || document.getElementById('unitViewTogglePill'),
             popover: { title: 'Switching Back to Table View', description: 'Clicking the TABLE button restores the structured row layout with full column details for deep analysis.', position: 'bottom' }
@@ -417,14 +442,20 @@ const TutorialManager = (function () {
         {
             id: 'units-print-pdf-btn',
             route: '/units',
-            onBeforeShow: () => { if (typeof closeTutorialPdfPreview === 'function') closeTutorialPdfPreview(); },
+            onBeforeShow: () => { 
+                if (typeof enforceTutorialViewMode === 'function') enforceTutorialViewMode('table'); 
+                if (typeof closeTutorialPdfPreview === 'function') closeTutorialPdfPreview(); 
+            },
             getElement: () => document.getElementById('btn-print-pdf') || document.querySelector('button[onclick*="printInHiddenIframe"]'),
             popover: { title: 'Print Master List to PDF Button', description: 'Clicking this button generates an official PDF document of your entire fleet roster. Let us open the live document preview!', position: 'bottom' }
         },
         {
             id: 'units-print-pdf-preview',
             route: '/units',
-            onBeforeShow: () => { if (typeof openTutorialPdfPreview === 'function') openTutorialPdfPreview(); },
+            onBeforeShow: () => { 
+                if (typeof enforceTutorialViewMode === 'function') enforceTutorialViewMode('table'); 
+                if (typeof openTutorialPdfPreview === 'function') openTutorialPdfPreview(); 
+            },
             onAfterNext: () => { if (typeof closeTutorialPdfPreview === 'function') closeTutorialPdfPreview(); },
             getElement: () => document.getElementById('tutorialPrintPdfModal') ? document.querySelector('#tutorialPrintPdfModal > div') : document.getElementById('btn-print-pdf'),
             popover: { title: 'Live Master Roster PDF Deep Dive', description: 'Here is the live generated PDF document! It compiles your official fleet records, including Plate #, Engine/Chassis IDs, D1/D2 Assigned Drivers, Smart Boundary Rates, and Official Signature Lines.', position: 'top' }
@@ -432,7 +463,12 @@ const TutorialManager = (function () {
         {
             id: 'units-add-unit-btn',
             route: '/units',
-            onBeforeShow: () => { if (typeof closeTutorialPdfPreview === 'function') closeTutorialPdfPreview(); const m = document.getElementById('addUnitModal'); if (m) m.classList.add('hidden'); },
+            onBeforeShow: () => { 
+                if (typeof enforceTutorialViewMode === 'function') enforceTutorialViewMode('table'); 
+                if (typeof closeTutorialPdfPreview === 'function') closeTutorialPdfPreview(); 
+                const m = document.getElementById('addUnitModal'); 
+                if (m) m.classList.add('hidden'); 
+            },
             getElement: () => document.getElementById('btn-add-unit') || document.querySelector('button[onclick*="addUnitModal"]'),
             popover: { title: 'Add New Unit Button', description: 'Clicking this button opens the vehicle registration form to onboard a new taxi into your fleet. Let us open the modal and explore inside!', position: 'bottom' }
         },
