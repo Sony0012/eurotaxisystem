@@ -724,14 +724,22 @@ const TutorialManager = (function () {
                 if (modal) {
                     modal.classList.remove('hidden');
                     modal.style.setProperty('display', 'flex', 'important');
+                    const card = modal.querySelector(':scope > div');
+                    if (card) {
+                        card.onclick = function(e) {
+                            if (window.TutorialManager && !e.target.closest('button') && !e.target.closest('.tab-btn')) {
+                                window.TutorialManager.moveToNextStep(42);
+                            }
+                        };
+                    }
                 }
                 if (typeof viewUnitDetails === 'function') {
                     viewUnitDetails(1);
                 }
                 if (typeof showTab === 'function') showTab('overview');
             },
-            getElement: () => document.querySelector('#unitDetailsModal .bg-slate-900 i') || document.querySelector('#unitDetailsModal h3') || document.querySelector('#unitDetailsModal .bg-slate-900'),
-            popover: { title: 'Unit Details Profile Showcase', description: 'Welcome inside the Unit Details profile! Here you can monitor complete unit specs, assigned D1/D2 driver partners, financial ROI, PMS maintenance logs, and live GPS tracking.', position: 'top-right' }
+            getElement: () => document.querySelector('#unitDetailsModal > div') || document.getElementById('unitDetailsContent'),
+            popover: { title: 'Unit Details Profile Showcase', description: 'Welcome inside the Unit Details profile! Here you can monitor complete unit specs, assigned D1/D2 driver partners, financial ROI, PMS maintenance logs, and live GPS tracking.', position: 'left-center' }
         },
         {
             id: 'unit-details-overview-tab',

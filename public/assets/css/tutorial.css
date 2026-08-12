@@ -390,4 +390,10 @@ button[onclick*="toggleUnitDropdown"] *,
     animation: tutorialArrowFadeIn 0.3s ease forwards;
 }
 
+/* Force driver popover to sit cleanly outside the centered modal box on the far left screen edge during modal showcase */
+#unitDetailsModal ~ .driver-popover,
+.driver-popover-side-left-center {
+    margin-right: 20px !important;
+}
+
 
