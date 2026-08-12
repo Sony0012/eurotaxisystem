@@ -36,9 +36,38 @@
     100% { opacity: 1; }
 }
 
-/* Hide default Driver.js arrow */
+/* Driver.js Arrow Pointer Styling */
 .driver-popover-arrow {
-    display: none !important;
+    display: block !important;
+    border: 10px solid transparent !important;
+}
+
+.driver-popover-arrow-side-right {
+    border-left-color: rgba(17, 24, 39, 0.95) !important;
+    right: -20px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+}
+
+.driver-popover-arrow-side-left {
+    border-right-color: rgba(17, 24, 39, 0.95) !important;
+    left: -20px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+}
+
+.driver-popover-arrow-side-top {
+    border-bottom-color: rgba(17, 24, 39, 0.95) !important;
+    top: -20px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+}
+
+.driver-popover-arrow-side-bottom {
+    border-top-color: rgba(17, 24, 39, 0.95) !important;
+    bottom: -20px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
 }
 
 .driver-popover-title {
