@@ -1157,6 +1157,8 @@ const TutorialManager = (function () {
         const step = steps[stepIndex];
         logDebug(`Attempting to find element for step: ${step.id}`);
 
+        document.body.classList.add('tutorial-active');
+
         // Auto-navigate to step route if specified and browser is not currently on that route
         if (step.route && !window.location.pathname.startsWith(step.route)) {
             logDebug(`Navigating to route ${step.route} for step '${step.id}'`);

@@ -389,3 +389,12 @@ button[onclick*="toggleUnitDropdown"] *,
 .arrow-fade-in {
     animation: tutorialArrowFadeIn 0.3s ease forwards;
 }
+
+/* Shift Unit Details Modal Card slightly right during tutorial to provide guaranteed 380px left margin for popover box */
+body.tutorial-active #unitDetailsModal > div {
+    max-width: min(980px, calc(100vw - 390px)) !important;
+    margin-left: auto !important;
+    margin-right: 24px !important;
+    transition: all 0.3s ease !important;
+}
+
