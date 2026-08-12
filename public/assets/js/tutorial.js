@@ -404,6 +404,10 @@ const TutorialManager = (function () {
             route: '/units',
             onBeforeShow: () => { 
                 if (typeof setViewMode === 'function') setViewMode('table'); 
+                const tv = document.getElementById('units-table-view');
+                const gv = document.getElementById('units-grid-view');
+                if (tv) tv.style.setProperty('display', 'block', 'important');
+                if (gv) gv.style.setProperty('display', 'none', 'important');
                 const btn = document.getElementById('btn-view-table');
                 if (btn) btn.scrollIntoView({ behavior: 'auto', block: 'center' });
             },
