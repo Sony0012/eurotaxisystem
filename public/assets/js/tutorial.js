@@ -1262,68 +1262,91 @@ const TutorialManager = (function () {
         },
         {
             id: 'sidebar-drivers',
+            onBeforeShow: () => {
+                const link = findSidebarLink(['Driver Management']);
+                if (link) {
+                    link.onclick = function(e) {
+                        if (window.TutorialManager) window.TutorialManager.moveToNextStep(71);
+                    };
+                }
+            },
             getElement: () => findSidebarLink(['Driver Management']),
-            popover: { title: 'Driver Management', description: 'Register new drivers, handle bans, contracts, and debt records.', position: 'right' }
+            popover: { title: '🚕 Driver Management Module', description: 'Click \'Driver Management\' to enter the main driver roster, handle driver registrations, manage bans, contracts, and debt records!', position: 'right' }
         },
         {
-            id: 'sidebar-tracking',
-            getElement: () => findSidebarLink(['Live Tracking']),
-            popover: { title: 'Live Tracking', description: 'Track your units via real-time GPS map integration.', position: 'right' }
+            id: 'drivers-header-search',
+            route: '/driver-management',
+            getElement: () => document.querySelector('#tableSearchInput')?.closest('form') || document.querySelector('#tableSearchInput'),
+            popover: { title: '🔍 Driver Roster Search & Filters', description: 'Search drivers by full name or LTO license number, sort A-Z, or filter table by status (Active, Inactive, Available Without Unit).', position: 'bottom' }
         },
         {
-            id: 'sidebar-franchise',
-            getElement: () => findSidebarLink(['Franchise']),
-            popover: { title: 'Franchise Records', description: 'Manage franchise documents and expiration dates.', position: 'right' }
+            id: 'drivers-print-btn',
+            route: '/driver-management',
+            getElement: () => document.querySelector('button[onclick*="driver-management.print"]') || document.querySelector('#driverActionButtonsBar button:first-child'),
+            popover: { title: '🖨️ Print Driver Roster PDF', description: 'Export a clean, formatted PDF summary report of all registered drivers for printing or official record keeping.', position: 'bottom' }
         },
         {
-            id: 'sidebar-boundaries',
-            getElement: () => findSidebarLink(['Boundaries']),
-            popover: { title: 'Boundaries', description: 'Record daily boundary collections and driver remittances.', position: 'right' }
+            id: 'drivers-add-btn',
+            route: '/driver-management',
+            getElement: () => document.querySelector('button[onclick*="openAddDriverModal"]') || document.querySelector('#driverActionButtonsBar button:nth-child(2)'),
+            popover: { title: '➕ Add Driver Registration', description: 'Click to open the driver registration form—fill in personal info, license details, assigned unit, and emergency contacts.', position: 'bottom' }
         },
         {
-            id: 'sidebar-maintenance',
-            getElement: () => findSidebarLink(['Maintenance']),
-            popover: { title: 'Maintenance', description: 'Log car repairs, oil changes, and parts inventory.', position: 'right' }
+            id: 'drivers-table-profile',
+            route: '/driver-management',
+            getElement: () => document.querySelector('.modern-table-sep tbody tr td:first-child') || document.querySelector('#driversTableContainer table tbody tr td:first-child') || document.querySelector('#driversTableContainer'),
+            popover: { title: '👤 Driver Profile & Shortage/Debt Alerts', description: 'Displays driver avatar initials, full registered name, and live warning badges for unpaid boundary shortages or pending accident debts.', position: 'right' }
         },
         {
-            id: 'sidebar-coding',
-            getElement: () => findSidebarLink(['Coding Management']),
-            popover: { title: 'Coding Management', description: 'Set and monitor MMDA number coding schemes.', position: 'right' }
+            id: 'drivers-table-unit',
+            route: '/driver-management',
+            getElement: () => document.querySelector('.modern-table-sep tbody tr td:nth-child(2)') || document.querySelector('#driversTableContainer table tbody tr td:nth-child(2)') || document.querySelector('#driversTableContainer'),
+            popover: { title: '🚗 Assigned Taxi Unit', description: 'Shows the active vehicle plate number assigned to the driver (e.g. AAA 4591) for daily boundary operations.', position: 'top' }
         },
         {
-            id: 'sidebar-behavior',
-            getElement: () => findSidebarLink(['Driver Behavior']),
-            popover: { title: 'Driver Behavior', description: 'Track incentives, performance charts, and accident reports.', position: 'right' }
+            id: 'drivers-table-license',
+            route: '/driver-management',
+            getElement: () => document.querySelector('.modern-table-sep tbody tr td:nth-child(3)') || document.querySelector('#driversTableContainer table tbody tr td:nth-child(3)') || document.querySelector('#driversTableContainer'),
+            popover: { title: '🪪 Driver License & Expiration', description: 'Logs the LTO driver\'s license number and tracks document expiration dates for compliance auditing.', position: 'top' }
         },
         {
-            id: 'sidebar-expenses',
-            getElement: () => findSidebarLink(['Office Expenses']),
-            popover: { title: 'Office Expenses', description: 'Log daily operational expenses and overhead.', position: 'right' }
+            id: 'drivers-table-status',
+            route: '/driver-management',
+            getElement: () => document.querySelector('.modern-table-sep tbody tr td:nth-child(4)') || document.querySelector('#driversTableContainer table tbody tr td:nth-child(4)') || document.querySelector('#driversTableContainer'),
+            popover: { title: '🟢 Driver Operational Status', description: 'Indicates current status—Active (on shift), Inactive, or Banned due to system/boundary violations.', position: 'top' }
         },
         {
-            id: 'sidebar-salary',
-            getElement: () => findSidebarLink(['Salary Management']),
-            popover: { title: 'Salary Management', description: 'Process payroll and employee salaries.', position: 'right' }
+            id: 'drivers-table-financial',
+            route: '/driver-management',
+            getElement: () => document.querySelector('.modern-table-sep tbody tr td:nth-child(5)') || document.querySelector('#driversTableContainer table tbody tr td:nth-child(5)') || document.querySelector('#driversTableContainer'),
+            popover: { title: '💰 Daily Financial Target Rate', description: 'Displays the assigned daily boundary remittance rate (e.g. ₱1,100.00 Unit rate or Coding discount rate).', position: 'top' }
         },
         {
-            id: 'sidebar-analytics',
-            getElement: () => findSidebarLink(['Analytics']),
-            popover: { title: 'Analytics', description: 'Generate advanced financial and operational reports.', position: 'right' }
+            id: 'drivers-table-rating',
+            route: '/driver-management',
+            getElement: () => document.querySelector('.modern-table-sep tbody tr td:nth-child(6)') || document.querySelector('#driversTableContainer table tbody tr td:nth-child(6)') || document.querySelector('#driversTableContainer'),
+            popover: { title: '⭐ Driver Rating & Performance Badge', description: 'Tracks driver performance classification—New Driver, Growing, or Top Performer based on remittance consistency.', position: 'top' }
         },
         {
-            id: 'sidebar-profitability',
-            getElement: () => findSidebarLink(['Unit Profitability']),
-            popover: { title: 'Unit Profitability', description: 'Track ROI and net profit for each specific car.', position: 'right' }
+            id: 'drivers-table-actions',
+            route: '/driver-management',
+            getElement: () => document.querySelector('.modern-table-sep tbody tr td:last-child') || document.querySelector('#driversTableContainer table tbody tr td:last-child') || document.querySelector('#driversTableContainer'),
+            popover: { title: '⚡ Driver Row Actions (Edit / Ban / Details)', description: 'Click the 3-dots action menu to view full driver history, edit driver profile, manage debt records, or issue a driver ban.', position: 'left' }
         },
         {
-            id: 'sidebar-staff',
-            getElement: () => findSidebarLink(['General Staff Records', 'Staff']),
-            popover: { title: 'Staff Records', description: 'Manage system administrators and mobile app users.', position: 'right' }
+            id: 'drivers-sub-navigation',
+            route: '/driver-management',
+            getElement: () => {
+                const link = findSidebarLink(['Banned Drivers', 'Driver Terms', 'Pending Debts']);
+                return link ? link.closest('div') || link : findSidebarLink(['Driver Management']);
+            },
+            popover: { title: '📁 Driver Management Sub-Navigation', description: 'Access specialized driver registries—Banned Drivers list, Driver Terms & Contracts, and Pending Debts ledger.', position: 'right' }
         },
         {
-            id: 'sidebar-profile',
-            getElement: () => findSidebarLink(['Take the Tour Again', 'Logout']),
-            popover: { title: 'Profile Menu', description: 'Access your account settings or retake this tour anytime from here.', position: 'right' }
+            id: 'tour-complete-summary',
+            route: '/driver-management',
+            getElement: () => document.querySelector('#driversTableContainer') || document.querySelector('body'),
+            popover: { title: '🎉 EuroTaxi System Tour Completed!', description: 'Congratulations! You have completed the full interactive walkthrough of the EuroTaxi Fleet Management system. Retake this tour anytime from your profile menu!', position: 'bottom' }
         }
     ];
 
