@@ -1055,7 +1055,7 @@ const TutorialManager = (function () {
                         btn.onclick = function() {
                             if (typeof openManualFlagModal === 'function') openManualFlagModal();
                             const m = document.getElementById('manualFlagModal');
-                            if (m) { m.classList.remove('hidden'); m.style.removeProperty('display'); m.style.display = 'flex'; m.style.setProperty('z-index', '100004', 'important'); }
+                            if (m) { m.classList.remove('hidden'); m.style.removeProperty('display'); m.style.setProperty('z-index', '100004', 'important'); }
                             if (window.TutorialManager) window.TutorialManager.moveToNextStep(57);
                         };
                     }
@@ -1071,7 +1071,7 @@ const TutorialManager = (function () {
                 if (typeof openManualFlagModal === 'function') openManualFlagModal();
                 const m = document.getElementById('manualFlagModal');
                 const p = document.getElementById('manualFlagPanel');
-                if (m) { m.classList.remove('hidden'); m.style.removeProperty('display'); m.style.display = 'flex'; m.style.setProperty('z-index', '100004', 'important'); }
+                if (m) { m.classList.remove('hidden'); m.style.removeProperty('display'); m.style.setProperty('z-index', '100004', 'important'); }
                 if (p) { p.style.setProperty('z-index', '100004', 'important'); }
             },
             getElement: () => document.getElementById('manualFlagPanel') || document.getElementById('manualFlagModal'),
@@ -1084,7 +1084,7 @@ const TutorialManager = (function () {
                 if (typeof openManualFlagModal === 'function') openManualFlagModal();
                 const m = document.getElementById('manualFlagModal');
                 const p = document.getElementById('manualFlagPanel');
-                if (m) { m.classList.remove('hidden'); m.style.removeProperty('display'); m.style.display = 'flex'; m.style.setProperty('z-index', '100004', 'important'); }
+                if (m) { m.classList.remove('hidden'); m.style.removeProperty('display'); m.style.setProperty('z-index', '100004', 'important'); }
                 if (p) { p.style.setProperty('z-index', '100004', 'important'); }
             },
             getElement: () => document.getElementById('unitSearchContainer') || document.getElementById('unitDisplay'),
@@ -1097,7 +1097,7 @@ const TutorialManager = (function () {
                 if (typeof openManualFlagModal === 'function') openManualFlagModal();
                 const m = document.getElementById('manualFlagModal');
                 const p = document.getElementById('manualFlagPanel');
-                if (m) { m.classList.remove('hidden'); m.style.removeProperty('display'); m.style.display = 'flex'; m.style.setProperty('z-index', '100004', 'important'); }
+                if (m) { m.classList.remove('hidden'); m.style.removeProperty('display'); m.style.setProperty('z-index', '100004', 'important'); }
                 if (p) { p.style.setProperty('z-index', '100004', 'important'); }
             },
             getElement: () => document.getElementById('driverSearchContainer') || document.getElementById('driverDisplay'),
@@ -1110,7 +1110,7 @@ const TutorialManager = (function () {
                 if (typeof openManualFlagModal === 'function') openManualFlagModal();
                 const m = document.getElementById('manualFlagModal');
                 const p = document.getElementById('manualFlagPanel');
-                if (m) { m.classList.remove('hidden'); m.style.removeProperty('display'); m.style.display = 'flex'; m.style.setProperty('z-index', '100004', 'important'); }
+                if (m) { m.classList.remove('hidden'); m.style.removeProperty('display'); m.style.setProperty('z-index', '100004', 'important'); }
                 if (p) { p.style.setProperty('z-index', '100004', 'important'); }
             },
             getElement: () => document.querySelector('#manualFlagModal input[name="missing_since"]'),
@@ -1123,7 +1123,7 @@ const TutorialManager = (function () {
                 if (typeof openManualFlagModal === 'function') openManualFlagModal();
                 const m = document.getElementById('manualFlagModal');
                 const p = document.getElementById('manualFlagPanel');
-                if (m) { m.classList.remove('hidden'); m.style.removeProperty('display'); m.style.display = 'flex'; m.style.setProperty('z-index', '100004', 'important'); }
+                if (m) { m.classList.remove('hidden'); m.style.removeProperty('display'); m.style.setProperty('z-index', '100004', 'important'); }
                 if (p) { p.style.setProperty('z-index', '100004', 'important'); }
             },
             getElement: () => document.querySelector('#manualFlagModal textarea[name="description"]'),
@@ -1136,7 +1136,7 @@ const TutorialManager = (function () {
                 if (typeof openManualFlagModal === 'function') openManualFlagModal();
                 const m = document.getElementById('manualFlagModal');
                 const p = document.getElementById('manualFlagPanel');
-                if (m) { m.classList.remove('hidden'); m.style.removeProperty('display'); m.style.display = 'flex'; m.style.setProperty('z-index', '100004', 'important'); }
+                if (m) { m.classList.remove('hidden'); m.style.removeProperty('display'); m.style.setProperty('z-index', '100004', 'important'); }
                 if (p) { p.style.setProperty('z-index', '100004', 'important'); }
             },
             getElement: () => document.querySelector('#manualFlagModal button[type="submit"]')?.closest('.border-t') || document.querySelector('#manualFlagModal button[type="submit"]'),

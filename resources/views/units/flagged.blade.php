@@ -300,7 +300,7 @@
 <div id="manualFlagModal" class="fixed inset-0 z-[100] hidden">
     <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity opacity-0" id="manualFlagBackdrop" onclick="closeManualFlagModal()"></div>
     <div class="flex items-center justify-center min-h-screen p-4 pointer-events-none">
-        <div class="bg-white rounded-[2rem] shadow-2xl w-full max-w-2xl transform scale-95 opacity-0 transition-all pointer-events-auto border border-slate-100" id="manualFlagPanel">
+        <div class="bg-white rounded-[2rem] shadow-2xl w-full max-w-2xl transform scale-95 opacity-0 transition-all pointer-events-auto border border-slate-100 mx-auto" id="manualFlagPanel">
             <form action="{{ route('units.flag-manually') }}" method="POST" class="flex flex-col h-full max-h-[90vh]">
                 @csrf
                 {{-- Modal Header --}}
