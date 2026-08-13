@@ -2193,8 +2193,8 @@ const TutorialManager = (function () {
         }
     }
 
-    function startTutorial(stepIndex) {
-        logDebug(`startTutorial called with stepIndex: ${stepIndex}`);
+    function startTutorial(stepIndex, retryCount = 0) {
+        logDebug(`startTutorial called with stepIndex: ${stepIndex}, retryCount: ${retryCount}`);
         
         // If Welcome Modal is active, DO NOT run background steps
         if (document.getElementById('tutorial-welcome-modal')) {
@@ -2244,14 +2244,24 @@ const TutorialManager = (function () {
             }
         }
 
-        const targetElement = step.getElement ? step.getElement() : null;
+        let targetElement = step.getElement ? step.getElement() : null;
         
         if (!targetElement) {
-            logDebug(`WARNING: Target element for step '${step.id}' not found. Auto-skipping to next step.`);
-            const nextIndex = stepIndex + 1;
-            localStorage.setItem('tutorial_current_step', nextIndex);
-            startTutorial(nextIndex);
-            return;
+            if (retryCount < 4) {
+                logDebug(`Target element for step '${step.id}' not ready yet. Retrying (${retryCount + 1}/4)...`);
+                setTimeout(() => {
+                    startTutorial(stepIndex, retryCount + 1);
+                }, 75);
+                return;
+            } else {
+                logDebug(`Fallback container element used for step '${step.id}' after retries.`);
+                targetElement = document.querySelector('#driverDetailsModal > div') ||
+                                document.querySelector('#addDriverModal > div') ||
+                                document.querySelector('#unitDetailsModal > div') ||
+                                document.querySelector('#addUnitModal > div') ||
+                                document.querySelector('#driversTableContainer') ||
+                                document.body;
+            }
         }
 
         // Apply a unique ID to guarantee Driver.js finds the exact DOM element via CSS selector
