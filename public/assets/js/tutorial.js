@@ -1481,7 +1481,12 @@ const TutorialManager = (function () {
                 if (pm) { pm.classList.add('hidden'); pm.style.cssText = 'display: none !important; z-index: -1 !important; visibility: hidden !important; opacity: 0 !important;'; }
                 if (typeof openAddDriverModal === 'function') openAddDriverModal();
                 const m = document.getElementById('addDriverModal');
-                if (m) { m.classList.remove('hidden'); m.style.cssText = 'display: flex !important; z-index: 100004 !important; visibility: visible !important; opacity: 1 !important; align-items: center; justify-content: center; position: fixed; inset: 0;'; }
+                if (m) {
+                    m.classList.remove('hidden');
+                    m.style.cssText = 'display: flex !important; z-index: 100004 !important; visibility: visible !important; opacity: 1 !important; align-items: center; justify-content: center; position: fixed; inset: 0;';
+                    const sc = m.querySelector('.overflow-y-auto');
+                    if (sc) sc.scrollTop = 0;
+                }
             },
             getElement: () => {
                 const m = document.getElementById('addDriverModal');
@@ -1499,7 +1504,13 @@ const TutorialManager = (function () {
                 if (pm) { pm.classList.add('hidden'); pm.style.cssText = 'display: none !important; z-index: -1 !important; visibility: hidden !important; opacity: 0 !important;'; }
                 if (typeof openAddDriverModal === 'function') openAddDriverModal();
                 const m = document.getElementById('addDriverModal');
-                if (m) { m.classList.remove('hidden'); m.style.cssText = 'display: flex !important; z-index: 100004 !important; visibility: visible !important; opacity: 1 !important; align-items: center; justify-content: center; position: fixed; inset: 0;'; }
+                if (m) {
+                    m.classList.remove('hidden');
+                    m.style.cssText = 'display: flex !important; z-index: 100004 !important; visibility: visible !important; opacity: 1 !important; align-items: center; justify-content: center; position: fixed; inset: 0;';
+                    const sc = m.querySelector('.overflow-y-auto');
+                    const sec = document.getElementById('addDriverSecPersonal');
+                    if (sc && sec) sc.scrollTop = Math.max(0, sec.offsetTop - 12);
+                }
             },
             getElement: () => {
                 const m = document.getElementById('addDriverModal');
@@ -1517,7 +1528,13 @@ const TutorialManager = (function () {
                 if (pm) { pm.classList.add('hidden'); pm.style.cssText = 'display: none !important; z-index: -1 !important; visibility: hidden !important; opacity: 0 !important;'; }
                 if (typeof openAddDriverModal === 'function') openAddDriverModal();
                 const m = document.getElementById('addDriverModal');
-                if (m) { m.classList.remove('hidden'); m.style.cssText = 'display: flex !important; z-index: 100004 !important; visibility: visible !important; opacity: 1 !important; align-items: center; justify-content: center; position: fixed; inset: 0;'; }
+                if (m) {
+                    m.classList.remove('hidden');
+                    m.style.cssText = 'display: flex !important; z-index: 100004 !important; visibility: visible !important; opacity: 1 !important; align-items: center; justify-content: center; position: fixed; inset: 0;';
+                    const sc = m.querySelector('.overflow-y-auto');
+                    const sec = document.getElementById('addDriverSecLicense');
+                    if (sc && sec) sc.scrollTop = Math.max(0, sec.offsetTop - 12);
+                }
             },
             getElement: () => {
                 const m = document.getElementById('addDriverModal');
@@ -1535,14 +1552,20 @@ const TutorialManager = (function () {
                 if (pm) { pm.classList.add('hidden'); pm.style.cssText = 'display: none !important; z-index: -1 !important; visibility: hidden !important; opacity: 0 !important;'; }
                 if (typeof openAddDriverModal === 'function') openAddDriverModal();
                 const m = document.getElementById('addDriverModal');
-                if (m) { m.classList.remove('hidden'); m.style.cssText = 'display: flex !important; z-index: 100004 !important; visibility: visible !important; opacity: 1 !important; align-items: center; justify-content: center; position: fixed; inset: 0;'; }
+                if (m) {
+                    m.classList.remove('hidden');
+                    m.style.cssText = 'display: flex !important; z-index: 100004 !important; visibility: visible !important; opacity: 1 !important; align-items: center; justify-content: center; position: fixed; inset: 0;';
+                    const sc = m.querySelector('.overflow-y-auto');
+                    const sec = document.getElementById('addDriverSecVault');
+                    if (sc && sec) sc.scrollTop = Math.max(0, sec.offsetTop - 12);
+                }
             },
             getElement: () => {
                 const m = document.getElementById('addDriverModal');
                 if (m && m.classList.contains('hidden')) { m.classList.remove('hidden'); m.style.removeProperty('display'); }
                 return document.getElementById('addDriverSecVault') || document.getElementById('input_profile_photo')?.closest('.mt-6');
             },
-            popover: { title: '📁 Secure Document Vault & Clearances', description: 'Upload copy of driver\'s Profile Photo, LTO License, NBI Clearance, and PNP/Barangay Clearance for official compliance verification.', position: 'top' }
+            popover: { title: '📁 Secure Document Vault & Clearances', description: 'Upload copy of driver\'s Profile Photo, LTO License, NBI Clearance, and PNP/Barangay Clearance for official compliance verification.', position: 'bottom' }
         },
         {
             id: 'add-driver-emergency-contact',
@@ -1553,14 +1576,20 @@ const TutorialManager = (function () {
                 if (pm) { pm.classList.add('hidden'); pm.style.cssText = 'display: none !important; z-index: -1 !important; visibility: hidden !important; opacity: 0 !important;'; }
                 if (typeof openAddDriverModal === 'function') openAddDriverModal();
                 const m = document.getElementById('addDriverModal');
-                if (m) { m.classList.remove('hidden'); m.style.cssText = 'display: flex !important; z-index: 100004 !important; visibility: visible !important; opacity: 1 !important; align-items: center; justify-content: center; position: fixed; inset: 0;'; }
+                if (m) {
+                    m.classList.remove('hidden');
+                    m.style.cssText = 'display: flex !important; z-index: 100004 !important; visibility: visible !important; opacity: 1 !important; align-items: center; justify-content: center; position: fixed; inset: 0;';
+                    const sc = m.querySelector('.overflow-y-auto');
+                    const sec = document.getElementById('addDriverSecEmergency');
+                    if (sc && sec) sc.scrollTop = Math.max(0, sec.offsetTop - 12);
+                }
             },
             getElement: () => {
                 const m = document.getElementById('addDriverModal');
                 if (m && m.classList.contains('hidden')) { m.classList.remove('hidden'); m.style.removeProperty('display'); }
                 return document.getElementById('addDriverSecEmergency') || document.getElementById('driverEmergencyContact')?.closest('.p-6 > div');
             },
-            popover: { title: '🚨 Emergency Contact Details', description: 'Record emergency contact person\'s full name and 11-digit mobile phone number to notify in case of accidents or road emergencies.', position: 'top' }
+            popover: { title: '🚨 Emergency Contact Details', description: 'Record emergency contact person\'s full name and 11-digit mobile phone number to notify in case of accidents or road emergencies.', position: 'bottom' }
         },
         {
             id: 'add-driver-submit-actions',
@@ -1571,7 +1600,12 @@ const TutorialManager = (function () {
                 if (pm) { pm.classList.add('hidden'); pm.style.cssText = 'display: none !important; z-index: -1 !important; visibility: hidden !important; opacity: 0 !important;'; }
                 if (typeof openAddDriverModal === 'function') openAddDriverModal();
                 const m = document.getElementById('addDriverModal');
-                if (m) { m.classList.remove('hidden'); m.style.cssText = 'display: flex !important; z-index: 100004 !important; visibility: visible !important; opacity: 1 !important; align-items: center; justify-content: center; position: fixed; inset: 0;'; }
+                if (m) {
+                    m.classList.remove('hidden');
+                    m.style.cssText = 'display: flex !important; z-index: 100004 !important; visibility: visible !important; opacity: 1 !important; align-items: center; justify-content: center; position: fixed; inset: 0;';
+                    const sc = m.querySelector('.overflow-y-auto');
+                    if (sc) sc.scrollTop = sc.scrollHeight;
+                }
             },
             onAfterNext: () => {
                 if (typeof closeAddDriverModal === 'function') closeAddDriverModal();
