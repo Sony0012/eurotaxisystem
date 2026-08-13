@@ -1600,19 +1600,25 @@ const TutorialManager = (function () {
                                     if (wrapper) wrapper.classList.add('popover-unit-details-close');
                                     pos = 'right';
 
-                                    const targetX = Math.round(pRect.left - (tRect.left + tRect.width / 2));
-                                    const targetY = Math.round((tRect.top + tRect.height / 2) - pRect.top);
+                                    const closeBtnX = Math.round(tRect.left + tRect.width / 2);
+                                    const closeBtnY = Math.round(tRect.top + tRect.height / 2);
 
-                                    const svgWidth = Math.max(120, Math.abs(targetX) + 40);
-                                    const svgHeight = Math.max(100, Math.abs(targetY) + 60);
+                                    const popoverLeftX = Math.max(closeBtnX + 80, window.innerWidth - 360);
+                                    const popoverTopY = 120;
+
+                                    const deltaX = Math.max(60, popoverLeftX - closeBtnX);
+                                    const deltaY = closeBtnY - popoverTopY;
+
+                                    const svgWidth = Math.min(260, Math.max(100, Math.round(deltaX + 30)));
+                                    const svgHeight = Math.min(180, Math.max(80, Math.round(Math.abs(deltaY) + 50)));
 
                                     const startX = svgWidth - 10;
-                                    const startY = 40;
+                                    const startY = 30;
                                     const endX = 20;
-                                    const endY = Math.round(targetY > 0 ? targetY + 20 : 35);
+                                    const endY = Math.max(15, Math.min(svgHeight - 15, Math.round(30 + deltaY)));
 
                                     const controlX = Math.round(svgWidth * 0.5);
-                                    const controlY = Math.min(startY, endY) - 25;
+                                    const controlY = Math.min(startY, endY) - 20;
 
                                     const pathD = `M ${startX} ${startY} Q ${controlX} ${controlY} ${endX} ${endY}`;
                                     const polyPoints = `${endX},${endY} ${endX + 12},${endY - 6} ${endX + 8},${endY + 10}`;
