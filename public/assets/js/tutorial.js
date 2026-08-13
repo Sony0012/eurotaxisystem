@@ -1639,7 +1639,7 @@ const TutorialManager = (function () {
                 if (m) { m.classList.add('hidden'); m.style.cssText = 'display: none !important; z-index: -1 !important; visibility: hidden !important; opacity: 0 !important;'; }
                 window.scrollTo({ top: 0, behavior: 'instant' });
             },
-            getElement: () => document.getElementById('driversTableContainer') || document.querySelector('#driversTableContainer table'),
+            getElement: () => document.querySelector('#driversTableContainer table thead tr') || document.querySelector('#driversTableContainer table thead') || document.querySelector('.modern-table-sep thead'),
             popover: { title: '📋 Driver Roster Information Table', description: 'Overview of all active, inactive, and available fleet drivers with live shortage and debt status badges.', position: 'bottom' }
         },
         {
