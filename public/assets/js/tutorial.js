@@ -1332,9 +1332,35 @@ const TutorialManager = (function () {
             onBeforeShow: () => {
                 if (typeof closeAddDriverModal === 'function') closeAddDriverModal();
                 if (typeof closeDriverDetails === 'function') closeDriverDetails();
+                if (typeof closeDriverPdfPreview === 'function') closeDriverPdfPreview();
+                setTimeout(() => {
+                    const btn = document.querySelector('button[onclick*="printInHiddenIframe"]') || document.querySelector('#driverActionButtonsBar button:first-child');
+                    if (btn) {
+                        btn.onclick = function() {
+                            if (typeof openDriverPdfPreview === 'function') openDriverPdfPreview();
+                            if (window.TutorialManager) window.TutorialManager.moveToNextStep(74);
+                        };
+                    }
+                }, 50);
             },
             getElement: () => document.querySelector('button[onclick*="printInHiddenIframe"]') || document.querySelector('#driverActionButtonsBar button:first-child') || document.querySelector('#driverActionButtonsBar'),
-            popover: { title: '🖨️ Print Driver Roster PDF', description: 'Export a clean, formatted PDF summary report of all registered drivers for printing or official record keeping.', position: 'bottom' }
+            popover: { title: '🖨️ Print Driver Roster PDF Button', description: 'Clicking this button exports an official PDF summary report of all registered drivers. Let us open the live document preview!', position: 'bottom' }
+        },
+        {
+            id: 'drivers-print-pdf-preview',
+            route: '/driver-management',
+            onBeforeShow: () => {
+                if (typeof closeAddDriverModal === 'function') closeAddDriverModal();
+                if (typeof closeDriverDetails === 'function') closeDriverDetails();
+                if (typeof openDriverPdfPreview === 'function') openDriverPdfPreview();
+                const m = document.getElementById('driverPrintPdfModal');
+                if (m) { m.classList.remove('hidden'); m.style.setProperty('display', 'flex', 'important'); m.style.setProperty('z-index', '100004', 'important'); }
+            },
+            onAfterNext: () => {
+                if (typeof closeDriverPdfPreview === 'function') closeDriverPdfPreview();
+            },
+            getElement: () => document.getElementById('driverPrintPdfModal') ? document.querySelector('#driverPrintPdfModal > div') : document.querySelector('button[onclick*="printInHiddenIframe"]'),
+            popover: { title: '📄 Live Driver Roster PDF Document Deep Dive', description: 'Here is the live generated Driver Roster PDF report! It compiles all official driver records—Driver Names, LTO License Numbers, Expiration Dates, Assigned Vehicle Units, and Status.', position: 'center' }
         },
         {
             id: 'drivers-add-btn',
@@ -1342,6 +1368,7 @@ const TutorialManager = (function () {
             onBeforeShow: () => {
                 if (typeof closeAddDriverModal === 'function') closeAddDriverModal();
                 if (typeof closeDriverDetails === 'function') closeDriverDetails();
+                if (typeof closeDriverPdfPreview === 'function') closeDriverPdfPreview();
                 setTimeout(() => {
                     const btn = document.querySelector('button[onclick*="openAddDriverModal"]') || document.querySelector('#driverActionButtonsBar button:nth-child(2)');
                     if (btn) {
@@ -1349,7 +1376,7 @@ const TutorialManager = (function () {
                             if (typeof openAddDriverModal === 'function') openAddDriverModal();
                             const m = document.getElementById('addDriverModal');
                             if (m) { m.classList.remove('hidden'); m.style.removeProperty('display'); m.style.setProperty('z-index', '100004', 'important'); }
-                            if (window.TutorialManager) window.TutorialManager.moveToNextStep(74);
+                            if (window.TutorialManager) window.TutorialManager.moveToNextStep(75);
                         };
                     }
                 }, 50);

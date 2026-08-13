@@ -105,7 +105,7 @@
     </style>
     <!-- Interactive Tutorial Assets -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/driver.js@1.3.1/dist/driver.css"/>
-    <link rel="stylesheet" href="{{ asset('assets/css/tutorial.css') }}?v=16.1">
+    <link rel="stylesheet" href="{{ asset('assets/css/tutorial.css') }}?v=16.2">
 
     <style>
         input::-webkit-outer-spin-button,
@@ -224,7 +224,9 @@
         function printInHiddenIframe(url) {
             const isTutorialActive = !!localStorage.getItem('tutorial_current_step') || window.location.search.includes('tutorial=1');
             if (isTutorialActive) {
-                if (typeof openTutorialPdfPreview === 'function') {
+                if (typeof openDriverPdfPreview === 'function') {
+                    openDriverPdfPreview();
+                } else if (typeof openTutorialPdfPreview === 'function') {
                     openTutorialPdfPreview();
                 }
                 return;
@@ -2604,7 +2606,7 @@
     
     <!-- Interactive Tutorial System -->
     <script src="https://cdn.jsdelivr.net/npm/driver.js@1.3.1/dist/driver.js.iife.js"></script>
-    <script src="{{ asset('assets/js/tutorial.js') }}?v=16.1"></script>
+    <script src="{{ asset('assets/js/tutorial.js') }}?v=16.2"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             if (typeof window.TutorialManager !== 'undefined') {

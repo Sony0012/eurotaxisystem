@@ -830,4 +830,49 @@
             <img id="previewModalImage" src="" class="max-w-full max-h-[85vh] object-contain rounded-lg shadow-2xl">
         </div>
     </div>
+
+    <!-- Print PDF Tutorial Preview Modal for Driver Management -->
+    <div id="driverPrintPdfModal" class="hidden fixed inset-0 z-[999999] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl h-[85vh] flex flex-col overflow-hidden border border-gray-200">
+            <div class="bg-blue-600 px-6 py-4 flex items-center justify-between text-white shrink-0">
+                <div class="flex items-center gap-3">
+                    <div class="p-2 bg-white/20 rounded-lg">
+                        <i data-lucide="printer" class="w-5 h-5 text-white"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg leading-tight">Driver Management Roster PDF Preview</h3>
+                        <p class="text-xs text-blue-100">Live generated Driver PDF report document</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeDriverPdfPreview()" class="text-white/80 hover:text-white p-1.5 rounded-lg hover:bg-white/20 transition-colors">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <iframe id="driverPdfIframe" class="w-full flex-1 border-0" src="about:blank"></iframe>
+        </div>
+    </div>
+
+    <script>
+        function openDriverPdfPreview() {
+            const modal = document.getElementById('driverPrintPdfModal');
+            const iframe = document.getElementById('driverPdfIframe');
+            if (modal && iframe) {
+                iframe.src = "{{ route('driver-management.print') }}?preview=1";
+                modal.classList.remove('hidden');
+                modal.style.setProperty('display', 'flex', 'important');
+                modal.style.setProperty('z-index', '100004', 'important');
+            }
+        }
+        function closeDriverPdfPreview() {
+            const modal = document.getElementById('driverPrintPdfModal');
+            const iframe = document.getElementById('driverPdfIframe');
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.style.setProperty('display', 'none', 'important');
+            }
+            if (iframe) iframe.src = "about:blank";
+        }
+        window.openDriverPdfPreview = openDriverPdfPreview;
+        window.closeDriverPdfPreview = closeDriverPdfPreview;
+    </script>
 @endsection
