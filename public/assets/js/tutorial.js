@@ -1488,7 +1488,7 @@ const TutorialManager = (function () {
                 if (m && m.classList.contains('hidden')) { m.classList.remove('hidden'); m.style.removeProperty('display'); }
                 return document.querySelector('#addDriverModal > div') || document.getElementById('addDriverModal');
             },
-            popover: { title: '➕ Add Driver Registration Form', description: 'This modal allows fleet managers to register new drivers, upload credentials (License, NBI, PNP Clearance), and assign vehicle units.', position: 'right' }
+            popover: { title: '➕ Add Driver Registration Form', description: 'This modal allows fleet managers to register new drivers, upload credentials (License, NBI, PNP Clearance), and assign vehicle units.', position: 'bottom' }
         },
         {
             id: 'add-driver-personal-info',
@@ -1504,10 +1504,9 @@ const TutorialManager = (function () {
             getElement: () => {
                 const m = document.getElementById('addDriverModal');
                 if (m && m.classList.contains('hidden')) { m.classList.remove('hidden'); m.style.removeProperty('display'); }
-                const firstInput = document.getElementById('driverFirstName');
-                return firstInput?.closest('.p-6 > div') || firstInput?.closest('#driverForm > div > div') || firstInput?.closest('.grid');
+                return document.getElementById('addDriverSecPersonal') || document.getElementById('driverFirstName')?.closest('.p-6 > div');
             },
-            popover: { title: '👤 Personal Information & Contact', description: 'Fill in the driver\'s first name, last name, 11-digit mobile contact number, status, and complete home address.', position: 'left' }
+            popover: { title: '👤 Personal Information & Contact', description: 'Fill in driver\'s first name, last name, 11-digit mobile contact number, driver status (Active/Inactive), and full home address.', position: 'bottom' }
         },
         {
             id: 'add-driver-license-info',
@@ -1523,10 +1522,45 @@ const TutorialManager = (function () {
             getElement: () => {
                 const m = document.getElementById('addDriverModal');
                 if (m && m.classList.contains('hidden')) { m.classList.remove('hidden'); m.style.removeProperty('display'); }
-                const licenseInput = document.getElementById('driverLicense');
-                return licenseInput?.closest('.p-6 > div') || licenseInput?.closest('#driverForm > div > div') || licenseInput?.closest('.grid');
+                return document.getElementById('addDriverSecLicense') || document.getElementById('driverLicense')?.closest('.p-6 > div');
             },
-            popover: { title: '🪪 LTO License Details & Employment', description: 'Enter official LTO driver\'s license number, expiration validity alerts, hire date, and daily boundary target rates.', position: 'left' }
+            popover: { title: '🪪 LTO License Details & Employment', description: 'Enter official LTO driver\'s license number (format: X00-00-000000), license expiry date, hire date, and auto-synced boundary target rate.', position: 'bottom' }
+        },
+        {
+            id: 'add-driver-document-vault',
+            route: '/driver-management',
+            onBeforeShow: () => {
+                if (typeof closeDriverPdfPreview === 'function') closeDriverPdfPreview();
+                const pm = document.getElementById('driverPrintPdfModal');
+                if (pm) { pm.classList.add('hidden'); pm.style.cssText = 'display: none !important; z-index: -1 !important; visibility: hidden !important; opacity: 0 !important;'; }
+                if (typeof openAddDriverModal === 'function') openAddDriverModal();
+                const m = document.getElementById('addDriverModal');
+                if (m) { m.classList.remove('hidden'); m.style.cssText = 'display: flex !important; z-index: 100004 !important; visibility: visible !important; opacity: 1 !important; align-items: center; justify-content: center; position: fixed; inset: 0;'; }
+            },
+            getElement: () => {
+                const m = document.getElementById('addDriverModal');
+                if (m && m.classList.contains('hidden')) { m.classList.remove('hidden'); m.style.removeProperty('display'); }
+                return document.getElementById('addDriverSecVault') || document.getElementById('input_profile_photo')?.closest('.mt-6');
+            },
+            popover: { title: '📁 Secure Document Vault & Clearances', description: 'Upload copy of driver\'s Profile Photo, LTO License, NBI Clearance, and PNP/Barangay Clearance for official compliance verification.', position: 'top' }
+        },
+        {
+            id: 'add-driver-emergency-contact',
+            route: '/driver-management',
+            onBeforeShow: () => {
+                if (typeof closeDriverPdfPreview === 'function') closeDriverPdfPreview();
+                const pm = document.getElementById('driverPrintPdfModal');
+                if (pm) { pm.classList.add('hidden'); pm.style.cssText = 'display: none !important; z-index: -1 !important; visibility: hidden !important; opacity: 0 !important;'; }
+                if (typeof openAddDriverModal === 'function') openAddDriverModal();
+                const m = document.getElementById('addDriverModal');
+                if (m) { m.classList.remove('hidden'); m.style.cssText = 'display: flex !important; z-index: 100004 !important; visibility: visible !important; opacity: 1 !important; align-items: center; justify-content: center; position: fixed; inset: 0;'; }
+            },
+            getElement: () => {
+                const m = document.getElementById('addDriverModal');
+                if (m && m.classList.contains('hidden')) { m.classList.remove('hidden'); m.style.removeProperty('display'); }
+                return document.getElementById('addDriverSecEmergency') || document.getElementById('driverEmergencyContact')?.closest('.p-6 > div');
+            },
+            popover: { title: '🚨 Emergency Contact Details', description: 'Record emergency contact person\'s full name and 11-digit mobile phone number to notify in case of accidents or road emergencies.', position: 'top' }
         },
         {
             id: 'add-driver-submit-actions',
@@ -1547,9 +1581,9 @@ const TutorialManager = (function () {
             getElement: () => {
                 const m = document.getElementById('addDriverModal');
                 if (m && m.classList.contains('hidden')) { m.classList.remove('hidden'); m.style.removeProperty('display'); }
-                return document.querySelector('#addDriverModal button[type="submit"]')?.closest('.bg-gray-50') || document.querySelector('#addDriverModal button[type="submit"]');
+                return document.getElementById('addDriverSecActions') || document.querySelector('#addDriverModal button[type="submit"]')?.closest('.p-4') || document.querySelector('#addDriverModal button[type="submit"]');
             },
-            popover: { title: '💾 Save Driver Record', description: 'Click \'Save Driver\' to finalize registration and store driver profile into system database.', position: 'top' }
+            popover: { title: '💾 Save Driver Record & Submit Form', description: 'Click \'Save Driver\' to finalize registration and store driver profile into system database!', position: 'top' }
         },
         {
             id: 'drivers-table-info-overview',

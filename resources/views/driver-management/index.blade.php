@@ -160,7 +160,7 @@
                 <div class="p-6 flex-1 overflow-y-auto space-y-8">
 
                     {{-- Section 1: Personal Information --}}
-                    <div>
+                    <div id="addDriverSecPersonal">
                         <div class="flex items-center gap-2 mb-4">
                             <div class="p-2 bg-blue-100 rounded-lg">
                                 <i data-lucide="user" class="w-5 h-5 text-blue-600"></i>
@@ -245,7 +245,7 @@
                     </div>
 
                     {{-- Section 2: License & Employment --}}
-                    <div>
+                    <div id="addDriverSecLicense">
                         <div class="flex items-center gap-2 mb-4">
                             <div class="p-2 bg-yellow-100 rounded-lg">
                                 <i data-lucide="credit-card" class="w-5 h-5 text-yellow-600"></i>
@@ -316,7 +316,7 @@
                         </div>
 
                         {{-- Optional Documents Upload --}}
-                        <div class="mt-6 border-t border-gray-100 pt-6">
+                        <div id="addDriverSecVault" class="mt-6 border-t border-gray-100 pt-6">
                             <div class="flex items-center gap-2 mb-4">
                                 <div class="p-2 bg-blue-100 rounded-lg">
                                     <i data-lucide="folder-open" class="w-5 h-5 text-blue-600"></i>
@@ -392,7 +392,7 @@
                     </div>
 
                     {{-- Section 3: Emergency Contact --}}
-                    <div>
+                    <div id="addDriverSecEmergency">
                         <div class="flex items-center gap-2 mb-4">
                             <div class="p-2 bg-red-100 rounded-lg">
                                 <i data-lucide="alert-circle" class="w-5 h-5 text-red-600"></i>
@@ -436,7 +436,7 @@
                 </div>{{-- End Scrollable Content --}}
 
                 {{-- Fixed Footer --}}
-                <div class="p-4 border-t flex justify-between items-center gap-3 shadow-inner bg-gray-50 shrink-0">
+                <div id="addDriverSecActions" class="p-4 border-t flex justify-between items-center gap-3 shadow-inner bg-gray-50 shrink-0">
                     <button type="button" id="deleteDriverButton" onclick="confirmDeleteDriver()"
                         class="hidden px-5 py-2 bg-orange-100 text-orange-700 border border-orange-200 rounded-lg hover:bg-orange-200 text-sm font-bold transition-all flex items-center gap-2">
                         <i data-lucide="archive" class="w-4 h-4"></i> Archive Driver
