@@ -1600,38 +1600,11 @@ const TutorialManager = (function () {
                                     if (wrapper) wrapper.classList.add('popover-unit-details-close');
                                     pos = 'right';
 
-                                    const closeCenterX = tRect.left + tRect.width / 2;
-                                    const closeCenterY = tRect.top + tRect.height / 2;
-
-                                    const popoverLeft = pRect.left;
-                                    const popoverTop = pRect.top;
-
-                                    const relX = closeCenterX - popoverLeft;
-                                    const relY = closeCenterY - popoverTop;
-
-                                    const svgWidth = Math.max(120, Math.abs(relX) + 40);
-                                    const svgHeight = Math.max(120, Math.abs(relY) + 60);
-
-                                    const svgLeft = Math.round(relX - 20);
-                                    const svgTop = Math.round(relY - 20);
-
-                                    const endX = 20;
-                                    const endY = 20;
-
-                                    const startX = svgWidth - 10;
-                                    const startY = Math.round(Math.abs(relY) + 20);
-
-                                    const controlX = Math.round(svgWidth * 0.6);
-                                    const controlY = Math.round(Math.min(startY, endY) - 20);
-
-                                    const pathD = `M ${startX} ${startY} Q ${controlX} ${controlY} ${endX} ${endY}`;
-                                    const polyPoints = `${endX},${endY} ${endX + 12},${endY + 2} ${endX + 5},${endY + 12}`;
-
                                     arrowSvg = `
-                                        <div class="tutorial-arrow-wrapper arrow-fade-in" style="position:absolute; left:${svgLeft}px; top:${svgTop}px; width:${svgWidth}px; height:${svgHeight}px; pointer-events:none; z-index:2000001;">
-                                            <svg class="tutorial-curved-arrow" viewBox="0 0 ${svgWidth} ${svgHeight}" style="width:100%; height:100%; overflow:visible;">
-                                                <path d="${pathD}" stroke="#60a5fa" stroke-width="4" stroke-linecap="round" stroke-dasharray="8,8" fill="none" />
-                                                <polygon points="${polyPoints}" fill="#60a5fa" />
+                                        <div class="tutorial-arrow-wrapper arrow-fade-in" style="position:absolute; left:-120px; top:-65px; width:140px; height:100px; pointer-events:none; z-index:2000001;">
+                                            <svg class="tutorial-curved-arrow" viewBox="0 0 140 100" style="width:100%; height:100%; overflow:visible;">
+                                                <path d="M 130 65 Q 70 -5 18 18" stroke="#60a5fa" stroke-width="4" stroke-linecap="round" stroke-dasharray="8,8" fill="none" />
+                                                <polygon points="18,18 30,10 26,24" fill="#60a5fa" />
                                             </svg>
                                         </div>
                                     `;

@@ -242,6 +242,10 @@ button[onclick*="toggleUnitDropdown"] *,
     }
 }
 
+.driver-popover {
+    overflow: visible !important;
+}
+
 /* Hand-drawn Arrow SVG Wrapper */
 .tutorial-arrow-wrapper {
     position: absolute;
