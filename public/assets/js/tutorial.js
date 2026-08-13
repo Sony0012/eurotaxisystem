@@ -1692,27 +1692,31 @@ const TutorialManager = (function () {
             route: '/driver-management',
             onBeforeShow: () => {
                 if (typeof closeAddDriverModal === 'function') closeAddDriverModal();
-                const firstRow = document.querySelector('.modern-table-sep tbody tr');
+                if (typeof closeDriverPdfPreview === 'function') closeDriverPdfPreview();
+                const pm = document.getElementById('driverPrintPdfModal');
+                if (pm) { pm.classList.add('hidden'); pm.style.cssText = 'display: none !important; z-index: -1 !important; visibility: hidden !important; opacity: 0 !important;'; }
+                const m = document.getElementById('driverDetailsModal');
+                if (m) {
+                    m.classList.remove('hidden');
+                    m.style.cssText = 'display: flex !important; z-index: 100004 !important; visibility: visible !important; opacity: 1 !important; align-items: center; justify-content: center; position: fixed; inset: 0;';
+                }
+                const firstRow = document.querySelector('.modern-table-sep tbody tr') || document.querySelector('#driversTableContainer table tbody tr');
                 if (firstRow) {
                     const onclickAttr = firstRow.getAttribute('onclick');
                     if (onclickAttr && onclickAttr.includes('openDriverDetails')) {
-                        eval(onclickAttr);
+                        try { eval(onclickAttr); } catch (e) {}
                     } else if (typeof openDriverDetails === 'function') {
                         openDriverDetails(1);
                     }
                 }
-                const m = document.getElementById('driverDetailsModal');
-                if (m) {
-                    m.classList.remove('hidden');
-                    m.style.removeProperty('display');
-                    m.style.setProperty('display', 'flex', 'important');
-                    m.style.setProperty('z-index', '100004', 'important');
-                }
             },
             getElement: () => {
                 const m = document.getElementById('driverDetailsModal');
-                if (m && m.classList.contains('hidden')) { m.classList.remove('hidden'); m.style.removeProperty('display'); }
-                return document.getElementById('driverDetailsModalContainer') || document.getElementById('driverDetailsModal');
+                if (m) {
+                    m.classList.remove('hidden');
+                    m.style.cssText = 'display: flex !important; z-index: 100004 !important; visibility: visible !important; opacity: 1 !important; align-items: center; justify-content: center; position: fixed; inset: 0;';
+                }
+                return document.querySelector('#driverDetailsModal > div') || document.getElementById('driverDetailsModalContainer') || document.getElementById('driverDetailsModal');
             },
             popover: { title: '🔍 Driver Profiling & Details Dashboard', description: 'This interactive dashboard opens when clicking a driver row to review full personal records, performance metrics, document vault, and debt ledger.', position: 'right' }
         },
@@ -1720,60 +1724,127 @@ const TutorialManager = (function () {
             id: 'driver-details-tab-basic',
             route: '/driver-management',
             onBeforeShow: () => {
+                if (typeof closeAddDriverModal === 'function') closeAddDriverModal();
+                const m = document.getElementById('driverDetailsModal');
+                if (m) {
+                    m.classList.remove('hidden');
+                    m.style.cssText = 'display: flex !important; z-index: 100004 !important; visibility: visible !important; opacity: 1 !important; align-items: center; justify-content: center; position: fixed; inset: 0;';
+                }
+                const nameEl = document.getElementById('detailsDriverName');
+                if (!nameEl || !nameEl.textContent.trim() || nameEl.textContent.includes('Loading')) {
+                    const firstRow = document.querySelector('.modern-table-sep tbody tr') || document.querySelector('#driversTableContainer table tbody tr');
+                    if (firstRow) {
+                        const onclickAttr = firstRow.getAttribute('onclick');
+                        if (onclickAttr && onclickAttr.includes('openDriverDetails')) {
+                            try { eval(onclickAttr); } catch (e) {}
+                        } else if (typeof openDriverDetails === 'function') {
+                            openDriverDetails(1);
+                        }
+                    }
+                }
                 const tab = document.querySelector('.driver-tab[data-tab="basic"]');
                 if (tab) tab.click();
-                const m = document.getElementById('driverDetailsModal');
-                if (m) { m.classList.remove('hidden'); m.style.setProperty('display', 'flex', 'important'); m.style.setProperty('z-index', '100004', 'important'); }
             },
-            getElement: () => document.querySelector('.driver-tab-panel[data-tab-panel="basic"]') || document.querySelector('.driver-tab[data-tab="basic"]'),
+            getElement: () => {
+                const m = document.getElementById('driverDetailsModal');
+                if (m) {
+                    m.classList.remove('hidden');
+                    m.style.cssText = 'display: flex !important; z-index: 100004 !important; visibility: visible !important; opacity: 1 !important; align-items: center; justify-content: center; position: fixed; inset: 0;';
+                }
+                return document.querySelector('#driverDetailsModal > div') || document.getElementById('driverDetailsModalContainer') || document.getElementById('driverDetailsModal');
+            },
             popover: { title: '👤 Basic Info & Personal Details Tab', description: 'Displays full registered name, emergency contact details, date hired, address, and audit logs of creator and editor staff.', position: 'bottom' }
         },
         {
             id: 'driver-details-tab-license',
             route: '/driver-management',
             onBeforeShow: () => {
+                if (typeof closeAddDriverModal === 'function') closeAddDriverModal();
+                const m = document.getElementById('driverDetailsModal');
+                if (m) {
+                    m.classList.remove('hidden');
+                    m.style.cssText = 'display: flex !important; z-index: 100004 !important; visibility: visible !important; opacity: 1 !important; align-items: center; justify-content: center; position: fixed; inset: 0;';
+                }
                 const tab = document.querySelector('.driver-tab[data-tab="license"]');
                 if (tab) tab.click();
-                const m = document.getElementById('driverDetailsModal');
-                if (m) { m.classList.remove('hidden'); m.style.setProperty('display', 'flex', 'important'); m.style.setProperty('z-index', '100004', 'important'); }
             },
-            getElement: () => document.querySelector('.driver-tab-panel[data-tab-panel="license"]') || document.querySelector('.driver-tab[data-tab="license"]'),
+            getElement: () => {
+                const m = document.getElementById('driverDetailsModal');
+                if (m) {
+                    m.classList.remove('hidden');
+                    m.style.cssText = 'display: flex !important; z-index: 100004 !important; visibility: visible !important; opacity: 1 !important; align-items: center; justify-content: center; position: fixed; inset: 0;';
+                }
+                return document.querySelector('#driverDetailsModal > div') || document.getElementById('driverDetailsModalContainer') || document.getElementById('driverDetailsModal');
+            },
             popover: { title: '🪪 License & Document Vault Tab', description: 'View LTO license number, expiration validity alerts, and upload encrypted document clearances (NBI, PNP, Barangay).', position: 'bottom' }
         },
         {
             id: 'driver-details-tab-incentives',
             route: '/driver-management',
             onBeforeShow: () => {
+                if (typeof closeAddDriverModal === 'function') closeAddDriverModal();
+                const m = document.getElementById('driverDetailsModal');
+                if (m) {
+                    m.classList.remove('hidden');
+                    m.style.cssText = 'display: flex !important; z-index: 100004 !important; visibility: visible !important; opacity: 1 !important; align-items: center; justify-content: center; position: fixed; inset: 0;';
+                }
                 const tab = document.querySelector('.driver-tab[data-tab="incentives"]');
                 if (tab) tab.click();
-                const m = document.getElementById('driverDetailsModal');
-                if (m) { m.classList.remove('hidden'); m.style.setProperty('display', 'flex', 'important'); m.style.setProperty('z-index', '100004', 'important'); }
             },
-            getElement: () => document.querySelector('.driver-tab-panel[data-tab-panel="incentives"]') || document.querySelector('.driver-tab[data-tab="incentives"]'),
+            getElement: () => {
+                const m = document.getElementById('driverDetailsModal');
+                if (m) {
+                    m.classList.remove('hidden');
+                    m.style.cssText = 'display: flex !important; z-index: 100004 !important; visibility: visible !important; opacity: 1 !important; align-items: center; justify-content: center; position: fixed; inset: 0;';
+                }
+                return document.querySelector('#driverDetailsModal > div') || document.getElementById('driverDetailsModalContainer') || document.getElementById('driverDetailsModal');
+            },
             popover: { title: '🏆 Incentive & Rewards Performance Tab', description: 'Tracks driver remittance bonus eligibility, monthly top driver status, and reward payout tier calculations.', position: 'bottom' }
         },
         {
             id: 'driver-details-tab-performance',
             route: '/driver-management',
             onBeforeShow: () => {
+                if (typeof closeAddDriverModal === 'function') closeAddDriverModal();
+                const m = document.getElementById('driverDetailsModal');
+                if (m) {
+                    m.classList.remove('hidden');
+                    m.style.cssText = 'display: flex !important; z-index: 100004 !important; visibility: visible !important; opacity: 1 !important; align-items: center; justify-content: center; position: fixed; inset: 0;';
+                }
                 const tab = document.querySelector('.driver-tab[data-tab="performance"]');
                 if (tab) tab.click();
-                const m = document.getElementById('driverDetailsModal');
-                if (m) { m.classList.remove('hidden'); m.style.setProperty('display', 'flex', 'important'); m.style.setProperty('z-index', '100004', 'important'); }
             },
-            getElement: () => document.querySelector('.driver-tab-panel[data-tab-panel="performance"]') || document.querySelector('.driver-tab[data-tab="performance"]'),
+            getElement: () => {
+                const m = document.getElementById('driverDetailsModal');
+                if (m) {
+                    m.classList.remove('hidden');
+                    m.style.cssText = 'display: flex !important; z-index: 100004 !important; visibility: visible !important; opacity: 1 !important; align-items: center; justify-content: center; position: fixed; inset: 0;';
+                }
+                return document.querySelector('#driverDetailsModal > div') || document.getElementById('driverDetailsModalContainer') || document.getElementById('driverDetailsModal');
+            },
             popover: { title: '📈 Telemetry & Operational Metrics Tab', description: 'Monitors daily boundary payment history, shortage balances, total shifts completed, and accident incident logs.', position: 'bottom' }
         },
         {
             id: 'driver-details-tab-insights',
             route: '/driver-management',
             onBeforeShow: () => {
+                if (typeof closeAddDriverModal === 'function') closeAddDriverModal();
+                const m = document.getElementById('driverDetailsModal');
+                if (m) {
+                    m.classList.remove('hidden');
+                    m.style.cssText = 'display: flex !important; z-index: 100004 !important; visibility: visible !important; opacity: 1 !important; align-items: center; justify-content: center; position: fixed; inset: 0;';
+                }
                 const tab = document.querySelector('.driver-tab[data-tab="insights"]');
                 if (tab) tab.click();
-                const m = document.getElementById('driverDetailsModal');
-                if (m) { m.classList.remove('hidden'); m.style.setProperty('display', 'flex', 'important'); m.style.setProperty('z-index', '100004', 'important'); }
             },
-            getElement: () => document.querySelector('.driver-tab-panel[data-tab-panel="insights"]') || document.querySelector('.driver-tab[data-tab="insights"]'),
+            getElement: () => {
+                const m = document.getElementById('driverDetailsModal');
+                if (m) {
+                    m.classList.remove('hidden');
+                    m.style.cssText = 'display: flex !important; z-index: 100004 !important; visibility: visible !important; opacity: 1 !important; align-items: center; justify-content: center; position: fixed; inset: 0;';
+                }
+                return document.querySelector('#driverDetailsModal > div') || document.getElementById('driverDetailsModalContainer') || document.getElementById('driverDetailsModal');
+            },
             popover: { title: '🧠 AI Insights & Fleet Risk Recommendations', description: 'Generates automated AI recommendations on driver reliability, risk factors, and boundary target adjustments.', position: 'bottom' }
         },
         {
