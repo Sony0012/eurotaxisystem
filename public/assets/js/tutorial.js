@@ -1406,7 +1406,7 @@ const TutorialManager = (function () {
         }
 
         // Enforce strict View Mode for Unit Management steps: Step 19 ('units-cards-deepdive') is Cards view; ALL other steps are Table view.
-        if (window.location.pathname.startsWith('/units') && typeof setViewMode === 'function') {
+        if (window.location.pathname === '/units' && typeof setViewMode === 'function') {
             if (step.id === 'units-cards-deepdive') {
                 setViewMode('grid');
             } else {
