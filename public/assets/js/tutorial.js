@@ -1333,7 +1333,7 @@ const TutorialManager = (function () {
                 if (typeof closeAddDriverModal === 'function') closeAddDriverModal();
                 if (typeof closeDriverDetails === 'function') closeDriverDetails();
             },
-            getElement: () => document.querySelector('button[onclick*="driver-management.print"]') || document.querySelector('#driverActionButtonsBar button:first-child'),
+            getElement: () => document.querySelector('button[onclick*="printInHiddenIframe"]') || document.querySelector('#driverActionButtonsBar button:first-child') || document.querySelector('#driverActionButtonsBar'),
             popover: { title: '🖨️ Print Driver Roster PDF', description: 'Export a clean, formatted PDF summary report of all registered drivers for printing or official record keeping.', position: 'bottom' }
         },
         {
@@ -1343,18 +1343,18 @@ const TutorialManager = (function () {
                 if (typeof closeAddDriverModal === 'function') closeAddDriverModal();
                 if (typeof closeDriverDetails === 'function') closeDriverDetails();
                 setTimeout(() => {
-                    const btn = document.querySelector('button[onclick*="openAddDriverModal"]');
+                    const btn = document.querySelector('button[onclick*="openAddDriverModal"]') || document.querySelector('#driverActionButtonsBar button:nth-child(2)');
                     if (btn) {
                         btn.onclick = function() {
                             if (typeof openAddDriverModal === 'function') openAddDriverModal();
                             const m = document.getElementById('addDriverModal');
                             if (m) { m.classList.remove('hidden'); m.style.removeProperty('display'); m.style.setProperty('z-index', '100004', 'important'); }
-                            if (window.TutorialManager) window.TutorialManager.moveToNextStep(75);
+                            if (window.TutorialManager) window.TutorialManager.moveToNextStep(74);
                         };
                     }
                 }, 50);
             },
-            getElement: () => document.querySelector('button[onclick*="openAddDriverModal"]') || document.querySelector('#driverActionButtonsBar button:nth-child(2)'),
+            getElement: () => document.querySelector('button[onclick*="openAddDriverModal"]') || document.querySelector('#driverActionButtonsBar button:nth-child(2)') || document.querySelector('#driverActionButtonsBar'),
             popover: { title: '➕ Add Driver Registration', description: 'Click \'Add Driver\' to open the driver registration form and enroll new drivers into your fleet database!', position: 'bottom' }
         },
         {
