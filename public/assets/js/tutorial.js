@@ -1592,10 +1592,11 @@ const TutorialManager = (function () {
                 if (typeof closeAddDriverModal === 'function') closeAddDriverModal();
                 if (typeof closeDriverDetails === 'function') closeDriverDetails();
                 const m = document.getElementById('addDriverModal');
-                if (m) { m.classList.add('hidden'); m.style.setProperty('display', 'none', 'important'); }
+                if (m) { m.classList.add('hidden'); m.style.cssText = 'display: none !important; z-index: -1 !important; visibility: hidden !important; opacity: 0 !important;'; }
+                window.scrollTo({ top: 0, behavior: 'instant' });
             },
-            getElement: () => document.querySelector('#driversTableContainer table') || document.querySelector('#driversTableContainer'),
-            popover: { title: '📋 Driver Roster Information Table', description: 'Overview of all active, inactive, and available fleet drivers with live shortage and debt status badges.', position: 'top' }
+            getElement: () => document.getElementById('driversTableContainer') || document.querySelector('#driversTableContainer table'),
+            popover: { title: '📋 Driver Roster Information Table', description: 'Overview of all active, inactive, and available fleet drivers with live shortage and debt status badges.', position: 'bottom' }
         },
         {
             id: 'drivers-table-profile-col',
@@ -1603,9 +1604,10 @@ const TutorialManager = (function () {
             onBeforeShow: () => {
                 if (typeof closeAddDriverModal === 'function') closeAddDriverModal();
                 if (typeof closeDriverDetails === 'function') closeDriverDetails();
+                window.scrollTo({ top: 0, behavior: 'instant' });
             },
-            getElement: () => document.querySelector('.modern-table-sep tbody tr td:first-child') || document.querySelector('#driversTableContainer table tbody tr td:first-child'),
-            popover: { title: '👤 Driver Profile & Shortage/Debt Alerts', description: 'Displays driver avatar initials, full registered name, and live warning badges for unpaid boundary shortages or pending accident debts.', position: 'right' }
+            getElement: () => document.querySelector('#driversTableContainer table thead tr th:first-child') || document.querySelector('.modern-table-sep thead tr th:first-child') || document.querySelector('#driversTableContainer table tbody tr td:first-child'),
+            popover: { title: '👤 Driver Profile & Shortage/Debt Alerts', description: 'Displays driver avatar initials, full registered name, and live warning badges for unpaid boundary shortages or pending accident debts.', position: 'bottom' }
         },
         {
             id: 'drivers-table-unit-col',
@@ -1613,9 +1615,10 @@ const TutorialManager = (function () {
             onBeforeShow: () => {
                 if (typeof closeAddDriverModal === 'function') closeAddDriverModal();
                 if (typeof closeDriverDetails === 'function') closeDriverDetails();
+                window.scrollTo({ top: 0, behavior: 'instant' });
             },
-            getElement: () => document.querySelector('.modern-table-sep tbody tr td:nth-child(2)') || document.querySelector('#driversTableContainer table tbody tr td:nth-child(2)'),
-            popover: { title: '🚗 Assigned Taxi Unit', description: 'Shows the active vehicle plate number assigned to the driver (e.g. AAA 4591) for daily boundary operations.', position: 'top' }
+            getElement: () => document.querySelector('#driversTableContainer table thead tr th:nth-child(2)') || document.querySelector('.modern-table-sep thead tr th:nth-child(2)') || document.querySelector('#driversTableContainer table tbody tr td:nth-child(2)'),
+            popover: { title: '🚗 Assigned Taxi Unit', description: 'Shows the active vehicle plate number assigned to the driver (e.g. AAA 4591) for daily boundary operations.', position: 'bottom' }
         },
         {
             id: 'drivers-table-license-col',
@@ -1623,9 +1626,10 @@ const TutorialManager = (function () {
             onBeforeShow: () => {
                 if (typeof closeAddDriverModal === 'function') closeAddDriverModal();
                 if (typeof closeDriverDetails === 'function') closeDriverDetails();
+                window.scrollTo({ top: 0, behavior: 'instant' });
             },
-            getElement: () => document.querySelector('.modern-table-sep tbody tr td:nth-child(3)') || document.querySelector('#driversTableContainer table tbody tr td:nth-child(3)'),
-            popover: { title: '🪪 Driver License & Expiration', description: 'Logs the LTO driver\'s license number and tracks document expiration dates for compliance auditing.', position: 'top' }
+            getElement: () => document.querySelector('#driversTableContainer table thead tr th:nth-child(3)') || document.querySelector('.modern-table-sep thead tr th:nth-child(3)') || document.querySelector('#driversTableContainer table tbody tr td:nth-child(3)'),
+            popover: { title: '🪪 Driver License & Expiration', description: 'Logs the LTO driver\'s license number and tracks document expiration dates for compliance auditing.', position: 'bottom' }
         },
         {
             id: 'drivers-table-status-col',
@@ -1633,9 +1637,10 @@ const TutorialManager = (function () {
             onBeforeShow: () => {
                 if (typeof closeAddDriverModal === 'function') closeAddDriverModal();
                 if (typeof closeDriverDetails === 'function') closeDriverDetails();
+                window.scrollTo({ top: 0, behavior: 'instant' });
             },
-            getElement: () => document.querySelector('.modern-table-sep tbody tr td:nth-child(4)') || document.querySelector('#driversTableContainer table tbody tr td:nth-child(4)'),
-            popover: { title: '🟢 Driver Operational Status', description: 'Indicates current status—Active (on shift), Inactive, or Banned due to system/boundary violations.', position: 'top' }
+            getElement: () => document.querySelector('#driversTableContainer table thead tr th:nth-child(4)') || document.querySelector('.modern-table-sep thead tr th:nth-child(4)') || document.querySelector('#driversTableContainer table tbody tr td:nth-child(4)'),
+            popover: { title: '🟢 Driver Operational Status', description: 'Indicates current status—Active (on shift), Inactive, or Banned due to system/boundary violations.', position: 'bottom' }
         },
         {
             id: 'drivers-table-actions-col',
@@ -1643,9 +1648,10 @@ const TutorialManager = (function () {
             onBeforeShow: () => {
                 if (typeof closeAddDriverModal === 'function') closeAddDriverModal();
                 if (typeof closeDriverDetails === 'function') closeDriverDetails();
+                window.scrollTo({ top: 0, behavior: 'instant' });
             },
-            getElement: () => document.querySelector('.modern-table-sep tbody tr td:last-child') || document.querySelector('#driversTableContainer table tbody tr td:last-child'),
-            popover: { title: '⚡ Driver Row Actions (3-Dots Menu)', description: 'Click the 3-dots action menu or row to view full driver history, edit driver profile, manage debt records, or issue a driver ban.', position: 'left' }
+            getElement: () => document.querySelector('#driversTableContainer table thead tr th:last-child') || document.querySelector('.modern-table-sep thead tr th:last-child') || document.querySelector('#driversTableContainer table tbody tr td:last-child'),
+            popover: { title: '⚡ Driver Row Actions (3-Dots Menu)', description: 'Click the 3-dots action menu or row to view full driver history, edit driver profile, manage debt records, or issue a driver ban.', position: 'bottom' }
         },
         {
             id: 'driver-details-modal-overview',
@@ -2217,7 +2223,7 @@ const TutorialManager = (function () {
                 overlayColor: 'rgba(15, 23, 42, 0.8)',
                 popoverOffset: 80, // Move the popover further away to give the arrow space
                 animate: true,
-                smoothScroll: true,
+                smoothScroll: false,
                 stagePadding: 6,
                 keyboardControl: true,
                 steps: [
