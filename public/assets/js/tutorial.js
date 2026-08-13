@@ -1234,19 +1234,52 @@ const TutorialManager = (function () {
                     tb.style.setProperty('cursor', 'pointer', 'important');
                 }
             });
+        }
 
-            // Attach explicit click handler to highlighted tab button for instant tab switch & step advance
-            const tabName = targetElement.getAttribute('data-tab');
-            const onTabBtnClick = (e) => {
-                targetElement.removeEventListener('click', onTabBtnClick, true);
-                if (tabName && typeof showTab === 'function') {
-                    showTab(tabName);
-                }
-                if (window.TutorialManager) {
-                    window.TutorialManager.moveToNextStep(stepIndex);
+        // Global capture click listener for tab buttons to bypass any CSS stacking context or Driver overlay barriers
+        if (window._stepTabGlobalClick) {
+            window.removeEventListener('click', window._stepTabGlobalClick, true);
+            window._stepTabGlobalClick = null;
+        }
+
+        if (targetElement && (targetElement.classList.contains('tab-btn') || step.id.startsWith('unit-details-'))) {
+            window._stepTabGlobalClick = function(e) {
+                const currentStep = parseInt(localStorage.getItem('tutorial_current_step') || '0');
+                if (currentStep !== stepIndex) return;
+
+                const rect = targetElement.getBoundingClientRect();
+                const isClickInside = (
+                    e.clientX >= rect.left - 12 &&
+                    e.clientX <= rect.right + 12 &&
+                    e.clientY >= rect.top - 12 &&
+                    e.clientY <= rect.bottom + 12
+                );
+
+                if (isClickInside) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    e.stopImmediatePropagation();
+
+                    const tabName = targetElement.getAttribute('data-tab');
+                    if (tabName && typeof showTab === 'function') {
+                        showTab(tabName);
+                    }
+
+                    if (window._stepTabGlobalClick) {
+                        window.removeEventListener('click', window._stepTabGlobalClick, true);
+                        window._stepTabGlobalClick = null;
+                    }
+
+                    if (driverObj) {
+                        try { driverObj.destroy(); } catch (err) {}
+                    }
+
+                    if (window.TutorialManager) {
+                        window.TutorialManager.moveToNextStep(stepIndex);
+                    }
                 }
             };
-            targetElement.addEventListener('click', onTabBtnClick, { capture: true, once: true });
+            window.addEventListener('click', window._stepTabGlobalClick, true);
         }
 
         const isLastStep = stepIndex === steps.length - 1;
@@ -1578,6 +1611,10 @@ const TutorialManager = (function () {
 
     function finishTutorial() {
         logDebug("finishTutorial called.");
+        if (window._stepTabGlobalClick) {
+            window.removeEventListener('click', window._stepTabGlobalClick, true);
+            window._stepTabGlobalClick = null;
+        }
         clearElevatedTarget();
         if (driverObj) driverObj.destroy();
         const progress = document.getElementById('tutorial-global-progress');
