@@ -1435,67 +1435,90 @@ const TutorialManager = (function () {
                         }
 
                         // Inject Curved Arrow SVG
-                        if (wrapper) {
-                            // Wait for Driver.js to finish moving the popover
+                        if (wrapper && targetElement) {
                             setTimeout(() => {
                                 if (!document.body.contains(wrapper)) return;
 
+                                const tRect = targetElement.getBoundingClientRect();
+                                const pRect = wrapper.getBoundingClientRect();
+
                                 let pos = step.popover.position || 'right';
-                                
-                                // DYNAMIC POSITION CALCULATION: driver.js might fallback to another position if there's no space.
-                                if (targetElement && wrapper) {
-                                    const tRect = targetElement.getBoundingClientRect();
-                                    const pRect = wrapper.getBoundingClientRect();
-                                    
+
+                                if (step.id === 'units-row-click-deepdive' || step.id.startsWith('unit-details-')) {
+                                    pos = 'left';
+                                } else {
                                     const tCenter = { x: tRect.left + tRect.width / 2, y: tRect.top + tRect.height / 2 };
                                     const pCenter = { x: pRect.left + pRect.width / 2, y: pRect.top + pRect.height / 2 };
-                                    
                                     const dx = pCenter.x - tCenter.x;
                                     const dy = pCenter.y - tCenter.y;
-                                    
-                                    if (step.id === 'units-row-click-deepdive' || step.id.startsWith('unit-details-')) {
-                                        pos = 'left';
-                                    } else if (Math.abs(dx) > Math.abs(dy)) {
+                                    if (Math.abs(dx) > Math.abs(dy)) {
                                         pos = dx > 0 ? 'right' : 'left';
                                     } else {
                                         pos = dy > 0 ? 'bottom' : 'top';
                                     }
-                                    logDebug(`Dynamic position detected (delayed): ${pos}`);
                                 }
 
-                                let pathD = "M 10 90 Q 30 10 90 20";
-                                let polyPoints = "90,20 80,15 85,28";
-                                
-                                if (pos === 'right') {
-                                    // Pointing LEFT (towards target on left)
-                                    pathD = "M 90 70 Q 50 10 10 30";
-                                    polyPoints = "10,30 25,25 20,40";
-                                } else if (pos === 'left') {
-                                    // Pointing RIGHT
-                                    pathD = "M 10 70 Q 50 10 90 30";
-                                    polyPoints = "90,30 75,25 80,40";
-                                } else if (pos === 'bottom') {
-                                    // Pointing UP
-                                    pathD = "M 50 90 Q 20 50 50 10";
-                                    polyPoints = "50,10 40,25 60,25";
-                                } else if (pos === 'top') {
-                                    // Pointing DOWN
-                                    pathD = "M 50 10 Q 80 50 50 90";
-                                    polyPoints = "50,90 40,75 60,75";
+                                let arrowSvg = '';
+
+                                if (step.id.startsWith('unit-details-') && targetElement.classList.contains('tab-btn')) {
+                                    // Calculate exact dynamic target X & Y distance from popover right edge to target tab center
+                                    const startX = 10;
+                                    const startY = Math.max(30, Math.min(80, pRect.height / 2));
+
+                                    const targetX = (tRect.left + tRect.width / 2) - pRect.right;
+                                    const targetY = (tRect.top + tRect.height / 2) - pRect.top;
+
+                                    const svgWidth = Math.max(140, Math.round(targetX + 40));
+                                    const svgHeight = Math.max(100, Math.round(Math.abs(targetY) + 60));
+
+                                    const endX = Math.round(targetX + 10);
+                                    const endY = Math.round(targetY > 0 ? targetY + 20 : Math.max(15, targetY + 30));
+                                    const controlX = Math.round(targetX * 0.4);
+                                    const controlY = Math.round(Math.min(startX, endY) - 30);
+
+                                    const pathD = `M ${startX} ${startY} Q ${controlX} ${controlY} ${endX} ${endY}`;
+                                    const polyPoints = `${endX},${endY} ${endX - 12},${endY - 6} ${endX - 8},${endY + 10}`;
+
+                                    arrowSvg = `
+                                        <div class="tutorial-arrow-wrapper arrow-fade-in" style="position:absolute; right:-${svgWidth - 10}px; top:-20px; width:${svgWidth}px; height:${svgHeight}px; pointer-events:none; z-index:2000001;">
+                                            <svg class="tutorial-curved-arrow" viewBox="0 0 ${svgWidth} ${svgHeight}" style="width:100%; height:100%; overflow:visible;">
+                                                <path d="${pathD}" stroke="#60a5fa" stroke-width="4" stroke-linecap="round" stroke-dasharray="8,8" fill="none" />
+                                                <polygon points="${polyPoints}" fill="#60a5fa" />
+                                            </svg>
+                                        </div>
+                                    `;
+                                } else {
+                                    let pathD = "M 10 90 Q 30 10 90 20";
+                                    let polyPoints = "90,20 80,15 85,28";
+                                    
+                                    if (pos === 'right') {
+                                        pathD = "M 90 70 Q 50 10 10 30";
+                                        polyPoints = "10,30 25,25 20,40";
+                                    } else if (pos === 'left') {
+                                        pathD = "M 10 70 Q 50 10 90 30";
+                                        polyPoints = "90,30 75,25 80,40";
+                                    } else if (pos === 'bottom') {
+                                        pathD = "M 50 90 Q 20 50 50 10";
+                                        polyPoints = "50,10 40,25 60,25";
+                                    } else if (pos === 'top') {
+                                        pathD = "M 50 10 Q 80 50 50 90";
+                                        polyPoints = "50,90 40,75 60,75";
+                                    }
+
+                                    arrowSvg = `
+                                        <div class="tutorial-arrow-wrapper arrow-pos-${pos} arrow-fade-in">
+                                            <svg class="tutorial-curved-arrow" viewBox="0 0 100 100">
+                                                <path d="${pathD}" stroke-dasharray="8,8" />
+                                                <polygon points="${polyPoints}" fill="#60a5fa" />
+                                            </svg>
+                                        </div>
+                                    `;
                                 }
 
-                                const arrowSvg = `
-                                    <div class="tutorial-arrow-wrapper arrow-pos-${pos} arrow-fade-in">
-                                        <svg class="tutorial-curved-arrow" viewBox="0 0 100 100">
-                                            <path d="${pathD}" stroke-dasharray="8,8" />
-                                            <polygon points="${polyPoints}" fill="#60a5fa" />
-                                        </svg>
-                                    </div>
-                                `;
-                                if (!wrapper.querySelector('.tutorial-arrow-wrapper')) {
-                                    wrapper.insertAdjacentHTML('afterbegin', arrowSvg);
-                                }
-                            }, 350); // 350ms to allow smooth popover transition first
+                                const existingArrow = wrapper.querySelector('.tutorial-arrow-wrapper');
+                                if (existingArrow) existingArrow.remove();
+                                wrapper.insertAdjacentHTML('afterbegin', arrowSvg);
+                            }, 350);
                         }
                         logDebug("onPopoverRender finished successfully.");
                     } catch (err) {
