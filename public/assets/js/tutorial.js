@@ -1990,8 +1990,12 @@ const TutorialManager = (function () {
             return;
         }
 
-        if (tutorialCompleted && !localStorage.getItem('tutorial_force_restart')) {
-            logDebug("Tutorial already completed. Exiting.");
+        const hasActiveStep = localStorage.getItem('tutorial_current_step') !== null && 
+                              localStorage.getItem('tutorial_current_step') !== '' &&
+                              localStorage.getItem('tutorial_current_step') !== undefined;
+
+        if (tutorialCompleted && !hasActiveStep && !localStorage.getItem('tutorial_force_restart')) {
+            logDebug("Tutorial already completed and no active step in progress. Exiting.");
             return;
         }
 
@@ -2000,7 +2004,7 @@ const TutorialManager = (function () {
         const welcomeShown = localStorage.getItem('tutorial_welcome_shown');
         const forceRestart = localStorage.getItem('tutorial_force_restart');
         
-        if (!welcomeShown || forceRestart) {
+        if ((!welcomeShown || forceRestart) && !hasActiveStep) {
             logDebug("Showing welcome modal.");
             if (driverObj) {
                 try { driverObj.destroy(); } catch (e) {}
@@ -2010,7 +2014,7 @@ const TutorialManager = (function () {
             showWelcomeModal();
         } else {
             const currentStepIndex = parseInt(localStorage.getItem('tutorial_current_step') || '0', 10);
-            logDebug("Current step index loaded: " + currentStepIndex);
+            logDebug("Current step index loaded on page init: " + currentStepIndex);
             startTutorial(currentStepIndex);
         }
     }
