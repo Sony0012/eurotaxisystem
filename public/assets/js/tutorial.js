@@ -961,32 +961,88 @@ const TutorialManager = (function () {
         {
             id: 'flagged-header-stats',
             route: '/units/flagged',
-            getElement: () => document.querySelector('#total-flagged-count') || document.querySelector('.bg-red-500\\/10') || document.querySelector('h3'),
-            popover: { title: '1. Total Flagged Stats', description: 'Real-time counters tracking total missing vehicles, police-reported incidents, and auto-flagged boundary delays exceeding 48 hours.', position: 'bottom' }
+            getElement: () => document.querySelector('#total-flagged-count')?.closest('.bg-slate-900') || document.querySelector('.bg-slate-900') || document.querySelector('#total-flagged-count'),
+            popover: { title: '🚨 Flagged Units Registry & Live Stats', description: 'Overview of your fleet\'s flagged status—combining total flagged units, police-reported missing/stolen vehicles, and system auto-detected boundary delays (overdue 48+ hours).', position: 'bottom' }
         },
         {
-            id: 'flagged-filter-tabs',
+            id: 'flagged-search-bar',
             route: '/units/flagged',
-            getElement: () => document.querySelector('.filter-tab-btn[data-filter="all"]') || document.querySelector('.filter-tab-btn'),
-            popover: { title: '2. Filter Categories', description: 'Filter vehicle registry by All Flagged, Missing / Stolen (Police cases), or Auto-Detected (System boundary alerts).', position: 'bottom' }
+            getElement: () => document.querySelector('.js-flag-search') || document.querySelector('input[placeholder*="Search plate"]'),
+            popover: { title: '🔍 Real-Time Search Filter', description: 'Instantly filter flagged vehicles by plate number, vehicle make/model, or assigned suspect driver name in real time.', position: 'bottom' }
+        },
+        {
+            id: 'flagged-filter-all',
+            route: '/units/flagged',
+            onBeforeShow: () => {
+                setTimeout(() => {
+                    const btn = document.querySelector('.filter-tab-btn[data-filter="all"]');
+                    if (btn) {
+                        btn.onclick = function() {
+                            if (typeof setFilter === 'function') setFilter('all');
+                            if (window.TutorialManager) window.TutorialManager.moveToNextStep(54);
+                        };
+                    }
+                }, 50);
+            },
+            getElement: () => document.querySelector('.filter-tab-btn[data-filter="all"]'),
+            popover: { title: '1. All Flagged Filter Tab', description: 'Click \'All Flagged\' to view the complete list of all flagged vehicles in your fleet (both police reports and automatic boundary delays).', position: 'bottom' }
+        },
+        {
+            id: 'flagged-filter-stolen',
+            route: '/units/flagged',
+            onBeforeShow: () => {
+                if (typeof setFilter === 'function') setFilter('manual_stolen');
+                setTimeout(() => {
+                    const btn = document.querySelector('.filter-tab-btn[data-filter="manual_stolen"]');
+                    if (btn) {
+                        btn.onclick = function() {
+                            if (typeof setFilter === 'function') setFilter('manual_stolen');
+                            if (window.TutorialManager) window.TutorialManager.moveToNextStep(55);
+                        };
+                    }
+                }, 50);
+            },
+            getElement: () => document.querySelector('.filter-tab-btn[data-filter="manual_stolen"]'),
+            popover: { title: '2. Missing / Stolen Filter Tab', description: 'Click \'Missing / Stolen\' to filter only vehicles manually reported as stolen, which automatically log critical incidents on suspect driver records!', position: 'bottom' }
+        },
+        {
+            id: 'flagged-filter-autoboundary',
+            route: '/units/flagged',
+            onBeforeShow: () => {
+                if (typeof setFilter === 'function') setFilter('auto_boundary');
+                setTimeout(() => {
+                    const btn = document.querySelector('.filter-tab-btn[data-filter="auto_boundary"]');
+                    if (btn) {
+                        btn.onclick = function() {
+                            if (typeof setFilter === 'function') setFilter('auto_boundary');
+                            if (window.TutorialManager) window.TutorialManager.moveToNextStep(56);
+                        };
+                    }
+                }, 50);
+            },
+            getElement: () => document.querySelector('.filter-tab-btn[data-filter="auto_boundary"]'),
+            popover: { title: '3. Auto-Detected Filter Tab', description: 'Click \'Auto-Detected\' to inspect vehicles automatically flagged by the system due to unremitted boundary payments exceeding 48 hours!', position: 'bottom' }
         },
         {
             id: 'flagged-manual-flag-btn',
             route: '/units/flagged',
-            getElement: () => document.querySelector('button[onclick*="openManualFlagModal"]') || document.querySelector('.flex.items-center.justify-center.gap-2.px-5.py-3.bg-red-50'),
-            popover: { title: '3. Flag Unit Manually', description: 'Manually declare a vehicle as Missing/Stolen and automatically log a critical incident on the suspect driver\'s behavior record.', position: 'bottom' }
+            getElement: () => document.querySelector('button[onclick*="openManualFlagModal"]'),
+            popover: { title: '🚨 Flag Unit Manually Action', description: 'Click here to manually declare a missing/stolen vehicle and log a critical incident on the assigned driver\'s permanent record.', position: 'bottom' }
         },
         {
-            id: 'flagged-unit-card',
+            id: 'flagged-unit-card-profile',
             route: '/units/flagged',
+            onBeforeShow: () => {
+                if (typeof setFilter === 'function') setFilter('all');
+            },
             getElement: () => document.querySelector('#flaggedGrid > div') || document.getElementById('flaggedGrid'),
-            popover: { title: '4. Flagged Vehicle Profile Card', description: 'Displays plate number, assigned driver at time of incident, missing timestamp, and accumulated overdue boundary amount.', position: 'top' }
+            popover: { title: '📋 Flagged Vehicle Profile Card', description: 'Displays complete incident profile—assigned driver at time of flag, missing timestamp, last submitted boundary date, contact info, and system failure remarks.', position: 'top' }
         },
         {
-            id: 'flagged-recover-btn',
+            id: 'flagged-unit-card-actions',
             route: '/units/flagged',
-            getElement: () => document.querySelector('#flaggedGrid button[onclick*="openRecoverModal"]') || document.querySelector('#flaggedGrid button') || document.getElementById('flaggedGrid'),
-            popover: { title: '5. Unit Recovery & Clearance', description: 'Re-activates the recovered vehicle back into the active fleet once found or boundary arrears are settled!', position: 'top' }
+            getElement: () => document.querySelector('#flaggedGrid > div .flex.items-center.justify-between') || document.querySelector('#flaggedGrid button[onclick*="openRecoverModal"]') || document.querySelector('#flaggedGrid button') || document.getElementById('flaggedGrid'),
+            popover: { title: '⚡ Card Action Buttons (View / Ignore / Recover)', description: 'Click \'View\' for complete vehicle history, \'Ignore\' to dismiss boundary warnings, or \'Mark Missing\' / \'Recover\' to update police status and reactivate the car back into the active fleet!', position: 'top' }
         },
         {
             id: 'sidebar-drivers',
