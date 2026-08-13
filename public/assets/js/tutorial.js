@@ -1070,11 +1070,17 @@ const TutorialManager = (function () {
             onBeforeShow: () => {
                 if (typeof openManualFlagModal === 'function') openManualFlagModal();
                 const m = document.getElementById('manualFlagModal');
+                const b = document.getElementById('manualFlagBackdrop');
                 const p = document.getElementById('manualFlagPanel');
                 if (m) { m.classList.remove('hidden'); m.style.removeProperty('display'); m.style.setProperty('z-index', '100004', 'important'); }
-                if (p) { p.style.setProperty('z-index', '100004', 'important'); }
+                if (b) { b.classList.remove('opacity-0'); b.classList.add('opacity-100'); }
+                if (p) { p.classList.remove('scale-95', 'opacity-0'); p.classList.add('scale-100', 'opacity-100'); p.style.setProperty('z-index', '100004', 'important'); }
             },
-            getElement: () => document.getElementById('manualFlagPanel') || document.getElementById('manualFlagModal'),
+            getElement: () => {
+                const m = document.getElementById('manualFlagModal');
+                if (m && m.classList.contains('hidden')) { m.classList.remove('hidden'); m.style.removeProperty('display'); }
+                return document.getElementById('manualFlagPanel') || document.getElementById('manualFlagModal');
+            },
             popover: { title: '🚨 Flag Unit Manually Dialog', description: 'This dialog allows fleet managers to file critical missing or stolen vehicle reports directly into the system database.', position: 'right' }
         },
         {
@@ -1083,11 +1089,17 @@ const TutorialManager = (function () {
             onBeforeShow: () => {
                 if (typeof openManualFlagModal === 'function') openManualFlagModal();
                 const m = document.getElementById('manualFlagModal');
+                const b = document.getElementById('manualFlagBackdrop');
                 const p = document.getElementById('manualFlagPanel');
                 if (m) { m.classList.remove('hidden'); m.style.removeProperty('display'); m.style.setProperty('z-index', '100004', 'important'); }
-                if (p) { p.style.setProperty('z-index', '100004', 'important'); }
+                if (b) { b.classList.remove('opacity-0'); b.classList.add('opacity-100'); }
+                if (p) { p.classList.remove('scale-95', 'opacity-0'); p.classList.add('scale-100', 'opacity-100'); p.style.setProperty('z-index', '100004', 'important'); }
             },
-            getElement: () => document.getElementById('unitSearchContainer') || document.getElementById('unitDisplay'),
+            getElement: () => {
+                const m = document.getElementById('manualFlagModal');
+                if (m && m.classList.contains('hidden')) { m.classList.remove('hidden'); m.style.removeProperty('display'); }
+                return document.getElementById('unitSearchContainer') || document.getElementById('unitDisplay') || document.getElementById('manualFlagPanel');
+            },
             popover: { title: '1. Select Vehicle Unit', description: 'Choose the specific vehicle plate number from your active fleet that has been reported missing or stolen.', position: 'bottom' }
         },
         {
@@ -1096,11 +1108,17 @@ const TutorialManager = (function () {
             onBeforeShow: () => {
                 if (typeof openManualFlagModal === 'function') openManualFlagModal();
                 const m = document.getElementById('manualFlagModal');
+                const b = document.getElementById('manualFlagBackdrop');
                 const p = document.getElementById('manualFlagPanel');
                 if (m) { m.classList.remove('hidden'); m.style.removeProperty('display'); m.style.setProperty('z-index', '100004', 'important'); }
-                if (p) { p.style.setProperty('z-index', '100004', 'important'); }
+                if (b) { b.classList.remove('opacity-0'); b.classList.add('opacity-100'); }
+                if (p) { p.classList.remove('scale-95', 'opacity-0'); p.classList.add('scale-100', 'opacity-100'); p.style.setProperty('z-index', '100004', 'important'); }
             },
-            getElement: () => document.getElementById('driverSearchContainer') || document.getElementById('driverDisplay'),
+            getElement: () => {
+                const m = document.getElementById('manualFlagModal');
+                if (m && m.classList.contains('hidden')) { m.classList.remove('hidden'); m.style.removeProperty('display'); }
+                return document.getElementById('driverSearchContainer') || document.getElementById('driverDisplay') || document.getElementById('manualFlagPanel');
+            },
             popover: { title: '2. Suspect Driver Selection', description: 'Optionally select the driver assigned to the unit to log critical behavioral records or trigger an automated driver ban.', position: 'bottom' }
         },
         {
@@ -1109,11 +1127,17 @@ const TutorialManager = (function () {
             onBeforeShow: () => {
                 if (typeof openManualFlagModal === 'function') openManualFlagModal();
                 const m = document.getElementById('manualFlagModal');
+                const b = document.getElementById('manualFlagBackdrop');
                 const p = document.getElementById('manualFlagPanel');
                 if (m) { m.classList.remove('hidden'); m.style.removeProperty('display'); m.style.setProperty('z-index', '100004', 'important'); }
-                if (p) { p.style.setProperty('z-index', '100004', 'important'); }
+                if (b) { b.classList.remove('opacity-0'); b.classList.add('opacity-100'); }
+                if (p) { p.classList.remove('scale-95', 'opacity-0'); p.classList.add('scale-100', 'opacity-100'); p.style.setProperty('z-index', '100004', 'important'); }
             },
-            getElement: () => document.querySelector('#manualFlagModal input[name="missing_since"]'),
+            getElement: () => {
+                const m = document.getElementById('manualFlagModal');
+                if (m && m.classList.contains('hidden')) { m.classList.remove('hidden'); m.style.removeProperty('display'); }
+                return document.querySelector('#manualFlagModal input[name="missing_since"]') || document.getElementById('manualFlagPanel');
+            },
             popover: { title: '3. Incident Timestamp', description: 'Specify the exact date when the vehicle became unreachable or went missing.', position: 'bottom' }
         },
         {
@@ -1122,11 +1146,17 @@ const TutorialManager = (function () {
             onBeforeShow: () => {
                 if (typeof openManualFlagModal === 'function') openManualFlagModal();
                 const m = document.getElementById('manualFlagModal');
+                const b = document.getElementById('manualFlagBackdrop');
                 const p = document.getElementById('manualFlagPanel');
                 if (m) { m.classList.remove('hidden'); m.style.removeProperty('display'); m.style.setProperty('z-index', '100004', 'important'); }
-                if (p) { p.style.setProperty('z-index', '100004', 'important'); }
+                if (b) { b.classList.remove('opacity-0'); b.classList.add('opacity-100'); }
+                if (p) { p.classList.remove('scale-95', 'opacity-0'); p.classList.add('scale-100', 'opacity-100'); p.style.setProperty('z-index', '100004', 'important'); }
             },
-            getElement: () => document.querySelector('#manualFlagModal textarea[name="description"]'),
+            getElement: () => {
+                const m = document.getElementById('manualFlagModal');
+                if (m && m.classList.contains('hidden')) { m.classList.remove('hidden'); m.style.removeProperty('display'); }
+                return document.querySelector('#manualFlagModal textarea[name="description"]') || document.getElementById('manualFlagPanel');
+            },
             popover: { title: '4. Incident Details & Remarks', description: 'Enter comprehensive incident notes (e.g. unreturned unit, uncontactable driver, or police report case numbers).', position: 'top' }
         },
         {
@@ -1135,11 +1165,17 @@ const TutorialManager = (function () {
             onBeforeShow: () => {
                 if (typeof openManualFlagModal === 'function') openManualFlagModal();
                 const m = document.getElementById('manualFlagModal');
+                const b = document.getElementById('manualFlagBackdrop');
                 const p = document.getElementById('manualFlagPanel');
                 if (m) { m.classList.remove('hidden'); m.style.removeProperty('display'); m.style.setProperty('z-index', '100004', 'important'); }
-                if (p) { p.style.setProperty('z-index', '100004', 'important'); }
+                if (b) { b.classList.remove('opacity-0'); b.classList.add('opacity-100'); }
+                if (p) { p.classList.remove('scale-95', 'opacity-0'); p.classList.add('scale-100', 'opacity-100'); p.style.setProperty('z-index', '100004', 'important'); }
             },
-            getElement: () => document.querySelector('#manualFlagModal button[type="submit"]')?.closest('.border-t') || document.querySelector('#manualFlagModal button[type="submit"]'),
+            getElement: () => {
+                const m = document.getElementById('manualFlagModal');
+                if (m && m.classList.contains('hidden')) { m.classList.remove('hidden'); m.style.removeProperty('display'); }
+                return document.querySelector('#manualFlagModal button[type="submit"]')?.closest('.border-t') || document.querySelector('#manualFlagModal button[type="submit"]') || document.getElementById('manualFlagPanel');
+            },
             popover: { title: '5. Submit Report Action', description: 'Click \'Submit Flag\' to finalize the police report and broadcast the vehicle as missing across the fleet dashboard!', position: 'top' }
         },
         {
