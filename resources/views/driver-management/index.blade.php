@@ -857,7 +857,11 @@
             const modal = document.getElementById('driverPrintPdfModal');
             const iframe = document.getElementById('driverPdfIframe');
             if (modal && iframe) {
-                iframe.src = "{{ route('driver-management.print') }}?preview=1";
+                if (typeof window.generateStaticDriverTutorialPdfReport === 'function') {
+                    iframe.srcdoc = window.generateStaticDriverTutorialPdfReport();
+                } else {
+                    iframe.src = "{{ route('driver-management.print') }}?preview=1";
+                }
                 modal.classList.remove('hidden');
                 modal.style.setProperty('display', 'flex', 'important');
                 modal.style.setProperty('z-index', '100004', 'important');

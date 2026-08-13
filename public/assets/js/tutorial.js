@@ -225,6 +225,84 @@ window.generateStaticTutorialPdfReport = function() {
     `;
 };
 
+window.generateStaticDriverTutorialPdfReport = function() {
+    const drivers = [
+        { name: "Arwin Azarcon", license: "D09-12-312312", contact: "0917-123-4567", unit: "AAA 4591", status: "ASSIGNED", boundary: "₱1,100.00" },
+        { name: "Willy Bautista", license: "TBD-EC9C7E7D", contact: "0918-234-5678", unit: "DAJ 7468", status: "ASSIGNED", boundary: "₱650.00 (Coding)" },
+        { name: "Henner Bonsol", license: "TBD-22953AE4", contact: "0919-345-6789", unit: "NEO 67116", status: "ASSIGNED", boundary: "₱1,400.00" },
+        { name: "Morlino Boroy", license: "TBD-614DB287", contact: "0920-456-7890", unit: "NEO 67116", status: "ASSIGNED", boundary: "₱1,400.00" },
+        { name: "Jayson Borromeo", license: "TBD-0AD5AF1A", contact: "0921-567-8901", unit: "NGF 1484", status: "ASSIGNED", boundary: "₱1,300.00" },
+        { name: "Juanito Cabales", license: "TBD-D1DCF7F4", contact: "0922-678-9012", unit: "DBA 5420", status: "ASSIGNED", boundary: "₱1,300.00" },
+        { name: "Ramil Cadalzo", license: "TBD-DAT13589", contact: "0923-789-0123", unit: "DAT 1358", status: "ASSIGNED", boundary: "₱700.00 (Coding)" }
+    ];
+
+    let rowsHtml = '';
+    drivers.forEach(d => {
+        rowsHtml += `
+            <tr style="border-bottom: 1px solid #f1f5f9; font-size: 11px;">
+                <td style="padding: 10px 12px; font-weight: 800; color: #0f172a;">${d.name}</td>
+                <td style="padding: 10px 12px; color: #334155; font-family: monospace; font-size: 10px;">${d.license}</td>
+                <td style="padding: 10px 12px; color: #475569;">${d.contact}</td>
+                <td style="padding: 10px 12px; text-align: center; font-weight: 800; color: #1e293b;"><span style="background:#f1f5f9; padding:3px 8px; border-radius:6px; border:1px solid #e2e8f0;">${d.unit}</span></td>
+                <td style="padding: 10px 12px; text-align: center;"><span style="background:#dcfce7; color:#166534; padding:3px 8px; border-radius:6px; font-size:9px; font-weight:800;">${d.status}</span></td>
+                <td style="padding: 10px 12px; text-align: right; font-weight: 900; color: #059669;">${d.boundary}</td>
+            </tr>
+        `;
+    });
+
+    return `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="utf-8">
+            <style>
+                body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 24px; color: #1e293b; background: #ffffff; margin: 0; }
+                .header { text-align: center; margin-bottom: 24px; border-bottom: 2px solid #2563eb; padding-bottom: 16px; }
+                .logo { font-size: 24px; font-weight: 900; color: #1e3a8a; letter-spacing: -0.5px; }
+                .logo span { color: #f59e0b; }
+                .title { font-size: 14px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: #0f172a; margin-top: 4px; }
+                .subtitle { font-size: 10px; color: #64748b; margin-top: 2px; }
+                .meta-bar { display: flex; justify-content: space-between; font-size: 10px; font-weight: bold; color: #475569; margin-bottom: 12px; text-transform: uppercase; border-bottom: 1px dashed #cbd5e1; padding-bottom: 8px; }
+                table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+                th { background: #f8fafc; color: #475569; font-size: 9px; font-weight: 800; text-transform: uppercase; text-align: left; padding: 8px 12px; border-bottom: 2px solid #e2e8f0; }
+                .signature-box { margin-top: 40px; display: flex; justify-content: space-between; font-size: 11px; }
+                .sig-line { width: 200px; border-top: 1px solid #94a3b8; text-align: center; padding-top: 4px; font-weight: bold; color: #475569; }
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <div class="logo">EURO<span>TAXI</span> INC.</div>
+                <div class="title">DRIVER MASTER LIST & RECORDS REPORT</div>
+                <div class="subtitle">EURO TAXI MANAGEMENT SYSTEM — OFFICIAL RECORD</div>
+            </div>
+            <div class="meta-bar">
+                <span>TOTAL REGISTERED DRIVERS: 96</span>
+                <span>TIMESTAMP: AUG 13, 2026 17:45:00</span>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>DRIVER NAME</th>
+                        <th>LICENSE NUMBER</th>
+                        <th>CONTACT PHONE</th>
+                        <th style="text-align:center;">ASSIGNED UNIT</th>
+                        <th style="text-align:center;">STATUS</th>
+                        <th style="text-align:right;">BOUNDARY TARGET</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${rowsHtml}
+                </tbody>
+            </table>
+            <div class="signature-box">
+                <div class="sig-line">Prepared By: Operations Officer</div>
+                <div class="sig-line">Approved By: Fleet Director</div>
+            </div>
+        </body>
+        </html>
+    `;
+};
+
 const TutorialManager = (function () {
     // VISUAL DEBUGGER (Removed UI, keeping console logs only)
     function logDebug(msg) {
