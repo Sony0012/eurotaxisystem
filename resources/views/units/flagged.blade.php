@@ -161,32 +161,39 @@
 
             {{-- Card Body --}}
             <div class="p-6 flex-1 space-y-4">
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="space-y-0.5">
-                        <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Status</span>
-                        <span class="text-xs font-black text-red-600 capitalize">
-                            @if(($unit->flag_source ?? '') === 'auto_boundary')
-                                Missing (Auto-Flagged)
-                            @elseif(($unit->flag_source ?? '') === 'manual_stolen')
-                                Missing (Manual Flag)
-                            @else
-                                {{ str_replace('_', ' ', $unit->status) }}
-                            @endif
-                        </span>
+                <div class="space-y-3">
+                    {{-- Status & Days Inactive Group --}}
+                    <div class="card-status-section grid grid-cols-2 gap-4 p-2 bg-slate-50/50 rounded-xl border border-slate-100/50">
+                        <div class="space-y-0.5">
+                            <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Status</span>
+                            <span class="text-xs font-black text-red-600 capitalize">
+                                @if(($unit->flag_source ?? '') === 'auto_boundary')
+                                    Missing (Auto-Flagged)
+                                @elseif(($unit->flag_source ?? '') === 'manual_stolen')
+                                    Missing (Manual Flag)
+                                @else
+                                    {{ str_replace('_', ' ', $unit->status) }}
+                                @endif
+                            </span>
+                        </div>
+                        <div class="space-y-0.5">
+                            <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Days Inactive</span>
+                            <span class="text-xs font-black {{ ($unit->days_inactive ?? 0) > 7 ? 'text-red-600' : 'text-amber-600' }}">
+                                {{ $unit->days_inactive !== null ? $unit->days_inactive . ' day(s)' : 'N/A' }}
+                            </span>
+                        </div>
                     </div>
-                    <div class="space-y-0.5">
-                        <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Days Inactive</span>
-                        <span class="text-xs font-black {{ ($unit->days_inactive ?? 0) > 7 ? 'text-red-600' : 'text-amber-600' }}">
-                            {{ $unit->days_inactive !== null ? $unit->days_inactive . ' day(s)' : 'N/A' }}
-                        </span>
-                    </div>
-                    <div class="space-y-0.5">
-                        <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Suspect Driver</span>
-                        <span class="text-xs font-bold text-slate-700 truncate block">{{ $unit->suspect_driver ?? 'Unknown' }}</span>
-                    </div>
-                    <div class="space-y-0.5">
-                        <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Contact</span>
-                        <span class="text-xs font-bold text-slate-600">{{ $unit->suspect_contact ?? '—' }}</span>
+
+                    {{-- Suspect Driver & Contact Group --}}
+                    <div class="card-driver-section grid grid-cols-2 gap-4 p-2 bg-slate-50/50 rounded-xl border border-slate-100/50">
+                        <div class="space-y-0.5">
+                            <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Suspect Driver</span>
+                            <span class="text-xs font-bold text-slate-700 truncate block">{{ $unit->suspect_driver ?? 'Unknown' }}</span>
+                        </div>
+                        <div class="space-y-0.5">
+                            <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Contact</span>
+                            <span class="text-xs font-bold text-slate-600">{{ $unit->suspect_contact ?? '—' }}</span>
+                        </div>
                     </div>
                 </div>
 
@@ -198,25 +205,27 @@
                 @endif
 
                 @if(!empty($unit->description))
-                <div class="p-3.5 bg-slate-50 rounded-2xl border border-slate-100/85 space-y-1">
+                <div class="card-description-section p-3.5 bg-slate-50 rounded-2xl border border-slate-100/85 space-y-1">
                     <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Description / Details</span>
                     <p class="text-xs text-slate-600 font-medium leading-relaxed">{{ $unit->description }}</p>
                 </div>
                 @endif
 
-                @if(!empty($unit->last_boundary_date))
-                <div class="pt-3 border-t border-gray-50 space-y-0.5">
-                    <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Last Boundary Submitted</span>
-                    <span class="text-xs font-bold text-slate-600">{{ $unit->last_boundary_date }}</span>
-                </div>
-                @endif
+                <div class="card-audit-section space-y-3">
+                    @if(!empty($unit->last_boundary_date))
+                    <div class="pt-3 border-t border-gray-50 space-y-0.5">
+                        <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Last Boundary Submitted</span>
+                        <span class="text-xs font-bold text-slate-600">{{ $unit->last_boundary_date }}</span>
+                    </div>
+                    @endif
 
-                @if(!empty($unit->last_known_driver) && $unit->last_known_driver !== 'No boundary record')
-                <div class="space-y-0.5">
-                    <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Last Known Driver</span>
-                    <span class="text-xs font-bold text-slate-700">{{ $unit->last_known_driver }}</span>
+                    @if(!empty($unit->last_known_driver) && $unit->last_known_driver !== 'No boundary record')
+                    <div class="space-y-0.5">
+                        <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Last Known Driver</span>
+                        <span class="text-xs font-bold text-slate-700">{{ $unit->last_known_driver }}</span>
+                    </div>
+                    @endif
                 </div>
-                @endif
 
                 @if(!empty($unit->stolen_driver_license_no))
                 <div class="pt-3 border-t border-gray-50 flex items-center gap-2 p-2 bg-red-50 rounded-xl border border-red-100">

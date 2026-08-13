@@ -1213,7 +1213,7 @@ const TutorialManager = (function () {
                 const m = document.getElementById('manualFlagModal');
                 if (m) { m.classList.add('hidden'); m.style.setProperty('display', 'none', 'important'); }
             },
-            getElement: () => document.querySelector('#flaggedGrid > div .grid.grid-cols-2') || document.querySelector('#flaggedGrid > div'),
+            getElement: () => document.querySelector('#flaggedGrid > div .card-status-section') || document.querySelector('#flaggedGrid > div .grid.grid-cols-2') || document.querySelector('#flaggedGrid > div'),
             popover: { title: '⚠️ Flag Status & Inactive Duration', description: 'Tracks exact flag classification and calculates cumulative inactive days since the last boundary remittance.', position: 'top' }
         },
         {
@@ -1224,7 +1224,7 @@ const TutorialManager = (function () {
                 const m = document.getElementById('manualFlagModal');
                 if (m) { m.classList.add('hidden'); m.style.setProperty('display', 'none', 'important'); }
             },
-            getElement: () => document.querySelectorAll('#flaggedGrid > div .grid.grid-cols-2 > div')[2]?.closest('.grid') || document.querySelector('#flaggedGrid > div .grid.grid-cols-2'),
+            getElement: () => document.querySelector('#flaggedGrid > div .card-driver-section') || document.querySelector('#flaggedGrid > div .grid.grid-cols-2') || document.querySelector('#flaggedGrid > div'),
             popover: { title: '👤 Suspect Driver & Contact Details', description: 'Identifies the driver assigned to the unit at the time of incident alongside their registered mobile contact number.', position: 'top' }
         },
         {
@@ -1235,7 +1235,7 @@ const TutorialManager = (function () {
                 const m = document.getElementById('manualFlagModal');
                 if (m) { m.classList.add('hidden'); m.style.setProperty('display', 'none', 'important'); }
             },
-            getElement: () => document.querySelector('#flaggedGrid > div .p-3\\.5.bg-slate-50') || document.querySelector('#flaggedGrid > div .space-y-4') || document.querySelector('#flaggedGrid > div'),
+            getElement: () => document.querySelector('#flaggedGrid > div .card-description-section') || document.querySelector('#flaggedGrid > div .p-3\\.5.bg-slate-50') || document.querySelector('#flaggedGrid > div'),
             popover: { title: '📝 Incident Details & System Failure Notes', description: 'Displays exact missing timestamp and automatic system failure remarks (e.g. 48+ hours overdue shift deadline).', position: 'top' }
         },
         {
@@ -1246,7 +1246,7 @@ const TutorialManager = (function () {
                 const m = document.getElementById('manualFlagModal');
                 if (m) { m.classList.add('hidden'); m.style.setProperty('display', 'none', 'important'); }
             },
-            getElement: () => document.querySelector('#flaggedGrid > div .pt-3.border-t') || document.querySelector('#flaggedGrid > div'),
+            getElement: () => document.querySelector('#flaggedGrid > div .card-audit-section') || document.querySelector('#flaggedGrid > div .pt-3.border-t') || document.querySelector('#flaggedGrid > div'),
             popover: { title: '📅 Boundary Payment & Driver Audit History', description: 'Logs the timestamp of the last submitted boundary payment and the last known driver on record.', position: 'top' }
         },
         {
