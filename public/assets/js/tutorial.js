@@ -2389,6 +2389,40 @@ const TutorialManager = (function () {
 })();
 window.TutorialManager = TutorialManager;
 
+// Global Keyboard Shortcut Navigation for Tutorial Steps (Spacebar / Enter / ArrowRight -> Next Step, ArrowLeft -> Previous Step)
+if (!window._tutorialKeyboardListenerAttached) {
+    window._tutorialKeyboardListenerAttached = true;
+    window.addEventListener('keydown', (e) => {
+        const stepStr = localStorage.getItem('tutorial_current_step');
+        if (stepStr === null || stepStr === '' || stepStr === undefined) return;
+        const currentStepIndex = parseInt(stepStr, 10);
+        if (isNaN(currentStepIndex) || currentStepIndex < 0) return;
+
+        // Skip keyboard navigation if user is currently typing in an input, textarea, select, or contenteditable element
+        const activeEl = document.activeElement;
+        const activeTag = activeEl ? activeEl.tagName.toUpperCase() : '';
+        const isEditable = activeEl ? (activeEl.isContentEditable || activeTag === 'INPUT' || activeTag === 'TEXTAREA' || activeTag === 'SELECT') : false;
+        if (isEditable) return;
+
+        // Space, Enter, ArrowRight, ArrowDown -> Move to Next Step
+        if (e.code === 'Space' || e.code === 'Enter' || e.key === ' ' || e.key === 'Enter' || e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+            e.preventDefault();
+            e.stopPropagation();
+            if (window.TutorialManager) {
+                window.TutorialManager.moveToNextStep(currentStepIndex);
+            }
+        } 
+        // ArrowLeft, ArrowUp -> Move to Previous Step
+        else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+            e.preventDefault();
+            e.stopPropagation();
+            if (window.TutorialManager) {
+                window.TutorialManager.moveToPrevStep(currentStepIndex);
+            }
+        }
+    }, true);
+}
+
 /**
  * Portal technique: Move the dropdown to document.body with fixed positioning
  * so it escapes the z-30 stacking context of the parent <td> and appears
