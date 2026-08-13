@@ -2557,8 +2557,16 @@ const TutorialManager = (function () {
         }
     }
 
+    let _isStepTransitioning = false;
+
     function moveToNextStep(currentIndex) {
         logDebug(`Moving to next step after ${currentIndex}`);
+        if (_isStepTransitioning) {
+            logDebug("Blocked moveToNextStep due to active step transition lock.");
+            return;
+        }
+        _isStepTransitioning = true;
+
         const currentStep = steps[currentIndex];
         if (currentStep && typeof currentStep.onAfterNext === 'function') {
             try {
@@ -2571,6 +2579,7 @@ const TutorialManager = (function () {
         const nextIndex = currentIndex + 1;
         localStorage.setItem('tutorial_current_step', nextIndex);
         if (nextIndex >= steps.length) {
+            _isStepTransitioning = false;
             finishTutorial();
         } else {
             setTimeout(() => {
@@ -2583,13 +2592,17 @@ const TutorialManager = (function () {
                     logDebug("Safe destroy next catch: " + e.message);
                 }
                 startTutorial(nextIndex);
-            }, 300); // Shorter delay
+                setTimeout(() => {
+                    _isStepTransitioning = false;
+                }, 200);
+            }, 100);
         }
     }
 
     function moveToPrevStep(currentIndex) {
         logDebug(`Moving to prev step from ${currentIndex}`);
-        if (currentIndex <= 0) return;
+        if (currentIndex <= 0 || _isStepTransitioning) return;
+        _isStepTransitioning = true;
 
         clearElevatedTarget();
 
@@ -2635,6 +2648,9 @@ const TutorialManager = (function () {
         localStorage.setItem('tutorial_current_step', prevIndex);
         setTimeout(() => {
             startTutorial(prevIndex);
+            setTimeout(() => {
+                _isStepTransitioning = false;
+            }, 200);
         }, 50);
     }
 
@@ -2698,6 +2714,9 @@ window.TutorialManager = TutorialManager;
 if (!window._tutorialKeyboardListenerAttached) {
     window._tutorialKeyboardListenerAttached = true;
     window.addEventListener('keydown', (e) => {
+        // Ignore key repeat when holding down keys (prevents rapid step skipping)
+        if (e.repeat) return;
+
         // If Welcome Modal is active, Handle Enter/Space to click "Start Tour" cleanly
         const welcomeModal = document.getElementById('tutorial-welcome-modal');
         if (welcomeModal) {
