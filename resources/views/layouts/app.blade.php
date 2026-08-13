@@ -105,7 +105,7 @@
     </style>
     <!-- Interactive Tutorial Assets -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/driver.js@1.3.1/dist/driver.css"/>
-    <link rel="stylesheet" href="{{ asset('assets/css/tutorial.css') }}?v=14.2">
+    <link rel="stylesheet" href="{{ asset('assets/css/tutorial.css') }}?v=14.3">
 
     <style>
         input::-webkit-outer-spin-button,
@@ -2604,7 +2604,7 @@
     
     <!-- Interactive Tutorial System -->
     <script src="https://cdn.jsdelivr.net/npm/driver.js@1.3.1/dist/driver.js.iife.js"></script>
-    <script src="{{ asset('assets/js/tutorial.js') }}?v=14.2"></script>
+    <script src="{{ asset('assets/js/tutorial.js') }}?v=14.3"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             if (typeof window.TutorialManager !== 'undefined') {

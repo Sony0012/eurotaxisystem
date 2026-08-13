@@ -1600,31 +1600,35 @@ const TutorialManager = (function () {
                                     if (wrapper) wrapper.classList.add('popover-unit-details-close');
                                     pos = 'right';
 
-                                    const closeBtnX = Math.round(tRect.left + tRect.width / 2);
-                                    const closeBtnY = Math.round(tRect.top + tRect.height / 2);
+                                    const closeCenterX = tRect.left + tRect.width / 2;
+                                    const closeCenterY = tRect.top + tRect.height / 2;
 
-                                    const popoverLeftX = Math.max(closeBtnX + 80, window.innerWidth - 360);
-                                    const popoverTopY = 120;
+                                    const popoverLeft = pRect.left;
+                                    const popoverTop = pRect.top;
 
-                                    const deltaX = Math.max(60, popoverLeftX - closeBtnX);
-                                    const deltaY = closeBtnY - popoverTopY;
+                                    const relX = closeCenterX - popoverLeft;
+                                    const relY = closeCenterY - popoverTop;
 
-                                    const svgWidth = Math.min(260, Math.max(100, Math.round(deltaX + 30)));
-                                    const svgHeight = Math.min(180, Math.max(80, Math.round(Math.abs(deltaY) + 50)));
+                                    const svgWidth = Math.max(120, Math.abs(relX) + 40);
+                                    const svgHeight = Math.max(120, Math.abs(relY) + 60);
+
+                                    const svgLeft = Math.round(relX - 20);
+                                    const svgTop = Math.round(relY - 20);
+
+                                    const endX = 20;
+                                    const endY = 20;
 
                                     const startX = svgWidth - 10;
-                                    const startY = 30;
-                                    const endX = 20;
-                                    const endY = Math.max(15, Math.min(svgHeight - 15, Math.round(30 + deltaY)));
+                                    const startY = Math.round(Math.abs(relY) + 20);
 
-                                    const controlX = Math.round(svgWidth * 0.5);
-                                    const controlY = Math.min(startY, endY) - 20;
+                                    const controlX = Math.round(svgWidth * 0.6);
+                                    const controlY = Math.round(Math.min(startY, endY) - 20);
 
                                     const pathD = `M ${startX} ${startY} Q ${controlX} ${controlY} ${endX} ${endY}`;
-                                    const polyPoints = `${endX},${endY} ${endX + 12},${endY - 6} ${endX + 8},${endY + 10}`;
+                                    const polyPoints = `${endX},${endY} ${endX + 12},${endY + 2} ${endX + 5},${endY + 12}`;
 
                                     arrowSvg = `
-                                        <div class="tutorial-arrow-wrapper arrow-fade-in" style="position:absolute; left:-${svgWidth - 10}px; top:0px; width:${svgWidth}px; height:${svgHeight}px; pointer-events:none; z-index:2000001;">
+                                        <div class="tutorial-arrow-wrapper arrow-fade-in" style="position:absolute; left:${svgLeft}px; top:${svgTop}px; width:${svgWidth}px; height:${svgHeight}px; pointer-events:none; z-index:2000001;">
                                             <svg class="tutorial-curved-arrow" viewBox="0 0 ${svgWidth} ${svgHeight}" style="width:100%; height:100%; overflow:visible;">
                                                 <path d="${pathD}" stroke="#60a5fa" stroke-width="4" stroke-linecap="round" stroke-dasharray="8,8" fill="none" />
                                                 <polygon points="${polyPoints}" fill="#60a5fa" />
