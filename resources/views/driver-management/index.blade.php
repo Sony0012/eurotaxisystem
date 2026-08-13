@@ -868,7 +868,7 @@
             const iframe = document.getElementById('driverPdfIframe');
             if (modal) {
                 modal.classList.add('hidden');
-                modal.style.setProperty('display', 'none', 'important');
+                modal.style.cssText = 'display: none !important; z-index: -1 !important; visibility: hidden !important; opacity: 0 !important;';
             }
             if (iframe) iframe.src = "about:blank";
         }

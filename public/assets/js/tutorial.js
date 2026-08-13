@@ -1388,9 +1388,12 @@ const TutorialManager = (function () {
             id: 'add-driver-modal-overview',
             route: '/driver-management',
             onBeforeShow: () => {
+                if (typeof closeDriverPdfPreview === 'function') closeDriverPdfPreview();
+                const pm = document.getElementById('driverPrintPdfModal');
+                if (pm) { pm.classList.add('hidden'); pm.style.cssText = 'display: none !important; z-index: -1 !important; visibility: hidden !important; opacity: 0 !important;'; }
                 if (typeof openAddDriverModal === 'function') openAddDriverModal();
                 const m = document.getElementById('addDriverModal');
-                if (m) { m.classList.remove('hidden'); m.style.removeProperty('display'); m.style.setProperty('z-index', '100004', 'important'); }
+                if (m) { m.classList.remove('hidden'); m.style.cssText = 'display: flex !important; z-index: 100004 !important; visibility: visible !important; opacity: 1 !important; align-items: center; justify-content: center; position: fixed; inset: 0;'; }
             },
             getElement: () => {
                 const m = document.getElementById('addDriverModal');
@@ -1904,6 +1907,22 @@ const TutorialManager = (function () {
             if (driverDetailsM) {
                 driverDetailsM.classList.add('hidden');
                 driverDetailsM.style.cssText = 'display: none !important; z-index: -1 !important; visibility: hidden !important; opacity: 0 !important;';
+            }
+        }
+
+        // Clean up driverPrintPdfModal and tutorialPrintPdfModal inline styles if current step is NOT a PDF preview step
+        if (!currentStep || (currentStep.id !== 'drivers-print-pdf-preview' && currentStep.id !== 'units-print-pdf-preview')) {
+            if (typeof closeDriverPdfPreview === 'function') closeDriverPdfPreview();
+            if (typeof closeTutorialPdfPreview === 'function') closeTutorialPdfPreview();
+            const driverPdfM = document.getElementById('driverPrintPdfModal');
+            if (driverPdfM) {
+                driverPdfM.classList.add('hidden');
+                driverPdfM.style.cssText = 'display: none !important; z-index: -1 !important; visibility: hidden !important; opacity: 0 !important;';
+            }
+            const tutPdfM = document.getElementById('tutorialPrintPdfModal');
+            if (tutPdfM) {
+                tutPdfM.classList.add('hidden');
+                tutPdfM.style.cssText = 'display: none !important; z-index: -1 !important; visibility: hidden !important; opacity: 0 !important;';
             }
         }
     }
