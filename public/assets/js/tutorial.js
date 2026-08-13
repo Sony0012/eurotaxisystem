@@ -1049,9 +1049,72 @@ const TutorialManager = (function () {
                 if (typeof closeManualFlagModal === 'function') closeManualFlagModal();
                 const manualModal = document.getElementById('manualFlagModal');
                 if (manualModal) { manualModal.classList.add('hidden'); manualModal.style.display = 'none'; }
+                setTimeout(() => {
+                    const btn = document.querySelector('button[onclick*="openManualFlagModal"]');
+                    if (btn) {
+                        btn.onclick = function() {
+                            if (typeof openManualFlagModal === 'function') openManualFlagModal();
+                            if (window.TutorialManager) window.TutorialManager.moveToNextStep(57);
+                        };
+                    }
+                }, 50);
             },
             getElement: () => document.querySelector('button[onclick*="openManualFlagModal"]'),
-            popover: { title: '🚨 Flag Unit Manually Action', description: 'Click here to manually declare a missing/stolen vehicle and log a critical incident on the assigned driver\'s permanent record.', position: 'bottom' }
+            popover: { title: '🚨 Flag Unit Manually Action', description: 'Click \'Flag Unit Manually\' to open the police report dialog and flag a missing or stolen vehicle!', position: 'bottom' }
+        },
+        {
+            id: 'manual-flag-modal-overview',
+            route: '/units/flagged',
+            onBeforeShow: () => {
+                if (typeof openManualFlagModal === 'function') openManualFlagModal();
+            },
+            getElement: () => document.getElementById('manualFlagPanel') || document.getElementById('manualFlagModal'),
+            popover: { title: '🚨 Flag Unit Manually Dialog', description: 'This dialog allows fleet managers to file critical missing or stolen vehicle reports directly into the system database.', position: 'right' }
+        },
+        {
+            id: 'manual-flag-select-unit',
+            route: '/units/flagged',
+            onBeforeShow: () => {
+                if (typeof openManualFlagModal === 'function') openManualFlagModal();
+            },
+            getElement: () => document.getElementById('unitSearchContainer') || document.getElementById('unitDisplay'),
+            popover: { title: '1. Select Vehicle Unit', description: 'Choose the specific vehicle plate number from your active fleet that has been reported missing or stolen.', position: 'bottom' }
+        },
+        {
+            id: 'manual-flag-suspect-driver',
+            route: '/units/flagged',
+            onBeforeShow: () => {
+                if (typeof openManualFlagModal === 'function') openManualFlagModal();
+            },
+            getElement: () => document.getElementById('driverSearchContainer') || document.getElementById('driverDisplay'),
+            popover: { title: '2. Suspect Driver Selection', description: 'Optionally select the driver assigned to the unit to log critical behavioral records or trigger an automated driver ban.', position: 'bottom' }
+        },
+        {
+            id: 'manual-flag-missing-date',
+            route: '/units/flagged',
+            onBeforeShow: () => {
+                if (typeof openManualFlagModal === 'function') openManualFlagModal();
+            },
+            getElement: () => document.querySelector('#manualFlagModal input[name="missing_since"]'),
+            popover: { title: '3. Incident Timestamp', description: 'Specify the exact date when the vehicle became unreachable or went missing.', position: 'bottom' }
+        },
+        {
+            id: 'manual-flag-reason-desc',
+            route: '/units/flagged',
+            onBeforeShow: () => {
+                if (typeof openManualFlagModal === 'function') openManualFlagModal();
+            },
+            getElement: () => document.querySelector('#manualFlagModal textarea[name="description"]'),
+            popover: { title: '4. Incident Details & Remarks', description: 'Enter comprehensive incident notes (e.g. unreturned unit, uncontactable driver, or police report case numbers).', position: 'top' }
+        },
+        {
+            id: 'manual-flag-submit-actions',
+            route: '/units/flagged',
+            onBeforeShow: () => {
+                if (typeof openManualFlagModal === 'function') openManualFlagModal();
+            },
+            getElement: () => document.querySelector('#manualFlagModal button[type="submit"]')?.closest('.border-t') || document.querySelector('#manualFlagModal button[type="submit"]'),
+            popover: { title: '5. Submit Report Action', description: 'Click \'Submit Flag\' to finalize the police report and broadcast the vehicle as missing across the fleet dashboard!', position: 'top' }
         },
         {
             id: 'flagged-unit-card-profile',
