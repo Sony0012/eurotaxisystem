@@ -961,12 +961,22 @@ const TutorialManager = (function () {
         {
             id: 'flagged-header-stats',
             route: '/units/flagged',
+            onBeforeShow: () => {
+                if (typeof closeManualFlagModal === 'function') closeManualFlagModal();
+                const manualModal = document.getElementById('manualFlagModal');
+                if (manualModal) { manualModal.classList.add('hidden'); manualModal.style.display = 'none'; }
+            },
             getElement: () => document.querySelector('#total-flagged-count')?.closest('.bg-slate-900') || document.querySelector('.bg-slate-900') || document.querySelector('#total-flagged-count'),
             popover: { title: '🚨 Flagged Units Registry & Live Stats', description: 'Overview of your fleet\'s flagged status—combining total flagged units, police-reported missing/stolen vehicles, and system auto-detected boundary delays (overdue 48+ hours).', position: 'bottom' }
         },
         {
             id: 'flagged-search-bar',
             route: '/units/flagged',
+            onBeforeShow: () => {
+                if (typeof closeManualFlagModal === 'function') closeManualFlagModal();
+                const manualModal = document.getElementById('manualFlagModal');
+                if (manualModal) { manualModal.classList.add('hidden'); manualModal.style.display = 'none'; }
+            },
             getElement: () => document.querySelector('.js-flag-search') || document.querySelector('input[placeholder*="Search plate"]'),
             popover: { title: '🔍 Real-Time Search Filter', description: 'Instantly filter flagged vehicles by plate number, vehicle make/model, or assigned suspect driver name in real time.', position: 'bottom' }
         },
@@ -974,6 +984,9 @@ const TutorialManager = (function () {
             id: 'flagged-filter-all',
             route: '/units/flagged',
             onBeforeShow: () => {
+                if (typeof closeManualFlagModal === 'function') closeManualFlagModal();
+                const manualModal = document.getElementById('manualFlagModal');
+                if (manualModal) { manualModal.classList.add('hidden'); manualModal.style.display = 'none'; }
                 setTimeout(() => {
                     const btn = document.querySelector('.filter-tab-btn[data-filter="all"]');
                     if (btn) {
@@ -991,6 +1004,9 @@ const TutorialManager = (function () {
             id: 'flagged-filter-stolen',
             route: '/units/flagged',
             onBeforeShow: () => {
+                if (typeof closeManualFlagModal === 'function') closeManualFlagModal();
+                const manualModal = document.getElementById('manualFlagModal');
+                if (manualModal) { manualModal.classList.add('hidden'); manualModal.style.display = 'none'; }
                 if (typeof setFilter === 'function') setFilter('manual_stolen');
                 setTimeout(() => {
                     const btn = document.querySelector('.filter-tab-btn[data-filter="manual_stolen"]');
@@ -1009,6 +1025,9 @@ const TutorialManager = (function () {
             id: 'flagged-filter-autoboundary',
             route: '/units/flagged',
             onBeforeShow: () => {
+                if (typeof closeManualFlagModal === 'function') closeManualFlagModal();
+                const manualModal = document.getElementById('manualFlagModal');
+                if (manualModal) { manualModal.classList.add('hidden'); manualModal.style.display = 'none'; }
                 if (typeof setFilter === 'function') setFilter('auto_boundary');
                 setTimeout(() => {
                     const btn = document.querySelector('.filter-tab-btn[data-filter="auto_boundary"]');
@@ -1026,6 +1045,11 @@ const TutorialManager = (function () {
         {
             id: 'flagged-manual-flag-btn',
             route: '/units/flagged',
+            onBeforeShow: () => {
+                if (typeof closeManualFlagModal === 'function') closeManualFlagModal();
+                const manualModal = document.getElementById('manualFlagModal');
+                if (manualModal) { manualModal.classList.add('hidden'); manualModal.style.display = 'none'; }
+            },
             getElement: () => document.querySelector('button[onclick*="openManualFlagModal"]'),
             popover: { title: '🚨 Flag Unit Manually Action', description: 'Click here to manually declare a missing/stolen vehicle and log a critical incident on the assigned driver\'s permanent record.', position: 'bottom' }
         },
@@ -1033,6 +1057,9 @@ const TutorialManager = (function () {
             id: 'flagged-unit-card-profile',
             route: '/units/flagged',
             onBeforeShow: () => {
+                if (typeof closeManualFlagModal === 'function') closeManualFlagModal();
+                const manualModal = document.getElementById('manualFlagModal');
+                if (manualModal) { manualModal.classList.add('hidden'); manualModal.style.display = 'none'; }
                 if (typeof setFilter === 'function') setFilter('all');
             },
             getElement: () => document.querySelector('#flaggedGrid > div') || document.getElementById('flaggedGrid'),
@@ -1041,6 +1068,11 @@ const TutorialManager = (function () {
         {
             id: 'flagged-unit-card-actions',
             route: '/units/flagged',
+            onBeforeShow: () => {
+                if (typeof closeManualFlagModal === 'function') closeManualFlagModal();
+                const manualModal = document.getElementById('manualFlagModal');
+                if (manualModal) { manualModal.classList.add('hidden'); manualModal.style.display = 'none'; }
+            },
             getElement: () => document.querySelector('#flaggedGrid > div .flex.items-center.justify-between') || document.querySelector('#flaggedGrid button[onclick*="openRecoverModal"]') || document.querySelector('#flaggedGrid button') || document.getElementById('flaggedGrid'),
             popover: { title: '⚡ Card Action Buttons (View / Ignore / Recover)', description: 'Click \'View\' for complete vehicle history, \'Ignore\' to dismiss boundary warnings, or \'Mark Missing\' / \'Recover\' to update police status and reactivate the car back into the active fleet!', position: 'top' }
         },
