@@ -863,8 +863,7 @@
                     iframe.src = "{{ route('driver-management.print') }}?preview=1";
                 }
                 modal.classList.remove('hidden');
-                modal.style.setProperty('display', 'flex', 'important');
-                modal.style.setProperty('z-index', '100004', 'important');
+                modal.style.cssText = 'display: flex !important; z-index: 100004 !important; visibility: visible !important; opacity: 1 !important; align-items: center; justify-content: center; position: fixed; inset: 0;';
             }
         }
         function closeDriverPdfPreview() {

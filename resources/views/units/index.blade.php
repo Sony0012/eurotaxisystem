@@ -336,12 +336,16 @@
                     iframe.src = "{{ route('units.print') }}?preview=1";
                 }
                 modal.classList.remove('hidden');
+                modal.style.cssText = 'display: flex !important; z-index: 100004 !important; visibility: visible !important; opacity: 1 !important; align-items: center; justify-content: center; position: fixed; inset: 0;';
             }
         }
         function closeTutorialPdfPreview() {
             const modal = document.getElementById('tutorialPrintPdfModal');
             const iframe = document.getElementById('tutorialPdfIframe');
-            if (modal) modal.classList.add('hidden');
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.style.cssText = 'display: none !important; z-index: -1 !important; visibility: hidden !important; opacity: 0 !important;';
+            }
             if (iframe) iframe.src = "about:blank";
         }
     </script>

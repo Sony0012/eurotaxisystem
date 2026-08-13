@@ -533,9 +533,15 @@ const TutorialManager = (function () {
             onBeforeShow: () => { 
                 if (typeof enforceTutorialViewMode === 'function') enforceTutorialViewMode('table'); 
                 if (typeof openTutorialPdfPreview === 'function') openTutorialPdfPreview(); 
+                const m = document.getElementById('tutorialPrintPdfModal');
+                if (m) { m.classList.remove('hidden'); m.style.cssText = 'display: flex !important; z-index: 100004 !important; visibility: visible !important; opacity: 1 !important; align-items: center; justify-content: center; position: fixed; inset: 0;'; }
             },
             onAfterNext: () => { if (typeof closeTutorialPdfPreview === 'function') closeTutorialPdfPreview(); },
-            getElement: () => document.getElementById('tutorialPrintPdfModal') ? document.querySelector('#tutorialPrintPdfModal > div') : document.getElementById('btn-print-pdf'),
+            getElement: () => {
+                const m = document.getElementById('tutorialPrintPdfModal');
+                if (m) { m.classList.remove('hidden'); m.style.cssText = 'display: flex !important; z-index: 100004 !important; visibility: visible !important; opacity: 1 !important; align-items: center; justify-content: center; position: fixed; inset: 0;'; }
+                return document.querySelector('#tutorialPrintPdfModal > div') || document.getElementById('btn-print-pdf');
+            },
             popover: { title: 'Live Master Roster PDF Deep Dive', description: 'Here is the live generated PDF document! It compiles your official fleet records, including Plate #, Engine/Chassis IDs, D1/D2 Assigned Drivers, Smart Boundary Rates, and Official Signature Lines.', position: 'top' }
         },
         {
@@ -1432,12 +1438,16 @@ const TutorialManager = (function () {
                 if (typeof closeDriverDetails === 'function') closeDriverDetails();
                 if (typeof openDriverPdfPreview === 'function') openDriverPdfPreview();
                 const m = document.getElementById('driverPrintPdfModal');
-                if (m) { m.classList.remove('hidden'); m.style.setProperty('display', 'flex', 'important'); m.style.setProperty('z-index', '100004', 'important'); }
+                if (m) { m.classList.remove('hidden'); m.style.cssText = 'display: flex !important; z-index: 100004 !important; visibility: visible !important; opacity: 1 !important; align-items: center; justify-content: center; position: fixed; inset: 0;'; }
             },
             onAfterNext: () => {
                 if (typeof closeDriverPdfPreview === 'function') closeDriverPdfPreview();
             },
-            getElement: () => document.getElementById('driverPrintPdfModal') ? document.querySelector('#driverPrintPdfModal > div') : document.querySelector('button[onclick*="printInHiddenIframe"]'),
+            getElement: () => {
+                const m = document.getElementById('driverPrintPdfModal');
+                if (m) { m.classList.remove('hidden'); m.style.cssText = 'display: flex !important; z-index: 100004 !important; visibility: visible !important; opacity: 1 !important; align-items: center; justify-content: center; position: fixed; inset: 0;'; }
+                return document.querySelector('#driverPrintPdfModal > div') || document.querySelector('button[onclick*="printInHiddenIframe"]');
+            },
             popover: { title: '📄 Live Driver Roster PDF Document Deep Dive', description: 'Here is the live generated Driver Roster PDF report! It compiles all official driver records—Driver Names, LTO License Numbers, Expiration Dates, Assigned Vehicle Units, and Status.', position: 'center' }
         },
         {
