@@ -2293,7 +2293,10 @@ const TutorialManager = (function () {
 
         // Ensure ONLY the current highlighted element sits above Driver overlay (z-index 100005) and receives pointer events directly
         targetElement.style.setProperty('z-index', '100005', 'important');
-        targetElement.style.setProperty('position', 'relative', 'important');
+        const computedPos = window.getComputedStyle(targetElement).position;
+        if (computedPos !== 'fixed' && computedPos !== 'absolute' && !targetElement.id.endsWith('Modal') && !targetElement.classList.contains('fixed')) {
+            targetElement.style.setProperty('position', 'relative', 'important');
+        }
         targetElement.style.setProperty('pointer-events', 'auto', 'important');
         targetElement.style.setProperty('cursor', 'pointer', 'important');
         try {
@@ -2301,7 +2304,7 @@ const TutorialManager = (function () {
         } catch (e) {}
 
         // Elevate modal container parent stacking context if target is inside a modal so clicks pass through Driver overlay
-        const parentModal = targetElement.closest('#unitDetailsModal, #addUnitModal, #editUnitModal, .modal-container');
+        const parentModal = targetElement.closest('#unitDetailsModal, #addUnitModal, #editUnitModal, #manualFlagModal, #addDriverModal, #driverDetailsModal, .modal-container');
         if (parentModal) {
             parentModal.style.setProperty('z-index', '100004', 'important');
             parentModal.style.setProperty('pointer-events', 'auto', 'important');
