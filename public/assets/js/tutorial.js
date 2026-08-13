@@ -1406,9 +1406,12 @@ const TutorialManager = (function () {
             id: 'add-driver-personal-info',
             route: '/driver-management',
             onBeforeShow: () => {
+                if (typeof closeDriverPdfPreview === 'function') closeDriverPdfPreview();
+                const pm = document.getElementById('driverPrintPdfModal');
+                if (pm) { pm.classList.add('hidden'); pm.style.cssText = 'display: none !important; z-index: -1 !important; visibility: hidden !important; opacity: 0 !important;'; }
                 if (typeof openAddDriverModal === 'function') openAddDriverModal();
                 const m = document.getElementById('addDriverModal');
-                if (m) { m.classList.remove('hidden'); m.style.removeProperty('display'); m.style.setProperty('z-index', '100004', 'important'); }
+                if (m) { m.classList.remove('hidden'); m.style.cssText = 'display: flex !important; z-index: 100004 !important; visibility: visible !important; opacity: 1 !important; align-items: center; justify-content: center; position: fixed; inset: 0;'; }
             },
             getElement: () => {
                 const m = document.getElementById('addDriverModal');
@@ -1422,9 +1425,12 @@ const TutorialManager = (function () {
             id: 'add-driver-license-info',
             route: '/driver-management',
             onBeforeShow: () => {
+                if (typeof closeDriverPdfPreview === 'function') closeDriverPdfPreview();
+                const pm = document.getElementById('driverPrintPdfModal');
+                if (pm) { pm.classList.add('hidden'); pm.style.cssText = 'display: none !important; z-index: -1 !important; visibility: hidden !important; opacity: 0 !important;'; }
                 if (typeof openAddDriverModal === 'function') openAddDriverModal();
                 const m = document.getElementById('addDriverModal');
-                if (m) { m.classList.remove('hidden'); m.style.removeProperty('display'); m.style.setProperty('z-index', '100004', 'important'); }
+                if (m) { m.classList.remove('hidden'); m.style.cssText = 'display: flex !important; z-index: 100004 !important; visibility: visible !important; opacity: 1 !important; align-items: center; justify-content: center; position: fixed; inset: 0;'; }
             },
             getElement: () => {
                 const m = document.getElementById('addDriverModal');
@@ -1438,9 +1444,12 @@ const TutorialManager = (function () {
             id: 'add-driver-submit-actions',
             route: '/driver-management',
             onBeforeShow: () => {
+                if (typeof closeDriverPdfPreview === 'function') closeDriverPdfPreview();
+                const pm = document.getElementById('driverPrintPdfModal');
+                if (pm) { pm.classList.add('hidden'); pm.style.cssText = 'display: none !important; z-index: -1 !important; visibility: hidden !important; opacity: 0 !important;'; }
                 if (typeof openAddDriverModal === 'function') openAddDriverModal();
                 const m = document.getElementById('addDriverModal');
-                if (m) { m.classList.remove('hidden'); m.style.removeProperty('display'); m.style.setProperty('z-index', '100004', 'important'); }
+                if (m) { m.classList.remove('hidden'); m.style.cssText = 'display: flex !important; z-index: 100004 !important; visibility: visible !important; opacity: 1 !important; align-items: center; justify-content: center; position: fixed; inset: 0;'; }
             },
             onAfterNext: () => {
                 if (typeof closeAddDriverModal === 'function') closeAddDriverModal();
