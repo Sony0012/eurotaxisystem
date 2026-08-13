@@ -1209,6 +1209,46 @@ const TutorialManager = (function () {
             targetElement.querySelectorAll('*').forEach(child => child.style.setProperty('cursor', 'pointer', 'important'));
         } catch (e) {}
 
+        // Elevate modal container parent stacking context if target is inside a modal so clicks pass through Driver overlay
+        const parentModal = targetElement.closest('#unitDetailsModal, #addUnitModal, #editUnitModal, .modal-container');
+        if (parentModal) {
+            parentModal.style.setProperty('z-index', '100004', 'important');
+            parentModal.style.setProperty('pointer-events', 'auto', 'important');
+            const innerCard = parentModal.querySelector(':scope > div');
+            if (innerCard) {
+                innerCard.style.setProperty('z-index', '100004', 'important');
+            }
+        }
+
+        // Misstouch protection: If target is a tab button inside unitDetailsModal, block clicks on non-highlighted tabs
+        if (targetElement.classList.contains('tab-btn')) {
+            const allTabs = document.querySelectorAll('#unitDetailsModal .tab-btn');
+            allTabs.forEach(tb => {
+                if (tb !== targetElement) {
+                    tb.style.setProperty('pointer-events', 'none', 'important');
+                    tb.style.setProperty('opacity', '0.4', 'important');
+                    tb.style.setProperty('cursor', 'not-allowed', 'important');
+                } else {
+                    tb.style.setProperty('pointer-events', 'auto', 'important');
+                    tb.style.setProperty('opacity', '1', 'important');
+                    tb.style.setProperty('cursor', 'pointer', 'important');
+                }
+            });
+
+            // Attach explicit click handler to highlighted tab button for instant tab switch & step advance
+            const tabName = targetElement.getAttribute('data-tab');
+            const onTabBtnClick = (e) => {
+                targetElement.removeEventListener('click', onTabBtnClick, true);
+                if (tabName && typeof showTab === 'function') {
+                    showTab(tabName);
+                }
+                if (window.TutorialManager) {
+                    window.TutorialManager.moveToNextStep(stepIndex);
+                }
+            };
+            targetElement.addEventListener('click', onTabBtnClick, { capture: true, once: true });
+        }
+
         const isLastStep = stepIndex === steps.length - 1;
 
         initProgressBar(steps.length);
