@@ -1410,9 +1410,10 @@ const TutorialManager = (function () {
             getElement: () => {
                 const m = document.getElementById('addDriverModal');
                 if (m && m.classList.contains('hidden')) { m.classList.remove('hidden'); m.style.removeProperty('display'); }
-                return document.getElementById('driverFirstName')?.closest('.grid') || document.getElementById('driverFirstName');
+                const firstInput = document.getElementById('driverFirstName');
+                return firstInput?.closest('.p-6 > div') || firstInput?.closest('#driverForm > div > div') || firstInput?.closest('.grid');
             },
-            popover: { title: '👤 Personal Information & Contact', description: 'Fill in the driver\'s first name, last name, and 11-digit mobile contact number.', position: 'bottom' }
+            popover: { title: '👤 Personal Information & Contact', description: 'Fill in the driver\'s first name, last name, 11-digit mobile contact number, status, and complete home address.', position: 'left' }
         },
         {
             id: 'add-driver-license-info',
@@ -1425,9 +1426,10 @@ const TutorialManager = (function () {
             getElement: () => {
                 const m = document.getElementById('addDriverModal');
                 if (m && m.classList.contains('hidden')) { m.classList.remove('hidden'); m.style.removeProperty('display'); }
-                return document.getElementById('driverLicense')?.closest('.grid') || document.getElementById('driverLicense');
+                const licenseInput = document.getElementById('driverLicense');
+                return licenseInput?.closest('.p-6 > div') || licenseInput?.closest('#driverForm > div > div') || licenseInput?.closest('.grid');
             },
-            popover: { title: '🪪 LTO License Details & Expiry', description: 'Enter official LTO driver\'s license number, license type, and set license expiration date.', position: 'bottom' }
+            popover: { title: '🪪 LTO License Details & Employment', description: 'Enter official LTO driver\'s license number, expiration validity alerts, hire date, and daily boundary target rates.', position: 'left' }
         },
         {
             id: 'add-driver-submit-actions',
@@ -1436,6 +1438,11 @@ const TutorialManager = (function () {
                 if (typeof openAddDriverModal === 'function') openAddDriverModal();
                 const m = document.getElementById('addDriverModal');
                 if (m) { m.classList.remove('hidden'); m.style.removeProperty('display'); m.style.setProperty('z-index', '100004', 'important'); }
+            },
+            onAfterNext: () => {
+                if (typeof closeAddDriverModal === 'function') closeAddDriverModal();
+                const m = document.getElementById('addDriverModal');
+                if (m) { m.classList.add('hidden'); m.style.cssText = 'display: none !important; z-index: -1 !important; visibility: hidden !important; opacity: 0 !important;'; }
             },
             getElement: () => {
                 const m = document.getElementById('addDriverModal');
