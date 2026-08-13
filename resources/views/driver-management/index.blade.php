@@ -870,10 +870,14 @@
             const modal = document.getElementById('driverPrintPdfModal');
             const iframe = document.getElementById('driverPdfIframe');
             if (modal) {
-                modal.classList.add('hidden');
-                modal.style.cssText = 'display: none !important; z-index: -1 !important; visibility: hidden !important; opacity: 0 !important;';
+                modal.style.opacity = '0';
+                modal.style.transition = 'opacity 0.15s ease';
+                setTimeout(() => {
+                    modal.classList.add('hidden');
+                    modal.style.cssText = 'display: none !important; z-index: -1 !important; visibility: hidden !important; opacity: 0 !important;';
+                    if (iframe) iframe.src = "about:blank";
+                }, 150);
             }
-            if (iframe) iframe.src = "about:blank";
         }
         window.openDriverPdfPreview = openDriverPdfPreview;
         window.closeDriverPdfPreview = closeDriverPdfPreview;
