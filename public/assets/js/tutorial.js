@@ -1160,6 +1160,51 @@ const TutorialManager = (function () {
             popover: { title: '📋 Flagged Vehicle Profile Card', description: 'Displays complete incident profile—assigned driver at time of flag, missing timestamp, last submitted boundary date, contact info, and system failure remarks.', position: 'top' }
         },
         {
+            id: 'flagged-card-header',
+            route: '/units/flagged',
+            onBeforeShow: () => {
+                if (typeof closeManualFlagModal === 'function') closeManualFlagModal();
+            },
+            getElement: () => document.querySelector('#flaggedGrid > div .p-6.bg-slate-50\\/60') || document.querySelector('#flaggedGrid > div'),
+            popover: { title: '🚗 Vehicle Identity & Flag Badge', description: 'Shows plate number, flag status badge (AUTO-FLAGGED or MISSING), vehicle make/model/year, and internal system Unit ID.', position: 'top' }
+        },
+        {
+            id: 'flagged-card-status-inactive',
+            route: '/units/flagged',
+            onBeforeShow: () => {
+                if (typeof closeManualFlagModal === 'function') closeManualFlagModal();
+            },
+            getElement: () => document.querySelector('#flaggedGrid > div .grid.grid-cols-2') || document.querySelector('#flaggedGrid > div'),
+            popover: { title: '⚠️ Flag Status & Inactive Duration', description: 'Tracks exact flag classification and calculates cumulative inactive days since the last boundary remittance.', position: 'top' }
+        },
+        {
+            id: 'flagged-card-suspect-contact',
+            route: '/units/flagged',
+            onBeforeShow: () => {
+                if (typeof closeManualFlagModal === 'function') closeManualFlagModal();
+            },
+            getElement: () => document.querySelectorAll('#flaggedGrid > div .grid.grid-cols-2 > div')[2]?.closest('.grid') || document.querySelector('#flaggedGrid > div .grid.grid-cols-2'),
+            popover: { title: '👤 Suspect Driver & Contact Details', description: 'Identifies the driver assigned to the unit at the time of incident alongside their registered mobile contact number.', position: 'top' }
+        },
+        {
+            id: 'flagged-card-description',
+            route: '/units/flagged',
+            onBeforeShow: () => {
+                if (typeof closeManualFlagModal === 'function') closeManualFlagModal();
+            },
+            getElement: () => document.querySelector('#flaggedGrid > div .p-3\\.5.bg-slate-50') || document.querySelector('#flaggedGrid > div .space-y-4') || document.querySelector('#flaggedGrid > div'),
+            popover: { title: '📝 Incident Details & System Failure Notes', description: 'Displays exact missing timestamp and automatic system failure remarks (e.g. 48+ hours overdue shift deadline).', position: 'top' }
+        },
+        {
+            id: 'flagged-card-boundary-history',
+            route: '/units/flagged',
+            onBeforeShow: () => {
+                if (typeof closeManualFlagModal === 'function') closeManualFlagModal();
+            },
+            getElement: () => document.querySelector('#flaggedGrid > div .pt-3.border-t') || document.querySelector('#flaggedGrid > div'),
+            popover: { title: '📅 Boundary Payment & Driver Audit History', description: 'Logs the timestamp of the last submitted boundary payment and the last known driver on record.', position: 'top' }
+        },
+        {
             id: 'flagged-unit-card-actions',
             route: '/units/flagged',
             onBeforeShow: () => {
@@ -1172,8 +1217,8 @@ const TutorialManager = (function () {
                     manualModal.style.display = 'none';
                 }
             },
-            getElement: () => document.querySelector('#flaggedGrid > div .flex.items-center.justify-between') || document.querySelector('#flaggedGrid button[onclick*="openRecoverModal"]') || document.querySelector('#flaggedGrid button') || document.getElementById('flaggedGrid'),
-            popover: { title: '⚡ Card Action Buttons (View / Ignore / Recover)', description: 'Click \'View\' for complete vehicle history, \'Ignore\' to dismiss boundary warnings, or \'Mark Missing\' / \'Recover\' to update police status and reactivate the car back into the active fleet!', position: 'top' }
+            getElement: () => document.querySelector('#flaggedGrid > div .p-5.border-t') || document.querySelector('#flaggedGrid button[onclick*="openRecoverModal"]') || document.querySelector('#flaggedGrid button') || document.getElementById('flaggedGrid'),
+            popover: { title: '⚡ Fleet Action Controls (View / Ignore / Recover)', description: 'Click \'View\' for complete vehicle history, \'Ignore\' to dismiss boundary warnings for 24h, or \'Mark Missing\' / \'Recover\' to update police status and reactivate the car back into the active fleet!', position: 'top' }
         },
         {
             id: 'sidebar-drivers',
