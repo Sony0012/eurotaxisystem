@@ -1179,6 +1179,15 @@ const TutorialManager = (function () {
                 if (b) { b.classList.remove('opacity-0'); b.classList.add('opacity-100'); b.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important; position: absolute; inset: 0;'; }
                 if (p) { p.classList.remove('scale-95', 'opacity-0'); p.classList.add('scale-100', 'opacity-100'); p.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important; position: relative; z-index: 100004 !important; margin-left: auto; margin-right: auto;'; }
             },
+            onAfterNext: () => {
+                if (typeof closeManualFlagModal === 'function') closeManualFlagModal();
+                const m = document.getElementById('manualFlagModal');
+                const b = document.getElementById('manualFlagBackdrop');
+                const p = document.getElementById('manualFlagPanel');
+                if (m) { m.classList.add('hidden'); m.style.cssText = 'display: none !important; z-index: -1 !important; visibility: hidden !important; opacity: 0 !important;'; }
+                if (b) { b.classList.add('opacity-0'); b.style.cssText = 'display: none !important; visibility: hidden !important; opacity: 0 !important;'; }
+                if (p) { p.classList.add('scale-95', 'opacity-0'); p.style.cssText = 'display: none !important; visibility: hidden !important; opacity: 0 !important;'; }
+            },
             getElement: () => {
                 const m = document.getElementById('manualFlagModal');
                 if (m && m.classList.contains('hidden')) { m.classList.remove('hidden'); m.style.removeProperty('display'); }
