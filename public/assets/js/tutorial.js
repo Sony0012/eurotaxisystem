@@ -1165,13 +1165,15 @@ const TutorialManager = (function () {
                 const b = document.getElementById('manualFlagBackdrop');
                 const p = document.getElementById('manualFlagPanel');
                 if (m) { m.classList.remove('hidden'); m.style.cssText = 'display: flex !important; z-index: 100004 !important; visibility: visible !important; opacity: 1 !important; align-items: center; justify-content: center; position: fixed; inset: 0;'; }
-                if (b) { b.classList.remove('opacity-0'); b.classList.add('opacity-100'); b.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important; position: absolute; inset: 0;'; }
-                if (p) { p.classList.remove('scale-95', 'opacity-0'); p.classList.add('scale-100', 'opacity-100'); p.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important; position: relative; z-index: 100004 !important; margin-left: auto; margin-right: auto;'; }
+                if (b) { b.classList.remove('opacity-0'); b.classList.add('opacity-100'); b.style.cssText = 'display: block !important; visibility: visible !important; opacity: 0.6 !important; position: absolute; inset: 0; background: #0f172a;'; }
+                if (p) { p.classList.remove('scale-95', 'opacity-0'); p.classList.add('scale-100', 'opacity-100'); p.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important; position: relative; z-index: 100004 !important; margin: auto; transform: scale(1) !important;'; }
             },
             getElement: () => {
                 const m = document.getElementById('manualFlagModal');
-                if (m && m.classList.contains('hidden')) { m.classList.remove('hidden'); m.style.removeProperty('display'); }
-                return document.getElementById('manualFlagPanel') || document.getElementById('manualFlagModal');
+                const p = document.getElementById('manualFlagPanel');
+                if (m) { m.classList.remove('hidden'); m.style.cssText = 'display: flex !important; z-index: 100004 !important; visibility: visible !important; opacity: 1 !important; align-items: center; justify-content: center; position: fixed; inset: 0;'; }
+                if (p) { p.classList.remove('scale-95', 'opacity-0'); p.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important; position: relative; z-index: 100004 !important; margin: auto; transform: scale(1) !important;'; }
+                return p || m;
             },
             popover: { title: '🚩 Manual Flagging Emergency Modal', description: 'Use this dialog to record emergency incidents—specify unit ID, suspect driver, incident timestamp, and police case notes.', position: 'center' }
         },
@@ -1184,13 +1186,15 @@ const TutorialManager = (function () {
                 const b = document.getElementById('manualFlagBackdrop');
                 const p = document.getElementById('manualFlagPanel');
                 if (m) { m.classList.remove('hidden'); m.style.cssText = 'display: flex !important; z-index: 100004 !important; visibility: visible !important; opacity: 1 !important; align-items: center; justify-content: center; position: fixed; inset: 0;'; }
-                if (b) { b.classList.remove('opacity-0'); b.classList.add('opacity-100'); b.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important; position: absolute; inset: 0;'; }
-                if (p) { p.classList.remove('scale-95', 'opacity-0'); p.classList.add('scale-100', 'opacity-100'); p.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important; position: relative; z-index: 100004 !important; margin-left: auto; margin-right: auto;'; }
+                if (b) { b.classList.remove('opacity-0'); b.classList.add('opacity-100'); b.style.cssText = 'display: block !important; visibility: visible !important; opacity: 0.6 !important; position: absolute; inset: 0; background: #0f172a;'; }
+                if (p) { p.classList.remove('scale-95', 'opacity-0'); p.classList.add('scale-100', 'opacity-100'); p.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important; position: relative; z-index: 100004 !important; margin: auto; transform: scale(1) !important;'; }
             },
             getElement: () => {
                 const m = document.getElementById('manualFlagModal');
-                if (m && m.classList.contains('hidden')) { m.classList.remove('hidden'); m.style.removeProperty('display'); }
-                return document.querySelector('#manualFlagModal select[name="unit_id"]')?.closest('.space-y-2') || document.querySelector('#manualFlagModal select[name="unit_id"]') || document.getElementById('manualFlagPanel');
+                const p = document.getElementById('manualFlagPanel');
+                if (m) { m.classList.remove('hidden'); m.style.cssText = 'display: flex !important; z-index: 100004 !important; visibility: visible !important; opacity: 1 !important; align-items: center; justify-content: center; position: fixed; inset: 0;'; }
+                if (p) { p.classList.remove('scale-95', 'opacity-0'); p.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important; position: relative; z-index: 100004 !important; margin: auto; transform: scale(1) !important;'; }
+                return document.getElementById('unitSearchContainer') || document.getElementById('unitDisplay') || p || m;
             },
             popover: { title: '1. Select Vehicle Unit', description: 'Choose the specific vehicle plate number to flag as missing or stolen from your active fleet list.', position: 'bottom' }
         },
@@ -1203,13 +1207,15 @@ const TutorialManager = (function () {
                 const b = document.getElementById('manualFlagBackdrop');
                 const p = document.getElementById('manualFlagPanel');
                 if (m) { m.classList.remove('hidden'); m.style.cssText = 'display: flex !important; z-index: 100004 !important; visibility: visible !important; opacity: 1 !important; align-items: center; justify-content: center; position: fixed; inset: 0;'; }
-                if (b) { b.classList.remove('opacity-0'); b.classList.add('opacity-100'); b.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important; position: absolute; inset: 0;'; }
-                if (p) { p.classList.remove('scale-95', 'opacity-0'); p.classList.add('scale-100', 'opacity-100'); p.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important; position: relative; z-index: 100004 !important; margin-left: auto; margin-right: auto;'; }
+                if (b) { b.classList.remove('opacity-0'); b.classList.add('opacity-100'); b.style.cssText = 'display: block !important; visibility: visible !important; opacity: 0.6 !important; position: absolute; inset: 0; background: #0f172a;'; }
+                if (p) { p.classList.remove('scale-95', 'opacity-0'); p.classList.add('scale-100', 'opacity-100'); p.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important; position: relative; z-index: 100004 !important; margin: auto; transform: scale(1) !important;'; }
             },
             getElement: () => {
                 const m = document.getElementById('manualFlagModal');
-                if (m && m.classList.contains('hidden')) { m.classList.remove('hidden'); m.style.removeProperty('display'); }
-                return document.getElementById('driverSearchContainer') || document.getElementById('driverDisplay') || document.getElementById('manualFlagPanel');
+                const p = document.getElementById('manualFlagPanel');
+                if (m) { m.classList.remove('hidden'); m.style.cssText = 'display: flex !important; z-index: 100004 !important; visibility: visible !important; opacity: 1 !important; align-items: center; justify-content: center; position: fixed; inset: 0;'; }
+                if (p) { p.classList.remove('scale-95', 'opacity-0'); p.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important; position: relative; z-index: 100004 !important; margin: auto; transform: scale(1) !important;'; }
+                return document.getElementById('driverSearchContainer') || document.getElementById('driverDisplay') || p || m;
             },
             popover: { title: '2. Suspect Driver Selection', description: 'Optionally select the driver assigned to the unit to log critical behavioral records or trigger an automated driver ban.', position: 'bottom' }
         },
@@ -1222,13 +1228,15 @@ const TutorialManager = (function () {
                 const b = document.getElementById('manualFlagBackdrop');
                 const p = document.getElementById('manualFlagPanel');
                 if (m) { m.classList.remove('hidden'); m.style.cssText = 'display: flex !important; z-index: 100004 !important; visibility: visible !important; opacity: 1 !important; align-items: center; justify-content: center; position: fixed; inset: 0;'; }
-                if (b) { b.classList.remove('opacity-0'); b.classList.add('opacity-100'); b.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important; position: absolute; inset: 0;'; }
-                if (p) { p.classList.remove('scale-95', 'opacity-0'); p.classList.add('scale-100', 'opacity-100'); p.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important; position: relative; z-index: 100004 !important; margin-left: auto; margin-right: auto;'; }
+                if (b) { b.classList.remove('opacity-0'); b.classList.add('opacity-100'); b.style.cssText = 'display: block !important; visibility: visible !important; opacity: 0.6 !important; position: absolute; inset: 0; background: #0f172a;'; }
+                if (p) { p.classList.remove('scale-95', 'opacity-0'); p.classList.add('scale-100', 'opacity-100'); p.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important; position: relative; z-index: 100004 !important; margin: auto; transform: scale(1) !important;'; }
             },
             getElement: () => {
                 const m = document.getElementById('manualFlagModal');
-                if (m && m.classList.contains('hidden')) { m.classList.remove('hidden'); m.style.removeProperty('display'); }
-                return document.querySelector('#manualFlagModal input[name="missing_since"]') || document.getElementById('manualFlagPanel');
+                const p = document.getElementById('manualFlagPanel');
+                if (m) { m.classList.remove('hidden'); m.style.cssText = 'display: flex !important; z-index: 100004 !important; visibility: visible !important; opacity: 1 !important; align-items: center; justify-content: center; position: fixed; inset: 0;'; }
+                if (p) { p.classList.remove('scale-95', 'opacity-0'); p.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important; position: relative; z-index: 100004 !important; margin: auto; transform: scale(1) !important;'; }
+                return document.querySelector('#manualFlagModal input[name="missing_since"]') || p || m;
             },
             popover: { title: '3. Incident Timestamp', description: 'Specify the exact date when the vehicle became unreachable or went missing.', position: 'bottom' }
         },
@@ -1241,13 +1249,15 @@ const TutorialManager = (function () {
                 const b = document.getElementById('manualFlagBackdrop');
                 const p = document.getElementById('manualFlagPanel');
                 if (m) { m.classList.remove('hidden'); m.style.cssText = 'display: flex !important; z-index: 100004 !important; visibility: visible !important; opacity: 1 !important; align-items: center; justify-content: center; position: fixed; inset: 0;'; }
-                if (b) { b.classList.remove('opacity-0'); b.classList.add('opacity-100'); b.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important; position: absolute; inset: 0;'; }
-                if (p) { p.classList.remove('scale-95', 'opacity-0'); p.classList.add('scale-100', 'opacity-100'); p.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important; position: relative; z-index: 100004 !important; margin-left: auto; margin-right: auto;'; }
+                if (b) { b.classList.remove('opacity-0'); b.classList.add('opacity-100'); b.style.cssText = 'display: block !important; visibility: visible !important; opacity: 0.6 !important; position: absolute; inset: 0; background: #0f172a;'; }
+                if (p) { p.classList.remove('scale-95', 'opacity-0'); p.classList.add('scale-100', 'opacity-100'); p.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important; position: relative; z-index: 100004 !important; margin: auto; transform: scale(1) !important;'; }
             },
             getElement: () => {
                 const m = document.getElementById('manualFlagModal');
-                if (m && m.classList.contains('hidden')) { m.classList.remove('hidden'); m.style.removeProperty('display'); }
-                return document.querySelector('#manualFlagModal textarea[name="description"]') || document.getElementById('manualFlagPanel');
+                const p = document.getElementById('manualFlagPanel');
+                if (m) { m.classList.remove('hidden'); m.style.cssText = 'display: flex !important; z-index: 100004 !important; visibility: visible !important; opacity: 1 !important; align-items: center; justify-content: center; position: fixed; inset: 0;'; }
+                if (p) { p.classList.remove('scale-95', 'opacity-0'); p.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important; position: relative; z-index: 100004 !important; margin: auto; transform: scale(1) !important;'; }
+                return document.querySelector('#manualFlagModal textarea[name="description"]') || p || m;
             },
             popover: { title: '4. Incident Details & Remarks', description: 'Enter comprehensive incident notes (e.g. unreturned unit, uncontactable driver, or police report case numbers).', position: 'top' }
         },
@@ -1260,8 +1270,8 @@ const TutorialManager = (function () {
                 const b = document.getElementById('manualFlagBackdrop');
                 const p = document.getElementById('manualFlagPanel');
                 if (m) { m.classList.remove('hidden'); m.style.cssText = 'display: flex !important; z-index: 100004 !important; visibility: visible !important; opacity: 1 !important; align-items: center; justify-content: center; position: fixed; inset: 0;'; }
-                if (b) { b.classList.remove('opacity-0'); b.classList.add('opacity-100'); b.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important; position: absolute; inset: 0;'; }
-                if (p) { p.classList.remove('scale-95', 'opacity-0'); p.classList.add('scale-100', 'opacity-100'); p.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important; position: relative; z-index: 100004 !important; margin-left: auto; margin-right: auto;'; }
+                if (b) { b.classList.remove('opacity-0'); b.classList.add('opacity-100'); b.style.cssText = 'display: block !important; visibility: visible !important; opacity: 0.6 !important; position: absolute; inset: 0; background: #0f172a;'; }
+                if (p) { p.classList.remove('scale-95', 'opacity-0'); p.classList.add('scale-100', 'opacity-100'); p.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important; position: relative; z-index: 100004 !important; margin: auto; transform: scale(1) !important;'; }
             },
             onAfterNext: () => {
                 if (typeof closeManualFlagModal === 'function') closeManualFlagModal();
