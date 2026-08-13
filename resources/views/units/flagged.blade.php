@@ -676,15 +676,21 @@
         const backdrop = document.getElementById('manualFlagBackdrop');
         const panel = document.getElementById('manualFlagPanel');
         
-        backdrop.classList.remove('opacity-100');
-        backdrop.classList.add('opacity-0');
-        
-        panel.classList.remove('scale-100', 'opacity-100');
-        panel.classList.add('scale-95', 'opacity-0');
-        
-        setTimeout(() => {
+        if (backdrop) {
+            backdrop.classList.remove('opacity-100');
+            backdrop.classList.add('opacity-0');
+            backdrop.style.setProperty('display', 'none', 'important');
+        }
+        if (panel) {
+            panel.classList.remove('scale-100', 'opacity-100');
+            panel.classList.add('scale-95', 'opacity-0');
+            panel.style.setProperty('display', 'none', 'important');
+        }
+        if (modal) {
             modal.classList.add('hidden');
-        }, 300);
+            modal.style.setProperty('display', 'none', 'important');
+            modal.style.setProperty('z-index', '-1', 'important');
+        }
     }
 
     function filterCards() {

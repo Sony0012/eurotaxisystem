@@ -1869,6 +1869,43 @@ const TutorialManager = (function () {
                 }
             }
         }
+
+        // Clean up manualFlagModal inline styles if current step is NOT a manual flag modal step
+        if (!currentStep || (!currentStep.id.startsWith('manual-flag-') && currentStep.id !== 'manual-flag-modal-panel')) {
+            const manualModal = document.getElementById('manualFlagModal');
+            const manualBackdrop = document.getElementById('manualFlagBackdrop');
+            const manualPanel = document.getElementById('manualFlagPanel');
+            if (manualModal) {
+                manualModal.classList.add('hidden');
+                manualModal.style.cssText = 'display: none !important; z-index: -1 !important; visibility: hidden !important; opacity: 0 !important;';
+            }
+            if (manualBackdrop) {
+                manualBackdrop.classList.add('opacity-0');
+                manualBackdrop.style.cssText = 'display: none !important; visibility: hidden !important; opacity: 0 !important;';
+            }
+            if (manualPanel) {
+                manualPanel.classList.add('scale-95', 'opacity-0');
+                manualPanel.style.cssText = 'display: none !important; visibility: hidden !important; opacity: 0 !important;';
+            }
+        }
+
+        // Clean up addDriverModal inline styles if current step is NOT an add driver modal step
+        if (!currentStep || !currentStep.id.startsWith('add-driver-')) {
+            const addDriverM = document.getElementById('addDriverModal');
+            if (addDriverM) {
+                addDriverM.classList.add('hidden');
+                addDriverM.style.cssText = 'display: none !important; z-index: -1 !important; visibility: hidden !important; opacity: 0 !important;';
+            }
+        }
+
+        // Clean up driverDetailsModal inline styles if current step is NOT a driver details modal step
+        if (!currentStep || (!currentStep.id.startsWith('driver-details-') && currentStep.id !== 'drivers-row-click-deepdive')) {
+            const driverDetailsM = document.getElementById('driverDetailsModal');
+            if (driverDetailsM) {
+                driverDetailsM.classList.add('hidden');
+                driverDetailsM.style.cssText = 'display: none !important; z-index: -1 !important; visibility: hidden !important; opacity: 0 !important;';
+            }
+        }
     }
 
     function startTutorial(stepIndex) {
