@@ -911,6 +911,47 @@ const TutorialManager = (function () {
             popover: { title: 'Close Unit Details Profile', description: 'Clicking close returns you to the main fleet management dashboard.', position: 'bottom' }
         },
         {
+            id: 'sidebar-flagged-units',
+            route: '/units',
+            onBeforeShow: () => {
+                if (typeof closeUnitDetailsModal === 'function') closeUnitDetailsModal();
+                const m = document.getElementById('unitDetailsModal');
+                if (m) m.classList.add('hidden');
+            },
+            getElement: () => findSidebarLink(['Flagged Units']) || document.querySelector('a[href*="/units/flagged"]'),
+            popover: { title: '🚨 Flagged Units Registry Navigation', description: 'Click Flagged Units to inspect missing/stolen vehicles, overdue boundary auto-flags, and dispatch recovery teams.', position: 'right' }
+        },
+        {
+            id: 'flagged-header-stats',
+            route: '/units/flagged',
+            getElement: () => document.querySelector('#total-flagged-count') || document.querySelector('.bg-red-500\\/10') || document.querySelector('h3'),
+            popover: { title: '1. Total Flagged Stats', description: 'Real-time counters tracking total missing vehicles, police-reported incidents, and auto-flagged boundary delays exceeding 48 hours.', position: 'bottom' }
+        },
+        {
+            id: 'flagged-filter-tabs',
+            route: '/units/flagged',
+            getElement: () => document.querySelector('.filter-tab-btn[data-filter="all"]') || document.querySelector('.filter-tab-btn'),
+            popover: { title: '2. Filter Categories', description: 'Filter vehicle registry by All Flagged, Missing / Stolen (Police cases), or Auto-Detected (System boundary alerts).', position: 'bottom' }
+        },
+        {
+            id: 'flagged-manual-flag-btn',
+            route: '/units/flagged',
+            getElement: () => document.querySelector('button[onclick*="openManualFlagModal"]') || document.querySelector('.flex.items-center.justify-center.gap-2.px-5.py-3.bg-red-50'),
+            popover: { title: '3. Flag Unit Manually', description: 'Manually declare a vehicle as Missing/Stolen and automatically log a critical incident on the suspect driver\'s behavior record.', position: 'bottom' }
+        },
+        {
+            id: 'flagged-unit-card',
+            route: '/units/flagged',
+            getElement: () => document.querySelector('#flaggedGrid > div') || document.getElementById('flaggedGrid'),
+            popover: { title: '4. Flagged Vehicle Profile Card', description: 'Displays plate number, assigned driver at time of incident, missing timestamp, and accumulated overdue boundary amount.', position: 'top' }
+        },
+        {
+            id: 'flagged-recover-btn',
+            route: '/units/flagged',
+            getElement: () => document.querySelector('#flaggedGrid button[onclick*="openRecoverModal"]') || document.querySelector('#flaggedGrid button') || document.getElementById('flaggedGrid'),
+            popover: { title: '5. Unit Recovery & Clearance', description: 'Re-activates the recovered vehicle back into the active fleet once found or boundary arrears are settled!', position: 'top' }
+        },
+        {
             id: 'sidebar-drivers',
             getElement: () => findSidebarLink(['Driver Management']),
             popover: { title: 'Driver Management', description: 'Register new drivers, handle bans, contracts, and debt records.', position: 'right' }
