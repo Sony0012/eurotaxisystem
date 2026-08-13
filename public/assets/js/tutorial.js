@@ -1538,23 +1538,27 @@ const TutorialManager = (function () {
                                 const pRect = wrapper.getBoundingClientRect();
 
                                 let pos = step.popover.position || 'right';
+                                let arrowSvg = '';
 
                                 if (step.id === 'unit-details-close') {
                                     if (wrapper) wrapper.classList.add('popover-unit-details-close');
                                     pos = 'right';
 
-                                    const targetX = pRect.left - (tRect.left + tRect.width / 2);
-                                    const targetY = (tRect.top + tRect.height / 2) - pRect.top;
+                                    const targetX = Math.round(pRect.left - (tRect.left + tRect.width / 2));
+                                    const targetY = Math.round((tRect.top + tRect.height / 2) - pRect.top);
 
-                                    const svgWidth = Math.max(120, Math.round(targetX + 30));
-                                    const svgHeight = Math.max(100, Math.round(Math.abs(targetY) + 40));
+                                    const svgWidth = Math.max(120, Math.abs(targetX) + 40);
+                                    const svgHeight = Math.max(100, Math.abs(targetY) + 60);
 
                                     const startX = svgWidth - 10;
                                     const startY = 40;
                                     const endX = 20;
-                                    const endY = Math.round(targetY > 0 ? targetY + 20 : 30);
+                                    const endY = Math.round(targetY > 0 ? targetY + 20 : 35);
 
-                                    const pathD = `M ${startX} ${startY} Q ${Math.round(svgWidth * 0.5)} ${Math.min(startY, endY) - 20} ${endX} ${endY}`;
+                                    const controlX = Math.round(svgWidth * 0.5);
+                                    const controlY = Math.min(startY, endY) - 25;
+
+                                    const pathD = `M ${startX} ${startY} Q ${controlX} ${controlY} ${endX} ${endY}`;
                                     const polyPoints = `${endX},${endY} ${endX + 12},${endY - 6} ${endX + 8},${endY + 10}`;
 
                                     arrowSvg = `
@@ -1565,23 +1569,8 @@ const TutorialManager = (function () {
                                             </svg>
                                         </div>
                                     `;
-                                } else if (step.id === 'units-row-click-deepdive' || step.id.startsWith('unit-details-')) {
+                                } else if (step.id.startsWith('unit-details-') && targetElement.classList.contains('tab-btn')) {
                                     pos = 'left';
-                                } else {
-                                    const tCenter = { x: tRect.left + tRect.width / 2, y: tRect.top + tRect.height / 2 };
-                                    const pCenter = { x: pRect.left + pRect.width / 2, y: pRect.top + pRect.height / 2 };
-                                    const dx = pCenter.x - tCenter.x;
-                                    const dy = pCenter.y - tCenter.y;
-                                    if (Math.abs(dx) > Math.abs(dy)) {
-                                        pos = dx > 0 ? 'right' : 'left';
-                                    } else {
-                                        pos = dy > 0 ? 'bottom' : 'top';
-                                    }
-                                }
-
-                                let arrowSvg = '';
-
-                                if (step.id.startsWith('unit-details-') && targetElement.classList.contains('tab-btn')) {
                                     // Calculate exact dynamic target X & Y distance from popover right edge to target tab center
                                     const startX = 10;
                                     const startY = Math.max(30, Math.min(80, pRect.height / 2));
@@ -1609,6 +1598,18 @@ const TutorialManager = (function () {
                                         </div>
                                     `;
                                 } else {
+                                    const tCenter = { x: tRect.left + tRect.width / 2, y: tRect.top + tRect.height / 2 };
+                                    const pCenter = { x: pRect.left + pRect.width / 2, y: pRect.top + pRect.height / 2 };
+                                    const dx = pCenter.x - tCenter.x;
+                                    const dy = pCenter.y - tCenter.y;
+                                    if (step.id === 'units-row-click-deepdive' || step.id.startsWith('unit-details-')) {
+                                        pos = 'left';
+                                    } else if (Math.abs(dx) > Math.abs(dy)) {
+                                        pos = dx > 0 ? 'right' : 'left';
+                                    } else {
+                                        pos = dy > 0 ? 'bottom' : 'top';
+                                    }
+
                                     let pathD = "M 10 90 Q 30 10 90 20";
                                     let polyPoints = "90,20 80,15 85,28";
                                     
