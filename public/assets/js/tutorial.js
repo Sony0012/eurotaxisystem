@@ -1183,13 +1183,12 @@ const TutorialManager = (function () {
             route: '/units/flagged',
             onBeforeShow: () => {
                 if (typeof closeManualFlagModal === 'function') closeManualFlagModal();
-                const manualModal = document.getElementById('manualFlagModal');
-                if (manualModal) {
-                    manualModal.classList.add('hidden');
-                    manualModal.style.removeProperty('display');
-                    manualModal.style.removeProperty('z-index');
-                    manualModal.style.display = 'none';
-                }
+                const m = document.getElementById('manualFlagModal');
+                const b = document.getElementById('manualFlagBackdrop');
+                const p = document.getElementById('manualFlagPanel');
+                if (m) { m.classList.add('hidden'); m.style.removeProperty('z-index'); m.style.setProperty('display', 'none', 'important'); }
+                if (b) { b.classList.add('opacity-0'); b.classList.remove('opacity-100'); }
+                if (p) { p.classList.add('scale-95', 'opacity-0'); p.classList.remove('scale-100', 'opacity-100'); p.style.removeProperty('z-index'); }
                 if (typeof setFilter === 'function') setFilter('all');
             },
             getElement: () => document.querySelector('#flaggedGrid > div') || document.getElementById('flaggedGrid'),
@@ -1200,6 +1199,8 @@ const TutorialManager = (function () {
             route: '/units/flagged',
             onBeforeShow: () => {
                 if (typeof closeManualFlagModal === 'function') closeManualFlagModal();
+                const m = document.getElementById('manualFlagModal');
+                if (m) { m.classList.add('hidden'); m.style.setProperty('display', 'none', 'important'); }
             },
             getElement: () => document.querySelector('#flaggedGrid > div .p-6.bg-slate-50\\/60') || document.querySelector('#flaggedGrid > div'),
             popover: { title: '🚗 Vehicle Identity & Flag Badge', description: 'Shows plate number, flag status badge (AUTO-FLAGGED or MISSING), vehicle make/model/year, and internal system Unit ID.', position: 'top' }
@@ -1209,6 +1210,8 @@ const TutorialManager = (function () {
             route: '/units/flagged',
             onBeforeShow: () => {
                 if (typeof closeManualFlagModal === 'function') closeManualFlagModal();
+                const m = document.getElementById('manualFlagModal');
+                if (m) { m.classList.add('hidden'); m.style.setProperty('display', 'none', 'important'); }
             },
             getElement: () => document.querySelector('#flaggedGrid > div .grid.grid-cols-2') || document.querySelector('#flaggedGrid > div'),
             popover: { title: '⚠️ Flag Status & Inactive Duration', description: 'Tracks exact flag classification and calculates cumulative inactive days since the last boundary remittance.', position: 'top' }
@@ -1218,6 +1221,8 @@ const TutorialManager = (function () {
             route: '/units/flagged',
             onBeforeShow: () => {
                 if (typeof closeManualFlagModal === 'function') closeManualFlagModal();
+                const m = document.getElementById('manualFlagModal');
+                if (m) { m.classList.add('hidden'); m.style.setProperty('display', 'none', 'important'); }
             },
             getElement: () => document.querySelectorAll('#flaggedGrid > div .grid.grid-cols-2 > div')[2]?.closest('.grid') || document.querySelector('#flaggedGrid > div .grid.grid-cols-2'),
             popover: { title: '👤 Suspect Driver & Contact Details', description: 'Identifies the driver assigned to the unit at the time of incident alongside their registered mobile contact number.', position: 'top' }
@@ -1227,6 +1232,8 @@ const TutorialManager = (function () {
             route: '/units/flagged',
             onBeforeShow: () => {
                 if (typeof closeManualFlagModal === 'function') closeManualFlagModal();
+                const m = document.getElementById('manualFlagModal');
+                if (m) { m.classList.add('hidden'); m.style.setProperty('display', 'none', 'important'); }
             },
             getElement: () => document.querySelector('#flaggedGrid > div .p-3\\.5.bg-slate-50') || document.querySelector('#flaggedGrid > div .space-y-4') || document.querySelector('#flaggedGrid > div'),
             popover: { title: '📝 Incident Details & System Failure Notes', description: 'Displays exact missing timestamp and automatic system failure remarks (e.g. 48+ hours overdue shift deadline).', position: 'top' }
@@ -1236,6 +1243,8 @@ const TutorialManager = (function () {
             route: '/units/flagged',
             onBeforeShow: () => {
                 if (typeof closeManualFlagModal === 'function') closeManualFlagModal();
+                const m = document.getElementById('manualFlagModal');
+                if (m) { m.classList.add('hidden'); m.style.setProperty('display', 'none', 'important'); }
             },
             getElement: () => document.querySelector('#flaggedGrid > div .pt-3.border-t') || document.querySelector('#flaggedGrid > div'),
             popover: { title: '📅 Boundary Payment & Driver Audit History', description: 'Logs the timestamp of the last submitted boundary payment and the last known driver on record.', position: 'top' }
@@ -1245,13 +1254,8 @@ const TutorialManager = (function () {
             route: '/units/flagged',
             onBeforeShow: () => {
                 if (typeof closeManualFlagModal === 'function') closeManualFlagModal();
-                const manualModal = document.getElementById('manualFlagModal');
-                if (manualModal) {
-                    manualModal.classList.add('hidden');
-                    manualModal.style.removeProperty('display');
-                    manualModal.style.removeProperty('z-index');
-                    manualModal.style.display = 'none';
-                }
+                const m = document.getElementById('manualFlagModal');
+                if (m) { m.classList.add('hidden'); m.style.setProperty('display', 'none', 'important'); }
             },
             getElement: () => document.querySelector('#flaggedGrid > div .p-5.border-t') || document.querySelector('#flaggedGrid button[onclick*="openRecoverModal"]') || document.querySelector('#flaggedGrid button') || document.getElementById('flaggedGrid'),
             popover: { title: '⚡ Fleet Action Controls (View / Ignore / Recover)', description: 'Click \'View\' for complete vehicle history, \'Ignore\' to dismiss boundary warnings for 24h, or \'Mark Missing\' / \'Recover\' to update police status and reactivate the car back into the active fleet!', position: 'top' }
