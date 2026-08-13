@@ -1485,7 +1485,33 @@ const TutorialManager = (function () {
 
                                 let pos = step.popover.position || 'right';
 
-                                if (step.id === 'units-row-click-deepdive' || step.id.startsWith('unit-details-')) {
+                                if (step.id === 'unit-details-close') {
+                                    if (wrapper) wrapper.classList.add('popover-unit-details-close');
+                                    pos = 'right';
+
+                                    const targetX = pRect.left - (tRect.left + tRect.width / 2);
+                                    const targetY = (tRect.top + tRect.height / 2) - pRect.top;
+
+                                    const svgWidth = Math.max(120, Math.round(targetX + 30));
+                                    const svgHeight = Math.max(100, Math.round(Math.abs(targetY) + 40));
+
+                                    const startX = svgWidth - 10;
+                                    const startY = 40;
+                                    const endX = 20;
+                                    const endY = Math.round(targetY > 0 ? targetY + 20 : 30);
+
+                                    const pathD = `M ${startX} ${startY} Q ${Math.round(svgWidth * 0.5)} ${Math.min(startY, endY) - 20} ${endX} ${endY}`;
+                                    const polyPoints = `${endX},${endY} ${endX + 12},${endY - 6} ${endX + 8},${endY + 10}`;
+
+                                    arrowSvg = `
+                                        <div class="tutorial-arrow-wrapper arrow-fade-in" style="position:absolute; left:-${svgWidth - 10}px; top:0px; width:${svgWidth}px; height:${svgHeight}px; pointer-events:none; z-index:2000001;">
+                                            <svg class="tutorial-curved-arrow" viewBox="0 0 ${svgWidth} ${svgHeight}" style="width:100%; height:100%; overflow:visible;">
+                                                <path d="${pathD}" stroke="#60a5fa" stroke-width="4" stroke-linecap="round" stroke-dasharray="8,8" fill="none" />
+                                                <polygon points="${polyPoints}" fill="#60a5fa" />
+                                            </svg>
+                                        </div>
+                                    `;
+                                } else if (step.id === 'units-row-click-deepdive' || step.id.startsWith('unit-details-')) {
                                     pos = 'left';
                                 } else {
                                     const tCenter = { x: tRect.left + tRect.width / 2, y: tRect.top + tRect.height / 2 };

@@ -390,19 +390,31 @@ button[onclick*="toggleUnitDropdown"] *,
     animation: tutorialArrowFadeIn 0.3s ease forwards;
 }
 
-/* Force driver popover to sit 100% cleanly on the far left screen edge outside the centered modal */
-.driver-popover:has(~ #unitDetailsModal),
-body:has(#unitDetailsModal:not(.hidden)) .driver-popover {
+/* Force driver popover for modal profile showcase and tabs to sit on left backdrop */
+body:has(#unitDetailsModal:not(.hidden)) .driver-popover:not(.popover-unit-details-close) {
     left: 40px !important;
+    right: auto !important;
     top: 50% !important;
     transform: translateY(-50%) !important;
     max-width: 320px !important;
 }
 
+/* Force Step 51 (Close Unit Details Profile) popover to sit on the RIGHT side near the Close X button */
+body:has(#unitDetailsModal:not(.hidden)) .driver-popover.popover-unit-details-close {
+    left: auto !important;
+    right: 40px !important;
+    top: 120px !important;
+    transform: none !important;
+    max-width: 320px !important;
+}
+
 @media (max-width: 1400px) {
-    .driver-popover:has(~ #unitDetailsModal),
-    body:has(#unitDetailsModal:not(.hidden)) .driver-popover {
+    body:has(#unitDetailsModal:not(.hidden)) .driver-popover:not(.popover-unit-details-close) {
         left: 20px !important;
+        max-width: 280px !important;
+    }
+    body:has(#unitDetailsModal:not(.hidden)) .driver-popover.popover-unit-details-close {
+        right: 20px !important;
         max-width: 280px !important;
     }
 }
