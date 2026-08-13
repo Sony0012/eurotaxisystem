@@ -903,8 +903,40 @@ const TutorialManager = (function () {
                 if (!m || m.classList.contains('hidden')) {
                     if (typeof viewUnitDetails === 'function') viewUnitDetails(1);
                 }
+                setTimeout(() => {
+                    const closeBtn = document.querySelector('#unitDetailsModal button[onclick*="closeUnitDetailsModal"]');
+                    if (closeBtn) {
+                        closeBtn.onclick = function(e) {
+                            if (typeof closeUnitDetailsModal === 'function') closeUnitDetailsModal();
+                            const modal = document.getElementById('unitDetailsModal');
+                            if (modal) {
+                                modal.classList.add('hidden');
+                                modal.style.removeProperty('display');
+                                modal.style.removeProperty('z-index');
+                                modal.style.display = 'none';
+                            }
+                            if (window._stepTabGlobalClick) {
+                                window.removeEventListener('click', window._stepTabGlobalClick, true);
+                                window._stepTabGlobalClick = null;
+                            }
+                            if (driverObj) {
+                                try { driverObj.destroy(); } catch (err) {}
+                            }
+                            if (window.TutorialManager) {
+                                window.TutorialManager.moveToNextStep(50);
+                            }
+                        };
+                    }
+                }, 50);
             },
             onAfterNext: () => {
+                const modal = document.getElementById('unitDetailsModal');
+                if (modal) {
+                    modal.classList.add('hidden');
+                    modal.style.removeProperty('display');
+                    modal.style.removeProperty('z-index');
+                    modal.style.display = 'none';
+                }
                 if (typeof closeUnitDetailsModal === 'function') closeUnitDetailsModal();
             },
             getElement: () => document.querySelector('#unitDetailsModal button[onclick*="closeUnitDetailsModal"]') || document.querySelector('#unitDetailsModal > div'),
@@ -914,9 +946,14 @@ const TutorialManager = (function () {
             id: 'sidebar-flagged-units',
             route: '/units',
             onBeforeShow: () => {
+                const modal = document.getElementById('unitDetailsModal');
+                if (modal) {
+                    modal.classList.add('hidden');
+                    modal.style.removeProperty('display');
+                    modal.style.removeProperty('z-index');
+                    modal.style.display = 'none';
+                }
                 if (typeof closeUnitDetailsModal === 'function') closeUnitDetailsModal();
-                const m = document.getElementById('unitDetailsModal');
-                if (m) m.classList.add('hidden');
             },
             getElement: () => findSidebarLink(['Flagged Units']) || document.querySelector('a[href*="/units/flagged"]'),
             popover: { title: '🚨 Flagged Units Registry Navigation', description: 'Click Flagged Units to inspect missing/stolen vehicles, overdue boundary auto-flags, and dispatch recovery teams.', position: 'right' }
@@ -1220,7 +1257,7 @@ const TutorialManager = (function () {
     let currentElevatedElement = null;
     let originalElementStyles = {};
 
-    function clearElevatedTarget() {
+    function clearElevatedTarget(currentStep) {
         if (currentElevatedElement) {
             if (originalElementStyles.zIndex !== undefined && originalElementStyles.zIndex !== '') {
                 currentElevatedElement.style.zIndex = originalElementStyles.zIndex;
@@ -1240,11 +1277,26 @@ const TutorialManager = (function () {
             currentElevatedElement = null;
             originalElementStyles = {};
         }
+
+        // Clean up unitDetailsModal inline styles if current step is NOT a modal profile step
+        if (!currentStep || (!currentStep.id.startsWith('unit-details-') && currentStep.id !== 'units-row-click-deepdive')) {
+            const modal = document.getElementById('unitDetailsModal');
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.style.removeProperty('display');
+                modal.style.removeProperty('z-index');
+                modal.style.removeProperty('pointer-events');
+                modal.style.display = 'none';
+                const innerCard = modal.querySelector(':scope > div');
+                if (innerCard) {
+                    innerCard.style.removeProperty('z-index');
+                }
+            }
+        }
     }
 
     function startTutorial(stepIndex) {
         logDebug(`startTutorial called with stepIndex: ${stepIndex}`);
-        clearElevatedTarget();
         
         if (stepIndex >= steps.length) {
             logDebug("Reached end of steps. Finishing tutorial.");
@@ -1254,6 +1306,8 @@ const TutorialManager = (function () {
 
         const step = steps[stepIndex];
         logDebug(`Attempting to find element for step: ${step.id}`);
+
+        clearElevatedTarget(step);
 
         // Auto-navigate to step route if specified and browser is not currently on that route
         if (step.route && !window.location.pathname.startsWith(step.route)) {
