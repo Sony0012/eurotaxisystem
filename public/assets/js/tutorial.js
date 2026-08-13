@@ -1892,19 +1892,32 @@ const TutorialManager = (function () {
 
         enableTutorialDataProtection();
 
-        const currentStepIndex = parseInt(localStorage.getItem('tutorial_current_step') || '0', 10);
-        logDebug("Current step index loaded: " + currentStepIndex);
+        const welcomeShown = localStorage.getItem('tutorial_welcome_shown');
+        const forceRestart = localStorage.getItem('tutorial_force_restart');
         
-        if (currentStepIndex === 0 && !localStorage.getItem('tutorial_welcome_shown')) {
+        if (!welcomeShown || forceRestart) {
             logDebug("Showing welcome modal.");
+            if (driverObj) {
+                try { driverObj.destroy(); } catch (e) {}
+                driverObj = null;
+            }
+            document.querySelectorAll('.driver-popover, .driver-overlay, #tutorial-global-progress').forEach(el => el.remove());
             showWelcomeModal();
         } else {
+            const currentStepIndex = parseInt(localStorage.getItem('tutorial_current_step') || '0', 10);
+            logDebug("Current step index loaded: " + currentStepIndex);
             startTutorial(currentStepIndex);
         }
     }
 
     function showWelcomeModal() {
-        if(document.getElementById('tutorial-welcome-modal')) return;
+        if (driverObj) {
+            try { driverObj.destroy(); } catch (e) {}
+            driverObj = null;
+        }
+        document.querySelectorAll('.driver-popover, .driver-overlay, #tutorial-global-progress').forEach(el => el.remove());
+
+        if (document.getElementById('tutorial-welcome-modal')) return;
         const modalHtml = `
             <div id="tutorial-welcome-modal" class="fixed inset-0 flex items-center justify-center p-4" style="z-index: 999999; background: rgba(17, 24, 39, 0.85); backdrop-filter: blur(12px);">
                 <div id="tutorial-welcome-content" class="bg-gray-900 rounded-3xl shadow-2xl p-8 max-w-sm w-full text-center relative border border-gray-700" style="animation: modal-pop-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;">
@@ -1922,18 +1935,29 @@ const TutorialManager = (function () {
         `;
         document.body.insertAdjacentHTML('beforeend', modalHtml);
 
-        document.getElementById('tutorial-start-btn').addEventListener('click', () => {
-            logDebug("User clicked Start Tour");
-            document.getElementById('tutorial-welcome-modal').remove();
-            localStorage.setItem('tutorial_welcome_shown', '1');
-            startTutorial(0);
-        });
+        const startBtn = document.getElementById('tutorial-start-btn');
+        if (startBtn) {
+            setTimeout(() => startBtn.focus(), 50);
+            startBtn.addEventListener('click', () => {
+                logDebug("User clicked Start Tour");
+                const m = document.getElementById('tutorial-welcome-modal');
+                if (m) m.remove();
+                localStorage.setItem('tutorial_welcome_shown', '1');
+                localStorage.setItem('tutorial_current_step', '0');
+                localStorage.removeItem('tutorial_force_restart');
+                startTutorial(0);
+            });
+        }
 
-        document.getElementById('tutorial-skip-btn').addEventListener('click', () => {
-            logDebug("User skipped tour");
-            document.getElementById('tutorial-welcome-modal').remove();
-            markTutorialComplete();
-        });
+        const skipBtn = document.getElementById('tutorial-skip-btn');
+        if (skipBtn) {
+            skipBtn.addEventListener('click', () => {
+                logDebug("User skipped tour");
+                const m = document.getElementById('tutorial-welcome-modal');
+                if (m) m.remove();
+                markTutorialComplete();
+            });
+        }
     }
 
     function initProgressBar(totalSteps) {
@@ -2067,6 +2091,17 @@ const TutorialManager = (function () {
     function startTutorial(stepIndex) {
         logDebug(`startTutorial called with stepIndex: ${stepIndex}`);
         
+        // If Welcome Modal is active, DO NOT run background steps
+        if (document.getElementById('tutorial-welcome-modal')) {
+            logDebug("Welcome modal is active. Blocking startTutorial.");
+            if (driverObj) {
+                try { driverObj.destroy(); } catch (err) {}
+                driverObj = null;
+            }
+            document.querySelectorAll('.driver-popover, .driver-overlay, #tutorial-global-progress').forEach(el => el.remove());
+            return;
+        }
+
         if (stepIndex >= steps.length) {
             logDebug("Reached end of steps. Finishing tutorial.");
             finishTutorial();
@@ -2629,6 +2664,18 @@ window.TutorialManager = TutorialManager;
 if (!window._tutorialKeyboardListenerAttached) {
     window._tutorialKeyboardListenerAttached = true;
     window.addEventListener('keydown', (e) => {
+        // If Welcome Modal is active, Handle Enter/Space to click "Start Tour" cleanly
+        const welcomeModal = document.getElementById('tutorial-welcome-modal');
+        if (welcomeModal) {
+            if (e.key === 'Enter' || e.key === ' ' || e.code === 'Space' || e.code === 'Enter') {
+                e.preventDefault();
+                e.stopPropagation();
+                const startBtn = document.getElementById('tutorial-start-btn');
+                if (startBtn) startBtn.click();
+            }
+            return;
+        }
+
         const stepStr = localStorage.getItem('tutorial_current_step');
         if (stepStr === null || stepStr === '' || stepStr === undefined) return;
         const currentStepIndex = parseInt(stepStr, 10);
