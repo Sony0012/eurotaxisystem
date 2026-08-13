@@ -1263,6 +1263,8 @@ const TutorialManager = (function () {
         {
             id: 'sidebar-drivers',
             onBeforeShow: () => {
+                if (typeof closeAddDriverModal === 'function') closeAddDriverModal();
+                if (typeof closeDriverDetails === 'function') closeDriverDetails();
                 const link = findSidebarLink(['Driver Management']);
                 if (link) {
                     link.onclick = function(e) {
@@ -1278,96 +1280,17 @@ const TutorialManager = (function () {
             route: '/driver-management',
             onBeforeShow: () => {
                 if (typeof closeAddDriverModal === 'function') closeAddDriverModal();
-                const m = document.getElementById('addDriverModal');
-                if (m) { m.classList.add('hidden'); m.style.setProperty('display', 'none', 'important'); }
+                if (typeof closeDriverDetails === 'function') closeDriverDetails();
             },
             getElement: () => document.querySelector('#tableSearchInput')?.closest('form') || document.querySelector('#tableSearchInput'),
-            popover: { title: '🔍 Driver Roster Search & Filters', description: 'Search drivers by full name or LTO license number, sort A-Z, or filter table by status (Active, Inactive, Available Without Unit).', position: 'bottom' }
-        },
-        {
-            id: 'drivers-table-profile-col',
-            route: '/driver-management',
-            onBeforeShow: () => {
-                if (typeof closeAddDriverModal === 'function') closeAddDriverModal();
-                const m = document.getElementById('addDriverModal');
-                if (m) { m.classList.add('hidden'); m.style.setProperty('display', 'none', 'important'); }
-            },
-            getElement: () => document.querySelector('.modern-table-sep tbody tr td:first-child') || document.querySelector('#driversTableContainer table tbody tr td:first-child') || document.querySelector('#driversTableContainer'),
-            popover: { title: '👤 Driver Profile & Shortage/Debt Alerts', description: 'Displays driver avatar initials, full registered name, and live warning badges for unpaid boundary shortages or pending accident debts.', position: 'right' }
-        },
-        {
-            id: 'drivers-table-unit-col',
-            route: '/driver-management',
-            onBeforeShow: () => {
-                if (typeof closeAddDriverModal === 'function') closeAddDriverModal();
-                const m = document.getElementById('addDriverModal');
-                if (m) { m.classList.add('hidden'); m.style.setProperty('display', 'none', 'important'); }
-            },
-            getElement: () => document.querySelector('.modern-table-sep tbody tr td:nth-child(2)') || document.querySelector('#driversTableContainer table tbody tr td:nth-child(2)') || document.querySelector('#driversTableContainer'),
-            popover: { title: '🚗 Assigned Taxi Unit', description: 'Shows the active vehicle plate number assigned to the driver (e.g. AAA 4591) for daily boundary operations.', position: 'top' }
-        },
-        {
-            id: 'drivers-table-license-col',
-            route: '/driver-management',
-            onBeforeShow: () => {
-                if (typeof closeAddDriverModal === 'function') closeAddDriverModal();
-                const m = document.getElementById('addDriverModal');
-                if (m) { m.classList.add('hidden'); m.style.setProperty('display', 'none', 'important'); }
-            },
-            getElement: () => document.querySelector('.modern-table-sep tbody tr td:nth-child(3)') || document.querySelector('#driversTableContainer table tbody tr td:nth-child(3)') || document.querySelector('#driversTableContainer'),
-            popover: { title: '🪪 Driver License & Expiration', description: 'Logs the LTO driver\'s license number and tracks document expiration dates for compliance auditing.', position: 'top' }
-        },
-        {
-            id: 'drivers-table-status-col',
-            route: '/driver-management',
-            onBeforeShow: () => {
-                if (typeof closeAddDriverModal === 'function') closeAddDriverModal();
-                const m = document.getElementById('addDriverModal');
-                if (m) { m.classList.add('hidden'); m.style.setProperty('display', 'none', 'important'); }
-            },
-            getElement: () => document.querySelector('.modern-table-sep tbody tr td:nth-child(4)') || document.querySelector('#driversTableContainer table tbody tr td:nth-child(4)') || document.querySelector('#driversTableContainer'),
-            popover: { title: '🟢 Driver Operational Status', description: 'Indicates current status—Active (on shift), Inactive, or Banned due to system/boundary violations.', position: 'top' }
-        },
-        {
-            id: 'drivers-table-financial-col',
-            route: '/driver-management',
-            onBeforeShow: () => {
-                if (typeof closeAddDriverModal === 'function') closeAddDriverModal();
-                const m = document.getElementById('addDriverModal');
-                if (m) { m.classList.add('hidden'); m.style.setProperty('display', 'none', 'important'); }
-            },
-            getElement: () => document.querySelector('.modern-table-sep tbody tr td:nth-child(5)') || document.querySelector('#driversTableContainer table tbody tr td:nth-child(5)') || document.querySelector('#driversTableContainer'),
-            popover: { title: '💰 Daily Financial Target Rate', description: 'Displays the assigned daily boundary remittance rate (e.g. ₱1,100.00 Unit rate or Coding discount rate).', position: 'top' }
-        },
-        {
-            id: 'drivers-table-rating-col',
-            route: '/driver-management',
-            onBeforeShow: () => {
-                if (typeof closeAddDriverModal === 'function') closeAddDriverModal();
-                const m = document.getElementById('addDriverModal');
-                if (m) { m.classList.add('hidden'); m.style.setProperty('display', 'none', 'important'); }
-            },
-            getElement: () => document.querySelector('.modern-table-sep tbody tr td:nth-child(6)') || document.querySelector('#driversTableContainer table tbody tr td:nth-child(6)') || document.querySelector('#driversTableContainer'),
-            popover: { title: '⭐ Driver Rating & Performance Badge', description: 'Tracks driver performance classification—New Driver, Growing, or Top Performer based on remittance consistency.', position: 'top' }
-        },
-        {
-            id: 'drivers-table-actions-col',
-            route: '/driver-management',
-            onBeforeShow: () => {
-                if (typeof closeAddDriverModal === 'function') closeAddDriverModal();
-                const m = document.getElementById('addDriverModal');
-                if (m) { m.classList.add('hidden'); m.style.setProperty('display', 'none', 'important'); }
-            },
-            getElement: () => document.querySelector('.modern-table-sep tbody tr td:last-child') || document.querySelector('#driversTableContainer table tbody tr td:last-child') || document.querySelector('#driversTableContainer'),
-            popover: { title: '⚡ Driver Row Actions (Edit / Ban / Details)', description: 'Click the 3-dots action menu to view full driver history, edit driver profile, manage debt records, or issue a driver ban.', position: 'left' }
+            popover: { title: '🔍 Driver Search & Status Filters', description: 'Search drivers by full name or LTO license number, sort A-Z, or filter table by status (Active, Inactive, Available Without Unit).', position: 'bottom' }
         },
         {
             id: 'drivers-print-btn',
             route: '/driver-management',
             onBeforeShow: () => {
                 if (typeof closeAddDriverModal === 'function') closeAddDriverModal();
-                const m = document.getElementById('addDriverModal');
-                if (m) { m.classList.add('hidden'); m.style.setProperty('display', 'none', 'important'); }
+                if (typeof closeDriverDetails === 'function') closeDriverDetails();
             },
             getElement: () => document.querySelector('button[onclick*="driver-management.print"]') || document.querySelector('#driverActionButtonsBar button:first-child'),
             popover: { title: '🖨️ Print Driver Roster PDF', description: 'Export a clean, formatted PDF summary report of all registered drivers for printing or official record keeping.', position: 'bottom' }
@@ -1377,8 +1300,7 @@ const TutorialManager = (function () {
             route: '/driver-management',
             onBeforeShow: () => {
                 if (typeof closeAddDriverModal === 'function') closeAddDriverModal();
-                const m = document.getElementById('addDriverModal');
-                if (m) { m.classList.add('hidden'); m.style.setProperty('display', 'none', 'important'); }
+                if (typeof closeDriverDetails === 'function') closeDriverDetails();
                 setTimeout(() => {
                     const btn = document.querySelector('button[onclick*="openAddDriverModal"]');
                     if (btn) {
@@ -1386,7 +1308,7 @@ const TutorialManager = (function () {
                             if (typeof openAddDriverModal === 'function') openAddDriverModal();
                             const m = document.getElementById('addDriverModal');
                             if (m) { m.classList.remove('hidden'); m.style.removeProperty('display'); m.style.setProperty('z-index', '100004', 'important'); }
-                            if (window.TutorialManager) window.TutorialManager.moveToNextStep(82);
+                            if (window.TutorialManager) window.TutorialManager.moveToNextStep(75);
                         };
                     }
                 }, 50);
@@ -1455,11 +1377,163 @@ const TutorialManager = (function () {
             popover: { title: '💾 Save Driver Record', description: 'Click \'Save Driver\' to finalize registration and store driver profile into system database.', position: 'top' }
         },
         {
+            id: 'drivers-table-info-overview',
+            route: '/driver-management',
+            onBeforeShow: () => {
+                if (typeof closeAddDriverModal === 'function') closeAddDriverModal();
+                if (typeof closeDriverDetails === 'function') closeDriverDetails();
+                const m = document.getElementById('addDriverModal');
+                if (m) { m.classList.add('hidden'); m.style.setProperty('display', 'none', 'important'); }
+            },
+            getElement: () => document.querySelector('#driversTableContainer table') || document.querySelector('#driversTableContainer'),
+            popover: { title: '📋 Driver Roster Information Table', description: 'Overview of all active, inactive, and available fleet drivers with live shortage and debt status badges.', position: 'top' }
+        },
+        {
+            id: 'drivers-table-profile-col',
+            route: '/driver-management',
+            onBeforeShow: () => {
+                if (typeof closeAddDriverModal === 'function') closeAddDriverModal();
+                if (typeof closeDriverDetails === 'function') closeDriverDetails();
+            },
+            getElement: () => document.querySelector('.modern-table-sep tbody tr td:first-child') || document.querySelector('#driversTableContainer table tbody tr td:first-child'),
+            popover: { title: '👤 Driver Profile & Shortage/Debt Alerts', description: 'Displays driver avatar initials, full registered name, and live warning badges for unpaid boundary shortages or pending accident debts.', position: 'right' }
+        },
+        {
+            id: 'drivers-table-unit-col',
+            route: '/driver-management',
+            onBeforeShow: () => {
+                if (typeof closeAddDriverModal === 'function') closeAddDriverModal();
+                if (typeof closeDriverDetails === 'function') closeDriverDetails();
+            },
+            getElement: () => document.querySelector('.modern-table-sep tbody tr td:nth-child(2)') || document.querySelector('#driversTableContainer table tbody tr td:nth-child(2)'),
+            popover: { title: '🚗 Assigned Taxi Unit', description: 'Shows the active vehicle plate number assigned to the driver (e.g. AAA 4591) for daily boundary operations.', position: 'top' }
+        },
+        {
+            id: 'drivers-table-license-col',
+            route: '/driver-management',
+            onBeforeShow: () => {
+                if (typeof closeAddDriverModal === 'function') closeAddDriverModal();
+                if (typeof closeDriverDetails === 'function') closeDriverDetails();
+            },
+            getElement: () => document.querySelector('.modern-table-sep tbody tr td:nth-child(3)') || document.querySelector('#driversTableContainer table tbody tr td:nth-child(3)'),
+            popover: { title: '🪪 Driver License & Expiration', description: 'Logs the LTO driver\'s license number and tracks document expiration dates for compliance auditing.', position: 'top' }
+        },
+        {
+            id: 'drivers-table-status-col',
+            route: '/driver-management',
+            onBeforeShow: () => {
+                if (typeof closeAddDriverModal === 'function') closeAddDriverModal();
+                if (typeof closeDriverDetails === 'function') closeDriverDetails();
+            },
+            getElement: () => document.querySelector('.modern-table-sep tbody tr td:nth-child(4)') || document.querySelector('#driversTableContainer table tbody tr td:nth-child(4)'),
+            popover: { title: '🟢 Driver Operational Status', description: 'Indicates current status—Active (on shift), Inactive, or Banned due to system/boundary violations.', position: 'top' }
+        },
+        {
+            id: 'drivers-table-actions-col',
+            route: '/driver-management',
+            onBeforeShow: () => {
+                if (typeof closeAddDriverModal === 'function') closeAddDriverModal();
+                if (typeof closeDriverDetails === 'function') closeDriverDetails();
+            },
+            getElement: () => document.querySelector('.modern-table-sep tbody tr td:last-child') || document.querySelector('#driversTableContainer table tbody tr td:last-child'),
+            popover: { title: '⚡ Driver Row Actions (3-Dots Menu)', description: 'Click the 3-dots action menu or row to view full driver history, edit driver profile, manage debt records, or issue a driver ban.', position: 'left' }
+        },
+        {
+            id: 'driver-details-modal-overview',
+            route: '/driver-management',
+            onBeforeShow: () => {
+                if (typeof closeAddDriverModal === 'function') closeAddDriverModal();
+                const firstRow = document.querySelector('.modern-table-sep tbody tr');
+                if (firstRow) {
+                    const onclickAttr = firstRow.getAttribute('onclick');
+                    if (onclickAttr && onclickAttr.includes('openDriverDetails')) {
+                        eval(onclickAttr);
+                    } else if (typeof openDriverDetails === 'function') {
+                        openDriverDetails(1);
+                    }
+                }
+                const m = document.getElementById('driverDetailsModal');
+                if (m) {
+                    m.classList.remove('hidden');
+                    m.style.removeProperty('display');
+                    m.style.setProperty('display', 'flex', 'important');
+                    m.style.setProperty('z-index', '100004', 'important');
+                }
+            },
+            getElement: () => {
+                const m = document.getElementById('driverDetailsModal');
+                if (m && m.classList.contains('hidden')) { m.classList.remove('hidden'); m.style.removeProperty('display'); }
+                return document.getElementById('driverDetailsModalContainer') || document.getElementById('driverDetailsModal');
+            },
+            popover: { title: '🔍 Driver Profiling & Details Dashboard', description: 'This interactive dashboard opens when clicking a driver row to review full personal records, performance metrics, document vault, and debt ledger.', position: 'right' }
+        },
+        {
+            id: 'driver-details-tab-basic',
+            route: '/driver-management',
+            onBeforeShow: () => {
+                const tab = document.querySelector('.driver-tab[data-tab="basic"]');
+                if (tab) tab.click();
+                const m = document.getElementById('driverDetailsModal');
+                if (m) { m.classList.remove('hidden'); m.style.setProperty('display', 'flex', 'important'); m.style.setProperty('z-index', '100004', 'important'); }
+            },
+            getElement: () => document.querySelector('.driver-tab-panel[data-tab-panel="basic"]') || document.querySelector('.driver-tab[data-tab="basic"]'),
+            popover: { title: '👤 Basic Info & Personal Details Tab', description: 'Displays full registered name, emergency contact details, date hired, address, and audit logs of creator and editor staff.', position: 'bottom' }
+        },
+        {
+            id: 'driver-details-tab-license',
+            route: '/driver-management',
+            onBeforeShow: () => {
+                const tab = document.querySelector('.driver-tab[data-tab="license"]');
+                if (tab) tab.click();
+                const m = document.getElementById('driverDetailsModal');
+                if (m) { m.classList.remove('hidden'); m.style.setProperty('display', 'flex', 'important'); m.style.setProperty('z-index', '100004', 'important'); }
+            },
+            getElement: () => document.querySelector('.driver-tab-panel[data-tab-panel="license"]') || document.querySelector('.driver-tab[data-tab="license"]'),
+            popover: { title: '🪪 License & Document Vault Tab', description: 'View LTO license number, expiration validity alerts, and upload encrypted document clearances (NBI, PNP, Barangay).', position: 'bottom' }
+        },
+        {
+            id: 'driver-details-tab-incentives',
+            route: '/driver-management',
+            onBeforeShow: () => {
+                const tab = document.querySelector('.driver-tab[data-tab="incentives"]');
+                if (tab) tab.click();
+                const m = document.getElementById('driverDetailsModal');
+                if (m) { m.classList.remove('hidden'); m.style.setProperty('display', 'flex', 'important'); m.style.setProperty('z-index', '100004', 'important'); }
+            },
+            getElement: () => document.querySelector('.driver-tab-panel[data-tab-panel="incentives"]') || document.querySelector('.driver-tab[data-tab="incentives"]'),
+            popover: { title: '🏆 Incentive & Rewards Performance Tab', description: 'Tracks driver remittance bonus eligibility, monthly top driver status, and reward payout tier calculations.', position: 'bottom' }
+        },
+        {
+            id: 'driver-details-tab-performance',
+            route: '/driver-management',
+            onBeforeShow: () => {
+                const tab = document.querySelector('.driver-tab[data-tab="performance"]');
+                if (tab) tab.click();
+                const m = document.getElementById('driverDetailsModal');
+                if (m) { m.classList.remove('hidden'); m.style.setProperty('display', 'flex', 'important'); m.style.setProperty('z-index', '100004', 'important'); }
+            },
+            getElement: () => document.querySelector('.driver-tab-panel[data-tab-panel="performance"]') || document.querySelector('.driver-tab[data-tab="performance"]'),
+            popover: { title: '📈 Telemetry & Operational Metrics Tab', description: 'Monitors daily boundary payment history, shortage balances, total shifts completed, and accident incident logs.', position: 'bottom' }
+        },
+        {
+            id: 'driver-details-tab-insights',
+            route: '/driver-management',
+            onBeforeShow: () => {
+                const tab = document.querySelector('.driver-tab[data-tab="insights"]');
+                if (tab) tab.click();
+                const m = document.getElementById('driverDetailsModal');
+                if (m) { m.classList.remove('hidden'); m.style.setProperty('display', 'flex', 'important'); m.style.setProperty('z-index', '100004', 'important'); }
+            },
+            getElement: () => document.querySelector('.driver-tab-panel[data-tab-panel="insights"]') || document.querySelector('.driver-tab[data-tab="insights"]'),
+            popover: { title: '🧠 AI Insights & Fleet Risk Recommendations', description: 'Generates automated AI recommendations on driver reliability, risk factors, and boundary target adjustments.', position: 'bottom' }
+        },
+        {
             id: 'drivers-sub-navigation',
             route: '/driver-management',
             onBeforeShow: () => {
                 if (typeof closeAddDriverModal === 'function') closeAddDriverModal();
-                const m = document.getElementById('addDriverModal');
+                if (typeof closeDriverDetails === 'function') closeDriverDetails();
+                const m = document.getElementById('driverDetailsModal');
                 if (m) { m.classList.add('hidden'); m.style.setProperty('display', 'none', 'important'); }
             },
             getElement: () => {
@@ -1473,7 +1547,8 @@ const TutorialManager = (function () {
             route: '/driver-management',
             onBeforeShow: () => {
                 if (typeof closeAddDriverModal === 'function') closeAddDriverModal();
-                const m = document.getElementById('addDriverModal');
+                if (typeof closeDriverDetails === 'function') closeDriverDetails();
+                const m = document.getElementById('driverDetailsModal');
                 if (m) { m.classList.add('hidden'); m.style.setProperty('display', 'none', 'important'); }
             },
             getElement: () => document.querySelector('#driversTableContainer') || document.querySelector('body'),
