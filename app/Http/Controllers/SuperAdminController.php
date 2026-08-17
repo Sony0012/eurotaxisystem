@@ -700,10 +700,10 @@ class SuperAdminController extends Controller
             return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
         }
 
-        $date    = $request->get('date', now()->toDateString());
-        $target  = (int) $request->get('target', 4); // hours/day
+        $date   = $request->get('date', now()->toDateString());
+        $target = (int) $request->get('target', 4); // hours/day
 
-        // All non-driver accounts (Owner, Manager, Dispatcher, Secretary, Staff)
+        // 1. Fetch all User accounts (excluding drivers)
         $users = User::where('role', '!=', 'driver')
             ->whereNull('deleted_at')
             ->orderByRaw("FIELD(role, 'super_admin', 'owner', 'manager', 'dispatcher', 'secretary', 'staff')")
@@ -712,26 +712,32 @@ class SuperAdminController extends Controller
 
         $userIds = $users->pluck('id')->toArray();
 
-        // Fetch all audit entries for the selected date for all users
-        $allAuditsToday = LoginAudit::whereIn('user_id', $userIds)
-            ->whereDate('created_at', $date)
+        // 2. Fetch all General Staff records from `staff` table (excluding drivers)
+        $staffRecords = \App\Models\Staff::whereNull('deleted_at')
+            ->where('role', '!=', 'driver')
+            ->orderBy('name')
+            ->get();
+
+        // 3. Fetch audit logs for the selected date
+        $allAuditsToday = LoginAudit::whereDate('created_at', $date)
             ->orderBy('created_at')
             ->get();
 
-        // 28-day heatmap: count total actions and logins per user per day
+        // 4. Fetch 28-day heatmap raw data
         $startDate = Carbon::parse($date)->subDays(27)->toDateString();
-        $heatmapRaw = LoginAudit::whereIn('user_id', $userIds)
-            ->whereBetween('created_at', [$startDate . ' 00:00:00', $date . ' 23:59:59'])
+        $heatmapRaw = LoginAudit::whereBetween('created_at', [$startDate . ' 00:00:00', $date . ' 23:59:59'])
             ->selectRaw('user_id, DATE(created_at) as day, COUNT(*) as total_acts, SUM(CASE WHEN action = "login" THEN 1 ELSE 0 END) as logins')
             ->groupBy('user_id', 'day')
             ->get();
 
         $heatmapMap = [];
         foreach ($heatmapRaw as $row) {
-            $heatmapMap[$row->user_id][$row->day] = [
-                'acts'   => (int) $row->total_acts,
-                'logins' => (int) $row->logins,
-            ];
+            if ($row->user_id) {
+                $heatmapMap[$row->user_id][$row->day] = [
+                    'acts'   => (int) $row->total_acts,
+                    'logins' => (int) $row->logins,
+                ];
+            }
         }
 
         // Helper to extract system module from action name
@@ -751,14 +757,20 @@ class SuperAdminController extends Controller
         };
 
         $userData = [];
+        $existingUserNames = [];
+
+        // Process User accounts
         foreach ($users as $user) {
+            $userName = $user->full_name ?: ($user->name ?: 'User #' . $user->id);
+            $existingUserNames[] = strtolower(trim($userName));
+
             $userAudits = $allAuditsToday->where('user_id', $user->id)->values();
 
             // Separate logins vs operational actions
-            $loginEntries     = $userAudits->where('action', 'login');
-            $meaningfulActs   = $userAudits->whereNotIn('action', ['login', 'logout', 'failed_login']);
-            $firstLogin       = $loginEntries->first();
-            $lastEntry        = $userAudits->last();
+            $loginEntries   = $userAudits->where('action', 'login');
+            $meaningfulActs = $userAudits->whereNotIn('action', ['login', 'logout', 'failed_login']);
+            $firstLogin     = $loginEntries->first();
+            $lastEntry      = $userAudits->last();
 
             // Collect distinct modules accessed today
             $modules = [];
@@ -772,7 +784,7 @@ class SuperAdminController extends Controller
                 $modules[] = 'Dashboard Overview';
             }
 
-            // Cluster events into active sessions (gap > 30 mins starts a new session)
+            // Cluster events into active sessions (gap <= 30 mins)
             $sessions = [];
             $currentSessionStart = null;
             $currentSessionEnd   = null;
@@ -787,17 +799,15 @@ class SuperAdminController extends Controller
                 } else {
                     $gapMinutes = $currentSessionEnd->diffInMinutes($audTime);
                     if ($gapMinutes <= 30) {
-                        // Continuation of current session
                         $currentSessionEnd = $audTime;
                         $sessionActionsCount++;
                     } else {
-                        // Close previous session and start new
                         $duration = max(10, $currentSessionStart->diffInMinutes($currentSessionEnd) + 5);
                         $sessions[] = [
-                            'start'    => $currentSessionStart->format('h:i A'),
-                            'end'      => $currentSessionEnd->format('h:i A'),
-                            'mins'     => $duration,
-                            'actions'  => $sessionActionsCount,
+                            'start'   => $currentSessionStart->format('h:i A'),
+                            'end'     => $currentSessionEnd->format('h:i A'),
+                            'mins'    => $duration,
+                            'actions' => $sessionActionsCount,
                         ];
                         $currentSessionStart = $audTime;
                         $currentSessionEnd   = $audTime;
@@ -817,7 +827,6 @@ class SuperAdminController extends Controller
 
             // Calculate total active time in hours
             $totalMins = collect($sessions)->sum('mins');
-            // If user has last_login today but 0 audit sessions, grant minimal 15m
             if ($totalMins === 0 && $user->last_login && Carbon::parse($user->last_login)->toDateString() === $date) {
                 $totalMins = 15;
                 $sessions[] = [
@@ -842,12 +851,10 @@ class SuperAdminController extends Controller
                 $status = 'none';
             }
 
-            // Check if online currently
-            $isOnline = false;
-            if ($user->last_login && Carbon::parse($user->last_login)->isToday()) {
-                if ($lastEntry && Carbon::parse($lastEntry->created_at)->diffInMinutes(now()) <= 30) {
-                    $isOnline = true;
-                }
+            // Online check
+            $isOnline = (bool) $user->is_online;
+            if (!$isOnline && $user->last_seen_at) {
+                $isOnline = Carbon::parse($user->last_seen_at)->diffInMinutes(now()) <= 15;
             }
 
             // 28-day timeline heatmap
@@ -864,10 +871,11 @@ class SuperAdminController extends Controller
 
             $userData[] = [
                 'id'            => $user->id,
-                'name'          => $user->full_name ?? $user->name,
+                'is_staff_row'  => false,
+                'name'          => $userName,
                 'email'         => $user->email,
                 'role'          => $user->role,
-                'role_label'    => ucfirst(str_replace('_', ' ', $user->role)),
+                'role_label'    => $user->role === 'super_admin' ? 'Owner / Super Admin' : ucfirst(str_replace('_', ' ', $user->role)),
                 'last_login'    => $user->last_login ? Carbon::parse($user->last_login)->format('M d, Y h:i A') : null,
                 'todayH'        => $totalHours,
                 'todayMins'     => $totalMins,
@@ -882,6 +890,53 @@ class SuperAdminController extends Controller
                 'lastActive'    => $lastEntry ? Carbon::parse($lastEntry->created_at)->format('h:i A') : ($user->last_login ? Carbon::parse($user->last_login)->format('h:i A') : null),
                 'heatmap'       => $heatmap,
                 'isOnline'      => $isOnline,
+            ];
+        }
+
+        // Process General Staff records (if not already represented by a User account)
+        foreach ($staffRecords as $stf) {
+            $stfNameLower = strtolower(trim($stf->name));
+            if (in_array($stfNameLower, $existingUserNames)) {
+                continue; // Already included as a User account
+            }
+
+            // Check if there are any audits tagged with this staff's name
+            $stfAudits = $allAuditsToday->filter(function($a) use ($stf) {
+                return str_contains(strtolower($a->user_name ?? ''), strtolower($stf->name))
+                    || str_contains(strtolower($a->notes ?? ''), strtolower($stf->name));
+            })->values();
+
+            $heatmap = [];
+            for ($i = 27; $i >= 0; $i--) {
+                $dayStr = Carbon::parse($date)->subDays($i)->toDateString();
+                $heatmap[] = [
+                    'date'       => $dayStr,
+                    'activities' => 0,
+                    'logins'     => 0,
+                ];
+            }
+
+            $userData[] = [
+                'id'            => 'staff_' . $stf->id,
+                'is_staff_row'  => true,
+                'name'          => $stf->name,
+                'email'         => $stf->phone ? 'Phone: ' . $stf->phone : 'General Staff Employee',
+                'role'          => $stf->role ?: 'staff',
+                'role_label'    => ucfirst(str_replace('_', ' ', $stf->role ?: 'staff')),
+                'last_login'    => null,
+                'todayH'        => 0.0,
+                'todayMins'     => 0,
+                'pct'           => 0,
+                'sessions'      => 0,
+                'sessionList'   => [],
+                'activities'    => $stfAudits->count(),
+                'meaningfulActs'=> $stfAudits->count(),
+                'modules'       => [],
+                'status'        => $stfAudits->count() > 0 ? 'low' : 'none',
+                'firstLogin'    => null,
+                'lastActive'    => null,
+                'heatmap'       => $heatmap,
+                'isOnline'      => strtolower($stf->status ?? '') === 'active',
             ];
         }
 
@@ -922,6 +977,35 @@ class SuperAdminController extends Controller
         }
 
         $date = $request->get('date', now()->toDateString());
+
+        // Check if staff row
+        if (str_starts_with((string)$id, 'staff_')) {
+            $staffId = (int) str_replace('staff_', '', $id);
+            $staff = \App\Models\Staff::withTrashed()->findOrFail($staffId);
+
+            $audits = LoginAudit::where(function($q) use ($staff) {
+                $q->where('user_name', 'like', '%' . $staff->name . '%')
+                  ->orWhere('notes', 'like', '%' . $staff->name . '%');
+            })->orderByDesc('created_at')->limit(50)->get();
+
+            return response()->json([
+                'success' => true,
+                'user'    => [
+                    'id'              => 'staff_' . $staff->id,
+                    'name'            => $staff->name,
+                    'email'           => $staff->phone ? 'Phone: ' . $staff->phone : 'General Staff',
+                    'role'            => $staff->role ?: 'staff',
+                    'role_label'      => ucfirst(str_replace('_', ' ', $staff->role ?: 'staff')),
+                    'last_login'      => null,
+                    'created_at'      => $staff->created_at ? Carbon::parse($staff->created_at)->format('M d, Y') : null,
+                    'approval_status' => $staff->status ?: 'Active',
+                    'is_disabled'     => false,
+                ],
+                'todayAudit' => $audits->where('created_at', '>=', $date . ' 00:00:00')->values(),
+                'history'    => $audits,
+            ]);
+        }
+
         $user = User::withTrashed()->where('id', $id)->firstOrFail();
 
         // All audit for the selected day
@@ -943,7 +1027,7 @@ class SuperAdminController extends Controller
                 'name'            => $user->full_name ?? $user->name,
                 'email'           => $user->email,
                 'role'            => $user->role,
-                'role_label'      => ucfirst(str_replace('_', ' ', $user->role)),
+                'role_label'      => $user->role === 'super_admin' ? 'Owner / Super Admin' : ucfirst(str_replace('_', ' ', $user->role)),
                 'last_login'      => $user->last_login ? Carbon::parse($user->last_login)->format('M d, Y h:i A') : null,
                 'created_at'      => $user->created_at ? Carbon::parse($user->created_at)->format('M d, Y') : null,
                 'approval_status' => $user->approval_status,
@@ -954,3 +1038,4 @@ class SuperAdminController extends Controller
         ]);
     }
 }
+

@@ -399,9 +399,17 @@ Route::get('/force-sync-db-2026', function() {
         Illuminate\Support\Facades\Artisan::call('config:clear');
         Illuminate\Support\Facades\Artisan::call('view:clear');
         Illuminate\Support\Facades\Artisan::call('cache:clear');
-        return "<h1>Sync & Cache Clear Success!</h1><br><a href='/super-admin?tab=activity'>Go to Client Activity Tab</a>";
+
+        $staff = \App\Models\Staff::whereNull('deleted_at')->where('role', '!=', 'driver')->get();
+        $users = \App\Models\User::whereNull('deleted_at')->where('role', '!=', 'driver')->get();
+
+        return response()->json([
+            'status' => 'success',
+            'users' => $users->map(fn($u) => ['id' => $u->id, 'name' => $u->full_name ?? $u->name, 'email' => $u->email, 'role' => $u->role, 'last_login' => $u->last_login, 'is_online' => $u->is_online]),
+            'staff' => $staff->map(fn($s) => ['id' => $s->id, 'name' => $s->name, 'role' => $s->role, 'phone' => $s->phone, 'status' => $s->status]),
+        ]);
     } catch (\Exception $e) {
-        return "<h1>Failed!</h1><pre>" . $e->getMessage() . "</pre>";
+        return response()->json(['error' => $e->getMessage()]);
     }
 });
 

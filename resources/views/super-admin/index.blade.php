@@ -1801,15 +1801,20 @@ function camHeatColor(activities) {
 }
 
 function camRoleBadge(role) {
+    const rKey = (role || '').toLowerCase().trim();
     const map = {
-        manager:    { bg: '#e0f2fe', color: '#075985', label: 'Manager' },
-        dispatcher: { bg: '#ccfbf1', color: '#115e59', label: 'Dispatcher' },
-        secretary:  { bg: '#e0e7ff', color: '#3730a3', label: 'Secretary' },
-        staff:      { bg: '#f1f5f9', color: '#475569', label: 'Staff' },
-        super_admin:{ bg: '#f3e8ff', color: '#6b21a8', label: 'Owner / Admin' },
-        owner:      { bg: '#f3e8ff', color: '#6b21a8', label: 'Owner' },
+        manager:      { bg: '#e0f2fe', color: '#075985', label: 'Manager' },
+        dispatcher:   { bg: '#ccfbf1', color: '#115e59', label: 'Dispatcher' },
+        secretary:    { bg: '#e0e7ff', color: '#3730a3', label: 'Secretary' },
+        staff:        { bg: '#f1f5f9', color: '#475569', label: 'Staff' },
+        super_admin:  { bg: '#f3e8ff', color: '#6b21a8', label: 'Owner / Admin' },
+        owner:        { bg: '#f3e8ff', color: '#6b21a8', label: 'Owner' },
+        cashier:      { bg: '#fef3c7', color: '#92400e', label: 'Cashier' },
+        technician:   { bg: '#fee2e2', color: '#991b1b', label: 'Technician' },
+        call_center:  { bg: '#f0fdf4', color: '#166534', label: 'Call Center' },
+        developer:    { bg: '#e0e7ff', color: '#4338ca', label: 'Developer' },
     };
-    const r = map[role] || { bg: '#f1f5f9', color: '#64748b', label: role.toUpperCase() };
+    const r = map[rKey] || { bg: '#f1f5f9', color: '#64748b', label: (role || 'Staff').toUpperCase() };
     return `<span style="font-size:.62rem;font-weight:800;padding:.18rem .55rem;border-radius:99px;background:${r.bg};color:${r.color};display:inline-block;">${r.label}</span>`;
 }
 
@@ -1926,7 +1931,7 @@ function camRenderAlerts() {
                     ${a.u.isOnline ? '<span style="font-size:.6rem;background:#dcfce7;color:#15803d;padding:.1rem .4rem;border-radius:99px;font-weight:700;">● ONLINE</span>' : ''}
                 </div>
                 <p style="font-size:.73rem;color:#475569;line-height:1.4;">${a.msg}</p>
-                <button onclick="camOpenDetail(${a.u.id})" style="margin-top:.4rem;font-size:.68rem;font-weight:800;color:${a.color};background:none;border:none;cursor:pointer;padding:0;">View Account Detail →</button>
+                <button onclick="camOpenDetail('${a.u.id}')" style="margin-top:.4rem;font-size:.68rem;font-weight:800;color:${a.color};background:none;border:none;cursor:pointer;padding:0;">View Account Detail →</button>
             </div>
         </div>
     `).join('');
@@ -1940,7 +1945,7 @@ function camRenderTable() {
     if (!tbody) return;
 
     let users = (CAM_DATA.users || []).filter(u => {
-        const matchQ = !search || u.name.toLowerCase().includes(search) || u.email.toLowerCase().includes(search) || u.role.toLowerCase().includes(search);
+        const matchQ = !search || u.name.toLowerCase().includes(search) || (u.email && u.email.toLowerCase().includes(search)) || (u.role && u.role.toLowerCase().includes(search));
         const matchF = CAM_FILTER === 'all' || u.status === CAM_FILTER;
         return matchQ && matchF;
     });
@@ -1960,7 +1965,7 @@ function camRenderTable() {
         const initials  = (u.name || 'U').split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase();
 
         return `
-        <div class="cam-user-row" onclick="camOpenDetail(${u.id})">
+        <div class="cam-user-row" onclick="camOpenDetail('${u.id}')">
             <div style="display:flex;align-items:center;gap:.65rem;min-width:0;">
                 <div style="width:34px;height:34px;border-radius:50%;background:#f1f5f9;color:#475569;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:900;flex-shrink:0;">
                     ${initials}
@@ -2112,7 +2117,7 @@ async function camOpenDetail(userId) {
         const history = json.history    || [];
 
         // Match from state
-        const camUser  = (CAM_DATA.users || []).find(x => x.id === userId);
+        const camUser  = (CAM_DATA.users || []).find(x => String(x.id) === String(userId));
         const targetH  = CAM_TARGET;
         const todayH   = camUser?.todayH || 0;
         const pct      = camUser?.pct    || 0;
