@@ -385,6 +385,10 @@ Route::middleware(['auth', 'super_admin'])->prefix('super-admin')->name('super-a
 
     // System Security Settings
     Route::post('/security/update-archive-password', [SuperAdminController::class, 'updateArchivePassword'])->name('security.update-archive-password');
+
+    // Client Activity Monitoring
+    Route::get('/super-admin/activity-monitoring', [SuperAdminController::class, 'activityMonitoring'])->name('super-admin.activity-monitoring');
+    Route::get('/super-admin/activity-monitoring/user/{id}', [SuperAdminController::class, 'userActivityDetail'])->name('super-admin.activity-monitoring.user');
 });
 
 // ─── Temporary System Sync Route ───────────────────────────

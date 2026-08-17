@@ -690,4 +690,186 @@ class SuperAdminController extends Controller
             throw new \Exception($msg);
         }
     }
+
+    // ─── Client Activity Monitoring ───────────────────────────────────────────
+
+    public function activityMonitoring(Request $request)
+    {
+        if (Auth::user()->role !== 'super_admin') {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+        }
+
+        $date    = $request->get('date', now()->toDateString());
+        $target  = (int) $request->get('target', 4); // hours/day
+        $roles   = ['manager', 'dispatcher', 'secretary', 'staff'];
+
+        // All staff users (no drivers, no super_admin)
+        $users = User::whereIn('role', $roles)
+            ->whereNull('deleted_at')
+            ->where('approval_status', 'approved')
+            ->orderBy('role')
+            ->orderBy('full_name')
+            ->get();
+
+        $userIds = $users->pluck('id')->toArray();
+
+        // Login/logout audit for the selected date
+        $auditForDate = LoginAudit::whereIn('user_id', $userIds)
+            ->whereIn('action', ['login', 'logout'])
+            ->whereDate('created_at', $date)
+            ->orderBy('created_at')
+            ->get();
+
+        // Last 28 days login counts per user per day (for heatmap)
+        $last28Days = [];
+        $startDate  = now()->subDays(27)->toDateString();
+        $heatmapRaw = LoginAudit::whereIn('user_id', $userIds)
+            ->where('action', 'login')
+            ->whereBetween('created_at', [$startDate . ' 00:00:00', $date . ' 23:59:59'])
+            ->selectRaw('user_id, DATE(created_at) as day, COUNT(*) as logins')
+            ->groupBy('user_id', 'day')
+            ->get();
+
+        foreach ($heatmapRaw as $row) {
+            $last28Days[$row->user_id][$row->day] = $row->logins;
+        }
+
+        // Build per-user stats
+        $userData = [];
+        foreach ($users as $user) {
+            $userAudit = $auditForDate->where('user_id', $user->id)->values();
+
+            // Sessions: pair login → next logout for this user this day
+            $sessions = [];
+            $loginTime = null;
+            foreach ($userAudit as $entry) {
+                if ($entry->action === 'login') {
+                    $loginTime = $entry->created_at;
+                } elseif ($entry->action === 'logout' && $loginTime) {
+                    $sessions[] = [
+                        'login'  => $loginTime->format('h:i A'),
+                        'logout' => $entry->created_at->format('h:i A'),
+                        'mins'   => $loginTime->diffInMinutes($entry->created_at),
+                    ];
+                    $loginTime = null;
+                }
+            }
+            // Open session (still logged in)
+            if ($loginTime) {
+                $sessions[] = [
+                    'login'  => $loginTime->format('h:i A'),
+                    'logout' => null,
+                    'mins'   => $loginTime->diffInMinutes(now()),
+                ];
+            }
+
+            $totalMins   = collect($sessions)->sum('mins');
+            $totalHours  = round($totalMins / 60, 1);
+            $pct         = $target > 0 ? min(100, round(($totalHours / $target) * 100)) : 0;
+
+            $firstLogin  = $userAudit->where('action', 'login')->first();
+            $lastEntry   = $userAudit->last();
+
+            // Status logic
+            if ($totalHours === 0.0) {
+                $status = 'none';
+            } elseif ($pct >= 75) {
+                $status = 'active';
+            } elseif ($pct >= 30) {
+                $status = 'low';
+            } else {
+                $status = 'none';
+            }
+
+            // Heatmap: last 28 days login sessions count
+            $heatmap = [];
+            for ($i = 27; $i >= 0; $i--) {
+                $day = now()->subDays($i)->toDateString();
+                $heatmap[] = [
+                    'date'   => $day,
+                    'logins' => $last28Days[$user->id][$day] ?? 0,
+                ];
+            }
+
+            $userData[] = [
+                'id'          => $user->id,
+                'name'        => $user->full_name ?? $user->name,
+                'email'       => $user->email,
+                'role'        => $user->role,
+                'last_login'  => $user->last_login ? $user->last_login->format('M d, Y h:i A') : null,
+                'todayH'      => $totalHours,
+                'todayMins'   => $totalMins,
+                'pct'         => $pct,
+                'sessions'    => count($sessions),
+                'status'      => $status,
+                'firstLogin'  => $firstLogin ? $firstLogin->created_at->format('h:i A') : null,
+                'lastActive'  => $lastEntry ? $lastEntry->created_at->format('h:i A') : null,
+                'heatmap'     => $heatmap,
+                'sessionList' => $sessions,
+                'isOnline'    => $loginTime !== null, // still in an open session
+            ];
+        }
+
+        // Summary stats
+        $activeCount   = collect($userData)->where('status', 'active')->count();
+        $lowCount      = collect($userData)->where('status', 'low')->count();
+        $noneCount     = collect($userData)->where('status', 'none')->count();
+        $totalH        = collect($userData)->sum('todayH');
+        $activeSessions = collect($userData)->where('todayH', '>', 0);
+        $avgH          = $activeSessions->count() > 0 ? round($totalH / $activeSessions->count(), 1) : 0;
+        $adoption      = count($userData) > 0 ? round(($activeCount / count($userData)) * 100) : 0;
+
+        return response()->json([
+            'success'   => true,
+            'date'      => $date,
+            'target'    => $target,
+            'users'     => $userData,
+            'summary'   => [
+                'total'    => count($userData),
+                'active'   => $activeCount,
+                'low'      => $lowCount,
+                'none'     => $noneCount,
+                'avgH'     => $avgH,
+                'adoption' => $adoption,
+            ],
+        ]);
+    }
+
+    public function userActivityDetail(Request $request, $id)
+    {
+        if (Auth::user()->role !== 'super_admin') {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+        }
+
+        $date = $request->get('date', now()->toDateString());
+        $user = User::withTrashed()->where('id', $id)->firstOrFail();
+
+        // All audit for the day
+        $audit = LoginAudit::where('user_id', $id)
+            ->whereDate('created_at', $date)
+            ->orderBy('created_at')
+            ->get();
+
+        // Last 50 audit entries (all-time) for full history
+        $history = LoginAudit::where('user_id', $id)
+            ->orderByDesc('created_at')
+            ->limit(50)
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'user'    => [
+                'id'          => $user->id,
+                'name'        => $user->full_name ?? $user->name,
+                'email'       => $user->email,
+                'role'        => $user->role,
+                'last_login'  => $user->last_login?->format('M d, Y h:i A'),
+                'created_at'  => $user->created_at?->format('M d, Y'),
+                'approval_status' => $user->approval_status,
+                'is_disabled' => $user->is_disabled,
+            ],
+            'todayAudit' => $audit,
+            'history'    => $history,
+        ]);
+    }
 }

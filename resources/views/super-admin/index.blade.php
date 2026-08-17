@@ -1,11 +1,11 @@
 @extends('layouts.app')
 
 @section('page-heading', 'Owner Control Center')
-@section('page-subheading', 'System administration, user management & security audit — Owner only')
+@section('page-subheading', 'System administration, user management & security audit â€” Owner only')
 
 @section('content')
 <style>
-    /* ── Premium dark glass palette ── */
+    /* â”€â”€ Premium dark glass palette â”€â”€ */
     :root {
         --sa-bg:       #f8fafc;
         --sa-surface:  #f1f5f9;
@@ -28,7 +28,7 @@
         font-family: 'Inter', sans-serif;
     }
 
-    /* ── Tabs ── */
+    /* â”€â”€ Tabs â”€â”€ */
     .sa-tab-bar { border-bottom: 1px solid var(--sa-border); }
     .sa-tab {
         padding: .6rem 1.25rem;
@@ -44,7 +44,7 @@
     }
     .sa-tab.active, .sa-tab:hover { color: var(--sa-gold); border-color: var(--sa-gold); }
 
-    /* ── Stat cards ── */
+    /* â”€â”€ Stat cards â”€â”€ */
     .sa-stat {
         background: linear-gradient(135deg, var(--sa-card) 0%, #f8fafc 100%);
         border: 1px solid var(--sa-border);
@@ -65,7 +65,7 @@
         background: currentColor;
     }
 
-    /* ── Tables ── */
+    /* â”€â”€ Tables â”€â”€ */
     .sa-table { width: 100%; border-collapse: collapse; }
     .sa-table th {
         background: #f8fafc;
@@ -89,7 +89,7 @@
     }
     .sa-table tbody tr:hover { background: rgba(0,0,0,.015); }
 
-    /* ── Badges (High Contrast Light Mode) ── */
+    /* â”€â”€ Badges (High Contrast Light Mode) â”€â”€ */
     .badge-pending  { background:#fef3c7; color:#92400e; border:1px solid #fcd34d; }
     .badge-approved { background:#dcfce7; color:#15803d; border:1px solid #86efac; }
     .badge-rejected { background:#fee2e2; color:#b91c1c; border:1px solid #fca5a5; }
@@ -112,7 +112,7 @@
         letter-spacing: .06em;
     }
 
-    /* ── Buttons ── */
+    /* â”€â”€ Buttons â”€â”€ */
     .btn-approve { background:#166534; color:#4ade80; border:1px solid #15803d; border-radius:.5rem; padding:.3rem .9rem; font-size:.72rem; font-weight:700; cursor:pointer; transition:all .2s; }
     .btn-approve:hover { background:#15803d; }
     .btn-reject  { background:#7f1d1d; color:#f87171; border:1px solid #991b1b; border-radius:.5rem; padding:.3rem .9rem; font-size:.72rem; font-weight:700; cursor:pointer; transition:all .2s; }
@@ -123,7 +123,7 @@
     .btn-gold:hover   { background:#fbbf24; }
     .btn-danger { background:#7f1d1d; color:#f87171; border:1px solid #991b1b; border-radius:.5rem; padding:.3rem .9rem; font-size:.72rem; font-weight:700; cursor:pointer; transition:all .2s; }
 
-    /* ── Search & inputs ── */
+    /* â”€â”€ Search & inputs â”€â”€ */
     .sa-input {
         background: #f8fafc;
         border: 1px solid var(--sa-border);
@@ -155,7 +155,7 @@
     }
     .shake { animation: shake 0.45s ease; }
 
-    /* ── Page access toggle chips ── */
+    /* â”€â”€ Page access toggle chips â”€â”€ */
     .page-chip {
         cursor: pointer;
         padding: .3rem .75rem;
@@ -173,14 +173,14 @@
     .page-chip.active { background: #78350f44; color: var(--sa-gold); border-color: #92400e; }
     .page-chip:hover  { border-color: var(--sa-gold); color: var(--sa-gold); }
 
-    /* ── Audit timeline dot ── */
+    /* â”€â”€ Audit timeline dot â”€â”€ */
     .audit-dot-login  { background: #3b82f6; }
     .audit-dot-logout { background: #6b7280; }
     .audit-dot-failed_login { background: #ef4444; }
     .audit-dot-approved { background: #22c55e; }
     .audit-dot-rejected { background: #a855f7; }
 
-    /* ── Toast notification ── */
+    /* â”€â”€ Toast notification â”€â”€ */
     #sa-toast {
         position: fixed; bottom: 4rem; left: 50%; transform: translateX(-50%) translateY(10rem);
         opacity: 0; visibility: hidden;
@@ -193,7 +193,7 @@
     #sa-toast.show { transform: translateX(-50%) translateY(0); opacity: 1; visibility: visible; }
     #sa-toast.error { border-color: #ef4444; }
 
-    /* ── Modal ── */
+    /* â”€â”€ Modal â”€â”€ */
     .sa-modal-backdrop {
         position: fixed; inset: 0; background: rgba(0,0,0,.75); backdrop-filter: blur(4px);
         z-index: 9990; display: none; align-items: center; justify-content: center;
@@ -207,7 +207,7 @@
     }
     @keyframes modal-in { from { opacity:0; transform:scale(.94) translateY(1rem); } to { opacity:1; transform:none; } }
 
-    /* ── Scrollbar ── */
+    /* â”€â”€ Scrollbar â”€â”€ */
     ::-webkit-scrollbar { width: 5px; height: 5px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 99px; }
@@ -227,7 +227,7 @@
 
 <div class="sa-shell p-0">
 
-    {{-- ══ Header Banner ══ --}}
+    {{-- â•â• Header Banner â•â• --}}
     <div style="background: linear-gradient(135deg, #fefce8 0%, #fef3c7 100%); border: 1px solid #fde047; border-radius: 1.5rem; margin: -0.5rem 1.25rem 0 1.25rem; position: relative; z-index: 10;" class="px-6 pt-5 pb-0">
         <div class="flex items-start justify-between mb-4">
             <div class="flex items-center gap-4">
@@ -239,7 +239,7 @@
                         <h1 style="color:#854d0e; font-size:1.35rem; font-weight:900; letter-spacing:-.02em;">Owner Control Center</h1>
                         <span class="badge badge-role-super_admin">Owner</span>
                     </div>
-                    <p style="color:#71717a; font-size:.8rem;">Welcome back, <strong style="color:var(--sa-text);">{{ auth()->user()->full_name }}</strong> · Full system access</p>
+                    <p style="color:#71717a; font-size:.8rem;">Welcome back, <strong style="color:var(--sa-text);">{{ auth()->user()->full_name }}</strong> Â· Full system access</p>
                 </div>
             </div>
             <div class="hidden lg:flex items-center gap-3 text-right">
@@ -282,10 +282,10 @@
         </div>
     </div>
 
-    {{-- ══ Tab Content ══ --}}
+    {{-- â•â• Tab Content â•â• --}}
     <div class="p-6">
 
-        {{-- ─── OVERVIEW TAB ─── --}}
+        {{-- â”€â”€â”€ OVERVIEW TAB â”€â”€â”€ --}}
         <div id="tab-overview" class="sa-tab-content {{ $tab === 'overview' ? '' : 'hidden' }}">
             {{-- Stat Row --}}
             <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
@@ -360,7 +360,7 @@
                                     @endphp
                                     <span class="badge {{ $cls }}">{{ $lbl }}</span>
                                 </td>
-                                <td style="color:#64748b; font-family:monospace; font-size:.78rem;">{{ $audit->ip_address ?? '—' }}</td>
+                                <td style="color:#64748b; font-family:monospace; font-size:.78rem;">{{ $audit->ip_address ?? 'â€”' }}</td>
                                 <td style="color:#64748b; font-size:.78rem;" title="{{ $audit->created_at }}">{{ \Carbon\Carbon::parse($audit->created_at)->diffForHumans() }}</td>
                             </tr>
                             @empty
@@ -491,7 +491,7 @@
             </div>
         </div>
 
-        {{-- ─── ALL USERS TAB ─── --}}
+        {{-- â”€â”€â”€ ALL USERS TAB â”€â”€â”€ --}}
         <div id="tab-users" class="sa-tab-content {{ $tab === 'users' ? '' : 'hidden' }}">
             <div class="flex items-center justify-between mb-6">
                 <div class="flex items-center gap-3 flex-wrap">
@@ -556,19 +556,19 @@
                             <td><span class="badge badge-role-{{ $u->role }}">{{ $u->role === 'super_admin' ? 'Owner' : ucfirst(str_replace('_', ' ', $u->role)) }}</span></td>
                             <td>
                                 @if($isActivated)
-                                    <span class="badge badge-approved">● Activated</span>
+                                    <span class="badge badge-approved">â— Activated</span>
                                 @else
-                                    <span class="badge badge-pending">○ Pending</span>
+                                    <span class="badge badge-pending">â—‹ Pending</span>
                                 @endif
                             </td>
                             <td>
                                 @if($u->is_disabled)
                                     <button onclick="confirmEnable({{ $u->uuid }}, '{{ addslashes($u->full_name) }}')" style="background:#fef2f2; border:1px solid #ef4444; color:#b91c1c; border-radius:999px; padding:.2rem .75rem; font-size:.68rem; font-weight:800; cursor:pointer;" title="Click to enable account">
-                                        ● Disabled
+                                        â— Disabled
                                     </button>
                                 @else
                                     <button onclick="openDisableModal({{ $u->uuid }}, '{{ addslashes($u->full_name) }}')" style="background:#f0fdf4; border:1px solid #22c55e; color:#15803d; border-radius:999px; padding:.2rem .75rem; font-size:.68rem; font-weight:800; cursor:pointer;" title="Click to disable account">
-                                        ● Active
+                                        â— Active
                                     </button>
                                 @endif
                             </td>
@@ -593,7 +593,7 @@
             </div>
     </div>
 
-    {{-- ─── PAGE ACCESS TAB ─── --}}
+    {{-- â”€â”€â”€ PAGE ACCESS TAB â”€â”€â”€ --}}
         <div id="tab-access" class="sa-tab-content {{ $tab === 'access' ? '' : 'hidden' }}">
             <div style="background:#f0fdfa; border:1px solid #ccfbf1; border-radius:1.5rem; padding:.85rem 1.25rem; margin-bottom:1.5rem; display:flex; align-items:center; gap:.75rem;">
                 <i data-lucide="info" style="width:15px;height:15px;color:#14b8a6;flex-shrink:0;"></i>
@@ -667,7 +667,7 @@
             </div>
         </div>
 
-        {{-- ─── AUDIT LOG TAB ─── --}}
+        {{-- â”€â”€â”€ AUDIT LOG TAB â”€â”€â”€ --}}
         <div id="tab-audit" class="sa-tab-content {{ $tab === 'audit' ? '' : 'hidden' }}">
             {{-- Filters --}}
             <div class="flex flex-wrap gap-3 mb-5">
@@ -708,35 +708,35 @@
                             <tr>
                                 <td>
                                     <div style="font-weight:700;color:#000;font-size:.82rem;">{{ $a->user_name ?? 'Unknown' }}</div>
-                                    <div style="font-size:.7rem;color:#64748b;">{{ $a->user_email ?? '—' }}</div>
+                                    <div style="font-size:.7rem;color:#64748b;">{{ $a->user_email ?? 'â€”' }}</div>
                                 </td>
                                 <td>
                                     @if($a->user_role)
                                         <span class="badge badge-role-{{ $a->user_role }}">{{ $a->user_role === 'super_admin' ? 'Owner' : ucfirst(str_replace('_',' ',$a->user_role)) }}</span>
                                     @else
-                                        <span style="color:#64748b;">—</span>
+                                        <span style="color:#64748b;">â€”</span>
                                     @endif
                                 </td>
                                 <td>
                                     @php
                                         $aMap2 = [
-                                            'login'=>['badge-login','● Login'],
-                                            'logout'=>['badge-logout','○ Logout'],
-                                            'failed_login'=>['badge-failed','✕ Failed'],
-                                            'approved'=>['badge-approved','✔ Approved'],
-                                            'rejected'=>['badge-rejected','✕ Rejected'],
-                                            'password_changed'=>['badge-role-manager','★ PW Changed'],
-                                            'created'=>['badge-login','★ Created']
+                                            'login'=>['badge-login','â— Login'],
+                                            'logout'=>['badge-logout','â—‹ Logout'],
+                                            'failed_login'=>['badge-failed','âœ• Failed'],
+                                            'approved'=>['badge-approved','âœ” Approved'],
+                                            'rejected'=>['badge-rejected','âœ• Rejected'],
+                                            'password_changed'=>['badge-role-manager','â˜… PW Changed'],
+                                            'created'=>['badge-login','â˜… Created']
                                         ];
                                         [$cls2,$lbl2] = $aMap2[$a->action] ?? ['badge-logout',$a->action];
                                     @endphp
                                     <span class="badge {{ $cls2 }}">{{ $lbl2 }}</span>
                                 </td>
-                                <td style="color:#64748b;font-family:monospace;font-size:.76rem;">{{ $a->ip_address ?? '—' }}</td>
+                                <td style="color:#64748b;font-family:monospace;font-size:.76rem;">{{ $a->ip_address ?? 'â€”' }}</td>
                                 <td style="color:#64748b;font-size:.72rem;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="{{ $a->user_agent }}">
-                                    {{ Str::limit($a->user_agent ?? '—', 45) }}
+                                    {{ Str::limit($a->user_agent ?? 'â€”', 45) }}
                                 </td>
-                                <td style="color:#64748b;font-size:.75rem;">{{ $a->notes ?? '—' }}</td>
+                                <td style="color:#64748b;font-size:.75rem;">{{ $a->notes ?? 'â€”' }}</td>
                                 <td style="color:#64748b;font-size:.75rem;white-space:nowrap;">{{ \Carbon\Carbon::parse($a->created_at)->format('M d, Y h:i A') }}</td>
                             </tr>
                             @endforeach
@@ -745,17 +745,17 @@
                 </div>
                 {{-- Pagination --}}
                 <div class="flex items-center justify-between px-4 py-3 border-t border-sa-border" style="border-color:var(--sa-border);">
-                    <span id="audit-info" style="font-size:.75rem; color:#64748b;">Showing {{ $auditLog->firstItem() ?? 0 }} – {{ $auditLog->lastItem() ?? 0 }} of {{ $auditLog->total() }}</span>
+                    <span id="audit-info" style="font-size:.75rem; color:#64748b;">Showing {{ $auditLog->firstItem() ?? 0 }} â€“ {{ $auditLog->lastItem() ?? 0 }} of {{ $auditLog->total() }}</span>
                     <div class="flex gap-2" id="audit-pagination">
                         @if($auditLog->onFirstPage())
-                            <button class="btn-ghost" disabled style="opacity:.4; cursor:not-allowed;">← Prev</button>
+                            <button class="btn-ghost" disabled style="opacity:.4; cursor:not-allowed;">â† Prev</button>
                         @else
-                            <button class="btn-ghost" onclick="loadAuditLog({{ $auditLog->currentPage() - 1 }})">← Prev</button>
+                            <button class="btn-ghost" onclick="loadAuditLog({{ $auditLog->currentPage() - 1 }})">â† Prev</button>
                         @endif
                         @if($auditLog->hasMorePages())
-                            <button class="btn-ghost" onclick="loadAuditLog({{ $auditLog->currentPage() + 1 }})">Next →</button>
+                            <button class="btn-ghost" onclick="loadAuditLog({{ $auditLog->currentPage() + 1 }})">Next â†’</button>
                         @else
-                            <button class="btn-ghost" disabled style="opacity:.4; cursor:not-allowed;">Next →</button>
+                            <button class="btn-ghost" disabled style="opacity:.4; cursor:not-allowed;">Next â†’</button>
                         @endif
                     </div>
                 </div>
@@ -764,7 +764,7 @@
 
         </div>
 
-        {{-- ─── SECURITY TAB ─── --}}
+        {{-- â”€â”€â”€ SECURITY TAB â”€â”€â”€ --}}
         <div id="tab-security" class="sa-tab-content {{ $tab === 'security' ? '' : 'hidden' }}">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {{-- Archive Protection Card --}}
@@ -839,11 +839,11 @@
             </div>
         </div>
 
-        {{-- ─── CLIENT ACTIVITY MONITORING TAB ─── --}}
+        {{-- â”€â”€â”€ CLIENT ACTIVITY MONITORING TAB â”€â”€â”€ --}}
         <div id="tab-activity" class="sa-tab-content {{ $tab === 'activity' ? '' : 'hidden' }}">
 
 <style>
-/* ── CAM: Client Activity Monitoring Dashboard ── */
+/* â”€â”€ CAM: Client Activity Monitoring Dashboard â”€â”€ */
 .cam-card {
     background: #ffffff;
     border: 1px solid #e2e8f0;
@@ -972,7 +972,7 @@
 }
 </style>
 
-<!-- ══ TOOLBAR ══ -->
+<!-- â•â• TOOLBAR â•â• -->
 <div class="flex flex-wrap items-center justify-between gap-3 mb-5">
     <div>
         <h2 style="font-size:1.1rem;font-weight:900;color:#000;letter-spacing:-.02em;">Client Activity Monitoring</h2>
@@ -981,11 +981,11 @@
     <div class="flex flex-wrap items-center gap-2">
         <div style="position:relative;">
             <i data-lucide="search" style="position:absolute;left:.6rem;top:50%;transform:translateY(-50%);width:13px;height:13px;color:#94a3b8;"></i>
-            <input id="cam-search" type="text" placeholder="Search user or client…"
+            <input id="cam-search" type="text" placeholder="Search user or clientâ€¦"
                 style="padding:.45rem .9rem .45rem 2rem;border:1px solid #e2e8f0;border-radius:.6rem;font-size:.78rem;outline:none;width:210px;transition:border-color .2s;"
                 oninput="camRenderTable()" onfocus="this.style.borderColor='#f59e0b'" onblur="this.style.borderColor='#e2e8f0'">
         </div>
-        <select id="cam-period" class="cam-filter-btn" style="padding:.4rem .8rem;" onchange="camRenderTimeline()">
+        <select id="cam-period" class="cam-filter-btn" style="padding:.4rem .8rem;" onchange="camRenderHeatmap()">
             <option value="today">Today</option>
             <option value="yesterday">Yesterday</option>
             <option value="week1" selected>Week 1</option>
@@ -1005,7 +1005,7 @@
     </div>
 </div>
 
-<!-- ══ SUMMARY STAT CARDS ══ -->
+<!-- â•â• SUMMARY STAT CARDS â•â• -->
 <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5" id="cam-stats-row">
     <div class="cam-card">
         <div class="flex items-center justify-between mb-2">
@@ -1041,7 +1041,7 @@
     </div>
 </div>
 
-<!-- ══ SECOND ROW STATS ══ -->
+<!-- â•â• SECOND ROW STATS â•â• -->
 <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
     <div class="cam-card">
         <div class="flex items-center justify-between mb-2">
@@ -1077,7 +1077,7 @@
     </div>
 </div>
 
-<!-- ══ ATTENTION ALERTS ══ -->
+<!-- â•â• ATTENTION ALERTS â•â• -->
 <div class="cam-card mb-5" id="cam-alerts-section">
     <div class="cam-section-title">
         <i data-lucide="bell" style="width:13px;height:13px;color:#ef4444;"></i>
@@ -1089,7 +1089,7 @@
     </div>
 </div>
 
-<!-- ══ MAIN TABLE: Daily Usage Progress Bars ══ -->
+<!-- â•â• MAIN TABLE: Daily Usage Progress Bars â•â• -->
 <div class="cam-card mb-5">
     <div class="flex items-center justify-between mb-4">
         <div class="cam-section-title mb-0">
@@ -1111,7 +1111,7 @@
     </div>
 </div>
 
-<!-- ══ 4-WEEK TIMELINE HEATMAP ══ -->
+<!-- â•â• 4-WEEK TIMELINE HEATMAP â•â• -->
 <div class="cam-card mb-5">
     <div class="flex items-center justify-between mb-4">
         <div class="cam-section-title mb-0">
@@ -1121,7 +1121,7 @@
         <div class="flex gap-2 items-center" style="font-size:.65rem;color:#64748b;">
             <span style="width:10px;height:10px;border-radius:2px;background:#f1f5f9;display:inline-block;"></span>0h
             <span style="width:10px;height:10px;border-radius:2px;background:#fde68a;display:inline-block;"></span>&lt;2h
-            <span style="width:10px;height:10px;border-radius:2px;background:#fbbf24;display:inline-block;"></span>2–4h
+            <span style="width:10px;height:10px;border-radius:2px;background:#fbbf24;display:inline-block;"></span>2â€“4h
             <span style="width:10px;height:10px;border-radius:2px;background:#16a34a;display:inline-block;"></span>&gt;4h
         </div>
     </div>
@@ -1130,7 +1130,7 @@
     </div>
 </div>
 
-<!-- ══ CLIENT SUMMARY ROW ══ -->
+<!-- â•â• CLIENT SUMMARY ROW â•â• -->
 <div class="cam-card">
     <div class="cam-section-title">
         <i data-lucide="building-2" style="width:13px;height:13px;color:#f59e0b;"></i>
@@ -1141,7 +1141,7 @@
     </div>
 </div>
 
-<!-- ══ USER DETAIL OVERLAY ══ -->
+<!-- â•â• USER DETAIL OVERLAY â•â• -->
 <div class="cam-detail-overlay" id="cam-overlay" onclick="camCloseDetail()"></div>
 <div class="cam-detail-panel" id="cam-detail-panel">
     <div style="background:#f8fafc;padding:1.25rem 1.5rem;border-bottom:1px solid #e2e8f0;position:sticky;top:0;z-index:10;">
@@ -1180,7 +1180,7 @@
                 </div>
                 <div>
                     <h3 id="ud-name" style="color: #000; font-weight: 900; font-size: 1.25rem; margin-bottom: .2rem;">Loading...</h3>
-                    <p id="ud-email" style="color: #64748b; font-size: .8rem; margin-bottom: .4rem;">—</p>
+                    <p id="ud-email" style="color: #64748b; font-size: .8rem; margin-bottom: .4rem;">â€”</p>
                     <div class="flex gap-2" id="ud-badges">
                         {{-- Badges populated by JS --}}
                     </div>
@@ -1275,7 +1275,7 @@
     <div class="sa-modal" style="max-width: 450px;">
         <div class="flex items-center justify-between mb-6">
             <h3 id="cls-modal-title" style="font-weight:900; font-size:1.2rem; color:#000;">Add Classification</h3>
-            <button class="btn-ghost" onclick="document.getElementById('classificationModal').classList.remove('active')">✕</button>
+            <button class="btn-ghost" onclick="document.getElementById('classificationModal').classList.remove('active')">âœ•</button>
         </div>
         <form id="cls-form" onsubmit="submitClassification(event)">
             <input type="hidden" id="cls-id">
@@ -1431,7 +1431,7 @@
     <div class="sa-modal" style="max-width: 450px;">
         <div class="flex items-center justify-between mb-6">
             <h3 id="role-detail-title" style="font-weight:900; font-size:1.2rem; color:#000;">Add System Role</h3>
-            <button class="btn-ghost" onclick="document.getElementById('roleDetailModal').classList.remove('open')">✕</button>
+            <button class="btn-ghost" onclick="document.getElementById('roleDetailModal').classList.remove('open')">âœ•</button>
         </div>
         <form id="role-detail-form" onsubmit="submitRoleDetail(event)">
             <input type="hidden" id="role-detail-id">
@@ -1461,7 +1461,7 @@
     <div class="sa-modal" style="max-width: 500px;">
         <div class="flex items-center justify-between mb-6">
             <h3 style="font-weight:900; font-size:1.2rem; color:#000;">Edit User Account</h3>
-            <button class="btn-ghost" onclick="document.getElementById('editUserModal').classList.remove('open')">✕</button>
+            <button class="btn-ghost" onclick="document.getElementById('editUserModal').classList.remove('open')">âœ•</button>
         </div>
         <form id="edit-user-form" onsubmit="submitUserEdit(event)">
             <input type="hidden" id="edit-user-id">
@@ -1527,7 +1527,7 @@
                 <h3 style="font-weight:900; font-size:1.2rem; color:#000;">User Archives</h3>
                 <p style="color:#64748b; font-size:.75rem;">Previously deleted staff accounts. You can restore them if needed.</p>
             </div>
-            <button class="btn-ghost" onclick="document.getElementById('archivesModal').classList.remove('open')">✕</button>
+            <button class="btn-ghost" onclick="document.getElementById('archivesModal').classList.remove('open')">âœ•</button>
         </div>
         
         <div style="padding: 1rem; overflow-y: auto; flex: 1; background: #fff;">
@@ -1591,7 +1591,7 @@
          <p style="color: #64748b; font-size: .85rem; margin-bottom: 1.5rem;">To permanently delete this item, please enter the **Archive Deletion Password** below.</p>
          
          <div class="mb-6">
-             <input type="password" id="archive-security-pwd" class="sa-input" style="text-align: center; font-size: 1.2rem; letter-spacing: .2em;" placeholder="••••••">
+             <input type="password" id="archive-security-pwd" class="sa-input" style="text-align: center; font-size: 1.2rem; letter-spacing: .2em;" placeholder="â€¢â€¢â€¢â€¢â€¢â€¢">
          </div>
          
          <div style="background: #fffbeb; border: 1px solid #fef3c7; border-radius: .75rem; padding: .75rem; margin-bottom: 1.5rem; display: flex; align-items: flex-start; gap: .75rem; text-align: left;">
@@ -1611,7 +1611,7 @@
     <div class="sa-modal" style="max-width: 450px;">
         <div class="flex items-center justify-between mb-6">
             <h3 style="font-weight:900; font-size:1.2rem; color:#000;">Disable Account</h3>
-            <button class="btn-ghost" onclick="document.getElementById('disableUserModal').classList.remove('open')">✕</button>
+            <button class="btn-ghost" onclick="document.getElementById('disableUserModal').classList.remove('open')">âœ•</button>
         </div>
         <div style="background:#fff7ed; border:1px solid #ffedd5; border-radius:1rem; padding:1rem; margin-bottom:1.5rem; display:flex; gap:.75rem;">
             <i data-lucide="alert-triangle" style="width:18px;height:18px;color:#f59e0b;flex-shrink:0;"></i>
@@ -1635,133 +1635,136 @@
 
 
 <script>
-// ══════════════════════════════════════════════════════════════
-// CLIENT ACTIVITY MONITORING — Data & Rendering Engine
-// ══════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// CLIENT ACTIVITY MONITORING â€” Real Data Engine
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
-// ─── Mock Data ───────────────────────────────────────────────
-const CAM_CLIENTS = [
-    { id: 1, name: 'ABC Corporation' },
-    { id: 2, name: 'XYZ Logistics' },
-    { id: 3, name: 'Metro Realty' },
-];
+// â”€â”€â”€ State â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+let CAM_DATA        = { users: [], summary: {} };
+let CAM_FILTER      = 'all';
+let CAM_LOADING     = false;
+let CAM_DATE        = new Date().toISOString().slice(0, 10);
+let CAM_TARGET      = 4;
 
-const CAM_USERS = [
-    { id:1, name:'Juan Dela Cruz',   client:1, todayH:3.7,  activities:42, sessions:4, modules:['Dashboard','Records','Reports'], loginTime:'8:42 AM', lastActive:'10:17 AM' },
-    { id:2, name:'Maria Santos',     client:1, todayH:1.2,  activities:8,  sessions:2, modules:['Dashboard','Records'],            loginTime:'9:05 AM', lastActive:'10:00 AM' },
-    { id:3, name:'Pedro Reyes',      client:1, todayH:5.1,  activities:63, sessions:5, modules:['Dashboard','Transactions','Reports','Records'], loginTime:'7:55 AM', lastActive:'11:30 AM' },
-    { id:4, name:'Ana Gonzales',     client:2, todayH:0,    activities:0,  sessions:0, modules:[],                                 loginTime:'—',       lastActive:'2 days ago' },
-    { id:5, name:'Carlos Mendez',    client:2, todayH:4.5,  activities:55, sessions:4, modules:['Transactions','Records'],         loginTime:'8:30 AM', lastActive:'11:15 AM' },
-    { id:6, name:'Liza Ramos',       client:2, todayH:2.3,  activities:19, sessions:3, modules:['Dashboard','Records'],            loginTime:'9:20 AM', lastActive:'10:45 AM' },
-    { id:7, name:'Jose Bautista',    client:3, todayH:0.4,  activities:3,  sessions:1, modules:['Dashboard'],                     loginTime:'10:10 AM',lastActive:'10:30 AM' },
-    { id:8, name:'Rosa Villanueva',  client:3, todayH:5.5,  activities:71, sessions:6, modules:['Reports','Transactions','Records','Dashboard'], loginTime:'7:45 AM', lastActive:'11:50 AM' },
-    { id:9, name:'Marco Tan',        client:3, todayH:0,    activities:0,  sessions:0, modules:[],                                 loginTime:'—',       lastActive:'3 days ago' },
-];
-
-// 28-day random heatmap data per user (hours per day)
-const CAM_WEEKLY = {};
-CAM_USERS.forEach(u => {
-    CAM_WEEKLY[u.id] = Array.from({length:28}, (_, i) => {
-        if (u.todayH === 0 && i > 24) return 0;
-        const base = u.todayH > 3 ? Math.random()*3+2 : (u.todayH > 1 ? Math.random()*2+0.5 : Math.random()*1.2);
-        return parseFloat(base.toFixed(1));
-    });
-});
-
-// Sample timeline events per user
-const CAM_EVENTS = {
-    1: [
-        {time:'8:42 AM',action:'Logged in',icon:'log-in',color:'#3b82f6'},
-        {time:'8:45 AM',action:'Opened Dashboard',icon:'layout-dashboard',color:'#64748b'},
-        {time:'8:49 AM',action:'Viewed customer record',icon:'eye',color:'#64748b'},
-        {time:'8:52 AM',action:'Updated customer record',icon:'edit',color:'#f59e0b'},
-        {time:'9:03 AM',action:'Created transaction',icon:'plus-circle',color:'#22c55e'},
-        {time:'9:18 AM',action:'Generated report',icon:'file-text',color:'#a855f7'},
-        {time:'10:05 AM',action:'Updated record',icon:'edit',color:'#f59e0b'},
-        {time:'10:17 AM',action:'Last activity recorded',icon:'clock',color:'#94a3b8'},
-    ],
-};
-
-let camActiveFilter = 'all';
-
-// ─── Helpers ─────────────────────────────────────────────────
+// â”€â”€â”€ Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function camFmtH(h) {
-    if (h === 0) return '0h';
+    if (h === 0 || h === null || h === undefined) return '0h';
     const hr = Math.floor(h);
     const mn = Math.round((h - hr) * 60);
     return mn > 0 ? `${hr}h ${mn}m` : `${hr}h`;
 }
 
-function camStatus(h, target) {
-    if (h === 0) return 'none';
-    const pct = h / target;
-    if (pct >= 0.75) return 'active';
-    if (pct >= 0.3) return 'low';
-    return 'none';
-}
-
 function camBarColor(pct) {
-    if (pct <= 0.25) return '#ef4444';
-    if (pct <= 0.50) return '#f97316';
-    if (pct <= 0.75) return '#eab308';
+    if (pct <= 25) return '#ef4444';
+    if (pct <= 50) return '#f97316';
+    if (pct <= 75) return '#eab308';
     return '#22c55e';
 }
 
-function camHeatColor(h) {
-    if (h === 0) return { bg:'#f1f5f9', color:'#94a3b8' };
-    if (h < 2)  return { bg:'#fef3c7', color:'#92400e' };
-    if (h < 4)  return { bg:'#fde68a', color:'#92400e' };
-    return { bg:'#bbf7d0', color:'#166534' };
+function camHeatColor(logins) {
+    if (!logins || logins === 0) return { bg: '#f1f5f9', color: '#94a3b8' };
+    if (logins === 1) return { bg: '#fef3c7', color: '#92400e' };
+    if (logins === 2) return { bg: '#fde68a', color: '#92400e' };
+    return { bg: '#bbf7d0', color: '#166534' };
 }
 
-function camClientName(id) {
-    const c = CAM_CLIENTS.find(x => x.id === id);
-    return c ? c.name : 'Unknown';
+function camRoleBadge(role) {
+    const map = {
+        manager:    { bg: '#e0f2fe', color: '#075985', label: 'Manager' },
+        dispatcher: { bg: '#ccfbf1', color: '#115e59', label: 'Dispatcher' },
+        secretary:  { bg: '#e0e7ff', color: '#3730a3', label: 'Secretary' },
+        staff:      { bg: '#f1f5f9', color: '#475569', label: 'Staff' },
+        super_admin:{ bg: '#f3e8ff', color: '#6b21a8', label: 'Owner' },
+    };
+    const r = map[role] || { bg: '#f1f5f9', color: '#64748b', label: role };
+    return `<span style="font-size:.6rem;font-weight:700;padding:.15rem .5rem;border-radius:99px;background:${r.bg};color:${r.color};">${r.label}</span>`;
 }
 
-function camActivityLevel(h, acts) {
-    if (h === 0 || acts === 0) return { label:'Login Only', color:'#ef4444', weight:0 };
-    if (acts <= 5)  return { label:'System Viewed', color:'#f97316', weight:1 };
-    if (acts <= 20) return { label:'Active Interaction', color:'#eab308', weight:2 };
-    if (acts <= 50) return { label:'Active Usage', color:'#22c55e', weight:3 };
-    return { label:'Full Adoption', color:'#16a34a', weight:4 };
+// â”€â”€â”€ Fetch from API â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+async function camFetch() {
+    if (CAM_LOADING) return;
+    CAM_LOADING = true;
+    camShowSkeleton();
+
+    try {
+        const target = document.getElementById('cam-target')?.value || 4;
+        const date   = document.getElementById('cam-date')?.value || CAM_DATE;
+        CAM_TARGET   = parseInt(target);
+        CAM_DATE     = date;
+
+        const res  = await fetch(`/super-admin/activity-monitoring?date=${date}&target=${target}`, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
+        });
+        const json = await res.json();
+
+        if (json.success) {
+            CAM_DATA = json;
+            camRenderAll();
+        } else {
+            camShowError(json.message || 'Failed to load data.');
+        }
+    } catch (e) {
+        camShowError('Network error. Please try again.');
+    } finally {
+        CAM_LOADING = false;
+    }
 }
 
-// ─── Render Stats ─────────────────────────────────────────────
+function camShowSkeleton() {
+    const tbody = document.getElementById('cam-user-table');
+    if (tbody) {
+        tbody.innerHTML = `
+            <div style="padding:2rem;text-align:center;color:#94a3b8;">
+                <i data-lucide="loader-2" style="width:20px;height:20px;margin-bottom:.5rem;animation:spin 1s linear infinite;display:inline-block;"></i>
+                <p style="font-size:.8rem;margin-top:.5rem;">Loading user activity dataâ€¦</p>
+            </div>`;
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+    }
+}
+
+function camShowError(msg) {
+    const tbody = document.getElementById('cam-user-table');
+    if (tbody) {
+        tbody.innerHTML = `<div style="padding:2rem;text-align:center;color:#ef4444;font-size:.82rem;">${msg}</div>`;
+    }
+}
+
+// â”€â”€â”€ Render All Sections â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function camRenderAll() {
+    camRenderStats();
+    camRenderAlerts();
+    camRenderTable();
+    camRenderHeatmap();
+    camRenderRoleSummary();
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+// â”€â”€â”€ Stats Cards â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function camRenderStats() {
-    const target = parseInt(document.getElementById('cam-target')?.value || 4);
-    const total   = CAM_USERS.length;
-    const active  = CAM_USERS.filter(u => camStatus(u.todayH, target) === 'active').length;
-    const low     = CAM_USERS.filter(u => camStatus(u.todayH, target) === 'low').length;
-    const none    = CAM_USERS.filter(u => u.todayH === 0).length;
-    const totalH  = CAM_USERS.reduce((a,u) => a + u.todayH, 0);
-    const avgH    = totalH / CAM_USERS.filter(u => u.todayH > 0).length || 0;
-    const totalActs = CAM_USERS.reduce((a,u) => a + u.activities, 0);
-    const adoption = Math.round((active / total) * 100);
-
-    const setTxt = (id, val) => { const el = document.getElementById(id); if(el) el.textContent = val; };
-    setTxt('cam-s-total',    total);
-    setTxt('cam-s-active',   active);
-    setTxt('cam-s-low',      low);
-    setTxt('cam-s-none',     none);
-    setTxt('cam-s-avg',      camFmtH(parseFloat(avgH.toFixed(1))));
-    setTxt('cam-s-adoption', adoption + '%');
-    setTxt('cam-s-acts',     totalActs);
-    setTxt('cam-s-clients',  CAM_CLIENTS.length);
+    const s = CAM_DATA.summary || {};
+    const setTxt = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+    setTxt('cam-s-total',    s.total    ?? 0);
+    setTxt('cam-s-active',   s.active   ?? 0);
+    setTxt('cam-s-low',      s.low      ?? 0);
+    setTxt('cam-s-none',     s.none     ?? 0);
+    setTxt('cam-s-avg',      camFmtH(s.avgH ?? 0));
+    setTxt('cam-s-adoption', (s.adoption ?? 0) + '%');
+    setTxt('cam-s-acts',     (CAM_DATA.users || []).reduce((a, u) => a + (u.sessions || 0), 0));
+    setTxt('cam-s-clients',  [...new Set((CAM_DATA.users || []).map(u => u.role))].length);
 }
 
-// ─── Render Alerts ────────────────────────────────────────────
+// â”€â”€â”€ Attention Alerts â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function camRenderAlerts() {
-    const target = parseInt(document.getElementById('cam-target')?.value || 4);
+    const users  = CAM_DATA.users || [];
     const alerts = [];
-    CAM_USERS.forEach(u => {
-        const st = camStatus(u.todayH, target);
-        if (u.todayH === 0) {
-            alerts.push({ user:u, msg:`No login today. Last active: ${u.lastActive}.`, icon:'alert-octagon', color:'#ef4444', bg:'#fff1f2' });
-        } else if (st === 'low') {
-            alerts.push({ user:u, msg:`Low activity — ${camFmtH(u.todayH)} of ${target}h target. Only ${u.activities} meaningful actions.`, icon:'alert-triangle', color:'#f59e0b', bg:'#fffbeb' });
-        } else if (u.activities <= 5 && u.todayH > 0) {
-            alerts.push({ user:u, msg:`Logged in but minimal interaction — ${u.activities} actions recorded.`, icon:'info', color:'#0284c7', bg:'#f0f9ff' });
+
+    users.forEach(u => {
+        if (!u.firstLogin && !u.todayH) {
+            alerts.push({ u, msg: `No login today. Last seen: ${u.last_login || 'Never'}.`, icon: 'alert-octagon', color: '#ef4444', bg: '#fff1f2' });
+        } else if (u.status === 'low') {
+            alerts.push({ u, msg: `Low usage â€” ${camFmtH(u.todayH)} of ${CAM_TARGET}h target. ${u.sessions} session(s) recorded.`, icon: 'alert-triangle', color: '#f59e0b', bg: '#fffbeb' });
+        } else if (u.sessions === 0 && u.todayH > 0) {
+            alerts.push({ u, msg: `Session timing mismatch â€” review login records.`, icon: 'info', color: '#0284c7', bg: '#f0f9ff' });
         }
     });
 
@@ -1772,7 +1775,10 @@ function camRenderAlerts() {
     if (!list) return;
 
     if (alerts.length === 0) {
-        list.innerHTML = `<div style="text-align:center;padding:1.25rem;color:#16a34a;font-size:.82rem;font-weight:700;"><i data-lucide="check-circle-2" style="display:inline;width:14px;height:14px;margin-right:.3rem;"></i>No alerts — all users are performing well!</div>`;
+        list.innerHTML = `<div style="text-align:center;padding:1.25rem;color:#16a34a;font-size:.82rem;font-weight:700;">
+            <i data-lucide="check-circle-2" style="display:inline;width:14px;height:14px;margin-right:.3rem;"></i>
+            All users are performing well â€” no alerts.
+        </div>`;
         return;
     }
 
@@ -1781,117 +1787,107 @@ function camRenderAlerts() {
             <i data-lucide="${a.icon}" style="width:15px;height:15px;color:${a.color};flex-shrink:0;margin-top:.1rem;"></i>
             <div style="flex:1;">
                 <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.2rem;">
-                    <span style="font-weight:800;font-size:.8rem;color:#000;">${a.user.name}</span>
-                    <span style="font-size:.65rem;color:#64748b;">${camClientName(a.user.client)}</span>
+                    <span style="font-weight:800;font-size:.8rem;color:#000;">${a.u.name}</span>
+                    ${camRoleBadge(a.u.role)}
+                    ${a.u.isOnline ? '<span style="font-size:.6rem;background:#dcfce7;color:#15803d;padding:.1rem .4rem;border-radius:99px;font-weight:700;">â— ONLINE</span>' : ''}
                 </div>
                 <p style="font-size:.73rem;color:#475569;line-height:1.4;">${a.msg}</p>
-                <button onclick="camOpenDetail(${a.user.id})" style="margin-top:.4rem;font-size:.65rem;font-weight:700;color:${a.color};background:none;border:none;cursor:pointer;padding:0;">View Details →</button>
+                <button onclick="camOpenDetail(${a.u.id})" style="margin-top:.4rem;font-size:.65rem;font-weight:700;color:${a.color};background:none;border:none;cursor:pointer;padding:0;">View Details â†’</button>
             </div>
         </div>
     `).join('');
     if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
-// ─── Render User Table ────────────────────────────────────────
+// â”€â”€â”€ User Progress Table â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function camRenderTable() {
-    const target = parseInt(document.getElementById('cam-target')?.value || 4);
     const search = (document.getElementById('cam-search')?.value || '').toLowerCase();
     const tbody  = document.getElementById('cam-user-table');
     if (!tbody) return;
 
-    let users = CAM_USERS.filter(u => {
-        const matchQ = u.name.toLowerCase().includes(search) || camClientName(u.client).toLowerCase().includes(search);
-        const st = camStatus(u.todayH, target);
-        const matchF = camActiveFilter === 'all' || camActiveFilter === st || (camActiveFilter === 'active' && st === 'active') || (camActiveFilter === 'low' && st === 'low') || (camActiveFilter === 'none' && st === 'none');
+    let users = (CAM_DATA.users || []).filter(u => {
+        const matchQ = u.name.toLowerCase().includes(search) || u.email.toLowerCase().includes(search) || u.role.toLowerCase().includes(search);
+        const matchF = CAM_FILTER === 'all' || u.status === CAM_FILTER;
         return matchQ && matchF;
     });
 
     if (users.length === 0) {
-        tbody.innerHTML = `<div style="text-align:center;padding:2rem;color:#94a3b8;font-size:.82rem;">No users match your search or filter.</div>`;
+        tbody.innerHTML = `<div style="text-align:center;padding:2rem;color:#94a3b8;font-size:.82rem;">No users match your filter or search.</div>`;
         return;
     }
 
     tbody.innerHTML = users.map(u => {
-        const pct = Math.min(1, u.todayH / target);
-        const barW = Math.round(pct * 100);
-        const barColor = camBarColor(pct);
-        const st = camStatus(u.todayH, target);
-        const dotCls = st === 'active' ? 'cam-dot-active' : (st === 'low' ? 'cam-dot-low' : (u.todayH === 0 ? 'cam-dot-none' : 'cam-dot-notyet'));
-        const badgeCls = st === 'active' ? 'cam-badge-active' : (st === 'low' ? 'cam-badge-low' : 'cam-badge-none');
-        const badgeTxt = st === 'active' ? 'Active' : (st === 'low' ? 'Low' : 'Inactive');
-        const al = camActivityLevel(u.todayH, u.activities);
+        const barW    = u.pct || 0;
+        const barC    = camBarColor(barW);
+        const dotCls  = u.status === 'active' ? 'cam-dot-active' : (u.status === 'low' ? 'cam-dot-low' : 'cam-dot-none');
+        const badgeCls = u.status === 'active' ? 'cam-badge-active' : (u.status === 'low' ? 'cam-badge-low' : 'cam-badge-none');
+        const badgeTxt = u.status === 'active' ? 'Active' : (u.status === 'low' ? 'Low' : 'Inactive');
+        const onlineTag = u.isOnline ? `<span style="font-size:.55rem;background:#dcfce7;color:#15803d;padding:.1rem .3rem;border-radius:99px;font-weight:700;margin-left:.3rem;">LIVE</span>` : '';
 
         return `
         <div class="cam-user-row" onclick="camOpenDetail(${u.id})">
             <div style="display:flex;align-items:center;gap:.6rem;min-width:0;">
                 <span class="cam-status-dot ${dotCls}"></span>
                 <div style="min-width:0;">
-                    <div style="font-weight:800;font-size:.8rem;color:#000;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${u.name}</div>
-                    <div style="font-size:.65rem;color:#64748b;margin-top:.1rem;">${u.loginTime !== '—' ? 'In: '+u.loginTime : 'No login today'}</div>
+                    <div style="font-weight:800;font-size:.8rem;color:#000;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${u.name}${onlineTag}</div>
+                    <div style="font-size:.63rem;color:#64748b;margin-top:.1rem;">${u.firstLogin ? 'In: ' + u.firstLogin : 'No login today'}</div>
                 </div>
             </div>
-            <div>
-                <div style="font-size:.75rem;font-weight:700;color:#000;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${camClientName(u.client)}</div>
-                <div style="margin-top:.3rem;"><span style="font-size:.6rem;font-weight:700;padding:.1rem .4rem;border-radius:99px;background:${al.color}20;color:${al.color};">${al.label}</span></div>
+            <div style="min-width:0;">
+                ${camRoleBadge(u.role)}
+                <div style="font-size:.63rem;color:#94a3b8;margin-top:.25rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${u.email}</div>
             </div>
             <div>
                 <div class="cam-bar-track" style="margin-bottom:.3rem;">
-                    <div class="cam-bar-fill" style="width:${barW}%;background:${barColor};"></div>
+                    <div class="cam-bar-fill" style="width:${barW}%;background:${barC};"></div>
                 </div>
                 <div style="display:flex;justify-content:space-between;font-size:.62rem;color:#64748b;">
-                    <span>0h</span>
-                    <span>${Math.round(target/2)}h</span>
-                    <span>${target}h</span>
+                    <span>0h</span><span>${Math.round(CAM_TARGET/2)}h</span><span>${CAM_TARGET}h</span>
                 </div>
             </div>
             <div>
-                <div style="font-size:.8rem;font-weight:900;color:#000;">${camFmtH(u.todayH)}</div>
-                <div style="font-size:.65rem;color:#94a3b8;">of ${target}h &middot; ${barW}%</div>
+                <div style="font-size:.82rem;font-weight:900;color:#000;">${camFmtH(u.todayH)}</div>
+                <div style="font-size:.63rem;color:#94a3b8;">of ${CAM_TARGET}h Â· ${barW}%</div>
             </div>
             <div><span class="cam-badge ${badgeCls}">${badgeTxt}</span></div>
         </div>`;
     }).join('');
-
-    camRenderStats();
-    camRenderAlerts();
 }
 
-// ─── Render Timeline Heatmap ───────────────────────────────────
-function camRenderTimeline() {
+// â”€â”€â”€ 28-Day Heatmap â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function camRenderHeatmap() {
     const container = document.getElementById('cam-timeline-table');
     if (!container) return;
 
-    const dayLabels = [];
-    for (let w = 1; w <= 4; w++) {
-        for (let d = 1; d <= 7; d++) {
-            dayLabels.push(`W${w}-D${d}`);
-        }
+    const users = CAM_DATA.users || [];
+    if (users.length === 0) {
+        container.innerHTML = `<p style="color:#94a3b8;font-size:.8rem;text-align:center;padding:1rem;">No data available.</p>`;
+        return;
     }
 
-    let html = `<table style="border-collapse:separate;border-spacing:4px;min-width:max-content;"><thead><tr>`;
-    html += `<th style="font-size:.6rem;font-weight:700;color:#64748b;text-align:left;padding:.3rem .5rem;white-space:nowrap;min-width:130px;">User</th>`;
+    // Build 28 day column headers
+    const days = (users[0]?.heatmap || []).map(h => {
+        const d = new Date(h.date);
+        return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    });
 
-    for (let w = 0; w < 4; w++) {
-        for (let d = 0; d < 7; d++) {
-            const day = ['M','T','W','T','F','S','S'][d];
-            html += `<th style="font-size:.55rem;font-weight:700;color:#94a3b8;text-align:center;padding:.2rem;min-width:32px;">${w===0?day:''}</th>`;
-        }
-        if (w < 3) html += `<th style="width:8px;"></th>`;
-    }
+    let html = `<table style="border-collapse:separate;border-spacing:3px;min-width:max-content;"><thead><tr>`;
+    html += `<th style="font-size:.6rem;font-weight:700;color:#64748b;text-align:left;padding:.3rem .5rem;white-space:nowrap;min-width:140px;">User / Role</th>`;
+
+    days.forEach((d, i) => {
+        html += `<th style="font-size:.5rem;font-weight:700;color:#94a3b8;text-align:center;padding:.2rem;min-width:28px;">${i % 7 === 0 ? d : ''}</th>`;
+    });
     html += `</tr></thead><tbody>`;
 
-    CAM_USERS.forEach(u => {
-        html += `<tr><td style="font-size:.7rem;font-weight:700;color:#000;padding:.3rem .5rem .3rem 0;white-space:nowrap;">${u.name}<br><span style="font-size:.6rem;color:#94a3b8;font-weight:400;">${camClientName(u.client)}</span></td>`;
-        const data = CAM_WEEKLY[u.id] || [];
-        for (let w = 0; w < 4; w++) {
-            for (let d = 0; d < 7; d++) {
-                const idx = w * 7 + d;
-                const h = data[idx] || 0;
-                const c = camHeatColor(h);
-                html += `<td><div class="cam-heatmap-cell" style="background:${c.bg};color:${c.color};" title="${dayLabels[idx]}: ${camFmtH(h)}">${h>0?camFmtH(h):''}</div></td>`;
-            }
-            if (w < 3) html += `<td style="width:8px;"></td>`;
-        }
+    users.forEach(u => {
+        html += `<tr>
+            <td style="font-size:.7rem;font-weight:700;color:#000;padding:.3rem .5rem .3rem 0;white-space:nowrap;">
+                ${u.name}<br><span style="font-size:.58rem;color:#94a3b8;font-weight:400;">${u.role}</span>
+            </td>`;
+        (u.heatmap || []).forEach(h => {
+            const c = camHeatColor(h.logins);
+            html += `<td><div class="cam-heatmap-cell" style="background:${c.bg};color:${c.color};" title="${h.date}: ${h.logins} login(s)">${h.logins > 0 ? h.logins : ''}</div></td>`;
+        });
         html += `</tr>`;
     });
 
@@ -1899,164 +1895,235 @@ function camRenderTimeline() {
     container.innerHTML = html;
 }
 
-// ─── Render Client Summary ─────────────────────────────────────
-function camRenderClientSummary() {
-    const target = parseInt(document.getElementById('cam-target')?.value || 4);
+// â”€â”€â”€ Role-Based Summary (replaces "Client" summary) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function camRenderRoleSummary() {
     const container = document.getElementById('cam-client-summary');
     if (!container) return;
 
-    container.innerHTML = CAM_CLIENTS.map(c => {
-        const users = CAM_USERS.filter(u => u.client === c.id);
-        const active = users.filter(u => camStatus(u.todayH, target) === 'active').length;
-        const low    = users.filter(u => camStatus(u.todayH, target) === 'low').length;
-        const none   = users.filter(u => u.todayH === 0).length;
-        const totalH = users.reduce((a,u) => a+u.todayH, 0);
-        const maxH   = users.length * target;
-        const adoPct = maxH > 0 ? Math.round((totalH / maxH) * 100) : 0;
-        const barC   = camBarColor(adoPct / 100);
+    const users = CAM_DATA.users || [];
+    const roles = ['manager', 'dispatcher', 'secretary', 'staff'];
+    const roleLabels = { manager:'Manager', dispatcher:'Dispatcher', secretary:'Secretary', staff:'Staff' };
+    const roleColors = { manager:'#0284c7', dispatcher:'#0d9488', secretary:'#6d28d9', staff:'#64748b' };
+
+    container.innerHTML = roles.map(role => {
+        const rUsers  = users.filter(u => u.role === role);
+        if (rUsers.length === 0) return '';
+
+        const active  = rUsers.filter(u => u.status === 'active').length;
+        const low     = rUsers.filter(u => u.status === 'low').length;
+        const none    = rUsers.filter(u => u.status === 'none').length;
+        const online  = rUsers.filter(u => u.isOnline).length;
+        const totalH  = rUsers.reduce((a, u) => a + (u.todayH || 0), 0);
+        const maxH    = rUsers.length * CAM_TARGET;
+        const adoPct  = maxH > 0 ? Math.round((totalH / maxH) * 100) : 0;
+        const barC    = camBarColor(adoPct);
+        const avgH    = rUsers.length > 0 ? (totalH / rUsers.length).toFixed(1) : 0;
 
         return `
-        <div class="cam-card" style="cursor:default;">
+        <div class="cam-card">
             <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.85rem;">
-                <div style="width:36px;height:36px;border-radius:.6rem;background:#fef3c7;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                    <i data-lucide="building-2" style="width:16px;height:16px;color:#f59e0b;"></i>
+                <div style="width:36px;height:36px;border-radius:.6rem;background:${roleColors[role]}18;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <i data-lucide="users" style="width:16px;height:16px;color:${roleColors[role]};"></i>
                 </div>
                 <div>
-                    <div style="font-weight:900;font-size:.85rem;color:#000;">${c.name}</div>
-                    <div style="font-size:.65rem;color:#64748b;">${users.length} Users</div>
+                    <div style="font-weight:900;font-size:.9rem;color:#000;">${roleLabels[role]}</div>
+                    <div style="font-size:.63rem;color:#64748b;">${rUsers.length} account${rUsers.length > 1 ? 's' : ''}${online > 0 ? ` Â· <span style="color:#16a34a;font-weight:700;">${online} online</span>` : ''}</div>
                 </div>
             </div>
-            <div style="display:flex;gap:.6rem;margin-bottom:.85rem;flex-wrap:wrap;">
-                <span style="font-size:.65rem;background:#dcfce7;color:#15803d;padding:.15rem .5rem;border-radius:99px;font-weight:700;">🟢 ${active} Active</span>
-                <span style="font-size:.65rem;background:#fef3c7;color:#92400e;padding:.15rem .5rem;border-radius:99px;font-weight:700;">🟡 ${low} Low</span>
-                <span style="font-size:.65rem;background:#fee2e2;color:#b91c1c;padding:.15rem .5rem;border-radius:99px;font-weight:700;">🔴 ${none} Inactive</span>
+            <div style="display:flex;gap:.5rem;margin-bottom:.85rem;flex-wrap:wrap;">
+                <span style="font-size:.63rem;background:#dcfce7;color:#15803d;padding:.15rem .5rem;border-radius:99px;font-weight:700;">ðŸŸ¢ ${active} Active</span>
+                <span style="font-size:.63rem;background:#fef3c7;color:#92400e;padding:.15rem .5rem;border-radius:99px;font-weight:700;">ðŸŸ¡ ${low} Low</span>
+                <span style="font-size:.63rem;background:#fee2e2;color:#b91c1c;padding:.15rem .5rem;border-radius:99px;font-weight:700;">ðŸ”´ ${none} Inactive</span>
             </div>
             <div class="cam-bar-track" style="margin-bottom:.35rem;">
                 <div class="cam-bar-fill" style="width:${adoPct}%;background:${barC};"></div>
             </div>
             <div style="display:flex;justify-content:space-between;font-size:.65rem;color:#64748b;">
-                <span>Avg. Daily Usage: ${camFmtH(parseFloat((totalH/users.length).toFixed(1)))}</span>
+                <span>Avg: ${camFmtH(parseFloat(avgH))}</span>
                 <span style="font-weight:800;color:#000;">${adoPct}%</span>
             </div>
         </div>`;
     }).join('');
-
     if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
-// ─── Open User Detail Panel ────────────────────────────────────
-function camOpenDetail(userId) {
-    const u = CAM_USERS.find(x => x.id === userId);
-    if (!u) return;
-    const target = parseInt(document.getElementById('cam-target')?.value || 4);
-    const pct = Math.min(1, u.todayH / target);
-    const barW = Math.round(pct * 100);
-    const barC = camBarColor(pct);
-    const al = camActivityLevel(u.todayH, u.activities);
-    const events = CAM_EVENTS[userId] || [];
-
-    const levelBars = [
-        { label:'Login Only',         active: u.sessions > 0 },
-        { label:'System Viewed',      active: u.activities > 0 },
-        { label:'Active Interaction', active: u.activities > 5 },
-        { label:'Meaningful Actions', active: u.activities > 20 },
-        { label:'Completed Workflows',active: u.activities > 50 },
-    ];
+// â”€â”€â”€ User Detail Slide-in Panel â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+async function camOpenDetail(userId) {
+    document.getElementById('cam-overlay')?.classList.add('open');
+    document.getElementById('cam-detail-panel')?.classList.add('open');
 
     const content = document.getElementById('cam-detail-content');
     if (!content) return;
+    content.innerHTML = `<div style="text-align:center;padding:2rem;color:#94a3b8;"><i data-lucide="loader-2" style="width:20px;height:20px;animation:spin 1s linear infinite;display:inline-block;"></i><p style="font-size:.8rem;margin-top:.5rem;">Loadingâ€¦</p></div>`;
+    if (typeof lucide !== 'undefined') lucide.createIcons();
 
-    content.innerHTML = `
-        <!-- User header -->
-        <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:1.25rem;">
-            <div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#f59e0b,#d97706);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:1.15rem;color:#fff;flex-shrink:0;">
-                ${u.name.split(' ').map(n=>n[0]).slice(0,2).join('')}
-            </div>
-            <div>
-                <div style="font-weight:900;font-size:1rem;color:#000;">${u.name}</div>
-                <div style="font-size:.75rem;color:#64748b;">${camClientName(u.client)}</div>
-                <span style="font-size:.65rem;font-weight:700;padding:.15rem .55rem;border-radius:99px;background:${al.color}20;color:${al.color};margin-top:.3rem;display:inline-block;">${al.label}</span>
-            </div>
-        </div>
+    try {
+        const res  = await fetch(`/super-admin/activity-monitoring/user/${userId}?date=${CAM_DATE}`, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
+        });
+        const json = await res.json();
+        if (!json.success) { content.innerHTML = `<p style="color:#ef4444;text-align:center;padding:1rem;">${json.message}</p>`; return; }
 
-        <!-- Key metrics -->
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:1.25rem;">
-            <div style="background:#f8fafc;border-radius:.75rem;padding:.75rem;">
-                <div style="font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#94a3b8;margin-bottom:.25rem;">First Login</div>
-                <div style="font-size:.85rem;font-weight:800;color:#000;">${u.loginTime}</div>
-            </div>
-            <div style="background:#f8fafc;border-radius:.75rem;padding:.75rem;">
-                <div style="font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#94a3b8;margin-bottom:.25rem;">Last Activity</div>
-                <div style="font-size:.85rem;font-weight:800;color:#000;">${u.lastActive}</div>
-            </div>
-            <div style="background:#f8fafc;border-radius:.75rem;padding:.75rem;">
-                <div style="font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#94a3b8;margin-bottom:.25rem;">Sessions</div>
-                <div style="font-size:.85rem;font-weight:800;color:#000;">${u.sessions}</div>
-            </div>
-            <div style="background:#f8fafc;border-radius:.75rem;padding:.75rem;">
-                <div style="font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#94a3b8;margin-bottom:.25rem;">Actions</div>
-                <div style="font-size:.85rem;font-weight:800;color:#000;">${u.activities}</div>
-            </div>
-        </div>
+        const u       = json.user;
+        const audit   = json.todayAudit || [];
+        const history = json.history    || [];
 
-        <!-- Daily progress bar -->
-        <div style="background:#f8fafc;border-radius:.75rem;padding:1rem;margin-bottom:1.25rem;">
-            <div style="display:flex;justify-content:space-between;margin-bottom:.5rem;">
-                <span style="font-size:.7rem;font-weight:800;color:#64748b;">Daily Progress</span>
-                <span style="font-size:.7rem;font-weight:900;color:#000;">${camFmtH(u.todayH)} / ${target}h (${barW}%)</span>
-            </div>
-            <div class="cam-bar-track" style="height:14px;">
-                <div class="cam-bar-fill" style="width:${barW}%;background:${barC};"></div>
-            </div>
-            <div style="display:flex;justify-content:space-between;margin-top:.35rem;font-size:.6rem;color:#94a3b8;">
-                <span>0h — Red</span><span>${Math.round(target*0.5)}h — Yellow</span><span>${target}h — Green</span>
-            </div>
-        </div>
+        // Compute today's session time from todayAudit
+        const camUser = (CAM_DATA.users || []).find(x => x.id === userId);
+        const targetH = CAM_TARGET;
+        const todayH  = camUser?.todayH || 0;
+        const pct     = camUser?.pct    || 0;
+        const barC    = camBarColor(pct);
+        const sessions = camUser?.sessionList || [];
 
-        <!-- Modules used -->
-        <div style="margin-bottom:1.25rem;">
-            <div style="font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#64748b;margin-bottom:.5rem;">Modules Used</div>
-            <div style="display:flex;flex-wrap:wrap;gap:.35rem;">
-                ${u.modules.length > 0 ? u.modules.map(m => `<span style="background:#fef3c7;color:#92400e;padding:.2rem .6rem;border-radius:.35rem;font-size:.68rem;font-weight:700;">${m}</span>`).join('') : '<span style="color:#94a3b8;font-size:.75rem;">No modules accessed</span>'}
-            </div>
-        </div>
+        // Activity evidence level
+        const lvlBars = [
+            { label: 'Account Exists',       active: true },
+            { label: 'Logged In Today',       active: !!camUser?.firstLogin },
+            { label: 'Multiple Sessions',     active: (camUser?.sessions || 0) >= 2 },
+            { label: 'Active Usage (>30%)',   active: pct >= 30 },
+            { label: 'On Target (â‰¥75%)',      active: pct >= 75 },
+        ];
 
-        <!-- Activity level ladder -->
-        <div style="margin-bottom:1.25rem;">
-            <div style="font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#64748b;margin-bottom:.5rem;">Activity Evidence Level</div>
-            ${levelBars.map((lb, i) => `
-                <div style="display:flex;align-items:center;gap:.6rem;padding:.4rem 0;border-bottom:1px solid #f1f5f9;">
-                    <div style="width:20px;height:20px;border-radius:.35rem;background:${lb.active?'#22c55e':'#f1f5f9'};display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                        <i data-lucide="${lb.active?'check':'minus'}" style="width:10px;height:10px;color:${lb.active?'#fff':'#94a3b8'};"></i>
-                    </div>
-                    <span style="font-size:.72rem;font-weight:${lb.active?'700':'400'};color:${lb.active?'#000':'#94a3b8'};">${lb.label}</span>
+        const actionIcons = {
+            login:            { color: '#3b82f6', icon: 'log-in',      label: 'Logged In' },
+            logout:           { color: '#64748b', icon: 'log-out',     label: 'Logged Out' },
+            failed_login:     { color: '#ef4444', icon: 'alert-circle',label: 'Failed Login' },
+            approved:         { color: '#22c55e', icon: 'check-circle',label: 'Approved' },
+            rejected:         { color: '#f87171', icon: 'x-circle',    label: 'Rejected' },
+            password_changed: { color: '#f59e0b', icon: 'key',         label: 'Password Changed' },
+            created:          { color: '#14b8a6', icon: 'user-plus',   label: 'Account Created' },
+        };
+
+        content.innerHTML = `
+            <!-- User header -->
+            <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:1.25rem;">
+                <div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#f59e0b,#d97706);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:1.15rem;color:#fff;flex-shrink:0;">
+                    ${(u.name||'?').split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase()}
                 </div>
-            `).join('')}
-        </div>
-
-        <!-- Timeline -->
-        ${events.length > 0 ? `
-        <div>
-            <div style="font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#64748b;margin-bottom:.75rem;">Activity Timeline</div>
-            <div style="position:relative;">
-                ${events.map((ev, i) => `
-                <div class="cam-timeline-item">
-                    <div class="cam-timeline-dot" style="border-color:${ev.color};">
-                        <i data-lucide="${ev.icon}" style="width:6px;height:6px;color:${ev.color};"></i>
-                    </div>
-                    <div style="display:flex;justify-content:space-between;align-items:baseline;">
-                        <span style="font-size:.75rem;font-weight:700;color:#000;">${ev.action}</span>
-                        <span style="font-size:.65rem;color:#94a3b8;white-space:nowrap;margin-left:.5rem;">${ev.time}</span>
+                <div>
+                    <div style="font-weight:900;font-size:1rem;color:#000;">${u.name}</div>
+                    <div style="font-size:.72rem;color:#64748b;">${u.email}</div>
+                    <div style="margin-top:.3rem;display:flex;gap:.35rem;flex-wrap:wrap;">
+                        ${camRoleBadge(u.role)}
+                        ${camUser?.isOnline ? '<span style="font-size:.6rem;background:#dcfce7;color:#15803d;padding:.1rem .4rem;border-radius:99px;font-weight:700;">â— ONLINE NOW</span>' : ''}
                     </div>
                 </div>
+            </div>
+
+            <!-- Quick stats -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:.65rem;margin-bottom:1.25rem;">
+                <div style="background:#f8fafc;border-radius:.75rem;padding:.7rem;">
+                    <div style="font-size:.58rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#94a3b8;margin-bottom:.2rem;">First Login</div>
+                    <div style="font-size:.82rem;font-weight:800;color:#000;">${camUser?.firstLogin || 'â€”'}</div>
+                </div>
+                <div style="background:#f8fafc;border-radius:.75rem;padding:.7rem;">
+                    <div style="font-size:.58rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#94a3b8;margin-bottom:.2rem;">Last Activity</div>
+                    <div style="font-size:.82rem;font-weight:800;color:#000;">${camUser?.lastActive || u.last_login || 'â€”'}</div>
+                </div>
+                <div style="background:#f8fafc;border-radius:.75rem;padding:.7rem;">
+                    <div style="font-size:.58rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#94a3b8;margin-bottom:.2rem;">Sessions Today</div>
+                    <div style="font-size:.82rem;font-weight:800;color:#000;">${camUser?.sessions || 0}</div>
+                </div>
+                <div style="background:#f8fafc;border-radius:.75rem;padding:.7rem;">
+                    <div style="font-size:.58rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#94a3b8;margin-bottom:.2rem;">Active Time</div>
+                    <div style="font-size:.82rem;font-weight:800;color:#000;">${camFmtH(todayH)}</div>
+                </div>
+            </div>
+
+            <!-- Daily progress -->
+            <div style="background:#f8fafc;border-radius:.75rem;padding:1rem;margin-bottom:1.25rem;">
+                <div style="display:flex;justify-content:space-between;margin-bottom:.5rem;">
+                    <span style="font-size:.7rem;font-weight:800;color:#64748b;">Daily Progress</span>
+                    <span style="font-size:.7rem;font-weight:900;color:#000;">${camFmtH(todayH)} / ${targetH}h (${pct}%)</span>
+                </div>
+                <div class="cam-bar-track" style="height:14px;">
+                    <div class="cam-bar-fill" style="width:${pct}%;background:${barC};"></div>
+                </div>
+                <div style="display:flex;justify-content:space-between;margin-top:.35rem;font-size:.58rem;color:#94a3b8;">
+                    <span>0â€“25% ðŸ”´</span><span>26â€“50% ðŸŸ </span><span>51â€“75% ðŸŸ¡</span><span>76â€“100% ðŸŸ¢</span>
+                </div>
+            </div>
+
+            <!-- Session Breakdown -->
+            ${sessions.length > 0 ? `
+            <div style="margin-bottom:1.25rem;">
+                <div style="font-size:.63rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#64748b;margin-bottom:.5rem;">Session Breakdown</div>
+                ${sessions.map((s, i) => `
+                    <div style="display:flex;align-items:center;gap:.75rem;padding:.4rem .75rem;background:${i%2===0?'#f8fafc':'#fff'};border-radius:.5rem;margin-bottom:.2rem;">
+                        <i data-lucide="log-in" style="width:12px;height:12px;color:#3b82f6;flex-shrink:0;"></i>
+                        <span style="font-size:.72rem;color:#000;font-weight:700;">${s.login}</span>
+                        <span style="font-size:.65rem;color:#94a3b8;">â†’</span>
+                        <i data-lucide="log-out" style="width:12px;height:12px;color:#64748b;flex-shrink:0;"></i>
+                        <span style="font-size:.72rem;color:#475569;">${s.logout ?? '<span style="color:#22c55e;font-weight:700;">Active</span>'}</span>
+                        <span style="margin-left:auto;font-size:.65rem;color:#f59e0b;font-weight:700;">${camFmtH(Math.round(s.mins/60*10)/10)}</span>
+                    </div>
+                `).join('')}
+            </div>` : ''}
+
+            <!-- Activity Evidence Level -->
+            <div style="margin-bottom:1.25rem;">
+                <div style="font-size:.63rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#64748b;margin-bottom:.5rem;">Activity Evidence Level</div>
+                ${lvlBars.map(lb => `
+                    <div style="display:flex;align-items:center;gap:.6rem;padding:.4rem 0;border-bottom:1px solid #f1f5f9;">
+                        <div style="width:18px;height:18px;border-radius:.3rem;background:${lb.active?'#22c55e':'#f1f5f9'};display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                            <i data-lucide="${lb.active?'check':'minus'}" style="width:10px;height:10px;color:${lb.active?'#fff':'#94a3b8'};"></i>
+                        </div>
+                        <span style="font-size:.72rem;font-weight:${lb.active?'700':'400'};color:${lb.active?'#000':'#94a3b8'};">${lb.label}</span>
+                    </div>
                 `).join('')}
             </div>
-        </div>` : '<div style="color:#94a3b8;font-size:.75rem;text-align:center;padding:1rem;">No detailed timeline available for this user.</div>'}
-    `;
 
-    document.getElementById('cam-overlay')?.classList.add('open');
-    document.getElementById('cam-detail-panel')?.classList.add('open');
-    if (typeof lucide !== 'undefined') lucide.createIcons();
+            <!-- Today's Audit Timeline -->
+            <div style="margin-bottom:1.25rem;">
+                <div style="font-size:.63rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#64748b;margin-bottom:.75rem;">
+                    Today's Timeline <span style="color:#f59e0b;">${new Date(CAM_DATE).toLocaleDateString('en-US',{month:'short',day:'numeric'})}</span>
+                </div>
+                ${audit.length === 0
+                    ? `<div style="color:#94a3b8;font-size:.75rem;text-align:center;padding:.75rem;">No activity recorded today.</div>`
+                    : `<div style="position:relative;">
+                        ${audit.map(ev => {
+                            const st  = actionIcons[ev.action] || { color: '#94a3b8', icon: 'activity', label: ev.action };
+                            const ts  = new Date(ev.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+                            return `<div class="cam-timeline-item">
+                                <div class="cam-timeline-dot" style="border-color:${st.color};">
+                                    <i data-lucide="${st.icon}" style="width:6px;height:6px;color:${st.color};"></i>
+                                </div>
+                                <div style="display:flex;justify-content:space-between;align-items:baseline;">
+                                    <span style="font-size:.75rem;font-weight:700;color:#000;">${st.label}</span>
+                                    <span style="font-size:.65rem;color:#94a3b8;white-space:nowrap;margin-left:.5rem;">${ts}</span>
+                                </div>
+                                ${ev.ip_address ? `<div style="font-size:.6rem;color:#94a3b8;margin-top:.1rem;font-family:monospace;">IP: ${ev.ip_address}</div>` : ''}
+                            </div>`;
+                        }).join('')}
+                    </div>`
+                }
+            </div>
+
+            <!-- Full History -->
+            <div>
+                <div style="font-size:.63rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#64748b;margin-bottom:.75rem;">Full Login History (Last 50)</div>
+                <div style="max-height:220px;overflow-y:auto;border:1px solid #f1f5f9;border-radius:.75rem;padding:.5rem;">
+                    ${history.length === 0
+                        ? `<div style="color:#94a3b8;font-size:.75rem;text-align:center;padding:.75rem;">No history available.</div>`
+                        : history.map(ev => {
+                            const st = actionIcons[ev.action] || { color: '#94a3b8', icon: 'activity', label: ev.action };
+                            const ts = new Date(ev.created_at).toLocaleDateString('en-US', { month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
+                            return `<div style="display:flex;align-items:center;gap:.5rem;padding:.4rem .5rem;border-bottom:1px solid #f8fafc;">
+                                <i data-lucide="${st.icon}" style="width:11px;height:11px;color:${st.color};flex-shrink:0;"></i>
+                                <span style="font-size:.7rem;font-weight:700;color:#000;flex:1;">${st.label}</span>
+                                <span style="font-size:.62rem;color:#94a3b8;white-space:nowrap;">${ts}</span>
+                            </div>`;
+                        }).join('')
+                    }
+                </div>
+            </div>
+        `;
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+
+    } catch (e) {
+        content.innerHTML = `<p style="color:#ef4444;text-align:center;padding:1rem;">Failed to load details.</p>`;
+    }
 }
 
 function camCloseDetail() {
@@ -2065,7 +2132,7 @@ function camCloseDetail() {
 }
 
 function camSetFilter(f) {
-    camActiveFilter = f;
+    CAM_FILTER = f;
     ['all','active','low','none'].forEach(k => {
         const btn = document.getElementById('cam-filter-' + k);
         if (btn) btn.classList.toggle('active', k === f);
@@ -2075,31 +2142,28 @@ function camSetFilter(f) {
 
 function camInit() {
     if (!document.getElementById('cam-user-table')) return;
-    camRenderStats();
-    camRenderAlerts();
-    camRenderTable();
-    camRenderTimeline();
-    camRenderClientSummary();
-    if (typeof lucide !== 'undefined') lucide.createIcons();
+    // Set today's date on the date input
+    const di = document.getElementById('cam-date');
+    if (di && !di.value) di.value = new Date().toISOString().slice(0, 10);
+    camFetch();
 }
 
-// Re-run when tab is opened
-const _origSwitchTab = typeof switchTab === 'function' ? switchTab : null;
-// Hook into tab switch for cam init
-document.addEventListener('cam:init', camInit);
+// Re-run when tab is opened (consolidated - real API version above handles everything)
+
+
 
 // Use var to allow re-declaration during AJAX navigation
 var csrfMeta = document.querySelector('meta[name="csrf-token"]');
 var CSRF = csrfMeta ? csrfMeta.content : '';
 
-// ─── User Details Modal ────────────────────────────────────────────────────────
+// â”€â”€â”€ User Details Modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 async function openUserDetailsModal(id) {
     const modal = document.getElementById('userDetailsModal');
     modal.classList.add('open');
     
     // Reset contents
     document.getElementById('ud-name').textContent = 'Loading...';
-    document.getElementById('ud-email').textContent = '—';
+    document.getElementById('ud-email').textContent = 'â€”';
     document.getElementById('ud-badges').innerHTML = '';
     document.getElementById('ud-timeline').innerHTML = '<div style="color: #64748b; font-size: .8rem; text-align: center; padding: 2rem;"><i class="fas fa-spinner fa-spin mr-2"></i>Loading activity history...</div>';
     
@@ -2136,7 +2200,7 @@ function renderUserDetails(user, history) {
 
     // 2. Info
     document.getElementById('ud-name').textContent = user.full_name;
-    document.getElementById('ud-email').textContent = user.email + (user.phone_number ? ' · ' + user.phone_number : '');
+    document.getElementById('ud-email').textContent = user.email + (user.phone_number ? ' Â· ' + user.phone_number : '');
     
     // 3. Badges
     const isActivated = !user.must_change_password && user.last_login;
@@ -2153,8 +2217,8 @@ function renderUserDetails(user, history) {
         : (isActivated ? '<span class="badge badge-approved">Activated</span>' : '<span class="badge badge-pending">Pending</span>');
         
     const activeBadge = user.is_disabled
-        ? '<span style="color:#b91c1c;font-size:.65rem;font-weight:700;border:1px solid #fca5a5;padding:.1rem .5rem;border-radius:99px;background:#fef2f2;">● Disabled</span>'
-        : '<span style="color:#15803d;font-size:.65rem;font-weight:700;border:1px solid #86efac;padding:.1rem .5rem;border-radius:99px;background:#f0fdf4;">● Active</span>';
+        ? '<span style="color:#b91c1c;font-size:.65rem;font-weight:700;border:1px solid #fca5a5;padding:.1rem .5rem;border-radius:99px;background:#fef2f2;">â— Disabled</span>'
+        : '<span style="color:#15803d;font-size:.65rem;font-weight:700;border:1px solid #86efac;padding:.1rem .5rem;border-radius:99px;background:#f0fdf4;">â— Active</span>';
         
     document.getElementById('ud-badges').innerHTML = `
         <span class="badge ${roleClass}">${user.role === 'super_admin' ? 'Owner' : user.role.replace('_', ' ')}</span>
@@ -2219,7 +2283,7 @@ function renderUserDetails(user, history) {
     if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
-// ─── Tab Switching ─────────────────────────────────────────────────────────────
+// â”€â”€â”€ Tab Switching â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function switchTab(tab) {
     document.querySelectorAll('.sa-tab-content').forEach(el => el.classList.add('hidden'));
     document.querySelectorAll('.sa-tab').forEach(el => el.classList.remove('active'));
@@ -2244,7 +2308,7 @@ function switchTab(tab) {
     }
 }
 
-// ─── Toast ────────────────────────────────────────────────────────────────────
+// â”€â”€â”€ Toast â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function toast(msg, isError = false) {
     const el = document.getElementById('sa-toast');
     if (!el) return;
@@ -2263,7 +2327,7 @@ function toast(msg, isError = false) {
     setTimeout(() => el.className = '', 3500);
 }
 
-// ─── Approve / Reject (Left here for API backwards compatibility) ────
+// â”€â”€â”€ Approve / Reject (Left here for API backwards compatibility) â”€â”€â”€â”€
 async function approveUser(id, name) {
     if (!confirm('Approve account for ' + name + '? They will be able to log in immediately.')) return;
     const res = await fetch(`/super-admin/approve/${id}`, { method: 'POST', headers: { 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' } });
@@ -2288,7 +2352,7 @@ async function rejectUser(id, name) {
     }
 }
 
-// ─── Disable / Enable ─────────────────────────────────────────────────────────
+// â”€â”€â”€ Disable / Enable â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function openDisableModal(id, name) {
     document.getElementById('disable-user-id').value = id;
     document.getElementById('disable-user-display-name').textContent = name;
@@ -2336,7 +2400,7 @@ async function confirmEnable(id, name) {
     } catch (e) { toast('Network error.', true); }
 }
 
-// ─── Archive / Restore ─────────────────────────────────────────────────────────
+// â”€â”€â”€ Archive / Restore â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 async function archiveUser(id, name) {
     if (!confirm(`Move ${name} to archives? They will be unable to log in.`)) return;
     try {
@@ -2376,7 +2440,7 @@ function openArchivesModal() {
     if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
-// ─── User Edit ────────────────────────────────────────────────────────────────
+// â”€â”€â”€ User Edit â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function openEditUserModal(user) {
     document.getElementById('edit-user-id').value = user.id;
     document.getElementById('edit-first-name').value = user.first_name || '';
@@ -2459,7 +2523,7 @@ async function submitUserEdit(e) {
     } catch (e) { toast('Network error.', true); }
 }
 
-// ─── User Search ──────────────────────────────────────────────────────────────
+// â”€â”€â”€ User Search â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function filterUserTable(val) {
     if (typeof val === 'object') val = null; // Ignore event objects
     val = (val !== null && val !== undefined ? val : document.getElementById('userSearch').value).toLowerCase().trim();
@@ -2475,7 +2539,7 @@ function filterUserTable(val) {
     });
 }
 
-// ─── Page Access ──────────────────────────────────────────────────────────────
+// â”€â”€â”€ Page Access â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 var currentAccessUserId = null;
 
 function selectAccessUser(el) {
@@ -2488,7 +2552,7 @@ function selectAccessUser(el) {
     el.style.borderColor = '#f59e0b';
 
     currentAccessUserId = el.dataset.id;
-    document.getElementById('access-user-name').textContent = '— ' + el.querySelector('[style*="font-weight:700"]').textContent.trim();
+    document.getElementById('access-user-name').textContent = 'â€” ' + el.querySelector('[style*="font-weight:700"]').textContent.trim();
     document.getElementById('save-access-btn').disabled = false;
     document.getElementById('save-access-btn').style.opacity = '1';
     document.getElementById('access-placeholder').classList.add('hidden');
@@ -2500,7 +2564,7 @@ function selectAccessUser(el) {
 
     document.querySelectorAll('.page-chip').forEach(chip => {
         const route = chip.dataset.route;
-        // If allowed is null → full access (no chips active)
+        // If allowed is null â†’ full access (no chips active)
         // If allowed is an array, activate matching chips
         const isActive = allowed && Array.isArray(allowed) && allowed.includes(route);
         chip.classList.toggle('active', isActive);
@@ -2540,7 +2604,7 @@ async function savePageAccess() {
     }
 }
 
-// ─── Audit Log Pagination ─────────────────────────────────────────────────────
+// â”€â”€â”€ Audit Log Pagination â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 var auditTimer;
 function debouncedAuditLog() {
     clearTimeout(auditTimer);
@@ -2563,8 +2627,8 @@ async function loadAuditLog(page = 1) {
     tbody.style.opacity = '1';
 
     const actionMap = {
-        login: ['badge-login','● Login'], logout: ['badge-logout','○ Logout'],
-        failed_login: ['badge-failed','✕ Failed'], approved: ['badge-approved','✔ Approved'], rejected: ['badge-rejected','✕ Rejected']
+        login: ['badge-login','â— Login'], logout: ['badge-logout','â—‹ Logout'],
+        failed_login: ['badge-failed','âœ• Failed'], approved: ['badge-approved','âœ” Approved'], rejected: ['badge-rejected','âœ• Rejected']
     };
     const roleClass = r => `badge-role-${r || 'staff'}`;
 
@@ -2573,27 +2637,27 @@ async function loadAuditLog(page = 1) {
         : data.data.map(a => {
             const [cls, lbl] = actionMap[a.action] || ['badge-logout', a.action];
             return `<tr>
-                <td><div style="font-weight:700;color:#000;font-size:.82rem;">${a.user_name ?? '—'}</div><div style="font-size:.7rem;color:#64748b;">${a.user_email ?? ''}</div></td>
+                <td><div style="font-weight:700;color:#000;font-size:.82rem;">${a.user_name ?? 'â€”'}</div><div style="font-size:.7rem;color:#64748b;">${a.user_email ?? ''}</div></td>
                 <td>${a.user_role ? `<span class="badge ${roleClass(a.user_role)}">${a.user_role === 'super_admin' ? 'Owner' : a.user_role.replace('_',' ')}</span>` : '-'}</td>
                 <td><span class="badge ${cls}">${lbl}</span></td>
-                <td style="color:#64748b;font-family:monospace;font-size:.76rem;">${a.ip_address ?? '—'}</td>
-                <td style="color:#64748b;font-size:.72rem;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${a.user_agent ?? ''}">${(a.user_agent ?? '—').substring(0,50)}</td>
-                <td style="color:#475569;font-size:.75rem;">${a.notes ?? '—'}</td>
+                <td style="color:#64748b;font-family:monospace;font-size:.76rem;">${a.ip_address ?? 'â€”'}</td>
+                <td style="color:#64748b;font-size:.72rem;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${a.user_agent ?? ''}">${(a.user_agent ?? 'â€”').substring(0,50)}</td>
+                <td style="color:#475569;font-size:.75rem;">${a.notes ?? 'â€”'}</td>
                 <td style="color:#64748b;font-size:.75rem;white-space:nowrap;">${new Date(a.created_at).toLocaleDateString('en-US', {month:'short',day:'numeric',year:'numeric',hour:'2-digit',minute:'2-digit'})}</td>
             </tr>`;
         }).join('');
 
-    document.getElementById('audit-info').textContent = `Showing ${data.from ?? 0} – ${data.to ?? 0} of ${data.total}`;
+    document.getElementById('audit-info').textContent = `Showing ${data.from ?? 0} â€“ ${data.to ?? 0} of ${data.total}`;
 
     const pag = document.getElementById('audit-pagination');
     pag.innerHTML = `
-        <button class="btn-ghost" onclick="loadAuditLog(${data.current_page - 1})" ${data.current_page <= 1 ? 'disabled style="opacity:.4;cursor:not-allowed;"' : ''}>← Prev</button>
-        <button class="btn-ghost" onclick="loadAuditLog(${data.current_page + 1})" ${!data.next_page_url ? 'disabled style="opacity:.4;cursor:not-allowed;"' : ''}>Next →</button>`;
+        <button class="btn-ghost" onclick="loadAuditLog(${data.current_page - 1})" ${data.current_page <= 1 ? 'disabled style="opacity:.4;cursor:not-allowed;"' : ''}>â† Prev</button>
+        <button class="btn-ghost" onclick="loadAuditLog(${data.current_page + 1})" ${!data.next_page_url ? 'disabled style="opacity:.4;cursor:not-allowed;"' : ''}>Next â†’</button>`;
 
     if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
-// ─── Password Reset Modal ─────────────────────────────────────────────────────
+// â”€â”€â”€ Password Reset Modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function openPasswordModal(id, name) {
     document.getElementById('pw-user-id').value = id;
     document.getElementById('pw-modal-name').textContent = 'Resetting password for: ' + name;
@@ -2622,7 +2686,7 @@ async function submitPasswordReset() {
     else toast(data.message || 'Error.', true);
 }
 
-// ─── Role Update Modal ──────────────────────────────────────────────────────
+// â”€â”€â”€ Role Update Modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function openRoleModal(id, name, currentRole) {
     document.getElementById('role-user-id').value = id;
     document.getElementById('role-modal-name').textContent = 'Promote or change role for: ' + name;
@@ -2652,7 +2716,7 @@ async function submitRoleUpdate() {
     }
 }
 
-// ─── Incident Classification Management ────────────────────────────────────
+// â”€â”€â”€ Incident Classification Management â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
  function openAddClassificationModal() {
      document.getElementById('cls-id').value = '';
      document.getElementById('cls-form').reset();
@@ -2750,7 +2814,7 @@ async function submitClassification(e) {
      });
  }
 
-  // ─── Role Management JS ───────────────────────────────────────────────────
+  // â”€â”€â”€ Role Management JS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   function openManageRolesModal() {
       document.getElementById('manageRolesModal').classList.add('open');
       if (typeof lucide !== 'undefined') lucide.createIcons();
@@ -2840,7 +2904,7 @@ async function submitClassification(e) {
       });
   }
 
-  // ─── Archive Security Logic ───────────────────────────────────────────────────
+  // â”€â”€â”€ Archive Security Logic â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   var archiveSecurityCallback = null;
 
   function promptArchivePassword(callback) {
@@ -2918,7 +2982,7 @@ async function submitClassification(e) {
       });
   }
 
-// ─── Create Staff ───────────────────────────────────────────────────────────────
+// â”€â”€â”€ Create Staff â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function resetStaffForm() {
     document.getElementById('staffForm').reset();
     ['staff-first', 'staff-middle', 'staff-last', 'staff-phone', 'staff-email', 'staff-address', 'staff-role'].forEach(id => {
@@ -3147,7 +3211,7 @@ function setupStrictFormValidation() {
 
 function validateAddressFieldState(el) {
     const val = el.value.trim();
-    // Now REQUIRED — empty is invalid
+    // Now REQUIRED â€” empty is invalid
     if (val.length === 0) {
         el.classList.remove('is-valid');
         el.classList.add('is-invalid');
@@ -3202,7 +3266,7 @@ function validateEmailFieldState(el) {
 function validatePhoneFieldState(el) {
     const val = el.value.trim();
     const phoneRegex = /^09\d{9}$/;
-    // Now REQUIRED — empty is invalid
+    // Now REQUIRED â€” empty is invalid
     if (val.length === 0) {
         el.classList.remove('is-valid');
         el.classList.add('is-invalid');
