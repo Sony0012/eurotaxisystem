@@ -391,13 +391,17 @@ Route::middleware(['auth', 'super_admin'])->prefix('super-admin')->name('super-a
     Route::get('/super-admin/activity-monitoring/user/{id}', [SuperAdminController::class, 'userActivityDetail'])->name('super-admin.activity-monitoring.user');
 });
 
-// ─── Temporary System Sync Route ───────────────────────────
+// ─── Temporary System Sync & Cache Clear Route ─────────────
 Route::get('/force-sync-db-2026', function() {
     try {
         Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
-        return "<h1>Migration Success!</h1><pre>" . Illuminate\Support\Facades\Artisan::output() . "</pre><br><a href='/'>Go to Dashboard</a>";
+        Illuminate\Support\Facades\Artisan::call('route:clear');
+        Illuminate\Support\Facades\Artisan::call('config:clear');
+        Illuminate\Support\Facades\Artisan::call('view:clear');
+        Illuminate\Support\Facades\Artisan::call('cache:clear');
+        return "<h1>Sync & Cache Clear Success!</h1><br><a href='/super-admin?tab=activity'>Go to Client Activity Tab</a>";
     } catch (\Exception $e) {
-        return "<h1>Migration Failed!</h1><pre>" . $e->getMessage() . "</pre>";
+        return "<h1>Failed!</h1><pre>" . $e->getMessage() . "</pre>";
     }
 });
 
