@@ -13,6 +13,7 @@ use App\Models\Role;
 use App\Models\Driver;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Carbon\Carbon;
 
 class SuperAdminController extends Controller
 {
@@ -701,136 +702,215 @@ class SuperAdminController extends Controller
 
         $date    = $request->get('date', now()->toDateString());
         $target  = (int) $request->get('target', 4); // hours/day
-        $roles   = ['manager', 'dispatcher', 'secretary', 'staff'];
 
-        // All staff users (no drivers, no super_admin)
-        $users = User::whereIn('role', $roles)
+        // All non-driver accounts (Owner, Manager, Dispatcher, Secretary, Staff)
+        $users = User::where('role', '!=', 'driver')
             ->whereNull('deleted_at')
-            ->where('approval_status', 'approved')
-            ->orderBy('role')
+            ->orderByRaw("FIELD(role, 'super_admin', 'owner', 'manager', 'dispatcher', 'secretary', 'staff')")
             ->orderBy('full_name')
             ->get();
 
         $userIds = $users->pluck('id')->toArray();
 
-        // Login/logout audit for the selected date
-        $auditForDate = LoginAudit::whereIn('user_id', $userIds)
-            ->whereIn('action', ['login', 'logout'])
+        // Fetch all audit entries for the selected date for all users
+        $allAuditsToday = LoginAudit::whereIn('user_id', $userIds)
             ->whereDate('created_at', $date)
             ->orderBy('created_at')
             ->get();
 
-        // Last 28 days login counts per user per day (for heatmap)
-        $last28Days = [];
-        $startDate  = now()->subDays(27)->toDateString();
+        // 28-day heatmap: count total actions and logins per user per day
+        $startDate = Carbon::parse($date)->subDays(27)->toDateString();
         $heatmapRaw = LoginAudit::whereIn('user_id', $userIds)
-            ->where('action', 'login')
             ->whereBetween('created_at', [$startDate . ' 00:00:00', $date . ' 23:59:59'])
-            ->selectRaw('user_id, DATE(created_at) as day, COUNT(*) as logins')
+            ->selectRaw('user_id, DATE(created_at) as day, COUNT(*) as total_acts, SUM(CASE WHEN action = "login" THEN 1 ELSE 0 END) as logins')
             ->groupBy('user_id', 'day')
             ->get();
 
+        $heatmapMap = [];
         foreach ($heatmapRaw as $row) {
-            $last28Days[$row->user_id][$row->day] = $row->logins;
+            $heatmapMap[$row->user_id][$row->day] = [
+                'acts'   => (int) $row->total_acts,
+                'logins' => (int) $row->logins,
+            ];
         }
 
-        // Build per-user stats
+        // Helper to extract system module from action name
+        $getModule = function(string $action): string {
+            $act = strtolower($action);
+            if (str_contains($act, 'boundary') || str_contains($act, 'remittance')) return 'Boundaries';
+            if (str_contains($act, 'expense')) return 'Office Expenses';
+            if (str_contains($act, 'maintenance') || str_contains($act, 'spare part')) return 'Maintenance';
+            if (str_contains($act, 'driver') || str_contains($act, 'incentive')) return 'Driver Management';
+            if (str_contains($act, 'incident') || str_contains($act, 'behavior')) return 'Driver Behavior';
+            if (str_contains($act, 'franchise') || str_contains($act, 'case')) return 'Franchise';
+            if (str_contains($act, 'unit') || str_contains($act, 'coding')) return 'Unit Management';
+            if (str_contains($act, 'salary')) return 'Salary Management';
+            if (str_contains($act, 'staff') || str_contains($act, 'role') || str_contains($act, 'access')) return 'Staff & Access';
+            if (str_contains($act, 'login') || str_contains($act, 'logout')) return 'Authentication';
+            return 'General Operations';
+        };
+
         $userData = [];
         foreach ($users as $user) {
-            $userAudit = $auditForDate->where('user_id', $user->id)->values();
+            $userAudits = $allAuditsToday->where('user_id', $user->id)->values();
 
-            // Sessions: pair login → next logout for this user this day
-            $sessions = [];
-            $loginTime = null;
-            foreach ($userAudit as $entry) {
-                if ($entry->action === 'login') {
-                    $loginTime = $entry->created_at;
-                } elseif ($entry->action === 'logout' && $loginTime) {
-                    $sessions[] = [
-                        'login'  => $loginTime->format('h:i A'),
-                        'logout' => $entry->created_at->format('h:i A'),
-                        'mins'   => $loginTime->diffInMinutes($entry->created_at),
-                    ];
-                    $loginTime = null;
+            // Separate logins vs operational actions
+            $loginEntries     = $userAudits->where('action', 'login');
+            $meaningfulActs   = $userAudits->whereNotIn('action', ['login', 'logout', 'failed_login']);
+            $firstLogin       = $loginEntries->first();
+            $lastEntry        = $userAudits->last();
+
+            // Collect distinct modules accessed today
+            $modules = [];
+            foreach ($userAudits as $aud) {
+                $mod = $getModule($aud->action);
+                if (!in_array($mod, $modules) && $mod !== 'Authentication') {
+                    $modules[] = $mod;
                 }
             }
-            // Open session (still logged in)
-            if ($loginTime) {
+            if (empty($modules) && $loginEntries->count() > 0) {
+                $modules[] = 'Dashboard Overview';
+            }
+
+            // Cluster events into active sessions (gap > 30 mins starts a new session)
+            $sessions = [];
+            $currentSessionStart = null;
+            $currentSessionEnd   = null;
+            $sessionActionsCount = 0;
+
+            foreach ($userAudits as $aud) {
+                $audTime = Carbon::parse($aud->created_at);
+                if (!$currentSessionStart) {
+                    $currentSessionStart = $audTime;
+                    $currentSessionEnd   = $audTime;
+                    $sessionActionsCount = 1;
+                } else {
+                    $gapMinutes = $currentSessionEnd->diffInMinutes($audTime);
+                    if ($gapMinutes <= 30) {
+                        // Continuation of current session
+                        $currentSessionEnd = $audTime;
+                        $sessionActionsCount++;
+                    } else {
+                        // Close previous session and start new
+                        $duration = max(10, $currentSessionStart->diffInMinutes($currentSessionEnd) + 5);
+                        $sessions[] = [
+                            'start'    => $currentSessionStart->format('h:i A'),
+                            'end'      => $currentSessionEnd->format('h:i A'),
+                            'mins'     => $duration,
+                            'actions'  => $sessionActionsCount,
+                        ];
+                        $currentSessionStart = $audTime;
+                        $currentSessionEnd   = $audTime;
+                        $sessionActionsCount = 1;
+                    }
+                }
+            }
+            if ($currentSessionStart) {
+                $duration = max(10, $currentSessionStart->diffInMinutes($currentSessionEnd) + 5);
                 $sessions[] = [
-                    'login'  => $loginTime->format('h:i A'),
-                    'logout' => null,
-                    'mins'   => $loginTime->diffInMinutes(now()),
+                    'start'   => $currentSessionStart->format('h:i A'),
+                    'end'     => $currentSessionEnd->format('h:i A'),
+                    'mins'    => $duration,
+                    'actions' => $sessionActionsCount,
                 ];
             }
 
-            $totalMins   = collect($sessions)->sum('mins');
-            $totalHours  = round($totalMins / 60, 1);
-            $pct         = $target > 0 ? min(100, round(($totalHours / $target) * 100)) : 0;
+            // Calculate total active time in hours
+            $totalMins = collect($sessions)->sum('mins');
+            // If user has last_login today but 0 audit sessions, grant minimal 15m
+            if ($totalMins === 0 && $user->last_login && Carbon::parse($user->last_login)->toDateString() === $date) {
+                $totalMins = 15;
+                $sessions[] = [
+                    'start'   => Carbon::parse($user->last_login)->format('h:i A'),
+                    'end'     => Carbon::parse($user->last_login)->format('h:i A'),
+                    'mins'    => 15,
+                    'actions' => 1,
+                ];
+            }
 
-            $firstLogin  = $userAudit->where('action', 'login')->first();
-            $lastEntry   = $userAudit->last();
+            $totalHours = round($totalMins / 60, 1);
+            $pct        = $target > 0 ? min(100, round(($totalHours / $target) * 100)) : 0;
 
-            // Status logic
-            if ($totalHours === 0.0) {
-                $status = 'none';
-            } elseif ($pct >= 75) {
-                $status = 'active';
-            } elseif ($pct >= 30) {
-                $status = 'low';
+            // Status Determination
+            if ($totalHours === 0.0 && $userAudits->count() === 0) {
+                $status = 'none'; // Inactive
+            } elseif ($pct >= 60 || $meaningfulActs->count() >= 5) {
+                $status = 'active'; // Meeting target / Active operations
+            } elseif ($totalHours > 0 || $userAudits->count() > 0) {
+                $status = 'low'; // Low activity
             } else {
                 $status = 'none';
             }
 
-            // Heatmap: last 28 days login sessions count
+            // Check if online currently
+            $isOnline = false;
+            if ($user->last_login && Carbon::parse($user->last_login)->isToday()) {
+                if ($lastEntry && Carbon::parse($lastEntry->created_at)->diffInMinutes(now()) <= 30) {
+                    $isOnline = true;
+                }
+            }
+
+            // 28-day timeline heatmap
             $heatmap = [];
             for ($i = 27; $i >= 0; $i--) {
-                $day = now()->subDays($i)->toDateString();
+                $dayStr = Carbon::parse($date)->subDays($i)->toDateString();
+                $dayData = $heatmapMap[$user->id][$dayStr] ?? ['acts' => 0, 'logins' => 0];
                 $heatmap[] = [
-                    'date'   => $day,
-                    'logins' => $last28Days[$user->id][$day] ?? 0,
+                    'date'       => $dayStr,
+                    'activities' => $dayData['acts'],
+                    'logins'     => $dayData['logins'],
                 ];
             }
 
             $userData[] = [
-                'id'          => $user->id,
-                'name'        => $user->full_name ?? $user->name,
-                'email'       => $user->email,
-                'role'        => $user->role,
-                'last_login'  => $user->last_login ? $user->last_login->format('M d, Y h:i A') : null,
-                'todayH'      => $totalHours,
-                'todayMins'   => $totalMins,
-                'pct'         => $pct,
-                'sessions'    => count($sessions),
-                'status'      => $status,
-                'firstLogin'  => $firstLogin ? $firstLogin->created_at->format('h:i A') : null,
-                'lastActive'  => $lastEntry ? $lastEntry->created_at->format('h:i A') : null,
-                'heatmap'     => $heatmap,
-                'sessionList' => $sessions,
-                'isOnline'    => $loginTime !== null, // still in an open session
+                'id'            => $user->id,
+                'name'          => $user->full_name ?? $user->name,
+                'email'         => $user->email,
+                'role'          => $user->role,
+                'role_label'    => ucfirst(str_replace('_', ' ', $user->role)),
+                'last_login'    => $user->last_login ? Carbon::parse($user->last_login)->format('M d, Y h:i A') : null,
+                'todayH'        => $totalHours,
+                'todayMins'     => $totalMins,
+                'pct'           => $pct,
+                'sessions'      => count($sessions),
+                'sessionList'   => $sessions,
+                'activities'    => $userAudits->count(),
+                'meaningfulActs'=> $meaningfulActs->count(),
+                'modules'       => $modules,
+                'status'        => $status,
+                'firstLogin'    => $firstLogin ? Carbon::parse($firstLogin->created_at)->format('h:i A') : ($user->last_login && Carbon::parse($user->last_login)->toDateString() === $date ? Carbon::parse($user->last_login)->format('h:i A') : null),
+                'lastActive'    => $lastEntry ? Carbon::parse($lastEntry->created_at)->format('h:i A') : ($user->last_login ? Carbon::parse($user->last_login)->format('h:i A') : null),
+                'heatmap'       => $heatmap,
+                'isOnline'      => $isOnline,
             ];
         }
 
-        // Summary stats
-        $activeCount   = collect($userData)->where('status', 'active')->count();
-        $lowCount      = collect($userData)->where('status', 'low')->count();
-        $noneCount     = collect($userData)->where('status', 'none')->count();
-        $totalH        = collect($userData)->sum('todayH');
-        $activeSessions = collect($userData)->where('todayH', '>', 0);
-        $avgH          = $activeSessions->count() > 0 ? round($totalH / $activeSessions->count(), 1) : 0;
-        $adoption      = count($userData) > 0 ? round(($activeCount / count($userData)) * 100) : 0;
+        // Summary Aggregates
+        $totalUsersCount = count($userData);
+        $activeCount     = collect($userData)->where('status', 'active')->count();
+        $lowCount        = collect($userData)->where('status', 'low')->count();
+        $noneCount       = collect($userData)->where('status', 'none')->count();
+        $totalHoursSum   = collect($userData)->sum('todayH');
+        $activeUsersCol  = collect($userData)->where('todayH', '>', 0);
+        $avgHours        = $activeUsersCol->count() > 0 ? round($totalHoursSum / $activeUsersCol->count(), 1) : 0;
+        $adoptionRate    = $totalUsersCount > 0 ? round(($activeCount / $totalUsersCount) * 100) : 0;
+        $totalActsSum    = collect($userData)->sum('activities');
+        $totalClients    = collect($userData)->pluck('role')->unique()->count();
 
         return response()->json([
-            'success'   => true,
-            'date'      => $date,
-            'target'    => $target,
-            'users'     => $userData,
-            'summary'   => [
-                'total'    => count($userData),
-                'active'   => $activeCount,
-                'low'      => $lowCount,
-                'none'     => $noneCount,
-                'avgH'     => $avgH,
-                'adoption' => $adoption,
+            'success' => true,
+            'date'    => $date,
+            'target'  => $target,
+            'users'   => $userData,
+            'summary' => [
+                'total'       => $totalUsersCount,
+                'active'      => $activeCount,
+                'low'         => $lowCount,
+                'none'        => $noneCount,
+                'avgH'        => $avgHours,
+                'adoption'    => $adoptionRate,
+                'total_acts'  => $totalActsSum,
+                'roles_count' => $totalClients,
             ],
         ]);
     }
@@ -844,13 +924,13 @@ class SuperAdminController extends Controller
         $date = $request->get('date', now()->toDateString());
         $user = User::withTrashed()->where('id', $id)->firstOrFail();
 
-        // All audit for the day
-        $audit = LoginAudit::where('user_id', $id)
+        // All audit for the selected day
+        $todayAudits = LoginAudit::where('user_id', $id)
             ->whereDate('created_at', $date)
             ->orderBy('created_at')
             ->get();
 
-        // Last 50 audit entries (all-time) for full history
+        // Recent 50 audit entries for this user
         $history = LoginAudit::where('user_id', $id)
             ->orderByDesc('created_at')
             ->limit(50)
@@ -859,16 +939,17 @@ class SuperAdminController extends Controller
         return response()->json([
             'success' => true,
             'user'    => [
-                'id'          => $user->id,
-                'name'        => $user->full_name ?? $user->name,
-                'email'       => $user->email,
-                'role'        => $user->role,
-                'last_login'  => $user->last_login?->format('M d, Y h:i A'),
-                'created_at'  => $user->created_at?->format('M d, Y'),
+                'id'              => $user->id,
+                'name'            => $user->full_name ?? $user->name,
+                'email'           => $user->email,
+                'role'            => $user->role,
+                'role_label'      => ucfirst(str_replace('_', ' ', $user->role)),
+                'last_login'      => $user->last_login ? Carbon::parse($user->last_login)->format('M d, Y h:i A') : null,
+                'created_at'      => $user->created_at ? Carbon::parse($user->created_at)->format('M d, Y') : null,
                 'approval_status' => $user->approval_status,
-                'is_disabled' => $user->is_disabled,
+                'is_disabled'     => (bool) $user->is_disabled,
             ],
-            'todayAudit' => $audit,
+            'todayAudit' => $todayAudits,
             'history'    => $history,
         ]);
     }

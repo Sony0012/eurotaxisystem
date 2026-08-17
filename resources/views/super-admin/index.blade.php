@@ -947,213 +947,345 @@
     font-size: .7rem; font-weight: 800; text-transform: uppercase;
     letter-spacing: .08em; color: #64748b;
     display: flex; align-items: center; gap: .5rem; margin-bottom: .75rem;
-}
+        <style>
+        /* Client Activity Monitoring — Scoped Styles */
+        .cam-card {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: .85rem;
+            padding: 1.15rem;
+            transition: transform .15s ease, box-shadow .15s ease;
+        }
+        .cam-card:hover {
+            box-shadow: 0 4px 18px rgba(0,0,0,.05);
+        }
+        .cam-stat-icon {
+            width: 38px; height: 38px;
+            border-radius: .65rem;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+        .cam-bar-track {
+            background: #f1f5f9;
+            border-radius: 99px;
+            height: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+        .cam-bar-fill {
+            height: 100%;
+            border-radius: 99px;
+            transition: width .6s cubic-bezier(.4,0,.2,1);
+        }
+        .cam-status-dot {
+            width: 9px; height: 9px;
+            border-radius: 50%;
+            display: inline-block;
+            flex-shrink: 0;
+        }
+        .cam-dot-active { background: #22c55e; box-shadow: 0 0 0 3px rgba(34,197,94,.2); }
+        .cam-dot-low    { background: #f59e0b; box-shadow: 0 0 0 3px rgba(245,158,11,.2); }
+        .cam-dot-none   { background: #ef4444; box-shadow: 0 0 0 3px rgba(239,68,68,.2); }
+        .cam-dot-notyet { background: #94a3b8; }
 
-.cam-detail-panel {
-    position: fixed;
-    right: -500px; top: 0; bottom: 0;
-    width: 480px; background: #fff;
-    border-left: 1px solid #e2e8f0;
-    z-index: 9995; overflow-y: auto;
-    transition: right .35s cubic-bezier(.4,0,.2,1);
-    box-shadow: -8px 0 40px rgba(0,0,0,.12);
-}
-.cam-detail-panel.open { right: 0; }
-.cam-detail-overlay {
-    position: fixed; inset: 0; background: rgba(0,0,0,.35);
-    z-index: 9994; display: none;
-    backdrop-filter: blur(2px);
-}
-.cam-detail-overlay.open { display: block; }
+        .cam-badge {
+            display: inline-flex; align-items: center; gap: .3rem;
+            font-size: .65rem; font-weight: 800;
+            padding: .2rem .55rem; border-radius: 99px;
+            letter-spacing: .02em;
+        }
+        .cam-badge-active { background: #dcfce7; color: #15803d; }
+        .cam-badge-low    { background: #fef3c7; color: #92400e; }
+        .cam-badge-none   { background: #fee2e2; color: #991b1b; }
 
-@media (max-width: 768px) {
-    .cam-user-row { grid-template-columns: 1fr 1fr; }
-    .cam-detail-panel { width: 100%; right: -100%; }
-}
-</style>
+        .cam-filter-btn {
+            border: 1px solid #e2e8f0;
+            background: #fff;
+            color: #475569;
+            border-radius: .55rem;
+            padding: .38rem .75rem;
+            font-size: .75rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all .15s;
+        }
+        .cam-filter-btn:hover { background: #f8fafc; border-color: #cbd5e1; }
+        .cam-filter-btn.active {
+            background: #f59e0b;
+            border-color: #f59e0b;
+            color: #fff;
+        }
 
-<!-- â•â• TOOLBAR â•â• -->
-<div class="flex flex-wrap items-center justify-between gap-3 mb-5">
-    <div>
-        <h2 style="font-size:1.1rem;font-weight:900;color:#000;letter-spacing:-.02em;">Client Activity Monitoring</h2>
-        <p style="font-size:.75rem;color:#64748b;margin-top:.15rem;">Track daily usage, meaningful activities, and adoption progress.</p>
-    </div>
-    <div class="flex flex-wrap items-center gap-2">
-        <div style="position:relative;">
-            <i data-lucide="search" style="position:absolute;left:.6rem;top:50%;transform:translateY(-50%);width:13px;height:13px;color:#94a3b8;"></i>
-            <input id="cam-search" type="text" placeholder="Search user or clientâ€¦"
-                style="padding:.45rem .9rem .45rem 2rem;border:1px solid #e2e8f0;border-radius:.6rem;font-size:.78rem;outline:none;width:210px;transition:border-color .2s;"
-                oninput="camRenderTable()" onfocus="this.style.borderColor='#f59e0b'" onblur="this.style.borderColor='#e2e8f0'">
-        </div>
-        <select id="cam-period" class="cam-filter-btn" style="padding:.4rem .8rem;" onchange="camRenderHeatmap()">
-            <option value="today">Today</option>
-            <option value="yesterday">Yesterday</option>
-            <option value="week1" selected>Week 1</option>
-            <option value="week2">Week 2</option>
-            <option value="week3">Week 3</option>
-            <option value="week4">Week 4</option>
-        </select>
-        <select id="cam-target" class="cam-filter-btn" style="padding:.4rem .8rem;" onchange="camRenderTable()">
-            <option value="6">Target: 6h/day</option>
-            <option value="4" selected>Target: 4h/day</option>
-            <option value="2">Target: 2h/day</option>
-        </select>
-        <button class="cam-filter-btn active" id="cam-filter-all" onclick="camSetFilter('all')">All</button>
-        <button class="cam-filter-btn" id="cam-filter-active" onclick="camSetFilter('active')">Active</button>
-        <button class="cam-filter-btn" id="cam-filter-low" onclick="camSetFilter('low')">Low</button>
-        <button class="cam-filter-btn" id="cam-filter-none" onclick="camSetFilter('none')">Inactive</button>
-    </div>
-</div>
+        .cam-user-row {
+            display: grid;
+            grid-template-columns: 2fr 1.3fr 2.5fr 140px 100px;
+            gap: .75rem;
+            align-items: center;
+            padding: .85rem 1rem;
+            border-bottom: 1px solid #f1f5f9;
+            cursor: pointer;
+            transition: background .12s;
+            border-radius: .5rem;
+        }
+        .cam-user-row:hover { background: #f8fafc; }
+        .cam-user-row:last-child { border-bottom: none; }
 
-<!-- â•â• SUMMARY STAT CARDS â•â• -->
-<div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5" id="cam-stats-row">
-    <div class="cam-card">
-        <div class="flex items-center justify-between mb-2">
-            <span style="font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#64748b;">Total Users</span>
-            <div class="cam-stat-icon" style="background:#f0f9ff;"><i data-lucide="users" style="width:16px;height:16px;color:#0284c7;"></i></div>
-        </div>
-        <p style="font-size:2rem;font-weight:900;line-height:1;color:#000;" id="cam-s-total">0</p>
-        <p style="font-size:.68rem;color:#64748b;margin-top:.3rem;">Registered client accounts</p>
-    </div>
-    <div class="cam-card">
-        <div class="flex items-center justify-between mb-2">
-            <span style="font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#15803d;">Active Today</span>
-            <div class="cam-stat-icon" style="background:#f0fdf4;"><i data-lucide="check-circle-2" style="width:16px;height:16px;color:#22c55e;"></i></div>
-        </div>
-        <p style="font-size:2rem;font-weight:900;line-height:1;color:#22c55e;" id="cam-s-active">0</p>
-        <p style="font-size:.68rem;color:#64748b;margin-top:.3rem;">Meeting daily target</p>
-    </div>
-    <div class="cam-card">
-        <div class="flex items-center justify-between mb-2">
-            <span style="font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#92400e;">Low Activity</span>
-            <div class="cam-stat-icon" style="background:#fffbeb;"><i data-lucide="alert-triangle" style="width:16px;height:16px;color:#f59e0b;"></i></div>
-        </div>
-        <p style="font-size:2rem;font-weight:900;line-height:1;color:#f59e0b;" id="cam-s-low">0</p>
-        <p style="font-size:.68rem;color:#64748b;margin-top:.3rem;">Below target usage</p>
-    </div>
-    <div class="cam-card">
-        <div class="flex items-center justify-between mb-2">
-            <span style="font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#991b1b;">No Activity</span>
-            <div class="cam-stat-icon" style="background:#fff1f2;"><i data-lucide="x-circle" style="width:16px;height:16px;color:#ef4444;"></i></div>
-        </div>
-        <p style="font-size:2rem;font-weight:900;line-height:1;color:#ef4444;" id="cam-s-none">0</p>
-        <p style="font-size:.68rem;color:#64748b;margin-top:.3rem;">Zero usage today</p>
-    </div>
-</div>
+        .cam-heatmap-cell {
+            width: 24px; height: 24px;
+            border-radius: 4px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: .52rem; font-weight: 800;
+            cursor: default;
+            transition: transform .1s;
+        }
+        .cam-heatmap-cell:hover { transform: scale(1.2); z-index: 2; position: relative; }
 
-<!-- â•â• SECOND ROW STATS â•â• -->
-<div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
-    <div class="cam-card">
-        <div class="flex items-center justify-between mb-2">
-            <span style="font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#64748b;">Avg. Daily Hours</span>
-            <div class="cam-stat-icon" style="background:#faf5ff;"><i data-lucide="clock" style="width:16px;height:16px;color:#a855f7;"></i></div>
-        </div>
-        <p style="font-size:2rem;font-weight:900;line-height:1;color:#000;" id="cam-s-avg">0h</p>
-        <p style="font-size:.68rem;color:#64748b;margin-top:.3rem;">Across all active users</p>
-    </div>
-    <div class="cam-card">
-        <div class="flex items-center justify-between mb-2">
-            <span style="font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#64748b;">Adoption Rate</span>
-            <div class="cam-stat-icon" style="background:#f0fdf4;"><i data-lucide="trending-up" style="width:16px;height:16px;color:#16a34a;"></i></div>
-        </div>
-        <p style="font-size:2rem;font-weight:900;line-height:1;color:#000;" id="cam-s-adoption">0%</p>
-        <p style="font-size:.68rem;color:#64748b;margin-top:.3rem;">Overall system adoption</p>
-    </div>
-    <div class="cam-card">
-        <div class="flex items-center justify-between mb-2">
-            <span style="font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#64748b;">Activities Today</span>
-            <div class="cam-stat-icon" style="background:#fef3c7;"><i data-lucide="zap" style="width:16px;height:16px;color:#f59e0b;"></i></div>
-        </div>
-        <p style="font-size:2rem;font-weight:900;line-height:1;color:#000;" id="cam-s-acts">0</p>
-        <p style="font-size:.68rem;color:#64748b;margin-top:.3rem;">Meaningful interactions</p>
-    </div>
-    <div class="cam-card">
-        <div class="flex items-center justify-between mb-2">
-            <span style="font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#64748b;">Total Clients</span>
-            <div class="cam-stat-icon" style="background:#f0f9ff;"><i data-lucide="building-2" style="width:16px;height:16px;color:#0369a1;"></i></div>
-        </div>
-        <p style="font-size:2rem;font-weight:900;line-height:1;color:#000;" id="cam-s-clients">0</p>
-        <p style="font-size:.68rem;color:#64748b;margin-top:.3rem;">Active client companies</p>
-    </div>
-</div>
+        .cam-timeline-item {
+            position: relative;
+            padding-left: 1.4rem;
+            margin-bottom: .85rem;
+        }
+        .cam-timeline-item::before {
+            content: '';
+            position: absolute; left: 5px; top: 12px; bottom: -12px;
+            width: 2px; background: #e2e8f0;
+        }
+        .cam-timeline-item:last-child::before { display: none; }
+        .cam-timeline-dot {
+            position: absolute; left: 0; top: 3px;
+            width: 12px; height: 12px;
+            border-radius: 50%;
+            background: #fff;
+            border: 2px solid #f59e0b;
+            display: flex; align-items: center; justify-content: center;
+        }
 
-<!-- â•â• ATTENTION ALERTS â•â• -->
-<div class="cam-card mb-5" id="cam-alerts-section">
-    <div class="cam-section-title">
-        <i data-lucide="bell" style="width:13px;height:13px;color:#ef4444;"></i>
-        Attention Required
-        <span id="cam-alert-count" style="background:#fee2e2;color:#b91c1c;padding:.1rem .45rem;border-radius:99px;font-size:.6rem;">0</span>
-    </div>
-    <div id="cam-alerts-list" class="flex flex-col gap-2">
-        <!-- populated by JS -->
-    </div>
-</div>
+        .cam-section-title {
+            font-size: .82rem; font-weight: 800;
+            text-transform: uppercase; letter-spacing: .06em;
+            color: #475569;
+            display: flex; align-items: center; gap: .4rem;
+            margin-bottom: .9rem;
+        }
 
-<!-- â•â• MAIN TABLE: Daily Usage Progress Bars â•â• -->
-<div class="cam-card mb-5">
-    <div class="flex items-center justify-between mb-4">
-        <div class="cam-section-title mb-0">
-            <i data-lucide="bar-chart-horizontal" style="width:13px;height:13px;color:#f59e0b;"></i>
-            Daily User Activity
-        </div>
-        <span style="font-size:.68rem;color:#64748b;">Click a row to view detailed activity</span>
-    </div>
-    <!-- Table header -->
-    <div style="display:grid;grid-template-columns:2fr 1.5fr 3fr 120px 90px;gap:.75rem;padding:.5rem 1rem;background:#f8fafc;border-radius:.6rem;margin-bottom:.25rem;">
-        <span style="font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#64748b;">User</span>
-        <span style="font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#64748b;">Client</span>
-        <span style="font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#64748b;">Today's Progress</span>
-        <span style="font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#64748b;">Time / Target</span>
-        <span style="font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#64748b;">Status</span>
-    </div>
-    <div id="cam-user-table">
-        <!-- populated by JS -->
-    </div>
-</div>
+        .cam-detail-panel {
+            position: fixed;
+            top: 0; right: -460px;
+            width: 440px; height: 100vh;
+            background: #fff;
+            box-shadow: -8px 0 32px rgba(0,0,0,.15);
+            z-index: 9995;
+            overflow-y: auto;
+            transition: right .3s cubic-bezier(.4,0,.2,1);
+        }
+        .cam-detail-panel.open { right: 0; }
+        .cam-detail-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,.35);
+            z-index: 9994; display: none;
+        }
+        .cam-detail-overlay.open { display: block; }
 
-<!-- â•â• 4-WEEK TIMELINE HEATMAP â•â• -->
-<div class="cam-card mb-5">
-    <div class="flex items-center justify-between mb-4">
-        <div class="cam-section-title mb-0">
-            <i data-lucide="calendar" style="width:13px;height:13px;color:#f59e0b;"></i>
-            4-Week Activity Timeline
-        </div>
-        <div class="flex gap-2 items-center" style="font-size:.65rem;color:#64748b;">
-            <span style="width:10px;height:10px;border-radius:2px;background:#f1f5f9;display:inline-block;"></span>0h
-            <span style="width:10px;height:10px;border-radius:2px;background:#fde68a;display:inline-block;"></span>&lt;2h
-            <span style="width:10px;height:10px;border-radius:2px;background:#fbbf24;display:inline-block;"></span>2â€“4h
-            <span style="width:10px;height:10px;border-radius:2px;background:#16a34a;display:inline-block;"></span>&gt;4h
-        </div>
-    </div>
-    <div id="cam-timeline-table" style="overflow-x:auto;">
-        <!-- populated by JS -->
-    </div>
-</div>
+        @media (max-width: 768px) {
+            .cam-user-row { grid-template-columns: 1fr 1fr; }
+            .cam-detail-panel { width: 100%; right: -100%; }
+        }
+        </style>
 
-<!-- â•â• CLIENT SUMMARY ROW â•â• -->
-<div class="cam-card">
-    <div class="cam-section-title">
-        <i data-lucide="building-2" style="width:13px;height:13px;color:#f59e0b;"></i>
-        Client Adoption Overview
-    </div>
-    <div id="cam-client-summary" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-        <!-- populated by JS -->
-    </div>
-</div>
+        <!-- ══ TOOLBAR ══ -->
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-5">
+            <div>
+                <h2 style="font-size:1.15rem;font-weight:900;color:#000;letter-spacing:-.02em;">Client & Staff Activity Monitoring</h2>
+                <p style="font-size:.75rem;color:#64748b;margin-top:.15rem;">Live tracking of daily usage, system operations, and adoption progress per account.</p>
+            </div>
+            <div class="flex flex-wrap items-center gap-2">
+                <!-- Search Input -->
+                <div style="position:relative;">
+                    <i data-lucide="search" style="position:absolute;left:.6rem;top:50%;transform:translateY(-50%);width:13px;height:13px;color:#94a3b8;"></i>
+                    <input id="cam-search" type="text" placeholder="Search name, role, email…" autocomplete="off"
+                        style="padding:.45rem .9rem .45rem 2rem;border:1px solid #e2e8f0;border-radius:.6rem;font-size:.78rem;outline:none;width:220px;transition:border-color .2s;"
+                        oninput="camRenderTable()" onfocus="this.style.borderColor='#f59e0b'" onblur="this.style.borderColor='#e2e8f0'">
+                </div>
 
-<!-- â•â• USER DETAIL OVERLAY â•â• -->
-<div class="cam-detail-overlay" id="cam-overlay" onclick="camCloseDetail()"></div>
-<div class="cam-detail-panel" id="cam-detail-panel">
-    <div style="background:#f8fafc;padding:1.25rem 1.5rem;border-bottom:1px solid #e2e8f0;position:sticky;top:0;z-index:10;">
-        <div class="flex items-center justify-between">
-            <h3 style="font-weight:900;font-size:1rem;color:#000;">User Activity Detail</h3>
-            <button onclick="camCloseDetail()" style="color:#64748b;cursor:pointer;padding:.3rem;"><i data-lucide="x" style="width:18px;height:18px;"></i></button>
+                <!-- Date Selector -->
+                <div style="position:relative;display:flex;align-items:center;">
+                    <input type="date" id="cam-date" value="{{ date('Y-m-d') }}" class="cam-filter-btn"
+                        style="padding:.38rem .7rem;font-size:.75rem;font-weight:700;color:#000;border:1px solid #e2e8f0;border-radius:.55rem;"
+                        onchange="camFetch()">
+                </div>
+
+                <!-- Daily Target Hours -->
+                <select id="cam-target" class="cam-filter-btn" style="padding:.4rem .8rem;" onchange="camFetch()">
+                    <option value="6">Target: 6h/day</option>
+                    <option value="4" selected>Target: 4h/day</option>
+                    <option value="2">Target: 2h/day</option>
+                    <option value="8">Target: 8h/day</option>
+                </select>
+
+                <!-- Status Filter Buttons -->
+                <div class="flex items-center gap-1">
+                    <button class="cam-filter-btn active" id="cam-filter-all" onclick="camSetFilter('all')">All</button>
+                    <button class="cam-filter-btn" id="cam-filter-active" onclick="camSetFilter('active')">🟢 Active</button>
+                    <button class="cam-filter-btn" id="cam-filter-low" onclick="camSetFilter('low')">🟡 Low</button>
+                    <button class="cam-filter-btn" id="cam-filter-none" onclick="camSetFilter('none')">🔴 Inactive</button>
+                </div>
+
+                <!-- Refresh Button -->
+                <button onclick="camFetch()" class="cam-filter-btn" style="display:flex;align-items:center;gap:.3rem;" title="Refresh Activity Data">
+                    <i data-lucide="rotate-cw" style="width:13px;height:13px;"></i>
+                    <span>Refresh</span>
+                </button>
+            </div>
         </div>
-    </div>
-    <div id="cam-detail-content" style="padding:1.25rem 1.5rem;">
-        <!-- populated by JS -->
-    </div>
-</div>
+
+        <!-- ══ SUMMARY STAT CARDS ══ -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5" id="cam-stats-row">
+            <div class="cam-card">
+                <div class="flex items-center justify-between mb-2">
+                    <span style="font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#64748b;">Total Accounts</span>
+                    <div class="cam-stat-icon" style="background:#f0f9ff;"><i data-lucide="users" style="width:16px;height:16px;color:#0284c7;"></i></div>
+                </div>
+                <p style="font-size:2rem;font-weight:900;line-height:1;color:#000;" id="cam-s-total">0</p>
+                <p style="font-size:.68rem;color:#64748b;margin-top:.3rem;">Monitored staff & admin accounts</p>
+            </div>
+            <div class="cam-card">
+                <div class="flex items-center justify-between mb-2">
+                    <span style="font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#15803d;">Active Today</span>
+                    <div class="cam-stat-icon" style="background:#f0fdf4;"><i data-lucide="check-circle-2" style="width:16px;height:16px;color:#22c55e;"></i></div>
+                </div>
+                <p style="font-size:2rem;font-weight:900;line-height:1;color:#22c55e;" id="cam-s-active">0</p>
+                <p style="font-size:.68rem;color:#64748b;margin-top:.3rem;">Meeting daily target / operations</p>
+            </div>
+            <div class="cam-card">
+                <div class="flex items-center justify-between mb-2">
+                    <span style="font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#92400e;">Low Activity</span>
+                    <div class="cam-stat-icon" style="background:#fffbeb;"><i data-lucide="alert-triangle" style="width:16px;height:16px;color:#f59e0b;"></i></div>
+                </div>
+                <p style="font-size:2rem;font-weight:900;line-height:1;color:#f59e0b;" id="cam-s-low">0</p>
+                <p style="font-size:.68rem;color:#64748b;margin-top:.3rem;">Below target usage duration</p>
+            </div>
+            <div class="cam-card">
+                <div class="flex items-center justify-between mb-2">
+                    <span style="font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#991b1b;">No Activity</span>
+                    <div class="cam-stat-icon" style="background:#fff1f2;"><i data-lucide="x-circle" style="width:16px;height:16px;color:#ef4444;"></i></div>
+                </div>
+                <p style="font-size:2rem;font-weight:900;line-height:1;color:#ef4444;" id="cam-s-none">0</p>
+                <p style="font-size:.68rem;color:#64748b;margin-top:.3rem;">Zero login / usage today</p>
+            </div>
+        </div>
+
+        <!-- ══ SECOND ROW STATS ══ -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
+            <div class="cam-card">
+                <div class="flex items-center justify-between mb-2">
+                    <span style="font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#64748b;">Avg. Daily Hours</span>
+                    <div class="cam-stat-icon" style="background:#faf5ff;"><i data-lucide="clock" style="width:16px;height:16px;color:#a855f7;"></i></div>
+                </div>
+                <p style="font-size:2rem;font-weight:900;line-height:1;color:#000;" id="cam-s-avg">0h</p>
+                <p style="font-size:.68rem;color:#64748b;margin-top:.3rem;">Active session time across users</p>
+            </div>
+            <div class="cam-card">
+                <div class="flex items-center justify-between mb-2">
+                    <span style="font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#64748b;">Adoption Rate</span>
+                    <div class="cam-stat-icon" style="background:#f0fdf4;"><i data-lucide="trending-up" style="width:16px;height:16px;color:#16a34a;"></i></div>
+                </div>
+                <p style="font-size:2rem;font-weight:900;line-height:1;color:#000;" id="cam-s-adoption">0%</p>
+                <p style="font-size:.68rem;color:#64748b;margin-top:.3rem;">Overall system adoption %</p>
+            </div>
+            <div class="cam-card">
+                <div class="flex items-center justify-between mb-2">
+                    <span style="font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#64748b;">Activities Today</span>
+                    <div class="cam-stat-icon" style="background:#fef3c7;"><i data-lucide="zap" style="width:16px;height:16px;color:#f59e0b;"></i></div>
+                </div>
+                <p style="font-size:2rem;font-weight:900;line-height:1;color:#000;" id="cam-s-acts">0</p>
+                <p style="font-size:.68rem;color:#64748b;margin-top:.3rem;">Meaningful database operations</p>
+            </div>
+            <div class="cam-card">
+                <div class="flex items-center justify-between mb-2">
+                    <span style="font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#64748b;">Monitored Roles</span>
+                    <div class="cam-stat-icon" style="background:#f0f9ff;"><i data-lucide="shield-check" style="width:16px;height:16px;color:#0369a1;"></i></div>
+                </div>
+                <p style="font-size:2rem;font-weight:900;line-height:1;color:#000;" id="cam-s-clients">0</p>
+                <p style="font-size:.68rem;color:#64748b;margin-top:.3rem;">Manager, Dispatcher, Secretary, Owner</p>
+            </div>
+        </div>
+
+        <!-- ══ ATTENTION ALERTS ══ -->
+        <div class="cam-card mb-5" id="cam-alerts-section">
+            <div class="cam-section-title">
+                <i data-lucide="bell" style="width:13px;height:13px;color:#ef4444;"></i>
+                Attention Required
+                <span id="cam-alert-count" style="background:#fee2e2;color:#b91c1c;padding:.1rem .45rem;border-radius:99px;font-size:.6rem;">0</span>
+            </div>
+            <div id="cam-alerts-list" class="flex flex-col gap-2">
+                <!-- populated by JS -->
+            </div>
+        </div>
+
+        <!-- ══ MAIN TABLE: Daily Usage Progress Bars ══ -->
+        <div class="cam-card mb-5">
+            <div class="flex items-center justify-between mb-4">
+                <div class="cam-section-title mb-0">
+                    <i data-lucide="bar-chart-horizontal" style="width:13px;height:13px;color:#f59e0b;"></i>
+                    Daily Account Activity & Progress
+                </div>
+                <span style="font-size:.68rem;color:#64748b;">Click any user row to view audit details & timeline</span>
+            </div>
+            <!-- Table header -->
+            <div style="display:grid;grid-template-columns:2fr 1.3fr 2.5fr 140px 100px;gap:.75rem;padding:.55rem 1rem;background:#f8fafc;border-radius:.6rem;margin-bottom:.35rem;">
+                <span style="font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#64748b;">User & Account</span>
+                <span style="font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#64748b;">Role & Scope</span>
+                <span style="font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#64748b;">Today's Usage Progress</span>
+                <span style="font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#64748b;">Active Time / Target</span>
+                <span style="font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#64748b;">Status</span>
+            </div>
+            <div id="cam-user-table">
+                <!-- populated by JS -->
+            </div>
+        </div>
+
+        <!-- ══ 4-WEEK TIMELINE HEATMAP ══ -->
+        <div class="cam-card mb-5">
+            <div class="flex items-center justify-between mb-4">
+                <div class="cam-section-title mb-0">
+                    <i data-lucide="calendar" style="width:13px;height:13px;color:#f59e0b;"></i>
+                    4-Week Activity Timeline (Heatmap)
+                </div>
+                <div class="flex gap-2 items-center" style="font-size:.65rem;color:#64748b;">
+                    <span style="width:10px;height:10px;border-radius:2px;background:#f1f5f9;display:inline-block;"></span>0 acts
+                    <span style="width:10px;height:10px;border-radius:2px;background:#fef3c7;display:inline-block;"></span>1–4 acts
+                    <span style="width:10px;height:10px;border-radius:2px;background:#fde68a;display:inline-block;"></span>5–15 acts
+                    <span style="width:10px;height:10px;border-radius:2px;background:#bbf7d0;display:inline-block;"></span>16+ acts
+                </div>
+            </div>
+            <div id="cam-timeline-table" style="overflow-x:auto;">
+                <!-- populated by JS -->
+            </div>
+        </div>
+
+        <!-- ══ ROLE-BASED SUMMARY ROW ══ -->
+        <div class="cam-card">
+            <div class="cam-section-title">
+                <i data-lucide="layers" style="width:13px;height:13px;color:#f59e0b;"></i>
+                Role & Department Adoption Overview
+            </div>
+            <div id="cam-client-summary" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                <!-- populated by JS -->
+            </div>
+        </div>
+
+        <!-- ══ USER DETAIL OVERLAY ══ -->
+        <div class="cam-detail-overlay" id="cam-overlay" onclick="camCloseDetail()"></div>
+        <div class="cam-detail-panel" id="cam-detail-panel">
+            <div style="background:#f8fafc;padding:1.25rem 1.5rem;border-bottom:1px solid #e2e8f0;position:sticky;top:0;z-index:10;">
+                <div class="flex items-center justify-between">
+                    <h3 style="font-weight:900;font-size:1rem;color:#000;">User Activity Detail</h3>
+                    <button onclick="camCloseDetail()" style="color:#64748b;cursor:pointer;padding:.3rem;"><i data-lucide="x" style="width:18px;height:18px;"></i></button>
+                </div>
+            </div>
+            <div id="cam-detail-content" style="padding:1.25rem 1.5rem;">
+                <!-- populated by JS -->
+            </div>
+        </div>
 
         </div><!-- /tab-activity -->
 
@@ -1635,18 +1767,18 @@
 
 
 <script>
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-// CLIENT ACTIVITY MONITORING â€” Real Data Engine
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ══════════════════════════════════════════════════════════════
+// CLIENT & STAFF ACTIVITY MONITORING — Real Data Engine
+// ══════════════════════════════════════════════════════════════
 
-// â”€â”€â”€ State â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── State ───────────────────────────────────────────────────
 let CAM_DATA        = { users: [], summary: {} };
 let CAM_FILTER      = 'all';
 let CAM_LOADING     = false;
 let CAM_DATE        = new Date().toISOString().slice(0, 10);
 let CAM_TARGET      = 4;
 
-// â”€â”€â”€ Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Helpers ─────────────────────────────────────────────────
 function camFmtH(h) {
     if (h === 0 || h === null || h === undefined) return '0h';
     const hr = Math.floor(h);
@@ -1661,10 +1793,10 @@ function camBarColor(pct) {
     return '#22c55e';
 }
 
-function camHeatColor(logins) {
-    if (!logins || logins === 0) return { bg: '#f1f5f9', color: '#94a3b8' };
-    if (logins === 1) return { bg: '#fef3c7', color: '#92400e' };
-    if (logins === 2) return { bg: '#fde68a', color: '#92400e' };
+function camHeatColor(activities) {
+    if (!activities || activities === 0) return { bg: '#f1f5f9', color: '#94a3b8' };
+    if (activities <= 4)  return { bg: '#fef3c7', color: '#92400e' };
+    if (activities <= 15) return { bg: '#fde68a', color: '#92400e' };
     return { bg: '#bbf7d0', color: '#166534' };
 }
 
@@ -1674,13 +1806,14 @@ function camRoleBadge(role) {
         dispatcher: { bg: '#ccfbf1', color: '#115e59', label: 'Dispatcher' },
         secretary:  { bg: '#e0e7ff', color: '#3730a3', label: 'Secretary' },
         staff:      { bg: '#f1f5f9', color: '#475569', label: 'Staff' },
-        super_admin:{ bg: '#f3e8ff', color: '#6b21a8', label: 'Owner' },
+        super_admin:{ bg: '#f3e8ff', color: '#6b21a8', label: 'Owner / Admin' },
+        owner:      { bg: '#f3e8ff', color: '#6b21a8', label: 'Owner' },
     };
-    const r = map[role] || { bg: '#f1f5f9', color: '#64748b', label: role };
-    return `<span style="font-size:.6rem;font-weight:700;padding:.15rem .5rem;border-radius:99px;background:${r.bg};color:${r.color};">${r.label}</span>`;
+    const r = map[role] || { bg: '#f1f5f9', color: '#64748b', label: role.toUpperCase() };
+    return `<span style="font-size:.62rem;font-weight:800;padding:.18rem .55rem;border-radius:99px;background:${r.bg};color:${r.color};display:inline-block;">${r.label}</span>`;
 }
 
-// â”€â”€â”€ Fetch from API â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Fetch from API ───────────────────────────────────────────
 async function camFetch() {
     if (CAM_LOADING) return;
     CAM_LOADING = true;
@@ -1688,9 +1821,10 @@ async function camFetch() {
 
     try {
         const target = document.getElementById('cam-target')?.value || 4;
-        const date   = document.getElementById('cam-date')?.value || CAM_DATE;
-        CAM_TARGET   = parseInt(target);
-        CAM_DATE     = date;
+        const dateInput = document.getElementById('cam-date');
+        const date = dateInput && dateInput.value ? dateInput.value : CAM_DATE;
+        CAM_TARGET = parseInt(target);
+        CAM_DATE   = date;
 
         const res  = await fetch(`/super-admin/activity-monitoring?date=${date}&target=${target}`, {
             headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
@@ -1701,10 +1835,10 @@ async function camFetch() {
             CAM_DATA = json;
             camRenderAll();
         } else {
-            camShowError(json.message || 'Failed to load data.');
+            camShowError(json.message || 'Failed to load activity data.');
         }
     } catch (e) {
-        camShowError('Network error. Please try again.');
+        camShowError('Network error while fetching activity monitoring data.');
     } finally {
         CAM_LOADING = false;
     }
@@ -1714,9 +1848,9 @@ function camShowSkeleton() {
     const tbody = document.getElementById('cam-user-table');
     if (tbody) {
         tbody.innerHTML = `
-            <div style="padding:2rem;text-align:center;color:#94a3b8;">
-                <i data-lucide="loader-2" style="width:20px;height:20px;margin-bottom:.5rem;animation:spin 1s linear infinite;display:inline-block;"></i>
-                <p style="font-size:.8rem;margin-top:.5rem;">Loading user activity dataâ€¦</p>
+            <div style="padding:2.5rem;text-align:center;color:#94a3b8;">
+                <i data-lucide="loader-2" style="width:24px;height:24px;margin-bottom:.5rem;animation:spin 1s linear infinite;display:inline-block;color:#f59e0b;"></i>
+                <p style="font-size:.82rem;margin-top:.5rem;font-weight:700;color:#64748b;">Loading user activity data…</p>
             </div>`;
         if (typeof lucide !== 'undefined') lucide.createIcons();
     }
@@ -1725,11 +1859,11 @@ function camShowSkeleton() {
 function camShowError(msg) {
     const tbody = document.getElementById('cam-user-table');
     if (tbody) {
-        tbody.innerHTML = `<div style="padding:2rem;text-align:center;color:#ef4444;font-size:.82rem;">${msg}</div>`;
+        tbody.innerHTML = `<div style="padding:2rem;text-align:center;color:#ef4444;font-size:.85rem;font-weight:700;">${msg}</div>`;
     }
 }
 
-// â”€â”€â”€ Render All Sections â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Render All Sections ──────────────────────────────────────
 function camRenderAll() {
     camRenderStats();
     camRenderAlerts();
@@ -1739,32 +1873,32 @@ function camRenderAll() {
     if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
-// â”€â”€â”€ Stats Cards â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Stats Cards ─────────────────────────────────────────────
 function camRenderStats() {
     const s = CAM_DATA.summary || {};
     const setTxt = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
-    setTxt('cam-s-total',    s.total    ?? 0);
-    setTxt('cam-s-active',   s.active   ?? 0);
-    setTxt('cam-s-low',      s.low      ?? 0);
-    setTxt('cam-s-none',     s.none     ?? 0);
+    setTxt('cam-s-total',    s.total       ?? 0);
+    setTxt('cam-s-active',   s.active      ?? 0);
+    setTxt('cam-s-low',      s.low         ?? 0);
+    setTxt('cam-s-none',     s.none        ?? 0);
     setTxt('cam-s-avg',      camFmtH(s.avgH ?? 0));
-    setTxt('cam-s-adoption', (s.adoption ?? 0) + '%');
-    setTxt('cam-s-acts',     (CAM_DATA.users || []).reduce((a, u) => a + (u.sessions || 0), 0));
-    setTxt('cam-s-clients',  [...new Set((CAM_DATA.users || []).map(u => u.role))].length);
+    setTxt('cam-s-adoption', (s.adoption   ?? 0) + '%');
+    setTxt('cam-s-acts',     s.total_acts  ?? 0);
+    setTxt('cam-s-clients',  s.roles_count ?? 0);
 }
 
-// â”€â”€â”€ Attention Alerts â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Attention Alerts ─────────────────────────────────────────
 function camRenderAlerts() {
     const users  = CAM_DATA.users || [];
     const alerts = [];
 
     users.forEach(u => {
-        if (!u.firstLogin && !u.todayH) {
-            alerts.push({ u, msg: `No login today. Last seen: ${u.last_login || 'Never'}.`, icon: 'alert-octagon', color: '#ef4444', bg: '#fff1f2' });
+        if (!u.firstLogin && u.todayH === 0 && u.activities === 0) {
+            alerts.push({ u, msg: `No login or activity today. Last seen: ${u.last_login || 'Never logged in'}.`, icon: 'alert-octagon', color: '#ef4444', bg: '#fff1f2' });
         } else if (u.status === 'low') {
-            alerts.push({ u, msg: `Low usage â€” ${camFmtH(u.todayH)} of ${CAM_TARGET}h target. ${u.sessions} session(s) recorded.`, icon: 'alert-triangle', color: '#f59e0b', bg: '#fffbeb' });
-        } else if (u.sessions === 0 && u.todayH > 0) {
-            alerts.push({ u, msg: `Session timing mismatch â€” review login records.`, icon: 'info', color: '#0284c7', bg: '#f0f9ff' });
+            alerts.push({ u, msg: `Low activity — ${camFmtH(u.todayH)} of ${CAM_TARGET}h target. ${u.activities} interaction(s) recorded.`, icon: 'alert-triangle', color: '#f59e0b', bg: '#fffbeb' });
+        } else if (u.activities === 0 && u.todayH > 0) {
+            alerts.push({ u, msg: `Logged in today but 0 recorded operational transactions.`, icon: 'info', color: '#0284c7', bg: '#f0f9ff' });
         }
     });
 
@@ -1776,66 +1910,73 @@ function camRenderAlerts() {
 
     if (alerts.length === 0) {
         list.innerHTML = `<div style="text-align:center;padding:1.25rem;color:#16a34a;font-size:.82rem;font-weight:700;">
-            <i data-lucide="check-circle-2" style="display:inline;width:14px;height:14px;margin-right:.3rem;"></i>
-            All users are performing well â€” no alerts.
+            <i data-lucide="check-circle-2" style="display:inline;width:15px;height:15px;margin-right:.3rem;"></i>
+            All accounts are performing well and actively utilizing the system.
         </div>`;
         return;
     }
 
     list.innerHTML = alerts.map(a => `
         <div style="display:flex;gap:.75rem;align-items:flex-start;background:${a.bg};border-radius:.75rem;padding:.75rem 1rem;border-left:3px solid ${a.color};">
-            <i data-lucide="${a.icon}" style="width:15px;height:15px;color:${a.color};flex-shrink:0;margin-top:.1rem;"></i>
+            <i data-lucide="${a.icon}" style="width:16px;height:16px;color:${a.color};flex-shrink:0;margin-top:.15rem;"></i>
             <div style="flex:1;">
                 <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.2rem;">
-                    <span style="font-weight:800;font-size:.8rem;color:#000;">${a.u.name}</span>
+                    <span style="font-weight:800;font-size:.82rem;color:#000;">${a.u.name}</span>
                     ${camRoleBadge(a.u.role)}
-                    ${a.u.isOnline ? '<span style="font-size:.6rem;background:#dcfce7;color:#15803d;padding:.1rem .4rem;border-radius:99px;font-weight:700;">â— ONLINE</span>' : ''}
+                    ${a.u.isOnline ? '<span style="font-size:.6rem;background:#dcfce7;color:#15803d;padding:.1rem .4rem;border-radius:99px;font-weight:700;">● ONLINE</span>' : ''}
                 </div>
                 <p style="font-size:.73rem;color:#475569;line-height:1.4;">${a.msg}</p>
-                <button onclick="camOpenDetail(${a.u.id})" style="margin-top:.4rem;font-size:.65rem;font-weight:700;color:${a.color};background:none;border:none;cursor:pointer;padding:0;">View Details â†’</button>
+                <button onclick="camOpenDetail(${a.u.id})" style="margin-top:.4rem;font-size:.68rem;font-weight:800;color:${a.color};background:none;border:none;cursor:pointer;padding:0;">View Account Detail →</button>
             </div>
         </div>
     `).join('');
     if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
-// â”€â”€â”€ User Progress Table â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── User Progress Table ──────────────────────────────────────
 function camRenderTable() {
-    const search = (document.getElementById('cam-search')?.value || '').toLowerCase();
+    const search = (document.getElementById('cam-search')?.value || '').toLowerCase().trim();
     const tbody  = document.getElementById('cam-user-table');
     if (!tbody) return;
 
     let users = (CAM_DATA.users || []).filter(u => {
-        const matchQ = u.name.toLowerCase().includes(search) || u.email.toLowerCase().includes(search) || u.role.toLowerCase().includes(search);
+        const matchQ = !search || u.name.toLowerCase().includes(search) || u.email.toLowerCase().includes(search) || u.role.toLowerCase().includes(search);
         const matchF = CAM_FILTER === 'all' || u.status === CAM_FILTER;
         return matchQ && matchF;
     });
 
     if (users.length === 0) {
-        tbody.innerHTML = `<div style="text-align:center;padding:2rem;color:#94a3b8;font-size:.82rem;">No users match your filter or search.</div>`;
+        tbody.innerHTML = `<div style="text-align:center;padding:2.5rem;color:#94a3b8;font-size:.82rem;">No accounts match your filter or search.</div>`;
         return;
     }
 
     tbody.innerHTML = users.map(u => {
-        const barW    = u.pct || 0;
-        const barC    = camBarColor(barW);
-        const dotCls  = u.status === 'active' ? 'cam-dot-active' : (u.status === 'low' ? 'cam-dot-low' : 'cam-dot-none');
+        const barW     = u.pct || 0;
+        const barC     = camBarColor(barW);
+        const dotCls   = u.status === 'active' ? 'cam-dot-active' : (u.status === 'low' ? 'cam-dot-low' : 'cam-dot-none');
         const badgeCls = u.status === 'active' ? 'cam-badge-active' : (u.status === 'low' ? 'cam-badge-low' : 'cam-badge-none');
-        const badgeTxt = u.status === 'active' ? 'Active' : (u.status === 'low' ? 'Low' : 'Inactive');
-        const onlineTag = u.isOnline ? `<span style="font-size:.55rem;background:#dcfce7;color:#15803d;padding:.1rem .3rem;border-radius:99px;font-weight:700;margin-left:.3rem;">LIVE</span>` : '';
+        const badgeTxt = u.status === 'active' ? 'Active' : (u.status === 'low' ? 'Low Usage' : 'Inactive');
+        const onlineTag = u.isOnline ? `<span style="font-size:.55rem;background:#dcfce7;color:#15803d;padding:.1rem .35rem;border-radius:99px;font-weight:700;margin-left:.35rem;">LIVE</span>` : '';
+        const initials  = (u.name || 'U').split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase();
 
         return `
         <div class="cam-user-row" onclick="camOpenDetail(${u.id})">
-            <div style="display:flex;align-items:center;gap:.6rem;min-width:0;">
-                <span class="cam-status-dot ${dotCls}"></span>
+            <div style="display:flex;align-items:center;gap:.65rem;min-width:0;">
+                <div style="width:34px;height:34px;border-radius:50%;background:#f1f5f9;color:#475569;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:900;flex-shrink:0;">
+                    ${initials}
+                </div>
                 <div style="min-width:0;">
-                    <div style="font-weight:800;font-size:.8rem;color:#000;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${u.name}${onlineTag}</div>
-                    <div style="font-size:.63rem;color:#64748b;margin-top:.1rem;">${u.firstLogin ? 'In: ' + u.firstLogin : 'No login today'}</div>
+                    <div style="font-weight:800;font-size:.82rem;color:#000;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                        ${u.name}${onlineTag}
+                    </div>
+                    <div style="font-size:.65rem;color:#64748b;margin-top:.1rem;">
+                        ${u.firstLogin ? 'First login: ' + u.firstLogin : (u.last_login ? 'Last seen: ' + u.last_login : 'Never logged in')}
+                    </div>
                 </div>
             </div>
             <div style="min-width:0;">
                 ${camRoleBadge(u.role)}
-                <div style="font-size:.63rem;color:#94a3b8;margin-top:.25rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${u.email}</div>
+                <div style="font-size:.65rem;color:#94a3b8;margin-top:.25rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${u.email}</div>
             </div>
             <div>
                 <div class="cam-bar-track" style="margin-bottom:.3rem;">
@@ -1847,21 +1988,23 @@ function camRenderTable() {
             </div>
             <div>
                 <div style="font-size:.82rem;font-weight:900;color:#000;">${camFmtH(u.todayH)}</div>
-                <div style="font-size:.63rem;color:#94a3b8;">of ${CAM_TARGET}h Â· ${barW}%</div>
+                <div style="font-size:.65rem;color:#94a3b8;">of ${CAM_TARGET}h · ${u.activities || 0} action(s)</div>
             </div>
-            <div><span class="cam-badge ${badgeCls}">${badgeTxt}</span></div>
+            <div>
+                <span class="cam-badge ${badgeCls}">${badgeTxt}</span>
+            </div>
         </div>`;
     }).join('');
 }
 
-// â”€â”€â”€ 28-Day Heatmap â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── 28-Day Heatmap ───────────────────────────────────────────
 function camRenderHeatmap() {
     const container = document.getElementById('cam-timeline-table');
     if (!container) return;
 
     const users = CAM_DATA.users || [];
     if (users.length === 0) {
-        container.innerHTML = `<p style="color:#94a3b8;font-size:.8rem;text-align:center;padding:1rem;">No data available.</p>`;
+        container.innerHTML = `<p style="color:#94a3b8;font-size:.8rem;text-align:center;padding:1rem;">No activity data available.</p>`;
         return;
     }
 
@@ -1872,21 +2015,21 @@ function camRenderHeatmap() {
     });
 
     let html = `<table style="border-collapse:separate;border-spacing:3px;min-width:max-content;"><thead><tr>`;
-    html += `<th style="font-size:.6rem;font-weight:700;color:#64748b;text-align:left;padding:.3rem .5rem;white-space:nowrap;min-width:140px;">User / Role</th>`;
+    html += `<th style="font-size:.6rem;font-weight:800;color:#64748b;text-align:left;padding:.3rem .5rem;white-space:nowrap;min-width:150px;">Account / Role</th>`;
 
     days.forEach((d, i) => {
-        html += `<th style="font-size:.5rem;font-weight:700;color:#94a3b8;text-align:center;padding:.2rem;min-width:28px;">${i % 7 === 0 ? d : ''}</th>`;
+        html += `<th style="font-size:.52rem;font-weight:700;color:#94a3b8;text-align:center;padding:.2rem;min-width:26px;">${i % 4 === 0 ? d : ''}</th>`;
     });
     html += `</tr></thead><tbody>`;
 
     users.forEach(u => {
         html += `<tr>
-            <td style="font-size:.7rem;font-weight:700;color:#000;padding:.3rem .5rem .3rem 0;white-space:nowrap;">
-                ${u.name}<br><span style="font-size:.58rem;color:#94a3b8;font-weight:400;">${u.role}</span>
+            <td style="font-size:.72rem;font-weight:800;color:#000;padding:.35rem .5rem .35rem 0;white-space:nowrap;">
+                ${u.name}<br><span style="font-size:.6rem;color:#94a3b8;font-weight:500;">${u.role_label || u.role}</span>
             </td>`;
         (u.heatmap || []).forEach(h => {
-            const c = camHeatColor(h.logins);
-            html += `<td><div class="cam-heatmap-cell" style="background:${c.bg};color:${c.color};" title="${h.date}: ${h.logins} login(s)">${h.logins > 0 ? h.logins : ''}</div></td>`;
+            const c = camHeatColor(h.activities);
+            html += `<td><div class="cam-heatmap-cell" style="background:${c.bg};color:${c.color};" title="${h.date}: ${h.activities} action(s), ${h.logins} login(s)">${h.activities > 0 ? h.activities : ''}</div></td>`;
         });
         html += `</tr>`;
     });
@@ -1895,15 +2038,15 @@ function camRenderHeatmap() {
     container.innerHTML = html;
 }
 
-// â”€â”€â”€ Role-Based Summary (replaces "Client" summary) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Role-Based Summary ───────────────────────────────────────
 function camRenderRoleSummary() {
     const container = document.getElementById('cam-client-summary');
     if (!container) return;
 
     const users = CAM_DATA.users || [];
-    const roles = ['manager', 'dispatcher', 'secretary', 'staff'];
-    const roleLabels = { manager:'Manager', dispatcher:'Dispatcher', secretary:'Secretary', staff:'Staff' };
-    const roleColors = { manager:'#0284c7', dispatcher:'#0d9488', secretary:'#6d28d9', staff:'#64748b' };
+    const roles = ['super_admin', 'manager', 'dispatcher', 'secretary', 'staff'];
+    const roleLabels = { super_admin:'Owner / Super Admin', manager:'Operations Manager', dispatcher:'Dispatcher Station', secretary:'Administrative Secretary', staff:'General Staff' };
+    const roleColors = { super_admin:'#7c3aed', manager:'#0284c7', dispatcher:'#0d9488', secretary:'#4f46e5', staff:'#64748b' };
 
     container.innerHTML = roles.map(role => {
         const rUsers  = users.filter(u => u.role === role);
@@ -1921,40 +2064,40 @@ function camRenderRoleSummary() {
 
         return `
         <div class="cam-card">
-            <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.85rem;">
-                <div style="width:36px;height:36px;border-radius:.6rem;background:${roleColors[role]}18;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                    <i data-lucide="users" style="width:16px;height:16px;color:${roleColors[role]};"></i>
+            <div style="display:flex;align-items:center;gap:.65rem;margin-bottom:.85rem;">
+                <div style="width:38px;height:38px;border-radius:.6rem;background:${roleColors[role]}18;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <i data-lucide="shield" style="width:18px;height:18px;color:${roleColors[role]};"></i>
                 </div>
                 <div>
-                    <div style="font-weight:900;font-size:.9rem;color:#000;">${roleLabels[role]}</div>
-                    <div style="font-size:.63rem;color:#64748b;">${rUsers.length} account${rUsers.length > 1 ? 's' : ''}${online > 0 ? ` Â· <span style="color:#16a34a;font-weight:700;">${online} online</span>` : ''}</div>
+                    <div style="font-weight:900;font-size:.9rem;color:#000;">${roleLabels[role] || role}</div>
+                    <div style="font-size:.65rem;color:#64748b;">${rUsers.length} account${rUsers.length > 1 ? 's' : ''}${online > 0 ? ` · <span style="color:#16a34a;font-weight:800;">${online} online</span>` : ''}</div>
                 </div>
             </div>
-            <div style="display:flex;gap:.5rem;margin-bottom:.85rem;flex-wrap:wrap;">
-                <span style="font-size:.63rem;background:#dcfce7;color:#15803d;padding:.15rem .5rem;border-radius:99px;font-weight:700;">ðŸŸ¢ ${active} Active</span>
-                <span style="font-size:.63rem;background:#fef3c7;color:#92400e;padding:.15rem .5rem;border-radius:99px;font-weight:700;">ðŸŸ¡ ${low} Low</span>
-                <span style="font-size:.63rem;background:#fee2e2;color:#b91c1c;padding:.15rem .5rem;border-radius:99px;font-weight:700;">ðŸ”´ ${none} Inactive</span>
+            <div style="display:flex;gap:.4rem;margin-bottom:.85rem;flex-wrap:wrap;">
+                <span style="font-size:.63rem;background:#dcfce7;color:#15803d;padding:.15rem .5rem;border-radius:99px;font-weight:800;">🟢 ${active} Active</span>
+                <span style="font-size:.63rem;background:#fef3c7;color:#92400e;padding:.15rem .5rem;border-radius:99px;font-weight:800;">🟡 ${low} Low</span>
+                <span style="font-size:.63rem;background:#fee2e2;color:#b91c1c;padding:.15rem .5rem;border-radius:99px;font-weight:800;">🔴 ${none} Inactive</span>
             </div>
             <div class="cam-bar-track" style="margin-bottom:.35rem;">
                 <div class="cam-bar-fill" style="width:${adoPct}%;background:${barC};"></div>
             </div>
             <div style="display:flex;justify-content:space-between;font-size:.65rem;color:#64748b;">
                 <span>Avg: ${camFmtH(parseFloat(avgH))}</span>
-                <span style="font-weight:800;color:#000;">${adoPct}%</span>
+                <span style="font-weight:800;color:#000;">${adoPct}% Adoption</span>
             </div>
         </div>`;
     }).join('');
     if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
-// â”€â”€â”€ User Detail Slide-in Panel â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── User Detail Slide-in Panel ───────────────────────────────
 async function camOpenDetail(userId) {
     document.getElementById('cam-overlay')?.classList.add('open');
     document.getElementById('cam-detail-panel')?.classList.add('open');
 
     const content = document.getElementById('cam-detail-content');
     if (!content) return;
-    content.innerHTML = `<div style="text-align:center;padding:2rem;color:#94a3b8;"><i data-lucide="loader-2" style="width:20px;height:20px;animation:spin 1s linear infinite;display:inline-block;"></i><p style="font-size:.8rem;margin-top:.5rem;">Loadingâ€¦</p></div>`;
+    content.innerHTML = `<div style="text-align:center;padding:3rem;color:#94a3b8;"><i data-lucide="loader-2" style="width:24px;height:24px;animation:spin 1s linear infinite;display:inline-block;color:#f59e0b;"></i><p style="font-size:.82rem;margin-top:.5rem;font-weight:700;">Loading user activity details…</p></div>`;
     if (typeof lucide !== 'undefined') lucide.createIcons();
 
     try {
@@ -1962,138 +2105,137 @@ async function camOpenDetail(userId) {
             headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
         });
         const json = await res.json();
-        if (!json.success) { content.innerHTML = `<p style="color:#ef4444;text-align:center;padding:1rem;">${json.message}</p>`; return; }
+        if (!json.success) { content.innerHTML = `<p style="color:#ef4444;text-align:center;padding:1.5rem;font-weight:700;">${json.message}</p>`; return; }
 
         const u       = json.user;
         const audit   = json.todayAudit || [];
         const history = json.history    || [];
 
-        // Compute today's session time from todayAudit
-        const camUser = (CAM_DATA.users || []).find(x => x.id === userId);
-        const targetH = CAM_TARGET;
-        const todayH  = camUser?.todayH || 0;
-        const pct     = camUser?.pct    || 0;
-        const barC    = camBarColor(pct);
+        // Match from state
+        const camUser  = (CAM_DATA.users || []).find(x => x.id === userId);
+        const targetH  = CAM_TARGET;
+        const todayH   = camUser?.todayH || 0;
+        const pct      = camUser?.pct    || 0;
+        const barC     = camBarColor(pct);
         const sessions = camUser?.sessionList || [];
+        const modules  = camUser?.modules || [];
 
         // Activity evidence level
         const lvlBars = [
-            { label: 'Account Exists',       active: true },
-            { label: 'Logged In Today',       active: !!camUser?.firstLogin },
-            { label: 'Multiple Sessions',     active: (camUser?.sessions || 0) >= 2 },
-            { label: 'Active Usage (>30%)',   active: pct >= 30 },
-            { label: 'On Target (â‰¥75%)',      active: pct >= 75 },
+            { label: 'Account Active & Verified',   active: true },
+            { label: 'Logged In Today',              active: !!camUser?.firstLogin || todayH > 0 },
+            { label: 'Multiple Operations/Sessions', active: (camUser?.sessions || 0) >= 2 || (camUser?.activities || 0) >= 3 },
+            { label: 'Substantial Work (>30% target)',active: pct >= 30 || (camUser?.meaningfulActs || 0) >= 5 },
+            { label: 'Full Daily Adoption (≥60%)',    active: pct >= 60 || (camUser?.meaningfulActs || 0) >= 10 },
         ];
-
-        const actionIcons = {
-            login:            { color: '#3b82f6', icon: 'log-in',      label: 'Logged In' },
-            logout:           { color: '#64748b', icon: 'log-out',     label: 'Logged Out' },
-            failed_login:     { color: '#ef4444', icon: 'alert-circle',label: 'Failed Login' },
-            approved:         { color: '#22c55e', icon: 'check-circle',label: 'Approved' },
-            rejected:         { color: '#f87171', icon: 'x-circle',    label: 'Rejected' },
-            password_changed: { color: '#f59e0b', icon: 'key',         label: 'Password Changed' },
-            created:          { color: '#14b8a6', icon: 'user-plus',   label: 'Account Created' },
-        };
 
         content.innerHTML = `
             <!-- User header -->
-            <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:1.25rem;">
+            <div style="display:flex;align-items:center;gap:.85rem;margin-bottom:1.25rem;">
                 <div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#f59e0b,#d97706);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:1.15rem;color:#fff;flex-shrink:0;">
                     ${(u.name||'?').split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase()}
                 </div>
                 <div>
                     <div style="font-weight:900;font-size:1rem;color:#000;">${u.name}</div>
                     <div style="font-size:.72rem;color:#64748b;">${u.email}</div>
-                    <div style="margin-top:.3rem;display:flex;gap:.35rem;flex-wrap:wrap;">
+                    <div style="margin-top:.35rem;display:flex;gap:.35rem;flex-wrap:wrap;">
                         ${camRoleBadge(u.role)}
-                        ${camUser?.isOnline ? '<span style="font-size:.6rem;background:#dcfce7;color:#15803d;padding:.1rem .4rem;border-radius:99px;font-weight:700;">â— ONLINE NOW</span>' : ''}
+                        ${camUser?.isOnline ? '<span style="font-size:.6rem;background:#dcfce7;color:#15803d;padding:.1rem .45rem;border-radius:99px;font-weight:800;">● ONLINE NOW</span>' : ''}
                     </div>
                 </div>
             </div>
 
             <!-- Quick stats -->
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:.65rem;margin-bottom:1.25rem;">
-                <div style="background:#f8fafc;border-radius:.75rem;padding:.7rem;">
-                    <div style="font-size:.58rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#94a3b8;margin-bottom:.2rem;">First Login</div>
-                    <div style="font-size:.82rem;font-weight:800;color:#000;">${camUser?.firstLogin || 'â€”'}</div>
+                <div style="background:#f8fafc;border-radius:.75rem;padding:.75rem;">
+                    <div style="font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#94a3b8;margin-bottom:.2rem;">First Login Today</div>
+                    <div style="font-size:.85rem;font-weight:800;color:#000;">${camUser?.firstLogin || '—'}</div>
                 </div>
-                <div style="background:#f8fafc;border-radius:.75rem;padding:.7rem;">
-                    <div style="font-size:.58rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#94a3b8;margin-bottom:.2rem;">Last Activity</div>
-                    <div style="font-size:.82rem;font-weight:800;color:#000;">${camUser?.lastActive || u.last_login || 'â€”'}</div>
+                <div style="background:#f8fafc;border-radius:.75rem;padding:.75rem;">
+                    <div style="font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#94a3b8;margin-bottom:.2rem;">Last Recorded Action</div>
+                    <div style="font-size:.85rem;font-weight:800;color:#000;">${camUser?.lastActive || '—'}</div>
                 </div>
-                <div style="background:#f8fafc;border-radius:.75rem;padding:.7rem;">
-                    <div style="font-size:.58rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#94a3b8;margin-bottom:.2rem;">Sessions Today</div>
-                    <div style="font-size:.82rem;font-weight:800;color:#000;">${camUser?.sessions || 0}</div>
+                <div style="background:#f8fafc;border-radius:.75rem;padding:.75rem;">
+                    <div style="font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#94a3b8;margin-bottom:.2rem;">Active Sessions</div>
+                    <div style="font-size:.85rem;font-weight:800;color:#000;">${camUser?.sessions || 0}</div>
                 </div>
-                <div style="background:#f8fafc;border-radius:.75rem;padding:.7rem;">
-                    <div style="font-size:.58rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#94a3b8;margin-bottom:.2rem;">Active Time</div>
-                    <div style="font-size:.82rem;font-weight:800;color:#000;">${camFmtH(todayH)}</div>
+                <div style="background:#f8fafc;border-radius:.75rem;padding:.75rem;">
+                    <div style="font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#94a3b8;margin-bottom:.2rem;">Operations Count</div>
+                    <div style="font-size:.85rem;font-weight:800;color:#000;">${camUser?.activities || 0}</div>
                 </div>
             </div>
 
-            <!-- Daily progress -->
+            <!-- Daily Progress -->
             <div style="background:#f8fafc;border-radius:.75rem;padding:1rem;margin-bottom:1.25rem;">
                 <div style="display:flex;justify-content:space-between;margin-bottom:.5rem;">
-                    <span style="font-size:.7rem;font-weight:800;color:#64748b;">Daily Progress</span>
-                    <span style="font-size:.7rem;font-weight:900;color:#000;">${camFmtH(todayH)} / ${targetH}h (${pct}%)</span>
+                    <span style="font-size:.72rem;font-weight:800;color:#475569;">Daily Usage Progress</span>
+                    <span style="font-size:.72rem;font-weight:900;color:#000;">${camFmtH(todayH)} / ${targetH}h (${pct}%)</span>
                 </div>
-                <div class="cam-bar-track" style="height:14px;">
+                <div class="cam-bar-track" style="height:12px;">
                     <div class="cam-bar-fill" style="width:${pct}%;background:${barC};"></div>
                 </div>
-                <div style="display:flex;justify-content:space-between;margin-top:.35rem;font-size:.58rem;color:#94a3b8;">
-                    <span>0â€“25% ðŸ”´</span><span>26â€“50% ðŸŸ </span><span>51â€“75% ðŸŸ¡</span><span>76â€“100% ðŸŸ¢</span>
+                <div style="display:flex;justify-content:space-between;margin-top:.4rem;font-size:.6rem;color:#94a3b8;">
+                    <span>0% 🔴</span><span>30% 🟡</span><span>60%+ 🟢</span>
                 </div>
+            </div>
+
+            <!-- Modules Accessed -->
+            <div style="margin-bottom:1.25rem;">
+                <div style="font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#64748b;margin-bottom:.45rem;">Modules Accessed Today</div>
+                <div style="display:flex;flex-wrap:wrap;gap:.35rem;">
+                    ${modules.length > 0
+                        ? modules.map(m => `<span style="background:#fef3c7;color:#92400e;padding:.2rem .6rem;border-radius:.4rem;font-size:.68rem;font-weight:800;">${m}</span>`).join('')
+                        : '<span style="color:#94a3b8;font-size:.72rem;">No operational modules accessed today.</span>'
+                    }
+                </div>
+            </div>
+
+            <!-- Evidence Level Ladder -->
+            <div style="margin-bottom:1.25rem;">
+                <div style="font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#64748b;margin-bottom:.45rem;">Activity Evidence Level</div>
+                ${lvlBars.map(lb => `
+                    <div style="display:flex;align-items:center;gap:.6rem;padding:.38rem 0;border-bottom:1px solid #f1f5f9;">
+                        <div style="width:18px;height:18px;border-radius:.3rem;background:${lb.active?'#22c55e':'#f1f5f9'};display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                            <i data-lucide="${lb.active?'check':'minus'}" style="width:11px;height:11px;color:${lb.active?'#fff':'#94a3b8'};"></i>
+                        </div>
+                        <span style="font-size:.73rem;font-weight:${lb.active?'800':'500'};color:${lb.active?'#000':'#94a3b8'};">${lb.label}</span>
+                    </div>
+                `).join('')}
             </div>
 
             <!-- Session Breakdown -->
             ${sessions.length > 0 ? `
             <div style="margin-bottom:1.25rem;">
-                <div style="font-size:.63rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#64748b;margin-bottom:.5rem;">Session Breakdown</div>
+                <div style="font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#64748b;margin-bottom:.45rem;">Session Breakdown (${sessions.length})</div>
                 ${sessions.map((s, i) => `
-                    <div style="display:flex;align-items:center;gap:.75rem;padding:.4rem .75rem;background:${i%2===0?'#f8fafc':'#fff'};border-radius:.5rem;margin-bottom:.2rem;">
-                        <i data-lucide="log-in" style="width:12px;height:12px;color:#3b82f6;flex-shrink:0;"></i>
-                        <span style="font-size:.72rem;color:#000;font-weight:700;">${s.login}</span>
-                        <span style="font-size:.65rem;color:#94a3b8;">â†’</span>
-                        <i data-lucide="log-out" style="width:12px;height:12px;color:#64748b;flex-shrink:0;"></i>
-                        <span style="font-size:.72rem;color:#475569;">${s.logout ?? '<span style="color:#22c55e;font-weight:700;">Active</span>'}</span>
-                        <span style="margin-left:auto;font-size:.65rem;color:#f59e0b;font-weight:700;">${camFmtH(Math.round(s.mins/60*10)/10)}</span>
+                    <div style="display:flex;align-items:center;gap:.65rem;padding:.45rem .75rem;background:${i%2===0?'#f8fafc':'#fff'};border-radius:.5rem;margin-bottom:.25rem;border:1px solid #f1f5f9;">
+                        <i data-lucide="clock" style="width:12px;height:12px;color:#f59e0b;flex-shrink:0;"></i>
+                        <span style="font-size:.72rem;color:#000;font-weight:800;">${s.start}</span>
+                        <span style="font-size:.65rem;color:#94a3b8;">→</span>
+                        <span style="font-size:.72rem;color:#475569;">${s.end}</span>
+                        <span style="margin-left:auto;font-size:.68rem;color:#0284c7;font-weight:800;">${camFmtH(Math.round(s.mins/60*10)/10)} (${s.actions} acts)</span>
                     </div>
                 `).join('')}
             </div>` : ''}
 
-            <!-- Activity Evidence Level -->
+            <!-- Today's Timeline -->
             <div style="margin-bottom:1.25rem;">
-                <div style="font-size:.63rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#64748b;margin-bottom:.5rem;">Activity Evidence Level</div>
-                ${lvlBars.map(lb => `
-                    <div style="display:flex;align-items:center;gap:.6rem;padding:.4rem 0;border-bottom:1px solid #f1f5f9;">
-                        <div style="width:18px;height:18px;border-radius:.3rem;background:${lb.active?'#22c55e':'#f1f5f9'};display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                            <i data-lucide="${lb.active?'check':'minus'}" style="width:10px;height:10px;color:${lb.active?'#fff':'#94a3b8'};"></i>
-                        </div>
-                        <span style="font-size:.72rem;font-weight:${lb.active?'700':'400'};color:${lb.active?'#000':'#94a3b8'};">${lb.label}</span>
-                    </div>
-                `).join('')}
-            </div>
-
-            <!-- Today's Audit Timeline -->
-            <div style="margin-bottom:1.25rem;">
-                <div style="font-size:.63rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#64748b;margin-bottom:.75rem;">
-                    Today's Timeline <span style="color:#f59e0b;">${new Date(CAM_DATE).toLocaleDateString('en-US',{month:'short',day:'numeric'})}</span>
+                <div style="font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#64748b;margin-bottom:.75rem;">
+                    Today's Audit Trail <span style="color:#f59e0b;font-weight:800;">(${new Date(CAM_DATE).toLocaleDateString('en-US',{month:'short',day:'numeric'})})</span>
                 </div>
                 ${audit.length === 0
-                    ? `<div style="color:#94a3b8;font-size:.75rem;text-align:center;padding:.75rem;">No activity recorded today.</div>`
+                    ? `<div style="color:#94a3b8;font-size:.75rem;text-align:center;padding:.85rem;background:#f8fafc;border-radius:.6rem;">No audit logs recorded for this day.</div>`
                     : `<div style="position:relative;">
                         ${audit.map(ev => {
-                            const st  = actionIcons[ev.action] || { color: '#94a3b8', icon: 'activity', label: ev.action };
-                            const ts  = new Date(ev.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+                            const ts = new Date(ev.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
                             return `<div class="cam-timeline-item">
-                                <div class="cam-timeline-dot" style="border-color:${st.color};">
-                                    <i data-lucide="${st.icon}" style="width:6px;height:6px;color:${st.color};"></i>
-                                </div>
+                                <div class="cam-timeline-dot"></div>
                                 <div style="display:flex;justify-content:space-between;align-items:baseline;">
-                                    <span style="font-size:.75rem;font-weight:700;color:#000;">${st.label}</span>
-                                    <span style="font-size:.65rem;color:#94a3b8;white-space:nowrap;margin-left:.5rem;">${ts}</span>
+                                    <span style="font-size:.75rem;font-weight:800;color:#000;">${ev.action}</span>
+                                    <span style="font-size:.63rem;color:#94a3b8;margin-left:.5rem;">${ts}</span>
                                 </div>
-                                ${ev.ip_address ? `<div style="font-size:.6rem;color:#94a3b8;margin-top:.1rem;font-family:monospace;">IP: ${ev.ip_address}</div>` : ''}
+                                ${ev.notes ? `<div style="font-size:.67rem;color:#64748b;margin-top:.2rem;background:#f8fafc;padding:.3rem .5rem;border-radius:.35rem;white-space:pre-line;">${ev.notes}</div>` : ''}
+                                ${ev.ip_address ? `<div style="font-size:.58rem;color:#94a3b8;margin-top:.15rem;font-family:monospace;">IP: ${ev.ip_address}</div>` : ''}
                             </div>`;
                         }).join('')}
                     </div>`
@@ -2102,17 +2244,16 @@ async function camOpenDetail(userId) {
 
             <!-- Full History -->
             <div>
-                <div style="font-size:.63rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#64748b;margin-bottom:.75rem;">Full Login History (Last 50)</div>
-                <div style="max-height:220px;overflow-y:auto;border:1px solid #f1f5f9;border-radius:.75rem;padding:.5rem;">
+                <div style="font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#64748b;margin-bottom:.5rem;">Recent Account History (Last 50)</div>
+                <div style="max-height:220px;overflow-y:auto;border:1px solid #f1f5f9;border-radius:.65rem;padding:.4rem;">
                     ${history.length === 0
-                        ? `<div style="color:#94a3b8;font-size:.75rem;text-align:center;padding:.75rem;">No history available.</div>`
+                        ? `<div style="color:#94a3b8;font-size:.75rem;text-align:center;padding:.75rem;">No history records found.</div>`
                         : history.map(ev => {
-                            const st = actionIcons[ev.action] || { color: '#94a3b8', icon: 'activity', label: ev.action };
                             const ts = new Date(ev.created_at).toLocaleDateString('en-US', { month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
-                            return `<div style="display:flex;align-items:center;gap:.5rem;padding:.4rem .5rem;border-bottom:1px solid #f8fafc;">
-                                <i data-lucide="${st.icon}" style="width:11px;height:11px;color:${st.color};flex-shrink:0;"></i>
-                                <span style="font-size:.7rem;font-weight:700;color:#000;flex:1;">${st.label}</span>
-                                <span style="font-size:.62rem;color:#94a3b8;white-space:nowrap;">${ts}</span>
+                            return `<div style="display:flex;align-items:center;gap:.5rem;padding:.35rem .45rem;border-bottom:1px solid #f8fafc;">
+                                <i data-lucide="activity" style="width:11px;height:11px;color:#f59e0b;flex-shrink:0;"></i>
+                                <span style="font-size:.7rem;font-weight:700;color:#000;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${ev.action}</span>
+                                <span style="font-size:.6rem;color:#94a3b8;white-space:nowrap;">${ts}</span>
                             </div>`;
                         }).join('')
                     }
