@@ -215,8 +215,8 @@
 </div>
 
 <!-- Lightbox Modal -->
-<div id="lightbox" class="fixed inset-0 z-[100] hidden bg-black bg-opacity-90 flex items-center justify-center p-4 transition-opacity" onclick="this.classList.add('hidden')">
-    <button class="absolute top-6 right-6 text-white hover:text-gray-300 transition-colors p-2" onclick="document.getElementById('lightbox').classList.add('hidden')">
+<div id="lightbox" class="fixed inset-0 z-[100] bg-black bg-opacity-90 items-center justify-center p-4 transition-opacity" style="display:none;" onclick="this.style.display='none'">
+    <button class="absolute top-6 right-6 text-white hover:text-gray-300 transition-colors p-2" onclick="document.getElementById('lightbox').style.display='none'">
         <i data-lucide="x" class="w-8 h-8"></i>
     </button>
     <img id="lightbox-img" src="" alt="Zoomed Document" class="max-w-full max-h-full object-contain rounded-lg shadow-2xl select-none" style="-webkit-user-drag: none;" oncontextmenu="return false;" draggable="false" onclick="event.stopPropagation()">
@@ -305,7 +305,7 @@
     // Lightbox Functionality
     function openLightbox(src) {
         document.getElementById('lightbox-img').src = src;
-        document.getElementById('lightbox').classList.remove('hidden');
+        document.getElementById('lightbox').style.display = 'flex';
     }
 
     // Handle initial tab from URL query parameter
