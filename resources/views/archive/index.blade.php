@@ -14,6 +14,8 @@
         border-top-right-radius: 0.75rem;
         border: 1px solid #e2e8f0;
         border-bottom: none;
+        position: relative;
+        z-index: 2; /* sits above content area */
     }
 
     .folder-tabs {
@@ -35,7 +37,10 @@
         border-bottom: none;
         margin-bottom: -1px;
         position: relative;
-        z-index: 1;
+        z-index: 1; /* within container only */
+        cursor: pointer;
+        /* Prevent tab row from overflowing and covering content below */
+        pointer-events: auto;
     }
 
     .folder-tab.active {
@@ -49,15 +54,37 @@
         background-color: #cbd5e1;
         color: #334155;
     }
-    
+
     .folder-content-area {
         background: #ffffff;
         border: 1px solid #e2e8f0;
         border-bottom-left-radius: 0.75rem;
         border-bottom-right-radius: 0.75rem;
-        position: relative;
-        z-index: 1;
+        /* Do NOT use position:relative + z-index here — it creates a new stacking
+           context that fights with the tab z-index and causes rows to be covered. */
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        overflow: visible;
+    }
+
+    /* Ensure all table rows and their buttons are always on top and clickable */
+    .folder-content-area table tbody tr {
+        position: relative;
+        z-index: 3;
+    }
+
+    .folder-content-area table tbody tr td {
+        position: relative;
+        z-index: 3;
+    }
+
+    /* CRITICAL: Force hidden tab content to truly disappear — prevents overlap bug
+       where rows from User Accounts tab bleed through onto the Drivers tab view */
+    .tab-content.hidden {
+        display: none !important;
+        visibility: hidden !important;
+        pointer-events: none !important;
+        position: absolute !important;
+        left: -9999px !important;
     }
 </style>
 @endpush
