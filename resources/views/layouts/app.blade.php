@@ -1084,7 +1084,7 @@
         </script>
 
         {{-- Mobile Bottom Navigation Bar (visible on mobile only, hidden on md+) --}}
-        <nav id="mobileBottomNav" class="fixed bottom-0 left-0 right-0 z-[1060] bg-white border-t border-gray-200 shadow-lg md:hidden flex items-stretch" style="padding-bottom: env(safe-area-inset-bottom);">
+        <nav id="mobileBottomNav" class="fixed bottom-0 left-0 right-0 z-[1060] bg-white border-t border-gray-200 shadow-lg items-stretch" style="display:none; padding-bottom: env(safe-area-inset-bottom);">
             @auth
             @if(auth()->user()->hasAccessTo('dashboard'))
             <a href="{{ route('dashboard') }}" class="flex-1 flex flex-col items-center justify-center py-2 gap-0.5 {{ request()->routeIs('dashboard') ? 'text-yellow-600' : 'text-gray-500' }} hover:text-yellow-600 transition-colors">
@@ -1125,6 +1125,23 @@
             </button>
             @endauth
         </nav>
+
+        {{-- JS: Show mobile bottom nav only on real mobile screens (<768px) --}}
+        <script>
+            (function () {
+                var nav = document.getElementById('mobileBottomNav');
+                if (!nav) return;
+                function applyMobileNav() {
+                    if (window.innerWidth < 768) {
+                        nav.style.display = 'flex';
+                    } else {
+                        nav.style.display = 'none';
+                    }
+                }
+                applyMobileNav();
+                window.addEventListener('resize', applyMobileNav);
+            })();
+        </script>
 
     @else
         <!-- Login/Signup Layout -->
@@ -2458,7 +2475,7 @@
     @include('partials.chat-drawer')
 
     <!-- ─── GLOBAL SOS ACCIDENT ALERT ─── -->
-    <div id="globalSosAlert" class="fixed inset-0 z-[100000] hidden items-center justify-center bg-red-900/90 backdrop-blur-sm">
+    <div id="globalSosAlert" class="fixed inset-0 z-[100000] items-center justify-center bg-red-900/90 backdrop-blur-sm" style="display:none;">
         <div class="bg-white border-4 border-red-600 rounded-2xl shadow-2xl p-6 md:p-10 w-11/12 max-w-2xl text-center animate-bounce-in relative overflow-hidden">
             <div class="absolute top-0 left-0 w-full h-2 bg-red-600 animate-pulse"></div>
             
@@ -2515,8 +2532,7 @@
                             document.getElementById('sosAlertTime').innerText = `Reported at: ${d.toLocaleString()}`;
                             
                             // Show alert UI
-                            document.getElementById('globalSosAlert').classList.remove('hidden');
-                            document.getElementById('globalSosAlert').classList.add('flex');
+                            document.getElementById('globalSosAlert').style.display = 'flex';
                             isAlertShowing = true;
                             
                             // Play sound (requires user interaction first on modern browsers, but will try)
@@ -2536,8 +2552,7 @@
             }
 
             window.hideSosAlert = function() {
-                document.getElementById('globalSosAlert').classList.add('hidden');
-                document.getElementById('globalSosAlert').classList.remove('flex');
+                document.getElementById('globalSosAlert').style.display = 'none';
                 sosAlertSound.pause();
                 sosAlertSound.currentTime = 0;
                 isAlertShowing = false;
