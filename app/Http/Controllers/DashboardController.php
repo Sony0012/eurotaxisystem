@@ -192,36 +192,50 @@ class DashboardController extends Controller
             $sub10Days = now()->subDays(10)->toDateString();
             $sub7Days = now()->subDays(7)->toDateString();
 
+            $hasUDeleted = Schema::hasColumn('units', 'deleted_at');
+            $hasBDeleted = Schema::hasColumn('boundaries', 'deleted_at');
+            $hasMDeleted = Schema::hasColumn('maintenance', 'deleted_at');
+            $hasCDeleted = Schema::hasColumn('coding_records', 'deleted_at');
+
+            $bDelClause = $hasBDeleted ? " AND deleted_at IS NULL" : "";
+            $mDelClause = $hasMDeleted ? " AND deleted_at IS NULL" : "";
+            $cDelClause = $hasCDeleted ? " AND deleted_at IS NULL" : "";
+
             // 1. Get units with essential joined data and aggregate subqueries to avoid N+1
-            $units = DB::table('units as u')
+            $unitsQuery = DB::table('units as u')
                 ->leftJoin('drivers as d1', 'u.driver_id', '=', 'd1.id')
-                ->leftJoin('drivers as d2', 'u.secondary_driver_id', '=', 'd2.id')
-                ->whereNull('u.deleted_at')
+                ->leftJoin('drivers as d2', 'u.secondary_driver_id', '=', 'd2.id');
+
+            if ($hasUDeleted) {
+                $unitsQuery->whereNull('u.deleted_at');
+            }
+
+            $units = $unitsQuery
                 ->select([
                     'u.id', 'u.status', 'u.boundary_rate', 'u.purchase_cost', 'u.plate_number', 'u.driver_id', 'u.secondary_driver_id',
                     DB::raw("TRIM(CONCAT(COALESCE(d1.first_name, ''), ' ', COALESCE(d1.last_name, ''))) as driver1_name"),
                     DB::raw("TRIM(CONCAT(COALESCE(d2.first_name, ''), ' ', COALESCE(d2.last_name, ''))) as driver2_name"),
                     // Total Boundary
-                    DB::raw("(SELECT SUM(actual_boundary) FROM boundaries WHERE unit_id = u.id AND deleted_at IS NULL) as total_boundary"),
+                    DB::raw("(SELECT SUM(actual_boundary) FROM boundaries WHERE unit_id = u.id{$bDelClause}) as total_boundary"),
                     // Today's Boundary
-                    DB::raw("(SELECT SUM(actual_boundary) FROM boundaries WHERE unit_id = u.id AND deleted_at IS NULL AND DATE(date) = '$todayDate') as today_boundary"),
+                    DB::raw("(SELECT SUM(actual_boundary) FROM boundaries WHERE unit_id = u.id{$bDelClause} AND DATE(date) = '$todayDate') as today_boundary"),
                     // Recent Boundary sums for ROI calculation
-                    DB::raw("(SELECT SUM(actual_boundary) FROM boundaries WHERE unit_id = u.id AND deleted_at IS NULL AND DATE(date) >= '$sub30Days' AND boundary_amount > 0) as boundary_30d"),
-                    DB::raw("(SELECT SUM(actual_boundary) FROM boundaries WHERE unit_id = u.id AND deleted_at IS NULL AND DATE(date) >= '$sub10Days' AND boundary_amount > 0) as boundary_10d"),
-                    DB::raw("(SELECT SUM(actual_boundary) FROM boundaries WHERE unit_id = u.id AND deleted_at IS NULL AND DATE(date) >= '$sub7Days' AND boundary_amount > 0) as boundary_7d"),
+                    DB::raw("(SELECT SUM(actual_boundary) FROM boundaries WHERE unit_id = u.id{$bDelClause} AND DATE(date) >= '$sub30Days' AND boundary_amount > 0) as boundary_30d"),
+                    DB::raw("(SELECT SUM(actual_boundary) FROM boundaries WHERE unit_id = u.id{$bDelClause} AND DATE(date) >= '$sub10Days' AND boundary_amount > 0) as boundary_10d"),
+                    DB::raw("(SELECT SUM(actual_boundary) FROM boundaries WHERE unit_id = u.id{$bDelClause} AND DATE(date) >= '$sub7Days' AND boundary_amount > 0) as boundary_7d"),
                     // Active days count
-                    DB::raw("(SELECT COUNT(*) FROM boundaries WHERE unit_id = u.id AND deleted_at IS NULL AND boundary_amount > 0) as active_days"),
+                    DB::raw("(SELECT COUNT(*) FROM boundaries WHERE unit_id = u.id{$bDelClause} AND boundary_amount > 0) as active_days"),
                     // Maintenance Costs
-                    DB::raw("(SELECT SUM(cost) FROM maintenance WHERE unit_id = u.id AND deleted_at IS NULL AND status != 'cancelled') as total_maintenance_cost"),
+                    DB::raw("(SELECT SUM(cost) FROM maintenance WHERE unit_id = u.id{$mDelClause} AND status != 'cancelled') as total_maintenance_cost"),
                     // Coding Costs
-                    DB::raw("(SELECT SUM(cost) FROM coding_records WHERE unit_id = u.id AND deleted_at IS NULL) as total_coding_cost"),
+                    DB::raw("(SELECT SUM(cost) FROM coding_records WHERE unit_id = u.id{$cDelClause}) as total_coding_cost"),
                     // Last Activity Date
-                    DB::raw("(SELECT MAX(date) FROM boundaries WHERE unit_id = u.id AND deleted_at IS NULL) as last_activity_date")
+                    DB::raw("(SELECT MAX(date) FROM boundaries WHERE unit_id = u.id{$bDelClause}) as last_activity_date")
                 ])
                 ->orderBy('u.plate_number')
                 ->get()
                 ->map(function($unit) use ($todayDay) {
-                    $displayStatus = strtolower($unit->status);
+                    $displayStatus = strtolower($unit->status ?? 'active');
                     
                     // Auto-correct Vacant/Active status based on assigned drivers
                     if (($unit->driver_id || $unit->secondary_driver_id) && $displayStatus === 'vacant') {
@@ -276,10 +290,10 @@ class DashboardController extends Controller
                         'id' => $unit->id,
                         'plate_number' => $unit->plate_number,
                         'status' => $displayStatus,
-                        'boundary_rate' => (float) $unit->boundary_rate,
+                        'boundary_rate' => (float) ($unit->boundary_rate ?? 0),
                         'total_boundary' => $totalBoundary,
                         'today_boundary' => (float)($unit->today_boundary ?? 0),
-                        'purchase_cost' => (float) $unit->purchase_cost,
+                        'purchase_cost' => (float) ($unit->purchase_cost ?? 0),
                         'driver_name' => $driverName,
                         'driver1_name' => $unit->driver1_name,
                         'driver2_name' => $unit->driver2_name,
@@ -302,9 +316,9 @@ class DashboardController extends Controller
                 'missing_units' => $units->where('status', 'missing')->count(),
                 'roi_units' => $units->where('roi_achieved', true)->count(),
                 'avg_roi' => $units->avg('roi_percentage') ?: 0,
-                'total_investment' => $units->sum('purchase_cost'),
-                'total_collected' => $units->sum('total_boundary'),
-                'today_collected' => $units->sum('today_boundary')
+                'total_investment' => (float) $units->sum('purchase_cost'),
+                'total_collected' => (float) $units->sum('total_boundary'),
+                'today_collected' => (float) $units->sum('today_boundary')
             ];
 
             return response()->json([
@@ -315,7 +329,7 @@ class DashboardController extends Controller
                 'last_updated' => now()->toDateTimeString()
             ]);
             
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             Log::error('Error loading units overview: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
@@ -358,7 +372,7 @@ class DashboardController extends Controller
             $date = $request->get('date', now()->toDateString());
 
             // Get boundary collections for the specific date with complete information
-            $collections = DB::table('boundaries as b')
+            $bQuery = DB::table('boundaries as b')
                 ->leftJoin('units as u', 'b.unit_id', '=', 'u.id')
                 ->leftJoin('drivers as d', 'b.driver_id', '=', 'd.id')
                 ->select([
@@ -374,8 +388,13 @@ class DashboardController extends Controller
                     'd.nickname',
                     'd.id as driver_id'
                 ])
-                ->whereNull('b.deleted_at')
-                ->whereDate('b.date', $date)
+                ->whereDate('b.date', $date);
+
+            if (Schema::hasColumn('boundaries', 'deleted_at')) {
+                $bQuery->whereNull('b.deleted_at');
+            }
+
+            $collections = $bQuery
                 ->orderBy('b.id', 'desc')
                 ->get()
                 ->map(function($collection) {
@@ -402,11 +421,13 @@ class DashboardController extends Controller
             $month = now()->month;
             $year = now()->year;
 
+            $hasBDeleted = Schema::hasColumn('boundaries', 'deleted_at');
+
             $stats = [
-                'total_today' => DB::table('boundaries')->whereNull('deleted_at')->whereDate('date', $today)->count(),
-                'amount_yesterday' => DB::table('boundaries')->whereNull('deleted_at')->whereDate('date', $yesterday)->sum('actual_boundary'),
-                'amount_monthly' => DB::table('boundaries')->whereNull('deleted_at')->whereMonth('date', $month)->whereYear('date', $year)->sum('actual_boundary'),
-                'total_yearly_amount' => DB::table('boundaries')->whereNull('deleted_at')->whereYear('date', $year)->sum('actual_boundary'),
+                'total_today' => (int) (DB::table('boundaries')->when($hasBDeleted, fn($q)=>$q->whereNull('deleted_at'))->whereDate('date', $today)->count()),
+                'amount_yesterday' => (float) (DB::table('boundaries')->when($hasBDeleted, fn($q)=>$q->whereNull('deleted_at'))->whereDate('date', $yesterday)->sum('actual_boundary') ?? 0),
+                'amount_monthly' => (float) (DB::table('boundaries')->when($hasBDeleted, fn($q)=>$q->whereNull('deleted_at'))->whereMonth('date', $month)->whereYear('date', $year)->sum('actual_boundary') ?? 0),
+                'total_yearly_amount' => (float) (DB::table('boundaries')->when($hasBDeleted, fn($q)=>$q->whereNull('deleted_at'))->whereYear('date', $year)->sum('actual_boundary') ?? 0),
                 'filter_date' => $date
             ];
 
@@ -418,7 +439,7 @@ class DashboardController extends Controller
                 'last_updated' => now()->toDateTimeString()
             ]);
             
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             Log::error('Error loading daily boundary collections: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
@@ -433,8 +454,13 @@ class DashboardController extends Controller
     public function getNetIncomeDetails()
     {
         try {
+            $hasBDeleted = Schema::hasColumn('boundaries', 'deleted_at');
+            $hasMDeleted = Schema::hasColumn('maintenance', 'deleted_at');
+            $hasCDeleted = Schema::hasColumn('coding_records', 'deleted_at');
+            $hasEDeleted = Schema::hasColumn('expenses', 'deleted_at');
+
             // Get income data from boundaries
-            $incomeData = DB::table('boundaries as b')
+            $incomeQuery = DB::table('boundaries as b')
                 ->leftJoin('units as u', 'b.unit_id', '=', 'u.id')
                 ->leftJoin('drivers as d', 'b.driver_id', '=', 'd.id')
                 ->leftJoin('users as du', 'd.user_id', '=', 'du.id')
@@ -447,8 +473,13 @@ class DashboardController extends Controller
                     'u.plate_number',
                     'du.name as driver_name',
                     'd.id as driver_id'
-                ])
-                ->whereNull('b.deleted_at')
+                ]);
+
+            if ($hasBDeleted) {
+                $incomeQuery->whereNull('b.deleted_at');
+            }
+
+            $incomeData = $incomeQuery
                 ->orderBy('b.date', 'desc')
                 ->orderBy('b.id', 'desc')
                 ->get()
@@ -456,11 +487,11 @@ class DashboardController extends Controller
                     return [
                         'id' => $item->id,
                         'type' => 'income',
-                        'description' => 'Boundary Collection - ' . $item->plate_number,
+                        'description' => 'Boundary Collection - ' . ($item->plate_number ?? 'N/A'),
                         'category' => 'Boundary Income',
-                        'amount' => (float) $item->actual_boundary,
+                        'amount' => (float) ($item->actual_boundary ?? 0),
                         'date' => $item->date,
-                        'source' => $item->plate_number,
+                        'source' => $item->plate_number ?? 'N/A',
                         'reference' => 'Boundary #' . $item->id,
                         'plate_number' => $item->plate_number,
                         'driver_name' => $item->driver_name
@@ -471,112 +502,147 @@ class DashboardController extends Controller
             $expenseData = collect();
             $expenseTable = null;
 
-            // Try different expense table names - but handle gracefully
-            try {
-                // Hardcoded to 'expenses' based on audit
-                $expenseTable = 'expenses';
-                $expenseData = DB::table('expenses as oe')
-                    ->leftJoin('users as u', 'oe.created_by', '=', 'u.id')
-                    ->select([
-                        'oe.id',
-                        'oe.category as expense_type',
-                        'oe.amount',
-                        'oe.description',
-                        'oe.date',
-                        'oe.created_by as user_id',
-                        'u.name as user_name'
-                    ])
-                    ->whereNull('oe.deleted_at')
-                    ->orderBy('oe.date', 'desc')
-                    ->orderBy('oe.id', 'desc')
-                    ->get()
-                    ->map(function($item) {
-                        return [
-                            'id' => $item->id,
-                            'type' => 'expense',
-                            'description' => $item->description ?: $item->expense_type,
-                            'category' => $item->expense_type,
-                            'amount' => abs((float) $item->amount),
-                            'date' => $item->date,
-                            'source' => $item->user_name ?: 'Office / System',
-                            'reference' => 'Expense #' . $item->id,
-                            'expense_type' => $item->expense_type,
-                            'user_name' => $item->user_name ?: 'System Admin'
-                        ];
-                    });
-            } catch (\Exception $expenseError) {
-                Log::error('Error loading expense data: ' . $expenseError->getMessage());
-                // Continue with empty expense data
-                $expenseData = collect();
+            if (Schema::hasTable('expenses')) {
+                try {
+                    $expenseTable = 'expenses';
+                    $expQuery = DB::table('expenses as oe')
+                        ->leftJoin('users as u', 'oe.created_by', '=', 'u.id')
+                        ->select([
+                            'oe.id',
+                            'oe.category as expense_type',
+                            'oe.amount',
+                            'oe.description',
+                            'oe.date',
+                            'oe.created_by as user_id',
+                            'u.name as user_name'
+                        ]);
+
+                    if ($hasEDeleted) {
+                        $expQuery->whereNull('oe.deleted_at');
+                    }
+
+                    $expenseData = $expQuery
+                        ->orderBy('oe.date', 'desc')
+                        ->orderBy('oe.id', 'desc')
+                        ->get()
+                        ->map(function($item) {
+                            return [
+                                'id' => $item->id,
+                                'type' => 'expense',
+                                'description' => $item->description ?: $item->expense_type,
+                                'category' => $item->expense_type,
+                                'amount' => abs((float) ($item->amount ?? 0)),
+                                'date' => $item->date,
+                                'source' => $item->user_name ?: 'Office / System',
+                                'reference' => 'Expense #' . $item->id,
+                                'expense_type' => $item->expense_type,
+                                'user_name' => $item->user_name ?: 'System Admin'
+                            ];
+                        });
+                } catch (\Throwable $expenseError) {
+                    Log::error('Error loading expense data: ' . $expenseError->getMessage());
+                    $expenseData = collect();
+                }
             }
 
             // Add Maintenance costs as expenses
-            $maintenanceExpenses = DB::table('maintenance as m')
-                ->join('units as u', 'm.unit_id', '=', 'u.id')
-                ->where('m.status', '!=', 'cancelled')
-                ->whereNull('m.deleted_at')
-                ->select('m.*', 'u.plate_number')
-                ->get()
-                ->map(function($item) {
-                    return [
-                        'id' => $item->id,
-                        'type' => 'maintenance',
-                        'description' => 'Unit ' . $item->plate_number . ' - ' . ($item->maintenance_type ?: 'Maintenance'),
-                        'category' => 'Maintenance',
-                        'amount' => abs((float) $item->cost),
-                        'date' => $item->date_started,
-                        'source' => $item->mechanic_name ?: 'Workshop',
-                        'reference' => 'MNT-#' . $item->id,
-                        'expense_type' => $item->maintenance_type,
-                        'user_name' => $item->mechanic_name
-                    ];
-                });
+            $maintenanceExpenses = collect();
+            if (Schema::hasTable('maintenance')) {
+                try {
+                    $mQuery = DB::table('maintenance as m')
+                        ->join('units as u', 'm.unit_id', '=', 'u.id')
+                        ->where('m.status', '!=', 'cancelled');
+                    
+                    if ($hasMDeleted) {
+                        $mQuery->whereNull('m.deleted_at');
+                    }
+
+                    $maintenanceExpenses = $mQuery
+                        ->select('m.*', 'u.plate_number')
+                        ->get()
+                        ->map(function($item) {
+                            return [
+                                'id' => $item->id,
+                                'type' => 'maintenance',
+                                'description' => 'Unit ' . ($item->plate_number ?? 'N/A') . ' - ' . ($item->maintenance_type ?: 'Maintenance'),
+                                'category' => 'Maintenance',
+                                'amount' => abs((float) ($item->cost ?? 0)),
+                                'date' => $item->date_started,
+                                'source' => $item->mechanic_name ?: 'Workshop',
+                                'reference' => 'MNT-#' . $item->id,
+                                'expense_type' => $item->maintenance_type,
+                                'user_name' => $item->mechanic_name
+                            ];
+                        });
+                } catch (\Throwable $mErr) {
+                    Log::error('Error loading maintenance expenses: ' . $mErr->getMessage());
+                }
+            }
 
             // Add Coding costs as expenses
-            $codingExpenses = DB::table('coding_records as c')
-                ->join('units as u', 'c.unit_id', '=', 'u.id')
-                ->whereNull('c.deleted_at')
-                ->select('c.*', 'u.plate_number')
-                ->get()
-                ->map(function($item) {
-                    return [
-                        'id' => $item->id,
-                        'type' => 'coding',
-                        'description' => 'Unit ' . $item->plate_number . ' - Coding Fee',
-                        'category' => 'Coding',
-                        'amount' => abs((float) $item->cost),
-                        'date' => $item->date,
-                        'source' => 'System',
-                        'reference' => 'COD-#' . $item->id,
-                        'expense_type' => 'Coding Fee',
-                        'user_name' => 'Automated'
-                    ];
-                });
+            $codingExpenses = collect();
+            if (Schema::hasTable('coding_records')) {
+                try {
+                    $cQuery = DB::table('coding_records as c')
+                        ->join('units as u', 'c.unit_id', '=', 'u.id');
+
+                    if ($hasCDeleted) {
+                        $cQuery->whereNull('c.deleted_at');
+                    }
+
+                    $codingExpenses = $cQuery
+                        ->select('c.*', 'u.plate_number')
+                        ->get()
+                        ->map(function($item) {
+                            return [
+                                'id' => $item->id,
+                                'type' => 'coding',
+                                'description' => 'Unit ' . ($item->plate_number ?? 'N/A') . ' - Coding Fee',
+                                'category' => 'Coding',
+                                'amount' => abs((float) ($item->cost ?? 0)),
+                                'date' => $item->date,
+                                'source' => 'System',
+                                'reference' => 'COD-#' . $item->id,
+                                'expense_type' => 'Coding Fee',
+                                'user_name' => 'Automated'
+                            ];
+                        });
+                } catch (\Throwable $cErr) {
+                    Log::error('Error loading coding expenses: ' . $cErr->getMessage());
+                }
+            }
 
             // Add Salaries as expenses
-            $salaryExpenses = DB::table('salaries as s')
-                ->leftJoin('users as u', function($join) {
-                    $join->on('s.employee_id', '=', 'u.id')->where('s.source', '=', 'user');
-                })
-                ->leftJoin('staff as st', function($join) {
-                    $join->on('s.employee_id', '=', 'st.id')->where('s.source', '=', 'staff');
-                })
-                ->select('s.*', DB::raw('COALESCE(u.full_name, st.name) as employee_name'))
-                ->get()
-                ->map(function($item) {
-                    return [
-                        'id' => $item->id,
-                        'type' => 'salary',
-                        'description' => 'Salary Payment - ' . $item->employee_name,
-                        'category' => 'Payroll',
-                        'amount' => abs((float) $item->total_salary),
-                        'date' => $item->pay_date,
-                        'source' => 'Finance',
-                        'reference' => 'SAL-#' . $item->id,
-                        'expense_type' => 'Salary',
-                        'user_name' => 'System'
-                    ];
-                });
+            $salaryExpenses = collect();
+            if (Schema::hasTable('salaries')) {
+                try {
+                    $salaryExpenses = DB::table('salaries as s')
+                        ->leftJoin('users as u', function($join) {
+                            $join->on('s.employee_id', '=', 'u.id')->where('s.source', '=', 'user');
+                        })
+                        ->leftJoin('staff as st', function($join) {
+                            $join->on('s.employee_id', '=', 'st.id')->where('s.source', '=', 'staff');
+                        })
+                        ->select('s.*', DB::raw('COALESCE(u.name, st.name) as employee_name'))
+                        ->get()
+                        ->map(function($item) {
+                            return [
+                                'id' => $item->id,
+                                'type' => 'salary',
+                                'description' => 'Salary Payment - ' . ($item->employee_name ?? 'Staff'),
+                                'category' => 'Payroll',
+                                'amount' => abs((float) ($item->total_salary ?? 0)),
+                                'date' => $item->pay_date ?? $item->created_at,
+                                'source' => 'Finance',
+                                'reference' => 'SAL-#' . $item->id,
+                                'expense_type' => 'Salary',
+                                'user_name' => 'System'
+                            ];
+                        });
+                } catch (\Throwable $sErr) {
+                    Log::error('Error loading salary expenses: ' . $sErr->getMessage());
+                }
+            }
 
             // Combine all financial data
             $allData = $incomeData->concat($expenseData)
@@ -587,11 +653,11 @@ class DashboardController extends Controller
                 ->values();
 
             // Calculate statistics
-            $totalIncome = $incomeData->sum('amount');
-            $totalExpenses = $expenseData->sum('amount') + 
+            $totalIncome = (float) $incomeData->sum('amount');
+            $totalExpenses = (float) ($expenseData->sum('amount') + 
                             $maintenanceExpenses->sum('amount') + 
                             $codingExpenses->sum('amount') + 
-                            $salaryExpenses->sum('amount');
+                            $salaryExpenses->sum('amount'));
             $netIncome = $totalIncome - $totalExpenses;
             $profitMargin = $totalIncome > 0 ? (($netIncome / $totalIncome) * 100) : 0;
 
@@ -619,18 +685,16 @@ class DashboardController extends Controller
                 'last_updated' => now()->toDateTimeString()
             ]);
             
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             Log::error('Error loading net income details: ' . $e->getMessage());
             Log::error('Stack trace: ' . $e->getTraceAsString());
-            
             return response()->json([
                 'success' => false,
-                'message' => 'Error loading net income details: ' . $e->getMessage(),
+                'message' => 'Error loading income data: ' . $e->getMessage(),
+                'error_type' => get_class($e),
                 'debug_info' => [
-                    'error_type' => get_class($e),
-                    'error_code' => $e->getCode(),
-                    'error_file' => $e->getFile(),
-                    'error_line' => $e->getLine()
+                    'line' => $e->getLine(),
+                    'file' => basename($e->getFile())
                 ]
             ], 500);
         }
@@ -644,20 +708,15 @@ class DashboardController extends Controller
         try {
             $filter = $request->query('filter', 'all'); // 'all', 'preventive', 'complete'
 
+            $unitsQuery = DB::table('maintenance as m')
+                ->join('units as u', 'm.unit_id', '=', 'u.id');
+
             if ($filter === 'complete' || $filter === 'completed') {
                 // Query historical completed maintenance records
-                $unitsQuery = DB::table('maintenance as m')
-                    ->join('units as u', 'm.unit_id', '=', 'u.id')
-                    ->whereIn(DB::raw('LOWER(m.status)'), ['completed', 'complete'])
-                    ->whereNull('m.deleted_at')
-                    ->whereNull('u.deleted_at');
+                $unitsQuery->whereIn(DB::raw('LOWER(m.status)'), ['completed', 'complete']);
             } else {
                 // Base logic: All active maintenance records (Not completed/cancelled)
-                $unitsQuery = DB::table('maintenance as m')
-                    ->join('units as u', 'm.unit_id', '=', 'u.id')
-                    ->whereNotIn(DB::raw('LOWER(m.status)'), ['completed', 'complete', 'cancelled'])
-                    ->whereNull('m.deleted_at')
-                    ->whereNull('u.deleted_at');
+                $unitsQuery->whereNotIn(DB::raw('LOWER(m.status)'), ['completed', 'complete', 'cancelled']);
 
                 // Filter by type if specified
                 if ($filter !== 'all') {
@@ -669,6 +728,13 @@ class DashboardController extends Controller
                         $unitsQuery->where('m.maintenance_type', 'LIKE', '%emergency%');
                     }
                 }
+            }
+
+            if (Schema::hasColumn('maintenance', 'deleted_at')) {
+                $unitsQuery->whereNull('m.deleted_at');
+            }
+            if (Schema::hasColumn('units', 'deleted_at')) {
+                $unitsQuery->whereNull('u.deleted_at');
             }
 
             $unitsQuery->leftJoin('drivers as d', 'u.driver_id', '=', 'd.id');
@@ -693,7 +759,7 @@ class DashboardController extends Controller
 
             $maintenanceUnits = $unitsQuery
                 ->select($select)
-                ->when($filter === 'complete', function ($q) {
+                ->when($filter === 'complete' || $filter === 'completed', function ($q) {
                     $q->orderBy('m.date_completed', 'desc');
                 }, function ($q) {
                     $q->orderBy('m.date_started', 'desc');
@@ -722,41 +788,59 @@ class DashboardController extends Controller
                 });
 
             // Calculate Global Overview Stats based on MAINTENANCE records, not unit status
-            $mStats = DB::table('maintenance')
+            $statsQuery = DB::table('maintenance')
                 ->join('units', 'maintenance.unit_id', '=', 'units.id')
-                ->whereNull('maintenance.deleted_at')
-                ->whereNull('units.deleted_at')
-                ->whereNotIn(DB::raw('LOWER(maintenance.status)'), ['completed', 'complete', 'cancelled'])
-                ->select([
-                    DB::raw('COUNT(*) as total'),
-                    DB::raw('SUM(CASE WHEN LOWER(maintenance.maintenance_type) LIKE "%preventive%" THEN 1 ELSE 0 END) as preventive'),
-                    DB::raw('SUM(CASE WHEN LOWER(maintenance.maintenance_type) LIKE "%corrective%" THEN 1 ELSE 0 END) as corrective'),
-                    DB::raw('SUM(CASE WHEN LOWER(maintenance.maintenance_type) LIKE "%emergency%" THEN 1 ELSE 0 END) as emergency'),
-                ])
-                ->first();
+                ->whereNotIn(DB::raw('LOWER(maintenance.status)'), ['completed', 'complete', 'cancelled']);
 
-            $completedCount = DB::table('maintenance')
+            if (Schema::hasColumn('maintenance', 'deleted_at')) {
+                $statsQuery->whereNull('maintenance.deleted_at');
+            }
+            if (Schema::hasColumn('units', 'deleted_at')) {
+                $statsQuery->whereNull('units.deleted_at');
+            }
+
+            $mStats = $statsQuery->select([
+                DB::raw('COUNT(*) as total'),
+                DB::raw('SUM(CASE WHEN LOWER(maintenance.maintenance_type) LIKE "%preventive%" THEN 1 ELSE 0 END) as preventive'),
+                DB::raw('SUM(CASE WHEN LOWER(maintenance.maintenance_type) LIKE "%corrective%" THEN 1 ELSE 0 END) as corrective'),
+                DB::raw('SUM(CASE WHEN LOWER(maintenance.maintenance_type) LIKE "%emergency%" THEN 1 ELSE 0 END) as emergency'),
+            ])->first();
+
+            $completedQuery = DB::table('maintenance')
                 ->join('units', 'maintenance.unit_id', '=', 'units.id')
-                ->whereNull('maintenance.deleted_at')
-                ->whereNull('units.deleted_at')
-                ->whereIn(DB::raw('LOWER(maintenance.status)'), ['completed', 'complete'])
-                ->count();
+                ->whereIn(DB::raw('LOWER(maintenance.status)'), ['completed', 'complete']);
 
-            $avgMaintenanceDays = $maintenanceUnits->count() > 0 ? 
-                $maintenanceUnits->filter(function($unit) {
-                    return !empty($unit['start_date']) && !empty($unit['end_date']);
-                })->map(function($unit) {
-                    return Carbon::parse($unit['end_date'])->diffInDays(Carbon::parse($unit['start_date']));
-                })->avg() : 0;
+            if (Schema::hasColumn('maintenance', 'deleted_at')) {
+                $completedQuery->whereNull('maintenance.deleted_at');
+            }
+            if (Schema::hasColumn('units', 'deleted_at')) {
+                $completedQuery->whereNull('units.deleted_at');
+            }
+
+            $completedCount = $completedQuery->count();
+
+            $avgMaintenanceDays = 0;
+            $unitsWithValidDates = $maintenanceUnits->filter(function($unit) {
+                return !empty($unit['start_date']) && !empty($unit['end_date']) && strtotime($unit['start_date']) && strtotime($unit['end_date']);
+            });
+            if ($unitsWithValidDates->count() > 0) {
+                $avgMaintenanceDays = $unitsWithValidDates->map(function($unit) {
+                    try {
+                        return abs(Carbon::parse($unit['end_date'])->diffInDays(Carbon::parse($unit['start_date'])));
+                    } catch (\Throwable $t) {
+                        return 0;
+                    }
+                })->avg() ?? 0;
+            }
 
             $stats = [
-                'total_maintenance' => (int) $mStats->total,
+                'total_maintenance' => (int) ($mStats->total ?? 0),
                 'preventive_maintenance' => (int) ($mStats->preventive ?? 0),
                 'corrective_maintenance' => (int) ($mStats->corrective ?? 0),
                 'emergency_maintenance' => (int) ($mStats->emergency ?? 0),
-                'completed_total' => $completedCount,
-                'avg_maintenance_days' => round($avgMaintenanceDays, 1),
-                'total_maintenance_cost' => $maintenanceUnits->sum('maintenance_cost')
+                'completed_total' => (int) ($completedCount ?? 0),
+                'avg_maintenance_days' => round((float) $avgMaintenanceDays, 1),
+                'total_maintenance_cost' => (float) $maintenanceUnits->sum('maintenance_cost')
             ];
 
             return response()->json([
@@ -768,7 +852,7 @@ class DashboardController extends Controller
                 'last_updated' => now()->toDateTimeString()
             ]);
             
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             Log::error('Error loading maintenance units: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
@@ -788,10 +872,10 @@ class DashboardController extends Controller
                 'd.user_id',
                 DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')) as name"),
                 DB::raw('NULL as email'),
-                DB::raw('(SELECT COUNT(id) FROM units WHERE (driver_id = d.id OR secondary_driver_id = d.id) AND deleted_at IS NULL) as assigned_units'),
-                DB::raw('(SELECT COALESCE(SUM(actual_boundary), 0) FROM boundaries WHERE driver_id = d.id AND deleted_at IS NULL) as total_boundary'),
-                DB::raw('(SELECT COALESCE(AVG(actual_boundary), 0) FROM boundaries WHERE driver_id = d.id AND deleted_at IS NULL) as avg_boundary'),
-                DB::raw('(SELECT GROUP_CONCAT(DISTINCT plate_number) FROM units WHERE (driver_id = d.id OR secondary_driver_id = d.id) AND deleted_at IS NULL) as plate_numbers'),
+                DB::raw('(SELECT COUNT(id) FROM units WHERE (driver_id = d.id OR secondary_driver_id = d.id)' . (Schema::hasColumn('units', 'deleted_at') ? ' AND deleted_at IS NULL' : '') . ') as assigned_units'),
+                DB::raw('(SELECT COALESCE(SUM(actual_boundary), 0) FROM boundaries WHERE driver_id = d.id' . (Schema::hasColumn('boundaries', 'deleted_at') ? ' AND deleted_at IS NULL' : '') . ') as total_boundary'),
+                DB::raw('(SELECT COALESCE(AVG(actual_boundary), 0) FROM boundaries WHERE driver_id = d.id' . (Schema::hasColumn('boundaries', 'deleted_at') ? ' AND deleted_at IS NULL' : '') . ') as avg_boundary'),
+                DB::raw('(SELECT GROUP_CONCAT(DISTINCT plate_number) FROM units WHERE (driver_id = d.id OR secondary_driver_id = d.id)' . (Schema::hasColumn('units', 'deleted_at') ? ' AND deleted_at IS NULL' : '') . ') as plate_numbers'),
                 'd.hire_date',
                 'd.license_number',
                 'd.contact_number as phone',
@@ -800,8 +884,11 @@ class DashboardController extends Controller
 
             $query = DB::table('drivers as d')
                 ->select($select)
-                ->whereNull('d.deleted_at')
                 ->whereIn('d.driver_status', ['available', 'assigned', 'active']);
+
+            if (Schema::hasColumn('drivers', 'deleted_at')) {
+                $query->whereNull('d.deleted_at');
+            }
 
             $activeDrivers = $query
                 ->orderBy('d.first_name', 'asc')
@@ -816,9 +903,6 @@ class DashboardController extends Controller
                     elseif ($avgBoundary >= 1000) $performanceRating = 'average';
                     else $performanceRating = 'needs_improvement';
 
-                    // Top Performer logic: No accidents, No short boundaries in last 30 days
-                    // Note: We use the already aggregated data or small targeted subqueries if needed, 
-                    // but for now we simplify to avoid the N+1 loop seen in original code.
                     $isTopPerformer = ($performanceRating === 'excellent');
                     
                     return [
@@ -849,7 +933,7 @@ class DashboardController extends Controller
                 'vacant_drivers' => $vacantDrivers,
                 'active_with_units' => $activeWithUnits,
                 'top_performers' => $topPerformersCount,
-                'total_boundary_collected' => $activeDrivers->sum('total_boundary')
+                'total_boundary_collected' => (float) $activeDrivers->sum('total_boundary')
             ];
 
             return response()->json([
@@ -860,7 +944,7 @@ class DashboardController extends Controller
                 'last_updated' => now()->toDateTimeString()
             ]);
             
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             Log::error('Error loading active drivers: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
@@ -875,16 +959,22 @@ class DashboardController extends Controller
     public function getCodingUnits()
     {
         try {
-            $unitsQuery = DB::table('units as u')->whereNull('u.deleted_at');
+            $unitsQuery = DB::table('units as u');
+            if (Schema::hasColumn('units', 'deleted_at')) {
+                $unitsQuery->whereNull('u.deleted_at');
+            }
             $today = now()->format('l');
 
             $unitsQuery->leftJoin('drivers as d1', 'u.driver_id', '=', 'd1.id');
             $unitsQuery->leftJoin('drivers as d2', 'u.secondary_driver_id', '=', 'd2.id');
 
             $latestC = DB::table('coding_records')
-                ->select('unit_id', DB::raw('MAX(id) as latest_id'))
-                ->whereNull('deleted_at')
-                ->groupBy('unit_id');
+                ->select('unit_id', DB::raw('MAX(id) as latest_id'));
+            
+            if (Schema::hasColumn('coding_records', 'deleted_at')) {
+                $latestC->whereNull('deleted_at');
+            }
+            $latestC->groupBy('unit_id');
 
             $unitsQuery->leftJoinSub($latestC, 'latest_c', function($join) {
                 $join->on('u.id', '=', 'latest_c.unit_id');
@@ -910,51 +1000,57 @@ class DashboardController extends Controller
 
             $allUnits = $unitsQuery->select($select)->get();
             
-            $codingUnits = $allUnits;
+            $codingUnits = $allUnits->map(function($unit) {
+                $startDate = data_get($unit, 'start_date');
+                $endDate = data_get($unit, 'end_date');
+                
+                // Determine coding day based on plate ending (LTO rules)
+                $codingDay = $this->getCodingDay($unit->plate_number);
 
-            $codingUnits = $codingUnits->map(function($unit) {
-                    $startDate = data_get($unit, 'start_date');
-                    $endDate = data_get($unit, 'end_date');
-                    
-                    // Determine coding day based on plate ending (LTO rules)
-                    $codingDay = $this->getCodingDay($unit->plate_number);
-
-                    return [
-                        'id' => $unit->id,
-                        'plate_number' => $unit->plate_number,
-                        'status' => $unit->status,
-                        'driver1_name' => $unit->driver1_name,
-                        'driver2_name' => $unit->driver2_name,
-                        'coding_type' => $unit->coding_type ?: 'Coding',
-                        'coding_day' => $codingDay,
-                        'description' => $unit->description ?: 'No description available',
-                        'start_date' => $startDate,
-                        'end_date' => $endDate,
-                        'estimated_completion' => $endDate,
-                        'coding_status' => $unit->coding_status ?: 'Ongoing',
-                        'coding_cost' => (float) ($unit->coding_cost ?? 0),
-                        'purchase_cost' => (float) ($unit->purchase_cost ?? 0),
-                        'boundary_rate' => (float) ($unit->boundary_rate ?? 0)
-                    ];
-                });
+                return [
+                    'id' => $unit->id,
+                    'plate_number' => $unit->plate_number,
+                    'status' => $unit->status,
+                    'driver1_name' => $unit->driver1_name,
+                    'driver2_name' => $unit->driver2_name,
+                    'coding_type' => $unit->coding_type ?: 'Coding',
+                    'coding_day' => $codingDay,
+                    'description' => $unit->description ?: 'No description available',
+                    'start_date' => $startDate,
+                    'end_date' => $endDate,
+                    'estimated_completion' => $endDate,
+                    'coding_status' => $unit->coding_status ?: 'Ongoing',
+                    'coding_cost' => (float) ($unit->coding_cost ?? 0),
+                    'purchase_cost' => (float) ($unit->purchase_cost ?? 0),
+                    'boundary_rate' => (float) ($unit->boundary_rate ?? 0)
+                ];
+            });
 
             // Calculate statistics
             $totalCoding = $codingUnits->count();
             $completedCoding = $codingUnits->where('coding_status', 'completed')->count();
             $pendingCoding = $codingUnits->where('coding_status', 'pending')->count();
-            $avgCodingDays = $totalCoding > 0 ? 
-                $codingUnits->filter(function($unit) {
-                    return !empty($unit['start_date']) && !empty($unit['end_date']);
-                })->map(function($unit) {
-                    return Carbon::parse($unit['end_date'])->diffInDays(Carbon::parse($unit['start_date']));
-                })->avg() : 0;
+            
+            $avgCodingDays = 0;
+            $codingWithValidDates = $codingUnits->filter(function($unit) {
+                return !empty($unit['start_date']) && !empty($unit['end_date']) && strtotime($unit['start_date']) && strtotime($unit['end_date']);
+            });
+            if ($codingWithValidDates->count() > 0) {
+                $avgCodingDays = $codingWithValidDates->map(function($unit) {
+                    try {
+                        return abs(Carbon::parse($unit['end_date'])->diffInDays(Carbon::parse($unit['start_date'])));
+                    } catch (\Throwable $t) {
+                        return 0;
+                    }
+                })->avg() ?? 0;
+            }
 
             $stats = [
                 'total_coding' => $totalCoding,
                 'completed_coding' => $completedCoding,
                 'pending_coding' => $pendingCoding,
-                'avg_coding_days' => round($avgCodingDays, 1),
-                'total_coding_cost' => $codingUnits->sum('coding_cost')
+                'avg_coding_days' => round((float) $avgCodingDays, 1),
+                'total_coding_cost' => (float) $codingUnits->sum('coding_cost')
             ];
 
             return response()->json([
@@ -965,7 +1061,7 @@ class DashboardController extends Controller
                 'last_updated' => now()->toDateTimeString()
             ]);
             
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             Log::error('Error loading coding units: ' . $e->getMessage());
             return response()->json([
                 'success' => false,

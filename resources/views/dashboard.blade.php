@@ -2145,18 +2145,48 @@
             const filter = window.currentMaintenanceFilter || 'all';
             const url = `/api/maintenance-units?filter=${filter}`;
             
-            fetch(url)
-                .then(response => response.json())
+            const grid = document.getElementById('maintenanceGrid');
+            if (grid) {
+                grid.innerHTML = `
+                    <div class="col-span-full text-center py-16">
+                        <div class="inline-flex flex-col items-center">
+                            <div class="animate-spin rounded-full h-12 w-12 border-4 border-orange-600 border-t-transparent mb-4"></div>
+                            <span class="text-lg text-gray-600 font-semibold mb-2">Loading maintenance data...</span>
+                            <p class="text-sm text-slate-400">Please wait while we fetch maintenance details</p>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            fetch(url, {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+                .then(response => {
+                    return response.json().then(data => {
+                        if (!response.ok) {
+                            throw new Error(data.message || `Server error ${response.status}`);
+                        }
+                        return data;
+                    }).catch(err => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP Error ${response.status}: ${response.statusText}`);
+                        }
+                        throw err;
+                    });
+                })
                 .then(data => {
-                    if (data.success) {
+                    if (data && data.success) {
                         displayMaintenanceUnitsData(data);
                     } else {
-                        showMaintenanceError(data.message);
+                        showMaintenanceError(data ? data.message : 'Unknown error');
                     }
                 })
                 .catch(error => {
                     console.error('Error loading maintenance units data:', error);
-                    showMaintenanceError('Error loading maintenance units data. Please try again.');
+                    showMaintenanceError(error.message || 'Error loading maintenance units data. Please try again.');
                 });
         }
         
@@ -2224,6 +2254,9 @@
                         </div>
                     </div>
                 `;
+                if (typeof lucide !== 'undefined') {
+                    lucide.createIcons();
+                }
                 return;
             }
             
@@ -2427,17 +2460,34 @@
         }
         
         function loadActiveDriversData() {
-            fetch('/api/active-drivers')
-                .then(response => response.json())
+            fetch('/api/active-drivers', {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+                .then(response => {
+                    return response.json().then(data => {
+                        if (!response.ok) {
+                            throw new Error(data.message || `Server error ${response.status}`);
+                        }
+                        return data;
+                    }).catch(err => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP Error ${response.status}: ${response.statusText}`);
+                        }
+                        throw err;
+                    });
+                })
                 .then(data => {
-                    if (data.success) {
+                    if (data && data.success) {
                         displayActiveDriversData(data);
                     } else {
-                        showActiveDriversError(data.message);
+                        showActiveDriversError(data ? data.message : 'Unknown error');
                     }
                 })
                 .catch(error => {
-                    showActiveDriversError('Error loading active drivers data. Please try again.');
+                    showActiveDriversError(error.message || 'Error loading active drivers data. Please try again.');
                 });
         }
         
@@ -2748,17 +2798,34 @@
         }
         
         function loadCodingUnitsData() {
-            fetch('/api/coding-units')
-                .then(response => response.json())
+            fetch('/api/coding-units', {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+                .then(response => {
+                    return response.json().then(data => {
+                        if (!response.ok) {
+                            throw new Error(data.message || `Server error ${response.status}`);
+                        }
+                        return data;
+                    }).catch(err => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP Error ${response.status}: ${response.statusText}`);
+                        }
+                        throw err;
+                    });
+                })
                 .then(data => {
-                    if (data.success) {
+                    if (data && data.success) {
                         displayCodingUnitsData(data);
                     } else {
-                        showCodingError(data.message);
+                        showCodingError(data ? data.message : 'Unknown error');
                     }
                 })
                 .catch(error => {
-                    showCodingError('Error loading coding units data. Please try again.');
+                    showCodingError(error.message || 'Error loading coding units data. Please try again.');
                 });
         }
         
@@ -2798,6 +2865,9 @@
                         </div>
                     </div>
                 `;
+                if (typeof lucide !== 'undefined') {
+                    lucide.createIcons();
+                }
                 return;
             }
             grid.innerHTML = units.map(unit => {
@@ -3858,17 +3928,34 @@
             const date = document.getElementById('boundaryDateFilter').value;
             const url = `/api/daily-boundary-collections${date ? '?date=' + date : ''}`;
             
-            fetch(url)
-                .then(response => response.json())
+            fetch(url, {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+                .then(response => {
+                    return response.json().then(data => {
+                        if (!response.ok) {
+                            throw new Error(data.message || `Server error ${response.status}`);
+                        }
+                        return data;
+                    }).catch(err => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP Error ${response.status}: ${response.statusText}`);
+                        }
+                        throw err;
+                    });
+                })
                 .then(data => {
-                    if (data.success) {
+                    if (data && data.success) {
                         displayBoundaryCollections(data);
                     } else {
-                        showBoundaryError(data.message);
+                        showBoundaryError(data ? data.message : 'Unknown error');
                     }
                 })
                 .catch(error => {
-                    showBoundaryError('Error loading boundary collections. Please try again.');
+                    showBoundaryError(error.message || 'Error loading boundary collections. Please try again.');
                 });
         }
         
@@ -4059,12 +4146,24 @@
                 </div>
             `;
             
-            fetch('/api/units-overview')
+            fetch('/api/units-overview', {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
                 .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-                    return response.json();
+                    return response.json().then(data => {
+                        if (!response.ok) {
+                            throw new Error(data.message || `Server error ${response.status}`);
+                        }
+                        return data;
+                    }).catch(err => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP Error ${response.status}: ${response.statusText}`);
+                        }
+                        throw err;
+                    });
                 })
                 .then(data => {
                     if (data.success) {
