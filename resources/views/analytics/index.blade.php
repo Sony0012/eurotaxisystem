@@ -437,7 +437,7 @@
         {{-- ┌─────────────────────────────────────────────────────────────────────┐
              │  1. HERO BANNER – Hulaan ng Kita sa Susunod na Buwan               │
              └─────────────────────────────────────────────────────────────────────┘ --}}
-        <div id="prediction-hero-card" class="relative z-20 bg-gradient-to-br from-indigo-900 via-indigo-800 to-slate-900 rounded-3xl overflow-hidden text-white shadow-2xl" style="min-height: 320px; transform: translateZ(0); will-change: transform;">
+        <div id="prediction-hero-card" class="relative z-20 bg-gradient-to-br from-indigo-900 via-indigo-800 to-slate-900 rounded-3xl overflow-hidden text-white shadow-2xl" style="min-height: 320px;">
 
             {{-- ── Spline 3D Robot Background ───────────────────────────────────── --}}
             <div class="absolute inset-0 select-none overflow-hidden rounded-3xl" style="pointer-events:none;" aria-hidden="true">
@@ -458,26 +458,10 @@
             {{-- Spline Web Component loader --}}
             <script type="module" src="https://unpkg.com/@splinetool/viewer@1.9.96/build/spline-viewer.js"></script>
 
-            {{-- ── High-Performance Cursor Relay & Safe Watermark Removal ─────────── --}}
-            {{-- Uses requestAnimationFrame throttling + Viewport Culling to maintain 60-120 FPS --}}
+            {{-- ── Cursor Relay & Safe Watermark Removal ────────────────────────── --}}
             <script>
             (function() {
                 var _canvas = null;
-                var _isCardVisible = true;
-                var _rafPending = false;
-                var _lastX = 0;
-                var _lastY = 0;
-                var _lastMovementX = 0;
-                var _lastMovementY = 0;
-
-                // Viewport Culling: pause cursor calculations when card is scrolled out of view
-                var cardEl = document.getElementById('prediction-hero-card');
-                if (cardEl && 'IntersectionObserver' in window) {
-                    var cardObserver = new IntersectionObserver(function(entries) {
-                        _isCardVisible = entries[0].isIntersecting;
-                    }, { threshold: 0.05 });
-                    cardObserver.observe(cardEl);
-                }
 
                 function hideLogo(shadow) {
                     if (!shadow) return;
@@ -492,37 +476,36 @@
                     } catch(e) {}
                 }
 
-                function dispatchThrottled() {
-                    _rafPending = false;
-                    if (!_canvas || !_isCardVisible) return;
-                    try {
-                        _canvas.dispatchEvent(new MouseEvent('mousemove', {
-                            clientX: _lastX,
-                            clientY: _lastY,
-                            movementX: _lastMovementX,
-                            movementY: _lastMovementY,
-                            bubbles: false,
-                            cancelable: true,
-                            view: window
-                        }));
-                    } catch(err) {}
-                }
-
                 function attachRelay(canvas) {
                     _canvas = canvas;
 
-                    // Throttled mousemove via requestAnimationFrame (runs at native monitor refresh rate, zero CPU blocking)
                     document.addEventListener('mousemove', function(e) {
-                        if (!_canvas || !_isCardVisible) return;
-                        _lastX = e.clientX;
-                        _lastY = e.clientY;
-                        _lastMovementX = e.movementX || 0;
-                        _lastMovementY = e.movementY || 0;
+                        if (!_canvas) return;
+                        try {
+                            _canvas.dispatchEvent(new MouseEvent('mousemove', {
+                                clientX: e.clientX,
+                                clientY: e.clientY,
+                                movementX: e.movementX || 0,
+                                movementY: e.movementY || 0,
+                                bubbles: false,
+                                cancelable: true,
+                                view: window
+                            }));
+                        } catch(err) {}
+                    }, { passive: true });
 
-                        if (!_rafPending) {
-                            _rafPending = true;
-                            requestAnimationFrame(dispatchThrottled);
-                        }
+                    document.addEventListener('pointermove', function(e) {
+                        if (!_canvas) return;
+                        try {
+                            _canvas.dispatchEvent(new PointerEvent('pointermove', {
+                                clientX: e.clientX,
+                                clientY: e.clientY,
+                                bubbles: false,
+                                cancelable: true,
+                                view: window,
+                                isPrimary: true
+                            }));
+                        } catch(err) {}
                     }, { passive: true });
                 }
 
