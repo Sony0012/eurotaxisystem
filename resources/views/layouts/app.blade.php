@@ -2675,9 +2675,14 @@
                 </div>
             </div>
             
-            <!-- Animated Loading Text -->
-            <div class="flex items-center gap-1.5">
-                <span class="text-xs font-black text-amber-400 tracking-widest uppercase euro-text-glow" id="globalPageLoaderText">Loading...</span>
+            <!-- Animated Loading Text & Bouncing Wave Dots -->
+            <div class="flex items-center justify-center gap-1.5">
+                <span class="text-xs font-black uppercase euro-text-shimmer drop-shadow-[0_0_10px_rgba(234,179,8,0.5)]" id="globalPageLoaderText">Loading</span>
+                <span class="inline-flex items-center gap-1.5 euro-dots-wrapper" aria-hidden="true">
+                    <span class="euro-dot euro-dot-1"></span>
+                    <span class="euro-dot euro-dot-2"></span>
+                    <span class="euro-dot euro-dot-3"></span>
+                </span>
             </div>
         </div>
     </div>
@@ -2703,9 +2708,44 @@
         animation: euroGpuBreathing 1.8s ease-in-out infinite;
     }
 
-    .euro-text-glow {
-        text-shadow: 0 0 10px rgba(234, 179, 8, 0.6), 0 0 20px rgba(234, 179, 8, 0.3);
-        animation: euroTextPulse 1.8s ease-in-out infinite;
+    /* ── Animated Text Shimmer & Bouncing Glowing Dots ── */
+    .euro-text-shimmer {
+        background: linear-gradient(90deg, #eab308 0%, #fef08a 35%, #f59e0b 70%, #eab308 100%);
+        background-size: 200% auto;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: euroShimmerText 2.2s linear infinite;
+        letter-spacing: 0.18em;
+    }
+
+    .euro-dots-wrapper {
+        display: inline-flex;
+        align-items: center;
+        margin-left: 2px;
+        height: 12px;
+    }
+
+    .euro-dot {
+        width: 5px;
+        height: 5px;
+        background-color: #facc15;
+        border-radius: 9999px;
+        box-shadow: 0 0 8px rgba(250, 204, 21, 0.9);
+        display: inline-block;
+        will-change: transform, opacity;
+        transform: translateZ(0);
+    }
+
+    .euro-dot-1 {
+        animation: euroDotBounce 1.2s infinite ease-in-out;
+    }
+
+    .euro-dot-2 {
+        animation: euroDotBounce 1.2s infinite ease-in-out 0.2s;
+    }
+
+    .euro-dot-3 {
+        animation: euroDotBounce 1.2s infinite ease-in-out 0.4s;
     }
 
     @keyframes euroGpuRotate {
@@ -2723,9 +2763,23 @@
         50% { transform: scale(1.1) translateZ(0); opacity: 1; }
     }
 
-    @keyframes euroTextPulse {
-        0%, 100% { opacity: 0.85; }
-        50% { opacity: 1; }
+    @keyframes euroShimmerText {
+        0% { background-position: 0% 50%; }
+        100% { background-position: 200% 50%; }
+    }
+
+    @keyframes euroDotBounce {
+        0%, 60%, 100% {
+            transform: translateY(0) scale(0.85);
+            opacity: 0.35;
+            background-color: #ca8a04;
+        }
+        30% {
+            transform: translateY(-5px) scale(1.4);
+            opacity: 1;
+            background-color: #fef08a;
+            box-shadow: 0 0 12px rgba(254, 240, 138, 1);
+        }
     }
     </style>
 
@@ -2738,7 +2792,11 @@
 
         window.showGlobalLoader = function(text = 'Loading...', safetyTimeout = 12000) {
             if (!loader) return;
-            if (loaderText) loaderText.textContent = text;
+            if (loaderText) {
+                // Strip trailing dots since we have dedicated animated bouncing dots
+                const cleanText = text.replace(/\.+$/, '');
+                loaderText.textContent = cleanText || 'Loading';
+            }
             loader.classList.remove('opacity-0', 'pointer-events-none');
             loader.classList.add('opacity-100', 'pointer-events-auto');
 
