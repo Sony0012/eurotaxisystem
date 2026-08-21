@@ -444,12 +444,12 @@
                 {{-- Left-to-right gradient so text stays readable over the robot --}}
                 <div class="absolute inset-0 bg-gradient-to-r from-indigo-900/95 via-indigo-900/70 to-transparent" style="z-index:5; pointer-events:none;"></div>
 
-                {{-- Spline viewer on the right half; pointer-events:auto = receives native mouse events --}}
-                <div class="absolute right-0 top-0 h-full w-[60%]" style="z-index:1; pointer-events:auto;">
+                {{-- Spline viewer on the right half; pointer-events:none so page scroll is 100% smooth --}}
+                <div class="absolute right-0 top-0 h-full w-[60%]" style="z-index:1; pointer-events:none;">
                     <spline-viewer
                         id="spline-robot"
                         url="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
-                        style="width:100%;height:100%;display:block;"
+                        style="width:100%;height:100%;display:block;pointer-events:none;"
                         loading-anim-type="none">
                     </spline-viewer>
                 </div>
@@ -1468,23 +1468,23 @@
 
             // Prefer right side
             if (tr.right + pw + POPOVER_GAP <= vw) {
-                left = tr.right + POPOVER_GAP + window.scrollX;
-                top  = Math.max(8, Math.min(tr.top + window.scrollY - ph / 2 + tr.height / 2, vh + window.scrollY - ph - 8));
+                left = tr.right + POPOVER_GAP;
+                top  = Math.max(8, Math.min(tr.top - ph / 2 + tr.height / 2, vh - ph - 8));
                 arrowClass = 'border-l border-b -left-2 top-1/2 -translate-y-1/2 border-r-0 border-t-0';
             // Prefer left side
             } else if (tr.left - pw - POPOVER_GAP >= 0) {
-                left = tr.left - pw - POPOVER_GAP + window.scrollX;
-                top  = Math.max(8, Math.min(tr.top + window.scrollY - ph / 2 + tr.height / 2, vh + window.scrollY - ph - 8));
+                left = tr.left - pw - POPOVER_GAP;
+                top  = Math.max(8, Math.min(tr.top - ph / 2 + tr.height / 2, vh - ph - 8));
                 arrowClass = 'border-r border-t -right-2 top-1/2 -translate-y-1/2 border-l-0 border-b-0';
             // Fall to below trigger
             } else if (tr.bottom + ph + POPOVER_GAP <= vh) {
-                top  = tr.bottom + POPOVER_GAP + window.scrollY;
-                left = Math.max(8, Math.min(tr.left + window.scrollX, vw + window.scrollX - pw - 8));
+                top  = tr.bottom + POPOVER_GAP;
+                left = Math.max(8, Math.min(tr.left, vw - pw - 8));
                 arrowClass = 'border-t border-l -top-2 left-8 border-r-0 border-b-0';
             // Fall to above trigger
             } else {
-                top  = tr.top + window.scrollY - ph - POPOVER_GAP;
-                left = Math.max(8, Math.min(tr.left + window.scrollX, vw + window.scrollX - pw - 8));
+                top  = tr.top - ph - POPOVER_GAP;
+                left = Math.max(8, Math.min(tr.left, vw - pw - 8));
                 arrowClass = 'border-b border-r -bottom-2 left-8 border-t-0 border-l-0';
             }
 
@@ -1531,6 +1531,15 @@
                 popover.classList.remove('opacity-100', 'visible', 'pointer-events-auto');
             }
         });
+
+        // Auto-dismiss popover when scrolling to prevent collisions with other UI cards
+        window.addEventListener('scroll', function() {
+            const popover = document.getElementById('forecast-computation-popover');
+            if (popover && !popover.classList.contains('invisible')) {
+                popover.classList.add('opacity-0', 'invisible', 'pointer-events-none');
+                popover.classList.remove('opacity-100', 'visible', 'pointer-events-auto');
+            }
+        }, { passive: true });
     })();
 
 
