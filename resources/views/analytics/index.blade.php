@@ -1277,6 +1277,8 @@
                 </div>
             </div>
         </div>
+    </div>{{-- end section-strategy --}}
+
     {{-- ══════════════════════════════════════════════════════════════════════
          SECTION 5: TECH ARCHITECTURE — 3D Text & Icon Scroll Animation
          (Matches reference: #f5f4f3 bg, sticky scroll blocks, native JS)
