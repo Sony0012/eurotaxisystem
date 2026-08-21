@@ -114,6 +114,28 @@
         .card-hover.in-view::after {
             animation: drawChart 1s ease-out forwards !important;
         }
+
+        @keyframes animatedShinyText {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+        .animated-shiny-units-text {
+            background: linear-gradient(90deg, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.92) 50%, rgba(255,255,255,0.22) 100%);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: animatedShinyText 3.5s ease-in-out infinite;
+            will-change: background-position;
+            filter: drop-shadow(0 2px 10px rgba(255,255,255,0.2));
+        }
     </style>
 @endpush
 @section('content')
@@ -393,7 +415,7 @@
         <div class="relative p-4 border-b bg-gradient-to-r from-orange-600 via-amber-600 to-yellow-600 flex-shrink-0 overflow-hidden">
             <!-- Large Animated Shiny Background Text -->
             <div class="absolute inset-0 flex items-center justify-center pointer-events-none select-none z-0 overflow-hidden" aria-hidden="true">
-                <h1 class="animated-shiny-units-text text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black uppercase tracking-[0.18em] whitespace-nowrap opacity-60">
+                <h1 class="animated-shiny-units-text text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black uppercase tracking-[0.16em] whitespace-nowrap opacity-90">
                     Units Under Maintenance
                 </h1>
             </div>
@@ -622,7 +644,7 @@
         <div class="relative p-4 border-b bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 flex-shrink-0 overflow-hidden">
             <!-- Large Animated Shiny Background Text -->
             <div class="absolute inset-0 flex items-center justify-center pointer-events-none select-none z-0 overflow-hidden" aria-hidden="true">
-                <h1 class="animated-shiny-units-text text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black uppercase tracking-[0.18em] whitespace-nowrap opacity-60">
+                <h1 class="animated-shiny-units-text text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-black uppercase tracking-[0.16em] whitespace-nowrap opacity-90">
                     Active Drivers
                 </h1>
             </div>
@@ -765,7 +787,7 @@
         <div class="relative p-4 border-b bg-gradient-to-r from-purple-600 via-pink-600 to-rose-600 flex-shrink-0 overflow-hidden">
             <!-- Large Animated Shiny Background Text -->
             <div class="absolute inset-0 flex items-center justify-center pointer-events-none select-none z-0 overflow-hidden" aria-hidden="true">
-                <h1 class="animated-shiny-units-text text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black uppercase tracking-[0.18em] whitespace-nowrap opacity-60">
+                <h1 class="animated-shiny-units-text text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-black uppercase tracking-[0.16em] whitespace-nowrap opacity-90">
                     Coding Units
                 </h1>
             </div>
@@ -897,7 +919,7 @@
         <div class="relative p-4 border-b bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 flex-shrink-0 overflow-hidden">
             <!-- Large Animated Shiny Background Text -->
             <div class="absolute inset-0 flex items-center justify-center pointer-events-none select-none z-0 overflow-hidden" aria-hidden="true">
-                <h1 class="animated-shiny-units-text text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black uppercase tracking-[0.18em] whitespace-nowrap opacity-60">
+                <h1 class="animated-shiny-units-text text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black uppercase tracking-[0.16em] whitespace-nowrap opacity-90">
                     Net Income Details
                 </h1>
             </div>
@@ -1060,7 +1082,7 @@
         <div class="relative p-6 border-b bg-gradient-to-r from-red-600 to-rose-700 flex-shrink-0 text-white overflow-hidden">
             <!-- Large Animated Shiny Background Text -->
             <div class="absolute inset-0 flex items-center justify-center pointer-events-none select-none z-0 overflow-hidden" aria-hidden="true">
-                <h1 class="animated-shiny-units-text text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black uppercase tracking-[0.18em] whitespace-nowrap opacity-60">
+                <h1 class="animated-shiny-units-text text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black uppercase tracking-[0.16em] whitespace-nowrap opacity-90">
                     Total Expenses Today
                 </h1>
             </div>
@@ -1204,7 +1226,7 @@
         <div class="relative p-4 border-b bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 flex-shrink-0 overflow-hidden">
             <!-- Large Animated Shiny Background Text -->
             <div class="absolute inset-0 flex items-center justify-center pointer-events-none select-none z-0 overflow-hidden" aria-hidden="true">
-                <h1 class="animated-shiny-units-text text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black uppercase tracking-[0.18em] whitespace-nowrap opacity-60">
+                <h1 class="animated-shiny-units-text text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black uppercase tracking-[0.16em] whitespace-nowrap opacity-90">
                     Daily Boundary Collections
                 </h1>
             </div>
@@ -1322,35 +1344,13 @@
 </div>
 
 <!-- Units Overview Modal -->
-    <style>
-        @keyframes animatedShinyText {
-            0% {
-                background-position: 0% 50%;
-            }
-            50% {
-                background-position: 100% 50%;
-            }
-            100% {
-                background-position: 0% 50%;
-            }
-        }
-        .animated-shiny-units-text {
-            background: linear-gradient(90deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.28) 50%, rgba(255,255,255,0.04) 100%);
-            background-size: 200% auto;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            animation: animatedShinyText 4s ease-in-out infinite;
-            will-change: background-position;
-        }
-    </style>
     <div id="unitsModal" class="hidden fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-white rounded-2xl shadow-2xl max-w-7xl w-full mx-4 h-[95vh] flex flex-col ring-1 ring-slate-900/5 overflow-hidden">
             <!-- Compact Header with Search & Animated Shiny Background Text -->
             <div class="relative p-4 border-b bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 flex-shrink-0 overflow-hidden">
                 <!-- Large Animated Shiny Background Text -->
                 <div class="absolute inset-0 flex items-center justify-center pointer-events-none select-none z-0 overflow-hidden" aria-hidden="true">
-                    <h1 class="animated-shiny-units-text text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black uppercase tracking-[0.18em] whitespace-nowrap opacity-60">
+                    <h1 class="animated-shiny-units-text text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-black uppercase tracking-[0.16em] whitespace-nowrap opacity-90">
                         Units Overview
                     </h1>
                 </div>
