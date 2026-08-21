@@ -1527,7 +1527,13 @@
     <script src="{{ asset('js/realtime-dashboard.js') }}"></script>
     <script>
         // Register Chart.js datalabels plugin
-        Chart.register(ChartDataLabels);
+        try {
+            if (typeof Chart !== 'undefined' && typeof ChartDataLabels !== 'undefined') {
+                Chart.register(ChartDataLabels);
+            }
+        } catch (e) {
+            console.warn('ChartDataLabels plugin not available:', e);
+        }
         
         
         // Weekly Financial Chart
@@ -2214,16 +2220,20 @@
         
         function displayMaintenanceUnitsData(data) {
             const grid = document.getElementById('maintenanceGrid');
-            const units = data.units || [];
-            const stats = data.stats || {};
+            const units = (data && data.units) ? data.units : [];
+            const stats = (data && data.stats) ? data.stats : {};
             const filter = window.currentMaintenanceFilter || 'all';
             
             // Update summary stats (Global Overview)
-            document.getElementById('maintenanceUnitsCount').textContent = stats.total_maintenance || 0;
-            document.getElementById('preventiveMaintenanceCount').textContent = stats.preventive_maintenance || 0;
-            document.getElementById('correctiveMaintenanceCount').textContent = stats.corrective_maintenance || 0;
-            document.getElementById('emergencyMaintenanceCount').textContent = stats.emergency_maintenance || 0;
-            document.getElementById('completedTotalCount').textContent = stats.completed_total || 0;
+            const setTxt = (id, val) => {
+                const el = document.getElementById(id);
+                if (el) el.textContent = val;
+            };
+            setTxt('maintenanceUnitsCount', stats.total_maintenance || 0);
+            setTxt('preventiveMaintenanceCount', stats.preventive_maintenance || 0);
+            setTxt('correctiveMaintenanceCount', stats.corrective_maintenance || 0);
+            setTxt('emergencyMaintenanceCount', stats.emergency_maintenance || 0);
+            setTxt('completedTotalCount', stats.completed_total || 0);
             
             // Store original data for filtering
             window.originalMaintenanceData = units;
@@ -2240,9 +2250,10 @@
         
         function renderMaintenanceUnits(units) {
             const grid = document.getElementById('maintenanceGrid');
+            if (!grid) return;
             const filter = window.currentMaintenanceFilter || 'all';
             
-            if (units.length === 0) {
+            if (!units || units.length === 0) {
                 grid.innerHTML = `
                     <div class="col-span-full text-center py-20">
                         <div class="inline-flex flex-col items-center">
@@ -2319,7 +2330,8 @@
         }
         
         function filterMaintenanceUnits() {
-            const searchTerm = document.getElementById('maintenanceSearchInput').value.toLowerCase();
+            const searchInput = document.getElementById('maintenanceSearchInput');
+            const searchTerm = searchInput ? (searchInput.value || '').toLowerCase() : '';
             const filter = window.currentMaintenanceFilter || 'all';
             
             let filteredUnits = [...(window.originalMaintenanceData || [])];
