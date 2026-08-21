@@ -36,41 +36,6 @@
                 </a>
             </div>
         </div>
-    {{-- ── Interactive 3D Kinetic Text & Telemetry Scroll Animation Hero ────────────────── --}}
-    <div id="kinetic-scroll-container" class="relative w-full rounded-3xl overflow-hidden shadow-xl border border-slate-800 bg-slate-950 mb-8 select-none transition-all duration-300">
-        <!-- Top Hint Badge -->
-        <div class="pt-5 pb-1 text-center">
-            <span class="inline-flex items-center gap-2 px-3 py-1 bg-indigo-500/10 border border-indigo-500/30 rounded-full text-[10px] font-black uppercase tracking-widest text-indigo-400">
-                <span class="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-ping"></span>
-                Scroll to Experience Fleet Telemetry
-            </span>
-        </div>
-
-        <!-- Section 1: 3D Kinetic Character Convergence -->
-        <div id="kinetic-text-track" class="relative flex min-h-[140px] sm:min-h-[180px] items-center justify-center overflow-hidden px-4 py-6">
-            <div class="w-full max-w-5xl text-center text-3xl sm:text-5xl md:text-6xl font-black uppercase tracking-tighter text-white" style="perspective: 600px;">
-                <div id="kinetic-characters-wrapper" class="flex flex-wrap items-center justify-center gap-1 sm:gap-1.5">
-                    <!-- Dynamic 3D Characters -->
-                </div>
-            </div>
-        </div>
-
-        <!-- Section 2: Real-time Telemetry & Diagnostic Stream Badges -->
-        <div id="kinetic-icons-track" class="border-t border-slate-800/80 bg-slate-900/60 px-4 py-5">
-            <div class="flex items-center justify-center gap-2 sm:gap-3 text-xs sm:text-sm font-bold tracking-wide text-white mb-3">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 27 78" class="h-5 sm:h-6 text-indigo-400 flex-shrink-0">
-                    <path fill="currentColor" d="M26.52 77.21h-5.75c-6.83 0-12.38-5.56-12.38-12.38V48.38C8.39 43.76 4.63 40 .01 40v-4c4.62 0 8.38-3.76 8.38-8.38V12.4C8.38 5.56 13.94 0 20.77 0h5.75v4h-5.75c-4.62 0-8.38 3.76-8.38 8.38V27.6c0 4.34-2.25 8.17-5.64 10.38 3.39 2.21 5.64 6.04 5.64 10.38v16.45c0 4.62 3.76 8.38 8.38 8.38h5.75v4.02Z"/>
-                </svg>
-                <span class="font-bold text-slate-200 tracking-wider uppercase text-[11px] sm:text-xs">Euro Taxi Real-time Telemetry & Diagnostic Stream</span>
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 27 78" class="h-5 sm:h-6 scale-x-[-1] text-indigo-400 flex-shrink-0">
-                    <path fill="currentColor" d="M26.52 77.21h-5.75c-6.83 0-12.38-5.56-12.38-12.38V48.38C8.39 43.76 4.63 40 .01 40v-4c4.62 0 8.38-3.76 8.38-8.38V12.4C8.38 5.56 13.94 0 20.77 0h5.75v4h-5.75c-4.62 0-8.38 3.76-8.38 8.38V27.6c0 4.34-2.25 8.17-5.64 10.38 3.39 2.21 5.64 6.04 5.64 10.38v16.45c0 4.62 3.76 8.38 8.38 8.38h5.75v4.02Z"/>
-                </svg>
-            </div>
-
-            <div id="kinetic-icons-wrapper" class="flex flex-wrap items-center justify-center gap-4 sm:gap-6 pt-1" style="perspective: 500px;">
-                <!-- Telemetry Badges with 3D Parallax -->
-            </div>
-        </div>
     </div>
 
     {{-- ── Advanced Navigation Tabs ─────────────────────────────────────────── --}}
@@ -94,6 +59,11 @@
             class="tab-btn px-5 py-2.5 rounded-xl text-xs font-black transition-all duration-200 flex items-center gap-2 text-slate-500 hover:bg-white hover:text-slate-800 hover:shadow-sm">
             <i data-lucide="brain-circuit" class="w-4 h-4"></i>
             <span>AI Strategic Insights</span>
+        </button>
+        <button onclick="switchTab('showcase')" id="tab-showcase"
+            class="tab-btn px-5 py-2.5 rounded-xl text-xs font-black transition-all duration-200 flex items-center gap-2 text-slate-500 hover:bg-white hover:text-slate-800 hover:shadow-sm">
+            <i data-lucide="sparkles" class="w-4 h-4 text-orange-500"></i>
+            <span>Tech Architecture</span>
         </button>
     </div>
 
@@ -1307,8 +1277,68 @@
                 </div>
             </div>
         </div>
-    </div>
+    {{-- ══════════════════════════════════════════════════════════════════════
+         SECTION 5: TECH ARCHITECTURE & 3D SCROLL ANIMATION
+         ══════════════════════════════════════════════════════════════════════ --}}
+    <div id="section-showcase" class="hidden space-y-8">
+        <div class="bg-white rounded-[2.5rem] p-6 sm:p-10 border border-slate-200/80 shadow-sm relative overflow-hidden">
+            <!-- Header hint -->
+            <div class="text-center py-6">
+                <span class="inline-flex items-center gap-2 px-4 py-1.5 bg-orange-50 text-orange-600 text-xs font-black uppercase tracking-widest rounded-full border border-orange-200 shadow-sm">
+                    <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Interactive Scroll Animation
+                </span>
+                <h2 class="text-2xl sm:text-4xl font-black text-slate-800 tracking-tight mt-3">Euro Fleet Intelligence Architecture</h2>
+                <p class="text-xs sm:text-sm text-slate-500 font-medium max-w-xl mx-auto mt-2 leading-relaxed">Scroll down smoothly inside this module to trigger dynamic 3D text character expansions, tech stack rotations, and telemetry modules.</p>
+            </div>
 
+            <!-- Scroll Animation Container -->
+            <div class="relative w-full rounded-3xl overflow-hidden bg-[#f5f4f3] border border-slate-200 shadow-inner">
+                <!-- Hint header badge -->
+                <div class="sticky top-6 z-20 flex justify-center pointer-events-none">
+                    <span class="px-4 py-1.5 bg-white/90 backdrop-blur-md text-slate-700 text-[11px] font-black uppercase tracking-widest rounded-full shadow-md border border-slate-200 flex items-center gap-2 animate-bounce">
+                        <i data-lucide="arrow-down" class="w-3.5 h-3.5 text-orange-500"></i> Scroll down to see interactive transforms
+                    </span>
+                </div>
+
+                <!-- Block 1: 3D Character Text Scroll -->
+                <div id="scroll-target-1" class="relative flex min-h-[130vh] items-center justify-center p-6 overflow-hidden">
+                    <div class="sticky top-1/2 -translate-y-1/2 w-full max-w-4xl text-center" style="perspective: 600px;">
+                        <div id="text-scroll-characters" class="text-3xl sm:text-5xl md:text-6xl font-black uppercase tracking-tighter text-slate-900 select-none flex flex-wrap justify-center items-center gap-x-1 sm:gap-x-2">
+                            <!-- Character spans generated dynamically with x and rotateX scroll transforms -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Block 2: 3D Scale & Y Icons -->
+                <div id="scroll-target-2" class="relative -mt-[40vh] flex min-h-[130vh] flex-col items-center justify-center p-6 overflow-hidden">
+                    <div class="sticky top-1/2 -translate-y-1/2 w-full max-w-4xl text-center space-y-6">
+                        <p class="flex items-center justify-center gap-2 sm:gap-3 text-lg sm:text-2xl font-bold tracking-tight text-slate-900">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 27 78" class="h-8 sm:h-10 text-slate-900 fill-current inline-block"><path d="M26.52 77.21h-5.75c-6.83 0-12.38-5.56-12.38-12.38V48.38C8.39 43.76 4.63 40 .01 40v-4c4.62 0 8.38-3.76 8.38-8.38V12.4C8.38 5.56 13.94 0 20.77 0h5.75v4h-5.75c-4.62 0-8.38 3.76-8.38 8.38V27.6c0 4.34-2.25 8.17-5.64 10.38 3.39 2.21 5.64 6.04 5.64 10.38v16.45c0 4.62 3.76 8.38 8.38 8.38h5.75v4.02Z"/></svg>
+                            <span>integrate with your favorite tech stack</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 27 78" class="h-8 sm:h-10 text-slate-900 fill-current inline-block scale-x-[-1]"><path d="M26.52 77.21h-5.75c-6.83 0-12.38-5.56-12.38-12.38V48.38C8.39 43.76 4.63 40 .01 40v-4c4.62 0 8.38-3.76 8.38-8.38V12.4C8.38 5.56 13.94 0 20.77 0h5.75v4h-5.75c-4.62 0-8.38 3.76-8.38 8.38V27.6c0 4.34-2.25 8.17-5.64 10.38 3.39 2.21 5.64 6.04 5.64 10.38v16.45c0 4.62 3.76 8.38 8.38 8.38h5.75v4.02Z"/></svg>
+                        </p>
+                        <div id="tech-icons-v2" class="flex flex-wrap items-center justify-center gap-4 sm:gap-8">
+                            <!-- Icons generated dynamically -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Block 3: 3D Rotate & Scale Icons -->
+                <div id="scroll-target-3" class="relative -mt-[40vh] flex min-h-[130vh] flex-col items-center justify-center p-6 overflow-hidden">
+                    <div class="sticky top-1/2 -translate-y-1/2 w-full max-w-4xl text-center space-y-6" style="perspective: 600px;">
+                        <p class="flex items-center justify-center gap-2 sm:gap-3 text-lg sm:text-2xl font-bold tracking-tight text-slate-900">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 27 78" class="h-8 sm:h-10 text-slate-900 fill-current inline-block"><path d="M26.52 77.21h-5.75c-6.83 0-12.38-5.56-12.38-12.38V48.38C8.39 43.76 4.63 40 .01 40v-4c4.62 0 8.38-3.76 8.38-8.38V12.4C8.38 5.56 13.94 0 20.77 0h5.75v4h-5.75c-4.62 0-8.38 3.76-8.38 8.38V27.6c0 4.34-2.25 8.17-5.64 10.38 3.39 2.21 5.64 6.04 5.64 10.38v16.45c0 4.62 3.76 8.38 8.38 8.38h5.75v4.02Z"/></svg>
+                            <span>continuous predictive telemetry</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 27 78" class="h-8 sm:h-10 text-slate-900 fill-current inline-block scale-x-[-1]"><path d="M26.52 77.21h-5.75c-6.83 0-12.38-5.56-12.38-12.38V48.38C8.39 43.76 4.63 40 .01 40v-4c4.62 0 8.38-3.76 8.38-8.38V12.4C8.38 5.56 13.94 0 20.77 0h5.75v4h-5.75c-4.62 0-8.38 3.76-8.38 8.38V27.6c0 4.34-2.25 8.17-5.64 10.38 3.39 2.21 5.64 6.04 5.64 10.38v16.45c0 4.62 3.76 8.38 8.38 8.38h5.75v4.02Z"/></svg>
+                        </p>
+                        <div id="tech-icons-v3" class="flex flex-wrap items-center justify-center gap-4 sm:gap-8">
+                            <!-- Icons generated dynamically with 3D rotate -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @push('scripts')
@@ -1445,7 +1475,8 @@
             pulse: document.getElementById('section-pulse'),
             performance: document.getElementById('section-performance'),
             forecast: document.getElementById('section-forecast'),
-            strategy: document.getElementById('section-strategy')
+            strategy: document.getElementById('section-strategy'),
+            showcase: document.getElementById('section-showcase')
         };
 
         // Buttons
@@ -1453,7 +1484,8 @@
             pulse: document.getElementById('tab-pulse'),
             performance: document.getElementById('tab-performance'),
             forecast: document.getElementById('tab-forecast'),
-            strategy: document.getElementById('tab-strategy')
+            strategy: document.getElementById('tab-strategy'),
+            showcase: document.getElementById('tab-showcase')
         };
 
         // Active and Inactive classes
@@ -1461,21 +1493,145 @@
         const inactiveClasses = ['text-slate-500', 'hover:bg-white', 'hover:text-slate-800', 'hover:shadow-sm'];
 
         // Reset All
-        Object.values(sections).forEach(s => s.classList.add('hidden'));
+        Object.values(sections).forEach(s => { if (s) s.classList.add('hidden'); });
         Object.entries(buttons).forEach(([key, btn]) => {
-            btn.classList.remove(...activeClasses);
-            btn.classList.add(...inactiveClasses);
+            if (btn) {
+                btn.classList.remove(...activeClasses);
+                btn.classList.add(...inactiveClasses);
+            }
         });
 
         // Activate Selected
-        sections[tab].classList.remove('hidden');
-        buttons[tab].classList.remove(...inactiveClasses);
-        buttons[tab].classList.add(...activeClasses);
+        if (sections[tab]) sections[tab].classList.remove('hidden');
+        if (buttons[tab]) {
+            buttons[tab].classList.remove(...inactiveClasses);
+            buttons[tab].classList.add(...activeClasses);
+        }
 
-        // Handle Chart Resizing if needed
+        // Handle Chart Resizing & Animation Initializations
         if (tab === 'performance' || tab === 'forecast') {
             window.dispatchEvent(new Event('resize'));
         }
+        if (tab === 'showcase') {
+            initTextScrollAnimation();
+        }
+    }
+
+    // ── 3D Text & Tech Stack Scroll Animation ────────────────────────────────
+    function initTextScrollAnimation() {
+        const text = "ADVANCED FLEET ANALYTICS";
+        const chars = text.split("");
+        const centerIndex = Math.floor(chars.length / 2);
+        const charContainer = document.getElementById('text-scroll-characters');
+        
+        if (charContainer && charContainer.children.length === 0) {
+            charContainer.innerHTML = chars.map((char, index) => {
+                const isSpace = char === " ";
+                const isHighlight = index >= 9;
+                return `<span class="inline-block transition-transform will-change-transform ${isHighlight ? 'text-orange-500 font-black' : 'text-slate-900'} ${isSpace ? 'w-3 sm:w-5' : ''}" data-char-index="${index}" data-center-index="${centerIndex}">${isSpace ? '&nbsp;' : char}</span>`;
+            }).join('');
+        }
+
+        const icons = [
+            { name: 'Discord Alerts', src: 'https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/discord.svg' },
+            { name: 'Figma Telematics', src: 'https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/figma.svg' },
+            { name: 'Framer Analytics', src: 'https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/framer.svg' },
+            { name: 'GitHub Sync', src: 'https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/github.svg' },
+            { name: 'MongoDB DB', src: 'https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/mongodb.svg' },
+            { name: 'Notion Fleet Ops', src: 'https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/notion.svg' }
+        ];
+        const iconCenterIndex = Math.floor(icons.length / 2);
+
+        const v2Container = document.getElementById('tech-icons-v2');
+        if (v2Container && v2Container.children.length === 0) {
+            v2Container.innerHTML = icons.map((icon, index) => {
+                return `
+                    <div class="p-3.5 bg-white rounded-2xl shadow-md border border-slate-200 flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 will-change-transform transition-transform" data-icon-v2-index="${index}" data-icon-center="${iconCenterIndex}" title="${icon.name}">
+                        <img src="${icon.src}" alt="${icon.name}" class="w-8 h-8 sm:w-10 sm:h-10 object-contain" />
+                    </div>
+                `;
+            }).join('');
+        }
+
+        const v3Container = document.getElementById('tech-icons-v3');
+        if (v3Container && v3Container.children.length === 0) {
+            v3Container.innerHTML = icons.map((icon, index) => {
+                return `
+                    <div class="p-3.5 bg-white rounded-2xl shadow-md border border-slate-200 flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 will-change-transform transition-transform" data-icon-v3-index="${index}" data-icon-center="${iconCenterIndex}" title="${icon.name}">
+                        <img src="${icon.src}" alt="${icon.name}" class="w-8 h-8 sm:w-10 sm:h-10 object-contain" />
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function onScroll() {
+            const target1 = document.getElementById('scroll-target-1');
+            const target2 = document.getElementById('scroll-target-2');
+            const target3 = document.getElementById('scroll-target-3');
+            if (!target1) return;
+
+            const calcProgress = (el) => {
+                const rect = el.getBoundingClientRect();
+                const windowH = window.innerHeight;
+                const totalScrollable = rect.height - windowH;
+                if (totalScrollable <= 0) return 0;
+                const scrolled = -rect.top;
+                return Math.max(0, Math.min(1, scrolled / totalScrollable));
+            };
+
+            const p1 = calcProgress(target1);
+            const normP1 = Math.min(1, p1 / 0.5);
+            const easeP1 = 1 - normP1;
+
+            const charSpans = document.querySelectorAll('#text-scroll-characters span[data-char-index]');
+            charSpans.forEach(span => {
+                const idx = parseInt(span.getAttribute('data-char-index'), 10);
+                const cIdx = parseInt(span.getAttribute('data-center-index'), 10);
+                const dist = idx - cIdx;
+                const x = dist * 40 * easeP1;
+                const rotateX = dist * 35 * easeP1;
+                span.style.transform = `translate3d(${x}px, 0, 0) rotateX(${rotateX}deg)`;
+            });
+
+            if (target2) {
+                const p2 = calcProgress(target2);
+                const normP2 = Math.min(1, p2 / 0.5);
+                const easeP2 = 1 - normP2;
+
+                const iconV2 = document.querySelectorAll('#tech-icons-v2 [data-icon-v2-index]');
+                iconV2.forEach(icon => {
+                    const idx = parseInt(icon.getAttribute('data-icon-v2-index'), 10);
+                    const cIdx = parseInt(icon.getAttribute('data-icon-center'), 10);
+                    const dist = idx - cIdx;
+                    const x = dist * 45 * easeP2;
+                    const y = Math.abs(dist) * 40 * easeP2;
+                    const scale = 0.75 + (0.25 * (1 - easeP2));
+                    icon.style.transform = `translate3d(${x}px, ${y}px, 0) scale(${scale})`;
+                });
+            }
+
+            if (target3) {
+                const p3 = calcProgress(target3);
+                const normP3 = Math.min(1, p3 / 0.5);
+                const easeP3 = 1 - normP3;
+
+                const iconV3 = document.querySelectorAll('#tech-icons-v3 [data-icon-v3-index]');
+                iconV3.forEach(icon => {
+                    const idx = parseInt(icon.getAttribute('data-icon-v3-index'), 10);
+                    const cIdx = parseInt(icon.getAttribute('data-icon-center'), 10);
+                    const dist = idx - cIdx;
+                    const x = dist * 70 * easeP3;
+                    const rotate = dist * 40 * easeP3;
+                    const y = -Math.abs(dist) * 15 * easeP3;
+                    const scale = 0.75 + (0.25 * (1 - easeP3));
+                    icon.style.transform = `translate3d(${x}px, ${y}px, 0) rotate(${rotate}deg) scale(${scale})`;
+                });
+            }
+        }
+
+        window.removeEventListener('scroll', onScroll);
+        window.addEventListener('scroll', onScroll, { passive: true });
+        onScroll();
     }
 
     // ── Forecast Income Popover – Smart Viewport-Aware Positioning ──────────
@@ -2447,92 +2603,5 @@ const numberObserver = new IntersectionObserver((entries) => {
     });
 }, { threshold: 0.1 });
 document.querySelectorAll('.animate-number').forEach(el => numberObserver.observe(el));
-
-// ── Kinetic 3D Text & Icon Scroll Controller (Lenis/Framer Motion Inspired) ──
-(function initKineticScrollAnimation() {
-    const textWrapper = document.getElementById('kinetic-characters-wrapper');
-    const iconsWrapper = document.getElementById('kinetic-icons-wrapper');
-    const container = document.getElementById('kinetic-scroll-container');
-    if (!textWrapper || !iconsWrapper || !container) return;
-
-    const text = "ADVANCED FLEET INTELLIGENCE";
-    const characters = text.split("");
-    const centerIndex = Math.floor(characters.length / 2);
-
-    textWrapper.innerHTML = characters.map((char, index) => {
-        const isSpace = char === " ";
-        return `<span class="kinetic-char inline-block text-orange-500 will-change-transform select-none ${isSpace ? 'w-3 sm:w-5' : ''}" data-index="${index}" style="display:inline-block; transform-origin:center;">${isSpace ? '&nbsp;' : char}</span>`;
-    }).join("");
-
-    const icons = [
-        { name: "Live GPS", icon: "https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/mongodb.svg" },
-        { name: "Revenue API", icon: "https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/github.svg" },
-        { name: "Fleet Stream", icon: "https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/framer.svg" },
-        { name: "Telemetry", icon: "https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/figma.svg" },
-        { name: "AI Engine", icon: "https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/discord.svg" },
-        { name: "Audit Vault", icon: "https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/notion.svg" }
-    ];
-    const iconCenterIndex = Math.floor(icons.length / 2);
-
-    iconsWrapper.innerHTML = icons.map((item, index) => {
-        return `
-            <div class="kinetic-icon-card flex flex-col items-center gap-1.5 p-2 sm:p-3 bg-slate-800/80 rounded-2xl border border-slate-700/60 shadow-lg hover:border-indigo-400 transition-colors will-change-transform" data-index="${index}" style="transform-origin: center;">
-                <img src="${item.icon}" alt="${item.name}" class="h-6 w-6 sm:h-8 sm:w-8 object-contain filter invert opacity-90">
-                <span class="text-[9px] sm:text-[10px] font-bold text-slate-300 uppercase tracking-tight">${item.name}</span>
-            </div>
-        `;
-    }).join("");
-
-    const charElements = textWrapper.querySelectorAll('.kinetic-char');
-    const iconElements = iconsWrapper.querySelectorAll('.kinetic-icon-card');
-
-    let ticking = false;
-    function updateKineticTransforms() {
-        const rect = container.getBoundingClientRect();
-        const winHeight = window.innerHeight || document.documentElement.clientHeight;
-
-        // Progress from 0 (entering screen) to 1 (passed center)
-        let progress = (winHeight - rect.top) / (winHeight + rect.height * 0.5);
-        progress = Math.max(0, Math.min(1, progress));
-
-        // Sub-progress capped at 0.5 for active convergence
-        const pNorm = Math.min(1, progress / 0.7);
-        const invP = 1 - pNorm;
-
-        // Animate Characters
-        charElements.forEach((el, idx) => {
-            const distanceFromCenter = idx - centerIndex;
-            const x = invP * distanceFromCenter * 28;
-            const rotateX = invP * distanceFromCenter * 15;
-            const scale = 0.85 + (pNorm * 0.15);
-            el.style.transform = `translate3d(${x}px, 0, 0) rotateX(${rotateX}deg) scale(${scale})`;
-            el.style.opacity = (0.25 + (pNorm * 0.75)).toFixed(2);
-        });
-
-        // Animate Icons
-        iconElements.forEach((el, idx) => {
-            const distanceFromCenter = idx - iconCenterIndex;
-            const x = invP * distanceFromCenter * 35;
-            const rotate = invP * distanceFromCenter * 18;
-            const y = invP * Math.abs(distanceFromCenter) * 12;
-            const scale = 0.8 + (pNorm * 0.2);
-            el.style.transform = `translate3d(${x}px, ${y}px, 0) scale(${scale}) rotate(${rotate}deg)`;
-            el.style.opacity = (0.3 + (pNorm * 0.7)).toFixed(2);
-        });
-
-        ticking = false;
-    }
-
-    function onScroll() {
-        if (!ticking) {
-            requestAnimationFrame(updateKineticTransforms);
-            ticking = true;
-        }
-    }
-
-    window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', onScroll, { passive: true });
-    updateKineticTransforms();
-})();
 </script>
 @endpush
