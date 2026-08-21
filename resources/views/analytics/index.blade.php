@@ -64,12 +64,22 @@
         </div>
     </div>
 
+    {{-- ── Floating Scroll-to-Explore Indicator ───────────────────────────── --}}
+    <div class="flex flex-col items-center justify-center py-2 mb-6 text-center select-none pointer-events-none">
+        <div class="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-slate-900/5 backdrop-blur-sm border border-slate-200/80 shadow-sm text-slate-600 text-xs font-black uppercase tracking-[0.2em]">
+            <i data-lucide="sparkles" class="w-4 h-4 text-indigo-500 animate-pulse"></i>
+            Scroll to explore Advanced Fleet Analytics
+            <i data-lucide="arrow-down" class="w-3.5 h-3.5 text-indigo-500 animate-bounce"></i>
+        </div>
+        <div class="mt-2 w-px h-7 bg-gradient-to-b from-indigo-500/60 to-transparent"></div>
+    </div>
+
     {{-- ══════════════════════════════════════════════════════════════════════
          SECTION 1: OPERATIONAL PULSE (Real-time)
          ══════════════════════════════════════════════════════════════════════ --}}
-    <div id="section-pulse" class="space-y-8 scroll-mt-24 mb-20">
+    <div id="section-pulse" class="space-y-8 scroll-mt-24 mb-20" style="perspective: 1200px;">
         {{-- High Level Pulse Cards --}}
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" data-salubong-group="true" style="transform-style: preserve-3d;">
             {{-- Fleet Health --}}
             <div class="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm hover:shadow-xl hover:border-indigo-200 hover:-translate-y-1 transition-all duration-300 group">
                 <div class="flex items-start justify-between mb-4">
@@ -151,7 +161,7 @@
         </div>
 
         {{-- Detailed Pulse Breakdown --}}
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8" data-salubong-group="true" style="transform-style: preserve-3d;">
             {{-- Fleet Status Distribution --}}
             <div class="lg:col-span-2 bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm">
                 <div class="px-8 py-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
@@ -316,7 +326,7 @@
             </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8" data-salubong-group="true" style="transform-style: preserve-3d;">
             {{-- Revenue vs Expenses --}}
             <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-8">
                 <div class="flex items-center justify-between mb-8">
@@ -1470,6 +1480,67 @@
         
         requestAnimationFrame(onScroll);
         setTimeout(onScroll, 250);
+    })();
+
+    // ── 3D Card "Mag-Salubong" Scroll Animation Engine ────────────────────────
+    // Replicates the Framer Motion CharacterV1/V2/V3 converging transforms on the actual cards
+    (function initSalubongScrollEngine() {
+        const groups = document.querySelectorAll('[data-salubong-group="true"]');
+        const windowH = () => window.innerHeight || 800;
+
+        function updateSalubong() {
+            const h = windowH();
+
+            groups.forEach(group => {
+                const rect = group.getBoundingClientRect();
+                // If group is far off screen, skip
+                if (rect.bottom < -150 || rect.top > h + 150) return;
+
+                // progress: 0 when top enters bottom of screen (rect.top == h) -> 0.5 when centered/upper view
+                const totalDist = h * 0.75;
+                const currentDist = h - rect.top;
+                const rawP = Math.max(0, Math.min(1, currentDist / totalDist));
+                // f goes 1.0 (scattered outside) -> 0.0 (salubong converged!)
+                const f = Math.max(0, 1 - (rawP / 0.5));
+
+                const children = Array.from(group.children).filter(c => !c.classList.contains('hidden'));
+                const count = children.length;
+                if (count === 0) return;
+
+                children.forEach((child, idx) => {
+                    const centerIdx = (count - 1) / 2;
+                    const dir = count === 1 ? 0 : (idx - centerIdx) / (centerIdx || 1); // normalized -1 to +1
+
+                    const x = dir * 70 * f;               // Left cards from -70px, right cards from +70px
+                    const rotY = dir * 8 * f;             // Inward 3D angle
+                    const rotX = 5 * f;                  // Subtle top perspective
+                    const y = Math.abs(dir) * 15 * f + (20 * f); // Fly up
+                    const scale = 0.94 + (0.06 * (1 - f));
+                    const opacity = 0.75 + (0.25 * (1 - f));
+
+                    child.style.transform = `translate3d(${x}px, ${y}px, 0) rotateY(${rotY}deg) rotateX(${rotX}deg) scale(${scale})`;
+                    child.style.opacity = opacity;
+                    child.style.transition = 'transform 0.12s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.12s ease-out';
+                    child.style.transformStyle = 'preserve-3d';
+                    child.style.willChange = 'transform, opacity';
+                });
+            });
+        }
+
+        const targets = [
+            window,
+            document,
+            document.body,
+            document.documentElement,
+            document.getElementById('appContentArea')
+        ].filter(Boolean);
+
+        targets.forEach(t => t.addEventListener('scroll', updateSalubong, { passive: true }));
+        window.addEventListener('resize', updateSalubong, { passive: true });
+
+        requestAnimationFrame(updateSalubong);
+        setTimeout(updateSalubong, 150);
+        setTimeout(updateSalubong, 500);
     })();
 
     // ── Forecast Income Popover – Smart Viewport-Aware Positioning ──────────
