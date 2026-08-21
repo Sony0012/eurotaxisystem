@@ -1949,17 +1949,13 @@
                 window.lucide.createIcons();
             }
             
-            // Cache for loaded pages
+            // Cache for loaded pages (disabled to prevent serving stale DOM/scripts)
             const pageCache = new Map();
             
             // Hover prefetching disabled to prevent database connection exhaustion on shared hosting
             
             // Fetch page content
             async function fetchPage(url, prefetch = false) {
-                if (pageCache.has(url)) {
-                    return pageCache.get(url);
-                }
-                
                 try {
                     const response = await fetch(url, {
                         headers: {
@@ -1980,7 +1976,6 @@
                     const pageTitle = doc.querySelector('title')?.textContent || '';
                     
                     const pageData = { mainContent, pageTitle, html };
-                    pageCache.set(url, pageData);
                     
                     return pageData;
                 } catch (error) {
@@ -2014,20 +2009,17 @@
                             window.lucide.createIcons();
                         }
 
-                        // Re-run inline scripts in the new content
+                        // Re-run inline scripts in true global context
                         const scripts = mainContent.querySelectorAll('script');
                         scripts.forEach(script => {
+                            const newScript = document.createElement('script');
                             if (script.src) {
-                                const newScript = document.createElement('script');
                                 newScript.src = script.src;
                                 document.head.appendChild(newScript);
                             } else if (script.textContent && script.textContent.trim()) {
-                                try {
-                                    const execFn = new Function(script.textContent);
-                                    execFn.call(window);
-                                } catch (scriptErr) {
-                                    console.warn('[SPA Script Execution Warning]:', scriptErr);
-                                }
+                                newScript.textContent = script.textContent;
+                                document.body.appendChild(newScript);
+                                setTimeout(() => { try { newScript.remove(); } catch(e){} }, 50);
                             }
                         });
 
