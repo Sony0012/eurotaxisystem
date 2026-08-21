@@ -38,9 +38,9 @@
         </div>
     </div>
 
-    {{-- ── Advanced Navigation Tabs (Sticky Scrollable Bar) ───────────────────── --}}
-    <div class="sticky top-0 z-40 -mx-4 sm:-mx-6 lg:-mx-8 xl:-mx-10 px-4 sm:px-6 lg:px-8 xl:px-10 py-3 bg-white/95 backdrop-blur-md border-b border-slate-200/60 shadow-sm mb-8" id="tabs-sticky-bar">
-        <div class="flex flex-wrap items-center gap-1.5 p-1.5 bg-slate-900/5 backdrop-blur-md rounded-2xl w-fit mx-auto shadow-inner border border-slate-200/60">
+    {{-- ── Floating Capsule Navigation Tabs (No full-width white background bar) ── --}}
+    <div class="sticky top-4 z-40 flex justify-center mb-6 pointer-events-none" id="tabs-sticky-bar">
+        <div class="flex flex-wrap items-center gap-1.5 p-1.5 bg-white/90 backdrop-blur-xl rounded-2xl w-fit shadow-xl shadow-slate-900/10 border border-slate-200/80 pointer-events-auto ring-1 ring-black/5">
             <button onclick="jumpToSection('pulse')" id="tab-pulse"
                 class="tab-btn px-5 py-2.5 rounded-xl text-xs font-black transition-all duration-300 flex items-center gap-2 bg-white text-indigo-700 shadow-sm border border-indigo-100 ring-1 ring-indigo-500/20">
                 <i data-lucide="activity" class="w-4 h-4 text-indigo-500"></i>
