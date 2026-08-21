@@ -1268,78 +1268,110 @@
 </div>
 
 <!-- Units Overview Modal -->
+    <style>
+        @keyframes animatedShinyText {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+        .animated-shiny-units-text {
+            background: linear-gradient(90deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.28) 50%, rgba(255,255,255,0.04) 100%);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: animatedShinyText 4s ease-in-out infinite;
+            will-change: background-position;
+        }
+    </style>
     <div id="unitsModal" class="hidden fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-white rounded-2xl shadow-2xl max-w-7xl w-full mx-4 h-[95vh] flex flex-col ring-1 ring-slate-900/5 overflow-hidden">
-            <!-- Compact Header with Search -->
-            <div class="p-4 border-b bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 flex-shrink-0">
-                <div class="flex items-center justify-between mb-3">
-                    <div class="flex items-center gap-3">
-                        <div class="p-2 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30">
-                            <i data-lucide="car" class="w-6 h-6 text-white"></i>
-                        </div>
-                        <div>
-                            <h3 class="text-lg font-bold text-white leading-tight">Units Overview</h3>
-                            <p class="text-blue-100 text-[10px] font-medium mt-0.5">Fleet Management Dashboard</p>
-                        </div>
-                    </div>
-                    <button onclick="hideUnitsModal()" class="text-white/80 hover:text-white hover:bg-white/20 p-2 rounded-lg transition-all duration-200 backdrop-blur-sm">
-                        <i data-lucide="x" class="w-5 h-5"></i>
-                    </button>
+            <!-- Compact Header with Search & Animated Shiny Background Text -->
+            <div class="relative p-4 border-b bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 flex-shrink-0 overflow-hidden">
+                <!-- Large Animated Shiny Background Text -->
+                <div class="absolute inset-0 flex items-center justify-center pointer-events-none select-none z-0 overflow-hidden" aria-hidden="true">
+                    <h1 class="animated-shiny-units-text text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black uppercase tracking-[0.18em] whitespace-nowrap opacity-60">
+                        Units Overview
+                    </h1>
                 </div>
-                
-                <!-- Search and Filter Row -->
-                <div class="flex items-center gap-3 mb-3">
-                    <!-- Compact Search Bar -->
-                    <div class="relative flex-1">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <i data-lucide="search" class="w-4 h-4 text-white/60"></i>
+
+                <div class="relative z-10">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center gap-3">
+                            <div class="p-2 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30">
+                                <i data-lucide="car" class="w-6 h-6 text-white"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-bold text-white leading-tight">Units Overview</h3>
+                                <p class="text-blue-100 text-[10px] font-medium mt-0.5">Fleet Management Dashboard</p>
+                            </div>
                         </div>
-                        <input type="search" 
-                            id="unitSearchInput"
-                            placeholder="Search units by number, status, or performance..."
-                            class="w-full pl-10 pr-4 py-2 bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent transition-all duration-200 text-sm"
-                            onkeyup="filterUnits()"
-                         autocomplete="new-password" spellcheck="false" autocorrect="off" autocapitalize="off" readonly onfocus="this.removeAttribute('readonly');">
-                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
-                            <button onclick="clearSearch()" class="text-white/60 hover:text-white transition-colors">
-                                <i data-lucide="x-circle" class="w-4 h-4"></i>
+                        <button onclick="hideUnitsModal()" class="text-white/80 hover:text-white hover:bg-white/20 p-2 rounded-lg transition-all duration-200 backdrop-blur-sm">
+                            <i data-lucide="x" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+                    
+                    <!-- Search and Filter Row -->
+                    <div class="flex items-center gap-3">
+                        <!-- Compact Search Bar -->
+                        <div class="relative flex-1">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i data-lucide="search" class="w-4 h-4 text-white/60"></i>
+                            </div>
+                            <input type="search" 
+                                id="unitSearchInput"
+                                placeholder="Search units by number, status, or performance..."
+                                class="w-full pl-10 pr-4 py-2 bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent transition-all duration-200 text-sm"
+                                onkeyup="filterUnits()"
+                             autocomplete="new-password" spellcheck="false" autocorrect="off" autocapitalize="off" readonly onfocus="this.removeAttribute('readonly');">
+                            <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                                <button onclick="clearSearch()" class="text-white/60 hover:text-white transition-colors">
+                                    <i data-lucide="x-circle" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Status Filter Buttons -->
+                        <div class="flex bg-white/10 backdrop-blur-sm border border-white/30 rounded-lg p-1">
+                            <button 
+                                id="btn-all-units" 
+                                onclick="setUnitStatusFilter('all')"
+                                class="px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200 bg-white text-blue-700"
+                            >
+                                All
+                            </button>
+                            <button 
+                                id="btn-active-units" 
+                                onclick="setUnitStatusFilter('active')"
+                                class="px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200 text-white/70 hover:text-white hover:bg-white/10"
+                            >
+                                Active
+                            </button>
+                            <button 
+                                id="btn-maintenance-units" 
+                                onclick="setUnitStatusFilter('maintenance')"
+                                class="px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200 text-white/70 hover:text-white hover:bg-white/10"
+                            >
+                                Maintenance
+                            </button>
+                            <button 
+                                id="btn-coding-units" 
+                                onclick="setUnitStatusFilter('coding')"
+                                class="px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200 text-white/70 hover:text-white hover:bg-white/10"
+                            >
+                                Coding
                             </button>
                         </div>
                     </div>
-
-                    <!-- Status Filter Buttons -->
-                    <div class="flex bg-white/10 backdrop-blur-sm border border-white/30 rounded-lg p-1">
-                        <button 
-                            id="btn-all-units" 
-                            onclick="setUnitStatusFilter('all')"
-                            class="px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200 bg-white text-blue-700"
-                        >
-                            All
-                        </button>
-                        <button 
-                            id="btn-active-units" 
-                            onclick="setUnitStatusFilter('active')"
-                            class="px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200 text-white/70 hover:text-white hover:bg-white/10"
-                        >
-                            Active
-                        </button>
-                        <button 
-                            id="btn-maintenance-units" 
-                            onclick="setUnitStatusFilter('maintenance')"
-                            class="px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200 text-white/70 hover:text-white hover:bg-white/10"
-                        >
-                            Maintenance
-                        </button>
-                        <button 
-                            id="btn-coding-units" 
-                            onclick="setUnitStatusFilter('coding')"
-                            class="px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200 text-white/70 hover:text-white hover:bg-white/10"
-                        >
-                            Coding
-                        </button>
-                    </div>
                 </div>
             </div>
+
             
             <div class="flex-1 overflow-hidden flex flex-col min-h-0">
                 <!-- Compact Summary Stats -->
