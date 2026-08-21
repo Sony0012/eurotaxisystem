@@ -145,6 +145,365 @@
         // Inject initial stats for JS to prevent flickering on load
         window.__INITIAL_STATS__ = @json($stats);
         window.__INITIAL_MAINTENANCE__ = @json($initial_maintenance ?? null);
+
+        window.showMaintenanceUnitsModal = function showMaintenanceUnitsModal() {
+            const modal = document.getElementById('maintenanceUnitsModal');
+            if (modal) modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            
+            window.currentMaintenanceFilter = 'all';
+            window.updateMaintenanceFilterUI('all');
+            
+            if (window.__INITIAL_MAINTENANCE__) {
+                window.displayMaintenanceUnitsData(window.__INITIAL_MAINTENANCE__);
+            }
+            
+            window.loadMaintenanceUnitsData();
+        };
+
+        window.hideMaintenanceUnitsModal = function hideMaintenanceUnitsModal() {
+            const modal = document.getElementById('maintenanceUnitsModal');
+            if (modal) modal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        };
+
+        window.showMaintenanceDetailsModal = function showMaintenanceDetailsModal(maintenanceId) {
+            if (!maintenanceId) return;
+            const unitList = window.originalMaintenanceData || (window.__INITIAL_MAINTENANCE__ && window.__INITIAL_MAINTENANCE__.units) || [];
+            const unit = unitList.find(u => u.maintenance_id == maintenanceId || u.id == maintenanceId);
+            if (!unit) return;
+
+            const setSafe = (id, val) => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                const span = el.querySelector('span');
+                if (span) span.textContent = val;
+                else el.textContent = val;
+            };
+
+            setSafe('mdm-plate', unit.plate_number || 'N/A');
+            setSafe('mdm-type', (unit.maintenance_type || 'Maintenance').toUpperCase());
+            setSafe('mdm-start-date', unit.start_date || 'N/A');
+            setSafe('mdm-end-date', unit.estimated_completion || 'TBD');
+            setSafe('mdm-mechanic', unit.mechanic_name || 'Not specified');
+            setSafe('mdm-driver', unit.driver_name || 'No driver assigned');
+            setSafe('mdm-total-cost', '₱' + (parseFloat(unit.maintenance_cost) || 0).toLocaleString('en-PH', {minimumFractionDigits: 2}));
+            setSafe('mdm-status-badge', (unit.maintenance_status || 'Ongoing').toUpperCase());
+            
+            const detailModal = document.getElementById('maintenanceDetailsModal');
+            if (detailModal) detailModal.classList.remove('hidden');
+            
+            const partsLoading = document.getElementById('mdm-parts-loading');
+            const partsList = document.getElementById('mdm-parts-list');
+            if (partsLoading) partsLoading.classList.remove('hidden');
+            if (partsList) {
+                partsList.classList.add('hidden');
+                partsList.innerHTML = '';
+            }
+
+            fetch(`/maintenance/${maintenanceId}/parts`, {
+                credentials: 'same-origin',
+                headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (partsLoading) partsLoading.classList.add('hidden');
+                if (partsList) {
+                    partsList.classList.remove('hidden');
+                    
+                    if (data.success && data.data && data.data.length > 0) {
+                        data.data.forEach(p => {
+                            const supplier = p.supplier ? `<span class="px-1.5 py-0.5 bg-gray-100 text-slate-500 rounded text-[9px] font-bold uppercase truncate max-w-[100px]" title="${p.supplier}">${p.supplier}</span>` : '';
+                            partsList.innerHTML += `
+                                <li class="px-4 py-3 flex justify-between items-start gap-3 hover:bg-orange-50/30 transition-colors">
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-sm font-semibold text-gray-800 truncate">${p.part_name}</p>
+                                        <div class="flex items-center gap-2 mt-1">
+                                            <span class="text-[10px] text-slate-500 font-bold bg-white border border-gray-200 px-1.5 py-0.5 rounded shadow-md shadow-slate-200/40">x${p.quantity}</span>
+                                            ${supplier}
+                                        </div>
+                                    </div>
+                                    <div class="text-right shrink-0">
+                                        <p class="text-sm font-bold text-orange-600">₱${(parseFloat(p.total) || 0).toLocaleString('en-PH', {minimumFractionDigits:2})}</p>
+                                        <p class="text-[9px] text-slate-400 font-medium">₱${(parseFloat(p.price) || 0).toLocaleString('en-PH', {minimumFractionDigits:2})} / ea</p>
+                                    </div>
+                                </li>
+                            `;
+                        });
+                    } else {
+                        partsList.innerHTML = `
+                            <li class="py-8 text-center">
+                                <div class="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-2">
+                                    <i data-lucide="package-x" class="w-5 h-5 text-slate-400"></i>
+                                </div>
+                                <p class="text-xs font-bold text-slate-500 uppercase tracking-widest">No specific parts listed</p>
+                                <p class="text-[10px] text-slate-400 mt-1">${unit.description || 'See description for details'}</p>
+                            </li>
+                        `;
+                    }
+                }
+                if (typeof lucide !== 'undefined') lucide.createIcons();
+            })
+            .catch(err => {
+                if (partsLoading) partsLoading.innerHTML = `<p class="text-xs text-red-500"><i data-lucide="alert-circle" class="w-4 h-4 inline mr-1"></i> Failed to load parts</p>`;
+                if (typeof lucide !== 'undefined') lucide.createIcons();
+            });
+        };
+
+        window.hideMaintenanceDetailsModal = function hideMaintenanceDetailsModal() {
+            const modal = document.getElementById('maintenanceDetailsModal');
+            if (modal) modal.classList.add('hidden');
+        };
+
+        window.updateMaintenanceFilterUI = function updateMaintenanceFilterUI(filter) {
+            const filters = ['all', 'preventive', 'corrective', 'emergency', 'complete'];
+            filters.forEach(f => {
+                const btn = document.getElementById('mFilter' + f.charAt(0).toUpperCase() + f.slice(1));
+                if (btn) {
+                    if (f === filter) {
+                        btn.classList.remove('text-white', 'hover:bg-white/10', 'font-medium');
+                        btn.classList.add('bg-white', 'text-orange-600', 'font-bold', 'shadow-md shadow-slate-200/40');
+                    } else {
+                        btn.classList.add('text-white', 'hover:bg-white/10', 'font-medium');
+                        btn.classList.remove('bg-white', 'text-orange-600', 'font-bold', 'shadow-md shadow-slate-200/40');
+                    }
+                }
+            });
+        };
+
+        window.setMaintenanceFilter = function setMaintenanceFilter(filter) {
+            window.currentMaintenanceFilter = filter;
+            window.updateMaintenanceFilterUI(filter);
+            window.loadMaintenanceUnitsData();
+        };
+
+        window.displayMaintenanceUnitsData = function displayMaintenanceUnitsData(data) {
+            const grid = document.getElementById('maintenanceGrid');
+            const units = (data && data.units) ? data.units : [];
+            const stats = (data && data.stats) ? data.stats : {};
+            const filter = window.currentMaintenanceFilter || 'all';
+            
+            const setTxt = (id, val) => {
+                const el = document.getElementById(id);
+                if (el) el.textContent = val;
+            };
+            setTxt('maintenanceUnitsCount', stats.total_maintenance || 0);
+            setTxt('preventiveMaintenanceCount', stats.preventive_maintenance || 0);
+            setTxt('correctiveMaintenanceCount', stats.corrective_maintenance || 0);
+            setTxt('emergencyMaintenanceCount', stats.emergency_maintenance || 0);
+            setTxt('completedTotalCount', stats.completed_total || 0);
+            
+            window.originalMaintenanceData = units;
+            window.maintenanceSortOrder = window.maintenanceSortOrder || 'desc';
+            
+            window.filterMaintenanceUnits();
+            
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        };
+
+        window.filterMaintenanceUnits = function filterMaintenanceUnits() {
+            const searchInput = document.getElementById('maintenanceSearchInput');
+            const searchTerm = searchInput ? (searchInput.value || '').toLowerCase() : '';
+            const filter = window.currentMaintenanceFilter || 'all';
+            
+            let filteredUnits = [...(window.originalMaintenanceData || [])];
+            
+            if (searchTerm) {
+                filteredUnits = filteredUnits.filter(unit => {
+                    const searchableText = [
+                        unit.plate_number || '',
+                        unit.maintenance_type || '',
+                        unit.maintenance_status || '',
+                        unit.description || '',
+                        unit.start_date || '',
+                        unit.end_date || '',
+                        unit.estimated_completion || ''
+                    ].join(' ').toLowerCase();
+                    
+                    return searchableText.includes(searchTerm);
+                });
+            }
+
+            filteredUnits.sort((a, b) => {
+                const dateA = new Date((filter === 'complete' ? a.end_date : a.start_date) || '1970-01-01');
+                const dateB = new Date((filter === 'complete' ? b.end_date : b.start_date) || '1970-01-01');
+                return dateB - dateA;
+            });
+            
+            window.currentFilteredMaintenanceData = filteredUnits;
+            window.renderMaintenanceUnits(filteredUnits);
+        };
+
+        window.renderMaintenanceUnits = function renderMaintenanceUnits(units) {
+            const grid = document.getElementById('maintenanceGrid');
+            if (!grid) return;
+            const filter = window.currentMaintenanceFilter || 'all';
+            
+            if (!units || units.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full text-center py-20">
+                        <div class="inline-flex flex-col items-center">
+                            <div class="p-4 bg-gray-100 rounded-full mb-4">
+                                <i data-lucide="wrench" class="w-8 h-8 text-slate-400"></i>
+                            </div>
+                            <span class="text-xl text-gray-600 font-semibold mb-2">No maintenance units found</span>
+                            <p class="text-sm text-slate-400">Try adjusting your search or filter</p>
+                        </div>
+                    </div>
+                `;
+                if (typeof lucide !== 'undefined') {
+                    lucide.createIcons();
+                }
+                return;
+            }
+            
+            grid.innerHTML = units.map(unit => {
+                const isComplete = filter === 'complete';
+                const mainDate = isComplete ? (unit.end_date || unit.start_date) : unit.start_date;
+                const statusColor = isComplete ? 'border-green-500' : 'border-orange-500';
+                const typeColor = isComplete ? 'text-green-600' : 'text-orange-600';
+                const iconBg = isComplete ? 'bg-green-100' : 'bg-orange-100';
+                const iconColor = isComplete ? 'text-green-600' : 'text-orange-600';
+                const costVal = parseFloat(unit.maintenance_cost) || 0;
+
+                return `
+                <div onclick="showMaintenanceDetailsModal(${unit.maintenance_id || unit.id || 0})" class="cursor-pointer bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden border-l-4 ${statusColor} hover:scale-102">
+                    <div class="p-4">
+                        <!-- Header -->
+                        <div class="flex items-start justify-between mb-3">
+                            <div class="flex items-center gap-3">
+                                <div class="p-2 ${iconBg} rounded-lg">
+                                    <i data-lucide="wrench" class="w-4 h-4 ${iconColor}"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-lg font-bold text-slate-800">${unit.plate_number || 'N/A'}</h4>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-lg font-bold ${typeColor}">${unit.maintenance_type || 'Unknown'}</div>
+                                <div class="text-xs text-slate-500">${mainDate || 'N/A'}</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Maintenance Details -->
+                        <div class="bg-gray-50 rounded-lg p-3 mb-3">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-sm font-medium text-slate-800">Status: ${unit.maintenance_status || 'Unknown'}</span>
+                                <span class="text-xs font-bold text-orange-600">${isComplete ? '₱' + costVal.toLocaleString('en-PH', {minimumFractionDigits: 2}) : (unit.estimated_completion ? 'Est: ' + unit.estimated_completion : '')}</span>
+                            </div>
+                            <div class="text-xs text-gray-600">
+                                <span class="font-medium">Description:</span> ${unit.description || 'No description available'}
+                            </div>
+                        </div>
+                        
+                        <!-- Footer -->
+                        <div class="flex items-center justify-between text-xs text-slate-500">
+                            <span class="flex items-center gap-1">
+                                <i data-lucide="calendar" class="w-3 h-3"></i>
+                                ${isComplete ? 'Completed: ' + (unit.end_date || 'N/A') : 'Started: ' + (unit.start_date || 'N/A')}
+                            </span>
+                            <span class="flex items-center gap-1">
+                                <i data-lucide="check-circle" class="w-3 h-3"></i>
+                                ${unit.maintenance_status || 'Unknown'}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            `;}).join('');
+            
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        };
+
+        window.loadMaintenanceUnitsData = async function loadMaintenanceUnitsData() {
+            const filter = window.currentMaintenanceFilter || 'all';
+            const url = `/api/maintenance-units?filter=${encodeURIComponent(filter)}&_t=${Date.now()}`;
+            
+            const grid = document.getElementById('maintenanceGrid');
+            if (grid && (!window.originalMaintenanceData || window.originalMaintenanceData.length === 0)) {
+                grid.innerHTML = `
+                    <div class="col-span-full text-center py-16">
+                        <div class="inline-flex flex-col items-center">
+                            <div class="animate-spin rounded-full h-12 w-12 border-4 border-orange-600 border-t-transparent mb-4"></div>
+                            <span class="text-lg text-gray-600 font-semibold mb-2">Loading maintenance data...</span>
+                            <p class="text-sm text-slate-400">Please wait while we fetch maintenance details</p>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            try {
+                const response = await fetch(url, {
+                    credentials: 'same-origin',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+                
+                const text = await response.text();
+                let data;
+                try {
+                    data = JSON.parse(text);
+                } catch (pe) {
+                    console.error('API returned non-JSON:', text);
+                    window.showMaintenanceError('Server returned invalid response format.');
+                    return;
+                }
+                
+                if (!response.ok || !data.success) {
+                    window.showMaintenanceError((data && data.message) || `Server Error (${response.status})`);
+                    return;
+                }
+                
+                window.displayMaintenanceUnitsData(data);
+            } catch (error) {
+                console.error('Error loading maintenance units data:', error);
+                window.showMaintenanceError(error.message || 'Error loading maintenance units data. Please try again.');
+            }
+        };
+
+        window.clearMaintenanceSearch = function clearMaintenanceSearch() {
+            const input = document.getElementById('maintenanceSearchInput');
+            if (input) input.value = '';
+            window.filterMaintenanceUnits();
+        };
+
+        window.showMaintenanceError = function showMaintenanceError(message, debugInfo = null) {
+            const grid = document.getElementById('maintenanceGrid');
+            if (!grid) return;
+            const debugHtml = debugInfo ? `
+                <div class="mt-4 p-3 bg-gray-100 rounded-lg text-xs">
+                    <h4 class="font-bold text-gray-700 mb-2">Debug Information:</h4>
+                    <pre class="text-gray-600 whitespace-pre-wrap">${JSON.stringify(debugInfo, null, 2)}</pre>
+                </div>
+            ` : '';
+            
+            grid.innerHTML = `
+                <div class="col-span-full text-center py-20">
+                    <div class="inline-flex flex-col items-center">
+                        <div class="p-4 bg-red-100 rounded-full mb-4">
+                            <i data-lucide="alert-circle" class="w-8 h-8 text-red-600"></i>
+                        </div>
+                        <span class="text-xl text-red-600 font-semibold mb-2">Error Loading Maintenance Data</span>
+                        <p class="text-sm text-slate-400 mb-4">${message}</p>
+                        <div class="flex gap-2">
+                            <button onclick="loadMaintenanceUnitsData()" class="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors">
+                                <i data-lucide="refresh-cw" class="w-4 h-4 inline mr-2"></i>
+                                Retry
+                            </button>
+                        </div>
+                        ${debugHtml}
+                    </div>
+                </div>
+            `;
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        };
     </script>
 
     <!-- Stats Grid -->
@@ -2055,443 +2414,7 @@
                 .catch(error => console.error('Error updating revenue trend:', error));
         }
 
-        // Maintenance Units Modal Functions
-        function showMaintenanceUnitsModal() {
-            const modal = document.getElementById('maintenanceUnitsModal');
-            if (modal) modal.classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
-            
-            // Set default filter to all
-            window.currentMaintenanceFilter = 'all';
-            updateMaintenanceFilterUI('all');
-            
-            // Instantly render preloaded maintenance data if available
-            if (window.__INITIAL_MAINTENANCE__ && (!window.originalMaintenanceData || window.originalMaintenanceData.length === 0)) {
-                displayMaintenanceUnitsData(window.__INITIAL_MAINTENANCE__);
-            }
-            
-            loadMaintenanceUnitsData();
-        }
-        
-        function hideMaintenanceUnitsModal() {
-            const modal = document.getElementById('maintenanceUnitsModal');
-            if (modal) modal.classList.add('hidden');
-            document.body.style.overflow = 'auto';
-        }
-        
-        function showMaintenanceDetailsModal(maintenanceId) {
-            if (!maintenanceId) return;
-            const unitList = window.originalMaintenanceData || [];
-            const unit = unitList.find(u => u.maintenance_id == maintenanceId || u.id == maintenanceId);
-            if (!unit) return;
 
-            const setSafe = (id, val) => {
-                const el = document.getElementById(id);
-                if (!el) return;
-                const span = el.querySelector('span');
-                if (span) span.textContent = val;
-                else el.textContent = val;
-            };
-
-            setSafe('mdm-plate', unit.plate_number || 'N/A');
-            setSafe('mdm-type', (unit.maintenance_type || 'Maintenance').toUpperCase());
-            setSafe('mdm-start-date', unit.start_date || 'N/A');
-            setSafe('mdm-end-date', unit.estimated_completion || 'TBD');
-            setSafe('mdm-mechanic', unit.mechanic_name || 'Not specified');
-            setSafe('mdm-driver', unit.driver_name || 'No driver assigned');
-            setSafe('mdm-total-cost', '₱' + (parseFloat(unit.maintenance_cost) || 0).toLocaleString('en-PH', {minimumFractionDigits: 2}));
-            setSafe('mdm-status-badge', (unit.maintenance_status || 'Ongoing').toUpperCase());
-            
-            const detailModal = document.getElementById('maintenanceDetailsModal');
-            if (detailModal) detailModal.classList.remove('hidden');
-            
-            const partsLoading = document.getElementById('mdm-parts-loading');
-            const partsList = document.getElementById('mdm-parts-list');
-            if (partsLoading) partsLoading.classList.remove('hidden');
-            if (partsList) {
-                partsList.classList.add('hidden');
-                partsList.innerHTML = '';
-            }
-
-            fetch(`/maintenance/${maintenanceId}/parts`, {
-                credentials: 'same-origin',
-                headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
-            })
-            .then(r => r.json())
-            .then(data => {
-                if (partsLoading) partsLoading.classList.add('hidden');
-                if (partsList) {
-                    partsList.classList.remove('hidden');
-                    
-                    if (data.success && data.data && data.data.length > 0) {
-                        data.data.forEach(p => {
-                            const supplier = p.supplier ? `<span class="px-1.5 py-0.5 bg-gray-100 text-slate-500 rounded text-[9px] font-bold uppercase truncate max-w-[100px]" title="${p.supplier}">${p.supplier}</span>` : '';
-                            partsList.innerHTML += `
-                                <li class="px-4 py-3 flex justify-between items-start gap-3 hover:bg-orange-50/30 transition-colors">
-                                    <div class="flex-1 min-w-0">
-                                        <p class="text-sm font-semibold text-gray-800 truncate">${p.part_name}</p>
-                                        <div class="flex items-center gap-2 mt-1">
-                                            <span class="text-[10px] text-slate-500 font-bold bg-white border border-gray-200 px-1.5 py-0.5 rounded shadow-md shadow-slate-200/40">x${p.quantity}</span>
-                                            ${supplier}
-                                        </div>
-                                    </div>
-                                    <div class="text-right shrink-0">
-                                        <p class="text-sm font-bold text-orange-600">₱${(parseFloat(p.total) || 0).toLocaleString('en-PH', {minimumFractionDigits:2})}</p>
-                                        <p class="text-[9px] text-slate-400 font-medium">₱${(parseFloat(p.price) || 0).toLocaleString('en-PH', {minimumFractionDigits:2})} / ea</p>
-                                    </div>
-                                </li>
-                            `;
-                        });
-                    } else {
-                        partsList.innerHTML = `
-                            <li class="py-8 text-center">
-                                <div class="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-2">
-                                    <i data-lucide="package-x" class="w-5 h-5 text-slate-400"></i>
-                                </div>
-                                <p class="text-xs font-bold text-slate-500 uppercase tracking-widest">No specific parts listed</p>
-                                <p class="text-[10px] text-slate-400 mt-1">${unit.description || 'See description for details'}</p>
-                            </li>
-                        `;
-                    }
-                }
-                if (typeof lucide !== 'undefined') lucide.createIcons();
-            })
-            .catch(err => {
-                if (partsLoading) partsLoading.innerHTML = `<p class="text-xs text-red-500"><i data-lucide="alert-circle" class="w-4 h-4 inline mr-1"></i> Failed to load parts</p>`;
-                if (typeof lucide !== 'undefined') lucide.createIcons();
-            });
-        }
-
-        function hideMaintenanceDetailsModal() {
-            const modal = document.getElementById('maintenanceDetailsModal');
-            if (modal) modal.classList.add('hidden');
-        }
-        
-        async function loadMaintenanceUnitsData() {
-            const filter = window.currentMaintenanceFilter || 'all';
-            const url = `/api/maintenance-units?filter=${encodeURIComponent(filter)}&_t=${Date.now()}`;
-            
-            const grid = document.getElementById('maintenanceGrid');
-            if (grid && (!window.originalMaintenanceData || window.originalMaintenanceData.length === 0)) {
-                grid.innerHTML = `
-                    <div class="col-span-full text-center py-16">
-                        <div class="inline-flex flex-col items-center">
-                            <div class="animate-spin rounded-full h-12 w-12 border-4 border-orange-600 border-t-transparent mb-4"></div>
-                            <span class="text-lg text-gray-600 font-semibold mb-2">Loading maintenance data...</span>
-                            <p class="text-sm text-slate-400">Please wait while we fetch maintenance details</p>
-                        </div>
-                    </div>
-                `;
-            }
-            
-            try {
-                const response = await fetch(url, {
-                    credentials: 'same-origin',
-                    headers: {
-                        'Accept': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                });
-                
-                const text = await response.text();
-                let data;
-                try {
-                    data = JSON.parse(text);
-                } catch (pe) {
-                    console.error('API returned non-JSON:', text);
-                    showMaintenanceError('Server returned invalid response format.');
-                    return;
-                }
-                
-                if (!response.ok || !data.success) {
-                    showMaintenanceError((data && data.message) || `Server Error (${response.status})`);
-                    return;
-                }
-                
-                displayMaintenanceUnitsData(data);
-            } catch (error) {
-                console.error('Error loading maintenance units data:', error);
-                showMaintenanceError(error.message || 'Error loading maintenance units data. Please try again.');
-            }
-        }
-        
-        function setMaintenanceFilter(filter) {
-            window.currentMaintenanceFilter = filter;
-            updateMaintenanceFilterUI(filter);
-            loadMaintenanceUnitsData();
-        }
-        
-        function updateMaintenanceFilterUI(filter) {
-            const filters = ['all', 'preventive', 'corrective', 'emergency', 'complete'];
-            filters.forEach(f => {
-                const btn = document.getElementById('mFilter' + f.charAt(0).toUpperCase() + f.slice(1));
-                if (btn) {
-                    if (f === filter) {
-                        btn.classList.remove('text-white', 'hover:bg-white/10', 'font-medium');
-                        btn.classList.add('bg-white', 'text-orange-600', 'font-bold', 'shadow-md shadow-slate-200/40');
-                    } else {
-                        btn.classList.add('text-white', 'hover:bg-white/10', 'font-medium');
-                        btn.classList.remove('bg-white', 'text-orange-600', 'font-bold', 'shadow-md shadow-slate-200/40');
-                    }
-                }
-            });
-        }
-        
-        function displayMaintenanceUnitsData(data) {
-            const grid = document.getElementById('maintenanceGrid');
-            const units = (data && data.units) ? data.units : [];
-            const stats = (data && data.stats) ? data.stats : {};
-            const filter = window.currentMaintenanceFilter || 'all';
-            
-            // Update summary stats (Global Overview)
-            const setTxt = (id, val) => {
-                const el = document.getElementById(id);
-                if (el) el.textContent = val;
-            };
-            setTxt('maintenanceUnitsCount', stats.total_maintenance || 0);
-            setTxt('preventiveMaintenanceCount', stats.preventive_maintenance || 0);
-            setTxt('correctiveMaintenanceCount', stats.corrective_maintenance || 0);
-            setTxt('emergencyMaintenanceCount', stats.emergency_maintenance || 0);
-            setTxt('completedTotalCount', stats.completed_total || 0);
-            
-            // Store original data for filtering
-            window.originalMaintenanceData = units;
-            window.maintenanceSortOrder = window.maintenanceSortOrder || 'desc';
-            
-            // Render maintenance units
-            filterMaintenanceUnits();
-            
-            // Re-initialize Lucide icons
-            if (typeof lucide !== 'undefined') {
-                lucide.createIcons();
-            }
-        }
-        
-        function renderMaintenanceUnits(units) {
-            const grid = document.getElementById('maintenanceGrid');
-            if (!grid) return;
-            const filter = window.currentMaintenanceFilter || 'all';
-            
-            if (!units || units.length === 0) {
-                grid.innerHTML = `
-                    <div class="col-span-full text-center py-20">
-                        <div class="inline-flex flex-col items-center">
-                            <div class="p-4 bg-gray-100 rounded-full mb-4">
-                                <i data-lucide="wrench" class="w-8 h-8 text-slate-400"></i>
-                            </div>
-                            <span class="text-xl text-gray-600 font-semibold mb-2">No maintenance units found</span>
-                            <p class="text-sm text-slate-400">Try adjusting your search or filter</p>
-                        </div>
-                    </div>
-                `;
-                if (typeof lucide !== 'undefined') {
-                    lucide.createIcons();
-                }
-                return;
-            }
-            
-            grid.innerHTML = units.map(unit => {
-                const isComplete = filter === 'complete';
-                const mainDate = isComplete ? (unit.end_date || unit.start_date) : unit.start_date;
-                const statusColor = isComplete ? 'border-green-500' : 'border-orange-500';
-                const typeColor = isComplete ? 'text-green-600' : 'text-orange-600';
-                const iconBg = isComplete ? 'bg-green-100' : 'bg-orange-100';
-                const iconColor = isComplete ? 'text-green-600' : 'text-orange-600';
-                const costVal = parseFloat(unit.maintenance_cost) || 0;
-
-                return `
-                <div onclick="showMaintenanceDetailsModal(${unit.maintenance_id})" class="cursor-pointer bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden border-l-4 ${statusColor} hover:scale-102">
-                    <div class="p-4">
-                        <!-- Header -->
-                        <div class="flex items-start justify-between mb-3">
-                            <div class="flex items-center gap-3">
-                                <div class="p-2 ${iconBg} rounded-lg">
-                                    <i data-lucide="wrench" class="w-4 h-4 ${iconColor}"></i>
-                                </div>
-                                <div>
-                                    <h4 class="text-lg font-bold text-slate-800">${unit.plate_number || 'N/A'}</h4>
-                                </div>
-                            </div>
-                            <div class="text-right">
-                                <div class="text-lg font-bold ${typeColor}">${unit.maintenance_type || 'Unknown'}</div>
-                                <div class="text-xs text-slate-500">${mainDate || 'N/A'}</div>
-                            </div>
-                        </div>
-                        
-                        <!-- Maintenance Details -->
-                        <div class="bg-gray-50 rounded-lg p-3 mb-3">
-                            <div class="flex items-center justify-between mb-2">
-                                <span class="text-sm font-medium text-slate-800">Status: ${unit.maintenance_status || 'Unknown'}</span>
-                                <span class="text-xs font-bold text-orange-600">${isComplete ? '₱' + costVal.toLocaleString('en-PH', {minimumFractionDigits: 2}) : (unit.estimated_completion ? 'Est: ' + unit.estimated_completion : '')}</span>
-                            </div>
-                            <div class="text-xs text-gray-600">
-                                <span class="font-medium">Description:</span> ${unit.description || 'No description available'}
-                            </div>
-                        </div>
-                        
-                        <!-- Footer -->
-                        <div class="flex items-center justify-between text-xs text-slate-500">
-                            <span class="flex items-center gap-1">
-                                <i data-lucide="calendar" class="w-3 h-3"></i>
-                                ${isComplete ? 'Completed: ' + (unit.end_date || 'N/A') : 'Started: ' + (unit.start_date || 'N/A')}
-                            </span>
-                            <span class="flex items-center gap-1">
-                                <i data-lucide="check-circle" class="w-3 h-3"></i>
-                                ${unit.maintenance_status || 'Unknown'}
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            `;}).join('');
-            
-            if (typeof lucide !== 'undefined') {
-                lucide.createIcons();
-            }
-        }
-        
-        function filterMaintenanceUnits() {
-            const searchInput = document.getElementById('maintenanceSearchInput');
-            const searchTerm = searchInput ? (searchInput.value || '').toLowerCase() : '';
-            const filter = window.currentMaintenanceFilter || 'all';
-            
-            let filteredUnits = [...(window.originalMaintenanceData || [])];
-            
-            // Apply search filter
-            if (searchTerm) {
-                filteredUnits = filteredUnits.filter(unit => {
-                    const searchableText = [
-                        unit.plate_number || '',
-                        unit.maintenance_type || '',
-                        unit.maintenance_status || '',
-                        unit.description || '',
-                        unit.start_date || '',
-                        unit.end_date || '',
-                        unit.estimated_completion || ''
-                    ].join(' ').toLowerCase();
-                    
-                    return searchableText.includes(searchTerm);
-                });
-            }
-
-            // Apply Sort Newest First (Backend already sorts, but search needs re-render)
-            filteredUnits.sort((a, b) => {
-                const dateA = new Date((filter === 'complete' ? a.end_date : a.start_date) || '1970-01-01');
-                const dateB = new Date((filter === 'complete' ? b.end_date : b.start_date) || '1970-01-01');
-                return dateB - dateA;
-            });
-            
-            window.currentFilteredMaintenanceData = filteredUnits;
-            renderMaintenanceUnits(filteredUnits);
-        }
-
-        // ToggleMaintenanceSort is now handled by buttons but keeping for compatibility if needed
-        function toggleMaintenanceSort() {
-            filterMaintenanceUnits();
-        }
-        
-        function clearMaintenanceSearch() {
-            document.getElementById('maintenanceSearchInput').value = '';
-            filterMaintenanceUnits();
-        }
-        
-        function showMaintenanceError(message, debugInfo = null) {
-            const grid = document.getElementById('maintenanceGrid');
-            const debugHtml = debugInfo ? `
-                <div class="mt-4 p-3 bg-gray-100 rounded-lg text-xs">
-                    <h4 class="font-bold text-gray-700 mb-2">Debug Information:</h4>
-                    <pre class="text-gray-600 whitespace-pre-wrap">${JSON.stringify(debugInfo, null, 2)}</pre>
-                </div>
-            ` : '';
-            
-            grid.innerHTML = `
-                <div class="col-span-full text-center py-20">
-                    <div class="inline-flex flex-col items-center">
-                        <div class="p-4 bg-red-100 rounded-full mb-4">
-                            <i data-lucide="alert-circle" class="w-8 h-8 text-red-600"></i>
-                        </div>
-                        <span class="text-xl text-gray-600 font-semibold mb-2">Error Loading Maintenance Data</span>
-                        <p class="text-sm text-slate-400 mb-4">${message}</p>
-                        <div class="flex gap-2">
-                            <button onclick="loadMaintenanceUnitsData()" class="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors">
-                                <i data-lucide="refresh-cw" class="w-4 h-4 inline mr-2"></i>
-                                Retry
-                            </button>
-                            <button onclick="testMaintenanceAPI()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                                <i data-lucide="bug" class="w-4 h-4 inline mr-2"></i>
-                                Test API
-                            </button>
-                        </div>
-                        ${debugHtml}
-                    </div>
-                </div>
-            `;
-            
-            // Re-initialize Lucide icons
-            if (typeof lucide !== 'undefined') {
-                lucide.createIcons();
-            }
-        }
-        
-        function testMaintenanceAPI() {
-            const grid = document.getElementById('maintenanceGrid');
-            grid.innerHTML = `
-                <div class="col-span-full text-center py-20">
-                    <div class="inline-flex flex-col items-center">
-                        <div class="p-4 bg-blue-100 rounded-full mb-4">
-                            <i data-lucide="bug" class="w-8 h-8 text-blue-600"></i>
-                        </div>
-                        <span class="text-xl text-gray-600 font-semibold mb-2">Testing API Connection</span>
-                        <p class="text-sm text-slate-400 mb-4">Checking API endpoint...</p>
-                        <div class="w-64 bg-gray-200 rounded-full h-2 mb-4">
-                            <div class="bg-blue-600 h-2 rounded-full animate-pulse" style="width: 60%"></div>
-                        </div>
-                    </div>
-                </div>
-            `;
-            
-            // Test the API endpoint
-            fetch('/api/maintenance-units')
-                .then(response => {
-                    return response.text();
-                })
-                .then(text => {
-                    try {
-                        const data = JSON.parse(text);
-                        showMaintenanceError('API Test Complete - Check Console for Details', {
-                            response_status: 'success',
-                            data_keys: Object.keys(data),
-                            data: data
-                        });
-                    } catch (parseError) {
-                        showMaintenanceError('API Test Complete - JSON Parse Error', {
-                            response_status: 'parse_error',
-                            raw_response: text.substring(0, 500) + (text.length > 500 ? '...' : ''),
-                            parse_error: parseError.message
-                        });
-                    }
-                })
-                .catch(error => {
-                    showMaintenanceError('API Test Complete - Fetch Error', {
-                        response_status: 'fetch_error',
-                        error: error.message,
-                        stack: error.stack
-                    });
-                });
-        }
-        window.showMaintenanceUnitsModal = showMaintenanceUnitsModal;
-        window.hideMaintenanceUnitsModal = hideMaintenanceUnitsModal;
-        window.showMaintenanceDetailsModal = showMaintenanceDetailsModal;
-        window.hideMaintenanceDetailsModal = hideMaintenanceDetailsModal;
-        window.loadMaintenanceUnitsData = loadMaintenanceUnitsData;
-        window.setMaintenanceFilter = setMaintenanceFilter;
-        window.updateMaintenanceFilterUI = updateMaintenanceFilterUI;
-        window.displayMaintenanceUnitsData = displayMaintenanceUnitsData;
-        window.renderMaintenanceUnits = renderMaintenanceUnits;
-        window.filterMaintenanceUnits = filterMaintenanceUnits;
-        window.toggleMaintenanceSort = toggleMaintenanceSort;
-        window.clearMaintenanceSearch = clearMaintenanceSearch;
-        window.showMaintenanceError = showMaintenanceError;
-        window.testMaintenanceAPI = testMaintenanceAPI;
 
         // Active Drivers Modal Functions
         function showActiveDriversModal() {
