@@ -2656,78 +2656,76 @@
     </script>
     @endauth
 
-    {{-- Global Page Loader Overlay (Smooth SVG Euro Self-Drawing Loader) --}}
+    {{-- Global Page Loader Overlay (GPU-Accelerated Ultra-Smooth Euro Loader) --}}
     <div id="globalPageLoader"
-         class="fixed inset-0 z-[999998] bg-slate-950/80 backdrop-blur-md flex flex-col items-center justify-center transition-opacity duration-200 opacity-0 pointer-events-none select-none">
-        <div class="flex flex-col items-center justify-center gap-4">
-            <div class="relative flex items-center justify-center w-28 h-28">
-                <!-- Glowing Center Logo Image -->
-                <img src="{{ asset('favicon_euro_transparent.png') }}" class="absolute w-14 h-14 object-contain opacity-40 animate-pulse drop-shadow-[0_0_12px_rgba(234,179,8,0.6)]" alt="Euro Taxi">
+         class="fixed inset-0 z-[999998] bg-slate-950/85 backdrop-blur-sm flex flex-col items-center justify-center transition-opacity duration-200 opacity-0 pointer-events-none select-none"
+         style="will-change: opacity; transform: translateZ(0);">
+        <div class="flex flex-col items-center justify-center gap-5">
+            <!-- GPU-Accelerated Spinner & Logo Container -->
+            <div class="relative flex items-center justify-center w-24 h-24">
+                <!-- Outer Smooth Spinning Halo (GPU Compositor Thread) -->
+                <div class="absolute inset-0 rounded-full border-[3px] border-amber-500/20 border-t-amber-400 border-r-yellow-500 euro-gpu-spin shadow-[0_0_20px_rgba(234,179,8,0.35)]"></div>
                 
-                <!-- Smooth Self-Drawing Euro SVG Paths -->
-                <svg class="w-28 h-28 relative z-10" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                    <path class="euro-stroke euro-arc" d="M 72 22 A 36 36 0 1 0 72 78" />
-                    <path class="euro-stroke euro-bar1" d="M 18 42 L 68 42" />
-                    <path class="euro-stroke euro-bar2" d="M 18 58 L 62 58" />
-                </svg>
+                <!-- Inner Reverse Counter-Orbit Ring -->
+                <div class="absolute inset-2 rounded-full border-[2px] border-amber-400/10 border-b-amber-300 euro-gpu-spin-reverse"></div>
+
+                <!-- Glowing Euro Logo / Emblem in Center -->
+                <div class="relative z-10 flex items-center justify-center w-14 h-14 euro-gpu-pulse">
+                    <img src="{{ asset('favicon_euro_transparent.png') }}" class="w-12 h-12 object-contain drop-shadow-[0_0_14px_rgba(234,179,8,0.8)]" alt="Euro Taxi">
+                </div>
             </div>
             
-            <span class="text-xs font-black text-amber-400 tracking-widest uppercase text-shadow-md z-10" id="globalPageLoaderText">Loading...</span>
+            <!-- Animated Loading Text -->
+            <div class="flex items-center gap-1.5">
+                <span class="text-xs font-black text-amber-400 tracking-widest uppercase euro-text-glow" id="globalPageLoaderText">Loading...</span>
+            </div>
         </div>
     </div>
 
     <style>
-    /* ── Smooth Euro SVG Self-Drawing Animation (Uiverse.io Style) ── */
-    .euro-stroke {
-        fill: none;
-        stroke: #eab308; /* Euro Gold Yellow */
-        stroke-width: 7px;
-        stroke-linecap: round;
-        stroke-linejoin: round;
-        filter: drop-shadow(0 0 8px rgba(234, 179, 8, 0.9));
-        will-change: stroke-dashoffset;
+    /* ── GPU-Accelerated Hardware-Composited Loader Animations ── */
+    /* These properties run on the GPU Compositor thread and will NEVER stutter or freeze even when main thread is busy */
+    .euro-gpu-spin {
+        will-change: transform;
+        transform: translateZ(0);
+        animation: euroGpuRotate 0.95s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
     }
 
-    .euro-arc {
-        stroke-dasharray: 240;
-        stroke-dashoffset: 240;
-        animation: drawEuroArc 1.8s ease-in-out infinite;
+    .euro-gpu-spin-reverse {
+        will-change: transform;
+        transform: translateZ(0);
+        animation: euroGpuRotateReverse 1.5s linear infinite;
     }
 
-    .euro-bar1 {
-        stroke-dasharray: 80;
-        stroke-dashoffset: 80;
-        animation: drawEuroBar 1.8s ease-in-out infinite 0.12s;
+    .euro-gpu-pulse {
+        will-change: transform, opacity;
+        transform: translateZ(0);
+        animation: euroGpuBreathing 1.8s ease-in-out infinite;
     }
 
-    .euro-bar2 {
-        stroke-dasharray: 80;
-        stroke-dashoffset: 80;
-        animation: drawEuroBar 1.8s ease-in-out infinite 0.24s;
+    .euro-text-glow {
+        text-shadow: 0 0 10px rgba(234, 179, 8, 0.6), 0 0 20px rgba(234, 179, 8, 0.3);
+        animation: euroTextPulse 1.8s ease-in-out infinite;
     }
 
-    @keyframes drawEuroArc {
-        0% {
-            stroke-dashoffset: 240;
-        }
-        45%, 55% {
-            stroke-dashoffset: 0;
-        }
-        100% {
-            stroke-dashoffset: -240;
-        }
+    @keyframes euroGpuRotate {
+        0% { transform: rotate(0deg) translateZ(0); }
+        100% { transform: rotate(360deg) translateZ(0); }
     }
 
-    @keyframes drawEuroBar {
-        0% {
-            stroke-dashoffset: 80;
-        }
-        45%, 55% {
-            stroke-dashoffset: 0;
-        }
-        100% {
-            stroke-dashoffset: -80;
-        }
+    @keyframes euroGpuRotateReverse {
+        0% { transform: rotate(360deg) translateZ(0); }
+        100% { transform: rotate(0deg) translateZ(0); }
+    }
+
+    @keyframes euroGpuBreathing {
+        0%, 100% { transform: scale(1) translateZ(0); opacity: 0.9; }
+        50% { transform: scale(1.1) translateZ(0); opacity: 1; }
+    }
+
+    @keyframes euroTextPulse {
+        0%, 100% { opacity: 0.85; }
+        50% { opacity: 1; }
     }
     </style>
 
@@ -2738,7 +2736,7 @@
         let hideTimer = null;
         let isNavigating = false;
 
-        window.showGlobalLoader = function(text = 'Loading...', safetyTimeout = 15000) {
+        window.showGlobalLoader = function(text = 'Loading...', safetyTimeout = 12000) {
             if (!loader) return;
             if (loaderText) loaderText.textContent = text;
             loader.classList.remove('opacity-0', 'pointer-events-none');
@@ -2770,6 +2768,7 @@
             const href = link.getAttribute('href');
             if (!href || href === '#' || href.startsWith('javascript:') || href.startsWith('tel:') || href.startsWith('mailto:')) return;
             if (link.getAttribute('target') === '_blank' || link.hasAttribute('download') || link.dataset.noLoader === 'true') return;
+            if (link.hasAttribute('onclick') || link.getAttribute('role') === 'button' || link.dataset.tab) return;
             
             // Ignore modified clicks (new tab / window)
             if (e.ctrlKey || e.shiftKey || e.metaKey || e.altKey || e.button !== 0) return;
@@ -2778,26 +2777,35 @@
             try {
                 const targetUrl = new URL(link.href, window.location.origin);
                 if (targetUrl.origin === window.location.origin) {
+                    // Ignore file downloads
+                    if (/\.(pdf|csv|xlsx|xls|zip|rar|png|jpg|jpeg|gif|webp|svg|mp3|mp4|doc|docx)$/i.test(targetUrl.pathname)) {
+                        return;
+                    }
                     // If only anchor on same page, don't show loader
                     if (targetUrl.pathname === window.location.pathname && 
                         targetUrl.search === window.location.search && 
                         targetUrl.hash && targetUrl.hash !== '') {
                         return;
                     }
-                    isNavigating = true;
-                    showGlobalLoader('Loading...');
+                    // Check in next tick to make sure the click wasn't prevented
+                    setTimeout(() => {
+                        if (!e.defaultPrevented) {
+                            isNavigating = true;
+                            showGlobalLoader('Loading...');
+                        }
+                    }, 0);
                 }
             } catch (err) {
                 // Invalid URL, ignore
             }
-        }, { capture: true });
+        });
 
         // 2. Instant Form Submissions
         document.addEventListener('submit', function(e) {
             const form = e.target;
             if (form.getAttribute('target') === '_blank' || form.dataset.noLoader === 'true') return;
             showGlobalLoader('Processing...');
-        }, { capture: true });
+        });
 
         // 3. Browser beforeunload fallback
         window.addEventListener('beforeunload', function() {
@@ -2839,3 +2847,4 @@
 </body>
 
 </html>
+
