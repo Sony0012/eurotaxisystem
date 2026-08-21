@@ -762,64 +762,73 @@
 <div id="codingUnitsModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-6xl h-[95vh] flex flex-col overflow-hidden">
         <!-- Modal Header -->
-        <div class="p-4 border-b bg-gradient-to-r from-purple-600 via-pink-600 to-rose-600 flex-shrink-0">
-            <div class="flex items-center justify-between mb-3">
-                <div class="flex items-center gap-3">
-                    <div class="p-2 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30">
-                        <i data-lucide="code" class="w-6 h-6 text-white"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-xl font-bold text-white">Coding Units</h3>
-                        <p class="text-purple-100 text-xs font-medium">Complete coding unit management details</p>
-                    </div>
-                </div>
-                <button onclick="hideCodingUnitsModal()" class="text-white/80 hover:text-white hover:bg-white/20 p-2 rounded-lg transition-all duration-200 backdrop-blur-sm">
-                    <i data-lucide="x" class="w-5 h-5"></i>
-                </button>
+        <div class="relative p-4 border-b bg-gradient-to-r from-purple-600 via-pink-600 to-rose-600 flex-shrink-0 overflow-hidden">
+            <!-- Large Animated Shiny Background Text -->
+            <div class="absolute inset-0 flex items-center justify-center pointer-events-none select-none z-0 overflow-hidden" aria-hidden="true">
+                <h1 class="animated-shiny-units-text text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black uppercase tracking-[0.18em] whitespace-nowrap opacity-60">
+                    Coding Units
+                </h1>
             </div>
-            
-            <!-- Search and Date Filter -->
-            <div class="flex items-center gap-3">
-                <div class="relative flex-1">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <i data-lucide="search" class="w-4 h-4 text-white/60"></i>
+
+            <div class="relative z-10">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center gap-3">
+                        <div class="p-2 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30">
+                            <i data-lucide="code" class="w-6 h-6 text-white"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-white">Coding Units</h3>
+                            <p class="text-purple-100 text-xs font-medium">Complete coding unit management details</p>
+                        </div>
                     </div>
-                    <input type="search" 
-                        id="codingSearchInput"
-                        placeholder="Search by unit number, plate, or coding status..."
-                        class="w-full pl-10 pr-4 py-2 bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent transition-all duration-200 text-sm"
-                        oninput="filterCodingUnits()"
-                     autocomplete="new-password" spellcheck="false" autocorrect="off" autocapitalize="off" readonly onfocus="this.removeAttribute('readonly');">
-                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
-                        <button onclick="clearCodingSearch()" class="text-white/60 hover:text-white transition-colors">
-                            <i data-lucide="x-circle" class="w-4 h-4"></i>
+                    <button onclick="hideCodingUnitsModal()" class="text-white/80 hover:text-white hover:bg-white/20 p-2 rounded-lg transition-all duration-200 backdrop-blur-sm">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+                
+                <!-- Search and Date Filter -->
+                <div class="flex items-center gap-3">
+                    <div class="relative flex-1">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i data-lucide="search" class="w-4 h-4 text-white/60"></i>
+                        </div>
+                        <input type="search" 
+                            id="codingSearchInput"
+                            placeholder="Search by unit number, plate, or coding status..."
+                            class="w-full pl-10 pr-4 py-2 bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent transition-all duration-200 text-sm"
+                            oninput="filterCodingUnits()"
+                         autocomplete="new-password" spellcheck="false" autocorrect="off" autocapitalize="off" readonly onfocus="this.removeAttribute('readonly');">
+                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                            <button onclick="clearCodingSearch()" class="text-white/60 hover:text-white transition-colors">
+                                <i data-lucide="x-circle" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Coding Period Filters -->
+                    <div class="flex bg-white/10 backdrop-blur-sm border border-white/30 rounded-lg p-1">
+                        <button 
+                            id="btn-today-coding" 
+                            onclick="setCodingPeriod('today')"
+                            class="px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200 bg-white text-purple-700"
+                        >
+                            Today
+                        </button>
+                        <button 
+                            id="btn-tomorrow-coding" 
+                            onclick="setCodingPeriod('tomorrow')"
+                            class="px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200 text-white/70 hover:text-white hover:bg-white/10"
+                        >
+                            Tomorrow
+                        </button>
+                        <button 
+                            id="btn-past-coding" 
+                            onclick="setCodingPeriod('past')"
+                            class="px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200 text-white/70 hover:text-white hover:bg-white/10"
+                        >
+                            Past
                         </button>
                     </div>
-                </div>
-
-                <!-- Coding Period Filters -->
-                <div class="flex bg-white/10 backdrop-blur-sm border border-white/30 rounded-lg p-1">
-                    <button 
-                        id="btn-today-coding" 
-                        onclick="setCodingPeriod('today')"
-                        class="px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200 bg-white text-purple-700"
-                    >
-                        Today
-                    </button>
-                    <button 
-                        id="btn-tomorrow-coding" 
-                        onclick="setCodingPeriod('tomorrow')"
-                        class="px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200 text-white/70 hover:text-white hover:bg-white/10"
-                    >
-                        Tomorrow
-                    </button>
-                    <button 
-                        id="btn-past-coding" 
-                        onclick="setCodingPeriod('past')"
-                        class="px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200 text-white/70 hover:text-white hover:bg-white/10"
-                    >
-                        Past
-                    </button>
                 </div>
             </div>
         </div>
