@@ -1181,6 +1181,10 @@
     <script>
         // makeRequest — global AJAX helper used across all pages
         async function makeRequest(url, options = {}) {
+            const showLoader = options.showLoader;
+            if (showLoader && typeof window.showGlobalLoader === 'function') {
+                window.showGlobalLoader(typeof showLoader === 'string' ? showLoader : 'Loading...');
+            }
             try {
                 const response = await fetch(url, {
                     headers: {
@@ -1198,6 +1202,10 @@
             } catch (error) {
                 console.error('Request failed:', error);
                 throw error;
+            } finally {
+                if (showLoader && typeof window.hideGlobalLoader === 'function') {
+                    window.hideGlobalLoader();
+                }
             }
         }
 
@@ -2728,34 +2736,104 @@
         const loader = document.getElementById('globalPageLoader');
         const loaderText = document.getElementById('globalPageLoaderText');
         let hideTimer = null;
+        let isNavigating = false;
 
-        window.showGlobalLoader = function(text = 'Loading...') {
+        window.showGlobalLoader = function(text = 'Loading...', safetyTimeout = 15000) {
             if (!loader) return;
             if (loaderText) loaderText.textContent = text;
             loader.classList.remove('opacity-0', 'pointer-events-none');
             loader.classList.add('opacity-100', 'pointer-events-auto');
 
-            // Auto-hide after 2 seconds max so it never hangs
+            // Safety timeout so UI never permanently freezes on network drop
             if (hideTimer) clearTimeout(hideTimer);
-            hideTimer = setTimeout(window.hideGlobalLoader, 2000);
+            if (safetyTimeout > 0) {
+                hideTimer = setTimeout(window.hideGlobalLoader, safetyTimeout);
+            }
         };
 
         window.hideGlobalLoader = function() {
             if (!loader) return;
-            if (hideTimer) clearTimeout(hideTimer);
+            if (hideTimer) {
+                clearTimeout(hideTimer);
+                hideTimer = null;
+            }
+            isNavigating = false;
             loader.classList.remove('opacity-100', 'pointer-events-auto');
             loader.classList.add('opacity-0', 'pointer-events-none');
         };
 
-        // Trigger loader ONLY when browser confirms actual page unload navigation!
+        // 1. Instant Navigation on Link Clicks (Internal links)
+        document.addEventListener('click', function(e) {
+            const link = e.target.closest('a');
+            if (!link) return;
+
+            const href = link.getAttribute('href');
+            if (!href || href === '#' || href.startsWith('javascript:') || href.startsWith('tel:') || href.startsWith('mailto:')) return;
+            if (link.getAttribute('target') === '_blank' || link.hasAttribute('download') || link.dataset.noLoader === 'true') return;
+            
+            // Ignore modified clicks (new tab / window)
+            if (e.ctrlKey || e.shiftKey || e.metaKey || e.altKey || e.button !== 0) return;
+
+            // Check if same origin and actually navigating to a different page/search
+            try {
+                const targetUrl = new URL(link.href, window.location.origin);
+                if (targetUrl.origin === window.location.origin) {
+                    // If only anchor on same page, don't show loader
+                    if (targetUrl.pathname === window.location.pathname && 
+                        targetUrl.search === window.location.search && 
+                        targetUrl.hash && targetUrl.hash !== '') {
+                        return;
+                    }
+                    isNavigating = true;
+                    showGlobalLoader('Loading...');
+                }
+            } catch (err) {
+                // Invalid URL, ignore
+            }
+        }, { capture: true });
+
+        // 2. Instant Form Submissions
+        document.addEventListener('submit', function(e) {
+            const form = e.target;
+            if (form.getAttribute('target') === '_blank' || form.dataset.noLoader === 'true') return;
+            showGlobalLoader('Processing...');
+        }, { capture: true });
+
+        // 3. Browser beforeunload fallback
         window.addEventListener('beforeunload', function() {
-            showGlobalLoader('Loading...');
+            if (!isNavigating) {
+                showGlobalLoader('Loading...');
+            }
         });
 
-        // Hide loader when page finishes rendering or restores from cache
-        window.addEventListener('pageshow', hideGlobalLoader);
-        window.addEventListener('load', hideGlobalLoader);
-        document.addEventListener('DOMContentLoaded', hideGlobalLoader);
+        // 4. Smooth & Accurate Dismissal when new page finishes loading or restoring
+        function finishLoading() {
+            requestAnimationFrame(() => {
+                setTimeout(window.hideGlobalLoader, 80);
+            });
+        }
+
+        if (document.readyState === 'complete') {
+            finishLoading();
+        } else {
+            window.addEventListener('load', finishLoading);
+            document.addEventListener('DOMContentLoaded', finishLoading);
+        }
+
+        // 5. Back/Forward Cache & Navigation popstate support
+        window.addEventListener('pageshow', function(e) {
+            window.hideGlobalLoader();
+        });
+        window.addEventListener('popstate', function() {
+            window.hideGlobalLoader();
+        });
+
+        // 6. Escape key failsafe
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                window.hideGlobalLoader();
+            }
+        });
     })();
     </script>
 </body>
