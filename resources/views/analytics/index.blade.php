@@ -437,18 +437,20 @@
         {{-- ┌─────────────────────────────────────────────────────────────────────┐
              │  1. HERO BANNER – Hulaan ng Kita sa Susunod na Buwan               │
              └─────────────────────────────────────────────────────────────────────┘ --}}
-        <div class="relative z-20 bg-gradient-to-br from-indigo-900 via-indigo-800 to-slate-900 rounded-3xl overflow-hidden text-white shadow-2xl" style="min-height: 320px;">
+        <div id="prediction-hero-card" class="relative z-20 bg-gradient-to-br from-indigo-900 via-indigo-800 to-slate-900 rounded-3xl overflow-hidden text-white shadow-2xl" style="min-height: 320px;">
 
             {{-- Spline 3D Robot – absolute background on the right side --}}
-            <div class="absolute inset-0 pointer-events-none select-none overflow-hidden rounded-3xl" aria-hidden="true">
+            {{-- Outer div is pointer-events-none so UI content on top stays clickable --}}
+            <div class="absolute inset-0 select-none overflow-hidden rounded-3xl" style="pointer-events:none;" aria-hidden="true">
                 {{-- Subtle left-to-right gradient overlay so text stays readable --}}
-                <div class="absolute inset-0 bg-gradient-to-r from-indigo-900/95 via-indigo-900/70 to-transparent z-10"></div>
+                <div class="absolute inset-0 bg-gradient-to-r from-indigo-900/95 via-indigo-900/70 to-transparent" style="z-index:5; pointer-events:none;"></div>
 
-                {{-- Spline Viewer Web Component – fills the right ~60% of the card --}}
-                <div class="absolute right-0 top-0 h-full w-[60%]" style="z-index: 1;">
+                {{-- Spline Viewer – fills the right ~60% | pointer-events:auto so it receives mousemove --}}
+                <div id="spline-wrap" class="absolute right-0 top-0 h-full w-[60%]" style="z-index:1; pointer-events:auto;">
                     <spline-viewer
+                        id="spline-robot"
                         url="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
-                        style="width:100%;height:100%;display:block;pointer-events:none;"
+                        style="width:100%;height:100%;display:block;"
                         loading-anim-type="none">
                     </spline-viewer>
                 </div>
@@ -456,6 +458,38 @@
 
             {{-- Load the official Spline Viewer Web Component (no React, no npm, just works) --}}
             <script type="module" src="https://unpkg.com/@splinetool/viewer@1.9.96/build/spline-viewer.js"></script>
+
+            {{-- Cursor Relay: Listen on entire card and forward mousemove into the spline-viewer --}}
+            {{-- This lets the robot head follow the cursor even when hovering over the left-side text --}}
+            <script>
+            (function() {
+                const card = document.getElementById('prediction-hero-card');
+                const wrap = document.getElementById('spline-wrap');
+                if (!card || !wrap) return;
+
+                card.addEventListener('mousemove', function(e) {
+                    // Relay the event into the spline-viewer canvas so it gets mouse position
+                    const viewer = wrap.querySelector('spline-viewer');
+                    if (!viewer) return;
+
+                    // Find the internal canvas inside spline-viewer's shadow DOM
+                    const shadow = viewer.shadowRoot;
+                    const canvas = shadow ? shadow.querySelector('canvas') : null;
+                    if (canvas) {
+                        // Compute mouse position relative to the canvas
+                        const rect = canvas.getBoundingClientRect();
+                        const synth = new MouseEvent('mousemove', {
+                            clientX: e.clientX,
+                            clientY: e.clientY,
+                            bubbles: true,
+                            cancelable: true,
+                            view: window
+                        });
+                        canvas.dispatchEvent(synth);
+                    }
+                }, { passive: true });
+            })();
+            </script>
 
 
             <div class="relative z-20 p-8 md:p-12">
