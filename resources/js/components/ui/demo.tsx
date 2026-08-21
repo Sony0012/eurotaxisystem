@@ -1,5 +1,6 @@
-﻿import { Skiper31 } from "@/components/ui/text-scroll-animation";
+﻿import GradientBlobCard from "@/components/ui/gradient-bold-card";
 
 export default function DemoOne() {
-  return <Skiper31/>;
+  return <GradientBlobCard />;
 }
+
