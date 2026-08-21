@@ -2056,7 +2056,8 @@
 
         // Maintenance Units Modal Functions
         function showMaintenanceUnitsModal() {
-            document.getElementById('maintenanceUnitsModal').classList.remove('hidden');
+            const modal = document.getElementById('maintenanceUnitsModal');
+            if (modal) modal.classList.remove('hidden');
             document.body.style.overflow = 'hidden';
             
             // Set default filter to all
@@ -2067,88 +2068,101 @@
         }
         
         function hideMaintenanceUnitsModal() {
-            document.getElementById('maintenanceUnitsModal').classList.add('hidden');
+            const modal = document.getElementById('maintenanceUnitsModal');
+            if (modal) modal.classList.add('hidden');
             document.body.style.overflow = 'auto';
         }
         
         function showMaintenanceDetailsModal(maintenanceId) {
             if (!maintenanceId) return;
-            const unit = window.originalMaintenanceData.find(u => u.maintenance_id === maintenanceId);
+            const unitList = window.originalMaintenanceData || [];
+            const unit = unitList.find(u => u.maintenance_id == maintenanceId);
             if (!unit) return;
 
-            document.getElementById('mdm-plate').textContent = unit.plate_number;
-            document.getElementById('mdm-type').textContent = (unit.maintenance_type || 'Maintenance').toUpperCase();
-            
-            document.getElementById('mdm-start-date').querySelector('span').textContent = unit.start_date || 'N/A';
-            document.getElementById('mdm-end-date').querySelector('span').textContent = unit.estimated_completion || 'TBD';
+            const setSafe = (id, val) => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                const span = el.querySelector('span');
+                if (span) span.textContent = val;
+                else el.textContent = val;
+            };
 
-            document.getElementById('mdm-mechanic').querySelector('span').textContent = unit.mechanic_name || 'Not specified';
-            document.getElementById('mdm-driver').querySelector('span').textContent = unit.driver_name || 'No driver assigned';
+            setSafe('mdm-plate', unit.plate_number || 'N/A');
+            setSafe('mdm-type', (unit.maintenance_type || 'Maintenance').toUpperCase());
+            setSafe('mdm-start-date', unit.start_date || 'N/A');
+            setSafe('mdm-end-date', unit.estimated_completion || 'TBD');
+            setSafe('mdm-mechanic', unit.mechanic_name || 'Not specified');
+            setSafe('mdm-driver', unit.driver_name || 'No driver assigned');
+            setSafe('mdm-total-cost', '₱' + (parseFloat(unit.maintenance_cost) || 0).toLocaleString('en-PH', {minimumFractionDigits: 2}));
+            setSafe('mdm-status-badge', (unit.maintenance_status || 'Ongoing').toUpperCase());
             
-            document.getElementById('mdm-total-cost').textContent = '₱' + (parseFloat(unit.maintenance_cost) || 0).toLocaleString('en-PH', {minimumFractionDigits: 2});
+            const detailModal = document.getElementById('maintenanceDetailsModal');
+            if (detailModal) detailModal.classList.remove('hidden');
             
-            const statusBadge = document.getElementById('mdm-status-badge');
-            statusBadge.textContent = (unit.maintenance_status || 'Ongoing').toUpperCase();
-            
-            document.getElementById('maintenanceDetailsModal').classList.remove('hidden');
-            document.getElementById('mdm-parts-loading').classList.remove('hidden');
-            document.getElementById('mdm-parts-list').classList.add('hidden');
-            document.getElementById('mdm-parts-list').innerHTML = '';
+            const partsLoading = document.getElementById('mdm-parts-loading');
+            const partsList = document.getElementById('mdm-parts-list');
+            if (partsLoading) partsLoading.classList.remove('hidden');
+            if (partsList) {
+                partsList.classList.add('hidden');
+                partsList.innerHTML = '';
+            }
 
             fetch(`/maintenance/${maintenanceId}/parts`, {
                 headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
             })
             .then(r => r.json())
             .then(data => {
-                document.getElementById('mdm-parts-loading').classList.add('hidden');
-                const list = document.getElementById('mdm-parts-list');
-                list.classList.remove('hidden');
-                
-                if (data.success && data.data && data.data.length > 0) {
-                    data.data.forEach(p => {
-                        const supplier = p.supplier ? `<span class="px-1.5 py-0.5 bg-gray-100 text-slate-500 rounded text-[9px] font-bold uppercase truncate max-w-[100px]" title="${p.supplier}">${p.supplier}</span>` : '';
-                        list.innerHTML += `
-                            <li class="px-4 py-3 flex justify-between items-start gap-3 hover:bg-orange-50/30 transition-colors">
-                                <div class="flex-1 min-w-0">
-                                    <p class="text-sm font-semibold text-gray-800 truncate">${p.part_name}</p>
-                                    <div class="flex items-center gap-2 mt-1">
-                                        <span class="text-[10px] text-slate-500 font-bold bg-white border border-gray-200 px-1.5 py-0.5 rounded shadow-md shadow-slate-200/40">x${p.quantity}</span>
-                                        ${supplier}
+                if (partsLoading) partsLoading.classList.add('hidden');
+                if (partsList) {
+                    partsList.classList.remove('hidden');
+                    
+                    if (data.success && data.data && data.data.length > 0) {
+                        data.data.forEach(p => {
+                            const supplier = p.supplier ? `<span class="px-1.5 py-0.5 bg-gray-100 text-slate-500 rounded text-[9px] font-bold uppercase truncate max-w-[100px]" title="${p.supplier}">${p.supplier}</span>` : '';
+                            partsList.innerHTML += `
+                                <li class="px-4 py-3 flex justify-between items-start gap-3 hover:bg-orange-50/30 transition-colors">
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-sm font-semibold text-gray-800 truncate">${p.part_name}</p>
+                                        <div class="flex items-center gap-2 mt-1">
+                                            <span class="text-[10px] text-slate-500 font-bold bg-white border border-gray-200 px-1.5 py-0.5 rounded shadow-md shadow-slate-200/40">x${p.quantity}</span>
+                                            ${supplier}
+                                        </div>
                                     </div>
+                                    <div class="text-right shrink-0">
+                                        <p class="text-sm font-bold text-orange-600">₱${(parseFloat(p.total) || 0).toLocaleString('en-PH', {minimumFractionDigits:2})}</p>
+                                        <p class="text-[9px] text-slate-400 font-medium">₱${(parseFloat(p.price) || 0).toLocaleString('en-PH', {minimumFractionDigits:2})} / ea</p>
+                                    </div>
+                                </li>
+                            `;
+                        });
+                    } else {
+                        partsList.innerHTML = `
+                            <li class="py-8 text-center">
+                                <div class="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-2">
+                                    <i data-lucide="package-x" class="w-5 h-5 text-slate-400"></i>
                                 </div>
-                                <div class="text-right shrink-0">
-                                    <p class="text-sm font-bold text-orange-600">₱${(parseFloat(p.total) || 0).toLocaleString('en-PH', {minimumFractionDigits:2})}</p>
-                                    <p class="text-[9px] text-slate-400 font-medium">₱${(parseFloat(p.price) || 0).toLocaleString('en-PH', {minimumFractionDigits:2})} / ea</p>
-                                </div>
+                                <p class="text-xs font-bold text-slate-500 uppercase tracking-widest">No specific parts listed</p>
+                                <p class="text-[10px] text-slate-400 mt-1">${unit.description || 'See description for details'}</p>
                             </li>
                         `;
-                    });
-                } else {
-                    list.innerHTML = `
-                        <li class="py-8 text-center">
-                            <div class="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-2">
-                                <i data-lucide="package-x" class="w-5 h-5 text-slate-400"></i>
-                            </div>
-                            <p class="text-xs font-bold text-slate-500 uppercase tracking-widest">No specific parts listed</p>
-                            <p class="text-[10px] text-slate-400 mt-1">${unit.description || 'See description for details'}</p>
-                        </li>
-                    `;
+                    }
                 }
                 if (typeof lucide !== 'undefined') lucide.createIcons();
             })
             .catch(err => {
-                document.getElementById('mdm-parts-loading').innerHTML = `<p class="text-xs text-red-500"><i data-lucide="alert-circle" class="w-4 h-4 inline mr-1"></i> Failed to load parts</p>`;
+                if (partsLoading) partsLoading.innerHTML = `<p class="text-xs text-red-500"><i data-lucide="alert-circle" class="w-4 h-4 inline mr-1"></i> Failed to load parts</p>`;
                 if (typeof lucide !== 'undefined') lucide.createIcons();
             });
         }
 
         function hideMaintenanceDetailsModal() {
-            document.getElementById('maintenanceDetailsModal').classList.add('hidden');
+            const modal = document.getElementById('maintenanceDetailsModal');
+            if (modal) modal.classList.add('hidden');
         }
         
         async function loadMaintenanceUnitsData() {
             const filter = window.currentMaintenanceFilter || 'all';
-            const url = `/api/maintenance-units?filter=${filter}`;
+            const url = `/api/maintenance-units?filter=${encodeURIComponent(filter)}`;
             
             const grid = document.getElementById('maintenanceGrid');
             if (grid) {

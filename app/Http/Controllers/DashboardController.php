@@ -737,7 +737,7 @@ class DashboardController extends Controller
                 $unitsQuery->whereNull('u.deleted_at');
             }
 
-            $unitsQuery->leftJoin('drivers as d', 'u.driver_id', '=', 'd.id');
+            $unitsQuery->leftJoin('drivers as d', 'm.driver_id', '=', 'd.id');
 
             $select = [
                 'u.id',
