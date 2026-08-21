@@ -144,6 +144,7 @@
     <script>
         // Inject initial stats for JS to prevent flickering on load
         window.__INITIAL_STATS__ = @json($stats);
+        window.__INITIAL_MAINTENANCE__ = @json($initial_maintenance ?? null);
     </script>
 
     <!-- Stats Grid -->
@@ -2064,6 +2065,11 @@
             window.currentMaintenanceFilter = 'all';
             updateMaintenanceFilterUI('all');
             
+            // Instantly render preloaded maintenance data if available
+            if (window.__INITIAL_MAINTENANCE__ && (!window.originalMaintenanceData || window.originalMaintenanceData.length === 0)) {
+                displayMaintenanceUnitsData(window.__INITIAL_MAINTENANCE__);
+            }
+            
             loadMaintenanceUnitsData();
         }
         
@@ -2076,7 +2082,7 @@
         function showMaintenanceDetailsModal(maintenanceId) {
             if (!maintenanceId) return;
             const unitList = window.originalMaintenanceData || [];
-            const unit = unitList.find(u => u.maintenance_id == maintenanceId);
+            const unit = unitList.find(u => u.maintenance_id == maintenanceId || u.id == maintenanceId);
             if (!unit) return;
 
             const setSafe = (id, val) => {
@@ -2108,6 +2114,7 @@
             }
 
             fetch(`/maintenance/${maintenanceId}/parts`, {
+                credentials: 'same-origin',
                 headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
             })
             .then(r => r.json())
@@ -2162,10 +2169,10 @@
         
         async function loadMaintenanceUnitsData() {
             const filter = window.currentMaintenanceFilter || 'all';
-            const url = `/api/maintenance-units?filter=${encodeURIComponent(filter)}`;
+            const url = `/api/maintenance-units?filter=${encodeURIComponent(filter)}&_t=${Date.now()}`;
             
             const grid = document.getElementById('maintenanceGrid');
-            if (grid) {
+            if (grid && (!window.originalMaintenanceData || window.originalMaintenanceData.length === 0)) {
                 grid.innerHTML = `
                     <div class="col-span-full text-center py-16">
                         <div class="inline-flex flex-col items-center">
@@ -2179,6 +2186,7 @@
             
             try {
                 const response = await fetch(url, {
+                    credentials: 'same-origin',
                     headers: {
                         'Accept': 'application/json',
                         'X-Requested-With': 'XMLHttpRequest'

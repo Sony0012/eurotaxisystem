@@ -86,10 +86,14 @@ class DashboardController extends Controller
         // Top Drivers
         $top_drivers = $this->getTopDriversData();
 
+        // Initial Maintenance Data (for instant 0ms modal rendering)
+        $initial_maintenance = $this->fetchMaintenanceData('all');
+
         return view('dashboard', compact(
             'stats', 'alerts', 'revenue_trend', 'weekly_data', 
             'unit_status_data', 'unit_status_distribution_data', 
-            'unit_performance', 'expense_breakdown', 'top_drivers'
+            'unit_performance', 'expense_breakdown', 'top_drivers',
+            'initial_maintenance'
         ));
     }
 
@@ -701,157 +705,163 @@ class DashboardController extends Controller
     }
 
     /**
-     * Get units currently under maintenance or historical maintenance records.
+     * Fetch maintenance records and stats for both view preloading and API response
+     */
+    public function fetchMaintenanceData($filter = 'all')
+    {
+        $unitsQuery = DB::table('maintenance as m')
+            ->join('units as u', 'm.unit_id', '=', 'u.id');
+
+        if ($filter === 'complete' || $filter === 'completed') {
+            // Query historical completed maintenance records
+            $unitsQuery->whereIn(DB::raw('LOWER(m.status)'), ['completed', 'complete']);
+        } else {
+            // Base logic: All active maintenance records (Not completed/cancelled)
+            $unitsQuery->whereNotIn(DB::raw('LOWER(m.status)'), ['completed', 'complete', 'cancelled']);
+
+            // Filter by type if specified
+            if ($filter !== 'all') {
+                if ($filter === 'preventive') {
+                    $unitsQuery->where('m.maintenance_type', 'LIKE', '%preventive%');
+                } elseif ($filter === 'corrective') {
+                    $unitsQuery->where('m.maintenance_type', 'LIKE', '%corrective%');
+                } elseif ($filter === 'emergency') {
+                    $unitsQuery->where('m.maintenance_type', 'LIKE', '%emergency%');
+                }
+            }
+        }
+
+        if (Schema::hasColumn('maintenance', 'deleted_at')) {
+            $unitsQuery->whereNull('m.deleted_at');
+        }
+        if (Schema::hasColumn('units', 'deleted_at')) {
+            $unitsQuery->whereNull('u.deleted_at');
+        }
+
+        $unitsQuery->leftJoin('drivers as d', 'm.driver_id', '=', 'd.id');
+
+        $select = [
+            'u.id',
+            'u.plate_number',
+            'u.status',
+            'u.purchase_cost',
+            'u.boundary_rate',
+            'u.created_at',
+            DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')) as driver_name"),
+            'm.id as maintenance_id',
+            'm.maintenance_type',
+            'm.description',
+            'm.date_started as start_date',
+            'm.date_completed as end_date',
+            'm.status as maintenance_status',
+            'm.cost as maintenance_cost',
+            'm.mechanic_name',
+        ];
+
+        $maintenanceUnits = $unitsQuery
+            ->select($select)
+            ->when($filter === 'complete' || $filter === 'completed', function ($q) {
+                $q->orderBy('m.date_completed', 'desc');
+            }, function ($q) {
+                $q->orderBy('m.date_started', 'desc');
+            })
+            ->get()
+            ->map(function($unit) {
+                $startDate = data_get($unit, 'start_date');
+                $endDate = data_get($unit, 'end_date');
+                return [
+                    'id' => $unit->id,
+                    'plate_number' => $unit->plate_number,
+                    'status' => $unit->status,
+                    'driver_name' => $unit->driver_name,
+                    'maintenance_type' => $unit->maintenance_type ?: 'Maintenance',
+                    'description' => $unit->description ?: 'No description available',
+                    'start_date' => $startDate,
+                    'end_date' => $endDate,
+                    'estimated_completion' => $endDate,
+                    'maintenance_status' => $unit->maintenance_status ?: 'Ongoing',
+                    'maintenance_cost' => (float) ($unit->maintenance_cost ?? 0),
+                    'maintenance_id' => $unit->maintenance_id,
+                    'mechanic_name' => $unit->mechanic_name ?: 'Unknown',
+                    'purchase_cost' => (float) ($unit->purchase_cost ?? 0),
+                    'boundary_rate' => (float) ($unit->boundary_rate ?? 0)
+                ];
+            });
+
+        // Calculate Global Overview Stats based on MAINTENANCE records, not unit status
+        $statsQuery = DB::table('maintenance')
+            ->join('units', 'maintenance.unit_id', '=', 'units.id')
+            ->whereNotIn(DB::raw('LOWER(maintenance.status)'), ['completed', 'complete', 'cancelled']);
+
+        if (Schema::hasColumn('maintenance', 'deleted_at')) {
+            $statsQuery->whereNull('maintenance.deleted_at');
+        }
+        if (Schema::hasColumn('units', 'deleted_at')) {
+            $statsQuery->whereNull('units.deleted_at');
+        }
+
+        $mStats = $statsQuery->select([
+            DB::raw('COUNT(*) as total'),
+            DB::raw('SUM(CASE WHEN LOWER(maintenance.maintenance_type) LIKE "%preventive%" THEN 1 ELSE 0 END) as preventive'),
+            DB::raw('SUM(CASE WHEN LOWER(maintenance.maintenance_type) LIKE "%corrective%" THEN 1 ELSE 0 END) as corrective'),
+            DB::raw('SUM(CASE WHEN LOWER(maintenance.maintenance_type) LIKE "%emergency%" THEN 1 ELSE 0 END) as emergency'),
+        ])->first();
+
+        $completedQuery = DB::table('maintenance')
+            ->join('units', 'maintenance.unit_id', '=', 'units.id')
+            ->whereIn(DB::raw('LOWER(maintenance.status)'), ['completed', 'complete']);
+
+        if (Schema::hasColumn('maintenance', 'deleted_at')) {
+            $completedQuery->whereNull('maintenance.deleted_at');
+        }
+        if (Schema::hasColumn('units', 'deleted_at')) {
+            $completedQuery->whereNull('units.deleted_at');
+        }
+
+        $completedCount = $completedQuery->count();
+
+        $avgMaintenanceDays = 0;
+        $unitsWithValidDates = $maintenanceUnits->filter(function($unit) {
+            return !empty($unit['start_date']) && !empty($unit['end_date']) && strtotime($unit['start_date']) && strtotime($unit['end_date']);
+        });
+        if ($unitsWithValidDates->count() > 0) {
+            $avgMaintenanceDays = $unitsWithValidDates->map(function($unit) {
+                try {
+                    return abs(Carbon::parse($unit['end_date'])->diffInDays(Carbon::parse($unit['start_date'])));
+                } catch (\Throwable $t) {
+                    return 0;
+                }
+            })->avg() ?? 0;
+        }
+
+        $stats = [
+            'total_maintenance' => (int) ($mStats->total ?? 0),
+            'preventive_maintenance' => (int) ($mStats->preventive ?? 0),
+            'corrective_maintenance' => (int) ($mStats->corrective ?? 0),
+            'emergency_maintenance' => (int) ($mStats->emergency ?? 0),
+            'completed_total' => (int) ($completedCount ?? 0),
+            'avg_maintenance_days' => round((float) $avgMaintenanceDays, 1),
+            'total_maintenance_cost' => (float) $maintenanceUnits->sum('maintenance_cost')
+        ];
+
+        return [
+            'units' => $maintenanceUnits,
+            'stats' => $stats,
+            'filter_applied' => $filter,
+            'data_source' => 'real_database',
+            'last_updated' => now()->toDateTimeString()
+        ];
+    }
+
+    /**
+     * Get units currently under maintenance or historical maintenance records via API.
      */
     public function getMaintenanceUnits(Request $request)
     {
         try {
-            $filter = $request->query('filter', 'all'); // 'all', 'preventive', 'complete'
-
-            $unitsQuery = DB::table('maintenance as m')
-                ->join('units as u', 'm.unit_id', '=', 'u.id');
-
-            if ($filter === 'complete' || $filter === 'completed') {
-                // Query historical completed maintenance records
-                $unitsQuery->whereIn(DB::raw('LOWER(m.status)'), ['completed', 'complete']);
-            } else {
-                // Base logic: All active maintenance records (Not completed/cancelled)
-                $unitsQuery->whereNotIn(DB::raw('LOWER(m.status)'), ['completed', 'complete', 'cancelled']);
-
-                // Filter by type if specified
-                if ($filter !== 'all') {
-                    if ($filter === 'preventive') {
-                        $unitsQuery->where('m.maintenance_type', 'LIKE', '%preventive%');
-                    } elseif ($filter === 'corrective') {
-                        $unitsQuery->where('m.maintenance_type', 'LIKE', '%corrective%');
-                    } elseif ($filter === 'emergency') {
-                        $unitsQuery->where('m.maintenance_type', 'LIKE', '%emergency%');
-                    }
-                }
-            }
-
-            if (Schema::hasColumn('maintenance', 'deleted_at')) {
-                $unitsQuery->whereNull('m.deleted_at');
-            }
-            if (Schema::hasColumn('units', 'deleted_at')) {
-                $unitsQuery->whereNull('u.deleted_at');
-            }
-
-            $unitsQuery->leftJoin('drivers as d', 'm.driver_id', '=', 'd.id');
-
-            $select = [
-                'u.id',
-                'u.plate_number',
-                'u.status',
-                'u.purchase_cost',
-                'u.boundary_rate',
-                'u.created_at',
-                DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')) as driver_name"),
-                'm.id as maintenance_id',
-                'm.maintenance_type',
-                'm.description',
-                'm.date_started as start_date',
-                'm.date_completed as end_date',
-                'm.status as maintenance_status',
-                'm.cost as maintenance_cost',
-                'm.mechanic_name',
-            ];
-
-            $maintenanceUnits = $unitsQuery
-                ->select($select)
-                ->when($filter === 'complete' || $filter === 'completed', function ($q) {
-                    $q->orderBy('m.date_completed', 'desc');
-                }, function ($q) {
-                    $q->orderBy('m.date_started', 'desc');
-                })
-                ->get()
-                ->map(function($unit) {
-                    $startDate = data_get($unit, 'start_date');
-                    $endDate = data_get($unit, 'end_date');
-                    return [
-                        'id' => $unit->id,
-                        'plate_number' => $unit->plate_number,
-                        'status' => $unit->status,
-                        'driver_name' => $unit->driver_name,
-                        'maintenance_type' => $unit->maintenance_type ?: 'Maintenance',
-                        'description' => $unit->description ?: 'No description available',
-                        'start_date' => $startDate,
-                        'end_date' => $endDate,
-                        'estimated_completion' => $endDate,
-                        'maintenance_status' => $unit->maintenance_status ?: 'Ongoing',
-                        'maintenance_cost' => (float) ($unit->maintenance_cost ?? 0),
-                        'maintenance_id' => $unit->maintenance_id,
-                        'mechanic_name' => $unit->mechanic_name ?: 'Unknown',
-                        'purchase_cost' => (float) ($unit->purchase_cost ?? 0),
-                        'boundary_rate' => (float) ($unit->boundary_rate ?? 0)
-                    ];
-                });
-
-            // Calculate Global Overview Stats based on MAINTENANCE records, not unit status
-            $statsQuery = DB::table('maintenance')
-                ->join('units', 'maintenance.unit_id', '=', 'units.id')
-                ->whereNotIn(DB::raw('LOWER(maintenance.status)'), ['completed', 'complete', 'cancelled']);
-
-            if (Schema::hasColumn('maintenance', 'deleted_at')) {
-                $statsQuery->whereNull('maintenance.deleted_at');
-            }
-            if (Schema::hasColumn('units', 'deleted_at')) {
-                $statsQuery->whereNull('units.deleted_at');
-            }
-
-            $mStats = $statsQuery->select([
-                DB::raw('COUNT(*) as total'),
-                DB::raw('SUM(CASE WHEN LOWER(maintenance.maintenance_type) LIKE "%preventive%" THEN 1 ELSE 0 END) as preventive'),
-                DB::raw('SUM(CASE WHEN LOWER(maintenance.maintenance_type) LIKE "%corrective%" THEN 1 ELSE 0 END) as corrective'),
-                DB::raw('SUM(CASE WHEN LOWER(maintenance.maintenance_type) LIKE "%emergency%" THEN 1 ELSE 0 END) as emergency'),
-            ])->first();
-
-            $completedQuery = DB::table('maintenance')
-                ->join('units', 'maintenance.unit_id', '=', 'units.id')
-                ->whereIn(DB::raw('LOWER(maintenance.status)'), ['completed', 'complete']);
-
-            if (Schema::hasColumn('maintenance', 'deleted_at')) {
-                $completedQuery->whereNull('maintenance.deleted_at');
-            }
-            if (Schema::hasColumn('units', 'deleted_at')) {
-                $completedQuery->whereNull('units.deleted_at');
-            }
-
-            $completedCount = $completedQuery->count();
-
-            $avgMaintenanceDays = 0;
-            $unitsWithValidDates = $maintenanceUnits->filter(function($unit) {
-                return !empty($unit['start_date']) && !empty($unit['end_date']) && strtotime($unit['start_date']) && strtotime($unit['end_date']);
-            });
-            if ($unitsWithValidDates->count() > 0) {
-                $avgMaintenanceDays = $unitsWithValidDates->map(function($unit) {
-                    try {
-                        return abs(Carbon::parse($unit['end_date'])->diffInDays(Carbon::parse($unit['start_date'])));
-                    } catch (\Throwable $t) {
-                        return 0;
-                    }
-                })->avg() ?? 0;
-            }
-
-            $stats = [
-                'total_maintenance' => (int) ($mStats->total ?? 0),
-                'preventive_maintenance' => (int) ($mStats->preventive ?? 0),
-                'corrective_maintenance' => (int) ($mStats->corrective ?? 0),
-                'emergency_maintenance' => (int) ($mStats->emergency ?? 0),
-                'completed_total' => (int) ($completedCount ?? 0),
-                'avg_maintenance_days' => round((float) $avgMaintenanceDays, 1),
-                'total_maintenance_cost' => (float) $maintenanceUnits->sum('maintenance_cost')
-            ];
-
-            return response()->json([
-                'success' => true,
-                'units' => $maintenanceUnits,
-                'stats' => $stats,
-                'filter_applied' => $filter,
-                'data_source' => 'real_database',
-                'last_updated' => now()->toDateTimeString()
-            ]);
-            
+            $filter = $request->query('filter', 'all');
+            $data = $this->fetchMaintenanceData($filter);
+            return response()->json(array_merge(['success' => true], $data));
         } catch (\Throwable $e) {
             Log::error('Error loading maintenance units: ' . $e->getMessage());
             return response()->json([
