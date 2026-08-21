@@ -458,32 +458,22 @@
             {{-- Spline Web Component loader --}}
             <script type="module" src="https://unpkg.com/@splinetool/viewer@1.9.96/build/spline-viewer.js"></script>
 
-            {{-- ── Cursor Relay & Watermark Removal ────────────────────────────── --}}
-            {{-- Polls until shadow-DOM canvas appears, then relays document-level   --}}
-            {{-- mousemove/pointermove and permanently hides the Spline watermark    --}}
+            {{-- ── Cursor Relay & Safe Watermark Removal ────────────────────────── --}}
             <script>
             (function() {
                 var _canvas = null;
 
-                function removeSplineLogo(shadow) {
+                function hideLogo(shadow) {
                     if (!shadow) return;
                     try {
-                        var existing = shadow.getElementById('hide-spline-logo-style');
-                        if (!existing) {
-                            var style = document.createElement('style');
-                            style.id = 'hide-spline-logo-style';
-                            style.textContent = '#logo, #spline-logo, a[href*="spline.design"], a[href*="spline"], .logo, [id*="logo"] { display: none !important; opacity: 0 !important; visibility: hidden !important; pointer-events: none !important; width: 0 !important; height: 0 !important; }';
-                            shadow.appendChild(style);
+                        var logo = shadow.querySelector('#logo');
+                        if (logo) {
+                            logo.style.display = 'none';
+                            logo.style.visibility = 'hidden';
+                            logo.style.opacity = '0';
+                            logo.style.pointerEvents = 'none';
                         }
-
-                        var logos = shadow.querySelectorAll('#logo, a[href*="spline"], #spline-logo');
-                        logos.forEach(function(el) {
-                            el.style.display = 'none';
-                            el.style.opacity = '0';
-                            el.style.pointerEvents = 'none';
-                            try { el.remove(); } catch(e) {}
-                        });
-                    } catch(err) {}
+                    } catch(e) {}
                 }
 
                 function attachRelay(canvas) {
@@ -525,7 +515,7 @@
 
                     var shadow = viewer.shadowRoot;
                     if (shadow) {
-                        removeSplineLogo(shadow);
+                        hideLogo(shadow);
                     }
 
                     var c = shadow ? shadow.querySelector('canvas') : null;
@@ -534,11 +524,21 @@
                     if (c) {
                         clearInterval(timer);
                         attachRelay(c);
-                        // Also remove logo once more after scene finishes loading
-                        if (shadow) removeSplineLogo(shadow);
-                        setTimeout(function() { if (viewer.shadowRoot) removeSplineLogo(viewer.shadowRoot); }, 1000);
-                        setTimeout(function() { if (viewer.shadowRoot) removeSplineLogo(viewer.shadowRoot); }, 3000);
+                        if (shadow) hideLogo(shadow);
+                        setTimeout(function() {
+                            if (viewer.shadowRoot) hideLogo(viewer.shadowRoot);
+                        }, 1000);
+                        setTimeout(function() {
+                            if (viewer.shadowRoot) hideLogo(viewer.shadowRoot);
+                        }, 2500);
                     }
+                }
+
+                var viewer = document.getElementById('spline-robot');
+                if (viewer) {
+                    viewer.addEventListener('load', function() {
+                        if (viewer.shadowRoot) hideLogo(viewer.shadowRoot);
+                    });
                 }
 
                 // Poll every 300ms, stop after 30s
