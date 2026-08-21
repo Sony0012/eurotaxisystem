@@ -38,36 +38,34 @@
         </div>
     </div>
 
-    {{-- ── Floating Capsule Navigation Tabs (No full-width white background bar) ── --}}
-    <div class="sticky top-4 z-40 flex justify-center mb-6 pointer-events-none" id="tabs-sticky-bar">
-        <div class="flex flex-wrap items-center gap-1.5 p-1.5 bg-white/90 backdrop-blur-xl rounded-2xl w-fit shadow-xl shadow-slate-900/10 border border-slate-200/80 pointer-events-auto ring-1 ring-black/5">
-            <button onclick="jumpToSection('pulse')" id="tab-pulse"
-                class="tab-btn px-5 py-2.5 rounded-xl text-xs font-black transition-all duration-300 flex items-center gap-2 bg-white text-indigo-700 shadow-sm border border-indigo-100 ring-1 ring-indigo-500/20">
-                <i data-lucide="activity" class="w-4 h-4 text-indigo-500"></i>
-                <span>Real-time Pulse</span>
-            </button>
-            <button onclick="jumpToSection('performance')" id="tab-performance"
-                class="tab-btn px-5 py-2.5 rounded-xl text-xs font-black transition-all duration-300 flex items-center gap-2 text-slate-500 hover:bg-white hover:text-slate-800 hover:shadow-sm">
-                <i data-lucide="bar-chart-3" class="w-4 h-4"></i>
-                <span>Descriptive Analytics</span>
-            </button>
-            <button onclick="jumpToSection('forecast')" id="tab-forecast"
-                class="tab-btn px-5 py-2.5 rounded-xl text-xs font-black transition-all duration-300 flex items-center gap-2 text-slate-500 hover:bg-white hover:text-slate-800 hover:shadow-sm">
-                <i data-lucide="trending-up" class="w-4 h-4"></i>
-                <span>Predictive Forecasting</span>
-            </button>
-            <button onclick="jumpToSection('strategy')" id="tab-strategy"
-                class="tab-btn px-5 py-2.5 rounded-xl text-xs font-black transition-all duration-300 flex items-center gap-2 text-slate-500 hover:bg-white hover:text-slate-800 hover:shadow-sm">
-                <i data-lucide="brain-circuit" class="w-4 h-4"></i>
-                <span>AI Strategic Insights</span>
-            </button>
-        </div>
+    {{-- ── Advanced Navigation Tabs ─────────────────────────────────────────── --}}
+    <div class="flex flex-wrap items-center gap-1.5 p-1.5 bg-slate-900/5 backdrop-blur-md rounded-2xl mb-8 w-fit mx-auto shadow-inner border border-slate-200/60" id="tabs-bar">
+        <button onclick="switchTab('pulse')" id="tab-pulse"
+            class="tab-btn px-5 py-2.5 rounded-xl text-xs font-black transition-all duration-300 flex items-center gap-2 bg-white text-indigo-700 shadow-sm border border-indigo-100 ring-1 ring-indigo-500/20">
+            <i data-lucide="activity" class="w-4 h-4 text-indigo-500"></i>
+            <span>Real-time Pulse</span>
+        </button>
+        <button onclick="switchTab('performance')" id="tab-performance"
+            class="tab-btn px-5 py-2.5 rounded-xl text-xs font-black transition-all duration-300 flex items-center gap-2 text-slate-500 hover:bg-white hover:text-slate-800 hover:shadow-sm">
+            <i data-lucide="bar-chart-3" class="w-4 h-4"></i>
+            <span>Descriptive Analytics</span>
+        </button>
+        <button onclick="switchTab('forecast')" id="tab-forecast"
+            class="tab-btn px-5 py-2.5 rounded-xl text-xs font-black transition-all duration-300 flex items-center gap-2 text-slate-500 hover:bg-white hover:text-slate-800 hover:shadow-sm">
+            <i data-lucide="trending-up" class="w-4 h-4"></i>
+            <span>Predictive Forecasting</span>
+        </button>
+        <button onclick="switchTab('strategy')" id="tab-strategy"
+            class="tab-btn px-5 py-2.5 rounded-xl text-xs font-black transition-all duration-300 flex items-center gap-2 text-slate-500 hover:bg-white hover:text-slate-800 hover:shadow-sm">
+            <i data-lucide="brain-circuit" class="w-4 h-4"></i>
+            <span>AI Strategic Insights</span>
+        </button>
     </div>
 
     {{-- ══════════════════════════════════════════════════════════════════════
          SECTION 1: OPERATIONAL PULSE (Real-time)
          ══════════════════════════════════════════════════════════════════════ --}}
-    <div id="section-pulse" class="space-y-8 scroll-mt-24 mb-20" style="perspective: 1200px;">
+    <div id="section-pulse" class="space-y-8">
         {{-- High Level Pulse Cards --}}
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" data-salubong-group="true" style="transform-style: preserve-3d;">
             {{-- Fleet Health --}}
@@ -269,7 +267,7 @@
     {{-- ══════════════════════════════════════════════════════════════════════
          SECTION 2: PERFORMANCE TRENDS (Historical)
          ══════════════════════════════════════════════════════════════════════ --}}
-    <div id="section-performance" class="space-y-8 scroll-mt-24 mb-20">
+    <div id="section-performance" class="hidden space-y-8">
 
         {{-- Revenue Heatmap Calendar --}}
         <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 mb-6">
@@ -434,7 +432,7 @@
     {{-- ══════════════════════════════════════════════════════════════════════
          SECTION 3: FUTURE FORECAST (Predictive)
          ══════════════════════════════════════════════════════════════════════ --}}
-    <div id="section-forecast" class="space-y-8 scroll-mt-24 mb-20">
+    <div id="section-forecast" class="hidden space-y-8">
 
         {{-- ┌─────────────────────────────────────────────────────────────────────┐
              │  1. HERO BANNER – Hulaan ng Kita sa Susunod na Buwan               │
@@ -1149,7 +1147,7 @@
     {{-- ══════════════════════════════════════════════════════════════════════
          SECTION 4: AI STRATEGIC SUPPORT
          ══════════════════════════════════════════════════════════════════════ --}}
-    <div id="section-strategy" class="space-y-8 scroll-mt-24 mb-20">
+    <div id="section-strategy" class="hidden space-y-8">
         {{-- AI Logic Container --}}
         <div class="bg-slate-900 rounded-[2.5rem] p-1 shadow-2xl overflow-hidden">
             <div class="bg-white rounded-[2.3rem] overflow-hidden">
@@ -1404,73 +1402,67 @@
 </div>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    // ── Unified 4-Tab Scroll-Driven Navigation & 3D Animation System ─────────
-    function jumpToSection(sectionId) {
-        const el = document.getElementById('section-' + sectionId);
-        const container = document.getElementById('appContentArea');
-        if (!el) return;
-        if (container) {
-            const containerRect = container.getBoundingClientRect();
-            const elRect = el.getBoundingClientRect();
-            const targetScrollTop = container.scrollTop + (elRect.top - containerRect.top) - 75;
-            container.scrollTo({ top: targetScrollTop, behavior: 'smooth' });
-        } else {
-            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-    }
+    // ── Tab Switching Logic: Show ONLY Selected Tab ──────────────────────────
+    function switchTab(tab) {
+        const sections = {
+            pulse: document.getElementById('section-pulse'),
+            performance: document.getElementById('section-performance'),
+            forecast: document.getElementById('section-forecast'),
+            strategy: document.getElementById('section-strategy')
+        };
 
-    function switchTab(sectionId) { jumpToSection(sectionId); }
+        const buttons = {
+            pulse: document.getElementById('tab-pulse'),
+            performance: document.getElementById('tab-performance'),
+            forecast: document.getElementById('tab-forecast'),
+            strategy: document.getElementById('tab-strategy')
+        };
 
-    const activeTabClasses   = ['bg-white', 'text-indigo-700', 'shadow-sm', 'border', 'border-indigo-100', 'ring-1', 'ring-indigo-500/20'];
-    const inactiveTabClasses = ['text-slate-500', 'hover:bg-white', 'hover:text-slate-800', 'hover:shadow-sm'];
+        const activeClasses   = ['bg-white', 'text-indigo-700', 'shadow-sm', 'border', 'border-indigo-100', 'ring-1', 'ring-indigo-500/20'];
+        const inactiveClasses = ['text-slate-500', 'hover:bg-white', 'hover:text-slate-800', 'hover:shadow-sm'];
 
-    function setActiveTab(sectionId) {
-        const tabIds = ['pulse', 'performance', 'forecast', 'strategy'];
-        tabIds.forEach(id => {
-            const btn = document.getElementById('tab-' + id);
-            if (!btn) return;
-            if (id === sectionId) {
-                btn.classList.remove(...inactiveTabClasses);
-                btn.classList.add(...activeTabClasses);
-            } else {
-                btn.classList.remove(...activeTabClasses);
-                btn.classList.add(...inactiveTabClasses);
+        // Hide all sections
+        Object.values(sections).forEach(s => {
+            if (s) {
+                s.classList.add('hidden');
+                s.classList.remove('animate-fadeIn');
             }
         });
-    }
 
-    // ── Real-Time Scroll Observer for Active Tab & 3D Section Animations ────
-    (function initScrollIntelligence() {
-        const sectionIds = ['pulse', 'performance', 'forecast', 'strategy'];
-
-        function onScroll() {
-            // Update active tab based on which section is currently on screen
-            for (let i = sectionIds.length - 1; i >= 0; i--) {
-                const el = document.getElementById('section-' + sectionIds[i]);
-                if (el) {
-                    const rect = el.getBoundingClientRect();
-                    if (rect.top <= 160) {
-                        setActiveTab(sectionIds[i]);
-                        break;
-                    }
-                }
+        // Reset all buttons
+        Object.values(buttons).forEach(btn => {
+            if (btn) {
+                btn.classList.remove(...activeClasses);
+                btn.classList.add(...inactiveClasses);
             }
+        });
+
+        // Show active section with smooth animation
+        if (sections[tab]) {
+            sections[tab].classList.remove('hidden');
+            sections[tab].classList.add('animate-fadeIn');
         }
 
-        const scrollTargets = [
-            window,
-            document,
-            document.body,
-            document.documentElement,
-            document.getElementById('appContentArea')
-        ].filter(Boolean);
+        // Highlight active button
+        if (buttons[tab]) {
+            buttons[tab].classList.remove(...inactiveClasses);
+            buttons[tab].classList.add(...activeClasses);
+        }
 
-        scrollTargets.forEach(t => t.addEventListener('scroll', onScroll, { passive: true }));
-        window.addEventListener('resize', onScroll, { passive: true });
-        
-        requestAnimationFrame(onScroll);
-        setTimeout(onScroll, 250);
-    })();
+        // Scroll smoothly to top
+        const container = document.getElementById('appContentArea');
+        if (container) {
+            container.scrollTo({ top: 0, behavior: 'smooth' });
+        } else {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Trigger chart resizes, wave drawings & number counters
+        window.dispatchEvent(new Event('resize'));
+        if (typeof initWaveObserver === 'function') {
+            setTimeout(initWaveObserver, 60);
+        }
+    }
 
     // ── 3D Card "Mag-Salubong" Scroll Animation Engine ────────────────────────
     // Replicates the Framer Motion CharacterV1/V2/V3 converging transforms on the actual cards
