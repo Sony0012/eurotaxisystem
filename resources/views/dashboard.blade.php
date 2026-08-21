@@ -772,23 +772,23 @@
 <div id="maintenanceUnitsModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-6xl h-[95vh] flex flex-col overflow-hidden">
         <!-- Modal Header -->
-        <div class="relative p-4 border-b bg-gradient-to-r from-orange-600 via-amber-600 to-yellow-600 flex-shrink-0 overflow-hidden">
-            <!-- Large Animated Shiny Background Text -->
-            <div class="absolute inset-0 flex items-center justify-center pointer-events-none select-none z-0 overflow-hidden px-4" aria-hidden="true">
-                <h1 class="animated-shiny-units-text text-base sm:text-xl md:text-3xl lg:text-4xl xl:text-[2.75rem] font-black uppercase tracking-wider whitespace-nowrap opacity-90">
+        <div class="relative pt-6 pb-4 px-5 sm:pt-7 sm:pb-5 sm:px-6 border-b bg-gradient-to-r from-orange-600 via-amber-600 to-yellow-600 flex-shrink-0 overflow-hidden">
+            <!-- Large Animated Shiny Background Text (Shifted up for clear full view) -->
+            <div class="absolute inset-x-0 top-1 sm:top-2 flex items-center justify-center pointer-events-none select-none z-0 overflow-hidden px-4" aria-hidden="true">
+                <h1 class="animated-shiny-units-text text-lg sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-black uppercase tracking-wider whitespace-nowrap opacity-90">
                     Units Under Maintenance
                 </h1>
             </div>
 
             <div class="relative z-10">
-                <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center justify-between mb-4 sm:mb-5">
                     <div class="flex items-center gap-3">
-                        <div class="p-2 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30">
+                        <div class="p-2.5 bg-white/20 backdrop-blur-sm rounded-xl border border-white/30">
                             <i data-lucide="wrench" class="w-6 h-6 text-white"></i>
                         </div>
                         <div>
-                            <h3 class="text-xl font-bold text-white">Units Under Maintenance</h3>
-                            <p class="text-orange-100 text-xs font-medium">Complete maintenance tracking details</p>
+                            <h3 class="text-xl font-bold text-white leading-tight">Units Under Maintenance</h3>
+                            <p class="text-orange-100 text-xs font-medium mt-0.5">Complete maintenance tracking details</p>
                         </div>
                     </div>
                     <button onclick="hideMaintenanceUnitsModal()" class="text-white/80 hover:text-white hover:bg-white/20 p-2 rounded-lg transition-all duration-200 backdrop-blur-sm">
@@ -1049,23 +1049,23 @@
 <div id="activeDriversModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-6xl h-[95vh] flex flex-col overflow-hidden">
         <!-- Modal Header -->
-        <div class="relative p-4 border-b bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 flex-shrink-0 overflow-hidden">
-            <!-- Large Animated Shiny Background Text -->
-            <div class="absolute inset-0 flex items-center justify-center pointer-events-none select-none z-0 overflow-hidden px-4" aria-hidden="true">
-                <h1 class="animated-shiny-units-text text-xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-black uppercase tracking-wider whitespace-nowrap opacity-90">
+        <div class="relative pt-6 pb-4 px-5 sm:pt-7 sm:pb-5 sm:px-6 border-b bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 flex-shrink-0 overflow-hidden">
+            <!-- Large Animated Shiny Background Text (Shifted up for clear full view) -->
+            <div class="absolute inset-x-0 top-1 sm:top-2 flex items-center justify-center pointer-events-none select-none z-0 overflow-hidden px-4" aria-hidden="true">
+                <h1 class="animated-shiny-units-text text-2xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black uppercase tracking-wider whitespace-nowrap opacity-90">
                     Active Drivers
                 </h1>
             </div>
 
             <div class="relative z-10">
-                <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center justify-between mb-4 sm:mb-5">
                     <div class="flex items-center gap-3">
-                        <div class="p-2 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30">
+                        <div class="p-2.5 bg-white/20 backdrop-blur-sm rounded-xl border border-white/30">
                             <i data-lucide="users" class="w-6 h-6 text-white"></i>
                         </div>
                         <div>
-                            <h3 class="text-xl font-bold text-white">Active Drivers</h3>
-                            <p class="text-blue-100 text-xs font-medium">Complete driver management details</p>
+                            <h3 class="text-xl font-bold text-white leading-tight">Active Drivers</h3>
+                            <p class="text-blue-100 text-xs font-medium mt-0.5">Complete driver management details</p>
                         </div>
                     </div>
                     <button onclick="hideActiveDriversModal()" class="text-white/80 hover:text-white hover:bg-white/20 p-2 rounded-lg transition-all duration-200 backdrop-blur-sm">
@@ -1192,23 +1192,23 @@
 <div id="codingUnitsModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-6xl h-[95vh] flex flex-col overflow-hidden">
         <!-- Modal Header -->
-        <div class="relative p-4 border-b bg-gradient-to-r from-purple-600 via-pink-600 to-rose-600 flex-shrink-0 overflow-hidden">
-            <!-- Large Animated Shiny Background Text -->
-            <div class="absolute inset-0 flex items-center justify-center pointer-events-none select-none z-0 overflow-hidden px-4" aria-hidden="true">
-                <h1 class="animated-shiny-units-text text-xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-black uppercase tracking-wider whitespace-nowrap opacity-90">
+        <div class="relative pt-6 pb-4 px-5 sm:pt-7 sm:pb-5 sm:px-6 border-b bg-gradient-to-r from-purple-600 via-pink-600 to-rose-600 flex-shrink-0 overflow-hidden">
+            <!-- Large Animated Shiny Background Text (Shifted up for clear full view) -->
+            <div class="absolute inset-x-0 top-1 sm:top-2 flex items-center justify-center pointer-events-none select-none z-0 overflow-hidden px-4" aria-hidden="true">
+                <h1 class="animated-shiny-units-text text-2xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black uppercase tracking-wider whitespace-nowrap opacity-90">
                     Coding Units
                 </h1>
             </div>
 
             <div class="relative z-10">
-                <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center justify-between mb-4 sm:mb-5">
                     <div class="flex items-center gap-3">
-                        <div class="p-2 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30">
+                        <div class="p-2.5 bg-white/20 backdrop-blur-sm rounded-xl border border-white/30">
                             <i data-lucide="code" class="w-6 h-6 text-white"></i>
                         </div>
                         <div>
-                            <h3 class="text-xl font-bold text-white">Coding Units</h3>
-                            <p class="text-purple-100 text-xs font-medium">Complete coding unit management details</p>
+                            <h3 class="text-xl font-bold text-white leading-tight">Coding Units</h3>
+                            <p class="text-purple-100 text-xs font-medium mt-0.5">Complete coding unit management details</p>
                         </div>
                     </div>
                     <button onclick="hideCodingUnitsModal()" class="text-white/80 hover:text-white hover:bg-white/20 p-2 rounded-lg transition-all duration-200 backdrop-blur-sm">
@@ -1324,23 +1324,23 @@
 <div id="netIncomeModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-6xl h-[95vh] flex flex-col overflow-hidden">
         <!-- Modal Header -->
-        <div class="relative p-4 border-b bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 flex-shrink-0 overflow-hidden">
-            <!-- Large Animated Shiny Background Text -->
-            <div class="absolute inset-0 flex items-center justify-center pointer-events-none select-none z-0 overflow-hidden px-4" aria-hidden="true">
-                <h1 class="animated-shiny-units-text text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-black uppercase tracking-wider whitespace-nowrap opacity-90">
+        <div class="relative pt-6 pb-4 px-5 sm:pt-7 sm:pb-5 sm:px-6 border-b bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 flex-shrink-0 overflow-hidden">
+            <!-- Large Animated Shiny Background Text (Shifted up for clear full view) -->
+            <div class="absolute inset-x-0 top-1 sm:top-2 flex items-center justify-center pointer-events-none select-none z-0 overflow-hidden px-4" aria-hidden="true">
+                <h1 class="animated-shiny-units-text text-xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-black uppercase tracking-wider whitespace-nowrap opacity-90">
                     Net Income Details
                 </h1>
             </div>
 
             <div class="relative z-10">
-                <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center justify-between mb-3 sm:mb-4">
                     <div class="flex items-center gap-3">
-                        <div class="p-2 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30">
+                        <div class="p-2.5 bg-white/20 backdrop-blur-sm rounded-xl border border-white/30">
                             <i data-lucide="trending-up" class="w-6 h-6 text-white"></i>
                         </div>
                         <div>
-                            <h3 class="text-xl font-bold text-white">Net Income Details</h3>
-                            <p class="text-green-100 text-xs font-medium">Complete income and expense breakdown</p>
+                            <h3 class="text-xl font-bold text-white leading-tight">Net Income Details</h3>
+                            <p class="text-green-100 text-xs font-medium mt-0.5">Complete income and expense breakdown</p>
                         </div>
                     </div>
                     <div class="flex items-center gap-2">
@@ -1487,23 +1487,23 @@
 <div id="expensesModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-6xl h-[95vh] flex flex-col overflow-hidden border border-white/20">
         <!-- Modal Header -->
-        <div class="relative p-6 border-b bg-gradient-to-r from-red-600 to-rose-700 flex-shrink-0 text-white overflow-hidden">
-            <!-- Large Animated Shiny Background Text -->
-            <div class="absolute inset-0 flex items-center justify-center pointer-events-none select-none z-0 overflow-hidden px-4" aria-hidden="true">
-                <h1 class="animated-shiny-units-text text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-black uppercase tracking-wider whitespace-nowrap opacity-90">
+        <div class="relative pt-6 pb-4 px-5 sm:pt-7 sm:pb-5 sm:px-6 border-b bg-gradient-to-r from-red-600 to-rose-700 flex-shrink-0 text-white overflow-hidden">
+            <!-- Large Animated Shiny Background Text (Shifted up for clear full view) -->
+            <div class="absolute inset-x-0 top-1 sm:top-2 flex items-center justify-center pointer-events-none select-none z-0 overflow-hidden px-4" aria-hidden="true">
+                <h1 class="animated-shiny-units-text text-xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-black uppercase tracking-wider whitespace-nowrap opacity-90">
                     Total Expenses Today
                 </h1>
             </div>
 
             <div class="relative z-10">
-                <div class="flex items-center justify-between">
+                <div class="flex items-center justify-between mb-3 sm:mb-4">
                     <div class="flex items-center gap-4">
                         <div class="p-2.5 bg-white/20 backdrop-blur-md rounded-xl border border-white/30 shadow-inner">
                             <i data-lucide="trending-down" class="w-7 h-7"></i>
                         </div>
                         <div>
                             <h3 class="text-2xl font-bold tracking-tight leading-none mb-1">Total Expenses Today</h3>
-                            <p class="text-red-100 text-[11px] font-bold uppercase tracking-widest opacity-80">Detailed expense records and computation</p>
+                            <p class="text-red-100 text-[11px] font-bold uppercase tracking-widest opacity-80 mt-0.5">Detailed expense records and computation</p>
                         </div>
                     </div>
                     <div class="flex items-center gap-3">
@@ -1631,23 +1631,23 @@
 <div id="dailyBoundaryModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-6xl h-[95vh] flex flex-col overflow-hidden">
         <!-- Modal Header -->
-        <div class="relative p-4 border-b bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 flex-shrink-0 overflow-hidden">
-            <!-- Large Animated Shiny Background Text -->
-            <div class="absolute inset-0 flex items-center justify-center pointer-events-none select-none z-0 overflow-hidden px-4" aria-hidden="true">
-                <h1 class="animated-shiny-units-text text-base sm:text-xl md:text-3xl lg:text-4xl xl:text-[2.75rem] font-black uppercase tracking-wider whitespace-nowrap opacity-90">
+        <div class="relative pt-6 pb-4 px-5 sm:pt-7 sm:pb-5 sm:px-6 border-b bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 flex-shrink-0 overflow-hidden">
+            <!-- Large Animated Shiny Background Text (Shifted up for clear full view) -->
+            <div class="absolute inset-x-0 top-1 sm:top-2 flex items-center justify-center pointer-events-none select-none z-0 overflow-hidden px-4" aria-hidden="true">
+                <h1 class="animated-shiny-units-text text-lg sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-black uppercase tracking-wider whitespace-nowrap opacity-90">
                     Daily Boundary Collections
                 </h1>
             </div>
 
             <div class="relative z-10">
-                <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center justify-between mb-4 sm:mb-5">
                     <div class="flex items-center gap-3">
-                        <div class="p-2 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30">
+                        <div class="p-2.5 bg-white/20 backdrop-blur-sm rounded-xl border border-white/30">
                             <i data-lucide="calendar" class="w-6 h-6 text-white"></i>
                         </div>
                         <div>
-                            <h3 class="text-xl font-bold text-white">Daily Boundary Collections</h3>
-                            <p class="text-green-100 text-xs font-medium">Complete boundary collection details</p>
+                            <h3 class="text-xl font-bold text-white leading-tight">Daily Boundary Collections</h3>
+                            <p class="text-green-100 text-xs font-medium mt-0.5">Complete boundary collection details</p>
                         </div>
                     </div>
                     <button onclick="hideDailyBoundaryModal()" class="text-white/80 hover:text-white hover:bg-white/20 p-2 rounded-lg transition-all duration-200 backdrop-blur-sm">
