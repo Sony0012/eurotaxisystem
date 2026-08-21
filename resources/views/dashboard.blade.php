@@ -102,18 +102,19 @@
         .card-hover::after {
             content: '';
             position: absolute;
-            left: 0;
             bottom: 0;
-            width: 100%;
-            height: 75px;
+            left: 0;
+            right: 0;
+            height: 55%;
             background-size: 100% 100%;
             background-repeat: no-repeat;
             opacity: 0;
             z-index: 0;
             pointer-events: none;
+            clip-path: polygon(0 0, 0% 0, 0% 100%, 0 100%);
         }
         .card-hover.in-view::after {
-            animation: drawChart 1s ease-out forwards !important;
+            animation: drawChart 1.2s cubic-bezier(0.22, 1, 0.36, 1) forwards !important;
         }
         .wave-blue::after { background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 100 50" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><polygon fill="rgba(59,130,246,0.15)" stroke="rgba(59,130,246,0.4)" stroke-width="1.5" vector-effect="non-scaling-stroke" stroke-linejoin="miter" points="0,50 0,35 15,20 30,30 45,10 60,25 75,5 90,15 100,0 100,50" /></svg>'); }
         .wave-emerald::after { background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 100 50" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><polygon fill="rgba(16,185,129,0.15)" stroke="rgba(16,185,129,0.4)" stroke-width="1.5" vector-effect="non-scaling-stroke" stroke-linejoin="miter" points="0,50 0,35 15,20 30,30 45,10 60,25 75,5 90,15 100,0 100,50" /></svg>'); }
@@ -153,6 +154,35 @@
         // Inject initial stats for JS to prevent flickering on load
         window.__INITIAL_STATS__ = @json($stats);
         window.__INITIAL_MAINTENANCE__ = @json($initial_maintenance ?? null);
+
+        // Intersection Observer for scroll-triggered wave animation (same as unit performance)
+        window.initWaveObserver = function() {
+            const cards = document.querySelectorAll('.card-hover');
+            if (!cards || cards.length === 0) return;
+
+            if ('IntersectionObserver' in window) {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('in-view');
+                        } else {
+                            entry.target.classList.remove('in-view');
+                        }
+                    });
+                }, { threshold: 0.1 });
+
+                cards.forEach(card => observer.observe(card));
+            } else {
+                cards.forEach(card => card.classList.add('in-view'));
+            }
+        };
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', window.initWaveObserver);
+        } else {
+            setTimeout(window.initWaveObserver, 50);
+        }
+        window.addEventListener('load', window.initWaveObserver);
 
         window.showMaintenanceUnitsModal = function showMaintenanceUnitsModal() {
             const modal = document.getElementById('maintenanceUnitsModal');
@@ -4653,28 +4683,5 @@
                 });
         }
 
-        // Intersection Observer for scroll-triggered wave animation
-        function initWaveObserver() {
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('in-view');
-                    } else {
-                        entry.target.classList.remove('in-view');
-                    }
-                });
-            }, { threshold: 0.15 });
-
-            document.querySelectorAll('.card-hover').forEach(card => {
-                observer.observe(card);
-            });
-        }
-
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initWaveObserver);
-        } else {
-            initWaveObserver();
-        }
-        window.addEventListener('load', initWaveObserver);
     </script>
 @endsection
