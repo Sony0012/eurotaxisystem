@@ -64,16 +64,6 @@
         </div>
     </div>
 
-    {{-- ── Floating Scroll-to-Explore Indicator ───────────────────────────── --}}
-    <div class="flex flex-col items-center justify-center py-2 mb-6 text-center select-none pointer-events-none">
-        <div class="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-slate-900/5 backdrop-blur-sm border border-slate-200/80 shadow-sm text-slate-600 text-xs font-black uppercase tracking-[0.2em]">
-            <i data-lucide="sparkles" class="w-4 h-4 text-indigo-500 animate-pulse"></i>
-            Scroll to explore Advanced Fleet Analytics
-            <i data-lucide="arrow-down" class="w-3.5 h-3.5 text-indigo-500 animate-bounce"></i>
-        </div>
-        <div class="mt-2 w-px h-7 bg-gradient-to-b from-indigo-500/60 to-transparent"></div>
-    </div>
-
     {{-- ══════════════════════════════════════════════════════════════════════
          SECTION 1: OPERATIONAL PULSE (Real-time)
          ══════════════════════════════════════════════════════════════════════ --}}
