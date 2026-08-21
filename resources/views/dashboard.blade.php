@@ -390,56 +390,65 @@
 <div id="maintenanceUnitsModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-6xl h-[95vh] flex flex-col overflow-hidden">
         <!-- Modal Header -->
-        <div class="p-4 border-b bg-gradient-to-r from-orange-600 via-amber-600 to-yellow-600 flex-shrink-0">
-            <div class="flex items-center justify-between mb-3">
-                <div class="flex items-center gap-3">
-                    <div class="p-2 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30">
-                        <i data-lucide="wrench" class="w-6 h-6 text-white"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-xl font-bold text-white">Units Under Maintenance</h3>
-                        <p class="text-orange-100 text-xs font-medium">Complete maintenance tracking details</p>
-                    </div>
-                </div>
-                <button onclick="hideMaintenanceUnitsModal()" class="text-white/80 hover:text-white hover:bg-white/20 p-2 rounded-lg transition-all duration-200 backdrop-blur-sm">
-                    <i data-lucide="x" class="w-5 h-5"></i>
-                </button>
+        <div class="relative p-4 border-b bg-gradient-to-r from-orange-600 via-amber-600 to-yellow-600 flex-shrink-0 overflow-hidden">
+            <!-- Large Animated Shiny Background Text -->
+            <div class="absolute inset-0 flex items-center justify-center pointer-events-none select-none z-0 overflow-hidden" aria-hidden="true">
+                <h1 class="animated-shiny-units-text text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black uppercase tracking-[0.18em] whitespace-nowrap opacity-60">
+                    Units Under Maintenance
+                </h1>
             </div>
-            
-            <!-- Search and Date Filter -->
-            <div class="flex items-center gap-3">
-                <div class="relative flex-1">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <i data-lucide="search" class="w-4 h-4 text-white/60"></i>
+
+            <div class="relative z-10">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center gap-3">
+                        <div class="p-2 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30">
+                            <i data-lucide="wrench" class="w-6 h-6 text-white"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-white">Units Under Maintenance</h3>
+                            <p class="text-orange-100 text-xs font-medium">Complete maintenance tracking details</p>
+                        </div>
                     </div>
-                    <input type="search" 
-                        id="maintenanceSearchInput"
-                        placeholder="Search by unit number, plate, or maintenance type..."
-                        class="w-full pl-10 pr-4 py-2 bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent transition-all duration-200 text-sm"
-                        onkeyup="filterMaintenanceUnits()"
-                     autocomplete="new-password" spellcheck="false" autocorrect="off" autocapitalize="off" readonly onfocus="this.removeAttribute('readonly');">
-                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
-                        <button onclick="clearMaintenanceSearch()" class="text-white/60 hover:text-white transition-colors">
-                            <i data-lucide="x-circle" class="w-4 h-4"></i>
+                    <button onclick="hideMaintenanceUnitsModal()" class="text-white/80 hover:text-white hover:bg-white/20 p-2 rounded-lg transition-all duration-200 backdrop-blur-sm">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+                
+                <!-- Search and Date Filter -->
+                <div class="flex items-center gap-3">
+                    <div class="relative flex-1">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i data-lucide="search" class="w-4 h-4 text-white/60"></i>
+                        </div>
+                        <input type="search" 
+                            id="maintenanceSearchInput"
+                            placeholder="Search by unit number, plate, or maintenance type..."
+                            class="w-full pl-10 pr-4 py-2 bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent transition-all duration-200 text-sm"
+                            onkeyup="filterMaintenanceUnits()"
+                         autocomplete="new-password" spellcheck="false" autocorrect="off" autocapitalize="off" readonly onfocus="this.removeAttribute('readonly');">
+                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                            <button onclick="clearMaintenanceSearch()" class="text-white/60 hover:text-white transition-colors">
+                                <i data-lucide="x-circle" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-1 bg-white/20 backdrop-blur-sm p-1 rounded-xl border border-white/30">
+                        <button onclick="setMaintenanceFilter('all')" id="mFilterAll" class="px-4 py-1.5 rounded-lg text-sm font-bold transition-all duration-200 bg-white text-orange-600 shadow-md shadow-slate-200/40">
+                            All
+                        </button>
+                        <button onclick="setMaintenanceFilter('preventive')" id="mFilterPreventive" class="px-4 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 text-white hover:bg-white/10">
+                            Preventive
+                        </button>
+                        <button onclick="setMaintenanceFilter('corrective')" id="mFilterCorrective" class="px-4 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 text-white hover:bg-white/10">
+                            Corrective
+                        </button>
+                        <button onclick="setMaintenanceFilter('emergency')" id="mFilterEmergency" class="px-4 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 text-white hover:bg-white/10">
+                            Emergency
+                        </button>
+                        <button onclick="setMaintenanceFilter('complete')" id="mFilterComplete" class="px-4 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 text-white hover:bg-white/10">
+                            Complete
                         </button>
                     </div>
-                </div>
-                <div class="flex items-center gap-1 bg-white/20 backdrop-blur-sm p-1 rounded-xl border border-white/30">
-                    <button onclick="setMaintenanceFilter('all')" id="mFilterAll" class="px-4 py-1.5 rounded-lg text-sm font-bold transition-all duration-200 bg-white text-orange-600 shadow-md shadow-slate-200/40">
-                        All
-                    </button>
-                    <button onclick="setMaintenanceFilter('preventive')" id="mFilterPreventive" class="px-4 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 text-white hover:bg-white/10">
-                        Preventive
-                    </button>
-                    <button onclick="setMaintenanceFilter('corrective')" id="mFilterCorrective" class="px-4 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 text-white hover:bg-white/10">
-                        Corrective
-                    </button>
-                    <button onclick="setMaintenanceFilter('emergency')" id="mFilterEmergency" class="px-4 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 text-white hover:bg-white/10">
-                        Emergency
-                    </button>
-                    <button onclick="setMaintenanceFilter('complete')" id="mFilterComplete" class="px-4 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 text-white hover:bg-white/10">
-                        Complete
-                    </button>
                 </div>
             </div>
         </div>
@@ -610,64 +619,73 @@
 <div id="activeDriversModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-6xl h-[95vh] flex flex-col overflow-hidden">
         <!-- Modal Header -->
-        <div class="p-4 border-b bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 flex-shrink-0">
-            <div class="flex items-center justify-between mb-3">
-                <div class="flex items-center gap-3">
-                    <div class="p-2 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30">
-                        <i data-lucide="users" class="w-6 h-6 text-white"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-xl font-bold text-white">Active Drivers</h3>
-                        <p class="text-blue-100 text-xs font-medium">Complete driver management details</p>
-                    </div>
-                </div>
-                <button onclick="hideActiveDriversModal()" class="text-white/80 hover:text-white hover:bg-white/20 p-2 rounded-lg transition-all duration-200 backdrop-blur-sm">
-                    <i data-lucide="x" class="w-5 h-5"></i>
-                </button>
+        <div class="relative p-4 border-b bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 flex-shrink-0 overflow-hidden">
+            <!-- Large Animated Shiny Background Text -->
+            <div class="absolute inset-0 flex items-center justify-center pointer-events-none select-none z-0 overflow-hidden" aria-hidden="true">
+                <h1 class="animated-shiny-units-text text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black uppercase tracking-[0.18em] whitespace-nowrap opacity-60">
+                    Active Drivers
+                </h1>
             </div>
-            
-            <!-- Search and Date Filter -->
-            <div class="flex items-center gap-3">
-                <div class="relative flex-1">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <i data-lucide="search" class="w-4 h-4 text-white/60"></i>
+
+            <div class="relative z-10">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center gap-3">
+                        <div class="p-2 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30">
+                            <i data-lucide="users" class="w-6 h-6 text-white"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-white">Active Drivers</h3>
+                            <p class="text-blue-100 text-xs font-medium">Complete driver management details</p>
+                        </div>
                     </div>
-                    <input type="search" 
-                        id="driversSearchInput"
-                        placeholder="Search by name, license, or contact..."
-                        class="w-full pl-10 pr-4 py-2 bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent transition-all duration-200 text-sm"
-                        onkeyup="filterActiveDrivers()"
-                     autocomplete="new-password" spellcheck="false" autocorrect="off" autocapitalize="off" readonly onfocus="this.removeAttribute('readonly');">
-                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
-                        <button onclick="clearDriversSearch()" class="text-white/60 hover:text-white transition-colors">
-                            <i data-lucide="x-circle" class="w-4 h-4"></i>
-                        </button>
-                    </div>
+                    <button onclick="hideActiveDriversModal()" class="text-white/80 hover:text-white hover:bg-white/20 p-2 rounded-lg transition-all duration-200 backdrop-blur-sm">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
                 </div>
                 
-                <button 
-                    onclick="toggleDriversSort()" 
-                    id="driversSortBtn"
-                    class="px-3 py-2 bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg text-white hover:bg-white/30 transition-all duration-200 text-sm flex items-center gap-2 min-w-[90px] justify-center"
-                >
-                    <i data-lucide="sort-asc" id="driversSortIcon" class="w-4 h-4"></i>
-                    <span id="driversSortText">A-Z</span>
-                </button>
+                <!-- Search and Date Filter -->
+                <div class="flex items-center gap-3">
+                    <div class="relative flex-1">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i data-lucide="search" class="w-4 h-4 text-white/60"></i>
+                        </div>
+                        <input type="search" 
+                            id="driversSearchInput"
+                            placeholder="Search by name, license, or contact..."
+                            class="w-full pl-10 pr-4 py-2 bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent transition-all duration-200 text-sm"
+                            onkeyup="filterActiveDrivers()"
+                         autocomplete="new-password" spellcheck="false" autocorrect="off" autocapitalize="off" readonly onfocus="this.removeAttribute('readonly');">
+                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                            <button onclick="clearDriversSearch()" class="text-white/60 hover:text-white transition-colors">
+                                <i data-lucide="x-circle" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <button 
+                        onclick="toggleDriversSort()" 
+                        id="driversSortBtn"
+                        class="px-3 py-2 bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg text-white hover:bg-white/30 transition-all duration-200 text-sm flex items-center gap-2 min-w-[90px] justify-center"
+                    >
+                        <i data-lucide="sort-asc" id="driversSortIcon" class="w-4 h-4"></i>
+                        <span id="driversSortText">A-Z</span>
+                    </button>
 
-                <!-- Category Filter Buttons -->
-                <div class="hidden md:flex items-center gap-1 bg-white/20 backdrop-blur-sm p-1 rounded-xl border border-white/30">
-                    <button onclick="setDriversFilter('all')" id="dFilterAll" class="px-4 py-1.5 rounded-lg text-sm font-bold transition-all duration-200 bg-white text-blue-600 shadow-md shadow-slate-200/40">
-                        All
-                    </button>
-                    <button onclick="setDriversFilter('vacant')" id="dFilterVacant" class="px-4 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 text-white hover:bg-white/10">
-                        Vacant
-                    </button>
-                    <button onclick="setDriversFilter('active')" id="dFilterActive" class="px-4 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 text-white hover:bg-white/10">
-                        Active
-                    </button>
-                    <button onclick="setDriversFilter('top')" id="dFilterTop" class="px-4 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 text-white hover:bg-white/10">
-                        Top Performers
-                    </button>
+                    <!-- Category Filter Buttons -->
+                    <div class="hidden md:flex items-center gap-1 bg-white/20 backdrop-blur-sm p-1 rounded-xl border border-white/30">
+                        <button onclick="setDriversFilter('all')" id="dFilterAll" class="px-4 py-1.5 rounded-lg text-sm font-bold transition-all duration-200 bg-white text-blue-600 shadow-md shadow-slate-200/40">
+                            All
+                        </button>
+                        <button onclick="setDriversFilter('vacant')" id="dFilterVacant" class="px-4 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 text-white hover:bg-white/10">
+                            Vacant
+                        </button>
+                        <button onclick="setDriversFilter('active')" id="dFilterActive" class="px-4 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 text-white hover:bg-white/10">
+                            Active
+                        </button>
+                        <button onclick="setDriversFilter('top')" id="dFilterTop" class="px-4 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 text-white hover:bg-white/10">
+                            Top Performers
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -867,36 +885,45 @@
 <div id="netIncomeModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-6xl h-[95vh] flex flex-col overflow-hidden">
         <!-- Modal Header -->
-        <div class="p-4 border-b bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 flex-shrink-0">
-            <div class="flex items-center justify-between mb-3">
-                <div class="flex items-center gap-3">
-                    <div class="p-2 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30">
-                        <i data-lucide="trending-up" class="w-6 h-6 text-white"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-xl font-bold text-white">Net Income Details</h3>
-                        <p class="text-green-100 text-xs font-medium">Complete income and expense breakdown</p>
-                    </div>
-                </div>
-                <div class="flex items-center gap-2">
-                    <button onclick="printReport()" class="bg-white text-green-700 hover:bg-green-50 px-4 py-2 rounded-lg transition-all duration-200 shadow-lg flex items-center gap-2 text-sm font-bold border-2 border-white animate-pulse hover:animate-none">
-                        <i data-lucide="printer" class="w-4 h-4 text-green-700"></i>
-                        PRINT REPORT
-                    </button>
-                    <button onclick="hideNetIncomeModal()" class="text-white/80 hover:text-white hover:bg-white/20 p-2 rounded-lg transition-all duration-200 backdrop-blur-sm">
-                        <i data-lucide="x" class="w-5 h-5"></i>
-                    </button>
-                </div>
+        <div class="relative p-4 border-b bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 flex-shrink-0 overflow-hidden">
+            <!-- Large Animated Shiny Background Text -->
+            <div class="absolute inset-0 flex items-center justify-center pointer-events-none select-none z-0 overflow-hidden" aria-hidden="true">
+                <h1 class="animated-shiny-units-text text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black uppercase tracking-[0.18em] whitespace-nowrap opacity-60">
+                    Net Income Details
+                </h1>
             </div>
-            
-            <!-- Search and Date Filter -->
-            <!-- Centered Period Filters (Net Income) -->
-            <div class="mt-6 flex justify-center bg-black/10 rounded-xl p-1.5 backdrop-blur-sm border border-white/10">
-                <div class="flex gap-1 p-0.5 bg-black/20 rounded-lg shadow-inner">
-                    <button id="btn-today-income" onclick="setIncomePeriod('today')" class="px-3 py-1.5 text-xs font-bold rounded-md transition-all duration-200">Today</button>
-                    <button id="btn-week-income" onclick="setIncomePeriod('week')" class="px-3 py-1.5 text-xs font-bold rounded-md transition-all duration-200">Weekly</button>
-                    <button id="btn-month-income" onclick="setIncomePeriod('month')" class="px-3 py-1.5 text-xs font-bold rounded-md transition-all duration-200">Monthly</button>
-                    <button id="btn-year-income" onclick="setIncomePeriod('year')" class="px-3 py-1.5 text-xs font-bold rounded-md transition-all duration-200">Yearly</button>
+
+            <div class="relative z-10">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center gap-3">
+                        <div class="p-2 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30">
+                            <i data-lucide="trending-up" class="w-6 h-6 text-white"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-white">Net Income Details</h3>
+                            <p class="text-green-100 text-xs font-medium">Complete income and expense breakdown</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="printReport()" class="bg-white text-green-700 hover:bg-green-50 px-4 py-2 rounded-lg transition-all duration-200 shadow-lg flex items-center gap-2 text-sm font-bold border-2 border-white animate-pulse hover:animate-none">
+                            <i data-lucide="printer" class="w-4 h-4 text-green-700"></i>
+                            PRINT REPORT
+                        </button>
+                        <button onclick="hideNetIncomeModal()" class="text-white/80 hover:text-white hover:bg-white/20 p-2 rounded-lg transition-all duration-200 backdrop-blur-sm">
+                            <i data-lucide="x" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Search and Date Filter -->
+                <!-- Centered Period Filters (Net Income) -->
+                <div class="mt-6 flex justify-center bg-black/10 rounded-xl p-1.5 backdrop-blur-sm border border-white/10">
+                    <div class="flex gap-1 p-0.5 bg-black/20 rounded-lg shadow-inner">
+                        <button id="btn-today-income" onclick="setIncomePeriod('today')" class="px-3 py-1.5 text-xs font-bold rounded-md transition-all duration-200">Today</button>
+                        <button id="btn-week-income" onclick="setIncomePeriod('week')" class="px-3 py-1.5 text-xs font-bold rounded-md transition-all duration-200">Weekly</button>
+                        <button id="btn-month-income" onclick="setIncomePeriod('month')" class="px-3 py-1.5 text-xs font-bold rounded-md transition-all duration-200">Monthly</button>
+                        <button id="btn-year-income" onclick="setIncomePeriod('year')" class="px-3 py-1.5 text-xs font-bold rounded-md transition-all duration-200">Yearly</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1021,35 +1048,44 @@
 <div id="expensesModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-6xl h-[95vh] flex flex-col overflow-hidden border border-white/20">
         <!-- Modal Header -->
-        <div class="p-6 border-b bg-gradient-to-r from-red-600 to-rose-700 flex-shrink-0 text-white">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center gap-4">
-                    <div class="p-2.5 bg-white/20 backdrop-blur-md rounded-xl border border-white/30 shadow-inner">
-                        <i data-lucide="trending-down" class="w-7 h-7"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-2xl font-bold tracking-tight leading-none mb-1">Total Expenses Today</h3>
-                        <p class="text-red-100 text-[11px] font-bold uppercase tracking-widest opacity-80">Detailed expense records and computation</p>
-                    </div>
-                </div>
-                <div class="flex items-center gap-3">
-                    <button onclick="printExpensesNewTab()" class="flex items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg font-bold text-xs uppercase tracking-widest transition-all border border-white/20">
-                        <i data-lucide="printer" class="w-4 h-4"></i>
-                        Print Expenses
-                    </button>
-                    <button onclick="hideExpensesModal()" class="p-2 hover:bg-white/10 text-white rounded-full transition-colors">
-                        <i data-lucide="x" class="w-6 h-6"></i>
-                    </button>
-                </div>
+        <div class="relative p-6 border-b bg-gradient-to-r from-red-600 to-rose-700 flex-shrink-0 text-white overflow-hidden">
+            <!-- Large Animated Shiny Background Text -->
+            <div class="absolute inset-0 flex items-center justify-center pointer-events-none select-none z-0 overflow-hidden" aria-hidden="true">
+                <h1 class="animated-shiny-units-text text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black uppercase tracking-[0.18em] whitespace-nowrap opacity-60">
+                    Total Expenses Today
+                </h1>
             </div>
-            
-            <!-- Period Filters (Expenses Only) -->
-            <div class="mt-6 flex justify-center bg-black/10 rounded-xl p-1.5 backdrop-blur-sm border border-white/10">
-                <div class="flex gap-1 p-0.5 bg-black/20 rounded-lg shadow-inner">
-                    <button id="btn-today-expenses" onclick="setExpensesPeriod('today')" class="px-3 py-1.5 text-xs font-bold rounded-md transition-all duration-200">Today</button>
-                    <button id="btn-week-expenses" onclick="setExpensesPeriod('week')" class="px-3 py-1.5 text-xs font-bold rounded-md transition-all duration-200">Weekly</button>
-                    <button id="btn-month-expenses" onclick="setExpensesPeriod('month')" class="px-3 py-1.5 text-xs font-bold rounded-md transition-all duration-200">Monthly</button>
-                    <button id="btn-year-expenses" onclick="setExpensesPeriod('year')" class="px-3 py-1.5 text-xs font-bold rounded-md transition-all duration-200">Yearly</button>
+
+            <div class="relative z-10">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-4">
+                        <div class="p-2.5 bg-white/20 backdrop-blur-md rounded-xl border border-white/30 shadow-inner">
+                            <i data-lucide="trending-down" class="w-7 h-7"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-2xl font-bold tracking-tight leading-none mb-1">Total Expenses Today</h3>
+                            <p class="text-red-100 text-[11px] font-bold uppercase tracking-widest opacity-80">Detailed expense records and computation</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <button onclick="printExpensesNewTab()" class="flex items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg font-bold text-xs uppercase tracking-widest transition-all border border-white/20">
+                            <i data-lucide="printer" class="w-4 h-4"></i>
+                            Print Expenses
+                        </button>
+                        <button onclick="hideExpensesModal()" class="p-2 hover:bg-white/10 text-white rounded-full transition-colors">
+                            <i data-lucide="x" class="w-6 h-6"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Period Filters (Expenses Only) -->
+                <div class="mt-6 flex justify-center bg-black/10 rounded-xl p-1.5 backdrop-blur-sm border border-white/10">
+                    <div class="flex gap-1 p-0.5 bg-black/20 rounded-lg shadow-inner">
+                        <button id="btn-today-expenses" onclick="setExpensesPeriod('today')" class="px-3 py-1.5 text-xs font-bold rounded-md transition-all duration-200">Today</button>
+                        <button id="btn-week-expenses" onclick="setExpensesPeriod('week')" class="px-3 py-1.5 text-xs font-bold rounded-md transition-all duration-200">Weekly</button>
+                        <button id="btn-month-expenses" onclick="setExpensesPeriod('month')" class="px-3 py-1.5 text-xs font-bold rounded-md transition-all duration-200">Monthly</button>
+                        <button id="btn-year-expenses" onclick="setExpensesPeriod('year')" class="px-3 py-1.5 text-xs font-bold rounded-md transition-all duration-200">Yearly</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1156,46 +1192,55 @@
 <div id="dailyBoundaryModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-6xl h-[95vh] flex flex-col overflow-hidden">
         <!-- Modal Header -->
-        <div class="p-4 border-b bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 flex-shrink-0">
-            <div class="flex items-center justify-between mb-3">
-                <div class="flex items-center gap-3">
-                    <div class="p-2 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30">
-                        <i data-lucide="calendar" class="w-6 h-6 text-white"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-xl font-bold text-white">Daily Boundary Collections</h3>
-                        <p class="text-green-100 text-xs font-medium">Complete boundary collection details</p>
-                    </div>
-                </div>
-                <button onclick="hideDailyBoundaryModal()" class="text-white/80 hover:text-white hover:bg-white/20 p-2 rounded-lg transition-all duration-200 backdrop-blur-sm">
-                    <i data-lucide="x" class="w-5 h-5"></i>
-                </button>
+        <div class="relative p-4 border-b bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 flex-shrink-0 overflow-hidden">
+            <!-- Large Animated Shiny Background Text -->
+            <div class="absolute inset-0 flex items-center justify-center pointer-events-none select-none z-0 overflow-hidden" aria-hidden="true">
+                <h1 class="animated-shiny-units-text text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black uppercase tracking-[0.18em] whitespace-nowrap opacity-60">
+                    Daily Boundary Collections
+                </h1>
             </div>
-            
-            <!-- Search and Date Filter -->
-            <div class="flex items-center gap-3">
-                <div class="relative flex-1">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <i data-lucide="search" class="w-4 h-4 text-white/60"></i>
+
+            <div class="relative z-10">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center gap-3">
+                        <div class="p-2 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30">
+                            <i data-lucide="calendar" class="w-6 h-6 text-white"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-white">Daily Boundary Collections</h3>
+                            <p class="text-green-100 text-xs font-medium">Complete boundary collection details</p>
+                        </div>
                     </div>
-                    <input type="search" 
-                        id="boundarySearchInput"
-                        placeholder="Search by unit number, driver, or amount..."
-                        class="w-full pl-10 pr-4 py-2 bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent transition-all duration-200 text-sm"
-                        onkeyup="filterBoundaryCollections()"
-                     autocomplete="new-password" spellcheck="false" autocorrect="off" autocapitalize="off" readonly onfocus="this.removeAttribute('readonly');">
-                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
-                        <button onclick="clearBoundarySearch()" class="text-white/60 hover:text-white transition-colors">
-                            <i data-lucide="x-circle" class="w-4 h-4"></i>
-                        </button>
-                    </div>
+                    <button onclick="hideDailyBoundaryModal()" class="text-white/80 hover:text-white hover:bg-white/20 p-2 rounded-lg transition-all duration-200 backdrop-blur-sm">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
                 </div>
-                <input 
-                    type="date" 
-                    id="boundaryDateFilter"
-                    class="px-3 py-2 bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent transition-all duration-200 text-sm"
-                    onchange="filterBoundaryCollections()"
-                >
+                
+                <!-- Search and Date Filter -->
+                <div class="flex items-center gap-3">
+                    <div class="relative flex-1">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i data-lucide="search" class="w-4 h-4 text-white/60"></i>
+                        </div>
+                        <input type="search" 
+                            id="boundarySearchInput"
+                            placeholder="Search by unit number, driver, or amount..."
+                            class="w-full pl-10 pr-4 py-2 bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent transition-all duration-200 text-sm"
+                            onkeyup="filterBoundaryCollections()"
+                         autocomplete="new-password" spellcheck="false" autocorrect="off" autocapitalize="off" readonly onfocus="this.removeAttribute('readonly');">
+                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                            <button onclick="clearBoundarySearch()" class="text-white/60 hover:text-white transition-colors">
+                                <i data-lucide="x-circle" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <input 
+                        type="date" 
+                        id="boundaryDateFilter"
+                        class="px-3 py-2 bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent transition-all duration-200 text-sm"
+                        onchange="filterBoundaryCollections()"
+                    >
+                </div>
             </div>
         </div>
         
