@@ -1104,19 +1104,25 @@ class DashboardController extends Controller
         // Cache the entire web dashboard statistics for 60 seconds to prevent database resource/connection exhaustion on shared hosting.
         return Cache::remember('web_dashboard_stats', 60, function() use ($today, $todayDay) {
             $stats = [];
+            $hasUDeleted = Schema::hasColumn('units', 'deleted_at');
+            $hasBDeleted = Schema::hasColumn('boundaries', 'deleted_at');
+            $hasMDeleted = Schema::hasColumn('maintenance', 'deleted_at');
+            $hasDDeleted = Schema::hasColumn('drivers', 'deleted_at');
+            $hasEDeleted = Schema::hasTable('expenses') && Schema::hasColumn('expenses', 'deleted_at');
 
             // 1. Total Units
-            $stats['active_units'] = DB::table('units')->whereNull('deleted_at')->count();
+            $uQ = DB::table('units');
+            if ($hasUDeleted) $uQ->whereNull('deleted_at');
+            $stats['active_units'] = $uQ->count();
 
             // 2. ROI Achieved
-            $stats['roi_units'] = DB::table('units as u')
-                ->whereNull('u.deleted_at')
-                ->where('u.purchase_cost', '>', 0)
-                ->whereExists(function($query) {
-                    $query->select(DB::raw(1))
-                        ->from('boundaries as b')
-                        ->whereNull('b.deleted_at')
-                        ->whereRaw('b.unit_id = u.id')
+            $roiQ = DB::table('units as u')->where('u.purchase_cost', '>', 0);
+            if ($hasUDeleted) $roiQ->whereNull('u.deleted_at');
+            $stats['roi_units'] = $roiQ->whereExists(function($query) use ($hasBDeleted) {
+                    $bSub = $query->select(DB::raw(1))
+                        ->from('boundaries as b');
+                    if ($hasBDeleted) $bSub->whereNull('b.deleted_at');
+                    $bSub->whereRaw('b.unit_id = u.id')
                         ->whereIn('b.status', ['paid', 'excess', 'shortage'])
                         ->groupBy('b.unit_id')
                         ->havingRaw('SUM(b.actual_boundary) >= u.purchase_cost');
@@ -1124,29 +1130,48 @@ class DashboardController extends Controller
                 ->count();
 
             // 3. Coding Units Today
-            $allUnits = DB::table('units')->whereNull('deleted_at')->get();
+            $allUnitsQ = DB::table('units');
+            if ($hasUDeleted) $allUnitsQ->whereNull('deleted_at');
+            $allUnits = $allUnitsQ->get();
             $stats['coding_units'] = $allUnits->filter(function($unit) use ($todayDay) {
                 $codingDay = $unit->coding_day ?: $this->getCodingDay($unit->plate_number);
                 return $codingDay === $todayDay;
             })->count();
 
             // 4. Maintenance Units (Primary Source: Maintenance Table)
-            $stats['maintenance_units'] = DB::table('maintenance')
-                ->join('units', 'maintenance.unit_id', '=', 'units.id')
-                ->whereNull('maintenance.deleted_at')
-                ->whereNull('units.deleted_at')
-                ->whereNotIn(DB::raw('LOWER(maintenance.status)'), ['complete', 'completed', 'cancelled'])
-                ->count();
+            if (Schema::hasTable('maintenance')) {
+                $mStatsQ = DB::table('maintenance')
+                    ->join('units', 'maintenance.unit_id', '=', 'units.id');
+                if ($hasMDeleted) $mStatsQ->whereNull('maintenance.deleted_at');
+                if ($hasUDeleted) $mStatsQ->whereNull('units.deleted_at');
+                $stats['maintenance_units'] = $mStatsQ->whereNotIn(DB::raw('LOWER(maintenance.status)'), ['complete', 'completed', 'cancelled'])->count();
+            } else {
+                $stats['maintenance_units'] = 0;
+            }
 
             // 5. Financials (Today)
-            $stats['today_boundary'] = DB::table('boundaries')
-                ->whereNull('deleted_at')
-                ->whereDate('date', $today)
-                ->sum('actual_boundary') ?? 0;
+            $bTodayQ = DB::table('boundaries')->whereDate('date', $today);
+            if ($hasBDeleted) $bTodayQ->whereNull('deleted_at');
+            $stats['today_boundary'] = (float) ($bTodayQ->sum('actual_boundary') ?? 0);
 
-            $genExToday = DB::table('expenses')->whereNull('deleted_at')->whereDate('date', $today)->sum('amount') ?? 0;
-            $salExToday = DB::table('salaries')->whereDate('pay_date', $today)->sum('total_salary') ?? 0;
-            $mntExToday = DB::table('maintenance')->whereNull('deleted_at')->whereDate('date_started', $today)->where('status', '!=', 'cancelled')->sum('cost') ?? 0;
+            $genExToday = 0;
+            if (Schema::hasTable('expenses')) {
+                $eQ = DB::table('expenses')->whereDate('date', $today);
+                if ($hasEDeleted) $eQ->whereNull('deleted_at');
+                $genExToday = (float) ($eQ->sum('amount') ?? 0);
+            }
+
+            $salExToday = 0;
+            if (Schema::hasTable('salaries')) {
+                $salExToday = (float) (DB::table('salaries')->whereDate('pay_date', $today)->sum('total_salary') ?? 0);
+            }
+
+            $mntExToday = 0;
+            if (Schema::hasTable('maintenance')) {
+                $mTodayQ = DB::table('maintenance')->whereDate('date_started', $today)->where('status', '!=', 'cancelled');
+                if ($hasMDeleted) $mTodayQ->whereNull('deleted_at');
+                $mntExToday = (float) ($mTodayQ->sum('cost') ?? 0);
+            }
             
             $stats['total_expenses_today'] = abs($genExToday) + abs($salExToday) + abs($mntExToday);
             $stats['net_income'] = $stats['today_boundary'] - $stats['total_expenses_today'];
@@ -1155,42 +1180,54 @@ class DashboardController extends Controller
             $month = now()->timezone('Asia/Manila')->month;
             $year = now()->timezone('Asia/Manila')->year;
 
-            $stats['month_boundary'] = DB::table('boundaries')
-                ->whereNull('deleted_at')
-                ->whereMonth('date', $month)
-                ->whereYear('date', $year)
-                ->sum('actual_boundary') ?? 0;
+            $bMonthQ = DB::table('boundaries')->whereMonth('date', $month)->whereYear('date', $year);
+            if ($hasBDeleted) $bMonthQ->whereNull('deleted_at');
+            $stats['month_boundary'] = (float) ($bMonthQ->sum('actual_boundary') ?? 0);
 
-            $genExMonth = DB::table('expenses')->whereNull('deleted_at')->whereMonth('date', $month)->whereYear('date', $year)->sum('amount') ?? 0;
-            $salExMonth = DB::table('salaries')->whereMonth('pay_date', $month)->whereYear('pay_date', $year)->sum('total_salary') ?? 0;
-            $mntExMonth = DB::table('maintenance')->whereNull('deleted_at')->whereMonth('date_started', $month)->whereYear('date_started', $year)->where('status', '!=', 'cancelled')->sum('cost') ?? 0;
+            $genExMonth = 0;
+            if (Schema::hasTable('expenses')) {
+                $eMonthQ = DB::table('expenses')->whereMonth('date', $month)->whereYear('date', $year);
+                if ($hasEDeleted) $eMonthQ->whereNull('deleted_at');
+                $genExMonth = (float) ($eMonthQ->sum('amount') ?? 0);
+            }
+
+            $salExMonth = 0;
+            if (Schema::hasTable('salaries')) {
+                $salExMonth = (float) (DB::table('salaries')->whereMonth('pay_date', $month)->whereYear('pay_date', $year)->sum('total_salary') ?? 0);
+            }
+
+            $mntExMonth = 0;
+            if (Schema::hasTable('maintenance')) {
+                $mMonthQ = DB::table('maintenance')->whereMonth('date_started', $month)->whereYear('date_started', $year)->where('status', '!=', 'cancelled');
+                if ($hasMDeleted) $mMonthQ->whereNull('deleted_at');
+                $mntExMonth = (float) ($mMonthQ->sum('cost') ?? 0);
+            }
             
             $stats['total_expenses_month'] = abs($genExMonth) + abs($salExMonth) + abs($mntExMonth);
             $stats['net_income_month'] = $stats['month_boundary'] - $stats['total_expenses_month'];
 
             $stats['roi_achieved'] = $stats['roi_units']; // Harmonize for JS
 
-            // 6. Daily Target (Active Units Rate)
-            $stats['daily_target'] = DB::table('units')
-                ->whereNull('deleted_at')
-                ->whereRaw('LOWER(status) = ?', ['active'])
-                ->sum('boundary_rate') ?? 0;
+            // Daily Target (Active Units Rate)
+            $targetQ = DB::table('units')->whereRaw('LOWER(status) = ?', ['active']);
+            if ($hasUDeleted) $targetQ->whereNull('deleted_at');
+            $stats['daily_target'] = (float) ($targetQ->sum('boundary_rate') ?? 0);
             if ($stats['daily_target'] <= 0) $stats['daily_target'] = 2500;
 
-            // 7. Active Drivers
-            $stats['active_drivers'] = DB::table('drivers')->whereNull('deleted_at')->count();
+            // Active Drivers
+            $driversQ = DB::table('drivers');
+            if ($hasDDeleted) $driversQ->whereNull('deleted_at');
+            $stats['active_drivers'] = $driversQ->count();
 
-            // 8. Missing/Stolen Units
-            $stats['missing_units'] = DB::table('units')
-                ->whereNull('deleted_at')
-                ->where('status', 'missing')
-                ->count();
+            // Missing/Stolen Units
+            $missingQ = DB::table('units')->where('status', 'missing');
+            if ($hasUDeleted) $missingQ->whereNull('deleted_at');
+            $stats['missing_units'] = $missingQ->count();
 
-            // 8. Average Boundary
-            $stats['avg_boundary'] = DB::table('units')
-                ->whereNull('deleted_at')
-                ->where('status', 'active')
-                ->avg('boundary_rate') ?? 0;
+            // Average Boundary
+            $avgBQ = DB::table('units')->where('status', 'active');
+            if ($hasUDeleted) $avgBQ->whereNull('deleted_at');
+            $stats['avg_boundary'] = (float) ($avgBQ->avg('boundary_rate') ?? 0);
 
             return $stats;
         });

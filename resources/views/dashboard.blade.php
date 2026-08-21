@@ -2147,7 +2147,7 @@
             document.getElementById('maintenanceDetailsModal').classList.add('hidden');
         }
         
-        function loadMaintenanceUnitsData() {
+        async function loadMaintenanceUnitsData() {
             const filter = window.currentMaintenanceFilter || 'all';
             const url = `/api/maintenance-units?filter=${filter}`;
             
@@ -2164,36 +2164,34 @@
                 `;
             }
             
-            fetch(url, {
-                headers: {
-                    'Accept': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            })
-                .then(response => {
-                    return response.json().then(data => {
-                        if (!response.ok) {
-                            throw new Error(data.message || `Server error ${response.status}`);
-                        }
-                        return data;
-                    }).catch(err => {
-                        if (!response.ok) {
-                            throw new Error(`HTTP Error ${response.status}: ${response.statusText}`);
-                        }
-                        throw err;
-                    });
-                })
-                .then(data => {
-                    if (data && data.success) {
-                        displayMaintenanceUnitsData(data);
-                    } else {
-                        showMaintenanceError(data ? data.message : 'Unknown error');
+            try {
+                const response = await fetch(url, {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
                     }
-                })
-                .catch(error => {
-                    console.error('Error loading maintenance units data:', error);
-                    showMaintenanceError(error.message || 'Error loading maintenance units data. Please try again.');
                 });
+                
+                const text = await response.text();
+                let data;
+                try {
+                    data = JSON.parse(text);
+                } catch (pe) {
+                    console.error('API returned non-JSON:', text);
+                    showMaintenanceError('Server returned invalid response format.');
+                    return;
+                }
+                
+                if (!response.ok || !data.success) {
+                    showMaintenanceError((data && data.message) || `Server Error (${response.status})`);
+                    return;
+                }
+                
+                displayMaintenanceUnitsData(data);
+            } catch (error) {
+                console.error('Error loading maintenance units data:', error);
+                showMaintenanceError(error.message || 'Error loading maintenance units data. Please try again.');
+            }
         }
         
         function setMaintenanceFilter(filter) {
@@ -2278,6 +2276,7 @@
                 const typeColor = isComplete ? 'text-green-600' : 'text-orange-600';
                 const iconBg = isComplete ? 'bg-green-100' : 'bg-orange-100';
                 const iconColor = isComplete ? 'text-green-600' : 'text-orange-600';
+                const costVal = parseFloat(unit.maintenance_cost) || 0;
 
                 return `
                 <div onclick="showMaintenanceDetailsModal(${unit.maintenance_id})" class="cursor-pointer bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden border-l-4 ${statusColor} hover:scale-102">
@@ -2302,7 +2301,7 @@
                         <div class="bg-gray-50 rounded-lg p-3 mb-3">
                             <div class="flex items-center justify-between mb-2">
                                 <span class="text-sm font-medium text-slate-800">Status: ${unit.maintenance_status || 'Unknown'}</span>
-                                <span class="text-xs font-bold text-orange-600">${isComplete ? '₱' + (unit.maintenance_cost || 0).toLocaleString('en-PH', {minimumFractionDigits: 2}) : (unit.estimated_completion ? 'Est: ' + unit.estimated_completion : '')}</span>
+                                <span class="text-xs font-bold text-orange-600">${isComplete ? '₱' + costVal.toLocaleString('en-PH', {minimumFractionDigits: 2}) : (unit.estimated_completion ? 'Est: ' + unit.estimated_completion : '')}</span>
                             </div>
                             <div class="text-xs text-gray-600">
                                 <span class="font-medium">Description:</span> ${unit.description || 'No description available'}
