@@ -212,7 +212,6 @@
 
         </div>
     </div>
-</div>
 
 <!-- Lightbox Modal -->
 <div id="lightbox" class="fixed inset-0 z-[100] bg-black bg-opacity-90 items-center justify-center p-4 transition-opacity" style="display:none;" onclick="this.style.display='none'">

@@ -925,7 +925,7 @@
         </div>
 
         {{-- Global Archive Deletion Security Modal --}}
-        <div id="globalArchiveSecurityModal" class="fixed inset-0 z-[9999] hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div id="globalArchiveSecurityModal" class="fixed inset-0 z-[9999] hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true" style="display: none;">
             <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
                 <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" onclick="closeGlobalArchiveSecurityModal()"></div>
                 <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
@@ -962,9 +962,17 @@
             let pendingArchivePwdResolve = null;
 
             function closeGlobalArchiveSecurityModal() {
-                document.getElementById('globalArchiveSecurityModal').classList.add('hidden');
-                document.getElementById('global-archive-pwd').value = '';
+                const modal = document.getElementById('globalArchiveSecurityModal');
+                if (modal) {
+                    modal.classList.add('hidden');
+                    modal.style.display = 'none';
+                }
+                const pwdInput = document.getElementById('global-archive-pwd');
+                if (pwdInput) pwdInput.value = '';
                 pendingDeleteForm = null;
+                if (typeof pendingArchivePwdResolve === 'function') {
+                    pendingArchivePwdResolve(null);
+                }
                 pendingArchivePwdResolve = null;
             }
 
@@ -974,7 +982,11 @@
                 return new Promise((resolve) => {
                     pendingArchivePwdResolve = resolve;
                     pendingDeleteForm = null; // ensure we are not in form-submit mode
-                    document.getElementById('globalArchiveSecurityModal').classList.remove('hidden');
+                    const modal = document.getElementById('globalArchiveSecurityModal');
+                    if (modal) {
+                        modal.classList.remove('hidden');
+                        modal.style.display = 'block';
+                    }
                     if (window.lucide) window.lucide.createIcons();
                     setTimeout(() => document.getElementById('global-archive-pwd')?.focus(), 100);
                 });
@@ -996,9 +1008,13 @@
                 e.preventDefault();
                 pendingDeleteForm = form;
                 
-                document.getElementById('globalArchiveSecurityModal').classList.remove('hidden');
+                const modal = document.getElementById('globalArchiveSecurityModal');
+                if (modal) {
+                    modal.classList.remove('hidden');
+                    modal.style.display = 'block';
+                }
                 if (window.lucide) window.lucide.createIcons();
-                setTimeout(() => document.getElementById('global-archive-pwd').focus(), 100);
+                setTimeout(() => document.getElementById('global-archive-pwd')?.focus(), 100);
             });
 
             document.getElementById('global-confirm-archive-delete').addEventListener('click', function() {
@@ -1021,6 +1037,7 @@
                 // If opened programmatically (fetch/AJAX), resolve instead of submitting a form.
                 if (!pendingDeleteForm && typeof pendingArchivePwdResolve === 'function') {
                     const resolve = pendingArchivePwdResolve;
+                    pendingArchivePwdResolve = null;
                     closeGlobalArchiveSecurityModal();
                     resolve(password);
                     return;

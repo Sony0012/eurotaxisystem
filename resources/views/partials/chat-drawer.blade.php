@@ -6,12 +6,13 @@
 {{-- Single Draggable Wrapper: contains BOTH the panel and the button --}}
 {{-- Single Draggable Wrapper: Chat Window Popup --}}
 <div id="chatWidgetContainer"
-     class="fixed z-[1200] flex flex-col items-end gap-3 bottom-20 right-2 left-2 md:left-auto md:bottom-6 md:right-6 pointer-events-none">
+     class="fixed z-[1200] flex flex-col items-end gap-3 bottom-20 right-2 left-2 md:left-auto md:bottom-6 md:right-6 pointer-events-none"
+     style="display: none;">
 
     {{-- Chat Window Panel (Exact match with Image 3 - Mobile Responsive) --}}
     <div id="chatDrawer"
          class="w-full md:w-[360px] max-w-full md:max-w-[calc(100vw-2rem)] bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden flex flex-col transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] transform origin-bottom-right opacity-0 pointer-events-none scale-95 translate-y-4"
-         style="height: 480px; max-height: calc(100vh - 7rem);">
+         style="height: 480px; max-height: calc(100vh - 7rem); display: none;">
 
         {{-- Header Bar (Euro Taxi Gold/Yellow gradient header) --}}
         <div id="chatDragHandle"
@@ -151,6 +152,7 @@
     window.chatCloseDrawer = function () {
         chatOpen = false;
         isChatMinimized = false;
+        const container = document.getElementById('chatWidgetContainer');
         const drawer = document.getElementById('chatDrawer');
         const body = document.getElementById('chatDrawerBody');
         if (body) body.classList.remove('hidden');
@@ -159,21 +161,32 @@
             drawer.style.maxHeight = '480px';
             drawer.classList.remove('opacity-100', 'pointer-events-auto', 'scale-100', 'translate-y-0');
             drawer.classList.add('opacity-0', 'pointer-events-none', 'scale-95', 'translate-y-4');
+            setTimeout(() => {
+                if (!chatOpen) {
+                    drawer.style.display = 'none';
+                    if (container) container.style.display = 'none';
+                }
+            }, 300);
         }
     };
 
     // ─── Toggle Open / Close ───────────────────────────────────
     window.chatToggleDrawer = function () {
+        const container = document.getElementById('chatWidgetContainer');
         const drawer = document.getElementById('chatDrawer');
         if (!drawer) return;
 
         chatOpen = !chatOpen;
         if (chatOpen) {
             isChatMinimized = false;
+            if (container) container.style.display = 'flex';
+            drawer.style.display = 'flex';
             const body = document.getElementById('chatDrawerBody');
             if (body) body.classList.remove('hidden');
             drawer.style.height = '480px';
             drawer.style.maxHeight = '480px';
+            // Force browser repaint before transition
+            void drawer.offsetHeight;
             drawer.classList.remove('opacity-0', 'pointer-events-none', 'scale-95', 'translate-y-4');
             drawer.classList.add('opacity-100', 'pointer-events-auto', 'scale-100', 'translate-y-0');
             chatLoadUsers();
