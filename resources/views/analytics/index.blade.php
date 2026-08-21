@@ -1291,46 +1291,47 @@
         <div id="showcase-canvas" class="relative w-full bg-[#f5f4f3]">
 
             {{-- ─── Sticky "SCROLL TO SEE MORE" hint at very top ──────────────── --}}
-            <div class="sticky top-0 z-30 flex flex-col items-center pt-6 pb-2 pointer-events-none">
-                <span class="text-[10px] font-bold uppercase tracking-[0.25em] text-black/40 leading-tight text-center">
+            <div class="sticky top-0 z-30 flex flex-col items-center pt-8 pb-4 pointer-events-none">
+                <span class="text-[11px] font-black uppercase tracking-[0.25em] text-black/50 leading-tight text-center">
                     Scroll to<br>see more
                 </span>
-                <div class="mt-3 w-px h-14 bg-gradient-to-b from-[#f5f4f3] to-black/60"></div>
+                <div class="mt-3 w-px h-16 bg-gradient-to-b from-[#f5f4f3] to-black/60"></div>
             </div>
 
-            {{-- ─── BLOCK 1: Large 3D text "see more from" (CharacterV1) ────────── --}}
-            <div id="scroll-target-1" class="relative box-border flex min-h-[210vh] items-center justify-center overflow-hidden p-[2vw]">
-                <div class="sticky top-1/2 -translate-y-1/2 w-full max-w-5xl text-center" style="perspective: 500px;">
+            {{-- ─── BLOCK 1: Large 3D text "see more from " (CharacterV1) ────────── --}}
+            <div id="scroll-target-1" class="relative box-border flex min-h-[160vh] items-center justify-center p-4">
+                <div class="sticky top-1/2 -translate-y-1/2 w-full max-w-5xl text-center py-12" style="perspective: 600px; transform-style: preserve-3d;">
                     <div id="text-scroll-characters"
-                         class="text-5xl sm:text-7xl md:text-8xl font-bold uppercase tracking-tighter text-black select-none flex flex-wrap justify-center items-center leading-none">
+                         class="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-black uppercase tracking-tighter text-orange-500 select-none flex flex-wrap justify-center items-center gap-1 sm:gap-2 leading-none"
+                         style="transform-style: preserve-3d;">
                         {{-- Characters injected by JS --}}
                     </div>
                 </div>
             </div>
 
             {{-- ─── BLOCK 2: Tech stack icons — scale + Y (CharacterV2) ─────────── --}}
-            <div id="scroll-target-2" class="relative -mt-[100vh] box-border flex min-h-[210vh] flex-col items-center justify-center gap-[2vw] overflow-hidden p-[2vw]">
-                <div class="sticky top-1/2 -translate-y-1/2 w-full max-w-4xl text-center space-y-8">
-                    <p class="flex items-center justify-center gap-3 text-xl sm:text-2xl font-medium tracking-tight text-black">
+            <div id="scroll-target-2" class="relative -mt-[60vh] box-border flex min-h-[160vh] flex-col items-center justify-center gap-6 p-4">
+                <div class="sticky top-1/2 -translate-y-1/2 w-full max-w-4xl text-center space-y-8 py-12">
+                    <p class="flex items-center justify-center gap-3 text-xl sm:text-3xl font-bold tracking-tight text-black">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 27 78" class="h-10 sm:h-12 fill-current text-black inline-block flex-shrink-0"><path fill="#000" d="M26.52 77.21h-5.75c-6.83 0-12.38-5.56-12.38-12.38V48.38C8.39 43.76 4.63 40 .01 40v-4c4.62 0 8.38-3.76 8.38-8.38V12.4C8.38 5.56 13.94 0 20.77 0h5.75v4h-5.75c-4.62 0-8.38 3.76-8.38 8.38V27.6c0 4.34-2.25 8.17-5.64 10.38 3.39 2.21 5.64 6.04 5.64 10.38v16.45c0 4.62 3.76 8.38 8.38 8.38h5.75v4.02Z"/></svg>
-                        <span class="font-medium">integrate with your fav tech stack</span>
+                        <span class="font-bold">integrate with your fav tech stack</span>
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 27 78" class="h-10 sm:h-12 fill-current text-black inline-block flex-shrink-0 scale-x-[-1]"><path fill="#000" d="M26.52 77.21h-5.75c-6.83 0-12.38-5.56-12.38-12.38V48.38C8.39 43.76 4.63 40 .01 40v-4c4.62 0 8.38-3.76 8.38-8.38V12.4C8.38 5.56 13.94 0 20.77 0h5.75v4h-5.75c-4.62 0-8.38 3.76-8.38 8.38V27.6c0 4.34-2.25 8.17-5.64 10.38 3.39 2.21 5.64 6.04 5.64 10.38v16.45c0 4.62 3.76 8.38 8.38 8.38h5.75v4.02Z"/></svg>
                     </p>
-                    <div id="tech-icons-v2" class="flex flex-wrap items-center justify-center gap-6 sm:gap-8">
+                    <div id="tech-icons-v2" class="flex flex-wrap items-center justify-center gap-6 sm:gap-10">
                         {{-- Icons injected by JS --}}
                     </div>
                 </div>
             </div>
 
             {{-- ─── BLOCK 3: Tech stack icons — rotate + scale (CharacterV3) ────── --}}
-            <div id="scroll-target-3" class="relative -mt-[95vh] box-border flex min-h-[210vh] flex-col items-center justify-center gap-[2vw] overflow-hidden p-[2vw]">
-                <div class="sticky top-1/2 -translate-y-1/2 w-full max-w-4xl text-center space-y-8" style="perspective: 500px;">
-                    <p class="flex items-center justify-center gap-3 text-xl sm:text-2xl font-medium tracking-tight text-black">
+            <div id="scroll-target-3" class="relative -mt-[60vh] box-border flex min-h-[160vh] flex-col items-center justify-center gap-6 p-4">
+                <div class="sticky top-1/2 -translate-y-1/2 w-full max-w-4xl text-center space-y-8 py-12" style="perspective: 600px; transform-style: preserve-3d;">
+                    <p class="flex items-center justify-center gap-3 text-xl sm:text-3xl font-bold tracking-tight text-black">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 27 78" class="h-10 sm:h-12 fill-current text-black inline-block flex-shrink-0"><path fill="#000" d="M26.52 77.21h-5.75c-6.83 0-12.38-5.56-12.38-12.38V48.38C8.39 43.76 4.63 40 .01 40v-4c4.62 0 8.38-3.76 8.38-8.38V12.4C8.38 5.56 13.94 0 20.77 0h5.75v4h-5.75c-4.62 0-8.38 3.76-8.38 8.38V27.6c0 4.34-2.25 8.17-5.64 10.38 3.39 2.21 5.64 6.04 5.64 10.38v16.45c0 4.62 3.76 8.38 8.38 8.38h5.75v4.02Z"/></svg>
-                        <span class="font-medium">fleet intelligence tech stack</span>
+                        <span class="font-bold">fleet intelligence tech stack</span>
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 27 78" class="h-10 sm:h-12 fill-current text-black inline-block flex-shrink-0 scale-x-[-1]"><path fill="#000" d="M26.52 77.21h-5.75c-6.83 0-12.38-5.56-12.38-12.38V48.38C8.39 43.76 4.63 40 .01 40v-4c4.62 0 8.38-3.76 8.38-8.38V12.4C8.38 5.56 13.94 0 20.77 0h5.75v4h-5.75c-4.62 0-8.38 3.76-8.38 8.38V27.6c0 4.34-2.25 8.17-5.64 10.38 3.39 2.21 5.64 6.04 5.64 10.38v16.45c0 4.62 3.76 8.38 8.38 8.38h5.75v4.02Z"/></svg>
                     </p>
-                    <div id="tech-icons-v3" class="flex flex-wrap items-center justify-center gap-6 sm:gap-8">
+                    <div id="tech-icons-v3" class="flex flex-wrap items-center justify-center gap-6 sm:gap-10" style="transform-style: preserve-3d;">
                         {{-- Icons injected by JS --}}
                     </div>
                 </div>
@@ -1340,7 +1341,7 @@
             <div class="py-20 text-center bg-[#f5f4f3]">
                 <p class="text-xs uppercase tracking-[0.3em] font-bold text-black/40">Euro Taxi Fleet Intelligence</p>
                 <h3 class="text-2xl sm:text-3xl font-black text-black mt-3 mb-6">Powered by Real-time Analytics</h3>
-                <button onclick="switchTab('pulse')" class="inline-flex items-center gap-2 px-6 py-3 bg-black text-white text-sm font-bold rounded-full hover:bg-slate-800 transition-colors">
+                <button onclick="jumpToSection('pulse')" class="inline-flex items-center gap-2 px-6 py-3 bg-black text-white text-sm font-bold rounded-full hover:bg-slate-800 transition-colors shadow-lg shadow-black/10">
                     <i data-lucide="activity" class="w-4 h-4"></i>
                     Back to Live Pulse
                 </button>
@@ -1477,18 +1478,23 @@
 </div>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    // ── Scroll-Driven Tab System ─────────────────────────────────────────────
-    // jumpToSection: smooth scroll to section, triggered by tab clicks
+    // ── Scroll-Driven Navigation System ──────────────────────────────────────
     function jumpToSection(sectionId) {
         const el = document.getElementById('section-' + sectionId);
+        const container = document.getElementById('appContentArea');
         if (!el) return;
-        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        if (container) {
+            const containerRect = container.getBoundingClientRect();
+            const elRect = el.getBoundingClientRect();
+            const targetScrollTop = container.scrollTop + (elRect.top - containerRect.top) - 60;
+            container.scrollTo({ top: targetScrollTop, behavior: 'smooth' });
+        } else {
+            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
     }
 
-    // Legacy alias — keeps compatibility with any remaining switchTab() calls in modals/buttons
     function switchTab(sectionId) { jumpToSection(sectionId); }
 
-    // setActiveTab: visually highlight the correct tab button
     const activeTabClasses   = ['bg-white', 'text-indigo-700', 'shadow-sm', 'border', 'border-indigo-100', 'ring-1', 'ring-indigo-500/20'];
     const inactiveTabClasses = ['text-slate-500', 'hover:bg-white', 'hover:text-slate-800', 'hover:shadow-sm'];
 
@@ -1507,35 +1513,9 @@
         });
     }
 
-    // IntersectionObserver: auto-highlight tab as section scrolls into view
-    (function initTabObserver() {
-        const sectionIds = ['pulse', 'performance', 'forecast', 'strategy', 'showcase'];
-        const stickyBarH = () => (document.getElementById('tabs-sticky-bar')?.offsetHeight || 68);
-
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const id = entry.target.id.replace('section-', '');
-                    setActiveTab(id);
-                }
-            });
-        }, {
-            root: null,
-            // rootMargin: top offset = negative of sticky bar height so section highlights when it touches the bar
-            rootMargin: `-${stickyBarH() + 16}px 0px -40% 0px`,
-            threshold: 0
-        });
-
-        sectionIds.forEach(id => {
-            const el = document.getElementById('section-' + id);
-            if (el) observer.observe(el);
-        });
-    })();
-
     // ── 3D Text & Tech Stack Scroll Animation (Skiper31 / CharacterV1/V2/V3) ──
-    // Runs on window scroll — section-showcase is always in DOM, so this fires naturally
     (function initTextScrollAnimation() {
-        // ── Inject CharacterV1 text spans
+        // ── Inject CharacterV1 text spans ("see more from ")
         const text = "see more from ";
         const chars = text.split("");
         const centerIndex = Math.floor(chars.length / 2);
@@ -1544,9 +1524,9 @@
         if (charContainer && charContainer.children.length === 0) {
             charContainer.innerHTML = chars.map((char, index) => {
                 const isSpace = char === " ";
-                return `<span class="inline-block will-change-transform text-orange-500${isSpace ? ' w-4' : ''}"
+                return `<span class="inline-block will-change-transform font-black text-orange-500 transition-transform duration-75 select-none${isSpace ? ' w-3 sm:w-6' : ''}"
                               data-char-index="${index}" data-center-index="${centerIndex}"
-                              style="display:inline-block;">${isSpace ? '&nbsp;' : char}</span>`;
+                              style="display:inline-block; transform-style:preserve-3d;">${isSpace ? '&nbsp;' : char}</span>`;
             }).join('');
         }
 
@@ -1565,7 +1545,7 @@
         if (v2Container && v2Container.children.length === 0) {
             v2Container.innerHTML = macIcon.map((icon, index) =>
                 `<img src="${icon.src}" alt="${icon.name}" title="${icon.name}"
-                      class="h-16 w-16 shrink-0 object-contain will-change-transform"
+                      class="h-14 w-14 sm:h-16 sm:w-16 shrink-0 object-contain will-change-transform p-3 bg-white rounded-2xl shadow-md border border-slate-200"
                       data-icon-v2-index="${index}" data-icon-center="${iconCenterIndex}"
                       style="display:inline-block;" />`
             ).join('');
@@ -1575,66 +1555,104 @@
         if (v3Container && v3Container.children.length === 0) {
             v3Container.innerHTML = macIcon.map((icon, index) =>
                 `<img src="${icon.src}" alt="${icon.name}" title="${icon.name}"
-                      class="h-16 w-16 shrink-0 object-contain will-change-transform"
+                      class="h-14 w-14 sm:h-16 sm:w-16 shrink-0 object-contain will-change-transform p-3 bg-white rounded-2xl shadow-md border border-slate-200"
                       data-icon-v3-index="${index}" data-icon-center="${iconCenterIndex}"
-                      style="display:inline-block; transform-origin:center;" />`
+                      style="display:inline-block; transform-origin:center; transform-style:preserve-3d;" />`
             ).join('');
         }
 
-        // ── Scroll progress calculator (mirrors Framer's useScroll({ target }))
-        //    Returns [0, 1] where 0 = element top at viewport top, 1 = element bottom at viewport bottom
+        // ── Viewport Relative Progress Calculation
+        // Computes scroll progress: 0 when entering viewport bottom -> 0.5 at center -> 1 when exiting top
         const calcProgress = (el) => {
             if (!el) return 0;
             const rect = el.getBoundingClientRect();
-            const scrolled = -rect.top;
-            const total    = rect.height - window.innerHeight;
-            if (total <= 0) return 0.5;
-            return Math.max(0, Math.min(1, scrolled / total));
+            const windowH = window.innerHeight || document.documentElement.clientHeight || 800;
+            const totalDist = windowH + rect.height;
+            const currentDist = windowH - rect.top;
+            return Math.max(0, Math.min(1, currentDist / totalDist));
         };
 
-        // factor: maps progress [0→0.5] to animation spread [1→0] (1=scattered, 0=converged)
-        // Exactly mirrors Framer: useTransform(scrollYProgress, [0, 0.5], [startVal, endVal])
-        const factor = (p) => Math.max(0, 1 - Math.min(1, p / 0.5));
+        // Framer Motion parity factor: useTransform(progress, [0, 0.5], [startVal, endVal])
+        const factor = (p) => Math.max(0, 1 - (p / 0.5));
 
-        // ── Main scroll handler — runs on every window scroll event
+        // ── Main animation render loop
         function onScroll() {
+            // Update active sticky tab based on section bounding boxes
+            const sectionIds = ['pulse', 'performance', 'forecast', 'strategy', 'showcase'];
+            for (let i = sectionIds.length - 1; i >= 0; i--) {
+                const el = document.getElementById('section-' + sectionIds[i]);
+                if (el) {
+                    const rect = el.getBoundingClientRect();
+                    if (rect.top <= 140) {
+                        setActiveTab(sectionIds[i]);
+                        break;
+                    }
+                }
+            }
+
             const t1 = document.getElementById('scroll-target-1');
             const t2 = document.getElementById('scroll-target-2');
             const t3 = document.getElementById('scroll-target-3');
 
-            // Block 1 — CharacterV1: x + rotateX
+            // Block 1 — CharacterV1 (3D fly-in & rotateX untwist)
             if (t1) {
                 const f = factor(calcProgress(t1));
-                document.querySelectorAll('#text-scroll-characters span[data-char-index]').forEach(span => {
+                const charSpans = document.querySelectorAll('#text-scroll-characters span[data-char-index]');
+                charSpans.forEach(span => {
                     const dist = parseInt(span.dataset.charIndex, 10) - parseInt(span.dataset.centerIndex, 10);
-                    span.style.transform = `translate3d(${dist * 50 * f}px, 0, 0) rotateX(${dist * 50 * f}deg)`;
+                    const x = dist * 50 * f;
+                    const rx = dist * 50 * f;
+                    span.style.transform = `translate3d(${x}px, 0, 0) rotateX(${rx}deg)`;
                 });
             }
 
-            // Block 2 — CharacterV2: x + y + scale
+            // Block 2 — CharacterV2 (scale & Y translation)
             if (t2) {
                 const f = factor(calcProgress(t2));
-                document.querySelectorAll('#tech-icons-v2 [data-icon-v2-index]').forEach(icon => {
+                const iconV2 = document.querySelectorAll('#tech-icons-v2 [data-icon-v2-index]');
+                iconV2.forEach(icon => {
                     const dist = parseInt(icon.dataset.iconV2Index, 10) - parseInt(icon.dataset.iconCenter, 10);
-                    const sc = 0.75 + 0.25 * (1 - f);
-                    icon.style.transform = `translate3d(${dist * 50 * f}px, ${Math.abs(dist) * 50 * f}px, 0) scale(${sc})`;
+                    const x = dist * 50 * f;
+                    const y = Math.abs(dist) * 50 * f;
+                    const sc = 0.75 + (0.25 * (1 - f));
+                    icon.style.transform = `translate3d(${x}px, ${y}px, 0) scale(${sc})`;
                 });
             }
 
-            // Block 3 — CharacterV3: x + rotate + y + scale
+            // Block 3 — CharacterV3 (3D rotation & scale & Y-up)
             if (t3) {
                 const f = factor(calcProgress(t3));
-                document.querySelectorAll('#tech-icons-v3 [data-icon-v3-index]').forEach(icon => {
+                const iconV3 = document.querySelectorAll('#tech-icons-v3 [data-icon-v3-index]');
+                iconV3.forEach(icon => {
                     const dist = parseInt(icon.dataset.iconV3Index, 10) - parseInt(icon.dataset.iconCenter, 10);
-                    const sc = 0.75 + 0.25 * (1 - f);
-                    icon.style.transform = `translate3d(${dist * 90 * f}px, ${-Math.abs(dist) * 20 * f}px, 0) rotate(${dist * 50 * f}deg) scale(${sc})`;
+                    const x = dist * 90 * f;
+                    const r = dist * 50 * f;
+                    const y = -Math.abs(dist) * 20 * f;
+                    const sc = 0.75 + (0.25 * (1 - f));
+                    icon.style.transform = `translate3d(${x}px, ${y}px, 0) rotate(${r}deg) scale(${sc})`;
                 });
             }
         }
 
-        // Attach to window scroll (section is always in DOM now)
-        window.addEventListener('scroll', onScroll, { passive: true });
-        onScroll(); // run once on load to set initial state
+        // Attach to all possible scroll targets (window, document, appContentArea)
+        const targets = [
+            window,
+            document,
+            document.body,
+            document.documentElement,
+            document.getElementById('appContentArea')
+        ].filter(Boolean);
+
+        targets.forEach(t => {
+            t.addEventListener('scroll', onScroll, { passive: true });
+        });
+
+        window.addEventListener('resize', onScroll, { passive: true });
+        
+        // Initial render
+        requestAnimationFrame(onScroll);
+        setTimeout(onScroll, 200);
+        setTimeout(onScroll, 600);
     })();
 
 
