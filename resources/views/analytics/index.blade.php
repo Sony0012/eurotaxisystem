@@ -458,12 +458,33 @@
             {{-- Spline Web Component loader --}}
             <script type="module" src="https://unpkg.com/@splinetool/viewer@1.9.96/build/spline-viewer.js"></script>
 
-            {{-- ── Cursor Relay ──────────────────────────────────────────────────── --}}
+            {{-- ── Cursor Relay & Watermark Removal ────────────────────────────── --}}
             {{-- Polls until shadow-DOM canvas appears, then relays document-level   --}}
-            {{-- mousemove/pointermove so the robot head tracks the cursor globally   --}}
+            {{-- mousemove/pointermove and permanently hides the Spline watermark    --}}
             <script>
             (function() {
                 var _canvas = null;
+
+                function removeSplineLogo(shadow) {
+                    if (!shadow) return;
+                    try {
+                        var existing = shadow.getElementById('hide-spline-logo-style');
+                        if (!existing) {
+                            var style = document.createElement('style');
+                            style.id = 'hide-spline-logo-style';
+                            style.textContent = '#logo, #spline-logo, a[href*="spline.design"], a[href*="spline"], .logo, [id*="logo"] { display: none !important; opacity: 0 !important; visibility: hidden !important; pointer-events: none !important; width: 0 !important; height: 0 !important; }';
+                            shadow.appendChild(style);
+                        }
+
+                        var logos = shadow.querySelectorAll('#logo, a[href*="spline"], #spline-logo');
+                        logos.forEach(function(el) {
+                            el.style.display = 'none';
+                            el.style.opacity = '0';
+                            el.style.pointerEvents = 'none';
+                            try { el.remove(); } catch(e) {}
+                        });
+                    } catch(err) {}
+                }
 
                 function attachRelay(canvas) {
                     _canvas = canvas;
@@ -502,21 +523,26 @@
                     var viewer = document.getElementById('spline-robot');
                     if (!viewer) return;
 
-                    // Try shadow DOM first
                     var shadow = viewer.shadowRoot;
-                    var c = shadow ? shadow.querySelector('canvas') : null;
+                    if (shadow) {
+                        removeSplineLogo(shadow);
+                    }
 
-                    // Fallback: direct child canvas (some viewer versions)
+                    var c = shadow ? shadow.querySelector('canvas') : null;
                     if (!c) c = viewer.querySelector('canvas');
 
                     if (c) {
                         clearInterval(timer);
                         attachRelay(c);
+                        // Also remove logo once more after scene finishes loading
+                        if (shadow) removeSplineLogo(shadow);
+                        setTimeout(function() { if (viewer.shadowRoot) removeSplineLogo(viewer.shadowRoot); }, 1000);
+                        setTimeout(function() { if (viewer.shadowRoot) removeSplineLogo(viewer.shadowRoot); }, 3000);
                     }
                 }
 
-                // Poll every 400ms, stop after 30s
-                var timer = setInterval(poll, 400);
+                // Poll every 300ms, stop after 30s
+                var timer = setInterval(poll, 300);
                 setTimeout(function() { clearInterval(timer); }, 30000);
             })();
             </script>
