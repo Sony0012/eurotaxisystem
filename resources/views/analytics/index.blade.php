@@ -442,25 +442,21 @@
             {{-- Spline 3D Robot – absolute background on the right side --}}
             <div class="absolute inset-0 pointer-events-none select-none overflow-hidden rounded-3xl" aria-hidden="true">
                 {{-- Subtle left-to-right gradient overlay so text stays readable --}}
-                <div class="absolute inset-0 bg-gradient-to-r from-indigo-900/90 via-indigo-900/60 to-transparent z-10"></div>
+                <div class="absolute inset-0 bg-gradient-to-r from-indigo-900/95 via-indigo-900/70 to-transparent z-10"></div>
 
-                {{-- Spline canvas fills the right half --}}
-                <canvas id="spline-prediction-canvas"
-                        class="absolute right-0 top-0 h-full w-[55%] object-cover"
-                        style="pointer-events: none;"></canvas>
-
-                {{-- Fallback shimmer while 3D loads --}}
-                <div id="spline-prediction-fallback"
-                     class="absolute right-0 top-0 h-full w-[55%] flex items-center justify-center">
-                    <div class="w-16 h-16 rounded-full border-4 border-indigo-400/30 border-t-indigo-300 animate-spin"></div>
+                {{-- Spline Viewer Web Component – fills the right ~60% of the card --}}
+                <div class="absolute right-0 top-0 h-full w-[60%]" style="z-index: 1;">
+                    <spline-viewer
+                        url="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
+                        style="width:100%;height:100%;display:block;pointer-events:none;"
+                        loading-anim-type="none">
+                    </spline-viewer>
                 </div>
             </div>
 
-            {{-- Decorative blur orbs (kept behind Spline) --}}
-            <div class="absolute inset-0 overflow-hidden rounded-3xl pointer-events-none z-0">
-                <div class="absolute -right-16 -top-16 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl"></div>
-                <div class="absolute -left-10 -bottom-10 w-48 h-48 bg-emerald-500/10 rounded-full blur-2xl"></div>
-            </div>
+            {{-- Load the official Spline Viewer Web Component (no React, no npm, just works) --}}
+            <script type="module" src="https://unpkg.com/@splinetool/viewer@1.9.96/build/spline-viewer.js"></script>
+
 
             <div class="relative z-20 p-8 md:p-12">
                 <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8">
@@ -625,27 +621,7 @@
             </div>
         </div>
 
-        {{-- Spline 3D Runtime Loader (vanilla JS, no React/Node needed) --}}
-        <script type="module">
-            import { Application } from 'https://unpkg.com/@splinetool/runtime@1.9.96/build/runtime.module.js';
 
-            const canvas  = document.getElementById('spline-prediction-canvas');
-            const fallback = document.getElementById('spline-prediction-fallback');
-
-            if (canvas) {
-                const app = new Application(canvas);
-                app.load('https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode')
-                    .then(() => {
-                        if (fallback) fallback.style.display = 'none';
-                        canvas.style.opacity = '1';
-                    })
-                    .catch(() => {
-                        // On error, quietly hide the canvas & fallback — card still looks good
-                        if (fallback) fallback.style.display = 'none';
-                        if (canvas)  canvas.style.display   = 'none';
-                    });
-            }
-        </script>
 
         {{-- ┌─────────────────────────────────────────────────────────────────────┐
              │  2. INCOME BREAKDOWN CARDS (4 columns)                             │
