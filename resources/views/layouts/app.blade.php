@@ -2017,13 +2017,18 @@
                         // Re-run inline scripts in the new content
                         const scripts = mainContent.querySelectorAll('script');
                         scripts.forEach(script => {
-                            const newScript = document.createElement('script');
                             if (script.src) {
+                                const newScript = document.createElement('script');
                                 newScript.src = script.src;
-                            } else {
-                                newScript.textContent = script.textContent;
+                                document.head.appendChild(newScript);
+                            } else if (script.textContent && script.textContent.trim()) {
+                                try {
+                                    const execFn = new Function(script.textContent);
+                                    execFn.call(window);
+                                } catch (scriptErr) {
+                                    console.warn('[SPA Script Execution Warning]:', scriptErr);
+                                }
                             }
-                            document.head.appendChild(newScript);
                         });
 
                         // Notify child pages they were loaded via AJAX

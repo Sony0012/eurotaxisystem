@@ -1522,8 +1522,7 @@
     </div>
 
     @include('driver-management.partials._driver_details_modal')
-@endsection
-@push('scripts')
+
     <script src="{{ asset('js/realtime-dashboard.js') }}"></script>
     <script>
         // Register Chart.js datalabels plugin
@@ -2457,6 +2456,20 @@
                     });
                 });
         }
+        window.showMaintenanceUnitsModal = showMaintenanceUnitsModal;
+        window.hideMaintenanceUnitsModal = hideMaintenanceUnitsModal;
+        window.showMaintenanceDetailsModal = showMaintenanceDetailsModal;
+        window.hideMaintenanceDetailsModal = hideMaintenanceDetailsModal;
+        window.loadMaintenanceUnitsData = loadMaintenanceUnitsData;
+        window.setMaintenanceFilter = setMaintenanceFilter;
+        window.updateMaintenanceFilterUI = updateMaintenanceFilterUI;
+        window.displayMaintenanceUnitsData = displayMaintenanceUnitsData;
+        window.renderMaintenanceUnits = renderMaintenanceUnits;
+        window.filterMaintenanceUnits = filterMaintenanceUnits;
+        window.toggleMaintenanceSort = toggleMaintenanceSort;
+        window.clearMaintenanceSearch = clearMaintenanceSearch;
+        window.showMaintenanceError = showMaintenanceError;
+        window.testMaintenanceAPI = testMaintenanceAPI;
 
         // Active Drivers Modal Functions
         function showActiveDriversModal() {
@@ -2795,6 +2808,14 @@
                     });
                 });
         }
+        window.showActiveDriversModal = showActiveDriversModal;
+        window.hideActiveDriversModal = hideActiveDriversModal;
+        window.loadActiveDriversData = loadActiveDriversData;
+        window.displayActiveDriversData = displayActiveDriversData;
+        window.renderActiveDrivers = renderActiveDrivers;
+        window.filterActiveDrivers = filterActiveDrivers;
+        window.setActiveDriversCategory = setActiveDriversCategory;
+        window.showActiveDriversError = showActiveDriversError;
 
         // Coding Units Modal Functions
         function showCodingUnitsModal() {
@@ -3158,6 +3179,13 @@
                     });
                 });
         }
+        window.showCodingUnitsModal = showCodingUnitsModal;
+        window.hideCodingUnitsModal = hideCodingUnitsModal;
+        window.loadCodingUnitsData = loadCodingUnitsData;
+        window.displayCodingUnitsData = displayCodingUnitsData;
+        window.renderCodingUnits = renderCodingUnits;
+        window.filterCodingUnits = filterCodingUnits;
+        window.showCodingError = showCodingError;
 
         // Net Income Modal Functions
         function showNetIncomeModal() {
@@ -3506,6 +3534,11 @@
                 setTimeout(() => { document.body.removeChild(iframe); }, 1000);
             }, 300);
         }
+        window.showNetIncomeModal = showNetIncomeModal;
+        window.hideNetIncomeModal = hideNetIncomeModal;
+        window.loadIncomeData = loadIncomeData;
+        window.setIncomePeriod = setIncomePeriod;
+        window.showIncomeError = showIncomeError;
 
         // --- Expenses Modal Functions ---
         function showExpensesModal() {
@@ -4124,6 +4157,13 @@
                 </div>
             `;
         }
+        window.showDailyBoundaryModal = showDailyBoundaryModal;
+        window.hideDailyBoundaryModal = hideDailyBoundaryModal;
+        window.loadBoundaryCollections = loadBoundaryCollections;
+        window.displayBoundaryCollections = displayBoundaryCollections;
+        window.filterBoundaryCollections = filterBoundaryCollections;
+        window.clearBoundarySearch = clearBoundarySearch;
+        window.showBoundaryError = showBoundaryError;
 
         // Units Modal Functions
         function showUnitsModal() {
@@ -4467,6 +4507,16 @@
             document.getElementById('unitSearchInput').value = '';
             setUnitStatusFilter('all');
         }
+        window.showUnitsModal = showUnitsModal;
+        window.hideUnitsModal = hideUnitsModal;
+        window.loadUnitsData = loadUnitsData;
+        window.displayUnitsData = displayUnitsData;
+        window.renderUnits = renderUnits;
+        window.filterUnits = filterUnits;
+        window.setUnitStatusFilter = setUnitStatusFilter;
+        window.filterByYear = filterByYear;
+        window.filterByMonth = filterByMonth;
+        window.clearSearch = clearSearch;
 
         window.showFlaggedUnitsModal = function() {
             const modal = document.getElementById('flaggedUnitsModal');
@@ -4601,4 +4651,4 @@
             initWaveObserver();
         }
     </script>
-@endpush
+@endsection
