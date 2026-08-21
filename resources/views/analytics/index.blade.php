@@ -1278,67 +1278,72 @@
             </div>
         </div>
     {{-- ══════════════════════════════════════════════════════════════════════
-         SECTION 5: TECH ARCHITECTURE & 3D SCROLL ANIMATION
+         SECTION 5: TECH ARCHITECTURE — 3D Text & Icon Scroll Animation
+         (Matches reference: #f5f4f3 bg, sticky scroll blocks, native JS)
          ══════════════════════════════════════════════════════════════════════ --}}
-    <div id="section-showcase" class="hidden space-y-8">
-        <div class="bg-white rounded-[2.5rem] p-6 sm:p-10 border border-slate-200/80 shadow-sm relative overflow-hidden">
-            <!-- Header hint -->
-            <div class="text-center py-6">
-                <span class="inline-flex items-center gap-2 px-4 py-1.5 bg-orange-50 text-orange-600 text-xs font-black uppercase tracking-widest rounded-full border border-orange-200 shadow-sm">
-                    <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Interactive Scroll Animation
+    <div id="section-showcase" class="hidden -mx-4 sm:-mx-6 lg:-mx-8 xl:-mx-10">
+
+        {{-- ─── Full-width #f5f4f3 scroll animation canvas ───────────────────── --}}
+        <div id="showcase-canvas" class="relative w-full bg-[#f5f4f3]">
+
+            {{-- ─── Sticky "SCROLL TO SEE MORE" hint at very top ──────────────── --}}
+            <div class="sticky top-0 z-30 flex flex-col items-center pt-6 pb-2 pointer-events-none">
+                <span class="text-[10px] font-bold uppercase tracking-[0.25em] text-black/40 leading-tight text-center">
+                    Scroll to<br>see more
                 </span>
-                <h2 class="text-2xl sm:text-4xl font-black text-slate-800 tracking-tight mt-3">Euro Fleet Intelligence Architecture</h2>
-                <p class="text-xs sm:text-sm text-slate-500 font-medium max-w-xl mx-auto mt-2 leading-relaxed">Scroll down smoothly inside this module to trigger dynamic 3D text character expansions, tech stack rotations, and telemetry modules.</p>
+                <div class="mt-3 w-px h-14 bg-gradient-to-b from-[#f5f4f3] to-black/60"></div>
             </div>
 
-            <!-- Scroll Animation Container -->
-            <div class="relative w-full rounded-3xl overflow-hidden bg-[#f5f4f3] border border-slate-200 shadow-inner">
-                <!-- Hint header badge -->
-                <div class="sticky top-6 z-20 flex justify-center pointer-events-none">
-                    <span class="px-4 py-1.5 bg-white/90 backdrop-blur-md text-slate-700 text-[11px] font-black uppercase tracking-widest rounded-full shadow-md border border-slate-200 flex items-center gap-2 animate-bounce">
-                        <i data-lucide="arrow-down" class="w-3.5 h-3.5 text-orange-500"></i> Scroll down to see interactive transforms
-                    </span>
-                </div>
-
-                <!-- Block 1: 3D Character Text Scroll -->
-                <div id="scroll-target-1" class="relative flex min-h-[130vh] items-center justify-center p-6 overflow-hidden">
-                    <div class="sticky top-1/2 -translate-y-1/2 w-full max-w-4xl text-center" style="perspective: 600px;">
-                        <div id="text-scroll-characters" class="text-3xl sm:text-5xl md:text-6xl font-black uppercase tracking-tighter text-slate-900 select-none flex flex-wrap justify-center items-center gap-x-1 sm:gap-x-2">
-                            <!-- Character spans generated dynamically with x and rotateX scroll transforms -->
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Block 2: 3D Scale & Y Icons -->
-                <div id="scroll-target-2" class="relative -mt-[40vh] flex min-h-[130vh] flex-col items-center justify-center p-6 overflow-hidden">
-                    <div class="sticky top-1/2 -translate-y-1/2 w-full max-w-4xl text-center space-y-6">
-                        <p class="flex items-center justify-center gap-2 sm:gap-3 text-lg sm:text-2xl font-bold tracking-tight text-slate-900">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 27 78" class="h-8 sm:h-10 text-slate-900 fill-current inline-block"><path d="M26.52 77.21h-5.75c-6.83 0-12.38-5.56-12.38-12.38V48.38C8.39 43.76 4.63 40 .01 40v-4c4.62 0 8.38-3.76 8.38-8.38V12.4C8.38 5.56 13.94 0 20.77 0h5.75v4h-5.75c-4.62 0-8.38 3.76-8.38 8.38V27.6c0 4.34-2.25 8.17-5.64 10.38 3.39 2.21 5.64 6.04 5.64 10.38v16.45c0 4.62 3.76 8.38 8.38 8.38h5.75v4.02Z"/></svg>
-                            <span>integrate with your favorite tech stack</span>
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 27 78" class="h-8 sm:h-10 text-slate-900 fill-current inline-block scale-x-[-1]"><path d="M26.52 77.21h-5.75c-6.83 0-12.38-5.56-12.38-12.38V48.38C8.39 43.76 4.63 40 .01 40v-4c4.62 0 8.38-3.76 8.38-8.38V12.4C8.38 5.56 13.94 0 20.77 0h5.75v4h-5.75c-4.62 0-8.38 3.76-8.38 8.38V27.6c0 4.34-2.25 8.17-5.64 10.38 3.39 2.21 5.64 6.04 5.64 10.38v16.45c0 4.62 3.76 8.38 8.38 8.38h5.75v4.02Z"/></svg>
-                        </p>
-                        <div id="tech-icons-v2" class="flex flex-wrap items-center justify-center gap-4 sm:gap-8">
-                            <!-- Icons generated dynamically -->
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Block 3: 3D Rotate & Scale Icons -->
-                <div id="scroll-target-3" class="relative -mt-[40vh] flex min-h-[130vh] flex-col items-center justify-center p-6 overflow-hidden">
-                    <div class="sticky top-1/2 -translate-y-1/2 w-full max-w-4xl text-center space-y-6" style="perspective: 600px;">
-                        <p class="flex items-center justify-center gap-2 sm:gap-3 text-lg sm:text-2xl font-bold tracking-tight text-slate-900">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 27 78" class="h-8 sm:h-10 text-slate-900 fill-current inline-block"><path d="M26.52 77.21h-5.75c-6.83 0-12.38-5.56-12.38-12.38V48.38C8.39 43.76 4.63 40 .01 40v-4c4.62 0 8.38-3.76 8.38-8.38V12.4C8.38 5.56 13.94 0 20.77 0h5.75v4h-5.75c-4.62 0-8.38 3.76-8.38 8.38V27.6c0 4.34-2.25 8.17-5.64 10.38 3.39 2.21 5.64 6.04 5.64 10.38v16.45c0 4.62 3.76 8.38 8.38 8.38h5.75v4.02Z"/></svg>
-                            <span>continuous predictive telemetry</span>
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 27 78" class="h-8 sm:h-10 text-slate-900 fill-current inline-block scale-x-[-1]"><path d="M26.52 77.21h-5.75c-6.83 0-12.38-5.56-12.38-12.38V48.38C8.39 43.76 4.63 40 .01 40v-4c4.62 0 8.38-3.76 8.38-8.38V12.4C8.38 5.56 13.94 0 20.77 0h5.75v4h-5.75c-4.62 0-8.38 3.76-8.38 8.38V27.6c0 4.34-2.25 8.17-5.64 10.38 3.39 2.21 5.64 6.04 5.64 10.38v16.45c0 4.62 3.76 8.38 8.38 8.38h5.75v4.02Z"/></svg>
-                        </p>
-                        <div id="tech-icons-v3" class="flex flex-wrap items-center justify-center gap-4 sm:gap-8">
-                            <!-- Icons generated dynamically with 3D rotate -->
-                        </div>
+            {{-- ─── BLOCK 1: Large 3D text "see more from" (CharacterV1) ────────── --}}
+            <div id="scroll-target-1" class="relative box-border flex min-h-[210vh] items-center justify-center overflow-hidden p-[2vw]">
+                <div class="sticky top-1/2 -translate-y-1/2 w-full max-w-5xl text-center" style="perspective: 500px;">
+                    <div id="text-scroll-characters"
+                         class="text-5xl sm:text-7xl md:text-8xl font-bold uppercase tracking-tighter text-black select-none flex flex-wrap justify-center items-center leading-none">
+                        {{-- Characters injected by JS --}}
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
+
+            {{-- ─── BLOCK 2: Tech stack icons — scale + Y (CharacterV2) ─────────── --}}
+            <div id="scroll-target-2" class="relative -mt-[100vh] box-border flex min-h-[210vh] flex-col items-center justify-center gap-[2vw] overflow-hidden p-[2vw]">
+                <div class="sticky top-1/2 -translate-y-1/2 w-full max-w-4xl text-center space-y-8">
+                    <p class="flex items-center justify-center gap-3 text-xl sm:text-2xl font-medium tracking-tight text-black">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 27 78" class="h-10 sm:h-12 fill-current text-black inline-block flex-shrink-0"><path fill="#000" d="M26.52 77.21h-5.75c-6.83 0-12.38-5.56-12.38-12.38V48.38C8.39 43.76 4.63 40 .01 40v-4c4.62 0 8.38-3.76 8.38-8.38V12.4C8.38 5.56 13.94 0 20.77 0h5.75v4h-5.75c-4.62 0-8.38 3.76-8.38 8.38V27.6c0 4.34-2.25 8.17-5.64 10.38 3.39 2.21 5.64 6.04 5.64 10.38v16.45c0 4.62 3.76 8.38 8.38 8.38h5.75v4.02Z"/></svg>
+                        <span class="font-medium">integrate with your fav tech stack</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 27 78" class="h-10 sm:h-12 fill-current text-black inline-block flex-shrink-0 scale-x-[-1]"><path fill="#000" d="M26.52 77.21h-5.75c-6.83 0-12.38-5.56-12.38-12.38V48.38C8.39 43.76 4.63 40 .01 40v-4c4.62 0 8.38-3.76 8.38-8.38V12.4C8.38 5.56 13.94 0 20.77 0h5.75v4h-5.75c-4.62 0-8.38 3.76-8.38 8.38V27.6c0 4.34-2.25 8.17-5.64 10.38 3.39 2.21 5.64 6.04 5.64 10.38v16.45c0 4.62 3.76 8.38 8.38 8.38h5.75v4.02Z"/></svg>
+                    </p>
+                    <div id="tech-icons-v2" class="flex flex-wrap items-center justify-center gap-6 sm:gap-8">
+                        {{-- Icons injected by JS --}}
+                    </div>
+                </div>
+            </div>
+
+            {{-- ─── BLOCK 3: Tech stack icons — rotate + scale (CharacterV3) ────── --}}
+            <div id="scroll-target-3" class="relative -mt-[95vh] box-border flex min-h-[210vh] flex-col items-center justify-center gap-[2vw] overflow-hidden p-[2vw]">
+                <div class="sticky top-1/2 -translate-y-1/2 w-full max-w-4xl text-center space-y-8" style="perspective: 500px;">
+                    <p class="flex items-center justify-center gap-3 text-xl sm:text-2xl font-medium tracking-tight text-black">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 27 78" class="h-10 sm:h-12 fill-current text-black inline-block flex-shrink-0"><path fill="#000" d="M26.52 77.21h-5.75c-6.83 0-12.38-5.56-12.38-12.38V48.38C8.39 43.76 4.63 40 .01 40v-4c4.62 0 8.38-3.76 8.38-8.38V12.4C8.38 5.56 13.94 0 20.77 0h5.75v4h-5.75c-4.62 0-8.38 3.76-8.38 8.38V27.6c0 4.34-2.25 8.17-5.64 10.38 3.39 2.21 5.64 6.04 5.64 10.38v16.45c0 4.62 3.76 8.38 8.38 8.38h5.75v4.02Z"/></svg>
+                        <span class="font-medium">fleet intelligence tech stack</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 27 78" class="h-10 sm:h-12 fill-current text-black inline-block flex-shrink-0 scale-x-[-1]"><path fill="#000" d="M26.52 77.21h-5.75c-6.83 0-12.38-5.56-12.38-12.38V48.38C8.39 43.76 4.63 40 .01 40v-4c4.62 0 8.38-3.76 8.38-8.38V12.4C8.38 5.56 13.94 0 20.77 0h5.75v4h-5.75c-4.62 0-8.38 3.76-8.38 8.38V27.6c0 4.34-2.25 8.17-5.64 10.38 3.39 2.21 5.64 6.04 5.64 10.38v16.45c0 4.62 3.76 8.38 8.38 8.38h5.75v4.02Z"/></svg>
+                    </p>
+                    <div id="tech-icons-v3" class="flex flex-wrap items-center justify-center gap-6 sm:gap-8">
+                        {{-- Icons injected by JS --}}
+                    </div>
+                </div>
+            </div>
+
+            {{-- ─── Footer callout ─────────────────────────────────────────────── --}}
+            <div class="py-20 text-center bg-[#f5f4f3]">
+                <p class="text-xs uppercase tracking-[0.3em] font-bold text-black/40">Euro Taxi Fleet Intelligence</p>
+                <h3 class="text-2xl sm:text-3xl font-black text-black mt-3 mb-6">Powered by Real-time Analytics</h3>
+                <button onclick="switchTab('pulse')" class="inline-flex items-center gap-2 px-6 py-3 bg-black text-white text-sm font-bold rounded-full hover:bg-slate-800 transition-colors">
+                    <i data-lucide="activity" class="w-4 h-4"></i>
+                    Back to Live Pulse
+                </button>
+            </div>
+
+        </div>{{-- end showcase-canvas --}}
+    </div>{{-- end section-showcase --}}
 @endsection
 
 @push('scripts')
@@ -1517,120 +1522,129 @@
         }
     }
 
-    // ── 3D Text & Tech Stack Scroll Animation ────────────────────────────────
+    // ── 3D Text & Tech Stack Scroll Animation (mirrors Framer Motion Skiper31) ──
     function initTextScrollAnimation() {
-        const text = "ADVANCED FLEET ANALYTICS";
+        // ── Text (CharacterV1): "see more from " — all orange, 3D x + rotateX
+        const text = "see more from ";
         const chars = text.split("");
         const centerIndex = Math.floor(chars.length / 2);
         const charContainer = document.getElementById('text-scroll-characters');
-        
+
         if (charContainer && charContainer.children.length === 0) {
             charContainer.innerHTML = chars.map((char, index) => {
                 const isSpace = char === " ";
-                const isHighlight = index >= 9;
-                return `<span class="inline-block transition-transform will-change-transform ${isHighlight ? 'text-orange-500 font-black' : 'text-slate-900'} ${isSpace ? 'w-3 sm:w-5' : ''}" data-char-index="${index}" data-center-index="${centerIndex}">${isSpace ? '&nbsp;' : char}</span>`;
+                return `<span class="inline-block will-change-transform text-orange-500${isSpace ? ' w-4' : ''}"
+                              data-char-index="${index}" data-center-index="${centerIndex}"
+                              style="display:inline-block;">${isSpace ? '&nbsp;' : char}</span>`;
             }).join('');
         }
 
-        const icons = [
-            { name: 'Discord Alerts', src: 'https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/discord.svg' },
-            { name: 'Figma Telematics', src: 'https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/figma.svg' },
-            { name: 'Framer Analytics', src: 'https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/framer.svg' },
-            { name: 'GitHub Sync', src: 'https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/github.svg' },
-            { name: 'MongoDB DB', src: 'https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/mongodb.svg' },
-            { name: 'Notion Fleet Ops', src: 'https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/notion.svg' }
+        // ── Icons (CharacterV2 & V3): same 6 simple-icons SVGs as in the component
+        const macIcon = [
+            { name: 'Discord', src: 'https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/discord.svg' },
+            { name: 'Figma',   src: 'https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/figma.svg'   },
+            { name: 'Framer',  src: 'https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/framer.svg'  },
+            { name: 'GitHub',  src: 'https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/github.svg'  },
+            { name: 'MongoDB', src: 'https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/mongodb.svg' },
+            { name: 'Notion',  src: 'https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/notion.svg'  }
         ];
-        const iconCenterIndex = Math.floor(icons.length / 2);
+        const iconCenterIndex = Math.floor(macIcon.length / 2);
 
+        // V2 icons — scale + Y
         const v2Container = document.getElementById('tech-icons-v2');
         if (v2Container && v2Container.children.length === 0) {
-            v2Container.innerHTML = icons.map((icon, index) => {
-                return `
-                    <div class="p-3.5 bg-white rounded-2xl shadow-md border border-slate-200 flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 will-change-transform transition-transform" data-icon-v2-index="${index}" data-icon-center="${iconCenterIndex}" title="${icon.name}">
-                        <img src="${icon.src}" alt="${icon.name}" class="w-8 h-8 sm:w-10 sm:h-10 object-contain" />
-                    </div>
-                `;
-            }).join('');
+            v2Container.innerHTML = macIcon.map((icon, index) =>
+                `<img src="${icon.src}" alt="${icon.name}" title="${icon.name}"
+                      class="h-16 w-16 shrink-0 object-contain will-change-transform"
+                      data-icon-v2-index="${index}" data-icon-center="${iconCenterIndex}"
+                      style="display:inline-block;" />`
+            ).join('');
         }
 
+        // V3 icons — rotate + scale + Y
         const v3Container = document.getElementById('tech-icons-v3');
         if (v3Container && v3Container.children.length === 0) {
-            v3Container.innerHTML = icons.map((icon, index) => {
-                return `
-                    <div class="p-3.5 bg-white rounded-2xl shadow-md border border-slate-200 flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 will-change-transform transition-transform" data-icon-v3-index="${index}" data-icon-center="${iconCenterIndex}" title="${icon.name}">
-                        <img src="${icon.src}" alt="${icon.name}" class="w-8 h-8 sm:w-10 sm:h-10 object-contain" />
-                    </div>
-                `;
-            }).join('');
+            v3Container.innerHTML = macIcon.map((icon, index) =>
+                `<img src="${icon.src}" alt="${icon.name}" title="${icon.name}"
+                      class="h-16 w-16 shrink-0 object-contain will-change-transform"
+                      data-icon-v3-index="${index}" data-icon-center="${iconCenterIndex}"
+                      style="display:inline-block; transform-origin:center;" />`
+            ).join('');
         }
+
+        // ── Scroll Progress Calculator (mirrors useScroll target logic)
+        //    progress = 0 when el top hits viewport top, 1 when el bottom exits viewport bottom
+        //    We map [0, 0.5] the same way Framer does: characters scattered→converged at p=0.5
+        const calcProgress = (el) => {
+            if (!el) return 0;
+            const rect = el.getBoundingClientRect();
+            const windowH = window.innerHeight;
+            // distance scrolled past the top of the element
+            const scrolled = -rect.top;
+            const total = rect.height - windowH;
+            if (total <= 0) return 0.5;
+            return Math.max(0, Math.min(1, scrolled / total));
+        };
+
+        // Convert raw progress to animation factor [0→1] over the first 50% of scroll
+        // CharacterV1: x = dist*50*(1-p), rotateX = dist*50*(1-p)
+        // CharacterV2: x = dist*50*(1-p), y = abs(dist)*50*(1-p), scale = 0.75+0.25*p
+        // CharacterV3: x = dist*90*(1-p), rotate = dist*50*(1-p), y = -abs(dist)*20*(1-p), scale = 0.75+0.25*p
+        const factor = (p) => {
+            const norm = Math.min(1, p / 0.5);   // normalize 0→0.5 to 0→1
+            return 1 - norm;                       // 1 = scattered, 0 = converged
+        };
 
         function onScroll() {
-            const target1 = document.getElementById('scroll-target-1');
-            const target2 = document.getElementById('scroll-target-2');
-            const target3 = document.getElementById('scroll-target-3');
-            if (!target1) return;
+            const t1 = document.getElementById('scroll-target-1');
+            const t2 = document.getElementById('scroll-target-2');
+            const t3 = document.getElementById('scroll-target-3');
 
-            const calcProgress = (el) => {
-                const rect = el.getBoundingClientRect();
-                const windowH = window.innerHeight;
-                const totalScrollable = rect.height - windowH;
-                if (totalScrollable <= 0) return 0;
-                const scrolled = -rect.top;
-                return Math.max(0, Math.min(1, scrolled / totalScrollable));
-            };
-
-            const p1 = calcProgress(target1);
-            const normP1 = Math.min(1, p1 / 0.5);
-            const easeP1 = 1 - normP1;
-
-            const charSpans = document.querySelectorAll('#text-scroll-characters span[data-char-index]');
-            charSpans.forEach(span => {
-                const idx = parseInt(span.getAttribute('data-char-index'), 10);
-                const cIdx = parseInt(span.getAttribute('data-center-index'), 10);
-                const dist = idx - cIdx;
-                const x = dist * 40 * easeP1;
-                const rotateX = dist * 35 * easeP1;
-                span.style.transform = `translate3d(${x}px, 0, 0) rotateX(${rotateX}deg)`;
-            });
-
-            if (target2) {
-                const p2 = calcProgress(target2);
-                const normP2 = Math.min(1, p2 / 0.5);
-                const easeP2 = 1 - normP2;
-
-                const iconV2 = document.querySelectorAll('#tech-icons-v2 [data-icon-v2-index]');
-                iconV2.forEach(icon => {
-                    const idx = parseInt(icon.getAttribute('data-icon-v2-index'), 10);
-                    const cIdx = parseInt(icon.getAttribute('data-icon-center'), 10);
-                    const dist = idx - cIdx;
-                    const x = dist * 45 * easeP2;
-                    const y = Math.abs(dist) * 40 * easeP2;
-                    const scale = 0.75 + (0.25 * (1 - easeP2));
-                    icon.style.transform = `translate3d(${x}px, ${y}px, 0) scale(${scale})`;
+            // ── Block 1: CharacterV1 text
+            if (t1) {
+                const f = factor(calcProgress(t1));
+                document.querySelectorAll('#text-scroll-characters span[data-char-index]').forEach(span => {
+                    const dist = parseInt(span.dataset.charIndex, 10) - parseInt(span.dataset.centerIndex, 10);
+                    const x  = dist * 50 * f;
+                    const rx = dist * 50 * f;
+                    span.style.transform = `translate3d(${x}px, 0, 0) rotateX(${rx}deg)`;
                 });
             }
 
-            if (target3) {
-                const p3 = calcProgress(target3);
-                const normP3 = Math.min(1, p3 / 0.5);
-                const easeP3 = 1 - normP3;
+            // ── Block 2: CharacterV2 icons (scale + Y)
+            if (t2) {
+                const f = factor(calcProgress(t2));
+                document.querySelectorAll('#tech-icons-v2 [data-icon-v2-index]').forEach(icon => {
+                    const dist = parseInt(icon.dataset.iconV2Index, 10) - parseInt(icon.dataset.iconCenter, 10);
+                    const x  = dist * 50 * f;
+                    const y  = Math.abs(dist) * 50 * f;
+                    const sc = 0.75 + 0.25 * (1 - f);
+                    icon.style.transform = `translate3d(${x}px, ${y}px, 0) scale(${sc})`;
+                });
+            }
 
-                const iconV3 = document.querySelectorAll('#tech-icons-v3 [data-icon-v3-index]');
-                iconV3.forEach(icon => {
-                    const idx = parseInt(icon.getAttribute('data-icon-v3-index'), 10);
-                    const cIdx = parseInt(icon.getAttribute('data-icon-center'), 10);
-                    const dist = idx - cIdx;
-                    const x = dist * 70 * easeP3;
-                    const rotate = dist * 40 * easeP3;
-                    const y = -Math.abs(dist) * 15 * easeP3;
-                    const scale = 0.75 + (0.25 * (1 - easeP3));
-                    icon.style.transform = `translate3d(${x}px, ${y}px, 0) rotate(${rotate}deg) scale(${scale})`;
+            // ── Block 3: CharacterV3 icons (rotate + Y + scale)
+            if (t3) {
+                const f = factor(calcProgress(t3));
+                document.querySelectorAll('#tech-icons-v3 [data-icon-v3-index]').forEach(icon => {
+                    const dist = parseInt(icon.dataset.iconV3Index, 10) - parseInt(icon.dataset.iconCenter, 10);
+                    const x  = dist * 90 * f;
+                    const r  = dist * 50 * f;
+                    const y  = -Math.abs(dist) * 20 * f;
+                    const sc = 0.75 + 0.25 * (1 - f);
+                    icon.style.transform = `translate3d(${x}px, ${y}px, 0) rotate(${r}deg) scale(${sc})`;
                 });
             }
         }
 
-        window.removeEventListener('scroll', onScroll);
-        window.addEventListener('scroll', onScroll, { passive: true });
+        // Ensure lucide icons re-render after dynamic content added
+        if (window.lucide && typeof window.lucide.createIcons === 'function') {
+            window.lucide.createIcons();
+        }
+
+        window.removeEventListener('scroll', window._showcaseScrollHandler);
+        window._showcaseScrollHandler = onScroll;
+        window.addEventListener('scroll', window._showcaseScrollHandler, { passive: true });
         onScroll();
     }
 
