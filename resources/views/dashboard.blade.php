@@ -299,11 +299,9 @@
                 const btn = document.getElementById('mFilter' + f.charAt(0).toUpperCase() + f.slice(1));
                 if (btn) {
                     if (f === filter) {
-                        btn.classList.remove('text-white', 'hover:bg-white/10', 'font-medium');
-                        btn.classList.add('bg-white', 'text-orange-600', 'font-bold', 'shadow-md shadow-slate-200/40');
+                        btn.className = 'px-3 py-1.5 text-xs font-bold rounded-md transition-all duration-200 bg-white text-orange-600 shadow-sm cursor-pointer';
                     } else {
-                        btn.classList.add('text-white', 'hover:bg-white/10', 'font-medium');
-                        btn.classList.remove('bg-white', 'text-orange-600', 'font-bold', 'shadow-md shadow-slate-200/40');
+                        btn.className = 'px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200 text-white/80 hover:text-white hover:bg-white/10 cursor-pointer';
                     }
                 }
             });
@@ -312,14 +310,13 @@
         window.setMaintenanceFilter = function setMaintenanceFilter(filter) {
             window.currentMaintenanceFilter = filter;
             window.updateMaintenanceFilterUI(filter);
+            window.filterMaintenanceUnits();
             window.loadMaintenanceUnitsData();
         };
 
         window.displayMaintenanceUnitsData = function displayMaintenanceUnitsData(data) {
-            const grid = document.getElementById('maintenanceGrid');
             const units = (data && data.units) ? data.units : [];
             const stats = (data && data.stats) ? data.stats : {};
-            const filter = window.currentMaintenanceFilter || 'all';
             
             const setTxt = (id, val) => {
                 const el = document.getElementById(id);
@@ -346,8 +343,17 @@
             const searchTerm = searchInput ? (searchInput.value || '').toLowerCase() : '';
             const filter = window.currentMaintenanceFilter || 'all';
             
-            let filteredUnits = [...(window.originalMaintenanceData || [])];
+            let filteredUnits = [...(window.originalMaintenanceData || (window.__INITIAL_MAINTENANCE__ && window.__INITIAL_MAINTENANCE__.units) || [])];
             
+            if (filter === 'preventive' || filter === 'corrective' || filter === 'emergency') {
+                filteredUnits = filteredUnits.filter(u => (u.maintenance_type || '').toLowerCase() === filter);
+            } else if (filter === 'complete') {
+                filteredUnits = filteredUnits.filter(u => {
+                    const st = (u.maintenance_status || '').toLowerCase();
+                    return st === 'complete' || st === 'completed';
+                });
+            }
+
             if (searchTerm) {
                 filteredUnits = filteredUnits.filter(unit => {
                     const searchableText = [
@@ -355,6 +361,8 @@
                         unit.maintenance_type || '',
                         unit.maintenance_status || '',
                         unit.description || '',
+                        unit.mechanic_name || '',
+                        unit.driver_name || '',
                         unit.start_date || '',
                         unit.end_date || '',
                         unit.estimated_completion || ''
@@ -365,8 +373,8 @@
             }
 
             filteredUnits.sort((a, b) => {
-                const dateA = new Date((filter === 'complete' ? a.end_date : a.start_date) || '1970-01-01');
-                const dateB = new Date((filter === 'complete' ? b.end_date : b.start_date) || '1970-01-01');
+                const dateA = new Date((filter === 'complete' ? (a.end_date || a.start_date) : a.start_date) || '1970-01-01');
+                const dateB = new Date((filter === 'complete' ? (b.end_date || b.start_date) : b.start_date) || '1970-01-01');
                 return dateB - dateA;
             });
             
@@ -852,20 +860,20 @@
                             </button>
                         </div>
                     </div>
-                    <div class="flex items-center gap-1 bg-white/20 backdrop-blur-sm p-1 rounded-xl border border-white/30">
-                        <button onclick="setMaintenanceFilter('all')" id="mFilterAll" class="px-4 py-1.5 rounded-lg text-sm font-bold transition-all duration-200 bg-white text-orange-600 shadow-md shadow-slate-200/40">
+                    <div class="flex bg-white/10 backdrop-blur-sm border border-white/30 rounded-lg p-1">
+                        <button onclick="setMaintenanceFilter('all')" id="mFilterAll" class="px-3 py-1.5 text-xs font-bold rounded-md transition-all duration-200 bg-white text-orange-600 shadow-sm cursor-pointer">
                             All
                         </button>
-                        <button onclick="setMaintenanceFilter('preventive')" id="mFilterPreventive" class="px-4 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 text-white hover:bg-white/10">
+                        <button onclick="setMaintenanceFilter('preventive')" id="mFilterPreventive" class="px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200 text-white/80 hover:text-white hover:bg-white/10 cursor-pointer">
                             Preventive
                         </button>
-                        <button onclick="setMaintenanceFilter('corrective')" id="mFilterCorrective" class="px-4 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 text-white hover:bg-white/10">
+                        <button onclick="setMaintenanceFilter('corrective')" id="mFilterCorrective" class="px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200 text-white/80 hover:text-white hover:bg-white/10 cursor-pointer">
                             Corrective
                         </button>
-                        <button onclick="setMaintenanceFilter('emergency')" id="mFilterEmergency" class="px-4 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 text-white hover:bg-white/10">
+                        <button onclick="setMaintenanceFilter('emergency')" id="mFilterEmergency" class="px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200 text-white/80 hover:text-white hover:bg-white/10 cursor-pointer">
                             Emergency
                         </button>
-                        <button onclick="setMaintenanceFilter('complete')" id="mFilterComplete" class="px-4 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 text-white hover:bg-white/10">
+                        <button onclick="setMaintenanceFilter('complete')" id="mFilterComplete" class="px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200 text-white/80 hover:text-white hover:bg-white/10 cursor-pointer">
                             Complete
                         </button>
                     </div>
