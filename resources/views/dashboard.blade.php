@@ -2818,9 +2818,47 @@
         window.showActiveDriversError = showActiveDriversError;
 
         // Coding Units Modal Functions
+        function getUnitPeriod(unit) {
+            if (!unit) return 'future';
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const tomorrow = new Date(today);
+            tomorrow.setDate(today.getDate() + 1);
+            
+            const formatDate = (date) => {
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            };
+            
+            const todayStr = formatDate(today);
+            const tomorrowStr = formatDate(tomorrow);
+            
+            const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+            const todayDayIndex = today.getDay();
+            const tomorrowDayIndex = tomorrow.getDay();
+            
+            const unitDate = unit.start_date;
+            const codingDay = (unit.coding_day || '').trim().toLowerCase();
+            const isCompleted = unit.coding_status === 'completed';
+            
+            if (isCompleted || (unitDate && unitDate < todayStr)) return 'past';
+            if (unitDate === todayStr || (!unitDate && codingDay === dayNames[todayDayIndex])) return 'today';
+            if (unitDate === tomorrowStr || (!unitDate && codingDay === dayNames[tomorrowDayIndex])) return 'tomorrow';
+            
+            const codingDayIndex = dayNames.indexOf(codingDay);
+            if (!unitDate && codingDayIndex !== -1 && codingDayIndex < todayDayIndex) return 'past';
+            
+            return 'future';
+        }
+        window.getUnitPeriod = getUnitPeriod;
+
         function showCodingUnitsModal() {
             document.getElementById('codingUnitsModal').classList.remove('hidden');
             document.body.style.overflow = 'hidden';
+            window.currentCodingPeriod = 'today';
+            setCodingPeriod('today');
             loadCodingUnitsData();
         }
         
@@ -2829,52 +2867,64 @@
             document.body.style.overflow = 'auto';
         }
         
-        function loadCodingUnitsData() {
-            fetch('/api/coding-units', {
-                headers: {
-                    'Accept': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            })
-                .then(response => {
-                    return response.json().then(data => {
-                        if (!response.ok) {
-                            throw new Error(data.message || `Server error ${response.status}`);
-                        }
-                        return data;
-                    }).catch(err => {
-                        if (!response.ok) {
-                            throw new Error(`HTTP Error ${response.status}: ${response.statusText}`);
-                        }
-                        throw err;
-                    });
-                })
-                .then(data => {
-                    if (data && data.success) {
-                        displayCodingUnitsData(data);
-                    } else {
-                        showCodingError(data ? data.message : 'Unknown error');
+        async function loadCodingUnitsData() {
+            const grid = document.getElementById('codingGrid');
+            if (grid) {
+                grid.innerHTML = `
+                    <div class="col-span-full text-center py-16">
+                        <div class="inline-flex flex-col items-center">
+                            <div class="animate-spin rounded-full h-12 w-12 border-4 border-purple-600 border-t-transparent mb-4"></div>
+                            <span class="text-lg text-gray-600 font-semibold mb-2">Loading coding data...</span>
+                            <p class="text-sm text-slate-400">Please wait while we fetch coding schedule</p>
+                        </div>
+                    </div>
+                `;
+            }
+
+            try {
+                const response = await fetch('/api/coding-units', {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
                     }
-                })
-                .catch(error => {
-                    showCodingError(error.message || 'Error loading coding units data. Please try again.');
                 });
+                
+                const text = await response.text();
+                let data;
+                try {
+                    data = JSON.parse(text);
+                } catch (pe) {
+                    console.error('Coding API returned non-JSON:', text);
+                    showCodingError('Server returned invalid response format.');
+                    return;
+                }
+                
+                if (!response.ok || !data.success) {
+                    showCodingError((data && data.message) || `Server Error (${response.status})`);
+                    return;
+                }
+                
+                displayCodingUnitsData(data);
+            } catch (error) {
+                console.error('Error loading coding units:', error);
+                showCodingError(error.message || 'Error loading coding units data. Please try again.');
+            }
         }
         
         function displayCodingUnitsData(data) {
             const grid = document.getElementById('codingGrid');
-            const units = data.units || [];
-            const stats = data.stats || {};
-            
-            // Update summary stats
-            updateCodingSummary(units);
+            const units = (data && data.units) ? data.units : [];
+            const stats = (data && data.stats) ? data.stats : {};
             
             // Store original data for filtering
             window.originalCodingUnitsData = units;
             window.currentFilteredCodingUnitsData = units;
             
-            // Render coding units
-            renderCodingUnits(units);
+            // Update summary stats
+            updateCodingSummary(units);
+            
+            // Render coding units with active filter
+            filterCodingUnits();
             
             // Re-initialize Lucide icons
             if (typeof lucide !== 'undefined') {
@@ -2884,8 +2934,9 @@
         
         function renderCodingUnits(units) {
             const grid = document.getElementById('codingGrid');
+            if (!grid) return;
             
-            if (units.length === 0) {
+            if (!units || units.length === 0) {
                 grid.innerHTML = `
                     <div class="col-span-full text-center py-20">
                         <div class="inline-flex flex-col items-center">
@@ -2985,55 +3036,29 @@
                     </div>
                 </div>
             `}).join('');
+            
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
         }
-        
-        const getUnitPeriod = (unit) => {
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-            const tomorrow = new Date(today);
-            tomorrow.setDate(today.getDate() + 1);
-            
-            const formatDate = (date) => {
-                const year = date.getFullYear();
-                const month = String(date.getMonth() + 1).padStart(2, '0');
-                const day = String(date.getDate()).padStart(2, '0');
-                return `${year}-${month}-${day}`;
-            };
-            
-            const todayStr = formatDate(today);
-            const tomorrowStr = formatDate(tomorrow);
-            
-            const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
-            const todayDayIndex = today.getDay();
-            const tomorrowDayIndex = tomorrow.getDay();
-            
-            const unitDate = unit.start_date;
-            const codingDay = (unit.coding_day || '').trim().toLowerCase();
-            const isCompleted = unit.coding_status === 'completed';
-            
-            if (isCompleted || (unitDate && unitDate < todayStr)) return 'past';
-            if (unitDate === todayStr || (!unitDate && codingDay === dayNames[todayDayIndex])) return 'today';
-            if (unitDate === tomorrowStr || (!unitDate && codingDay === dayNames[tomorrowDayIndex])) return 'tomorrow';
-            
-            const codingDayIndex = dayNames.indexOf(codingDay);
-            if (!unitDate && codingDayIndex !== -1 && codingDayIndex < todayDayIndex) return 'past';
-            
-            return 'future';
-        };
 
         function updateCodingSummary(units) {
             const counts = { today: 0, tomorrow: 0, past: 0 };
             
-            units.forEach(unit => {
+            (units || []).forEach(unit => {
                 const period = getUnitPeriod(unit);
                 if (period === 'today') counts.today++;
                 else if (period === 'tomorrow') counts.tomorrow++;
                 else if (period === 'past') counts.past++;
             });
             
-            document.getElementById('todayCodingCount').textContent = counts.today;
-            document.getElementById('tomorrowCodingCount').textContent = counts.tomorrow;
-            document.getElementById('pastCodingCount').textContent = counts.past;
+            const setTxt = (id, val) => {
+                const el = document.getElementById(id);
+                if (el) el.textContent = val;
+            };
+            setTxt('todayCodingCount', counts.today);
+            setTxt('tomorrowCodingCount', counts.tomorrow);
+            setTxt('pastCodingCount', counts.past);
         }
         
         window.currentCodingPeriod = 'today';
