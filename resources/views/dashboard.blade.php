@@ -86,6 +86,19 @@
             background-repeat: repeat-x;
         }
 
+        @keyframes drawChart {
+            0% { 
+                clip-path: polygon(0 0, 0% 0, 0% 100%, 0 100%); 
+                opacity: 0; 
+            }
+            15% {
+                opacity: 1;
+            }
+            100% { 
+                clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); 
+                opacity: 1; 
+            }
+        }
         .card-hover::after {
             content: '';
             position: absolute;
@@ -95,9 +108,12 @@
             height: 75px;
             background-size: 100% 100%;
             background-repeat: no-repeat;
-            opacity: 1 !important;
+            opacity: 0;
             z-index: 0;
             pointer-events: none;
+        }
+        .card-hover.in-view::after {
+            animation: drawChart 1s ease-out forwards !important;
         }
         .wave-blue::after { background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 100 50" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><polygon fill="rgba(59,130,246,0.15)" stroke="rgba(59,130,246,0.4)" stroke-width="1.5" vector-effect="non-scaling-stroke" stroke-linejoin="miter" points="0,50 0,35 15,20 30,30 45,10 60,25 75,5 90,15 100,0 100,50" /></svg>'); }
         .wave-emerald::after { background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 100 50" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><polygon fill="rgba(16,185,129,0.15)" stroke="rgba(16,185,129,0.4)" stroke-width="1.5" vector-effect="non-scaling-stroke" stroke-linejoin="miter" points="0,50 0,35 15,20 30,30 45,10 60,25 75,5 90,15 100,0 100,50" /></svg>'); }
@@ -4637,6 +4653,28 @@
                 });
         }
 
+        // Intersection Observer for scroll-triggered wave animation
+        function initWaveObserver() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('in-view');
+                    } else {
+                        entry.target.classList.remove('in-view');
+                    }
+                });
+            }, { threshold: 0.15 });
 
+            document.querySelectorAll('.card-hover').forEach(card => {
+                observer.observe(card);
+            });
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initWaveObserver);
+        } else {
+            initWaveObserver();
+        }
+        window.addEventListener('load', initWaveObserver);
     </script>
 @endsection
