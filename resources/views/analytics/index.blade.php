@@ -38,39 +38,41 @@
         </div>
     </div>
 
-    {{-- ── Advanced Navigation Tabs ─────────────────────────────────────────── --}}
-    <div class="flex flex-wrap items-center gap-1.5 p-1.5 bg-slate-900/5 backdrop-blur-md rounded-2xl mb-8 w-fit mx-auto shadow-inner border border-slate-200/60">
-        <button onclick="switchTab('pulse')" id="tab-pulse"
-            class="tab-btn px-5 py-2.5 rounded-xl text-xs font-black transition-all duration-200 flex items-center gap-2 bg-white text-indigo-700 shadow-sm border border-indigo-100 ring-1 ring-indigo-500/20">
-            <i data-lucide="activity" class="w-4 h-4 text-indigo-500"></i>
-            <span>Real-time Pulse</span>
-        </button>
-        <button onclick="switchTab('performance')" id="tab-performance"
-            class="tab-btn px-5 py-2.5 rounded-xl text-xs font-black transition-all duration-200 flex items-center gap-2 text-slate-500 hover:bg-white hover:text-slate-800 hover:shadow-sm">
-            <i data-lucide="bar-chart-3" class="w-4 h-4"></i>
-            <span>Descriptive Analytics</span>
-        </button>
-        <button onclick="switchTab('forecast')" id="tab-forecast"
-            class="tab-btn px-5 py-2.5 rounded-xl text-xs font-black transition-all duration-200 flex items-center gap-2 text-slate-500 hover:bg-white hover:text-slate-800 hover:shadow-sm">
-            <i data-lucide="trending-up" class="w-4 h-4"></i>
-            <span>Predictive Forecasting</span>
-        </button>
-        <button onclick="switchTab('strategy')" id="tab-strategy"
-            class="tab-btn px-5 py-2.5 rounded-xl text-xs font-black transition-all duration-200 flex items-center gap-2 text-slate-500 hover:bg-white hover:text-slate-800 hover:shadow-sm">
-            <i data-lucide="brain-circuit" class="w-4 h-4"></i>
-            <span>AI Strategic Insights</span>
-        </button>
-        <button onclick="switchTab('showcase')" id="tab-showcase"
-            class="tab-btn px-5 py-2.5 rounded-xl text-xs font-black transition-all duration-200 flex items-center gap-2 text-slate-500 hover:bg-white hover:text-slate-800 hover:shadow-sm">
-            <i data-lucide="sparkles" class="w-4 h-4 text-orange-500"></i>
-            <span>Tech Architecture</span>
-        </button>
+    {{-- ── Advanced Navigation Tabs — Sticky scroll-aware ──────────────────── --}}
+    <div class="sticky top-0 z-40 -mx-4 sm:-mx-6 lg:-mx-8 xl:-mx-10 px-4 sm:px-6 lg:px-8 xl:px-10 py-3 bg-white/95 backdrop-blur-md border-b border-slate-200/60 mb-6" id="tabs-sticky-bar">
+        <div class="flex flex-wrap items-center gap-1.5 p-1.5 bg-slate-900/5 backdrop-blur-md rounded-2xl w-fit mx-auto shadow-inner border border-slate-200/60">
+            <button onclick="jumpToSection('pulse')" id="tab-pulse"
+                class="tab-btn px-5 py-2.5 rounded-xl text-xs font-black transition-all duration-200 flex items-center gap-2 bg-white text-indigo-700 shadow-sm border border-indigo-100 ring-1 ring-indigo-500/20">
+                <i data-lucide="activity" class="w-4 h-4 text-indigo-500"></i>
+                <span>Real-time Pulse</span>
+            </button>
+            <button onclick="jumpToSection('performance')" id="tab-performance"
+                class="tab-btn px-5 py-2.5 rounded-xl text-xs font-black transition-all duration-200 flex items-center gap-2 text-slate-500 hover:bg-white hover:text-slate-800 hover:shadow-sm">
+                <i data-lucide="bar-chart-3" class="w-4 h-4"></i>
+                <span>Descriptive Analytics</span>
+            </button>
+            <button onclick="jumpToSection('forecast')" id="tab-forecast"
+                class="tab-btn px-5 py-2.5 rounded-xl text-xs font-black transition-all duration-200 flex items-center gap-2 text-slate-500 hover:bg-white hover:text-slate-800 hover:shadow-sm">
+                <i data-lucide="trending-up" class="w-4 h-4"></i>
+                <span>Predictive Forecasting</span>
+            </button>
+            <button onclick="jumpToSection('strategy')" id="tab-strategy"
+                class="tab-btn px-5 py-2.5 rounded-xl text-xs font-black transition-all duration-200 flex items-center gap-2 text-slate-500 hover:bg-white hover:text-slate-800 hover:shadow-sm">
+                <i data-lucide="brain-circuit" class="w-4 h-4"></i>
+                <span>AI Strategic Insights</span>
+            </button>
+            <button onclick="jumpToSection('showcase')" id="tab-showcase"
+                class="tab-btn px-5 py-2.5 rounded-xl text-xs font-black transition-all duration-200 flex items-center gap-2 text-slate-500 hover:bg-white hover:text-slate-800 hover:shadow-sm">
+                <i data-lucide="sparkles" class="w-4 h-4 text-orange-500"></i>
+                <span>Tech Architecture</span>
+            </button>
+        </div>
     </div>
 
     {{-- ══════════════════════════════════════════════════════════════════════
          SECTION 1: OPERATIONAL PULSE (Real-time)
          ══════════════════════════════════════════════════════════════════════ --}}
-    <div id="section-pulse" class="space-y-8">
+    <div id="section-pulse" class="space-y-8 scroll-mt-24 mb-20">
         {{-- High Level Pulse Cards --}}
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {{-- Fleet Health --}}
@@ -272,7 +274,7 @@
     {{-- ══════════════════════════════════════════════════════════════════════
          SECTION 2: PERFORMANCE TRENDS (Historical)
          ══════════════════════════════════════════════════════════════════════ --}}
-    <div id="section-performance" class="hidden space-y-8">
+    <div id="section-performance" class="space-y-8 scroll-mt-24 mb-20">
 
         {{-- Revenue Heatmap Calendar --}}
         <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 mb-6">
@@ -437,7 +439,7 @@
     {{-- ══════════════════════════════════════════════════════════════════════
          SECTION 3: FUTURE FORECAST (Predictive)
          ══════════════════════════════════════════════════════════════════════ --}}
-    <div id="section-forecast" class="hidden space-y-8">
+    <div id="section-forecast" class="space-y-8 scroll-mt-24 mb-20">
 
         {{-- ┌─────────────────────────────────────────────────────────────────────┐
              │  1. HERO BANNER – Hulaan ng Kita sa Susunod na Buwan               │
@@ -1152,7 +1154,7 @@
     {{-- ══════════════════════════════════════════════════════════════════════
          SECTION 4: AI STRATEGIC SUPPORT
          ══════════════════════════════════════════════════════════════════════ --}}
-    <div id="section-strategy" class="hidden space-y-8">
+    <div id="section-strategy" class="space-y-8 scroll-mt-24 mb-20">
         {{-- AI Logic Container --}}
         <div class="bg-slate-900 rounded-[2.5rem] p-1 shadow-2xl overflow-hidden">
             <div class="bg-white rounded-[2.3rem] overflow-hidden">
@@ -1283,7 +1285,7 @@
          SECTION 5: TECH ARCHITECTURE — 3D Text & Icon Scroll Animation
          (Matches reference: #f5f4f3 bg, sticky scroll blocks, native JS)
          ══════════════════════════════════════════════════════════════════════ --}}
-    <div id="section-showcase" class="hidden -mx-4 sm:-mx-6 lg:-mx-8 xl:-mx-10">
+    <div id="section-showcase" class="scroll-mt-24 -mx-4 sm:-mx-6 lg:-mx-8 xl:-mx-10">
 
         {{-- ─── Full-width #f5f4f3 scroll animation canvas ───────────────────── --}}
         <div id="showcase-canvas" class="relative w-full bg-[#f5f4f3]">
@@ -1475,58 +1477,65 @@
 </div>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    // ── Tab Switching Logic ──────────────────────────────────────────────────
-    function switchTab(tab) {
-        // Sections
-        const sections = {
-            pulse: document.getElementById('section-pulse'),
-            performance: document.getElementById('section-performance'),
-            forecast: document.getElementById('section-forecast'),
-            strategy: document.getElementById('section-strategy'),
-            showcase: document.getElementById('section-showcase')
-        };
-
-        // Buttons
-        const buttons = {
-            pulse: document.getElementById('tab-pulse'),
-            performance: document.getElementById('tab-performance'),
-            forecast: document.getElementById('tab-forecast'),
-            strategy: document.getElementById('tab-strategy'),
-            showcase: document.getElementById('tab-showcase')
-        };
-
-        // Active and Inactive classes
-        const activeClasses   = ['bg-white', 'text-indigo-700', 'shadow-sm', 'border', 'border-indigo-100', 'ring-1', 'ring-indigo-500/20'];
-        const inactiveClasses = ['text-slate-500', 'hover:bg-white', 'hover:text-slate-800', 'hover:shadow-sm'];
-
-        // Reset All
-        Object.values(sections).forEach(s => { if (s) s.classList.add('hidden'); });
-        Object.entries(buttons).forEach(([key, btn]) => {
-            if (btn) {
-                btn.classList.remove(...activeClasses);
-                btn.classList.add(...inactiveClasses);
-            }
-        });
-
-        // Activate Selected
-        if (sections[tab]) sections[tab].classList.remove('hidden');
-        if (buttons[tab]) {
-            buttons[tab].classList.remove(...inactiveClasses);
-            buttons[tab].classList.add(...activeClasses);
-        }
-
-        // Handle Chart Resizing & Animation Initializations
-        if (tab === 'performance' || tab === 'forecast') {
-            window.dispatchEvent(new Event('resize'));
-        }
-        if (tab === 'showcase') {
-            initTextScrollAnimation();
-        }
+    // ── Scroll-Driven Tab System ─────────────────────────────────────────────
+    // jumpToSection: smooth scroll to section, triggered by tab clicks
+    function jumpToSection(sectionId) {
+        const el = document.getElementById('section-' + sectionId);
+        if (!el) return;
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
-    // ── 3D Text & Tech Stack Scroll Animation (mirrors Framer Motion Skiper31) ──
-    function initTextScrollAnimation() {
-        // ── Text (CharacterV1): "see more from " — all orange, 3D x + rotateX
+    // Legacy alias — keeps compatibility with any remaining switchTab() calls in modals/buttons
+    function switchTab(sectionId) { jumpToSection(sectionId); }
+
+    // setActiveTab: visually highlight the correct tab button
+    const activeTabClasses   = ['bg-white', 'text-indigo-700', 'shadow-sm', 'border', 'border-indigo-100', 'ring-1', 'ring-indigo-500/20'];
+    const inactiveTabClasses = ['text-slate-500', 'hover:bg-white', 'hover:text-slate-800', 'hover:shadow-sm'];
+
+    function setActiveTab(sectionId) {
+        const tabIds = ['pulse', 'performance', 'forecast', 'strategy', 'showcase'];
+        tabIds.forEach(id => {
+            const btn = document.getElementById('tab-' + id);
+            if (!btn) return;
+            if (id === sectionId) {
+                btn.classList.remove(...inactiveTabClasses);
+                btn.classList.add(...activeTabClasses);
+            } else {
+                btn.classList.remove(...activeTabClasses);
+                btn.classList.add(...inactiveTabClasses);
+            }
+        });
+    }
+
+    // IntersectionObserver: auto-highlight tab as section scrolls into view
+    (function initTabObserver() {
+        const sectionIds = ['pulse', 'performance', 'forecast', 'strategy', 'showcase'];
+        const stickyBarH = () => (document.getElementById('tabs-sticky-bar')?.offsetHeight || 68);
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const id = entry.target.id.replace('section-', '');
+                    setActiveTab(id);
+                }
+            });
+        }, {
+            root: null,
+            // rootMargin: top offset = negative of sticky bar height so section highlights when it touches the bar
+            rootMargin: `-${stickyBarH() + 16}px 0px -40% 0px`,
+            threshold: 0
+        });
+
+        sectionIds.forEach(id => {
+            const el = document.getElementById('section-' + id);
+            if (el) observer.observe(el);
+        });
+    })();
+
+    // ── 3D Text & Tech Stack Scroll Animation (Skiper31 / CharacterV1/V2/V3) ──
+    // Runs on window scroll — section-showcase is always in DOM, so this fires naturally
+    (function initTextScrollAnimation() {
+        // ── Inject CharacterV1 text spans
         const text = "see more from ";
         const chars = text.split("");
         const centerIndex = Math.floor(chars.length / 2);
@@ -1541,7 +1550,7 @@
             }).join('');
         }
 
-        // ── Icons (CharacterV2 & V3): same 6 simple-icons SVGs as in the component
+        // ── Inject CharacterV2 & V3 icon images
         const macIcon = [
             { name: 'Discord', src: 'https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/discord.svg' },
             { name: 'Figma',   src: 'https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/figma.svg'   },
@@ -1552,7 +1561,6 @@
         ];
         const iconCenterIndex = Math.floor(macIcon.length / 2);
 
-        // V2 icons — scale + Y
         const v2Container = document.getElementById('tech-icons-v2');
         if (v2Container && v2Container.children.length === 0) {
             v2Container.innerHTML = macIcon.map((icon, index) =>
@@ -1563,7 +1571,6 @@
             ).join('');
         }
 
-        // V3 icons — rotate + scale + Y
         const v3Container = document.getElementById('tech-icons-v3');
         if (v3Container && v3Container.children.length === 0) {
             v3Container.innerHTML = macIcon.map((icon, index) =>
@@ -1574,81 +1581,63 @@
             ).join('');
         }
 
-        // ── Scroll Progress Calculator (mirrors useScroll target logic)
-        //    progress = 0 when el top hits viewport top, 1 when el bottom exits viewport bottom
-        //    We map [0, 0.5] the same way Framer does: characters scattered→converged at p=0.5
+        // ── Scroll progress calculator (mirrors Framer's useScroll({ target }))
+        //    Returns [0, 1] where 0 = element top at viewport top, 1 = element bottom at viewport bottom
         const calcProgress = (el) => {
             if (!el) return 0;
             const rect = el.getBoundingClientRect();
-            const windowH = window.innerHeight;
-            // distance scrolled past the top of the element
             const scrolled = -rect.top;
-            const total = rect.height - windowH;
+            const total    = rect.height - window.innerHeight;
             if (total <= 0) return 0.5;
             return Math.max(0, Math.min(1, scrolled / total));
         };
 
-        // Convert raw progress to animation factor [0→1] over the first 50% of scroll
-        // CharacterV1: x = dist*50*(1-p), rotateX = dist*50*(1-p)
-        // CharacterV2: x = dist*50*(1-p), y = abs(dist)*50*(1-p), scale = 0.75+0.25*p
-        // CharacterV3: x = dist*90*(1-p), rotate = dist*50*(1-p), y = -abs(dist)*20*(1-p), scale = 0.75+0.25*p
-        const factor = (p) => {
-            const norm = Math.min(1, p / 0.5);   // normalize 0→0.5 to 0→1
-            return 1 - norm;                       // 1 = scattered, 0 = converged
-        };
+        // factor: maps progress [0→0.5] to animation spread [1→0] (1=scattered, 0=converged)
+        // Exactly mirrors Framer: useTransform(scrollYProgress, [0, 0.5], [startVal, endVal])
+        const factor = (p) => Math.max(0, 1 - Math.min(1, p / 0.5));
 
+        // ── Main scroll handler — runs on every window scroll event
         function onScroll() {
             const t1 = document.getElementById('scroll-target-1');
             const t2 = document.getElementById('scroll-target-2');
             const t3 = document.getElementById('scroll-target-3');
 
-            // ── Block 1: CharacterV1 text
+            // Block 1 — CharacterV1: x + rotateX
             if (t1) {
                 const f = factor(calcProgress(t1));
                 document.querySelectorAll('#text-scroll-characters span[data-char-index]').forEach(span => {
                     const dist = parseInt(span.dataset.charIndex, 10) - parseInt(span.dataset.centerIndex, 10);
-                    const x  = dist * 50 * f;
-                    const rx = dist * 50 * f;
-                    span.style.transform = `translate3d(${x}px, 0, 0) rotateX(${rx}deg)`;
+                    span.style.transform = `translate3d(${dist * 50 * f}px, 0, 0) rotateX(${dist * 50 * f}deg)`;
                 });
             }
 
-            // ── Block 2: CharacterV2 icons (scale + Y)
+            // Block 2 — CharacterV2: x + y + scale
             if (t2) {
                 const f = factor(calcProgress(t2));
                 document.querySelectorAll('#tech-icons-v2 [data-icon-v2-index]').forEach(icon => {
                     const dist = parseInt(icon.dataset.iconV2Index, 10) - parseInt(icon.dataset.iconCenter, 10);
-                    const x  = dist * 50 * f;
-                    const y  = Math.abs(dist) * 50 * f;
                     const sc = 0.75 + 0.25 * (1 - f);
-                    icon.style.transform = `translate3d(${x}px, ${y}px, 0) scale(${sc})`;
+                    icon.style.transform = `translate3d(${dist * 50 * f}px, ${Math.abs(dist) * 50 * f}px, 0) scale(${sc})`;
                 });
             }
 
-            // ── Block 3: CharacterV3 icons (rotate + Y + scale)
+            // Block 3 — CharacterV3: x + rotate + y + scale
             if (t3) {
                 const f = factor(calcProgress(t3));
                 document.querySelectorAll('#tech-icons-v3 [data-icon-v3-index]').forEach(icon => {
                     const dist = parseInt(icon.dataset.iconV3Index, 10) - parseInt(icon.dataset.iconCenter, 10);
-                    const x  = dist * 90 * f;
-                    const r  = dist * 50 * f;
-                    const y  = -Math.abs(dist) * 20 * f;
                     const sc = 0.75 + 0.25 * (1 - f);
-                    icon.style.transform = `translate3d(${x}px, ${y}px, 0) rotate(${r}deg) scale(${sc})`;
+                    icon.style.transform = `translate3d(${dist * 90 * f}px, ${-Math.abs(dist) * 20 * f}px, 0) rotate(${dist * 50 * f}deg) scale(${sc})`;
                 });
             }
         }
 
-        // Ensure lucide icons re-render after dynamic content added
-        if (window.lucide && typeof window.lucide.createIcons === 'function') {
-            window.lucide.createIcons();
-        }
+        // Attach to window scroll (section is always in DOM now)
+        window.addEventListener('scroll', onScroll, { passive: true });
+        onScroll(); // run once on load to set initial state
+    })();
 
-        window.removeEventListener('scroll', window._showcaseScrollHandler);
-        window._showcaseScrollHandler = onScroll;
-        window.addEventListener('scroll', window._showcaseScrollHandler, { passive: true });
-        onScroll();
-    }
+
 
     // ── Forecast Income Popover – Smart Viewport-Aware Positioning ──────────
     (function() {
