@@ -1754,24 +1754,24 @@
 <!-- Units Overview Modal -->
     <div id="unitsModal" class="hidden fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-white rounded-2xl shadow-2xl max-w-7xl w-full mx-4 h-[95vh] flex flex-col ring-1 ring-slate-900/5 overflow-hidden">
-            <!-- Compact Header with Search & Animated Shiny Background Text -->
-            <div class="relative p-4 border-b bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 flex-shrink-0 overflow-hidden">
+            <!-- Spacious Header with Search & Animated Shiny Background Text -->
+            <div class="relative pt-6 pb-5 px-5 sm:pt-7 sm:pb-6 sm:px-6 border-b bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 flex-shrink-0 overflow-hidden">
                 <!-- Large Animated Shiny Background Text -->
                 <div class="absolute inset-0 flex items-center justify-center pointer-events-none select-none z-0 overflow-hidden px-4" aria-hidden="true">
-                    <h1 class="animated-shiny-units-text text-xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-black uppercase tracking-wider whitespace-nowrap opacity-90">
+                    <h1 class="animated-shiny-units-text text-2xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black uppercase tracking-wider whitespace-nowrap opacity-90">
                         Units Overview
                     </h1>
                 </div>
 
                 <div class="relative z-10">
-                    <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center justify-between mb-4 sm:mb-5">
                         <div class="flex items-center gap-3">
-                            <div class="p-2 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30">
+                            <div class="p-2.5 bg-white/20 backdrop-blur-sm rounded-xl border border-white/30">
                                 <i data-lucide="car" class="w-6 h-6 text-white"></i>
                             </div>
                             <div>
-                                <h3 class="text-lg font-bold text-white leading-tight">Units Overview</h3>
-                                <p class="text-blue-100 text-[10px] font-medium mt-0.5">Fleet Management Dashboard</p>
+                                <h3 class="text-xl font-bold text-white leading-tight">Units Overview</h3>
+                                <p class="text-blue-100 text-xs font-medium mt-0.5">Fleet Management Dashboard</p>
                             </div>
                         </div>
                         <button onclick="hideUnitsModal()" class="text-white/80 hover:text-white hover:bg-white/20 p-2 rounded-lg transition-all duration-200 backdrop-blur-sm">
