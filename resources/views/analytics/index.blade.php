@@ -439,14 +439,13 @@
              └─────────────────────────────────────────────────────────────────────┘ --}}
         <div id="prediction-hero-card" class="relative z-20 bg-gradient-to-br from-indigo-900 via-indigo-800 to-slate-900 rounded-3xl overflow-hidden text-white shadow-2xl" style="min-height: 320px;">
 
-            {{-- Spline 3D Robot – absolute background on the right side --}}
-            {{-- Outer div is pointer-events-none so UI content on top stays clickable --}}
+            {{-- ── Spline 3D Robot Background ───────────────────────────────────── --}}
             <div class="absolute inset-0 select-none overflow-hidden rounded-3xl" style="pointer-events:none;" aria-hidden="true">
-                {{-- Subtle left-to-right gradient overlay so text stays readable --}}
+                {{-- Left-to-right gradient so text stays readable over the robot --}}
                 <div class="absolute inset-0 bg-gradient-to-r from-indigo-900/95 via-indigo-900/70 to-transparent" style="z-index:5; pointer-events:none;"></div>
 
-                {{-- Spline Viewer – fills the right ~60% | pointer-events:auto so it receives mousemove --}}
-                <div id="spline-wrap" class="absolute right-0 top-0 h-full w-[60%]" style="z-index:1; pointer-events:auto;">
+                {{-- Spline viewer on the right half; pointer-events:auto = receives native mouse events --}}
+                <div class="absolute right-0 top-0 h-full w-[60%]" style="z-index:1; pointer-events:auto;">
                     <spline-viewer
                         id="spline-robot"
                         url="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
@@ -456,41 +455,71 @@
                 </div>
             </div>
 
-            {{-- Load the official Spline Viewer Web Component (no React, no npm, just works) --}}
+            {{-- Spline Web Component loader --}}
             <script type="module" src="https://unpkg.com/@splinetool/viewer@1.9.96/build/spline-viewer.js"></script>
 
-            {{-- Cursor Relay: Listen on entire card and forward mousemove into the spline-viewer --}}
-            {{-- This lets the robot head follow the cursor even when hovering over the left-side text --}}
+            {{-- ── Cursor Relay ──────────────────────────────────────────────────── --}}
+            {{-- Polls until shadow-DOM canvas appears, then relays document-level   --}}
+            {{-- mousemove/pointermove so the robot head tracks the cursor globally   --}}
             <script>
             (function() {
-                const card = document.getElementById('prediction-hero-card');
-                const wrap = document.getElementById('spline-wrap');
-                if (!card || !wrap) return;
+                var _canvas = null;
 
-                card.addEventListener('mousemove', function(e) {
-                    // Relay the event into the spline-viewer canvas so it gets mouse position
-                    const viewer = wrap.querySelector('spline-viewer');
+                function attachRelay(canvas) {
+                    _canvas = canvas;
+
+                    document.addEventListener('mousemove', function(e) {
+                        if (!_canvas) return;
+                        try {
+                            _canvas.dispatchEvent(new MouseEvent('mousemove', {
+                                clientX: e.clientX,
+                                clientY: e.clientY,
+                                movementX: e.movementX || 0,
+                                movementY: e.movementY || 0,
+                                bubbles: false,
+                                cancelable: true,
+                                view: window
+                            }));
+                        } catch(err) {}
+                    }, { passive: true });
+
+                    document.addEventListener('pointermove', function(e) {
+                        if (!_canvas) return;
+                        try {
+                            _canvas.dispatchEvent(new PointerEvent('pointermove', {
+                                clientX: e.clientX,
+                                clientY: e.clientY,
+                                bubbles: false,
+                                cancelable: true,
+                                view: window,
+                                isPrimary: true
+                            }));
+                        } catch(err) {}
+                    }, { passive: true });
+                }
+
+                function poll() {
+                    var viewer = document.getElementById('spline-robot');
                     if (!viewer) return;
 
-                    // Find the internal canvas inside spline-viewer's shadow DOM
-                    const shadow = viewer.shadowRoot;
-                    const canvas = shadow ? shadow.querySelector('canvas') : null;
-                    if (canvas) {
-                        // Compute mouse position relative to the canvas
-                        const rect = canvas.getBoundingClientRect();
-                        const synth = new MouseEvent('mousemove', {
-                            clientX: e.clientX,
-                            clientY: e.clientY,
-                            bubbles: true,
-                            cancelable: true,
-                            view: window
-                        });
-                        canvas.dispatchEvent(synth);
+                    // Try shadow DOM first
+                    var shadow = viewer.shadowRoot;
+                    var c = shadow ? shadow.querySelector('canvas') : null;
+
+                    // Fallback: direct child canvas (some viewer versions)
+                    if (!c) c = viewer.querySelector('canvas');
+
+                    if (c) {
+                        clearInterval(timer);
+                        attachRelay(c);
                     }
-                }, { passive: true });
+                }
+
+                // Poll every 400ms, stop after 30s
+                var timer = setInterval(poll, 400);
+                setTimeout(function() { clearInterval(timer); }, 30000);
             })();
             </script>
-
 
             <div class="relative z-20 p-8 md:p-12">
                 <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8">
