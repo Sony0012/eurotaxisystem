@@ -36,6 +36,41 @@
                 </a>
             </div>
         </div>
+    {{-- ── Interactive 3D Kinetic Text & Telemetry Scroll Animation Hero ────────────────── --}}
+    <div id="kinetic-scroll-container" class="relative w-full rounded-3xl overflow-hidden shadow-xl border border-slate-800 bg-slate-950 mb-8 select-none transition-all duration-300">
+        <!-- Top Hint Badge -->
+        <div class="pt-5 pb-1 text-center">
+            <span class="inline-flex items-center gap-2 px-3 py-1 bg-indigo-500/10 border border-indigo-500/30 rounded-full text-[10px] font-black uppercase tracking-widest text-indigo-400">
+                <span class="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-ping"></span>
+                Scroll to Experience Fleet Telemetry
+            </span>
+        </div>
+
+        <!-- Section 1: 3D Kinetic Character Convergence -->
+        <div id="kinetic-text-track" class="relative flex min-h-[140px] sm:min-h-[180px] items-center justify-center overflow-hidden px-4 py-6">
+            <div class="w-full max-w-5xl text-center text-3xl sm:text-5xl md:text-6xl font-black uppercase tracking-tighter text-white" style="perspective: 600px;">
+                <div id="kinetic-characters-wrapper" class="flex flex-wrap items-center justify-center gap-1 sm:gap-1.5">
+                    <!-- Dynamic 3D Characters -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 2: Real-time Telemetry & Diagnostic Stream Badges -->
+        <div id="kinetic-icons-track" class="border-t border-slate-800/80 bg-slate-900/60 px-4 py-5">
+            <div class="flex items-center justify-center gap-2 sm:gap-3 text-xs sm:text-sm font-bold tracking-wide text-white mb-3">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 27 78" class="h-5 sm:h-6 text-indigo-400 flex-shrink-0">
+                    <path fill="currentColor" d="M26.52 77.21h-5.75c-6.83 0-12.38-5.56-12.38-12.38V48.38C8.39 43.76 4.63 40 .01 40v-4c4.62 0 8.38-3.76 8.38-8.38V12.4C8.38 5.56 13.94 0 20.77 0h5.75v4h-5.75c-4.62 0-8.38 3.76-8.38 8.38V27.6c0 4.34-2.25 8.17-5.64 10.38 3.39 2.21 5.64 6.04 5.64 10.38v16.45c0 4.62 3.76 8.38 8.38 8.38h5.75v4.02Z"/>
+                </svg>
+                <span class="font-bold text-slate-200 tracking-wider uppercase text-[11px] sm:text-xs">Euro Taxi Real-time Telemetry & Diagnostic Stream</span>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 27 78" class="h-5 sm:h-6 scale-x-[-1] text-indigo-400 flex-shrink-0">
+                    <path fill="currentColor" d="M26.52 77.21h-5.75c-6.83 0-12.38-5.56-12.38-12.38V48.38C8.39 43.76 4.63 40 .01 40v-4c4.62 0 8.38-3.76 8.38-8.38V12.4C8.38 5.56 13.94 0 20.77 0h5.75v4h-5.75c-4.62 0-8.38 3.76-8.38 8.38V27.6c0 4.34-2.25 8.17-5.64 10.38 3.39 2.21 5.64 6.04 5.64 10.38v16.45c0 4.62 3.76 8.38 8.38 8.38h5.75v4.02Z"/>
+                </svg>
+            </div>
+
+            <div id="kinetic-icons-wrapper" class="flex flex-wrap items-center justify-center gap-4 sm:gap-6 pt-1" style="perspective: 500px;">
+                <!-- Telemetry Badges with 3D Parallax -->
+            </div>
+        </div>
     </div>
 
     {{-- ── Advanced Navigation Tabs ─────────────────────────────────────────── --}}
@@ -2412,5 +2447,92 @@ const numberObserver = new IntersectionObserver((entries) => {
     });
 }, { threshold: 0.1 });
 document.querySelectorAll('.animate-number').forEach(el => numberObserver.observe(el));
+
+// ── Kinetic 3D Text & Icon Scroll Controller (Lenis/Framer Motion Inspired) ──
+(function initKineticScrollAnimation() {
+    const textWrapper = document.getElementById('kinetic-characters-wrapper');
+    const iconsWrapper = document.getElementById('kinetic-icons-wrapper');
+    const container = document.getElementById('kinetic-scroll-container');
+    if (!textWrapper || !iconsWrapper || !container) return;
+
+    const text = "ADVANCED FLEET INTELLIGENCE";
+    const characters = text.split("");
+    const centerIndex = Math.floor(characters.length / 2);
+
+    textWrapper.innerHTML = characters.map((char, index) => {
+        const isSpace = char === " ";
+        return `<span class="kinetic-char inline-block text-orange-500 will-change-transform select-none ${isSpace ? 'w-3 sm:w-5' : ''}" data-index="${index}" style="display:inline-block; transform-origin:center;">${isSpace ? '&nbsp;' : char}</span>`;
+    }).join("");
+
+    const icons = [
+        { name: "Live GPS", icon: "https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/mongodb.svg" },
+        { name: "Revenue API", icon: "https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/github.svg" },
+        { name: "Fleet Stream", icon: "https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/framer.svg" },
+        { name: "Telemetry", icon: "https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/figma.svg" },
+        { name: "AI Engine", icon: "https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/discord.svg" },
+        { name: "Audit Vault", icon: "https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/notion.svg" }
+    ];
+    const iconCenterIndex = Math.floor(icons.length / 2);
+
+    iconsWrapper.innerHTML = icons.map((item, index) => {
+        return `
+            <div class="kinetic-icon-card flex flex-col items-center gap-1.5 p-2 sm:p-3 bg-slate-800/80 rounded-2xl border border-slate-700/60 shadow-lg hover:border-indigo-400 transition-colors will-change-transform" data-index="${index}" style="transform-origin: center;">
+                <img src="${item.icon}" alt="${item.name}" class="h-6 w-6 sm:h-8 sm:w-8 object-contain filter invert opacity-90">
+                <span class="text-[9px] sm:text-[10px] font-bold text-slate-300 uppercase tracking-tight">${item.name}</span>
+            </div>
+        `;
+    }).join("");
+
+    const charElements = textWrapper.querySelectorAll('.kinetic-char');
+    const iconElements = iconsWrapper.querySelectorAll('.kinetic-icon-card');
+
+    let ticking = false;
+    function updateKineticTransforms() {
+        const rect = container.getBoundingClientRect();
+        const winHeight = window.innerHeight || document.documentElement.clientHeight;
+
+        // Progress from 0 (entering screen) to 1 (passed center)
+        let progress = (winHeight - rect.top) / (winHeight + rect.height * 0.5);
+        progress = Math.max(0, Math.min(1, progress));
+
+        // Sub-progress capped at 0.5 for active convergence
+        const pNorm = Math.min(1, progress / 0.7);
+        const invP = 1 - pNorm;
+
+        // Animate Characters
+        charElements.forEach((el, idx) => {
+            const distanceFromCenter = idx - centerIndex;
+            const x = invP * distanceFromCenter * 28;
+            const rotateX = invP * distanceFromCenter * 15;
+            const scale = 0.85 + (pNorm * 0.15);
+            el.style.transform = `translate3d(${x}px, 0, 0) rotateX(${rotateX}deg) scale(${scale})`;
+            el.style.opacity = (0.25 + (pNorm * 0.75)).toFixed(2);
+        });
+
+        // Animate Icons
+        iconElements.forEach((el, idx) => {
+            const distanceFromCenter = idx - iconCenterIndex;
+            const x = invP * distanceFromCenter * 35;
+            const rotate = invP * distanceFromCenter * 18;
+            const y = invP * Math.abs(distanceFromCenter) * 12;
+            const scale = 0.8 + (pNorm * 0.2);
+            el.style.transform = `translate3d(${x}px, ${y}px, 0) scale(${scale}) rotate(${rotate}deg)`;
+            el.style.opacity = (0.3 + (pNorm * 0.7)).toFixed(2);
+        });
+
+        ticking = false;
+    }
+
+    function onScroll() {
+        if (!ticking) {
+            requestAnimationFrame(updateKineticTransforms);
+            ticking = true;
+        }
+    }
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    updateKineticTransforms();
+})();
 </script>
 @endpush
