@@ -86,42 +86,31 @@
             background-repeat: repeat-x;
         }
 
-        @keyframes drawChart {
-            0% { 
-                clip-path: polygon(0 0, 0% 0, 0% 100%, 0 100%); 
-                opacity: 0; 
-            }
-            15% {
-                opacity: 1;
-            }
-            100% { 
-                clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); 
-                opacity: 1; 
-            }
-        }
+        /* Graph wave background on cards */
         .card-hover::after {
             content: '';
             position: absolute;
-            left: 0;
             bottom: 0;
-            width: 100%;
-            height: 75px;
+            left: 0;
+            right: 0;
+            height: 55%;
             background-size: 100% 100%;
             background-repeat: no-repeat;
-            opacity: 0;
-            z-index: 0;
+            opacity: 0.85 !important;
+            transition: opacity 0.3s ease, transform 0.3s ease;
             pointer-events: none;
+            z-index: 0;
         }
-        .card-hover.in-view::after {
-            animation: drawChart 1s ease-out forwards !important;
+        .card-hover:hover::after {
+            opacity: 1 !important;
         }
-        .wave-blue::after { background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 100 50" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><polygon fill="rgba(59,130,246,0.15)" stroke="rgba(59,130,246,0.4)" stroke-width="1.5" vector-effect="non-scaling-stroke" stroke-linejoin="miter" points="0,50 0,35 15,20 30,30 45,10 60,25 75,5 90,15 100,0 100,50" /></svg>'); }
-        .wave-emerald::after { background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 100 50" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><polygon fill="rgba(16,185,129,0.15)" stroke="rgba(16,185,129,0.4)" stroke-width="1.5" vector-effect="non-scaling-stroke" stroke-linejoin="miter" points="0,50 0,35 15,20 30,30 45,10 60,25 75,5 90,15 100,0 100,50" /></svg>'); }
-        .wave-green::after { background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 100 50" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><polygon fill="rgba(34,197,94,0.15)" stroke="rgba(34,197,94,0.4)" stroke-width="1.5" vector-effect="non-scaling-stroke" stroke-linejoin="miter" points="0,50 0,35 15,20 30,30 45,10 60,25 75,5 90,15 100,0 100,50" /></svg>'); }
-        .wave-orange::after { background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 100 50" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><polygon fill="rgba(249,115,22,0.15)" stroke="rgba(249,115,22,0.4)" stroke-width="1.5" vector-effect="non-scaling-stroke" stroke-linejoin="miter" points="0,50 0,35 15,20 30,30 45,10 60,25 75,5 90,15 100,0 100,50" /></svg>'); }
-        .wave-indigo::after { background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 100 50" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><polygon fill="rgba(99,102,241,0.15)" stroke="rgba(99,102,241,0.4)" stroke-width="1.5" vector-effect="non-scaling-stroke" stroke-linejoin="miter" points="0,50 0,35 15,20 30,30 45,10 60,25 75,5 90,15 100,0 100,50" /></svg>'); }
-        .wave-rose::after { background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 100 50" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><polygon fill="rgba(244,63,94,0.15)" stroke="rgba(244,63,94,0.4)" stroke-width="1.5" vector-effect="non-scaling-stroke" stroke-linejoin="miter" points="0,50 0,35 15,20 30,30 45,10 60,25 75,5 90,15 100,0 100,50" /></svg>'); }
-        .wave-violet::after { background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 100 50" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><polygon fill="rgba(139,92,246,0.15)" stroke="rgba(139,92,246,0.4)" stroke-width="1.5" vector-effect="non-scaling-stroke" stroke-linejoin="miter" points="0,50 0,35 15,20 30,30 45,10 60,25 75,5 90,15 100,0 100,50" /></svg>'); }
+        .wave-blue::after { background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 100 50" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="gBlue" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="%233b82f6" stop-opacity="0.22"/><stop offset="100%" stop-color="%233b82f6" stop-opacity="0.04"/></linearGradient></defs><polygon fill="url(%23gBlue)" stroke="%233b82f6" stroke-width="1.5" vector-effect="non-scaling-stroke" stroke-linejoin="miter" points="0,50 0,35 15,20 30,30 45,10 60,25 75,5 90,15 100,0 100,50" /></svg>'); }
+        .wave-emerald::after { background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 100 50" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="gEmerald" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="%2310b981" stop-opacity="0.22"/><stop offset="100%" stop-color="%2310b981" stop-opacity="0.04"/></linearGradient></defs><polygon fill="url(%23gEmerald)" stroke="%2310b981" stroke-width="1.5" vector-effect="non-scaling-stroke" stroke-linejoin="miter" points="0,50 0,35 15,20 30,30 45,10 60,25 75,5 90,15 100,0 100,50" /></svg>'); }
+        .wave-green::after { background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 100 50" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="gGreen" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="%2322c55e" stop-opacity="0.22"/><stop offset="100%" stop-color="%2322c55e" stop-opacity="0.04"/></linearGradient></defs><polygon fill="url(%23gGreen)" stroke="%2322c55e" stroke-width="1.5" vector-effect="non-scaling-stroke" stroke-linejoin="miter" points="0,50 0,35 15,20 30,30 45,10 60,25 75,5 90,15 100,0 100,50" /></svg>'); }
+        .wave-orange::after { background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 100 50" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="gOrange" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="%23f97316" stop-opacity="0.22"/><stop offset="100%" stop-color="%23f97316" stop-opacity="0.04"/></linearGradient></defs><polygon fill="url(%23gOrange)" stroke="%23f97316" stroke-width="1.5" vector-effect="non-scaling-stroke" stroke-linejoin="miter" points="0,50 0,35 15,20 30,30 45,10 60,25 75,5 90,15 100,0 100,50" /></svg>'); }
+        .wave-indigo::after { background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 100 50" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="gIndigo" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="%236366f1" stop-opacity="0.22"/><stop offset="100%" stop-color="%236366f1" stop-opacity="0.04"/></linearGradient></defs><polygon fill="url(%23gIndigo)" stroke="%236366f1" stroke-width="1.5" vector-effect="non-scaling-stroke" stroke-linejoin="miter" points="0,50 0,35 15,20 30,30 45,10 60,25 75,5 90,15 100,0 100,50" /></svg>'); }
+        .wave-rose::after { background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 100 50" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="gRose" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="%23f43f5e" stop-opacity="0.22"/><stop offset="100%" stop-color="%23f43f5e" stop-opacity="0.04"/></linearGradient></defs><polygon fill="url(%23gRose)" stroke="%23f43f5e" stroke-width="1.5" vector-effect="non-scaling-stroke" stroke-linejoin="miter" points="0,50 0,35 15,20 30,30 45,10 60,25 75,5 90,15 100,0 100,50" /></svg>'); }
+        .wave-violet::after { background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 100 50" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="gViolet" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="%238b5cf6" stop-opacity="0.22"/><stop offset="100%" stop-color="%238b5cf6" stop-opacity="0.04"/></linearGradient></defs><polygon fill="url(%23gViolet)" stroke="%238b5cf6" stroke-width="1.5" vector-effect="non-scaling-stroke" stroke-linejoin="miter" points="0,50 0,35 15,20 30,30 45,10 60,25 75,5 90,15 100,0 100,50" /></svg>'); }
 
         @keyframes animatedShinyText {
             0% {
@@ -4650,31 +4639,202 @@
                         </div>
                     `;
                     if (typeof lucide !== 'undefined') lucide.createIcons();
+// Apply search filter
+            if (searchTerm) {
+                filteredUnits = filteredUnits.filter(unit => {
+                    const searchableText = [
+                        unit.plate_number || '',
+                        unit.status || '',
+                        unit.driver_name || '',
+                        unit.performance_rating || '',
+                        unit.roi_percentage >= 100 ? 'excellent profitable' : 
+                        unit.roi_percentage >= 75 ? 'good' : 
+                        unit.roi_percentage >= 50 ? 'average growing' : 'growing investment',
+                        unit.boundary_rate ? unit.boundary_rate.toString() : '',
+                        unit.total_boundary ? unit.total_boundary.toString() : '',
+                        unit.today_boundary ? unit.today_boundary.toString() : '',
+                        unit.purchase_cost ? unit.purchase_cost.toString() : ''
+                    ].join(' ').toLowerCase();
+                    
+                    return searchableText.includes(searchTerm);
                 });
+            }
+            
+            window.currentFilteredUnits = filteredUnits;
+            
+            // Re-render with current filters
+            const statusColors = {
+                'active': 'bg-green-100 text-green-800 border-green-200',
+                'maintenance': 'bg-red-100 text-red-800 border-red-200',
+                'coding': 'bg-yellow-100 text-yellow-800 border-yellow-200',
+                'retired': 'bg-gray-100 text-gray-800 border-gray-200'
+            };
+            
+            const statusIcons = {
+                'active': '<i data-lucide="check-circle" class="w-3 h-3"></i>',
+                'maintenance': '<i data-lucide="wrench" class="w-3 h-3"></i>',
+                'coding': '<i data-lucide="code" class="w-3 h-3"></i>',
+                'retired': '<i data-lucide="x-circle" class="w-3 h-3"></i>'
+            };
+            
+            const statusGradients = {
+                'active': 'from-green-500 to-emerald-600',
+                'maintenance': 'from-red-500 to-rose-600', 
+                'coding': 'from-yellow-500 to-amber-600',
+                'retired': 'from-gray-500 to-slate-600'
+            };
+            
+            renderUnits(filteredUnits, statusColors, statusIcons, statusGradients);
         }
-
-        // Intersection Observer for scroll-triggered wave animation
-        function initWaveObserver() {
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('in-view');
-                    } else {
-                        entry.target.classList.remove('in-view');
-                    }
-                });
-            }, { threshold: 0.15 });
-
-            document.querySelectorAll('.card-hover').forEach(card => {
-                observer.observe(card);
+        
+        function filterByStatus(status) {
+            // Update active filter tag
+            document.querySelectorAll('.filter-tag').forEach(tag => {
+                tag.classList.remove('active', 'bg-white/40');
+                if (tag.dataset.status === status) {
+                    tag.classList.add('active', 'bg-white/40');
+                }
             });
+            
+            // Apply filter
+            filterUnits();
         }
+        
+        function filterByMonth(month) {
+            // Update active filter tag
+            document.querySelectorAll('.filter-tag').forEach(tag => {
+                tag.classList.remove('active', 'bg-white/40');
+                if (tag.dataset.month === month) {
+                    tag.classList.add('active', 'bg-white/40');
+                }
+            });
+            
+            // Apply filter
+            filterUnits();
+        }
+        
+        function clearSearch() {
+            document.getElementById('unitSearchInput').value = '';
+            setUnitStatusFilter('all');
+        }
+        window.showUnitsModal = showUnitsModal;
+        window.hideUnitsModal = hideUnitsModal;
+        window.loadUnitsData = loadUnitsData;
+        window.displayUnitsData = displayUnitsData;
+        window.renderUnits = renderUnits;
+        window.filterUnits = filterUnits;
+        window.setUnitStatusFilter = setUnitStatusFilter;
+        window.filterByYear = filterByYear;
+        window.filterByMonth = filterByMonth;
+        window.clearSearch = clearSearch;
 
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initWaveObserver);
-        } else {
-            initWaveObserver();
+        window.showFlaggedUnitsModal = function() {
+            const modal = document.getElementById('flaggedUnitsModal');
+            modal.classList.remove('hidden');
+            const container = document.getElementById('flaggedUnitsList');
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+            fetch('/api/flagged-units')
+                .then(res => res.json())
+                .then(data => {
+                    if (!data.success || data.units.length === 0) {
+                        container.innerHTML = `
+                            <div class="text-center py-12 bg-white rounded-2xl ring-1 ring-slate-900/5 shadow-md shadow-slate-200/40">
+                                <div class="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4 border border-green-100">
+                                    <i data-lucide="shield-check" class="w-8 h-8 text-green-600"></i>
+                                </div>
+                                <h4 class="text-lg font-bold text-slate-800 uppercase tracking-tight">All Clear</h4>
+                                <p class="text-slate-500 text-xs px-8 mt-1 font-medium">No units are currently flagged or missing. Fleet integrity is secured.</p>
+                            </div>
+                        `;
+                        if (typeof lucide !== 'undefined') lucide.createIcons();
+                        return;
+                    }
+
+                    let html = '<div class="space-y-3">';
+                    data.units.forEach(unit => {
+                        const isMissing = (unit.status || '').toLowerCase() === 'missing';
+                        const badgeClass = isMissing ? 'bg-red-100 text-red-700 border-red-200' : 'bg-amber-100 text-amber-700 border-amber-200';
+                        const icon = isMissing ? 'alert-octagon' : 'eye';
+                        const statusText = isMissing ? 'MISSING / STOLEN' : 'SURVEILLANCE';
+                        
+                        const daysMissing = unit.days_missing || 0;
+                        const daysColor = daysMissing > 3 ? 'text-red-600' : 'text-amber-600';
+
+                        const contactDisplay = unit.driver_phone ? 
+                            `<a href="tel:${unit.driver_phone}" class="text-blue-600 font-bold hover:underline flex items-center gap-1">
+                                <i data-lucide="phone" class="w-3 h-3"></i> ${unit.driver_phone}
+                            </a>` : '<span class="text-slate-400">Not recorded</span>';
+
+                        html += `
+                            <div class="bg-white p-4 rounded-2xl shadow-md shadow-slate-200/40 ring-1 ring-slate-900/5 border-l-4 ${isMissing ? 'border-red-600' : 'border-amber-600'} hover:shadow-md transition-all relative overflow-hidden group">
+                                ${isMissing ? '<div class="absolute top-0 right-0 p-1 bg-red-600 text-white text-[8px] font-bold uppercase tracking-widest px-3">Lockdown</div>' : ''}
+                                <div class="flex justify-between items-start">
+                                    <div class="flex-1">
+                                        <div class="flex items-center gap-2 mb-2">
+                                            <span class="text-lg font-bold text-slate-800 tracking-tighter">${unit.plate_number}</span>
+                                            <span class="px-2 py-0.5 rounded text-[9px] font-bold border ${badgeClass} flex items-center gap-1 uppercase tracking-widest shadow-md shadow-slate-200/40">
+                                                <i data-lucide="${icon}" class="w-3 h-3"></i> ${statusText}
+                                            </span>
+                                        </div>
+                                        <div class="space-y-1.5">
+                                            <div class="flex items-center gap-2 text-[10px]">
+                                                <span class="text-slate-400 w-24 flex-shrink-0 font-bold uppercase tracking-tight">Current Driver:</span>
+                                                <span class="text-gray-800 font-bold uppercase tracking-tighter">${unit.driver_name || 'No Driver'}</span>
+                                            </div>
+                                            <div class="flex items-center gap-2 text-[10px]">
+                                                <span class="text-slate-400 w-24 flex-shrink-0 font-bold uppercase tracking-tight">Contact # :</span>
+                                                ${contactDisplay}
+                                            </div>
+                                            <div class="flex items-center gap-2 text-[10px] pt-1.5 mt-1.5 border-t border-gray-100">
+                                                <span class="text-slate-400 w-24 flex-shrink-0 font-bold uppercase tracking-tight">Last Return:</span>
+                                                <span class="text-gray-600 italic font-bold uppercase tracking-tighter">${unit.last_known_driver || 'None'}</span>
+                                            </div>
+                                            <div class="flex items-center gap-2 text-[10px]">
+                                                <span class="text-slate-400 w-24 flex-shrink-0 font-bold uppercase tracking-tight">Return Date:</span>
+                                                <span class="text-gray-600 font-bold uppercase">${unit.last_boundary_date || 'No record'}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-col items-center gap-3 flex-shrink-0 ml-4">
+                                        <div class="text-center bg-gray-50 p-2 rounded-xl ring-1 ring-slate-900/5 min-w-[70px]">
+                                            <div class="text-[9px] uppercase font-bold text-slate-400 tracking-widest">Time Elapsed</div>
+                                            <div class="text-xl ${daysColor} leading-none mt-1 font-bold">${daysMissing}</div>
+                                            <div class="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">day(s)</div>
+                                        </div>
+                                        ${isMissing ? `
+                                        <form method="POST" action="/units/${unit.id}/recover" class="m-0 w-full" onsubmit="return confirm('Confirm RECOVERY of Unit ${unit.plate_number}? This will restore its active status and clear security alerts.');">
+                                            <input type="hidden" name="_token" value="${csrfToken}">
+                                            <button type="submit" class="w-full py-2 bg-green-600 text-white hover:bg-green-700 rounded-xl transition-all shadow-lg shadow-green-200 flex items-center justify-center gap-2 group/btn" title="Mark as Recovered">
+                                                <i data-lucide="check-circle" class="w-4 h-4 group-hover/btn:scale-110 transition-transform"></i>
+                                                <span class="text-[10px] font-bold uppercase tracking-widest">Recover</span>
+                                            </button>
+                                        </form>
+                                        ` : `
+                                        <a href="/units?id=${unit.id}" class="w-full py-2 bg-gray-100 text-gray-600 hover:bg-gray-200 rounded-xl transition-all flex items-center justify-center gap-2 border border-gray-200">
+                                            <i data-lucide="edit-3" class="w-4 h-4"></i>
+                                            <span class="text-[10px] font-bold uppercase tracking-widest text-center">Manage</span>
+                                        </a>
+                                        `}
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    html += '</div>';
+                    container.innerHTML = html;
+                    if (typeof lucide !== 'undefined') lucide.createIcons();
+                })
+                .catch(err => {
+                    container.innerHTML = `
+                        <div class="text-center py-12 bg-red-50 rounded-2xl border border-red-100">
+                            <i data-lucide="alert-circle" class="w-12 h-12 text-red-500 mx-auto mb-3"></i>
+                            <p class="text-red-700 font-bold uppercase tracking-widest text-xs">Failed to load security flags.</p>
+                            <button onclick="showFlaggedUnitsModal()" class="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg text-xs font-bold uppercase tracking-widest">Retry</button>
+                        </div>
+                    `;
+                    if (typeof lucide !== 'undefined') lucide.createIcons();
+                });
         }
-        window.addEventListener('load', initWaveObserver);
     </script>
 @endsection
