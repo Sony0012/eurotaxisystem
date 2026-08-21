@@ -846,7 +846,7 @@
                                 <i data-lucide="wrench" class="w-4 h-4 text-orange-600"></i>
                             </div>
                             <div>
-                                <div class="text-lg font-bold text-orange-600" id="maintenanceUnitsCount">0</div>
+                                <div class="text-lg font-bold text-orange-600" id="maintenanceUnitsCount">{{ $initial_maintenance['stats']['total_maintenance'] ?? 0 }}</div>
                                 <div class="text-[10px] text-gray-600 uppercase tracking-wide font-bold">Maintenance</div>
                             </div>
                         </div>
@@ -858,7 +858,7 @@
                                 <i data-lucide="shield-check" class="w-4 h-4 text-blue-600"></i>
                             </div>
                             <div>
-                                <div class="text-lg font-bold text-blue-600" id="preventiveMaintenanceCount">0</div>
+                                <div class="text-lg font-bold text-blue-600" id="preventiveMaintenanceCount">{{ $initial_maintenance['stats']['preventive_maintenance'] ?? 0 }}</div>
                                 <div class="text-[10px] text-gray-600 uppercase tracking-wide font-bold">Preventive</div>
                             </div>
                         </div>
@@ -870,7 +870,7 @@
                                 <i data-lucide="wrench" class="w-4 h-4 text-amber-600"></i>
                             </div>
                             <div>
-                                <div class="text-lg font-bold text-amber-600" id="correctiveMaintenanceCount">0</div>
+                                <div class="text-lg font-bold text-amber-600" id="correctiveMaintenanceCount">{{ $initial_maintenance['stats']['corrective_maintenance'] ?? 0 }}</div>
                                 <div class="text-[10px] text-gray-600 uppercase tracking-wide font-bold">Corrective</div>
                             </div>
                         </div>
@@ -882,7 +882,7 @@
                                 <i data-lucide="alert-triangle" class="w-4 h-4 text-red-600"></i>
                             </div>
                             <div>
-                                <div class="text-lg font-bold text-red-600" id="emergencyMaintenanceCount">0</div>
+                                <div class="text-lg font-bold text-red-600" id="emergencyMaintenanceCount">{{ $initial_maintenance['stats']['emergency_maintenance'] ?? 0 }}</div>
                                 <div class="text-[10px] text-gray-600 uppercase tracking-wide font-bold">Emergency</div>
                             </div>
                         </div>
@@ -894,7 +894,7 @@
                                 <i data-lucide="check-circle" class="w-4 h-4 text-green-600"></i>
                             </div>
                             <div>
-                                <div class="text-lg font-bold text-green-600" id="completedTotalCount">0</div>
+                                <div class="text-lg font-bold text-green-600" id="completedTotalCount">{{ $initial_maintenance['stats']['completed_total'] ?? 0 }}</div>
                                 <div class="text-[10px] text-gray-600 uppercase tracking-wide font-bold">Complete</div>
                             </div>
                         </div>
@@ -905,14 +905,62 @@
             <!-- Maintenance Units Grid -->
             <div class="flex-1 overflow-y-auto p-4 bg-gray-50 min-h-0">
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pb-4" id="maintenanceGrid">
-                    <!-- Loading State -->
-                    <div class="col-span-full text-center py-16">
-                        <div class="inline-flex flex-col items-center">
-                            <div class="animate-spin rounded-full h-12 w-12 border-4 border-orange-600 border-t-transparent mb-4"></div>
-                            <span class="text-lg text-gray-600 font-semibold mb-2">Loading maintenance data...</span>
-                            <p class="text-sm text-slate-400">Please wait while we fetch maintenance details</p>
+                    @if(!empty($initial_maintenance['units']) && count($initial_maintenance['units']) > 0)
+                        @foreach($initial_maintenance['units'] as $unit)
+                            <div onclick="showMaintenanceDetailsModal({{ $unit['maintenance_id'] ?? $unit['id'] ?? 0 }})" class="cursor-pointer bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden border-l-4 border-orange-500 hover:scale-102">
+                                <div class="p-4">
+                                    <!-- Header -->
+                                    <div class="flex items-start justify-between mb-3">
+                                        <div class="flex items-center gap-3">
+                                            <div class="p-2 bg-orange-100 rounded-lg">
+                                                <i data-lucide="wrench" class="w-4 h-4 text-orange-600"></i>
+                                            </div>
+                                            <div>
+                                                <h4 class="text-lg font-bold text-slate-800">{{ $unit['plate_number'] ?? 'N/A' }}</h4>
+                                            </div>
+                                        </div>
+                                        <div class="text-right">
+                                            <div class="text-lg font-bold text-orange-600">{{ $unit['maintenance_type'] ?? 'Unknown' }}</div>
+                                            <div class="text-xs text-slate-500">{{ $unit['start_date'] ?? 'N/A' }}</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Maintenance Details -->
+                                    <div class="bg-gray-50 rounded-lg p-3 mb-3">
+                                        <div class="flex items-center justify-between mb-2">
+                                            <span class="text-sm font-medium text-slate-800">Status: {{ $unit['maintenance_status'] ?? 'Unknown' }}</span>
+                                            <span class="text-xs font-bold text-orange-600">{{ !empty($unit['estimated_completion']) ? 'Est: ' . $unit['estimated_completion'] : '' }}</span>
+                                        </div>
+                                        <div class="text-xs text-gray-600">
+                                            <span class="font-medium">Description:</span> {{ $unit['description'] ?? 'No description available' }}
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Footer -->
+                                    <div class="flex items-center justify-between text-xs text-slate-500">
+                                        <span class="flex items-center gap-1">
+                                            <i data-lucide="calendar" class="w-3 h-3"></i>
+                                            Started: {{ $unit['start_date'] ?? 'N/A' }}
+                                        </span>
+                                        <span class="flex items-center gap-1">
+                                            <i data-lucide="check-circle" class="w-3 h-3"></i>
+                                            {{ $unit['maintenance_status'] ?? 'Unknown' }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    @else
+                        <div class="col-span-full text-center py-20">
+                            <div class="inline-flex flex-col items-center">
+                                <div class="p-4 bg-gray-100 rounded-full mb-4">
+                                    <i data-lucide="wrench" class="w-8 h-8 text-slate-400"></i>
+                                </div>
+                                <span class="text-xl text-gray-600 font-semibold mb-2">No maintenance units found</span>
+                                <p class="text-sm text-slate-400">All units are active and running</p>
+                            </div>
                         </div>
-                    </div>
+                    @endif
                 </div>
             </div>
         </div>
