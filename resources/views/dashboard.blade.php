@@ -1430,7 +1430,7 @@
             </div>
 
             <div class="relative z-10">
-                <div class="flex items-center justify-between mb-3 sm:mb-4">
+                <div class="flex items-center justify-between mb-2">
                     <div class="flex items-center gap-3">
                         <div class="p-2.5 bg-white/20 backdrop-blur-sm rounded-xl border border-white/30">
                             <i data-lucide="trending-up" class="w-6 h-6 text-white"></i>
@@ -1440,26 +1440,24 @@
                             <p class="text-green-100 text-xs font-medium mt-0.5">Complete income and expense breakdown</p>
                         </div>
                     </div>
-                    <div class="flex items-center gap-2">
-                        <button onclick="printReport()" class="bg-white text-green-700 hover:bg-green-50 px-4 py-2 rounded-lg transition-all duration-200 shadow-lg flex items-center gap-2 text-sm font-bold border-2 border-white animate-pulse hover:animate-none">
-                            <i data-lucide="printer" class="w-4 h-4 text-green-700"></i>
-                            PRINT REPORT
-                        </button>
-                        <button onclick="hideNetIncomeModal()" class="text-white/80 hover:text-white hover:bg-white/20 p-2 rounded-lg transition-all duration-200 backdrop-blur-sm">
-                            <i data-lucide="x" class="w-5 h-5"></i>
-                        </button>
-                    </div>
+                    <button onclick="hideNetIncomeModal()" class="text-white/80 hover:text-white hover:bg-white/20 p-2 rounded-lg transition-all duration-200 backdrop-blur-sm">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
                 </div>
                 
-                <!-- Search and Date Filter -->
-                <!-- Centered Period Filters (Net Income) -->
-                <div class="mt-6 flex justify-center bg-black/10 rounded-xl p-1.5 backdrop-blur-sm border border-white/10">
+                <!-- Period Filters and Print Button Row -->
+                <div class="mt-4 flex flex-wrap items-center justify-between gap-3 bg-black/15 rounded-xl p-2 backdrop-blur-sm border border-white/10">
                     <div class="flex gap-1 p-0.5 bg-black/20 rounded-lg shadow-inner">
                         <button id="btn-today-income" onclick="setIncomePeriod('today')" class="px-3 py-1.5 text-xs font-bold rounded-md transition-all duration-200">Today</button>
                         <button id="btn-week-income" onclick="setIncomePeriod('week')" class="px-3 py-1.5 text-xs font-bold rounded-md transition-all duration-200">Weekly</button>
                         <button id="btn-month-income" onclick="setIncomePeriod('month')" class="px-3 py-1.5 text-xs font-bold rounded-md transition-all duration-200">Monthly</button>
                         <button id="btn-year-income" onclick="setIncomePeriod('year')" class="px-3 py-1.5 text-xs font-bold rounded-md transition-all duration-200">Yearly</button>
                     </div>
+
+                    <button onclick="printReport()" class="bg-white text-green-700 hover:bg-green-50 px-4 py-1.5 rounded-lg transition-all duration-200 shadow-md flex items-center gap-2 text-xs font-bold border border-white hover:scale-105">
+                        <i data-lucide="printer" class="w-4 h-4 text-green-700"></i>
+                        PRINT REPORT
+                    </button>
                 </div>
             </div>
         </div>
@@ -1593,7 +1591,7 @@
             </div>
 
             <div class="relative z-10">
-                <div class="flex items-center justify-between mb-3 sm:mb-4">
+                <div class="flex items-center justify-between mb-2">
                     <div class="flex items-center gap-4">
                         <div class="p-2.5 bg-white/20 backdrop-blur-md rounded-xl border border-white/30 shadow-inner">
                             <i data-lucide="trending-down" class="w-7 h-7"></i>
@@ -1603,25 +1601,24 @@
                             <p class="text-red-100 text-[11px] font-bold uppercase tracking-widest opacity-80 mt-0.5">Detailed expense records and computation</p>
                         </div>
                     </div>
-                    <div class="flex items-center gap-3">
-                        <button onclick="printExpensesNewTab()" class="flex items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg font-bold text-xs uppercase tracking-widest transition-all border border-white/20">
-                            <i data-lucide="printer" class="w-4 h-4"></i>
-                            Print Expenses
-                        </button>
-                        <button onclick="hideExpensesModal()" class="p-2 hover:bg-white/10 text-white rounded-full transition-colors">
-                            <i data-lucide="x" class="w-6 h-6"></i>
-                        </button>
-                    </div>
+                    <button onclick="hideExpensesModal()" class="p-2 hover:bg-white/10 text-white rounded-full transition-colors">
+                        <i data-lucide="x" class="w-6 h-6"></i>
+                    </button>
                 </div>
                 
-                <!-- Period Filters (Expenses Only) -->
-                <div class="mt-6 flex justify-center bg-black/10 rounded-xl p-1.5 backdrop-blur-sm border border-white/10">
+                <!-- Period Filters & Print Row (Expenses) -->
+                <div class="mt-4 flex flex-wrap items-center justify-between gap-3 bg-black/15 rounded-xl p-2 backdrop-blur-sm border border-white/10">
                     <div class="flex gap-1 p-0.5 bg-black/20 rounded-lg shadow-inner">
                         <button id="btn-today-expenses" onclick="setExpensesPeriod('today')" class="px-3 py-1.5 text-xs font-bold rounded-md transition-all duration-200">Today</button>
                         <button id="btn-week-expenses" onclick="setExpensesPeriod('week')" class="px-3 py-1.5 text-xs font-bold rounded-md transition-all duration-200">Weekly</button>
                         <button id="btn-month-expenses" onclick="setExpensesPeriod('month')" class="px-3 py-1.5 text-xs font-bold rounded-md transition-all duration-200">Monthly</button>
                         <button id="btn-year-expenses" onclick="setExpensesPeriod('year')" class="px-3 py-1.5 text-xs font-bold rounded-md transition-all duration-200">Yearly</button>
                     </div>
+
+                    <button onclick="printExpensesNewTab()" class="flex items-center gap-2 px-4 py-1.5 bg-white text-rose-700 hover:bg-rose-50 rounded-lg font-bold text-xs uppercase tracking-widest transition-all shadow-md border border-white hover:scale-105">
+                        <i data-lucide="printer" class="w-4 h-4 text-rose-700"></i>
+                        Print Expenses
+                    </button>
                 </div>
             </div>
         </div>
