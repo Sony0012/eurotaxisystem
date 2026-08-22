@@ -1136,10 +1136,10 @@
             <div class="flex flex-wrap items-center gap-2">
                 <!-- Search Input with Clear Button -->
                 <div style="position:relative;display:flex;align-items:center;">
-                    <i data-lucide="search" style="position:absolute;left:.6rem;top:50%;transform:translateY(-50%);width:13px;height:13px;color:#94a3b8;"></i>
-                    <input id="cam-search" type="text" placeholder="Search name, role, email…" autocomplete="new-password"
-                        style="padding:.45rem 1.8rem .45rem 2rem;border:1px solid #e2e8f0;border-radius:.6rem;font-size:.78rem;outline:none;width:230px;transition:border-color .2s;"
-                        oninput="camRenderTable()" onfocus="this.style.borderColor='#f59e0b'" onblur="this.style.borderColor='#e2e8f0'">
+                    <i data-lucide="search" style="position:absolute;left:.6rem;top:50%;transform:translateY(-50%);width:13px;height:13px;color:#94a3b8;pointer-events:none;"></i>
+                    <input id="cam-search" type="search" name="cam_search_q_{{ uniqid() }}" placeholder="Search name, role, email…" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" readonly
+                        style="padding:.45rem 1.8rem .45rem 2rem;border:1px solid #e2e8f0;border-radius:.6rem;font-size:.78rem;outline:none;width:230px;transition:border-color .2s;background:#fff;"
+                        onfocus="this.removeAttribute('readonly');this.style.borderColor='#f59e0b';" onclick="this.removeAttribute('readonly');" onblur="this.style.borderColor='#e2e8f0'" oninput="camRenderTable()">
                     <button type="button" onclick="document.getElementById('cam-search').value='';camRenderTable();" style="position:absolute;right:.5rem;color:#94a3b8;cursor:pointer;background:none;border:none;padding:.2rem;font-size:.75rem;line-height:1;" title="Clear search">✕</button>
                 </div>
 
@@ -2043,23 +2043,48 @@ function camRenderAlerts() {
 }
 
 // ─── User Progress Table ──────────────────────────────────────
+function camResetFilters() {
+    const sInput = document.getElementById('cam-search');
+    if (sInput) sInput.value = '';
+    camSetFilter('all');
+}
+
 function camRenderTable() {
     const search = (document.getElementById('cam-search')?.value || '').toLowerCase().trim();
     const tbody  = document.getElementById('cam-user-table');
     if (!tbody) return;
 
-    let users = (CAM_DATA.users || []).filter(u => {
-        const matchQ = !search || u.name.toLowerCase().includes(search) || (u.email && u.email.toLowerCase().includes(search)) || (u.role && u.role.toLowerCase().includes(search));
+    const allUsers = CAM_DATA.users || [];
+    let users = allUsers.filter(u => {
+        const matchQ = !search || (u.name && u.name.toLowerCase().includes(search)) || (u.email && u.email.toLowerCase().includes(search)) || (u.role && u.role.toLowerCase().includes(search));
         const matchF = CAM_FILTER === 'all' || u.status === CAM_FILTER;
         return matchQ && matchF;
     });
 
+    let filterNotice = '';
+    if (users.length < allUsers.length && allUsers.length > 0) {
+        const filterName = CAM_FILTER !== 'all' ? `"${CAM_FILTER.toUpperCase()}" status` : `"${search}"`;
+        filterNotice = `
+            <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:.6rem;padding:.45rem .85rem;margin-bottom:.65rem;display:flex;align-items:center;justify-content:space-between;font-size:.73rem;color:#166534;">
+                <span>Showing <strong>${users.length}</strong> of <strong>${allUsers.length}</strong> accounts (filtered by ${filterName})</span>
+                <button type="button" onclick="camResetFilters()" style="margin-left:auto;font-size:.7rem;font-weight:800;color:#15803d;background:#dcfce7;border:1px solid #86efac;padding:.15rem .5rem;border-radius:.35rem;cursor:pointer;">Show All (${allUsers.length}) ✕</button>
+            </div>
+        `;
+    }
+
     if (users.length === 0) {
-        tbody.innerHTML = `<div style="text-align:center;padding:2.5rem;color:#94a3b8;font-size:.82rem;">No accounts match your filter or search.</div>`;
+        tbody.innerHTML = `
+            ${filterNotice}
+            <div style="text-align:center;padding:2.5rem;color:#94a3b8;font-size:.82rem;">
+                No accounts match your filter or search.
+                <div style="margin-top:.6rem;">
+                    <button type="button" onclick="camResetFilters()" class="cam-filter-btn active" style="font-size:.75rem;padding:.35rem .9rem;cursor:pointer;">Show All Accounts (${allUsers.length})</button>
+                </div>
+            </div>`;
         return;
     }
 
-    tbody.innerHTML = users.map(u => {
+    tbody.innerHTML = filterNotice + users.map(u => {
         const barW     = u.pct || 0;
         const barC     = camBarColor(barW);
         const dotCls   = u.status === 'active' ? 'cam-dot-active' : (u.status === 'low' ? 'cam-dot-low' : 'cam-dot-none');
