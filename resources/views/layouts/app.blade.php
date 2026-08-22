@@ -2716,8 +2716,8 @@
                 }).catch(e => console.error('Heartbeat failed:', e));
             }
             
-            // Send heartbeat every 60 seconds
-            setInterval(sendHeartbeat, 60000);
+            // Send heartbeat every 20 seconds for continuous active presence tracking
+            setInterval(sendHeartbeat, 20000);
             
             // Send one immediately on load
             setTimeout(sendHeartbeat, 2000);
