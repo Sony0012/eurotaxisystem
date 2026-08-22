@@ -537,29 +537,88 @@
                         <!-- Overview Tab -->
                         <div id="overview-tab" class="tab-content animate-in fade-in duration-300">
                             <!-- Quick Stats Grid -->
-                            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                                <div class="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm hover:shadow-md transition-all">
-                                    <div class="flex items-center gap-4">
-                                        <div class="p-2.5 bg-blue-50 rounded-xl"><i data-lucide="users" class="w-5 h-5 text-blue-600"></i></div>
-                                        <div><p class="text-[10px] text-gray-400 font-black uppercase tracking-widest">Drivers</p><p class="text-xl font-black text-gray-900">${assignedDrivers.length}/2</p></div>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                                <!-- Card 1: Drivers -->
+                                <div class="relative overflow-hidden rounded-3xl border border-slate-200/80 bg-gradient-to-br from-white via-indigo-50/30 to-blue-50/20 p-4 sm:p-5 shadow-xs">
+                                    <div class="flex items-center justify-between gap-3 relative z-10">
+                                        <div class="min-w-0 flex-1">
+                                            <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-1">
+                                                Assigned Drivers
+                                            </span>
+                                            <div class="text-xl sm:text-2xl font-black text-slate-900 leading-tight tracking-tight tabular-nums truncate">
+                                                ${assignedDrivers.length} / 2
+                                            </div>
+                                            <div class="mt-1.5 flex items-center gap-1.5 text-[10px] font-bold ${assignedDrivers.length > 0 ? 'text-indigo-600' : 'text-slate-400'}">
+                                                <span class="inline-flex h-1.5 w-1.5 rounded-full ${assignedDrivers.length > 0 ? 'bg-indigo-500' : 'bg-slate-300'}"></span>
+                                                <span>${assignedDrivers.length === 2 ? 'Fully Staffed' : assignedDrivers.length === 1 ? 'Single Shift' : 'No Driver'}</span>
+                                            </div>
+                                        </div>
+                                        <div class="w-12 h-12 sm:w-14 sm:h-14 shrink-0">
+                                            <img src="{{ asset("image/kpi/drivers_3d.svg") }}" alt="Drivers" class="w-full h-full object-contain filter drop-shadow-md">
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm hover:shadow-md transition-all">
-                                    <div class="flex items-center gap-4">
-                                        <div class="p-2.5 bg-green-50 rounded-xl"><i data-lucide="calendar" class="w-5 h-5 text-green-600"></i></div>
-                                        <div><p class="text-[10px] text-gray-400 font-black uppercase tracking-widest">Next Coding</p><p class="text-xl font-black text-gray-900">${daysUntilCoding === 0 ? 'Today' : daysUntilCoding + 'd'}</p></div>
+
+                                <!-- Card 2: Next Coding -->
+                                <div class="relative overflow-hidden rounded-3xl border border-slate-200/80 bg-gradient-to-br from-white via-purple-50/30 to-indigo-50/20 p-4 sm:p-5 shadow-xs">
+                                    <div class="flex items-center justify-between gap-3 relative z-10">
+                                        <div class="min-w-0 flex-1">
+                                            <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-1">
+                                                Next Coding
+                                            </span>
+                                            <div class="text-xl sm:text-2xl font-black ${daysUntilCoding === 0 ? 'text-amber-600' : 'text-slate-900'} leading-tight tracking-tight tabular-nums truncate">
+                                                ${daysUntilCoding === 0 ? 'Today' : daysUntilCoding + 'd'}
+                                            </div>
+                                            <div class="mt-1.5 flex items-center gap-1.5 text-[10px] font-bold ${daysUntilCoding === 0 ? 'text-amber-600' : 'text-purple-600'}">
+                                                <span class="inline-flex h-1.5 w-1.5 rounded-full ${daysUntilCoding === 0 ? 'bg-amber-500' : 'bg-purple-500'}"></span>
+                                                <span>${daysUntilCoding === 0 ? 'Restricted Today' : 'Schedule Standby'}</span>
+                                            </div>
+                                        </div>
+                                        <div class="w-12 h-12 sm:w-14 sm:h-14 shrink-0">
+                                            <img src="{{ asset("image/kpi/coding_3d.svg") }}" alt="Coding" class="w-full h-full object-contain filter drop-shadow-md">
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm hover:shadow-md transition-all">
-                                    <div class="flex items-center gap-4">
-                                        <div class="p-2.5 bg-purple-50 rounded-xl"><i data-lucide="trending-up" class="w-5 h-5 text-purple-600"></i></div>
-                                        <div><p class="text-[10px] text-gray-400 font-black uppercase tracking-widest">ROI</p><p class="text-xl font-black text-gray-900">${roiPct.toFixed(1)}%</p></div>
+
+                                <!-- Card 3: ROI -->
+                                <div class="relative overflow-hidden rounded-3xl border border-slate-200/80 bg-gradient-to-br from-white via-emerald-50/30 to-teal-50/20 p-4 sm:p-5 shadow-xs">
+                                    <div class="flex items-center justify-between gap-3 relative z-10">
+                                        <div class="min-w-0 flex-1">
+                                            <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-1">
+                                                Unit ROI
+                                            </span>
+                                            <div class="text-xl sm:text-2xl font-black text-emerald-600 leading-tight tracking-tight tabular-nums truncate">
+                                                ${roiPct.toFixed(1)}%
+                                            </div>
+                                            <div class="mt-1.5 flex items-center gap-1.5 text-[10px] font-bold text-emerald-600">
+                                                <span class="inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                                                <span>Capital Return</span>
+                                            </div>
+                                        </div>
+                                        <div class="w-12 h-12 sm:w-14 sm:h-14 shrink-0">
+                                            <img src="{{ asset("image/kpi/profit_3d.svg") }}" alt="ROI" class="w-full h-full object-contain filter drop-shadow-md">
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm hover:shadow-md transition-all">
-                                    <div class="flex items-center gap-4">
-                                        <div class="p-2.5 bg-orange-50 rounded-xl"><i data-lucide="wrench" class="w-5 h-5 text-orange-600"></i></div>
-                                        <div><p class="text-[10px] text-gray-400 font-black uppercase tracking-widest">Maint Jobs</p><p class="text-xl font-black text-gray-900">${maint.length}</p></div>
+
+                                <!-- Card 4: Maint Jobs -->
+                                <div class="relative overflow-hidden rounded-3xl border border-slate-200/80 bg-gradient-to-br from-white via-orange-50/30 to-amber-50/20 p-4 sm:p-5 shadow-xs">
+                                    <div class="flex items-center justify-between gap-3 relative z-10">
+                                        <div class="min-w-0 flex-1">
+                                            <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-1">
+                                                Maint Jobs
+                                            </span>
+                                            <div class="text-xl sm:text-2xl font-black text-slate-900 leading-tight tracking-tight tabular-nums truncate">
+                                                ${maint.length}
+                                            </div>
+                                            <div class="mt-1.5 flex items-center gap-1.5 text-[10px] font-bold ${maint.length > 0 ? 'text-orange-600' : 'text-slate-400'}">
+                                                <span class="inline-flex h-1.5 w-1.5 rounded-full ${maint.length > 0 ? 'bg-orange-500' : 'bg-slate-300'}"></span>
+                                                <span>${maint.length > 0 ? 'Logged Records' : 'Zero Service Jobs'}</span>
+                                            </div>
+                                        </div>
+                                        <div class="w-12 h-12 sm:w-14 sm:h-14 shrink-0">
+                                            <img src="{{ asset("image/kpi/maint_ongoing_3d.svg") }}" alt="Maintenance" class="w-full h-full object-contain filter drop-shadow-md">
+                                        </div>
                                     </div>
                                 </div>
                             </div>
