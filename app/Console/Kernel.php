@@ -15,18 +15,8 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // Auto-offline heartbeat tracker: Runs every minute
-        $schedule->call(function () {
-            // Find users who are marked online but haven't been seen for more than 15 minutes
-            $offlineUsers = \App\Models\User::where('is_online', true)
-                ->where('last_seen_at', '<', now()->subMinutes(15))
-                ->get();
-                
-            foreach ($offlineUsers as $u) {
-                $u->update(['is_online' => false]);
-                \App\Models\LoginAudit::log('logout', $u, 'Auto-offline: Inactive for 15+ minutes.');
-            }
-        })->everyMinute();
+        // Cleanup stale presence connections every minute
+        $schedule->command('presence:cleanup')->everyMinute();
     }
 
     /**

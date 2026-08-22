@@ -30,6 +30,7 @@ use App\Http\Controllers\SuperAdminController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\PushSubscriptionController;
 use App\Http\Controllers\ChatController;
+use App\Http\Controllers\PresenceController;
 
 // ─── Auth Routes ───────────────────────────────────────
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
@@ -44,9 +45,11 @@ Route::get('/force-change-password', [AuthController::class, 'showForceChangePas
 Route::post('/force-change-password', [AuthController::class, 'updateForceChangePassword'])->name('auth.force-change-password.update');
 
 
-// ─── My Account Routes ───────────────────────────────────
+// ─── My Account & Presence Routes ────────────────────────
 Route::middleware(['auth'])->group(function () {
-    Route::post('/heartbeat', [AuthController::class, 'heartbeat'])->name('heartbeat');
+    Route::post('/heartbeat', [PresenceController::class, 'heartbeat'])->name('heartbeat');
+    Route::post('/presence/heartbeat', [PresenceController::class, 'heartbeat'])->name('presence.heartbeat');
+    Route::post('/presence/disconnect', [PresenceController::class, 'disconnect'])->name('presence.disconnect');
     Route::get('/my-account', [MyAccountController::class, 'index'])->name('my-account');
     Route::post('/my-account/update-profile', [MyAccountController::class, 'updateProfile'])->name('my-account.update-profile');
     Route::post('/my-account/update-profile-image', [MyAccountController::class, 'updateProfileImage'])->name('my-account.update-profile-image');

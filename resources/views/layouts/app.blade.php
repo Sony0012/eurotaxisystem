@@ -2703,26 +2703,8 @@
     </script>
     
     @auth
-    <script>
-        // Heartbeat Auto-Offline Tracker
-        (function() {
-            function sendHeartbeat() {
-                fetch('{{ route("heartbeat") }}', {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'Accept': 'application/json'
-                    }
-                }).catch(e => console.error('Heartbeat failed:', e));
-            }
-            
-            // Send heartbeat every 20 seconds for continuous active presence tracking
-            setInterval(sendHeartbeat, 20000);
-            
-            // Send one immediately on load
-            setTimeout(sendHeartbeat, 2000);
-        })();
-    </script>
+    <!-- Multi-Tab & Device Resilient Presence Manager -->
+    <script src="{{ asset('assets/js/presence-manager.js') }}?v=2.0"></script>
     
     <!-- Interactive Tutorial System -->
     <script src="https://cdn.jsdelivr.net/npm/driver.js@1.3.1/dist/driver.js.iife.js"></script>

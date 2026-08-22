@@ -2089,9 +2089,8 @@ function camRenderTable() {
         const barW     = u.pct || 0;
         const displayW = (u.todayMins > 0 || u.isOnline) ? Math.max(barW, 5) : 0;
         const barC     = camBarColor(barW);
-        const dotCls   = u.status === 'active' ? 'cam-dot-active' : (u.status === 'low' ? 'cam-dot-low' : 'cam-dot-none');
-        const badgeCls = u.status === 'active' ? 'cam-badge-active' : (u.status === 'low' ? 'cam-badge-low' : 'cam-badge-none');
-        const badgeTxt = u.status === 'active' ? 'Active' : (u.status === 'low' ? 'Low Usage' : 'Inactive');
+        const badgeCls = u.status === 'active' ? 'cam-badge-active' : (u.status === 'idle' ? 'cam-badge-low' : (u.status === 'low' ? 'cam-badge-low' : 'cam-badge-none'));
+        const badgeTxt = u.status === 'active' ? 'ACTIVE' : (u.status === 'idle' ? 'IDLE' : (u.status === 'low' ? 'LOW USAGE' : 'INACTIVE'));
         const onlineTag = u.isOnline ? `<span style="font-size:.55rem;background:#dcfce7;color:#15803d;padding:.1rem .35rem;border-radius:99px;font-weight:700;margin-left:.35rem;">LIVE</span>` : '';
         const initials  = (u.name || 'U').split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase();
 
