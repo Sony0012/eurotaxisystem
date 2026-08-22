@@ -1973,6 +1973,16 @@ function camRenderStats() {
     setTxt('cam-s-adoption', (s.adoption   ?? 0) + '%');
     setTxt('cam-s-acts',     s.total_acts  ?? 0);
     setTxt('cam-s-clients',  s.roles_count ?? 0);
+
+    const btnAll    = document.getElementById('cam-filter-all');
+    const btnActive = document.getElementById('cam-filter-active');
+    const btnLow    = document.getElementById('cam-filter-low');
+    const btnNone   = document.getElementById('cam-filter-none');
+
+    if (btnAll)    btnAll.innerHTML    = `All <span style="font-size:.65rem;background:#e2e8f0;color:#334155;padding:.08rem .35rem;border-radius:99px;margin-left:.25rem;font-weight:800;">${s.total || (CAM_DATA.users||[]).length}</span>`;
+    if (btnActive) btnActive.innerHTML = `🟢 Active <span style="font-size:.65rem;background:#dcfce7;color:#15803d;padding:.08rem .35rem;border-radius:99px;margin-left:.25rem;font-weight:800;">${s.active || 0}</span>`;
+    if (btnLow)    btnLow.innerHTML    = `🟡 Low <span style="font-size:.65rem;background:#fef3c7;color:#92400e;padding:.08rem .35rem;border-radius:99px;margin-left:.25rem;font-weight:800;">${s.low || 0}</span>`;
+    if (btnNone)   btnNone.innerHTML   = `🔴 Inactive <span style="font-size:.65rem;background:#fee2e2;color:#991b1b;padding:.08rem .35rem;border-radius:99px;margin-left:.25rem;font-weight:800;">${s.none || 0}</span>`;
 }
 
 // ─── Attention Alerts ─────────────────────────────────────────
@@ -2376,6 +2386,17 @@ function camSetFilter(f) {
 
 function camInit() {
     if (!document.getElementById('cam-user-table')) return;
+    // Reset search input to empty
+    const sInput = document.getElementById('cam-search');
+    if (sInput) sInput.value = '';
+
+    // Reset filter state to 'all'
+    CAM_FILTER = 'all';
+    ['all','active','low','none'].forEach(k => {
+        const btn = document.getElementById('cam-filter-' + k);
+        if (btn) btn.classList.toggle('active', k === 'all');
+    });
+
     // Set today's date on the date input
     const di = document.getElementById('cam-date');
     if (di && !di.value) di.value = new Date().toISOString().slice(0, 10);
