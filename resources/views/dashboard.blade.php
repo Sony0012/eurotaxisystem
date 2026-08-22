@@ -1904,7 +1904,7 @@
                                 <i data-lucide="car" class="w-6 h-6 text-white"></i>
                             </div>
                             <div>
-                                <p class="text-blue-100 text-sm font-semibold tracking-wide">Fleet Management Dashboard</p>
+                                <p class="text-blue-100 text-xs font-medium">Fleet Management Dashboard</p>
                             </div>
                         </div>
                         <button onclick="hideUnitsModal()" class="text-white/80 hover:text-white hover:bg-white/20 p-2 rounded-lg transition-all duration-200 backdrop-blur-sm">
