@@ -1,5 +1,5 @@
     {{-- Unit Details Modal --}}
-    <div id="unitDetailsModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/60 backdrop-blur-sm">
+    <div id="unitDetailsModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/60 backdrop-blur-sm" onclick="if(event.target === this) closeUnitDetailsModal()">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-6xl h-[95vh] sm:h-[90vh] flex flex-col overflow-hidden animate-fade-in">
             {{-- Modal Header (Deep Navy matching login page) --}}
             <div class="bg-slate-800 p-3 sm:p-4 shrink-0">
@@ -13,8 +13,8 @@
                             <p class="text-[10px] sm:text-sm text-slate-300 leading-tight mt-0.5">Complete unit information and management</p>
                         </div>
                     </div>
-                    <button onclick="closeUnitDetailsModal()" class="text-white hover:text-gray-200 transition-colors p-1 bg-white bg-opacity-5 hover:bg-opacity-10 rounded-lg">
-                        <i data-lucide="x" class="w-4.5 h-4.5 sm:w-5 sm:h-5"></i>
+                    <button type="button" onclick="closeUnitDetailsModal()" class="text-white hover:text-gray-200 transition-colors p-1.5 bg-white/10 hover:bg-white/20 rounded-lg cursor-pointer flex items-center justify-center">
+                        <i data-lucide="x" class="w-5 h-5"></i>
                     </button>
                 </div>
             </div>
@@ -968,8 +968,21 @@
         }
 
         function closeUnitDetailsModal() {
-            document.getElementById('unitDetailsModal').classList.add('hidden');
+            const modal = document.getElementById('unitDetailsModal');
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.style.setProperty('display', 'none', 'important');
+            }
         }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' || e.key === 'Esc') {
+                const modal = document.getElementById('unitDetailsModal');
+                if (modal && !modal.classList.contains('hidden') && modal.style.display !== 'none') {
+                    closeUnitDetailsModal();
+                }
+            }
+        });
 
         function toggleBndHistoryRemarks(idx) {
             if (window.innerWidth >= 640) {
