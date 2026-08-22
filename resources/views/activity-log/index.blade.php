@@ -5,59 +5,61 @@
 @section('page-subheading', 'Detailed audit trail of all administrative and system actions.')
 
 @section('content')
-<div class="max-w-7xl mx-auto space-y-8 pb-12">
+<div class="w-full space-y-6 pb-12">
 
     {{-- ── 1. PAGE HEADER & STATS SUMMARY ────────────────────────────────── --}}
-    <div class="relative overflow-hidden rounded-3xl border border-slate-200/80 bg-gradient-to-r from-white via-blue-50/30 to-indigo-50/20 backdrop-blur-md p-6 sm:p-7 shadow-xs">
+    <div class="relative overflow-hidden rounded-3xl border border-slate-200/80 bg-gradient-to-r from-white via-blue-50/40 to-indigo-50/30 backdrop-blur-md p-6 sm:p-8 shadow-xs">
         <div class="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-            <!-- Left Info -->
-            <div class="flex items-center gap-5">
-                <div class="w-18 h-18 sm:w-20 sm:h-20 shrink-0">
-                    <img src="{{ asset('image/kpi/history_3d.svg') }}" alt="System History Logs" class="w-full h-full object-contain filter drop-shadow-md hover:scale-105 transition-transform">
+            <!-- Left Info with Large 3D SVG -->
+            <div class="flex items-center gap-6">
+                <div class="w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28 shrink-0">
+                    <img src="{{ asset('image/kpi/history_3d.svg') }}" alt="System History Logs" class="w-full h-full object-contain filter drop-shadow-lg hover:scale-105 transition-transform">
                 </div>
                 <div>
                     <!-- Breadcrumb -->
-                    <div class="flex items-center gap-2 text-[11px] font-black text-slate-400 uppercase tracking-widest mb-1.5">
+                    <div class="flex items-center gap-2 text-xs font-black text-slate-400 uppercase tracking-widest mb-1.5">
                         <span>System</span>
                         <span>/</span>
                         <span class="text-blue-600 font-black">History Logs</span>
                     </div>
-                    <h1 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">System History Logs</h1>
-                    <p class="text-xs sm:text-sm text-slate-500 mt-0.5 max-w-xl font-medium">Detailed audit trail of all administrative, operational, and automated system actions.</p>
+                    <h1 class="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 tracking-tight">System History Logs</h1>
+                    <p class="text-xs sm:text-sm lg:text-base text-slate-500 mt-1 max-w-2xl font-medium leading-relaxed">
+                        Detailed audit trail of all administrative, operational, financial, and automated system actions across your fleet.
+                    </p>
                 </div>
             </div>
 
-            <!-- Right Stats Grid (21st.dev Stats Dashboard Pattern) -->
-            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 self-start lg:self-center shrink-0">
+            <!-- Right Stats Grid (Expanded 21st.dev Stats Cards) -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3.5 sm:gap-4 self-start lg:self-center shrink-0 w-full lg:w-auto">
                 <!-- Total Events -->
-                <div class="bg-white/90 border border-slate-200/90 rounded-2xl p-3.5 shadow-2xs min-w-[120px]">
-                    <div class="flex items-center gap-2 text-slate-400 mb-1">
-                        <i data-lucide="activity" class="w-3.5 h-3.5 text-blue-500"></i>
-                        <span class="text-[10px] font-black uppercase tracking-wider">Total Events</span>
+                <div class="bg-white/95 border border-slate-200/90 rounded-2xl p-4 sm:p-5 shadow-xs min-w-[140px] flex-1">
+                    <div class="flex items-center gap-2 text-slate-400 mb-1.5">
+                        <i data-lucide="activity" class="w-4 h-4 text-blue-500"></i>
+                        <span class="text-[10px] sm:text-[11px] font-black uppercase tracking-wider">Total Events</span>
                     </div>
-                    <div class="text-lg font-black text-slate-900 leading-none">
+                    <div class="text-xl sm:text-2xl lg:text-3xl font-black text-slate-900 leading-none tracking-tight">
                         {{ number_format($totalEvents ?? $logs->total()) }}
                     </div>
                 </div>
 
                 <!-- Today's Events -->
-                <div class="bg-white/90 border border-slate-200/90 rounded-2xl p-3.5 shadow-2xs min-w-[120px]">
-                    <div class="flex items-center gap-2 text-slate-400 mb-1">
-                        <i data-lucide="clock" class="w-3.5 h-3.5 text-amber-500"></i>
-                        <span class="text-[10px] font-black uppercase tracking-wider">Today's Events</span>
+                <div class="bg-white/95 border border-slate-200/90 rounded-2xl p-4 sm:p-5 shadow-xs min-w-[140px] flex-1">
+                    <div class="flex items-center gap-2 text-slate-400 mb-1.5">
+                        <i data-lucide="clock" class="w-4 h-4 text-amber-500"></i>
+                        <span class="text-[10px] sm:text-[11px] font-black uppercase tracking-wider">Today's Events</span>
                     </div>
-                    <div class="text-lg font-black text-slate-900 leading-none">
+                    <div class="text-xl sm:text-2xl lg:text-3xl font-black text-slate-900 leading-none tracking-tight">
                         {{ number_format($todayEvents ?? 0) }}
                     </div>
                 </div>
 
                 <!-- Admin Actions -->
-                <div class="bg-white/90 border border-slate-200/90 rounded-2xl p-3.5 shadow-2xs col-span-2 sm:col-span-1 min-w-[120px]">
-                    <div class="flex items-center gap-2 text-slate-400 mb-1">
-                        <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-500"></i>
-                        <span class="text-[10px] font-black uppercase tracking-wider">Admin Actions</span>
+                <div class="bg-white/95 border border-slate-200/90 rounded-2xl p-4 sm:p-5 shadow-xs col-span-2 sm:col-span-1 min-w-[140px] flex-1">
+                    <div class="flex items-center gap-2 text-slate-400 mb-1.5">
+                        <i data-lucide="shield-check" class="w-4 h-4 text-emerald-500"></i>
+                        <span class="text-[10px] sm:text-[11px] font-black uppercase tracking-wider">Admin Actions</span>
                     </div>
-                    <div class="text-lg font-black text-slate-900 leading-none">
+                    <div class="text-xl sm:text-2xl lg:text-3xl font-black text-slate-900 leading-none tracking-tight">
                         {{ number_format($adminActions ?? 0) }}
                     </div>
                 </div>
@@ -65,67 +67,67 @@
         </div>
     </div>
 
-    {{-- ── 2. 21ST.DEV ENTERPRISE FILTER TOOLBAR ─────────────────────────── --}}
-    <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-5 sm:p-6 space-y-4">
+    {{-- ── 2. FULL-WIDTH ENTERPRISE FILTER TOOLBAR ───────────────────────── --}}
+    <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-5 sm:p-6 lg:p-7 space-y-4">
         <form action="{{ route('activity-logs.index') }}" method="GET" id="historyFilterForm" class="space-y-4">
             
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3.5">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-4">
                 
                 <!-- Search Input (5 cols) -->
                 <div class="lg:col-span-5">
-                    <label class="block text-[10px] uppercase font-black text-slate-400 tracking-wider mb-1 px-1">Search Keywords</label>
+                    <label class="block text-xs uppercase font-black text-slate-400 tracking-wider mb-1.5 px-1">Search Keywords</label>
                     <div class="relative">
-                        <i data-lucide="search" class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none"></i>
+                        <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none"></i>
                         <input type="text" name="search" id="logSearchInput" value="{{ request('search') }}" 
-                            class="w-full pl-10 pr-10 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none text-xs font-bold text-slate-800 placeholder:text-slate-400" 
+                            class="w-full pl-11 pr-10 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none text-xs sm:text-sm font-bold text-slate-800 placeholder:text-slate-400" 
                             placeholder="Search names, emails, actions, notes..."
                             autocomplete="off" spellcheck="false">
-                        <button type="button" id="clearSearchBtn" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1 hidden" title="Clear Search">
-                            <i data-lucide="x" class="w-3.5 h-3.5"></i>
+                        <button type="button" id="clearSearchBtn" class="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1 hidden" title="Clear Search">
+                            <i data-lucide="x" class="w-4 h-4"></i>
                         </button>
                     </div>
                 </div>
 
                 <!-- Category Filter (3 cols) -->
                 <div class="lg:col-span-3">
-                    <label class="block text-[10px] uppercase font-black text-slate-400 tracking-wider mb-1 px-1">Category</label>
+                    <label class="block text-xs uppercase font-black text-slate-400 tracking-wider mb-1.5 px-1">Category</label>
                     <div class="relative">
-                        <select name="type" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none text-xs font-bold text-slate-800 cursor-pointer appearance-none">
+                        <select name="type" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none text-xs sm:text-sm font-bold text-slate-800 cursor-pointer appearance-none">
                             <option value="">All Activities</option>
                             <option value="auth" {{ request('type') === 'auth' ? 'selected' : '' }}>Login / Security</option>
                             <option value="admin" {{ request('type') === 'admin' ? 'selected' : '' }}>Admin Actions</option>
                             <option value="system" {{ request('type') === 'system' ? 'selected' : '' }}>System Logic</option>
                         </select>
-                        <i data-lucide="chevron-down" class="absolute right-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none"></i>
+                        <i data-lucide="chevron-down" class="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none"></i>
                     </div>
                 </div>
 
                 <!-- From Date (2 cols) -->
                 <div class="lg:col-span-2">
-                    <label class="block text-[10px] uppercase font-black text-slate-400 tracking-wider mb-1 px-1">From Date</label>
+                    <label class="block text-xs uppercase font-black text-slate-400 tracking-wider mb-1.5 px-1">From Date</label>
                     <div class="relative">
                         <input type="date" name="date_from" value="{{ request('date_from') }}" 
-                            class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none text-xs font-bold text-slate-800">
+                            class="w-full px-3.5 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none text-xs sm:text-sm font-bold text-slate-800">
                     </div>
                 </div>
 
                 <!-- To Date + Action Buttons (2 cols) -->
                 <div class="lg:col-span-2">
-                    <label class="block text-[10px] uppercase font-black text-slate-400 tracking-wider mb-1 px-1">To Date</label>
+                    <label class="block text-xs uppercase font-black text-slate-400 tracking-wider mb-1.5 px-1">To Date</label>
                     <div class="flex items-center gap-2">
                         <input type="date" name="date_to" value="{{ request('date_to') }}" 
-                            class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none text-xs font-bold text-slate-800">
+                            class="w-full px-3.5 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none text-xs sm:text-sm font-bold text-slate-800">
                         
                         <!-- Apply Filter Button -->
                         <button type="submit" 
-                            class="p-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl shadow-xs transition-all active:scale-95 shrink-0" 
+                            class="p-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-2xl shadow-xs transition-all active:scale-95 shrink-0" 
                             title="Apply Filters">
                             <i data-lucide="filter" class="w-4 h-4"></i>
                         </button>
                         
                         <!-- Reset Button -->
                         <a href="{{ route('activity-logs.index') }}" 
-                            class="p-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900 rounded-xl transition-all active:scale-95 shrink-0" 
+                            class="p-3 bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900 rounded-2xl transition-all active:scale-95 shrink-0" 
                             title="Reset all filters">
                             <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
                         </a>
@@ -136,78 +138,78 @@
 
             <!-- Active Filter Badges / Chips -->
             @if(request('search') || request('type') || request('date_from') || request('date_to'))
-            <div class="pt-2 border-t border-slate-100 flex flex-wrap items-center gap-2">
-                <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mr-1">Active Filters:</span>
+            <div class="pt-3 border-t border-slate-100 flex flex-wrap items-center gap-2">
+                <span class="text-xs font-black text-slate-400 uppercase tracking-widest mr-1">Active Filters:</span>
                 
                 @if(request('search'))
-                <span class="inline-flex items-center gap-1 px-2.5 py-1 bg-blue-50 text-blue-700 border border-blue-200 rounded-lg text-xs font-bold">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50 text-blue-700 border border-blue-200 rounded-xl text-xs font-bold">
                     Search: "{{ request('search') }}"
-                    <a href="{{ request()->fullUrlWithQuery(['search' => null]) }}" class="hover:text-blue-900"><i data-lucide="x" class="w-3 h-3"></i></a>
+                    <a href="{{ request()->fullUrlWithQuery(['search' => null]) }}" class="hover:text-blue-900"><i data-lucide="x" class="w-3.5 h-3.5"></i></a>
                 </span>
                 @endif
 
                 @if(request('type'))
-                <span class="inline-flex items-center gap-1 px-2.5 py-1 bg-purple-50 text-purple-700 border border-purple-200 rounded-lg text-xs font-bold">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-purple-50 text-purple-700 border border-purple-200 rounded-xl text-xs font-bold">
                     Category: {{ ucfirst(request('type')) }}
-                    <a href="{{ request()->fullUrlWithQuery(['type' => null]) }}" class="hover:text-purple-900"><i data-lucide="x" class="w-3 h-3"></i></a>
+                    <a href="{{ request()->fullUrlWithQuery(['type' => null]) }}" class="hover:text-purple-900"><i data-lucide="x" class="w-3.5 h-3.5"></i></a>
                 </span>
                 @endif
 
                 @if(request('date_from'))
-                <span class="inline-flex items-center gap-1 px-2.5 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg text-xs font-bold">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-xl text-xs font-bold">
                     From: {{ request('date_from') }}
-                    <a href="{{ request()->fullUrlWithQuery(['date_from' => null]) }}" class="hover:text-emerald-900"><i data-lucide="x" class="w-3 h-3"></i></a>
+                    <a href="{{ request()->fullUrlWithQuery(['date_from' => null]) }}" class="hover:text-emerald-900"><i data-lucide="x" class="w-3.5 h-3.5"></i></a>
                 </span>
                 @endif
 
                 @if(request('date_to'))
-                <span class="inline-flex items-center gap-1 px-2.5 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg text-xs font-bold">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-xl text-xs font-bold">
                     To: {{ request('date_to') }}
-                    <a href="{{ request()->fullUrlWithQuery(['date_to' => null]) }}" class="hover:text-emerald-900"><i data-lucide="x" class="w-3 h-3"></i></a>
+                    <a href="{{ request()->fullUrlWithQuery(['date_to' => null]) }}" class="hover:text-emerald-900"><i data-lucide="x" class="w-3.5 h-3.5"></i></a>
                 </span>
                 @endif
 
-                <a href="{{ route('activity-logs.index') }}" class="text-xs font-bold text-slate-500 hover:text-rose-600 underline ml-2">Clear all</a>
+                <a href="{{ route('activity-logs.index') }}" class="text-xs font-bold text-slate-500 hover:text-rose-600 underline ml-2">Clear all filters</a>
             </div>
             @endif
 
         </form>
     </div>
 
-    {{-- ── 3. MAIN AUDIT LOG DATA TABLE ─────────────────────────────────── --}}
-    <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+    {{-- ── 3. FULL-WIDTH ENTERPRISE AUDIT LOG DATA TABLE ────────────────── --}}
+    <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden w-full">
         
         <!-- Table Header Bar -->
-        <div class="px-6 sm:px-8 py-5 border-b border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div class="px-6 sm:px-8 py-5 sm:py-6 border-b border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div class="flex items-center gap-3">
                 <div class="p-2.5 bg-blue-50 text-blue-600 rounded-xl">
                     <i data-lucide="clipboard-list" class="w-5 h-5"></i>
                 </div>
                 <div>
-                    <h3 class="text-lg font-black text-slate-900">Activity History</h3>
-                    <p class="text-xs text-slate-500">Detailed record of user operations, system modifications, and access traces.</p>
+                    <h3 class="text-lg sm:text-xl font-black text-slate-900">Activity History</h3>
+                    <p class="text-xs sm:text-sm text-slate-500">Detailed record of user operations, system modifications, and access traces.</p>
                 </div>
             </div>
-            <div class="flex items-center gap-2">
-                <span class="text-xs font-black text-slate-700 bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-200">
+            <div class="flex items-center gap-2.5">
+                <span class="text-xs sm:text-sm font-black text-slate-700 bg-slate-100 px-3.5 py-1.5 rounded-xl border border-slate-200">
                     {{ $logs->total() }} Records
                 </span>
-                <span class="text-xs font-bold text-slate-400">
+                <span class="text-xs sm:text-sm font-bold text-slate-400">
                     Page {{ $logs->currentPage() }} of {{ $logs->lastPage() }}
                 </span>
             </div>
         </div>
 
-        <!-- Table Responsive Container -->
-        <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-slate-100">
+        <!-- Table Responsive Container (Full Width) -->
+        <div class="overflow-x-auto w-full">
+            <table class="w-full divide-y divide-slate-100 text-left">
                 <thead class="bg-slate-50/70">
                     <tr>
-                        <th class="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest w-44">Timestamp</th>
-                        <th class="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest w-64">User & Role</th>
-                        <th class="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest w-56">Action</th>
-                        <th class="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Notes & Details</th>
-                        <th class="px-6 py-4 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest w-48">Source & Device</th>
+                        <th class="px-6 sm:px-8 py-4 text-[10px] sm:text-xs font-black text-slate-400 uppercase tracking-widest w-48 shrink-0">Timestamp</th>
+                        <th class="px-6 sm:px-8 py-4 text-[10px] sm:text-xs font-black text-slate-400 uppercase tracking-widest w-72 shrink-0">User & Role</th>
+                        <th class="px-6 sm:px-8 py-4 text-[10px] sm:text-xs font-black text-slate-400 uppercase tracking-widest w-60 shrink-0">Action</th>
+                        <th class="px-6 sm:px-8 py-4 text-[10px] sm:text-xs font-black text-slate-400 uppercase tracking-widest">Notes & Details</th>
+                        <th class="px-6 sm:px-8 py-4 text-[10px] sm:text-xs font-black text-slate-400 uppercase tracking-widest text-right w-56 shrink-0">Source & Device</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100 bg-white" id="logTableBody">
@@ -215,36 +217,36 @@
                     <tr class="log-row hover:bg-slate-50/80 transition-colors" data-search-terms="{{ strtolower(($log->user_name ?? '') . ' ' . ($log->user_email ?? '') . ' ' . ($log->action ?? '') . ' ' . ($log->notes ?? '')) }}">
                         
                         <!-- 1. Timestamp Column -->
-                        <td class="px-6 py-4 w-44">
+                        <td class="px-6 sm:px-8 py-5 w-48 shrink-0">
                             <div class="flex flex-col space-y-1">
-                                <span class="text-xs font-black text-slate-900 leading-none">
+                                <span class="text-xs sm:text-sm font-black text-slate-900 leading-none">
                                     {{ $log->created_at->format('M d, Y') }}
                                 </span>
-                                <span class="text-[11px] font-mono font-bold text-slate-500">
+                                <span class="text-xs font-mono font-bold text-slate-500">
                                     {{ $log->created_at->format('h:i:s A') }}
                                 </span>
-                                <span class="inline-flex items-center gap-1 text-[9px] font-bold text-slate-400 uppercase tracking-tight">
-                                    <span class="w-1 h-1 rounded-full bg-slate-300"></span>
+                                <span class="inline-flex items-center gap-1 text-[10px] font-bold text-slate-400 uppercase tracking-tight">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span>
                                     {{ $log->created_at->diffForHumans() }}
                                 </span>
                             </div>
                         </td>
 
                         <!-- 2. User & Role Column -->
-                        <td class="px-6 py-4 w-64">
-                            <div class="flex items-center gap-3">
-                                <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 text-white font-black text-xs flex items-center justify-center shadow-2xs shrink-0">
+                        <td class="px-6 sm:px-8 py-5 w-72 shrink-0">
+                            <div class="flex items-center gap-3.5">
+                                <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 text-white font-black text-xs sm:text-sm flex items-center justify-center shadow-xs shrink-0">
                                     {{ strtoupper(substr($log->user_name ?? 'S', 0, 1)) }}
                                 </div>
                                 <div class="min-w-0 flex-1">
-                                    <div class="text-xs font-black text-slate-900 truncate leading-tight">
+                                    <div class="text-xs sm:text-sm font-black text-slate-900 truncate leading-tight">
                                         {{ $log->user_name ?? 'System Automated' }}
                                     </div>
-                                    <div class="text-[11px] text-slate-400 truncate mt-0.5">
+                                    <div class="text-xs text-slate-400 truncate mt-0.5">
                                         {{ $log->user_email ?? 'system@eurotaxi.internal' }}
                                     </div>
-                                    <div class="mt-1">
-                                        <span class="inline-block px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-slate-100 text-slate-700 border border-slate-200">
+                                    <div class="mt-1.5">
+                                        <span class="inline-block px-2.5 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-slate-100 text-slate-700 border border-slate-200">
                                             {{ strtoupper($log->user_role ?? 'System') }}
                                         </span>
                                     </div>
@@ -253,7 +255,7 @@
                         </td>
 
                         <!-- 3. Action Badge Column -->
-                        <td class="px-6 py-4 w-56">
+                        <td class="px-6 sm:px-8 py-5 w-60 shrink-0">
                             @php
                                 $action = strtolower($log->action ?? '');
                                 $badgeClass = 'bg-slate-50 text-slate-700 border-slate-200';
@@ -291,37 +293,37 @@
                                 elseif (str_contains($action, 'incident')) $iconName = 'alert-triangle';
                             @endphp
 
-                            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-bold border shadow-2xs {{ $badgeClass }}">
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border shadow-2xs {{ $badgeClass }}">
                                 <i data-lucide="{{ $iconName }}" class="w-3.5 h-3.5 shrink-0"></i>
                                 <span>{{ ucwords(str_replace('_', ' ', $log->action)) }}</span>
                             </span>
                         </td>
 
-                        <!-- 4. Notes & Details Column -->
-                        <td class="px-6 py-4">
+                        <!-- 4. Notes & Details Column (Expanded Flexible Width) -->
+                        <td class="px-6 sm:px-8 py-5 min-w-[280px]">
                             @if($log->notes)
-                                <div class="p-3 bg-slate-50/80 rounded-2xl border border-slate-200/70 text-xs font-semibold text-slate-700 leading-relaxed max-w-xl break-words">
+                                <div class="p-3.5 bg-slate-50/80 rounded-2xl border border-slate-200/70 text-xs sm:text-sm font-semibold text-slate-700 leading-relaxed break-words w-full">
                                     {!! nl2br(e($log->notes)) !!}
                                 </div>
                             @else
-                                <span class="text-xs text-slate-400 italic">No additional details recorded.</span>
+                                <span class="text-xs sm:text-sm text-slate-400 italic">No additional details recorded.</span>
                             @endif
                         </td>
 
                         <!-- 5. Source & Device Column -->
-                        <td class="px-6 py-4 text-right w-48">
-                            <div class="flex flex-col items-end space-y-1">
+                        <td class="px-6 sm:px-8 py-5 text-right w-56 shrink-0">
+                            <div class="flex flex-col items-end space-y-1.5">
                                 <!-- IP Address with copy button -->
-                                <div class="inline-flex items-center gap-1.5 bg-slate-50 border border-slate-200 px-2.5 py-1 rounded-xl text-[10px] font-mono font-bold text-slate-700">
-                                    <i data-lucide="network" class="w-3 h-3 text-slate-400"></i>
+                                <div class="inline-flex items-center gap-1.5 bg-slate-50 border border-slate-200 px-3 py-1 rounded-xl text-xs font-mono font-bold text-slate-700">
+                                    <i data-lucide="network" class="w-3.5 h-3.5 text-slate-400"></i>
                                     <span>{{ $log->ip_address ?: '127.0.0.1' }}</span>
                                     <button type="button" onclick="copyToClipboard('{{ $log->ip_address }}', this)" class="text-slate-400 hover:text-blue-600 transition-colors p-0.5" title="Copy IP">
-                                        <i data-lucide="copy" class="w-3 h-3"></i>
+                                        <i data-lucide="copy" class="w-3.5 h-3.5"></i>
                                     </button>
                                 </div>
                                 <!-- User Agent device -->
-                                <div class="text-[9px] text-slate-400 font-medium max-w-[140px] truncate" title="{{ $log->user_agent }}">
-                                    <i data-lucide="monitor" class="w-2.5 h-2.5 inline mr-0.5 opacity-60"></i>
+                                <div class="text-[10px] text-slate-400 font-medium max-w-[160px] truncate" title="{{ $log->user_agent }}">
+                                    <i data-lucide="monitor" class="w-3 h-3 inline mr-0.5 opacity-60"></i>
                                     {{ $log->user_agent ?: 'System Service' }}
                                 </div>
                             </div>
@@ -363,7 +365,7 @@
 
         <!-- Pagination Footer -->
         @if($logs->hasPages())
-        <div class="p-4 sm:p-6 border-t border-slate-100 bg-slate-50/50">
+        <div class="p-5 sm:p-6 border-t border-slate-100 bg-slate-50/50">
             {{ $logs->links() }}
         </div>
         @endif
