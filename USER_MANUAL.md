@@ -75,34 +75,88 @@ ETMS enforces a strict **Role-Based Access Control (RBAC)** architecture augment
 
 ---
 
-# 3. Authentication, MFA (SMS/Email OTP) & Security Logins
+# 3. Authentication, Multi-Factor Authentication (MFA) & One-Time PIN (OTP) System
 
-### 3.1 New User Self-Registration (`/register`)
+ETMS integrates an enterprise-grade **One-Time PIN (OTP) & Multi-Factor Security System** powered by the **Semaphore SMS Gateway** and secure SMTP email services.
+
+```
+ ┌─────────────────────────────────────────────────────────────────────────────┐
+ │                      6-DIGIT OTP SECURITY ARCHITECTURE                      │
+ ├─────────────────────────────────────────────────────────────────────────────┤
+ │   [ USER INITIATES ACTION ] ───► [ SYSTEM GENERATES CRYPTOGRAPHIC 6-DIGIT ] │
+ │                                               │                             │
+ │                  ┌────────────────────────────┴──────────────────────────┐  │
+ │                  ▼                                                       ▼  │
+ │      [ SEMAPHORE SMS GATEWAY ]                                [ SMTP EMAIL ]│
+ │      (Globe / Smart / DITO / TNT)                            (HTML Template)│
+ │                  │                                                       │  │
+ │                  └────────────────────────────┬──────────────────────────┘  │
+ │                                               ▼                             │
+ │                            [ 5-MINUTE COUNTDOWN TIMER ]                     │
+ │                            [ 60-SEC RESEND THROTTLING ]                     │
+ │                                               │                             │
+ │   [ USER ENTERS PIN ] ───► [ VERIFIED & SAVED TO VERIFIED_BROWSERS ]        │
+ └─────────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+### 3.1 The Four (4) Core OTP Use Cases in ETMS
+
+#### Case 1: Device Verification OTP (MFA on Web Login)
+* **Trigger:** When a user logs in from an unrecognized computer, new browser, mobile device, or after clearing browser cookies.
+* **Flow:**
+  1. User enters correct Username/Email and Password.
+  2. The system pauses the session and generates a secure random 6-digit numeric token (e.g., `482915`).
+  3. The OTP is sent immediately to the user's verified mobile number via SMS and/or registered email.
+  4. An on-screen modal with a **5-Minute Countdown Timer** appears.
+  5. User inputs the 6 digits > Clicks **"Verify OTP & Continue"**.
+  6. Upon successful match, the device is whitelisted in the `verified_browsers` database table, allowing seamless future logins from that specific trusted device.
+
+#### Case 2: New User Self-Registration OTP (`/register`)
+* **Trigger:** When a new staff member or driver registers an account.
+* **Flow:**
+  1. User fills out registration details (Name, 11-digit mobile `09XXXXXXXXX`, Email, Password).
+  2. Before the account is saved, ETMS dispatches an SMS OTP to confirm ownership of the mobile number.
+  3. User enters the 6-digit code to verify their phone number (`/register/verify-otp`).
+  4. Once phone ownership is proven, the registration enters the Super Admin approval queue.
+
+#### Case 3: Forgot Password & Account Recovery OTP (`/forgot-password`)
+* **Trigger:** When a user forgets their password.
+* **Flow:**
+  1. User clicks **"Forgot Password?"** on the login screen.
+  2. Selects **"SMS OTP"** or **"Email OTP"**.
+  3. Enters registered phone number or email address > Clicks **"Send Verification Code"**.
+  4. Receives 6-digit PIN > Inputs code in the verification modal (`/forgot-password/verify-otp`).
+  5. Upon verification, the user is redirected to create a new secure password without needing admin intervention.
+
+#### Case 4: Mobile Driver App Onboarding & Device Pairing
+* **Trigger:** When a driver logs into the Android / Capacitor mobile app for the first time or changes smartphones.
+* **Flow:**
+  1. Driver inputs mobile number and password.
+  2. Driver App triggers API endpoint `/api/verify-device-otp`.
+  3. Driver receives SMS OTP and submits the code within the mobile app interface.
+  4. The unique smartphone hardware UUID is paired with the driver's profile to prevent account sharing.
+
+---
+
+### 3.2 OTP Rules, Throttling & Security Parameters
+
+| Parameter | Configuration | Security Purpose |
+| :--- | :--- | :--- |
+| **Token Format** | 6-Digit Numeric (`000000` - `999999`) | High entropy, easy to type on mobile keyboards. |
+| **Expiration Window** | Exactly 5 Minutes (300 seconds) | Prevents stale token replay attacks. |
+| **Resend Cooldown** | 60 Seconds | Throttles requests to prevent SMS gateway flooding and spam. |
+| **Max Failed Attempts** | 3 Consecutive Attempts | Automatically invalidates the OTP and locks the session for 15 minutes to prevent brute-force attacks. |
+| **SMS Delivery Provider** | Semaphore SMS API (Philippines) | Direct local tier-1 telecom routing for 3-5 second delivery times. |
+
+---
+
+### 3.3 New User Self-Registration Walkthrough (`/register`)
 1. Navigate to `https://eurotaxisystem.site/register`.
-2. Fill out the mandatory registration fields:
-   - **Full Name:** Official government legal name.
-   - **Email Address:** Active personal/corporate email.
-   - **Mobile Number:** 11-digit Philippine mobile format (`09XXXXXXXXX`).
-   - **Username:** Unique login handle without special symbols.
-   - **Password & Confirmation:** Minimum 8 characters with letters, numbers, and symbols.
-   - **Desired Role:** Select `Admin`, `Dispatcher`, `Cashier`, `Mechanic`, or `Driver`.
-3. Click **"Submit Registration"**.
-4. *System Rule:* Newly registered accounts are set to `Pending Approval` and cannot log in until approved by a Super Admin.
-
-### 3.2 Secure Login & Multi-Factor Device OTP (`/login`)
-1. Enter your **Email/Username** and **Password** > Click **"Sign In"**.
-2. **Multi-Factor Authentication (MFA / Device Verification):**
-   - If logging in from a new browser, unfamiliar IP, or cleared cookies, ETMS triggers a 6-digit OTP.
-   - OTP is immediately dispatched via SMS (using Semaphore API) and Email.
-   - Enter the 6-digit PIN within the 5-minute countdown timer.
-   - Upon successful verification, the browser fingerprint is saved in `verified_browsers`.
-
-### 3.3 Forgot Password & Account Recovery
-1. On the login screen, click **"Forgot Password?"**.
-2. Select verification channel: **SMS OTP** or **Email OTP**.
-3. Input registered phone number or email > Click **"Send Verification Code"**.
-4. Enter received OTP > Input **New Password** > Confirm Password.
-5. Click **"Reset Password"** to finalize.
+2. Complete all required fields: Full Name, Email, Mobile Phone, Username, Password, Role.
+3. Click **"Submit Registration"** > Verify SMS OTP.
+4. Account is queued in the Super Admin Control Center awaiting administrative activation.
 
 ---
 
