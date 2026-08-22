@@ -758,11 +758,16 @@ class SuperAdminController extends Controller
 
             $userAudits = $allAuditsToday->where('user_id', $user->id)->values();
 
-            // Presence & online detection
-            $isOnline = (bool) $user->is_online;
-            if (!$isOnline && $user->last_seen_at) {
-                $isOnline = Carbon::parse($user->last_seen_at)->diffInMinutes(now()) <= 15;
+            // Strict Presence & Online Detection:
+            // An account is ONLY LIVE/online if its presence heartbeat was received within the last 3 minutes
+            $hasRecentHeartbeat = $user->last_seen_at && Carbon::parse($user->last_seen_at)->diffInMinutes(now()) <= 3;
+            $isOnline = (bool) ($user->is_online && $hasRecentHeartbeat);
+
+            // Auto-heal stale DB state: if user has is_online=true but no heartbeat in > 3 mins, mark false
+            if ($user->is_online && !$hasRecentHeartbeat) {
+                User::where('id', $user->id)->update(['is_online' => false]);
             }
+
             $seenToday = $user->last_seen_at && Carbon::parse($user->last_seen_at)->toDateString() === $date;
             $loginToday = $user->last_login && Carbon::parse($user->last_login)->toDateString() === $date;
 
