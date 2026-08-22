@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <defs>
+    <radialGradient id="totGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#1d4ed8" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="folderBlue" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#93c5fd"/>
+      <stop offset="50%" stop-color="#3b82f6"/>
+      <stop offset="100%" stop-color="#1d4ed8"/>
+    </linearGradient>
+    <linearGradient id="folderFront" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#bfdbfe"/>
+      <stop offset="50%" stop-color="#60a5fa"/>
+      <stop offset="100%" stop-color="#2563eb"/>
+    </linearGradient>
+    <filter id="totShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="12" stdDeviation="10" flood-color="#1e3a8a" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+  <circle cx="100" cy="110" r="85" fill="url(#totGlow)"/>
+  <g filter="url(#totShadow)">
+    <g transform="rotate(-6 100 100)">
+      <!-- Back Folder Flap -->
+      <path d="M42 62 C42 56 46 52 52 52 L80 52 L94 66 L148 66 C154 66 158 70 158 76 L158 138 C158 144 154 148 148 148 L52 148 C46 148 42 144 42 138 Z" fill="url(#folderBlue)"/>
+      <!-- Internal Papers -->
+      <rect x="52" y="60" width="96" height="74" rx="6" fill="#ffffff" opacity="0.95"/>
+      <line x1="62" y1="74" x2="110" y2="74" stroke="#94a3b8" stroke-width="3" stroke-linecap="round"/>
+      <line x1="62" y1="84" x2="138" y2="84" stroke="#cbd5e1" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="62" y1="94" x2="124" y2="94" stroke="#cbd5e1" stroke-width="2.5" stroke-linecap="round"/>
+      <!-- Front Folder Body -->
+      <path d="M38 82 C38 76 42 72 48 72 L152 72 C158 72 162 76 162 82 L156 142 C156 148 152 152 146 152 L44 152 C38 152 34 148 34 142 Z" fill="url(#folderFront)"/>
+      <!-- Folder Badge Accent -->
+      <circle cx="134" cy="122" r="14" fill="#1d4ed8"/>
+      <circle cx="134" cy="122" r="10" fill="#ffffff"/>
+      <path d="M130 122 L133 125 L139 119" stroke="#1d4ed8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+  </g>
+</svg>

@@ -124,62 +124,93 @@
     }
 @endphp
 
-{{-- Stats --}}
-<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+{{-- ── 3D KPI SUMMARY CARDS ── --}}
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 mb-6">
     <!-- Card 1: Total Records -->
-    <div class="bg-gradient-to-br from-blue-50 to-indigo-50/70 p-4 rounded-xl shadow-sm border-l-4 border-blue-700 relative overflow-hidden flex items-center justify-between">
-        <div class="flex items-center gap-4 relative z-10">
-            <div class="p-3 bg-blue-100 rounded-lg shadow-sm">
-                <i data-lucide="folder-open" class="w-6 h-6 text-blue-700"></i>
+    <div class="group relative overflow-hidden rounded-3xl border border-slate-200/80 bg-gradient-to-br from-white via-blue-50/40 to-indigo-50/20 p-5 sm:p-6 shadow-xs hover:shadow-md transition-all duration-300">
+        <div class="flex items-center justify-between gap-4 relative z-10">
+            <div class="min-w-0 flex-1">
+                <span class="text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-slate-400 block mb-1">
+                    Total Records
+                </span>
+                <div class="text-2xl sm:text-3xl font-black text-slate-900 leading-none tracking-tight tabular-nums truncate">
+                    {{ number_format($totals->total_count ?? 0) }}
+                </div>
+                <div class="mt-2 flex items-center gap-1.5 text-[11px] font-bold text-blue-600">
+                    <span class="inline-flex h-1.5 w-1.5 rounded-full bg-blue-500"></span>
+                    <span>All Job Orders</span>
+                </div>
             </div>
-            <div class="min-w-0">
-                <div class="text-xl font-black text-gray-900 tracking-tight truncate tabular-nums">{{ $totals->total_count ?? 0 }}</div>
-                <div class="text-[10px] font-black text-blue-400 uppercase tracking-widest truncate">Total Records</div>
+            <div class="w-14 h-14 sm:w-16 sm:h-16 shrink-0 group-hover:scale-105 transition-transform">
+                <img src="{{ asset('image/kpi/maint_total_3d.svg') }}" alt="Total Records" class="w-full h-full object-contain filter drop-shadow-md">
             </div>
         </div>
-        <i data-lucide="folder-open" class="absolute -right-3 -bottom-3 w-20 h-20 text-blue-400 opacity-[0.12] -rotate-12 z-0 pointer-events-none"></i>
     </div>
 
     <!-- Card 2: Pending -->
-    <div class="bg-gradient-to-br from-orange-50 to-amber-50/70 p-4 rounded-xl shadow-sm border-l-4 border-orange-500 relative overflow-hidden flex items-center justify-between">
-        <div class="flex items-center gap-4 relative z-10">
-            <div class="p-3 bg-orange-100 rounded-lg shadow-sm">
-                <i data-lucide="clock" class="w-6 h-6 text-orange-600"></i>
+    <div class="group relative overflow-hidden rounded-3xl border border-slate-200/80 bg-gradient-to-br from-white via-amber-50/40 to-orange-50/20 p-5 sm:p-6 shadow-xs hover:shadow-md transition-all duration-300">
+        <div class="flex items-center justify-between gap-4 relative z-10">
+            <div class="min-w-0 flex-1">
+                <span class="text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-slate-400 block mb-1">
+                    Pending
+                </span>
+                <div class="text-2xl sm:text-3xl font-black text-slate-900 leading-none tracking-tight tabular-nums truncate">
+                    {{ number_format($totals->pending_count ?? 0) }}
+                </div>
+                <div class="mt-2 flex items-center gap-1.5 text-[11px] font-bold text-amber-600">
+                    <span class="inline-flex h-1.5 w-1.5 rounded-full bg-amber-500"></span>
+                    <span>Awaiting Service</span>
+                </div>
             </div>
-            <div class="min-w-0">
-                <div class="text-xl font-black text-gray-900 tracking-tight truncate tabular-nums">{{ $totals->pending_count ?? 0 }}</div>
-                <div class="text-[10px] font-black text-orange-400 uppercase tracking-widest truncate">Pending</div>
+            <div class="w-14 h-14 sm:w-16 sm:h-16 shrink-0 group-hover:scale-105 transition-transform">
+                <img src="{{ asset('image/kpi/maint_pending_3d.svg') }}" alt="Pending" class="w-full h-full object-contain filter drop-shadow-md">
             </div>
         </div>
-        <i data-lucide="clock" class="absolute -right-3 -bottom-3 w-20 h-20 text-orange-400 opacity-[0.12] -rotate-12 z-0 pointer-events-none"></i>
     </div>
 
-    <!-- Card 3: Active Work -->
-    <div class="bg-gradient-to-br from-indigo-50 to-violet-50/70 p-4 rounded-xl shadow-sm border-l-4 border-indigo-500 relative overflow-hidden flex items-center justify-between">
-        <div class="flex items-center gap-4 relative z-10">
-            <div class="p-3 bg-indigo-100 rounded-lg shadow-sm">
-                <i data-lucide="wrench" class="w-6 h-6 text-indigo-600"></i>
+    <!-- Card 3: Ongoing Work -->
+    <div class="group relative overflow-hidden rounded-3xl border border-slate-200/80 bg-gradient-to-br from-white via-purple-50/40 to-indigo-50/20 p-5 sm:p-6 shadow-xs hover:shadow-md transition-all duration-300">
+        <div class="flex items-center justify-between gap-4 relative z-10">
+            <div class="min-w-0 flex-1">
+                <span class="text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-slate-400 block mb-1">
+                    Ongoing Work
+                </span>
+                <div class="text-2xl sm:text-3xl font-black text-slate-900 leading-none tracking-tight tabular-nums truncate">
+                    {{ number_format($totals->in_progress_count ?? 0) }}
+                </div>
+                <div class="mt-2 flex items-center gap-1.5 text-[11px] font-bold text-purple-600">
+                    <span class="relative flex h-2 w-2">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-purple-500"></span>
+                    </span>
+                    <span>In Garage Repair</span>
+                </div>
             </div>
-            <div class="min-w-0">
-                <div class="text-xl font-black text-gray-900 tracking-tight truncate tabular-nums">{{ $totals->in_progress_count ?? 0 }}</div>
-                <div class="text-[10px] font-black text-indigo-400 uppercase tracking-widest truncate">Ongoing Work</div>
+            <div class="w-14 h-14 sm:w-16 sm:h-16 shrink-0 group-hover:scale-105 transition-transform">
+                <img src="{{ asset('image/kpi/maint_ongoing_3d.svg') }}" alt="Ongoing Work" class="w-full h-full object-contain filter drop-shadow-md">
             </div>
         </div>
-        <i data-lucide="wrench" class="absolute -right-3 -bottom-3 w-20 h-20 text-indigo-400 opacity-[0.12] -rotate-12 z-0 pointer-events-none"></i>
     </div>
 
     <!-- Card 4: Total Cost -->
-    <div class="bg-gradient-to-br from-emerald-50 to-teal-50/70 p-4 rounded-xl shadow-sm border-l-4 border-emerald-500 relative overflow-hidden flex items-center justify-between">
-        <div class="flex items-center gap-4 relative z-10">
-            <div class="p-3 bg-emerald-100 rounded-lg shadow-sm">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 text-emerald-600"><path d="M7 12h5a3 3 0 0 0 0-6H7v12"/><path d="M5 9h11"/><path d="M5 11h11"/></svg>
+    <div class="group relative overflow-hidden rounded-3xl border border-slate-200/80 bg-gradient-to-br from-white via-emerald-50/40 to-teal-50/20 p-5 sm:p-6 shadow-xs hover:shadow-md transition-all duration-300">
+        <div class="flex items-center justify-between gap-4 relative z-10">
+            <div class="min-w-0 flex-1">
+                <span class="text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-slate-400 block mb-1">
+                    Total Cost
+                </span>
+                <div class="text-2xl sm:text-3xl font-black text-slate-900 leading-none tracking-tight tabular-nums truncate">
+                    {{ formatCurrency($totals->total_cost ?? 0) }}
+                </div>
+                <div class="mt-2 flex items-center gap-1.5 text-[11px] font-bold text-emerald-600">
+                    <span class="inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                    <span>Cumulative Spend</span>
+                </div>
             </div>
-            <div class="min-w-0">
-                <div class="text-xl font-black text-gray-900 tracking-tight truncate tabular-nums">{{ formatCurrency($totals->total_cost ?? 0) }}</div>
-                <div class="text-[10px] font-black text-emerald-400 uppercase tracking-widest truncate">Total Cost</div>
+            <div class="w-14 h-14 sm:w-16 sm:h-16 shrink-0 group-hover:scale-105 transition-transform">
+                <img src="{{ asset('image/kpi/maint_cost_3d.svg') }}" alt="Total Cost" class="w-full h-full object-contain filter drop-shadow-md">
             </div>
         </div>
-        <i data-lucide="philippine-peso" class="absolute -right-3 -bottom-3 w-20 h-20 text-emerald-400 opacity-[0.12] -rotate-12 z-0 pointer-events-none"></i>
     </div>
 </div>
 
