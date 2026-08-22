@@ -5,38 +5,40 @@
 @section('page-subheading', 'Broadcast important updates and notifications to your drivers')
 
 @section('content')
-<div class="max-w-7xl mx-auto space-y-8 pb-12">
+<div class="w-full space-y-6 pb-12">
 
     {{-- ── 1. PAGE HEADER & STATUS ────────────────────────────────────────── --}}
-    <div class="relative overflow-hidden rounded-3xl border border-slate-200/80 bg-gradient-to-r from-white via-amber-50/30 to-amber-100/20 backdrop-blur-md p-6 sm:p-7 shadow-xs">
-        <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-            <div class="flex items-center gap-5">
-                <!-- 3D Megaphone Graphic -->
-                <div class="w-18 h-18 sm:w-20 sm:h-20 shrink-0">
-                    <img src="{{ asset('image/kpi/announcement_3d.svg') }}" alt="Announcements" class="w-full h-full object-contain filter drop-shadow-md hover:scale-105 transition-transform">
+    <div class="relative overflow-hidden rounded-3xl border border-slate-200/80 bg-gradient-to-r from-white via-amber-50/40 to-amber-100/30 backdrop-blur-md p-6 sm:p-8 shadow-xs w-full">
+        <div class="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+            <div class="flex items-center gap-6">
+                <!-- 3D Megaphone Graphic (Larger) -->
+                <div class="w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28 shrink-0">
+                    <img src="{{ asset('image/kpi/announcement_3d.svg') }}" alt="Announcements" class="w-full h-full object-contain filter drop-shadow-lg hover:scale-105 transition-transform">
                 </div>
                 <div>
                     <!-- Breadcrumb -->
-                    <div class="flex items-center gap-2 text-[11px] font-black text-slate-400 uppercase tracking-widest mb-1.5">
+                    <div class="flex items-center gap-2 text-xs font-black text-slate-400 uppercase tracking-widest mb-1.5">
                         <span>Communication</span>
                         <span>/</span>
                         <span class="text-amber-600 font-black">Announcements</span>
                     </div>
-                    <h1 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">Announcements</h1>
-                    <p class="text-xs sm:text-sm text-slate-500 mt-0.5 max-w-xl font-medium">Broadcast important updates and notifications to all drivers across your fleet.</p>
+                    <h1 class="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 tracking-tight">Announcements</h1>
+                    <p class="text-xs sm:text-sm lg:text-base text-slate-500 mt-1 max-w-2xl font-medium leading-relaxed">
+                        Broadcast important updates, alerts, policies, and schedules to all drivers across your fleet in real-time.
+                    </p>
                 </div>
             </div>
 
             <!-- Status Badge & Counter -->
-            <div class="flex items-center gap-3 self-start md:self-center shrink-0">
-                <div class="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold shadow-2xs">
-                    <span class="relative flex h-2 w-2">
+            <div class="flex items-center gap-3 self-start lg:self-center shrink-0">
+                <div class="flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs sm:text-sm font-bold shadow-2xs">
+                    <span class="relative flex h-2.5 w-2.5">
                         <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                        <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                        <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
                     </span>
                     <span>Broadcast system active</span>
                 </div>
-                <div class="px-4 py-1.5 rounded-full bg-slate-900 text-white text-xs font-black uppercase tracking-wider shadow-sm">
+                <div class="px-4 py-2 rounded-full bg-slate-900 text-white text-xs sm:text-sm font-black uppercase tracking-wider shadow-sm">
                     {{ $announcements->total() }} Total
                 </div>
             </div>
@@ -44,219 +46,221 @@
     </div>
 
     {{-- ── 2. CREATE BROADCAST COMPOSER & LIVE PREVIEW ───────────────────── --}}
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 w-full">
         
         <!-- Left 8 cols: Broadcast Composer -->
         <div class="lg:col-span-8">
-            <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
-                <div class="px-6 sm:px-8 py-5 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
-                    <div class="flex items-center gap-3">
-                        <div class="p-2.5 bg-amber-50 rounded-xl text-amber-600">
-                            <i data-lucide="send" class="w-5 h-5"></i>
+            <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden h-full flex flex-col justify-between">
+                <div>
+                    <div class="px-6 sm:px-8 py-5 sm:py-6 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
+                        <div class="flex items-center gap-3.5">
+                            <div class="p-3 bg-amber-50 rounded-2xl text-amber-600">
+                                <i data-lucide="send" class="w-5 h-5"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-lg sm:text-xl font-black text-slate-900">Create a Broadcast</h2>
+                                <p class="text-xs sm:text-sm text-slate-500">Send an important announcement or alert to your drivers.</p>
+                            </div>
                         </div>
+                    </div>
+
+                    <form action="{{ route('announcements.store') }}" method="POST" id="broadcastComposerForm" class="p-6 sm:p-8 space-y-6">
+                        @csrf
+
+                        <!-- Title Field -->
                         <div>
-                            <h2 class="text-lg font-black text-slate-900">Create a Broadcast</h2>
-                            <p class="text-xs text-slate-500">Send an important announcement or alert to your drivers.</p>
+                            <label for="composer_title" class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">
+                                Title <span class="text-rose-500">*</span>
+                            </label>
+                            <input type="text" name="title" id="composer_title" required
+                                class="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all outline-none text-sm font-bold text-slate-800 placeholder:text-slate-400"
+                                placeholder="e.g. Schedule Reminder: Mandatory Monthly Inspection">
                         </div>
-                    </div>
+
+                        <!-- Message Field -->
+                        <div>
+                            <label for="composer_message" class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">
+                                Message (Optional)
+                            </label>
+                            <textarea name="message" id="composer_message" rows="4"
+                                class="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all outline-none text-sm text-slate-700 placeholder:text-slate-400 leading-relaxed"
+                                placeholder="Enter the full announcement details, requirements, or guidelines..."></textarea>
+                        </div>
+
+                        <!-- ── Integrated Meeting Scheduler / Calendar UI with Perfectly Positioned Time Pickers ── -->
+                        <div class="rounded-2xl border border-slate-200/90 bg-gradient-to-br from-slate-50/80 to-slate-100/40 p-5 sm:p-6 space-y-5">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <div class="p-2 rounded-xl bg-amber-500/10 text-amber-600">
+                                        <i data-lucide="calendar-days" class="w-5 h-5"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-sm sm:text-base font-black text-slate-900">Schedule Broadcast</h3>
+                                        <p class="text-xs text-slate-500">Pick active dates and times. Past dates are strictly disabled.</p>
+                                    </div>
+                                </div>
+                                <!-- Duration badge -->
+                                <span id="schedulerDurationBadge" class="px-3.5 py-1.5 bg-amber-500 text-white rounded-full text-xs font-black uppercase tracking-wider shadow-2xs">
+                                    7 Days
+                                </span>
+                            </div>
+
+                            <!-- Calendar Grid & Date/Time Selection Columns -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-2xs">
+                                
+                                <!-- Left: Interactive Month Calendar Grid -->
+                                <div class="flex flex-col">
+                                    <div class="flex items-center justify-between mb-3">
+                                        <button type="button" id="prevMonthBtn" onclick="prevCalendarMonth()" class="p-2 rounded-xl hover:bg-slate-100 text-slate-600 transition-colors" aria-label="Previous Month">
+                                            <i data-lucide="chevron-left" class="w-4 h-4"></i>
+                                        </button>
+                                        <h4 id="calendarMonthYear" class="text-sm sm:text-base font-bold text-slate-800 tracking-tight">August 2026</h4>
+                                        <button type="button" onclick="nextCalendarMonth()" class="p-2 rounded-xl hover:bg-slate-100 text-slate-600 transition-colors" aria-label="Next Month">
+                                            <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                                        </button>
+                                    </div>
+
+                                    <!-- Weekday headers -->
+                                    <div class="grid grid-cols-7 text-center text-[10px] sm:text-xs font-black text-slate-400 uppercase tracking-wider mb-2">
+                                        <div>Mon</div>
+                                        <div>Tue</div>
+                                        <div>Wed</div>
+                                        <div>Thu</div>
+                                        <div>Fri</div>
+                                        <div>Sat</div>
+                                        <div>Sun</div>
+                                    </div>
+
+                                    <!-- Days cells (Past dates disabled) -->
+                                    <div id="calendarDaysGrid" class="grid grid-cols-7 gap-1.5">
+                                        {{-- Generated by JS with strictly disabled past dates --}}
+                                    </div>
+                                </div>
+
+                                <!-- Right: Selected Dates & Perfectly Positioned Time Pickers -->
+                                <div class="flex flex-col justify-between space-y-4">
+                                    <div class="space-y-3.5">
+                                        <!-- Start Date & Time Control -->
+                                        <div>
+                                            <label class="block text-[10px] sm:text-xs font-black text-slate-400 uppercase tracking-widest mb-1.5">Start date & time*</label>
+                                            <div class="flex items-center justify-between p-3 sm:p-3.5 rounded-2xl border border-slate-200 bg-slate-50/70 gap-2">
+                                                <span id="displayStartDateText" class="text-xs sm:text-sm font-bold text-slate-800 truncate">Aug 22, 2026</span>
+                                                
+                                                <!-- Button-Anchored Time Trigger for Start Time -->
+                                                <div class="relative inline-flex">
+                                                    <button type="button" onclick="openTimePicker('start_time')" 
+                                                        class="flex items-center gap-1.5 bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 rounded-xl px-3.5 py-1.5 transition-all active:scale-95 shadow-2xs group cursor-pointer"
+                                                        title="Click to set start time">
+                                                        <i data-lucide="clock" class="w-3.5 h-3.5 text-amber-700 group-hover:scale-110 transition-transform"></i>
+                                                        <span id="start_time_display" class="text-xs sm:text-sm font-black tracking-wide">12:00 AM</span>
+                                                    </button>
+                                                    <input type="time" name="start_time" id="start_time" value="00:00" 
+                                                        class="absolute inset-0 w-full h-full opacity-0 pointer-events-none -z-10" 
+                                                        onchange="onStartTimeChanged(this.value)">
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- End Date & Time Control -->
+                                        <div>
+                                            <label class="block text-[10px] sm:text-xs font-black text-slate-400 uppercase tracking-widest mb-1.5">End date / Display Until & time*</label>
+                                            <div class="flex items-center justify-between p-3 sm:p-3.5 rounded-2xl border border-slate-200 bg-slate-50/70 gap-2">
+                                                <span id="displayEndDateText" class="text-xs sm:text-sm font-bold text-slate-800 truncate">Aug 29, 2026</span>
+                                                
+                                                <!-- Button-Anchored Time Trigger for End Time -->
+                                                <div class="relative inline-flex">
+                                                    <button type="button" onclick="openTimePicker('valid_until_time')" 
+                                                        class="flex items-center gap-1.5 bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 rounded-xl px-3.5 py-1.5 transition-all active:scale-95 shadow-2xs group cursor-pointer"
+                                                        title="Click to set expiration time">
+                                                        <i data-lucide="clock" class="w-3.5 h-3.5 text-amber-700 group-hover:scale-110 transition-transform"></i>
+                                                        <span id="end_time_display" class="text-xs sm:text-sm font-black tracking-wide">11:59 PM</span>
+                                                    </button>
+                                                    <input type="time" name="valid_until_time" id="valid_until_time" value="23:59" 
+                                                        class="absolute inset-0 w-full h-full opacity-0 pointer-events-none -z-10" 
+                                                        onchange="onEndTimeChanged(this.value)">
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Quick Duration Presets -->
+                                        <div>
+                                            <label class="block text-[10px] sm:text-xs font-black text-slate-400 uppercase tracking-widest mb-1.5">Quick Presets</label>
+                                            <div class="flex flex-wrap gap-2" id="schedulerPresetGroup">
+                                                <button type="button" onclick="setSchedulerPreset(1)" class="sched-pill px-3 py-1.5 text-xs font-bold rounded-xl border border-slate-200 bg-slate-50 text-slate-600 hover:bg-amber-50 hover:text-amber-700 hover:border-amber-300 transition-all" data-days="1">1 Day</button>
+                                                <button type="button" onclick="setSchedulerPreset(3)" class="sched-pill px-3 py-1.5 text-xs font-bold rounded-xl border border-slate-200 bg-slate-50 text-slate-600 hover:bg-amber-50 hover:text-amber-700 hover:border-amber-300 transition-all" data-days="3">3 Days</button>
+                                                <button type="button" onclick="setSchedulerPreset(7)" class="sched-pill active-pill px-3 py-1.5 text-xs font-bold rounded-xl border border-amber-500 bg-amber-500 text-white shadow-2xs transition-all" data-days="7">7 Days</button>
+                                                <button type="button" onclick="setSchedulerPreset(14)" class="sched-pill px-3 py-1.5 text-xs font-bold rounded-xl border border-slate-200 bg-slate-50 text-slate-600 hover:bg-amber-50 hover:text-amber-700 hover:border-amber-300 transition-all" data-days="14">14 Days</button>
+                                                <button type="button" onclick="setSchedulerPreset(30)" class="sched-pill px-3 py-1.5 text-xs font-bold rounded-xl border border-slate-200 bg-slate-50 text-slate-600 hover:bg-amber-50 hover:text-amber-700 hover:border-amber-300 transition-all" data-days="30">30 Days</button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Summary footer with live time range -->
+                                    <div class="pt-3.5 border-t border-slate-100 flex items-center justify-between text-xs sm:text-sm gap-2">
+                                        <span id="schedulerEventSummary" class="text-slate-600 font-semibold truncate text-xs">Event: Aug 22 - Aug 29, 2026 (7 Days)</span>
+                                        <span class="text-[10px] sm:text-xs font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-md shrink-0">Auto-synced</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Hidden Actual Form Inputs -->
+                            <input type="hidden" name="start_date" id="form_start_date" value="{{ date('Y-m-d') }}">
+                            <input type="hidden" name="valid_until" id="form_valid_until" value="{{ date('Y-m-d', strtotime('+7 days')) }}">
+                        </div>
+
+                        <!-- Submit CTA Button -->
+                        <button type="submit" id="composerSubmitBtn"
+                            class="w-full py-4 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-black text-sm sm:text-base tracking-wide uppercase rounded-2xl transition-all shadow-md shadow-amber-500/20 active:scale-[0.99] flex items-center justify-center gap-2.5">
+                            <i data-lucide="send" class="w-5 h-5"></i>
+                            <span>Send Broadcast</span>
+                        </button>
+                    </form>
                 </div>
-
-                <form action="{{ route('announcements.store') }}" method="POST" id="broadcastComposerForm" class="p-6 sm:p-8 space-y-6">
-                    @csrf
-
-                    <!-- Title Field -->
-                    <div>
-                        <label for="composer_title" class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">
-                            Title <span class="text-rose-500">*</span>
-                        </label>
-                        <input type="text" name="title" id="composer_title" required
-                            class="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all outline-none text-sm font-bold text-slate-800 placeholder:text-slate-400"
-                            placeholder="e.g. Schedule Reminder: Mandatory Monthly Inspection">
-                    </div>
-
-                    <!-- Message Field -->
-                    <div>
-                        <label for="composer_message" class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">
-                            Message (Optional)
-                        </label>
-                        <textarea name="message" id="composer_message" rows="4"
-                            class="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all outline-none text-sm text-slate-700 placeholder:text-slate-400 leading-relaxed"
-                            placeholder="Enter the full announcement details, requirements, or guidelines..."></textarea>
-                    </div>
-
-                    <!-- ── Integrated Meeting Scheduler / Calendar UI with Perfectly Positioned Time Pickers ── -->
-                    <div class="rounded-2xl border border-slate-200/90 bg-gradient-to-br from-slate-50/80 to-slate-100/40 p-5 sm:p-6 space-y-5">
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center gap-3">
-                                <div class="p-2 rounded-xl bg-amber-500/10 text-amber-600">
-                                    <i data-lucide="calendar-days" class="w-5 h-5"></i>
-                                </div>
-                                <div>
-                                    <h3 class="text-sm font-black text-slate-900">Schedule Broadcast</h3>
-                                    <p class="text-[11px] text-slate-500">Pick active dates and times. Past dates are strictly disabled.</p>
-                                </div>
-                            </div>
-                            <!-- Duration badge -->
-                            <span id="schedulerDurationBadge" class="px-3 py-1 bg-amber-500 text-white rounded-full text-xs font-black uppercase tracking-wider shadow-2xs">
-                                7 Days
-                            </span>
-                        </div>
-
-                        <!-- Calendar Grid & Date/Time Selection Columns -->
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 bg-white p-5 rounded-2xl border border-slate-200/80 shadow-2xs">
-                            
-                            <!-- Left: Interactive Month Calendar Grid -->
-                            <div class="flex flex-col">
-                                <div class="flex items-center justify-between mb-3">
-                                    <button type="button" id="prevMonthBtn" onclick="prevCalendarMonth()" class="p-2 rounded-xl hover:bg-slate-100 text-slate-600 transition-colors" aria-label="Previous Month">
-                                        <i data-lucide="chevron-left" class="w-4 h-4"></i>
-                                    </button>
-                                    <h4 id="calendarMonthYear" class="text-sm font-bold text-slate-800 tracking-tight">August 2026</h4>
-                                    <button type="button" onclick="nextCalendarMonth()" class="p-2 rounded-xl hover:bg-slate-100 text-slate-600 transition-colors" aria-label="Next Month">
-                                        <i data-lucide="chevron-right" class="w-4 h-4"></i>
-                                    </button>
-                                </div>
-
-                                <!-- Weekday headers -->
-                                <div class="grid grid-cols-7 text-center text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">
-                                    <div>Mon</div>
-                                    <div>Tue</div>
-                                    <div>Wed</div>
-                                    <div>Thu</div>
-                                    <div>Fri</div>
-                                    <div>Sat</div>
-                                    <div>Sun</div>
-                                </div>
-
-                                <!-- Days cells (Past dates disabled) -->
-                                <div id="calendarDaysGrid" class="grid grid-cols-7 gap-1">
-                                    {{-- Generated by JS with strictly disabled past dates --}}
-                                </div>
-                            </div>
-
-                            <!-- Right: Selected Dates & Perfectly Positioned Time Pickers -->
-                            <div class="flex flex-col justify-between space-y-4">
-                                <div class="space-y-3.5">
-                                    <!-- Start Date & Time Control -->
-                                    <div>
-                                        <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Start date & time*</label>
-                                        <div class="flex items-center justify-between p-2.5 sm:p-3 rounded-xl border border-slate-200 bg-slate-50/70 gap-2">
-                                            <span id="displayStartDateText" class="text-xs font-bold text-slate-800 truncate">Aug 22, 2026</span>
-                                            
-                                            <!-- Button-Anchored Time Trigger for Start Time -->
-                                            <div class="relative inline-flex">
-                                                <button type="button" onclick="openTimePicker('start_time')" 
-                                                    class="flex items-center gap-1.5 bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 rounded-xl px-3 py-1.5 transition-all active:scale-95 shadow-2xs group cursor-pointer"
-                                                    title="Click to set start time">
-                                                    <i data-lucide="clock" class="w-3.5 h-3.5 text-amber-700 group-hover:scale-110 transition-transform"></i>
-                                                    <span id="start_time_display" class="text-xs font-black tracking-wide">12:00 AM</span>
-                                                </button>
-                                                <!-- Positioned exactly at the button so popup opens right adjacent to it -->
-                                                <input type="time" name="start_time" id="start_time" value="00:00" 
-                                                    class="absolute inset-0 w-full h-full opacity-0 pointer-events-none -z-10" 
-                                                    onchange="onStartTimeChanged(this.value)">
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- End Date & Time Control -->
-                                    <div>
-                                        <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">End date / Display Until & time*</label>
-                                        <div class="flex items-center justify-between p-2.5 sm:p-3 rounded-xl border border-slate-200 bg-slate-50/70 gap-2">
-                                            <span id="displayEndDateText" class="text-xs font-bold text-slate-800 truncate">Aug 29, 2026</span>
-                                            
-                                            <!-- Button-Anchored Time Trigger for End Time -->
-                                            <div class="relative inline-flex">
-                                                <button type="button" onclick="openTimePicker('valid_until_time')" 
-                                                    class="flex items-center gap-1.5 bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 rounded-xl px-3 py-1.5 transition-all active:scale-95 shadow-2xs group cursor-pointer"
-                                                    title="Click to set expiration time">
-                                                    <i data-lucide="clock" class="w-3.5 h-3.5 text-amber-700 group-hover:scale-110 transition-transform"></i>
-                                                    <span id="end_time_display" class="text-xs font-black tracking-wide">11:59 PM</span>
-                                                </button>
-                                                <!-- Positioned exactly at the button so popup opens right adjacent to it -->
-                                                <input type="time" name="valid_until_time" id="valid_until_time" value="23:59" 
-                                                    class="absolute inset-0 w-full h-full opacity-0 pointer-events-none -z-10" 
-                                                    onchange="onEndTimeChanged(this.value)">
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Quick Duration Presets -->
-                                    <div>
-                                        <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Quick Presets</label>
-                                        <div class="flex flex-wrap gap-1.5" id="schedulerPresetGroup">
-                                            <button type="button" onclick="setSchedulerPreset(1)" class="sched-pill px-2.5 py-1 text-xs font-bold rounded-lg border border-slate-200 bg-slate-50 text-slate-600 hover:bg-amber-50 hover:text-amber-700 hover:border-amber-300 transition-all" data-days="1">1 Day</button>
-                                            <button type="button" onclick="setSchedulerPreset(3)" class="sched-pill px-2.5 py-1 text-xs font-bold rounded-lg border border-slate-200 bg-slate-50 text-slate-600 hover:bg-amber-50 hover:text-amber-700 hover:border-amber-300 transition-all" data-days="3">3 Days</button>
-                                            <button type="button" onclick="setSchedulerPreset(7)" class="sched-pill active-pill px-2.5 py-1 text-xs font-bold rounded-lg border border-amber-500 bg-amber-500 text-white shadow-2xs transition-all" data-days="7">7 Days</button>
-                                            <button type="button" onclick="setSchedulerPreset(14)" class="sched-pill px-2.5 py-1 text-xs font-bold rounded-lg border border-slate-200 bg-slate-50 text-slate-600 hover:bg-amber-50 hover:text-amber-700 hover:border-amber-300 transition-all" data-days="14">14 Days</button>
-                                            <button type="button" onclick="setSchedulerPreset(30)" class="sched-pill px-2.5 py-1 text-xs font-bold rounded-lg border border-slate-200 bg-slate-50 text-slate-600 hover:bg-amber-50 hover:text-amber-700 hover:border-amber-300 transition-all" data-days="30">30 Days</button>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Summary footer with live time range -->
-                                <div class="pt-3 border-t border-slate-100 flex items-center justify-between text-xs gap-2">
-                                    <span id="schedulerEventSummary" class="text-slate-600 font-semibold truncate text-[11px]">Event: Aug 22 - Aug 29, 2026 (7 Days)</span>
-                                    <span class="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md shrink-0">Auto-synced</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Hidden Actual Form Inputs -->
-                        <input type="hidden" name="start_date" id="form_start_date" value="{{ date('Y-m-d') }}">
-                        <input type="hidden" name="valid_until" id="form_valid_until" value="{{ date('Y-m-d', strtotime('+7 days')) }}">
-                    </div>
-
-                    <!-- Submit CTA Button -->
-                    <button type="submit" id="composerSubmitBtn"
-                        class="w-full py-4 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-black text-sm tracking-wide uppercase rounded-2xl transition-all shadow-md shadow-amber-500/20 active:scale-[0.99] flex items-center justify-center gap-2">
-                        <i data-lucide="send" class="w-4 h-4"></i>
-                        <span>Send Broadcast</span>
-                    </button>
-                </form>
             </div>
         </div>
 
         <!-- Right 4 cols: Live Driver App Preview -->
         <div class="lg:col-span-4 space-y-6">
-            <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 space-y-5">
-                <div class="flex items-center justify-between pb-4 border-b border-slate-100">
-                    <div class="flex items-center gap-2">
-                        <i data-lucide="radio" class="w-4 h-4 text-amber-500"></i>
-                        <h3 class="text-xs font-black text-slate-800 uppercase tracking-wider">Driver App Preview</h3>
-                    </div>
-                    <span class="text-[10px] font-bold text-slate-400">Live Simulation</span>
-                </div>
-
-                <!-- Driver Card Simulation -->
-                <div class="rounded-2xl border border-amber-200/80 bg-gradient-to-br from-amber-50/90 via-yellow-50/50 to-amber-100/40 p-4 space-y-3 shadow-2xs relative overflow-hidden">
-                    <div class="flex items-center gap-3">
-                        <div class="w-9 h-9 rounded-xl bg-amber-500 text-white flex items-center justify-center shadow-2xs shrink-0">
-                            <i data-lucide="megaphone" class="w-4 h-4"></i>
+            <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 sm:p-7 space-y-5 h-full flex flex-col justify-between">
+                <div class="space-y-5">
+                    <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+                        <div class="flex items-center gap-2.5">
+                            <i data-lucide="radio" class="w-4 h-4 text-amber-500"></i>
+                            <h3 class="text-xs sm:text-sm font-black text-slate-800 uppercase tracking-wider">Driver App Preview</h3>
                         </div>
-                        <div class="min-w-0 flex-1">
-                            <span class="text-[9px] font-black text-amber-700 uppercase tracking-wider block">Official Broadcast</span>
-                            <h4 id="previewTitle" class="text-xs font-black text-slate-900 truncate">New Announcement</h4>
-                        </div>
+                        <span class="text-[10px] sm:text-xs font-bold text-slate-400">Live Simulation</span>
                     </div>
-                    
-                    <p id="previewMessage" class="text-xs text-slate-600 line-clamp-3 leading-relaxed font-medium">
-                        Your message will appear here to drivers in real-time upon posting...
-                    </p>
 
-                    <div class="pt-3 border-t border-amber-200/60 flex items-center justify-between text-[10px] font-bold text-slate-500 gap-1">
-                        <span class="flex items-center gap-1 truncate">
-                            <i data-lucide="clock-3" class="w-3 h-3 text-amber-600 shrink-0"></i>
-                            <span id="previewSchedule" class="truncate">Scheduled: Aug 22 - Aug 29</span>
-                        </span>
-                        <span class="px-2 py-0.5 bg-amber-200/80 text-amber-900 rounded-md text-[9px] font-black uppercase shrink-0">
-                            Active
-                        </span>
+                    <!-- Driver Card Simulation -->
+                    <div class="rounded-2xl border border-amber-200/80 bg-gradient-to-br from-amber-50/90 via-yellow-50/50 to-amber-100/40 p-5 space-y-3.5 shadow-2xs relative overflow-hidden">
+                        <div class="flex items-center gap-3.5">
+                            <div class="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center shadow-2xs shrink-0">
+                                <i data-lucide="megaphone" class="w-5 h-5"></i>
+                            </div>
+                            <div class="min-w-0 flex-1">
+                                <span class="text-[10px] font-black text-amber-700 uppercase tracking-wider block">Official Broadcast</span>
+                                <h4 id="previewTitle" class="text-xs sm:text-sm font-black text-slate-900 truncate">New Announcement</h4>
+                            </div>
+                        </div>
+                        
+                        <p id="previewMessage" class="text-xs sm:text-sm text-slate-600 line-clamp-4 leading-relaxed font-medium">
+                            Your message will appear here to drivers in real-time upon posting...
+                        </p>
+
+                        <div class="pt-3.5 border-t border-amber-200/60 flex items-center justify-between text-[11px] font-bold text-slate-500 gap-1">
+                            <span class="flex items-center gap-1.5 truncate">
+                                <i data-lucide="clock-3" class="w-3.5 h-3.5 text-amber-600 shrink-0"></i>
+                                <span id="previewSchedule" class="truncate">Scheduled: Aug 22 - Aug 29</span>
+                            </span>
+                            <span class="px-2.5 py-0.5 bg-amber-200/80 text-amber-900 rounded-md text-[10px] font-black uppercase shrink-0">
+                                Active
+                            </span>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Guidance note -->
-                <div class="p-3.5 bg-slate-50 rounded-2xl border border-slate-100 text-xs text-slate-500 leading-relaxed flex items-start gap-2.5">
+                <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-xs sm:text-sm text-slate-500 leading-relaxed flex items-start gap-3 mt-4">
                     <i data-lucide="info" class="w-4 h-4 text-slate-400 shrink-0 mt-0.5"></i>
                     <span>Drivers receive instant push alerts and see this banner pinned at the top of their dashboard until the expiration date and time.</span>
                 </div>
@@ -264,41 +268,41 @@
         </div>
     </div>
 
-    {{-- ── 3. BROADCAST HISTORY DATA TABLE ───────────────────────────────── --}}
-    <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+    {{-- ── 3. FULL-WIDTH BROADCAST HISTORY DATA TABLE ─────────────────────── --}}
+    <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden w-full">
         
         <!-- Table Header -->
-        <div class="px-6 sm:px-8 py-5 border-b border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div class="flex items-center gap-3">
+        <div class="px-6 sm:px-8 py-5 sm:py-6 border-b border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div class="flex items-center gap-3.5">
                 <div class="p-2.5 bg-slate-100 rounded-xl text-slate-700">
                     <i data-lucide="history" class="w-5 h-5"></i>
                 </div>
                 <div>
-                    <h3 class="text-lg font-black text-slate-900">Broadcast History</h3>
-                    <p class="text-xs text-slate-500">Chronological archive of all sent announcements, schedules, and expiration states.</p>
+                    <h3 class="text-lg sm:text-xl font-black text-slate-900">Broadcast History</h3>
+                    <p class="text-xs sm:text-sm text-slate-500">Chronological archive of all sent announcements, schedules, and expiration states.</p>
                 </div>
             </div>
 
             <!-- Stats counter pills -->
-            <div class="flex items-center gap-2">
-                <span class="text-xs font-black text-slate-700 bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-200">
+            <div class="flex items-center gap-2.5">
+                <span class="text-xs sm:text-sm font-black text-slate-700 bg-slate-100 px-3.5 py-1.5 rounded-xl border border-slate-200">
                     {{ $announcements->total() }} Total
                 </span>
-                <span class="text-xs font-black text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-xl border border-emerald-200">
+                <span class="text-xs sm:text-sm font-black text-emerald-700 bg-emerald-50 px-3.5 py-1.5 rounded-xl border border-emerald-200">
                     {{ $announcements->where('valid_until', '>=', now())->count() }} Active
                 </span>
             </div>
         </div>
 
-        <!-- Table Container -->
-        <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-slate-100">
-                <thead class="bg-slate-50/60">
+        <!-- Table Container (Full Width) -->
+        <div class="overflow-x-auto w-full">
+            <table class="w-full divide-y divide-slate-100 text-left">
+                <thead class="bg-slate-50/70">
                     <tr>
-                        <th class="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Announcement</th>
-                        <th class="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Schedule & Duration</th>
-                        <th class="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest w-40">Date Sent</th>
-                        <th class="px-6 py-4 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest w-32">Actions</th>
+                        <th class="px-6 sm:px-8 py-4 text-[10px] sm:text-xs font-black text-slate-400 uppercase tracking-widest">Announcement</th>
+                        <th class="px-6 sm:px-8 py-4 text-[10px] sm:text-xs font-black text-slate-400 uppercase tracking-widest w-80 shrink-0">Schedule & Duration</th>
+                        <th class="px-6 sm:px-8 py-4 text-[10px] sm:text-xs font-black text-slate-400 uppercase tracking-widest w-48 shrink-0">Date Sent</th>
+                        <th class="px-6 sm:px-8 py-4 text-[10px] sm:text-xs font-black text-slate-400 uppercase tracking-widest text-right w-36 shrink-0">Actions</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100 bg-white">
@@ -310,37 +314,37 @@
                     @endphp
                     <tr class="hover:bg-slate-50/70 transition-colors">
                         <!-- Announcement Details -->
-                        <td class="px-6 py-4">
-                            <div class="max-w-md space-y-1">
-                                <h4 class="text-sm font-black text-slate-900 leading-snug">{{ $announcement->title }}</h4>
-                                <p class="text-xs text-slate-500 line-clamp-2 leading-relaxed font-normal">{{ $announcement->message ?: 'No message body provided.' }}</p>
+                        <td class="px-6 sm:px-8 py-5 min-w-[280px]">
+                            <div class="space-y-1">
+                                <h4 class="text-sm sm:text-base font-black text-slate-900 leading-snug">{{ $announcement->title }}</h4>
+                                <p class="text-xs sm:text-sm text-slate-500 line-clamp-2 leading-relaxed font-normal">{{ $announcement->message ?: 'No message body provided.' }}</p>
                             </div>
                         </td>
 
                         <!-- Schedule & Duration with Time -->
-                        <td class="px-6 py-4">
+                        <td class="px-6 sm:px-8 py-5 w-80 shrink-0">
                             <div class="flex flex-col space-y-1.5">
-                                <div class="flex items-center gap-1.5 text-xs font-bold text-slate-800">
+                                <div class="flex items-center gap-1.5 text-xs sm:text-sm font-bold text-slate-800">
                                     <span>{{ $effectiveStart->format('M d, Y h:i A') }}</span>
                                     <span class="text-slate-400 font-normal">→</span>
                                     <span>{{ $announcement->valid_until ? $announcement->valid_until->format('M d, Y h:i A') : 'Indefinite' }}</span>
                                 </div>
                                 <div class="flex items-center gap-2">
                                     @if($announcement->duration_days)
-                                        <span class="px-2 py-0.5 bg-amber-50 text-amber-700 border border-amber-200 rounded-md text-[10px] font-black">
+                                        <span class="px-2.5 py-0.5 bg-amber-50 text-amber-700 border border-amber-200 rounded-md text-[10px] sm:text-xs font-black">
                                             ⏱️ {{ $announcement->duration_days }} {{ Str::plural('Day', $announcement->duration_days) }}
                                         </span>
                                     @endif
                                     @if($isScheduled)
-                                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
+                                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] sm:text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
                                             <span class="w-1.5 h-1.5 rounded-full bg-indigo-500"></span> Scheduled
                                         </span>
                                     @elseif($isExpired)
-                                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200">
+                                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] sm:text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200">
                                             <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span> Expired
                                         </span>
                                     @else
-                                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] sm:text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
                                             <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Active
                                         </span>
                                     @endif
@@ -349,21 +353,21 @@
                         </td>
 
                         <!-- Date Sent -->
-                        <td class="px-6 py-4 w-40">
-                            <div class="text-xs font-bold text-slate-700">
+                        <td class="px-6 sm:px-8 py-5 w-48 shrink-0">
+                            <div class="text-xs sm:text-sm font-bold text-slate-700">
                                 {{ $announcement->created_at->format('M d, Y') }}
                             </div>
-                            <div class="text-[10px] text-slate-400 font-medium">
+                            <div class="text-[10px] sm:text-xs text-slate-400 font-medium">
                                 {{ $announcement->created_at->diffForHumans() }}
                             </div>
                         </td>
 
                         <!-- Actions -->
-                        <td class="px-6 py-4 text-right w-32">
-                            <div class="flex items-center justify-end gap-1.5">
+                        <td class="px-6 sm:px-8 py-5 text-right w-36 shrink-0">
+                            <div class="flex items-center justify-end gap-2">
                                 <!-- View Button -->
                                 <button type="button"
-                                    class="p-2 hover:bg-slate-100 text-slate-500 hover:text-slate-800 rounded-xl transition-all btn-view-announcement"
+                                    class="p-2.5 hover:bg-slate-100 text-slate-500 hover:text-slate-800 rounded-xl transition-all btn-view-announcement"
                                     title="View Announcement"
                                     data-title="{{ $announcement->title }}"
                                     data-message="{{ $announcement->message }}"
@@ -377,7 +381,7 @@
 
                                 <!-- Edit Button -->
                                 <button type="button"
-                                    class="p-2 hover:bg-amber-50 text-slate-500 hover:text-amber-700 rounded-xl transition-all btn-edit-announcement"
+                                    class="p-2.5 hover:bg-amber-50 text-slate-500 hover:text-amber-700 rounded-xl transition-all btn-edit-announcement"
                                     title="Edit Announcement"
                                     data-id="{{ $announcement->id }}"
                                     data-title="{{ $announcement->title }}"
@@ -393,7 +397,7 @@
                                 <form action="{{ route('announcements.destroy', $announcement->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this broadcast?')" class="inline-block">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="p-2 hover:bg-rose-50 text-slate-400 hover:text-rose-600 rounded-xl transition-all" title="Delete Announcement">
+                                    <button type="submit" class="p-2.5 hover:bg-rose-50 text-slate-400 hover:text-rose-600 rounded-xl transition-all" title="Delete Announcement">
                                         <i data-lucide="trash-2" class="w-4 h-4"></i>
                                     </button>
                                 </form>
@@ -402,7 +406,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="4" class="px-6 py-16 text-center">
+                        <td colspan="4" class="px-6 sm:px-8 py-16 text-center">
                             <div class="flex flex-col items-center justify-center max-w-sm mx-auto space-y-3">
                                 <div class="w-20 h-20 flex items-center justify-center">
                                     <img src="{{ asset('image/kpi/announcement_3d.svg') }}" class="w-full h-full object-contain opacity-70">
@@ -418,7 +422,7 @@
         </div>
 
         @if($announcements->hasPages())
-        <div class="p-4 sm:p-6 border-t border-slate-100 bg-slate-50/50">
+        <div class="p-5 sm:p-6 border-t border-slate-100 bg-slate-50/50">
             {{ $announcements->links() }}
         </div>
         @endif
@@ -645,7 +649,7 @@
         for (let i = firstDayIndex - 1; i >= 0; i--) {
             const dayNum = prevMonthLastDate - i;
             const btn = document.createElement('div');
-            btn.className = 'h-9 w-full flex items-center justify-center text-xs text-slate-300 select-none opacity-25 cursor-not-allowed';
+            btn.className = 'h-10 w-full flex items-center justify-center text-xs text-slate-300 select-none opacity-25 cursor-not-allowed';
             btn.textContent = dayNum;
             gridEl.appendChild(btn);
         }
@@ -665,7 +669,7 @@
 
             const btn = document.createElement('button');
             btn.type = 'button';
-            btn.className = 'relative h-9 w-full rounded-xl flex items-center justify-center text-xs font-bold transition-all select-none';
+            btn.className = 'relative h-10 w-full rounded-xl flex items-center justify-center text-xs sm:text-sm font-bold transition-all select-none';
 
             if (isPast) {
                 // STRICTLY DISABLED FOR PAST DATES
@@ -767,9 +771,9 @@
             // Update preset pills
             document.querySelectorAll('.sched-pill').forEach(pill => {
                 if (parseInt(pill.getAttribute('data-days')) === days) {
-                    pill.className = 'sched-pill px-2.5 py-1 text-xs font-bold rounded-lg border border-amber-500 bg-amber-500 text-white shadow-2xs transition-all';
+                    pill.className = 'sched-pill px-3 py-1.5 text-xs font-bold rounded-xl border border-amber-500 bg-amber-500 text-white shadow-2xs transition-all';
                 } else {
-                    pill.className = 'sched-pill px-2.5 py-1 text-xs font-bold rounded-lg border border-slate-200 bg-slate-50 text-slate-600 hover:bg-amber-50 hover:text-amber-700 hover:border-amber-300 transition-all';
+                    pill.className = 'sched-pill px-3 py-1.5 text-xs font-bold rounded-xl border border-slate-200 bg-slate-50 text-slate-600 hover:bg-amber-50 hover:text-amber-700 hover:border-amber-300 transition-all';
                 }
             });
         }
