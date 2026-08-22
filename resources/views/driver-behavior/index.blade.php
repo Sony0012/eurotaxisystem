@@ -414,55 +414,45 @@
      ════════════════════════════════════════ --}}
 <div id="tab-incentives" class="tab-content {{ ($tab ?? '') === 'incentives' ? '' : 'hidden' }}">
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
-        <div class="in-view cursor-default group relative overflow-hidden rounded-2xl shadow-sm border border-green-100 bg-gradient-to-br from-green-50 to-emerald-50/70">
-            <div class="relative p-3.5 sm:p-5 flex items-center justify-between z-20">
-                <div class="flex-1 min-w-0">
-                    <p class="text-green-500 text-[9px] sm:text-[10px] font-black uppercase tracking-widest mb-1">Eligible for Incentive</p>
-                    <p class="text-gray-900 text-xl sm:text-3xl font-black leading-none mb-1">{{ count($incentive_summary['eligible'] ?? []) }}</p>
-                </div>
-                <div class="p-1.5 sm:p-3 bg-green-100 rounded-xl sm:rounded-2xl border border-green-200 shadow-sm flex-shrink-0">
-                    <i data-lucide="trophy" class="w-5 h-5 sm:w-7 sm:h-7 text-green-600"></i>
-                </div>
+        {{-- 1. ELIGIBLE FOR INCENTIVE --}}
+        <div class="relative overflow-hidden rounded-2xl shadow-sm border border-green-200 bg-gradient-to-br from-green-50 to-emerald-50/70 p-4 sm:p-5 flex items-center justify-between">
+            <div class="flex-1 min-w-0 relative z-10">
+                <p class="text-green-600 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest mb-1">Eligible for Incentive</p>
+                <p class="text-slate-800 text-xl sm:text-3xl font-bold tracking-tight leading-none mb-1">{{ count($incentive_summary['eligible'] ?? []) }}</p>
             </div>
-            <i data-lucide="trophy" stroke-width="1" class="absolute right-0 bottom-0 w-24 h-24 -rotate-12 pointer-events-none" style="opacity: 0.15 !important; color: #22c55e !important; z-index: 5 !important;"></i>
+            <img src="{{ asset('image/kpi/incentive_3d.svg') }}" alt="Incentive 3D" class="w-16 h-16 sm:w-20 sm:h-20 object-contain pointer-events-none flex-shrink-0">
         </div>
-        <div class="in-view cursor-default group relative overflow-hidden rounded-2xl shadow-sm border border-red-100 bg-gradient-to-br from-red-50 to-rose-50/70">
-            <div class="relative p-3.5 sm:p-5 flex items-center justify-between z-20">
-                <div class="flex-1 min-w-0">
-                    <p class="text-red-400 text-[9px] sm:text-[10px] font-black uppercase tracking-widest mb-1">Disqualified</p>
-                    <p class="text-gray-900 text-xl sm:text-3xl font-black leading-none mb-1">{{ count($incentive_summary['ineligible'] ?? []) }}</p>
-                </div>
-                <div class="p-1.5 sm:p-3 bg-red-100 rounded-xl sm:rounded-2xl border border-red-200 shadow-sm flex-shrink-0">
-                    <i data-lucide="x-circle" class="w-5 h-5 sm:w-7 sm:h-7 text-red-600"></i>
-                </div>
-            </div>
-            <i data-lucide="x-circle" stroke-width="1" class="absolute right-0 bottom-0 w-24 h-24 -rotate-12 pointer-events-none" style="opacity: 0.15 !important; color: #ef4444 !important; z-index: 5 !important;"></i>
-        </div>
-        <div class="in-view cursor-default group relative overflow-hidden rounded-2xl shadow-sm border border-yellow-100 bg-gradient-to-br from-yellow-50 to-amber-50/70">
-            <div class="relative p-3.5 sm:p-5 flex items-center justify-between z-20">
-                <div class="flex-1 min-w-0">
-                    <p class="text-yellow-500 text-[9px] sm:text-[10px] font-black uppercase tracking-widest mb-1">Next Payout Sunday</p>
-                    @php
-                        $now = now()->timezone('Asia/Manila');
-                        $firstSundayThisMonth = $now->copy()->startOfMonth();
-                        while($firstSundayThisMonth->dayOfWeek !== \Carbon\Carbon::SUNDAY) { $firstSundayThisMonth->addDay(); }
-                        
-                        if ($now->gt($firstSundayThisMonth->endOfDay())) {
-                            // Already passed this month's, target next month
-                            $targetDate = $now->copy()->addMonth()->startOfMonth();
-                        } else {
-                            $targetDate = $now->copy()->startOfMonth();
-                        }
 
-                        while($targetDate->dayOfWeek !== \Carbon\Carbon::SUNDAY) { $targetDate->addDay(); }
-                    @endphp
-                    <p class="text-gray-900 text-lg sm:text-xl font-black leading-none mb-1">{{ $targetDate->format('M d, Y') }}</p>
-                </div>
-                <div class="p-1.5 sm:p-3 bg-yellow-100 rounded-xl sm:rounded-2xl border border-yellow-200 shadow-sm flex-shrink-0">
-                    <i data-lucide="calendar-check" class="w-5 h-5 sm:w-7 sm:h-7 text-yellow-600"></i>
-                </div>
+        {{-- 2. DISQUALIFIED --}}
+        <div class="relative overflow-hidden rounded-2xl shadow-sm border border-red-200 bg-gradient-to-br from-red-50 to-rose-50/70 p-4 sm:p-5 flex items-center justify-between">
+            <div class="flex-1 min-w-0 relative z-10">
+                <p class="text-red-500 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest mb-1">Disqualified</p>
+                <p class="text-slate-800 text-xl sm:text-3xl font-bold tracking-tight leading-none mb-1">{{ count($incentive_summary['ineligible'] ?? []) }}</p>
             </div>
-            <i data-lucide="calendar-check" stroke-width="1" class="absolute right-0 bottom-0 w-24 h-24 -rotate-12 pointer-events-none" style="opacity: 0.15 !important; color: #eab308 !important; z-index: 5 !important;"></i>
+            <img src="{{ asset('image/kpi/disqualified_3d.svg') }}" alt="Disqualified 3D" class="w-16 h-16 sm:w-20 sm:h-20 object-contain pointer-events-none flex-shrink-0">
+        </div>
+
+        {{-- 3. NEXT PAYOUT SUNDAY --}}
+        <div class="relative overflow-hidden rounded-2xl shadow-sm border border-yellow-200 bg-gradient-to-br from-yellow-50 to-amber-50/70 p-4 sm:p-5 flex items-center justify-between">
+            <div class="flex-1 min-w-0 relative z-10">
+                <p class="text-amber-600 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest mb-1">Next Payout Sunday</p>
+                @php
+                    $now = now()->timezone('Asia/Manila');
+                    $firstSundayThisMonth = $now->copy()->startOfMonth();
+                    while($firstSundayThisMonth->dayOfWeek !== \Carbon\Carbon::SUNDAY) { $firstSundayThisMonth->addDay(); }
+                    
+                    if ($now->gt($firstSundayThisMonth->endOfDay())) {
+                        // Already passed this month's, target next month
+                        $targetDate = $now->copy()->addMonth()->startOfMonth();
+                    } else {
+                        $targetDate = $now->copy()->startOfMonth();
+                    }
+
+                    while($targetDate->dayOfWeek !== \Carbon\Carbon::SUNDAY) { $targetDate->addDay(); }
+                @endphp
+                <p class="text-slate-800 text-lg sm:text-2xl font-bold tracking-tight leading-none mb-1">{{ $targetDate->format('M d, Y') }}</p>
+            </div>
+            <img src="{{ asset('image/kpi/payout_3d.svg') }}" alt="Payout 3D" class="w-16 h-16 sm:w-20 sm:h-20 object-contain pointer-events-none flex-shrink-0">
         </div>
     </div>
 
