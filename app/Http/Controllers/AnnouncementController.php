@@ -31,11 +31,11 @@ class AnnouncementController extends Controller
             'title' => 'required|string|max:255',
             'message' => 'nullable|string',
             'is_pinned' => 'boolean',
-            'valid_until' => 'required|date|after_or_equal:today',
+            'start_date' => 'nullable|date',
+            'valid_until' => 'required|date|after_or_equal:' . ($request->start_date ?? 'today'),
         ]);
 
-        // If this is pinned, unpin others (optional, or just allow multiple pinned)
-        // For now, let's allow multiple pinned, but "latest pinned" will show first.
+        $startDate = $request->start_date ? \Carbon\Carbon::parse($request->start_date)->startOfDay() : now()->startOfDay();
 
         $announcement = Announcement::create([
             'title' => $request->title,
@@ -43,6 +43,7 @@ class AnnouncementController extends Controller
             'is_pinned' => $request->is_pinned ?? false,
             'is_active' => true,
             'created_by' => Auth::id(),
+            'start_date' => $startDate,
             'valid_until' => $request->valid_until ? \Carbon\Carbon::parse($request->valid_until)->endOfDay() : null,
         ]);
 
@@ -73,10 +74,14 @@ class AnnouncementController extends Controller
             'message' => 'nullable|string',
             'is_pinned' => 'boolean',
             'is_active' => 'boolean',
-            'valid_until' => 'required|date|after_or_equal:today',
+            'start_date' => 'nullable|date',
+            'valid_until' => 'required|date',
         ]);
 
         $data = $request->all();
+        if ($request->filled('start_date')) {
+            $data['start_date'] = \Carbon\Carbon::parse($request->start_date)->startOfDay();
+        }
         if ($request->has('valid_until')) {
             $data['valid_until'] = $request->valid_until ? \Carbon\Carbon::parse($request->valid_until)->endOfDay() : null;
         }
@@ -108,4 +113,3 @@ class AnnouncementController extends Controller
         return redirect()->back()->with('success', 'Pin status updated.');
     }
 }
-

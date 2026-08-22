@@ -14,6 +14,14 @@ class AnnouncementController extends Controller
     public function index()
     {
         $announcements = Announcement::where('is_active', true)
+            ->where(function ($query) {
+                $query->whereNull('start_date')
+                      ->orWhere('start_date', '<=', now()->endOfDay());
+            })
+            ->where(function ($query) {
+                $query->whereNull('valid_until')
+                      ->orWhere('valid_until', '>=', now()->startOfDay());
+            })
             ->orderBy('is_pinned', 'desc')
             ->orderBy('created_at', 'desc')
             ->get();
@@ -30,6 +38,10 @@ class AnnouncementController extends Controller
     public function latest()
     {
         $announcement = Announcement::where('is_active', true)
+            ->where(function ($query) {
+                $query->whereNull('start_date')
+                      ->orWhere('start_date', '<=', now()->endOfDay());
+            })
             ->where(function ($query) {
                 $query->whereNull('valid_until')
                       ->orWhere('valid_until', '>=', now()->startOfDay());
