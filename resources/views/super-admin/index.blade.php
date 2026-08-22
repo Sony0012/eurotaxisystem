@@ -1173,75 +1173,121 @@
             </div>
         </div>
 
-        <!-- ══ SUMMARY STAT CARDS ══ -->
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5" id="cam-stats-row">
-            <div class="cam-card">
-                <div class="flex items-center justify-between mb-2">
-                    <span style="font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#64748b;">Total Accounts</span>
-                    <div class="cam-stat-icon" style="background:#f0f9ff;"><i data-lucide="users" style="width:16px;height:16px;color:#0284c7;"></i></div>
+        <!-- ══ SUMMARY STAT CARDS (ROW 1) ══ -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4" id="cam-stats-row">
+            <!-- Card 1: Total Accounts -->
+            <div class="relative overflow-hidden rounded-3xl border border-slate-200/80 bg-gradient-to-br from-white via-sky-50/30 to-blue-50/20 p-5 shadow-xs">
+                <div class="flex items-center justify-between gap-3 relative z-10">
+                    <div class="min-w-0 flex-1">
+                        <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-1">Total Accounts</span>
+                        <div class="text-2xl sm:text-3xl font-black text-slate-900 leading-tight tracking-tight tabular-nums truncate" id="cam-s-total">0</div>
+                        <p class="text-[10px] font-bold text-slate-400 mt-1 truncate">Monitored staff & admin accounts</p>
+                    </div>
+                    <div class="w-14 h-14 sm:w-16 sm:h-16 shrink-0">
+                        <img src="{{ asset('image/kpi/owner_staff_3d.svg') }}" alt="Total Accounts" class="w-full h-full object-contain filter drop-shadow-md">
+                    </div>
                 </div>
-                <p style="font-size:2rem;font-weight:900;line-height:1;color:#000;" id="cam-s-total">0</p>
-                <p style="font-size:.68rem;color:#64748b;margin-top:.3rem;">Monitored staff & admin accounts</p>
             </div>
-            <div class="cam-card">
-                <div class="flex items-center justify-between mb-2">
-                    <span style="font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#15803d;">Active Today</span>
-                    <div class="cam-stat-icon" style="background:#f0fdf4;"><i data-lucide="check-circle-2" style="width:16px;height:16px;color:#22c55e;"></i></div>
+
+            <!-- Card 2: Active Today -->
+            <div class="relative overflow-hidden rounded-3xl border border-slate-200/80 bg-gradient-to-br from-white via-emerald-50/30 to-teal-50/20 p-5 shadow-xs">
+                <div class="flex items-center justify-between gap-3 relative z-10">
+                    <div class="min-w-0 flex-1">
+                        <span class="text-[10px] font-black uppercase tracking-wider text-emerald-600 block mb-1">Active Today</span>
+                        <div class="text-2xl sm:text-3xl font-black text-emerald-600 leading-tight tracking-tight tabular-nums truncate" id="cam-s-active">0</div>
+                        <p class="text-[10px] font-bold text-slate-400 mt-1 truncate">Meeting daily target / operations</p>
+                    </div>
+                    <div class="w-14 h-14 sm:w-16 sm:h-16 shrink-0">
+                        <img src="{{ asset('image/kpi/owner_active_3d.svg') }}" alt="Active Today" class="w-full h-full object-contain filter drop-shadow-md">
+                    </div>
                 </div>
-                <p style="font-size:2rem;font-weight:900;line-height:1;color:#22c55e;" id="cam-s-active">0</p>
-                <p style="font-size:.68rem;color:#64748b;margin-top:.3rem;">Meeting daily target / operations</p>
             </div>
-            <div class="cam-card">
-                <div class="flex items-center justify-between mb-2">
-                    <span style="font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#92400e;">Low Activity</span>
-                    <div class="cam-stat-icon" style="background:#fffbeb;"><i data-lucide="alert-triangle" style="width:16px;height:16px;color:#f59e0b;"></i></div>
+
+            <!-- Card 3: Low Activity -->
+            <div class="relative overflow-hidden rounded-3xl border border-slate-200/80 bg-gradient-to-br from-white via-amber-50/30 to-yellow-50/20 p-5 shadow-xs">
+                <div class="flex items-center justify-between gap-3 relative z-10">
+                    <div class="min-w-0 flex-1">
+                        <span class="text-[10px] font-black uppercase tracking-wider text-amber-600 block mb-1">Low Activity</span>
+                        <div class="text-2xl sm:text-3xl font-black text-amber-600 leading-tight tracking-tight tabular-nums truncate" id="cam-s-low">0</div>
+                        <p class="text-[10px] font-bold text-slate-400 mt-1 truncate">Below target usage duration</p>
+                    </div>
+                    <div class="w-14 h-14 sm:w-16 sm:h-16 shrink-0">
+                        <img src="{{ asset('image/kpi/friction_points_3d.svg') }}" alt="Low Activity" class="w-full h-full object-contain filter drop-shadow-md">
+                    </div>
                 </div>
-                <p style="font-size:2rem;font-weight:900;line-height:1;color:#f59e0b;" id="cam-s-low">0</p>
-                <p style="font-size:.68rem;color:#64748b;margin-top:.3rem;">Below target usage duration</p>
             </div>
-            <div class="cam-card">
-                <div class="flex items-center justify-between mb-2">
-                    <span style="font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#991b1b;">No Activity</span>
-                    <div class="cam-stat-icon" style="background:#fff1f2;"><i data-lucide="x-circle" style="width:16px;height:16px;color:#ef4444;"></i></div>
+
+            <!-- Card 4: No Activity -->
+            <div class="relative overflow-hidden rounded-3xl border border-slate-200/80 bg-gradient-to-br from-white via-rose-50/30 to-red-50/20 p-5 shadow-xs">
+                <div class="flex items-center justify-between gap-3 relative z-10">
+                    <div class="min-w-0 flex-1">
+                        <span class="text-[10px] font-black uppercase tracking-wider text-rose-600 block mb-1">No Activity</span>
+                        <div class="text-2xl sm:text-3xl font-black text-rose-600 leading-tight tracking-tight tabular-nums truncate" id="cam-s-none">0</div>
+                        <p class="text-[10px] font-bold text-slate-400 mt-1 truncate">Zero login / usage today</p>
+                    </div>
+                    <div class="w-14 h-14 sm:w-16 sm:h-16 shrink-0">
+                        <img src="{{ asset('image/kpi/owner_rejected_3d.svg') }}" alt="No Activity" class="w-full h-full object-contain filter drop-shadow-md">
+                    </div>
                 </div>
-                <p style="font-size:2rem;font-weight:900;line-height:1;color:#ef4444;" id="cam-s-none">0</p>
-                <p style="font-size:.68rem;color:#64748b;margin-top:.3rem;">Zero login / usage today</p>
             </div>
         </div>
 
-        <!-- ══ SECOND ROW STATS ══ -->
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
-            <div class="cam-card">
-                <div class="flex items-center justify-between mb-2">
-                    <span style="font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#64748b;">Avg. Daily Hours</span>
-                    <div class="cam-stat-icon" style="background:#faf5ff;"><i data-lucide="clock" style="width:16px;height:16px;color:#a855f7;"></i></div>
+        <!-- ══ SUMMARY STAT CARDS (ROW 2) ══ -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <!-- Card 5: Avg. Daily Hours -->
+            <div class="relative overflow-hidden rounded-3xl border border-slate-200/80 bg-gradient-to-br from-white via-purple-50/30 to-indigo-50/20 p-5 shadow-xs">
+                <div class="flex items-center justify-between gap-3 relative z-10">
+                    <div class="min-w-0 flex-1">
+                        <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-1">Avg. Daily Hours</span>
+                        <div class="text-2xl sm:text-3xl font-black text-slate-900 leading-tight tracking-tight tabular-nums truncate" id="cam-s-avg">0h</div>
+                        <p class="text-[10px] font-bold text-slate-400 mt-1 truncate">Active session time across users</p>
+                    </div>
+                    <div class="w-14 h-14 sm:w-16 sm:h-16 shrink-0">
+                        <img src="{{ asset('image/kpi/service_cycle_3d.svg') }}" alt="Avg Daily Hours" class="w-full h-full object-contain filter drop-shadow-md">
+                    </div>
                 </div>
-                <p style="font-size:2rem;font-weight:900;line-height:1;color:#000;" id="cam-s-avg">0h</p>
-                <p style="font-size:.68rem;color:#64748b;margin-top:.3rem;">Active session time across users</p>
             </div>
-            <div class="cam-card">
-                <div class="flex items-center justify-between mb-2">
-                    <span style="font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#64748b;">Adoption Rate</span>
-                    <div class="cam-stat-icon" style="background:#f0fdf4;"><i data-lucide="trending-up" style="width:16px;height:16px;color:#16a34a;"></i></div>
+
+            <!-- Card 6: Adoption Rate -->
+            <div class="relative overflow-hidden rounded-3xl border border-slate-200/80 bg-gradient-to-br from-white via-emerald-50/30 to-green-50/20 p-5 shadow-xs">
+                <div class="flex items-center justify-between gap-3 relative z-10">
+                    <div class="min-w-0 flex-1">
+                        <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-1">Adoption Rate</span>
+                        <div class="text-2xl sm:text-3xl font-black text-emerald-600 leading-tight tracking-tight tabular-nums truncate" id="cam-s-adoption">0%</div>
+                        <p class="text-[10px] font-bold text-slate-400 mt-1 truncate">Overall system adoption %</p>
+                    </div>
+                    <div class="w-14 h-14 sm:w-16 sm:h-16 shrink-0">
+                        <img src="{{ asset('image/kpi/quality_index_3d.svg') }}" alt="Adoption Rate" class="w-full h-full object-contain filter drop-shadow-md">
+                    </div>
                 </div>
-                <p style="font-size:2rem;font-weight:900;line-height:1;color:#000;" id="cam-s-adoption">0%</p>
-                <p style="font-size:.68rem;color:#64748b;margin-top:.3rem;">Overall system adoption %</p>
             </div>
-            <div class="cam-card">
-                <div class="flex items-center justify-between mb-2">
-                    <span style="font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#64748b;">Activities Today</span>
-                    <div class="cam-stat-icon" style="background:#fef3c7;"><i data-lucide="zap" style="width:16px;height:16px;color:#f59e0b;"></i></div>
+
+            <!-- Card 7: Activities Today -->
+            <div class="relative overflow-hidden rounded-3xl border border-slate-200/80 bg-gradient-to-br from-white via-amber-50/30 to-orange-50/20 p-5 shadow-xs">
+                <div class="flex items-center justify-between gap-3 relative z-10">
+                    <div class="min-w-0 flex-1">
+                        <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-1">Activities Today</span>
+                        <div class="text-2xl sm:text-3xl font-black text-slate-900 leading-tight tracking-tight tabular-nums truncate" id="cam-s-acts">0</div>
+                        <p class="text-[10px] font-bold text-slate-400 mt-1 truncate">Meaningful database operations</p>
+                    </div>
+                    <div class="w-14 h-14 sm:w-16 sm:h-16 shrink-0">
+                        <img src="{{ asset('image/kpi/target_3d.svg') }}" alt="Activities Today" class="w-full h-full object-contain filter drop-shadow-md">
+                    </div>
                 </div>
-                <p style="font-size:2rem;font-weight:900;line-height:1;color:#000;" id="cam-s-acts">0</p>
-                <p style="font-size:.68rem;color:#64748b;margin-top:.3rem;">Meaningful database operations</p>
             </div>
-            <div class="cam-card">
-                <div class="flex items-center justify-between mb-2">
-                    <span style="font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#64748b;">Monitored Roles</span>
-                    <div class="cam-stat-icon" style="background:#f0f9ff;"><i data-lucide="shield-check" style="width:16px;height:16px;color:#0369a1;"></i></div>
+
+            <!-- Card 8: Monitored Roles -->
+            <div class="relative overflow-hidden rounded-3xl border border-slate-200/80 bg-gradient-to-br from-white via-sky-50/30 to-indigo-50/20 p-5 shadow-xs">
+                <div class="flex items-center justify-between gap-3 relative z-10">
+                    <div class="min-w-0 flex-1">
+                        <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-1">Monitored Roles</span>
+                        <div class="text-2xl sm:text-3xl font-black text-slate-900 leading-tight tracking-tight tabular-nums truncate" id="cam-s-clients">0</div>
+                        <p class="text-[10px] font-bold text-slate-400 mt-1 truncate">Manager, Dispatcher, Secretary, Owner</p>
+                    </div>
+                    <div class="w-14 h-14 sm:w-16 sm:h-16 shrink-0">
+                        <img src="{{ asset('image/kpi/crown_3d.svg') }}" alt="Monitored Roles" class="w-full h-full object-contain filter drop-shadow-md">
+                    </div>
                 </div>
-                <p style="font-size:2rem;font-weight:900;line-height:1;color:#000;" id="cam-s-clients">0</p>
-                <p style="font-size:.68rem;color:#64748b;margin-top:.3rem;">Manager, Dispatcher, Secretary, Owner</p>
             </div>
         </div>
 

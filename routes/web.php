@@ -355,40 +355,9 @@ Route::middleware(['auth', 'super_admin'])->prefix('super-admin')->name('super-a
     Route::delete('/incident-classifications/{id}/archive', [SuperAdminController::class, 'archiveClassification'])->name('incident-classifications.archive');
     Route::post('/incident-classifications/{id}/restore', [SuperAdminController::class, 'restoreClassification'])->name('incident-classifications.restore');
     Route::delete('/incident-classifications/{id}', [SuperAdminController::class, 'deleteClassification'])->name('incident-classifications.delete');
-    // ─── Super Admin / System Admin Routes ─────────────────
-    Route::get('/super-admin', [SuperAdminController::class, 'index'])->name('super-admin.index');
-    Route::get('/super-admin/json', [SuperAdminController::class, 'indexJson'])->name('super-admin.json');
-    Route::post('/super-admin/users/{id}/approve', [SuperAdminController::class, 'approveUser'])->name('super-admin.approve-user');
-    Route::post('/super-admin/users/{id}/reject', [SuperAdminController::class, 'rejectUser'])->name('super-admin.reject-user');
-    Route::post('/super-admin/users/{id}/toggle-disable', [SuperAdminController::class, 'toggleDisable'])->name('super-admin.toggle-disable');
-    Route::post('/super-admin/users/{id}/page-access', [SuperAdminController::class, 'updatePageAccess'])->name('super-admin.update-page-access');
-    Route::get('/super-admin/login-history', [SuperAdminController::class, 'loginHistory'])->name('super-admin.login-history');
-    Route::post('/super-admin/users/{id}/archive', [SuperAdminController::class, 'archiveUser'])->name('super-admin.archive-user');
-    Route::post('/super-admin/users/{id}/restore', [SuperAdminController::class, 'restoreUser'])->name('super-admin.restore-user');
-    Route::post('/super-admin/users/{id}/update', [SuperAdminController::class, 'updateUser'])->name('super-admin.update-user');
-    Route::get('/super-admin/users/{id}/details', [SuperAdminController::class, 'getUserDetails'])->name('super-admin.get-user');
-    Route::post('/super-admin/users/{id}/reset-password', [SuperAdminController::class, 'resetPassword'])->name('super-admin.reset-password');
-    Route::post('/super-admin/users/{id}/update-role', [SuperAdminController::class, 'updateRole'])->name('super-admin.update-role');
-    Route::post('/super-admin/staff', [SuperAdminController::class, 'storeStaff'])->name('super-admin.store-staff');
-    Route::post('/super-admin/classifications', [SuperAdminController::class, 'storeClassification'])->name('super-admin.store-classification');
-    Route::get('/super-admin/classifications/{id}', [SuperAdminController::class, 'getClassificationDetails'])->name('super-admin.get-classification');
-    Route::put('/super-admin/classifications/{id}', [SuperAdminController::class, 'updateClassification'])->name('super-admin.update-classification');
-    Route::delete('/super-admin/classifications/{id}/archive', [SuperAdminController::class, 'archiveClassification'])->name('super-admin.archive-classification');
-    Route::post('/super-admin/classifications/{id}/restore', [SuperAdminController::class, 'restoreClassification'])->name('super-admin.restore-classification');
-    Route::post('/super-admin/roles', [SuperAdminController::class, 'storeRole'])->name('super-admin.store-role');
-    Route::get('/super-admin/roles/{id}', [SuperAdminController::class, 'getRoleDetails'])->name('super-admin.get-role');
-    Route::put('/super-admin/roles/{id}', [SuperAdminController::class, 'updateRole'])->name('super-admin.update-role-details');
-    Route::delete('/super-admin/roles/{id}/archive', [SuperAdminController::class, 'archiveRole'])->name('super-admin.archive-role');
-    Route::post('/super-admin/roles/{id}/restore', [SuperAdminController::class, 'restoreRole'])->name('super-admin.restore-role');
-    Route::post('/super-admin/verify-archive-password', [SuperAdminController::class, 'verifyArchivePassword'])->name('super-admin.verify-archive-password');
-    Route::post('/super-admin/settings/update', [SuperAdminController::class, 'updateSystemSettings'])->name('super-admin.update-settings');
-
-    // System Security Settings
-    Route::post('/security/update-archive-password', [SuperAdminController::class, 'updateArchivePassword'])->name('security.update-archive-password');
-
     // Client Activity Monitoring
-    Route::get('/super-admin/activity-monitoring', [SuperAdminController::class, 'activityMonitoring'])->name('super-admin.activity-monitoring');
-    Route::get('/super-admin/activity-monitoring/user/{id}', [SuperAdminController::class, 'userActivityDetail'])->name('super-admin.activity-monitoring.user');
+    Route::get('/activity-monitoring', [SuperAdminController::class, 'activityMonitoring'])->name('activity-monitoring');
+    Route::get('/activity-monitoring/user/{id}', [SuperAdminController::class, 'userActivityDetail'])->name('activity-monitoring.user');
 });
 
 // ─── Temporary System Sync & Cache Clear Route ─────────────
