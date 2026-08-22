@@ -773,13 +773,16 @@ class SuperAdminController extends Controller
 
             // Separate logins vs operational actions
             $loginEntries   = $userAudits->where('action', 'login');
-            $meaningfulActs = $userAudits->whereNotIn('action', ['login', 'logout', 'failed_login']);
+            $meaningfulActs = $userAudits->whereNotIn('action', ['login', 'logout', 'failed_login', 'session_start', 'active_presence']);
             $firstLogin     = $loginEntries->first();
             $lastEntry      = $userAudits->last();
 
             // Collect distinct modules accessed today
             $modules = [];
             foreach ($userAudits as $aud) {
+                if (in_array($aud->action, ['login', 'logout', 'failed_login', 'session_start', 'active_presence'])) {
+                    continue;
+                }
                 $mod = $getModule($aud->action);
                 if (!in_array($mod, $modules) && $mod !== 'Authentication') {
                     $modules[] = $mod;

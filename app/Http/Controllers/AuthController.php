@@ -639,8 +639,22 @@ class AuthController extends Controller
         if ($user) {
             $user->update([
                 'last_seen_at' => now(),
-                'is_online' => true
+                'is_online'    => true
             ]);
+
+            // Track continuous active checkpoints in LoginAudit
+            $today = now()->toDateString();
+            $lastAudit = LoginAudit::where('user_id', $user->id)
+                ->whereDate('created_at', $today)
+                ->orderByDesc('created_at')
+                ->first();
+
+            if (!$lastAudit || \Carbon\Carbon::parse($lastAudit->created_at)->diffInMinutes(now()) >= 30) {
+                LoginAudit::log('session_start', $user, 'Session active / opened dashboard');
+            } elseif (\Carbon\Carbon::parse($lastAudit->created_at)->diffInMinutes(now()) >= 5) {
+                LoginAudit::log('active_presence', $user, 'Active usage continuous checkpoint');
+            }
+
             return response()->json(['success' => true]);
         }
         return response()->json(['success' => false], 401);
