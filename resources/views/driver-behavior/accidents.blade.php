@@ -6,28 +6,15 @@
 @section('content')
 <style>
     .stat-card-premium { @apply transition-all duration-500 cursor-default; }
-    
-    /* Dashboard Wave CSS */
-    @keyframes drawChart { 0% { clip-path: inset(0 100% 0 0); opacity: 0; } 100% { clip-path: inset(0 0 0 0); opacity: 1; } }
-    .card-hover::after {
-        content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 75px; background-size: 100% 100%; background-repeat: no-repeat; opacity: 0; transition: none !important; z-index: 0;
-    }
-    .wave-red::after { background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 100 50" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><polygon fill="rgba(239,68,68,0.15)" stroke="rgba(239,68,68,0.4)" stroke-width="1.5" vector-effect="non-scaling-stroke" stroke-linejoin="miter" points="0,50 0,35 15,20 30,30 45,10 60,25 75,5 90,15 100,0 100,50" /></svg>'); }
-    .card-hover.in-view::after { animation: drawChart 1s ease-out forwards !important; }
 </style>
 
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-    <div class="card-hover in-view wave-red cursor-default group relative overflow-hidden rounded-2xl shadow-sm border border-red-100 bg-gradient-to-br from-red-50 to-rose-50/70">
-        <div class="relative p-3.5 sm:p-5 flex items-center justify-between z-20">
-            <div class="flex-1 min-w-0">
-                <p class="text-red-400 text-[9px] sm:text-[10px] font-black uppercase tracking-widest mb-1">Total Accident Reports</p>
-                <p class="text-gray-900 text-xl sm:text-3xl font-black leading-none mb-1">{{ count($accident_reports) }}</p>
-            </div>
-            <div class="p-1.5 sm:p-3 bg-red-100 rounded-xl sm:rounded-2xl border border-red-200 shadow-sm flex-shrink-0">
-                <i data-lucide="alert-octagon" class="w-5 h-5 sm:w-7 sm:h-7 text-red-600"></i>
-            </div>
+    <div class="relative overflow-hidden rounded-2xl shadow-sm border border-red-200 bg-gradient-to-br from-red-50 to-rose-50/70 p-4 sm:p-5 flex items-center justify-between">
+        <div class="flex-1 min-w-0 relative z-10">
+            <p class="text-red-500 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest mb-1">Total Accident Reports</p>
+            <p class="text-slate-800 text-xl sm:text-3xl font-bold tracking-tight leading-none mb-1">{{ count($accident_reports) }}</p>
         </div>
-        <i data-lucide="alert-octagon" stroke-width="1" class="absolute right-0 bottom-0 w-24 h-24 -rotate-12 pointer-events-none" style="opacity: 0.15 !important; color: #ef4444 !important; z-index: 5 !important;"></i>
+        <img src="{{ asset('image/kpi/accident_3d.svg') }}" alt="Accidents 3D" class="w-16 h-16 sm:w-20 sm:h-20 object-contain pointer-events-none flex-shrink-0">
     </div>
 </div>
 
