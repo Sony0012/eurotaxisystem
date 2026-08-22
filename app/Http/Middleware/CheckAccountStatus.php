@@ -41,28 +41,32 @@ class CheckAccountStatus
                 return redirect()->route('login')->withErrors(['email' => $reason]);
             }
 
-            // Update user presence & active timestamp (throttled to avoid redundant DB writes)
-            $needsPresenceUpdate = !$user->last_seen_at || \Carbon\Carbon::parse($user->last_seen_at)->diffInSeconds(now()) >= 15 || !$user->is_online;
-            if ($needsPresenceUpdate) {
-                \App\Models\User::where('id', $user->id)->update([
-                    'last_seen_at' => now(),
-                    'is_online'    => true,
-                ]);
+            // Update user presence & active timestamp (wrapped safely to prevent any 500 errors)
+            try {
+                $needsPresenceUpdate = !$user->last_seen_at || \Carbon\Carbon::parse($user->last_seen_at)->diffInSeconds(now()) >= 15 || !$user->is_online;
+                if ($needsPresenceUpdate) {
+                    \App\Models\User::where('id', $user->id)->update([
+                        'last_seen_at' => now(),
+                        'is_online'    => true,
+                    ]);
 
-                // Record session start & continuous active checkpoints in LoginAudit
-                $today = now()->toDateString();
-                $lastAudit = \App\Models\LoginAudit::where('user_id', $user->id)
-                    ->whereDate('created_at', $today)
-                    ->orderByDesc('created_at')
-                    ->first();
+                    // Record session start & continuous active checkpoints in LoginAudit
+                    $today = now()->toDateString();
+                    $lastAudit = \App\Models\LoginAudit::where('user_id', $user->id)
+                        ->whereDate('created_at', $today)
+                        ->orderByDesc('created_at')
+                        ->first();
 
-                // If first time active today, or inactive gap >= 30 minutes, mark session_start
-                if (!$lastAudit || \Carbon\Carbon::parse($lastAudit->created_at)->diffInMinutes(now()) >= 30) {
-                    \App\Models\LoginAudit::log('session_start', $user, 'Session active / opened dashboard');
-                } elseif (\Carbon\Carbon::parse($lastAudit->created_at)->diffInMinutes(now()) >= 5) {
-                    // Checkpoint every 5 minutes during continuous active usage
-                    \App\Models\LoginAudit::log('active_presence', $user, 'Active usage continuous checkpoint');
+                    // If first time active today, or inactive gap >= 30 minutes, mark session_start
+                    if (!$lastAudit || \Carbon\Carbon::parse($lastAudit->created_at)->diffInMinutes(now()) >= 30) {
+                        \App\Models\LoginAudit::log('session_start', $user, 'Session active / opened dashboard');
+                    } elseif (\Carbon\Carbon::parse($lastAudit->created_at)->diffInMinutes(now()) >= 5) {
+                        // Checkpoint every 5 minutes during continuous active usage
+                        \App\Models\LoginAudit::log('active_presence', $user, 'Active usage continuous checkpoint');
+                    }
                 }
+            } catch (\Throwable $e) {
+                // Fail silently to never disrupt web traffic
             }
         }
 
