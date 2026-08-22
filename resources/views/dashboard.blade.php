@@ -136,7 +136,7 @@
             }
         }
         .animated-shiny-units-text {
-            background: linear-gradient(90deg, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.92) 50%, rgba(255,255,255,0.22) 100%);
+            background: linear-gradient(90deg, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.22) 100%);
             background-size: 200% auto;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -144,6 +144,36 @@
             animation: animatedShinyText 3.5s ease-in-out infinite;
             will-change: background-position;
             filter: drop-shadow(0 2px 10px rgba(255,255,255,0.2));
+        }
+
+        @keyframes blob {
+            0% {
+                transform: translate(-100%, -100%);
+            }
+            25% {
+                transform: translate(20%, -100%);
+            }
+            50% {
+                transform: translate(20%, 20%);
+            }
+            75% {
+                transform: translate(-100%, 20%);
+            }
+            100% {
+                transform: translate(-100%, -100%);
+            }
+        }
+        .animate-blob {
+            animation: blob 5s linear infinite;
+        }
+        .animate-blob-fast {
+            animation: blob 4s linear infinite;
+        }
+        .animate-blob-slow {
+            animation: blob 7s linear infinite;
+        }
+        .animate-blob-reverse {
+            animation: blob 6s linear infinite reverse;
         }
     </style>
 @endpush
@@ -556,79 +586,91 @@
     <div class="grid grid-cols-2 gap-3 sm:gap-5 md:grid-cols-2 lg:grid-cols-4">
 
         {{-- Total Units --}}
-        <div onclick="showUnitsModal()" class="card-hover wave-blue cursor-pointer group relative overflow-hidden rounded-2xl shadow-md shadow-blue-500/5 border-2 border-blue-400 ring-1 ring-blue-500/20 hover:border-blue-600 transition-all duration-300 bg-gradient-to-br from-blue-50 to-indigo-50/70">
-            
-            <div class="relative p-3.5 sm:p-5 flex items-center justify-between z-20">
+        <div onclick="showUnitsModal()" class="card-hover wave-blue cursor-pointer group relative overflow-hidden rounded-2xl shadow-lg border border-white/60 p-[3px] bg-slate-100/50 transition-all duration-300 hover:scale-[1.02]">
+            {{-- Animated Gradient Blob --}}
+            <div class="absolute top-1/2 left-1/2 w-[220px] h-[220px] rounded-full opacity-100 filter blur-[14px] z-0 animate-blob bg-gradient-to-r from-blue-600 via-cyan-400 to-indigo-600 pointer-events-none"></div>
+
+            {{-- Glassy Card Content Container --}}
+            <div class="relative w-full h-full bg-white/90 backdrop-blur-xl rounded-[13px] outline outline-1 outline-white/80 p-3.5 sm:p-5 flex items-center justify-between z-10">
                 <div class="flex-1 min-w-0">
                     <p class="text-blue-600 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest mb-1">Total Units</p>
                     <p class="text-slate-800 text-xl sm:text-3xl font-bold tracking-tight leading-none mb-1" data-stat="active_units">{{ $stats['active_units'] }}</p>
                     <p class="text-blue-600 text-[10px] sm:text-xs font-medium"><span class="text-emerald-600 font-bold" data-stat="roi_achieved">{{ $stats['roi_units'] }}</span> ROI Achieved</p>
                 </div>
-                <div class="p-1.5 sm:p-3 bg-blue-100 rounded-xl sm:rounded-2xl border border-blue-400 shadow-md shadow-blue-500/10 flex-shrink-0">
+                <div class="p-1.5 sm:p-3 bg-blue-100/80 rounded-xl sm:rounded-2xl border border-blue-300 shadow-md shadow-blue-500/10 flex-shrink-0">
                     <i data-lucide="car" class="w-5 h-5 sm:w-7 sm:h-7 text-blue-600"></i>
                 </div>
             </div>
-            <i data-lucide="car" stroke-width="1" class="absolute right-0 bottom-0 w-24 h-24 -rotate-12 pointer-events-none" style="opacity: 0.15 !important; color: #2563eb !important; z-index: 5 !important;"></i>
+            <i data-lucide="car" stroke-width="1" class="absolute right-0 bottom-0 w-24 h-24 -rotate-12 pointer-events-none" style="opacity: 0.12 !important; color: #2563eb !important; z-index: 12 !important;"></i>
         </div>
 
         {{-- Daily Boundary Collection --}}
-        <div onclick="showDailyBoundaryModal()" class="card-hover wave-emerald cursor-pointer group relative overflow-hidden rounded-2xl shadow-md shadow-emerald-500/5 border-2 border-emerald-400 ring-1 ring-emerald-500/20 hover:border-emerald-600 transition-all duration-300 bg-gradient-to-br from-emerald-50 to-teal-50/70">
-            
-            <div class="relative p-3.5 sm:p-5 flex items-center justify-between z-20">
+        <div onclick="showDailyBoundaryModal()" class="card-hover wave-emerald cursor-pointer group relative overflow-hidden rounded-2xl shadow-lg border border-white/60 p-[3px] bg-slate-100/50 transition-all duration-300 hover:scale-[1.02]">
+            {{-- Animated Gradient Blob --}}
+            <div class="absolute top-1/2 left-1/2 w-[220px] h-[220px] rounded-full opacity-100 filter blur-[14px] z-0 animate-blob-slow bg-gradient-to-r from-emerald-500 via-teal-300 to-green-500 pointer-events-none"></div>
+
+            {{-- Glassy Card Content Container --}}
+            <div class="relative w-full h-full bg-white/90 backdrop-blur-xl rounded-[13px] outline outline-1 outline-white/80 p-3.5 sm:p-5 flex items-center justify-between z-10">
                 <div class="flex-1 min-w-0">
                     <p class="text-emerald-700 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest mb-1">Boundary Revenue</p>
                     <div class="flex flex-col">
                         <span class="text-slate-800 text-lg sm:text-2xl font-bold tracking-tight leading-none mb-0.5" data-stat="today_boundary">{{ formatCurrency($stats['today_boundary']) }}</span>
                         <span class="text-[9px] sm:text-[10px] font-bold text-emerald-600 uppercase">Today</span>
                     </div>
-                    <div class="mt-2 pt-2 sm:mt-3 sm:pt-3 border-t border-emerald-300/80">
+                    <div class="mt-2 pt-2 sm:mt-3 sm:pt-3 border-t border-emerald-200/80">
                         <p class="text-slate-800 text-base sm:text-lg font-bold leading-none mb-0.5" data-stat="month_boundary">{{ formatCurrency($stats['month_boundary'] ?? 0) }}</p>
                         <p class="text-emerald-700 text-[8px] sm:text-[9px] font-bold uppercase tracking-widest">This Month</p>
                     </div>
                 </div>
-                <div class="p-1.5 sm:p-3 bg-emerald-100 rounded-xl sm:rounded-2xl border border-emerald-400 shadow-md shadow-emerald-500/10 flex-shrink-0">
+                <div class="p-1.5 sm:p-3 bg-emerald-100/80 rounded-xl sm:rounded-2xl border border-emerald-300 shadow-md shadow-emerald-500/10 flex-shrink-0">
                     <i data-lucide="banknote" class="w-5 h-5 sm:w-7 sm:h-7 text-emerald-600"></i>
                 </div>
             </div>
-            <i data-lucide="banknote" stroke-width="1" class="absolute right-0 bottom-0 w-24 h-24 -rotate-12 pointer-events-none" style="opacity: 0.15 !important; color: #059669 !important; z-index: 5 !important;"></i>
+            <i data-lucide="banknote" stroke-width="1" class="absolute right-0 bottom-0 w-24 h-24 -rotate-12 pointer-events-none" style="opacity: 0.12 !important; color: #059669 !important; z-index: 12 !important;"></i>
         </div>
 
         {{-- Net Income --}}
-        <div onclick="showNetIncomeModal()" class="card-hover wave-green cursor-pointer group relative overflow-hidden rounded-2xl shadow-md shadow-green-500/5 border-2 border-green-400 ring-1 ring-green-500/20 hover:border-green-600 transition-all duration-300 bg-gradient-to-br from-green-50 to-lime-50/70">
-            
-            <div class="relative p-3.5 sm:p-5 flex items-center justify-between z-20">
+        <div onclick="showNetIncomeModal()" class="card-hover wave-green cursor-pointer group relative overflow-hidden rounded-2xl shadow-lg border border-white/60 p-[3px] bg-slate-100/50 transition-all duration-300 hover:scale-[1.02]">
+            {{-- Animated Gradient Blob --}}
+            <div class="absolute top-1/2 left-1/2 w-[220px] h-[220px] rounded-full opacity-100 filter blur-[14px] z-0 animate-blob-fast bg-gradient-to-r from-green-500 via-lime-300 to-emerald-600 pointer-events-none"></div>
+
+            {{-- Glassy Card Content Container --}}
+            <div class="relative w-full h-full bg-white/90 backdrop-blur-xl rounded-[13px] outline outline-1 outline-white/80 p-3.5 sm:p-5 flex items-center justify-between z-10">
                 <div class="flex-1 min-w-0">
                     <p class="text-green-700 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest mb-1">Net Income (Kita)</p>
                     <div class="flex flex-col">
                         <span class="text-slate-800 text-lg sm:text-2xl font-bold tracking-tight leading-none mb-0.5" data-stat="net_income">{{ formatCurrency($stats['net_income']) }}</span>
                         <span class="text-[9px] sm:text-[10px] font-bold text-green-600 uppercase">Today</span>
                     </div>
-                    <div class="mt-2 pt-2 sm:mt-3 sm:pt-3 border-t border-green-300/80">
+                    <div class="mt-2 pt-2 sm:mt-3 sm:pt-3 border-t border-green-200/80">
                         <p class="text-slate-800 text-base sm:text-lg font-bold leading-none mb-0.5" data-stat="net_income_month">{{ formatCurrency($stats['net_income_month'] ?? 0) }}</p>
                         <p class="text-green-700 text-[8px] sm:text-[9px] font-bold uppercase tracking-widest">This Month</p>
                     </div>
                 </div>
-                <div class="p-1.5 sm:p-3 bg-green-100 rounded-xl sm:rounded-2xl border border-green-400 shadow-md shadow-green-500/10 flex-shrink-0">
+                <div class="p-1.5 sm:p-3 bg-green-100/80 rounded-xl sm:rounded-2xl border border-green-300 shadow-md shadow-green-500/10 flex-shrink-0">
                     <i data-lucide="trending-up" class="w-5 h-5 sm:w-7 sm:h-7 text-green-600"></i>
                 </div>
             </div>
-            <i data-lucide="trending-up" stroke-width="1" class="absolute right-0 bottom-0 w-24 h-24 -rotate-12 pointer-events-none" style="opacity: 0.15 !important; color: #16a34a !important; z-index: 5 !important;"></i>
+            <i data-lucide="trending-up" stroke-width="1" class="absolute right-0 bottom-0 w-24 h-24 -rotate-12 pointer-events-none" style="opacity: 0.12 !important; color: #16a34a !important; z-index: 12 !important;"></i>
         </div>
 
         {{-- Units Under Maintenance --}}
-        <div onclick="showMaintenanceUnitsModal()" class="card-hover wave-orange cursor-pointer group relative overflow-hidden rounded-2xl shadow-md shadow-orange-500/5 border-2 border-orange-400 ring-1 ring-orange-500/20 hover:border-orange-600 transition-all duration-300 bg-gradient-to-br from-orange-50 to-amber-50/70">
-            
-            <div class="relative p-3.5 sm:p-5 flex items-center justify-between z-20">
+        <div onclick="showMaintenanceUnitsModal()" class="card-hover wave-orange cursor-pointer group relative overflow-hidden rounded-2xl shadow-lg border border-white/60 p-[3px] bg-slate-100/50 transition-all duration-300 hover:scale-[1.02]">
+            {{-- Animated Gradient Blob --}}
+            <div class="absolute top-1/2 left-1/2 w-[220px] h-[220px] rounded-full opacity-100 filter blur-[14px] z-0 animate-blob-reverse bg-gradient-to-r from-orange-500 via-amber-300 to-red-500 pointer-events-none"></div>
+
+            {{-- Glassy Card Content Container --}}
+            <div class="relative w-full h-full bg-white/90 backdrop-blur-xl rounded-[13px] outline outline-1 outline-white/80 p-3.5 sm:p-5 flex items-center justify-between z-10">
                 <div class="flex-1 min-w-0">
                     <p class="text-orange-600 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest mb-1">Under Maintenance</p>
                     <p class="text-slate-800 text-xl sm:text-3xl font-bold tracking-tight leading-none mb-1" data-stat="maintenance_units">{{ $stats['maintenance_units'] }}</p>
                     <p class="text-orange-600 text-[10px] sm:text-xs font-medium truncate" data-stat="maintenance_subtitle">Ongoing units</p>
                 </div>
-                <div class="p-1.5 sm:p-3 bg-orange-100 rounded-xl sm:rounded-2xl border border-orange-400 shadow-md shadow-orange-500/10 flex-shrink-0">
+                <div class="p-1.5 sm:p-3 bg-orange-100/80 rounded-xl sm:rounded-2xl border border-orange-300 shadow-md shadow-orange-500/10 flex-shrink-0">
                     <i data-lucide="wrench" class="w-5 h-5 sm:w-7 sm:h-7 text-orange-600"></i>
                 </div>
             </div>
-            <i data-lucide="wrench" stroke-width="1" class="absolute right-0 bottom-0 w-24 h-24 -rotate-12 pointer-events-none" style="opacity: 0.15 !important; color: #ea580c !important; z-index: 5 !important;"></i>
+            <i data-lucide="wrench" stroke-width="1" class="absolute right-0 bottom-0 w-24 h-24 -rotate-12 pointer-events-none" style="opacity: 0.12 !important; color: #ea580c !important; z-index: 12 !important;"></i>
         </div>
 
     </div>
@@ -637,49 +679,58 @@
     <div class="mt-4 grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
 
         {{-- Active Drivers --}}
-        <div onclick="showActiveDriversModal()" class="card-hover wave-indigo cursor-pointer group relative overflow-hidden rounded-2xl shadow-md shadow-indigo-500/5 border-2 border-indigo-400 ring-1 ring-indigo-500/20 hover:border-indigo-600 transition-all duration-300 bg-gradient-to-br from-indigo-50 to-violet-50/70">
-            
-            <div class="relative p-3.5 sm:p-5 flex items-center justify-between z-20">
+        <div onclick="showActiveDriversModal()" class="card-hover wave-indigo cursor-pointer group relative overflow-hidden rounded-2xl shadow-lg border border-white/60 p-[3px] bg-slate-100/50 transition-all duration-300 hover:scale-[1.02]">
+            {{-- Animated Gradient Blob --}}
+            <div class="absolute top-1/2 left-1/2 w-[220px] h-[220px] rounded-full opacity-100 filter blur-[14px] z-0 animate-blob-slow bg-gradient-to-r from-indigo-600 via-violet-400 to-blue-600 pointer-events-none"></div>
+
+            {{-- Glassy Card Content Container --}}
+            <div class="relative w-full h-full bg-white/90 backdrop-blur-xl rounded-[13px] outline outline-1 outline-white/80 p-3.5 sm:p-5 flex items-center justify-between z-10">
                 <div class="flex-1 min-w-0">
                     <p class="text-indigo-600 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest mb-1">Active Drivers</p>
                     <p class="text-slate-800 text-xl sm:text-3xl font-bold tracking-tight leading-none" data-stat="active_drivers">{{ $stats['active_drivers'] }}</p>
                 </div>
-                <div class="p-1.5 sm:p-3 bg-indigo-100 rounded-xl sm:rounded-2xl border border-indigo-400 shadow-md shadow-indigo-500/10 flex-shrink-0">
+                <div class="p-1.5 sm:p-3 bg-indigo-100/80 rounded-xl sm:rounded-2xl border border-indigo-300 shadow-md shadow-indigo-500/10 flex-shrink-0">
                     <i data-lucide="users" class="w-5 h-5 sm:w-7 sm:h-7 text-indigo-600"></i>
                 </div>
             </div>
-            <i data-lucide="users" stroke-width="1" class="absolute right-0 bottom-0 w-24 h-24 -rotate-12 pointer-events-none" style="opacity: 0.15 !important; color: #4f46e5 !important; z-index: 5 !important;"></i>
+            <i data-lucide="users" stroke-width="1" class="absolute right-0 bottom-0 w-24 h-24 -rotate-12 pointer-events-none" style="opacity: 0.12 !important; color: #4f46e5 !important; z-index: 12 !important;"></i>
         </div>
 
         {{-- Total Expenses Today --}}
-        <div onclick="showExpensesModal()" class="card-hover wave-rose cursor-pointer group relative overflow-hidden rounded-2xl shadow-md shadow-rose-500/5 border-2 border-rose-400 ring-1 ring-rose-500/20 hover:border-rose-600 transition-all duration-300 bg-gradient-to-br from-rose-50 to-red-50/70">
-            
-            <div class="relative p-3.5 sm:p-5 flex items-center justify-between z-20">
+        <div onclick="showExpensesModal()" class="card-hover wave-rose cursor-pointer group relative overflow-hidden rounded-2xl shadow-lg border border-white/60 p-[3px] bg-slate-100/50 transition-all duration-300 hover:scale-[1.02]">
+            {{-- Animated Gradient Blob --}}
+            <div class="absolute top-1/2 left-1/2 w-[220px] h-[220px] rounded-full opacity-100 filter blur-[14px] z-0 animate-blob bg-gradient-to-r from-rose-500 via-red-400 to-pink-500 pointer-events-none"></div>
+
+            {{-- Glassy Card Content Container --}}
+            <div class="relative w-full h-full bg-white/90 backdrop-blur-xl rounded-[13px] outline outline-1 outline-white/80 p-3.5 sm:p-5 flex items-center justify-between z-10">
                 <div class="flex-1 min-w-0">
                     <p class="text-rose-600 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest mb-1">Expenses Today</p>
                     <p class="text-slate-800 text-lg sm:text-2xl font-bold tracking-tight leading-none" data-stat="today_expenses">{{ formatCurrency($stats['total_expenses_today']) }}</p>
                 </div>
-                <div class="p-1.5 sm:p-3 bg-rose-100 rounded-xl sm:rounded-2xl border border-rose-400 shadow-md shadow-rose-500/10 flex-shrink-0">
+                <div class="p-1.5 sm:p-3 bg-rose-100/80 rounded-xl sm:rounded-2xl border border-rose-300 shadow-md shadow-rose-500/10 flex-shrink-0">
                     <i data-lucide="trending-down" class="w-5 h-5 sm:w-7 sm:h-7 text-rose-600"></i>
                 </div>
             </div>
-            <i data-lucide="trending-down" stroke-width="1" class="absolute right-0 bottom-0 w-24 h-24 -rotate-12 pointer-events-none" style="opacity: 0.15 !important; color: #e11d48 !important; z-index: 5 !important;"></i>
+            <i data-lucide="trending-down" stroke-width="1" class="absolute right-0 bottom-0 w-24 h-24 -rotate-12 pointer-events-none" style="opacity: 0.12 !important; color: #e11d48 !important; z-index: 12 !important;"></i>
         </div>
 
         {{-- Coding Units Today --}}
-        <div onclick="showCodingUnitsModal()" class="col-span-2 lg:col-span-1 card-hover wave-violet cursor-pointer group relative overflow-hidden rounded-2xl shadow-md shadow-violet-500/5 border-2 border-violet-400 ring-1 ring-violet-500/20 hover:border-violet-600 transition-all duration-300 bg-gradient-to-br from-violet-50 to-purple-50/70">
-            
-            <div class="relative p-3.5 sm:p-5 flex items-center justify-between z-20">
+        <div onclick="showCodingUnitsModal()" class="col-span-2 lg:col-span-1 card-hover wave-violet cursor-pointer group relative overflow-hidden rounded-2xl shadow-lg border border-white/60 p-[3px] bg-slate-100/50 transition-all duration-300 hover:scale-[1.02]">
+            {{-- Animated Gradient Blob --}}
+            <div class="absolute top-1/2 left-1/2 w-[220px] h-[220px] rounded-full opacity-100 filter blur-[14px] z-0 animate-blob-reverse bg-gradient-to-r from-violet-600 via-fuchsia-400 to-purple-600 pointer-events-none"></div>
+
+            {{-- Glassy Card Content Container --}}
+            <div class="relative w-full h-full bg-white/90 backdrop-blur-xl rounded-[13px] outline outline-1 outline-white/80 p-3.5 sm:p-5 flex items-center justify-between z-10">
                 <div class="flex-1 min-w-0">
                     <p class="text-violet-600 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest mb-1">Coding Units Today</p>
                     <p class="text-slate-800 text-xl sm:text-3xl font-bold tracking-tight leading-none mb-1" data-stat="coding_units">{{ $stats['coding_units'] }}</p>
                     <p class="text-violet-600 text-[9px] sm:text-[10px] font-bold uppercase tracking-tight">{{ now()->timezone('Asia/Manila')->format('l') }}</p>
                 </div>
-                <div class="p-1.5 sm:p-3 bg-violet-100 rounded-xl sm:rounded-2xl border border-violet-400 shadow-md shadow-violet-500/10 flex-shrink-0">
+                <div class="p-1.5 sm:p-3 bg-violet-100/80 rounded-xl sm:rounded-2xl border border-violet-300 shadow-md shadow-violet-500/10 flex-shrink-0">
                     <i data-lucide="calendar" class="w-5 h-5 sm:w-7 sm:h-7 text-violet-600"></i>
                 </div>
             </div>
-            <i data-lucide="calendar" stroke-width="1" class="absolute right-0 bottom-0 w-24 h-24 -rotate-12 pointer-events-none" style="opacity: 0.15 !important; color: #7c3aed !important; z-index: 5 !important;"></i>
+            <i data-lucide="calendar" stroke-width="1" class="absolute right-0 bottom-0 w-24 h-24 -rotate-12 pointer-events-none" style="opacity: 0.12 !important; color: #7c3aed !important; z-index: 12 !important;"></i>
         </div>
 
     </div>
