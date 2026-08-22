@@ -703,10 +703,10 @@ class SuperAdminController extends Controller
         $date   = $request->get('date', now()->toDateString());
         $target = (int) $request->get('target', 4); // hours/day
 
-        // 1. Fetch only Staff User accounts (excluding super_admin, owner, and driver)
-        $users = User::whereNotIn('role', ['super_admin', 'owner', 'driver'])
+        // 1. Fetch Owner and all Staff User accounts (excluding drivers)
+        $users = User::where('role', '!=', 'driver')
             ->whereNull('deleted_at')
-            ->orderByRaw("FIELD(role, 'manager', 'dispatcher', 'secretary', 'cashier', 'accountant', 'staff')")
+            ->orderByRaw("FIELD(role, 'super_admin', 'owner', 'manager', 'dispatcher', 'secretary', 'cashier', 'accountant', 'staff')")
             ->orderBy('full_name')
             ->get();
 
