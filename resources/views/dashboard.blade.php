@@ -584,19 +584,19 @@
     <div class="grid grid-cols-2 gap-3 sm:gap-5 md:grid-cols-2 lg:grid-cols-4">
 
         {{-- Total Units --}}
-        <div onclick="showUnitsModal()" class="card-hover wave-blue cursor-pointer group relative overflow-hidden rounded-2xl shadow-lg border border-white/60 p-[3px] bg-slate-100/50 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl">
+        <div onclick="showUnitsModal()" class="card-hover wave-blue cursor-pointer group relative overflow-hidden rounded-2xl shadow-lg border border-white/60 p-[3px] bg-slate-100/50 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:border-blue-400/80">
             {{-- Animated Gradient Blob --}}
-            <div class="absolute top-1/2 left-1/2 w-[220px] h-[220px] rounded-full opacity-100 filter blur-[14px] z-0 animate-blob bg-gradient-to-r from-blue-600 via-cyan-400 to-indigo-600 pointer-events-none"></div>
+            <div class="absolute top-1/2 left-1/2 w-[240px] h-[240px] rounded-full opacity-100 filter blur-[14px] z-0 animate-blob bg-gradient-to-r from-blue-600 via-cyan-400 to-indigo-600 pointer-events-none"></div>
 
             {{-- Glassy Card Content Container --}}
             <div class="relative w-full h-full bg-white/90 backdrop-blur-xl rounded-[13px] outline outline-1 outline-white/80 p-3.5 sm:p-5 flex items-center justify-between z-10 overflow-hidden">
-                {{-- Hover Gradient Overlay (from 21st.dev feature hover effect) --}}
-                <div class="opacity-0 group-hover:opacity-100 transition-opacity duration-300 absolute inset-0 h-full w-full bg-gradient-to-t from-blue-100/60 to-transparent pointer-events-none rounded-[13px] z-0"></div>
+                {{-- Higher & More Visible Hover Gradient Overlay --}}
+                <div class="opacity-0 group-hover:opacity-100 transition-all duration-300 absolute inset-0 h-full w-full bg-gradient-to-t from-blue-200/80 via-blue-100/40 to-transparent pointer-events-none rounded-[13px] z-0"></div>
 
                 {{-- Left Accent Pill (from 21st.dev feature hover effect) --}}
-                <div class="absolute left-0 inset-y-0 h-5 group-hover:h-9 w-1 rounded-tr-full rounded-br-full bg-slate-300 group-hover:bg-blue-600 transition-all duration-300 origin-center my-auto z-10"></div>
+                <div class="absolute left-0 inset-y-0 h-5 group-hover:h-9 w-1.5 rounded-tr-full rounded-br-full bg-slate-300 group-hover:bg-blue-600 transition-all duration-300 origin-center my-auto z-10"></div>
 
-                <div class="flex-1 min-w-0 relative z-10 pl-1">
+                <div class="flex-1 min-w-0 relative z-10 pl-1.5">
                     <p class="text-blue-600 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest mb-1 group-hover:translate-x-1.5 transition-transform duration-300 inline-block">Total Units</p>
                     <p class="text-slate-800 text-xl sm:text-3xl font-bold tracking-tight leading-none mb-1 group-hover:translate-x-1 transition-transform duration-300" data-stat="active_units">{{ $stats['active_units'] }}</p>
                     <p class="text-blue-600 text-[10px] sm:text-xs font-medium group-hover:translate-x-1 transition-transform duration-300"><span class="text-emerald-600 font-bold" data-stat="roi_achieved">{{ $stats['roi_units'] }}</span> ROI Achieved</p>
@@ -605,23 +605,23 @@
                     <i data-lucide="car" class="w-5 h-5 sm:w-7 sm:h-7 text-blue-600"></i>
                 </div>
             </div>
-            <i data-lucide="car" stroke-width="1" class="absolute right-0 bottom-0 w-24 h-24 -rotate-12 pointer-events-none group-hover:scale-110 group-hover:opacity-20 transition-all duration-300" style="opacity: 0.12 !important; color: #2563eb !important; z-index: 12 !important;"></i>
+            <i data-lucide="car" stroke-width="1" class="absolute right-0 bottom-0 w-24 h-24 -rotate-12 pointer-events-none group-hover:scale-110 group-hover:opacity-25 transition-all duration-300" style="opacity: 0.12 !important; color: #2563eb !important; z-index: 12 !important;"></i>
         </div>
 
         {{-- Daily Boundary Collection --}}
-        <div onclick="showDailyBoundaryModal()" class="card-hover wave-emerald cursor-pointer group relative overflow-hidden rounded-2xl shadow-lg border border-white/60 p-[3px] bg-slate-100/50 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl">
+        <div onclick="showDailyBoundaryModal()" class="card-hover wave-emerald cursor-pointer group relative overflow-hidden rounded-2xl shadow-lg border border-white/60 p-[3px] bg-slate-100/50 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:border-emerald-400/80">
             {{-- Animated Gradient Blob --}}
-            <div class="absolute top-1/2 left-1/2 w-[220px] h-[220px] rounded-full opacity-100 filter blur-[14px] z-0 animate-blob-slow bg-gradient-to-r from-emerald-500 via-teal-300 to-green-500 pointer-events-none"></div>
+            <div class="absolute top-1/2 left-1/2 w-[240px] h-[240px] rounded-full opacity-100 filter blur-[14px] z-0 animate-blob-slow bg-gradient-to-r from-emerald-500 via-teal-300 to-green-500 pointer-events-none"></div>
 
             {{-- Glassy Card Content Container --}}
             <div class="relative w-full h-full bg-white/90 backdrop-blur-xl rounded-[13px] outline outline-1 outline-white/80 p-3.5 sm:p-5 flex items-center justify-between z-10 overflow-hidden">
-                {{-- Hover Gradient Overlay (from 21st.dev feature hover effect) --}}
-                <div class="opacity-0 group-hover:opacity-100 transition-opacity duration-300 absolute inset-0 h-full w-full bg-gradient-to-t from-emerald-100/60 to-transparent pointer-events-none rounded-[13px] z-0"></div>
+                {{-- Higher & More Visible Hover Gradient Overlay --}}
+                <div class="opacity-0 group-hover:opacity-100 transition-all duration-300 absolute inset-0 h-full w-full bg-gradient-to-t from-emerald-200/80 via-emerald-100/40 to-transparent pointer-events-none rounded-[13px] z-0"></div>
 
                 {{-- Left Accent Pill (from 21st.dev feature hover effect) --}}
-                <div class="absolute left-0 inset-y-0 h-5 group-hover:h-9 w-1 rounded-tr-full rounded-br-full bg-slate-300 group-hover:bg-emerald-600 transition-all duration-300 origin-center my-auto z-10"></div>
+                <div class="absolute left-0 inset-y-0 h-5 group-hover:h-9 w-1.5 rounded-tr-full rounded-br-full bg-slate-300 group-hover:bg-emerald-600 transition-all duration-300 origin-center my-auto z-10"></div>
 
-                <div class="flex-1 min-w-0 relative z-10 pl-1">
+                <div class="flex-1 min-w-0 relative z-10 pl-1.5">
                     <p class="text-emerald-700 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest mb-1 group-hover:translate-x-1.5 transition-transform duration-300 inline-block">Boundary Revenue</p>
                     <div class="flex flex-col group-hover:translate-x-1 transition-transform duration-300">
                         <span class="text-slate-800 text-lg sm:text-2xl font-bold tracking-tight leading-none mb-0.5" data-stat="today_boundary">{{ formatCurrency($stats['today_boundary']) }}</span>
@@ -636,23 +636,23 @@
                     <i data-lucide="banknote" class="w-5 h-5 sm:w-7 sm:h-7 text-emerald-600"></i>
                 </div>
             </div>
-            <i data-lucide="banknote" stroke-width="1" class="absolute right-0 bottom-0 w-24 h-24 -rotate-12 pointer-events-none group-hover:scale-110 group-hover:opacity-20 transition-all duration-300" style="opacity: 0.12 !important; color: #059669 !important; z-index: 12 !important;"></i>
+            <i data-lucide="banknote" stroke-width="1" class="absolute right-0 bottom-0 w-24 h-24 -rotate-12 pointer-events-none group-hover:scale-110 group-hover:opacity-25 transition-all duration-300" style="opacity: 0.12 !important; color: #059669 !important; z-index: 12 !important;"></i>
         </div>
 
         {{-- Net Income --}}
-        <div onclick="showNetIncomeModal()" class="card-hover wave-green cursor-pointer group relative overflow-hidden rounded-2xl shadow-lg border border-white/60 p-[3px] bg-slate-100/50 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl">
+        <div onclick="showNetIncomeModal()" class="card-hover wave-green cursor-pointer group relative overflow-hidden rounded-2xl shadow-lg border border-white/60 p-[3px] bg-slate-100/50 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:border-green-400/80">
             {{-- Animated Gradient Blob --}}
-            <div class="absolute top-1/2 left-1/2 w-[220px] h-[220px] rounded-full opacity-100 filter blur-[14px] z-0 animate-blob-fast bg-gradient-to-r from-green-500 via-lime-300 to-emerald-600 pointer-events-none"></div>
+            <div class="absolute top-1/2 left-1/2 w-[240px] h-[240px] rounded-full opacity-100 filter blur-[14px] z-0 animate-blob-fast bg-gradient-to-r from-green-500 via-lime-300 to-emerald-600 pointer-events-none"></div>
 
             {{-- Glassy Card Content Container --}}
             <div class="relative w-full h-full bg-white/90 backdrop-blur-xl rounded-[13px] outline outline-1 outline-white/80 p-3.5 sm:p-5 flex items-center justify-between z-10 overflow-hidden">
-                {{-- Hover Gradient Overlay (from 21st.dev feature hover effect) --}}
-                <div class="opacity-0 group-hover:opacity-100 transition-opacity duration-300 absolute inset-0 h-full w-full bg-gradient-to-t from-green-100/60 to-transparent pointer-events-none rounded-[13px] z-0"></div>
+                {{-- Higher & More Visible Hover Gradient Overlay --}}
+                <div class="opacity-0 group-hover:opacity-100 transition-all duration-300 absolute inset-0 h-full w-full bg-gradient-to-t from-green-200/80 via-green-100/40 to-transparent pointer-events-none rounded-[13px] z-0"></div>
 
                 {{-- Left Accent Pill (from 21st.dev feature hover effect) --}}
-                <div class="absolute left-0 inset-y-0 h-5 group-hover:h-9 w-1 rounded-tr-full rounded-br-full bg-slate-300 group-hover:bg-green-600 transition-all duration-300 origin-center my-auto z-10"></div>
+                <div class="absolute left-0 inset-y-0 h-5 group-hover:h-9 w-1.5 rounded-tr-full rounded-br-full bg-slate-300 group-hover:bg-green-600 transition-all duration-300 origin-center my-auto z-10"></div>
 
-                <div class="flex-1 min-w-0 relative z-10 pl-1">
+                <div class="flex-1 min-w-0 relative z-10 pl-1.5">
                     <p class="text-green-700 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest mb-1 group-hover:translate-x-1.5 transition-transform duration-300 inline-block">Net Income (Kita)</p>
                     <div class="flex flex-col group-hover:translate-x-1 transition-transform duration-300">
                         <span class="text-slate-800 text-lg sm:text-2xl font-bold tracking-tight leading-none mb-0.5" data-stat="net_income">{{ formatCurrency($stats['net_income']) }}</span>
@@ -667,23 +667,23 @@
                     <i data-lucide="trending-up" class="w-5 h-5 sm:w-7 sm:h-7 text-green-600"></i>
                 </div>
             </div>
-            <i data-lucide="trending-up" stroke-width="1" class="absolute right-0 bottom-0 w-24 h-24 -rotate-12 pointer-events-none group-hover:scale-110 group-hover:opacity-20 transition-all duration-300" style="opacity: 0.12 !important; color: #16a34a !important; z-index: 12 !important;"></i>
+            <i data-lucide="trending-up" stroke-width="1" class="absolute right-0 bottom-0 w-24 h-24 -rotate-12 pointer-events-none group-hover:scale-110 group-hover:opacity-25 transition-all duration-300" style="opacity: 0.12 !important; color: #16a34a !important; z-index: 12 !important;"></i>
         </div>
 
         {{-- Units Under Maintenance --}}
-        <div onclick="showMaintenanceUnitsModal()" class="card-hover wave-orange cursor-pointer group relative overflow-hidden rounded-2xl shadow-lg border border-white/60 p-[3px] bg-slate-100/50 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl">
+        <div onclick="showMaintenanceUnitsModal()" class="card-hover wave-orange cursor-pointer group relative overflow-hidden rounded-2xl shadow-lg border border-white/60 p-[3px] bg-slate-100/50 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:border-orange-400/80">
             {{-- Animated Gradient Blob --}}
-            <div class="absolute top-1/2 left-1/2 w-[220px] h-[220px] rounded-full opacity-100 filter blur-[14px] z-0 animate-blob-reverse bg-gradient-to-r from-orange-500 via-amber-300 to-red-500 pointer-events-none"></div>
+            <div class="absolute top-1/2 left-1/2 w-[240px] h-[240px] rounded-full opacity-100 filter blur-[14px] z-0 animate-blob-reverse bg-gradient-to-r from-orange-500 via-amber-300 to-red-500 pointer-events-none"></div>
 
             {{-- Glassy Card Content Container --}}
             <div class="relative w-full h-full bg-white/90 backdrop-blur-xl rounded-[13px] outline outline-1 outline-white/80 p-3.5 sm:p-5 flex items-center justify-between z-10 overflow-hidden">
-                {{-- Hover Gradient Overlay (from 21st.dev feature hover effect) --}}
-                <div class="opacity-0 group-hover:opacity-100 transition-opacity duration-300 absolute inset-0 h-full w-full bg-gradient-to-t from-orange-100/60 to-transparent pointer-events-none rounded-[13px] z-0"></div>
+                {{-- Higher & More Visible Hover Gradient Overlay --}}
+                <div class="opacity-0 group-hover:opacity-100 transition-all duration-300 absolute inset-0 h-full w-full bg-gradient-to-t from-orange-200/80 via-amber-100/40 to-transparent pointer-events-none rounded-[13px] z-0"></div>
 
                 {{-- Left Accent Pill (from 21st.dev feature hover effect) --}}
-                <div class="absolute left-0 inset-y-0 h-5 group-hover:h-9 w-1 rounded-tr-full rounded-br-full bg-slate-300 group-hover:bg-orange-600 transition-all duration-300 origin-center my-auto z-10"></div>
+                <div class="absolute left-0 inset-y-0 h-5 group-hover:h-9 w-1.5 rounded-tr-full rounded-br-full bg-slate-300 group-hover:bg-orange-600 transition-all duration-300 origin-center my-auto z-10"></div>
 
-                <div class="flex-1 min-w-0 relative z-10 pl-1">
+                <div class="flex-1 min-w-0 relative z-10 pl-1.5">
                     <p class="text-orange-600 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest mb-1 group-hover:translate-x-1.5 transition-transform duration-300 inline-block">Under Maintenance</p>
                     <p class="text-slate-800 text-xl sm:text-3xl font-bold tracking-tight leading-none mb-1 group-hover:translate-x-1 transition-transform duration-300" data-stat="maintenance_units">{{ $stats['maintenance_units'] }}</p>
                     <p class="text-orange-600 text-[10px] sm:text-xs font-medium truncate group-hover:translate-x-1 transition-transform duration-300" data-stat="maintenance_subtitle">Ongoing units</p>
@@ -692,7 +692,7 @@
                     <i data-lucide="wrench" class="w-5 h-5 sm:w-7 sm:h-7 text-orange-600"></i>
                 </div>
             </div>
-            <i data-lucide="wrench" stroke-width="1" class="absolute right-0 bottom-0 w-24 h-24 -rotate-12 pointer-events-none group-hover:scale-110 group-hover:opacity-20 transition-all duration-300" style="opacity: 0.12 !important; color: #ea580c !important; z-index: 12 !important;"></i>
+            <i data-lucide="wrench" stroke-width="1" class="absolute right-0 bottom-0 w-24 h-24 -rotate-12 pointer-events-none group-hover:scale-110 group-hover:opacity-25 transition-all duration-300" style="opacity: 0.12 !important; color: #ea580c !important; z-index: 12 !important;"></i>
         </div>
 
     </div>
@@ -701,19 +701,19 @@
     <div class="mt-4 grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
 
         {{-- Active Drivers --}}
-        <div onclick="showActiveDriversModal()" class="card-hover wave-indigo cursor-pointer group relative overflow-hidden rounded-2xl shadow-lg border border-white/60 p-[3px] bg-slate-100/50 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl">
+        <div onclick="showActiveDriversModal()" class="card-hover wave-indigo cursor-pointer group relative overflow-hidden rounded-2xl shadow-lg border border-white/60 p-[3px] bg-slate-100/50 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:border-indigo-400/80">
             {{-- Animated Gradient Blob --}}
-            <div class="absolute top-1/2 left-1/2 w-[220px] h-[220px] rounded-full opacity-100 filter blur-[14px] z-0 animate-blob-slow bg-gradient-to-r from-indigo-600 via-violet-400 to-blue-600 pointer-events-none"></div>
+            <div class="absolute top-1/2 left-1/2 w-[240px] h-[240px] rounded-full opacity-100 filter blur-[14px] z-0 animate-blob-slow bg-gradient-to-r from-indigo-600 via-violet-400 to-blue-600 pointer-events-none"></div>
 
             {{-- Glassy Card Content Container --}}
             <div class="relative w-full h-full bg-white/90 backdrop-blur-xl rounded-[13px] outline outline-1 outline-white/80 p-3.5 sm:p-5 flex items-center justify-between z-10 overflow-hidden">
-                {{-- Hover Gradient Overlay (from 21st.dev feature hover effect) --}}
-                <div class="opacity-0 group-hover:opacity-100 transition-opacity duration-300 absolute inset-0 h-full w-full bg-gradient-to-t from-indigo-100/60 to-transparent pointer-events-none rounded-[13px] z-0"></div>
+                {{-- Higher & More Visible Hover Gradient Overlay --}}
+                <div class="opacity-0 group-hover:opacity-100 transition-all duration-300 absolute inset-0 h-full w-full bg-gradient-to-t from-indigo-200/80 via-indigo-100/40 to-transparent pointer-events-none rounded-[13px] z-0"></div>
 
                 {{-- Left Accent Pill (from 21st.dev feature hover effect) --}}
-                <div class="absolute left-0 inset-y-0 h-5 group-hover:h-9 w-1 rounded-tr-full rounded-br-full bg-slate-300 group-hover:bg-indigo-600 transition-all duration-300 origin-center my-auto z-10"></div>
+                <div class="absolute left-0 inset-y-0 h-5 group-hover:h-9 w-1.5 rounded-tr-full rounded-br-full bg-slate-300 group-hover:bg-indigo-600 transition-all duration-300 origin-center my-auto z-10"></div>
 
-                <div class="flex-1 min-w-0 relative z-10 pl-1">
+                <div class="flex-1 min-w-0 relative z-10 pl-1.5">
                     <p class="text-indigo-600 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest mb-1 group-hover:translate-x-1.5 transition-transform duration-300 inline-block">Active Drivers</p>
                     <p class="text-slate-800 text-xl sm:text-3xl font-bold tracking-tight leading-none group-hover:translate-x-1 transition-transform duration-300" data-stat="active_drivers">{{ $stats['active_drivers'] }}</p>
                 </div>
@@ -721,23 +721,23 @@
                     <i data-lucide="users" class="w-5 h-5 sm:w-7 sm:h-7 text-indigo-600"></i>
                 </div>
             </div>
-            <i data-lucide="users" stroke-width="1" class="absolute right-0 bottom-0 w-24 h-24 -rotate-12 pointer-events-none group-hover:scale-110 group-hover:opacity-20 transition-all duration-300" style="opacity: 0.12 !important; color: #4f46e5 !important; z-index: 12 !important;"></i>
+            <i data-lucide="users" stroke-width="1" class="absolute right-0 bottom-0 w-24 h-24 -rotate-12 pointer-events-none group-hover:scale-110 group-hover:opacity-25 transition-all duration-300" style="opacity: 0.12 !important; color: #4f46e5 !important; z-index: 12 !important;"></i>
         </div>
 
         {{-- Total Expenses Today --}}
-        <div onclick="showExpensesModal()" class="card-hover wave-rose cursor-pointer group relative overflow-hidden rounded-2xl shadow-lg border border-white/60 p-[3px] bg-slate-100/50 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl">
+        <div onclick="showExpensesModal()" class="card-hover wave-rose cursor-pointer group relative overflow-hidden rounded-2xl shadow-lg border border-white/60 p-[3px] bg-slate-100/50 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:border-rose-400/80">
             {{-- Animated Gradient Blob --}}
-            <div class="absolute top-1/2 left-1/2 w-[220px] h-[220px] rounded-full opacity-100 filter blur-[14px] z-0 animate-blob bg-gradient-to-r from-rose-500 via-red-400 to-pink-500 pointer-events-none"></div>
+            <div class="absolute top-1/2 left-1/2 w-[240px] h-[240px] rounded-full opacity-100 filter blur-[14px] z-0 animate-blob bg-gradient-to-r from-rose-500 via-red-400 to-pink-500 pointer-events-none"></div>
 
             {{-- Glassy Card Content Container --}}
             <div class="relative w-full h-full bg-white/90 backdrop-blur-xl rounded-[13px] outline outline-1 outline-white/80 p-3.5 sm:p-5 flex items-center justify-between z-10 overflow-hidden">
-                {{-- Hover Gradient Overlay (from 21st.dev feature hover effect) --}}
-                <div class="opacity-0 group-hover:opacity-100 transition-opacity duration-300 absolute inset-0 h-full w-full bg-gradient-to-t from-rose-100/60 to-transparent pointer-events-none rounded-[13px] z-0"></div>
+                {{-- Higher & More Visible Hover Gradient Overlay --}}
+                <div class="opacity-0 group-hover:opacity-100 transition-all duration-300 absolute inset-0 h-full w-full bg-gradient-to-t from-rose-200/80 via-rose-100/40 to-transparent pointer-events-none rounded-[13px] z-0"></div>
 
                 {{-- Left Accent Pill (from 21st.dev feature hover effect) --}}
-                <div class="absolute left-0 inset-y-0 h-5 group-hover:h-9 w-1 rounded-tr-full rounded-br-full bg-slate-300 group-hover:bg-rose-600 transition-all duration-300 origin-center my-auto z-10"></div>
+                <div class="absolute left-0 inset-y-0 h-5 group-hover:h-9 w-1.5 rounded-tr-full rounded-br-full bg-slate-300 group-hover:bg-rose-600 transition-all duration-300 origin-center my-auto z-10"></div>
 
-                <div class="flex-1 min-w-0 relative z-10 pl-1">
+                <div class="flex-1 min-w-0 relative z-10 pl-1.5">
                     <p class="text-rose-600 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest mb-1 group-hover:translate-x-1.5 transition-transform duration-300 inline-block">Expenses Today</p>
                     <p class="text-slate-800 text-lg sm:text-2xl font-bold tracking-tight leading-none group-hover:translate-x-1 transition-transform duration-300" data-stat="today_expenses">{{ formatCurrency($stats['total_expenses_today']) }}</p>
                 </div>
@@ -745,23 +745,23 @@
                     <i data-lucide="trending-down" class="w-5 h-5 sm:w-7 sm:h-7 text-rose-600"></i>
                 </div>
             </div>
-            <i data-lucide="trending-down" stroke-width="1" class="absolute right-0 bottom-0 w-24 h-24 -rotate-12 pointer-events-none group-hover:scale-110 group-hover:opacity-20 transition-all duration-300" style="opacity: 0.12 !important; color: #e11d48 !important; z-index: 12 !important;"></i>
+            <i data-lucide="trending-down" stroke-width="1" class="absolute right-0 bottom-0 w-24 h-24 -rotate-12 pointer-events-none group-hover:scale-110 group-hover:opacity-25 transition-all duration-300" style="opacity: 0.12 !important; color: #e11d48 !important; z-index: 12 !important;"></i>
         </div>
 
         {{-- Coding Units Today --}}
-        <div onclick="showCodingUnitsModal()" class="col-span-2 lg:col-span-1 card-hover wave-violet cursor-pointer group relative overflow-hidden rounded-2xl shadow-lg border border-white/60 p-[3px] bg-slate-100/50 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl">
+        <div onclick="showCodingUnitsModal()" class="col-span-2 lg:col-span-1 card-hover wave-violet cursor-pointer group relative overflow-hidden rounded-2xl shadow-lg border border-white/60 p-[3px] bg-slate-100/50 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:border-violet-400/80">
             {{-- Animated Gradient Blob --}}
-            <div class="absolute top-1/2 left-1/2 w-[220px] h-[220px] rounded-full opacity-100 filter blur-[14px] z-0 animate-blob-reverse bg-gradient-to-r from-violet-600 via-fuchsia-400 to-purple-600 pointer-events-none"></div>
+            <div class="absolute top-1/2 left-1/2 w-[240px] h-[240px] rounded-full opacity-100 filter blur-[14px] z-0 animate-blob-reverse bg-gradient-to-r from-violet-600 via-fuchsia-400 to-purple-600 pointer-events-none"></div>
 
             {{-- Glassy Card Content Container --}}
             <div class="relative w-full h-full bg-white/90 backdrop-blur-xl rounded-[13px] outline outline-1 outline-white/80 p-3.5 sm:p-5 flex items-center justify-between z-10 overflow-hidden">
-                {{-- Hover Gradient Overlay (from 21st.dev feature hover effect) --}}
-                <div class="opacity-0 group-hover:opacity-100 transition-opacity duration-300 absolute inset-0 h-full w-full bg-gradient-to-t from-violet-100/60 to-transparent pointer-events-none rounded-[13px] z-0"></div>
+                {{-- Higher & More Visible Hover Gradient Overlay --}}
+                <div class="opacity-0 group-hover:opacity-100 transition-all duration-300 absolute inset-0 h-full w-full bg-gradient-to-t from-violet-200/80 via-violet-100/40 to-transparent pointer-events-none rounded-[13px] z-0"></div>
 
                 {{-- Left Accent Pill (from 21st.dev feature hover effect) --}}
-                <div class="absolute left-0 inset-y-0 h-5 group-hover:h-9 w-1 rounded-tr-full rounded-br-full bg-slate-300 group-hover:bg-violet-600 transition-all duration-300 origin-center my-auto z-10"></div>
+                <div class="absolute left-0 inset-y-0 h-5 group-hover:h-9 w-1.5 rounded-tr-full rounded-br-full bg-slate-300 group-hover:bg-violet-600 transition-all duration-300 origin-center my-auto z-10"></div>
 
-                <div class="flex-1 min-w-0 relative z-10 pl-1">
+                <div class="flex-1 min-w-0 relative z-10 pl-1.5">
                     <p class="text-violet-600 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest mb-1 group-hover:translate-x-1.5 transition-transform duration-300 inline-block">Coding Units Today</p>
                     <p class="text-slate-800 text-xl sm:text-3xl font-bold tracking-tight leading-none mb-1 group-hover:translate-x-1 transition-transform duration-300" data-stat="coding_units">{{ $stats['coding_units'] }}</p>
                     <p class="text-violet-600 text-[9px] sm:text-[10px] font-bold uppercase tracking-tight group-hover:translate-x-1 transition-transform duration-300">{{ now()->timezone('Asia/Manila')->format('l') }}</p>
@@ -770,7 +770,7 @@
                     <i data-lucide="calendar" class="w-5 h-5 sm:w-7 sm:h-7 text-violet-600"></i>
                 </div>
             </div>
-            <i data-lucide="calendar" stroke-width="1" class="absolute right-0 bottom-0 w-24 h-24 -rotate-12 pointer-events-none group-hover:scale-110 group-hover:opacity-20 transition-all duration-300" style="opacity: 0.12 !important; color: #7c3aed !important; z-index: 12 !important;"></i>
+            <i data-lucide="calendar" stroke-width="1" class="absolute right-0 bottom-0 w-24 h-24 -rotate-12 pointer-events-none group-hover:scale-110 group-hover:opacity-25 transition-all duration-300" style="opacity: 0.12 !important; color: #7c3aed !important; z-index: 12 !important;"></i>
         </div>
 
     </div>
