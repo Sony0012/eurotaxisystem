@@ -880,7 +880,7 @@ class SuperAdminController extends Controller
         $totalUsersCount = count($userData);
         $activeCount     = collect($userData)->where('status', 'active')->count();
         $lowCount        = collect($userData)->where('status', 'low')->count();
-        $noneCount       = collect($userData)->where('status', 'none')->count();
+        $noneCount       = collect($userData)->whereIn('status', ['none', 'inactive'])->count();
         $totalHoursSum   = collect($userData)->sum('todayH');
         $activeUsersCol  = collect($userData)->where('todayH', '>', 0);
         $avgHours        = $activeUsersCol->count() > 0 ? round($totalHoursSum / $activeUsersCol->count(), 1) : 0;

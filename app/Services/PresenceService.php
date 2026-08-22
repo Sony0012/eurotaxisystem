@@ -243,9 +243,18 @@ class PresenceService
                     $currentStart = null;
                     $currentEnd   = null;
 
-                    foreach ($rawIntervals as $interval) {
+                    $isUserOnline = $this->determineUserStatus($userId) !== 'inactive';
+
+                    foreach ($rawIntervals as $idx => $interval) {
                         $start = Carbon::parse($interval->started_at);
                         $end   = Carbon::parse($interval->ended_at);
+
+                        // If user is currently online and this is the latest interval, extend end to now()
+                        if ($isUserOnline && $idx === (count($rawIntervals) - 1)) {
+                            if ($end->lt(now())) {
+                                $end = now();
+                            }
+                        }
 
                         if ($end->lt($start)) $end = $start->copy();
 
@@ -276,7 +285,7 @@ class PresenceService
                     }
 
                     $totalSeconds = (int) collect($merged)->sum('seconds');
-                    $totalMins    = (int) round($totalSeconds / 60);
+                    $totalMins    = max(1, (int) round($totalSeconds / 60));
                     $totalHours   = round($totalMins / 60, 2);
                     $percentage   = ($targetHours > 0) ? min(100, (int) round(($totalMins / ($targetHours * 60)) * 100)) : 0;
 
