@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <defs>
+    <radialGradient id="riskGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#f97316" stop-opacity="0.65"/>
+      <stop offset="100%" stop-color="#c2410c" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="carOrangeBody" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fb923c"/>
+      <stop offset="50%" stop-color="#f97316"/>
+      <stop offset="100%" stop-color="#c2410c"/>
+    </linearGradient>
+    <linearGradient id="carOrangeRoof" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#fed7aa"/>
+      <stop offset="100%" stop-color="#f97316"/>
+    </linearGradient>
+    <linearGradient id="carGlassOrange" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fff7ed" stop-opacity="0.95"/>
+      <stop offset="100%" stop-color="#ffedd5" stop-opacity="0.5"/>
+    </linearGradient>
+    <linearGradient id="carWheel" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#334155"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+    <filter id="riskShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="10" stdDeviation="8" flood-color="#7c2d12" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+  <circle cx="100" cy="110" r="85" fill="url(#riskGlow)"/>
+  <g filter="url(#riskShadow)">
+    <ellipse cx="100" cy="155" rx="70" ry="14" fill="#7c2d12" opacity="0.3"/>
+    <ellipse cx="58" cy="140" rx="16" ry="18" fill="url(#carWheel)"/>
+    <ellipse cx="58" cy="140" rx="8" ry="9" fill="#94a3b8"/>
+    <circle cx="58" cy="140" r="4" fill="#f8fafc"/>
+    <ellipse cx="142" cy="140" rx="16" ry="18" fill="url(#carWheel)"/>
+    <ellipse cx="142" cy="140" rx="8" ry="9" fill="#94a3b8"/>
+    <circle cx="142" cy="140" r="4" fill="#f8fafc"/>
+    <rect x="30" y="96" width="140" height="42" rx="18" fill="url(#carOrangeBody)"/>
+    <path d="M52 96 L70 58 Q76 52 86 52 L124 52 Q134 52 140 62 L152 96 Z" fill="url(#carOrangeRoof)"/>
+    <path d="M72 61 L88 61 L88 92 L56 92 Z" fill="url(#carGlassOrange)"/>
+    <path d="M94 61 L122 61 L122 92 L94 92 Z" fill="url(#carGlassOrange)"/>
+    <path d="M128 61 L136 70 L146 92 L128 92 Z" fill="url(#carGlassOrange)"/>
+    <rect x="86" y="40" width="28" height="12" rx="4" fill="#f97316"/>
+    <rect x="90" y="42" width="20" height="8" rx="2" fill="#fff7ed"/>
+    <circle cx="36" cy="110" r="6" fill="#fef08a"/>
+    <circle cx="164" cy="110" r="5" fill="#f87171"/>
+    <path d="M40 102 Q100 98 160 102" stroke="#ffffff" stroke-width="3" stroke-linecap="round" opacity="0.6"/>
+    
+    <!-- At Risk Exclamation Badge -->
+    <circle cx="152" cy="62" r="18" fill="#ffffff"/>
+    <circle cx="152" cy="62" r="16" fill="#ea580c"/>
+    <path d="M152 54 L152 64 M152 68 L152 70" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
+  </g>
+</svg>
