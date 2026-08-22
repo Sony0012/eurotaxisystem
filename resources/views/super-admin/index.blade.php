@@ -1882,9 +1882,10 @@ function camFmtH(h, mins) {
 }
 
 function camBarColor(pct) {
-    if (pct <= 25) return '#ef4444';
-    if (pct <= 50) return '#f97316';
-    if (pct <= 75) return '#eab308';
+    if (pct <= 0) return '#94a3b8';
+    if (pct <= 25) return '#f59e0b';
+    if (pct <= 50) return '#0284c7';
+    if (pct <= 75) return '#0d9488';
     return '#22c55e';
 }
 
@@ -1914,10 +1915,10 @@ function camRoleBadge(role) {
 }
 
 // ─── Fetch from API ───────────────────────────────────────────
-async function camFetch() {
+async function camFetch(silent = false) {
     if (CAM_LOADING) return;
     CAM_LOADING = true;
-    camShowSkeleton();
+    if (!silent) camShowSkeleton();
 
     try {
         const target = document.getElementById('cam-target')?.value || 4;
@@ -1934,11 +1935,11 @@ async function camFetch() {
         if (json.success) {
             CAM_DATA = json;
             camRenderAll();
-        } else {
+        } else if (!silent) {
             camShowError(json.message || 'Failed to load activity data.');
         }
     } catch (e) {
-        camShowError('Network error while fetching activity monitoring data.');
+        if (!silent) camShowError('Network error while fetching activity monitoring data.');
     } finally {
         CAM_LOADING = false;
     }
@@ -2086,6 +2087,7 @@ function camRenderTable() {
 
     tbody.innerHTML = filterNotice + users.map(u => {
         const barW     = u.pct || 0;
+        const displayW = (u.todayMins > 0 || u.isOnline) ? Math.max(barW, 5) : 0;
         const barC     = camBarColor(barW);
         const dotCls   = u.status === 'active' ? 'cam-dot-active' : (u.status === 'low' ? 'cam-dot-low' : 'cam-dot-none');
         const badgeCls = u.status === 'active' ? 'cam-badge-active' : (u.status === 'low' ? 'cam-badge-low' : 'cam-badge-none');
@@ -2113,11 +2115,13 @@ function camRenderTable() {
                 <div style="font-size:.65rem;color:#94a3b8;margin-top:.25rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${u.email}</div>
             </div>
             <div>
-                <div class="cam-bar-track" style="margin-bottom:.3rem;">
-                    <div class="cam-bar-fill" style="width:${barW}%;background:${barC};"></div>
+                <div class="cam-bar-track" style="margin-bottom:.3rem;height:10px;background:#f1f5f9;border-radius:99px;overflow:hidden;border:1px solid #e2e8f0;position:relative;">
+                    <div class="cam-bar-fill" style="width:${displayW}%;background:${barC};height:100%;border-radius:99px;transition:width .4s ease;"></div>
                 </div>
-                <div style="display:flex;justify-content:space-between;font-size:.62rem;color:#64748b;">
-                    <span>0h</span><span>${Math.round(CAM_TARGET/2)}h</span><span>${CAM_TARGET}h</span>
+                <div style="display:flex;justify-content:space-between;font-size:.62rem;color:#64748b;font-weight:700;">
+                    <span>0h</span>
+                    <span style="color:${barC};font-weight:900;">${barW}% (${camFmtH(u.todayH, u.todayMins)})</span>
+                    <span>${CAM_TARGET}h</span>
                 </div>
             </div>
             <div>
@@ -2438,6 +2442,15 @@ function camInit() {
     const di = document.getElementById('cam-date');
     if (di && !di.value) di.value = new Date().toISOString().slice(0, 10);
     camFetch();
+
+    // Background Auto-Refresh every 25 seconds for live real-time progress
+    if (!window._camAutoInterval) {
+        window._camAutoInterval = setInterval(() => {
+            if (!document.hidden && document.getElementById('cam-user-table') && (!document.getElementById('cam-detail-panel') || !document.getElementById('cam-detail-panel').classList.contains('open'))) {
+                camFetch(true);
+            }
+        }, 25000);
+    }
 }
 
 // Re-run when tab is opened (consolidated - real API version above handles everything)
