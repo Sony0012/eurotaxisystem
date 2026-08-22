@@ -696,7 +696,7 @@ class SuperAdminController extends Controller
 
     public function activityMonitoring(Request $request)
     {
-        if (Auth::user()->role !== 'super_admin') {
+        if (!Auth::check() || !in_array(Auth::user()->role, ['super_admin', 'owner', 'admin'])) {
             return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
         }
 
@@ -972,7 +972,7 @@ class SuperAdminController extends Controller
 
     public function userActivityDetail(Request $request, $id)
     {
-        if (Auth::user()->role !== 'super_admin') {
+        if (!Auth::check() || !in_array(Auth::user()->role, ['super_admin', 'owner', 'admin'])) {
             return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
         }
 

@@ -1134,12 +1134,13 @@
                 <p style="font-size:.75rem;color:#64748b;margin-top:.15rem;">Live tracking of daily usage, system operations, and adoption progress per account.</p>
             </div>
             <div class="flex flex-wrap items-center gap-2">
-                <!-- Search Input -->
-                <div style="position:relative;">
+                <!-- Search Input with Clear Button -->
+                <div style="position:relative;display:flex;align-items:center;">
                     <i data-lucide="search" style="position:absolute;left:.6rem;top:50%;transform:translateY(-50%);width:13px;height:13px;color:#94a3b8;"></i>
-                    <input id="cam-search" type="text" placeholder="Search name, role, email…" autocomplete="off"
-                        style="padding:.45rem .9rem .45rem 2rem;border:1px solid #e2e8f0;border-radius:.6rem;font-size:.78rem;outline:none;width:220px;transition:border-color .2s;"
+                    <input id="cam-search" type="text" placeholder="Search name, role, email…" autocomplete="new-password"
+                        style="padding:.45rem 1.8rem .45rem 2rem;border:1px solid #e2e8f0;border-radius:.6rem;font-size:.78rem;outline:none;width:230px;transition:border-color .2s;"
                         oninput="camRenderTable()" onfocus="this.style.borderColor='#f59e0b'" onblur="this.style.borderColor='#e2e8f0'">
+                    <button type="button" onclick="document.getElementById('cam-search').value='';camRenderTable();" style="position:absolute;right:.5rem;color:#94a3b8;cursor:pointer;background:none;border:none;padding:.2rem;font-size:.75rem;line-height:1;" title="Clear search">✕</button>
                 </div>
 
                 <!-- Date Selector -->
