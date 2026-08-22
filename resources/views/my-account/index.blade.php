@@ -261,66 +261,86 @@
     </div>
 </div>
 
-<!-- Profile Image Modal -->
+<!-- ─── Profile Image Modal (21st.dev Luxury Redesign) ─── -->
 <div id="profileModal" class="fixed inset-0 z-50 hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" onclick="closeProfileModal()"></div>
-        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-            <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                <div class="sm:flex sm:items-start">
-                    <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
-                        <h3 class="text-lg leading-6 font-medium text-gray-900 flex items-center gap-2" id="modal-title">
-                            <i data-lucide="user-circle" class="w-5 h-5 text-yellow-600"></i>
-                            Update Profile Image
-                        </h3>
-                        <div class="mt-4 space-y-6">
-                            <!-- Upload Section -->
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Upload custom image</label>
-                                <form id="uploadForm" action="{{ route('my-account.update-profile-image') }}" method="POST" enctype="multipart/form-data">
-                                    @csrf
-                                    <input type="file" name="profile_image" accept="image/*" onchange="submitUpload()"
-                                           class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-yellow-50 file:text-yellow-700 hover:file:bg-yellow-100 cursor-pointer">
-                                </form>
-                            </div>
+    <div class="flex items-center justify-center min-h-screen p-4 text-center sm:p-6">
+        <!-- Backdrop -->
+        <div class="fixed inset-0 bg-slate-950/70 backdrop-blur-md transition-opacity" aria-hidden="true" onclick="closeProfileModal()"></div>
 
-                            <div class="relative py-2">
-                                <div class="absolute inset-0 flex items-center" aria-hidden="true">
-                                    <div class="w-full border-t border-gray-200"></div>
-                                </div>
-                                <div class="relative flex justify-center text-sm">
-                                    <span class="px-2 bg-white text-gray-500 uppercase tracking-wider text-[10px] font-bold">Or choose an icon</span>
-                                </div>
-                            </div>
+        <!-- Modal Card Container -->
+        <div class="relative inline-block w-full max-w-xl overflow-hidden rounded-3xl border border-slate-200/80 bg-gradient-to-b from-white via-amber-50/20 to-slate-50 p-6 sm:p-8 text-left align-middle shadow-2xl transition-all z-10 animate-bounce-in">
+            <!-- Close Button -->
+            <button type="button" onclick="closeProfileModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-700 p-2 rounded-xl bg-slate-100/80 hover:bg-slate-200 transition-all cursor-pointer">
+                <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
 
-                            <!-- Icon Grid -->
-                            <div class="grid grid-cols-3 sm:grid-cols-5 gap-4">
-                                @php
-                                    $icons = [
-                                        ['name' => 'Manager', 'file' => 'Manager.png'],
-                                        ['name' => 'Mechanic', 'file' => 'Mechanic.png'],
-                                        ['name' => 'Secretary', 'file' => 'secretary.png'],
-                                        ['name' => 'Secretary 2', 'file' => 'secretary2.png'],
-                                        ['name' => 'Manager 2', 'file' => 'manager2.png'],
-                                    ];
-                                @endphp
-                                @foreach($icons as $icon)
-                                    <div class="group cursor-pointer text-center" onclick="selectIcon('image/{{ $icon['file'] }}')">
-                                        <div class="aspect-square rounded-lg border-2 border-gray-100 p-2 group-hover:border-yellow-500 group-hover:bg-yellow-50 transition-all mb-1">
-                                            <img src="{{ asset('image/' . $icon['file']) }}" alt="{{ $icon['name'] }}" class="w-full h-full object-contain">
-                                        </div>
-                                        <span class="text-[10px] font-medium text-gray-500 group-hover:text-yellow-700">{{ $icon['name'] }}</span>
-                                    </div>
-                                @endforeach
-                            </div>
-                        </div>
-                    </div>
+            <!-- Header -->
+            <div class="flex items-center gap-3.5 mb-6">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 text-white flex items-center justify-center shadow-md shadow-amber-500/20 shrink-0">
+                    <i data-lucide="user-round" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h3 class="text-lg sm:text-xl font-black text-slate-900 tracking-tight" id="modal-title">
+                        Update Profile Avatar
+                    </h3>
+                    <p class="text-xs text-slate-500 font-medium">Upload your personal photo or select an official role avatar</p>
                 </div>
             </div>
-            <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+
+            <!-- Upload Custom File Dropzone Area -->
+            <div class="mb-6">
+                <span class="text-[11px] font-black uppercase tracking-wider text-slate-400 block mb-2">Upload Custom Image</span>
+                <form id="uploadForm" action="{{ route('my-account.update-profile-image') }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <label class="relative flex flex-col items-center justify-center p-5 rounded-2xl border-2 border-dashed border-slate-300 hover:border-amber-500 bg-white hover:bg-amber-50/40 transition-all cursor-pointer group text-center shadow-xs">
+                        <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
+                            <i data-lucide="upload-cloud" class="w-5 h-5"></i>
+                        </div>
+                        <span class="text-xs font-bold text-slate-800 group-hover:text-amber-700">Click to choose image or drag & drop</span>
+                        <span class="text-[11px] text-slate-400 mt-0.5 font-medium">PNG, JPG, JPEG, WEBP or GIF (Max 2MB)</span>
+                        <input type="file" name="profile_image" accept="image/*" onchange="submitUpload()" class="hidden">
+                    </label>
+                </form>
+            </div>
+
+            <!-- Stylish Divider -->
+            <div class="relative py-2 mb-4">
+                <div class="absolute inset-0 flex items-center" aria-hidden="true">
+                    <div class="w-full border-t border-slate-200"></div>
+                </div>
+                <div class="relative flex justify-center text-xs">
+                    <span class="px-3 bg-gradient-to-b from-white to-amber-50/20 text-slate-400 uppercase tracking-wider text-[10px] font-black">Or choose an official role avatar</span>
+                </div>
+            </div>
+
+            <!-- 3D Role SVG Avatars Grid -->
+            <div class="grid grid-cols-3 sm:grid-cols-6 gap-3 mb-6">
+                @php
+                    $roleAvatars = [
+                        ['name' => 'Owner',      'role' => 'Super Admin', 'file' => 'avatars/owner.svg'],
+                        ['name' => 'Manager',    'role' => 'Operations',  'file' => 'avatars/manager.svg'],
+                        ['name' => 'Dispatcher', 'role' => 'Radio Ops',   'file' => 'avatars/dispatcher.svg'],
+                        ['name' => 'Secretary',  'role' => 'Admin Staff', 'file' => 'avatars/secretary.svg'],
+                        ['name' => 'Mechanic',   'role' => 'Technical',   'file' => 'avatars/mechanic.svg'],
+                        ['name' => 'Cashier',    'role' => 'Finance',     'file' => 'avatars/cashier.svg'],
+                    ];
+                @endphp
+                @foreach($roleAvatars as $icon)
+                    <div class="group relative flex flex-col items-center p-2.5 rounded-2xl bg-white border-2 border-slate-100 hover:border-amber-500 hover:bg-amber-50/50 hover:shadow-md transition-all cursor-pointer active:scale-95 text-center shadow-xs"
+                         onclick="selectIcon('image/{{ $icon['file'] }}')">
+                        <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-full overflow-hidden p-1 mb-1.5 group-hover:scale-105 transition-transform">
+                            <img src="{{ asset('image/' . $icon['file']) }}" alt="{{ $icon['name'] }}" class="w-full h-full object-contain filter drop-shadow-sm">
+                        </div>
+                        <span class="text-[11px] font-black text-slate-800 group-hover:text-amber-700 leading-tight block truncate w-full">{{ $icon['name'] }}</span>
+                        <span class="text-[9px] font-semibold text-slate-400 block leading-none mt-0.5 truncate w-full">{{ $icon['role'] }}</span>
+                    </div>
+                @endforeach
+            </div>
+
+            <!-- Footer Action -->
+            <div class="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
                 <button type="button" onclick="closeProfileModal()"
-                        class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                        class="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:text-slate-900 bg-white hover:bg-slate-50 text-xs font-black uppercase tracking-wider shadow-xs transition-all cursor-pointer">
                     Cancel
                 </button>
                 <form id="iconForm" action="{{ route('my-account.update-profile-image') }}" method="POST" class="hidden">
