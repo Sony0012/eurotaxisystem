@@ -72,7 +72,12 @@ class ActivityLogController extends Controller
 
         $logs = $query->paginate(50)->withQueryString();
 
-        return view('activity-log.index', compact('logs'));
+        // Summary Stats (safe, lightweight counts)
+        $totalEvents = LoginAudit::whereNotIn('action', ['login', 'logout', 'failed_login'])->count();
+        $todayEvents = LoginAudit::whereNotIn('action', ['login', 'logout', 'failed_login'])->whereDate('created_at', Carbon::today())->count();
+        $adminActions = LoginAudit::whereIn('user_role', ['admin', 'super_admin'])->whereNotIn('action', ['login', 'logout', 'failed_login'])->count();
+
+        return view('activity-log.index', compact('logs', 'totalEvents', 'todayEvents', 'adminActions'));
     }
 
     /**
