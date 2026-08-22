@@ -32,10 +32,29 @@ class AnnouncementController extends Controller
             'message' => 'nullable|string',
             'is_pinned' => 'boolean',
             'start_date' => 'nullable|date',
-            'valid_until' => 'required|date|after_or_equal:' . ($request->start_date ?? 'today'),
+            'valid_until' => 'required|date',
         ]);
 
-        $startDate = $request->start_date ? \Carbon\Carbon::parse($request->start_date)->startOfDay() : now()->startOfDay();
+        $startStr = $request->start_date ?? date('Y-m-d');
+        if ($request->filled('start_time')) {
+            $startStr .= ' ' . $request->start_time;
+        } else {
+            $startStr .= ' 00:00:00';
+        }
+        $startDate = \Carbon\Carbon::parse($startStr);
+
+        $validUntilStr = $request->valid_until;
+        if ($request->filled('valid_until_time')) {
+            $validUntilStr .= ' ' . $request->valid_until_time;
+        } else {
+            $validUntilStr .= ' 23:59:59';
+        }
+        $validUntil = \Carbon\Carbon::parse($validUntilStr);
+
+        // Ensure valid_until is not before start_date
+        if ($validUntil->lt($startDate)) {
+            $validUntil = (clone $startDate)->endOfDay();
+        }
 
         $announcement = Announcement::create([
             'title' => $request->title,
@@ -44,7 +63,7 @@ class AnnouncementController extends Controller
             'is_active' => true,
             'created_by' => Auth::id(),
             'start_date' => $startDate,
-            'valid_until' => $request->valid_until ? \Carbon\Carbon::parse($request->valid_until)->endOfDay() : null,
+            'valid_until' => $validUntil,
         ]);
 
         // Send Push Notification to all drivers
@@ -59,7 +78,7 @@ class AnnouncementController extends Controller
             );
         }
 
-        return redirect()->back()->with('success', 'Announcement created and sent to drivers.');
+        return redirect()->back()->with('success', 'Announcement created and broadcasted to drivers.');
     }
 
     /**
@@ -79,16 +98,28 @@ class AnnouncementController extends Controller
         ]);
 
         $data = $request->all();
+        
         if ($request->filled('start_date')) {
-            $data['start_date'] = \Carbon\Carbon::parse($request->start_date)->startOfDay();
+            $startStr = $request->start_date;
+            if ($request->filled('start_time')) {
+                $startStr .= ' ' . $request->start_time;
+            }
+            $data['start_date'] = \Carbon\Carbon::parse($startStr);
         }
-        if ($request->has('valid_until')) {
-            $data['valid_until'] = $request->valid_until ? \Carbon\Carbon::parse($request->valid_until)->endOfDay() : null;
+
+        if ($request->filled('valid_until')) {
+            $validUntilStr = $request->valid_until;
+            if ($request->filled('valid_until_time')) {
+                $validUntilStr .= ' ' . $request->valid_until_time;
+            } else {
+                $validUntilStr .= ' 23:59:59';
+            }
+            $data['valid_until'] = \Carbon\Carbon::parse($validUntilStr);
         }
 
         $announcement->update($data);
 
-        return redirect()->back()->with('success', 'Announcement updated.');
+        return redirect()->back()->with('success', 'Announcement updated successfully.');
     }
 
     /**
