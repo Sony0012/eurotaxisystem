@@ -6,33 +6,73 @@
 
 @section('content')
 <div class="w-full space-y-6">
-    <!-- Metric Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
-            <div>
-                <p class="text-xs font-black text-gray-400 uppercase tracking-widest mb-1.5">Total Parts</p>
-                <h3 class="text-3xl font-black text-gray-900">{{ number_format($totalParts) }}</h3>
-            </div>
-            <div class="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-600 shadow-inner">
-                <i data-lucide="package" class="w-7 h-7"></i>
+    <!-- ── 3D KPI SUMMARY CARDS ── -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+        <!-- Card 1: Total Parts -->
+        <div class="group relative overflow-hidden rounded-3xl border border-slate-200/80 bg-gradient-to-br from-white via-blue-50/40 to-indigo-50/20 p-5 sm:p-6 shadow-xs hover:shadow-md transition-all duration-300">
+            <div class="flex items-center justify-between gap-4 relative z-10">
+                <div class="min-w-0 flex-1">
+                    <span class="text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-slate-400 block mb-1">
+                        Total Parts
+                    </span>
+                    <div class="text-2xl sm:text-3xl font-black text-slate-900 leading-none tracking-tight tabular-nums truncate">
+                        {{ number_format($totalParts) }}
+                    </div>
+                    <div class="mt-2 flex items-center gap-1.5 text-[11px] font-bold text-blue-600">
+                        <span class="inline-flex h-1.5 w-1.5 rounded-full bg-blue-500"></span>
+                        <span>Cataloged Items</span>
+                    </div>
+                </div>
+                <div class="w-14 h-14 sm:w-16 sm:h-16 shrink-0 group-hover:scale-105 transition-transform">
+                    <img src="{{ asset('image/kpi/inv_parts_3d.svg') }}" alt="Total Parts" class="w-full h-full object-contain filter drop-shadow-md">
+                </div>
             </div>
         </div>
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
-            <div>
-                <p class="text-xs font-black text-gray-400 uppercase tracking-widest mb-1.5">Total Stock Value</p>
-                <h3 class="text-3xl font-black text-green-600">₱{{ number_format($totalStockValue, 2) }}</h3>
-            </div>
-            <div class="w-14 h-14 bg-green-50 rounded-2xl flex items-center justify-center text-green-600 shadow-inner">
-                <i data-lucide="banknote" class="w-7 h-7"></i>
+
+        <!-- Card 2: Total Stock Value -->
+        <div class="group relative overflow-hidden rounded-3xl border border-slate-200/80 bg-gradient-to-br from-white via-emerald-50/40 to-teal-50/20 p-5 sm:p-6 shadow-xs hover:shadow-md transition-all duration-300">
+            <div class="flex items-center justify-between gap-4 relative z-10">
+                <div class="min-w-0 flex-1">
+                    <span class="text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-slate-400 block mb-1">
+                        Total Stock Value
+                    </span>
+                    <div class="text-2xl sm:text-3xl font-black text-emerald-600 leading-none tracking-tight tabular-nums truncate">
+                        ₱{{ number_format($totalStockValue, 2) }}
+                    </div>
+                    <div class="mt-2 flex items-center gap-1.5 text-[11px] font-bold text-emerald-600">
+                        <span class="inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                        <span>Current Inventory Worth</span>
+                    </div>
+                </div>
+                <div class="w-14 h-14 sm:w-16 sm:h-16 shrink-0 group-hover:scale-105 transition-transform">
+                    <img src="{{ asset('image/kpi/inv_value_3d.svg') }}" alt="Total Stock Value" class="w-full h-full object-contain filter drop-shadow-md">
+                </div>
             </div>
         </div>
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
-            <div>
-                <p class="text-xs font-black text-gray-400 uppercase tracking-widest mb-1.5">Out of Stock</p>
-                <h3 class="text-3xl font-black {{ $outOfStock > 0 ? 'text-red-600' : 'text-gray-900' }}">{{ number_format($outOfStock) }}</h3>
-            </div>
-            <div class="w-14 h-14 {{ $outOfStock > 0 ? 'bg-red-50 text-red-600' : 'bg-gray-50 text-gray-400' }} rounded-2xl flex items-center justify-center shadow-inner">
-                <i data-lucide="alert-triangle" class="w-7 h-7"></i>
+
+        <!-- Card 3: Out of Stock -->
+        <div class="group relative overflow-hidden rounded-3xl border border-slate-200/80 bg-gradient-to-br from-white via-rose-50/40 to-red-50/20 p-5 sm:p-6 shadow-xs hover:shadow-md transition-all duration-300">
+            <div class="flex items-center justify-between gap-4 relative z-10">
+                <div class="min-w-0 flex-1">
+                    <span class="text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-slate-400 block mb-1">
+                        Out of Stock
+                    </span>
+                    <div class="text-2xl sm:text-3xl font-black {{ $outOfStock > 0 ? 'text-rose-600' : 'text-slate-900' }} leading-none tracking-tight tabular-nums truncate">
+                        {{ number_format($outOfStock) }}
+                    </div>
+                    <div class="mt-2 flex items-center gap-1.5 text-[11px] font-bold {{ $outOfStock > 0 ? 'text-rose-600' : 'text-slate-400' }}">
+                        <span class="relative flex h-2 w-2">
+                            @if($outOfStock > 0)
+                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                            @endif
+                            <span class="relative inline-flex rounded-full h-2 w-2 {{ $outOfStock > 0 ? 'bg-rose-500' : 'bg-slate-300' }}"></span>
+                        </span>
+                        <span>{{ $outOfStock > 0 ? 'Requires Restocking' : 'All In Stock' }}</span>
+                    </div>
+                </div>
+                <div class="w-14 h-14 sm:w-16 sm:h-16 shrink-0 group-hover:scale-105 transition-transform">
+                    <img src="{{ asset('image/kpi/inv_alert_3d.svg') }}" alt="Out of Stock" class="w-full h-full object-contain filter drop-shadow-md">
+                </div>
             </div>
         </div>
     </div>

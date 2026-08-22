@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <defs>
+    <radialGradient id="invValGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#10b981" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#047857" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="invBillGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#a7f3d0"/>
+      <stop offset="50%" stop-color="#10b981"/>
+      <stop offset="100%" stop-color="#047857"/>
+    </linearGradient>
+    <linearGradient id="invBillFront" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#d1fae5"/>
+      <stop offset="50%" stop-color="#34d399"/>
+      <stop offset="100%" stop-color="#059669"/>
+    </linearGradient>
+    <filter id="invValShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="12" stdDeviation="10" flood-color="#064e3b" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+  <circle cx="100" cy="110" r="85" fill="url(#invValGlow)"/>
+  <g filter="url(#invValShadow)">
+    <!-- Back Bill -->
+    <g transform="rotate(-12 90 115)">
+      <rect x="42" y="75" width="115" height="68" rx="12" fill="url(#invBillGrad)"/>
+      <rect x="50" y="83" width="99" height="52" rx="8" fill="none" stroke="#a7f3d0" stroke-width="2" opacity="0.5"/>
+    </g>
+    <!-- Front Bill -->
+    <g transform="rotate(6 105 110)">
+      <rect x="48" y="70" width="120" height="72" rx="14" fill="url(#invBillFront)"/>
+      <rect x="56" y="78" width="104" height="56" rx="10" fill="none" stroke="#ffffff" stroke-width="2.5" opacity="0.8"/>
+      <circle cx="108" cy="106" r="18" fill="#047857" opacity="0.25"/>
+      <text x="108" y="114" font-size="22" font-weight="900" fill="#ffffff" text-anchor="middle" font-family="sans-serif">₱</text>
+    </g>
+    <!-- Floating Sparkle -->
+    <path d="M152 48 L156 38 L160 48 L170 52 L160 56 L156 66 L152 56 L142 52 Z" fill="#ffffff" opacity="0.95"/>
+  </g>
+</svg>

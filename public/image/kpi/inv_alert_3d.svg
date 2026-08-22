@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <defs>
+    <radialGradient id="invAlertGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#f43f5e" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#881337" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="invAlertGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fda4af"/>
+      <stop offset="50%" stop-color="#f43f5e"/>
+      <stop offset="100%" stop-color="#be123c"/>
+    </linearGradient>
+    <filter id="invAlertShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="12" stdDeviation="10" flood-color="#881337" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+  <circle cx="100" cy="110" r="85" fill="url(#invAlertGlow)"/>
+  <g filter="url(#invAlertShadow)">
+    <g transform="rotate(-4 100 100)">
+      <!-- 3D Triangular Warning Shield -->
+      <path d="M100 42 C104 42 108 45 110 49 L156 132 C158 136 156 142 152 144 C150 145 148 146 146 146 L54 146 C48 146 44 142 44 136 C44 134 45 133 46 131 L90 49 C92 45 96 42 100 42 Z" fill="url(#invAlertGrad)"/>
+      <!-- Inner Plate -->
+      <path d="M100 54 L142 134 L58 134 Z" fill="#ffffff" opacity="0.95"/>
+      <!-- Exclamation Mark -->
+      <rect x="96" y="74" width="8" height="34" rx="4" fill="#e11d48"/>
+      <circle cx="100" cy="120" r="4.5" fill="#e11d48"/>
+    </g>
+    <!-- Floating Warning Dot -->
+    <circle cx="152" cy="62" r="6" fill="#f43f5e"/>
+    <circle cx="152" cy="62" r="3" fill="#ffffff"/>
+  </g>
+</svg>
