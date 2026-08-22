@@ -126,24 +126,22 @@
 
         @keyframes animatedShinyText {
             0% {
-                background-position: 0% 50%;
-            }
-            50% {
-                background-position: 100% 50%;
+                background-position: 200% 0;
             }
             100% {
-                background-position: 0% 50%;
+                background-position: -200% 0;
             }
         }
         .animated-shiny-units-text {
-            background: linear-gradient(90deg, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.22) 100%);
-            background-size: 200% auto;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            animation: animatedShinyText 3.5s ease-in-out infinite;
+            background: linear-gradient(110deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.22) 30%, rgba(255,255,255,0.95) 50%, rgba(255,255,255,0.22) 70%, rgba(255,255,255,0.18) 100%);
+            background-size: 200% 100%;
+            -webkit-background-clip: text !important;
+            -webkit-text-fill-color: transparent !important;
+            background-clip: text !important;
+            display: inline-block;
+            animation: animatedShinyText 3s linear infinite !important;
             will-change: background-position;
-            filter: drop-shadow(0 2px 10px rgba(255,255,255,0.2));
+            filter: drop-shadow(0 2px 12px rgba(255,255,255,0.3));
         }
 
         @keyframes blob {
