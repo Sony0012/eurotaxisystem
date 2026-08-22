@@ -45,67 +45,43 @@
     {{-- Summary Cards --}}
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         {{-- Total Employees --}}
-        <div class="bg-gradient-to-br from-blue-50 to-indigo-50/70 p-4 rounded-xl shadow-sm border-l-4 border-blue-500 relative overflow-hidden flex items-center">
-            <div class="flex items-center gap-4 relative z-10">
-                <div class="p-3 bg-blue-100 rounded-lg shadow-sm">
-                    <i data-lucide="users" class="w-6 h-6 text-blue-600"></i>
-                </div>
-                <div class="min-w-0">
-                    <div class="text-xl font-black text-gray-900 tracking-tight truncate tabular-nums">{{ $summary['total_employees'] ?? 0 }}</div>
-                    <div class="text-[10px] font-black text-blue-400 uppercase tracking-widest truncate">Total Employees</div>
-                    <div class="text-[9px] text-blue-300 truncate">On payroll</div>
-                </div>
+        <div class="relative overflow-hidden rounded-2xl shadow-sm border border-blue-200 bg-gradient-to-br from-blue-50 to-indigo-50/70 p-4 sm:p-5 flex items-center justify-between min-w-0">
+            <div class="flex-1 min-w-0 relative z-10">
+                <p class="text-blue-600 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest mb-1 truncate">Total Employees</p>
+                <p class="text-slate-800 text-xl sm:text-3xl font-bold tracking-tight leading-none mb-1 truncate tabular-nums">{{ $summary['total_employees'] ?? 0 }}</p>
+                <p class="text-[9px] text-blue-500 font-bold uppercase">On payroll</p>
             </div>
-            <i data-lucide="users" class="absolute -right-3 -bottom-3 w-24 h-24 text-blue-400 opacity-[0.12] -rotate-12 z-0 pointer-events-none"></i>
+            <img src="{{ asset('image/kpi/employees_3d.svg') }}" alt="Employees 3D" class="w-16 h-16 sm:w-20 sm:h-20 object-contain pointer-events-none flex-shrink-0">
         </div>
 
         {{-- Total Salaries --}}
-        <div class="bg-gradient-to-br from-green-50 to-emerald-50/70 p-4 rounded-xl shadow-sm border-l-4 border-green-500 relative overflow-hidden flex items-center">
-            <div class="flex items-center gap-4 relative z-10">
-                <div class="p-3 bg-green-100 rounded-lg shadow-sm">
-                    <i data-lucide="philippine-peso" class="w-6 h-6 text-green-600"></i>
-                </div>
-                <div class="min-w-0">
-                    <div class="text-xl font-black text-gray-900 tracking-tight truncate tabular-nums">{{ formatCurrency($summary['total_salaries'] ?? 0) }}</div>
-                    <div class="text-[10px] font-black text-green-400 uppercase tracking-widest truncate">Total Salaries</div>
-                    <div class="text-[9px] text-green-300 truncate font-medium">{{ \Carbon\Carbon::parse($date_from)->format('M d') }} - {{ \Carbon\Carbon::parse($date_to)->format('M d, Y') }}</div>
-                </div>
+        <div class="relative overflow-hidden rounded-2xl shadow-sm border border-green-200 bg-gradient-to-br from-green-50 to-emerald-50/70 p-4 sm:p-5 flex items-center justify-between min-w-0">
+            <div class="flex-1 min-w-0 relative z-10">
+                <p class="text-green-600 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest mb-1 truncate">Total Salaries</p>
+                <p class="text-slate-800 text-xl sm:text-3xl font-bold tracking-tight leading-none mb-1 truncate tabular-nums">{{ formatCurrency($summary['total_salaries'] ?? 0) }}</p>
+                <p class="text-[9px] text-green-600 font-medium truncate">{{ \Carbon\Carbon::parse($date_from)->format('M d') }} - {{ \Carbon\Carbon::parse($date_to)->format('M d, Y') }}</p>
             </div>
-            <i data-lucide="philippine-peso" class="absolute -right-3 -bottom-3 w-24 h-24 text-green-400 opacity-[0.12] -rotate-12 z-0 pointer-events-none"></i>
+            <img src="{{ asset('image/kpi/salary_3d.svg') }}" alt="Salaries 3D" class="w-16 h-16 sm:w-20 sm:h-20 object-contain pointer-events-none flex-shrink-0">
         </div>
-
-
 
         {{-- Net Profit --}}
         @php $net = ($summary['net_profit'] ?? 0); @endphp
-        <div class="{{ $net >= 0 ? 'bg-gradient-to-br from-emerald-50 to-teal-50/70 border-emerald-500' : 'bg-gradient-to-br from-red-50 to-rose-50/70 border-red-500' }} p-4 rounded-xl shadow-sm border-l-4 relative overflow-hidden flex items-center">
-            <div class="flex items-center gap-4 relative z-10">
-                <div class="p-3 {{ $net >= 0 ? 'bg-emerald-100' : 'bg-red-100' }} rounded-lg shadow-sm">
-                    <i data-lucide="{{ $net >= 0 ? 'trending-up' : 'trending-down' }}" class="w-6 h-6 {{ $net >= 0 ? 'text-emerald-600' : 'text-red-600' }}"></i>
-                </div>
-                <div class="min-w-0">
-                    <div class="text-xl font-black text-gray-900 tracking-tight truncate tabular-nums">
-                        {{ formatCurrency($net) }}
-                    </div>
-                    <div class="text-[10px] font-black {{ $net >= 0 ? 'text-emerald-400' : 'text-red-400' }} uppercase tracking-widest truncate">Net Profit</div>
-                    <div class="text-[9px] {{ $net >= 0 ? 'text-emerald-300' : 'text-red-300' }} truncate font-medium">After payroll</div>
-                </div>
+        <div class="relative overflow-hidden rounded-2xl shadow-sm border {{ $net >= 0 ? 'border-emerald-200 bg-gradient-to-br from-emerald-50 to-teal-50/70' : 'border-red-200 bg-gradient-to-br from-red-50 to-rose-50/70' }} p-4 sm:p-5 flex items-center justify-between min-w-0">
+            <div class="flex-1 min-w-0 relative z-10">
+                <p class="{{ $net >= 0 ? 'text-emerald-600' : 'text-red-500' }} text-[9px] sm:text-[10px] font-bold uppercase tracking-widest mb-1 truncate">Net Profit</p>
+                <p class="text-slate-800 text-xl sm:text-3xl font-bold tracking-tight leading-none mb-1 truncate tabular-nums">{{ formatCurrency($net) }}</p>
+                <p class="text-[9px] {{ $net >= 0 ? 'text-emerald-600' : 'text-red-500' }} font-bold uppercase">After payroll</p>
             </div>
-            <i data-lucide="{{ $net >= 0 ? 'trending-up' : 'trending-down' }}" class="absolute -right-3 -bottom-3 w-24 h-24 {{ $net >= 0 ? 'text-emerald-400' : 'text-red-400' }} opacity-[0.12] -rotate-12 z-0 pointer-events-none"></i>
+            <img src="{{ asset('image/kpi/profit_3d.svg') }}" alt="Profit 3D" class="w-16 h-16 sm:w-20 sm:h-20 object-contain pointer-events-none flex-shrink-0">
         </div>
 
         {{-- Average Salary --}}
-        <div class="bg-gradient-to-br from-green-50 to-emerald-50/70 p-4 rounded-xl shadow-sm border-l-4 border-green-500 relative overflow-hidden flex items-center">
-            <div class="flex items-center gap-4 relative z-10">
-                <div class="p-3 bg-green-100 rounded-lg shadow-sm">
-                    <i data-lucide="calculator" class="w-6 h-6 text-green-600"></i>
-                </div>
-                <div class="min-w-0">
-                    <div class="text-xl font-black text-gray-900 tracking-tight truncate tabular-nums">{{ formatCurrency($summary['avg_salary'] ?? 0) }}</div>
-                    <div class="text-[10px] font-black text-green-400 uppercase tracking-widest truncate">Average Salary/Employee</div>
-                </div>
+        <div class="relative overflow-hidden rounded-2xl shadow-sm border border-teal-200 bg-gradient-to-br from-teal-50 to-emerald-50/70 p-4 sm:p-5 flex items-center justify-between min-w-0">
+            <div class="flex-1 min-w-0 relative z-10">
+                <p class="text-teal-600 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest mb-1 truncate">Average Salary/Employee</p>
+                <p class="text-slate-800 text-xl sm:text-3xl font-bold tracking-tight leading-none mb-1 truncate tabular-nums">{{ formatCurrency($summary['avg_salary'] ?? 0) }}</p>
             </div>
-            <i data-lucide="bar-chart-2" class="absolute -right-3 -bottom-3 w-24 h-24 text-green-400 opacity-[0.12] -rotate-12 z-0 pointer-events-none"></i>
+            <img src="{{ asset('image/kpi/avg_salary_3d.svg') }}" alt="Average Salary 3D" class="w-16 h-16 sm:w-20 sm:h-20 object-contain pointer-events-none flex-shrink-0">
         </div>
     </div>
 
