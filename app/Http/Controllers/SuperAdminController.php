@@ -784,90 +784,85 @@ class SuperAdminController extends Controller
                 $modules[] = 'Dashboard Overview';
             }
 
-            // Cluster events into active sessions (gap <= 30 mins)
-            $sessions = [];
-            $currentSessionStart = null;
-            $currentSessionEnd   = null;
-            $sessionActionsCount = 0;
+            // Gather all verifiable activity timestamps for the user on this date
+            $timestampObjects = collect();
 
             foreach ($userAudits as $aud) {
-                $audTime = Carbon::parse($aud->created_at);
-                if (!$currentSessionStart) {
-                    $currentSessionStart = $audTime;
-                    $currentSessionEnd   = $audTime;
+                if ($aud->created_at) {
+                    $timestampObjects->push(Carbon::parse($aud->created_at));
+                }
+            }
+
+            if ($loginToday && $user->last_login) {
+                $timestampObjects->push(Carbon::parse($user->last_login));
+            }
+
+            if ($seenToday && $user->last_seen_at) {
+                $timestampObjects->push(Carbon::parse($user->last_seen_at));
+            }
+
+            // If user is currently online and we are inspecting today's date, include current time
+            if ($isOnline && $date === now()->toDateString()) {
+                $timestampObjects->push(now());
+            }
+
+            // Sort unique timestamps chronologically
+            $sortedTimestamps = $timestampObjects->sortBy(fn($c) => $c->timestamp)->values();
+
+            // Cluster into distinct sessions (with inactivity gap > 30 minutes)
+            $sessions = [];
+            $currentStart = null;
+            $currentEnd   = null;
+            $sessionActionsCount = 0;
+
+            foreach ($sortedTimestamps as $t) {
+                if (!$currentStart) {
+                    $currentStart = $t->copy();
+                    $currentEnd   = $t->copy();
                     $sessionActionsCount = 1;
                 } else {
-                    $gapMinutes = $currentSessionEnd->diffInMinutes($audTime);
+                    $gapMinutes = $currentEnd->diffInMinutes($t);
                     if ($gapMinutes <= 30) {
-                        $currentSessionEnd = $audTime;
+                        $currentEnd = $t->copy();
                         $sessionActionsCount++;
                     } else {
-                        $duration = max(10, $currentSessionStart->diffInMinutes($currentSessionEnd) + 5);
+                        // End previous session
+                        $duration = max(1, $currentStart->diffInMinutes($currentEnd));
                         $sessions[] = [
-                            'start'   => $currentSessionStart->format('h:i A'),
-                            'end'     => $currentSessionEnd->format('h:i A'),
+                            'start'   => $currentStart->format('h:i A'),
+                            'end'     => $currentEnd->format('h:i A'),
                             'mins'    => $duration,
                             'actions' => $sessionActionsCount,
                         ];
-                        $currentSessionStart = $audTime;
-                        $currentSessionEnd   = $audTime;
+                        // Start new session
+                        $currentStart = $t->copy();
+                        $currentEnd   = $t->copy();
                         $sessionActionsCount = 1;
                     }
                 }
             }
-            if ($currentSessionStart) {
-                $duration = max(10, $currentSessionStart->diffInMinutes($currentSessionEnd) + 5);
+
+            if ($currentStart) {
+                $duration = max(1, $currentStart->diffInMinutes($currentEnd));
                 $sessions[] = [
-                    'start'   => $currentSessionStart->format('h:i A'),
-                    'end'     => $currentSessionEnd->format('h:i A'),
+                    'start'   => $currentStart->format('h:i A'),
+                    'end'     => $currentEnd->format('h:i A'),
                     'mins'    => $duration,
                     'actions' => $sessionActionsCount,
                 ];
             }
 
-            // Calculate total active time in minutes
-            $totalMins = collect($sessions)->sum('mins');
-
-            // If user has remembered session / online presence or seen today without explicit audit events today:
-            if ($totalMins === 0) {
-                if ($isOnline) {
-                    $totalMins = 60; // 1 hr active presence
-                    $sessions[] = [
-                        'start'   => now()->subMinutes(60)->format('h:i A'),
-                        'end'     => now()->format('h:i A'),
-                        'mins'    => 60,
-                        'actions' => max(1, $userAudits->count()),
-                    ];
-                } elseif ($seenToday) {
-                    $seenCarbon = Carbon::parse($user->last_seen_at);
-                    $totalMins = 30;
-                    $sessions[] = [
-                        'start'   => $seenCarbon->copy()->subMinutes(30)->format('h:i A'),
-                        'end'     => $seenCarbon->format('h:i A'),
-                        'mins'    => 30,
-                        'actions' => max(1, $userAudits->count()),
-                    ];
-                } elseif ($loginToday) {
-                    $loginCarbon = Carbon::parse($user->last_login);
-                    $totalMins = 20;
-                    $sessions[] = [
-                        'start'   => $loginCarbon->format('h:i A'),
-                        'end'     => $loginCarbon->copy()->addMinutes(20)->format('h:i A'),
-                        'mins'    => 20,
-                        'actions' => 1,
-                    ];
-                }
-            }
-
-            $totalHours = round($totalMins / 60, 1);
-            $pct        = $target > 0 ? min(100, round(($totalHours / $target) * 100)) : 0;
+            // Total exact active time in minutes and hours
+            $totalMins  = collect($sessions)->sum('mins');
+            $totalHours = round($totalMins / 60, 2);
+            $pct        = ($target > 0) ? min(100, round(($totalMins / ($target * 60)) * 100)) : 0;
 
             // Status Determination (Online users or users reaching targets are active)
             if ($isOnline) {
                 $status = 'active';
-            } elseif ($totalHours >= ($target * 0.6) || $meaningfulActs->count() >= 5) {
+            } elseif ($totalMins >= ($target * 60 * 0.6) || $meaningfulActs->count() >= 5) {
                 $status = 'active';
-            } elseif ($totalHours > 0 || $userAudits->count() > 0 || $seenToday || $loginToday) {
+            } elseif ($totalMins > 0 || $userAudits->count() > 0 || $seenToday || $loginToday) {
                 $status = 'low';
             } else {
                 $status = 'none';
@@ -879,17 +874,15 @@ class SuperAdminController extends Controller
                 $firstLoginStr = Carbon::parse($firstLogin->created_at)->format('h:i A');
             } elseif ($loginToday) {
                 $firstLoginStr = Carbon::parse($user->last_login)->format('h:i A');
-            } elseif ($seenToday) {
-                $firstLoginStr = Carbon::parse($user->last_seen_at)->subMinutes($totalMins)->format('h:i A');
-            } elseif ($isOnline) {
-                $firstLoginStr = now()->subMinutes($totalMins)->format('h:i A');
+            } elseif ($sortedTimestamps->isNotEmpty()) {
+                $firstLoginStr = $sortedTimestamps->first()->format('h:i A');
             }
 
             $lastActiveStr = null;
-            if ($lastEntry) {
+            if ($sortedTimestamps->isNotEmpty()) {
+                $lastActiveStr = $sortedTimestamps->last()->format('h:i A');
+            } elseif ($lastEntry) {
                 $lastActiveStr = Carbon::parse($lastEntry->created_at)->format('h:i A');
-            } elseif ($isOnline) {
-                $lastActiveStr = now()->format('h:i A');
             } elseif ($seenToday) {
                 $lastActiveStr = Carbon::parse($user->last_seen_at)->format('h:i A');
             } elseif ($loginToday) {

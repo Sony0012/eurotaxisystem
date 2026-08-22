@@ -1862,11 +1862,23 @@ let CAM_DATE        = new Date().toISOString().slice(0, 10);
 let CAM_TARGET      = 4;
 
 // ─── Helpers ─────────────────────────────────────────────────
-function camFmtH(h) {
+function camFmtH(h, mins) {
+    if (mins !== undefined && mins !== null) {
+        if (mins <= 0) return '0h';
+        const hr = Math.floor(mins / 60);
+        const mn = Math.round(mins % 60);
+        if (hr === 0) return `${mn}m`;
+        if (mn === 0) return `${hr}h`;
+        return `${hr}h ${mn}m`;
+    }
     if (h === 0 || h === null || h === undefined) return '0h';
-    const hr = Math.floor(h);
-    const mn = Math.round((h - hr) * 60);
-    return mn > 0 ? `${hr}h ${mn}m` : `${hr}h`;
+    const totalMinutes = Math.round(h * 60);
+    if (totalMinutes <= 0) return '0h';
+    const hr = Math.floor(totalMinutes / 60);
+    const mn = totalMinutes % 60;
+    if (hr === 0) return `${mn}m`;
+    if (mn === 0) return `${hr}h`;
+    return `${hr}h ${mn}m`;
 }
 
 function camBarColor(pct) {
@@ -2084,7 +2096,7 @@ function camRenderTable() {
                 </div>
             </div>
             <div>
-                <div style="font-size:.82rem;font-weight:900;color:#000;">${camFmtH(u.todayH)}</div>
+                <div style="font-size:.82rem;font-weight:900;color:#000;">${camFmtH(u.todayH, u.todayMins)}</div>
                 <div style="font-size:.65rem;color:#94a3b8;">of ${CAM_TARGET}h · ${u.activities || 0} action(s)</div>
             </div>
             <div>
@@ -2272,7 +2284,7 @@ async function camOpenDetail(userId) {
             <div style="background:#f8fafc;border-radius:.75rem;padding:1rem;margin-bottom:1.25rem;">
                 <div style="display:flex;justify-content:space-between;margin-bottom:.5rem;">
                     <span style="font-size:.72rem;font-weight:800;color:#475569;">Daily Usage Progress</span>
-                    <span style="font-size:.72rem;font-weight:900;color:#000;">${camFmtH(todayH)} / ${targetH}h (${pct}%)</span>
+                    <span style="font-size:.72rem;font-weight:900;color:#000;">${camFmtH(todayH, camUser.todayMins)} / ${targetH}h (${pct}%)</span>
                 </div>
                 <div class="cam-bar-track" style="height:12px;">
                     <div class="cam-bar-fill" style="width:${pct}%;background:${barC};"></div>
@@ -2316,7 +2328,7 @@ async function camOpenDetail(userId) {
                         <span style="font-size:.72rem;color:#000;font-weight:800;">${s.start}</span>
                         <span style="font-size:.65rem;color:#94a3b8;">→</span>
                         <span style="font-size:.72rem;color:#475569;">${s.end}</span>
-                        <span style="margin-left:auto;font-size:.68rem;color:#0284c7;font-weight:800;">${camFmtH(Math.round(s.mins / 60 * 10) / 10)} (${s.actions} acts)</span>
+                        <span style="margin-left:auto;font-size:.68rem;color:#0284c7;font-weight:800;">${camFmtH(null, s.mins)} (${s.actions} acts)</span>
                     </div>
                 `).join('')}
             </div>` : ''}
