@@ -1,411 +1,585 @@
 # EURO TAXI MANAGEMENT SYSTEM (ETMS)
-## Comprehensive End-to-End Enterprise User & Operations Manual
-**Document Version:** 3.0.0 (Enterprise Edition)  
+# Comprehensive Enterprise User & Operations Manual
+**Document Version:** 4.0.0 (Complete Operations Edition)  
 **System URL:** `https://eurotaxisystem.site`  
-**Target Audience:** Super Admins (Owners), Fleet Managers, Dispatchers, Cashiers, Workshop Mechanics, and Fleet Drivers.
+**Applicable Software:** ETMS Web Administration Portal & ETMS Mobile Driver Application  
+**Languages Supported:** English  
 
 ---
 
 # Table of Contents
-1. [Executive Summary & System Architecture](#1-executive-summary--system-architecture)
-2. [User Roles, Permissions & Security Protocols](#2-user-roles-permissions--security-protocols)
-3. [Authentication, MFA & Account Management](#3-authentication-mfa--account-management)
-4. [Live Dashboard & Fleet Telemetry](#4-live-dashboard--fleet-telemetry)
-5. [Fleet & Unit Management](#5-fleet--unit-management)
-6. [Boundary & Daily Financial Collection](#6-boundary--daily-financial-collection)
-7. [Driver Management, KYC & Debt Ledger](#7-driver-management-kyc--debt-ledger)
-8. [GPS Live Tracking & Remote Engine Immobilizer](#8-gps-live-tracking--remote-engine-immobilizer)
-9. [Vehicle Maintenance & Workshop Job Orders](#9-vehicle-maintenance--workshop-job-orders)
-10. [Inventory, Spare Parts & Supplier Management](#10-inventory-spare-parts--supplier-management)
-11. [Number Coding Management (UVVRP)](#11-number-coding-management-uvvrp)
-12. [Driver Behavior, Incidents & Accident SOS Lifecycle](#12-driver-behavior-incidents--accident-sos-lifecycle)
+1. [System Overview & Architecture](#1-system-overview--architecture)
+2. [User Roles, Access Matrix & Security Hierarchy](#2-user-roles-access-matrix--security-hierarchy)
+3. [Authentication, MFA, Account Setup & Security](#3-authentication-mfa-account-setup--security)
+4. [Live Dashboard & Fleet Operations Nerve Center](#4-live-dashboard--fleet-operations-nerve-center)
+5. [Fleet & Unit Management (Full Vehicle Lifecycle)](#5-fleet--unit-management-full-vehicle-lifecycle)
+6. [Boundary Collection & Financial Remittance Management](#6-boundary-collection--financial-remittance-management)
+7. [Driver Management, KYC Verification & Debt Ledger](#7-driver-management-kyc-verification--debt-ledger)
+8. [Vehicle Maintenance & Workshop Bay Management](#8-vehicle-maintenance--workshop-bay-management)
+9. [Inventory, Spare Parts & Supplier Management](#9-inventory-spare-parts--supplier-management)
+10. [Live GPS Fleet Telematics & Remote Engine Immobilizer](#10-live-gps-fleet-telematics--remote-engine-immobilizer)
+11. [Number Coding Management (UVVRP & Smart Rotation)](#11-number-coding-management-uvvrp--smart-rotation)
+12. [Driver Behavior, Incident Lifecycle & Accident SOS](#12-driver-behavior-incident-lifecycle--accident-sos)
 13. [Unit Profitability & AI Decision Support System (AI-DSS)](#13-unit-profitability--ai-decision-support-system-ai-dss)
-14. [Office Expenses & Financial Approvals](#14-office-expenses--financial-approvals)
+14. [Office Expenses & Financial Approval Pipeline](#14-office-expenses--financial-approval-pipeline)
 15. [Staff Records & Payroll / Salary Management](#15-staff-records--payroll--salary-management)
-16. [Franchise Case & LTFRB Compliance](#16-franchise-case--ltfrb-compliance)
-17. [Support Center, Internal Chat & Announcements](#17-support-center-internal-chat--announcements)
-18. [Super Admin & System Security Control](#18-super-admin--system-security-control)
-19. [Archive & Disaster Recovery Management](#19-archive--disaster-recovery-management)
-20. [Mobile Driver Application Guide](#20-mobile-driver-application-guide)
-21. [Standard Operating Procedures (SOP) & Troubleshooting](#21-standard-operating-procedures-sop--troubleshooting)
+16. [Franchise Case & LTFRB Compliance Management](#16-franchise-case--ltfrb-compliance-management)
+17. [Support Center, Internal Staff Chat & Announcements](#17-support-center-internal-staff-chat--announcements)
+18. [Super Admin Control Center & Enterprise Security](#18-super-admin-control-center--enterprise-security)
+19. [Archive Vault & Disaster Recovery Management](#19-archive-vault--disaster-recovery-management)
+20. [Mobile Driver Application: Step-by-Step Operator Guide](#20-mobile-driver-application-step-by-step-operator-guide)
+21. [Server Optimization, CDN Settings & Troubleshooting FAQ](#21-server-optimization-cdn-settings--troubleshooting-faq)
 
 ---
 
-## 1. Executive Summary & System Architecture
+# 1. System Overview & Architecture
 
-The **Euro Taxi Management System (ETMS)** is a cloud-based, mission-critical Enterprise Resource Planning (ERP) and Fleet Telematics platform engineered specifically for modern taxi fleet operators.
+The **Euro Taxi Management System (ETMS)** is a centralized, cloud-hosted Enterprise Resource Planning (ERP) and Fleet Telematics ecosystem designed for taxi fleet operations.
 
-### Key Capabilities:
-- **Real-Time Fleet Telemetry:** Live GPS map, speed monitoring, and remote engine shut-off via IoT protocols.
-- **Financial Integrity:** Automated boundary tracking, dynamic boundary rate calculation, debt ledger with installment management, and automated net profitability metrics.
-- **Maintenance & Inventory:** Job order workflows, parts deduction, supplier catalogs, and preventive maintenance triggers.
-- **Safety & Incident Response:** Emergency SOS broadcast, real-time audio chimes, photo-documented accident reporting, and driver incentive/penalty scoring.
-- **AI Decision Support (AI-DSS):** Automated recommendations powered by Google Gemini to identify underperforming units, optimize maintenance intervals, and maximize fleet ROI.
-
----
-
-## 2. User Roles, Permissions & Security Protocols
-
-ETMS enforces a strict **Role-Based Access Control (RBAC)** model combined with **Granular Page-Level Permissions**.
-
-| Role | Access Level | Description & Core Responsibilities |
-| :--- | :--- | :--- |
-| **Super Admin / Owner** | Full System Access | Complete administrative authority. Manages user approvals, assigns page access matrices, edits custom roles, configures system security passwords, and accesses audit logs. |
-| **Admin / Fleet Manager** | Management Access | Manages fleet units, schedules maintenance, monitors driver behaviors, oversees boundary accounts, and generates analytics. |
-| **Dispatcher / Operations** | Operations Access | Monitors Live GPS tracking, handles emergency SOS alerts, manages vehicle coding rotations, and coordinates roadside rescue. |
-| **Cashier / Finance** | Financial Access | Records daily boundary remittances, manages driver debt repayments, logs office expenses, and processes staff payroll. |
-| **Mechanic / Workshop Staff** | Inventory & Maintenance | Updates job order statuses, logs replaced spare parts, and monitors workshop inventory. |
-| **Taxi Driver** | Mobile App Access | Remits boundary, views debt and earnings history, triggers emergency SOS / rescue, submits accident reports, and contacts support. |
-
----
-
-## 3. Authentication, MFA & Account Management
-
-### 3.1 Two-Factor Authentication (2FA / OTP)
-1. **Login Credentials:** Enter registered Email/Username and Password at `/login`.
-2. **Device Verification:** If logging in from an unrecognized device or browser, a 6-digit One-Time PIN (OTP) is automatically generated and dispatched via SMS (via Semaphore API) and/or verified Email.
-3. **Session Persistence:** Verified devices are securely recorded in the `verified_browsers` ledger.
-
-### 3.2 Forced Password Change
-- Users provisioned with temporary system passwords will be automatically redirected to `/force-change-password` upon initial login. The system requires a secure password with a minimum of 8 characters, alphanumeric mix, and special symbols.
-
-### 3.3 My Account Management (`/my-account`)
-- **Profile Customization:** Update full name, contact number, address, and profile photo.
-- **Email Verification:** Requesting an email change triggers a secure cryptographic verification link sent to the new email address.
-- **Web Push Notifications:** Enable browser push alerts for instant sound chimes and system broadcasts.
-
----
-
-## 4. Live Dashboard & Fleet Telemetry (`/`)
-
-The Dashboard is the operational nerve center of ETMS, updating continuously via real-time asynchronous polling.
-
-### Key Metrics & Widgets:
-1. **Fleet Status Counter Cards:**
-   - **Total Fleet:** Total registered units.
-   - **Active On-Road:** Vehicles currently operating without active restrictions.
-   - **In Maintenance:** Units currently assigned to the repair bay.
-   - **Coding Today:** Vehicles restricted by the Unified Vehicular Volume Reduction Program (UVVRP).
-   - **Flagged / Impounded:** Units with operational holds or unpaid critical debts.
-2. **Real-Time Financial Overview:**
-   - **Today's Boundary Collection:** Live progress bar showing Target vs. Actual Remittances.
-   - **Net Profitability Snapshot:** Daily Gross Revenue minus Maintenance, Fuel, and Operational Expenses.
-3. **Emergency Alert Banner:**
-   - Instant visual and audio alert when a driver triggers an SOS or submits an urgent accident report.
-4. **Quick Action Floating Dock:** One-click modals to quickly record boundary, create a maintenance ticket, flag a vehicle, or broadcast an announcement.
-
----
-
-## 5. Fleet & Unit Management (`/units`)
-
-### 5.1 Adding a New Vehicle
-1. Navigate to **Units** > Click **"+ Add New Unit"**.
-2. Fill in the required technical details:
-   - **Plate Number** & **Body / Taxi Number** (Must be unique).
-   - **Engine Number**, **Chassis / VIN Number**, and **LTFRB Franchise Number**.
-   - **Make / Model / Year** (e.g., Toyota Vios 2023).
-   - **Coding Day** (Automatically assigned based on the last digit of the plate number, or custom selected).
-   - **GPS Device IMEI / Tracker ID** (For telematics sync).
-3. Click **"Save Vehicle"**.
-
-### 5.2 Unit Health Score & Statuses
-- **Health Score (0 - 100%):** Calculated based on maintenance frequency, incident involvement, mileage wear, and age.
-- **Statuses:**
-  - `Active` — Vehicle is roadworthy and assigned to active shifts.
-  - `In Maintenance` — Vehicle is in the repair workshop.
-  - `Flagged / Impounded` — Vehicle is banned from dispatch due to severe violation or unpaid arrears.
-- **Health Reset / Recovery:** Authorized managers can execute `/units/{id}/reset-health` after complete vehicle overhaul.
-
-### 5.3 Exporting & Printing
-- Click **"Print Fleet Inventory"** (`/units/print`) to generate a formatted printable report of all active vehicles, franchise expiry dates, and health standings.
-
----
-
-## 6. Boundary & Daily Financial Collection (`/boundaries`)
-
-### 6.1 Recording Daily Boundary
-1. Navigate to **Boundaries** > Click **"Record Collection"**.
-2. Select **Vehicle Body No.** and **Assigned Driver**.
-3. The system automatically computes the **Expected Boundary Rate** based on active Boundary Rules (e.g., standard day, weekend, holiday, or coding discount).
-4. Enter **Actual Amount Paid**:
-   - **Exact Payment:** Recorded as `Settled`.
-   - **Shortage (Underpayment):** Difference is automatically logged to the driver's **Debt Ledger**.
-   - **Excess (Overpayment):** Credited toward existing driver debts or advance balance.
-5. Click **"Submit & Issue Receipt"**.
-
-### 6.2 Dynamic Boundary Rules (`/boundary-rules`)
-- Configure standard 24-Hour Shift vs 12-Hour Shift rates.
-- Set special discounted rates during vehicle coding days or bad-weather holidays.
-
----
-
-## 7. Driver Management, KYC & Debt Ledger (`/driver-management`)
-
-### 7.1 Driver Onboarding & KYC Documentation
-1. Navigate to **Driver Management** > Click **"+ Register Driver"**.
-2. Input personal identification: Full Name, Contact Number, Address, Emergency Contact, and Driver's License Number with Expiry Date.
-3. Upload verified digital KYC files:
-   - Professional Driver's License (Front & Back)
-   - NBI Clearance
-   - Police Clearance
-   - Medical Certificate & Drug Test Result
-4. Click **"Save Driver Record"**.
-
-### 7.2 Terms & Conditions Upload (`/driver-management/terms`)
-- Admins can upload official signed contracts and company rulebook images (`/driver-management/terms/upload`) which drivers can review and acknowledge directly in their mobile app.
-
-### 7.3 Driver Debt & Installment Plans (`/driver-management/debts`)
-- **Accumulated Shortages:** When a driver falls short on daily boundary or incurs vehicle damage repair charges, a debt item is created.
-- **Installment Terms:** Cashiers can establish structured daily installment deductions (e.g., +₱150 per shift) until arrears are fully amortized.
-- **Debt Settlement (`/driver-management/pay-debt`):** Record ad-hoc cash payments against specific debt IDs.
-
-### 7.4 Suspension & Banning Protocol
-- **Temporary Suspension:** Restricts driver app access for a set number of days (e.g., 3-day suspension for late boundary).
-- **Permanent Ban:** Drivers with critical safety offenses, boundary absconding, or fraudulent conduct can be permanently banned (`/driver-management/{id}/suspend-or-ban`), preventing dispatch across the fleet.
-
----
-
-## 8. GPS Live Tracking & Remote Engine Immobilizer (`/live-tracking`)
-
-### 8.1 Real-Time Map & Telematics
-- The interactive map displays all registered units color-coded by operational status:
-  - 🟢 **Green:** Moving / Engine On (ACC On).
-  - 🟡 **Yellow:** Idle / Engine Running (0 km/h).
-  - 🔴 **Red:** Parked / Engine Off (ACC Off).
-  - 🟣 **Purple / Flashing:** SOS Alert / Rescue Requested.
-- Clicking any vehicle pin reveals live speed (km/h), odometer mileage, GPS satellite signal strength, battery voltage, and current driver name.
-
-### 8.2 Remote Engine Immobilizer (Anti-Theft / Emergency Kill)
-1. In the Live Tracking panel, select the target unit.
-2. Click **"Engine Control"** (`/live-tracking/engine-control`).
-3. Select Command:
-   - **`Cut Off Engine (Kill Ignition)`** — Sends an immediate digital relay command to cut fuel delivery / ignition.
-   - **`Restore Engine (Re-enable Ignition)`** — Restores fuel relay circuit to normal state.
-4. **Safety Protocol:** Engine kill commands prompt for admin confirmation to avoid accidental activation while a vehicle is travelling at high speed.
-
----
-
-## 9. Vehicle Maintenance & Workshop Job Orders (`/maintenance`)
-
-### 9.1 Creating a Maintenance Ticket
-1. Navigate to **Maintenance** > Click **"+ New Job Order"**.
-2. Select **Vehicle Body No.** and select **Maintenance Type**:
-   - `Preventive Maintenance Schedule (PMS)` (e.g., 5,000 km Oil Change)
-   - `Mechanical Repair` (Brakes, Clutch, Suspension, Engine)
-   - `Electrical Repair` (Alternator, Battery, Lighting, GPS Tracker)
-   - `Body & Paint / Accident Repair`
-3. Enter **Odometer Reading**, **Priority Level** (`Low`, `Medium`, `High`, `Urgent`), and **Issue Description**.
-4. Assign Workshop Mechanic.
-5. Click **"Create Job Order"**.
-
-### 9.2 Workshop Workflow & Parts Deduction
-1. **In Progress (`/maintenance/{id}/toggle-in-progress`):** Marks the unit as actively being serviced in the repair bay.
-2. **Adding Spare Parts (`/maintenance/{id}/parts`):** Select spare parts used from inventory. The system automatically reduces stock on hand and tallies the total parts cost.
-3. **Completion (`/maintenance/{id}/toggle-complete`):** Logs labor cost, final remarks, and automatically updates the vehicle's Health Score back to optimal standing while setting the unit status back to `Active`.
-
----
-
-## 10. Inventory, Spare Parts & Supplier Management (`/inventory-management`)
-
-### 10.1 Spare Parts Catalog (`/spare-parts`)
-- Manage vehicle replacement inventory: Engine Oil, Brake Pads, Oil Filters, Tires, Spark Plugs, Belts, and Headlight Bulbs.
-- Track **Part SKU**, **Category**, **Unit Purchase Price**, **Selling/Charge Price**, and **Current Quantity on Hand**.
-- **Reorder Point Trigger:** When stock levels drop below the defined minimum safety threshold, the system displays an orange low-stock alert.
-
-### 10.2 Supplier Management (`/suppliers`)
-- Maintain a directory of accredited automotive parts suppliers, contact persons, telephone numbers, and terms of credit.
-
----
-
-## 11. Number Coding Management (UVVRP) (`/coding`)
-
-### 11.1 Metro Manila UVVRP Scheme Matrix
-The system automatically maps license plate endings to restriction days:
-- **Monday:** Plates ending in `1` and `2`
-- **Tuesday:** Plates ending in `3` and `4`
-- **Wednesday:** Plates ending in `5` and `6`
-- **Thursday:** Plates ending in `7` and `8`
-- **Friday:** Plates ending in `9` and `0`
-
-### 11.2 Daily Coding Automation
-- Every morning at 05:00 AM, the automated cron job flags all restricted vehicles as `Coding Today`.
-- Automated SMS and mobile app push notifications are sent to drivers assigned to coding vehicles.
-- Fleet dispatchers can review alternate non-coding vehicle swaps in the **Coding Suggestions** panel (`/coding/suggestions`).
-
----
-
-## 12. Driver Behavior, Incidents & Accident SOS Lifecycle (`/driver-behavior`)
-
-### 12.1 Incident Classifications & Logging
-- **Minor Violations:** Customer discourtesy, improper uniform, meter refusal.
-- **Moderate Violations:** Boundary evasion, unapproved route deviation, reckless speeding.
-- **Major Violations / Accidents:** Vehicle collision, hit-and-run, DUI, criminal liability.
-- Admins log incidents with supporting witness statements, police report numbers, and photo attachments.
-
-### 12.2 Accident Emergency SOS & Roadside Rescue Lifecycle
-```mermaid
-sequenceDiagram
-    autonumber
-    actor Driver as Driver Mobile App
-    participant Server as ETMS Cloud Server
-    participant Admin as Dispatch / Admin Portal
-    actor Mechanic as Rescue Mechanic
-
-    Driver->>Server: Press Emergency SOS / Breakdown Rescue (GPS + Photos)
-    Server->>Admin: Real-time Audio Broadcast & Red Alert Banner
-    Admin->>Driver: Acknowledge SOS & Confirm GPS Location
-    Admin->>Mechanic: Dispatch Roadside Rescue / Towing Team
-    Mechanic->>Server: Complete Rescue & Update Unit Status to Bay Repair
-    Admin->>Server: Create Accident Job Order & Damage Parts Estimate
+```
+ ┌────────────────────────────────────────────────────────────────────────┐
+ │                   ETMS CLOUD SERVER (eurotaxisystem.site)              │
+ ├───────────────────────────────────┬────────────────────────────────────┤
+ │       WEB MANAGEMENT PORTAL       │        MOBILE DRIVER APP           │
+ │  (Super Admin / Managers / Staff) │   (Android / PWA / Drivers)        │
+ ├───────────────────────────────────┼────────────────────────────────────┤
+ │ • Dashboard & Real-Time KPIs      │ • On-Duty Shift & Boundary Tracker │
+ │ • Fleet Inventory & Health Scores │ • Live Balance & Debt Payments     │
+ │ • Boundary Ledgers & Expenses     │ • 1-Tap Emergency SOS Alarm        │
+ │ • Workshop Bay & Spare Parts      │ • Breakdown Rescue Request         │
+ │ • Live GPS Map & Engine Cut-off   │ • Accident Self-Reporting (Photos) │
+ │ • AI-DSS Profitability Analytics  │ • Support Ticket Chat Desk         │
+ │ • Super Admin Security & Matrix   │ • Company Rules & Announcements    │
+ └───────────────────────────────────┴────────────────────────────────────┘
 ```
 
-### 12.3 Driver Incentive & Sanctions Program (`/driver-behavior/incentives`)
-- Drivers with 30 consecutive days of zero accidents, zero customer complaints, and on-time boundary remittances receive an automated **Clean Record Incentive Bonus**.
-- Drivers with repeated violations face points deduction, required retraining, or temporary suspension.
+---
+
+# 2. User Roles, Access Matrix & Security Hierarchy
+
+ETMS implements **Role-Based Access Control (RBAC)** coupled with a **Granular Page Permission Matrix**.
+
+| Role | Default Capabilities | Primary Screens Accessed |
+| :--- | :--- | :--- |
+| **Super Admin / Owner** | Complete system authority. Account approvals, role creation, page-access customization, security archive master password, audit monitoring. | Super Admin Panel, Audit Trail, All Modules |
+| **Fleet Manager / Admin** | Manages units, drivers, maintenance job orders, approves office expenses, analyzes AI profitability. | Dashboard, Units, Drivers, Maintenance, Profitability, Coding |
+| **Dispatcher / Operations** | Monitors real-time GPS fleet positions, handles SOS emergencies, coordinates roadside rescue, manages coding rotations. | Live Tracking, Driver Behavior, SOS Alerts, Rescue, Coding, Support |
+| **Cashier / Finance** | Collects daily boundary remittances, manages driver debt ledgers, logs operational expenses, processes salary payroll. | Boundaries, Driver Debts, Office Expenses, Salary, Profitability |
+| **Mechanic / Bay Staff** | Performs vehicle repairs, tracks PMS schedules, logs parts used from inventory, updates unit health scores. | Maintenance, Spare Parts Inventory, Suppliers |
+| **Taxi Driver** | Operates vehicle, remits boundary, tracks personal ledger, requests rescue, reports accidents. | Mobile Driver App |
 
 ---
 
-## 13. Unit Profitability & AI Decision Support System (AI-DSS) (`/unit-profitability`)
+# 3. Authentication, MFA, Account Setup & Security
 
-### 13.1 Profitability Matrix & Financial Equation
-For every taxi unit, ETMS computes net financial yield across customizable timeframes:
-$$\text{Net Profit} = \text{Total Boundary Collected} - (\text{Maintenance Costs} + \text{Spare Parts} + \text{Franchise Fees} + \text{Insurance/Depreciation})$$
+### 3.1 User Registration (`/register`)
+1. Open `https://eurotaxisystem.site/register`.
+2. Complete the registration form:
+   - **Full Name:** Complete legal name.
+   - **Email Address:** Valid email address for security notifications.
+   - **Mobile Number:** 11-digit Philippine mobile number (`09XXXXXXXXX`).
+   - **Username:** Unique system handle.
+   - **Password & Confirm Password:** Minimum 8 characters.
+   - **Desired Role:** Admin, Dispatcher, Cashier, Mechanic, or Driver.
+3. Click **"Submit Registration"**.
+4. *Note:* Newly registered accounts are placed in `Pending Approval` status until activated by a Super Admin.
 
-### 13.2 AI-DSS Fleet Insights (`/unit-profitability/ai-dss`)
-Integrated with Google Gemini AI, the AI Decision Support System analyzes fleet telemetry and financials to produce actionable executive intelligence:
-- **Vehicle Retirement / Sale Advice:** Identifies "Lemon" vehicles whose recurring maintenance costs exceed revenue generation.
-- **Preventive Maintenance Optimization:** Predicts component failures based on cumulative mileage and driving routes.
-- **Driver-Vehicle Synergy:** Recommends optimal vehicle assignments matching high-yield drivers with high-efficiency units.
+### 3.2 Login & Two-Factor Authentication (`/login`)
+1. Enter registered **Email/Username** and **Password**.
+2. Click **"Sign In"**.
+3. **Multi-Factor Authentication (MFA / Device OTP):**
+   - If logging in from an unrecognized browser or new device, ETMS generates a 6-digit One-Time PIN.
+   - The OTP is sent via SMS (via Semaphore API) and Email.
+   - Enter the 6-digit code in the verification modal within 5 minutes.
+   - Upon verification, the device is whitelisted in `verified_browsers`.
 
----
+### 3.3 Password Reset & Forgot Password Flow
+1. On the login screen, click **"Forgot Password?"**.
+2. Choose recovery channel: **SMS OTP** or **Email OTP**.
+3. Enter registered contact detail > Click **"Send Verification Code"**.
+4. Enter the received OTP code and set your new password.
 
-## 14. Office Expenses & Financial Approvals (`/office-expenses`)
-
-### 14.1 Logging an Operational Expense
-1. Navigate to **Office Expenses** > Click **"+ Record Expense"**.
-2. Select Category: `Office Rent`, `Utilities (Electricity/Water)`, `Internet & Cloud Hosting`, `Legal & Permits`, `Marketing`, or `Miscellaneous`.
-3. Input **Amount**, **Date of Expenditure**, **Vendor Name**, and attach **Official Receipt (OR)** image.
-4. Click **"Submit for Approval"**.
-
-### 14.2 Multi-Tier Approval Pipeline
-- Expenses submitted by cashiers/staff remain in `Pending` status.
-- Fleet Managers or Owners can review invoice attachments and click **"Approve"** (`/office-expenses/approve/{id}`) or **"Reject"** with remarks.
-
----
-
-## 15. Staff Records & Payroll / Salary Management (`/salary` & `/staff`)
-
-### 15.1 Staff Registry
-- Maintain master records for office staff: Dispatchers, Cashiers, Mechanics, Admin Officers, and Security Personnel.
-- Store employment contracts, emergency contacts, base monthly salary rates, and daily rates.
-
-### 15.2 Salary & Payslip Computation (`/salary/report`)
-- Compute semi-monthly / monthly payroll factoring in:
-  - Base Salary + Overtime Hours
-  - Performance Incentives
-  - Deductions (SSS, PhilHealth, Pag-IBIG, Cash Advances / Vale)
-- Generate one-click printable payslips and payroll summary sheets.
+### 3.4 User Profile & My Account (`/my-account`)
+- **Update Profile:** Edit name, mobile number, and residential address.
+- **Profile Photo:** Upload clear headshot (PNG/JPG, auto-converted to WebP).
+- **Change Password:** Enter current password and new secure password.
+- **Request Email Change:** Sends a secure token link to the new email address. Click the link to finalize the update.
 
 ---
 
-## 16. Franchise Case & LTFRB Compliance (`/franchise`)
+# 4. Live Dashboard & Fleet Operations Nerve Center (`/`)
 
-- Track LTFRB Certificates of Public Convenience (CPC) and franchise validity dates.
-- Automated reminder alerts 60 days, 30 days, and 7 days prior to CPC expiry.
-- Maintain case hearing records, franchise extension applications, and inspection compliance records.
+The Dashboard updates asynchronously in real time without requiring manual page reloads.
 
----
+```
+ ┌────────────────────────────────────────────────────────────────────────┐
+ │                           DASHBOARD OVERVIEW                           │
+ ├──────────────┬──────────────┬──────────────┬──────────────┬────────────┤
+ │ TOTAL FLEET  │ ACTIVE ROAD  │ MAINTENANCE  │ CODING TODAY │  FLAGGED   │
+ │     48       │      38      │      5       │      4       │     1      │
+ ├──────────────┴──────────────┴──────────────┴──────────────┴────────────┤
+ │ 💰 TODAY'S BOUNDARY COLLECTION: [=========>      ] ₱45,600 / ₱57,600   │
+ │ 🚨 ACTIVE ALERTS: 1 Accident Report (TX-104) • 2 PMS Due Today        │
+ ├──────────────────────────────────────┬─────────────────────────────────┤
+ │     7-DAY NET REVENUE SPARKLINE      │    FLEET UTILIZATION GAUGES     │
+ └──────────────────────────────────────┴─────────────────────────────────┘
+```
 
-## 17. Support Center, Internal Chat & Announcements (`/support-center` & `/announcements`)
-
-### 17.1 Real-Time Driver Support Tickets
-- Drivers submit support tickets directly from the mobile app regarding meter issues, app glitches, or boundary disputes.
-- Dispatchers chat directly with drivers in the **Support Center**, exchange attachments, and resolve tickets.
-
-### 17.2 Internal Staff Chat (`/chat`)
-- Secure internal 1-on-1 and group messaging for office personnel.
-- Real-time message delivery, emoji reactions, and unread notification counter.
-
-### 17.3 Company Announcements (`/announcements`)
-- Publish company-wide bulletins, memo updates, holiday operating schedules, and safety advisories.
-- Pinned announcements appear prominently at the top of driver mobile feeds.
-
----
-
-## 18. Super Admin & System Security Control (`/super-admin`)
-
-*Restricted exclusively to System Owners & Super Administrators.*
-
-### 18.1 User Account Approvals & Status Control
-- Review newly registered staff/driver accounts. Click **Approve** or **Reject**.
-- Instant **Disable/Enable Switch** (`/super-admin/toggle-disable/{id}`) to immediately revoke login access for resigned or suspended personnel.
-
-### 18.2 Granular Page-Access Control Matrix (`/super-admin/page-access/{id}`)
-Super Admins can toggle individual page access rights for every staff member:
-- Dashboard, Units, Boundaries, Maintenance, Driver Management, Live Tracking, Coding, Driver Behavior, Office Expenses, Salary, Profitability, Inventory, Archive.
-
-### 18.3 Audit Trail & Login History (`/super-admin/login-history`)
-- Real-time logging of user activity: User ID, Timestamp, IP Address, Device Fingerprint, and Action Performed (Create, Edit, Delete, Login, Logout).
+### Dashboard Widgets & Actions:
+1. **Fleet Counter Cards:** Instant counts of units in Active, Maintenance, Coding, and Flagged states. Clicking any card filters the vehicle table.
+2. **Boundary Progress Meter:** Real-time gauge showing target collection vs. actual cash remitted for the current date.
+3. **Emergency Alert Ticker:** High-priority banners for active driver SOS panic alerts, accident reports, and maintenance alerts.
+4. **Quick Action Dock:**
+   - **"Record Boundary"** — Opens instant collection remittance modal.
+   - **"Add Maintenance"** — Opens new repair job order modal.
+   - **"Flag Vehicle"** — Quickly places a vehicle on operational hold.
+   - **"Broadcast Alert"** — Sends an immediate push notification to all active drivers.
 
 ---
 
-## 19. Archive & Disaster Recovery Management (`/archive`)
+# 5. Fleet & Unit Management (Full Vehicle Lifecycle) (`/units`)
 
-### 19.1 Soft Deletes & The Archive Vault
-To prevent catastrophic accidental data loss, all deleted entities (Units, Drivers, Maintenance Tickets, Incidents, Expenses, Spare Parts) are moved to the **Archive Vault** rather than immediately deleted from the SQL database.
+### 5.1 Adding a New Vehicle Unit
+1. Go to **Units** (`/units`) > Click **"+ Add New Unit"**.
+2. Complete all vehicle fields:
+   - **Plate Number:** (e.g., `ABC-1234`) — *Unique identifier*.
+   - **Body Number / Taxi ID:** (e.g., `TX-101`) — *Fleet number*.
+   - **Make & Model:** (e.g., `Toyota Vios 1.3 Dual VVT-i`).
+   - **Year Model:** (e.g., `2023`).
+   - **Chassis / VIN Number:** 17-digit chassis number.
+   - **Engine Number:** Stamped engine code.
+   - **Franchise / Case Number:** Registered LTFRB franchise reference.
+   - **Coding Day:** Select Monday through Friday (or auto-assigned based on plate ending).
+   - **GPS Tracker IMEI:** 15-digit device serial number for live telematics.
+   - **Initial Status:** `Active`, `In Maintenance`, or `Standby`.
+3. Click **"Save Vehicle Record"**.
 
-### 19.2 Restoration & Permanent Purge
-- **Restore (`/archive/restore/{type}/{id}`):** Reinstates the archived record back to its active operational table with zero data loss.
-- **Permanent Purge (`/archive/force-delete/{type}/{id}`):** Permanently removes the record from the database. Requires entering the **Master Archive Password** configured by the Super Admin.
+### 5.2 Editing & Updating Unit Details
+1. In the Units list, locate the target vehicle.
+2. Click the **"Edit"** (Pencil) icon.
+3. Modify plate details, tracker IMEI, or assigned driver.
+4. Click **"Update Unit"**.
+
+### 5.3 Vehicle Health Score & Reset Protocol
+- **Health Score (0% to 100%):** Calculated based on:
+  - Total mileage logged since last Periodic Maintenance Service (PMS).
+  - Frequency of mechanical breakdown tickets.
+  - Incident/accident involvement history.
+- **Recover / Reset Health (`/units/{id}/reset-health`):**
+  - Performed after a comprehensive engine overhaul, PMS 10,000 km service, or major restoration.
+  - Resets the health counter back to 100% and marks the last service odometer reading.
+
+### 5.4 Flagging & Impounding Units (`/units/flagged`)
+1. Click **"Flag Unit"** on any vehicle row.
+2. Select Flag Reason: `Unsettled Boundary Arrears`, `Police Apprehension / Impound`, `Suspected Mechanical Hazard`, or `Missing / Lost Signal`.
+3. Enter detailed notes.
+4. Click **"Apply Flag"**. The unit status turns `Flagged` and is locked from dispatch.
+
+### 5.5 Printing Fleet Masterlist (`/units/print`)
+- Click **"Print Fleet Inventory"** to generate a clean, official PDF report of all vehicles, franchise expirations, and operational statuses.
 
 ---
 
-## 20. Mobile Driver Application Guide
+# 6. Boundary Collection & Financial Remittance Management (`/boundaries`)
 
-Designed for Android smartphones and tablets (Capacitor / Ionic PWA).
+### 6.1 Step-by-Step: Recording Daily Boundary Remittance
+1. Navigate to **Boundaries** (`/boundaries`).
+2. Click **"+ Record Collection"**.
+3. **Select Taxi Unit / Body Number:** The assigned driver's name auto-populates.
+4. **Select Date & Shift:** Choose `Day Shift (12h)`, `Night Shift (12h)`, or `24-Hour Shift`.
+5. **Expected Rate:** Automatically computed by active **Boundary Rules** (e.g., Standard ₱1,200, Coding Discount ₱800).
+6. **Enter Actual Amount Paid:**
+   - **Case A: Exact Remittance (Paid ₱1,200):** Status marks as `Settled`.
+   - **Case B: Shortage (Paid ₱1,000):** System records ₱1,000 collected and automatically writes a **₱200 Shortage Debt** to the driver's ledger.
+   - **Case C: Overpayment (Paid ₱1,500):** System credits ₱300 to amortize existing driver debts or records an advance credit balance.
+7. Click **"Save Collection & Issue Receipt"**.
+
+### 6.2 Managing Boundary Rules (`/boundary-rules`)
+1. Navigate to **Boundary Rules Settings**.
+2. Click **"+ New Rule"**.
+3. Configure parameters:
+   - **Rule Name:** (e.g., `Weekend Rain Discount`, `Holiday 24H Rate`).
+   - **Applicable Days:** Monday to Sunday.
+   - **Shift Type:** 12-Hour vs. 24-Hour.
+   - **Base Boundary Rate:** Currency amount.
+   - **Coding Day Discount Amount:** Deduction applied when vehicle is restricted by coding.
+4. Click **"Save Boundary Rule"**.
+
+---
+
+# 7. Driver Management, KYC Verification & Debt Ledger (`/driver-management`)
+
+### 7.1 Registering a New Driver
+1. Navigate to **Driver Management** (`/driver-management`) > Click **"+ Register Driver"**.
+2. **Personal Information:** First Name, Last Name, Middle Name, Nickname, Date of Birth, Civil Status, Mobile Phone, Residential Address, Emergency Contact Name & Number.
+3. **Professional Credentials:**
+   - Professional Driver's License Number.
+   - License Expiry Date.
+   - SSS / PhilHealth / Pag-IBIG Numbers.
+4. **Digital KYC Document Uploads:**
+   - Driver's License (Front & Back scanned image).
+   - NBI Clearance (Valid within 6 months).
+   - Police Clearance & Barangay Clearance.
+   - Medical Certificate & Drug Test Result.
+5. Click **"Save Driver Profile"**.
+
+### 7.2 Uploading Driver Terms & Contracts (`/driver-management/terms`)
+1. Navigate to **Terms & Conditions** tab.
+2. Click **"Upload Contract Document"** > Choose scanned agreement image or PDF.
+3. Click **"Upload Term"**. The document is instantly synced to the Driver Mobile App where drivers must review and digitally sign.
+
+### 7.3 Managing Driver Debts & Installment Deductions (`/driver-management/debts`)
+- **Viewing Debts:** The Debt Ledger tracks accumulated boundary shortages, vehicle repair damage charges, and cash advances.
+- **Recording Debt Repayment (`/driver-management/pay-debt`):**
+  1. Click **"Pay Debt"** on the driver's row.
+  2. Enter Payment Amount (e.g., ₱300).
+  3. Select Payment Source: `Cash Remittance`, `Salary Deduction`, or `Incentive Offset`.
+  4. Click **"Submit Payment"**. Debt balance updates immediately.
+
+### 7.4 Driver Suspension & Banning Protocols
+- **Temporary Suspension:** Select duration (1 to 30 days) and specify reason (e.g., *Customer Overcharging Complaint*). The driver app is temporarily locked.
+- **Permanent Ban (`/driver-management/{id}/suspend-or-ban`):** Used for gross misconduct, boundary absconding, or DUI accidents. Banned drivers cannot be assigned to any vehicle.
+- **Unbanning:** Super Admins and Managers can click **"Unban"** (`/driver-management/{id}/unban`) after formal clearance.
+
+---
+
+# 8. Vehicle Maintenance & Workshop Bay Management (`/maintenance`)
+
+### 8.1 Step-by-Step: Adding a New Maintenance Job Order
+1. Navigate to **Maintenance** (`/maintenance`).
+2. Click **"+ New Job Order"** (or **"+ Record Maintenance"**).
+3. **Select Vehicle Unit:** Choose Plate/Body Number (e.g., `TX-105 / ABC-5678`).
+   - *Safety Lock:* The system blocks maintenance creation if the vehicle is currently flagged as `Missing / Stolen`.
+4. **Select Driver:** (Optional) Assigned driver at the time of issue.
+5. **Select Maintenance Type:**
+   - `Preventive Maintenance Service (PMS)` (Oil change, tune-up, 5k/10k check).
+   - `Mechanical Repair` (Brakes, clutch, transmission, suspension).
+   - `Electrical Repair` (Alternator, battery, lights, wiring, GPS tracker).
+   - `Tire & Wheel` (Puncture, replacement, alignment).
+   - `Body & Paint / Accident Repair`.
+   - `Engine Overhaul / Major Repair`.
+6. **Odometer Reading:** Enter current physical speedometer mileage.
+7. **Date Started:** Select repair start timestamp.
+8. **Select Assigned Mechanic(s):** Multi-select accredited workshop staff.
+9. **Spare Parts Used:**
+   - Search spare part name from inventory.
+   - Enter quantity (e.g., *Engine Oil 10W-40 x 4L*, *Brake Pads x 1 Set*).
+   - The system automatically calculates parts cost and verifies warehouse stock.
+10. **Labor & Other Charges:** Enter labor cost and external machining fees.
+11. **Description & Dispatcher Notes:** Enter symptoms, driver complaint, and diagnosis notes.
+12. **Initial Status:** Set to `Pending` or `In Progress`.
+13. Click **"Save Maintenance Record"**.
+
+### 8.2 Moving to Repair Bay (`/maintenance/{id}/toggle-in-progress`)
+- Click **"Start Work / In Progress"**.
+- The job order status changes to `In Progress` and the vehicle status turns `In Maintenance` across all dispatch screens.
+
+### 8.3 Completing Job Orders & Resetting Vehicle Health (`/maintenance/{id}/toggle-complete`)
+1. Click **"Mark Completed"** on the job order.
+2. Enter **Date Completed** and final mechanic notes.
+3. Click **"Confirm Completion"**.
+4. **System Automated Actions:**
+   - Deducts all specified spare parts from the warehouse inventory.
+   - Adds total repair cost to the vehicle's financial expense ledger.
+   - Resets the vehicle's health score to 100% (PMS complete).
+   - Changes vehicle status back to `Active` (Roadworthy).
+
+---
+
+# 9. Inventory, Spare Parts & Supplier Management (`/inventory-management`)
+
+### 9.1 Adding a Spare Part to Catalog (`/spare-parts`)
+1. Go to **Inventory** (`/inventory-management`) > Click **"+ Add Spare Part"**.
+2. Input fields:
+   - **Part SKU / Item Code:** (e.g., `BP-TOY-01`).
+   - **Part Name:** (e.g., `Front Brake Pad Set - Vios 2023`).
+   - **Category:** `Engine`, `Braking`, `Suspension`, `Electrical`, `Lubricants`, `Tires`, `Body`.
+   - **Purchase Cost (₱):** Warehouse buying price per unit.
+   - **Charge Price (₱):** Standard price charged to job order or driver.
+   - **Initial Quantity on Hand:** Stock count.
+   - **Minimum Reorder Level:** Safety stock threshold (e.g., 5 units).
+3. Click **"Save Spare Part"**.
+
+### 9.2 Low Stock Warnings & Stock Adjustments
+- When stock drops to or below the minimum reorder level, the item is highlighted with an orange **Low Stock Alert**.
+- To restock, click **"Restock / Adjust Stock"**, enter quantity received and select supplier.
+
+### 9.3 Supplier Directory (`/suppliers`)
+- Add accredited automotive suppliers: Company Name, Contact Person, Phone, Email, Office Address, and Credit Terms.
+
+---
+
+# 10. Live GPS Fleet Telematics & Remote Engine Immobilizer (`/live-tracking`)
+
+### 10.1 Real-Time Fleet Map
+- Interactive map powered by OpenStreetMap/Leaflet showing real-time GPS locations for all active units.
+- **Marker Color Codes:**
+  - 🟢 **Green Pin:** In Motion (Speed > 0 km/h, Ignition ACC On).
+  - 🟡 **Yellow Pin:** Idling (Speed = 0 km/h, Ignition ACC On).
+  - 🔴 **Red Pin:** Parked (Ignition ACC Off).
+  - 🟣 **Pulsing Purple Pin:** Emergency SOS Triggered / Roadside Rescue Requested.
+
+### 10.2 Vehicle Telemetry Card
+- Click any taxi pin to inspect:
+  - Driver Name & Profile Photo
+  - Current Speed (km/h) & Heading Direction
+  - Engine ACC Status (On/Off)
+  - Daily Distance Travelled (km)
+  - GPS Timestamp & Cellular Signal Quality
+
+### 10.3 Remote Engine Immobilizer (Emergency Fuel Cut-Off) (`/live-tracking/engine-control`)
+1. Select target vehicle on the map.
+2. Click **"Engine Control"**.
+3. Select Action:
+   - **`Kill Engine (Cut Fuel Relay)`** — Sends an immediate digital command to cut the vehicle ignition circuit.
+   - **`Restore Engine (Enable Ignition)`** — Restores the fuel relay circuit.
+4. **Safety Confirmation:** Enter Admin authorization password and confirm action.
+   *CAUTION: Engine cut-off should only be executed during theft, carjacking, unauthorized boundary absconding, or severe emergency.*
+
+---
+
+# 11. Number Coding Management (UVVRP & Smart Rotation) (`/coding`)
+
+### 11.1 Metro Manila UVVRP Scheme Matrix
+ETMS automatically maps license plates to restriction days:
+- **Monday:** License plate ending in `1` and `2`
+- **Tuesday:** License plate ending in `3` and `4`
+- **Wednesday:** License plate ending in `5` and `6`
+- **Thursday:** License plate ending in `7` and `8`
+- **Friday:** License plate ending in `9` and `0`
+
+### 11.2 Daily Coding Automation
+- **05:00 AM Cron Job:** Automatically flags all restricted vehicles as `Coding Today`.
+- **SMS & Push Alerts:** Automated notifications sent to drivers assigned to coding vehicles.
+- **Smart Rotation Suggestions (`/coding/suggestions`):** Recommends available standby/reserve vehicles to reassign to affected drivers so operations continue without revenue loss.
+
+### 11.3 Coding Violations & Fine Tracking
+- Log MMDA/LTO traffic citations: Apprehending Agency, Officer Name, Ticket Number, Violation Date, Fine Amount (₱), and Driver Liability.
+
+---
+
+# 12. Driver Behavior, Incident Lifecycle & Accident SOS (`/driver-behavior`)
+
+### 12.1 Logging an Incident (`/driver-behavior/incidents`)
+1. Navigate to **Driver Behavior** > Click **"+ Log Incident"**.
+2. Select **Driver** and **Vehicle Unit**.
+3. Select **Classification:** `Minor Customer Complaint`, `Reckless Driving`, `Route Violation`, `Boundary Evasion`, `Physical Damage`, `Major Collision`.
+4. Enter **Incident Date & Time**, **Location**, and **Full Narrative**.
+5. Upload **Evidence Files:** Scene Photos, Dashcam Footage, Police Blotter Report, Third-Party Statements.
+6. Click **"Save Incident"**.
+
+### 12.2 Handling Emergency SOS & Accident Alerts (`/driver-behavior/accidents`)
+```
+ ┌────────────────────────────────────────────────────────────────────────┐
+ │                      🚨 EMERGENCY SOS DISPATCH ALERT                    │
+ ├────────────────────────────────────────────────────────────────────────┤
+ │ Taxi Unit: TX-104 (ABC-1234)        Driver: Juan Dela Cruz             │
+ │ GPS Coordinates: 14.5995° N, 120.9842° E (EDSA corner Shaw Blvd)       │
+ │ Trigger Time: 10:42:15 AM           Status: UNRESOLVED / ACTIVE        │
+ ├────────────────────────────────────────────────────────────────────────┤
+ │ [ 🔊 CHIME BROADCASTING ]   [ ACKNOWLEDGE ALERT ]   [ DISPATCH RESCUE ]│
+ └────────────────────────────────────────────────────────────────────────┘
+```
+1. **Real-time Audio Chime:** Plays an urgent alert tone on all dispatcher screens.
+2. **Acknowledge (`/accident-alerts/{id}/acknowledge`):** Dispatcher clicks acknowledge to log receipt.
+3. **Dispatch Rescue:** Dispatches nearest mechanic or towing service.
+4. **Accident Damage Estimation:** Enter repair estimate, affected body panels, and insurance claims.
+
+### 12.3 Driver Incentive Program (`/driver-behavior/incentives`)
+- Tracks driver **Safe Driving Points (0-100)**.
+- **Release Monthly Incentive (`/driver-behavior/release-incentive`):** Grants bonus cash payouts to drivers with zero complaints and clean records.
+
+---
+
+# 13. Unit Profitability & AI Decision Support System (AI-DSS) (`/unit-profitability`)
+
+### 13.1 Profitability Ledger & Calculation
+$$\text{Net Yield} = \text{Total Boundary Remitted} - (\text{Maintenance Cost} + \text{Spare Parts} + \text{Franchise Fees} + \text{Operational Expenses})$$
+
+- View real-time table of all fleet vehicles sorted by Net Yield, ROI %, and Cost per Kilometer.
+- **CSV Export:** Download full financial data for accounting audits.
+
+### 13.2 AI Decision Support System (AI-DSS) (`/unit-profitability/ai-dss`)
+Powered by Google Gemini AI, the AI-DSS analyzes 90-day operational telemetry to generate executive intelligence:
+- **Underperforming / "Lemon" Units:** Flags vehicles where recurring repairs exceed boundary collections.
+- **Replacement Recommendations:** Recommends optimal retirement or resale timing before vehicle value depreciates past economic viability.
+- **Preventive Maintenance Optimization:** Identifies driving pattern stresses and suggests component replacements before roadside breakdowns occur.
+
+---
+
+# 14. Office Expenses & Financial Approval Pipeline (`/office-expenses`)
+
+### 14.1 Recording an Expense
+1. Go to **Office Expenses** (`/office-expenses`) > Click **"+ Record Expense"**.
+2. Complete fields:
+   - **Category:** `Office Rent`, `Electricity / Water`, `Internet & Software`, `Fuel & Tolls`, `Permits & Taxes`, `Legal & Accounting`, `Marketing`, `Office Supplies`.
+   - **Expense Title & Description:** Detailed justification.
+   - **Amount (₱):** Numeric value.
+   - **Payment Method:** `Cash`, `Bank Transfer`, `GCash`, `Check`.
+   - **Official Receipt (OR) Attachment:** Upload clear receipt photo or invoice PDF.
+3. Click **"Submit Expense"**.
+
+### 14.2 Multi-Tier Approval Workflow
+- Newly submitted expenses enter `Pending Approval` status.
+- Authorized Managers or Owners review the receipt attachment and click:
+  - ✅ **"Approve"** (`/office-expenses/approve/{id}`) — Deducts from office cash balance and credits to financial statements.
+  - ❌ **"Reject"** (`/office-expenses/reject/{id}`) — Rejects with required rejection reason notes.
+
+---
+
+# 15. Staff Records & Payroll / Salary Management (`/salary` & `/staff`)
+
+### 15.1 Managing Office Staff (`/staff`)
+- Maintain profiles for Dispatchers, Cashiers, Mechanics, Admin Officers, and Drivers.
+- Store base monthly salary rates, daily rates, SSS/PhilHealth/Pag-IBIG details.
+
+### 15.2 Payroll Computation & Payslip Generation (`/salary`)
+1. Navigate to **Salary Management** > Click **"+ Compute Salary"**.
+2. Select Staff Member and Pay Period (e.g., *1st Cut-off: 1st to 15th of the Month*).
+3. System automatically calculates:
+   - **Gross Earnings:** Base Pay + Overtime Hours + Performance Incentives.
+   - **Deductions:** SSS + PhilHealth + Pag-IBIG + Cash Advance (Vale) Repayment + Late Penalties.
+   - **Net Take-Home Pay.**
+4. Click **"Save & Generate Payslip"** (`/salary/report`). Print or export PDF payslips with one click.
+
+---
+
+# 16. Franchise Case & LTFRB Compliance Management (`/franchise`)
+
+- Track LTFRB Certificates of Public Convenience (CPC), franchise validity dates, and plate pairings.
+- **Automated Expiry Alerts:** Displays color-coded warnings:
+  - 🟡 **Yellow Alert:** 60 Days before expiration.
+  - 🟠 **Orange Alert:** 30 Days before expiration.
+  - 🔴 **Red Alert:** 7 Days before expiration (Urgent renewal required).
+- Maintain case hearing dates, extension petitions, and inspection certificates.
+
+---
+
+# 17. Support Center, Internal Staff Chat & Announcements (`/support-center`, `/chat`, `/announcements`)
+
+### 17.1 Support Center Helpdesk (`/support-center`)
+- Centralized ticket inbox for driver inquiries, meter discrepancies, and roadside assistance requests.
+- Dispatchers can reply in real time, view uploaded driver photos, and click **"Resolve Ticket"**.
+
+### 17.2 Internal Staff Messaging (`/chat`)
+- Secure 1-on-1 and department group messaging for office personnel.
+- Real-time typing indicators, emoji reactions, photo attachments, and unread notification badges.
+
+### 17.3 Company Announcements & Broadcasts (`/announcements`)
+1. Click **"+ New Announcement"**.
+2. Enter **Title**, **Body Text**, and **Target Audience** (`All Staff`, `Drivers Only`, `Office Only`).
+3. **Pin to Top (`/announcements/{id}/toggle-pin`):** Keeps critical notices (e.g., *Holiday Boundary Advisory*) pinned at the top of the mobile feed.
+4. Click **"Publish Announcement"**. Automatically pushes notification to all driver devices.
+
+---
+
+# 18. Super Admin Control Center & Enterprise Security (`/super-admin`)
+
+*Strictly restricted to System Owners and Super Administrators.*
+
+### 18.1 User Account Approvals & Account Control
+- **Approve / Reject Queue:** Review self-registered accounts. Click **"Approve"** to grant system entry.
+- **Instant Disable Switch (`/super-admin/toggle-disable/{id}`):** One-click toggle to immediately terminate active sessions and block login access for resigned or suspended staff.
+
+### 18.2 Granular Page-Access Permission Matrix (`/super-admin/page-access/{id}`)
+Super Admins configure checkbox matrices granting access to specific screens per user:
+- `Dashboard`, `Units`, `Boundaries`, `Maintenance`, `Driver Management`, `Live Tracking`, `Coding`, `Driver Behavior`, `Office Expenses`, `Salary`, `Profitability`, `Spare Parts Inventory`, `Archive`.
+
+### 18.3 Custom Role & Permission Manager (`/super-admin/roles`)
+- Create new organizational roles (e.g., *Junior Cashier*, *Night Dispatcher*).
+- Define read, write, update, and delete privileges per role.
+
+### 18.4 Audit Trail & Login History (`/super-admin/login-history`)
+- Immutable log recording: Timestamp, User ID, Full Name, Action (Create, Update, Delete, Export, Login, Logout), IP Address, Browser User-Agent, and Changed Data Payload.
+
+### 18.5 Archive Security Password Setup (`/super-admin/security/update-archive-password`)
+- Set the Master Archive Security Password required to permanently purge any record from the system.
+
+---
+
+# 19. Archive Vault & Disaster Recovery Management (`/archive`)
+
+### 19.1 Soft-Delete Architecture
+- To prevent accidental catastrophic data loss, deleting any Unit, Driver, Maintenance Record, Expense, Spare Part, or Staff moves the item to the **Archive Vault** instead of permanently deleting it from the database.
+
+### 19.2 Restoring Records (`/archive/restore/{type}/{id}`)
+1. Navigate to **Archive Vault** (`/archive`).
+2. Filter by Category: `Units`, `Drivers`, `Maintenance`, `Expenses`, `Spare Parts`, `Users`.
+3. Locate record > Click **"Restore"**.
+4. The item is instantly restored to its active operational table with all relationships intact.
+
+### 19.3 Permanent Purge (`/archive/force-delete/{type}/{id}`)
+1. In the Archive Vault, click **"Permanent Delete"**.
+2. System displays a high-risk confirmation modal.
+3. Enter the **Master Archive Password**.
+4. Click **"Confirm Permanent Purge"**. The record is permanently removed from the database.
+
+---
+
+# 20. Mobile Driver Application: Step-by-Step Operator Guide
+
+The Driver App runs on Android smartphones, tablets, or mobile web browsers.
 
 ```
  ┌──────────────────────────────────────────────┐
  │             EURO TAXI DRIVER APP             │
  ├──────────────────────────────────────────────┤
- │  [ 🟢 ON DUTY ]        Taxi Unit: TX-1024    │
+ │  🟢 [ ON DUTY ]         Taxi Body: TX-108    │
  │                                              │
- │  💰 Today's Boundary:   ₱1,200 / ₱1,200      │
- │  ⚠️ Total Debt/Arrears: ₱0.00                │
- │  ⭐ Driver Rating:      4.9 / 5.0 (Clean)    │
+ │  💰 Today's Boundary:    ₱1,200 / ₱1,200     │
+ │  ⚠️ Accumulated Debt:    ₱0.00               │
+ │  ⭐ Clean Driving Score: 98 / 100            │
  ├──────────────────────────────────────────────┤
  │  [ 🚨 EMERGENCY SOS ]    [ 🔧 REQUEST RESCUE] │
  ├──────────────────────────────────────────────┤
- │  • View Shift Ledger & Receipts              │
- │  • Submit Accident Incident Report           │
- │  • View Company Rules & Contract Terms       │
- │  • 24/7 Operations Support Ticket Chat       │
+ │  📋 View Shift Ledger & Payment Receipts     │
+ │  📸 Submit Accident Incident Report          │
+ │  📜 Company Terms & Signed Agreements        │
+ │  💬 Live Support Desk Chat                   │
  └──────────────────────────────────────────────┘
 ```
 
-### Driver Mobile Workflows:
-1. **Starting a Shift:** Log in > Verify vehicle body number > Perform pre-trip vehicle checklist > Set status to `On Duty`.
-2. **Checking Balance & Boundary:** View live shift remittance status, historical receipts, and remaining installment balances.
-3. **Triggering SOS:** Tap and hold the **"EMERGENCY SOS"** button for 3 seconds. Instantly transmits GPS location, activates device microphone/camera, and sounds high-priority alarms at the dispatch console.
-4. **Requesting Roadside Rescue:** Tap **"Request Rescue"** > Select issue (Flat Tire, Overheat, Mechanical, Out of Fuel) > Transmit precise GPS coordinates.
+### Driver Workflows:
+1. **Starting a Shift:**
+   - Log into the app using Driver credentials.
+   - Enter Vehicle Body Number > Complete pre-trip inspection checklist > Tap **"Go On Duty"**.
+2. **Checking Daily Boundary & Balances:**
+   - View current shift boundary due, partial payments credited by cashiers, and remaining debt balance.
+3. **Triggering Emergency SOS (Panic Alarm):**
+   - In case of robbery, medical emergency, or life-threatening situation:
+   - **Press and hold the red "EMERGENCY SOS" button for 3 seconds.**
+   - The app immediately transmits real-time GPS coordinates to the dispatch console and sounds loud emergency alarms in the office.
+4. **Requesting Roadside Breakdown Rescue:**
+   - Tap **"Request Rescue"** > Select issue: `Flat Tire`, `Engine Overheat`, `Mechanical Breakdown`, `Battery Dead`, `Out of Fuel`.
+   - Transmit live location. Dispatcher immediately assigns a roving mechanic.
+5. **Submitting an Accident Report:**
+   - Tap **"Report Accident"**.
+   - Capture scene photos using the camera (Vehicle damage, third-party plate, location).
+   - Enter brief description > Tap **"Submit Accident Report"**.
 
 ---
 
-## 21. Standard Operating Procedures (SOP) & Troubleshooting
+# 21. Server Optimization, CDN Settings & Troubleshooting FAQ
 
-### Daily Operational Checklist:
-- **05:00 AM (Morning Dispatch):** Review Coding Day vehicle roster. Ensure all coding units are parked or reassigned.
-- **12:00 PM (Midday Check):** Monitor Live GPS map for off-route or stationary idling units.
-- **06:00 PM - 09:00 PM (Shift Handover & Remittance):** Cashiers process daily boundary remittances, log shortages into debt ledgers, and issue digital receipts.
-- **10:00 PM (Workshop Handover):** Mechanics inspect units flagged for PMS or repairs and log used spare parts.
+### 21.1 Hostinger CDN & Image Optimization Settings
+To ensure high-speed loading across mobile networks:
+1. **WebP Image Compression:** **Keep ON** — Converts all uploaded receipts and vehicle photos to WebP format, reducing data usage by ~35%.
+2. **Smart Image Optimisation:** **Keep ON** — Resizes camera uploads automatically (Desktop: 1600px, Mobile: 800px).
+3. **Development Mode:** **Keep OFF during normal operations** — Turn ON only when uploading and testing new code files to bypass cache.
 
-### Frequently Asked Questions (FAQ) & Troubleshooting:
-- **Q: A driver cannot log into the mobile app.**  
-  *A:* Check if the driver account is approved in `/super-admin`. Ensure the driver is not currently `Suspended` or `Banned` in `/driver-management`.
-- **Q: Live GPS map is not updating vehicle position.**  
-  *A:* Verify that the GPS Tracker device IMEI is correctly entered in `/units`. Ensure the physical tracker on the vehicle has cellular data and active ignition power.
-- **Q: Web push notifications or audio chime is not sounding.**  
-  *A:* Ensure browser notification permissions are set to **"Allow"** at `eurotaxisystem.site`. Check that the device volume is unmuted.
+### 21.2 Database Synchronization Route (`/force-sync-db-2026`)
+- In the event of schema updates or server cache staleness, authorized Super Admins can visit `https://eurotaxisystem.site/force-sync-db-2026` to run automated migrations, flush route/view cache, and re-index database tables.
+
+### 21.3 Frequently Asked Questions & Operational Troubleshooting
+
+| Issue / Symptom | Root Cause | Resolution Step |
+| :--- | :--- | :--- |
+| **Driver cannot log in; message says "Account Pending Approval".** | Account is newly registered. | Super Admin must navigate to `/super-admin` and click **"Approve"** on the driver's profile. |
+| **Driver cannot log in; message says "Account Suspended".** | Driver was placed on temporary suspension. | Check `/driver-management`. Review suspension remarks or click **"Unban"** if cleared. |
+| **Vehicle shows "Missing / Stolen" error when recording maintenance.** | Security lockdown flag is active. | Verify vehicle recovery in `/units` before recording maintenance job orders. |
+| **Live GPS Map shows vehicle stationary or offline.** | Tracker power disconnected or SIM offline. | Check vehicle physical OBD/GPS device. Ensure tracker IMEI is correctly mapped in `/units`. |
+| **Emergency SOS audio chime is not sounding on computer.** | Browser autoplay sound permissions blocked. | Click browser lock icon beside URL > Allow **Sound** and **Notifications** for `eurotaxisystem.site`. |
+| **Spare part cannot be added to job order.** | Part is out of stock in warehouse. | Restock inventory at `/spare-parts` or adjust stock count. |
 
 ---
-*End of User Manual. Euro Taxi Management System © 2026. All Rights Reserved.*
+*End of Complete User Manual. Euro Taxi Management System (ETMS) © 2026. All Rights Reserved.*
