@@ -69,82 +69,90 @@
         {{-- High Level Pulse Cards --}}
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" data-salubong-group="true" style="transform-style: preserve-3d;">
             {{-- Fleet Health --}}
-            <div class="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm hover:shadow-xl hover:border-indigo-200 hover:-translate-y-1 transition-all duration-300 group">
-                <div class="flex items-start justify-between mb-4">
-                    <div class="p-3 bg-indigo-50 rounded-2xl text-indigo-600 group-hover:scale-110 group-hover:shadow-md transition-all duration-300">
-                        <i data-lucide="car" class="w-6 h-6"></i>
+            <div class="relative overflow-hidden rounded-3xl border border-indigo-200 bg-gradient-to-br from-indigo-50 to-blue-50/70 p-6 shadow-sm flex flex-col justify-between">
+                <div class="flex items-start justify-between mb-3 relative z-10">
+                    <div>
+                        <h3 class="text-[11px] font-black text-indigo-500 uppercase tracking-widest mb-1">Fleet Utilization</h3>
+                        <div class="flex items-end gap-2 cursor-pointer group/modal" onclick="document.getElementById('utilizationModal').classList.remove('hidden')">
+                            @php $total_fleet = array_sum($fleet_pulse); @endphp
+                            <span class="text-3xl font-black text-slate-800 leading-none animate-number" data-value="{{ $fleet_pulse['active_units'] ?? 0 }}" data-is-int="true">0</span>
+                            <span class="text-xl font-bold text-slate-400 leading-none pb-0.5">/ <span class="animate-number" data-value="{{ $total_fleet }}" data-is-int="true">0</span></span>
+                            <span class="text-[10px] font-bold text-indigo-600 pb-0.5 ml-1 bg-indigo-100/80 px-2 rounded-md transition-colors flex items-center gap-1" title="Click to view percentage breakdown"><i data-lucide="info" class="w-3 h-3"></i> Details</span>
+                        </div>
                     </div>
-                    <span class="text-[10px] font-black text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-full uppercase tracking-widest">Real-time</span>
+                    <span class="text-[10px] font-black text-indigo-600 bg-indigo-100/80 px-2.5 py-1 rounded-full uppercase tracking-widest flex-shrink-0">Real-time</span>
                 </div>
-                <h3 class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-1">Fleet Utilization</h3>
-                <div class="flex items-end gap-2 mb-2 cursor-pointer group/modal" onclick="document.getElementById('utilizationModal').classList.remove('hidden')">
-                    @php $total_fleet = array_sum($fleet_pulse); @endphp
-                    <span class="text-3xl font-black text-slate-800 leading-none animate-number" data-value="{{ $fleet_pulse['active_units'] ?? 0 }}" data-is-int="true">0</span>
-                    <span class="text-xl font-bold text-slate-400 leading-none pb-0.5">/ <span class="animate-number" data-value="{{ $total_fleet }}" data-is-int="true">0</span></span>
-                    <span class="text-[10px] font-bold text-indigo-500 pb-0.5 ml-1 bg-indigo-50 px-2 rounded-md group-hover/modal:bg-indigo-100 transition-colors flex items-center gap-1" title="Click to view percentage breakdown"><i data-lucide="info" class="w-3 h-3"></i> Details</span>
+                <div class="relative z-10">
+                    <div class="h-2 bg-white/80 rounded-full overflow-hidden p-0.5 border border-indigo-100 mb-2">
+                        <div class="animate-width h-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-full transition-all duration-[1500ms] ease-out shadow-[0_0_8px_rgba(99,102,241,0.5)]" data-width="{{ $fleet_utilization }}%" style="width: 0%"></div>
+                    </div>
+                    <p class="text-[10px] text-slate-500 leading-relaxed">
+                        Percentage of units currently generating revenue versus idle or in maintenance.
+                    </p>
                 </div>
-                <div class="h-2 bg-slate-100 rounded-full overflow-hidden p-0.5 border border-slate-200/30">
-                    <div class="animate-width h-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-full transition-all duration-[1500ms] ease-out shadow-[0_0_8px_rgba(99,102,241,0.5)]" data-width="{{ $fleet_utilization }}%" style="width: 0%"></div>
-                </div>
-                <p class="text-[10px] text-slate-500 mt-3 leading-relaxed">
-                    Percentage of units currently generating revenue versus idle or in maintenance.
-                </p>
+                <img src="{{ asset('image/kpi/taxi_3d.svg') }}" alt="Fleet 3D" class="absolute -right-3 -bottom-3 w-24 h-24 object-contain pointer-events-none opacity-40">
             </div>
 
             {{-- Financial Pulse --}}
-            <div class="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm hover:shadow-xl hover:border-emerald-200 hover:-translate-y-1 transition-all duration-300 group">
-                <div class="flex items-start justify-between mb-4">
-                    <div class="p-3 bg-emerald-50 rounded-2xl text-emerald-600 group-hover:scale-110 group-hover:shadow-md transition-all duration-300">
-                        <i data-lucide="wallet" class="w-6 h-6"></i>
+            <div class="relative overflow-hidden rounded-3xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-teal-50/70 p-6 shadow-sm flex flex-col justify-between">
+                <div class="flex items-start justify-between mb-3 relative z-10">
+                    <div>
+                        <h3 class="text-[11px] font-black text-emerald-600 uppercase tracking-widest mb-1">Net Margin</h3>
+                        <div class="flex items-end gap-2 cursor-pointer group/modal" onclick="document.getElementById('netMarginModal').classList.remove('hidden')">
+                            <span class="text-3xl font-black text-slate-800 leading-none animate-number" data-value="{{ $net_income }}" data-is-currency="true">₱0.00</span>
+                            <span class="text-[10px] font-bold text-emerald-600 pb-0.5 ml-1 bg-emerald-100/80 px-2 rounded-md transition-colors flex items-center gap-1" title="Click to view breakdown"><i data-lucide="info" class="w-3 h-3"></i> Details</span>
+                        </div>
                     </div>
-                    <span class="text-[10px] font-black text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full uppercase tracking-widest">Net Pulse</span>
+                    <span class="text-[10px] font-black text-emerald-600 bg-emerald-100/80 px-2.5 py-1 rounded-full uppercase tracking-widest flex-shrink-0">Net Pulse</span>
                 </div>
-                <h3 class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-1">Net Margin</h3>
-                <div class="flex items-end gap-2 mb-2 cursor-pointer group/modal" onclick="document.getElementById('netMarginModal').classList.remove('hidden')">
-                    <span class="text-3xl font-black text-slate-800 leading-none animate-number" data-value="{{ $net_income }}" data-is-currency="true">₱0.00</span>
-                    <span class="text-[10px] font-bold text-emerald-500 pb-0.5 ml-1 bg-emerald-50 px-2 rounded-md group-hover/modal:bg-emerald-100 transition-colors flex items-center gap-1" title="Click to view breakdown"><i data-lucide="info" class="w-3 h-3"></i> Details</span>
+                <div class="relative z-10">
+                    <p class="text-[10px] text-slate-500 leading-relaxed">
+                        Total boundary collections minus all operating expenses for the selected period.
+                    </p>
                 </div>
-                <p class="text-[10px] text-slate-500 mt-3 leading-relaxed">
-                    Total boundary collections minus all operating expenses for the selected period.
-                </p>
+                <img src="{{ asset('image/kpi/profit_3d.svg') }}" alt="Net Margin 3D" class="absolute -right-3 -bottom-3 w-24 h-24 object-contain pointer-events-none opacity-40">
             </div>
 
             {{-- Revenue Leakage --}}
-            <div class="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm hover:shadow-xl hover:border-rose-200 hover:-translate-y-1 transition-all duration-300 group">
-                <div class="flex items-start justify-between mb-4">
-                    <div class="p-3 bg-rose-50 rounded-2xl text-rose-600 group-hover:scale-110 group-hover:shadow-md transition-all duration-300">
-                        <i data-lucide="trending-down" class="w-6 h-6"></i>
+            <div class="relative overflow-hidden rounded-3xl border border-rose-200 bg-gradient-to-br from-rose-50 to-red-50/70 p-6 shadow-sm flex flex-col justify-between">
+                <div class="flex items-start justify-between mb-3 relative z-10">
+                    <div>
+                        <h3 class="text-[11px] font-black text-rose-500 uppercase tracking-widest mb-1">Revenue Leakage</h3>
+                        <div class="flex items-end gap-2 cursor-pointer group/modal" onclick="document.getElementById('leakageModal').classList.remove('hidden')">
+                            <span class="text-3xl font-black text-slate-800 leading-none animate-number" data-value="{{ $total_shortage }}" data-is-currency="true">₱0.00</span>
+                            <span class="text-xs font-bold text-slate-500 pb-0.5">Shortage</span>
+                            <span class="text-[10px] font-bold text-rose-600 pb-0.5 ml-1 bg-rose-100/80 px-2 rounded-md transition-colors flex items-center gap-1" title="Click to view percentage breakdown"><i data-lucide="info" class="w-3 h-3"></i> Details</span>
+                        </div>
                     </div>
-                    <span class="text-[10px] font-black text-rose-600 bg-rose-50 px-2.5 py-1 rounded-full uppercase tracking-widest">Risk Factor</span>
+                    <span class="text-[10px] font-black text-rose-600 bg-rose-100/80 px-2.5 py-1 rounded-full uppercase tracking-widest flex-shrink-0">Risk Factor</span>
                 </div>
-                <h3 class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-1">Revenue Leakage</h3>
-                <div class="flex items-end gap-2 mb-2 cursor-pointer group/modal" onclick="document.getElementById('leakageModal').classList.remove('hidden')">
-                    <span class="text-3xl font-black text-slate-800 leading-none animate-number" data-value="{{ $total_shortage }}" data-is-currency="true">₱0.00</span>
-                    <span class="text-xs font-bold text-slate-500 pb-0.5">Shortage</span>
-                    <span class="text-[10px] font-bold text-rose-500 pb-0.5 ml-1 bg-rose-50 px-2 rounded-md group-hover/modal:bg-rose-100 transition-colors flex items-center gap-1" title="Click to view percentage breakdown"><i data-lucide="info" class="w-3 h-3"></i> Details</span>
+                <div class="relative z-10">
+                    <p class="text-[10px] text-slate-500 leading-relaxed">
+                        Uncollected boundary revenue (shortages) relative to total expected revenue.
+                    </p>
                 </div>
-                <p class="text-[10px] text-slate-500 mt-3 leading-relaxed">
-                    Uncollected boundary revenue (shortages) relative to total expected revenue.
-                </p>
+                <img src="{{ asset('image/kpi/leakage_3d.svg') }}" alt="Leakage 3D" class="absolute -right-3 -bottom-3 w-24 h-24 object-contain pointer-events-none opacity-40">
             </div>
 
             {{-- Break-even Analysis --}}
-            <div class="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm hover:shadow-xl hover:border-amber-200 hover:-translate-y-1 transition-all duration-300 group">
-                <div class="flex items-start justify-between mb-4">
-                    <div class="p-3 bg-amber-50 rounded-2xl text-amber-600 group-hover:scale-110 group-hover:shadow-md transition-all duration-300">
-                        <i data-lucide="target" class="w-6 h-6"></i>
+            <div class="relative overflow-hidden rounded-3xl border border-amber-200 bg-gradient-to-br from-amber-50 to-yellow-50/70 p-6 shadow-sm flex flex-col justify-between">
+                <div class="flex items-start justify-between mb-3 relative z-10">
+                    <div>
+                        <h3 class="text-[11px] font-black text-amber-600 uppercase tracking-widest mb-1">Break-even Cycle</h3>
+                        <div class="flex items-end gap-2 cursor-pointer group/modal" onclick="document.getElementById('breakEvenModal').classList.remove('hidden')">
+                            <span class="text-3xl font-black text-slate-800 leading-none animate-number" data-value="{{ $break_even_days }}" data-is-int="true">0</span>
+                            <span class="text-xs font-bold text-slate-500 pb-0.5">Oper. Days</span>
+                            <span class="text-[10px] font-bold text-amber-600 pb-0.5 ml-1 bg-amber-100/80 px-2 rounded-md transition-colors flex items-center gap-1" title="Click to view breakdown"><i data-lucide="info" class="w-3 h-3"></i> Details</span>
+                        </div>
                     </div>
-                    <span class="text-[10px] font-black text-amber-600 bg-amber-50 px-2.5 py-1 rounded-full uppercase tracking-widest">KPI Target</span>
+                    <span class="text-[10px] font-black text-amber-600 bg-amber-100/80 px-2.5 py-1 rounded-full uppercase tracking-widest flex-shrink-0">KPI Target</span>
                 </div>
-                <h3 class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-1">Break-even Cycle</h3>
-                <div class="flex items-end gap-2 mb-2 cursor-pointer group/modal" onclick="document.getElementById('breakEvenModal').classList.remove('hidden')">
-                    <span class="text-3xl font-black text-slate-800 leading-none animate-number" data-value="{{ $break_even_days }}" data-is-int="true">0</span>
-                    <span class="text-xs font-bold text-slate-500 pb-0.5">Oper. Days</span>
-                    <span class="text-[10px] font-bold text-amber-500 pb-0.5 ml-1 bg-amber-50 px-2 rounded-md group-hover/modal:bg-amber-100 transition-colors flex items-center gap-1" title="Click to view breakdown"><i data-lucide="info" class="w-3 h-3"></i> Details</span>
+                <div class="relative z-10">
+                    <p class="text-[10px] text-slate-500 leading-relaxed">
+                        Estimated number of full-revenue days needed each month to cover all fixed expenses.
+                    </p>
                 </div>
-                <p class="text-[10px] text-slate-500 mt-3 leading-relaxed">
-                    Estimated number of full-revenue days needed each month to cover all fixed expenses.
-                </p>
+                <img src="{{ asset('image/kpi/target_3d.svg') }}" alt="Target 3D" class="absolute -right-3 -bottom-3 w-24 h-24 object-contain pointer-events-none opacity-40">
             </div>
         </div>
 
