@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <defs>
+    <radialGradient id="chgGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#a855f7" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#6b21a8" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="billPurple" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#d8b4fe"/>
+      <stop offset="50%" stop-color="#a855f7"/>
+      <stop offset="100%" stop-color="#7e22ce"/>
+    </linearGradient>
+    <linearGradient id="billPurple2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f3e8ff"/>
+      <stop offset="50%" stop-color="#c084fc"/>
+      <stop offset="100%" stop-color="#9333ea"/>
+    </linearGradient>
+    <filter id="chgShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="12" stdDeviation="10" flood-color="#581c87" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+  <circle cx="100" cy="110" r="85" fill="url(#chgGlow)"/>
+  <g filter="url(#chgShadow)">
+    <!-- Back Bill -->
+    <g transform="rotate(-12 90 115)">
+      <rect x="42" y="75" width="115" height="68" rx="12" fill="url(#billPurple)"/>
+      <rect x="50" y="83" width="99" height="52" rx="8" fill="none" stroke="#e9d5ff" stroke-width="2" opacity="0.5"/>
+    </g>
+    <!-- Front Bill -->
+    <g transform="rotate(6 105 110)">
+      <rect x="48" y="70" width="120" height="72" rx="14" fill="url(#billPurple2)"/>
+      <rect x="56" y="78" width="104" height="56" rx="10" fill="none" stroke="#ffffff" stroke-width="2.5" opacity="0.8"/>
+      <circle cx="108" cy="106" r="18" fill="#581c87" opacity="0.3"/>
+      <text x="108" y="114" font-size="22" font-weight="900" fill="#ffffff" text-anchor="middle" font-family="sans-serif">₱</text>
+    </g>
+  </g>
+</svg>

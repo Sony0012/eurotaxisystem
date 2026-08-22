@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <defs>
+    <radialGradient id="incGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#eab308" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#854d0e" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="goldCup" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fef08a"/>
+      <stop offset="40%" stop-color="#eab308"/>
+      <stop offset="100%" stop-color="#a16207"/>
+    </linearGradient>
+    <linearGradient id="cupBase" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ca8a04"/>
+      <stop offset="100%" stop-color="#713f12"/>
+    </linearGradient>
+    <filter id="incShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="12" stdDeviation="10" flood-color="#713f12" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+  <circle cx="100" cy="110" r="85" fill="url(#incGlow)"/>
+  <g filter="url(#incShadow)">
+    <!-- Trophy Handles -->
+    <path d="M62 68 C45 68 45 98 68 100" stroke="url(#goldCup)" stroke-width="7" stroke-linecap="round" fill="none"/>
+    <path d="M138 68 C155 68 155 98 132 100" stroke="url(#goldCup)" stroke-width="7" stroke-linecap="round" fill="none"/>
+    <!-- Trophy Cup Main Body -->
+    <path d="M65 55 L135 55 C135 95 118 115 100 118 C82 115 65 95 65 55 Z" fill="url(#goldCup)"/>
+    <path d="M68 58 L132 58 C132 92 116 112 100 115 C84 112 68 92 68 58 Z" fill="#ffffff" opacity="0.2"/>
+    <!-- Cup Stem & Base -->
+    <rect x="94" y="118" width="12" height="16" fill="url(#goldCup)"/>
+    <path d="M72 134 L128 134 L134 148 L66 148 Z" fill="url(#cupBase)"/>
+    <rect x="62" y="148" width="76" height="8" rx="3" fill="url(#goldCup)"/>
+    <!-- 3D Star on Cup -->
+    <polygon points="100,72 103,80 111,80 105,85 107,93 100,88 93,93 95,85 89,80 97,80" fill="#ffffff"/>
+  </g>
+</svg>

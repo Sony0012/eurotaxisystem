@@ -115,76 +115,106 @@
     }
     .sa-input:focus { border-color: #eab308; }
 
-    /* Dashboard Wave CSS */
-    @keyframes drawChart { 0% { clip-path: inset(0 100% 0 0); opacity: 0; } 100% { clip-path: inset(0 0 0 0); opacity: 1; } }
-    .card-hover::after {
-        content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 75px; background-size: 100% 100%; background-repeat: no-repeat; opacity: 0; transition: none !important; z-index: 0;
+    @keyframes blob {
+        0% { transform: translate(-100%, -100%); }
+        25% { transform: translate(20%, -100%); }
+        50% { transform: translate(20%, 20%); }
+        75% { transform: translate(-100%, 20%); }
+        100% { transform: translate(-100%, -100%); }
     }
-    .wave-red::after { background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 100 50" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><polygon fill="rgba(239,68,68,0.15)" stroke="rgba(239,68,68,0.4)" stroke-width="1.5" vector-effect="non-scaling-stroke" stroke-linejoin="miter" points="0,50 0,35 15,20 30,30 45,10 60,25 75,5 90,15 100,0 100,50" /></svg>'); }
-    .wave-teal::after { background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 100 50" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><polygon fill="rgba(20,184,166,0.15)" stroke="rgba(20,184,166,0.4)" stroke-width="1.5" vector-effect="non-scaling-stroke" stroke-linejoin="miter" points="0,50 0,35 15,20 30,30 45,10 60,25 75,5 90,15 100,0 100,50" /></svg>'); }
-    .wave-purple::after { background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 100 50" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><polygon fill="rgba(168,85,247,0.15)" stroke="rgba(168,85,247,0.4)" stroke-width="1.5" vector-effect="non-scaling-stroke" stroke-linejoin="miter" points="0,50 0,35 15,20 30,30 45,10 60,25 75,5 90,15 100,0 100,50" /></svg>'); }
-    .wave-yellow::after { background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 100 50" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><polygon fill="rgba(234,179,8,0.15)" stroke="rgba(234,179,8,0.4)" stroke-width="1.5" vector-effect="non-scaling-stroke" stroke-linejoin="miter" points="0,50 0,35 15,20 30,30 45,10 60,25 75,5 90,15 100,0 100,50" /></svg>'); }
-    .wave-green::after { background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 100 50" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><polygon fill="rgba(34,197,94,0.15)" stroke="rgba(34,197,94,0.4)" stroke-width="1.5" vector-effect="non-scaling-stroke" stroke-linejoin="miter" points="0,50 0,35 15,20 30,30 45,10 60,25 75,5 90,15 100,0 100,50" /></svg>'); }
-    .card-hover.in-view::after { animation: drawChart 1s ease-out forwards !important; }
+    .animate-blob { animation: blob 5s linear infinite; }
+    .animate-blob-slow { animation: blob 7s linear infinite; }
 </style>
 
 {{-- ════════ HEADER STATS (COMPACT) ════════ --}}
 <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
 
     {{-- 1. VIOLATIONS TODAY --}}
-    <div class="card-hover in-view wave-red cursor-default group relative overflow-hidden rounded-2xl shadow-sm border border-red-100 bg-gradient-to-br from-red-50 to-rose-50/70">
-        <div class="relative p-3.5 sm:p-5 flex items-center justify-between z-20">
-            <div class="flex-1 min-w-0">
-                <p class="text-red-400 text-[9px] sm:text-[10px] font-black uppercase tracking-widest mb-1">Violations Today</p>
-                <p class="text-gray-900 text-xl sm:text-3xl font-black leading-none mb-1">{{ $stats['violations_today'] ?? 0 }}</p>
-            </div>
-            <div class="p-1.5 sm:p-3 bg-red-100 rounded-xl sm:rounded-2xl border border-red-200 shadow-sm flex-shrink-0">
-                <i data-lucide="alert-circle" class="w-5 h-5 sm:w-7 sm:h-7 text-red-600"></i>
+    <div class="cursor-default group relative overflow-hidden rounded-2xl shadow-lg border border-white/60 p-[3px] bg-slate-100/50 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:border-red-400/80">
+        {{-- Animated Gradient Blob --}}
+        <div class="absolute top-1/2 left-1/2 w-[220px] h-[220px] rounded-full opacity-100 filter blur-[14px] z-0 animate-blob bg-gradient-to-r from-red-600 via-rose-400 to-orange-500 pointer-events-none"></div>
+
+        {{-- Glassy Card Content Container --}}
+        <div class="relative w-full h-full bg-white/90 backdrop-blur-xl rounded-[13px] outline outline-1 outline-white/80 p-3.5 sm:p-5 flex items-center justify-between z-10 overflow-hidden">
+            {{-- Hover Gradient Overlay --}}
+            <div class="opacity-0 group-hover:opacity-100 transition-all duration-300 absolute inset-0 h-full w-full bg-gradient-to-t from-red-200/80 via-red-100/40 to-transparent pointer-events-none rounded-[13px] z-0"></div>
+
+            {{-- Left Accent Pill --}}
+            <div class="absolute left-0 inset-y-0 h-5 group-hover:h-9 w-1.5 rounded-tr-full rounded-br-full bg-slate-300 group-hover:bg-red-600 transition-all duration-300 origin-center my-auto z-10"></div>
+
+            <div class="flex-1 min-w-0 relative z-10 pl-1.5">
+                <p class="text-red-500 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest mb-1 group-hover:translate-x-1.5 transition-transform duration-300 inline-block">Violations Today</p>
+                <p class="text-slate-800 text-xl sm:text-3xl font-bold tracking-tight leading-none mb-1 group-hover:translate-x-1 transition-transform duration-300">{{ $stats['violations_today'] ?? 0 }}</p>
             </div>
         </div>
-        <i data-lucide="alert-circle" stroke-width="1" class="absolute right-0 bottom-0 w-24 h-24 -rotate-12 pointer-events-none" style="opacity: 0.15 !important; color: #ef4444 !important; z-index: 5 !important;"></i>
+        {{-- 3D Graphic Element in Background --}}
+        <img src="{{ asset('image/kpi/violation_3d.svg') }}" alt="Violations 3D" class="absolute -right-3 -bottom-3 w-24 h-24 sm:w-28 sm:h-28 object-contain pointer-events-none opacity-40 group-hover:opacity-85 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300" style="z-index: 12 !important;">
     </div>
 
     {{-- 2. TOTAL VIOLATORS --}}
-    <div class="card-hover in-view wave-teal cursor-default group relative overflow-hidden rounded-2xl shadow-sm border border-teal-100 bg-gradient-to-br from-teal-50 to-emerald-50/70">
-        <div class="relative p-3.5 sm:p-5 flex items-center justify-between z-20">
-            <div class="flex-1 min-w-0">
-                <p class="text-teal-400 text-[9px] sm:text-[10px] font-black uppercase tracking-widest mb-1">Total Violators</p>
-                <p class="text-gray-900 text-xl sm:text-3xl font-black leading-none mb-1">{{ $stats['total_violators'] ?? 0 }}</p>
-            </div>
-            <div class="p-1.5 sm:p-3 bg-teal-100 rounded-xl sm:rounded-2xl border border-teal-200 shadow-sm flex-shrink-0">
-                <i data-lucide="users" class="w-5 h-5 sm:w-7 sm:h-7 text-teal-600"></i>
+    <div class="cursor-default group relative overflow-hidden rounded-2xl shadow-lg border border-white/60 p-[3px] bg-slate-100/50 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:border-teal-400/80">
+        {{-- Animated Gradient Blob --}}
+        <div class="absolute top-1/2 left-1/2 w-[220px] h-[220px] rounded-full opacity-100 filter blur-[14px] z-0 animate-blob-slow bg-gradient-to-r from-teal-500 via-emerald-400 to-cyan-500 pointer-events-none"></div>
+
+        {{-- Glassy Card Content Container --}}
+        <div class="relative w-full h-full bg-white/90 backdrop-blur-xl rounded-[13px] outline outline-1 outline-white/80 p-3.5 sm:p-5 flex items-center justify-between z-10 overflow-hidden">
+            {{-- Hover Gradient Overlay --}}
+            <div class="opacity-0 group-hover:opacity-100 transition-all duration-300 absolute inset-0 h-full w-full bg-gradient-to-t from-teal-200/80 via-teal-100/40 to-transparent pointer-events-none rounded-[13px] z-0"></div>
+
+            {{-- Left Accent Pill --}}
+            <div class="absolute left-0 inset-y-0 h-5 group-hover:h-9 w-1.5 rounded-tr-full rounded-br-full bg-slate-300 group-hover:bg-teal-600 transition-all duration-300 origin-center my-auto z-10"></div>
+
+            <div class="flex-1 min-w-0 relative z-10 pl-1.5">
+                <p class="text-teal-600 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest mb-1 group-hover:translate-x-1.5 transition-transform duration-300 inline-block">Total Violators</p>
+                <p class="text-slate-800 text-xl sm:text-3xl font-bold tracking-tight leading-none mb-1 group-hover:translate-x-1 transition-transform duration-300">{{ $stats['total_violators'] ?? 0 }}</p>
             </div>
         </div>
-        <i data-lucide="users" stroke-width="1" class="absolute right-0 bottom-0 w-24 h-24 -rotate-12 pointer-events-none" style="opacity: 0.15 !important; color: #14b8a6 !important; z-index: 5 !important;"></i>
+        {{-- 3D Graphic Element in Background --}}
+        <img src="{{ asset('image/kpi/violators_3d.svg') }}" alt="Violators 3D" class="absolute -right-3 -bottom-3 w-24 h-24 sm:w-28 sm:h-28 object-contain pointer-events-none opacity-40 group-hover:opacity-85 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300" style="z-index: 12 !important;">
     </div>
 
     {{-- 3. TOTAL CHARGES --}}
-    <div class="card-hover in-view wave-purple cursor-default group relative overflow-hidden rounded-2xl shadow-sm border border-purple-100 bg-gradient-to-br from-purple-50 to-fuchsia-50/70">
-        <div class="relative p-3.5 sm:p-5 flex items-center justify-between z-20">
-            <div class="flex-1 min-w-0">
-                <p class="text-purple-400 text-[9px] sm:text-[10px] font-black uppercase tracking-widest mb-1">Total Charges</p>
-                <p class="text-gray-900 text-xl sm:text-3xl font-black leading-none mb-1">₱{{ number_format($stats['total_charges'] ?? 0, 0) }}</p>
-            </div>
-            <div class="p-1.5 sm:p-3 bg-purple-100 rounded-xl sm:rounded-2xl border border-purple-200 shadow-sm flex-shrink-0">
-                <i data-lucide="banknote" class="w-5 h-5 sm:w-7 sm:h-7 text-purple-600"></i>
+    <div class="cursor-default group relative overflow-hidden rounded-2xl shadow-lg border border-white/60 p-[3px] bg-slate-100/50 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:border-purple-400/80">
+        {{-- Animated Gradient Blob --}}
+        <div class="absolute top-1/2 left-1/2 w-[220px] h-[220px] rounded-full opacity-100 filter blur-[14px] z-0 animate-blob bg-gradient-to-r from-purple-600 via-fuchsia-400 to-indigo-500 pointer-events-none"></div>
+
+        {{-- Glassy Card Content Container --}}
+        <div class="relative w-full h-full bg-white/90 backdrop-blur-xl rounded-[13px] outline outline-1 outline-white/80 p-3.5 sm:p-5 flex items-center justify-between z-10 overflow-hidden">
+            {{-- Hover Gradient Overlay --}}
+            <div class="opacity-0 group-hover:opacity-100 transition-all duration-300 absolute inset-0 h-full w-full bg-gradient-to-t from-purple-200/80 via-purple-100/40 to-transparent pointer-events-none rounded-[13px] z-0"></div>
+
+            {{-- Left Accent Pill --}}
+            <div class="absolute left-0 inset-y-0 h-5 group-hover:h-9 w-1.5 rounded-tr-full rounded-br-full bg-slate-300 group-hover:bg-purple-600 transition-all duration-300 origin-center my-auto z-10"></div>
+
+            <div class="flex-1 min-w-0 relative z-10 pl-1.5">
+                <p class="text-purple-600 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest mb-1 group-hover:translate-x-1.5 transition-transform duration-300 inline-block">Total Charges</p>
+                <p class="text-slate-800 text-xl sm:text-3xl font-bold tracking-tight leading-none mb-1 group-hover:translate-x-1 transition-transform duration-300">₱{{ number_format($stats['total_charges'] ?? 0, 0) }}</p>
             </div>
         </div>
-        <i data-lucide="banknote" stroke-width="1" class="absolute right-0 bottom-0 w-24 h-24 -rotate-12 pointer-events-none" style="opacity: 0.15 !important; color: #a855f7 !important; z-index: 5 !important;"></i>
+        {{-- 3D Graphic Element in Background --}}
+        <img src="{{ asset('image/kpi/charges_3d.svg') }}" alt="Charges 3D" class="absolute -right-3 -bottom-3 w-24 h-24 sm:w-28 sm:h-28 object-contain pointer-events-none opacity-40 group-hover:opacity-85 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300" style="z-index: 12 !important;">
     </div>
 
     {{-- 4. ELIGIBLE INCENTIVE --}}
-    <div class="card-hover in-view wave-yellow cursor-default group relative overflow-hidden rounded-2xl shadow-sm border border-yellow-100 bg-gradient-to-br from-yellow-50 to-amber-50/70">
-        <div class="relative p-3.5 sm:p-5 flex items-center justify-between z-20">
-            <div class="flex-1 min-w-0">
-                <p class="text-yellow-500 text-[9px] sm:text-[10px] font-black uppercase tracking-widest mb-1">Eligible Incentive</p>
-                <p class="text-gray-900 text-xl sm:text-3xl font-black leading-none mb-1">{{ count($incentive_summary['eligible'] ?? []) }}</p>
-            </div>
-            <div class="p-1.5 sm:p-3 bg-yellow-100 rounded-xl sm:rounded-2xl border border-yellow-200 shadow-sm flex-shrink-0">
-                <i data-lucide="trophy" class="w-5 h-5 sm:w-7 sm:h-7 text-yellow-600"></i>
+    <div class="cursor-default group relative overflow-hidden rounded-2xl shadow-lg border border-white/60 p-[3px] bg-slate-100/50 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:border-yellow-400/80">
+        {{-- Animated Gradient Blob --}}
+        <div class="absolute top-1/2 left-1/2 w-[220px] h-[220px] rounded-full opacity-100 filter blur-[14px] z-0 animate-blob-slow bg-gradient-to-r from-amber-500 via-yellow-400 to-orange-400 pointer-events-none"></div>
+
+        {{-- Glassy Card Content Container --}}
+        <div class="relative w-full h-full bg-white/90 backdrop-blur-xl rounded-[13px] outline outline-1 outline-white/80 p-3.5 sm:p-5 flex items-center justify-between z-10 overflow-hidden">
+            {{-- Hover Gradient Overlay --}}
+            <div class="opacity-0 group-hover:opacity-100 transition-all duration-300 absolute inset-0 h-full w-full bg-gradient-to-t from-yellow-200/80 via-yellow-100/40 to-transparent pointer-events-none rounded-[13px] z-0"></div>
+
+            {{-- Left Accent Pill --}}
+            <div class="absolute left-0 inset-y-0 h-5 group-hover:h-9 w-1.5 rounded-tr-full rounded-br-full bg-slate-300 group-hover:bg-amber-500 transition-all duration-300 origin-center my-auto z-10"></div>
+
+            <div class="flex-1 min-w-0 relative z-10 pl-1.5">
+                <p class="text-amber-600 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest mb-1 group-hover:translate-x-1.5 transition-transform duration-300 inline-block">Eligible Incentive</p>
+                <p class="text-slate-800 text-xl sm:text-3xl font-bold tracking-tight leading-none mb-1 group-hover:translate-x-1 transition-transform duration-300">{{ count($incentive_summary['eligible'] ?? []) }}</p>
             </div>
         </div>
-        <i data-lucide="trophy" stroke-width="1" class="absolute right-0 bottom-0 w-24 h-24 -rotate-12 pointer-events-none" style="opacity: 0.15 !important; color: #eab308 !important; z-index: 5 !important;"></i>
+        {{-- 3D Graphic Element in Background --}}
+        <img src="{{ asset('image/kpi/incentive_3d.svg') }}" alt="Incentive 3D" class="absolute -right-3 -bottom-3 w-24 h-24 sm:w-28 sm:h-28 object-contain pointer-events-none opacity-40 group-hover:opacity-85 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300" style="z-index: 12 !important;">
     </div>
 </div>
 
