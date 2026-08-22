@@ -1980,12 +1980,14 @@ function camRenderAlerts() {
     const alerts = [];
 
     users.forEach(u => {
-        if (!u.firstLogin && u.todayH === 0 && u.activities === 0) {
+        if (u.isOnline || u.status === 'active') {
+            // User is actively online or meeting target
+            return;
+        }
+        if (u.status === 'none' && !u.isOnline && u.todayH === 0 && u.activities === 0) {
             alerts.push({ u, msg: `No login or activity today. Last seen: ${u.last_login || 'Never logged in'}.`, icon: 'alert-octagon', color: '#ef4444', bg: '#fff1f2' });
-        } else if (u.status === 'low') {
+        } else if (u.status === 'low' && !u.isOnline) {
             alerts.push({ u, msg: `Low activity — ${camFmtH(u.todayH)} of ${CAM_TARGET}h target. ${u.activities} interaction(s) recorded.`, icon: 'alert-triangle', color: '#f59e0b', bg: '#fffbeb' });
-        } else if (u.activities === 0 && u.todayH > 0) {
-            alerts.push({ u, msg: `Logged in today but 0 recorded operational transactions.`, icon: 'info', color: '#0284c7', bg: '#f0f9ff' });
         }
     });
 
