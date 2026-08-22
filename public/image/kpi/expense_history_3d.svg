@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <defs>
+    <radialGradient id="histGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#eab308" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#a16207" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="histTop" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fef08a"/>
+      <stop offset="100%" stop-color="#eab308"/>
+    </linearGradient>
+    <linearGradient id="histMid" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fde047"/>
+      <stop offset="100%" stop-color="#ca8a04"/>
+    </linearGradient>
+    <filter id="histShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="12" stdDeviation="10" flood-color="#713f12" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+  <circle cx="100" cy="110" r="85" fill="url(#histGlow)"/>
+  <g filter="url(#histShadow)">
+    <!-- 3D Stack / Layers -->
+    <!-- Bottom Plate -->
+    <path d="M100 134 L152 108 L100 82 L48 108 Z" fill="#a16207"/>
+    <path d="M48 108 L100 134 L152 108 L152 118 L100 144 L48 118 Z" fill="#713f12"/>
+    <!-- Middle Plate -->
+    <path d="M100 114 L152 88 L100 62 L48 88 Z" fill="url(#histMid)"/>
+    <path d="M48 88 L100 114 L152 88 L152 98 L100 124 L48 98 Z" fill="#a16207"/>
+    <!-- Top Plate -->
+    <path d="M100 94 L152 68 L100 42 L48 68 Z" fill="url(#histTop)"/>
+    <path d="M48 68 L100 94 L152 68 L152 78 L100 104 L48 78 Z" fill="#ca8a04"/>
+    <path d="M100 42 L152 68 L100 94 L48 68 Z" fill="none" stroke="#ffffff" stroke-width="2" opacity="0.6"/>
+  </g>
+</svg>
