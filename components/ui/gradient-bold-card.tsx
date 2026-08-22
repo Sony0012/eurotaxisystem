@@ -1,4 +1,3 @@
-﻿
 "use client";
 
 import React from "react";
@@ -7,7 +6,7 @@ const GradientBlobCard: React.FC = () => {
   return (
     <div className="flex items-center justify-center min-h-screen">
       <div className="relative w-[200px] h-[250px] rounded-[14px] flex flex-col items-center justify-center
-                      shadow-[20px_20px_60px_#bebebe,-20px-20px_60px_#ffffff] dark:shadow-[20px_20px_60px_#111,-20px--20px_60px_#222]
+                      shadow-[20px_20px_60px_#bebebe,-20px_-20px_60px_#ffffff] dark:shadow-[20px_20px_60px_#111,-20px_-20px_60px_#222]
                       overflow-hidden">
 
         {/* Glassy Background */}
@@ -36,7 +35,7 @@ const GradientBlobCard: React.FC = () => {
                 transform: translate(-100%, 0%);
               }
               100% {
-                transform: transform(-100%, -100%);
+                transform: translate(-100%, -100%);
               }
             }
 
@@ -51,4 +50,3 @@ const GradientBlobCard: React.FC = () => {
 };
 
 export default GradientBlobCard;
-
