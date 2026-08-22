@@ -919,13 +919,12 @@
 
             <div class="relative z-10">
                 <div class="flex items-center justify-between mb-4 sm:mb-5">
-                    <div class="flex items-center gap-3">
+                    <div class="flex items-end gap-3">
                         <div class="p-2.5 bg-white/20 backdrop-blur-sm rounded-xl border border-white/30">
                             <i data-lucide="wrench" class="w-6 h-6 text-white"></i>
                         </div>
-                        <div>
-                            <h3 class="text-xl font-bold text-white leading-tight">Units Under Maintenance</h3>
-                            <p class="text-orange-100 text-xs font-medium mt-0.5">Complete maintenance tracking details</p>
+                        <div class="pb-1">
+                            <p class="text-orange-100 text-xs font-medium">Complete maintenance tracking details</p>
                         </div>
                     </div>
                     <button onclick="hideMaintenanceUnitsModal()" class="text-white/80 hover:text-white hover:bg-white/20 p-2 rounded-lg transition-all duration-200 backdrop-blur-sm">
@@ -1196,13 +1195,12 @@
 
             <div class="relative z-10">
                 <div class="flex items-center justify-between mb-4 sm:mb-5">
-                    <div class="flex items-center gap-3">
+                    <div class="flex items-end gap-3">
                         <div class="p-2.5 bg-white/20 backdrop-blur-sm rounded-xl border border-white/30">
                             <i data-lucide="users" class="w-6 h-6 text-white"></i>
                         </div>
-                        <div>
-                            <h3 class="text-xl font-bold text-white leading-tight">Active Drivers</h3>
-                            <p class="text-blue-100 text-xs font-medium mt-0.5">Complete driver management details</p>
+                        <div class="pb-1">
+                            <p class="text-blue-100 text-xs font-medium">Complete driver management details</p>
                         </div>
                     </div>
                     <button onclick="hideActiveDriversModal()" class="text-white/80 hover:text-white hover:bg-white/20 p-2 rounded-lg transition-all duration-200 backdrop-blur-sm">
@@ -1339,13 +1337,12 @@
 
             <div class="relative z-10">
                 <div class="flex items-center justify-between mb-4 sm:mb-5">
-                    <div class="flex items-center gap-3">
+                    <div class="flex items-end gap-3">
                         <div class="p-2.5 bg-white/20 backdrop-blur-sm rounded-xl border border-white/30">
                             <i data-lucide="code" class="w-6 h-6 text-white"></i>
                         </div>
-                        <div>
-                            <h3 class="text-xl font-bold text-white leading-tight">Coding Units</h3>
-                            <p class="text-purple-100 text-xs font-medium mt-0.5">Complete coding unit management details</p>
+                        <div class="pb-1">
+                            <p class="text-purple-100 text-xs font-medium">Complete coding unit management details</p>
                         </div>
                     </div>
                     <button onclick="hideCodingUnitsModal()" class="text-white/80 hover:text-white hover:bg-white/20 p-2 rounded-lg transition-all duration-200 backdrop-blur-sm">
@@ -1471,13 +1468,12 @@
 
             <div class="relative z-10">
                 <div class="flex items-center justify-between mb-2">
-                    <div class="flex items-center gap-3">
+                    <div class="flex items-end gap-3">
                         <div class="p-2.5 bg-white/20 backdrop-blur-sm rounded-xl border border-white/30">
                             <i data-lucide="trending-up" class="w-6 h-6 text-white"></i>
                         </div>
-                        <div>
-                            <h3 class="text-xl font-bold text-white leading-tight">Net Income Details</h3>
-                            <p class="text-green-100 text-xs font-medium mt-0.5">Complete income and expense breakdown</p>
+                        <div class="pb-1">
+                            <p class="text-green-100 text-xs font-medium">Complete income and expense breakdown</p>
                         </div>
                     </div>
                     <button onclick="hideNetIncomeModal()" class="text-white/80 hover:text-white hover:bg-white/20 p-2 rounded-lg transition-all duration-200 backdrop-blur-sm">
@@ -1632,13 +1628,12 @@
 
             <div class="relative z-10">
                 <div class="flex items-center justify-between mb-2">
-                    <div class="flex items-center gap-4">
+                    <div class="flex items-end gap-4">
                         <div class="p-2.5 bg-white/20 backdrop-blur-md rounded-xl border border-white/30 shadow-inner">
                             <i data-lucide="trending-down" class="w-7 h-7"></i>
                         </div>
-                        <div>
-                            <h3 class="text-2xl font-bold tracking-tight leading-none mb-1">Total Expenses Today</h3>
-                            <p class="text-red-100 text-[11px] font-bold uppercase tracking-widest opacity-80 mt-0.5">Detailed expense records and computation</p>
+                        <div class="pb-1">
+                            <p class="text-red-100 text-[11px] font-bold uppercase tracking-widest opacity-80">Detailed expense records and computation</p>
                         </div>
                     </div>
                     <button onclick="hideExpensesModal()" class="p-2 hover:bg-white/10 text-white rounded-full transition-colors">
@@ -1775,13 +1770,12 @@
 
             <div class="relative z-10">
                 <div class="flex items-center justify-between mb-4 sm:mb-5">
-                    <div class="flex items-center gap-3">
+                    <div class="flex items-end gap-3">
                         <div class="p-2.5 bg-white/20 backdrop-blur-sm rounded-xl border border-white/30">
                             <i data-lucide="calendar" class="w-6 h-6 text-white"></i>
                         </div>
-                        <div>
-                            <h3 class="text-xl font-bold text-white leading-tight">Daily Boundary Collections</h3>
-                            <p class="text-green-100 text-xs font-medium mt-0.5">Complete boundary collection details</p>
+                        <div class="pb-1">
+                            <p class="text-green-100 text-xs font-medium">Complete boundary collection details</p>
                         </div>
                     </div>
                     <button onclick="hideDailyBoundaryModal()" class="text-white/80 hover:text-white hover:bg-white/20 p-2 rounded-lg transition-all duration-200 backdrop-blur-sm">
