@@ -2496,27 +2496,77 @@
     
     @include('partials.chat-drawer')
 
-    <!-- ─── GLOBAL SOS ACCIDENT ALERT ─── -->
-    <div id="globalSosAlert" class="fixed inset-0 z-[100000] items-center justify-center bg-red-900/90 backdrop-blur-sm" style="display:none;">
-        <div class="bg-white border-4 border-red-600 rounded-2xl shadow-2xl p-6 md:p-10 w-11/12 max-w-2xl text-center animate-bounce-in relative overflow-hidden">
-            <div class="absolute top-0 left-0 w-full h-2 bg-red-600 animate-pulse"></div>
-            
-            <div class="mx-auto w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mb-6 shadow-inner">
-                <i data-lucide="triangle-alert" class="w-12 h-12 text-red-600 animate-pulse"></i>
+    <!-- ─── GLOBAL SOS ACCIDENT ALERT (21st.dev Luxury Redesign) ─── -->
+    <div id="globalSosAlert" class="fixed inset-0 z-[100000] items-center justify-center bg-slate-950/85 backdrop-blur-md p-4 sm:p-6" style="display:none;">
+        <div class="relative w-full max-w-xl overflow-hidden rounded-3xl border border-red-500/30 bg-gradient-to-b from-white via-rose-50/30 to-red-50/40 p-6 sm:p-8 shadow-2xl shadow-red-950/50 animate-bounce-in">
+            <!-- Top Ambient Laser Beacon Glow -->
+            <div class="absolute -top-24 left-1/2 -translate-x-1/2 w-64 h-32 bg-red-500/25 blur-3xl rounded-full pointer-events-none"></div>
+            <div class="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-red-600 via-rose-500 to-amber-500 animate-pulse"></div>
+
+            <!-- Emergency Live Header Chip -->
+            <div class="flex items-center justify-between mb-4 relative z-10">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-100/80 border border-red-300 text-red-700 text-xs font-black uppercase tracking-wider shadow-xs">
+                    <span class="relative flex h-2.5 w-2.5">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-600"></span>
+                    </span>
+                    Live Emergency Broadcast
+                </div>
+                <button type="button" onclick="toggleSosMute()" id="btnMuteSos" class="text-xs font-bold text-slate-500 hover:text-slate-800 px-3 py-1 rounded-xl bg-white/80 border border-slate-200 shadow-xs transition-all flex items-center gap-1.5 cursor-pointer">
+                    <i data-lucide="volume-2" class="w-3.5 h-3.5 text-slate-600" id="iconMuteSos"></i>
+                    <span id="textMuteSos">Mute Siren</span>
+                </button>
             </div>
-            
-            <h1 class="text-3xl md:text-5xl font-black text-red-600 mb-2 tracking-tight uppercase">Emergency!</h1>
-            <h2 class="text-lg md:text-2xl font-bold text-gray-900 mb-6" id="sosAlertDriver">Driver Name - Plate Number</h2>
-            
-            <div class="bg-gray-50 rounded-xl p-4 mb-8 text-left border border-red-100">
-                <p class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-1">Location / Details</p>
-                <p class="text-lg font-medium text-gray-800" id="sosAlertLocation">Lat: --, Lng: --</p>
-                <p class="text-sm text-gray-500 mt-2" id="sosAlertTime">Time: --</p>
+
+            <!-- 3D Siren Hero Visual -->
+            <div class="flex flex-col items-center text-center relative z-10 mb-5">
+                <div class="relative w-28 h-28 sm:w-32 sm:h-32 mb-2">
+                    <div class="absolute inset-0 rounded-full bg-red-500/20 blur-xl animate-pulse"></div>
+                    <img src="{{ asset('image/kpi/emergency_siren_3d.svg') }}" alt="Emergency Siren" class="relative z-10 w-full h-full object-contain filter drop-shadow-xl animate-pulse">
+                </div>
+                <h1 class="text-3xl sm:text-4xl font-black text-red-600 tracking-tight uppercase leading-none mb-1">
+                    Emergency Alert!
+                </h1>
+                <p class="text-xs sm:text-sm font-bold text-slate-500">Immediate fleet operator intervention required</p>
             </div>
-            
-            <button onclick="acknowledgeSosAlert()" id="btnAcknowledgeSos" class="w-full py-4 bg-red-600 hover:bg-red-700 text-white text-xl font-black rounded-xl shadow-lg hover:shadow-xl transition-all active:scale-95 uppercase tracking-wider">
-                Acknowledge Alert
-            </button>
+
+            <!-- Driver & Vehicle Profile Card -->
+            <div class="rounded-2xl border border-red-200/80 bg-white/90 p-4 mb-3 shadow-xs relative z-10">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-red-500 to-rose-700 text-white flex items-center justify-center font-black text-lg shadow-sm shrink-0">
+                        <i data-lucide="shield-alert" class="w-6 h-6"></i>
+                    </div>
+                    <div class="min-w-0 flex-1 text-left">
+                        <span class="text-[10px] font-black uppercase tracking-wider text-red-500 block">Reported Driver & Taxi Unit</span>
+                        <h2 class="text-base sm:text-lg font-black text-slate-900 leading-snug truncate" id="sosAlertDriver">Driver Name — Plate Number</h2>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Location & Telemetry Card -->
+            <div class="rounded-2xl border border-slate-200/80 bg-white/90 p-4 mb-6 shadow-xs relative z-10 text-left">
+                <div class="flex items-start gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-sky-50 text-sky-600 flex items-center justify-center shrink-0 mt-0.5 border border-sky-100">
+                        <i data-lucide="map-pin" class="w-4 h-4"></i>
+                    </div>
+                    <div class="min-w-0 flex-1">
+                        <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-0.5">GPS Location & Telemetry</span>
+                        <div class="text-xs sm:text-sm font-bold text-slate-800" id="sosAlertLocation">Lat: --, Lng: --</div>
+                        <p class="text-[11px] font-semibold text-slate-400 mt-1.5 flex items-center gap-1" id="sosAlertTime">
+                            <i data-lucide="clock" class="w-3 h-3 text-slate-400"></i>
+                            <span>Time: --</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CTA Action Button -->
+            <div class="relative z-10">
+                <button onclick="acknowledgeSosAlert()" id="btnAcknowledgeSos" class="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-red-600 via-rose-600 to-red-700 hover:from-red-500 hover:to-rose-600 text-white text-base sm:text-lg font-black tracking-wider uppercase shadow-lg shadow-red-600/30 hover:shadow-xl hover:shadow-red-600/40 active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-2 border border-red-400/30">
+                    <i data-lucide="check-check" class="w-5 h-5"></i>
+                    <span>Acknowledge Alert</span>
+                </button>
+            </div>
         </div>
     </div>
 
@@ -2526,6 +2576,23 @@
             sosAlertSound.loop = true;
             let isAlertShowing = false;
             let currentAlertId = null;
+            let isMuted = false;
+
+            window.toggleSosMute = function() {
+                isMuted = !isMuted;
+                const textEl = document.getElementById('textMuteSos');
+                const iconEl = document.getElementById('iconMuteSos');
+                if (isMuted) {
+                    sosAlertSound.pause();
+                    if (textEl) textEl.innerText = 'Unmute Siren';
+                    if (iconEl) iconEl.setAttribute('data-lucide', 'volume-x');
+                } else {
+                    sosAlertSound.play().catch(e => console.log('Audio resume error', e));
+                    if (textEl) textEl.innerText = 'Mute Siren';
+                    if (iconEl) iconEl.setAttribute('data-lucide', 'volume-2');
+                }
+                if (window.lucide) lucide.createIcons();
+            };
 
             async function pollSosAlerts() {
                 try {
@@ -2542,25 +2609,35 @@
                             const driverName = alert.driver ? `${alert.driver.first_name} ${alert.driver.last_name}` : 'Unknown Driver';
                             const plateNum = alert.unit ? alert.unit.plate_number : 'Unknown Unit';
                             
-                            document.getElementById('sosAlertDriver').innerText = `${driverName} — ${plateNum}`;
+                            const driverEl = document.getElementById('sosAlertDriver');
+                            if (driverEl) driverEl.innerText = `${driverName} — ${plateNum}`;
                             
-                            if (alert.latitude && alert.longitude) {
-                                document.getElementById('sosAlertLocation').innerHTML = `<a href="https://maps.google.com/?q=${alert.latitude},${alert.longitude}" target="_blank" class="text-blue-600 hover:underline"><i data-lucide="map-pin" class="inline w-4 h-4 mr-1"></i>View on Google Maps (${alert.latitude}, ${alert.longitude})</a>`;
-                            } else {
-                                document.getElementById('sosAlertLocation').innerText = 'GPS location not available';
+                            const locEl = document.getElementById('sosAlertLocation');
+                            if (locEl) {
+                                if (alert.latitude && alert.longitude) {
+                                    locEl.innerHTML = `<a href="https://maps.google.com/?q=${alert.latitude},${alert.longitude}" target="_blank" class="text-blue-600 hover:text-blue-700 font-bold hover:underline inline-flex items-center gap-1"><i data-lucide="external-link" class="w-3.5 h-3.5"></i>View on Google Maps (${alert.latitude}, ${alert.longitude})</a>`;
+                                } else {
+                                    locEl.innerText = 'GPS coordinates unavailable';
+                                }
                             }
                             
                             const d = new Date(alert.created_at);
-                            document.getElementById('sosAlertTime').innerText = `Reported at: ${d.toLocaleString()}`;
+                            const timeEl = document.getElementById('sosAlertTime');
+                            if (timeEl) {
+                                timeEl.innerHTML = `<i data-lucide="clock" class="w-3 h-3 text-slate-400 inline mr-1"></i>Reported at: ${d.toLocaleString()}`;
+                            }
                             
                             // Show alert UI
-                            document.getElementById('globalSosAlert').style.display = 'flex';
+                            const alertModal = document.getElementById('globalSosAlert');
+                            if (alertModal) alertModal.style.display = 'flex';
                             isAlertShowing = true;
                             
-                            // Play sound (requires user interaction first on modern browsers, but will try)
-                            sosAlertSound.play().catch(e => console.log('Autoplay blocked for SOS sound', e));
+                            // Play sound if not muted
+                            if (!isMuted) {
+                                sosAlertSound.play().catch(e => console.log('Autoplay blocked for SOS sound', e));
+                            }
                             
-                            if(window.lucide) lucide.createIcons();
+                            if (window.lucide) lucide.createIcons();
                         }
                     } else {
                         // No alerts
@@ -2574,7 +2651,8 @@
             }
 
             window.hideSosAlert = function() {
-                document.getElementById('globalSosAlert').style.display = 'none';
+                const alertModal = document.getElementById('globalSosAlert');
+                if (alertModal) alertModal.style.display = 'none';
                 sosAlertSound.pause();
                 sosAlertSound.currentTime = 0;
                 isAlertShowing = false;
@@ -2585,8 +2663,10 @@
                 if (!currentAlertId) return;
                 
                 const btn = document.getElementById('btnAcknowledgeSos');
-                btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Acknowledging...';
-                btn.disabled = true;
+                if (btn) {
+                    btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Acknowledging...';
+                    btn.disabled = true;
+                }
                 
                 try {
                     const response = await fetch(`/accident-alerts/${currentAlertId}/acknowledge`, {
@@ -2608,8 +2688,11 @@
                 } catch (e) {
                     alert('Error: ' + e.message);
                 } finally {
-                    btn.innerHTML = 'Acknowledge Alert';
-                    btn.disabled = false;
+                    if (btn) {
+                        btn.innerHTML = '<i data-lucide="check-check" class="w-5 h-5"></i><span>Acknowledge Alert</span>';
+                        btn.disabled = false;
+                        if (window.lucide) lucide.createIcons();
+                    }
                 }
             }
 
