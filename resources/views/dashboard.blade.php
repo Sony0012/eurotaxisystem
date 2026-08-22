@@ -1899,11 +1899,11 @@
 
                 <div class="relative z-10">
                     <div class="flex items-center justify-between mb-4 sm:mb-5">
-                        <div class="flex items-center gap-3">
+                        <div class="flex items-end gap-3">
                             <div class="p-2.5 bg-white/20 backdrop-blur-sm rounded-xl border border-white/30">
                                 <i data-lucide="car" class="w-6 h-6 text-white"></i>
                             </div>
-                            <div>
+                            <div class="pb-1">
                                 <p class="text-blue-100 text-xs font-medium">Fleet Management Dashboard</p>
                             </div>
                         </div>
