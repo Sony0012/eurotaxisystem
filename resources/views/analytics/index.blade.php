@@ -730,32 +730,32 @@
                         'label' => 'Expected Collections',
                         'sublabel' => 'Expected Collections',
                         'key' => 'boundary',
-                        'icon' => 'wallet',
                         'color' => 'emerald',
+                        'svg' => 'revenue_3d.svg',
                         'source' => 'Derived from the average boundary collected across active taxi units over the past 6 months.',
                     ],
                     [
                         'label' => 'Expected Expenses',
                         'sublabel' => 'Expected Expenses',
                         'key' => 'expenses',
-                        'icon' => 'receipt',
                         'color' => 'rose',
+                        'svg' => 'expenses_3d.svg',
                         'source' => 'Derived from the average office expenses (utilities, office supplies, etc.) over the past 6 months.',
                     ],
                     [
                         'label' => 'Expected Repairs',
                         'sublabel' => 'Expected Repairs',
                         'key' => 'maintenance',
-                        'icon' => 'wrench',
                         'color' => 'amber',
+                        'svg' => 'maintenance_3d.svg',
                         'source' => 'Derived from vehicle maintenance records — average repair costs of all units over the past 6 months.',
                     ],
                     [
                         'label' => 'Expected Salaries',
                         'sublabel' => 'Expected Salaries',
                         'key' => 'salaries',
-                        'icon' => 'users',
                         'color' => 'indigo',
+                        'svg' => 'salary_3d.svg',
                         'source' => 'Derived from employee payroll records — average salary payouts over the past 6 months.',
                     ],
                 ];
@@ -770,39 +770,46 @@
                     $lastVal = $lastMonth[$card['key']] ?? 0;
                     $trendAmt = $val - $lastVal;
                     $trendUp = $trendAmt >= 0;
-                @endphp
-                <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm hover:shadow-lg transition-all duration-300 group relative overflow-hidden">
-                    {{-- Decorative bg --}}
-                    <div class="absolute -right-6 -top-6 w-28 h-28 bg-{{ $c }}-50 rounded-full opacity-60 group-hover:scale-150 transition-transform duration-500"></div>
 
+                    $colorClasses = [
+                        'emerald' => 'border-emerald-200 bg-gradient-to-br from-emerald-50 to-teal-50/70',
+                        'rose' => 'border-rose-200 bg-gradient-to-br from-rose-50 to-pink-50/70',
+                        'amber' => 'border-amber-200 bg-gradient-to-br from-amber-50 to-yellow-50/70',
+                        'indigo' => 'border-indigo-200 bg-gradient-to-br from-indigo-50 to-blue-50/70',
+                    ];
+                    $cardClass = $colorClasses[$c] ?? 'border-slate-200 bg-white';
+                    $titleColor = [
+                        'emerald' => 'text-emerald-600',
+                        'rose' => 'text-rose-500',
+                        'amber' => 'text-amber-600',
+                        'indigo' => 'text-indigo-600',
+                    ][$c] ?? 'text-slate-500';
+                @endphp
+                <div class="relative overflow-hidden rounded-3xl border {{ $cardClass }} p-6 shadow-sm flex flex-col justify-between">
                     <div class="relative z-10">
-                        <div class="flex items-start justify-between mb-4">
-                            <div class="p-3 bg-{{ $c }}-50 rounded-2xl text-{{ $c }}-600 group-hover:scale-110 transition-transform">
-                                <i data-lucide="{{ $card['icon'] }}" class="w-6 h-6"></i>
-                            </div>
-                            <div class="flex flex-col items-end">
-                                <div class="flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black
-                                    {{ $card['key'] === 'boundary' ? ($trendUp ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600') : ($trendUp ? 'bg-rose-50 text-rose-600' : 'bg-emerald-50 text-emerald-600') }}">
-                                    <i data-lucide="{{ $trendUp ? 'arrow-up-right' : 'arrow-down-right' }}" class="w-3 h-3"></i>
-                                    {{ $trendUp ? '+' : '' }}{{ formatCurrency($trendAmt) }}
-                                </div>
+                        <div class="flex items-start justify-between mb-3">
+                            <h3 class="text-[11px] font-black {{ $titleColor }} uppercase tracking-widest">{{ $card['label'] }}</h3>
+                            <div class="flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black
+                                {{ $card['key'] === 'boundary' ? ($trendUp ? 'bg-emerald-100/90 text-emerald-700' : 'bg-rose-100/90 text-rose-700') : ($trendUp ? 'bg-rose-100/90 text-rose-700' : 'bg-emerald-100/90 text-emerald-700') }}">
+                                <i data-lucide="{{ $trendUp ? 'arrow-up-right' : 'arrow-down-right' }}" class="w-3 h-3"></i>
+                                {{ $trendUp ? '+' : '' }}{{ formatCurrency($trendAmt) }}
                             </div>
                         </div>
 
-                        <h3 class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-1">{{ $card['label'] }}</h3>
-                        <p class="text-[9px] font-bold text-slate-400 mb-3 border-b border-slate-100 pb-2">
+                        <p class="text-[9px] font-bold text-slate-400 mb-3 pb-2 border-b border-black/5">
                             Compute: ({{ formatCurrency($val) }} Expected - {{ formatCurrency($lastVal) }} Last Month)
                         </p>
 
                         <p class="text-3xl font-black text-slate-800 mb-4">{{ formatCurrency($val) }}</p>
 
-                        <div class="pt-4 border-t border-slate-100">
+                        <div class="pt-3 border-t border-black/5">
                             <div class="flex items-start gap-2">
                                 <i data-lucide="info" class="w-3.5 h-3.5 text-slate-400 flex-shrink-0 mt-0.5"></i>
                                 <p class="text-[10px] text-slate-500 leading-relaxed">{{ $card['source'] }}</p>
                             </div>
                         </div>
                     </div>
+                    <img src="{{ asset('image/kpi/'.$card['svg']) }}" alt="{{ $card['label'] }} 3D" class="absolute -right-3 -bottom-3 w-24 h-24 object-contain pointer-events-none opacity-40">
                 </div>
             @endforeach
         </div>
