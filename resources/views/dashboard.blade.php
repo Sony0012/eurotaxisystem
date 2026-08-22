@@ -605,7 +605,8 @@
                     <i data-lucide="car" class="w-5 h-5 sm:w-7 sm:h-7 text-blue-600"></i>
                 </div>
             </div>
-            <i data-lucide="car" stroke-width="1" class="absolute right-0 bottom-0 w-24 h-24 -rotate-12 pointer-events-none group-hover:scale-110 group-hover:opacity-25 transition-all duration-300" style="opacity: 0.12 !important; color: #2563eb !important; z-index: 12 !important;"></i>
+            {{-- 3D Graphic Element in Background (21st.dev style) --}}
+            <img src="{{ asset('image/kpi/taxi_3d.svg') }}" alt="Taxi 3D" class="absolute -right-3 -bottom-3 w-28 h-28 sm:w-32 sm:h-32 object-contain pointer-events-none opacity-40 group-hover:opacity-85 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300" style="z-index: 12 !important;">
         </div>
 
         {{-- Daily Boundary Collection --}}
@@ -636,7 +637,8 @@
                     <i data-lucide="banknote" class="w-5 h-5 sm:w-7 sm:h-7 text-emerald-600"></i>
                 </div>
             </div>
-            <i data-lucide="banknote" stroke-width="1" class="absolute right-0 bottom-0 w-24 h-24 -rotate-12 pointer-events-none group-hover:scale-110 group-hover:opacity-25 transition-all duration-300" style="opacity: 0.12 !important; color: #059669 !important; z-index: 12 !important;"></i>
+            {{-- 3D Graphic Element in Background (21st.dev style) --}}
+            <img src="{{ asset('image/kpi/revenue_3d.svg') }}" alt="Revenue 3D" class="absolute -right-3 -bottom-3 w-28 h-28 sm:w-32 sm:h-32 object-contain pointer-events-none opacity-40 group-hover:opacity-85 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300" style="z-index: 12 !important;">
         </div>
 
         {{-- Net Income --}}
@@ -667,7 +669,8 @@
                     <i data-lucide="trending-up" class="w-5 h-5 sm:w-7 sm:h-7 text-green-600"></i>
                 </div>
             </div>
-            <i data-lucide="trending-up" stroke-width="1" class="absolute right-0 bottom-0 w-24 h-24 -rotate-12 pointer-events-none group-hover:scale-110 group-hover:opacity-25 transition-all duration-300" style="opacity: 0.12 !important; color: #16a34a !important; z-index: 12 !important;"></i>
+            {{-- 3D Graphic Element in Background (21st.dev style) --}}
+            <img src="{{ asset('image/kpi/profit_3d.svg') }}" alt="Profit 3D" class="absolute -right-3 -bottom-3 w-28 h-28 sm:w-32 sm:h-32 object-contain pointer-events-none opacity-40 group-hover:opacity-85 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300" style="z-index: 12 !important;">
         </div>
 
         {{-- Units Under Maintenance --}}
@@ -692,7 +695,8 @@
                     <i data-lucide="wrench" class="w-5 h-5 sm:w-7 sm:h-7 text-orange-600"></i>
                 </div>
             </div>
-            <i data-lucide="wrench" stroke-width="1" class="absolute right-0 bottom-0 w-24 h-24 -rotate-12 pointer-events-none group-hover:scale-110 group-hover:opacity-25 transition-all duration-300" style="opacity: 0.12 !important; color: #ea580c !important; z-index: 12 !important;"></i>
+            {{-- 3D Graphic Element in Background (21st.dev style) --}}
+            <img src="{{ asset('image/kpi/maintenance_3d.svg') }}" alt="Maintenance 3D" class="absolute -right-3 -bottom-3 w-28 h-28 sm:w-32 sm:h-32 object-contain pointer-events-none opacity-40 group-hover:opacity-85 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300" style="z-index: 12 !important;">
         </div>
 
     </div>
@@ -721,7 +725,8 @@
                     <i data-lucide="users" class="w-5 h-5 sm:w-7 sm:h-7 text-indigo-600"></i>
                 </div>
             </div>
-            <i data-lucide="users" stroke-width="1" class="absolute right-0 bottom-0 w-24 h-24 -rotate-12 pointer-events-none group-hover:scale-110 group-hover:opacity-25 transition-all duration-300" style="opacity: 0.12 !important; color: #4f46e5 !important; z-index: 12 !important;"></i>
+            {{-- 3D Graphic Element in Background (21st.dev style) --}}
+            <img src="{{ asset('image/kpi/drivers_3d.svg') }}" alt="Drivers 3D" class="absolute -right-3 -bottom-3 w-28 h-28 sm:w-32 sm:h-32 object-contain pointer-events-none opacity-40 group-hover:opacity-85 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300" style="z-index: 12 !important;">
         </div>
 
         {{-- Total Expenses Today --}}
@@ -745,7 +750,8 @@
                     <i data-lucide="trending-down" class="w-5 h-5 sm:w-7 sm:h-7 text-rose-600"></i>
                 </div>
             </div>
-            <i data-lucide="trending-down" stroke-width="1" class="absolute right-0 bottom-0 w-24 h-24 -rotate-12 pointer-events-none group-hover:scale-110 group-hover:opacity-25 transition-all duration-300" style="opacity: 0.12 !important; color: #e11d48 !important; z-index: 12 !important;"></i>
+            {{-- 3D Graphic Element in Background (21st.dev style) --}}
+            <img src="{{ asset('image/kpi/expenses_3d.svg') }}" alt="Expenses 3D" class="absolute -right-3 -bottom-3 w-28 h-28 sm:w-32 sm:h-32 object-contain pointer-events-none opacity-40 group-hover:opacity-85 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300" style="z-index: 12 !important;">
         </div>
 
         {{-- Coding Units Today --}}
@@ -770,7 +776,8 @@
                     <i data-lucide="calendar" class="w-5 h-5 sm:w-7 sm:h-7 text-violet-600"></i>
                 </div>
             </div>
-            <i data-lucide="calendar" stroke-width="1" class="absolute right-0 bottom-0 w-24 h-24 -rotate-12 pointer-events-none group-hover:scale-110 group-hover:opacity-25 transition-all duration-300" style="opacity: 0.12 !important; color: #7c3aed !important; z-index: 12 !important;"></i>
+            {{-- 3D Graphic Element in Background (21st.dev style) --}}
+            <img src="{{ asset('image/kpi/coding_3d.svg') }}" alt="Coding 3D" class="absolute -right-3 -bottom-3 w-28 h-28 sm:w-32 sm:h-32 object-contain pointer-events-none opacity-40 group-hover:opacity-85 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300" style="z-index: 12 !important;">
         </div>
 
     </div>
