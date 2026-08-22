@@ -8,27 +8,27 @@
 <div class="max-w-7xl mx-auto space-y-8 pb-12">
 
     {{-- ── 1. PAGE HEADER & STATUS ────────────────────────────────────────── --}}
-    <div class="relative overflow-hidden rounded-3xl border border-slate-200/80 bg-white/80 backdrop-blur-md p-6 sm:p-8 shadow-xs">
+    <div class="relative overflow-hidden rounded-3xl border border-slate-200/80 bg-gradient-to-r from-white via-amber-50/30 to-amber-100/20 backdrop-blur-md p-6 sm:p-7 shadow-xs">
         <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-            <div>
-                <!-- Breadcrumb -->
-                <div class="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">
-                    <span>Communication</span>
-                    <span>/</span>
-                    <span class="text-amber-600">Announcements</span>
+            <div class="flex items-center gap-5">
+                <!-- 3D Megaphone Graphic -->
+                <div class="w-18 h-18 sm:w-20 sm:h-20 shrink-0">
+                    <img src="{{ asset('image/kpi/announcement_3d.svg') }}" alt="Announcements" class="w-full h-full object-contain filter drop-shadow-md hover:scale-105 transition-transform">
                 </div>
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-2xl bg-amber-500/10 text-amber-600 flex items-center justify-center">
-                        <i data-lucide="megaphone" class="w-5 h-5"></i>
+                <div>
+                    <!-- Breadcrumb -->
+                    <div class="flex items-center gap-2 text-[11px] font-black text-slate-400 uppercase tracking-widest mb-1.5">
+                        <span>Communication</span>
+                        <span>/</span>
+                        <span class="text-amber-600 font-black">Announcements</span>
                     </div>
-                    <div>
-                        <h1 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">Announcements</h1>
-                        <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Broadcast important updates and notifications to all drivers across your fleet.</p>
-                    </div>
+                    <h1 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">Announcements</h1>
+                    <p class="text-xs sm:text-sm text-slate-500 mt-0.5 max-w-xl font-medium">Broadcast important updates and notifications to all drivers across your fleet.</p>
                 </div>
             </div>
-            <!-- Status Badge -->
-            <div class="flex items-center gap-3 self-start md:self-auto">
+
+            <!-- Status Badge & Counter -->
+            <div class="flex items-center gap-3 self-start md:self-center shrink-0">
                 <div class="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold shadow-2xs">
                     <span class="relative flex h-2 w-2">
                         <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
@@ -36,14 +36,10 @@
                     </span>
                     <span>Broadcast system active</span>
                 </div>
-                <div class="px-3.5 py-1.5 rounded-full bg-slate-900 text-white text-xs font-black uppercase tracking-wider">
+                <div class="px-4 py-1.5 rounded-full bg-slate-900 text-white text-xs font-black uppercase tracking-wider shadow-sm">
                     {{ $announcements->total() }} Total
                 </div>
             </div>
-        </div>
-        <!-- Decorative subtle background SVG -->
-        <div class="absolute -right-6 -bottom-10 opacity-5 pointer-events-none">
-            <i data-lucide="radio" class="w-48 h-48 text-slate-900"></i>
         </div>
     </div>
 
@@ -398,8 +394,8 @@
                     <tr>
                         <td colspan="4" class="px-6 py-16 text-center">
                             <div class="flex flex-col items-center justify-center max-w-sm mx-auto space-y-3">
-                                <div class="w-16 h-16 bg-slate-100 text-slate-400 rounded-3xl flex items-center justify-center">
-                                    <i data-lucide="megaphone" class="w-8 h-8 opacity-40"></i>
+                                <div class="w-20 h-20 flex items-center justify-center">
+                                    <img src="{{ asset('image/kpi/announcement_3d.svg') }}" class="w-full h-full object-contain opacity-70">
                                 </div>
                                 <h4 class="text-sm font-bold text-slate-700">No broadcasts yet</h4>
                                 <p class="text-xs text-slate-400 leading-relaxed">Create your first announcement above to keep all drivers updated on schedules, alerts, and policies.</p>
