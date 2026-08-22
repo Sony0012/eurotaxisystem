@@ -871,15 +871,19 @@ class SuperAdminController extends Controller
             // Determine First Login & Last Active strings
             $firstLoginStr = null;
             if ($firstLogin) {
-                $firstLoginStr = Carbon::parse($firstLogin->created_at)->format('h:i A');
-            } elseif ($loginToday) {
-                $firstLoginStr = Carbon::parse($user->last_login)->format('h:i A');
+                $firstLoginStr = 'First login: ' . Carbon::parse($firstLogin->created_at)->format('h:i A');
             } elseif ($sortedTimestamps->isNotEmpty()) {
-                $firstLoginStr = $sortedTimestamps->first()->format('h:i A');
+                $firstLoginStr = 'First active: ' . $sortedTimestamps->first()->format('h:i A');
+            } elseif ($loginToday) {
+                $firstLoginStr = 'First active: ' . Carbon::parse($user->last_login)->format('h:i A');
+            } elseif ($seenToday) {
+                $firstLoginStr = 'First active: ' . Carbon::parse($user->last_seen_at)->format('h:i A');
             }
 
             $lastActiveStr = null;
-            if ($sortedTimestamps->isNotEmpty()) {
+            if ($isOnline) {
+                $lastActiveStr = 'Online now (' . now()->format('h:i A') . ')';
+            } elseif ($sortedTimestamps->isNotEmpty()) {
                 $lastActiveStr = $sortedTimestamps->last()->format('h:i A');
             } elseif ($lastEntry) {
                 $lastActiveStr = Carbon::parse($lastEntry->created_at)->format('h:i A');

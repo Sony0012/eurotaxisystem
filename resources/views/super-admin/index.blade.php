@@ -2106,7 +2106,7 @@ function camRenderTable() {
                         ${u.name}${onlineTag}
                     </div>
                     <div style="font-size:.65rem;color:#64748b;margin-top:.1rem;">
-                        ${u.firstLogin ? 'First login: ' + u.firstLogin : (u.last_login ? 'Last seen: ' + u.last_login : 'Never logged in')}
+                        ${u.firstLogin ? u.firstLogin : (u.last_login ? 'Last seen: ' + u.last_login : 'Never logged in')}
                     </div>
                 </div>
             </div>
