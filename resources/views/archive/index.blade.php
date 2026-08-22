@@ -49,15 +49,45 @@
     }
 
     /* Tab pill active transitions */
-    .archive-pill-tab.active {
-        background: #0f172a;
-        color: #ffffff;
-        border-color: #0f172a;
-        box-shadow: 0 4px 12px -2px rgba(15, 23, 42, 0.18);
+    .archive-pill-tab {
+        background-color: #f8fafc;
+        color: #334155;
+        border-color: #e2e8f0;
+        transition: all 0.15s ease;
     }
-    .archive-pill-tab.active .pill-counter {
-        background: rgba(255, 255, 255, 0.2);
-        color: #ffffff;
+    .archive-pill-tab:hover {
+        background-color: #f1f5f9;
+        color: #0f172a;
+        border-color: #cbd5e1;
+    }
+    .archive-pill-tab.active,
+    .archive-pill-tab.active:hover,
+    .archive-pill-tab.active:focus,
+    .archive-pill-tab.active:active {
+        background-color: #0f172a !important;
+        color: #ffffff !important;
+        border-color: #0f172a !important;
+        box-shadow: 0 4px 14px -2px rgba(15, 23, 42, 0.25) !important;
+    }
+    .archive-pill-tab.active span,
+    .archive-pill-tab.active:hover span,
+    .archive-pill-tab.active:focus span {
+        color: #ffffff !important;
+    }
+    .archive-pill-tab.active .pill-counter,
+    .archive-pill-tab.active:hover .pill-counter,
+    .archive-pill-tab.active:focus .pill-counter {
+        background-color: rgba(255, 255, 255, 0.2) !important;
+        color: #ffffff !important;
+    }
+    .archive-pill-tab.active i,
+    .archive-pill-tab.active:hover i,
+    .archive-pill-tab.active:focus i,
+    .archive-pill-tab.active svg,
+    .archive-pill-tab.active:hover svg,
+    .archive-pill-tab.active:focus svg {
+        color: #ffffff !important;
+        stroke: #ffffff !important;
     }
 </style>
 @endpush
@@ -145,98 +175,98 @@
         <nav class="flex flex-wrap gap-2" aria-label="Archive Tabs" id="archive-tabs">
             
             <!-- 1. Units -->
-            <button type="button" onclick="switchTab('units')" class="archive-pill-tab active inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100 text-xs font-bold transition-all active:scale-95" data-tab="units">
+            <button type="button" onclick="switchTab('units')" class="archive-pill-tab active inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl border text-xs font-bold transition-all active:scale-95" data-tab="units">
                 <i data-lucide="car" class="w-3.5 h-3.5"></i>
                 <span>Units</span>
                 <span class="pill-counter px-2 py-0.5 rounded-full text-[10px] font-black bg-slate-200 text-slate-700">{{ count($archivedUnits) }}</span>
             </button>
 
             <!-- 2. Drivers -->
-            <button type="button" onclick="switchTab('drivers')" class="archive-pill-tab inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100 text-xs font-bold transition-all active:scale-95" data-tab="drivers">
+            <button type="button" onclick="switchTab('drivers')" class="archive-pill-tab inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl border text-xs font-bold transition-all active:scale-95" data-tab="drivers">
                 <i data-lucide="users" class="w-3.5 h-3.5"></i>
                 <span>Drivers</span>
                 <span class="pill-counter px-2 py-0.5 rounded-full text-[10px] font-black bg-slate-200 text-slate-700">{{ count($archivedDrivers) }}</span>
             </button>
 
             <!-- 3. User Accounts -->
-            <button type="button" onclick="switchTab('user_accounts')" class="archive-pill-tab inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100 text-xs font-bold transition-all active:scale-95" data-tab="user_accounts">
+            <button type="button" onclick="switchTab('user_accounts')" class="archive-pill-tab inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl border text-xs font-bold transition-all active:scale-95" data-tab="user_accounts">
                 <i data-lucide="shield" class="w-3.5 h-3.5"></i>
                 <span>User Accounts</span>
                 <span class="pill-counter px-2 py-0.5 rounded-full text-[10px] font-black bg-slate-200 text-slate-700">{{ count($archivedUserAccounts) }}</span>
             </button>
 
             <!-- 4. Expenses -->
-            <button type="button" onclick="switchTab('expenses')" class="archive-pill-tab inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100 text-xs font-bold transition-all active:scale-95" data-tab="expenses">
+            <button type="button" onclick="switchTab('expenses')" class="archive-pill-tab inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl border text-xs font-bold transition-all active:scale-95" data-tab="expenses">
                 <i data-lucide="receipt" class="w-3.5 h-3.5"></i>
                 <span>Expenses</span>
                 <span class="pill-counter px-2 py-0.5 rounded-full text-[10px] font-black bg-slate-200 text-slate-700">{{ count($archivedExpenses) }}</span>
             </button>
 
             <!-- 5. Maintenance -->
-            <button type="button" onclick="switchTab('maintenance')" class="archive-pill-tab inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100 text-xs font-bold transition-all active:scale-95" data-tab="maintenance">
+            <button type="button" onclick="switchTab('maintenance')" class="archive-pill-tab inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl border text-xs font-bold transition-all active:scale-95" data-tab="maintenance">
                 <i data-lucide="wrench" class="w-3.5 h-3.5"></i>
                 <span>Maintenance</span>
                 <span class="pill-counter px-2 py-0.5 rounded-full text-[10px] font-black bg-slate-200 text-slate-700">{{ count($archivedMaintenance) }}</span>
             </button>
 
             <!-- 6. Boundaries -->
-            <button type="button" onclick="switchTab('boundaries')" class="archive-pill-tab inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100 text-xs font-bold transition-all active:scale-95" data-tab="boundaries">
+            <button type="button" onclick="switchTab('boundaries')" class="archive-pill-tab inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl border text-xs font-bold transition-all active:scale-95" data-tab="boundaries">
                 <i data-lucide="wallet" class="w-3.5 h-3.5"></i>
                 <span>Boundaries</span>
                 <span class="pill-counter px-2 py-0.5 rounded-full text-[10px] font-black bg-slate-200 text-slate-700">{{ count($archivedBoundaries) }}</span>
             </button>
 
             <!-- 7. Staff -->
-            <button type="button" onclick="switchTab('staff')" class="archive-pill-tab inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100 text-xs font-bold transition-all active:scale-95" data-tab="staff">
+            <button type="button" onclick="switchTab('staff')" class="archive-pill-tab inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl border text-xs font-bold transition-all active:scale-95" data-tab="staff">
                 <i data-lucide="user-cog" class="w-3.5 h-3.5"></i>
                 <span>Staff</span>
                 <span class="pill-counter px-2 py-0.5 rounded-full text-[10px] font-black bg-slate-200 text-slate-700">{{ count($archivedStaff) }}</span>
             </button>
 
             <!-- 8. Incidents -->
-            <button type="button" onclick="switchTab('incidents')" class="archive-pill-tab inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100 text-xs font-bold transition-all active:scale-95" data-tab="incidents">
+            <button type="button" onclick="switchTab('incidents')" class="archive-pill-tab inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl border text-xs font-bold transition-all active:scale-95" data-tab="incidents">
                 <i data-lucide="alert-triangle" class="w-3.5 h-3.5"></i>
                 <span>Incidents</span>
                 <span class="pill-counter px-2 py-0.5 rounded-full text-[10px] font-black bg-slate-200 text-slate-700">{{ count($archivedIncidents) }}</span>
             </button>
 
             <!-- 9. Accidents/SOS -->
-            <button type="button" onclick="switchTab('accidents')" class="archive-pill-tab inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100 text-xs font-bold transition-all active:scale-95" data-tab="accidents">
+            <button type="button" onclick="switchTab('accidents')" class="archive-pill-tab inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl border text-xs font-bold transition-all active:scale-95" data-tab="accidents">
                 <i data-lucide="ambulance" class="w-3.5 h-3.5"></i>
                 <span>Accidents/SOS</span>
                 <span class="pill-counter px-2 py-0.5 rounded-full text-[10px] font-black bg-slate-200 text-slate-700">{{ count($archivedAccidents) }}</span>
             </button>
 
             <!-- 10. Pricing Rules -->
-            <button type="button" onclick="switchTab('pricing_rules')" class="archive-pill-tab inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100 text-xs font-bold transition-all active:scale-95" data-tab="pricing_rules">
+            <button type="button" onclick="switchTab('pricing_rules')" class="archive-pill-tab inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl border text-xs font-bold transition-all active:scale-95" data-tab="pricing_rules">
                 <i data-lucide="scale" class="w-3.5 h-3.5"></i>
                 <span>Pricing Rules</span>
                 <span class="pill-counter px-2 py-0.5 rounded-full text-[10px] font-black bg-slate-200 text-slate-700">{{ count($archivedPricingRules) }}</span>
             </button>
 
             <!-- 11. Suppliers -->
-            <button type="button" onclick="switchTab('suppliers')" class="archive-pill-tab inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100 text-xs font-bold transition-all active:scale-95" data-tab="suppliers">
+            <button type="button" onclick="switchTab('suppliers')" class="archive-pill-tab inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl border text-xs font-bold transition-all active:scale-95" data-tab="suppliers">
                 <i data-lucide="truck" class="w-3.5 h-3.5"></i>
                 <span>Suppliers</span>
                 <span class="pill-counter px-2 py-0.5 rounded-full text-[10px] font-black bg-slate-200 text-slate-700">{{ count($archivedSuppliers) }}</span>
             </button>
 
             <!-- 12. Spare Parts -->
-            <button type="button" onclick="switchTab('spare_parts')" class="archive-pill-tab inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100 text-xs font-bold transition-all active:scale-95" data-tab="spare_parts">
+            <button type="button" onclick="switchTab('spare_parts')" class="archive-pill-tab inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl border text-xs font-bold transition-all active:scale-95" data-tab="spare_parts">
                 <i data-lucide="package" class="w-3.5 h-3.5"></i>
                 <span>Spare Parts</span>
                 <span class="pill-counter px-2 py-0.5 rounded-full text-[10px] font-black bg-slate-200 text-slate-700">{{ count($archivedSpareParts) }}</span>
             </button>
 
             <!-- 13. Franchise Cases -->
-            <button type="button" onclick="switchTab('franchise_cases')" class="archive-pill-tab inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100 text-xs font-bold transition-all active:scale-95" data-tab="franchise_cases">
+            <button type="button" onclick="switchTab('franchise_cases')" class="archive-pill-tab inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl border text-xs font-bold transition-all active:scale-95" data-tab="franchise_cases">
                 <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
                 <span>Franchise Cases</span>
                 <span class="pill-counter px-2 py-0.5 rounded-full text-[10px] font-black bg-slate-200 text-slate-700">{{ count($archivedFranchiseCases) }}</span>
             </button>
 
             <!-- 14. Driver Terms -->
-            <button type="button" onclick="switchTab('driver_terms')" class="archive-pill-tab inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100 text-xs font-bold transition-all active:scale-95" data-tab="driver_terms">
+            <button type="button" onclick="switchTab('driver_terms')" class="archive-pill-tab inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl border text-xs font-bold transition-all active:scale-95" data-tab="driver_terms">
                 <i data-lucide="scroll" class="w-3.5 h-3.5"></i>
                 <span>Driver Terms</span>
                 <span class="pill-counter px-2 py-0.5 rounded-full text-[10px] font-black bg-slate-200 text-slate-700">{{ count($archivedDriverTerms) }}</span>
