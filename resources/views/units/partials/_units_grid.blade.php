@@ -1,6 +1,6 @@
 {{-- ═══════════════════════════════════════════════════════════════
-     UNIT MANAGEMENT — 3D SVG & EQUAL-HEIGHT GRID CARDS
-     Modern 21st.dev rounded-3xl layout with uniform card heights.
+     UNIT MANAGEMENT — 21st.dev INTERACTIVE 3D PERSPECTIVE CARDS
+     Based on 21st.dev Card-7 with Interactive 3D Perspective Tilt.
      ═══════════════════════════════════════════════════════════════ --}}
 
 <div class="p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6 bg-slate-50/50 items-stretch">
@@ -20,60 +20,63 @@
 
             // Badge styling per status
             $status_badge = match($unit->status) {
-                'active'              => 'bg-emerald-50 text-emerald-700 border-emerald-200/80',
-                'maintenance'         => 'bg-rose-50 text-rose-700 border-rose-200/80',
-                'coding'              => 'bg-amber-50 text-amber-800 border-amber-200/80',
-                'at_risk'             => 'bg-orange-50 text-orange-800 border-orange-200/80',
-                'vacant', 'available' => 'bg-slate-100 text-slate-700 border-slate-200',
-                default               => 'bg-slate-100 text-slate-700 border-slate-200',
+                'active'              => 'bg-emerald-500/10 text-emerald-700 border-emerald-300/60',
+                'maintenance'         => 'bg-rose-500/10 text-rose-700 border-rose-300/60',
+                'coding'              => 'bg-amber-500/10 text-amber-800 border-amber-300/60',
+                'at_risk'             => 'bg-orange-500/10 text-orange-800 border-orange-300/60',
+                'vacant', 'available' => 'bg-slate-500/10 text-slate-700 border-slate-300/60',
+                default               => 'bg-slate-500/10 text-slate-700 border-slate-300/60',
             };
 
             $status_dot = match($unit->status) {
-                'active'              => 'bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.5)]',
-                'maintenance'         => 'bg-rose-500 shadow-[0_0_6px_rgba(244,63,94,0.5)]',
-                'coding'              => 'bg-amber-500 shadow-[0_0_6px_rgba(245,158,11,0.5)]',
-                'at_risk'             => 'bg-orange-500 shadow-[0_0_6px_rgba(249,115,22,0.5)]',
+                'active'              => 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]',
+                'maintenance'         => 'bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.6)]',
+                'coding'              => 'bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.6)]',
+                'at_risk'             => 'bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.6)]',
                 'vacant', 'available' => 'bg-slate-400',
                 default               => 'bg-slate-400',
             };
 
             $card_border = match($unit->status) {
-                'active'              => 'border-emerald-500/80 hover:border-emerald-500',
-                'maintenance'         => 'border-rose-500/80 hover:border-rose-500',
-                'coding'              => 'border-amber-400/80 hover:border-amber-400',
-                'at_risk'             => 'border-orange-500/80 hover:border-orange-500',
-                'vacant', 'available' => 'border-slate-300 hover:border-slate-400',
+                'active'              => 'border-emerald-500/70 hover:border-emerald-500',
+                'maintenance'         => 'border-rose-500/70 hover:border-rose-500',
+                'coding'              => 'border-amber-400/70 hover:border-amber-400',
+                'at_risk'             => 'border-orange-500/70 hover:border-orange-500',
+                'vacant', 'available' => 'border-slate-300/80 hover:border-slate-400',
                 default               => 'border-slate-200 hover:border-slate-300',
             };
 
             $card_gradient = match($unit->status) {
-                'active'              => 'bg-gradient-to-b from-white via-emerald-50/15 to-white',
-                'maintenance'         => 'bg-gradient-to-b from-white via-rose-50/15 to-white',
-                'coding'              => 'bg-gradient-to-b from-white via-amber-50/15 to-white',
-                'at_risk'             => 'bg-gradient-to-b from-white via-orange-50/15 to-white',
-                'vacant', 'available' => 'bg-gradient-to-b from-white via-slate-50/30 to-white',
+                'active'              => 'bg-gradient-to-b from-white via-emerald-50/20 to-white',
+                'maintenance'         => 'bg-gradient-to-b from-white via-rose-50/20 to-white',
+                'coding'              => 'bg-gradient-to-b from-white via-amber-50/20 to-white',
+                'at_risk'             => 'bg-gradient-to-b from-white via-orange-50/20 to-white',
+                'vacant', 'available' => 'bg-gradient-to-b from-white via-slate-50/40 to-white',
                 default               => 'bg-white',
             };
 
             $has_maintenance_data = (int)($unit->gps_device_count ?? 0) > 0 || !empty($unit->imei);
         @endphp
 
-        <div class="h-full flex flex-col justify-between rounded-3xl border-2 {{ $card_border }} {{ $card_gradient }} p-5 shadow-xs hover:shadow-md transition-shadow cursor-pointer relative" 
+        <div class="unit-perspective-card h-full flex flex-col justify-between rounded-[2rem] border-2 {{ $card_border }} {{ $card_gradient }} p-5 shadow-xs transition-all cursor-pointer relative"
+             style="transform-style: preserve-3d; will-change: transform;"
+             onmousemove="handleUnitCardTilt(event, this)"
+             onmouseleave="resetUnitCardTilt(this)"
              onclick="viewUnitDetails({{ $unit->uuid }})">
             
             <div>
-                {{-- ── Top Row: Plate & Status ── --}}
+                {{-- ── Top Glassmorphic Header: Plate & Status ── --}}
                 <div class="flex justify-between items-center mb-4">
-                    <div class="bg-slate-950 text-white px-3.5 py-1 rounded-xl text-xs sm:text-sm font-black tracking-widest shadow-xs">
+                    <div class="bg-slate-950 text-white px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-black tracking-widest shadow-sm">
                         {{ $unit->plate_number }}
                     </div>
-                    <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border {{ $status_badge }}">
+                    <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border {{ $status_badge }} backdrop-blur-xs">
                         <span class="w-2 h-2 rounded-full {{ $status_dot }} animate-pulse"></span>
                         <span>{{ $unit->status === 'at_risk' ? 'At Risk' : ucfirst($unit->status === 'available' ? 'vacant' : $unit->status) }}</span>
                     </div>
                 </div>
 
-                {{-- ── Middle Row: Vehicle Details & 3D SVG ── --}}
+                {{-- ── Vehicle Title & 3D Illustration Row ── --}}
                 <div class="flex items-center justify-between gap-3 mb-4">
                     <div class="min-w-0 flex-1">
                         <h4 class="text-base sm:text-lg font-black text-slate-900 leading-tight truncate">
@@ -83,21 +86,21 @@
                             {{ $unit->year }} • {{ strtoupper($unit->unit_type ?? 'NEW') }}
                         </p>
                         
-                        {{-- Boundary Rate Badge --}}
-                        <div class="mt-2.5 inline-flex items-center gap-1 px-2.5 py-1 bg-emerald-50 text-emerald-700 rounded-lg border border-emerald-200/60">
-                            <i data-lucide="banknote" class="w-3 h-3 text-emerald-600"></i>
-                            <span class="text-xs font-black">₱{{ number_format($unit->current_rate ?? $unit->boundary_rate, 2) }}</span>
+                        {{-- Boundary Rate Badge (21st.dev floating pill) --}}
+                        <div class="mt-2.5 inline-flex items-center gap-1.5 px-3 py-1 bg-slate-900 text-white rounded-full shadow-xs">
+                            <i data-lucide="banknote" class="w-3.5 h-3.5 text-emerald-400"></i>
+                            <span class="text-xs font-black text-emerald-400">₱{{ number_format($unit->current_rate ?? $unit->boundary_rate, 2) }}</span>
                         </div>
                     </div>
 
-                    {{-- 3D SVG Taxi Illustration --}}
-                    <div class="w-16 h-16 sm:w-20 sm:h-20 shrink-0">
+                    {{-- 3D SVG Taxi with depth --}}
+                    <div class="w-18 h-18 sm:w-20 sm:h-20 shrink-0">
                         <img src="{{ asset('image/kpi/' . $status_svg) }}" alt="{{ $unit->status }} taxi" class="w-full h-full object-contain filter drop-shadow-md">
                     </div>
                 </div>
 
                 {{-- ── Driver Section ── --}}
-                <div class="bg-slate-50 rounded-2xl p-3 flex items-center gap-3 mb-3 border border-slate-100/80">
+                <div class="bg-slate-50/90 rounded-2xl p-3 flex items-center gap-3 mb-3 border border-slate-100">
                     <div class="w-8 h-8 bg-white rounded-full flex items-center justify-center border border-slate-200 shrink-0 shadow-xs">
                         <i data-lucide="user" class="w-4 h-4 text-slate-400"></i>
                     </div>
@@ -113,7 +116,7 @@
                         </p>
                     </div>
                     @if($unit->driver_id)
-                        <div class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.4)]"></div>
+                        <div class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.5)]"></div>
                     @endif
                 </div>
 
@@ -205,3 +208,25 @@
         </div>
     </div>
 @endif
+
+{{-- ── 21st.dev Interactive 3D Perspective Card Script ── --}}
+<script>
+    function handleUnitCardTilt(e, card) {
+        if (window.innerWidth < 768) return; // Disable tilt on mobile for performance
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const rotateX = ((y - rect.height / 2) / (rect.height / 2)) * -6; // Max 6deg
+        const rotateY = ((x - rect.width / 2) / (rect.width / 2)) * 6;   // Max 6deg
+
+        card.style.transform = `perspective(1000px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) scale3d(1.02, 1.02, 1.02)`;
+        card.style.boxShadow = '0 20px 25px -5px rgba(15, 23, 42, 0.1), 0 8px 10px -6px rgba(15, 23, 42, 0.05)';
+        card.style.transition = 'transform 0.08s ease-out, box-shadow 0.08s ease-out';
+    }
+
+    function resetUnitCardTilt(card) {
+        card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
+        card.style.boxShadow = '';
+        card.style.transition = 'transform 0.45s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.45s ease-out';
+    }
+</script>
