@@ -2,13 +2,12 @@ name: Deploy to Hostinger
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, master ]
   workflow_dispatch:
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
 
     steps:
       - name: Deploy to Hostinger via SSH
@@ -21,12 +20,9 @@ jobs:
           script: |
             cd /home/u747826271/domains/eurotaxisystem.site/public_html
             
-            # Put site in maintenance mode
-            php artisan down || true
-            
             # Fetch latest changes
-            git fetch origin main
-            git reset --hard origin/main
+            git fetch origin master
+            git reset --hard origin/master
             
             # Install/Update dependencies
             composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
