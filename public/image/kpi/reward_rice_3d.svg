@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <defs>
+    <radialGradient id="riceGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#f43f5e" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#9f1239" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="sackGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fda4af"/>
+      <stop offset="35%" stop-color="#f43f5e"/>
+      <stop offset="100%" stop-color="#be123c"/>
+    </linearGradient>
+    <linearGradient id="riceWhite" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#f1f5f9"/>
+    </linearGradient>
+    <filter id="riceShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="10" stdDeviation="8" flood-color="#881337" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+  <circle cx="100" cy="110" r="85" fill="url(#riceGlow)"/>
+  <g filter="url(#riceShadow)">
+    <g transform="translate(0, 5)">
+      <!-- Rice Sack Bottom/Body -->
+      <path d="M54 94 C54 78 68 76 100 76 C132 76 146 78 146 94 C146 142 136 156 100 156 C64 156 54 142 54 94 Z" fill="url(#sackGrad)"/>
+      
+      <!-- Tied Neck with Rope -->
+      <ellipse cx="100" cy="76" rx="28" ry="10" fill="#9f1239"/>
+      <rect x="88" y="72" width="24" height="8" rx="4" fill="#fbbf24"/>
+      <circle cx="94" cy="76" r="3" fill="#d97706"/>
+      <circle cx="106" cy="76" r="3" fill="#d97706"/>
+      
+      <!-- Top Frill of Sack -->
+      <path d="M84 74 C78 58 92 50 100 52 C108 50 122 58 116 74 Z" fill="url(#sackGrad)"/>
+      
+      <!-- Heap of White Rice Grains at top opening -->
+      <ellipse cx="100" cy="62" rx="14" ry="6" fill="url(#riceWhite)"/>
+      <ellipse cx="96" cy="60" rx="3" ry="1.5" fill="#e2e8f0"/>
+      <ellipse cx="104" cy="61" rx="3" ry="1.5" fill="#e2e8f0"/>
+      
+      <!-- Badge on Front of Sack: 25KG Premium -->
+      <circle cx="100" cy="116" r="22" fill="#ffffff" opacity="0.95"/>
+      <circle cx="100" cy="116" r="18" fill="none" stroke="#be123c" stroke-width="2" opacity="0.4"/>
+      <text x="100" y="114" font-size="11" font-weight="900" fill="#9f1239" text-anchor="middle" font-family="sans-serif">25KG</text>
+      <text x="100" y="125" font-size="6.5" font-weight="900" fill="#e11d48" text-anchor="middle" font-family="sans-serif" letter-spacing="1">RICE</text>
+    </g>
+    <!-- Sparkle -->
+    <path d="M148 54 L151 46 L154 54 L162 57 L154 60 L151 68 L148 60 L140 57 Z" fill="#ffffff" opacity="0.95"/>
+  </g>
+</svg>

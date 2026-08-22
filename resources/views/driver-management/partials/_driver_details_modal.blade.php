@@ -524,10 +524,10 @@
             const scoreBar   = score >= 80 ? 'bg-emerald-500' : score >= 50 ? 'bg-amber-400' : 'bg-rose-500';
 
             const eligStatus = data.is_eligible && data.is_first_week 
-                ? '<div class="bg-emerald-900 border border-emerald-800 text-emerald-50 p-6 rounded-2xl mb-6 shadow-xl relative overflow-hidden group"><div class="absolute right-0 top-0 p-4 opacity-10 group-hover:rotate-12 transition-transform"><i data-lucide="party-popper" class="w-20 h-20"></i></div><h3 class="text-xl font-black uppercase tracking-tight mb-1 flex items-center gap-2"><i data-lucide="sparkles" class="w-6 h-6 text-amber-400"></i> Grand Incentive Unlocked</h3><p class="text-xs font-bold text-emerald-400 tracking-wide">Driver has met all operational excellence criteria for the current cycle.</p></div>'
+                ? '<div class="bg-gradient-to-r from-emerald-900 to-teal-950 border border-emerald-800/80 text-emerald-50 p-6 rounded-3xl mb-6 shadow-xl relative overflow-hidden flex items-center justify-between"><div class="relative z-10 max-w-sm"><div class="flex items-center gap-2 mb-1"><span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-400/30"><i data-lucide="sparkles" class="w-3 h-3 text-amber-400"></i> Qualified</span></div><h3 class="text-xl font-black uppercase tracking-tight text-white mb-1">Grand Incentive Unlocked</h3><p class="text-xs font-semibold text-emerald-200/90 leading-relaxed">Driver has met all operational excellence criteria for the current cycle.</p></div><div class="w-16 h-16 shrink-0 z-10"><img src="{{ asset("image/kpi/owner_active_3d.svg") }}" alt="Incentive Unlocked" class="w-full h-full object-contain filter drop-shadow-lg"></div></div>'
                 : data.is_eligible && !data.is_first_week
-                ? '<div class="bg-blue-900 border border-blue-800 text-blue-50 p-6 rounded-2xl mb-6 shadow-xl relative overflow-hidden group"><div class="absolute right-0 top-0 p-4 opacity-10 group-hover:rotate-12 transition-transform"><i data-lucide="shield-check" class="w-20 h-20"></i></div><h3 class="text-xl font-black uppercase tracking-tight mb-1 flex items-center gap-2"><i data-lucide="timer" class="w-6 h-6 text-blue-400"></i> Excellence Track Active</h3><p class="text-xs font-bold text-blue-400 tracking-wide">Zero violations detected. Awaiting final validation during 1st cycle week.</p></div>'
-                : '<div class="bg-rose-900 border border-rose-800 text-rose-50 p-6 rounded-2xl mb-6 shadow-xl relative overflow-hidden group"><div class="absolute right-0 top-0 p-4 opacity-10 group-hover:rotate-12 transition-transform"><i data-lucide="x-circle" class="w-20 h-20"></i></div><h3 class="text-xl font-black uppercase tracking-tight mb-1 flex items-center gap-2"><i data-lucide="shield-x" class="w-6 h-6 text-rose-400"></i> Eligibility Revoked</h3><p class="text-xs font-bold text-rose-400 tracking-wide">Violation anomalies detected during the evaluation lookback period.</p></div>';
+                ? '<div class="bg-gradient-to-r from-blue-900 to-indigo-950 border border-blue-800/80 text-blue-50 p-6 rounded-3xl mb-6 shadow-xl relative overflow-hidden flex items-center justify-between"><div class="relative z-10 max-w-sm"><div class="flex items-center gap-2 mb-1"><span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-blue-500/20 text-blue-300 border border-blue-400/30"><i data-lucide="timer" class="w-3 h-3"></i> In Progress</span></div><h3 class="text-xl font-black uppercase tracking-tight text-white mb-1">Excellence Track Active</h3><p class="text-xs font-semibold text-blue-200/90 leading-relaxed">Zero violations detected. Awaiting final validation during 1st cycle week.</p></div><div class="w-16 h-16 shrink-0 z-10"><img src="{{ asset("image/kpi/owner_active_3d.svg") }}" alt="Excellence Track" class="w-full h-full object-contain filter drop-shadow-lg"></div></div>'
+                : '<div class="bg-gradient-to-r from-rose-900 to-red-950 border border-rose-800/80 text-rose-50 p-6 rounded-3xl mb-6 shadow-xl relative overflow-hidden flex items-center justify-between"><div class="relative z-10 max-w-sm"><div class="flex items-center gap-2 mb-1"><span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-rose-500/20 text-rose-300 border border-rose-400/30"><i data-lucide="shield-alert" class="w-3 h-3 text-rose-400"></i> Disqualified</span></div><h3 class="text-xl font-black uppercase tracking-tight text-white mb-1">Eligibility Revoked</h3><p class="text-xs font-semibold text-rose-200/90 leading-relaxed">Violation anomalies detected during the evaluation lookback period.</p></div><div class="w-16 h-16 shrink-0 z-10"><img src="{{ asset("image/kpi/owner_rejected_3d.svg") }}" alt="Revoked" class="w-full h-full object-contain filter drop-shadow-lg"></div></div>';
 
             const reqList = [
                 { passed: (data.violations_absences||0) === 0, text: 'Continuity: Zero Unattended Shifts' },
@@ -553,28 +553,45 @@
                     <div class="space-y-4">
                         <p class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Operational Excellence Dashboard</p>
                         ${eligStatus}
-                        <div class="bg-slate-900 rounded-2xl border border-slate-800 shadow-xl overflow-hidden">
-                            <div class="bg-amber-400 p-4 text-center shadow-lg">
-                                <p class="text-slate-900 font-black text-sm uppercase tracking-[0.2em] flex justify-center items-center gap-2"><i data-lucide="gift" class="w-4 h-4"></i> Premium Reward Manifest</p>
+                        <div class="bg-slate-900 rounded-3xl border border-slate-800 shadow-xl overflow-hidden">
+                            <div class="bg-gradient-to-r from-amber-400 to-amber-500 p-3.5 text-center shadow-md">
+                                <p class="text-slate-950 font-black text-xs uppercase tracking-[0.2em] flex justify-center items-center gap-2"><i data-lucide="gift" class="w-4 h-4"></i> Premium Reward Manifest</p>
                             </div>
-                            <div class="p-6 flex gap-6 justify-center items-center">
-                                <div class="text-center group"><span class="block text-3xl mb-1 transform group-hover:scale-125 transition-transform">🎫</span><span class="text-[8px] font-black text-slate-400 uppercase leading-none">Free<br>Coding</span></div>
-                                <div class="w-px h-10 bg-slate-800"></div>
-                                <div class="text-center group"><span class="block text-3xl mb-1 transform group-hover:scale-125 transition-transform">🍚</span><span class="text-[8px] font-black text-slate-400 uppercase leading-none">25kg Premium<br>Rice</span></div>
-                                <div class="w-px h-10 bg-slate-800"></div>
-                                <div class="text-center group"><span class="block text-3xl mb-1 transform group-hover:scale-125 transition-transform">💵</span><span class="text-[8px] font-black text-slate-400 uppercase leading-none">₱500 Performance<br>Cash</span></div>
+                            <div class="p-6 grid grid-cols-3 gap-4 text-center items-center">
+                                <div class="flex flex-col items-center justify-center">
+                                    <div class="w-14 h-14 sm:w-16 sm:h-16 mb-2">
+                                        <img src="{{ asset("image/kpi/reward_ticket_3d.svg") }}" alt="Free Coding" class="w-full h-full object-contain filter drop-shadow-md">
+                                    </div>
+                                    <span class="text-[10px] font-black text-slate-300 uppercase tracking-wider leading-tight">Free<br>Coding</span>
+                                </div>
+                                <div class="flex flex-col items-center justify-center border-x border-slate-800 px-2">
+                                    <div class="w-14 h-14 sm:w-16 sm:h-16 mb-2">
+                                        <img src="{{ asset("image/kpi/reward_rice_3d.svg") }}" alt="25kg Premium Rice" class="w-full h-full object-contain filter drop-shadow-md">
+                                    </div>
+                                    <span class="text-[10px] font-black text-slate-300 uppercase tracking-wider leading-tight">25kg Premium<br>Rice</span>
+                                </div>
+                                <div class="flex flex-col items-center justify-center">
+                                    <div class="w-14 h-14 sm:w-16 sm:h-16 mb-2">
+                                        <img src="{{ asset("image/kpi/reward_cash_3d.svg") }}" alt="₱500 Cash" class="w-full h-full object-contain filter drop-shadow-md">
+                                    </div>
+                                    <span class="text-[10px] font-black text-slate-300 uppercase tracking-wider leading-tight">₱500 Performance<br>Cash</span>
+                                </div>
                             </div>
                         </div>
 
-                        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 flex items-center justify-between shadow-2xl relative overflow-hidden group">
-                            <div class="absolute right-0 top-0 p-4 opacity-5 group-hover:scale-110 transition-transform"><i data-lucide="target" class="w-20 h-20 text-white"></i></div>
-                            <div>
-                                <p class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">Fleet Strategic Index</p>
-                                <p class="text-xs text-slate-500 font-bold leading-tight">Composite calculation of incentive velocity<br>and safety anomalous data.</p>
+                        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 flex items-center justify-between shadow-2xl relative overflow-hidden">
+                            <div class="relative z-10">
+                                <p class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1.5">Fleet Strategic Index</p>
+                                <p class="text-xs text-slate-400 font-semibold leading-relaxed">Composite calculation of incentive velocity<br>and safety anomalous data.</p>
                             </div>
-                            <div class="text-center shrink-0">
-                                <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Index Score</span>
-                                <span class="text-3xl font-black ${scoreColor}">${Math.round(score)}</span>
+                            <div class="flex items-center gap-4 relative z-10 shrink-0">
+                                <div class="w-12 h-12">
+                                    <img src="{{ asset("image/kpi/fleet_index_3d.svg") }}" alt="Strategic Index" class="w-full h-full object-contain filter drop-shadow-md">
+                                </div>
+                                <div class="text-right">
+                                    <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-0.5">Index Score</span>
+                                    <span class="text-3xl font-black ${scoreColor}">${Math.round(score)}</span>
+                                </div>
                             </div>
                         </div>
                     </div>
