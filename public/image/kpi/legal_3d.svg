@@ -1,34 +1,36 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
   <defs>
     <radialGradient id="legGlow" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.6"/>
-      <stop offset="100%" stop-color="#b45309" stop-opacity="0"/>
+      <stop offset="0%" stop-color="#f43f5e" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#881337" stop-opacity="0"/>
     </radialGradient>
     <linearGradient id="legGold" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#fef08a"/>
+      <stop offset="0%" stop-color="#fde047"/>
       <stop offset="50%" stop-color="#eab308"/>
       <stop offset="100%" stop-color="#ca8a04"/>
     </linearGradient>
     <filter id="legShadow" x="-20%" y="-20%" width="140%" height="140%">
-      <feDropShadow dx="0" dy="12" stdDeviation="10" flood-color="#78350f" flood-opacity="0.35"/>
+      <feDropShadow dx="0" dy="12" stdDeviation="10" flood-color="#881337" flood-opacity="0.35"/>
     </filter>
   </defs>
   <circle cx="100" cy="110" r="85" fill="url(#legGlow)"/>
   <g filter="url(#legShadow)">
     <g transform="rotate(-4 100 100)">
-      <!-- Main Pillar & Stand -->
-      <rect x="96" y="55" width="8" height="85" rx="4" fill="url(#legGold)"/>
-      <path d="M75 140 L125 140 L115 150 L85 150 Z" fill="url(#legGold)"/>
+      <!-- Main Stand -->
+      <rect x="96" y="55" width="8" height="90" rx="4" fill="url(#legGold)"/>
+      <ellipse cx="100" cy="148" rx="30" ry="10" fill="url(#legGold)"/>
+      <circle cx="100" cy="55" r="7" fill="#fde047"/>
       <!-- Balance Beam -->
-      <rect x="52" y="66" width="96" height="6" rx="3" fill="url(#legGold)"/>
-      <!-- Left Pan Strings & Pan -->
-      <path d="M60 72 L50 102 M60 72 L70 102" stroke="#eab308" stroke-width="2"/>
-      <path d="M46 102 Q60 116 74 102 Z" fill="url(#legGold)"/>
-      <!-- Right Pan Strings & Pan -->
-      <path d="M140 72 L130 96 M140 72 L150 96" stroke="#eab308" stroke-width="2"/>
-      <path d="M126 96 Q140 110 154 96 Z" fill="url(#legGold)"/>
-      <!-- Center Pivot -->
-      <circle cx="100" cy="69" r="6" fill="#fef08a" stroke="#ca8a04" stroke-width="2"/>
+      <path d="M50 70 Q100 62 150 70" stroke="url(#legGold)" stroke-width="6" stroke-linecap="round" fill="none"/>
+      <!-- Left Pan -->
+      <path d="M50 70 L40 105 L60 105 Z" stroke="#ca8a04" stroke-width="2" fill="none"/>
+      <ellipse cx="50" cy="105" rx="16" ry="6" fill="url(#legGold)"/>
+      <!-- Right Pan (Slightly tilted) -->
+      <path d="M150 70 L140 115 L160 115 Z" stroke="#ca8a04" stroke-width="2" fill="none"/>
+      <ellipse cx="150" cy="115" rx="16" ry="6" fill="url(#legGold)"/>
+      <!-- Small Warning Tag in middle -->
+      <circle cx="100" cy="95" r="14" fill="#ef4444" stroke="#ffffff" stroke-width="2"/>
+      <text x="100" y="100" font-size="14" font-weight="bold" fill="#ffffff" text-anchor="middle" font-family="sans-serif">!</text>
     </g>
   </g>
 </svg>
