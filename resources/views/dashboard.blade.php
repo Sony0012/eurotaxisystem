@@ -601,9 +601,6 @@
                     <p class="text-slate-800 text-xl sm:text-3xl font-bold tracking-tight leading-none mb-1 group-hover:translate-x-1 transition-transform duration-300" data-stat="active_units">{{ $stats['active_units'] }}</p>
                     <p class="text-blue-600 text-[10px] sm:text-xs font-medium group-hover:translate-x-1 transition-transform duration-300"><span class="text-emerald-600 font-bold" data-stat="roi_achieved">{{ $stats['roi_units'] }}</span> ROI Achieved</p>
                 </div>
-                <div class="p-1.5 sm:p-3 bg-blue-100/80 rounded-xl sm:rounded-2xl border border-blue-300 shadow-md shadow-blue-500/10 flex-shrink-0 relative z-10 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300">
-                    <i data-lucide="car" class="w-5 h-5 sm:w-7 sm:h-7 text-blue-600"></i>
-                </div>
             </div>
             {{-- 3D Graphic Element in Background (21st.dev style) --}}
             <img src="{{ asset('image/kpi/taxi_3d.svg') }}" alt="Taxi 3D" class="absolute -right-3 -bottom-3 w-28 h-28 sm:w-32 sm:h-32 object-contain pointer-events-none opacity-40 group-hover:opacity-85 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300" style="z-index: 12 !important;">
@@ -632,9 +629,6 @@
                         <p class="text-slate-800 text-base sm:text-lg font-bold leading-none mb-0.5" data-stat="month_boundary">{{ formatCurrency($stats['month_boundary'] ?? 0) }}</p>
                         <p class="text-emerald-700 text-[8px] sm:text-[9px] font-bold uppercase tracking-widest">This Month</p>
                     </div>
-                </div>
-                <div class="p-1.5 sm:p-3 bg-emerald-100/80 rounded-xl sm:rounded-2xl border border-emerald-300 shadow-md shadow-emerald-500/10 flex-shrink-0 relative z-10 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300">
-                    <i data-lucide="banknote" class="w-5 h-5 sm:w-7 sm:h-7 text-emerald-600"></i>
                 </div>
             </div>
             {{-- 3D Graphic Element in Background (21st.dev style) --}}
@@ -665,9 +659,6 @@
                         <p class="text-green-700 text-[8px] sm:text-[9px] font-bold uppercase tracking-widest">This Month</p>
                     </div>
                 </div>
-                <div class="p-1.5 sm:p-3 bg-green-100/80 rounded-xl sm:rounded-2xl border border-green-300 shadow-md shadow-green-500/10 flex-shrink-0 relative z-10 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300">
-                    <i data-lucide="trending-up" class="w-5 h-5 sm:w-7 sm:h-7 text-green-600"></i>
-                </div>
             </div>
             {{-- 3D Graphic Element in Background (21st.dev style) --}}
             <img src="{{ asset('image/kpi/profit_3d.svg') }}" alt="Profit 3D" class="absolute -right-3 -bottom-3 w-28 h-28 sm:w-32 sm:h-32 object-contain pointer-events-none opacity-40 group-hover:opacity-85 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300" style="z-index: 12 !important;">
@@ -690,9 +681,6 @@
                     <p class="text-orange-600 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest mb-1 group-hover:translate-x-1.5 transition-transform duration-300 inline-block">Under Maintenance</p>
                     <p class="text-slate-800 text-xl sm:text-3xl font-bold tracking-tight leading-none mb-1 group-hover:translate-x-1 transition-transform duration-300" data-stat="maintenance_units">{{ $stats['maintenance_units'] }}</p>
                     <p class="text-orange-600 text-[10px] sm:text-xs font-medium truncate group-hover:translate-x-1 transition-transform duration-300" data-stat="maintenance_subtitle">Ongoing units</p>
-                </div>
-                <div class="p-1.5 sm:p-3 bg-orange-100/80 rounded-xl sm:rounded-2xl border border-orange-300 shadow-md shadow-orange-500/10 flex-shrink-0 relative z-10 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300">
-                    <i data-lucide="wrench" class="w-5 h-5 sm:w-7 sm:h-7 text-orange-600"></i>
                 </div>
             </div>
             {{-- 3D Graphic Element in Background (21st.dev style) --}}
@@ -721,9 +709,6 @@
                     <p class="text-indigo-600 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest mb-1 group-hover:translate-x-1.5 transition-transform duration-300 inline-block">Active Drivers</p>
                     <p class="text-slate-800 text-xl sm:text-3xl font-bold tracking-tight leading-none group-hover:translate-x-1 transition-transform duration-300" data-stat="active_drivers">{{ $stats['active_drivers'] }}</p>
                 </div>
-                <div class="p-1.5 sm:p-3 bg-indigo-100/80 rounded-xl sm:rounded-2xl border border-indigo-300 shadow-md shadow-indigo-500/10 flex-shrink-0 relative z-10 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300">
-                    <i data-lucide="users" class="w-5 h-5 sm:w-7 sm:h-7 text-indigo-600"></i>
-                </div>
             </div>
             {{-- 3D Graphic Element in Background (21st.dev style) --}}
             <img src="{{ asset('image/kpi/drivers_3d.svg') }}" alt="Drivers 3D" class="absolute -right-3 -bottom-3 w-28 h-28 sm:w-32 sm:h-32 object-contain pointer-events-none opacity-40 group-hover:opacity-85 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300" style="z-index: 12 !important;">
@@ -745,9 +730,6 @@
                 <div class="flex-1 min-w-0 relative z-10 pl-1.5">
                     <p class="text-rose-600 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest mb-1 group-hover:translate-x-1.5 transition-transform duration-300 inline-block">Expenses Today</p>
                     <p class="text-slate-800 text-lg sm:text-2xl font-bold tracking-tight leading-none group-hover:translate-x-1 transition-transform duration-300" data-stat="today_expenses">{{ formatCurrency($stats['total_expenses_today']) }}</p>
-                </div>
-                <div class="p-1.5 sm:p-3 bg-rose-100/80 rounded-xl sm:rounded-2xl border border-rose-300 shadow-md shadow-rose-500/10 flex-shrink-0 relative z-10 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300">
-                    <i data-lucide="trending-down" class="w-5 h-5 sm:w-7 sm:h-7 text-rose-600"></i>
                 </div>
             </div>
             {{-- 3D Graphic Element in Background (21st.dev style) --}}
@@ -771,9 +753,6 @@
                     <p class="text-violet-600 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest mb-1 group-hover:translate-x-1.5 transition-transform duration-300 inline-block">Coding Units Today</p>
                     <p class="text-slate-800 text-xl sm:text-3xl font-bold tracking-tight leading-none mb-1 group-hover:translate-x-1 transition-transform duration-300" data-stat="coding_units">{{ $stats['coding_units'] }}</p>
                     <p class="text-violet-600 text-[9px] sm:text-[10px] font-bold uppercase tracking-tight group-hover:translate-x-1 transition-transform duration-300">{{ now()->timezone('Asia/Manila')->format('l') }}</p>
-                </div>
-                <div class="p-1.5 sm:p-3 bg-violet-100/80 rounded-xl sm:rounded-2xl border border-violet-300 shadow-md shadow-violet-500/10 flex-shrink-0 relative z-10 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300">
-                    <i data-lucide="calendar" class="w-5 h-5 sm:w-7 sm:h-7 text-violet-600"></i>
                 </div>
             </div>
             {{-- 3D Graphic Element in Background (21st.dev style) --}}
