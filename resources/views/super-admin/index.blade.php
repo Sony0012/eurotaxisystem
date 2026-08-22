@@ -227,19 +227,19 @@
 
 <div class="sa-shell p-0">
 
-    {{-- â•â• Header Banner â•â• --}}
+    {{-- ── Header Banner ── --}}
     <div style="background: linear-gradient(135deg, #fefce8 0%, #fef3c7 100%); border: 1px solid #fde047; border-radius: 1.5rem; margin: -0.5rem 1.25rem 0 1.25rem; position: relative; z-index: 10;" class="px-6 pt-5 pb-0">
         <div class="flex items-start justify-between mb-4">
             <div class="flex items-center gap-4">
-                <div style="background:linear-gradient(135deg,#f59e0b,#d97706); width:52px; height:52px; border-radius:1.25rem;" class="flex items-center justify-center shadow-lg flex-shrink-0">
-                    <i data-lucide="crown" style="width:26px;height:26px;color:#1c1917;"></i>
+                <div class="w-14 h-14 sm:w-16 sm:h-16 shrink-0 hover:scale-105 transition-transform">
+                    <img src="{{ asset('image/kpi/crown_3d.svg') }}" alt="Owner Control Center" class="w-full h-full object-contain filter drop-shadow-md">
                 </div>
                 <div>
                     <div class="flex items-center gap-2 mb-0.5">
                         <h1 style="color:#854d0e; font-size:1.35rem; font-weight:900; letter-spacing:-.02em;">Owner Control Center</h1>
                         <span class="badge badge-role-super_admin">Owner</span>
                     </div>
-                    <p style="color:#71717a; font-size:.8rem;">Welcome back, <strong style="color:var(--sa-text);">{{ auth()->user()->full_name }}</strong> Â· Full system access</p>
+                    <p style="color:#71717a; font-size:.8rem;">Welcome back, <strong style="color:var(--sa-text);">{{ auth()->user()->full_name }}</strong> · Full system access</p>
                 </div>
             </div>
             <div class="hidden lg:flex items-center gap-3 text-right">
@@ -282,43 +282,79 @@
         </div>
     </div>
 
-    {{-- â•â• Tab Content â•â• --}}
+    {{-- ── Tab Content ── --}}
     <div class="p-6">
 
-        {{-- â”€â”€â”€ OVERVIEW TAB â”€â”€â”€ --}}
+        {{-- ── OVERVIEW TAB ── --}}
         <div id="tab-overview" class="sa-tab-content {{ $tab === 'overview' ? '' : 'hidden' }}">
-            {{-- Stat Row --}}
-            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                <div class="sa-stat" style="color:#f59e0b;">
-                    <div class="flex items-center justify-between mb-3">
-                        <span style="font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:#92400e;">Total Staff</span>
-                        <div style="background:rgba(245,158,11,.12); padding:.45rem; border-radius:.6rem;">
-                            <i data-lucide="users" style="width:16px;height:16px;color:#f59e0b;"></i>
+            {{-- ── 3D KPI SUMMARY CARDS ── --}}
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6">
+                <!-- Card 1: Total Staff -->
+                <div class="group relative overflow-hidden rounded-3xl border border-slate-200/80 bg-gradient-to-br from-white via-amber-50/40 to-orange-50/20 p-5 sm:p-6 shadow-xs hover:shadow-md transition-all duration-300">
+                    <div class="flex items-center justify-between gap-4 relative z-10">
+                        <div class="min-w-0 flex-1">
+                            <span class="text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-slate-400 block mb-1">
+                                Total Staff
+                            </span>
+                            <div class="text-2xl sm:text-3xl font-black text-slate-900 leading-none tracking-tight tabular-nums truncate">
+                                {{ number_format($totalUsers) }}
+                            </div>
+                            <div class="mt-2 flex items-center gap-1.5 text-[11px] font-bold text-amber-600">
+                                <span class="inline-flex h-1.5 w-1.5 rounded-full bg-amber-500"></span>
+                                <span>Registered Accounts</span>
+                            </div>
+                        </div>
+                        <div class="w-14 h-14 sm:w-16 sm:h-16 shrink-0 group-hover:scale-105 transition-transform">
+                            <img src="{{ asset('image/kpi/owner_staff_3d.svg') }}" alt="Total Staff" class="w-full h-full object-contain filter drop-shadow-md">
                         </div>
                     </div>
-                    <p style="font-size:2.2rem; font-weight:900; line-height:1; color:#000;">{{ $totalUsers }}</p>
-                    <p style="font-size:.7rem; color:#64748b; margin-top:.4rem;">Registered accounts</p>
                 </div>
 
-                <div class="sa-stat" style="color:#22c55e;">
-                    <div class="flex items-center justify-between mb-3">
-                        <span style="font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:#166534;">Active</span>
-                        <div style="background:rgba(34,197,94,.12); padding:.45rem; border-radius:.6rem;">
-                            <i data-lucide="check-circle" style="width:16px;height:16px;color:#22c55e;"></i>
+                <!-- Card 2: Active -->
+                <div class="group relative overflow-hidden rounded-3xl border border-slate-200/80 bg-gradient-to-br from-white via-emerald-50/40 to-teal-50/20 p-5 sm:p-6 shadow-xs hover:shadow-md transition-all duration-300">
+                    <div class="flex items-center justify-between gap-4 relative z-10">
+                        <div class="min-w-0 flex-1">
+                            <span class="text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-slate-400 block mb-1">
+                                Active
+                            </span>
+                            <div class="text-2xl sm:text-3xl font-black text-emerald-600 leading-none tracking-tight tabular-nums truncate">
+                                {{ number_format($activeUsers) }}
+                            </div>
+                            <div class="mt-2 flex items-center gap-1.5 text-[11px] font-bold text-emerald-600">
+                                <span class="inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                                <span>Approved & Active</span>
+                            </div>
+                        </div>
+                        <div class="w-14 h-14 sm:w-16 sm:h-16 shrink-0 group-hover:scale-105 transition-transform">
+                            <img src="{{ asset('image/kpi/owner_active_3d.svg') }}" alt="Active" class="w-full h-full object-contain filter drop-shadow-md">
                         </div>
                     </div>
-                    <p style="font-size:2.2rem; font-weight:900; line-height:1; color:#000;">{{ $activeUsers }}</p>
-                    <p style="font-size:.7rem; color:#64748b; margin-top:.4rem;">Approved & active</p>
                 </div>
-                <div class="sa-stat" style="color:#ef4444;">
-                    <div class="flex items-center justify-between mb-3">
-                        <span style="font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:#991b1b;">Rejected</span>
-                        <div style="background:#fee2e2; padding:.45rem; border-radius:.6rem;">
-                            <i data-lucide="x-circle" style="width:16px;height:16px;color:#dc2626;"></i>
+
+                <!-- Card 3: Rejected -->
+                <div class="group relative overflow-hidden rounded-3xl border border-slate-200/80 bg-gradient-to-br from-white via-rose-50/40 to-red-50/20 p-5 sm:p-6 shadow-xs hover:shadow-md transition-all duration-300">
+                    <div class="flex items-center justify-between gap-4 relative z-10">
+                        <div class="min-w-0 flex-1">
+                            <span class="text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-slate-400 block mb-1">
+                                Rejected
+                            </span>
+                            <div class="text-2xl sm:text-3xl font-black {{ $rejectedUsers > 0 ? 'text-rose-600' : 'text-slate-900' }} leading-none tracking-tight tabular-nums truncate">
+                                {{ number_format($rejectedUsers) }}
+                            </div>
+                            <div class="mt-2 flex items-center gap-1.5 text-[11px] font-bold {{ $rejectedUsers > 0 ? 'text-rose-600' : 'text-slate-400' }}">
+                                <span class="relative flex h-2 w-2">
+                                    @if($rejectedUsers > 0)
+                                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                                    @endif
+                                    <span class="relative inline-flex rounded-full h-2 w-2 {{ $rejectedUsers > 0 ? 'bg-rose-500' : 'bg-slate-300' }}"></span>
+                                </span>
+                                <span>{{ $rejectedUsers > 0 ? 'Denied Access' : 'No Denied Users' }}</span>
+                            </div>
+                        </div>
+                        <div class="w-14 h-14 sm:w-16 sm:h-16 shrink-0 group-hover:scale-105 transition-transform">
+                            <img src="{{ asset('image/kpi/owner_rejected_3d.svg') }}" alt="Rejected" class="w-full h-full object-contain filter drop-shadow-md">
                         </div>
                     </div>
-                    <p style="font-size:2.2rem; font-weight:900; line-height:1; color:#000;">{{ $rejectedUsers }}</p>
-                    <p style="font-size:.7rem; color:#64748b; margin-top:.4rem;">Denied access</p>
                 </div>
             </div>
 

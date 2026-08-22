@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <defs>
+    <radialGradient id="rejGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ef4444" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#991b1b" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="shieldRed" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fca5a5"/>
+      <stop offset="40%" stop-color="#ef4444"/>
+      <stop offset="100%" stop-color="#b91c1c"/>
+    </linearGradient>
+    <linearGradient id="rejPlate" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#fee2e2"/>
+    </linearGradient>
+    <filter id="rejShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="12" stdDeviation="10" flood-color="#7f1d1d" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+  <circle cx="100" cy="110" r="85" fill="url(#rejGlow)"/>
+  <g filter="url(#rejShadow)">
+    <g transform="rotate(-3 100 100)">
+      <!-- Outer 3D Shield -->
+      <path d="M100 44 C132 44 154 58 154 94 C154 130 114 154 100 162 C86 154 46 130 46 94 C46 58 68 44 100 44 Z" fill="url(#shieldRed)"/>
+      <!-- Inner Shield Inset -->
+      <path d="M100 54 C126 54 144 66 144 94 C144 122 112 142 100 149 C88 142 56 122 56 94 C56 66 74 54 100 54 Z" fill="url(#rejPlate)"/>
+      <!-- 3D Denied Cross X -->
+      <line x1="82" y1="82" x2="118" y2="118" stroke="#b91c1c" stroke-width="9" stroke-linecap="round"/>
+      <line x1="82" y1="82" x2="118" y2="118" stroke="#f87171" stroke-width="4" stroke-linecap="round"/>
+      <line x1="118" y1="82" x2="82" y2="118" stroke="#b91c1c" stroke-width="9" stroke-linecap="round"/>
+      <line x1="118" y1="82" x2="82" y2="118" stroke="#f87171" stroke-width="4" stroke-linecap="round"/>
+    </g>
+    <!-- Sparkle -->
+    <path d="M145 52 L148 44 L151 52 L159 55 L151 58 L148 66 L145 58 L137 55 Z" fill="#ffffff" opacity="0.95"/>
+  </g>
+</svg>
