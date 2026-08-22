@@ -84,7 +84,7 @@
                             placeholder="Enter the full announcement details, requirements, or guidelines..."></textarea>
                     </div>
 
-                    <!-- ── Integrated Meeting Scheduler / Calendar UI with True Button Time Trigger ── -->
+                    <!-- ── Integrated Meeting Scheduler / Calendar UI with Perfectly Positioned Time Pickers ── -->
                     <div class="rounded-2xl border border-slate-200/90 bg-gradient-to-br from-slate-50/80 to-slate-100/40 p-5 sm:p-6 space-y-5">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-3">
@@ -134,7 +134,7 @@
                                 </div>
                             </div>
 
-                            <!-- Right: Selected Dates & True Button Time Triggers -->
+                            <!-- Right: Selected Dates & Perfectly Positioned Time Pickers -->
                             <div class="flex flex-col justify-between space-y-4">
                                 <div class="space-y-3.5">
                                     <!-- Start Date & Time Control -->
@@ -143,14 +143,19 @@
                                         <div class="flex items-center justify-between p-2.5 sm:p-3 rounded-xl border border-slate-200 bg-slate-50/70 gap-2">
                                             <span id="displayStartDateText" class="text-xs font-bold text-slate-800 truncate">Aug 22, 2026</span>
                                             
-                                            <!-- Full Button Trigger for Start Time -->
-                                            <button type="button" onclick="openTimePicker('start_time')" 
-                                                class="flex items-center gap-1.5 bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 rounded-xl px-3 py-1.5 transition-all active:scale-95 shadow-2xs group cursor-pointer"
-                                                title="Click to set start time">
-                                                <i data-lucide="clock" class="w-3.5 h-3.5 text-amber-700 group-hover:scale-110 transition-transform"></i>
-                                                <span id="start_time_display" class="text-xs font-black tracking-wide">12:00 AM</span>
-                                            </button>
-                                            <input type="time" name="start_time" id="start_time" value="00:00" class="sr-only" onchange="onStartTimeChanged(this.value)">
+                                            <!-- Button-Anchored Time Trigger for Start Time -->
+                                            <div class="relative inline-flex">
+                                                <button type="button" onclick="openTimePicker('start_time')" 
+                                                    class="flex items-center gap-1.5 bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 rounded-xl px-3 py-1.5 transition-all active:scale-95 shadow-2xs group cursor-pointer"
+                                                    title="Click to set start time">
+                                                    <i data-lucide="clock" class="w-3.5 h-3.5 text-amber-700 group-hover:scale-110 transition-transform"></i>
+                                                    <span id="start_time_display" class="text-xs font-black tracking-wide">12:00 AM</span>
+                                                </button>
+                                                <!-- Positioned exactly at the button so popup opens right adjacent to it -->
+                                                <input type="time" name="start_time" id="start_time" value="00:00" 
+                                                    class="absolute inset-0 w-full h-full opacity-0 pointer-events-none -z-10" 
+                                                    onchange="onStartTimeChanged(this.value)">
+                                            </div>
                                         </div>
                                     </div>
 
@@ -160,14 +165,19 @@
                                         <div class="flex items-center justify-between p-2.5 sm:p-3 rounded-xl border border-slate-200 bg-slate-50/70 gap-2">
                                             <span id="displayEndDateText" class="text-xs font-bold text-slate-800 truncate">Aug 29, 2026</span>
                                             
-                                            <!-- Full Button Trigger for End Time -->
-                                            <button type="button" onclick="openTimePicker('valid_until_time')" 
-                                                class="flex items-center gap-1.5 bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 rounded-xl px-3 py-1.5 transition-all active:scale-95 shadow-2xs group cursor-pointer"
-                                                title="Click to set expiration time">
-                                                <i data-lucide="clock" class="w-3.5 h-3.5 text-amber-700 group-hover:scale-110 transition-transform"></i>
-                                                <span id="end_time_display" class="text-xs font-black tracking-wide">11:59 PM</span>
-                                            </button>
-                                            <input type="time" name="valid_until_time" id="valid_until_time" value="23:59" class="sr-only" onchange="onEndTimeChanged(this.value)">
+                                            <!-- Button-Anchored Time Trigger for End Time -->
+                                            <div class="relative inline-flex">
+                                                <button type="button" onclick="openTimePicker('valid_until_time')" 
+                                                    class="flex items-center gap-1.5 bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 rounded-xl px-3 py-1.5 transition-all active:scale-95 shadow-2xs group cursor-pointer"
+                                                    title="Click to set expiration time">
+                                                    <i data-lucide="clock" class="w-3.5 h-3.5 text-amber-700 group-hover:scale-110 transition-transform"></i>
+                                                    <span id="end_time_display" class="text-xs font-black tracking-wide">11:59 PM</span>
+                                                </button>
+                                                <!-- Positioned exactly at the button so popup opens right adjacent to it -->
+                                                <input type="time" name="valid_until_time" id="valid_until_time" value="23:59" 
+                                                    class="absolute inset-0 w-full h-full opacity-0 pointer-events-none -z-10" 
+                                                    onchange="onEndTimeChanged(this.value)">
+                                            </div>
                                         </div>
                                     </div>
 
@@ -498,26 +508,32 @@
                         <input type="date" name="start_date" id="editStartDate" min="{{ date('Y-m-d') }}" required
                             class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all outline-none text-xs font-bold text-slate-800 mb-1.5">
                         
-                        <button type="button" onclick="openTimePicker('editStartTime')" 
-                            class="w-full flex items-center justify-between bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 rounded-xl px-3 py-2 transition-all active:scale-95 shadow-2xs group cursor-pointer">
-                            <span class="flex items-center gap-1.5 text-[11px] font-bold"><i data-lucide="clock" class="w-3.5 h-3.5 text-amber-700"></i> Time:</span>
-                            <span id="edit_start_time_display" class="text-xs font-black">12:00 AM</span>
-                        </button>
-                        <input type="time" name="start_time" id="editStartTime" value="00:00" class="sr-only"
-                            onchange="document.getElementById('edit_start_time_display').textContent = format12HourTime(this.value)">
+                        <div class="relative">
+                            <button type="button" onclick="openTimePicker('editStartTime')" 
+                                class="w-full flex items-center justify-between bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 rounded-xl px-3 py-2 transition-all active:scale-95 shadow-2xs group cursor-pointer">
+                                <span class="flex items-center gap-1.5 text-[11px] font-bold"><i data-lucide="clock" class="w-3.5 h-3.5 text-amber-700"></i> Time:</span>
+                                <span id="edit_start_time_display" class="text-xs font-black">12:00 AM</span>
+                            </button>
+                            <input type="time" name="start_time" id="editStartTime" value="00:00" 
+                                class="absolute inset-0 w-full h-full opacity-0 pointer-events-none -z-10"
+                                onchange="document.getElementById('edit_start_time_display').textContent = format12HourTime(this.value)">
+                        </div>
                     </div>
                     <div>
                         <label class="block text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">Display Until & Time</label>
                         <input type="date" name="valid_until" id="editValidUntil" min="{{ date('Y-m-d') }}" required
                             class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all outline-none text-xs font-bold text-slate-800 mb-1.5">
                         
-                        <button type="button" onclick="openTimePicker('editValidUntilTime')" 
-                            class="w-full flex items-center justify-between bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 rounded-xl px-3 py-2 transition-all active:scale-95 shadow-2xs group cursor-pointer">
-                            <span class="flex items-center gap-1.5 text-[11px] font-bold"><i data-lucide="clock" class="w-3.5 h-3.5 text-amber-700"></i> Time:</span>
-                            <span id="edit_valid_until_time_display" class="text-xs font-black">11:59 PM</span>
-                        </button>
-                        <input type="time" name="valid_until_time" id="editValidUntilTime" value="23:59" class="sr-only"
-                            onchange="document.getElementById('edit_valid_until_time_display').textContent = format12HourTime(this.value)">
+                        <div class="relative">
+                            <button type="button" onclick="openTimePicker('editValidUntilTime')" 
+                                class="w-full flex items-center justify-between bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 rounded-xl px-3 py-2 transition-all active:scale-95 shadow-2xs group cursor-pointer">
+                                <span class="flex items-center gap-1.5 text-[11px] font-bold"><i data-lucide="clock" class="w-3.5 h-3.5 text-amber-700"></i> Time:</span>
+                                <span id="edit_valid_until_time_display" class="text-xs font-black">11:59 PM</span>
+                            </button>
+                            <input type="time" name="valid_until_time" id="editValidUntilTime" value="23:59" 
+                                class="absolute inset-0 w-full h-full opacity-0 pointer-events-none -z-10"
+                                onchange="document.getElementById('edit_valid_until_time_display').textContent = format12HourTime(this.value)">
+                        </div>
                     </div>
                 </div>
             </div>
