@@ -86,10 +86,10 @@
                             {{ $unit->year }} • {{ strtoupper($unit->unit_type ?? 'NEW') }}
                         </p>
                         
-                        {{-- Boundary Rate Badge (21st.dev floating pill) --}}
-                        <div class="mt-2.5 inline-flex items-center gap-1.5 px-3 py-1 bg-slate-900 text-white rounded-full shadow-xs">
-                            <i data-lucide="banknote" class="w-3.5 h-3.5 text-emerald-400"></i>
-                            <span class="text-xs font-black text-emerald-400">₱{{ number_format($unit->current_rate ?? $unit->boundary_rate, 2) }}</span>
+                        {{-- Boundary Rate Badge --}}
+                        <div class="mt-2.5 inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-50 text-emerald-700 rounded-lg border border-emerald-200/80">
+                            <i data-lucide="banknote" class="w-3.5 h-3.5 text-emerald-600"></i>
+                            <span class="text-xs sm:text-sm font-black text-emerald-700">₱{{ number_format($unit->current_rate ?? $unit->boundary_rate, 2) }}</span>
                         </div>
                     </div>
 
