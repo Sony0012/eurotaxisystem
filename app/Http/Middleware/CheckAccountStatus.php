@@ -40,6 +40,14 @@ class CheckAccountStatus
 
                 return redirect()->route('login')->withErrors(['email' => $reason]);
             }
+
+            // Update user presence & active timestamp (throttled to avoid redundant DB writes)
+            if (!$user->last_seen_at || \Carbon\Carbon::parse($user->last_seen_at)->diffInSeconds(now()) >= 45 || !$user->is_online) {
+                \App\Models\User::where('id', $user->id)->update([
+                    'last_seen_at' => now(),
+                    'is_online'    => true,
+                ]);
+            }
         }
 
         return $next($request);

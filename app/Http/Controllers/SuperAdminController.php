@@ -752,11 +752,19 @@ class SuperAdminController extends Controller
 
         $userData = [];
 
-        // Process Staff User accounts
+        // Process User accounts
         foreach ($users as $user) {
             $userName = $user->full_name ?: ($user->name ?: 'User #' . $user->id);
 
             $userAudits = $allAuditsToday->where('user_id', $user->id)->values();
+
+            // Presence & online detection
+            $isOnline = (bool) $user->is_online;
+            if (!$isOnline && $user->last_seen_at) {
+                $isOnline = Carbon::parse($user->last_seen_at)->diffInMinutes(now()) <= 15;
+            }
+            $seenToday = $user->last_seen_at && Carbon::parse($user->last_seen_at)->toDateString() === $date;
+            $loginToday = $user->last_login && Carbon::parse($user->last_login)->toDateString() === $date;
 
             // Separate logins vs operational actions
             $loginEntries   = $userAudits->where('action', 'login');
@@ -772,7 +780,7 @@ class SuperAdminController extends Controller
                     $modules[] = $mod;
                 }
             }
-            if (empty($modules) && $loginEntries->count() > 0) {
+            if (empty($modules) && ($loginEntries->count() > 0 || $isOnline || $seenToday || $loginToday)) {
                 $modules[] = 'Dashboard Overview';
             }
 
@@ -817,63 +825,75 @@ class SuperAdminController extends Controller
                 ];
             }
 
-            // Online check (within 30 mins, or current authenticated user)
-            $isOnline = (bool) $user->is_online;
-            if (!$isOnline && $user->last_seen_at) {
-                $isOnline = Carbon::parse($user->last_seen_at)->diffInMinutes(now()) <= 30;
-            }
-            if ($user->id === Auth::id()) {
-                $isOnline = true;
-            }
-
-            // Check if active today (seen today, logged in today, or currently online)
-            $seenToday = false;
-            if ($user->last_seen_at && Carbon::parse($user->last_seen_at)->toDateString() === $date) {
-                $seenToday = true;
-            }
-            if ($user->last_login && Carbon::parse($user->last_login)->toDateString() === $date) {
-                $seenToday = true;
-            }
-            if ($isOnline && $date === now()->toDateString()) {
-                $seenToday = true;
-            }
-
-            // Calculate total active time in hours
+            // Calculate total active time in minutes
             $totalMins = collect($sessions)->sum('mins');
-            
-            // If active/online today but 0 session recorded from LoginAudit (e.g. persistent session / Remember Me)
-            if ($totalMins === 0 && ($isOnline || $seenToday)) {
-                $totalMins = 60; // 1 hour active session credit
-                $sessions[] = [
-                    'start'   => $user->last_seen_at ? Carbon::parse($user->last_seen_at)->format('h:i A') : now()->format('h:i A'),
-                    'end'     => now()->format('h:i A'),
-                    'mins'    => 60,
-                    'actions' => max(1, $userAudits->count()),
-                ];
-            } elseif ($totalMins === 0 && $user->last_login && Carbon::parse($user->last_login)->toDateString() === $date) {
-                $totalMins = 30;
-                $sessions[] = [
-                    'start'   => Carbon::parse($user->last_login)->format('h:i A'),
-                    'end'     => Carbon::parse($user->last_login)->format('h:i A'),
-                    'mins'    => 30,
-                    'actions' => 1,
-                ];
+
+            // If user has remembered session / online presence or seen today without explicit audit events today:
+            if ($totalMins === 0) {
+                if ($isOnline) {
+                    $totalMins = 60; // 1 hr active presence
+                    $sessions[] = [
+                        'start'   => now()->subMinutes(60)->format('h:i A'),
+                        'end'     => now()->format('h:i A'),
+                        'mins'    => 60,
+                        'actions' => max(1, $userAudits->count()),
+                    ];
+                } elseif ($seenToday) {
+                    $seenCarbon = Carbon::parse($user->last_seen_at);
+                    $totalMins = 30;
+                    $sessions[] = [
+                        'start'   => $seenCarbon->copy()->subMinutes(30)->format('h:i A'),
+                        'end'     => $seenCarbon->format('h:i A'),
+                        'mins'    => 30,
+                        'actions' => max(1, $userAudits->count()),
+                    ];
+                } elseif ($loginToday) {
+                    $loginCarbon = Carbon::parse($user->last_login);
+                    $totalMins = 20;
+                    $sessions[] = [
+                        'start'   => $loginCarbon->format('h:i A'),
+                        'end'     => $loginCarbon->copy()->addMinutes(20)->format('h:i A'),
+                        'mins'    => 20,
+                        'actions' => 1,
+                    ];
+                }
             }
 
             $totalHours = round($totalMins / 60, 1);
             $pct        = $target > 0 ? min(100, round(($totalHours / $target) * 100)) : 0;
 
-            // Status Determination: Online/Active users are counted as Active!
-            if ($isOnline && $date === now()->toDateString()) {
+            // Status Determination (Online users or users reaching targets are active)
+            if ($isOnline) {
                 $status = 'active';
-            } elseif ($seenToday || $totalHours > 0 || $userAudits->count() > 0) {
-                if ($pct >= 60 || $meaningfulActs->count() >= 5) {
-                    $status = 'active';
-                } else {
-                    $status = 'low';
-                }
+            } elseif ($totalHours >= ($target * 0.6) || $meaningfulActs->count() >= 5) {
+                $status = 'active';
+            } elseif ($totalHours > 0 || $userAudits->count() > 0 || $seenToday || $loginToday) {
+                $status = 'low';
             } else {
-                $status = 'none'; // Truly inactive
+                $status = 'none';
+            }
+
+            // Determine First Login & Last Active strings
+            $firstLoginStr = null;
+            if ($firstLogin) {
+                $firstLoginStr = Carbon::parse($firstLogin->created_at)->format('h:i A');
+            } elseif ($loginToday) {
+                $firstLoginStr = Carbon::parse($user->last_login)->format('h:i A');
+            } elseif ($seenToday) {
+                $firstLoginStr = Carbon::parse($user->last_seen_at)->subMinutes($totalMins)->format('h:i A');
+            } elseif ($isOnline) {
+                $firstLoginStr = now()->subMinutes($totalMins)->format('h:i A');
+            }
+
+            $lastActiveStr = null;
+            if ($lastEntry) {
+                $lastActiveStr = Carbon::parse($lastEntry->created_at)->format('h:i A');
+            } elseif ($isOnline) {
+                $lastActiveStr = now()->format('h:i A');
+            } elseif ($seenToday) {
+                $lastActiveStr = Carbon::parse($user->last_seen_at)->format('h:i A');
+            } elseif ($loginToday) {
+                $lastActiveStr = Carbon::parse($user->last_login)->format('h:i A');
             }
 
             // 28-day timeline heatmap
@@ -882,18 +902,19 @@ class SuperAdminController extends Controller
                 $dayStr = Carbon::parse($date)->subDays($i)->toDateString();
                 $dayData = $heatmapMap[$user->id][$dayStr] ?? ['acts' => 0, 'logins' => 0];
                 $actsCount = $dayData['acts'];
-                if ($dayStr === now()->toDateString() && ($isOnline || $seenToday) && $actsCount === 0) {
-                    $actsCount = 1;
+                $loginsCount = $dayData['logins'];
+
+                if ($i === 0 && ($isOnline || $seenToday || $loginToday) && $actsCount === 0) {
+                    $actsCount = max(1, $userAudits->count());
+                    $loginsCount = max(1, $loginsCount);
                 }
+
                 $heatmap[] = [
                     'date'       => $dayStr,
                     'activities' => $actsCount,
-                    'logins'     => $dayData['logins'],
+                    'logins'     => $loginsCount,
                 ];
             }
-
-            $firstLoginStr = $firstLogin ? Carbon::parse($firstLogin->created_at)->format('h:i A') : ($user->last_login && Carbon::parse($user->last_login)->toDateString() === $date ? Carbon::parse($user->last_login)->format('h:i A') : ($isOnline ? 'Online Session' : ($seenToday ? 'Active Today' : null)));
-            $lastActiveStr = $lastEntry ? Carbon::parse($lastEntry->created_at)->format('h:i A') : ($isOnline ? 'Online Now' : ($user->last_seen_at ? Carbon::parse($user->last_seen_at)->format('h:i A') : ($user->last_login ? Carbon::parse($user->last_login)->format('h:i A') : null)));
 
             $userData[] = [
                 'id'            => $user->id,
@@ -908,7 +929,7 @@ class SuperAdminController extends Controller
                 'pct'           => $pct,
                 'sessions'      => count($sessions),
                 'sessionList'   => $sessions,
-                'activities'    => max($userAudits->count(), ($isOnline || $seenToday ? 1 : 0)),
+                'activities'    => max(count($sessions), $userAudits->count()),
                 'meaningfulActs'=> $meaningfulActs->count(),
                 'modules'       => $modules,
                 'status'        => $status,

@@ -1980,12 +1980,8 @@ function camRenderAlerts() {
     const alerts = [];
 
     users.forEach(u => {
-        if (u.isOnline || u.status === 'active') {
-            // User is actively online or meeting target
-            return;
-        }
-        if (u.status === 'none' && !u.isOnline && u.todayH === 0 && u.activities === 0) {
-            alerts.push({ u, msg: `No login or activity today. Last seen: ${u.last_login || 'Never logged in'}.`, icon: 'alert-octagon', color: '#ef4444', bg: '#fff1f2' });
+        if (!u.isOnline && u.todayH === 0 && u.activities === 0 && u.status === 'none') {
+            alerts.push({ u, msg: `No login or activity recorded today. Last seen: ${u.last_login || 'Never logged in'}.`, icon: 'alert-octagon', color: '#ef4444', bg: '#fff1f2' });
         } else if (u.status === 'low' && !u.isOnline) {
             alerts.push({ u, msg: `Low activity — ${camFmtH(u.todayH)} of ${CAM_TARGET}h target. ${u.activities} interaction(s) recorded.`, icon: 'alert-triangle', color: '#f59e0b', bg: '#fffbeb' });
         }
@@ -2002,6 +1998,7 @@ function camRenderAlerts() {
             <i data-lucide="check-circle-2" style="display:inline;width:15px;height:15px;margin-right:.3rem;"></i>
             All accounts are performing well and actively utilizing the system.
         </div>`;
+        if (typeof lucide !== 'undefined') lucide.createIcons();
         return;
     }
 
@@ -2194,42 +2191,48 @@ async function camOpenDetail(userId) {
             headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
         });
         const json = await res.json();
-        if (!json.success) { content.innerHTML = `<p style="color:#ef4444;text-align:center;padding:1.5rem;font-weight:700;">${json.message}</p>`; return; }
+        if (!json.success) {
+            content.innerHTML = `<p style="color:#ef4444;text-align:center;padding:1.5rem;font-weight:700;">${json.message || 'Failed to load user details.'}</p>`;
+            return;
+        }
 
-        const u       = json.user;
+        const u       = json.user || {};
         const audit   = json.todayAudit || [];
         const history = json.history    || [];
 
         // Match from state
-        const camUser  = (CAM_DATA.users || []).find(x => String(x.id) === String(userId));
-        const targetH  = CAM_TARGET;
-        const todayH   = camUser?.todayH || 0;
-        const pct      = camUser?.pct    || 0;
+        const camUser  = (CAM_DATA.users || []).find(x => String(x.id) === String(userId)) || {};
+        const safeName = (u.name || u.full_name || camUser.name || 'User').trim();
+        const initials = safeName.split(/\s+/).filter(Boolean).map(n => n[0]).slice(0, 2).join('').toUpperCase() || 'U';
+        const targetH  = CAM_TARGET || 4;
+        const todayH   = camUser.todayH || 0;
+        const pct      = camUser.pct || 0;
         const barC     = camBarColor(pct);
-        const sessions = camUser?.sessionList || [];
-        const modules  = camUser?.modules || [];
+        const sessions = camUser.sessionList || [];
+        const modules  = camUser.modules || [];
+        const isOnline = !!(camUser.isOnline || u.is_online);
 
         // Activity evidence level
         const lvlBars = [
             { label: 'Account Active & Verified',   active: true },
-            { label: 'Logged In Today',              active: !!camUser?.firstLogin || todayH > 0 },
-            { label: 'Multiple Operations/Sessions', active: (camUser?.sessions || 0) >= 2 || (camUser?.activities || 0) >= 3 },
-            { label: 'Substantial Work (>30% target)',active: pct >= 30 || (camUser?.meaningfulActs || 0) >= 5 },
-            { label: 'Full Daily Adoption (≥60%)',    active: pct >= 60 || (camUser?.meaningfulActs || 0) >= 10 },
+            { label: 'Logged In / Online Today',    active: !!camUser.firstLogin || todayH > 0 || isOnline },
+            { label: 'Multiple Operations/Sessions', active: (camUser.sessions || 0) >= 2 || (camUser.activities || 0) >= 3 },
+            { label: 'Substantial Work (>30% target)',active: pct >= 30 || (camUser.meaningfulActs || 0) >= 5 },
+            { label: 'Full Daily Adoption (≥60%)',    active: pct >= 60 || (camUser.meaningfulActs || 0) >= 10 },
         ];
 
         content.innerHTML = `
             <!-- User header -->
             <div style="display:flex;align-items:center;gap:.85rem;margin-bottom:1.25rem;">
                 <div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#f59e0b,#d97706);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:1.15rem;color:#fff;flex-shrink:0;">
-                    ${(u.name||'?').split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase()}
+                    ${initials}
                 </div>
-                <div>
-                    <div style="font-weight:900;font-size:1rem;color:#000;">${u.name}</div>
-                    <div style="font-size:.72rem;color:#64748b;">${u.email}</div>
+                <div style="min-width:0;flex:1;">
+                    <div style="font-weight:900;font-size:1rem;color:#000;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${safeName}</div>
+                    <div style="font-size:.72rem;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${u.email || camUser.email || '—'}</div>
                     <div style="margin-top:.35rem;display:flex;gap:.35rem;flex-wrap:wrap;">
-                        ${camRoleBadge(u.role)}
-                        ${camUser?.isOnline ? '<span style="font-size:.6rem;background:#dcfce7;color:#15803d;padding:.1rem .45rem;border-radius:99px;font-weight:800;">● ONLINE NOW</span>' : ''}
+                        ${camRoleBadge(u.role || camUser.role)}
+                        ${isOnline ? '<span style="font-size:.6rem;background:#dcfce7;color:#15803d;padding:.1rem .45rem;border-radius:99px;font-weight:800;">● ONLINE NOW</span>' : ''}
                     </div>
                 </div>
             </div>
@@ -2238,19 +2241,19 @@ async function camOpenDetail(userId) {
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:.65rem;margin-bottom:1.25rem;">
                 <div style="background:#f8fafc;border-radius:.75rem;padding:.75rem;">
                     <div style="font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#94a3b8;margin-bottom:.2rem;">First Login Today</div>
-                    <div style="font-size:.85rem;font-weight:800;color:#000;">${camUser?.firstLogin || '—'}</div>
+                    <div style="font-size:.85rem;font-weight:800;color:#000;">${camUser.firstLogin || (isOnline ? 'Online Session' : '—')}</div>
                 </div>
                 <div style="background:#f8fafc;border-radius:.75rem;padding:.75rem;">
                     <div style="font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#94a3b8;margin-bottom:.2rem;">Last Recorded Action</div>
-                    <div style="font-size:.85rem;font-weight:800;color:#000;">${camUser?.lastActive || '—'}</div>
+                    <div style="font-size:.85rem;font-weight:800;color:#000;">${camUser.lastActive || (isOnline ? 'Active Now' : '—')}</div>
                 </div>
                 <div style="background:#f8fafc;border-radius:.75rem;padding:.75rem;">
                     <div style="font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#94a3b8;margin-bottom:.2rem;">Active Sessions</div>
-                    <div style="font-size:.85rem;font-weight:800;color:#000;">${camUser?.sessions || 0}</div>
+                    <div style="font-size:.85rem;font-weight:800;color:#000;">${camUser.sessions || (isOnline ? 1 : 0)}</div>
                 </div>
                 <div style="background:#f8fafc;border-radius:.75rem;padding:.75rem;">
                     <div style="font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#94a3b8;margin-bottom:.2rem;">Operations Count</div>
-                    <div style="font-size:.85rem;font-weight:800;color:#000;">${camUser?.activities || 0}</div>
+                    <div style="font-size:.85rem;font-weight:800;color:#000;">${camUser.activities || 0}</div>
                 </div>
             </div>
 
@@ -2274,7 +2277,7 @@ async function camOpenDetail(userId) {
                 <div style="display:flex;flex-wrap:wrap;gap:.35rem;">
                     ${modules.length > 0
                         ? modules.map(m => `<span style="background:#fef3c7;color:#92400e;padding:.2rem .6rem;border-radius:.4rem;font-size:.68rem;font-weight:800;">${m}</span>`).join('')
-                        : '<span style="color:#94a3b8;font-size:.72rem;">No operational modules accessed today.</span>'
+                        : '<span style="color:#94a3b8;font-size:.72rem;">No operational modules recorded yet today.</span>'
                     }
                 </div>
             </div>
@@ -2284,10 +2287,10 @@ async function camOpenDetail(userId) {
                 <div style="font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#64748b;margin-bottom:.45rem;">Activity Evidence Level</div>
                 ${lvlBars.map(lb => `
                     <div style="display:flex;align-items:center;gap:.6rem;padding:.38rem 0;border-bottom:1px solid #f1f5f9;">
-                        <div style="width:18px;height:18px;border-radius:.3rem;background:${lb.active?'#22c55e':'#f1f5f9'};display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                            <i data-lucide="${lb.active?'check':'minus'}" style="width:11px;height:11px;color:${lb.active?'#fff':'#94a3b8'};"></i>
+                        <div style="width:18px;height:18px;border-radius:.3rem;background:${lb.active ? '#22c55e' : '#f1f5f9'};display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                            <i data-lucide="${lb.active ? 'check' : 'minus'}" style="width:11px;height:11px;color:${lb.active ? '#fff' : '#94a3b8'};"></i>
                         </div>
-                        <span style="font-size:.73rem;font-weight:${lb.active?'800':'500'};color:${lb.active?'#000':'#94a3b8'};">${lb.label}</span>
+                        <span style="font-size:.73rem;font-weight:${lb.active ? '800' : '500'};color:${lb.active ? '#000' : '#94a3b8'};">${lb.label}</span>
                     </div>
                 `).join('')}
             </div>
@@ -2297,12 +2300,12 @@ async function camOpenDetail(userId) {
             <div style="margin-bottom:1.25rem;">
                 <div style="font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#64748b;margin-bottom:.45rem;">Session Breakdown (${sessions.length})</div>
                 ${sessions.map((s, i) => `
-                    <div style="display:flex;align-items:center;gap:.65rem;padding:.45rem .75rem;background:${i%2===0?'#f8fafc':'#fff'};border-radius:.5rem;margin-bottom:.25rem;border:1px solid #f1f5f9;">
+                    <div style="display:flex;align-items:center;gap:.65rem;padding:.45rem .75rem;background:${i % 2 === 0 ? '#f8fafc' : '#fff'};border-radius:.5rem;margin-bottom:.25rem;border:1px solid #f1f5f9;">
                         <i data-lucide="clock" style="width:12px;height:12px;color:#f59e0b;flex-shrink:0;"></i>
                         <span style="font-size:.72rem;color:#000;font-weight:800;">${s.start}</span>
                         <span style="font-size:.65rem;color:#94a3b8;">→</span>
                         <span style="font-size:.72rem;color:#475569;">${s.end}</span>
-                        <span style="margin-left:auto;font-size:.68rem;color:#0284c7;font-weight:800;">${camFmtH(Math.round(s.mins/60*10)/10)} (${s.actions} acts)</span>
+                        <span style="margin-left:auto;font-size:.68rem;color:#0284c7;font-weight:800;">${camFmtH(Math.round(s.mins / 60 * 10) / 10)} (${s.actions} acts)</span>
                     </div>
                 `).join('')}
             </div>` : ''}
@@ -2313,7 +2316,7 @@ async function camOpenDetail(userId) {
                     Today's Audit Trail <span style="color:#f59e0b;font-weight:800;">(${new Date(CAM_DATE).toLocaleDateString('en-US',{month:'short',day:'numeric'})})</span>
                 </div>
                 ${audit.length === 0
-                    ? `<div style="color:#94a3b8;font-size:.75rem;text-align:center;padding:.85rem;background:#f8fafc;border-radius:.6rem;">No audit logs recorded for this day.</div>`
+                    ? `<div style="color:#94a3b8;font-size:.75rem;text-align:center;padding:.85rem;background:#f8fafc;border-radius:.6rem;">No explicit transaction logs recorded yet for this day.</div>`
                     : `<div style="position:relative;">
                         ${audit.map(ev => {
                             const ts = new Date(ev.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
