@@ -88,7 +88,7 @@
                             placeholder="Enter the full announcement details, requirements, or guidelines..."></textarea>
                     </div>
 
-                    <!-- ── Integrated Meeting Scheduler / Calendar UI with Functional Time ── -->
+                    <!-- ── Integrated Meeting Scheduler / Calendar UI with Full-Pill Clickable Time ── -->
                     <div class="rounded-2xl border border-slate-200/90 bg-gradient-to-br from-slate-50/80 to-slate-100/40 p-5 sm:p-6 space-y-5">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-3">
@@ -138,7 +138,7 @@
                                 </div>
                             </div>
 
-                            <!-- Right: Selected Dates & Functional Time Controls -->
+                            <!-- Right: Selected Dates & Fully Clickable Time Pills -->
                             <div class="flex flex-col justify-between space-y-4">
                                 <div class="space-y-3.5">
                                     <!-- Start Date & Time Control -->
@@ -146,12 +146,15 @@
                                         <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Start date & time*</label>
                                         <div class="flex items-center justify-between p-2.5 sm:p-3 rounded-xl border border-slate-200 bg-slate-50/70 gap-2">
                                             <span id="displayStartDateText" class="text-xs font-bold text-slate-800 truncate">Aug 22, 2026</span>
-                                            <!-- Functional Time Picker -->
-                                            <div class="flex items-center gap-1 bg-amber-100/90 hover:bg-amber-200/90 border border-amber-300/80 rounded-lg px-2 py-1 transition-all">
-                                                <i data-lucide="clock" class="w-3.5 h-3.5 text-amber-700"></i>
+                                            
+                                            <!-- Full-pill Clickable Time Control -->
+                                            <div class="relative inline-flex items-center gap-1.5 bg-amber-100/90 hover:bg-amber-200/90 text-amber-900 border border-amber-300/90 rounded-xl px-3 py-1.5 transition-all shadow-2xs cursor-pointer select-none group">
+                                                <i data-lucide="clock" class="w-3.5 h-3.5 text-amber-700 pointer-events-none"></i>
+                                                <span id="start_time_display" class="text-xs font-black tracking-wide pointer-events-none">12:00 AM</span>
                                                 <input type="time" name="start_time" id="start_time" value="00:00"
-                                                    class="bg-transparent text-[11px] font-black text-amber-900 outline-none cursor-pointer p-0 border-0"
-                                                    title="Set Start Time" onchange="onTimeChange()">
+                                                    class="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-10"
+                                                    title="Click to set start time"
+                                                    onchange="onStartTimeChanged(this.value)">
                                             </div>
                                         </div>
                                     </div>
@@ -161,12 +164,15 @@
                                         <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">End date / Display Until & time*</label>
                                         <div class="flex items-center justify-between p-2.5 sm:p-3 rounded-xl border border-slate-200 bg-slate-50/70 gap-2">
                                             <span id="displayEndDateText" class="text-xs font-bold text-slate-800 truncate">Aug 29, 2026</span>
-                                            <!-- Functional Time Picker -->
-                                            <div class="flex items-center gap-1 bg-amber-100/90 hover:bg-amber-200/90 border border-amber-300/80 rounded-lg px-2 py-1 transition-all">
-                                                <i data-lucide="clock" class="w-3.5 h-3.5 text-amber-700"></i>
+                                            
+                                            <!-- Full-pill Clickable Time Control -->
+                                            <div class="relative inline-flex items-center gap-1.5 bg-amber-100/90 hover:bg-amber-200/90 text-amber-900 border border-amber-300/90 rounded-xl px-3 py-1.5 transition-all shadow-2xs cursor-pointer select-none group">
+                                                <i data-lucide="clock" class="w-3.5 h-3.5 text-amber-700 pointer-events-none"></i>
+                                                <span id="end_time_display" class="text-xs font-black tracking-wide pointer-events-none">11:59 PM</span>
                                                 <input type="time" name="valid_until_time" id="valid_until_time" value="23:59"
-                                                    class="bg-transparent text-[11px] font-black text-amber-900 outline-none cursor-pointer p-0 border-0"
-                                                    title="Set Expiration Time" onchange="onTimeChange()">
+                                                    class="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-10"
+                                                    title="Click to set expiration time"
+                                                    onchange="onEndTimeChanged(this.value)">
                                             </div>
                                         </div>
                                     </div>
@@ -497,15 +503,27 @@
                         <label class="block text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">Start Date & Time</label>
                         <input type="date" name="start_date" id="editStartDate" min="{{ date('Y-m-d') }}" required
                             class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all outline-none text-xs font-bold text-slate-800 mb-1.5">
-                        <input type="time" name="start_time" id="editStartTime" value="00:00"
-                            class="w-full px-3 py-1.5 bg-amber-50 border border-amber-200 rounded-lg text-xs font-bold text-amber-900 outline-none">
+                        
+                        <div class="relative flex items-center justify-between bg-amber-100/90 hover:bg-amber-200 text-amber-900 border border-amber-300 rounded-xl px-3 py-2 transition-all cursor-pointer select-none">
+                            <span class="flex items-center gap-1 text-[11px] font-bold pointer-events-none"><i data-lucide="clock" class="w-3.5 h-3.5 text-amber-700"></i> Time:</span>
+                            <span id="edit_start_time_display" class="text-xs font-black pointer-events-none">12:00 AM</span>
+                            <input type="time" name="start_time" id="editStartTime" value="00:00"
+                                class="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-10"
+                                onchange="document.getElementById('edit_start_time_display').textContent = format12HourTime(this.value)">
+                        </div>
                     </div>
                     <div>
                         <label class="block text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">Display Until & Time</label>
                         <input type="date" name="valid_until" id="editValidUntil" min="{{ date('Y-m-d') }}" required
                             class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all outline-none text-xs font-bold text-slate-800 mb-1.5">
-                        <input type="time" name="valid_until_time" id="editValidUntilTime" value="23:59"
-                            class="w-full px-3 py-1.5 bg-amber-50 border border-amber-200 rounded-lg text-xs font-bold text-amber-900 outline-none">
+                        
+                        <div class="relative flex items-center justify-between bg-amber-100/90 hover:bg-amber-200 text-amber-900 border border-amber-300 rounded-xl px-3 py-2 transition-all cursor-pointer select-none">
+                            <span class="flex items-center gap-1 text-[11px] font-bold pointer-events-none"><i data-lucide="clock" class="w-3.5 h-3.5 text-amber-700"></i> Time:</span>
+                            <span id="edit_valid_until_time_display" class="text-xs font-black pointer-events-none">11:59 PM</span>
+                            <input type="time" name="valid_until_time" id="editValidUntilTime" value="23:59"
+                                class="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-10"
+                                onchange="document.getElementById('edit_valid_until_time_display').textContent = format12HourTime(this.value)">
+                        </div>
                     </div>
                 </div>
             </div>
@@ -675,7 +693,15 @@
         renderCalendar();
     }
 
-    function onTimeChange() {
+    function onStartTimeChanged(val) {
+        const displayEl = document.getElementById('start_time_display');
+        if (displayEl) displayEl.textContent = format12HourTime(val);
+        updateSchedulerDisplay();
+    }
+
+    function onEndTimeChanged(val) {
+        const displayEl = document.getElementById('end_time_display');
+        if (displayEl) displayEl.textContent = format12HourTime(val);
         updateSchedulerDisplay();
     }
 
@@ -796,12 +822,19 @@
         document.querySelectorAll('.btn-edit-announcement').forEach(button => {
             button.addEventListener('click', function() {
                 const id = this.getAttribute('data-id');
+                const startTime = this.getAttribute('data-start-time') || '00:00';
+                const untilTime = this.getAttribute('data-until-time') || '23:59';
+
                 document.getElementById('editTitle').value = this.getAttribute('data-title');
                 document.getElementById('editMessage').value = this.getAttribute('data-message') || '';
                 document.getElementById('editStartDate').value = this.getAttribute('data-start-date');
-                document.getElementById('editStartTime').value = this.getAttribute('data-start-time') || '00:00';
+                document.getElementById('editStartTime').value = startTime;
+                document.getElementById('edit_start_time_display').textContent = format12HourTime(startTime);
+
                 document.getElementById('editValidUntil').value = this.getAttribute('data-until-date');
-                document.getElementById('editValidUntilTime').value = this.getAttribute('data-until-time') || '23:59';
+                document.getElementById('editValidUntilTime').value = untilTime;
+                document.getElementById('edit_valid_until_time_display').textContent = format12HourTime(untilTime);
+
                 document.getElementById('editForm').action = `/announcements/${id}`;
 
                 const modal = document.getElementById('editAnnouncementModal');
