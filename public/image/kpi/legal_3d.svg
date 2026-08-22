@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <defs>
+    <radialGradient id="legGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#b45309" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="legGold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fef08a"/>
+      <stop offset="50%" stop-color="#eab308"/>
+      <stop offset="100%" stop-color="#ca8a04"/>
+    </linearGradient>
+    <filter id="legShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="12" stdDeviation="10" flood-color="#78350f" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+  <circle cx="100" cy="110" r="85" fill="url(#legGlow)"/>
+  <g filter="url(#legShadow)">
+    <g transform="rotate(-4 100 100)">
+      <!-- Main Pillar & Stand -->
+      <rect x="96" y="55" width="8" height="85" rx="4" fill="url(#legGold)"/>
+      <path d="M75 140 L125 140 L115 150 L85 150 Z" fill="url(#legGold)"/>
+      <!-- Balance Beam -->
+      <rect x="52" y="66" width="96" height="6" rx="3" fill="url(#legGold)"/>
+      <!-- Left Pan Strings & Pan -->
+      <path d="M60 72 L50 102 M60 72 L70 102" stroke="#eab308" stroke-width="2"/>
+      <path d="M46 102 Q60 116 74 102 Z" fill="url(#legGold)"/>
+      <!-- Right Pan Strings & Pan -->
+      <path d="M140 72 L130 96 M140 72 L150 96" stroke="#eab308" stroke-width="2"/>
+      <path d="M126 96 Q140 110 154 96 Z" fill="url(#legGold)"/>
+      <!-- Center Pivot -->
+      <circle cx="100" cy="69" r="6" fill="#fef08a" stroke="#ca8a04" stroke-width="2"/>
+    </g>
+  </g>
+</svg>

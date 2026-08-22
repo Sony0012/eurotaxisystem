@@ -1888,63 +1888,73 @@
 
     // ── AI DSS Logic ──────────────────────────────────────────────────────────
     const priorityConfig = {
-        critical: { bg: 'bg-rose-50', border: 'border-rose-200', badge: 'bg-rose-600 text-white', label: 'CRITICAL' },
-        high: { bg: 'bg-amber-50', border: 'border-amber-200', badge: 'bg-amber-500 text-white', label: 'HIGH' },
-        medium: { bg: 'bg-indigo-50', border: 'border-indigo-200', badge: 'bg-indigo-500 text-white', label: 'MEDIUM' },
-        low: { bg: 'bg-slate-50', border: 'border-slate-200', badge: 'bg-slate-500 text-white', label: 'LOW' },
+        critical: { bg: 'bg-gradient-to-br from-rose-50 to-pink-50/70', border: 'border-rose-200', badge: 'bg-rose-600 text-white', label: 'CRITICAL' },
+        high: { bg: 'bg-gradient-to-br from-amber-50 to-yellow-50/70', border: 'border-amber-200', badge: 'bg-amber-500 text-white', label: 'HIGH' },
+        medium: { bg: 'bg-gradient-to-br from-indigo-50 to-blue-50/70', border: 'border-indigo-200', badge: 'bg-indigo-500 text-white', label: 'MEDIUM' },
+        low: { bg: 'bg-gradient-to-br from-slate-50 to-gray-50/70', border: 'border-slate-200', badge: 'bg-slate-500 text-white', label: 'LOW' },
     };
 
-    const categoryColors = {
-        fleet: 'text-indigo-700 bg-indigo-50',
-        finance: 'text-emerald-700 bg-emerald-50',
-        drivers: 'text-blue-700 bg-blue-50',
-        maintenance: 'text-orange-700 bg-orange-50',
-        operations: 'text-purple-700 bg-purple-50',
-        legal: 'text-rose-700 bg-rose-50',
-        inventory: 'text-amber-700 bg-amber-50',
+    const categorySvgs = {
+        fleet: '/image/kpi/taxi_3d.svg',
+        finance: '/image/kpi/profit_3d.svg',
+        drivers: '/image/kpi/leakage_3d.svg',
+        maintenance: '/image/kpi/maintenance_3d.svg',
+        operations: '/image/kpi/expenses_3d.svg',
+        legal: '/image/kpi/legal_3d.svg',
+        inventory: '/image/kpi/inventory_3d.svg',
+        safety: '/image/kpi/accident_3d.svg',
     };
 
     function renderInsightCard(insight) {
         const p = priorityConfig[insight.priority] || priorityConfig.medium;
-        const cc = categoryColors[insight.category] || 'text-gray-700 bg-gray-100';
         const actions = (insight.actions || []).map(a => `<li class="flex items-start gap-2 text-slate-600 text-[11px] font-bold"><span class="text-indigo-500 mt-0.5">●</span> ${a}</li>`).join('');
 
+        let svgIcon = categorySvgs[insight.category] || '/image/kpi/profit_3d.svg';
+        const titleLower = (insight.title || '').toLowerCase();
+        if (titleLower.includes('spare part') || titleLower.includes('stock') || titleLower.includes('inventory')) svgIcon = '/image/kpi/inventory_3d.svg';
+        else if (titleLower.includes('franchise') || titleLower.includes('legal') || titleLower.includes('expired')) svgIcon = '/image/kpi/legal_3d.svg';
+        else if (titleLower.includes('safety') || titleLower.includes('incident') || titleLower.includes('accident') || titleLower.includes('liability')) svgIcon = '/image/kpi/accident_3d.svg';
+        else if (titleLower.includes('shortage') || titleLower.includes('leakage')) svgIcon = '/image/kpi/leakage_3d.svg';
+        else if (titleLower.includes('fleet') || titleLower.includes('utilization')) svgIcon = '/image/kpi/taxi_3d.svg';
+        else if (titleLower.includes('maintenance') || titleLower.includes('repair')) svgIcon = '/image/kpi/maintenance_3d.svg';
+        else if (titleLower.includes('roi') || titleLower.includes('net') || titleLower.includes('profit') || titleLower.includes('income')) svgIcon = '/image/kpi/profit_3d.svg';
+
         return `
-            <div class="rounded-3xl border-2 ${p.border} ${p.bg} p-6 transition-all hover:shadow-xl hover:-translate-y-1 duration-300">
-                <div class="flex items-start justify-between mb-4">
-                    <div class="flex items-center gap-3">
-                        <span class="text-3xl">${insight.icon || '💡'}</span>
+            <div class="relative overflow-hidden rounded-3xl border ${p.border} ${p.bg} p-6 shadow-sm flex flex-col justify-between">
+                <div class="relative z-10">
+                    <div class="flex items-start justify-between mb-4">
                         <div>
-                            <p class="font-black text-slate-800 text-sm">${insight.title}</p>
-                            <span class="px-2 py-0.5 text-[8px] font-black rounded-full uppercase tracking-widest ${p.badge}">${p.label}</span>
+                            <p class="font-black text-slate-800 text-sm mb-1">${insight.title}</p>
+                            <span class="px-2.5 py-0.5 text-[8px] font-black rounded-full uppercase tracking-widest ${p.badge}">${p.label}</span>
                         </div>
                     </div>
+                    <p class="text-slate-600 text-xs leading-relaxed mb-5 font-medium">${insight.insight}</p>
+                    <div class="mb-5 p-4 bg-white/80 rounded-2xl border border-white/90 shadow-sm">
+                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Deep Reasoning</p>
+                        <p class="text-[11px] text-slate-600 leading-relaxed font-semibold">${insight.reasoning}</p>
+                    </div>
+                    <div class="space-y-3">
+                        <p class="text-[10px] font-black text-indigo-600 uppercase tracking-widest">Recommended Actions</p>
+                        <ul class="space-y-2">${actions}</ul>
+                    </div>
                 </div>
-                <p class="text-slate-600 text-xs leading-relaxed mb-6 font-medium">${insight.insight}</p>
-                <div class="mb-6 p-4 bg-white/60 rounded-2xl border border-white">
-                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Deep Reasoning</p>
-                    <p class="text-[11px] text-slate-600 leading-relaxed font-semibold">${insight.reasoning}</p>
-                </div>
-                <div class="space-y-4">
-                    <p class="text-[10px] font-black text-indigo-600 uppercase tracking-widest">Recommended Actions</p>
-                    <ul class="space-y-2">${actions}</ul>
-                </div>
+                <img src="${svgIcon}" alt="${insight.title}" class="absolute -right-3 -bottom-3 w-28 h-28 object-contain pointer-events-none opacity-20">
             </div>`;
     }
 
     function renderStatsBar(data) {
         const s = data.snapshot || {};
         const items = [
-            { label: 'Fleet Efficiency', value: (s.fleet_utilization || 0) + '%', icon: '🚕', color: 'text-indigo-600' },
-            { label: 'Period Net Profit', value: '₱' + Number(s.latest_net || 0).toLocaleString(), icon: '💰', color: 'text-emerald-600' },
-            { label: 'Uncollected Leakage', value: '₱' + Number(s.total_shortage || 0).toLocaleString(), icon: '⚠️', color: 'text-rose-600' },
+            { label: 'Fleet Efficiency', value: (s.fleet_utilization || 0) + '%', svg: '/image/kpi/taxi_3d.svg', color: 'text-indigo-600' },
+            { label: 'Period Net Profit', value: '₱' + Number(s.latest_net || 0).toLocaleString(), svg: '/image/kpi/profit_3d.svg', color: 'text-emerald-600' },
+            { label: 'Uncollected Leakage', value: '₱' + Number(s.total_shortage || 0).toLocaleString(), svg: '/image/kpi/leakage_3d.svg', color: 'text-rose-600' },
         ];
         return items.map(i => `
-            <div class="flex items-center gap-4 px-4 py-3 bg-white rounded-2xl border border-slate-100 shadow-sm transition-all hover:scale-105">
-                <span class="text-xl">${i.icon}</span>
-                <div>
-                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">${i.label}</p>
-                    <p class="text-sm font-black ${i.color}">${i.value}</p>
+            <div class="flex items-center gap-3 px-4 py-3 bg-white rounded-2xl border border-slate-200/70 shadow-sm min-w-0">
+                <img src="${i.svg}" alt="${i.label}" class="w-8 h-8 object-contain flex-shrink-0">
+                <div class="min-w-0">
+                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5 truncate">${i.label}</p>
+                    <p class="text-sm font-black ${i.color} truncate">${i.value}</p>
                 </div>
             </div>`).join('');
     }
@@ -1952,25 +1962,25 @@
     function renderForecastPanel(f) {
         if (!f) return '';
         const items = [
-            { label: 'Revenue Projection', value: '₱' + Number(f.predicted_revenue).toLocaleString(), color: 'text-emerald-600', bg: 'bg-emerald-50', icon: 'trending-up', desc: 'Anticipated gross boundary collections for the next 30 days.' },
-            { label: 'Operational Expenses', value: '₱' + Number(f.predicted_expenses).toLocaleString(), color: 'text-slate-700', bg: 'bg-slate-50', icon: 'receipt', desc: 'Estimated fixed and variable overhead costs.' },
-            { label: 'Maintenance Reserve', value: '₱' + Number(f.predicted_maintenance).toLocaleString(), color: 'text-orange-600', bg: 'bg-orange-50', icon: 'wrench', desc: 'Projected repair requirements. Keep this cash ready.' },
-            { label: 'Target Growth', value: f.growth_rate_pct + '%', color: 'text-indigo-600', bg: 'bg-indigo-50', icon: 'activity', desc: 'Anticipated momentum shift compared to previous month.' },
+            { label: 'Revenue Projection', value: '₱' + Number(f.predicted_revenue).toLocaleString(), color: 'text-emerald-600', border: 'border-emerald-200', bg: 'bg-gradient-to-br from-emerald-50 to-teal-50/70', svg: 'revenue_3d.svg', desc: 'Anticipated gross boundary collections for the next 30 days.' },
+            { label: 'Operational Expenses', value: '₱' + Number(f.predicted_expenses).toLocaleString(), color: 'text-rose-600', border: 'border-rose-200', bg: 'bg-gradient-to-br from-rose-50 to-pink-50/70', svg: 'expenses_3d.svg', desc: 'Estimated fixed and variable overhead costs.' },
+            { label: 'Maintenance Reserve', value: '₱' + Number(f.predicted_maintenance).toLocaleString(), color: 'text-amber-600', border: 'border-amber-200', bg: 'bg-gradient-to-br from-amber-50 to-yellow-50/70', svg: 'maintenance_3d.svg', desc: 'Projected repair requirements. Keep this cash ready.' },
+            { label: 'Target Growth', value: f.growth_rate_pct + '%', color: 'text-indigo-600', border: 'border-indigo-200', bg: 'bg-gradient-to-br from-indigo-50 to-blue-50/70', svg: 'profit_3d.svg', desc: 'Anticipated momentum shift compared to previous month.' },
         ];
         return items.map(i => `
-            <div class="bg-white p-6 rounded-[2rem] border border-slate-200 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
-                <div class="absolute -right-4 -top-4 w-24 h-24 ${i.bg} rounded-full group-hover:scale-150 transition-transform duration-500 ease-out z-0"></div>
+            <div class="relative overflow-hidden rounded-[2rem] border ${i.border} ${i.bg} p-6 shadow-sm flex flex-col justify-between">
                 <div class="relative z-10">
                     <div class="flex items-center justify-between mb-4">
                         <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">${i.label}</p>
                     </div>
                     <p class="text-3xl font-black ${i.color} mb-3">${i.value}</p>
                     <p class="text-[11px] font-semibold text-slate-500 leading-relaxed mb-6">${i.desc}</p>
-                    <div class="pt-4 border-t border-slate-100 flex items-center justify-between">
+                    <div class="pt-4 border-t border-black/5 flex items-center justify-between">
                         <span class="text-[9px] font-black text-slate-400 uppercase">Forecast Reliability</span>
-                        <span class="px-2 py-0.5 bg-indigo-50 text-indigo-600 text-[9px] font-black rounded-full uppercase border border-indigo-100 shadow-sm">${f.confidence_level}</span>
+                        <span class="px-2 py-0.5 bg-white/80 text-indigo-600 text-[9px] font-black rounded-full uppercase border border-indigo-100 shadow-sm">${f.confidence_level}</span>
                     </div>
                 </div>
+                <img src="/image/kpi/${i.svg}" alt="${i.label} 3D" class="absolute -right-3 -bottom-3 w-24 h-24 object-contain pointer-events-none opacity-35">
             </div>`).join('');
     }
 
