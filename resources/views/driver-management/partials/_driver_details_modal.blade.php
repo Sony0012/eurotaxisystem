@@ -353,32 +353,86 @@
             }
 
             document.getElementById('incentivesContent').innerHTML = `
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                    <div class="bg-emerald-50 rounded-2xl p-5 border border-emerald-100/50 relative overflow-hidden group">
-                        <div class="absolute -right-2 -bottom-2 opacity-5 transition-transform group-hover:scale-110"><i data-lucide="banknote" class="w-16 h-16 text-emerald-900"></i></div>
-                        <p class="text-[9px] text-emerald-600 font-black uppercase tracking-[0.2em] mb-2">Monthly Reward</p>
-                        <p class="text-2xl font-black text-emerald-900 leading-none">₱${parseFloat(data.monthly_incentive||0).toLocaleString('en-PH',{minimumFractionDigits:2})}</p>
-                        <p class="text-[10px] text-emerald-600 font-bold mt-2">5% Revenue Share</p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                    <!-- Card 1: Monthly Reward -->
+                    <div class="relative overflow-hidden rounded-3xl border border-slate-200/80 bg-gradient-to-br from-white via-emerald-50/40 to-teal-50/20 p-5 shadow-xs">
+                        <div class="flex items-center justify-between gap-3 relative z-10">
+                            <div class="min-w-0 flex-1">
+                                <span class="text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-slate-400 block mb-1">
+                                    Monthly Reward
+                                </span>
+                                <div class="text-xl sm:text-2xl font-black text-emerald-600 leading-tight tracking-tight tabular-nums truncate">
+                                    ₱${parseFloat(data.monthly_incentive||0).toLocaleString('en-PH',{minimumFractionDigits:2})}
+                                </div>
+                                <div class="mt-2 flex items-center gap-1.5 text-[11px] font-bold text-emerald-600">
+                                    <span class="inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                                    <span>5% Revenue Share</span>
+                                </div>
+                            </div>
+                            <div class="w-12 h-12 sm:w-14 sm:h-14 shrink-0">
+                                <img src="{{ asset("image/kpi/reward_cash_3d.svg") }}" alt="Monthly Reward" class="w-full h-full object-contain filter drop-shadow-md">
+                            </div>
+                        </div>
                     </div>
-                    <div class="bg-blue-50 rounded-2xl p-5 border border-blue-100/50 relative overflow-hidden group">
-                        <div class="absolute -right-2 -bottom-2 opacity-5 transition-transform group-hover:scale-110"><i data-lucide="calendar-check" class="w-16 h-16 text-blue-900"></i></div>
-                        <p class="text-[9px] text-blue-600 font-black uppercase tracking-[0.2em] mb-2">Service Cycles</p>
-                        <p class="text-2xl font-black text-blue-900 leading-none">${data.total_shifts_month||0}</p>
-                        <p class="text-[10px] text-blue-600 font-bold mt-2">${data.incentive_earned_count||0} / ${data.total_shifts_month||0} Success</p>
+
+                    <!-- Card 2: Service Cycles -->
+                    <div class="relative overflow-hidden rounded-3xl border border-slate-200/80 bg-gradient-to-br from-white via-blue-50/40 to-indigo-50/20 p-5 shadow-xs">
+                        <div class="flex items-center justify-between gap-3 relative z-10">
+                            <div class="min-w-0 flex-1">
+                                <span class="text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-slate-400 block mb-1">
+                                    Service Cycles
+                                </span>
+                                <div class="text-xl sm:text-2xl font-black text-slate-900 leading-tight tracking-tight tabular-nums truncate">
+                                    ${data.total_shifts_month||0}
+                                </div>
+                                <div class="mt-2 flex items-center gap-1.5 text-[11px] font-bold text-blue-600">
+                                    <span class="inline-flex h-1.5 w-1.5 rounded-full bg-blue-500"></span>
+                                    <span>${data.incentive_earned_count||0} / ${data.total_shifts_month||0} Success</span>
+                                </div>
+                            </div>
+                            <div class="w-12 h-12 sm:w-14 sm:h-14 shrink-0">
+                                <img src="{{ asset("image/kpi/service_cycle_3d.svg") }}" alt="Service Cycles" class="w-full h-full object-contain filter drop-shadow-md">
+                            </div>
+                        </div>
                     </div>
-                    <div class="bg-slate-900 rounded-2xl p-5 shadow-lg shadow-slate-200 relative overflow-hidden group">
-                        <p class="text-[9px] text-slate-400 font-black uppercase tracking-[0.2em] mb-2">Quality Index</p>
-                        <p class="text-2xl font-black ${rateColor} leading-none">${incentiveRate}%</p>
-                        <div class="w-full bg-slate-800 rounded-full h-1.5 mt-3 overflow-hidden"><div class="${rateBar} h-1.5 rounded-full transition-all duration-1000" style="width:${incentiveRate}%"></div></div>
+
+                    <!-- Card 3: Quality Index -->
+                    <div class="relative overflow-hidden rounded-3xl border border-slate-200/80 bg-gradient-to-br from-white via-purple-50/40 to-indigo-50/20 p-5 shadow-xs">
+                        <div class="flex items-center justify-between gap-3 relative z-10">
+                            <div class="min-w-0 flex-1">
+                                <span class="text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-slate-400 block mb-1">
+                                    Quality Index
+                                </span>
+                                <div class="text-xl sm:text-2xl font-black ${rateColor} leading-tight tracking-tight tabular-nums truncate">
+                                    ${incentiveRate}%
+                                </div>
+                                <div class="w-full bg-slate-100 rounded-full h-1.5 mt-2 overflow-hidden">
+                                    <div class="${rateBar} h-1.5 rounded-full transition-all duration-700" style="width:${incentiveRate}%"></div>
+                                </div>
+                            </div>
+                            <div class="w-12 h-12 sm:w-14 sm:h-14 shrink-0">
+                                <img src="{{ asset("image/kpi/quality_index_3d.svg") }}" alt="Quality Index" class="w-full h-full object-contain filter drop-shadow-md">
+                            </div>
+                        </div>
                     </div>
-                    <div class="bg-rose-50 rounded-2xl p-5 border border-rose-100/50 relative overflow-hidden group">
-                        <div class="absolute -right-2 -bottom-2 opacity-5"><i data-lucide="alert-triangle" class="w-16 h-16 text-rose-900"></i></div>
-                        <p class="text-[9px] text-rose-600 font-black uppercase tracking-[0.2em] mb-2">Friction Points</p>
-                        <div class="space-y-1 mt-1">
-                            <p class="text-[10px] text-rose-800 font-black uppercase tracking-tight flex justify-between">Late Turn: <span>${data.late_turn_missed||0}</span></p>
-                            <p class="text-[10px] text-rose-800 font-black uppercase tracking-tight flex justify-between">Damage: <span>${data.damage_missed||0}</span></p>
-                            <p class="text-[10px] text-rose-800 font-black uppercase tracking-tight flex justify-between">Behavior: <span>${data.behavior_missed||0}</span></p>
-                            <p class="text-[10px] text-rose-800 font-black uppercase tracking-tight flex justify-between">Shortage: <span>${data.shortage_missed||0}</span></p>
+
+                    <!-- Card 4: Friction Points -->
+                    <div class="relative overflow-hidden rounded-3xl border border-slate-200/80 bg-gradient-to-br from-white via-rose-50/40 to-red-50/20 p-5 shadow-xs">
+                        <div class="flex items-start justify-between gap-3 relative z-10">
+                            <div class="min-w-0 flex-1">
+                                <span class="text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-slate-400 block mb-1.5">
+                                    Friction Points
+                                </span>
+                                <div class="grid grid-cols-2 gap-x-3 gap-y-1 text-[10px] font-black uppercase">
+                                    <div class="flex justify-between text-slate-600">Late: <span class="${(data.late_turn_missed||0) > 0 ? 'text-rose-600' : 'text-slate-900'}">${data.late_turn_missed||0}</span></div>
+                                    <div class="flex justify-between text-slate-600">Damage: <span class="${(data.damage_missed||0) > 0 ? 'text-rose-600' : 'text-slate-900'}">${data.damage_missed||0}</span></div>
+                                    <div class="flex justify-between text-slate-600">Behavior: <span class="${(data.behavior_missed||0) > 0 ? 'text-rose-600' : 'text-slate-900'}">${data.behavior_missed||0}</span></div>
+                                    <div class="flex justify-between text-slate-600">Shortage: <span class="${(data.shortage_missed||0) > 0 ? 'text-rose-600' : 'text-slate-900'}">${data.shortage_missed||0}</span></div>
+                                </div>
+                            </div>
+                            <div class="w-12 h-12 sm:w-14 sm:h-14 shrink-0">
+                                <img src="{{ asset("image/kpi/friction_points_3d.svg") }}" alt="Friction Points" class="w-full h-full object-contain filter drop-shadow-md">
+                            </div>
                         </div>
                     </div>
                 </div>
