@@ -290,7 +290,7 @@
             {{-- ── 3D KPI SUMMARY CARDS ── --}}
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6">
                 <!-- Card 1: Total Staff -->
-                <div class="group relative overflow-hidden rounded-3xl border border-slate-200/80 bg-gradient-to-br from-white via-amber-50/40 to-orange-50/20 p-5 sm:p-6 shadow-xs hover:shadow-md transition-all duration-300">
+                <div class="relative overflow-hidden rounded-3xl border border-slate-200/80 bg-gradient-to-br from-white via-amber-50/40 to-orange-50/20 p-5 sm:p-6 shadow-xs">
                     <div class="flex items-center justify-between gap-4 relative z-10">
                         <div class="min-w-0 flex-1">
                             <span class="text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-slate-400 block mb-1">
@@ -304,14 +304,14 @@
                                 <span>Registered Accounts</span>
                             </div>
                         </div>
-                        <div class="w-14 h-14 sm:w-16 sm:h-16 shrink-0 group-hover:scale-105 transition-transform">
+                        <div class="w-14 h-14 sm:w-16 sm:h-16 shrink-0">
                             <img src="{{ asset('image/kpi/owner_staff_3d.svg') }}" alt="Total Staff" class="w-full h-full object-contain filter drop-shadow-md">
                         </div>
                     </div>
                 </div>
 
                 <!-- Card 2: Active -->
-                <div class="group relative overflow-hidden rounded-3xl border border-slate-200/80 bg-gradient-to-br from-white via-emerald-50/40 to-teal-50/20 p-5 sm:p-6 shadow-xs hover:shadow-md transition-all duration-300">
+                <div class="relative overflow-hidden rounded-3xl border border-slate-200/80 bg-gradient-to-br from-white via-emerald-50/40 to-teal-50/20 p-5 sm:p-6 shadow-xs">
                     <div class="flex items-center justify-between gap-4 relative z-10">
                         <div class="min-w-0 flex-1">
                             <span class="text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-slate-400 block mb-1">
@@ -325,14 +325,14 @@
                                 <span>Approved & Active</span>
                             </div>
                         </div>
-                        <div class="w-14 h-14 sm:w-16 sm:h-16 shrink-0 group-hover:scale-105 transition-transform">
+                        <div class="w-14 h-14 sm:w-16 sm:h-16 shrink-0">
                             <img src="{{ asset('image/kpi/owner_active_3d.svg') }}" alt="Active" class="w-full h-full object-contain filter drop-shadow-md">
                         </div>
                     </div>
                 </div>
 
                 <!-- Card 3: Rejected -->
-                <div class="group relative overflow-hidden rounded-3xl border border-slate-200/80 bg-gradient-to-br from-white via-rose-50/40 to-red-50/20 p-5 sm:p-6 shadow-xs hover:shadow-md transition-all duration-300">
+                <div class="relative overflow-hidden rounded-3xl border border-slate-200/80 bg-gradient-to-br from-white via-rose-50/40 to-red-50/20 p-5 sm:p-6 shadow-xs">
                     <div class="flex items-center justify-between gap-4 relative z-10">
                         <div class="min-w-0 flex-1">
                             <span class="text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-slate-400 block mb-1">
@@ -351,7 +351,7 @@
                                 <span>{{ $rejectedUsers > 0 ? 'Denied Access' : 'No Denied Users' }}</span>
                             </div>
                         </div>
-                        <div class="w-14 h-14 sm:w-16 sm:h-16 shrink-0 group-hover:scale-105 transition-transform">
+                        <div class="w-14 h-14 sm:w-16 sm:h-16 shrink-0">
                             <img src="{{ asset('image/kpi/owner_rejected_3d.svg') }}" alt="Rejected" class="w-full h-full object-contain filter drop-shadow-md">
                         </div>
                     </div>
