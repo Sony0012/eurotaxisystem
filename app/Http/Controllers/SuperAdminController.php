@@ -703,27 +703,21 @@ class SuperAdminController extends Controller
         $date   = $request->get('date', now()->toDateString());
         $target = (int) $request->get('target', 4); // hours/day
 
-        // 1. Fetch all User accounts (excluding drivers)
-        $users = User::where('role', '!=', 'driver')
+        // 1. Fetch only Staff User accounts (excluding super_admin, owner, and driver)
+        $users = User::whereNotIn('role', ['super_admin', 'owner', 'driver'])
             ->whereNull('deleted_at')
-            ->orderByRaw("FIELD(role, 'super_admin', 'owner', 'manager', 'dispatcher', 'secretary', 'staff')")
+            ->orderByRaw("FIELD(role, 'manager', 'dispatcher', 'secretary', 'cashier', 'accountant', 'staff')")
             ->orderBy('full_name')
             ->get();
 
         $userIds = $users->pluck('id')->toArray();
 
-        // 2. Fetch all General Staff records from `staff` table (excluding drivers)
-        $staffRecords = \App\Models\Staff::whereNull('deleted_at')
-            ->where('role', '!=', 'driver')
-            ->orderBy('name')
-            ->get();
-
-        // 3. Fetch audit logs for the selected date
+        // 2. Fetch audit logs for the selected date
         $allAuditsToday = LoginAudit::whereDate('created_at', $date)
             ->orderBy('created_at')
             ->get();
 
-        // 4. Fetch 28-day heatmap raw data
+        // 3. Fetch 28-day heatmap raw data
         $startDate = Carbon::parse($date)->subDays(27)->toDateString();
         $heatmapRaw = LoginAudit::whereBetween('created_at', [$startDate . ' 00:00:00', $date . ' 23:59:59'])
             ->selectRaw('user_id, DATE(created_at) as day, COUNT(*) as total_acts, SUM(CASE WHEN action = "login" THEN 1 ELSE 0 END) as logins')
@@ -757,12 +751,10 @@ class SuperAdminController extends Controller
         };
 
         $userData = [];
-        $existingUserNames = [];
 
-        // Process User accounts
+        // Process Staff User accounts
         foreach ($users as $user) {
             $userName = $user->full_name ?: ($user->name ?: 'User #' . $user->id);
-            $existingUserNames[] = strtolower(trim($userName));
 
             $userAudits = $allAuditsToday->where('user_id', $user->id)->values();
 
@@ -890,53 +882,6 @@ class SuperAdminController extends Controller
                 'lastActive'    => $lastEntry ? Carbon::parse($lastEntry->created_at)->format('h:i A') : ($user->last_login ? Carbon::parse($user->last_login)->format('h:i A') : null),
                 'heatmap'       => $heatmap,
                 'isOnline'      => $isOnline,
-            ];
-        }
-
-        // Process General Staff records (if not already represented by a User account)
-        foreach ($staffRecords as $stf) {
-            $stfNameLower = strtolower(trim($stf->name));
-            if (in_array($stfNameLower, $existingUserNames)) {
-                continue; // Already included as a User account
-            }
-
-            // Check if there are any audits tagged with this staff's name
-            $stfAudits = $allAuditsToday->filter(function($a) use ($stf) {
-                return str_contains(strtolower($a->user_name ?? ''), strtolower($stf->name))
-                    || str_contains(strtolower($a->notes ?? ''), strtolower($stf->name));
-            })->values();
-
-            $heatmap = [];
-            for ($i = 27; $i >= 0; $i--) {
-                $dayStr = Carbon::parse($date)->subDays($i)->toDateString();
-                $heatmap[] = [
-                    'date'       => $dayStr,
-                    'activities' => 0,
-                    'logins'     => 0,
-                ];
-            }
-
-            $userData[] = [
-                'id'            => 'staff_' . $stf->id,
-                'is_staff_row'  => true,
-                'name'          => $stf->name,
-                'email'         => $stf->phone ? 'Phone: ' . $stf->phone : 'General Staff Employee',
-                'role'          => $stf->role ?: 'staff',
-                'role_label'    => ucfirst(str_replace('_', ' ', $stf->role ?: 'staff')),
-                'last_login'    => null,
-                'todayH'        => 0.0,
-                'todayMins'     => 0,
-                'pct'           => 0,
-                'sessions'      => 0,
-                'sessionList'   => [],
-                'activities'    => $stfAudits->count(),
-                'meaningfulActs'=> $stfAudits->count(),
-                'modules'       => [],
-                'status'        => $stfAudits->count() > 0 ? 'low' : 'none',
-                'firstLogin'    => null,
-                'lastActive'    => null,
-                'heatmap'       => $heatmap,
-                'isOnline'      => strtolower($stf->status ?? '') === 'active',
             ];
         }
 

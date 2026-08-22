@@ -1282,7 +1282,7 @@
                     <div class="min-w-0 flex-1">
                         <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-1">Monitored Roles</span>
                         <div class="text-2xl sm:text-3xl font-black text-slate-900 leading-tight tracking-tight tabular-nums truncate" id="cam-s-clients">0</div>
-                        <p class="text-[10px] font-bold text-slate-400 mt-1 truncate">Manager, Dispatcher, Secretary, Owner</p>
+                        <p class="text-[10px] font-bold text-slate-400 mt-1 truncate">Manager, Dispatcher, Secretary, Staff</p>
                     </div>
                     <div class="w-14 h-14 sm:w-16 sm:h-16 shrink-0">
                         <img src="{{ asset('image/kpi/crown_3d.svg') }}" alt="Monitored Roles" class="w-full h-full object-contain filter drop-shadow-md">
