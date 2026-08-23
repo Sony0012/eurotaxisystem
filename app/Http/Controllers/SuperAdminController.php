@@ -12,6 +12,7 @@ use App\Models\SystemSetting;
 use App\Models\IncidentClassification;
 use App\Models\Role;
 use App\Models\Driver;
+use App\Models\StaffFeedback;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Carbon\Carbon;
@@ -1134,6 +1135,148 @@ class SuperAdminController extends Controller
                 'message' => 'Failed to reset activity: ' . $e->getMessage(),
             ], 500);
         }
+    }
+
+    /**
+     * Store staff feedback submitted from sidebar widget.
+     */
+    public function submitStaffFeedback(Request $request)
+    {
+        if (!Auth::check()) {
+            return response()->json(['success' => false, 'message' => 'Unauthenticated.'], 401);
+        }
+
+        $request->validate([
+            'rating'   => 'required|string|in:very-sad,sad,neutral,happy',
+            'feedback' => 'required|string|max:3000',
+        ]);
+
+        $labels = [
+            'very-sad' => 'Terrible',
+            'sad'      => 'Bad',
+            'neutral'  => 'Okay',
+            'happy'    => 'Amazing',
+        ];
+
+        try {
+            $user = Auth::user();
+            $feedback = StaffFeedback::create([
+                'user_id'      => $user->id,
+                'user_name'    => $user->full_name ?? ($user->first_name ? trim($user->first_name . ' ' . $user->last_name) : $user->name),
+                'user_email'   => $user->email,
+                'user_role'    => $user->role,
+                'rating'       => $request->rating,
+                'rating_label' => $labels[$request->rating] ?? ucfirst($request->rating),
+                'feedback'     => trim($request->feedback),
+                'page_url'     => $request->page_url ?: url()->previous(),
+                'status'       => 'new',
+                'ip_address'   => $request->ip(),
+            ]);
+
+            return response()->json([
+                'success'  => true,
+                'message'  => 'Thank you! Your feedback has been received.',
+                'feedback' => $feedback,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to submit feedback: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Get list of all staff feedback entries.
+     */
+    public function getStaffFeedbacks(Request $request)
+    {
+        if (!Auth::check() || !in_array(Auth::user()->role, ['super_admin', 'owner', 'admin'])) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+        }
+
+        try {
+            $query = StaffFeedback::query()->orderByDesc('created_at');
+
+            if ($request->filled('rating') && $request->rating !== 'all') {
+                $query->where('rating', $request->rating);
+            }
+
+            if ($request->filled('status') && $request->status !== 'all') {
+                $query->where('status', $request->status);
+            }
+
+            $feedbacks = $query->limit(200)->get()->map(function($f) {
+                return [
+                    'id'           => $f->id,
+                    'user_id'      => $f->user_id,
+                    'user_name'    => $f->user_name ?: 'Staff Member',
+                    'user_email'   => $f->user_email,
+                    'user_role'    => $f->user_role ?: 'staff',
+                    'rating'       => $f->rating,
+                    'rating_label' => $f->rating_label ?: ucfirst($f->rating),
+                    'feedback'     => $f->feedback,
+                    'page_url'     => $f->page_url,
+                    'status'       => $f->status,
+                    'created_at'   => $f->created_at ? $f->created_at->format('M d, Y h:i A') : null,
+                    'time_ago'     => $f->created_at ? $f->created_at->diffForHumans() : '',
+                ];
+            });
+
+            return response()->json([
+                'success'   => true,
+                'feedbacks' => $feedbacks,
+                'counts'    => [
+                    'total'    => StaffFeedback::count(),
+                    'amazing'  => StaffFeedback::where('rating', 'happy')->count(),
+                    'okay'     => StaffFeedback::where('rating', 'neutral')->count(),
+                    'bad'      => StaffFeedback::where('rating', 'sad')->count(),
+                    'terrible' => StaffFeedback::where('rating', 'very-sad')->count(),
+                ],
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage(), 'feedbacks' => [], 'counts' => ['total' => 0, 'amazing' => 0, 'okay' => 0, 'bad' => 0, 'terrible' => 0]], 500);
+        }
+    }
+
+    /**
+     * Update feedback status (reviewed, resolved, new).
+     */
+    public function updateFeedbackStatus(Request $request, $id)
+    {
+        if (!Auth::check() || !in_array(Auth::user()->role, ['super_admin', 'owner', 'admin'])) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+        }
+
+        $request->validate([
+            'status' => 'required|string|in:new,reviewed,resolved',
+        ]);
+
+        $fb = StaffFeedback::findOrFail($id);
+        $fb->update(['status' => $request->status]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Feedback status updated to ' . ucfirst($request->status) . '.',
+        ]);
+    }
+
+    /**
+     * Delete a feedback record.
+     */
+    public function deleteFeedback(Request $request, $id)
+    {
+        if (!Auth::check() || !in_array(Auth::user()->role, ['super_admin', 'owner', 'admin'])) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+        }
+
+        $fb = StaffFeedback::findOrFail($id);
+        $fb->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Feedback record has been deleted.',
+        ]);
     }
 }
 

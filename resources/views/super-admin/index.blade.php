@@ -1317,13 +1317,58 @@
         </div>
 
         <!-- ══ ROLE-BASED SUMMARY ROW ══ -->
-        <div class="cam-card">
+        <div class="cam-card mb-5">
             <div class="cam-section-title">
                 <i data-lucide="layers" style="width:13px;height:13px;color:#f59e0b;"></i>
                 Role & Department Adoption Overview
             </div>
             <div id="cam-client-summary" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                 <!-- populated by JS -->
+            </div>
+        </div>
+
+        <!-- ══ 21st.dev STAFF FEEDBACKS & SUGGESTIONS HUB ══ -->
+        <div class="cam-card mb-5" id="cam-feedbacks-card">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 pb-3 border-b border-slate-100">
+                <div class="flex items-center gap-2.5">
+                    <div style="width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#6366f1,#4f46e5);color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 10px rgba(99,102,241,0.25);flex-shrink:0;">
+                        <i data-lucide="message-square-heart" style="width:18px;height:18px;"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="font-extrabold text-sm text-slate-900">Staff Feedbacks & Suggestions Hub</span>
+                            <span id="cam-fb-badge-count" style="font-size:.65rem;background:#ede9fe;color:#6d28d9;padding:.15rem .5rem;border-radius:99px;font-weight:800;">0 Feedbacks</span>
+                        </div>
+                        <p class="text-xs text-slate-500 m-0">Live sentiment ratings, suggestions, and feedback submitted by staff from the sidebar</p>
+                    </div>
+                </div>
+
+                <!-- Rating Filter Chips & Refresh -->
+                <div class="flex items-center gap-1.5 flex-wrap">
+                    <button type="button" onclick="camFilterFeedbacks('all')" class="cam-fb-chip" id="fb-chip-all" style="font-size:.7rem;padding:.3rem .65rem;border-radius:.5rem;font-weight:700;cursor:pointer;border:1px solid #e2e8f0;background:#0f172a;color:#fff;transition:all .15s ease;">
+                        All (<span id="fb-cnt-all">0</span>)
+                    </button>
+                    <button type="button" onclick="camFilterFeedbacks('happy')" class="cam-fb-chip" id="fb-chip-happy" style="font-size:.7rem;padding:.3rem .65rem;border-radius:.5rem;font-weight:700;cursor:pointer;border:1px solid #e2e8f0;background:#fff;color:#475569;transition:all .15s ease;">
+                        ✨ Amazing (<span id="fb-cnt-happy">0</span>)
+                    </button>
+                    <button type="button" onclick="camFilterFeedbacks('neutral')" class="cam-fb-chip" id="fb-chip-neutral" style="font-size:.7rem;padding:.3rem .65rem;border-radius:.5rem;font-weight:700;cursor:pointer;border:1px solid #e2e8f0;background:#fff;color:#475569;transition:all .15s ease;">
+                        😐 Okay (<span id="fb-cnt-neutral">0</span>)
+                    </button>
+                    <button type="button" onclick="camFilterFeedbacks('sad')" class="cam-fb-chip" id="fb-chip-sad" style="font-size:.7rem;padding:.3rem .65rem;border-radius:.5rem;font-weight:700;cursor:pointer;border:1px solid #e2e8f0;background:#fff;color:#475569;transition:all .15s ease;">
+                        🙁 Bad (<span id="fb-cnt-sad">0</span>)
+                    </button>
+                    <button type="button" onclick="camFilterFeedbacks('very-sad')" class="cam-fb-chip" id="fb-chip-very-sad" style="font-size:.7rem;padding:.3rem .65rem;border-radius:.5rem;font-weight:700;cursor:pointer;border:1px solid #e2e8f0;background:#fff;color:#475569;transition:all .15s ease;">
+                        😭 Terrible (<span id="fb-cnt-very-sad">0</span>)
+                    </button>
+                    <button type="button" onclick="camFetchFeedbacks()" class="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 transition-colors ml-1" title="Refresh Feedbacks">
+                        <i data-lucide="refresh-cw" style="width:14px;height:14px;"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Feedback Feed List Container -->
+            <div id="cam-feedbacks-list" style="display:flex;flex-direction:column;gap:.75rem;min-height:80px;">
+                <!-- Populated via JS -->
             </div>
         </div>
 
@@ -2025,6 +2070,7 @@ function camRenderAll() {
     camRenderTable();
     camRenderHeatmap();
     camRenderRoleSummary();
+    camFetchFeedbacks();
     if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
@@ -2692,6 +2738,216 @@ function camHideHeatTooltip() {
     setTimeout(() => {
         if (tt.style.opacity === '0') tt.style.display = 'none';
     }, 150);
+}
+
+// ─── Staff Feedbacks & Suggestions Management ─────────────────
+let CAM_FEEDBACKS = [];
+let CAM_FB_FILTER = 'all';
+
+async function camFetchFeedbacks() {
+    const listEl = document.getElementById('cam-feedbacks-list');
+    if (!listEl) return;
+
+    try {
+        const res = await fetch('/super-admin/activity-monitoring/feedbacks', {
+            headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
+        });
+        const json = await res.json();
+        if (json.success) {
+            CAM_FEEDBACKS = json.feedbacks || [];
+            
+            // Update counter badges
+            const cntAll = document.getElementById('fb-cnt-all');
+            const cntHappy = document.getElementById('fb-cnt-happy');
+            const cntNeutral = document.getElementById('fb-cnt-neutral');
+            const cntSad = document.getElementById('fb-cnt-sad');
+            const cntVerySad = document.getElementById('fb-cnt-very-sad');
+            const mainBadge = document.getElementById('cam-fb-badge-count');
+
+            if (json.counts) {
+                if (cntAll) cntAll.textContent = json.counts.total || 0;
+                if (cntHappy) cntHappy.textContent = json.counts.amazing || 0;
+                if (cntNeutral) cntNeutral.textContent = json.counts.okay || 0;
+                if (cntSad) cntSad.textContent = json.counts.bad || 0;
+                if (cntVerySad) cntVerySad.textContent = json.counts.terrible || 0;
+                if (mainBadge) mainBadge.textContent = `${json.counts.total || 0} Feedback${json.counts.total === 1 ? '' : 's'}`;
+            }
+
+            camRenderFeedbacks();
+        }
+    } catch (e) {
+        console.error('Failed to fetch staff feedbacks:', e);
+    }
+}
+
+function camFilterFeedbacks(rating) {
+    CAM_FB_FILTER = rating;
+    
+    // Update active chip style
+    const chips = ['all', 'happy', 'neutral', 'sad', 'very-sad'];
+    chips.forEach(c => {
+        const btn = document.getElementById(`fb-chip-${c}`);
+        if (btn) {
+            if (c === rating) {
+                btn.style.background = '#0f172a';
+                btn.style.color = '#ffffff';
+                btn.style.borderColor = '#0f172a';
+            } else {
+                btn.style.background = '#ffffff';
+                btn.style.color = '#475569';
+                btn.style.borderColor = '#e2e8f0';
+            }
+        }
+    });
+
+    camRenderFeedbacks();
+}
+
+function camRenderFeedbacks() {
+    const listEl = document.getElementById('cam-feedbacks-list');
+    if (!listEl) return;
+
+    let items = CAM_FEEDBACKS;
+    if (CAM_FB_FILTER !== 'all') {
+        items = items.filter(f => f.rating === CAM_FB_FILTER);
+    }
+
+    if (items.length === 0) {
+        listEl.innerHTML = `
+            <div style="background:#f8fafc;border:1.5px dashed #cbd5e1;border-radius:.85rem;padding:2.5rem 1.5rem;text-align:center;">
+                <div style="width:40px;height:40px;border-radius:50%;background:#e2e8f0;color:#64748b;display:flex;align-items:center;justify-content:center;margin:0 auto .75rem;">
+                    <i data-lucide="message-square" style="width:20px;height:20px;"></i>
+                </div>
+                <h4 style="font-size:.88rem;font-weight:800;color:#334155;margin:0 0 .25rem;">No Feedback Records Found</h4>
+                <p style="font-size:.75rem;color:#94a3b8;margin:0;max-width:360px;margin:0 auto;">
+                    ${CAM_FB_FILTER !== 'all' ? 'No feedback matches this sentiment filter.' : 'Staff feedback submitted via the sidebar widget will automatically accumulate and appear here.'}
+                </p>
+            </div>
+        `;
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+        return;
+    }
+
+    const ratingBadges = {
+        'happy': `<span style="background:#fef3c7;border:1px solid #fde68a;color:#b45309;padding:.2rem .6rem;border-radius:99px;font-size:.68rem;font-weight:800;display:inline-flex;align-items:center;gap:.3rem;">✨ Amazing</span>`,
+        'neutral': `<span style="background:#f1f5f9;border:1px solid #e2e8f0;color:#475569;padding:.2rem .6rem;border-radius:99px;font-size:.68rem;font-weight:800;display:inline-flex;align-items:center;gap:.3rem;">😐 Okay</span>`,
+        'sad': `<span style="background:#fee2e2;border:1px solid #fecdd3;color:#be123c;padding:.2rem .6rem;border-radius:99px;font-size:.68rem;font-weight:800;display:inline-flex;align-items:center;gap:.3rem;">🙁 Bad</span>`,
+        'very-sad': `<span style="background:#fee2e2;border:1px solid #fca5a5;color:#991b1b;padding:.2rem .6rem;border-radius:99px;font-size:.68rem;font-weight:800;display:inline-flex;align-items:center;gap:.3rem;">😭 Terrible</span>`
+    };
+
+    const statusBadges = {
+        'new': `<span style="font-size:.62rem;background:#dbeafe;color:#1e40af;padding:.15rem .45rem;border-radius:6px;font-weight:800;text-transform:uppercase;">NEW</span>`,
+        'reviewed': `<span style="font-size:.62rem;background:#fef3c7;color:#92400e;padding:.15rem .45rem;border-radius:6px;font-weight:800;text-transform:uppercase;">REVIEWED</span>`,
+        'resolved': `<span style="font-size:.62rem;background:#dcfce7;color:#166534;padding:.15rem .45rem;border-radius:6px;font-weight:800;text-transform:uppercase;">RESOLVED</span>`
+    };
+
+    listEl.innerHTML = items.map(f => {
+        const ratingBadge = ratingBadges[f.rating] || ratingBadges['neutral'];
+        const statusBadge = statusBadges[f.status] || statusBadges['new'];
+        const originPage  = f.page_url ? f.page_url.replace(/https?:\/\/[^\/]+/, '') : '/';
+
+        return `
+        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:.85rem;padding:1rem 1.15rem;box-shadow:0 1px 3px rgba(0,0,0,0.03);display:flex;flex-direction:column;gap:.65rem;transition:all .15s ease;">
+            <!-- Top Row: User & Meta -->
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:.5rem;flex-wrap:wrap;">
+                <div style="display:flex;align-items:center;gap:.65rem;min-width:0;">
+                    ${camRenderAvatarSvg(f.user_name, f.user_role)}
+                    <div>
+                        <div style="display:flex;align-items:center;gap:.4rem;flex-wrap:wrap;">
+                            <span style="font-weight:800;font-size:.85rem;color:#0f172a;">${f.user_name}</span>
+                            ${camRoleBadge(f.user_role)}
+                            ${statusBadge}
+                        </div>
+                        <div style="font-size:.65rem;color:#94a3b8;margin-top:.1rem;">
+                            ${f.created_at} ${f.time_ago ? `(${f.time_ago})` : ''}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Rating Pill & Actions -->
+                <div style="display:flex;align-items:center;gap:.5rem;">
+                    ${ratingBadge}
+                    
+                    <!-- Action Select / Buttons -->
+                    <select onchange="camUpdateFeedbackStatus(${f.id}, this.value)" style="font-size:.68rem;padding:.2rem .4rem;border-radius:.4rem;border:1px solid #cbd5e1;background:#f8fafc;color:#334155;font-weight:700;cursor:pointer;">
+                        <option value="new" ${f.status === 'new' ? 'selected' : ''}>New</option>
+                        <option value="reviewed" ${f.status === 'reviewed' ? 'selected' : ''}>Mark Reviewed</option>
+                        <option value="resolved" ${f.status === 'resolved' ? 'selected' : ''}>Mark Resolved</option>
+                    </select>
+
+                    <button type="button" onclick="camDeleteFeedback(${f.id})" style="padding:.2rem .45rem;border-radius:.4rem;border:1px solid #fee2e2;background:#fff1f2;color:#e11d48;font-size:.68rem;font-weight:700;cursor:pointer;" title="Delete Feedback">
+                        <i data-lucide="trash-2" style="width:12px;height:12px;"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Feedback Text Message -->
+            <div style="background:#f8fafc;border-left:3.5px solid #6366f1;border-radius:0 .6rem .6rem 0;padding:.65rem .85rem;font-size:.8rem;color:#1e293b;line-height:1.5;white-space:pre-wrap;">${f.feedback}</div>
+
+            <!-- Origin Page Info Footer -->
+            <div style="display:flex;align-items:center;justify-content:space-between;font-size:.65rem;color:#64748b;">
+                <span style="display:flex;align-items:center;gap:.3rem;">
+                    <i data-lucide="compass" style="width:12px;height:12px;color:#94a3b8;"></i>
+                    <span>Origin: <strong style="color:#475569;">${originPage}</strong></span>
+                </span>
+                ${f.user_email ? `<span>Email: ${f.user_email}</span>` : ''}
+            </div>
+        </div>
+        `;
+    }).join('');
+
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+async function camUpdateFeedbackStatus(id, newStatus) {
+    try {
+        const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}';
+        const res = await fetch(`/super-admin/activity-monitoring/feedbacks/${id}/status`, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': token,
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({ status: newStatus })
+        });
+        const json = await res.json();
+        if (json.success) {
+            toast(json.message || 'Feedback status updated.');
+            camFetchFeedbacks();
+        } else {
+            toast(json.message || 'Failed to update status.', true);
+        }
+    } catch (e) {
+        toast('Network error updating status.', true);
+    }
+}
+
+async function camDeleteFeedback(id) {
+    if (!confirm('Are you sure you want to permanently delete this feedback record?')) return;
+
+    try {
+        const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}';
+        const res = await fetch(`/super-admin/activity-monitoring/feedbacks/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRF-TOKEN': token,
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
+        const json = await res.json();
+        if (json.success) {
+            toast(json.message || 'Feedback deleted.');
+            camFetchFeedbacks();
+        } else {
+            toast(json.message || 'Failed to delete feedback.', true);
+        }
+    } catch (e) {
+        toast('Network error deleting feedback.', true);
+    }
 }
 
 function camSetFilter(f) {

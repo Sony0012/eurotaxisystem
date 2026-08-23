@@ -74,6 +74,7 @@ Route::get('/auth/github/callback', [GitHubAuthController::class, 'handleGitHubC
 
 // Real-time dashboard data
 Route::post('/api/tutorial/complete', [DashboardController::class, 'completeTutorial'])->middleware('auth');
+Route::post('/api/staff-feedback', [SuperAdminController::class, 'submitStaffFeedback'])->middleware('auth')->name('staff-feedback.submit');
 Route::get('/api/dashboard/realtime', [DashboardController::class, 'getRealTimeData'])->middleware('auth');
 Route::get('/api/revenue-trend', [DashboardController::class, 'getRevenueTrend'])->middleware('auth');
 Route::get('/api/units-overview', [DashboardController::class, 'getUnitsOverview'])->middleware('auth');
@@ -362,6 +363,9 @@ Route::middleware(['auth', 'super_admin'])->prefix('super-admin')->name('super-a
     Route::get('/activity-monitoring', [SuperAdminController::class, 'activityMonitoring'])->name('activity-monitoring');
     Route::get('/activity-monitoring/user/{id}', [SuperAdminController::class, 'userActivityDetail'])->name('activity-monitoring.user');
     Route::post('/activity-monitoring/user/{id}/reset', [SuperAdminController::class, 'resetUserActivity'])->name('activity-monitoring.user.reset');
+    Route::get('/activity-monitoring/feedbacks', [SuperAdminController::class, 'getStaffFeedbacks'])->name('activity-monitoring.feedbacks');
+    Route::post('/activity-monitoring/feedbacks/{id}/status', [SuperAdminController::class, 'updateFeedbackStatus'])->name('activity-monitoring.feedbacks.status');
+    Route::delete('/activity-monitoring/feedbacks/{id}', [SuperAdminController::class, 'deleteFeedback'])->name('activity-monitoring.feedbacks.delete');
 });
 
 // ─── Temporary System Sync & Cache Clear Route ─────────────

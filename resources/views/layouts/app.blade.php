@@ -640,6 +640,95 @@
                             <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400 group-hover:text-yellow-600 transition-colors hidden lg:block"></i>
                         </a>
                         
+                        <!-- ══ 21st.dev STAFF FEEDBACK WIDGET ══ -->
+                        <div id="staff-feedback-widget-container" class="mb-2 px-1">
+                            <div id="staff-feedback-widget" style="background:#09090b;border:1px solid rgba(255,255,255,0.14);border-radius:9999px;padding:.35rem .6rem;color:#fff;box-shadow:0 12px 24px -6px rgba(0,0,0,0.4);transition:all .3s cubic-bezier(0.16, 1, 0.3, 1);">
+                                
+                                <!-- Collapsed Bar -->
+                                <div class="flex items-center justify-between gap-1.5" id="sfb-header-row">
+                                    <span class="text-[11px] font-semibold text-zinc-400 select-none whitespace-nowrap pl-1" id="sfb-label">
+                                        Was this helpful?
+                                    </span>
+                                    <div class="flex items-center gap-1">
+                                        <!-- Very Sad / Terrible -->
+                                        <button type="button" onclick="sfbSelectRating('very-sad', this)" title="Terrible" class="sfb-emoji-btn p-1.5 rounded-full text-zinc-400 hover:text-white hover:bg-zinc-800 transition-all active:scale-90" data-rating="very-sad">
+                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <circle cx="12" cy="12" r="10" />
+                                                <path d="M16 16s-1.5-2-4-2-4 2-4 2" />
+                                                <path d="M9 9h.01" />
+                                                <path d="M15 9h.01" />
+                                                <path d="M9 13v2" stroke="#3b82f6" />
+                                                <path d="M15 13v2" stroke="#3b82f6" />
+                                            </svg>
+                                        </button>
+                                        <!-- Sad / Bad -->
+                                        <button type="button" onclick="sfbSelectRating('sad', this)" title="Bad" class="sfb-emoji-btn p-1.5 rounded-full text-zinc-400 hover:text-white hover:bg-zinc-800 transition-all active:scale-90" data-rating="sad">
+                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <circle cx="12" cy="12" r="10" />
+                                                <path d="M16 16s-1.5-2-4-2-4 2-4 2" />
+                                                <line x1="9" y1="9" x2="9.01" y2="9" />
+                                                <line x1="15" y1="9" x2="15.01" y2="9" />
+                                            </svg>
+                                        </button>
+                                        <!-- Neutral / Okay -->
+                                        <button type="button" onclick="sfbSelectRating('neutral', this)" title="Okay" class="sfb-emoji-btn p-1.5 rounded-full text-zinc-400 hover:text-white hover:bg-zinc-800 transition-all active:scale-90" data-rating="neutral">
+                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <circle cx="12" cy="12" r="10" />
+                                                <path d="M8 13s1.5 2 4 2 4-2 4-2" />
+                                                <line x1="9" y1="9" x2="9.01" y2="9" />
+                                                <line x1="15" y1="9" x2="15.01" y2="9" />
+                                            </svg>
+                                        </button>
+                                        <!-- Happy / Amazing -->
+                                        <button type="button" onclick="sfbSelectRating('happy', this)" title="Amazing" class="sfb-emoji-btn p-1.5 rounded-full text-zinc-400 hover:text-white hover:bg-zinc-800 transition-all active:scale-90" data-rating="happy">
+                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <circle cx="12" cy="12" r="10" />
+                                                <path d="M8 13s1.5 2 4 2 4-2 4-2" />
+                                                <path d="M9 9l.5 1.5l1.5 .5l-1.5 .5l-.5 1.5l-.5-1.5l-1.5-.5l1.5-.5z" fill="#f97316" stroke="none" />
+                                                <path d="M15 9l.5 1.5l1.5 .5l-1.5 .5l-.5 1.5l-.5-1.5l-1.5-.5l1.5-.5z" fill="#f97316" stroke="none" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Expanded Form Body -->
+                                <div id="sfb-expanded-body" style="display:none;padding-top:.75rem;">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="text-[10px] font-bold uppercase tracking-wider text-zinc-400" id="sfb-mode-label">FEEDBACK</span>
+                                        <div class="flex items-center gap-1.5">
+                                            <button type="button" onclick="sfbTogglePreview()" id="sfb-prev-btn" class="text-[10px] font-semibold px-2 py-0.5 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-300 transition-colors">
+                                                Preview
+                                            </button>
+                                            <button type="button" onclick="sfbCloseWidget()" class="text-[11px] font-semibold px-1.5 py-0.5 rounded text-zinc-500 hover:text-zinc-300 transition-colors" title="Close">
+                                                ✕
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <!-- Textarea or Preview -->
+                                    <div class="relative mb-2.5">
+                                        <textarea id="sfb-textarea" placeholder="Your feedback..." rows="3"
+                                            class="w-full text-xs bg-zinc-900 border border-zinc-800 rounded-xl p-2.5 text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-zinc-600 resize-none transition-all"
+                                            oninput="sfbOnInputChange(this)"></textarea>
+                                        <div id="sfb-preview-box" style="display:none;min-height:75px;max-height:120px;overflow-y:auto;"
+                                            class="w-full text-xs bg-zinc-900 border border-zinc-800 rounded-xl p-2.5 text-zinc-200 leading-relaxed">
+                                        </div>
+                                        <span class="absolute right-2.5 bottom-1.5 text-[9px] font-bold text-zinc-600 pointer-events-none select-none">M↓ supported</span>
+                                    </div>
+
+                                    <!-- Footer & Submit Button -->
+                                    <div class="flex items-center justify-between pt-1 border-t border-zinc-800/80">
+                                        <span class="text-[10px] text-zinc-500">We appreciate your input.</span>
+                                        <button type="button" onclick="sfbSubmitFeedback()" id="sfb-send-btn" disabled
+                                            class="text-xs font-bold bg-white hover:bg-zinc-200 text-zinc-950 px-3 py-1.5 rounded-lg transition-all active:scale-95 disabled:opacity-40 disabled:pointer-events-none flex items-center gap-1.5">
+                                            <span id="sfb-send-text">Send Feedback</span>
+                                        </button>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                        
                         <!-- Take the Tour Again -->
                         <button type="button"
                             onclick="if(window.TutorialManager) window.TutorialManager.restart();"
@@ -2963,6 +3052,152 @@
             }
         });
     })();
+
+    // ─── 21st.dev Staff Feedback Widget Scripts ───────────────────
+    let SFB_RATING = '';
+    let SFB_IS_PREVIEW = false;
+    let SFB_IS_SUBMITTING = false;
+
+    function sfbSelectRating(rating, btnEl) {
+        const widget = document.getElementById('staff-feedback-widget');
+        const expandedBody = document.getElementById('sfb-expanded-body');
+        const textarea = document.getElementById('sfb-textarea');
+        if (!widget || !expandedBody) return;
+
+        if (SFB_RATING === rating && expandedBody.style.display !== 'none') {
+            sfbCloseWidget();
+            return;
+        }
+
+        SFB_RATING = rating;
+
+        // Highlight selected emoji with blue background
+        document.querySelectorAll('.sfb-emoji-btn').forEach(btn => {
+            if (btn.dataset.rating === rating) {
+                btn.style.background = '#2563eb';
+                btn.style.color = '#ffffff';
+            } else {
+                btn.style.background = 'transparent';
+                btn.style.color = '#a1a1aa';
+            }
+        });
+
+        // Expand widget
+        widget.style.borderRadius = '1.25rem';
+        expandedBody.style.display = 'block';
+
+        setTimeout(() => {
+            if (textarea) textarea.focus();
+        }, 100);
+    }
+
+    function sfbCloseWidget() {
+        const widget = document.getElementById('staff-feedback-widget');
+        const expandedBody = document.getElementById('sfb-expanded-body');
+        const previewBox = document.getElementById('sfb-preview-box');
+        const textarea = document.getElementById('sfb-textarea');
+        if (!widget || !expandedBody) return;
+
+        SFB_RATING = '';
+        SFB_IS_PREVIEW = false;
+
+        document.querySelectorAll('.sfb-emoji-btn').forEach(btn => {
+            btn.style.background = 'transparent';
+            btn.style.color = '#a1a1aa';
+        });
+
+        if (textarea) textarea.style.display = 'block';
+        if (previewBox) previewBox.style.display = 'none';
+        const prevBtn = document.getElementById('sfb-prev-btn');
+        if (prevBtn) prevBtn.textContent = 'Preview';
+
+        expandedBody.style.display = 'none';
+        widget.style.borderRadius = '9999px';
+    }
+
+    function sfbOnInputChange(textarea) {
+        const sendBtn = document.getElementById('sfb-send-btn');
+        if (sendBtn) {
+            sendBtn.disabled = !textarea.value.trim() || SFB_IS_SUBMITTING;
+        }
+    }
+
+    function sfbTogglePreview() {
+        const textarea = document.getElementById('sfb-textarea');
+        const previewBox = document.getElementById('sfb-preview-box');
+        const prevBtn = document.getElementById('sfb-prev-btn');
+        const modeLabel = document.getElementById('sfb-mode-label');
+        if (!textarea || !previewBox) return;
+
+        SFB_IS_PREVIEW = !SFB_IS_PREVIEW;
+
+        if (SFB_IS_PREVIEW) {
+            const val = textarea.value.trim();
+            previewBox.innerHTML = val ? val.replace(/\n/g, '<br>') : '<em style="color:#71717a">Nothing to preview...</em>';
+            textarea.style.display = 'none';
+            previewBox.style.display = 'block';
+            if (prevBtn) prevBtn.textContent = 'Edit';
+            if (modeLabel) modeLabel.textContent = 'PREVIEW';
+        } else {
+            textarea.style.display = 'block';
+            previewBox.style.display = 'none';
+            if (prevBtn) prevBtn.textContent = 'Preview';
+            if (modeLabel) modeLabel.textContent = 'FEEDBACK';
+            textarea.focus();
+        }
+    }
+
+    async function sfbSubmitFeedback() {
+        const textarea = document.getElementById('sfb-textarea');
+        if (!textarea || !textarea.value.trim() || !SFB_RATING || SFB_IS_SUBMITTING) return;
+
+        SFB_IS_SUBMITTING = true;
+        const sendBtn = document.getElementById('sfb-send-btn');
+        const sendText = document.getElementById('sfb-send-text');
+        if (sendBtn) sendBtn.disabled = true;
+        if (sendText) sendText.textContent = 'Sending…';
+
+        try {
+            const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}';
+            const res = await fetch('/api/staff-feedback', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': token,
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({
+                    rating: SFB_RATING,
+                    feedback: textarea.value.trim(),
+                    page_url: window.location.href
+                })
+            });
+
+            const json = await res.json();
+            if (json.success) {
+                textarea.value = '';
+                sfbCloseWidget();
+                if (typeof toast === 'function') {
+                    toast(json.message || 'Thank you! Your feedback has been received.');
+                } else {
+                    alert(json.message || 'Thank you! Your feedback has been received.');
+                }
+                // If on activity monitoring tab, live-refresh feedbacks table
+                if (typeof camFetchFeedbacks === 'function') {
+                    camFetchFeedbacks();
+                }
+            } else {
+                alert(json.message || 'Failed to submit feedback.');
+            }
+        } catch (e) {
+            alert('Network error while sending feedback.');
+        } finally {
+            SFB_IS_SUBMITTING = false;
+            if (sendBtn) sendBtn.disabled = false;
+            if (sendText) sendText.textContent = 'Send Feedback';
+        }
+    }
     </script>
 </body>
 
