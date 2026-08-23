@@ -1866,79 +1866,98 @@
 </div>
 
 <!-- Units Overview Modal -->
-    <div id="unitsModal" class="hidden fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-white rounded-2xl shadow-2xl max-w-7xl w-full mx-4 h-[95vh] flex flex-col ring-1 ring-slate-900/5 overflow-hidden">
-            <!-- Spacious Header with Search & Animated Shiny Background Text -->
-            <div class="relative pt-6 pb-4 px-5 sm:pt-7 sm:pb-5 sm:px-6 border-b bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 flex-shrink-0 overflow-hidden">
-                <!-- Large Animated Shiny Background Text (Shifted up for clear full view) -->
+    <div id="unitsModal" class="hidden fixed inset-0 bg-slate-950/80 z-50 flex items-center justify-center p-3 sm:p-5 backdrop-blur-md transition-all duration-300">
+        <div class="bg-white rounded-3xl shadow-2xl max-w-7xl w-full mx-auto h-[92vh] sm:h-[95vh] flex flex-col ring-1 ring-white/10 overflow-hidden border border-slate-800/40">
+            
+            <!-- ─── 21st.dev Inspired Dark Glassmorphism Header ─── -->
+            <div class="relative pt-6 pb-5 px-5 sm:px-7 border-b border-slate-800/90 bg-[#090d16] flex-shrink-0 overflow-hidden select-none">
+                
+                <!-- Subtle Radial Ambient Glow -->
+                <div class="absolute inset-0 pointer-events-none opacity-60" style="background: radial-gradient(circle at 50% -10%, rgba(245, 158, 11, 0.18), rgba(99, 102, 241, 0.12) 40%, transparent 80%);"></div>
+                
+                <!-- High-Tech Micro-Dot Grid Pattern SVG Background -->
+                <div class="absolute inset-0 opacity-[0.08] pointer-events-none" style="background-image: radial-gradient(rgba(255, 255, 255, 0.9) 1px, transparent 1px); background-size: 20px 20px;"></div>
+
+                <!-- Large Animated Shiny Background Watermark -->
                 <div class="absolute inset-x-0 top-1 sm:top-2 flex items-center justify-center pointer-events-none select-none z-0 overflow-hidden px-4" aria-hidden="true">
-                    <h1 class="animated-shiny-units-text text-2xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black uppercase tracking-wider whitespace-nowrap opacity-90">
+                    <h1 class="animated-shiny-units-text text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black uppercase tracking-[0.18em] whitespace-nowrap opacity-25">
                         Units Overview
                     </h1>
                 </div>
 
+                <!-- Top Row: Branding, Status Pill & Close Action -->
                 <div class="relative z-10">
                     <div class="flex items-center justify-between mb-4 sm:mb-5">
-                        <div class="flex items-end gap-3">
-                            <div class="p-2.5 bg-white/20 backdrop-blur-sm rounded-xl border border-white/30">
-                                <i data-lucide="car" class="w-6 h-6 text-white"></i>
+                        <div class="flex items-center gap-3.5">
+                            <!-- Modern 3D/Glow Fleet Icon Badge -->
+                            <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br from-amber-500/20 via-amber-600/10 to-transparent border border-amber-500/30 flex items-center justify-center shadow-lg shadow-amber-500/10 flex-shrink-0 backdrop-blur-md">
+                                <i data-lucide="car" class="w-6 h-6 text-amber-400"></i>
                             </div>
-                            <div class="pb-1">
-                                <p class="text-blue-100 text-xs font-medium">Fleet Management Dashboard</p>
+                            <div>
+                                <div class="flex items-center gap-2 mb-0.5">
+                                    <h2 class="text-base sm:text-lg font-black text-white tracking-tight">Units Fleet Matrix</h2>
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+                                        Live Overview
+                                    </span>
+                                </div>
+                                <p class="text-slate-400 text-xs font-medium">Real-time fleet tracking, active driver assignments & collection stats</p>
                             </div>
                         </div>
-                        <button onclick="hideUnitsModal()" class="text-white/80 hover:text-white hover:bg-white/20 p-2 rounded-lg transition-all duration-200 backdrop-blur-sm">
-                            <i data-lucide="x" class="w-5 h-5"></i>
+                        
+                        <!-- Sleek Close Button -->
+                        <button onclick="hideUnitsModal()" class="w-9 h-9 rounded-xl bg-slate-800/80 hover:bg-rose-500/20 border border-slate-700 hover:border-rose-500/40 text-slate-400 hover:text-rose-300 flex items-center justify-center transition-all duration-200 backdrop-blur-md shadow-sm">
+                            <i data-lucide="x" class="w-4 h-4"></i>
                         </button>
                     </div>
                     
                     <!-- Search and Filter Row -->
-                    <div class="flex items-center gap-3">
-                        <!-- Compact Search Bar -->
+                    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                        <!-- 21st.dev Style Search Bar -->
                         <div class="relative flex-1">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <i data-lucide="search" class="w-4 h-4 text-white/60"></i>
+                            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                                <i data-lucide="search" class="w-4 h-4"></i>
                             </div>
                             <input type="search" 
                                 id="unitSearchInput"
-                                placeholder="Search units by number, status, or performance..."
-                                class="w-full pl-10 pr-4 py-2 bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent transition-all duration-200 text-sm"
+                                placeholder="Search units by plate number, driver, status..."
+                                class="w-full pl-10 pr-9 py-2.5 bg-slate-900/90 backdrop-blur-md border border-slate-700/80 rounded-xl text-slate-100 placeholder-slate-400 text-xs sm:text-sm focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 transition-all duration-200 shadow-inner"
                                 onkeyup="filterUnits()"
-                             autocomplete="new-password" spellcheck="false" autocorrect="off" autocapitalize="off" readonly onfocus="this.removeAttribute('readonly');">
+                                autocomplete="new-password" spellcheck="false" autocorrect="off" autocapitalize="off" readonly onfocus="this.removeAttribute('readonly');">
                             <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
-                                <button onclick="clearSearch()" class="text-white/60 hover:text-white transition-colors">
+                                <button onclick="clearSearch()" class="text-slate-500 hover:text-slate-300 transition-colors">
                                     <i data-lucide="x-circle" class="w-4 h-4"></i>
                                 </button>
                             </div>
                         </div>
 
-                        <!-- Status Filter Buttons -->
-                        <div class="flex bg-white/10 backdrop-blur-sm border border-white/30 rounded-lg p-1">
+                        <!-- Status Filter Segmented Buttons -->
+                        <div class="flex bg-slate-900/95 backdrop-blur-md border border-slate-800 p-1 rounded-xl shadow-inner gap-1 flex-shrink-0">
                             <button 
                                 id="btn-all-units" 
                                 onclick="setUnitStatusFilter('all')"
-                                class="px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200 bg-white text-blue-700"
+                                class="px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20"
                             >
                                 All
                             </button>
                             <button 
                                 id="btn-active-units" 
                                 onclick="setUnitStatusFilter('active')"
-                                class="px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200 text-white/70 hover:text-white hover:bg-white/10"
+                                class="px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all duration-200 text-slate-400 hover:text-white hover:bg-slate-800/80"
                             >
                                 Active
                             </button>
                             <button 
                                 id="btn-maintenance-units" 
                                 onclick="setUnitStatusFilter('maintenance')"
-                                class="px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200 text-white/70 hover:text-white hover:bg-white/10"
+                                class="px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all duration-200 text-slate-400 hover:text-white hover:bg-slate-800/80"
                             >
                                 Maintenance
                             </button>
                             <button 
                                 id="btn-coding-units" 
                                 onclick="setUnitStatusFilter('coding')"
-                                class="px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200 text-white/70 hover:text-white hover:bg-white/10"
+                                class="px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all duration-200 text-slate-400 hover:text-white hover:bg-slate-800/80"
                             >
                                 Coding
                             </button>
@@ -1947,52 +1966,55 @@
                 </div>
             </div>
 
-            
-            <div class="flex-1 overflow-hidden flex flex-col min-h-0">
-                <!-- Compact Summary Stats -->
-                <div class="bg-gradient-to-r from-gray-50 to-blue-50 p-3 border-b border-gray-200 flex-shrink-0">
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                        <div class="bg-white rounded-lg p-2 shadow-md shadow-slate-200/40 ring-1 ring-slate-900/5 hover:shadow-md transition-shadow">
-                            <div class="flex items-center gap-2">
-                                <div class="p-1 bg-blue-100 rounded">
-                                    <i data-lucide="car" class="w-3.5 h-3.5 text-blue-600"></i>
+            <div class="flex-1 overflow-hidden flex flex-col min-h-0 bg-slate-50">
+                <!-- ─── Compact Summary Metrics Strip ─── -->
+                <div class="bg-white/80 backdrop-blur-sm p-3.5 border-b border-slate-200/80 flex-shrink-0 shadow-sm">
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-7xl mx-auto">
+                        <!-- Total Units -->
+                        <div class="bg-gradient-to-b from-white to-slate-50/80 rounded-2xl p-3 border border-slate-200/90 shadow-sm hover:shadow-md hover:border-blue-300/80 transition-all duration-200 group">
+                            <div class="flex items-center gap-3">
+                                <div class="w-9 h-9 rounded-xl bg-blue-50 border border-blue-200/60 flex items-center justify-center text-blue-600 flex-shrink-0 group-hover:scale-105 transition-transform">
+                                    <i data-lucide="car" class="w-4 h-4"></i>
                                 </div>
-                                <div class="flex-1">
-                                    <div class="text-base font-bold text-blue-600 leading-tight" id="totalUnitsCount">0</div>
-                                    <div class="text-[10px] text-slate-500 uppercase tracking-tight font-bold">Total</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="bg-white rounded-lg p-2 shadow-md shadow-slate-200/40 ring-1 ring-slate-900/5 hover:shadow-md transition-shadow">
-                            <div class="flex items-center gap-2">
-                                <div class="p-1 bg-green-100 rounded">
-                                    <i data-lucide="user-x" class="w-3.5 h-3.5 text-green-600"></i>
-                                </div>
-                                <div class="flex-1">
-                                    <div class="text-base font-bold text-green-600 leading-tight" id="activeUnitsCount">0</div>
-                                    <div class="text-[10px] text-slate-500 uppercase tracking-tight font-bold">Vacant (No Driver)</div>
+                                <div class="min-w-0 flex-1">
+                                    <div class="text-base sm:text-lg font-black text-slate-800 leading-tight tracking-tight" id="totalUnitsCount">0</div>
+                                    <div class="text-[10px] text-slate-500 uppercase tracking-wider font-bold">Total Fleet</div>
                                 </div>
                             </div>
                         </div>
-                        <div class="bg-white rounded-lg p-2 shadow-md shadow-slate-200/40 ring-1 ring-slate-900/5 hover:shadow-md transition-shadow">
-                            <div class="flex items-center gap-2">
-                                <div class="p-1 bg-yellow-100 rounded">
-                                    <i data-lucide="activity" class="w-3.5 h-3.5 text-yellow-600"></i>
+                        <!-- Vacant (No Driver) -->
+                        <div class="bg-gradient-to-b from-white to-slate-50/80 rounded-2xl p-3 border border-slate-200/90 shadow-sm hover:shadow-md hover:border-emerald-300/80 transition-all duration-200 group">
+                            <div class="flex items-center gap-3">
+                                <div class="w-9 h-9 rounded-xl bg-emerald-50 border border-emerald-200/60 flex items-center justify-center text-emerald-600 flex-shrink-0 group-hover:scale-105 transition-transform">
+                                    <i data-lucide="user-x" class="w-4 h-4"></i>
                                 </div>
-                                <div class="flex-1">
-                                    <div class="text-base font-bold text-yellow-600 leading-tight" id="roiUnitsCount">0</div>
-                                    <div class="text-[10px] text-slate-500 uppercase tracking-tight font-bold">Active Units (With Driver)</div>
+                                <div class="min-w-0 flex-1">
+                                    <div class="text-base sm:text-lg font-black text-emerald-600 leading-tight tracking-tight" id="activeUnitsCount">0</div>
+                                    <div class="text-[10px] text-slate-500 uppercase tracking-wider font-bold truncate">Vacant Units</div>
                                 </div>
                             </div>
                         </div>
-                        <div class="bg-white rounded-lg p-2 shadow-md shadow-slate-200/40 ring-1 ring-slate-900/5 hover:shadow-md transition-shadow">
-                            <div class="flex items-center gap-2">
-                                <div class="p-1 bg-purple-100 rounded">
-                                    <i data-lucide="pie-chart" class="w-3.5 h-3.5 text-purple-600"></i>
+                        <!-- Active (With Driver) -->
+                        <div class="bg-gradient-to-b from-white to-slate-50/80 rounded-2xl p-3 border border-slate-200/90 shadow-sm hover:shadow-md hover:border-amber-300/80 transition-all duration-200 group">
+                            <div class="flex items-center gap-3">
+                                <div class="w-9 h-9 rounded-xl bg-amber-50 border border-amber-200/60 flex items-center justify-center text-amber-600 flex-shrink-0 group-hover:scale-105 transition-transform">
+                                    <i data-lucide="activity" class="w-4 h-4"></i>
                                 </div>
-                                <div class="flex-1">
-                                    <div class="text-base font-bold text-purple-600 leading-tight" id="avgRoiCount">0%</div>
-                                    <div class="text-[10px] text-slate-500 uppercase tracking-tight font-bold">Avg ROI</div>
+                                <div class="min-w-0 flex-1">
+                                    <div class="text-base sm:text-lg font-black text-amber-600 leading-tight tracking-tight" id="roiUnitsCount">0</div>
+                                    <div class="text-[10px] text-slate-500 uppercase tracking-wider font-bold truncate">Active (With Driver)</div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Avg ROI -->
+                        <div class="bg-gradient-to-b from-white to-slate-50/80 rounded-2xl p-3 border border-slate-200/90 shadow-sm hover:shadow-md hover:border-violet-300/80 transition-all duration-200 group">
+                            <div class="flex items-center gap-3">
+                                <div class="w-9 h-9 rounded-xl bg-violet-50 border border-violet-200/60 flex items-center justify-center text-violet-600 flex-shrink-0 group-hover:scale-105 transition-transform">
+                                    <i data-lucide="pie-chart" class="w-4 h-4"></i>
+                                </div>
+                                <div class="min-w-0 flex-1">
+                                    <div class="text-base sm:text-lg font-black text-violet-600 leading-tight tracking-tight" id="avgRoiCount">0%</div>
+                                    <div class="text-[10px] text-slate-500 uppercase tracking-wider font-bold truncate">Average ROI</div>
                                 </div>
                             </div>
                         </div>
@@ -2000,14 +2022,14 @@
                 </div>
 
                 <!-- Enhanced Units Grid with Maximum Space -->
-                <div class="flex-1 overflow-y-auto p-4 bg-gray-50 min-h-0">
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 gap-4 pb-4" id="unitsGrid">
+                <div class="flex-1 overflow-y-auto p-4 sm:p-5 bg-slate-50/70 min-h-0">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 pb-6" id="unitsGrid">
                         <!-- Enhanced Loading State -->
                         <div class="col-span-full text-center py-16">
                             <div class="inline-flex flex-col items-center">
-                                <div class="animate-spin rounded-full h-12 w-12 border-4 border-blue-600 border-t-transparent mb-4"></div>
-                                <span class="text-lg text-gray-600 font-semibold mb-2">Loading units data...</span>
-                                <p class="text-sm text-slate-400">Please wait while we fetch your fleet information</p>
+                                <div class="animate-spin rounded-full h-12 w-12 border-4 border-amber-500 border-t-transparent mb-4"></div>
+                                <span class="text-lg text-slate-700 font-bold mb-1">Loading units matrix...</span>
+                                <p class="text-xs text-slate-400">Fetching live fleet status and financial records</p>
                             </div>
                         </div>
                     </div>
@@ -4386,87 +4408,92 @@
                 grid.innerHTML = `
                     <div class="col-span-full text-center py-20">
                         <div class="inline-flex flex-col items-center">
-                            <div class="p-4 bg-gray-100 rounded-full mb-4">
-                                <i data-lucide="search" class="w-8 h-8 text-slate-400"></i>
+                            <div class="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center mb-3 text-slate-400">
+                                <i data-lucide="search-x" class="w-7 h-7"></i>
                             </div>
-                            <span class="text-xl text-gray-600 font-semibold mb-2">No units found</span>
-                            <p class="text-sm text-slate-400">Try adjusting your search or filters</p>
+                            <span class="text-base font-bold text-slate-700 mb-1">No matching units found</span>
+                            <p class="text-xs text-slate-400">Try adjusting your search criteria or status filter</p>
                         </div>
                     </div>
                 `;
+                if (typeof lucide !== 'undefined') lucide.createIcons();
                 return;
             }
             
             grid.innerHTML = units.map(unit => `
-                <div class="bg-white rounded-lg shadow border-t-2 ${statusColors[unit.status] || 'border-gray-200'} hover:shadow-md transition-all duration-300 relative group overflow-hidden cursor-pointer min-h-[110px] flex flex-col" onclick="window.location.href='/units?id=${unit.id}'">
+                <div class="bg-white rounded-2xl border border-slate-200/90 hover:border-amber-400/80 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 relative group overflow-hidden cursor-pointer min-h-[118px] flex flex-col justify-between p-3.5" onclick="window.location.href='/units?id=${unit.id}'">
                     
                     <!-- Hover Driver Overlay -->
-                    <div class="absolute inset-0 bg-slate-900/95 opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col items-center justify-center z-10 pointer-events-none p-2">
-                        <p class="text-white/70 text-[9px] font-bold uppercase tracking-[0.2em] mb-1">Assigned Drivers</p>
+                    <div class="absolute inset-0 bg-slate-950/95 opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col items-center justify-center z-20 pointer-events-none p-3 backdrop-blur-sm">
+                        <p class="text-amber-400 text-[9px] font-extrabold uppercase tracking-[0.2em] mb-2 flex items-center gap-1">
+                            <i data-lucide="user-check" class="w-3 h-3"></i>
+                            Assigned Drivers
+                        </p>
                         ${(unit.driver1_name || unit.driver2_name) ? `
                             ${unit.driver1_name ? `
-                            <div class="flex items-center gap-2 bg-white/10 rounded-md px-2 py-1 w-[95%] border border-white/10 shadow-lg mb-1">
-                                <div class="w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center flex-shrink-0 shadow-inner">
-                                    <span class="text-white text-[8px] font-bold">P1</span>
+                            <div class="flex items-center gap-2 bg-white/10 rounded-xl px-2.5 py-1.5 w-full border border-white/10 shadow-lg mb-1.5">
+                                <div class="w-6 h-6 rounded-lg bg-blue-500 flex items-center justify-center flex-shrink-0 text-white font-extrabold text-[9px] shadow-sm">
+                                    P1
                                 </div>
-                                <div class="min-w-0">
-                                    <p class="text-[6px] text-blue-300 font-bold uppercase tracking-widest leading-none mb-0.5">Primary 1</p>
-                                    <p class="text-white text-[10px] font-bold leading-tight truncate tracking-wide">${unit.driver1_name}</p>
+                                <div class="min-w-0 flex-1 text-left">
+                                    <p class="text-[7px] text-blue-300 font-bold uppercase tracking-widest leading-none mb-0.5">Primary Driver</p>
+                                    <p class="text-white text-[11px] font-bold leading-tight truncate tracking-wide">${unit.driver1_name}</p>
                                 </div>
                             </div>
                             ` : ''}
                             ${unit.driver2_name ? `
-                            <div class="flex items-center gap-2 bg-white/10 rounded-md px-2 py-1 w-[95%] border border-white/10 shadow-lg">
-                                <div class="w-5 h-5 rounded-full bg-purple-500 flex items-center justify-center flex-shrink-0 shadow-inner">
-                                    <span class="text-white text-[8px] font-bold">P2</span>
+                            <div class="flex items-center gap-2 bg-white/10 rounded-xl px-2.5 py-1.5 w-full border border-white/10 shadow-lg">
+                                <div class="w-6 h-6 rounded-lg bg-purple-500 flex items-center justify-center flex-shrink-0 text-white font-extrabold text-[9px] shadow-sm">
+                                    P2
                                 </div>
-                                <div class="min-w-0">
-                                    <p class="text-[6px] text-purple-300 font-bold uppercase tracking-widest leading-none mb-0.5">Primary 2</p>
-                                    <p class="text-white text-[10px] font-bold leading-tight truncate tracking-wide">${unit.driver2_name}</p>
+                                <div class="min-w-0 flex-1 text-left">
+                                    <p class="text-[7px] text-purple-300 font-bold uppercase tracking-widest leading-none mb-0.5">Secondary Driver</p>
+                                    <p class="text-white text-[11px] font-bold leading-tight truncate tracking-wide">${unit.driver2_name}</p>
                                 </div>
                             </div>
                             ` : ''}
                         ` : `
                             <div class="flex flex-col items-center justify-center h-full text-center">
-                                <div class="w-6 h-6 rounded-full bg-red-500/20 flex items-center justify-center mb-1">
-                                    <i data-lucide="user-x" class="w-3 h-3 text-red-400"></i>
+                                <div class="w-7 h-7 rounded-xl bg-slate-800 text-slate-400 flex items-center justify-center mb-1.5 border border-slate-700">
+                                    <i data-lucide="user-x" class="w-4 h-4 text-slate-400"></i>
                                 </div>
-                                <p class="text-red-300 text-[9px] font-bold uppercase tracking-wider">No Available Drivers</p>
+                                <p class="text-slate-300 text-[10px] font-bold uppercase tracking-wider">No Assigned Driver</p>
+                                <span class="text-[8px] text-slate-500">Available for assignment</span>
                             </div>
                         `}
                     </div>
 
-                    <div class="p-3 relative z-0 flex-1 flex flex-col justify-between">
-                        <!-- Summary Header -->
-                        <div class="flex items-center justify-between gap-2 mb-2">
-                            <div class="flex items-center gap-1.5 min-w-0">
-                                <i data-lucide="car" class="w-3.5 h-3.5 text-slate-400"></i>
-                                <h4 class="text-sm font-bold text-slate-800 truncate">${unit.plate_number}</h4>
+                    <!-- Card Header -->
+                    <div class="flex items-center justify-between gap-2 mb-2">
+                        <div class="flex items-center gap-2 min-w-0">
+                            <div class="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center flex-shrink-0 text-slate-600">
+                                <i data-lucide="car" class="w-3.5 h-3.5"></i>
                             </div>
-                            <span class="px-2 py-0.5 text-[9px] font-bold rounded-full ${statusColors[unit.status] || 'bg-gray-100'} uppercase">
-                                ${unit.status}
-                            </span>
+                            <h4 class="text-xs sm:text-sm font-black text-slate-900 truncate tracking-tight">${unit.plate_number}</h4>
                         </div>
-                        
-                        <!-- Essential Stats -->
-                        <div class="grid grid-cols-2 gap-2 text-center py-1.5 bg-gray-50/80 rounded mb-2">
-                            <div>
-                                <div class="text-[8px] text-slate-500 uppercase font-bold tracking-tighter">Total Coll.</div>
-                                <div class="text-xs font-bold text-green-600">₱${unit.total_boundary ? unit.total_boundary.toLocaleString() : '0'}</div>
-                            </div>
-                            <div>
-                                <div class="text-[8px] text-slate-500 uppercase font-bold tracking-tighter">ROI</div>
-                                <div class="text-xs font-bold ${unit.roi_percentage >= 100 ? 'text-blue-600' : 'text-slate-800'}">${unit.roi_percentage.toFixed(1)}%</div>
-                            </div>
+                        <span class="px-2.5 py-0.5 text-[9px] font-extrabold rounded-full ${statusColors[unit.status] || 'bg-slate-100 text-slate-700 border-slate-200'} uppercase border tracking-wider">
+                            ${unit.status}
+                        </span>
+                    </div>
+                    
+                    <!-- Essential Metrics Ribbon -->
+                    <div class="grid grid-cols-2 gap-1.5 text-center py-1.5 px-2 bg-slate-50 border border-slate-100 rounded-xl mb-2">
+                        <div class="text-left pl-1">
+                            <div class="text-[8px] text-slate-400 uppercase font-bold tracking-wider leading-none mb-0.5">Total Coll.</div>
+                            <div class="text-xs font-black text-emerald-600">₱${unit.total_boundary ? unit.total_boundary.toLocaleString() : '0'}</div>
                         </div>
+                        <div class="text-right pr-1">
+                            <div class="text-[8px] text-slate-400 uppercase font-bold tracking-wider leading-none mb-0.5">ROI Rate</div>
+                            <div class="text-xs font-black ${unit.roi_percentage >= 100 ? 'text-blue-600' : 'text-slate-800'}">${unit.roi_percentage ? unit.roi_percentage.toFixed(1) : '0.0'}%</div>
+                        </div>
+                    </div>
 
-                        <!-- Mini Footer -->
-                        <div class="flex items-center justify-between text-[8px] font-bold text-slate-400 uppercase tracking-tighter">
-                            <span>ID: ${unit.plate_number || 'N/A'}</span>
-                            <span class="${unit.today_boundary > 0 ? 'text-blue-500' : ''}">
-                                ${unit.today_boundary > 0 ? `+₱${unit.today_boundary.toLocaleString()}` : 'No Daily'}
-                            </span>
-                        </div>
+                    <!-- Card Footer -->
+                    <div class="flex items-center justify-between text-[9px] font-bold text-slate-400 uppercase tracking-tight pt-1 border-t border-slate-100">
+                        <span>ID: ${unit.plate_number || 'N/A'}</span>
+                        <span class="${unit.today_boundary > 0 ? 'text-blue-600 font-extrabold' : 'text-slate-400'}">
+                            ${unit.today_boundary > 0 ? `+₱${unit.today_boundary.toLocaleString()}` : 'No Daily'}
+                        </span>
                     </div>
                 </div>
             `).join('');
@@ -4497,10 +4524,10 @@
             if (indicator) indicator.remove();
             
             const statusColors = {
-                'active': 'bg-green-100 text-green-800 border-green-200',
-                'maintenance': 'bg-red-100 text-red-800 border-red-200',
-                'coding': 'bg-yellow-100 text-yellow-800 border-yellow-200',
-                'retired': 'bg-gray-100 text-gray-800 border-gray-200'
+                'active': 'bg-emerald-50 text-emerald-700 border-emerald-200',
+                'maintenance': 'bg-rose-50 text-rose-700 border-rose-200',
+                'coding': 'bg-amber-50 text-amber-700 border-amber-200',
+                'retired': 'bg-slate-100 text-slate-700 border-slate-200'
             };
             
             const statusIcons = {
@@ -4531,17 +4558,15 @@
         function setUnitStatusFilter(status) {
             window.currentUnitStatusFilter = status;
             
-            // Update UI
+            // Update UI with 21st.dev style active buttons
             const statusBtns = ['all', 'active', 'maintenance', 'coding'];
             statusBtns.forEach(s => {
                 const btn = document.getElementById('btn-' + s + '-units');
                 if (btn) {
                     if (s === status) {
-                        btn.classList.remove('text-white/70', 'hover:text-white', 'hover:bg-white/10');
-                        btn.classList.add('bg-white', 'text-blue-700');
+                        btn.className = "px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20";
                     } else {
-                        btn.classList.add('text-white/70', 'hover:text-white', 'hover:bg-white/10');
-                        btn.classList.remove('bg-white', 'text-blue-700');
+                        btn.className = "px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all duration-200 text-slate-400 hover:text-white hover:bg-slate-800/80";
                     }
                 }
             });
