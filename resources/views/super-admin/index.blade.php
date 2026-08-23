@@ -2149,13 +2149,13 @@ function camRenderHeatmap() {
 
     days.forEach(d => {
         const bgToday = d.isToday ? 'background:#e0f2fe;border-radius:4px;' : '';
-        html += `<th style="width:25px;min-width:25px;max-width:25px;text-align:center;padding:2px 0;line-height:1.15;box-sizing:border-box;${bgToday}">
+        html += `<th style="width:26px;min-width:26px;max-width:26px;text-align:center;padding:2px 0;line-height:1.15;box-sizing:border-box;${bgToday}">
             <div style="font-size:.48rem;color:${d.isToday ? '#0369a1' : '#94a3b8'};text-transform:uppercase;font-weight:700;">${d.month}</div>
             <div style="font-size:.65rem;font-weight:900;color:${d.isToday ? '#0284c7' : '#334155'};">${d.dayNum}</div>
         </th>`;
     });
 
-    html += `<th style="position:sticky;right:0;background:#f8fafc;z-index:6;font-size:.68rem;font-weight:800;color:#475569;text-align:center;padding:.4rem .6rem;white-space:nowrap;width:110px;min-width:110px;border-left:1.5px solid #e2e8f0;box-shadow:-2px 0 4px rgba(0,0,0,.04);">Total Active (${days.length}d)</th>`;
+    html += `<th style="font-size:.68rem;font-weight:800;color:#475569;text-align:center;padding:.4rem .75rem;white-space:nowrap;min-width:115px;background:#f8fafc;border-left:1.5px solid #e2e8f0;border-radius:4px;">Total Active (${days.length}d)</th>`;
     html += `</tr></thead><tbody>`;
 
     users.forEach(u => {
@@ -2170,14 +2170,14 @@ function camRenderHeatmap() {
             const c = camHeatColor(h.activities);
             const isToday = h.date === CAM_DATE;
             const borderToday = isToday ? 'border:1.5px solid #0284c7;' : '';
-            html += `<td style="width:25px;min-width:25px;max-width:25px;text-align:center;padding:0;box-sizing:border-box;">
+            html += `<td style="width:26px;min-width:26px;max-width:26px;text-align:center;padding:0;box-sizing:border-box;">
                 <div class="cam-heatmap-cell" style="background:${c.bg};color:${c.color};${borderToday};margin:0 auto;" title="${h.date}: ${h.activities} action(s), ${h.logins} login(s)">
                     ${h.activities > 0 ? h.activities : ''}
                 </div>
             </td>`;
         });
 
-        html += `<td style="position:sticky;right:0;background:#f8fafc;z-index:5;text-align:center;padding:.35rem .6rem;width:110px;min-width:110px;border-left:1.5px solid #e2e8f0;box-shadow:-2px 0 4px rgba(0,0,0,.04);white-space:nowrap;">
+        html += `<td style="text-align:center;padding:.35rem .75rem;background:#f8fafc;border-left:1.5px solid #e2e8f0;border-radius:4px;white-space:nowrap;">
             <div style="font-size:.78rem;font-weight:900;color:${activeDaysCount > 0 ? '#0284c7' : '#94a3b8'};">
                 ${activeDaysCount} <span style="font-size:.62rem;font-weight:700;color:#64748b;">/ ${days.length} days</span>
             </div>
