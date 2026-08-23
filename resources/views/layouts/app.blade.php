@@ -640,95 +640,6 @@
                             <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400 group-hover:text-yellow-600 transition-colors hidden lg:block"></i>
                         </a>
                         
-                        <!-- ══ 21st.dev STAFF FEEDBACK WIDGET ══ -->
-                        <div id="staff-feedback-widget-container" class="mb-2 px-1">
-                            <div id="staff-feedback-widget" style="background:#09090b;border:1px solid rgba(255,255,255,0.14);border-radius:9999px;padding:.35rem .6rem;color:#fff;box-shadow:0 12px 24px -6px rgba(0,0,0,0.4);transition:all .3s cubic-bezier(0.16, 1, 0.3, 1);">
-                                
-                                <!-- Collapsed Bar -->
-                                <div class="flex items-center justify-between gap-1.5" id="sfb-header-row">
-                                    <span class="text-[11px] font-semibold text-zinc-400 select-none whitespace-nowrap pl-1" id="sfb-label">
-                                        Was this helpful?
-                                    </span>
-                                    <div class="flex items-center gap-1">
-                                        <!-- Very Sad / Terrible -->
-                                        <button type="button" onclick="sfbSelectRating('very-sad', this)" title="Terrible" class="sfb-emoji-btn p-1.5 rounded-full text-zinc-400 hover:text-white hover:bg-zinc-800 transition-all active:scale-90" data-rating="very-sad">
-                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                <circle cx="12" cy="12" r="10" />
-                                                <path d="M16 16s-1.5-2-4-2-4 2-4 2" />
-                                                <path d="M9 9h.01" />
-                                                <path d="M15 9h.01" />
-                                                <path d="M9 13v2" stroke="#3b82f6" />
-                                                <path d="M15 13v2" stroke="#3b82f6" />
-                                            </svg>
-                                        </button>
-                                        <!-- Sad / Bad -->
-                                        <button type="button" onclick="sfbSelectRating('sad', this)" title="Bad" class="sfb-emoji-btn p-1.5 rounded-full text-zinc-400 hover:text-white hover:bg-zinc-800 transition-all active:scale-90" data-rating="sad">
-                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                <circle cx="12" cy="12" r="10" />
-                                                <path d="M16 16s-1.5-2-4-2-4 2-4 2" />
-                                                <line x1="9" y1="9" x2="9.01" y2="9" />
-                                                <line x1="15" y1="9" x2="15.01" y2="9" />
-                                            </svg>
-                                        </button>
-                                        <!-- Neutral / Okay -->
-                                        <button type="button" onclick="sfbSelectRating('neutral', this)" title="Okay" class="sfb-emoji-btn p-1.5 rounded-full text-zinc-400 hover:text-white hover:bg-zinc-800 transition-all active:scale-90" data-rating="neutral">
-                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                <circle cx="12" cy="12" r="10" />
-                                                <path d="M8 13s1.5 2 4 2 4-2 4-2" />
-                                                <line x1="9" y1="9" x2="9.01" y2="9" />
-                                                <line x1="15" y1="9" x2="15.01" y2="9" />
-                                            </svg>
-                                        </button>
-                                        <!-- Happy / Amazing -->
-                                        <button type="button" onclick="sfbSelectRating('happy', this)" title="Amazing" class="sfb-emoji-btn p-1.5 rounded-full text-zinc-400 hover:text-white hover:bg-zinc-800 transition-all active:scale-90" data-rating="happy">
-                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                <circle cx="12" cy="12" r="10" />
-                                                <path d="M8 13s1.5 2 4 2 4-2 4-2" />
-                                                <path d="M9 9l.5 1.5l1.5 .5l-1.5 .5l-.5 1.5l-.5-1.5l-1.5-.5l1.5-.5z" fill="#f97316" stroke="none" />
-                                                <path d="M15 9l.5 1.5l1.5 .5l-1.5 .5l-.5 1.5l-.5-1.5l-1.5-.5l1.5-.5z" fill="#f97316" stroke="none" />
-                                            </svg>
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <!-- Expanded Form Body -->
-                                <div id="sfb-expanded-body" style="display:none;padding-top:.75rem;">
-                                    <div class="flex items-center justify-between mb-2">
-                                        <span class="text-[10px] font-bold uppercase tracking-wider text-zinc-400" id="sfb-mode-label">FEEDBACK</span>
-                                        <div class="flex items-center gap-1.5">
-                                            <button type="button" onclick="sfbTogglePreview()" id="sfb-prev-btn" class="text-[10px] font-semibold px-2 py-0.5 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-300 transition-colors">
-                                                Preview
-                                            </button>
-                                            <button type="button" onclick="sfbCloseWidget()" class="text-[11px] font-semibold px-1.5 py-0.5 rounded text-zinc-500 hover:text-zinc-300 transition-colors" title="Close">
-                                                ✕
-                                            </button>
-                                        </div>
-                                    </div>
-
-                                    <!-- Textarea or Preview -->
-                                    <div class="relative mb-2.5">
-                                        <textarea id="sfb-textarea" placeholder="Your feedback..." rows="3"
-                                            class="w-full text-xs bg-zinc-900 border border-zinc-800 rounded-xl p-2.5 text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-zinc-600 resize-none transition-all"
-                                            oninput="sfbOnInputChange(this)"></textarea>
-                                        <div id="sfb-preview-box" style="display:none;min-height:75px;max-height:120px;overflow-y:auto;"
-                                            class="w-full text-xs bg-zinc-900 border border-zinc-800 rounded-xl p-2.5 text-zinc-200 leading-relaxed">
-                                        </div>
-                                        <span class="absolute right-2.5 bottom-1.5 text-[9px] font-bold text-zinc-600 pointer-events-none select-none">M↓ supported</span>
-                                    </div>
-
-                                    <!-- Footer & Submit Button -->
-                                    <div class="flex items-center justify-between pt-1 border-t border-zinc-800/80">
-                                        <span class="text-[10px] text-zinc-500">We appreciate your input.</span>
-                                        <button type="button" onclick="sfbSubmitFeedback()" id="sfb-send-btn" disabled
-                                            class="text-xs font-bold bg-white hover:bg-zinc-200 text-zinc-950 px-3 py-1.5 rounded-lg transition-all active:scale-95 disabled:opacity-40 disabled:pointer-events-none flex items-center gap-1.5">
-                                            <span id="sfb-send-text">Send Feedback</span>
-                                        </button>
-                                    </div>
-                                </div>
-
-                            </div>
-                        </div>
-                        
                         <!-- Take the Tour Again -->
                         <button type="button"
                             onclick="if(window.TutorialManager) window.TutorialManager.restart();"
@@ -3049,10 +2960,102 @@
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
                 window.hideGlobalLoader();
+                if (typeof sfbCloseWidget === 'function') sfbCloseWidget();
             }
         });
     })();
+    </script>
 
+    <!-- ══ 21st.dev FLOATING STAFF FEEDBACK WIDGET (ALL PAGES) ══ -->
+    <div id="staff-feedback-widget-container" style="position:fixed;bottom:1.5rem;right:1.5rem;z-index:99999;font-family:inherit;">
+        <div id="staff-feedback-widget" style="background:#09090b;border:1px solid rgba(255,255,255,0.15);border-radius:9999px;padding:.4rem .85rem;color:#fff;box-shadow:0 20px 45px -10px rgba(0,0,0,0.65), 0 0 0 1px rgba(255,255,255,0.08);transition:all .32s cubic-bezier(0.16, 1, 0.3, 1);width:auto;max-width:calc(100vw - 2rem);">
+            
+            <!-- Collapsed Bar -->
+            <div class="flex items-center justify-between gap-4" id="sfb-header-row">
+                <span class="text-[13px] font-medium text-zinc-300 select-none whitespace-nowrap pl-1" id="sfb-label">
+                    Was this helpful?
+                </span>
+                <div class="flex items-center gap-1.5">
+                    <!-- Very Sad / Terrible -->
+                    <button type="button" onclick="sfbSelectRating('very-sad', this)" title="Terrible" class="sfb-emoji-btn p-1.5 rounded-full text-zinc-400 hover:text-white hover:bg-zinc-800 transition-all active:scale-90" data-rating="very-sad">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10" />
+                            <path d="M16 16s-1.5-2-4-2-4 2-4 2" />
+                            <path d="M9 9h.01" />
+                            <path d="M15 9h.01" />
+                            <path d="M9 13v2" stroke="#3b82f6" />
+                            <path d="M15 13v2" stroke="#3b82f6" />
+                        </svg>
+                    </button>
+                    <!-- Sad / Bad -->
+                    <button type="button" onclick="sfbSelectRating('sad', this)" title="Bad" class="sfb-emoji-btn p-1.5 rounded-full text-zinc-400 hover:text-white hover:bg-zinc-800 transition-all active:scale-90" data-rating="sad">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10" />
+                            <path d="M16 16s-1.5-2-4-2-4 2-4 2" />
+                            <line x1="9" y1="9" x2="9.01" y2="9" />
+                            <line x1="15" y1="9" x2="15.01" y2="9" />
+                        </svg>
+                    </button>
+                    <!-- Neutral / Okay -->
+                    <button type="button" onclick="sfbSelectRating('neutral', this)" title="Okay" class="sfb-emoji-btn p-1.5 rounded-full text-zinc-400 hover:text-white hover:bg-zinc-800 transition-all active:scale-90" data-rating="neutral">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10" />
+                            <path d="M8 13s1.5 2 4 2 4-2 4-2" />
+                            <line x1="9" y1="9" x2="9.01" y2="9" />
+                            <line x1="15" y1="9" x2="15.01" y2="9" />
+                        </svg>
+                    </button>
+                    <!-- Happy / Amazing -->
+                    <button type="button" onclick="sfbSelectRating('happy', this)" title="Amazing" class="sfb-emoji-btn p-1.5 rounded-full text-zinc-400 hover:text-white hover:bg-zinc-800 transition-all active:scale-90" data-rating="happy">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10" />
+                            <path d="M8 13s1.5 2 4 2 4-2 4-2" />
+                            <path d="M9 9l.5 1.5l1.5 .5l-1.5 .5l-.5 1.5l-.5-1.5l-1.5-.5l1.5-.5z" fill="#f97316" stroke="none" />
+                            <path d="M15 9l.5 1.5l1.5 .5l-1.5 .5l-.5 1.5l-.5-1.5l-1.5-.5l1.5-.5z" fill="#f97316" stroke="none" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Expanded Form Body -->
+            <div id="sfb-expanded-body" style="display:none;padding-top:1rem;">
+                <div class="flex items-center justify-between mb-2.5">
+                    <span class="text-[10px] font-bold uppercase tracking-[0.1em] text-zinc-400" id="sfb-mode-label">FEEDBACK</span>
+                    <div class="flex items-center gap-2">
+                        <button type="button" onclick="sfbTogglePreview()" id="sfb-prev-btn" class="text-[11px] font-semibold px-2.5 py-0.5 rounded-md bg-zinc-800 hover:bg-zinc-700 text-zinc-300 transition-colors">
+                            Preview
+                        </button>
+                        <button type="button" onclick="sfbCloseWidget()" class="text-xs font-semibold px-2 py-0.5 rounded text-zinc-400 hover:text-white transition-colors" title="Close">
+                            ✕
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Textarea or Preview -->
+                <div class="relative mb-3">
+                    <textarea id="sfb-textarea" placeholder="Your feedback..." rows="4"
+                        class="w-full text-[13px] bg-zinc-900/90 border border-zinc-800 rounded-2xl p-3.5 text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-zinc-500 resize-none transition-all leading-relaxed"
+                        oninput="sfbOnInputChange(this)"></textarea>
+                    <div id="sfb-preview-box" style="display:none;min-height:100px;max-height:160px;overflow-y:auto;"
+                        class="w-full text-[13px] bg-zinc-900/90 border border-zinc-800 rounded-2xl p-3.5 text-zinc-200 leading-relaxed">
+                    </div>
+                    <span class="absolute right-3.5 bottom-2.5 text-[10px] font-bold text-zinc-500 pointer-events-none select-none">M↓ supported</span>
+                </div>
+
+                <!-- Footer & Submit Button -->
+                <div class="flex items-center justify-between pt-2 border-t border-zinc-800/80">
+                    <p class="text-[11px] text-zinc-400 font-medium m-0">We appreciate your input.</p>
+                    <button type="button" onclick="sfbSubmitFeedback()" id="sfb-send-btn" disabled
+                        class="text-[13px] font-bold bg-white hover:bg-zinc-100 text-zinc-950 px-4 py-2 rounded-xl transition-all active:scale-95 disabled:opacity-40 disabled:pointer-events-none flex items-center gap-1.5">
+                        <span id="sfb-send-text">Send Feedback</span>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
     // ─── 21st.dev Staff Feedback Widget Scripts ───────────────────
     let SFB_RATING = '';
     let SFB_IS_PREVIEW = false;
@@ -3083,7 +3086,9 @@
         });
 
         // Expand widget
-        widget.style.borderRadius = '1.25rem';
+        widget.style.borderRadius = '1.75rem';
+        widget.style.width = '350px';
+        widget.style.padding = '1rem 1.15rem';
         expandedBody.style.display = 'block';
 
         setTimeout(() => {
@@ -3113,6 +3118,8 @@
 
         expandedBody.style.display = 'none';
         widget.style.borderRadius = '9999px';
+        widget.style.width = 'auto';
+        widget.style.padding = '.4rem .85rem';
     }
 
     function sfbOnInputChange(textarea) {
