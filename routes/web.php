@@ -361,6 +361,7 @@ Route::middleware(['auth', 'super_admin'])->prefix('super-admin')->name('super-a
     // Client Activity Monitoring
     Route::get('/activity-monitoring', [SuperAdminController::class, 'activityMonitoring'])->name('activity-monitoring');
     Route::get('/activity-monitoring/user/{id}', [SuperAdminController::class, 'userActivityDetail'])->name('activity-monitoring.user');
+    Route::post('/activity-monitoring/user/{id}/reset', [SuperAdminController::class, 'resetUserActivity'])->name('activity-monitoring.user.reset');
 });
 
 // ─── Temporary System Sync & Cache Clear Route ─────────────

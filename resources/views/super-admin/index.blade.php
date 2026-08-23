@@ -1361,6 +1361,58 @@
             </div>
         </div>
 
+        <!-- ══ ACTIVITY RESET CONFIRMATION MODAL (21st-Century Modern UI) ══ -->
+        <div id="cam-reset-modal" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.65);backdrop-filter:blur(6px);z-index:99999;align-items:center;justify-content:center;padding:1rem;">
+            <div style="background:#fff;border-radius:1.25rem;max-width:440px;width:100%;box-shadow:0 25px 50px -12px rgba(0,0,0,.25);border:1px solid #e2e8f0;overflow:hidden;">
+                
+                <!-- Header Banner -->
+                <div style="background:linear-gradient(135deg,#fff1f2,#ffe4e6);padding:1.35rem 1.5rem 1.15rem;display:flex;align-items:flex-start;gap:.9rem;border-bottom:1px solid #fecdd3;">
+                    <div style="width:44px;height:44px;border-radius:50%;background:#fee2e2;color:#e11d48;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 12px rgba(225,29,72,.18);">
+                        <i data-lucide="alert-triangle" style="width:22px;height:22px;"></i>
+                    </div>
+                    <div>
+                        <h3 style="font-size:1.02rem;font-weight:900;color:#9f1239;margin:0 0 .2rem 0;">Reset Staff Activity History?</h3>
+                        <p style="font-size:.72rem;color:#be123c;margin:0;font-weight:600;">Permanent Deletion Warning</p>
+                    </div>
+                </div>
+
+                <!-- Body Content -->
+                <div style="padding:1.25rem 1.5rem;">
+                    <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:.75rem;padding:.75rem 1rem;margin-bottom:1rem;display:flex;align-items:center;gap:.75rem;">
+                        <div id="cam-reset-avatar" style="width:36px;height:36px;border-radius:50%;background:#0284c7;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:.8rem;flex-shrink:0;">
+                            U
+                        </div>
+                        <div style="min-width:0;">
+                            <div id="cam-reset-username" style="font-weight:900;font-size:.85rem;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Staff Name</div>
+                            <div id="cam-reset-userrole" style="font-size:.68rem;color:#64748b;font-weight:600;">Staff Role</div>
+                        </div>
+                    </div>
+
+                    <p style="font-size:.78rem;color:#334155;line-height:1.45;margin-bottom:.85rem;">
+                        This action will permanently purge all recorded login logs, operational audits, active sessions, and attendance intervals for this staff.
+                    </p>
+
+                    <div style="background:#fff1f2;border-left:3px solid #e11d48;padding:.6rem .8rem;border-radius:.4rem;margin-bottom:1.25rem;">
+                        <p style="font-size:.72rem;color:#9f1239;margin:0;font-weight:700;">
+                            ⚠️ Once reset, the total active days, minutes, and timeline records cannot be recovered or restored.
+                        </p>
+                    </div>
+
+                    <!-- Modal Action Buttons -->
+                    <div style="display:flex;align-items:center;justify-content:flex-end;gap:.65rem;">
+                        <button onclick="camCloseResetModal()" type="button" style="padding:.55rem 1.1rem;border-radius:.6rem;border:1px solid #cbd5e1;background:#fff;color:#475569;font-size:.78rem;font-weight:800;cursor:pointer;transition:all .15s ease;">
+                            Cancel
+                        </button>
+                        <button id="cam-confirm-reset-btn" onclick="camExecuteReset()" type="button" style="padding:.55rem 1.25rem;border-radius:.6rem;border:none;background:linear-gradient(135deg,#e11d48,#be123c);color:#fff;font-size:.78rem;font-weight:900;cursor:pointer;box-shadow:0 4px 12px rgba(225,29,72,.25);display:inline-flex;align-items:center;gap:.4rem;transition:all .15s ease;">
+                            <i data-lucide="rotate-ccw" style="width:14px;height:14px;"></i>
+                            <span id="cam-reset-btn-text">Yes, Reset Activity</span>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
         </div><!-- /tab-activity -->
 
         
@@ -2156,6 +2208,7 @@ function camRenderHeatmap() {
     });
 
     html += `<th style="font-size:.68rem;font-weight:800;color:#475569;text-align:center;padding:.4rem .75rem;white-space:nowrap;min-width:115px;background:#f8fafc;border-left:1.5px solid #e2e8f0;border-radius:4px;">Total Active (${days.length}d)</th>`;
+    html += `<th style="font-size:.68rem;font-weight:800;color:#475569;text-align:center;padding:.4rem .6rem;white-space:nowrap;min-width:75px;background:#f8fafc;border-left:1px solid #e2e8f0;border-radius:4px;">Action</th>`;
     html += `</tr></thead><tbody>`;
 
     users.forEach(u => {
@@ -2186,11 +2239,18 @@ function camRenderHeatmap() {
             </div>
         </td>`;
 
+        html += `<td style="text-align:center;padding:.35rem .5rem;background:#f8fafc;border-left:1px solid #e2e8f0;border-radius:4px;white-space:nowrap;">
+            <button onclick="camPromptReset('${u.id}', '${(u.name || 'Staff').replace(/'/g, "\\'")}', '${(u.role_label || u.role || 'Staff').replace(/'/g, "\\'")}')" class="cam-reset-btn" title="Reset Activity History for ${u.name}" style="display:inline-flex;align-items:center;justify-content:center;gap:.3rem;padding:.3rem .55rem;border-radius:.45rem;border:1px solid #fecdd3;background:#fff1f2;color:#e11d48;font-size:.65rem;font-weight:800;cursor:pointer;transition:all .15s ease;">
+                <i data-lucide="rotate-ccw" style="width:12px;height:12px;"></i> Reset
+            </button>
+        </td>`;
+
         html += `</tr>`;
     });
 
     html += `</tbody></table></div>`;
     container.innerHTML = html;
+    if (typeof lucide !== 'undefined') lucide.createIcons();
 
     // Smoothly focus on Today (rightmost) while preserving full leftward history
     setTimeout(() => {
@@ -2450,6 +2510,70 @@ function camCloseDetail() {
         panel.style.display = 'none';
     }
     document.getElementById('cam-user-table')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+// ─── Staff Activity Reset Modal Handlers ───────────────────────
+let CAM_PENDING_RESET_ID = null;
+
+function camPromptReset(userId, name, role) {
+    CAM_PENDING_RESET_ID = userId;
+    const modal = document.getElementById('cam-reset-modal');
+    if (!modal) return;
+
+    const initials = (name || 'U').split(/\s+/).filter(Boolean).map(n => n[0]).slice(0, 2).join('').toUpperCase() || 'U';
+    const avatarEl = document.getElementById('cam-reset-avatar');
+    const nameEl   = document.getElementById('cam-reset-username');
+    const roleEl   = document.getElementById('cam-reset-userrole');
+
+    if (avatarEl) avatarEl.textContent = initials;
+    if (nameEl) nameEl.textContent = name;
+    if (roleEl) roleEl.textContent = role;
+
+    modal.style.display = 'flex';
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+function camCloseResetModal() {
+    CAM_PENDING_RESET_ID = null;
+    const modal = document.getElementById('cam-reset-modal');
+    if (modal) modal.style.display = 'none';
+}
+
+async function camExecuteReset() {
+    if (!CAM_PENDING_RESET_ID) return;
+
+    const btn = document.getElementById('cam-confirm-reset-btn');
+    const btnText = document.getElementById('cam-reset-btn-text');
+    if (btn) btn.disabled = true;
+    if (btnText) btnText.textContent = 'Resetting…';
+
+    try {
+        const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}';
+        const res = await fetch(`/super-admin/activity-monitoring/user/${CAM_PENDING_RESET_ID}/reset`, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': token,
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
+
+        const json = await res.json();
+        if (json.success) {
+            toast(json.message || 'Staff activity history successfully reset.');
+            camCloseResetModal();
+            // Re-fetch and re-render the entire monitoring dashboard & heatmap seamlessly
+            camFetchData();
+        } else {
+            toast(json.message || 'Failed to reset activity history.', true);
+        }
+    } catch (e) {
+        toast('Network error occurred while resetting activity history.', true);
+    } finally {
+        if (btn) btn.disabled = false;
+        if (btnText) btnText.textContent = 'Yes, Reset Activity';
+    }
 }
 
 function camSetFilter(f) {

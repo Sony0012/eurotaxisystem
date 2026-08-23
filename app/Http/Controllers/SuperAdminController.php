@@ -1043,5 +1043,56 @@ class SuperAdminController extends Controller
             'history'    => $history,
         ]);
     }
+
+    /**
+     * Reset/Purge activity history and intervals for a specific staff/user.
+     */
+    public function resetUserActivity(Request $request, $id)
+    {
+        if (!Auth::check() || !in_array(Auth::user()->role, ['super_admin', 'owner', 'admin'])) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+        }
+
+        try {
+            if (str_starts_with((string)$id, 'staff_')) {
+                $staffId = (int) str_replace('staff_', '', $id);
+                $staff = \App\Models\Staff::withTrashed()->findOrFail($staffId);
+                LoginAudit::where(function($q) use ($staff) {
+                    $q->where('user_name', 'like', '%' . $staff->name . '%')
+                      ->orWhere('notes', 'like', '%' . $staff->name . '%');
+                })->delete();
+            } else {
+                $user = User::withTrashed()->findOrFail($id);
+                
+                // Delete all login audit entries for this user
+                LoginAudit::where('user_id', $user->id)->delete();
+
+                // Delete all activity intervals for this user if table exists
+                if (Schema::hasTable('user_activity_intervals')) {
+                    \App\Models\UserActivityInterval::where('user_id', $user->id)->delete();
+                }
+
+                // Delete presence connections if table exists
+                if (Schema::hasTable('user_presence_connections')) {
+                    \App\Models\UserPresenceConnection::where('user_id', $user->id)->delete();
+                }
+
+                // Reset today presence status on User record
+                $user->update([
+                    'is_online' => false,
+                ]);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Staff activity history has been permanently reset.',
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to reset activity: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
 }
 
