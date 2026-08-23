@@ -1768,21 +1768,21 @@
             <div class="absolute top-1/2 -right-16 w-60 h-60 bg-teal-500/15 rounded-full blur-3xl pointer-events-none"></div>
 
             <div class="relative z-10 flex flex-col gap-3">
-                <!-- Top Row: Title, Pill & Close Action -->
-                <div class="flex items-center justify-between gap-3">
-                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-emerald-400 text-[10px] font-extrabold uppercase tracking-widest backdrop-blur-md shadow-xs flex-shrink-0">
+                <!-- Top Row: Title, Pill & Close Action (100% Mathematically Centered Title) -->
+                <div class="relative flex items-center justify-between min-h-[38px]">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-emerald-400 text-[10px] font-extrabold uppercase tracking-widest backdrop-blur-md shadow-xs relative z-10">
                         <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
                         Revenue Stream Live
                     </div>
 
-                    <!-- Clean Shiny Header Title (Unobstructed & Centered) -->
-                    <div class="flex-1 text-center min-w-0">
-                        <h1 class="animated-shiny-boundary-text text-lg sm:text-2xl md:text-3xl font-black uppercase tracking-tight truncate">
+                    <!-- 100% Mathematically Centered Title Overlay -->
+                    <div class="absolute inset-0 flex items-center justify-center pointer-events-none px-28">
+                        <h1 class="animated-shiny-boundary-text text-base sm:text-xl md:text-2xl lg:text-3xl font-black uppercase tracking-tight text-center truncate">
                             Daily Boundary Collections
                         </h1>
                     </div>
 
-                    <button onclick="hideDailyBoundaryModal()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white flex items-center justify-center transition-all duration-200 backdrop-blur-sm border border-white/10 flex-shrink-0" title="Close Modal">
+                    <button onclick="hideDailyBoundaryModal()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white flex items-center justify-center transition-all duration-200 backdrop-blur-sm border border-white/10 relative z-10" title="Close Modal">
                         <i data-lucide="x" class="w-4 h-4"></i>
                     </button>
                 </div>
@@ -1870,41 +1870,53 @@
                 </div>
             </div>
 
-            <!-- 🏎️ Fixed Savage Revenue Cyber Fleet Watermark Background (Stays Stationary on Scroll) -->
+            <!-- 💎 Fixed Savage Cyber Financial Vault & Growth Matrix Watermark Background (Stays Stationary on Scroll) -->
             <div class="absolute inset-x-0 bottom-0 top-16 flex items-center justify-center pointer-events-none select-none z-0 overflow-hidden px-4" aria-hidden="true" style="transform: translateZ(0);">
-                <svg viewBox="0 0 520 180" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-[96%] max-w-5xl h-auto opacity-[0.26] transform -rotate-1 select-none pointer-events-none">
+                <svg viewBox="0 0 520 200" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-[94%] max-w-4xl h-auto opacity-[0.26] transform select-none pointer-events-none">
                     <defs>
-                        <linearGradient id="boundaryBodyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <linearGradient id="boundaryVaultGrad" x1="0%" y1="0%" x2="100%" y2="100%">
                             <stop offset="0%" stop-color="#10b981" />
                             <stop offset="50%" stop-color="#059669" />
                             <stop offset="100%" stop-color="#eab308" />
                         </linearGradient>
-                        <linearGradient id="boundaryCoinGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                            <stop offset="0%" stop-color="#10b981" />
-                            <stop offset="100%" stop-color="#34d399" />
+                        <linearGradient id="boundaryPulseGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stop-color="#34d399" />
+                            <stop offset="100%" stop-color="#10b981" />
                         </linearGradient>
                     </defs>
-                    <!-- Revenue Stream Dynamic Trails -->
-                    <path d="M10 135 H160" stroke="url(#boundaryBodyGrad)" stroke-width="4.5" stroke-dasharray="8 6" stroke-linecap="round" />
-                    <path d="M40 150 H220" stroke="url(#boundaryBodyGrad)" stroke-width="5.5" stroke-dasharray="16 8" stroke-linecap="round" />
-                    <path d="M80 162 H350" stroke="url(#boundaryBodyGrad)" stroke-width="6.5" stroke-linecap="round" />
-                    <!-- Aggressive Savage GT Boundary Cyber Sedan -->
-                    <path d="M110 138 L160 92 Q190 62 250 60 L335 60 Q385 64 415 102 L465 116 Q495 125 505 142 L500 152 Q492 158 470 158 H135 Q115 158 108 146 Z" stroke="url(#boundaryBodyGrad)" stroke-width="6" fill="#10b981" fill-opacity="0.08" stroke-linejoin="round" />
-                    <!-- Cockpit Canopy & Currency Symbol -->
-                    <path d="M235 64 L180 92 H320 L360 64 Z" stroke="url(#boundaryBodyGrad)" stroke-width="4" fill="#059669" fill-opacity="0.12" stroke-linejoin="round" />
-                    <path d="M328 92 L368 66 L402 98 H328 Z" stroke="url(#boundaryBodyGrad)" stroke-width="3.5" fill="#10b981" fill-opacity="0.1" stroke-linejoin="round" />
-                    <!-- Aggressive Headlight Blade -->
-                    <path d="M460 120 L498 126 L475 134 Z" fill="#10b981" />
-                    <path d="M470 152 H510 L495 158 H460 Z" fill="#10b981" />
-                    <!-- Turbine Money Wheels -->
-                    <circle cx="180" cy="154" r="26" stroke="url(#boundaryCoinGrad)" stroke-width="6" fill="#ffffff" fill-opacity="0.35" />
-                    <circle cx="180" cy="154" r="14" stroke="url(#boundaryBodyGrad)" stroke-width="4" stroke-dasharray="8 4" />
-                    <circle cx="420" cy="154" r="26" stroke="url(#boundaryCoinGrad)" stroke-width="6" fill="#ffffff" fill-opacity="0.35" />
-                    <circle cx="420" cy="154" r="14" stroke="url(#boundaryBodyGrad)" stroke-width="4" stroke-dasharray="8 4" />
-                    <!-- Aero Wing / Spoiler -->
-                    <path d="M100 122 L115 105 H145 L130 122 Z" stroke="url(#boundaryBodyGrad)" stroke-width="4" fill="#10b981" fill-opacity="0.2" stroke-linejoin="round" />
-                    <!-- Roof Revenue Beacon -->
-                    <path d="M280 52 L290 40 H330 L340 52 Z" stroke="url(#boundaryBodyGrad)" stroke-width="3.5" fill="#10b981" fill-opacity="0.3" stroke-linejoin="round" />
+
+                    <!-- Background High-Tech Financial Grid & Data Matrix Lines -->
+                    <path d="M20 170 H500" stroke="url(#boundaryVaultGrad)" stroke-width="2.5" stroke-dasharray="10 6" stroke-linecap="round" />
+                    <path d="M50 185 H470" stroke="url(#boundaryVaultGrad)" stroke-width="3" stroke-linecap="round" />
+
+                    <!-- Massive Ascending Cyber Growth Momentum Bars -->
+                    <rect x="70" y="115" width="28" height="55" rx="6" stroke="url(#boundaryVaultGrad)" stroke-width="3" fill="#10b981" fill-opacity="0.08" />
+                    <rect x="115" y="85" width="28" height="85" rx="6" stroke="url(#boundaryVaultGrad)" stroke-width="3" fill="#10b981" fill-opacity="0.1" />
+                    <rect x="375" y="60" width="28" height="110" rx="6" stroke="url(#boundaryVaultGrad)" stroke-width="3" fill="#10b981" fill-opacity="0.12" />
+                    <rect x="420" y="30" width="28" height="140" rx="6" stroke="url(#boundaryVaultGrad)" stroke-width="3.5" fill="#eab308" fill-opacity="0.15" />
+
+                    <!-- Savage Cyber Wealth Shield & Central Vault Mechanism -->
+                    <polygon points="260,18 350,55 350,135 260,185 170,135 170,55" stroke="url(#boundaryVaultGrad)" stroke-width="5" fill="#061a12" fill-opacity="0.03" stroke-linejoin="round" />
+                    <polygon points="260,32 335,63 335,127 260,170 185,127 185,63" stroke="url(#boundaryPulseGrad)" stroke-width="2.5" stroke-dasharray="8 4" fill="none" stroke-linejoin="round" />
+
+                    <!-- Vault Gear Wheel & Luminous Core -->
+                    <circle cx="260" cy="100" r="46" stroke="url(#boundaryVaultGrad)" stroke-width="4.5" fill="#ffffff" fill-opacity="0.25" />
+                    <circle cx="260" cy="100" r="34" stroke="url(#boundaryPulseGrad)" stroke-width="3" stroke-dasharray="10 5" />
+                    <circle cx="260" cy="100" r="18" fill="url(#boundaryVaultGrad)" fill-opacity="0.3" stroke="url(#boundaryVaultGrad)" stroke-width="3" />
+                    <circle cx="260" cy="100" r="6" fill="#eab308" />
+
+                    <!-- Radial Vault Bolt Latches -->
+                    <path d="M260 48 V62 M260 138 V152 M208 100 H222 M298 100 H312 M223 63 L233 73 M287 127 L297 137 M223 137 L233 127 M287 73 L297 63" stroke="url(#boundaryVaultGrad)" stroke-width="3.5" stroke-linecap="round" />
+
+                    <!-- Aggressive Upward Rocketing Trend & Surge Vectors -->
+                    <path d="M60 145 L150 100 L210 115 L320 45 L460 20" stroke="url(#boundaryVaultGrad)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" />
+                    <!-- Dynamic Arrow Tip -->
+                    <path d="M435 16 L465 20 L452 48" stroke="url(#boundaryVaultGrad)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="url(#boundaryVaultGrad)" fill-opacity="0.2" />
+
+                    <!-- Luminous Sparkle & Diamond Nodes -->
+                    <polygon points="460,20 467,13 474,20 467,27" fill="#eab308" />
+                    <polygon points="60,145 64,141 68,145 64,149" fill="#10b981" />
+                    <polygon points="320,45 325,40 330,45 325,50" fill="#34d399" />
                 </svg>
             </div>
 
