@@ -679,9 +679,14 @@
                             </div>
                         </div>
 
-                        <div class="flex items-center gap-4">
-                            {{-- Consolidating all notifications into the Main Bell --}}
-
+                        <div class="flex items-center gap-3 md:gap-4">
+                            <!-- Staff Feedback Header Button (In front of Notification Bell) -->
+                            <button id="headerFeedbackBtn" type="button" onclick="sfbOpenModal()"
+                                class="relative inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-extrabold rounded-xl bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white border border-blue-200/80 transition-all duration-200 shadow-sm hover:shadow-md hover:shadow-blue-500/15 active:scale-95 group"
+                                title="Click to Send Suggestions">
+                                <i data-lucide="message-square-plus" class="w-4 h-4 transition-transform group-hover:scale-110"></i>
+                                <span class="tracking-tight whitespace-nowrap">Click to Send Suggestions</span>
+                            </button>
 
                             <!-- Main Notification Bell -->
                             <div class="relative">
@@ -870,14 +875,6 @@
                                     </div>
                                 </div>
                             </div>
-
-                            <!-- Staff Feedback Header Button (Text Button beside Message icon) -->
-                            <button id="headerFeedbackBtn" type="button" onclick="sfbOpenModal()"
-                                class="relative inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-extrabold rounded-xl bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white border border-blue-200/80 transition-all duration-200 shadow-sm hover:shadow-md hover:shadow-blue-500/15 active:scale-95 group"
-                                title="Click to Send Suggestions">
-                                <i data-lucide="message-square-plus" class="w-4 h-4 transition-transform group-hover:scale-110"></i>
-                                <span class="tracking-tight whitespace-nowrap">Click to Send Suggestions</span>
-                            </button>
 
                             <!-- Date/Time -->
                             <div class="text-right hidden md:block">
