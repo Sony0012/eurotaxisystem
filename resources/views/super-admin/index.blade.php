@@ -2220,8 +2220,16 @@ function camRenderRoleSummary() {
 
 // ─── User Detail Slide-in Panel ───────────────────────────────
 async function camOpenDetail(userId) {
-    document.getElementById('cam-overlay')?.classList.add('open');
-    document.getElementById('cam-detail-panel')?.classList.add('open');
+    const overlay = document.getElementById('cam-overlay');
+    const panel   = document.getElementById('cam-detail-panel');
+    overlay?.classList.add('open');
+    panel?.classList.add('open');
+
+    // Smooth auto-scroll to User Activity Detail panel
+    if (panel) {
+        panel.scrollTop = 0;
+        panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
 
     const content = document.getElementById('cam-detail-content');
     if (!content) return;
