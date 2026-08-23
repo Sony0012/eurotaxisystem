@@ -768,6 +768,11 @@ class SuperAdminController extends Controller
             $activeTimeData = $presenceService->calculateTodayActiveTime($user->id, $date);
             $totalMins  = $activeTimeData['total_mins'];
 
+            // Logins & Audits
+            $loginEntries = $userAudits->where('action', 'login');
+            $firstLogin   = $loginEntries->first();
+            $lastEntry    = $userAudits->last();
+
             // Determine First Login & First Active
             $firstTimeObj = null;
             $firstLabel = 'First login';
@@ -803,8 +808,6 @@ class SuperAdminController extends Controller
 
             // 3. Meaningful Operational Actions (Excluding automated heartbeats & background checks)
             $meaningfulActs = $userAudits->whereNotIn('action', ['login', 'logout', 'failed_login', 'session_start', 'active_presence']);
-            $loginEntries   = $userAudits->where('action', 'login');
-            $lastEntry      = $userAudits->last();
 
             // Distinct operational modules accessed today
             $modules = [];
