@@ -2983,9 +2983,9 @@
          style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);z-index:999999;align-items:center;justify-content:center;padding:1.5rem;animation:sfbFadeIn .2s ease;">
          
         <div id="staff-feedback-modal-card"
-             style="background:#09090b;border:1px solid rgba(255,255,255,0.18);color:#fff;box-shadow:0 40px 80px -15px rgba(0,0,0,0.95), 0 0 0 1px rgba(255,255,255,0.1);transition:all .32s cubic-bezier(0.16, 1, 0.3, 1);overflow:hidden;border-radius:9999px;width:660px;max-width:calc(100vw - 2rem);animation:sfbScaleUp .25s cubic-bezier(0.16, 1, 0.3, 1);">
+             style="background:#09090b;border:1px solid rgba(255,255,255,0.18);color:#fff;box-shadow:0 40px 80px -15px rgba(0,0,0,0.95), 0 0 0 1px rgba(255,255,255,0.1);transition:all .32s cubic-bezier(0.16, 1, 0.3, 1);overflow:hidden;border-radius:9999px;width:720px;max-width:calc(100vw - 2rem);animation:sfbScaleUp .25s cubic-bezier(0.16, 1, 0.3, 1);">
             
-            <div style="padding:1.15rem 2rem;transition:all .3s ease;" id="sfb-inner-padding">
+            <div style="padding:1.15rem 2.5rem;transition:all .3s ease;" id="sfb-inner-padding">
                 
                 <!-- Collapsed / Header Bar -->
                 <div class="flex items-center justify-between gap-6" id="sfb-header-row">
@@ -3039,8 +3039,8 @@
                         
                         <!-- Subtle Divider & Close Button -->
                         <div class="w-[1.5px] h-8 bg-white/20 mx-1.5"></div>
-                        <button type="button" onclick="sfbCloseModal()" class="w-10 h-10 rounded-full text-zinc-300 hover:text-white hover:bg-white/10 flex items-center justify-center transition-all active:scale-90" title="Close">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <button type="button" onclick="sfbCloseModal()" class="w-9 h-9 rounded-full text-zinc-300 hover:text-white hover:bg-white/15 flex items-center justify-center transition-all active:scale-90" title="Close">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                                 <line x1="18" y1="6" x2="6" y2="18"></line>
                                 <line x1="6" y1="6" x2="18" y2="18"></line>
                             </svg>
@@ -3148,8 +3148,8 @@
 
         if (expandedBody) expandedBody.style.display = 'none';
         card.style.borderRadius = '9999px';
-        card.style.width = '660px';
-        if (innerPadding) innerPadding.style.padding = '1.15rem 2rem';
+        card.style.width = '720px';
+        if (innerPadding) innerPadding.style.padding = '1.15rem 2.5rem';
 
         document.querySelectorAll('.sfb-emoji-btn').forEach(btn => {
             btn.style.background = 'transparent';
@@ -3180,7 +3180,7 @@
         if (expandedBody) expandedBody.style.display = 'none';
         if (card) {
             card.style.borderRadius = '9999px';
-            card.style.width = '660px';
+            card.style.width = '720px';
         }
 
         if (textarea) textarea.style.display = 'block';
@@ -3201,8 +3201,8 @@
             SFB_RATING = '';
             expandedBody.style.display = 'none';
             card.style.borderRadius = '9999px';
-            card.style.width = '660px';
-            if (innerPadding) innerPadding.style.padding = '1.15rem 2rem';
+            card.style.width = '720px';
+            if (innerPadding) innerPadding.style.padding = '1.15rem 2.5rem';
             document.querySelectorAll('.sfb-emoji-btn').forEach(btn => {
                 btn.style.background = 'transparent';
                 btn.style.color = '#d4d4d8';
@@ -3228,8 +3228,8 @@
 
         // Expand to Full Card State (Matching Image 2)
         card.style.borderRadius = '36px';
-        card.style.width = '660px';
-        if (innerPadding) innerPadding.style.padding = '2rem 2.25rem';
+        card.style.width = '720px';
+        if (innerPadding) innerPadding.style.padding = '2rem 2.5rem';
         expandedBody.style.display = 'block';
 
         const sendBtn = document.getElementById('sfb-send-btn');
