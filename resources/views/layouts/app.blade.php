@@ -2987,12 +2987,17 @@
             
             <div style="padding:1rem 1.75rem;transition:all .3s ease;" id="sfb-inner-padding">
                 
-                <!-- Collapsed / Header Bar (Matching Image 1 & 3) -->
-                <div class="flex items-center justify-between gap-8" id="sfb-header-row">
-                    <span class="ml-1 cursor-default select-none whitespace-nowrap font-bold text-[19px] text-zinc-100 tracking-wide" id="sfb-label">
-                        Was this helpful?
-                    </span>
-                    <div class="flex items-center gap-2.5" id="sfb-emoji-group">
+                <!-- Collapsed / Header Bar -->
+                <div class="flex items-center justify-between gap-6" id="sfb-header-row">
+                    <div class="flex flex-col select-none pr-1" id="sfb-label-wrap">
+                        <span class="font-extrabold text-[18px] text-zinc-100 tracking-tight leading-tight" id="sfb-label">
+                            Help Us Improve Euro Taxi
+                        </span>
+                        <span class="text-[12px] text-zinc-400 font-medium leading-tight mt-1" id="sfb-sublabel">
+                            How's your experience with the system today?
+                        </span>
+                    </div>
+                    <div class="flex items-center gap-2.5 flex-shrink-0" id="sfb-emoji-group">
                         <!-- Very Sad / Terrible -->
                         <button type="button" onclick="sfbSelectRating('very-sad', this)" title="Terrible" class="sfb-emoji-btn relative rounded-full p-3 outline-none text-zinc-400 hover:bg-white/10 hover:text-zinc-100 transition-all flex items-center justify-center active:scale-90" data-rating="very-sad">
                             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -3047,7 +3052,7 @@
                 <div id="sfb-expanded-body" style="display:none;padding-top:1.75rem;">
                     <div class="mb-3.5 flex items-center justify-between">
                         <span class="select-none font-bold text-[12px] text-zinc-400 uppercase tracking-[0.14em]" id="sfb-mode-label">
-                            FEEDBACK
+                            FEEDBACK & SUGGESTIONS
                         </span>
                         <button type="button" onclick="sfbTogglePreview()" id="sfb-prev-btn"
                             class="rounded-xl bg-white/10 px-3.5 py-1.5 font-bold text-[13px] text-zinc-200 transition-colors hover:bg-white/20 hover:text-white">
@@ -3056,7 +3061,7 @@
                     </div>
 
                     <div class="relative group mb-3">
-                        <textarea id="sfb-textarea" placeholder="Your feedback..." rows="5"
+                        <textarea id="sfb-textarea" placeholder="Tell us what we can improve, suggest a new feature, or describe any issue you encountered..." rows="5"
                             class="w-full resize-none rounded-2xl border border-white/10 bg-zinc-900/70 p-4 text-[16px] text-zinc-100 leading-relaxed transition-all placeholder:text-zinc-500 focus:border-white/30 focus:bg-zinc-900/95 focus:outline-none"
                             oninput="sfbOnInputChange(this)"></textarea>
                         <div id="sfb-preview-box" style="display:none;min-height:145px;max-height:200px;overflow-y:auto;"
@@ -3098,7 +3103,7 @@
 
                     <div class="mt-4 flex items-center justify-between border-white/10 border-t pt-4">
                         <p class="font-medium text-[13px] text-zinc-400 m-0">
-                            We appreciate your input.
+                            Your feedback helps us continuously improve the system.
                         </p>
                         <button type="button" onclick="sfbSubmitFeedback()" id="sfb-send-btn" disabled
                             class="relative rounded-2xl bg-white px-8 py-3 font-extrabold text-[15px] text-black transition-all hover:bg-zinc-100 active:scale-95 disabled:pointer-events-none disabled:opacity-30 disabled:grayscale shadow-xl shadow-white/10">
@@ -3181,7 +3186,7 @@
         if (textarea) textarea.style.display = 'block';
         if (previewBox) previewBox.style.display = 'none';
         if (prevBtn) prevBtn.textContent = 'Preview';
-        if (modeLabel) modeLabel.textContent = 'FEEDBACK';
+        if (modeLabel) modeLabel.textContent = 'FEEDBACK & SUGGESTIONS';
     }
 
     function sfbSelectRating(rating, btnEl) {
@@ -3355,7 +3360,7 @@
             textarea.style.display = 'block';
             previewBox.style.display = 'none';
             if (prevBtn) prevBtn.textContent = 'Preview';
-            if (modeLabel) modeLabel.textContent = 'FEEDBACK';
+            if (modeLabel) modeLabel.textContent = 'FEEDBACK & SUGGESTIONS';
             textarea.focus();
         }
     }
