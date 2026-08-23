@@ -6,117 +6,147 @@
 
 @section('content')
 
-<!-- Search and Filters -->
-<div class="bg-white rounded-lg shadow p-6 mb-6">
-    <form class="flex flex-col sm:flex-row gap-4" method="GET" action="{{ route('boundaries.index') }}">
+<!-- 21st.dev Executive Search and Filters Bar -->
+<div class="bg-white/80 backdrop-blur-md rounded-2xl shadow-xs border border-slate-200/80 p-4 sm:p-5 mb-6">
+    <form class="flex flex-col lg:flex-row gap-3.5 items-stretch lg:items-center" method="GET" action="{{ route('boundaries.index') }}" onsubmit="event.preventDefault(); performLiveSearch();">
         <div class="flex-1">
             <div class="relative">
-                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <i data-lucide="search" class="h-5 w-5 text-gray-400"></i>
+                <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                    <i data-lucide="search" class="h-4 w-4"></i>
                 </div>
                 <input type="search"
                     id="liveSearchInput"
                     name="search"
                     value="{{ $search }}"
                     oninput="performLiveSearch()"
-                    class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none"
+                    class="block w-full pl-10 pr-9 py-2.5 bg-slate-50/90 border border-slate-200/80 rounded-xl text-slate-800 placeholder-slate-400 text-xs sm:text-sm focus:outline-none focus:bg-white focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all font-medium"
                     placeholder="Search by plate number or driver..."
-                 autocomplete="new-password" spellcheck="false" autocorrect="off" autocapitalize="off" readonly onfocus="this.removeAttribute('readonly');">
+                    autocomplete="new-password" spellcheck="false" autocorrect="off" autocapitalize="off" readonly onfocus="this.removeAttribute('readonly');">
+                <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                    <button type="button" onclick="document.getElementById('liveSearchInput').value=''; performLiveSearch();" class="text-slate-400 hover:text-slate-600 transition-colors">
+                        <i data-lucide="x-circle" class="w-3.5 h-3.5"></i>
+                    </button>
+                </div>
             </div>
         </div>
         
-        <div class="sm:w-40">
-            <input
-                type="date"
-                id="filterDate"
-                name="date"
-                value="{{ $date_filter }}"
-                onchange="performLiveSearch()"
-                class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none"
-            >
-        </div>
-        
-        <div class="sm:w-40">
-            <select
-                id="filterStatus"
-                name="status"
-                onchange="performLiveSearch()"
-                class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none"
-            >
-                <option value="">All Status</option>
-                <option value="pending" {{ $status_filter === 'pending' ? 'selected' : '' }}>Pending</option>
-                <option value="paid" {{ $status_filter === 'paid' ? 'selected' : '' }}>Paid</option>
-                <option value="shortage" {{ $status_filter === 'shortage' ? 'selected' : '' }}>Shortage</option>
-                <option value="excess" {{ $status_filter === 'excess' ? 'selected' : '' }}>Excess</option>
-            </select>
-        </div>
-        
-        <div class="flex gap-2">
-            <a href="{{ route('boundary-rules.index') }}"
-                class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-300 flex items-center gap-2 border border-gray-200 transition-all font-semibold"
-                title="Manage Year-Based Pricing Rules"
-            >
-                <i data-lucide="settings" class="w-4 h-4"></i>
-                Pricing Rules
-            </a>
+        <div class="flex flex-wrap sm:flex-nowrap items-center gap-3">
+            <div class="w-full sm:w-44">
+                <div class="relative">
+                    <input
+                        type="date"
+                        id="filterDate"
+                        name="date"
+                        value="{{ $date_filter }}"
+                        onchange="performLiveSearch()"
+                        class="block w-full px-3.5 py-2.5 bg-slate-50/90 border border-slate-200/80 rounded-xl text-slate-800 text-xs sm:text-sm font-bold focus:outline-none focus:bg-white focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all shadow-2xs"
+                    >
+                </div>
+            </div>
             
-            <button type="button"
-                onclick="addBoundary()"
-                class="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 flex items-center gap-2 shadow-sm font-bold"
-            >
-                <i data-lucide="plus" class="w-4 h-4"></i>
-                Add Boundary
-            </button>
+            <div class="w-full sm:w-40">
+                <select
+                    id="filterStatus"
+                    name="status"
+                    onchange="performLiveSearch()"
+                    class="block w-full px-3.5 py-2.5 bg-slate-50/90 border border-slate-200/80 rounded-xl text-slate-800 text-xs sm:text-sm font-bold focus:outline-none focus:bg-white focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all shadow-2xs"
+                >
+                    <option value="">All Status</option>
+                    <option value="pending" {{ $status_filter === 'pending' ? 'selected' : '' }}>Pending</option>
+                    <option value="paid" {{ $status_filter === 'paid' ? 'selected' : '' }}>Paid</option>
+                    <option value="shortage" {{ $status_filter === 'shortage' ? 'selected' : '' }}>Shortage</option>
+                    <option value="excess" {{ $status_filter === 'excess' ? 'selected' : '' }}>Excess</option>
+                </select>
+            </div>
+            
+            <div class="flex items-center gap-2.5 w-full sm:w-auto">
+                <a href="{{ route('boundary-rules.index') }}"
+                    class="flex-1 sm:flex-initial px-4 py-2.5 bg-slate-100/90 hover:bg-slate-200/80 text-slate-700 rounded-xl border border-slate-200/80 flex items-center justify-center gap-2 transition-all font-bold text-xs sm:text-sm shadow-2xs"
+                    title="Manage Year-Based Pricing Rules"
+                >
+                    <i data-lucide="settings" class="w-4 h-4 text-slate-500"></i>
+                    <span>Pricing Rules</span>
+                </a>
+                
+                <button type="button"
+                    onclick="addBoundary()"
+                    class="flex-1 sm:flex-initial px-4 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white rounded-xl shadow-md shadow-amber-500/25 flex items-center justify-center gap-2 font-black text-xs sm:text-sm transition-all cursor-pointer"
+                >
+                    <i data-lucide="plus" class="w-4 h-4"></i>
+                    <span>Add Boundary</span>
+                </button>
+            </div>
         </div>
     </form>
 </div>
 
-<!-- Daily Fleet Deployment Status -->
-<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6" id="fleetStatsBoard">
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex flex-col justify-center relative overflow-hidden">
-        <div class="absolute right-0 top-0 w-24 h-24 bg-gray-50 rounded-full -mr-10 -mt-10 pointer-events-none"></div>
-        <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1 relative z-10">Total Deployable Fleet</span>
-        <div class="flex items-end gap-2 relative z-10">
-            <span class="text-4xl font-black text-gray-800 tracking-tighter" id="stat_total_deployable">{{ $fleet_stats['total_deployable'] }}</span>
-            <span class="text-xs font-bold text-gray-500 mb-1.5 uppercase">Units</span>
+<!-- ─── 3D SVG KPI Executive Metrics Strip (21st.dev Style) ─── -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5 mb-6" id="fleetStatsBoard">
+    
+    <!-- 1. Total Deployable Fleet -->
+    <div class="relative overflow-hidden rounded-2xl shadow-xs border border-blue-200/80 bg-gradient-to-br from-white via-blue-50/40 to-blue-100/30 p-4 sm:p-5">
+        <div class="absolute left-0 inset-y-0 h-8 w-1 rounded-r-full bg-blue-500 my-auto"></div>
+        <div class="relative z-10 pl-2 pr-16">
+            <div class="text-blue-600 text-[9px] sm:text-[10px] font-black uppercase tracking-widest leading-none mb-1.5">Total Deployable Fleet</div>
+            <div class="flex items-baseline gap-2 mb-0.5">
+                <span class="text-3xl sm:text-4xl font-black text-slate-800 tracking-tight leading-none" id="stat_total_deployable">{{ $fleet_stats['total_deployable'] }}</span>
+                <span class="text-xs font-bold text-blue-600 uppercase tracking-wide">Units</span>
+            </div>
+            <div class="text-[10px] font-bold text-slate-400 uppercase tracking-tight">Active Service Fleet</div>
         </div>
+        <img src="{{ asset('image/kpi/taxi_3d.svg') }}" alt="Total Fleet" class="absolute -right-2 -bottom-2 w-16 h-16 sm:w-20 sm:h-20 object-contain pointer-events-none opacity-90 drop-shadow-sm">
     </div>
     
-    <div onclick="openPlatesModal('remitted')" class="bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl shadow-lg shadow-green-500/20 p-5 flex flex-col justify-center relative overflow-hidden text-white cursor-pointer">
-        <div class="absolute right-0 top-0 w-32 h-32 bg-white/10 rounded-full -mr-10 -mt-10 pointer-events-none"></div>
-        <div class="flex justify-between items-start relative z-10 mb-1">
-            <span class="text-[10px] font-black text-green-100 uppercase tracking-widest">Remitted Boundary Today</span>
-            <div class="px-2 py-0.5 bg-white/20 rounded text-[9px] font-bold uppercase tracking-wider backdrop-blur-sm">View List</div>
+    <!-- 2. Remitted Boundary Today (Clickable) -->
+    <div onclick="openPlatesModal('remitted')" class="relative overflow-hidden rounded-2xl shadow-xs hover:shadow-md border border-emerald-300/80 bg-gradient-to-br from-white via-emerald-50/50 to-emerald-100/40 p-4 sm:p-5 cursor-pointer transition-all duration-200 group">
+        <div class="absolute left-0 inset-y-0 h-8 w-1 rounded-r-full bg-emerald-500 my-auto"></div>
+        <div class="relative z-10 pl-2 pr-16">
+            <div class="flex items-center justify-between gap-2 mb-1.5">
+                <span class="text-emerald-700 text-[9px] sm:text-[10px] font-black uppercase tracking-widest leading-none">Remitted Today</span>
+                <span class="px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-700 text-[9px] font-black uppercase tracking-wider group-hover:bg-emerald-500 group-hover:text-white transition-colors">View List &rarr;</span>
+            </div>
+            <div class="flex items-baseline gap-2 mb-0.5">
+                <span class="text-3xl sm:text-4xl font-black text-emerald-600 tracking-tight leading-none" id="stat_total_remitted">{{ $fleet_stats['total_remitted'] }}</span>
+                <span class="text-xs font-bold text-emerald-700 uppercase tracking-wide">Units Paid</span>
+            </div>
+            <div class="text-[10px] font-bold text-emerald-600/75 uppercase tracking-tight">Boundary Collected Today</div>
         </div>
-        <div class="flex items-end gap-2 relative z-10">
-            <span class="text-4xl font-black tracking-tighter" id="stat_total_remitted">{{ $fleet_stats['total_remitted'] }}</span>
-            <span class="text-xs font-bold text-green-200 mb-1.5 uppercase">Units Paid</span>
-        </div>
+        <img src="{{ asset('image/kpi/profit_3d.svg') }}" alt="Remitted" class="absolute -right-2 -bottom-2 w-16 h-16 sm:w-20 sm:h-20 object-contain pointer-events-none opacity-90 drop-shadow-sm">
     </div>
     
-    <div onclick="openPlatesModal('vacant')" class="bg-gradient-to-br from-red-500 to-rose-600 rounded-2xl shadow-lg shadow-red-500/20 p-5 flex flex-col justify-center relative overflow-hidden text-white cursor-pointer">
-        <div class="absolute right-0 top-0 w-32 h-32 bg-white/10 rounded-full -mr-10 -mt-10 pointer-events-none"></div>
-        <div class="flex justify-between items-start relative z-10 mb-1">
-            <span class="text-[10px] font-black text-red-100 uppercase tracking-widest">Unremitted</span>
-            <div class="px-2 py-0.5 bg-white/20 rounded text-[9px] font-bold uppercase tracking-wider backdrop-blur-sm">Action Needed</div>
+    <!-- 3. Unremitted / Missing (Clickable) -->
+    <div onclick="openPlatesModal('vacant')" class="relative overflow-hidden rounded-2xl shadow-xs hover:shadow-md border border-rose-300/80 bg-gradient-to-br from-white via-rose-50/50 to-rose-100/40 p-4 sm:p-5 cursor-pointer transition-all duration-200 group">
+        <div class="absolute left-0 inset-y-0 h-8 w-1 rounded-r-full bg-rose-500 my-auto"></div>
+        <div class="relative z-10 pl-2 pr-16">
+            <div class="flex items-center justify-between gap-2 mb-1.5">
+                <span class="text-rose-700 text-[9px] sm:text-[10px] font-black uppercase tracking-widest leading-none">Unremitted</span>
+                <span class="px-2 py-0.5 rounded-full bg-rose-500/15 border border-rose-500/30 text-rose-700 text-[9px] font-black uppercase tracking-wider flex items-center gap-1 group-hover:bg-rose-500 group-hover:text-white transition-colors"><span class="w-1.5 h-1.5 rounded-full bg-rose-500 group-hover:bg-white animate-pulse"></span> Action Needed</span>
+            </div>
+            <div class="flex items-baseline gap-2 mb-0.5">
+                <span class="text-3xl sm:text-4xl font-black text-rose-600 tracking-tight leading-none" id="stat_total_vacant">{{ $fleet_stats['total_vacant'] }}</span>
+                <span class="text-xs font-bold text-rose-700 uppercase tracking-wide">Missing</span>
+            </div>
+            <div class="text-[10px] font-bold text-rose-600/75 uppercase tracking-tight">Pending Collection Today</div>
         </div>
-        <div class="flex items-end gap-2 relative z-10">
-            <span class="text-4xl font-black tracking-tighter" id="stat_total_vacant">{{ $fleet_stats['total_vacant'] }}</span>
-            <span class="text-xs font-bold text-red-200 mb-1.5 uppercase">Missing</span>
-        </div>
+        <img src="{{ asset('image/kpi/expenses_3d.svg') }}" alt="Unremitted" class="absolute -right-2 -bottom-2 w-16 h-16 sm:w-20 sm:h-20 object-contain pointer-events-none opacity-90 drop-shadow-sm">
     </div>
 </div>
 
-{{-- Plate Lists Modals --}}
-<div id="platesListModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm transition-all p-4">
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl overflow-hidden flex flex-col max-h-[80vh]">
+{{-- Plate Lists Modal (21st.dev Executive Theme) --}}
+<div id="platesListModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/80 backdrop-blur-md transition-all p-4">
+    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-3xl overflow-hidden flex flex-col max-h-[85vh] border border-slate-700/30">
         <div id="platesModalHeader" class="p-5 flex justify-between items-center shrink-0">
-            <h3 id="platesModalTitle" class="text-lg font-black text-white uppercase tracking-wider"></h3>
-            <button onclick="closePlatesModal()" class="text-white/60 hover:text-white p-1.5 rounded-full transition-colors bg-black/20 hover:bg-black/40 focus:outline-none">
-                <i data-lucide="x" class="w-5 h-5"></i>
+            <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-xl bg-white/15 flex items-center justify-center text-white backdrop-blur-sm shadow-xs">
+                    <i data-lucide="car" class="w-4 h-4"></i>
+                </div>
+                <h3 id="platesModalTitle" class="text-lg font-black text-white uppercase tracking-wider"></h3>
+            </div>
+            <button onclick="closePlatesModal()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white flex items-center justify-center transition-all duration-200 backdrop-blur-sm border border-white/10 focus:outline-none">
+                <i data-lucide="x" class="w-4 h-4"></i>
             </button>
         </div>
-        <div class="p-6 overflow-y-auto flex-1 bg-gray-50/50">
+        <div class="p-6 overflow-y-auto flex-1 bg-slate-50/60">
             <div id="platesModalContent" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
                 <!-- Plates injected here -->
             </div>
@@ -130,22 +160,22 @@
 </div>
 
 <!-- Boundary Modal -->
-<div id="boundaryModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4 transition-all">
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[95vh] flex flex-col overflow-hidden">
-        {{-- Header (Deep Navy matching Unit Details) --}}
-        <div class="bg-slate-800 p-5 shrink-0">
-            <div class="flex justify-between items-start">
+<div id="boundaryModal" class="fixed inset-0 bg-slate-955/80 backdrop-blur-md hidden z-50 flex items-center justify-center p-3 sm:p-5 transition-all bg-slate-950/80">
+    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-4xl max-h-[92vh] flex flex-col overflow-hidden border border-slate-700/30">
+        {{-- Header (Deep Navy 21st.dev Theme) --}}
+        <div class="bg-slate-900 border-b border-slate-800 p-5 shrink-0">
+            <div class="flex justify-between items-center">
                 <div class="flex items-center gap-3">
-                    <div class="p-2.5 bg-white/10 rounded-xl">
-                        <i data-lucide="calculator" class="w-6 h-6 text-yellow-500"></i>
+                    <div class="p-2.5 bg-white/10 rounded-xl text-amber-400 backdrop-blur-sm border border-white/10 shadow-xs">
+                        <i data-lucide="calculator" class="w-5 h-5"></i>
                     </div>
                     <div>
-                        <h3 class="text-xl font-black text-white tracking-wide" id="modalTitle">Add Boundary Record</h3>
-                        <p class="text-xs font-medium text-slate-300 mt-0.5">Record daily collections and evaluate driver performance.</p>
+                        <h3 class="text-xl font-black text-white tracking-tight" id="modalTitle">Add Boundary Record</h3>
+                        <p class="text-xs font-medium text-slate-400 mt-0.5">Record daily collections and evaluate driver performance.</p>
                     </div>
                 </div>
-                <button onclick="closeModal()" type="button" class="text-slate-400 hover:text-white bg-slate-700/50 hover:bg-slate-700 p-2 rounded-full transition-colors">
-                    <i data-lucide="x" class="w-5 h-5"></i>
+                <button onclick="closeModal()" type="button" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white flex items-center justify-center transition-all duration-200 backdrop-blur-sm border border-white/10">
+                    <i data-lucide="x" class="w-4 h-4"></i>
                 </button>
             </div>
         </div>
@@ -433,26 +463,26 @@
 </div>
 
 {{-- View Boundary Info Modal --}}
-<div id="viewBoundaryModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm transition-all">
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-xl overflow-hidden max-h-[90vh] flex flex-col">
-        {{-- Header (Modern Dark Theme) --}}
-        <div class="bg-slate-800 p-5 shrink-0">
+<div id="viewBoundaryModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-md transition-all p-3 sm:p-5">
+    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-xl overflow-hidden max-h-[90vh] flex flex-col border border-slate-700/30">
+        {{-- Header (Modern 21st.dev Dark Theme) --}}
+        <div class="bg-slate-900 border-b border-slate-800 p-5 shrink-0">
             <div class="flex justify-between items-start">
                 <div class="flex items-center gap-3">
-                    <div class="p-2.5 bg-white/10 rounded-xl">
-                        <i data-lucide="banknote" class="w-6 h-6 text-yellow-500"></i>
+                    <div class="p-2.5 bg-white/10 rounded-xl text-amber-400 backdrop-blur-sm border border-white/10 shadow-xs">
+                        <i data-lucide="banknote" class="w-6 h-6 text-amber-400"></i>
                     </div>
                     <div>
                         <div class="flex items-center gap-2 mb-1">
                             <span id="vb_statusBadge" class="px-2 py-0.5 bg-white/10 rounded text-[9px] font-black uppercase tracking-widest text-slate-300 border border-white/10"></span>
                             <span id="vb_incentiveBadge" class="px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-widest text-white"></span>
                         </div>
-                        <h3 id="vb_plate" class="text-2xl font-black text-white tracking-tighter uppercase leading-tight"></h3>
+                        <h3 id="vb_plate" class="text-2xl font-black text-white tracking-tight uppercase leading-tight"></h3>
                         <p id="vb_driver" class="text-xs font-bold text-slate-400 uppercase tracking-wide"></p>
                     </div>
                 </div>
-                <button onclick="closeViewBoundary()" class="text-slate-400 hover:text-white bg-slate-700/50 hover:bg-slate-700 p-2 rounded-full transition-colors">
-                    <i data-lucide="x" class="w-5 h-5"></i>
+                <button onclick="closeViewBoundary()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white flex items-center justify-center transition-all duration-200 backdrop-blur-sm border border-white/10">
+                    <i data-lucide="x" class="w-4 h-4"></i>
                 </button>
             </div>
         </div>
@@ -529,26 +559,26 @@ function openPlatesModal(type) {
     const content = document.getElementById('platesModalContent');
     
     if (type === 'remitted') {
-        header.className = 'p-5 flex justify-between items-center shrink-0 bg-gradient-to-r from-green-600 to-emerald-700';
+        header.className = 'p-5 flex justify-between items-center shrink-0 bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 text-white';
         title.innerText = 'Remitted Units Today';
         
-        if (currentFleetStats.remitted_plates.length > 0) {
+        if (currentFleetStats.remitted_plates && currentFleetStats.remitted_plates.length > 0) {
             content.innerHTML = currentFleetStats.remitted_plates.map(plate => 
-                `<div class="flex items-center justify-center px-2 py-2.5 bg-white border-2 border-green-100 rounded-xl shadow-sm text-green-800 font-mono font-black text-sm tracking-wide hover:border-green-300 hover:shadow-md transition-all cursor-default">${plate}</div>`
+                `<div class="flex items-center justify-center px-3 py-2.5 bg-white border border-emerald-300/80 rounded-xl shadow-xs text-emerald-900 font-mono font-black text-xs sm:text-sm tracking-wider hover:border-emerald-500 hover:shadow-md transition-all cursor-default">${plate}</div>`
             ).join('');
         } else {
-            content.innerHTML = `<div class="col-span-full p-8 text-center text-gray-500 font-bold italic">No remitted units yet.</div>`;
+            content.innerHTML = `<div class="col-span-full p-10 text-center text-slate-400 font-bold italic">No remitted units recorded yet today.</div>`;
         }
     } else {
-        header.className = 'p-5 flex justify-between items-center shrink-0 bg-gradient-to-r from-red-600 to-rose-700';
-        title.innerText = 'Unremitted Units';
+        header.className = 'p-5 flex justify-between items-center shrink-0 bg-gradient-to-r from-rose-600 via-red-600 to-rose-700 text-white';
+        title.innerText = 'Unremitted Units (Pending Payment)';
         
-        if (currentFleetStats.vacant_plates.length > 0) {
+        if (currentFleetStats.vacant_plates && currentFleetStats.vacant_plates.length > 0) {
             content.innerHTML = currentFleetStats.vacant_plates.map(plate => 
-                `<div class="flex items-center justify-center px-2 py-2.5 bg-white border-2 border-red-100 rounded-xl shadow-sm text-red-800 font-mono font-black text-sm tracking-wide hover:border-red-300 hover:shadow-md transition-all cursor-default">${plate}</div>`
+                `<div class="flex items-center justify-center px-3 py-2.5 bg-white border border-rose-300/80 rounded-xl shadow-xs text-rose-900 font-mono font-black text-xs sm:text-sm tracking-wider hover:border-rose-500 hover:shadow-md transition-all cursor-default">${plate}</div>`
             ).join('');
         } else {
-            content.innerHTML = `<div class="col-span-full p-8 text-center text-gray-500 font-bold italic">All units accounted for!</div>`;
+            content.innerHTML = `<div class="col-span-full p-10 text-center text-emerald-600 font-black">All deployable fleet units have remitted today! 🎉</div>`;
         }
     }
     
