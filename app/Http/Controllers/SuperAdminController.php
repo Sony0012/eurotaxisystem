@@ -824,7 +824,7 @@ class SuperAdminController extends Controller
             }
 
             $totalHours = round($totalMins / 60, 2);
-            $pct        = ($target > 0) ? min(100, (int) round(($totalMins / ($target * 60)) * 100)) : 0;
+            $pct        = ($target > 0) ? (int) round(($totalMins / ($target * 60)) * 100) : 0;
 
             // 3. Meaningful Operational Actions (Excluding automated heartbeats & background checks)
             $meaningfulActs = $userAudits->whereNotIn('action', ['login', 'logout', 'failed_login', 'session_start', 'active_presence']);
