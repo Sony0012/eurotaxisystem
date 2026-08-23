@@ -1960,57 +1960,54 @@
             </div>
 
             <div class="flex-1 overflow-hidden flex flex-col min-h-0 bg-slate-100/60 relative">
-                <!-- ─── Compact Summary Metrics Strip ─── -->
-                <div class="bg-white/85 backdrop-blur-md p-3.5 border-b border-slate-200/80 flex-shrink-0 shadow-sm relative z-20">
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-7xl mx-auto">
-                        <!-- Total Units -->
-                        <div class="bg-gradient-to-b from-white to-slate-50/80 rounded-2xl p-3 border border-slate-200/90 shadow-sm hover:shadow-md hover:border-blue-300/80 transition-all duration-200 group">
-                            <div class="flex items-center gap-3">
-                                <div class="w-9 h-9 rounded-xl bg-blue-50 border border-blue-200/60 flex items-center justify-center text-blue-600 flex-shrink-0 group-hover:scale-105 transition-transform">
-                                    <i data-lucide="car" class="w-4 h-4"></i>
-                                </div>
-                                <div class="min-w-0 flex-1">
-                                    <div class="text-base sm:text-lg font-black text-slate-800 leading-tight tracking-tight" id="totalUnitsCount">0</div>
-                                    <div class="text-[10px] text-slate-500 uppercase tracking-wider font-bold">Total Fleet</div>
-                                </div>
+                <!-- ─── Compact Summary Metrics Strip with 3D SVG Assets (21st.dev Style) ─── -->
+                <div class="bg-white/90 backdrop-blur-md p-3 sm:p-3.5 border-b border-slate-200/80 flex-shrink-0 shadow-xs relative z-20">
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3.5 max-w-7xl mx-auto">
+                        
+                        <!-- 1. Total Fleet Card -->
+                        <div class="group relative overflow-hidden rounded-2xl shadow-xs hover:shadow-lg border border-blue-200/80 bg-gradient-to-br from-white via-blue-50/50 to-blue-100/40 p-2.5 sm:p-3 transition-all duration-300 hover:scale-[1.01] cursor-default">
+                            <div class="absolute left-0 inset-y-0 h-5 group-hover:h-9 w-1 rounded-r-full bg-blue-500 transition-all duration-300 my-auto"></div>
+                            <div class="relative z-10 pl-2 pr-12">
+                                <div class="text-blue-600 text-[8px] sm:text-[9px] font-extrabold uppercase tracking-widest leading-none mb-1">Total Fleet</div>
+                                <div class="text-lg sm:text-2xl font-black text-slate-800 leading-none mb-0.5 tracking-tight" id="totalUnitsCount">0</div>
+                                <div class="text-[9px] font-bold text-blue-600/75 uppercase tracking-tight">Registered Fleet</div>
                             </div>
+                            <img src="{{ asset('image/kpi/taxi_3d.svg') }}" alt="Total Fleet" class="absolute -right-2 -bottom-2 w-14 h-14 sm:w-16 sm:h-16 object-contain pointer-events-none opacity-85 group-hover:opacity-100 group-hover:scale-110 group-hover:-rotate-6 transition-all duration-300 drop-shadow-sm">
                         </div>
-                        <!-- Vacant (No Driver) -->
-                        <div class="bg-gradient-to-b from-white to-slate-50/80 rounded-2xl p-3 border border-slate-200/90 shadow-sm hover:shadow-md hover:border-emerald-300/80 transition-all duration-200 group">
-                            <div class="flex items-center gap-3">
-                                <div class="w-9 h-9 rounded-xl bg-emerald-50 border border-emerald-200/60 flex items-center justify-center text-emerald-600 flex-shrink-0 group-hover:scale-105 transition-transform">
-                                    <i data-lucide="user-x" class="w-4 h-4"></i>
-                                </div>
-                                <div class="min-w-0 flex-1">
-                                    <div class="text-base sm:text-lg font-black text-emerald-600 leading-tight tracking-tight" id="activeUnitsCount">0</div>
-                                    <div class="text-[10px] text-slate-500 uppercase tracking-wider font-bold truncate">Vacant Units</div>
-                                </div>
+
+                        <!-- 2. Vacant Units Card -->
+                        <div class="group relative overflow-hidden rounded-2xl shadow-xs hover:shadow-lg border border-emerald-200/80 bg-gradient-to-br from-white via-emerald-50/50 to-emerald-100/40 p-2.5 sm:p-3 transition-all duration-300 hover:scale-[1.01] cursor-default">
+                            <div class="absolute left-0 inset-y-0 h-5 group-hover:h-9 w-1 rounded-r-full bg-emerald-500 transition-all duration-300 my-auto"></div>
+                            <div class="relative z-10 pl-2 pr-12">
+                                <div class="text-emerald-700 text-[8px] sm:text-[9px] font-extrabold uppercase tracking-widest leading-none mb-1 truncate">Vacant Units</div>
+                                <div class="text-lg sm:text-2xl font-black text-emerald-600 leading-none mb-0.5 tracking-tight" id="activeUnitsCount">0</div>
+                                <div class="text-[9px] font-bold text-emerald-600/75 uppercase tracking-tight">No Driver Assigned</div>
                             </div>
+                            <img src="{{ asset('image/kpi/drivers_3d.svg') }}" alt="Vacant Units" class="absolute -right-2 -bottom-2 w-14 h-14 sm:w-16 sm:h-16 object-contain pointer-events-none opacity-85 group-hover:opacity-100 group-hover:scale-110 group-hover:-rotate-6 transition-all duration-300 drop-shadow-sm">
                         </div>
-                        <!-- Active (With Driver) -->
-                        <div class="bg-gradient-to-b from-white to-slate-50/80 rounded-2xl p-3 border border-slate-200/90 shadow-sm hover:shadow-md hover:border-amber-300/80 transition-all duration-200 group">
-                            <div class="flex items-center gap-3">
-                                <div class="w-9 h-9 rounded-xl bg-amber-50 border border-amber-200/60 flex items-center justify-center text-amber-600 flex-shrink-0 group-hover:scale-105 transition-transform">
-                                    <i data-lucide="activity" class="w-4 h-4"></i>
-                                </div>
-                                <div class="min-w-0 flex-1">
-                                    <div class="text-base sm:text-lg font-black text-amber-600 leading-tight tracking-tight" id="roiUnitsCount">0</div>
-                                    <div class="text-[10px] text-slate-500 uppercase tracking-wider font-bold truncate">Active (With Driver)</div>
-                                </div>
+
+                        <!-- 3. Active (With Driver) Card -->
+                        <div class="group relative overflow-hidden rounded-2xl shadow-xs hover:shadow-lg border border-amber-200/80 bg-gradient-to-br from-white via-amber-50/50 to-amber-100/40 p-2.5 sm:p-3 transition-all duration-300 hover:scale-[1.01] cursor-default">
+                            <div class="absolute left-0 inset-y-0 h-5 group-hover:h-9 w-1 rounded-r-full bg-amber-500 transition-all duration-300 my-auto"></div>
+                            <div class="relative z-10 pl-2 pr-12">
+                                <div class="text-amber-700 text-[8px] sm:text-[9px] font-extrabold uppercase tracking-widest leading-none mb-1 truncate">Active Units</div>
+                                <div class="text-lg sm:text-2xl font-black text-amber-600 leading-none mb-0.5 tracking-tight" id="roiUnitsCount">0</div>
+                                <div class="text-[9px] font-bold text-amber-600/75 uppercase tracking-tight">With Driver</div>
                             </div>
+                            <img src="{{ asset('image/kpi/owner_active_3d.svg') }}" alt="Active Units" class="absolute -right-2 -bottom-2 w-14 h-14 sm:w-16 sm:h-16 object-contain pointer-events-none opacity-85 group-hover:opacity-100 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 drop-shadow-sm">
                         </div>
-                        <!-- Avg ROI -->
-                        <div class="bg-gradient-to-b from-white to-slate-50/80 rounded-2xl p-3 border border-slate-200/90 shadow-sm hover:shadow-md hover:border-violet-300/80 transition-all duration-200 group">
-                            <div class="flex items-center gap-3">
-                                <div class="w-9 h-9 rounded-xl bg-violet-50 border border-violet-200/60 flex items-center justify-center text-violet-600 flex-shrink-0 group-hover:scale-105 transition-transform">
-                                    <i data-lucide="pie-chart" class="w-4 h-4"></i>
-                                </div>
-                                <div class="min-w-0 flex-1">
-                                    <div class="text-base sm:text-lg font-black text-violet-600 leading-tight tracking-tight" id="avgRoiCount">0%</div>
-                                    <div class="text-[10px] text-slate-500 uppercase tracking-wider font-bold truncate">Average ROI</div>
-                                </div>
+
+                        <!-- 4. Average ROI Card -->
+                        <div class="group relative overflow-hidden rounded-2xl shadow-xs hover:shadow-lg border border-violet-200/80 bg-gradient-to-br from-white via-violet-50/50 to-violet-100/40 p-2.5 sm:p-3 transition-all duration-300 hover:scale-[1.01] cursor-default">
+                            <div class="absolute left-0 inset-y-0 h-5 group-hover:h-9 w-1 rounded-r-full bg-violet-500 transition-all duration-300 my-auto"></div>
+                            <div class="relative z-10 pl-2 pr-12">
+                                <div class="text-violet-700 text-[8px] sm:text-[9px] font-extrabold uppercase tracking-widest leading-none mb-1 truncate">Average ROI</div>
+                                <div class="text-lg sm:text-2xl font-black text-violet-600 leading-none mb-0.5 tracking-tight" id="avgRoiCount">0%</div>
+                                <div class="text-[9px] font-bold text-violet-600/75 uppercase tracking-tight">ROI Achieved</div>
                             </div>
+                            <img src="{{ asset('image/kpi/crown_3d.svg') }}" alt="Average ROI" class="absolute -right-2 -bottom-2 w-14 h-14 sm:w-16 sm:h-16 object-contain pointer-events-none opacity-85 group-hover:opacity-100 group-hover:scale-110 group-hover:-rotate-6 transition-all duration-300 drop-shadow-sm">
                         </div>
+
                     </div>
                 </div>
 
