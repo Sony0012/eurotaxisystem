@@ -2126,33 +2126,50 @@ function camRenderHeatmap() {
         return;
     }
 
-    // Build 28 day column headers
-    const days = (users[0]?.heatmap || []).map(h => {
-        const d = new Date(h.date);
-        return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    // Build 28 complete day column headers
+    const rawDays = users[0]?.heatmap || [];
+    const days = rawDays.map(h => {
+        const d = new Date(h.date + 'T00:00:00');
+        const dayNum = d.getDate();
+        const monthShort = d.toLocaleDateString('en-US', { month: 'short' });
+        const weekday = d.toLocaleDateString('en-US', { weekday: 'narrow' });
+        const isToday = h.date === CAM_DATE;
+        return {
+            dateStr: h.date,
+            dayNum: dayNum,
+            month: monthShort,
+            weekday: weekday,
+            isToday: isToday,
+        };
     });
 
-    let html = `<table style="border-collapse:separate;border-spacing:3px;min-width:max-content;"><thead><tr>`;
-    html += `<th style="font-size:.6rem;font-weight:800;color:#64748b;text-align:left;padding:.3rem .5rem;white-space:nowrap;min-width:150px;">Account / Role</th>`;
+    let html = `<div style="overflow-x:auto;padding-bottom:.5rem;"><table style="border-collapse:separate;border-spacing:3px;min-width:max-content;width:100%;"><thead><tr>`;
+    html += `<th style="font-size:.68rem;font-weight:800;color:#475569;text-align:left;padding:.4rem .6rem;white-space:nowrap;min-width:160px;">Account / Role</th>`;
 
-    days.forEach((d, i) => {
-        html += `<th style="font-size:.52rem;font-weight:700;color:#94a3b8;text-align:center;padding:.2rem;min-width:26px;">${i % 4 === 0 ? d : ''}</th>`;
+    days.forEach(d => {
+        const bgToday = d.isToday ? 'background:#e0f2fe;border-radius:4px;' : '';
+        html += `<th style="font-size:.55rem;font-weight:800;text-align:center;padding:.25rem .1rem;min-width:28px;line-height:1.15;${bgToday}">
+            <div style="font-size:.48rem;color:${d.isToday ? '#0369a1' : '#94a3b8'};text-transform:uppercase;font-weight:700;">${d.month}</div>
+            <div style="font-size:.65rem;font-weight:900;color:${d.isToday ? '#0284c7' : '#334155'};">${d.dayNum}</div>
+        </th>`;
     });
     html += `</tr></thead><tbody>`;
 
     users.forEach(u => {
         html += `<tr>
-            <td style="font-size:.72rem;font-weight:800;color:#000;padding:.35rem .5rem .35rem 0;white-space:nowrap;">
+            <td style="font-size:.72rem;font-weight:800;color:#000;padding:.35rem .6rem .35rem 0;white-space:nowrap;">
                 ${u.name}<br><span style="font-size:.6rem;color:#94a3b8;font-weight:500;">${u.role_label || u.role}</span>
             </td>`;
         (u.heatmap || []).forEach(h => {
             const c = camHeatColor(h.activities);
-            html += `<td><div class="cam-heatmap-cell" style="background:${c.bg};color:${c.color};" title="${h.date}: ${h.activities} action(s), ${h.logins} login(s)">${h.activities > 0 ? h.activities : ''}</div></td>`;
+            const isToday = h.date === CAM_DATE;
+            const borderToday = isToday ? 'border:1.5px solid #0284c7;' : '';
+            html += `<td><div class="cam-heatmap-cell" style="background:${c.bg};color:${c.color};${borderToday}" title="${h.date}: ${h.activities} action(s), ${h.logins} login(s)">${h.activities > 0 ? h.activities : ''}</div></td>`;
         });
         html += `</tr>`;
     });
 
-    html += `</tbody></table>`;
+    html += `</tbody></table></div>`;
     container.innerHTML = html;
 }
 
