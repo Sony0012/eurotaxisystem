@@ -871,11 +871,12 @@
                                 </div>
                             </div>
 
-                            <!-- Staff Feedback Header Button (Right beside Message icon) -->
+                            <!-- Staff Feedback Header Button (Text Button beside Message icon) -->
                             <button id="headerFeedbackBtn" type="button" onclick="sfbOpenModal()"
-                                class="relative p-2 text-gray-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all flex items-center justify-center group"
-                                title="Send System Feedback & Suggestions">
-                                <i data-lucide="message-square-plus" class="w-5 h-5 transition-transform group-hover:scale-110"></i>
+                                class="relative inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-extrabold rounded-xl bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white border border-blue-200/80 transition-all duration-200 shadow-sm hover:shadow-md hover:shadow-blue-500/15 active:scale-95 group"
+                                title="Click to Send Suggestions">
+                                <i data-lucide="message-square-plus" class="w-4 h-4 transition-transform group-hover:scale-110"></i>
+                                <span class="tracking-tight whitespace-nowrap">Click to Send Suggestions</span>
                             </button>
 
                             <!-- Date/Time -->
