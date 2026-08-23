@@ -279,6 +279,9 @@
             <button class="sa-tab {{ $tab === 'activity' ? 'active' : '' }}" onclick="switchTab('activity')">
                 <i data-lucide="bar-chart-2" class="inline w-3.5 h-3.5 mr-1 -mt-0.5"></i>Client Activity
             </button>
+            <button class="sa-tab {{ $tab === 'feedbacks' ? 'active' : '' }}" onclick="switchTab('feedbacks')">
+                <i data-lucide="message-square-heart" class="inline w-3.5 h-3.5 mr-1 -mt-0.5"></i>Staff Feedbacks
+            </button>
         </div>
     </div>
 
@@ -1327,51 +1330,6 @@
             </div>
         </div>
 
-        <!-- ══ 21st.dev STAFF FEEDBACKS & SUGGESTIONS HUB ══ -->
-        <div class="cam-card mb-5" id="cam-feedbacks-card">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 pb-3 border-b border-slate-100">
-                <div class="flex items-center gap-2.5">
-                    <div style="width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#6366f1,#4f46e5);color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 10px rgba(99,102,241,0.25);flex-shrink:0;">
-                        <i data-lucide="message-square-heart" style="width:18px;height:18px;"></i>
-                    </div>
-                    <div>
-                        <div class="flex items-center gap-2">
-                            <span class="font-extrabold text-sm text-slate-900">Staff Feedbacks & Suggestions Hub</span>
-                            <span id="cam-fb-badge-count" style="font-size:.65rem;background:#ede9fe;color:#6d28d9;padding:.15rem .5rem;border-radius:99px;font-weight:800;">0 Feedbacks</span>
-                        </div>
-                        <p class="text-xs text-slate-500 m-0">Live sentiment ratings, suggestions, and feedback submitted by staff from the sidebar</p>
-                    </div>
-                </div>
-
-                <!-- Rating Filter Chips & Refresh -->
-                <div class="flex items-center gap-1.5 flex-wrap">
-                    <button type="button" onclick="camFilterFeedbacks('all')" class="cam-fb-chip" id="fb-chip-all" style="font-size:.7rem;padding:.3rem .65rem;border-radius:.5rem;font-weight:700;cursor:pointer;border:1px solid #e2e8f0;background:#0f172a;color:#fff;transition:all .15s ease;">
-                        All (<span id="fb-cnt-all">0</span>)
-                    </button>
-                    <button type="button" onclick="camFilterFeedbacks('happy')" class="cam-fb-chip" id="fb-chip-happy" style="font-size:.7rem;padding:.3rem .65rem;border-radius:.5rem;font-weight:700;cursor:pointer;border:1px solid #e2e8f0;background:#fff;color:#475569;transition:all .15s ease;">
-                        ✨ Amazing (<span id="fb-cnt-happy">0</span>)
-                    </button>
-                    <button type="button" onclick="camFilterFeedbacks('neutral')" class="cam-fb-chip" id="fb-chip-neutral" style="font-size:.7rem;padding:.3rem .65rem;border-radius:.5rem;font-weight:700;cursor:pointer;border:1px solid #e2e8f0;background:#fff;color:#475569;transition:all .15s ease;">
-                        😐 Okay (<span id="fb-cnt-neutral">0</span>)
-                    </button>
-                    <button type="button" onclick="camFilterFeedbacks('sad')" class="cam-fb-chip" id="fb-chip-sad" style="font-size:.7rem;padding:.3rem .65rem;border-radius:.5rem;font-weight:700;cursor:pointer;border:1px solid #e2e8f0;background:#fff;color:#475569;transition:all .15s ease;">
-                        🙁 Bad (<span id="fb-cnt-sad">0</span>)
-                    </button>
-                    <button type="button" onclick="camFilterFeedbacks('very-sad')" class="cam-fb-chip" id="fb-chip-very-sad" style="font-size:.7rem;padding:.3rem .65rem;border-radius:.5rem;font-weight:700;cursor:pointer;border:1px solid #e2e8f0;background:#fff;color:#475569;transition:all .15s ease;">
-                        😭 Terrible (<span id="fb-cnt-very-sad">0</span>)
-                    </button>
-                    <button type="button" onclick="camFetchFeedbacks()" class="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 transition-colors ml-1" title="Refresh Feedbacks">
-                        <i data-lucide="refresh-cw" style="width:14px;height:14px;"></i>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Feedback Feed List Container -->
-            <div id="cam-feedbacks-list" style="display:flex;flex-direction:column;gap:.75rem;min-height:80px;">
-                <!-- Populated via JS -->
-            </div>
-        </div>
-
         <!-- ══ USER DETAIL SECTION (AUTO-SCROLL TARGET) ══ -->
         <div class="cam-card mb-5" id="cam-detail-panel" style="display:none; scroll-margin-top: 80px;">
             <div style="background:#f8fafc;padding:1rem 1.25rem;border-radius:.75rem;border:1px solid #e2e8f0;margin-bottom:1.25rem;">
@@ -1482,6 +1440,115 @@
         </div>
 
         </div><!-- /tab-activity -->
+
+        {{-- ── STAFF FEEDBACKS & SUGGESTIONS TAB ── --}}
+        <div id="tab-feedbacks" class="sa-tab-content {{ $tab === 'feedbacks' ? '' : 'hidden' }}">
+            
+            <!-- ══ 3D KPI / SUMMARY BANNER FOR FEEDBACKS ══ -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6">
+                <!-- Total Feedbacks -->
+                <div class="relative overflow-hidden rounded-3xl border border-slate-200/80 bg-gradient-to-br from-white via-indigo-50/30 to-violet-50/20 p-5 shadow-xs">
+                    <div class="flex items-center justify-between gap-4 relative z-10">
+                        <div class="min-w-0 flex-1">
+                            <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-1">Total Feedbacks</span>
+                            <div class="text-2xl font-black text-slate-900 leading-none tabular-nums" id="kpi-total-feedbacks">0</div>
+                            <div class="mt-2 text-[11px] font-bold text-indigo-600">All Submissions</div>
+                        </div>
+                        <div class="w-12 h-12 shrink-0 rounded-2xl bg-indigo-500/10 text-indigo-600 flex items-center justify-center">
+                            <i data-lucide="message-square" class="w-6 h-6"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Amazing Rating -->
+                <div class="relative overflow-hidden rounded-3xl border border-slate-200/80 bg-gradient-to-br from-white via-amber-50/30 to-yellow-50/20 p-5 shadow-xs">
+                    <div class="flex items-center justify-between gap-4 relative z-10">
+                        <div class="min-w-0 flex-1">
+                            <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-1">Amazing</span>
+                            <div class="text-2xl font-black text-amber-600 leading-none tabular-nums" id="kpi-amazing-feedbacks">0</div>
+                            <div class="mt-2 text-[11px] font-bold text-amber-600">✨ Positive Feedback</div>
+                        </div>
+                        <div class="w-12 h-12 shrink-0 rounded-2xl bg-amber-500/10 text-amber-600 flex items-center justify-center">
+                            <i data-lucide="sparkles" class="w-6 h-6"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Critical Issues -->
+                <div class="relative overflow-hidden rounded-3xl border border-slate-200/80 bg-gradient-to-br from-white via-rose-50/30 to-red-50/20 p-5 shadow-xs">
+                    <div class="flex items-center justify-between gap-4 relative z-10">
+                        <div class="min-w-0 flex-1">
+                            <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-1">Critical Issues</span>
+                            <div class="text-2xl font-black text-rose-600 leading-none tabular-nums" id="kpi-critical-feedbacks">0</div>
+                            <div class="mt-2 text-[11px] font-bold text-rose-600">😭 Bad / Terrible</div>
+                        </div>
+                        <div class="w-12 h-12 shrink-0 rounded-2xl bg-rose-500/10 text-rose-600 flex items-center justify-center">
+                            <i data-lucide="alert-octagon" class="w-6 h-6"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- With Screenshots -->
+                <div class="relative overflow-hidden rounded-3xl border border-slate-200/80 bg-gradient-to-br from-white via-blue-50/30 to-sky-50/20 p-5 shadow-xs">
+                    <div class="flex items-center justify-between gap-4 relative z-10">
+                        <div class="min-w-0 flex-1">
+                            <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-1">With Screenshots</span>
+                            <div class="text-2xl font-black text-blue-600 leading-none tabular-nums" id="kpi-screenshots-feedbacks">0</div>
+                            <div class="mt-2 text-[11px] font-bold text-blue-600">📸 Visual Attachments</div>
+                        </div>
+                        <div class="w-12 h-12 shrink-0 rounded-2xl bg-blue-500/10 text-blue-600 flex items-center justify-center">
+                            <i data-lucide="image" class="w-6 h-6"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ══ 21st.dev STAFF FEEDBACKS & SUGGESTIONS HUB CARD ══ -->
+            <div class="cam-card mb-5" id="cam-feedbacks-card">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 pb-3 border-b border-slate-100">
+                    <div class="flex items-center gap-2.5">
+                        <div style="width:36px;height:36px;border-radius:12px;background:linear-gradient(135deg,#6366f1,#4f46e5);color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 10px rgba(99,102,241,0.25);flex-shrink:0;">
+                            <i data-lucide="message-square-heart" style="width:20px;height:20px;"></i>
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <span class="font-black text-base text-slate-900">Staff Feedbacks & Suggestions Hub</span>
+                                <span id="cam-fb-badge-count" style="font-size:.65rem;background:#ede9fe;color:#6d28d9;padding:.15rem .5rem;border-radius:99px;font-weight:800;">0 Feedbacks</span>
+                            </div>
+                            <p class="text-xs text-slate-500 m-0">Live sentiment ratings, suggestions, and feedback submitted by staff across the system</p>
+                        </div>
+                    </div>
+
+                    <!-- Rating Filter Chips & Refresh -->
+                    <div class="flex items-center gap-1.5 flex-wrap">
+                        <button type="button" onclick="camFilterFeedbacks('all')" class="cam-fb-chip" id="fb-chip-all" style="font-size:.7rem;padding:.3rem .65rem;border-radius:.5rem;font-weight:700;cursor:pointer;border:1px solid #e2e8f0;background:#0f172a;color:#fff;transition:all .15s ease;">
+                            All (<span id="fb-cnt-all">0</span>)
+                        </button>
+                        <button type="button" onclick="camFilterFeedbacks('happy')" class="cam-fb-chip" id="fb-chip-happy" style="font-size:.7rem;padding:.3rem .65rem;border-radius:.5rem;font-weight:700;cursor:pointer;border:1px solid #e2e8f0;background:#fff;color:#475569;transition:all .15s ease;">
+                            ✨ Amazing (<span id="fb-cnt-happy">0</span>)
+                        </button>
+                        <button type="button" onclick="camFilterFeedbacks('neutral')" class="cam-fb-chip" id="fb-chip-neutral" style="font-size:.7rem;padding:.3rem .65rem;border-radius:.5rem;font-weight:700;cursor:pointer;border:1px solid #e2e8f0;background:#fff;color:#475569;transition:all .15s ease;">
+                            😐 Okay (<span id="fb-cnt-neutral">0</span>)
+                        </button>
+                        <button type="button" onclick="camFilterFeedbacks('sad')" class="cam-fb-chip" id="fb-chip-sad" style="font-size:.7rem;padding:.3rem .65rem;border-radius:.5rem;font-weight:700;cursor:pointer;border:1px solid #e2e8f0;background:#fff;color:#475569;transition:all .15s ease;">
+                            🙁 Bad (<span id="fb-cnt-sad">0</span>)
+                        </button>
+                        <button type="button" onclick="camFilterFeedbacks('very-sad')" class="cam-fb-chip" id="fb-chip-very-sad" style="font-size:.7rem;padding:.3rem .65rem;border-radius:.5rem;font-weight:700;cursor:pointer;border:1px solid #e2e8f0;background:#fff;color:#475569;transition:all .15s ease;">
+                            😭 Terrible (<span id="fb-cnt-very-sad">0</span>)
+                        </button>
+                        <button type="button" onclick="camFetchFeedbacks()" class="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 transition-colors ml-1" title="Refresh Feedbacks">
+                            <i data-lucide="refresh-cw" style="width:14px;height:14px;"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Feedback Feed List Container -->
+                <div id="cam-feedbacks-list" style="display:flex;flex-direction:column;gap:.75rem;min-height:80px;">
+                    <!-- Populated via JS -->
+                </div>
+            </div>
+
+        </div><!-- /tab-feedbacks -->
 
         
     </div>
@@ -2783,6 +2850,16 @@ async function camFetchFeedbacks() {
                 if (cntSad) cntSad.textContent = json.counts.bad || 0;
                 if (cntVerySad) cntVerySad.textContent = json.counts.terrible || 0;
                 if (mainBadge) mainBadge.textContent = `${json.counts.total || 0} Feedback${json.counts.total === 1 ? '' : 's'}`;
+
+                // Update 3D KPI Top Summary Cards
+                const kpiTot = document.getElementById('kpi-total-feedbacks');
+                if (kpiTot) kpiTot.textContent = json.counts.total || 0;
+                const kpiAmz = document.getElementById('kpi-amazing-feedbacks');
+                if (kpiAmz) kpiAmz.textContent = json.counts.amazing || 0;
+                const kpiCrit = document.getElementById('kpi-critical-feedbacks');
+                if (kpiCrit) kpiCrit.textContent = (json.counts.bad || 0) + (json.counts.terrible || 0);
+                const kpiShot = document.getElementById('kpi-screenshots-feedbacks');
+                if (kpiShot) kpiShot.textContent = CAM_FEEDBACKS.filter(f => f.images && f.images.length > 0).length;
             }
 
             camRenderFeedbacks();
@@ -3186,6 +3263,10 @@ function switchTab(tab) {
     // Init Client Activity tab on first open
     if (tab === 'activity' && typeof camInit === 'function') {
         setTimeout(camInit, 50);
+    }
+    // Init Staff Feedbacks tab on first open
+    if (tab === 'feedbacks' && typeof camFetchFeedbacks === 'function') {
+        setTimeout(camFetchFeedbacks, 50);
     }
 }
 
@@ -4211,6 +4292,12 @@ function initSuperAdmin() {
     const activityTab = document.getElementById('tab-activity');
     if (activityTab && !activityTab.classList.contains('hidden') && typeof camInit === 'function') {
         setTimeout(camInit, 100);
+    }
+
+    // Init Staff Feedbacks tab if that tab is active on load
+    const feedbacksTab = document.getElementById('tab-feedbacks');
+    if (feedbacksTab && !feedbacksTab.classList.contains('hidden') && typeof camFetchFeedbacks === 'function') {
+        setTimeout(camFetchFeedbacks, 100);
     }
 }
 
