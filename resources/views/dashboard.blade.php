@@ -139,9 +139,10 @@
             -webkit-text-fill-color: transparent !important;
             background-clip: text !important;
             display: inline-block;
-            animation: animatedShinyText 3s linear infinite !important;
+            animation: animatedShinyText 3.5s linear infinite !important;
             will-change: background-position;
-            filter: drop-shadow(0 4px 20px rgba(245, 158, 11, 0.25)) drop-shadow(0 2px 8px rgba(255, 255, 255, 0.3));
+            transform: translateZ(0);
+            contain: layout style paint;
         }
 
         @keyframes blob {
@@ -1958,9 +1959,9 @@
                 </div>
             </div>
 
-            <div class="flex-1 overflow-hidden flex flex-col min-h-0 bg-slate-50 relative">
+            <div class="flex-1 overflow-hidden flex flex-col min-h-0 bg-slate-100/60 relative">
                 <!-- ─── Compact Summary Metrics Strip ─── -->
-                <div class="bg-white/80 backdrop-blur-sm p-3.5 border-b border-slate-200/80 flex-shrink-0 shadow-sm relative z-10">
+                <div class="bg-white/85 backdrop-blur-md p-3.5 border-b border-slate-200/80 flex-shrink-0 shadow-sm relative z-20">
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-7xl mx-auto">
                         <!-- Total Units -->
                         <div class="bg-gradient-to-b from-white to-slate-50/80 rounded-2xl p-3 border border-slate-200/90 shadow-sm hover:shadow-md hover:border-blue-300/80 transition-all duration-200 group">
@@ -2013,37 +2014,36 @@
                     </div>
                 </div>
 
-                <!-- Enhanced Units Grid with Massive Savage Watermark Background -->
-                <div class="flex-1 overflow-y-auto p-4 sm:p-5 bg-slate-50/60 min-h-0 relative">
-                    
-                    <!-- 🏎️ Massive Savage Fleet Cyber Taxi Watermark Background in the Table/Grid Area -->
-                    <div class="absolute inset-0 flex items-center justify-center pointer-events-none select-none z-0 overflow-hidden px-6" aria-hidden="true">
-                        <svg viewBox="0 0 520 180" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-[92%] max-w-4xl h-auto opacity-[0.07] text-slate-800 transform -rotate-1">
-                            <!-- Speed Lines & Dynamic Motion Trails -->
-                            <path d="M10 135 H150" stroke="currentColor" stroke-width="2.5" stroke-dasharray="6 6" />
-                            <path d="M35 150 H210" stroke="currentColor" stroke-width="3.5" stroke-dasharray="14 7" />
-                            <path d="M70 162 H340" stroke="currentColor" stroke-width="4.5" />
-                            <!-- Aggressive Savage GT / Cyber Sedan Silhouette -->
-                            <path d="M110 138 L160 92 Q190 62 250 60 L335 60 Q385 64 415 102 L465 116 Q495 125 505 142 L500 152 Q492 158 470 158 H135 Q115 158 108 146 Z" stroke="currentColor" stroke-width="5" fill="currentColor" fill-opacity="0.04" />
-                            <!-- Cockpit Aero Chiseled Canopy -->
-                            <path d="M235 64 L180 92 H320 L360 64 Z" stroke="currentColor" stroke-width="3" fill="currentColor" fill-opacity="0.1" />
-                            <path d="M328 92 L368 66 L402 98 H328 Z" stroke="currentColor" stroke-width="2.5" fill="currentColor" fill-opacity="0.08" />
-                            <!-- Aggressive Headlight Blade & Splitter -->
-                            <path d="M460 120 L498 126 L475 134 Z" fill="currentColor" />
-                            <path d="M470 152 H510 L495 158 H460 Z" fill="currentColor" />
-                            <!-- Futuristic Turbine Wheels -->
-                            <circle cx="180" cy="154" r="24" stroke="currentColor" stroke-width="5" fill="#f8fafc" />
-                            <circle cx="180" cy="154" r="12" stroke="currentColor" stroke-width="3" stroke-dasharray="6 3" />
-                            <circle cx="420" cy="154" r="24" stroke="currentColor" stroke-width="5" fill="#f8fafc" />
-                            <circle cx="420" cy="154" r="12" stroke="currentColor" stroke-width="3" stroke-dasharray="6 3" />
-                            <!-- Savage GT Wing / Spoiler -->
-                            <path d="M100 122 L115 105 H145 L130 122 Z" stroke="currentColor" stroke-width="3" fill="currentColor" fill-opacity="0.15" />
-                            <!-- Cyber Taxi Roof Beacon -->
-                            <path d="M280 52 L290 40 H330 L340 52 Z" stroke="currentColor" stroke-width="2.5" fill="currentColor" fill-opacity="0.25" />
-                        </svg>
-                    </div>
+                <!-- 🏎️ Fixed Savage Fleet Cyber Taxi Watermark Background (Stays Stationary on Scroll) -->
+                <div class="absolute inset-x-0 bottom-0 top-16 flex items-center justify-center pointer-events-none select-none z-0 overflow-hidden px-4" aria-hidden="true" style="transform: translateZ(0);">
+                    <svg viewBox="0 0 520 180" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-[92%] max-w-4xl h-auto opacity-[0.09] text-slate-800 transform -rotate-1">
+                        <!-- Speed Lines & Dynamic Motion Trails -->
+                        <path d="M10 135 H150" stroke="currentColor" stroke-width="2.5" stroke-dasharray="6 6" />
+                        <path d="M35 150 H210" stroke="currentColor" stroke-width="3.5" stroke-dasharray="14 7" />
+                        <path d="M70 162 H340" stroke="currentColor" stroke-width="4.5" />
+                        <!-- Aggressive Savage GT / Cyber Sedan Silhouette -->
+                        <path d="M110 138 L160 92 Q190 62 250 60 L335 60 Q385 64 415 102 L465 116 Q495 125 505 142 L500 152 Q492 158 470 158 H135 Q115 158 108 146 Z" stroke="currentColor" stroke-width="5" fill="currentColor" fill-opacity="0.04" />
+                        <!-- Cockpit Aero Chiseled Canopy -->
+                        <path d="M235 64 L180 92 H320 L360 64 Z" stroke="currentColor" stroke-width="3" fill="currentColor" fill-opacity="0.1" />
+                        <path d="M328 92 L368 66 L402 98 H328 Z" stroke="currentColor" stroke-width="2.5" fill="currentColor" fill-opacity="0.08" />
+                        <!-- Aggressive Headlight Blade & Splitter -->
+                        <path d="M460 120 L498 126 L475 134 Z" fill="currentColor" />
+                        <path d="M470 152 H510 L495 158 H460 Z" fill="currentColor" />
+                        <!-- Futuristic Turbine Wheels -->
+                        <circle cx="180" cy="154" r="24" stroke="currentColor" stroke-width="5" fill="#f8fafc" />
+                        <circle cx="180" cy="154" r="12" stroke="currentColor" stroke-width="3" stroke-dasharray="6 3" />
+                        <circle cx="420" cy="154" r="24" stroke="currentColor" stroke-width="5" fill="#f8fafc" />
+                        <circle cx="420" cy="154" r="12" stroke="currentColor" stroke-width="3" stroke-dasharray="6 3" />
+                        <!-- Savage GT Wing / Spoiler -->
+                        <path d="M100 122 L115 105 H145 L130 122 Z" stroke="currentColor" stroke-width="3" fill="currentColor" fill-opacity="0.15" />
+                        <!-- Cyber Taxi Roof Beacon -->
+                        <path d="M280 52 L290 40 H330 L340 52 Z" stroke="currentColor" stroke-width="2.5" fill="currentColor" fill-opacity="0.25" />
+                    </svg>
+                </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 pb-6 relative z-10" id="unitsGrid">
+                <!-- Enhanced Units Grid (Scrolls Smoothly Above Fixed Watermark) -->
+                <div class="flex-1 overflow-y-auto p-4 sm:p-5 min-h-0 relative z-10" style="transform: translateZ(0);">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 pb-6" id="unitsGrid">
                         <!-- Enhanced Loading State -->
                         <div class="col-span-full text-center py-16">
                             <div class="inline-flex flex-col items-center">
@@ -4428,7 +4428,7 @@
                 grid.innerHTML = `
                     <div class="col-span-full text-center py-20">
                         <div class="inline-flex flex-col items-center">
-                            <div class="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center mb-3 text-slate-400">
+                            <div class="w-14 h-14 rounded-2xl bg-white/70 backdrop-blur-sm border border-slate-200/60 flex items-center justify-center mb-3 text-slate-400 shadow-sm">
                                 <i data-lucide="search-x" class="w-7 h-7"></i>
                             </div>
                             <span class="text-base font-bold text-slate-700 mb-1">No matching units found</span>
@@ -4440,11 +4440,34 @@
                 return;
             }
             
-            grid.innerHTML = units.map(unit => `
-                <div class="bg-white rounded-2xl border border-slate-200/90 hover:border-amber-400/80 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 relative group overflow-hidden cursor-pointer min-h-[118px] flex flex-col justify-between p-3.5" onclick="window.location.href='/units?id=${unit.id}'">
+            const statusCardStyles = {
+                'active': 'bg-[#f0fdf4]/80 hover:bg-[#f0fdf4]/95 border-emerald-300/70 shadow-emerald-600/5',
+                'vacant': 'bg-[#fff7ed]/80 hover:bg-[#fff7ed]/95 border-amber-300/70 shadow-amber-600/5',
+                'maintenance': 'bg-[#fff1f2]/80 hover:bg-[#fff1f2]/95 border-rose-300/70 shadow-rose-600/5',
+                'coding': 'bg-[#fefce8]/80 hover:bg-[#fefce8]/95 border-yellow-300/70 shadow-yellow-600/5',
+                'retired': 'bg-[#f8fafc]/80 hover:bg-[#f8fafc]/95 border-slate-300/70 shadow-slate-600/5'
+            };
+            
+            const statusBadgeStyles = {
+                'active': 'bg-emerald-100/90 text-emerald-800 border-emerald-300',
+                'vacant': 'bg-amber-100/90 text-amber-800 border-amber-300',
+                'maintenance': 'bg-rose-100/90 text-rose-800 border-rose-300',
+                'coding': 'bg-yellow-100/90 text-yellow-800 border-yellow-300',
+                'retired': 'bg-slate-200/90 text-slate-700 border-slate-300'
+            };
+
+            grid.innerHTML = units.map(unit => {
+                const isVacant = (unit.status === 'vacant') || (unit.status === 'active' && !unit.driver1_name && !unit.driver2_name);
+                const effectiveStatusKey = isVacant ? 'vacant' : (unit.status || 'active').toLowerCase();
+                const cardStyle = statusCardStyles[effectiveStatusKey] || statusCardStyles['vacant'];
+                const badgeStyle = statusBadgeStyles[effectiveStatusKey] || statusBadgeStyles['vacant'];
+                const displayStatusText = isVacant ? 'VACANT' : (unit.status || 'ACTIVE');
+
+                return `
+                <div class="${cardStyle} rounded-2xl border backdrop-blur-[2px] hover:shadow-xl hover:-translate-y-1 transition-all duration-200 relative group overflow-hidden cursor-pointer min-h-[118px] flex flex-col justify-between p-3.5" onclick="window.location.href='/units?id=${unit.id}'">
                     
                     <!-- Hover Driver Overlay -->
-                    <div class="absolute inset-0 bg-slate-950/95 opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col items-center justify-center z-20 pointer-events-none p-3 backdrop-blur-sm">
+                    <div class="absolute inset-0 bg-slate-950/95 opacity-0 group-hover:opacity-100 transition-all duration-200 flex flex-col items-center justify-center z-20 pointer-events-none p-3 backdrop-blur-sm">
                         <p class="text-amber-400 text-[9px] font-extrabold uppercase tracking-[0.2em] mb-2 flex items-center gap-1">
                             <i data-lucide="user-check" class="w-3 h-3"></i>
                             Assigned Drivers
@@ -4486,37 +4509,38 @@
                     <!-- Card Header -->
                     <div class="flex items-center justify-between gap-2 mb-2">
                         <div class="flex items-center gap-2 min-w-0">
-                            <div class="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center flex-shrink-0 text-slate-600">
+                            <div class="w-7 h-7 rounded-lg bg-white/80 flex items-center justify-center flex-shrink-0 text-slate-700 shadow-xs border border-white/80">
                                 <i data-lucide="car" class="w-3.5 h-3.5"></i>
                             </div>
                             <h4 class="text-xs sm:text-sm font-black text-slate-900 truncate tracking-tight">${unit.plate_number}</h4>
                         </div>
-                        <span class="px-2.5 py-0.5 text-[9px] font-extrabold rounded-full ${statusColors[unit.status] || 'bg-slate-100 text-slate-700 border-slate-200'} uppercase border tracking-wider">
-                            ${unit.status}
+                        <span class="px-2.5 py-0.5 text-[9px] font-extrabold rounded-full ${badgeStyle} uppercase border tracking-wider">
+                            ${displayStatusText}
                         </span>
                     </div>
                     
-                    <!-- Essential Metrics Ribbon -->
-                    <div class="grid grid-cols-2 gap-1.5 text-center py-1.5 px-2 bg-slate-50 border border-slate-100 rounded-xl mb-2">
+                    <!-- Essential Metrics Ribbon (Mild Translucent) -->
+                    <div class="grid grid-cols-2 gap-1.5 text-center py-1.5 px-2 bg-white/70 border border-white/90 rounded-xl mb-2 backdrop-blur-[2px]">
                         <div class="text-left pl-1">
-                            <div class="text-[8px] text-slate-400 uppercase font-bold tracking-wider leading-none mb-0.5">Total Coll.</div>
-                            <div class="text-xs font-black text-emerald-600">₱${unit.total_boundary ? unit.total_boundary.toLocaleString() : '0'}</div>
+                            <div class="text-[8px] text-slate-500 uppercase font-bold tracking-wider leading-none mb-0.5">Total Coll.</div>
+                            <div class="text-xs font-black text-emerald-700">₱${unit.total_boundary ? unit.total_boundary.toLocaleString() : '0'}</div>
                         </div>
                         <div class="text-right pr-1">
-                            <div class="text-[8px] text-slate-400 uppercase font-bold tracking-wider leading-none mb-0.5">ROI Rate</div>
-                            <div class="text-xs font-black ${unit.roi_percentage >= 100 ? 'text-blue-600' : 'text-slate-800'}">${unit.roi_percentage ? unit.roi_percentage.toFixed(1) : '0.0'}%</div>
+                            <div class="text-[8px] text-slate-500 uppercase font-bold tracking-wider leading-none mb-0.5">ROI Rate</div>
+                            <div class="text-xs font-black ${unit.roi_percentage >= 100 ? 'text-blue-700' : 'text-slate-800'}">${unit.roi_percentage ? unit.roi_percentage.toFixed(1) : '0.0'}%</div>
                         </div>
                     </div>
 
                     <!-- Card Footer -->
-                    <div class="flex items-center justify-between text-[9px] font-bold text-slate-400 uppercase tracking-tight pt-1 border-t border-slate-100">
+                    <div class="flex items-center justify-between text-[9px] font-bold text-slate-500 uppercase tracking-tight pt-1 border-t border-slate-200/50">
                         <span>ID: ${unit.plate_number || 'N/A'}</span>
-                        <span class="${unit.today_boundary > 0 ? 'text-blue-600 font-extrabold' : 'text-slate-400'}">
+                        <span class="${unit.today_boundary > 0 ? 'text-blue-700 font-extrabold' : 'text-slate-400'}">
                             ${unit.today_boundary > 0 ? `+₱${unit.today_boundary.toLocaleString()}` : 'No Daily'}
                         </span>
                     </div>
                 </div>
-            `).join('');
+                `;
+            }).join('');
             
             // Re-initialize Lucide icons
             if (typeof lucide !== 'undefined') {
