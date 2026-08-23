@@ -151,27 +151,6 @@
                         title="Actions">
                         <i data-lucide="more-vertical" class="w-4 h-4"></i>
                     </button>
-
-                    <div id="grid-unit-dropdown-{{ $unit->uuid }}"
-                        class="unit-action-dropdown hidden absolute right-0 bottom-8 w-40 bg-white rounded-xl shadow-xl border border-slate-100 z-50 overflow-hidden">
-                        {{-- Edit --}}
-                        <button type="button"
-                            class="w-full text-left px-4 py-2.5 text-xs font-bold text-slate-700 hover:bg-blue-50 hover:text-blue-600 transition-colors flex items-center gap-2"
-                            onclick="event.stopPropagation(); document.getElementById('grid-unit-dropdown-{{ $unit->uuid }}').classList.add('hidden'); editUnit({{ $unit->uuid }})">
-                            <i data-lucide="edit-2" class="w-3.5 h-3.5"></i> Edit Unit
-                        </button>
-                        {{-- Archive --}}
-                        <form method="POST" action="{{ route('units.destroy', $unit->uuid) }}"
-                            onsubmit="return confirm('Archive unit {{ $unit->plate_number }}? It will be moved to the Archive page.');"
-                            class="m-0 p-0">
-                            @csrf @method('DELETE')
-                            <button type="submit"
-                                onclick="event.stopPropagation()"
-                                class="w-full text-left px-4 py-2.5 text-xs font-bold text-rose-600 hover:bg-rose-50 transition-colors flex items-center gap-2 border-t border-slate-50">
-                                <i data-lucide="archive" class="w-3.5 h-3.5"></i> Archive Unit
-                            </button>
-                        </form>
-                    </div>
                 </div>
             </div>
         </div>
@@ -183,6 +162,47 @@
         </div>
     @endforelse
 </div>
+
+{{-- Floating Action Dropdowns rendered outside grid cards --}}
+@foreach($units as $unit)
+    @php
+        $has_maintenance_data = (int)($unit->gps_device_count ?? 0) > 0 || !empty($unit->imei);
+    @endphp
+    <div id="grid-unit-dropdown-{{ $unit->uuid }}"
+        class="unit-action-dropdown hidden fixed w-48 bg-white rounded-xl shadow-2xl border border-slate-200 py-1.5 z-[999999]">
+        {{-- Edit --}}
+        <button type="button"
+            class="w-full text-left px-4 py-2.5 text-xs font-bold text-slate-700 hover:bg-blue-50 hover:text-blue-600 transition-colors flex items-center gap-2.5"
+            onclick="event.stopPropagation(); closeAllUnitDropdowns(); editUnit({{ $unit->uuid }})">
+            <i data-lucide="edit-2" class="w-4 h-4 text-slate-500"></i> Edit Unit
+        </button>
+        {{-- Reset Service Overdue --}}
+        @if($has_maintenance_data)
+        <form method="POST" action="{{ route('units.reset-health', $unit->uuid) }}"
+            onsubmit="return confirm('Reset service overdue for unit {{ $unit->plate_number }}? This will reset the maintenance counter to zero based on current GPS odometer.');"
+            class="m-0 p-0">
+            @csrf
+            <button type="submit"
+                onclick="event.stopPropagation()"
+                class="w-full text-left px-4 py-2.5 text-xs font-bold text-green-600 hover:bg-green-50 transition-colors flex items-center gap-2.5 border-t border-slate-100">
+                <i data-lucide="refresh-cw" class="w-4 h-4 text-green-600"></i> Reset Service
+            </button>
+        </form>
+        @endif
+
+        {{-- Archive --}}
+        <form method="POST" action="{{ route('units.destroy', $unit->uuid) }}"
+            onsubmit="return confirm('Archive unit {{ $unit->plate_number }}? It will be moved to the Archive page.');"
+            class="m-0 p-0">
+            @csrf @method('DELETE')
+            <button type="submit"
+                onclick="event.stopPropagation()"
+                class="w-full text-left px-4 py-2.5 text-xs font-bold text-rose-600 hover:bg-rose-50 transition-colors flex items-center gap-2.5 border-t border-slate-100">
+                <i data-lucide="archive" class="w-4 h-4 text-rose-500"></i> Archive Unit
+            </button>
+        </form>
+    </div>
+@endforeach
 
 @if($pagination['total_pages'] > 1)
     <div class="px-8 py-6 bg-white border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">

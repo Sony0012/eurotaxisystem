@@ -118,48 +118,13 @@
                     </td>
 
                     {{-- Actions --}}
-                    <td class="px-2 md:px-6 py-3 md:py-5 whitespace-nowrap text-center relative z-30" onclick="event.stopPropagation()">
+                    <td class="px-2 md:px-6 py-3 md:py-5 whitespace-nowrap text-center relative" onclick="event.stopPropagation()">
                         <button type="button"
                             class="p-1 md:p-2 text-gray-400 hover:text-gray-800 hover:bg-gray-200 rounded-full transition-colors focus:outline-none inline-flex items-center justify-center"
                             onclick="toggleUnitDropdown('unit-dropdown-{{ $unit->uuid }}', event)"
                             title="Actions">
                             <i data-lucide="more-vertical" class="w-4 h-4 md:w-5 md:h-5"></i>
                         </button>
-
-                        <div id="unit-dropdown-{{ $unit->uuid }}"
-                            class="unit-action-dropdown hidden absolute right-2 top-full mt-1 w-44 bg-white rounded-xl shadow-2xl border border-gray-200 z-[99999] overflow-hidden">
-                            {{-- Edit --}}
-                            <button type="button"
-                                class="w-full text-left px-4 py-2.5 text-xs font-bold text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors flex items-center gap-2"
-                                onclick="event.stopPropagation(); document.getElementById('unit-dropdown-{{ $unit->uuid }}').classList.add('hidden'); editUnit({{ $unit->uuid }})">
-                                <i data-lucide="edit-2" class="w-4 h-4"></i> Edit Unit
-                            </button>
-                            {{-- Reset Service Overdue --}}
-                            @if($has_maintenance_data)
-                            <form method="POST" action="{{ route('units.reset-health', $unit->uuid) }}"
-                                onsubmit="return confirm('Reset service overdue for unit {{ $unit->plate_number }}? This will reset the maintenance counter to zero based on current GPS odometer.');"
-                                class="m-0 p-0">
-                                @csrf
-                                <button type="submit"
-                                    onclick="event.stopPropagation()"
-                                    class="w-full text-left px-4 py-2.5 text-xs font-bold text-green-600 hover:bg-green-50 transition-colors flex items-center gap-2 border-t border-gray-50">
-                                    <i data-lucide="refresh-cw" class="w-4 h-4 text-green-600"></i> Reset Service
-                                </button>
-                            </form>
-                            @endif
-
-                            {{-- Archive --}}
-                            <form method="POST" action="{{ route('units.destroy', $unit->uuid) }}"
-                                onsubmit="return confirm('Archive unit {{ $unit->plate_number }}? It will be moved to the Archive page.');"
-                                class="m-0 p-0">
-                                @csrf @method('DELETE')
-                                <button type="submit"
-                                    onclick="event.stopPropagation()"
-                                    class="w-full text-left px-4 py-2.5 text-xs font-bold text-amber-600 hover:bg-amber-50 transition-colors flex items-center gap-2 border-t border-gray-50">
-                                    <i data-lucide="archive" class="w-4 h-4"></i> Archive Unit
-                                </button>
-                            </form>
-                        </div>
                     </td>
                 </tr>
 
@@ -188,6 +153,47 @@
             @endforelse
         </table>
 </div>
+
+{{-- Floating Action Dropdowns rendered outside table to escape stacking contexts, transforms, and overflow --}}
+@foreach($units as $unit)
+    @php
+        $has_maintenance_data = (int)($unit->gps_device_count ?? 0) > 0 || !empty($unit->imei);
+    @endphp
+    <div id="unit-dropdown-{{ $unit->uuid }}"
+        class="unit-action-dropdown hidden fixed w-48 bg-white rounded-xl shadow-2xl border border-gray-200 py-1.5 z-[999999]">
+        {{-- Edit --}}
+        <button type="button"
+            class="w-full text-left px-4 py-2.5 text-xs font-bold text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors flex items-center gap-2.5"
+            onclick="event.stopPropagation(); closeAllUnitDropdowns(); editUnit({{ $unit->uuid }})">
+            <i data-lucide="edit-2" class="w-4 h-4 text-gray-500"></i> Edit Unit
+        </button>
+        {{-- Reset Service Overdue --}}
+        @if($has_maintenance_data)
+        <form method="POST" action="{{ route('units.reset-health', $unit->uuid) }}"
+            onsubmit="return confirm('Reset service overdue for unit {{ $unit->plate_number }}? This will reset the maintenance counter to zero based on current GPS odometer.');"
+            class="m-0 p-0">
+            @csrf
+            <button type="submit"
+                onclick="event.stopPropagation()"
+                class="w-full text-left px-4 py-2.5 text-xs font-bold text-green-600 hover:bg-green-50 transition-colors flex items-center gap-2.5 border-t border-gray-100">
+                <i data-lucide="refresh-cw" class="w-4 h-4 text-green-600"></i> Reset Service
+            </button>
+        </form>
+        @endif
+
+        {{-- Archive --}}
+        <form method="POST" action="{{ route('units.destroy', $unit->uuid) }}"
+            onsubmit="return confirm('Archive unit {{ $unit->plate_number }}? It will be moved to the Archive page.');"
+            class="m-0 p-0">
+            @csrf @method('DELETE')
+            <button type="submit"
+                onclick="event.stopPropagation()"
+                class="w-full text-left px-4 py-2.5 text-xs font-bold text-amber-600 hover:bg-amber-50 transition-colors flex items-center gap-2.5 border-t border-gray-100">
+                <i data-lucide="archive" class="w-4 h-4 text-amber-600"></i> Archive Unit
+            </button>
+        </form>
+    </div>
+@endforeach
 
 {{-- Modern Pagination --}}
 @if($pagination['total_pages'] > 1)

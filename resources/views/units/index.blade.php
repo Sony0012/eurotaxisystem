@@ -1264,31 +1264,52 @@
     refreshQuickStats();
 
 
+    window.closeAllUnitDropdowns = function() {
+        document.querySelectorAll('.unit-action-dropdown').forEach(el => el.classList.add('hidden'));
+    };
+
     window.toggleUnitDropdown = function(id, event) {
-        if (event) event.stopPropagation();
-        
-        document.querySelectorAll('.unit-action-dropdown').forEach(el => {
-            if (el.id !== id) el.classList.add('hidden');
-            const td = el.closest('td');
-            if (td) { td.style.zIndex = ''; td.style.position = ''; }
-        });
+        if (event) {
+            event.stopPropagation();
+        }
         
         const dropdown = document.getElementById(id);
         if (!dropdown) return;
         
         const isHidden = dropdown.classList.contains('hidden');
+        
+        // Close all dropdowns first
+        window.closeAllUnitDropdowns();
+        
         if (isHidden) {
-            dropdown.classList.remove('hidden');
-            dropdown.style.setProperty('z-index', '100005', 'important');
-            const td = dropdown.closest('td');
-            const tbody = dropdown.closest('tbody');
-            if (td) { td.style.position = 'relative'; td.style.setProperty('z-index', '100005', 'important'); }
-            if (tbody) {
-                const subRow = tbody.querySelector('.modern-sub-row');
-                if (subRow) subRow.style.setProperty('z-index', '1', 'important');
+            const btn = (event && event.currentTarget) ? event.currentTarget : null;
+            if (btn) {
+                const rect = btn.getBoundingClientRect();
+                const dropW = 192; // 12rem = 192px (w-48)
+                const dropH = dropdown.offsetHeight || 140;
+                const spaceBelow = window.innerHeight - rect.bottom;
+                
+                // Position calculation (Fixed screen coordinates)
+                let top = rect.bottom + 6;
+                let left = rect.right - dropW;
+                
+                // Flip upwards if not enough space below
+                if (spaceBelow < (dropH + 20) && rect.top > (dropH + 20)) {
+                    top = rect.top - dropH - 6;
+                }
+                
+                // Keep within viewport boundaries
+                if (left < 8) left = 8;
+                if (left + dropW > window.innerWidth - 8) left = window.innerWidth - dropW - 8;
+                
+                dropdown.style.position = 'fixed';
+                dropdown.style.top = top + 'px';
+                dropdown.style.left = left + 'px';
+                dropdown.style.zIndex = '999999';
             }
-            const container = document.getElementById('unitsTableScrollContainer') || dropdown.closest('.overflow-x-auto');
-            if (container) container.style.setProperty('overflow', 'visible', 'important');
+            
+            dropdown.classList.remove('hidden');
+            if (typeof lucide !== 'undefined') lucide.createIcons();
 
             // If tutorial is currently at Step 38 (3-dots button), move to Step 39 automatically
             const currentStepStr = localStorage.getItem('tutorial_current_step');
@@ -1299,17 +1320,22 @@
                     }
                 }, 150);
             }
-        } else {
-            dropdown.classList.add('hidden');
         }
     };
+
     if (!window.unitDropdownListenerAdded) {
-        document.addEventListener('click', function () {
-            document.querySelectorAll('.unit-action-dropdown').forEach(el => {
-                el.classList.add('hidden');
-                const row = el.closest('tr');
-                if (row) { row.style.zIndex = ''; row.style.position = ''; }
-            });
+        document.addEventListener('click', function(e) {
+            if (e.target && e.target.closest && e.target.closest('.unit-action-dropdown')) return;
+            window.closeAllUnitDropdowns();
+        });
+        document.addEventListener('scroll', function(e) {
+            if (e.target && e.target.classList && e.target.classList.contains('unit-action-dropdown')) return;
+            window.closeAllUnitDropdowns();
+        }, true);
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                window.closeAllUnitDropdowns();
+            }
         });
         window.unitDropdownListenerAdded = true;
     }
