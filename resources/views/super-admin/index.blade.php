@@ -570,7 +570,7 @@
                             $editData = $u->only(['id','first_name','last_name','email','role','phone_number','address']);
                         @endphp
                         <tr class="user-row transition-colors" data-name="{{ strtolower($u->full_name) }}" data-email="{{ strtolower($u->email) }}" data-role="{{ strtolower($u->role) }}" data-status="{{ $statusSlug }}">
-                            <td onclick="openUserDetailsModal({{ $u->uuid }})" style="cursor:pointer;">
+                            <td onclick="openUserDetailsModal({{ $u->id }})" style="cursor:pointer;">
                                 <div class="flex items-center gap-2.5">
                                     @if($u->profile_image)
                                         @php
@@ -596,19 +596,19 @@
                             <td><span class="badge badge-role-{{ $u->role }}">{{ $u->role === 'super_admin' ? 'Owner' : ucfirst(str_replace('_', ' ', $u->role)) }}</span></td>
                             <td>
                                 @if($isActivated)
-                                    <span class="badge badge-approved">â— Activated</span>
+                                    <span class="badge badge-approved">● Activated</span>
                                 @else
-                                    <span class="badge badge-pending">â—‹ Pending</span>
+                                    <span class="badge badge-pending">○ Pending</span>
                                 @endif
                             </td>
                             <td>
                                 @if($u->is_disabled)
-                                    <button onclick="confirmEnable({{ $u->uuid }}, '{{ addslashes($u->full_name) }}')" style="background:#fef2f2; border:1px solid #ef4444; color:#b91c1c; border-radius:999px; padding:.2rem .75rem; font-size:.68rem; font-weight:800; cursor:pointer;" title="Click to enable account">
-                                        â— Disabled
+                                    <button onclick="confirmEnable({{ $u->id }}, '{{ addslashes($u->full_name) }}')" style="background:#fef2f2; border:1px solid #ef4444; color:#b91c1c; border-radius:999px; padding:.2rem .75rem; font-size:.68rem; font-weight:800; cursor:pointer;" title="Click to enable account">
+                                        ● Disabled
                                     </button>
                                 @else
-                                    <button onclick="openDisableModal({{ $u->uuid }}, '{{ addslashes($u->full_name) }}')" style="background:#f0fdf4; border:1px solid #22c55e; color:#15803d; border-radius:999px; padding:.2rem .75rem; font-size:.68rem; font-weight:800; cursor:pointer;" title="Click to disable account">
-                                        â— Active
+                                    <button onclick="openDisableModal({{ $u->id }}, '{{ addslashes($u->full_name) }}')" style="background:#f0fdf4; border:1px solid #22c55e; color:#15803d; border-radius:999px; padding:.2rem .75rem; font-size:.68rem; font-weight:800; cursor:pointer;" title="Click to disable account">
+                                        ● Active
                                     </button>
                                 @endif
                             </td>
@@ -620,7 +620,7 @@
                                     <button class="p-2 text-slate-400 hover:text-amber-600 transition-colors" title="Edit User" onclick="openEditUserModal({{ json_encode($editData) }})">
                                         <i data-lucide="edit-3" class="w-4 h-4"></i>
                                     </button>
-                                    <button class="p-2 text-slate-400 hover:text-rose-600 transition-colors" title="Archive User" onclick="archiveUser({{ $u->uuid }}, '{{ addslashes($u->full_name) }}')">
+                                    <button class="p-2 text-slate-400 hover:text-rose-600 transition-colors" title="Archive User" onclick="archiveUser({{ $u->id }}, '{{ addslashes($u->full_name) }}')">
                                         <i data-lucide="archive" class="w-4 h-4"></i>
                                     </button>
                                 </div>
@@ -633,7 +633,7 @@
             </div>
     </div>
 
-    {{-- â”€â”€â”€ PAGE ACCESS TAB â”€â”€â”€ --}}
+    {{-- ─── PAGE ACCESS TAB ─── --}}
         <div id="tab-access" class="sa-tab-content {{ $tab === 'access' ? '' : 'hidden' }}">
             <div style="background:#f0fdfa; border:1px solid #ccfbf1; border-radius:1.5rem; padding:.85rem 1.25rem; margin-bottom:1.5rem; display:flex; align-items:center; gap:.75rem;">
                 <i data-lucide="info" style="width:15px;height:15px;color:#14b8a6;flex-shrink:0;"></i>
@@ -648,7 +648,7 @@
                     </div>
                     <div style="max-height:460px; overflow-y:auto;">
                         @foreach($allUsers->where('approval_status', 'approved')->whereNull('deleted_at') as $u)
-                        <div class="access-user-item" data-id="{{ $u->uuid }}" data-allowed="{{ json_encode($u->allowed_pages ?? null) }}"
+                        <div class="access-user-item" data-id="{{ $u->id }}" data-allowed="{{ json_encode($u->allowed_pages ?? null) }}"
                              onclick="selectAccessUser(this)"
                              style="padding:.85rem 1rem; cursor:pointer; border-bottom:1px solid #f1f5f9; display:flex; align-items:center; gap:.75rem; transition:background .15s; margin: .25rem; border-radius: .75rem;">
                             <div style="width:32px;height:32px;background:#e2e8f0;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:.75rem;color:#64748b;flex-shrink:0;">
@@ -1755,7 +1755,7 @@
                                         <button class="p-2 hover:text-amber-600 transition-colors" title="Edit Role" onclick="editRole({{ json_encode($r) }})">
                                             <i data-lucide="edit-3" class="w-4 h-4"></i>
                                         </button>
-                                        <button class="p-2 hover:text-rose-600 transition-colors" title="Archive Role" onclick="archiveRole({{ $r->uuid }})">
+                                        <button class="p-2 hover:text-rose-600 transition-colors" title="Archive Role" onclick="archiveRole({{ $r->id }})">
                                             <i data-lucide="archive" class="w-4 h-4"></i>
                                         </button>
                                     </div>
@@ -1790,10 +1790,10 @@
                                             </div>
                                         </div>
                                         <div class="flex items-center gap-1">
-                                            <button class="p-2 hover:text-emerald-600 transition-colors" title="Restore Role" onclick="restoreRole({{ $r->uuid }})">
+                                            <button class="p-2 hover:text-emerald-600 transition-colors" title="Restore Role" onclick="restoreRole({{ $r->id }})">
                                                 <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
                                             </button>
-                                            <button class="p-2 hover:text-rose-600 transition-colors" title="Delete Permanently" onclick="deleteRole({{ $r->uuid }})">
+                                            <button class="p-2 hover:text-rose-600 transition-colors" title="Delete Permanently" onclick="deleteRole({{ $r->id }})">
                                                 <i data-lucide="trash-2" class="w-4 h-4"></i>
                                             </button>
                                         </div>
@@ -1947,10 +1947,10 @@
                             <td style="color:#64748b; font-size:.75rem;">{{ $u->deleted_at->format('M d, Y h:i A') }}</td>
                             <td style="text-align:right;">
                                 <div class="flex gap-2 justify-end">
-                                    <button class="btn-approve px-4 py-1.5" onclick="restoreUser({{ $u->uuid }}, '{{ $u->full_name }}')">
+                                    <button class="btn-approve px-4 py-1.5" onclick="restoreUser({{ $u->id }}, '{{ $u->full_name }}')">
                                         <i data-lucide="rotate-ccw" class="inline w-3 h-3 mr-1"></i> Restore
                                     </button>
-                                    <button class="btn-reject px-4 py-1.5" onclick="deleteUserPermanently({{ $u->uuid }}, '{{ $u->full_name }}')">
+                                    <button class="btn-reject px-4 py-1.5" onclick="deleteUserPermanently({{ $u->id }}, '{{ $u->full_name }}')">
                                         <i data-lucide="trash-2" class="inline w-3 h-3 mr-1"></i> Delete
                                     </button>
                                 </div>
@@ -3582,23 +3582,53 @@ function clearAllPages() {
 }
 
 async function savePageAccess() {
-    if (!currentAccessUserId) return;
+    if (!currentAccessUserId) {
+        toast('Please select a user first.', true);
+        return;
+    }
+
+    const saveBtn = document.getElementById('save-access-btn');
+    const originalHtml = saveBtn ? saveBtn.innerHTML : 'Save Access';
+    if (saveBtn) {
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = '<i data-lucide="loader-2" class="inline w-3 h-3 mr-1 animate-spin"></i>Saving...';
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+    }
+
     const activeChips = [...document.querySelectorAll('.page-chip.active')].map(c => c.dataset.route);
     const pages = activeChips;
 
-    const res = await fetch(`/super-admin/page-access/${currentAccessUserId}`, {
-        method: 'POST',
-        headers: { 'X-CSRF-TOKEN': CSRF, 'Content-Type': 'application/json', 'Accept': 'application/json' },
-        body: JSON.stringify({ pages })
-    });
-    const data = await res.json();
-    if (data.success) {
-        toast(data.message);
-        // Update the data attribute on the user item
-        const item = document.querySelector(`.access-user-item[data-id="${currentAccessUserId}"]`);
-        if (item) item.dataset.allowed = JSON.stringify(pages);
-    } else {
-        toast(data.message || 'Error saving.', true);
+    try {
+        const token = CSRF || document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}';
+        const res = await fetch(`/super-admin/page-access/${currentAccessUserId}`, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': token,
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({ pages })
+        });
+
+        const data = await res.json();
+        if (data.success) {
+            toast(data.message || 'Page access permissions saved successfully.');
+            // Update the data attribute on the user item
+            const item = document.querySelector(`.access-user-item[data-id="${currentAccessUserId}"]`);
+            if (item) item.dataset.allowed = JSON.stringify(pages);
+        } else {
+            toast(data.message || 'Error saving page access.', true);
+        }
+    } catch (e) {
+        console.error('Error saving page access:', e);
+        toast('Network error saving page access. Please try again.', true);
+    } finally {
+        if (saveBtn) {
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = originalHtml;
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
     }
 }
 

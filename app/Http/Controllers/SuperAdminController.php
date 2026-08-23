@@ -224,16 +224,21 @@ class SuperAdminController extends Controller
 
     public function updatePageAccess(Request $request, $id)
     {
-        $user = User::where('id', $id)->firstOrFail();
+        $user = User::find($id);
+
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => 'User account not found.'], 404);
+        }
 
         if ($user->role === 'super_admin') {
             return response()->json(['success' => false, 'message' => 'Cannot restrict Super Admin pages.'], 403);
         }
 
-        $pages = $request->input('pages', null);
+        $pages = $request->input('pages', []);
 
-        // null = no restriction, [] = all blocked, [...] = specific pages allowed
-        $user->update(['allowed_pages' => $pages]);
+        // Array of allowed routes (e.g. ['units.*', 'dashboard', ...])
+        $user->allowed_pages = is_array($pages) ? array_values($pages) : [];
+        $user->save();
 
         return response()->json([
             'success' => true,
