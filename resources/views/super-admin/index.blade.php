@@ -2224,11 +2224,10 @@ async function camOpenDetail(userId) {
     const panel   = document.getElementById('cam-detail-panel');
     overlay?.classList.add('open');
     panel?.classList.add('open');
+    document.body.style.overflow = 'hidden'; // Keep exact focus on panel without background jumping
 
-    // Smooth auto-scroll to User Activity Detail panel
     if (panel) {
         panel.scrollTop = 0;
-        panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
     const content = document.getElementById('cam-detail-content');
@@ -2412,6 +2411,7 @@ async function camOpenDetail(userId) {
 function camCloseDetail() {
     document.getElementById('cam-overlay')?.classList.remove('open');
     document.getElementById('cam-detail-panel')?.classList.remove('open');
+    document.body.style.overflow = ''; // Restore normal scrolling
 }
 
 function camSetFilter(f) {
