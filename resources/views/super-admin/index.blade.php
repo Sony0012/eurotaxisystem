@@ -1927,8 +1927,9 @@ async function camFetch(silent = false) {
         CAM_TARGET = parseInt(target);
         CAM_DATE   = date;
 
-        const res  = await fetch(`/super-admin/activity-monitoring?date=${date}&target=${target}`, {
-            headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
+        const res  = await fetch(`/super-admin/activity-monitoring?date=${date}&target=${target}&_t=${Date.now()}`, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' },
+            cache: 'no-store'
         });
         const json = await res.json();
 
@@ -2000,7 +2001,37 @@ function camRenderStats() {
 
 // ─── Attention Alerts ─────────────────────────────────────────
 function camRenderAlerts() {
-    const alerts = CAM_DATA.alerts || [];
+    let alerts = (CAM_DATA.alerts && CAM_DATA.alerts.length > 0) ? [...CAM_DATA.alerts] : [];
+
+    // Resilient Fallback: If alerts array is empty, resolve from users list
+    if (alerts.length === 0) {
+        const users = CAM_DATA.users || [];
+        users.forEach(u => {
+            if (!u.isOnline && (!u.todayMins || u.todayMins === 0)) {
+                alerts.push({
+                    user_id: u.id,
+                    name: u.name,
+                    role: u.role,
+                    isOnline: false,
+                    msg: `No active presence recorded today. ${u.last_login ? 'Last seen: ' + u.last_login : 'Never logged in'}.`,
+                    icon: 'alert-octagon',
+                    color: '#ef4444',
+                    bg: '#fff1f2'
+                });
+            } else if (!u.isOnline && u.todayMins > 0 && u.todayMins < (CAM_TARGET * 60 * 0.6)) {
+                alerts.push({
+                    user_id: u.id,
+                    name: u.name,
+                    role: u.role,
+                    isOnline: false,
+                    msg: `Low activity — ${camFmtH(u.todayH, u.todayMins)} of ${CAM_TARGET}h target.`,
+                    icon: 'alert-triangle',
+                    color: '#f59e0b',
+                    bg: '#fffbeb'
+                });
+            }
+        });
+    }
 
     const cnt = document.getElementById('cam-alert-count');
     if (cnt) cnt.textContent = alerts.length;
@@ -2018,7 +2049,7 @@ function camRenderAlerts() {
     }
 
     list.innerHTML = alerts.map(a => `
-        <div style="display:flex;gap:.75rem;align-items:flex-start;background:${a.bg};border-radius:.75rem;padding:.75rem 1rem;border-left:3px solid ${a.color};">
+        <div style="display:flex;gap:.75rem;align-items:flex-start;background:${a.bg};border-radius:.75rem;padding:.75rem 1rem;border-left:3px solid ${a.color};margin-bottom:.5rem;">
             <i data-lucide="${a.icon}" style="width:16px;height:16px;color:${a.color};flex-shrink:0;margin-top:.15rem;"></i>
             <div style="flex:1;">
                 <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.2rem;">
