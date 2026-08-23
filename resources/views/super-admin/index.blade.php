@@ -279,8 +279,9 @@
             <button class="sa-tab {{ $tab === 'activity' ? 'active' : '' }}" onclick="switchTab('activity')">
                 <i data-lucide="bar-chart-2" class="inline w-3.5 h-3.5 mr-1 -mt-0.5"></i>Client Activity
             </button>
-            <button class="sa-tab {{ $tab === 'feedbacks' ? 'active' : '' }}" onclick="switchTab('feedbacks')">
+            <button class="sa-tab {{ $tab === 'feedbacks' ? 'active' : '' }} flex items-center" onclick="switchTab('feedbacks')">
                 <i data-lucide="message-square-heart" class="inline w-3.5 h-3.5 mr-1 -mt-0.5"></i>Staff Feedbacks
+                <span id="sa-tab-feedbacks-badge" class="ml-1.5 px-1.5 py-0.5 rounded-full text-[9px] font-black bg-red-500 text-white leading-none shadow-xs {{ ($ownerFeedbackCount ?? 0) > 0 ? '' : 'hidden' }}">{{ $ownerFeedbackCount ?? 0 }}</span>
             </button>
         </div>
     </div>
@@ -2860,6 +2861,21 @@ async function camFetchFeedbacks() {
                 if (kpiCrit) kpiCrit.textContent = (json.counts.bad || 0) + (json.counts.terrible || 0);
                 const kpiShot = document.getElementById('kpi-screenshots-feedbacks');
                 if (kpiShot) kpiShot.textContent = CAM_FEEDBACKS.filter(f => f.images && f.images.length > 0).length;
+
+                // Update Owner Panel Sidebar and Tab Badges for new/unresolved feedbacks
+                const newCount = CAM_FEEDBACKS.filter(f => f.status === 'new').length;
+                const sbBadge = document.getElementById('owner-feedback-sidebar-badge');
+                if (sbBadge) {
+                    sbBadge.textContent = newCount;
+                    if (newCount > 0) sbBadge.classList.remove('hidden');
+                    else sbBadge.classList.add('hidden');
+                }
+                const tabBadge = document.getElementById('sa-tab-feedbacks-badge');
+                if (tabBadge) {
+                    tabBadge.textContent = newCount;
+                    if (newCount > 0) tabBadge.classList.remove('hidden');
+                    else tabBadge.classList.add('hidden');
+                }
             }
 
             camRenderFeedbacks();

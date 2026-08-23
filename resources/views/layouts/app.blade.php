@@ -327,6 +327,14 @@
                 
                 return $timeB - $timeA;
             });
+
+            // Staff Feedback Count for Owner Panel Badge
+            $ownerFeedbackCount = 0;
+            try {
+                if (auth()->check() && auth()->user()->role === 'super_admin') {
+                    $ownerFeedbackCount = \App\Models\StaffFeedback::where('status', 'new')->count();
+                }
+            } catch (\Throwable $e) {}
         @endphp
 
         <!-- Main Layout -->
@@ -354,9 +362,15 @@
                     <nav class="flex-1 p-2 lg:p-4 space-y-1 overflow-y-auto overflow-x-hidden w-full">
                         @if(auth()->user()->role === 'super_admin')
                         <a href="{{ route('super-admin.index') }}"
-                            class="sidebar-item flex items-center justify-start md:justify-center lg:justify-start gap-2.5 px-4 md:px-0 lg:px-4 py-1.5 md:py-2 rounded-lg font-semibold {{ request()->routeIs('super-admin.*') ? 'bg-yellow-100 text-yellow-800' : 'text-yellow-700 hover:bg-yellow-50 hover:text-yellow-800' }}">
-                            <i data-lucide="crown" class="w-5 md:w-5 lg:w-4 h-5 md:h-5 lg:h-4"></i>
-                            <span class="text-sm block md:hidden lg:block">Owner Panel</span>
+                            class="sidebar-item flex items-center justify-between px-4 md:px-2 lg:px-4 py-1.5 md:py-2 rounded-lg font-semibold {{ request()->routeIs('super-admin.*') ? 'bg-yellow-100 text-yellow-800' : 'text-yellow-700 hover:bg-yellow-50 hover:text-yellow-800' }}">
+                            <div class="flex items-center gap-2.5 min-w-0">
+                                <i data-lucide="crown" class="w-5 md:w-5 lg:w-4 h-5 md:h-5 lg:h-4 flex-shrink-0"></i>
+                                <span class="text-sm block md:hidden lg:block truncate">Owner Panel</span>
+                            </div>
+                            <span id="owner-feedback-sidebar-badge"
+                                class="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 text-[10px] font-black rounded-full bg-red-500 text-white leading-none shadow-sm {{ $ownerFeedbackCount > 0 ? '' : 'hidden' }}">
+                                {{ $ownerFeedbackCount }}
+                            </span>
                         </a>
                         <hr class="my-2 border-gray-100 block md:hidden lg:block">
                         @endif
