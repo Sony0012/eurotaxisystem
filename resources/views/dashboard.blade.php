@@ -180,6 +180,42 @@
             transform: translateZ(0);
             contain: layout style paint;
         }
+        .animated-shiny-maintenance-text {
+            background: linear-gradient(110deg, #f97316 0%, #fb923c 25%, #ffffff 45%, #fef08a 55%, #ffffff 65%, #fb923c 80%, #f97316 100%);
+            background-size: 200% 100%;
+            -webkit-background-clip: text !important;
+            -webkit-text-fill-color: transparent !important;
+            background-clip: text !important;
+            display: inline-block;
+            animation: animatedShinyText 3.5s linear infinite !important;
+            will-change: background-position;
+            transform: translateZ(0);
+            contain: layout style paint;
+        }
+        .animated-shiny-drivers-text {
+            background: linear-gradient(110deg, #0ea5e9 0%, #38bdf8 25%, #ffffff 45%, #fef08a 55%, #ffffff 65%, #38bdf8 80%, #0ea5e9 100%);
+            background-size: 200% 100%;
+            -webkit-background-clip: text !important;
+            -webkit-text-fill-color: transparent !important;
+            background-clip: text !important;
+            display: inline-block;
+            animation: animatedShinyText 3.5s linear infinite !important;
+            will-change: background-position;
+            transform: translateZ(0);
+            contain: layout style paint;
+        }
+        .animated-shiny-coding-text {
+            background: linear-gradient(110deg, #c084fc 0%, #e879f9 25%, #ffffff 45%, #fef08a 55%, #ffffff 65%, #e879f9 80%, #c084fc 100%);
+            background-size: 200% 100%;
+            -webkit-background-clip: text !important;
+            -webkit-text-fill-color: transparent !important;
+            background-clip: text !important;
+            display: inline-block;
+            animation: animatedShinyText 3.5s linear infinite !important;
+            will-change: background-position;
+            transform: translateZ(0);
+            contain: layout style paint;
+        }
 
         @keyframes blob {
             0% {
@@ -364,9 +400,9 @@
                 const btn = document.getElementById('mFilter' + f.charAt(0).toUpperCase() + f.slice(1));
                 if (btn) {
                     if (f === filter) {
-                        btn.className = 'px-3 py-1.5 text-xs font-bold rounded-md transition-all duration-200 bg-white text-orange-600 shadow-sm cursor-pointer';
+                        btn.className = 'px-3 sm:px-3.5 py-1.5 text-xs font-black rounded-lg transition-all duration-200 bg-gradient-to-r from-orange-600 to-amber-600 text-white shadow-sm cursor-pointer';
                     } else {
-                        btn.className = 'px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200 text-white/80 hover:text-white hover:bg-white/10 cursor-pointer';
+                        btn.className = 'px-3 sm:px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 text-slate-300 hover:text-white hover:bg-white/10 cursor-pointer';
                     }
                 }
             });
@@ -480,46 +516,26 @@
                 const costVal = parseFloat(unit.maintenance_cost) || 0;
 
                 return `
-                <div onclick="showMaintenanceDetailsModal(${unit.maintenance_id || unit.id || 0})" class="cursor-pointer bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden border-l-4 ${statusColor} hover:scale-102">
-                    <div class="p-4">
-                        <!-- Header -->
-                        <div class="flex items-start justify-between mb-3">
-                            <div class="flex items-center gap-3">
-                                <div class="p-2 ${iconBg} rounded-lg">
-                                    <i data-lucide="wrench" class="w-4 h-4 ${iconColor}"></i>
-                                </div>
-                                <div>
-                                    <h4 class="text-lg font-bold text-slate-800">${unit.plate_number || 'N/A'}</h4>
-                                </div>
+                <div onclick="showMaintenanceDetailsModal(${unit.maintenance_id || unit.id || 0})" class="cursor-pointer bg-[#fffbeb]/35 hover:bg-[#fffbeb]/55 backdrop-blur-[2px] rounded-2xl shadow-xs hover:shadow-md transition-all duration-200 overflow-hidden border border-amber-300/60 p-4 relative">
+                    <div class="flex items-start justify-between mb-3">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-8 h-8 rounded-xl bg-orange-600 text-white flex items-center justify-center shadow-xs">
+                                <i data-lucide="wrench" class="w-4 h-4"></i>
                             </div>
-                            <div class="text-right">
-                                <div class="text-lg font-bold ${typeColor}">${unit.maintenance_type || 'Unknown'}</div>
-                                <div class="text-xs text-slate-500">${mainDate || 'N/A'}</div>
+                            <div>
+                                <h4 class="text-base font-black text-slate-900 tracking-tight">${unit.plate_number || 'N/A'}</h4>
+                                <p class="text-[10px] font-bold text-amber-700 uppercase tracking-widest">${unit.maintenance_type || 'General'}</p>
                             </div>
                         </div>
-                        
-                        <!-- Maintenance Details -->
-                        <div class="bg-gray-50 rounded-lg p-3 mb-3">
-                            <div class="flex items-center justify-between mb-2">
-                                <span class="text-sm font-medium text-slate-800">Status: ${unit.maintenance_status || 'Unknown'}</span>
-                                <span class="text-xs font-bold text-orange-600">${isComplete ? '₱' + costVal.toLocaleString('en-PH', {minimumFractionDigits: 2}) : (unit.estimated_completion ? 'Est: ' + unit.estimated_completion : '')}</span>
-                            </div>
-                            <div class="text-xs text-gray-600">
-                                <span class="font-medium">Description:</span> ${unit.description || 'No description available'}
-                            </div>
-                        </div>
-                        
-                        <!-- Footer -->
-                        <div class="flex items-center justify-between text-xs text-slate-500">
-                            <span class="flex items-center gap-1">
-                                <i data-lucide="calendar" class="w-3 h-3"></i>
-                                ${isComplete ? 'Completed: ' + (unit.end_date || 'N/A') : 'Started: ' + (unit.start_date || 'N/A')}
-                            </span>
-                            <span class="flex items-center gap-1">
-                                <i data-lucide="check-circle" class="w-3 h-3"></i>
-                                ${unit.maintenance_status || 'Unknown'}
-                            </span>
-                        </div>
+                        <span class="text-[9px] px-2 py-0.5 rounded-full font-black uppercase tracking-widest bg-orange-500/15 text-orange-800 border border-orange-400/40">${unit.maintenance_status || 'Pending'}</span>
+                    </div>
+                    <div class="bg-amber-500/5 rounded-xl p-2.5 border border-amber-200/40 mb-3 text-xs text-slate-700">
+                        <p class="text-[11px] font-bold text-slate-800 truncate">${unit.description || 'No description available'}</p>
+                        <p class="text-[10px] text-amber-800/80 font-bold mt-1">${isComplete ? 'Completed: ' + (unit.end_date || 'N/A') : 'Started: ' + (unit.start_date || 'N/A')}</p>
+                    </div>
+                    <div class="flex items-center justify-between text-[10px] font-extrabold text-amber-900">
+                        <span class="flex items-center gap-1"><i data-lucide="clock" class="w-3 h-3 text-orange-600"></i> ${isComplete ? 'Cost: ₱' + costVal.toLocaleString('en-PH', {minimumFractionDigits: 2}) : (unit.estimated_completion ? 'Est: ' + unit.estimated_completion : 'Est: TBD')}</span>
+                        <span class="text-orange-600 hover:underline">View Details &rarr;</span>
                     </div>
                 </div>
             `;}).join('');
@@ -928,195 +944,217 @@
         </div>
     </div>
 
-    <!-- Maintenance Units Modal -->
-<div id="maintenanceUnitsModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-6xl h-[95vh] flex flex-col overflow-hidden">
-        <!-- Modal Header -->
-        <div class="relative pt-6 pb-4 px-5 sm:pt-7 sm:pb-5 sm:px-6 border-b bg-gradient-to-r from-orange-600 via-amber-600 to-yellow-600 flex-shrink-0 overflow-hidden">
-            <!-- Large Animated Shiny Background Text (Shifted up for clear full view) -->
-            <div class="absolute inset-x-0 top-1 sm:top-2 flex items-center justify-center pointer-events-none select-none z-0 overflow-hidden px-4" aria-hidden="true">
-                <h1 class="animated-shiny-units-text text-lg sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-black uppercase tracking-wider whitespace-nowrap opacity-90">
-                    Units Under Maintenance
-                </h1>
-            </div>
+    <!-- Maintenance Units Modal (NEW 21st.dev Sunset Amber & Cyber Gear Wrench Theme) -->
+<div id="maintenanceUnitsModal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md hidden z-50 flex items-center justify-center p-3 sm:p-5 transition-all duration-300">
+    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-6xl h-[92vh] flex flex-col overflow-hidden border border-slate-700/30">
+        <!-- Modal Header (21st.dev Dark Sunset Amber & Industrial Obsidian Theme) -->
+        <div class="relative bg-[#180c04] border-b border-amber-950/80 p-4 sm:p-5 flex-shrink-0 overflow-hidden">
+            <!-- Micro-grid Dot Pattern Background -->
+            <div class="absolute inset-0 opacity-[0.09] pointer-events-none" style="background-image: radial-gradient(rgba(249,115,22,0.9) 1px, transparent 1px); background-size: 16px 16px;"></div>
+            
+            <!-- Ambient Amber, Orange & Sunset Gold Radial Glows -->
+            <div class="absolute -top-20 left-1/2 -translate-x-1/2 w-96 h-40 bg-orange-600/25 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute top-1/2 -right-16 w-60 h-60 bg-amber-600/20 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute bottom-0 left-10 w-48 h-20 bg-yellow-600/15 rounded-full blur-2xl pointer-events-none"></div>
 
-            <div class="relative z-10">
-                <div class="flex items-center justify-between mb-4 sm:mb-5">
-                    <div class="flex items-end gap-3">
-                        <div class="p-2.5 bg-white/20 backdrop-blur-sm rounded-xl border border-white/30">
-                            <i data-lucide="wrench" class="w-6 h-6 text-white"></i>
-                        </div>
-                        <div class="pb-1">
-                            <p class="text-orange-100 text-xs font-medium">Complete maintenance tracking details</p>
-                        </div>
+            <div class="relative z-10 flex flex-col gap-3">
+                <!-- Top Row: Title, Pill & Close Action (100% Mathematically Centered Title) -->
+                <div class="relative flex items-center justify-between min-h-[38px]">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-500/15 border border-orange-400/30 text-orange-300 text-[10px] font-extrabold uppercase tracking-widest backdrop-blur-md shadow-xs relative z-10">
+                        <span class="w-2 h-2 rounded-full bg-orange-400 animate-pulse"></span>
+                        Fleet Maintenance Matrix
                     </div>
-                    <button onclick="hideMaintenanceUnitsModal()" class="text-white/80 hover:text-white hover:bg-white/20 p-2 rounded-lg transition-all duration-200 backdrop-blur-sm">
-                        <i data-lucide="x" class="w-5 h-5"></i>
+
+                    <!-- 100% Mathematically Centered Title Overlay -->
+                    <div class="absolute inset-0 flex items-center justify-center pointer-events-none px-28">
+                        <h1 class="animated-shiny-maintenance-text text-base sm:text-xl md:text-2xl lg:text-3xl font-black uppercase tracking-tight text-center truncate">
+                            Units Under Maintenance
+                        </h1>
+                    </div>
+
+                    <button onclick="hideMaintenanceUnitsModal()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white flex items-center justify-center transition-all duration-200 backdrop-blur-sm border border-white/10 relative z-10" title="Close Modal">
+                        <i data-lucide="x" class="w-4 h-4"></i>
                     </button>
                 </div>
-                
-                <!-- Search and Date Filter -->
-                <div class="flex items-center gap-3">
-                    <div class="relative flex-1">
+
+                <!-- Bottom Row: Search Bar & Segmented Filter Buttons -->
+                <div class="flex flex-wrap items-center justify-between gap-2.5">
+                    <div class="relative flex-1 min-w-[240px]">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <i data-lucide="search" class="w-4 h-4 text-white/60"></i>
+                            <i data-lucide="search" class="w-4 h-4 text-orange-300/60"></i>
                         </div>
                         <input type="search" 
                             id="maintenanceSearchInput"
-                            placeholder="Search by unit number, plate, or maintenance type..."
-                            class="w-full pl-10 pr-4 py-2 bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent transition-all duration-200 text-sm"
+                            placeholder="Search by unit plate, type, or mechanic..."
+                            class="w-full pl-10 pr-9 py-1.5 bg-slate-900/90 border border-amber-900/60 rounded-xl text-white placeholder-slate-400 text-xs focus:outline-none focus:ring-2 focus:ring-orange-500/50 transition-all"
                             onkeyup="filterMaintenanceUnits()"
-                         autocomplete="new-password" spellcheck="false" autocorrect="off" autocapitalize="off" readonly onfocus="this.removeAttribute('readonly');">
-                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
-                            <button onclick="clearMaintenanceSearch()" class="text-white/60 hover:text-white transition-colors">
-                                <i data-lucide="x-circle" class="w-4 h-4"></i>
+                            autocomplete="new-password" spellcheck="false" autocorrect="off" autocapitalize="off" readonly onfocus="this.removeAttribute('readonly');">
+                        <div class="absolute inset-y-0 right-0 pr-2.5 flex items-center">
+                            <button onclick="clearMaintenanceSearch()" class="text-slate-400 hover:text-white transition-colors">
+                                <i data-lucide="x-circle" class="w-3.5 h-3.5"></i>
                             </button>
                         </div>
                     </div>
-                    <div class="flex bg-white/10 backdrop-blur-sm border border-white/30 rounded-lg p-1">
-                        <button onclick="setMaintenanceFilter('all')" id="mFilterAll" class="px-3 py-1.5 text-xs font-bold rounded-md transition-all duration-200 bg-white text-orange-600 shadow-sm cursor-pointer">
-                            All
-                        </button>
-                        <button onclick="setMaintenanceFilter('preventive')" id="mFilterPreventive" class="px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200 text-white/80 hover:text-white hover:bg-white/10 cursor-pointer">
-                            Preventive
-                        </button>
-                        <button onclick="setMaintenanceFilter('corrective')" id="mFilterCorrective" class="px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200 text-white/80 hover:text-white hover:bg-white/10 cursor-pointer">
-                            Corrective
-                        </button>
-                        <button onclick="setMaintenanceFilter('emergency')" id="mFilterEmergency" class="px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200 text-white/80 hover:text-white hover:bg-white/10 cursor-pointer">
-                            Emergency
-                        </button>
-                        <button onclick="setMaintenanceFilter('complete')" id="mFilterComplete" class="px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200 text-white/80 hover:text-white hover:bg-white/10 cursor-pointer">
-                            Complete
-                        </button>
+
+                    <div class="flex items-center p-1 bg-slate-900/90 rounded-xl border border-amber-900/60 shadow-inner">
+                        <button onclick="setMaintenanceFilter('all')" id="mFilterAll" class="px-3 sm:px-3.5 py-1.5 text-xs font-black rounded-lg transition-all duration-200 bg-gradient-to-r from-orange-600 to-amber-600 text-white shadow-sm cursor-pointer">All</button>
+                        <button onclick="setMaintenanceFilter('preventive')" id="mFilterPreventive" class="px-3 sm:px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 text-slate-300 hover:text-white hover:bg-white/10 cursor-pointer">Preventive</button>
+                        <button onclick="setMaintenanceFilter('corrective')" id="mFilterCorrective" class="px-3 sm:px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 text-slate-300 hover:text-white hover:bg-white/10 cursor-pointer">Corrective</button>
+                        <button onclick="setMaintenanceFilter('emergency')" id="mFilterEmergency" class="px-3 sm:px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 text-slate-300 hover:text-white hover:bg-white/10 cursor-pointer">Emergency</button>
+                        <button onclick="setMaintenanceFilter('complete')" id="mFilterComplete" class="px-3 sm:px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 text-slate-300 hover:text-white hover:bg-white/10 cursor-pointer">Complete</button>
                     </div>
                 </div>
             </div>
         </div>
         
-        <div class="flex-1 overflow-hidden flex flex-col min-h-0">
-            <!-- Summary Stats -->
-            <div class="bg-gradient-to-r from-orange-50 to-amber-50 p-4 border-b border-orange-200 flex-shrink-0">
-                <div class="grid grid-cols-2 lg:grid-cols-5 gap-3">
-                    <!-- Total Maintenance -->
-                    <div class="bg-white rounded-lg p-3 shadow-md shadow-slate-200/40 border border-orange-100 hover:shadow-md transition-shadow">
-                        <div class="flex items-center gap-2">
-                            <div class="p-1.5 bg-orange-100 rounded">
-                                <i data-lucide="wrench" class="w-4 h-4 text-orange-600"></i>
-                            </div>
-                            <div>
-                                <div class="text-lg font-bold text-orange-600" id="maintenanceUnitsCount">{{ $initial_maintenance['stats']['total_maintenance'] ?? 0 }}</div>
-                                <div class="text-[10px] text-gray-600 uppercase tracking-wide font-bold">Maintenance</div>
-                            </div>
+        <div class="flex-1 overflow-hidden flex flex-col min-h-0 bg-slate-100/60 relative">
+            <!-- ─── 3D SVG KPI Executive Metrics Strip (21st.dev Style) ─── -->
+            <div class="bg-white/90 backdrop-blur-md p-3 sm:p-3.5 border-b border-slate-200/80 flex-shrink-0 shadow-xs relative z-20">
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3.5 max-w-7xl mx-auto">
+                    
+                    <!-- 1. Total In Maintenance -->
+                    <div class="relative overflow-hidden rounded-2xl shadow-xs border border-orange-200/80 bg-gradient-to-br from-white via-orange-50/50 to-amber-100/40 p-3">
+                        <div class="absolute left-0 inset-y-0 h-6 w-1 rounded-r-full bg-orange-500 my-auto"></div>
+                        <div class="relative z-10 pl-2 pr-12">
+                            <div class="text-orange-700 text-[8px] sm:text-[9px] font-extrabold uppercase tracking-widest leading-none mb-1">In Repair</div>
+                            <div class="text-xl sm:text-2xl font-black text-orange-600 leading-none mb-0.5 tracking-tight" id="maintenanceUnitsCount">{{ $initial_maintenance['stats']['total_maintenance'] ?? 0 }}</div>
+                            <div class="text-[9px] font-bold text-orange-600/75 uppercase tracking-tight">Active Ongoing Units</div>
                         </div>
+                        <img src="{{ asset('image/kpi/maintenance_3d.svg') }}" alt="Maintenance" class="absolute -right-2 -bottom-2 w-14 h-14 sm:w-16 sm:h-16 object-contain pointer-events-none opacity-90 drop-shadow-sm">
                     </div>
-                    <!-- Preventive -->
-                    <div class="bg-white rounded-lg p-3 shadow-md shadow-slate-200/40 border border-blue-100 hover:shadow-md transition-shadow">
-                        <div class="flex items-center gap-2">
-                            <div class="p-1.5 bg-blue-100 rounded">
-                                <i data-lucide="shield-check" class="w-4 h-4 text-blue-600"></i>
-                            </div>
-                            <div>
-                                <div class="text-lg font-bold text-blue-600" id="preventiveMaintenanceCount">{{ $initial_maintenance['stats']['preventive_maintenance'] ?? 0 }}</div>
-                                <div class="text-[10px] text-gray-600 uppercase tracking-wide font-bold">Preventive</div>
-                            </div>
+
+                    <!-- 2. Preventive Maintenance -->
+                    <div class="relative overflow-hidden rounded-2xl shadow-xs border border-blue-200/80 bg-gradient-to-br from-white via-blue-50/50 to-sky-100/40 p-3">
+                        <div class="absolute left-0 inset-y-0 h-6 w-1 rounded-r-full bg-blue-500 my-auto"></div>
+                        <div class="relative z-10 pl-2 pr-12">
+                            <div class="text-blue-700 text-[8px] sm:text-[9px] font-extrabold uppercase tracking-widest leading-none mb-1">Preventive</div>
+                            <div class="text-xl sm:text-2xl font-black text-blue-600 leading-none mb-0.5 tracking-tight" id="preventiveMaintenanceCount">{{ $initial_maintenance['stats']['preventive_maintenance'] ?? 0 }}</div>
+                            <div class="text-[9px] font-bold text-blue-600/75 uppercase tracking-tight">Scheduled Checkups</div>
                         </div>
+                        <img src="{{ asset('image/kpi/history_3d.svg') }}" alt="Preventive" class="absolute -right-2 -bottom-2 w-14 h-14 sm:w-16 sm:h-16 object-contain pointer-events-none opacity-90 drop-shadow-sm">
                     </div>
-                    <!-- Corrective -->
-                    <div class="bg-white rounded-lg p-3 shadow-md shadow-slate-200/40 border border-amber-100 hover:shadow-md transition-shadow">
-                        <div class="flex items-center gap-2">
-                            <div class="p-1.5 bg-amber-100 rounded">
-                                <i data-lucide="wrench" class="w-4 h-4 text-amber-600"></i>
-                            </div>
-                            <div>
-                                <div class="text-lg font-bold text-amber-600" id="correctiveMaintenanceCount">{{ $initial_maintenance['stats']['corrective_maintenance'] ?? 0 }}</div>
-                                <div class="text-[10px] text-gray-600 uppercase tracking-wide font-bold">Corrective</div>
-                            </div>
+
+                    <!-- 3. Corrective & Emergency -->
+                    <div class="relative overflow-hidden rounded-2xl shadow-xs border border-amber-200/80 bg-gradient-to-br from-white via-amber-50/50 to-orange-100/40 p-3">
+                        <div class="absolute left-0 inset-y-0 h-6 w-1 rounded-r-full bg-amber-500 my-auto"></div>
+                        <div class="relative z-10 pl-2 pr-12">
+                            <div class="text-amber-700 text-[8px] sm:text-[9px] font-extrabold uppercase tracking-widest leading-none mb-1">Corrective</div>
+                            <div class="text-xl sm:text-2xl font-black text-amber-600 leading-none mb-0.5 tracking-tight" id="correctiveMaintenanceCount">{{ $initial_maintenance['stats']['corrective_maintenance'] ?? 0 }}</div>
+                            <div class="text-[9px] font-bold text-amber-600/75 uppercase tracking-tight">Mechanical Fixes</div>
                         </div>
+                        <img src="{{ asset('image/kpi/expenses_3d.svg') }}" alt="Corrective" class="absolute -right-2 -bottom-2 w-14 h-14 sm:w-16 sm:h-16 object-contain pointer-events-none opacity-90 drop-shadow-sm">
                     </div>
-                    <!-- Emergency -->
-                    <div class="bg-white rounded-lg p-3 shadow-md shadow-slate-200/40 border border-red-100 hover:shadow-md transition-shadow">
-                        <div class="flex items-center gap-2">
-                            <div class="p-1.5 bg-red-100 rounded">
-                                <i data-lucide="alert-triangle" class="w-4 h-4 text-red-600"></i>
-                            </div>
-                            <div>
-                                <div class="text-lg font-bold text-red-600" id="emergencyMaintenanceCount">{{ $initial_maintenance['stats']['emergency_maintenance'] ?? 0 }}</div>
-                                <div class="text-[10px] text-gray-600 uppercase tracking-wide font-bold">Emergency</div>
-                            </div>
+
+                    <!-- 4. Completed Service -->
+                    <div class="relative overflow-hidden rounded-2xl shadow-xs border border-emerald-200/80 bg-gradient-to-br from-white via-emerald-50/50 to-teal-100/40 p-3">
+                        <div class="absolute left-0 inset-y-0 h-6 w-1 rounded-r-full bg-emerald-500 my-auto"></div>
+                        <div class="relative z-10 pl-2 pr-12">
+                            <div class="text-emerald-700 text-[8px] sm:text-[9px] font-extrabold uppercase tracking-widest leading-none mb-1">Completed</div>
+                            <div class="text-xl sm:text-2xl font-black text-emerald-600 leading-none mb-0.5 tracking-tight" id="completedTotalCount">{{ $initial_maintenance['stats']['completed_total'] ?? 0 }}</div>
+                            <div class="text-[9px] font-bold text-emerald-600/75 uppercase tracking-tight">Ready for Deployment</div>
                         </div>
+                        <img src="{{ asset('image/kpi/crown_3d.svg') }}" alt="Completed" class="absolute -right-2 -bottom-2 w-14 h-14 sm:w-16 sm:h-16 object-contain pointer-events-none opacity-90 drop-shadow-sm">
                     </div>
-                    <!-- Completed -->
-                    <div class="bg-white rounded-lg p-3 shadow-md shadow-slate-200/40 border border-green-100 hover:shadow-md transition-shadow">
-                        <div class="flex items-center gap-2">
-                            <div class="p-1.5 bg-green-100 rounded">
-                                <i data-lucide="check-circle" class="w-4 h-4 text-green-600"></i>
-                            </div>
-                            <div>
-                                <div class="text-lg font-bold text-green-600" id="completedTotalCount">{{ $initial_maintenance['stats']['completed_total'] ?? 0 }}</div>
-                                <div class="text-[10px] text-gray-600 uppercase tracking-wide font-bold">Complete</div>
-                            </div>
-                        </div>
-                    </div>
+
                 </div>
             </div>
 
-            <!-- Maintenance Units Grid -->
-            <div class="flex-1 overflow-y-auto p-4 bg-gray-50 min-h-0">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pb-4" id="maintenanceGrid">
+            <!-- ⚙️ Fixed Bold Savage Cyber Mechanical Gear & Wrench Watermark Background (High Visibility) -->
+            <div class="absolute inset-0 top-16 flex items-center justify-center pointer-events-none select-none z-0 overflow-hidden px-4" aria-hidden="true" style="transform: translateZ(0);">
+                <svg viewBox="0 0 540 320" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-[96%] max-w-5xl h-auto opacity-[0.38] transform select-none pointer-events-none">
+                    <defs>
+                        <linearGradient id="gearOrangeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#f97316" />
+                            <stop offset="35%" stop-color="#ea580c" />
+                            <stop offset="70%" stop-color="#f59e0b" />
+                            <stop offset="100%" stop-color="#eab308" />
+                        </linearGradient>
+                        <linearGradient id="wrenchAmberGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+                            <stop offset="0%" stop-color="#d97706" />
+                            <stop offset="50%" stop-color="#f97316" />
+                            <stop offset="100%" stop-color="#fbbf24" />
+                        </linearGradient>
+                        <radialGradient id="gearHubGlow" cx="50%" cy="50%" r="50%">
+                            <stop offset="0%" stop-color="#f97316" stop-opacity="0.45" />
+                            <stop offset="100%" stop-color="#d97706" stop-opacity="0" />
+                        </radialGradient>
+                    </defs>
+
+                    <!-- Orbiting Mechanical Calibration Matrix Rings -->
+                    <circle cx="270" cy="160" r="120" stroke="url(#wrenchAmberGrad)" stroke-width="4.5" stroke-dasharray="16 10" />
+                    <ellipse cx="270" cy="160" rx="190" ry="75" stroke="url(#gearOrangeGrad)" stroke-width="4" stroke-dasharray="10 8" transform="rotate(-15 270 160)" />
+                    <ellipse cx="270" cy="160" rx="190" ry="75" stroke="url(#wrenchAmberGrad)" stroke-width="4" stroke-dasharray="10 8" transform="rotate(15 270 160)" />
+
+                    <!-- Heavy Industrial Gear Teeth Outer Ring -->
+                    <circle cx="270" cy="160" r="85" fill="url(#gearHubGlow)" />
+                    <circle cx="270" cy="160" r="80" stroke="url(#gearOrangeGrad)" stroke-width="6.5" fill="#ea580c" fill-opacity="0.08" />
+                    <circle cx="270" cy="160" r="45" stroke="url(#wrenchAmberGrad)" stroke-width="4.5" fill="#ffffff" fill-opacity="0.3" />
+                    <circle cx="270" cy="160" r="18" fill="#f59e0b" />
+
+                    <!-- Gear Teeth Radiating Projections -->
+                    <path d="M255 70 H285 V85 H255 Z M255 235 H285 V250 H255 Z M180 145 V175 H195 V145 Z M345 145 V175 H360 V145 Z" fill="url(#gearOrangeGrad)" />
+                    <path d="M205 100 L226 121 L215 132 L194 111 Z M315 210 L336 231 L325 242 L304 221 Z M205 220 L194 209 L215 188 L226 199 Z M315 110 L304 99 L325 78 L336 89 Z" fill="url(#wrenchAmberGrad)" />
+
+                    <!-- 3D Savage Diagonal Mechanical Wrench Shaft -->
+                    <line x1="90" y1="280" x2="450" y2="40" stroke="url(#gearOrangeGrad)" stroke-width="8" stroke-linecap="round" />
+                    <line x1="90" y1="280" x2="450" y2="40" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" opacity="0.7" />
+
+                    <!-- Wrench Open End Jaw (Top Right) -->
+                    <path d="M410 40 L450 15 L475 40 L460 65 L435 55 Z" stroke="url(#gearOrangeGrad)" stroke-width="5" fill="#ea580c" fill-opacity="0.2" stroke-linejoin="round" />
+
+                    <!-- Wrench Ring End (Bottom Left) -->
+                    <circle cx="100" cy="270" r="24" stroke="url(#wrenchAmberGrad)" stroke-width="6" fill="#f59e0b" fill-opacity="0.15" />
+                    <polygon points="100,256 112,263 112,277 100,284 88,277 88,263" stroke="url(#gearOrangeGrad)" stroke-width="3" fill="#ffffff" fill-opacity="0.4" />
+
+                    <!-- Precision Hydraulic Indicator Curves -->
+                    <path d="M25 240 Q110 160 180 210 T360 90 T515 30" stroke="url(#gearOrangeGrad)" stroke-width="6.5" stroke-linecap="round" fill="none" />
+                    <path d="M25 270 Q130 200 210 240 T390 140 T515 70" stroke="url(#wrenchAmberGrad)" stroke-width="4.5" stroke-dasharray="10 6" stroke-linecap="round" fill="none" />
+                    <path d="M30 300 H510" stroke="url(#gearOrangeGrad)" stroke-width="4" stroke-dasharray="16 8" stroke-linecap="round" />
+
+                    <!-- Dynamic Floating Amber Spark Crystals -->
+                    <polygon points="515,30 525,18 535,30 525,42" fill="#f59e0b" />
+                    <polygon points="450,95 457,86 464,95 457,104" fill="#f97316" />
+                    <polygon points="85,200 92,191 99,200 92,209" fill="#ea580c" />
+                    <polygon points="130,90 136,82 142,90 136,98" fill="#fbbf24" />
+                </svg>
+            </div>
+
+            <!-- Maintenance Units Grid (Scrolls Smoothly Above Fixed Watermark) -->
+            <div class="flex-1 overflow-y-auto p-4 sm:p-5 min-h-0 relative z-10" style="transform: translateZ(0);">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pb-6" id="maintenanceGrid">
                     @if(!empty($initial_maintenance['units']) && count($initial_maintenance['units']) > 0)
                         @foreach($initial_maintenance['units'] as $unit)
-                            <div onclick="showMaintenanceDetailsModal({{ $unit['maintenance_id'] ?? $unit['id'] ?? 0 }})" class="cursor-pointer bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden border-l-4 border-orange-500 hover:scale-102">
-                                <div class="p-4">
-                                    <!-- Header -->
-                                    <div class="flex items-start justify-between mb-3">
-                                        <div class="flex items-center gap-3">
-                                            <div class="p-2 bg-orange-100 rounded-lg">
-                                                <i data-lucide="wrench" class="w-4 h-4 text-orange-600"></i>
-                                            </div>
-                                            <div>
-                                                <h4 class="text-lg font-bold text-slate-800">{{ $unit['plate_number'] ?? 'N/A' }}</h4>
-                                            </div>
+                            <div onclick="showMaintenanceDetailsModal({{ $unit['maintenance_id'] ?? $unit['id'] ?? 0 }})" class="cursor-pointer bg-[#fffbeb]/35 hover:bg-[#fffbeb]/55 backdrop-blur-[2px] rounded-2xl shadow-xs hover:shadow-md transition-all duration-200 overflow-hidden border border-amber-300/60 p-4 relative">
+                                <div class="flex items-start justify-between mb-3">
+                                    <div class="flex items-center gap-2.5">
+                                        <div class="w-8 h-8 rounded-xl bg-orange-600 text-white flex items-center justify-center shadow-xs">
+                                            <i data-lucide="wrench" class="w-4 h-4"></i>
                                         </div>
-                                        <div class="text-right">
-                                            <div class="text-lg font-bold text-orange-600">{{ $unit['maintenance_type'] ?? 'Unknown' }}</div>
-                                            <div class="text-xs text-slate-500">{{ $unit['start_date'] ?? 'N/A' }}</div>
+                                        <div>
+                                            <h4 class="text-base font-black text-slate-900 tracking-tight">{{ $unit['plate_number'] ?? 'N/A' }}</h4>
+                                            <p class="text-[10px] font-bold text-amber-700 uppercase tracking-widest">{{ $unit['maintenance_type'] ?? 'General' }}</p>
                                         </div>
                                     </div>
-                                    
-                                    <!-- Maintenance Details -->
-                                    <div class="bg-gray-50 rounded-lg p-3 mb-3">
-                                        <div class="flex items-center justify-between mb-2">
-                                            <span class="text-sm font-medium text-slate-800">Status: {{ $unit['maintenance_status'] ?? 'Unknown' }}</span>
-                                            <span class="text-xs font-bold text-orange-600">{{ !empty($unit['estimated_completion']) ? 'Est: ' . $unit['estimated_completion'] : '' }}</span>
-                                        </div>
-                                        <div class="text-xs text-gray-600">
-                                            <span class="font-medium">Description:</span> {{ $unit['description'] ?? 'No description available' }}
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- Footer -->
-                                    <div class="flex items-center justify-between text-xs text-slate-500">
-                                        <span class="flex items-center gap-1">
-                                            <i data-lucide="calendar" class="w-3 h-3"></i>
-                                            Started: {{ $unit['start_date'] ?? 'N/A' }}
-                                        </span>
-                                        <span class="flex items-center gap-1">
-                                            <i data-lucide="check-circle" class="w-3 h-3"></i>
-                                            {{ $unit['maintenance_status'] ?? 'Unknown' }}
-                                        </span>
-                                    </div>
+                                    <span class="text-[9px] px-2 py-0.5 rounded-full font-black uppercase tracking-widest bg-orange-500/15 text-orange-800 border border-orange-400/40">{{ $unit['maintenance_status'] ?? 'Pending' }}</span>
+                                </div>
+                                <div class="bg-amber-500/5 rounded-xl p-2.5 border border-amber-200/40 mb-3 text-xs text-slate-700">
+                                    <p class="text-[11px] font-bold text-slate-800 truncate">{{ $unit['description'] ?? 'No description available' }}</p>
+                                    <p class="text-[10px] text-amber-800/80 font-bold mt-1">Started: {{ $unit['start_date'] ?? 'N/A' }}</p>
+                                </div>
+                                <div class="flex items-center justify-between text-[10px] font-extrabold text-amber-900">
+                                    <span class="flex items-center gap-1"><i data-lucide="clock" class="w-3 h-3 text-orange-600"></i> Est: {{ $unit['estimated_completion'] ?? 'TBD' }}</span>
+                                    <span class="text-orange-600 hover:underline">View Details &rarr;</span>
                                 </div>
                             </div>
                         @endforeach
                     @else
                         <div class="col-span-full text-center py-20">
                             <div class="inline-flex flex-col items-center">
-                                <div class="p-4 bg-gray-100 rounded-full mb-4">
-                                    <i data-lucide="wrench" class="w-8 h-8 text-slate-400"></i>
+                                <div class="p-4 bg-orange-500/10 rounded-2xl mb-4 border border-orange-400/30">
+                                    <i data-lucide="wrench" class="w-8 h-8 text-orange-600"></i>
                                 </div>
-                                <span class="text-xl text-gray-600 font-semibold mb-2">No maintenance units found</span>
-                                <p class="text-sm text-slate-400">All units are active and running</p>
+                                <span class="text-lg text-slate-800 font-black mb-1">No maintenance units found</span>
+                                <p class="text-xs text-slate-400 font-bold">All units are active and running</p>
                             </div>
                         </div>
                     @endif
@@ -1204,271 +1242,369 @@
     </div>
 </div>
 
-<!-- Active Drivers Modal -->
-<div id="activeDriversModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-6xl h-[95vh] flex flex-col overflow-hidden">
-        <!-- Modal Header -->
-        <div class="relative pt-6 pb-4 px-5 sm:pt-7 sm:pb-5 sm:px-6 border-b bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 flex-shrink-0 overflow-hidden">
-            <!-- Large Animated Shiny Background Text (Shifted up for clear full view) -->
-            <div class="absolute inset-x-0 top-1 sm:top-2 flex items-center justify-center pointer-events-none select-none z-0 overflow-hidden px-4" aria-hidden="true">
-                <h1 class="animated-shiny-units-text text-2xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black uppercase tracking-wider whitespace-nowrap opacity-90">
-                    Active Drivers
-                </h1>
-            </div>
+<!-- Active Drivers Modal (NEW 21st.dev Cyber Electric Cyan & Sapphire Obsidian Theme) -->
+<div id="activeDriversModal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md hidden z-50 flex items-center justify-center p-3 sm:p-5 transition-all duration-300">
+    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-6xl h-[92vh] flex flex-col overflow-hidden border border-slate-700/30">
+        <!-- Modal Header (21st.dev Cyber Electric Cyan & Sapphire Obsidian Theme) -->
+        <div class="relative bg-[#050f24] border-b border-sky-950/80 p-4 sm:p-5 flex-shrink-0 overflow-hidden">
+            <!-- Micro-grid Dot Pattern Background -->
+            <div class="absolute inset-0 opacity-[0.09] pointer-events-none" style="background-image: radial-gradient(rgba(14,165,233,0.9) 1px, transparent 1px); background-size: 16px 16px;"></div>
+            
+            <!-- Ambient Electric Cyan, Sapphire & Blue Radial Glows -->
+            <div class="absolute -top-20 left-1/2 -translate-x-1/2 w-96 h-40 bg-sky-600/25 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute top-1/2 -right-16 w-60 h-60 bg-blue-600/20 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute bottom-0 left-10 w-48 h-20 bg-indigo-600/15 rounded-full blur-2xl pointer-events-none"></div>
 
-            <div class="relative z-10">
-                <div class="flex items-center justify-between mb-4 sm:mb-5">
-                    <div class="flex items-end gap-3">
-                        <div class="p-2.5 bg-white/20 backdrop-blur-sm rounded-xl border border-white/30">
-                            <i data-lucide="users" class="w-6 h-6 text-white"></i>
-                        </div>
-                        <div class="pb-1">
-                            <p class="text-blue-100 text-xs font-medium">Complete driver management details</p>
-                        </div>
+            <div class="relative z-10 flex flex-col gap-3">
+                <!-- Top Row: Title, Pill & Close Action (100% Mathematically Centered Title) -->
+                <div class="relative flex items-center justify-between min-h-[38px]">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sky-500/15 border border-sky-400/30 text-sky-300 text-[10px] font-extrabold uppercase tracking-widest backdrop-blur-md shadow-xs relative z-10">
+                        <span class="w-2 h-2 rounded-full bg-sky-400 animate-pulse"></span>
+                        Pilot & Driver Registry
                     </div>
-                    <button onclick="hideActiveDriversModal()" class="text-white/80 hover:text-white hover:bg-white/20 p-2 rounded-lg transition-all duration-200 backdrop-blur-sm">
-                        <i data-lucide="x" class="w-5 h-5"></i>
+
+                    <!-- 100% Mathematically Centered Title Overlay -->
+                    <div class="absolute inset-0 flex items-center justify-center pointer-events-none px-28">
+                        <h1 class="animated-shiny-drivers-text text-base sm:text-xl md:text-2xl lg:text-3xl font-black uppercase tracking-tight text-center truncate">
+                            Active Drivers
+                        </h1>
+                    </div>
+
+                    <button onclick="hideActiveDriversModal()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white flex items-center justify-center transition-all duration-200 backdrop-blur-sm border border-white/10 relative z-10" title="Close Modal">
+                        <i data-lucide="x" class="w-4 h-4"></i>
                     </button>
                 </div>
-                
-                <!-- Search and Date Filter -->
-                <div class="flex items-center gap-3">
-                    <div class="relative flex-1">
+
+                <!-- Bottom Row: Search Bar, Sort & Segmented Filter Buttons -->
+                <div class="flex flex-wrap items-center justify-between gap-2.5">
+                    <div class="relative flex-1 min-w-[220px]">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <i data-lucide="search" class="w-4 h-4 text-white/60"></i>
+                            <i data-lucide="search" class="w-4 h-4 text-sky-300/60"></i>
                         </div>
                         <input type="search" 
                             id="driversSearchInput"
-                            placeholder="Search by name, license, or contact..."
-                            class="w-full pl-10 pr-4 py-2 bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent transition-all duration-200 text-sm"
+                            placeholder="Search by driver name, license, contact..."
+                            class="w-full pl-10 pr-9 py-1.5 bg-slate-900/90 border border-sky-900/60 rounded-xl text-white placeholder-slate-400 text-xs focus:outline-none focus:ring-2 focus:ring-sky-500/50 transition-all"
                             onkeyup="filterActiveDrivers()"
-                         autocomplete="new-password" spellcheck="false" autocorrect="off" autocapitalize="off" readonly onfocus="this.removeAttribute('readonly');">
-                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
-                            <button onclick="clearDriversSearch()" class="text-white/60 hover:text-white transition-colors">
-                                <i data-lucide="x-circle" class="w-4 h-4"></i>
+                            autocomplete="new-password" spellcheck="false" autocorrect="off" autocapitalize="off" readonly onfocus="this.removeAttribute('readonly');">
+                        <div class="absolute inset-y-0 right-0 pr-2.5 flex items-center">
+                            <button onclick="clearDriversSearch()" class="text-slate-400 hover:text-white transition-colors">
+                                <i data-lucide="x-circle" class="w-3.5 h-3.5"></i>
                             </button>
                         </div>
                     </div>
-                    
-                    <button 
-                        onclick="toggleDriversSort()" 
-                        id="driversSortBtn"
-                        class="px-3 py-2 bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg text-white hover:bg-white/30 transition-all duration-200 text-sm flex items-center gap-2 min-w-[90px] justify-center"
-                    >
-                        <i data-lucide="sort-asc" id="driversSortIcon" class="w-4 h-4"></i>
-                        <span id="driversSortText">A-Z</span>
-                    </button>
 
-                    <!-- Category Filter Buttons -->
-                    <div class="hidden md:flex items-center gap-1 bg-white/20 backdrop-blur-sm p-1 rounded-xl border border-white/30">
-                        <button onclick="setDriversFilter('all')" id="dFilterAll" class="px-4 py-1.5 rounded-lg text-sm font-bold transition-all duration-200 bg-white text-blue-600 shadow-md shadow-slate-200/40">
-                            All
+                    <div class="flex items-center gap-2">
+                        <button 
+                            onclick="toggleDriversSort()" 
+                            id="driversSortBtn"
+                            class="px-3 py-1.5 bg-slate-900/90 border border-sky-900/60 rounded-xl text-sky-300 hover:text-white hover:bg-sky-950 transition-all text-xs font-bold flex items-center gap-1.5 shadow-inner"
+                        >
+                            <i data-lucide="sort-asc" id="driversSortIcon" class="w-3.5 h-3.5"></i>
+                            <span id="driversSortText">A-Z</span>
                         </button>
-                        <button onclick="setDriversFilter('vacant')" id="dFilterVacant" class="px-4 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 text-white hover:bg-white/10">
-                            Vacant
-                        </button>
-                        <button onclick="setDriversFilter('active')" id="dFilterActive" class="px-4 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 text-white hover:bg-white/10">
-                            Active
-                        </button>
-                        <button onclick="setDriversFilter('top')" id="dFilterTop" class="px-4 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 text-white hover:bg-white/10">
-                            Top Performers
-                        </button>
+
+                        <div class="flex items-center p-1 bg-slate-900/90 rounded-xl border border-sky-900/60 shadow-inner">
+                            <button onclick="setDriversFilter('all')" id="dFilterAll" class="px-3 sm:px-3.5 py-1.5 text-xs font-black rounded-lg transition-all duration-200 bg-gradient-to-r from-sky-600 to-blue-600 text-white shadow-sm cursor-pointer">All</button>
+                            <button onclick="setDriversFilter('vacant')" id="dFilterVacant" class="px-3 sm:px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 text-slate-300 hover:text-white hover:bg-white/10 cursor-pointer">Vacant</button>
+                            <button onclick="setDriversFilter('active')" id="dFilterActive" class="px-3 sm:px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 text-slate-300 hover:text-white hover:bg-white/10 cursor-pointer">Active</button>
+                            <button onclick="setDriversFilter('top')" id="dFilterTop" class="px-3 sm:px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 text-slate-300 hover:text-white hover:bg-white/10 cursor-pointer">Top Performers</button>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
         
-        <div class="flex-1 overflow-hidden flex flex-col min-h-0">
-            <!-- Summary Stats -->
-            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 border-b border-blue-200 flex-shrink-0">
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div class="bg-white rounded-lg p-3 shadow-md shadow-slate-200/40 border border-blue-100 hover:shadow-md transition-shadow">
-                        <div class="flex items-center gap-2">
-                            <div class="p-1.5 bg-blue-100 rounded">
-                                <i data-lucide="users" class="w-4 h-4 text-blue-600"></i>
-                            </div>
-                            <div>
-                                <div class="text-lg font-bold text-blue-600" id="totalDriversCount">0</div>
-                                <div class="text-xs text-gray-600 uppercase tracking-wide font-medium">Total Drivers</div>
-                            </div>
+        <div class="flex-1 overflow-hidden flex flex-col min-h-0 bg-slate-100/60 relative">
+            <!-- ─── 3D SVG KPI Executive Metrics Strip (21st.dev Style) ─── -->
+            <div class="bg-white/90 backdrop-blur-md p-3 sm:p-3.5 border-b border-slate-200/80 flex-shrink-0 shadow-xs relative z-20">
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3.5 max-w-7xl mx-auto">
+                    
+                    <!-- 1. Total Drivers -->
+                    <div class="relative overflow-hidden rounded-2xl shadow-xs border border-sky-200/80 bg-gradient-to-br from-white via-sky-50/50 to-blue-100/40 p-3">
+                        <div class="absolute left-0 inset-y-0 h-6 w-1 rounded-r-full bg-sky-500 my-auto"></div>
+                        <div class="relative z-10 pl-2 pr-12">
+                            <div class="text-sky-700 text-[8px] sm:text-[9px] font-extrabold uppercase tracking-widest leading-none mb-1">Fleet Drivers</div>
+                            <div class="text-xl sm:text-2xl font-black text-sky-600 leading-none mb-0.5 tracking-tight" id="totalDriversCount">0</div>
+                            <div class="text-[9px] font-bold text-sky-600/75 uppercase tracking-tight">Total Enrolled</div>
                         </div>
+                        <img src="{{ asset('image/kpi/drivers_3d.svg') }}" alt="Total Drivers" class="absolute -right-2 -bottom-2 w-14 h-14 sm:w-16 sm:h-16 object-contain pointer-events-none opacity-90 drop-shadow-sm">
                     </div>
-                    <div class="bg-white rounded-lg p-3 shadow-md shadow-slate-200/40 border border-green-100 hover:shadow-md transition-shadow">
-                        <div class="flex items-center gap-2">
-                            <div class="p-1.5 bg-green-100 rounded">
-                                <i data-lucide="user-minus" class="w-4 h-4 text-green-600"></i>
-                            </div>
-                            <div>
-                                <div class="text-lg font-bold text-green-600" id="vacantDriversCount">0</div>
-                                <div class="text-xs text-gray-600 uppercase tracking-wide font-medium">Total Vacant Drivers</div>
-                            </div>
+
+                    <!-- 2. Active With Units -->
+                    <div class="relative overflow-hidden rounded-2xl shadow-xs border border-emerald-200/80 bg-gradient-to-br from-white via-emerald-50/50 to-teal-100/40 p-3">
+                        <div class="absolute left-0 inset-y-0 h-6 w-1 rounded-r-full bg-emerald-500 my-auto"></div>
+                        <div class="relative z-10 pl-2 pr-12">
+                            <div class="text-emerald-700 text-[8px] sm:text-[9px] font-extrabold uppercase tracking-widest leading-none mb-1">Active Duty</div>
+                            <div class="text-xl sm:text-2xl font-black text-emerald-600 leading-none mb-0.5 tracking-tight" id="activeWithUnitsCount">0</div>
+                            <div class="text-[9px] font-bold text-emerald-600/75 uppercase tracking-tight">Dispatched on Road</div>
                         </div>
+                        <img src="{{ asset('image/kpi/profit_3d.svg') }}" alt="Active Drivers" class="absolute -right-2 -bottom-2 w-14 h-14 sm:w-16 sm:h-16 object-contain pointer-events-none opacity-90 drop-shadow-sm">
                     </div>
-                    <div class="bg-white rounded-lg p-3 shadow-md shadow-slate-200/40 border border-orange-100 hover:shadow-md transition-shadow">
-                        <div class="flex items-center gap-2">
-                            <div class="p-1.5 bg-orange-100 rounded">
-                                <i data-lucide="user-check" class="w-4 h-4 text-orange-600"></i>
-                            </div>
-                            <div>
-                                <div class="text-lg font-bold text-orange-600" id="activeWithUnitsCount">0</div>
-                                <div class="text-xs text-gray-600 uppercase tracking-wide font-medium">Total Active Drivers</div>
-                            </div>
+
+                    <!-- 3. Vacant Drivers -->
+                    <div class="relative overflow-hidden rounded-2xl shadow-xs border border-indigo-200/80 bg-gradient-to-br from-white via-indigo-50/50 to-purple-100/40 p-3">
+                        <div class="absolute left-0 inset-y-0 h-6 w-1 rounded-r-full bg-indigo-500 my-auto"></div>
+                        <div class="relative z-10 pl-2 pr-12">
+                            <div class="text-indigo-700 text-[8px] sm:text-[9px] font-extrabold uppercase tracking-widest leading-none mb-1">Standby / Vacant</div>
+                            <div class="text-xl sm:text-2xl font-black text-indigo-600 leading-none mb-0.5 tracking-tight" id="vacantDriversCount">0</div>
+                            <div class="text-[9px] font-bold text-indigo-600/75 uppercase tracking-tight">Available for Units</div>
                         </div>
+                        <img src="{{ asset('image/kpi/history_3d.svg') }}" alt="Vacant Drivers" class="absolute -right-2 -bottom-2 w-14 h-14 sm:w-16 sm:h-16 object-contain pointer-events-none opacity-90 drop-shadow-sm">
                     </div>
-                    <div class="bg-white rounded-lg p-3 shadow-md shadow-slate-200/40 border border-purple-100 hover:shadow-md transition-shadow">
-                        <div class="flex items-center gap-2">
-                            <div class="p-1.5 bg-purple-100 rounded">
-                                <i data-lucide="award" class="w-4 h-4 text-purple-600"></i>
-                            </div>
-                            <div>
-                                <div class="text-lg font-bold text-purple-600" id="topPerformersCount">0</div>
-                                <div class="text-xs text-gray-600 uppercase tracking-wide font-medium">Top Performers</div>
-                            </div>
+
+                    <!-- 4. Top Performers -->
+                    <div class="relative overflow-hidden rounded-2xl shadow-xs border border-amber-200/80 bg-gradient-to-br from-white via-amber-50/50 to-yellow-100/40 p-3">
+                        <div class="absolute left-0 inset-y-0 h-6 w-1 rounded-r-full bg-amber-500 my-auto"></div>
+                        <div class="relative z-10 pl-2 pr-12">
+                            <div class="text-amber-700 text-[8px] sm:text-[9px] font-extrabold uppercase tracking-widest leading-none mb-1">Elite Tier</div>
+                            <div class="text-xl sm:text-2xl font-black text-amber-600 leading-none mb-0.5 tracking-tight" id="topPerformersCount">0</div>
+                            <div class="text-[9px] font-bold text-amber-600/75 uppercase tracking-tight">Top Performance</div>
                         </div>
+                        <img src="{{ asset('image/kpi/crown_3d.svg') }}" alt="Top Performers" class="absolute -right-2 -bottom-2 w-14 h-14 sm:w-16 sm:h-16 object-contain pointer-events-none opacity-90 drop-shadow-sm">
                     </div>
+
                 </div>
             </div>
 
-            <!-- Active Drivers Grid -->
-            <div class="flex-1 overflow-y-auto p-4 bg-gray-50 min-h-0">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pb-4" id="activeDriversGrid">
-                    <!-- Loading State -->
-                    <div class="col-span-full text-center py-16">
-                        <div class="inline-flex flex-col items-center">
-                            <div class="animate-spin rounded-full h-12 w-12 border-4 border-blue-600 border-t-transparent mb-4"></div>
-                            <span class="text-lg text-gray-600 font-semibold mb-2">Loading driver data...</span>
-                            <p class="text-sm text-slate-400">Please wait while we fetch driver details</p>
-                        </div>
-                    </div>
+            <!-- 🧭 Fixed Bold Savage Cyber Driver Pilot Crest & Helm Watermark Background (High Visibility) -->
+            <div class="absolute inset-0 top-16 flex items-center justify-center pointer-events-none select-none z-0 overflow-hidden px-4" aria-hidden="true" style="transform: translateZ(0);">
+                <svg viewBox="0 0 540 320" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-[96%] max-w-5xl h-auto opacity-[0.38] transform select-none pointer-events-none">
+                    <defs>
+                        <linearGradient id="driverCyanGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#0ea5e9" />
+                            <stop offset="35%" stop-color="#0284c7" />
+                            <stop offset="70%" stop-color="#38bdf8" />
+                            <stop offset="100%" stop-color="#6366f1" />
+                        </linearGradient>
+                        <linearGradient id="driverHelmGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+                            <stop offset="0%" stop-color="#0369a1" />
+                            <stop offset="50%" stop-color="#0284c7" />
+                            <stop offset="100%" stop-color="#38bdf8" />
+                        </linearGradient>
+                        <radialGradient id="driverHubGlow" cx="50%" cy="50%" r="50%">
+                            <stop offset="0%" stop-color="#0ea5e9" stop-opacity="0.45" />
+                            <stop offset="100%" stop-color="#0284c7" stop-opacity="0" />
+                        </radialGradient>
+                    </defs>
+
+                    <!-- Orbiting Navigation GPS Gyro Matrix Rings -->
+                    <circle cx="270" cy="160" r="120" stroke="url(#driverHelmGrad)" stroke-width="4.5" stroke-dasharray="16 10" />
+                    <ellipse cx="270" cy="160" rx="190" ry="75" stroke="url(#driverCyanGrad)" stroke-width="4" stroke-dasharray="10 8" transform="rotate(-15 270 160)" />
+                    <ellipse cx="270" cy="160" rx="190" ry="75" stroke="url(#driverHelmGrad)" stroke-width="4" stroke-dasharray="10 8" transform="rotate(15 270 160)" />
+
+                    <!-- Massive 3D Cyber Steering Wheel Rim Core -->
+                    <circle cx="270" cy="160" r="85" fill="url(#driverHubGlow)" />
+                    <circle cx="270" cy="160" r="80" stroke="url(#driverCyanGrad)" stroke-width="6.5" fill="#0284c7" fill-opacity="0.08" />
+                    <circle cx="270" cy="160" r="42" stroke="url(#driverHelmGrad)" stroke-width="4.5" fill="#ffffff" fill-opacity="0.3" />
+                    <circle cx="270" cy="160" r="16" fill="#38bdf8" />
+
+                    <!-- Steering Spokes & Grip Vectors -->
+                    <line x1="270" y1="80" x2="270" y2="118" stroke="url(#driverCyanGrad)" stroke-width="6" stroke-linecap="round" />
+                    <line x1="190" y1="160" x2="228" y2="160" stroke="url(#driverCyanGrad)" stroke-width="6" stroke-linecap="round" />
+                    <line x1="312" y1="160" x2="350" y2="160" stroke="url(#driverCyanGrad)" stroke-width="6" stroke-linecap="round" />
+                    <line x1="220" y1="210" x2="245" y2="185" stroke="url(#driverHelmGrad)" stroke-width="6" stroke-linecap="round" />
+                    <line x1="320" y1="210" x2="295" y2="185" stroke="url(#driverHelmGrad)" stroke-width="6" stroke-linecap="round" />
+
+                    <!-- Pilot Crest Wings (Left & Right Aerodynamic Blades) -->
+                    <path d="M190 160 Q120 120 40 140 Q100 170 190 175 Z" fill="url(#driverCyanGrad)" fill-opacity="0.25" stroke="url(#driverCyanGrad)" stroke-width="4.5" />
+                    <path d="M350 160 Q420 120 500 140 Q440 170 350 175 Z" fill="url(#driverCyanGrad)" fill-opacity="0.25" stroke="url(#driverCyanGrad)" stroke-width="4.5" />
+
+                    <!-- Speed Trajectory Precision Vectors -->
+                    <path d="M25 240 Q110 160 180 210 T360 90 T515 30" stroke="url(#driverCyanGrad)" stroke-width="6.5" stroke-linecap="round" fill="none" />
+                    <path d="M25 270 Q130 200 210 240 T390 140 T515 70" stroke="url(#driverHelmGrad)" stroke-width="4.5" stroke-dasharray="10 6" stroke-linecap="round" fill="none" />
+                    <path d="M30 300 H510" stroke="url(#driverCyanGrad)" stroke-width="4" stroke-dasharray="16 8" stroke-linecap="round" />
+
+                    <!-- Precision Compass Crosshairs -->
+                    <line x1="270" y1="20" x2="270" y2="45" stroke="url(#driverCyanGrad)" stroke-width="4" stroke-linecap="round" />
+                    <line x1="270" y1="255" x2="270" y2="280" stroke="url(#driverCyanGrad)" stroke-width="4" stroke-linecap="round" />
+                    <line x1="140" y1="160" x2="160" y2="160" stroke="url(#driverCyanGrad)" stroke-width="4" stroke-linecap="round" />
+                    <line x1="380" y1="160" x2="400" y2="160" stroke="url(#driverCyanGrad)" stroke-width="4" stroke-linecap="round" />
+
+                    <!-- Dynamic Floating Cyan Pilot Spark Crystals -->
+                    <polygon points="515,30 525,18 535,30 525,42" fill="#38bdf8" />
+                    <polygon points="450,95 457,86 464,95 457,104" fill="#0ea5e9" />
+                    <polygon points="85,200 92,191 99,200 92,209" fill="#0284c7" />
+                    <polygon points="130,90 136,82 142,90 136,98" fill="#6366f1" />
+                </svg>
+            </div>
+
+            <!-- Active Drivers Grid (Scrolls Smoothly Above Fixed Watermark) -->
+            <div class="flex-1 overflow-y-auto p-4 sm:p-5 min-h-0 relative z-10" style="transform: translateZ(0);">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pb-6" id="activeDriversGrid">
+                    <!-- Dynamic driver cards populated by renderActiveDrivers -->
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Coding Units Modal -->
-<div id="codingUnitsModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-6xl h-[95vh] flex flex-col overflow-hidden">
-        <!-- Modal Header -->
-        <div class="relative pt-6 pb-4 px-5 sm:pt-7 sm:pb-5 sm:px-6 border-b bg-gradient-to-r from-purple-600 via-pink-600 to-rose-600 flex-shrink-0 overflow-hidden">
-            <!-- Large Animated Shiny Background Text (Shifted up for clear full view) -->
-            <div class="absolute inset-x-0 top-1 sm:top-2 flex items-center justify-center pointer-events-none select-none z-0 overflow-hidden px-4" aria-hidden="true">
-                <h1 class="animated-shiny-units-text text-2xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black uppercase tracking-wider whitespace-nowrap opacity-90">
-                    Coding Units
-                </h1>
-            </div>
+<!-- Coding Units Modal (NEW 21st.dev Cyber Neon Amethyst & Violet Obsidian Theme) -->
+<div id="codingUnitsModal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md hidden z-50 flex items-center justify-center p-3 sm:p-5 transition-all duration-300">
+    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-6xl h-[92vh] flex flex-col overflow-hidden border border-slate-700/30">
+        <!-- Modal Header (21st.dev Cyber Neon Amethyst & Violet Obsidian Theme) -->
+        <div class="relative bg-[#130624] border-b border-purple-950/80 p-4 sm:p-5 flex-shrink-0 overflow-hidden">
+            <!-- Micro-grid Dot Pattern Background -->
+            <div class="absolute inset-0 opacity-[0.09] pointer-events-none" style="background-image: radial-gradient(rgba(192,132,252,0.9) 1px, transparent 1px); background-size: 16px 16px;"></div>
+            
+            <!-- Ambient Neon Amethyst, Magenta & Violet Radial Glows -->
+            <div class="absolute -top-20 left-1/2 -translate-x-1/2 w-96 h-40 bg-purple-600/25 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute top-1/2 -right-16 w-60 h-60 bg-fuchsia-600/20 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute bottom-0 left-10 w-48 h-20 bg-pink-600/15 rounded-full blur-2xl pointer-events-none"></div>
 
-            <div class="relative z-10">
-                <div class="flex items-center justify-between mb-4 sm:mb-5">
-                    <div class="flex items-end gap-3">
-                        <div class="p-2.5 bg-white/20 backdrop-blur-sm rounded-xl border border-white/30">
-                            <i data-lucide="code" class="w-6 h-6 text-white"></i>
-                        </div>
-                        <div class="pb-1">
-                            <p class="text-purple-100 text-xs font-medium">Complete coding unit management details</p>
-                        </div>
+            <div class="relative z-10 flex flex-col gap-3">
+                <!-- Top Row: Title, Pill & Close Action (100% Mathematically Centered Title) -->
+                <div class="relative flex items-center justify-between min-h-[38px]">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/15 border border-purple-400/30 text-purple-300 text-[10px] font-extrabold uppercase tracking-widest backdrop-blur-md shadow-xs relative z-10">
+                        <span class="w-2 h-2 rounded-full bg-purple-400 animate-pulse"></span>
+                        Coding Dispatch Protocol
                     </div>
-                    <button onclick="hideCodingUnitsModal()" class="text-white/80 hover:text-white hover:bg-white/20 p-2 rounded-lg transition-all duration-200 backdrop-blur-sm">
-                        <i data-lucide="x" class="w-5 h-5"></i>
+
+                    <!-- 100% Mathematically Centered Title Overlay -->
+                    <div class="absolute inset-0 flex items-center justify-center pointer-events-none px-28">
+                        <h1 class="animated-shiny-coding-text text-base sm:text-xl md:text-2xl lg:text-3xl font-black uppercase tracking-tight text-center truncate">
+                            Coding Units
+                        </h1>
+                    </div>
+
+                    <button onclick="hideCodingUnitsModal()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white flex items-center justify-center transition-all duration-200 backdrop-blur-sm border border-white/10 relative z-10" title="Close Modal">
+                        <i data-lucide="x" class="w-4 h-4"></i>
                     </button>
                 </div>
-                
-                <!-- Search and Date Filter -->
-                <div class="flex items-center gap-3">
-                    <div class="relative flex-1">
+
+                <!-- Bottom Row: Search Bar & Segmented Filter Buttons -->
+                <div class="flex flex-wrap items-center justify-between gap-2.5">
+                    <div class="relative flex-1 min-w-[240px]">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <i data-lucide="search" class="w-4 h-4 text-white/60"></i>
+                            <i data-lucide="search" class="w-4 h-4 text-purple-300/60"></i>
                         </div>
                         <input type="search" 
                             id="codingSearchInput"
-                            placeholder="Search by unit number, plate, or coding status..."
-                            class="w-full pl-10 pr-4 py-2 bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent transition-all duration-200 text-sm"
+                            placeholder="Search by unit plate, type, or status..."
+                            class="w-full pl-10 pr-9 py-1.5 bg-slate-900/90 border border-purple-900/60 rounded-xl text-white placeholder-slate-400 text-xs focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all"
                             oninput="filterCodingUnits()"
-                         autocomplete="new-password" spellcheck="false" autocorrect="off" autocapitalize="off" readonly onfocus="this.removeAttribute('readonly');">
-                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
-                            <button onclick="clearCodingSearch()" class="text-white/60 hover:text-white transition-colors">
-                                <i data-lucide="x-circle" class="w-4 h-4"></i>
+                            autocomplete="new-password" spellcheck="false" autocorrect="off" autocapitalize="off" readonly onfocus="this.removeAttribute('readonly');">
+                        <div class="absolute inset-y-0 right-0 pr-2.5 flex items-center">
+                            <button onclick="clearCodingSearch()" class="text-slate-400 hover:text-white transition-colors">
+                                <i data-lucide="x-circle" class="w-3.5 h-3.5"></i>
                             </button>
                         </div>
                     </div>
 
-                    <!-- Coding Period Filters -->
-                    <div class="flex bg-white/10 backdrop-blur-sm border border-white/30 rounded-lg p-1">
-                        <button 
-                            id="btn-today-coding" 
-                            onclick="setCodingPeriod('today')"
-                            class="px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200 bg-white text-purple-700"
-                        >
-                            Today
-                        </button>
-                        <button 
-                            id="btn-tomorrow-coding" 
-                            onclick="setCodingPeriod('tomorrow')"
-                            class="px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200 text-white/70 hover:text-white hover:bg-white/10"
-                        >
-                            Tomorrow
-                        </button>
-                        <button 
-                            id="btn-past-coding" 
-                            onclick="setCodingPeriod('past')"
-                            class="px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200 text-white/70 hover:text-white hover:bg-white/10"
-                        >
-                            Past
-                        </button>
+                    <div class="flex items-center p-1 bg-slate-900/90 rounded-xl border border-purple-900/60 shadow-inner">
+                        <button id="btn-today-coding" onclick="setCodingPeriod('today')" class="px-3 sm:px-3.5 py-1.5 text-xs font-black rounded-lg transition-all duration-200 bg-gradient-to-r from-purple-600 to-fuchsia-600 text-white shadow-sm cursor-pointer">Today</button>
+                        <button id="btn-tomorrow-coding" onclick="setCodingPeriod('tomorrow')" class="px-3 sm:px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 text-slate-300 hover:text-white hover:bg-white/10 cursor-pointer">Tomorrow</button>
+                        <button id="btn-past-coding" onclick="setCodingPeriod('past')" class="px-3 sm:px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 text-slate-300 hover:text-white hover:bg-white/10 cursor-pointer">Past</button>
                     </div>
                 </div>
             </div>
         </div>
         
-        <div class="flex-1 overflow-hidden flex flex-col min-h-0">
-            <!-- Summary Stats -->
-            <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-4 border-b border-purple-200 flex-shrink-0">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div class="bg-white rounded-lg p-3 shadow-md shadow-slate-200/40 border border-blue-100 hover:shadow-md transition-shadow">
-                        <div class="flex items-center gap-2">
-                            <div class="p-1.5 bg-blue-100 rounded">
-                                <i data-lucide="calendar" class="w-4 h-4 text-blue-600"></i>
-                            </div>
-                            <div>
-                                <div class="text-lg font-bold text-blue-600" id="todayCodingCount">0</div>
-                                <div class="text-xs text-gray-600 uppercase tracking-wide font-medium">Today's Coding</div>
-                            </div>
+        <div class="flex-1 overflow-hidden flex flex-col min-h-0 bg-slate-100/60 relative">
+            <!-- ─── 3D SVG KPI Executive Metrics Strip (21st.dev Style) ─── -->
+            <div class="bg-white/90 backdrop-blur-md p-3 sm:p-3.5 border-b border-slate-200/80 flex-shrink-0 shadow-xs relative z-20">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-2.5 sm:gap-3.5 max-w-5xl mx-auto">
+                    
+                    <!-- 1. Today's Coding -->
+                    <div class="relative overflow-hidden rounded-2xl shadow-xs border border-purple-200/80 bg-gradient-to-br from-white via-purple-50/50 to-fuchsia-100/40 p-3">
+                        <div class="absolute left-0 inset-y-0 h-6 w-1 rounded-r-full bg-purple-500 my-auto"></div>
+                        <div class="relative z-10 pl-2 pr-12">
+                            <div class="text-purple-700 text-[8px] sm:text-[9px] font-extrabold uppercase tracking-widest leading-none mb-1">Today's Coding</div>
+                            <div class="text-xl sm:text-2xl font-black text-purple-600 leading-none mb-0.5 tracking-tight" id="todayCodingCount">0</div>
+                            <div class="text-[9px] font-bold text-purple-600/75 uppercase tracking-tight">Active Restriction Today</div>
                         </div>
+                        <img src="{{ asset('image/kpi/history_3d.svg') }}" alt="Today Coding" class="absolute -right-2 -bottom-2 w-14 h-14 sm:w-16 sm:h-16 object-contain pointer-events-none opacity-90 drop-shadow-sm">
                     </div>
-                    <div class="bg-white rounded-lg p-3 shadow-md shadow-slate-200/40 border border-green-100 hover:shadow-md transition-shadow">
-                        <div class="flex items-center gap-2">
-                            <div class="p-1.5 bg-green-100 rounded">
-                                <i data-lucide="check-circle" class="w-4 h-4 text-green-600"></i>
-                            </div>
-                            <div>
-                                <div class="text-lg font-bold text-green-600" id="tomorrowCodingCount">0</div>
-                                <div class="text-xs text-gray-600 uppercase tracking-wide font-medium">Tomorrow's Coding</div>
-                            </div>
+
+                    <!-- 2. Tomorrow's Coding -->
+                    <div class="relative overflow-hidden rounded-2xl shadow-xs border border-indigo-200/80 bg-gradient-to-br from-white via-indigo-50/50 to-purple-100/40 p-3">
+                        <div class="absolute left-0 inset-y-0 h-6 w-1 rounded-r-full bg-indigo-500 my-auto"></div>
+                        <div class="relative z-10 pl-2 pr-12">
+                            <div class="text-indigo-700 text-[8px] sm:text-[9px] font-extrabold uppercase tracking-widest leading-none mb-1">Tomorrow's Coding</div>
+                            <div class="text-xl sm:text-2xl font-black text-indigo-600 leading-none mb-0.5 tracking-tight" id="tomorrowCodingCount">0</div>
+                            <div class="text-[9px] font-bold text-indigo-600/75 uppercase tracking-tight">Upcoming Next Cycle</div>
                         </div>
+                        <img src="{{ asset('image/kpi/profit_3d.svg') }}" alt="Tomorrow Coding" class="absolute -right-2 -bottom-2 w-14 h-14 sm:w-16 sm:h-16 object-contain pointer-events-none opacity-90 drop-shadow-sm">
                     </div>
-                    <div class="bg-white rounded-lg p-3 shadow-md shadow-slate-200/40 border border-orange-100 hover:shadow-md transition-shadow">
-                        <div class="flex items-center gap-2">
-                            <div class="p-1.5 bg-orange-100 rounded">
-                                <i data-lucide="alert-circle" class="w-4 h-4 text-orange-600"></i>
-                            </div>
-                            <div>
-                                <div class="text-lg font-bold text-orange-600" id="pastCodingCount">0</div>
-                                <div class="text-xs text-gray-600 uppercase tracking-wide font-medium">Past Coding</div>
-                            </div>
+
+                    <!-- 3. Past Coding -->
+                    <div class="relative overflow-hidden rounded-2xl shadow-xs border border-pink-200/80 bg-gradient-to-br from-white via-pink-50/50 to-rose-100/40 p-3">
+                        <div class="absolute left-0 inset-y-0 h-6 w-1 rounded-r-full bg-pink-500 my-auto"></div>
+                        <div class="relative z-10 pl-2 pr-12">
+                            <div class="text-pink-700 text-[8px] sm:text-[9px] font-extrabold uppercase tracking-widest leading-none mb-1">Past Restrictions</div>
+                            <div class="text-xl sm:text-2xl font-black text-pink-600 leading-none mb-0.5 tracking-tight" id="pastCodingCount">0</div>
+                            <div class="text-[9px] font-bold text-pink-600/75 uppercase tracking-tight">Cleared from Coding</div>
                         </div>
+                        <img src="{{ asset('image/kpi/expenses_3d.svg') }}" alt="Past Coding" class="absolute -right-2 -bottom-2 w-14 h-14 sm:w-16 sm:h-16 object-contain pointer-events-none opacity-90 drop-shadow-sm">
                     </div>
+
                 </div>
             </div>
 
-            <!-- Coding Units Grid -->
-            <div class="flex-1 overflow-y-auto p-4 bg-gray-50 min-h-0">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pb-4" id="codingGrid">
+            <!-- 🛑 Fixed Bold Savage Cyber Traffic Calendar & Radar Matrix Watermark Background (High Visibility) -->
+            <div class="absolute inset-0 top-16 flex items-center justify-center pointer-events-none select-none z-0 overflow-hidden px-4" aria-hidden="true" style="transform: translateZ(0);">
+                <svg viewBox="0 0 540 320" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-[96%] max-w-5xl h-auto opacity-[0.38] transform select-none pointer-events-none">
+                    <defs>
+                        <linearGradient id="codingPurpleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#c084fc" />
+                            <stop offset="35%" stop-color="#a855f7" />
+                            <stop offset="70%" stop-color="#e879f9" />
+                            <stop offset="100%" stop-color="#ec4899" />
+                        </linearGradient>
+                        <linearGradient id="codingRadarGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+                            <stop offset="0%" stop-color="#7e22ce" />
+                            <stop offset="50%" stop-color="#a855f7" />
+                            <stop offset="100%" stop-color="#f472b6" />
+                        </linearGradient>
+                        <radialGradient id="codingCoreGlow" cx="50%" cy="50%" r="50%">
+                            <stop offset="0%" stop-color="#a855f7" stop-opacity="0.45" />
+                            <stop offset="100%" stop-color="#7e22ce" stop-opacity="0" />
+                        </radialGradient>
+                    </defs>
+
+                    <!-- Orbiting Cyber Radar Matrix Rings -->
+                    <circle cx="270" cy="160" r="120" stroke="url(#codingRadarGrad)" stroke-width="4.5" stroke-dasharray="16 10" />
+                    <ellipse cx="270" cy="160" rx="190" ry="75" stroke="url(#codingPurpleGrad)" stroke-width="4" stroke-dasharray="10 8" transform="rotate(-15 270 160)" />
+                    <ellipse cx="270" cy="160" rx="190" ry="75" stroke="url(#codingRadarGrad)" stroke-width="4" stroke-dasharray="10 8" transform="rotate(15 270 160)" />
+
+                    <!-- Massive 3D Digital Calendar & Traffic Hexagon Core -->
+                    <circle cx="270" cy="160" r="85" fill="url(#codingCoreGlow)" />
+                    <polygon points="270,75 350,120 350,200 270,245 190,200 190,120" stroke="url(#codingPurpleGrad)" stroke-width="6.5" fill="#a855f7" fill-opacity="0.1" stroke-linejoin="round" />
+                    <polygon points="270,105 320,135 320,185 270,215 220,185 220,135" stroke="url(#codingRadarGrad)" stroke-width="4.5" fill="#ffffff" fill-opacity="0.3" stroke-linejoin="round" />
+                    <circle cx="270" cy="160" r="16" fill="#e879f9" />
+
+                    <!-- Traffic Restriction Diagonal Bar (Red/Magenta Signal) -->
+                    <line x1="210" y1="210" x2="330" y2="110" stroke="url(#codingPurpleGrad)" stroke-width="7" stroke-linecap="round" />
+                    <line x1="210" y1="210" x2="330" y2="110" stroke="#ffffff" stroke-width="2" stroke-linecap="round" opacity="0.8" />
+
+                    <!-- Multi-tier Holographic Coding Waves -->
+                    <path d="M25 240 Q110 160 180 210 T360 90 T515 30" stroke="url(#codingPurpleGrad)" stroke-width="6.5" stroke-linecap="round" fill="none" />
+                    <path d="M25 270 Q130 200 210 240 T390 140 T515 70" stroke="url(#codingRadarGrad)" stroke-width="4.5" stroke-dasharray="10 6" stroke-linecap="round" fill="none" />
+                    <path d="M30 300 H510" stroke="url(#codingPurpleGrad)" stroke-width="4" stroke-dasharray="16 8" stroke-linecap="round" />
+
+                    <!-- Precision Analytics Crosshairs -->
+                    <line x1="270" y1="20" x2="270" y2="45" stroke="url(#codingPurpleGrad)" stroke-width="4" stroke-linecap="round" />
+                    <line x1="270" y1="255" x2="270" y2="280" stroke="url(#codingPurpleGrad)" stroke-width="4" stroke-linecap="round" />
+                    <line x1="140" y1="160" x2="160" y2="160" stroke="url(#codingPurpleGrad)" stroke-width="4" stroke-linecap="round" />
+                    <line x1="380" y1="160" x2="400" y2="160" stroke="url(#codingPurpleGrad)" stroke-width="4" stroke-linecap="round" />
+
+                    <!-- Dynamic Floating Magenta Traffic Spark Crystals -->
+                    <polygon points="515,30 525,18 535,30 525,42" fill="#ec4899" />
+                    <polygon points="450,95 457,86 464,95 457,104" fill="#e879f9" />
+                    <polygon points="85,200 92,191 99,200 92,209" fill="#a855f7" />
+                    <polygon points="130,90 136,82 142,90 136,98" fill="#c084fc" />
+                </svg>
+            </div>
+
+            <!-- Coding Units Grid (Scrolls Smoothly Above Fixed Watermark) -->
+            <div class="flex-1 overflow-y-auto p-4 sm:p-5 min-h-0 relative z-10" style="transform: translateZ(0);">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pb-6" id="codingGrid">
                     <!-- Loading State -->
                     <div class="col-span-full text-center py-16">
                         <div class="inline-flex flex-col items-center">
                             <div class="animate-spin rounded-full h-12 w-12 border-4 border-purple-600 border-t-transparent mb-4"></div>
-                            <span class="text-lg text-gray-600 font-semibold mb-2">Loading coding data...</span>
-                            <p class="text-sm text-slate-400">Please wait while we fetch coding details</p>
+                            <span class="text-lg text-slate-800 font-black mb-1">Loading coding data...</span>
+                            <p class="text-xs text-slate-400 font-bold">Please wait while we fetch coding details</p>
                         </div>
                     </div>
                 </div>
@@ -2943,10 +3079,6 @@
             document.getElementById('activeWithUnitsCount').textContent = stats.active_with_units || 0;
             document.getElementById('topPerformersCount').textContent = stats.top_performers || 0;
             
-            // Store original data for filtering
-            window.originalActiveDriversData = drivers;
-            window.currentFilteredActiveDriversData = drivers;
-            
             // Render active drivers
             renderActiveDrivers(drivers);
             
@@ -2963,70 +3095,64 @@
                 grid.innerHTML = `
                     <div class="col-span-full text-center py-20">
                         <div class="inline-flex flex-col items-center">
-                            <div class="p-4 bg-gray-100 rounded-full mb-4">
-                                <i data-lucide="users" class="w-8 h-8 text-slate-400"></i>
+                            <div class="p-4 bg-sky-500/10 rounded-2xl mb-4 border border-sky-400/30">
+                                <i data-lucide="users" class="w-8 h-8 text-sky-600"></i>
                             </div>
-                            <span class="text-xl text-gray-600 font-semibold mb-2">No active drivers found</span>
-                            <p class="text-sm text-slate-400">Try adjusting your search or date filter</p>
+                            <span class="text-lg text-slate-800 font-black mb-1">No active drivers found</span>
+                            <p class="text-xs text-slate-400 font-bold">Try adjusting your search or category filter</p>
                         </div>
                     </div>
                 `;
+                if (typeof lucide !== 'undefined') {
+                    lucide.createIcons();
+                }
                 return;
             }
             
             grid.innerHTML = drivers.map(driver => `
-                <div onclick="openDriverDetails(${driver.id})" class="bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden border-l-4 border-blue-500 hover:scale-102 cursor-pointer">
-                    <div class="p-4">
-                        <!-- Header -->
-                        <div class="flex items-start justify-between mb-3">
-                            <div class="flex items-center gap-3">
-                                <div class="p-2 bg-blue-100 rounded-lg">
-                                    <i data-lucide="users" class="w-4 h-4 text-blue-600"></i>
-                                </div>
-                                <div>
-                                    <h4 class="text-lg font-bold text-slate-800">${driver.name || 'Unknown'}</h4>
-                                    <span class="text-xs text-slate-500">${driver.license_number || 'N/A'}</span>
-                                </div>
+                <div onclick="openDriverDetails(${driver.id})" class="cursor-pointer bg-[#f0f9ff]/35 hover:bg-[#f0f9ff]/55 backdrop-blur-[2px] rounded-2xl shadow-xs hover:shadow-md transition-all duration-200 overflow-hidden border border-sky-300/60 p-4 relative">
+                    <div class="flex items-start justify-between mb-3">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-8 h-8 rounded-xl bg-sky-600 text-white flex items-center justify-center shadow-xs">
+                                <i data-lucide="users" class="w-4 h-4"></i>
                             </div>
-                            <div class="text-right mt-1 flex flex-col items-end gap-1">
-                                ${driver.assigned_units > 0 
-                                    ? `<span class="px-2.5 py-1 text-xs font-bold text-green-700 bg-green-100 rounded-full border border-green-200">Assigned</span>
-                                       ${driver.plate_numbers ? `<span class="text-[10px] font-bold text-slate-400 capitalize bg-gray-100 px-2 rounded-md">${driver.plate_numbers}</span>` : ''}`
-                                    : `<span class="px-2.5 py-1 text-xs font-bold text-red-700 bg-red-100 rounded-full border border-red-200">Unassigned</span>`
-                                }
+                            <div>
+                                <h4 class="text-base font-black text-slate-900 tracking-tight">${driver.name || 'Unknown'}</h4>
+                                <p class="text-[10px] font-bold text-sky-700 uppercase tracking-widest">${driver.license_number || 'No License'}</p>
                             </div>
                         </div>
-                        
-
-                        
-                        <!-- Performance Stats -->
-                        <div class="flex items-center justify-between mb-3">
-                            <div class="flex items-center gap-2">
-                                <div class="w-1.5 h-1.5 rounded-full ${driver.performance_rating === 'excellent' ? 'bg-green-500' : driver.performance_rating === 'good' ? 'bg-yellow-500' : driver.performance_rating === 'average' ? 'bg-orange-500' : 'bg-gray-400'} animate-pulse"></div>
-                                <span class="text-xs font-medium text-gray-600">
-                                    ${driver.performance_rating ? driver.performance_rating.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) : 'Unknown'}
-                                </span>
-                            </div>
-                            <div class="text-right">
-                                <div class="text-lg font-bold text-blue-600">₱${driver.total_boundary ? driver.total_boundary.toLocaleString() : '0'}</div>
-                                <div class="text-xs text-slate-500">Total Collected</div>
-                            </div>
+                        <div class="text-right flex flex-col items-end gap-1">
+                            ${driver.assigned_units > 0 
+                                ? `<span class="px-2 py-0.5 text-[9px] font-black uppercase tracking-widest text-emerald-800 bg-emerald-500/15 rounded-full border border-emerald-400/40">Assigned</span>
+                                   ${driver.plate_numbers ? `<span class="text-[9px] font-bold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded-md border border-slate-200">${driver.plate_numbers}</span>` : ''}`
+                                : `<span class="px-2 py-0.5 text-[9px] font-black uppercase tracking-widest text-rose-800 bg-rose-500/15 rounded-full border border-rose-400/40">Vacant</span>`
+                            }
                         </div>
-                        
-                        <!-- Footer -->
-                        <div class="flex items-center justify-between text-xs text-slate-500">
-                            <span class="flex items-center gap-1">
-                                <i data-lucide="calendar" class="w-3 h-3"></i>
-                                ${driver.hire_date || 'No hire date'}
-                            </span>
-                            <span class="flex items-center gap-1">
-                                <i data-lucide="check-circle" class="w-3 h-3"></i>
-                                Active
+                    </div>
+                    
+                    <div class="bg-sky-500/5 rounded-xl p-2.5 border border-sky-200/40 mb-3 flex items-center justify-between text-xs">
+                        <div class="flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full ${driver.performance_rating === 'excellent' ? 'bg-emerald-500' : driver.performance_rating === 'good' ? 'bg-sky-500' : driver.performance_rating === 'average' ? 'bg-amber-500' : 'bg-slate-400'} animate-pulse"></span>
+                            <span class="text-[10px] font-bold text-slate-700 uppercase tracking-wider">
+                                ${driver.performance_rating ? driver.performance_rating.replace(/_/g, ' ') : 'Standard'}
                             </span>
                         </div>
+                        <div class="text-right">
+                            <div class="text-sm font-black text-sky-600">₱${driver.total_boundary ? Number(driver.total_boundary).toLocaleString() : '0'}</div>
+                            <div class="text-[8px] font-bold text-slate-400 uppercase tracking-tight">Total Collected</div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center justify-between text-[10px] font-extrabold text-sky-900">
+                        <span class="flex items-center gap-1"><i data-lucide="calendar" class="w-3 h-3 text-sky-600"></i> ${driver.hire_date ? 'Hired: ' + driver.hire_date : 'No hire date'}</span>
+                        <span class="text-sky-600 hover:underline">View Pilot &rarr;</span>
                     </div>
                 </div>
             `).join('');
+
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
         }
         
         function filterActiveDrivers() {
@@ -3128,9 +3254,9 @@
                 if (!btn) return;
                 
                 if (key === category) {
-                    btn.className = 'px-4 py-1.5 rounded-lg text-sm font-bold transition-all duration-200 bg-white text-blue-600 shadow-md shadow-slate-200/40';
+                    btn.className = 'px-3 sm:px-3.5 py-1.5 text-xs font-black rounded-lg transition-all duration-200 bg-gradient-to-r from-sky-600 to-blue-600 text-white shadow-sm cursor-pointer';
                 } else {
-                    btn.className = 'px-4 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 text-white hover:bg-white/10';
+                    btn.className = 'px-3 sm:px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 text-slate-300 hover:text-white hover:bg-white/10 cursor-pointer';
                 }
             });
             
@@ -3353,11 +3479,11 @@
                 grid.innerHTML = `
                     <div class="col-span-full text-center py-20">
                         <div class="inline-flex flex-col items-center">
-                            <div class="p-4 bg-gray-100 rounded-full mb-4">
-                                <i data-lucide="code" class="w-8 h-8 text-slate-400"></i>
+                            <div class="p-4 bg-purple-500/10 rounded-2xl mb-4 border border-purple-400/30">
+                                <i data-lucide="code" class="w-8 h-8 text-purple-600"></i>
                             </div>
-                            <span class="text-xl text-gray-600 font-semibold mb-2">No coding units found</span>
-                            <p class="text-sm text-slate-400">Try adjusting your search or date filter</p>
+                            <span class="text-lg text-slate-800 font-black mb-1">No coding units found</span>
+                            <p class="text-xs text-slate-400 font-bold">Try adjusting your search or date filter</p>
                         </div>
                     </div>
                 `;
@@ -3372,19 +3498,19 @@
                 const hasAnyDriver = hasDriver1 || hasDriver2;
 
                 let driverOverlayHTML = `
-                    <div class="absolute inset-0 bg-slate-900/95 opacity-0 group-hover:opacity-100 transition-all duration-250 flex flex-col items-center justify-center gap-1.5 z-10 pointer-events-none rounded-xl">
-                        <p class="text-white/60 text-[9px] font-bold uppercase tracking-widest mb-0.5">Assigned Drivers</p>
+                    <div class="absolute inset-0 bg-slate-955/90 backdrop-blur-xs opacity-0 group-hover:opacity-100 transition-all duration-250 flex flex-col items-center justify-center gap-1.5 z-10 pointer-events-none rounded-2xl p-3 bg-slate-900/90">
+                        <p class="text-purple-300 text-[9px] font-extrabold uppercase tracking-widest mb-0.5">Assigned Pilots</p>
                 `;
 
                 if (hasAnyDriver) {
                     if (hasDriver1) {
                         driverOverlayHTML += `
-                            <div class="flex items-center gap-2.5 bg-white/10 rounded-lg px-3 py-1.5 w-[90%]">
-                                <div class="w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center flex-shrink-0 shadow">
+                            <div class="flex items-center gap-2 bg-white/10 rounded-xl px-3 py-1.5 w-full border border-white/10">
+                                <div class="w-5 h-5 rounded-full bg-purple-500 flex items-center justify-center flex-shrink-0 shadow-xs">
                                     <span class="text-white text-[8px] font-bold">P1</span>
                                 </div>
                                 <div class="text-left overflow-hidden min-w-0">
-                                    <p class="text-[7px] text-blue-300 font-bold uppercase tracking-wider leading-none truncate">Primary 1</p>
+                                    <p class="text-[7px] text-purple-300 font-bold uppercase tracking-wider leading-none truncate">Primary 1</p>
                                     <p class="text-white text-[11px] font-bold leading-tight truncate">${unit.driver1_name.trim()}</p>
                                 </div>
                             </div>
@@ -3392,12 +3518,12 @@
                     }
                     if (hasDriver2) {
                         driverOverlayHTML += `
-                            <div class="flex items-center gap-2.5 bg-white/10 rounded-lg px-3 py-1.5 w-[90%]">
-                                <div class="w-5 h-5 rounded-full bg-purple-500 flex items-center justify-center flex-shrink-0 shadow">
+                            <div class="flex items-center gap-2 bg-white/10 rounded-xl px-3 py-1.5 w-full border border-white/10">
+                                <div class="w-5 h-5 rounded-full bg-fuchsia-500 flex items-center justify-center flex-shrink-0 shadow-xs">
                                     <span class="text-white text-[8px] font-bold">P2</span>
                                 </div>
                                 <div class="text-left overflow-hidden min-w-0">
-                                    <p class="text-[7px] text-purple-300 font-bold uppercase tracking-wider leading-none truncate">Primary 2</p>
+                                    <p class="text-[7px] text-fuchsia-300 font-bold uppercase tracking-wider leading-none truncate">Primary 2</p>
                                     <p class="text-white text-[11px] font-bold leading-tight truncate">${unit.driver2_name.trim()}</p>
                                 </div>
                             </div>
@@ -3405,9 +3531,9 @@
                     }
                 } else {
                     driverOverlayHTML += `
-                        <div class="flex flex-col items-center justify-center opacity-50">
-                            <i data-lucide="user-x" class="w-5 h-5 text-white mb-1.5"></i>
-                            <span class="text-[9px] text-white font-bold uppercase tracking-widest text-center leading-tight">No Driver<br>Assigned</span>
+                        <div class="flex flex-col items-center justify-center opacity-70">
+                            <i data-lucide="user-x" class="w-5 h-5 text-purple-300 mb-1"></i>
+                            <span class="text-[9px] text-purple-200 font-bold uppercase tracking-widest text-center leading-tight">No Driver Assigned</span>
                         </div>
                     `;
                 }
@@ -3415,36 +3541,28 @@
                 driverOverlayHTML += `</div>`;
 
                 return `
-                <div class="bg-white rounded-xl shadow-md shadow-slate-200/40 hover:shadow-md transition-all duration-300 overflow-hidden ring-1 ring-slate-900/5 hover:border-purple-200 relative group min-h-[130px]">
+                <div class="cursor-pointer bg-[#faf5ff]/35 hover:bg-[#faf5ff]/55 backdrop-blur-[2px] rounded-2xl shadow-xs hover:shadow-md transition-all duration-200 overflow-hidden border border-purple-300/60 p-4 relative group min-h-[130px]">
                     ${driverOverlayHTML}
-                    <div class="p-4 border-l-4 border-purple-500 h-full flex flex-col relative z-0">
-                        <!-- Header -->
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="flex items-center gap-3">
-                                <div class="p-2.5 bg-purple-50 rounded-lg text-purple-600">
-                                    <i data-lucide="car" class="w-5 h-5"></i>
+                    <div class="h-full flex flex-col relative z-0">
+                        <div class="flex items-start justify-between mb-3">
+                            <div class="flex items-center gap-2.5">
+                                <div class="w-8 h-8 rounded-xl bg-purple-600 text-white flex items-center justify-center shadow-xs">
+                                    <i data-lucide="car" class="w-4 h-4"></i>
                                 </div>
                                 <div>
-                                    <h4 class="text-xl font-bold text-slate-800 tracking-tight leading-none">${unit.plate_number || 'N/A'}</h4>
+                                    <h4 class="text-base font-black text-slate-900 tracking-tight leading-none">${unit.plate_number || 'N/A'}</h4>
+                                    <p class="text-[10px] font-bold text-purple-700 uppercase tracking-widest mt-1">${unit.status || 'Active'}</p>
                                 </div>
                             </div>
-                            <div class="text-right">
-                                <span class="px-2.5 py-1 bg-purple-50 text-purple-700 text-[10px] font-bold uppercase tracking-widest rounded-md border border-purple-100">${unit.coding_type || 'Coding'}</span>
-                            </div>
+                            <span class="px-2 py-0.5 bg-purple-500/15 text-purple-800 text-[9px] font-black uppercase tracking-widest rounded-full border border-purple-400/40">${unit.coding_type || 'Coding'}</span>
                         </div>
                         
-                        <div class="mt-auto">
-                            <!-- Details / Footer -->
-                            <div class="pt-3 border-t border-gray-100 flex items-center justify-between">
-                                <div class="flex items-center gap-1.5 text-[11px] font-bold text-slate-500 uppercase tracking-wide">
-                                    <i data-lucide="calendar" class="w-3.5 h-3.5 text-slate-400"></i>
-                                    ${unit.start_date ? unit.start_date : (unit.coding_day !== 'Unknown' ? 'Every ' + unit.coding_day : 'No date')}
-                                </div>
-                                <div class="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-slate-400">
-                                    <i data-lucide="activity" class="w-3.5 h-3.5 text-slate-400"></i>
-                                    ${unit.status || 'Unknown'}
-                                </div>
+                        <div class="mt-auto pt-2.5 border-t border-purple-200/40 flex items-center justify-between text-xs text-purple-900">
+                            <div class="flex items-center gap-1 text-[10px] font-bold text-purple-800">
+                                <i data-lucide="calendar" class="w-3.5 h-3.5 text-purple-600"></i>
+                                ${unit.start_date ? unit.start_date : (unit.coding_day !== 'Unknown' ? 'Every ' + unit.coding_day : 'No date')}
                             </div>
+                            <span class="text-[10px] font-extrabold text-purple-600">Hover for Drivers &rarr;</span>
                         </div>
                     </div>
                 </div>
@@ -3485,11 +3603,9 @@
                 const btn = document.getElementById('btn-' + p + '-coding');
                 if (btn) {
                     if (p === period) {
-                        btn.classList.remove('text-white/70', 'hover:text-white', 'hover:bg-white/10');
-                        btn.classList.add('bg-white', 'text-purple-700');
+                        btn.className = 'px-3 sm:px-3.5 py-1.5 text-xs font-black rounded-lg transition-all duration-200 bg-gradient-to-r from-purple-600 to-fuchsia-600 text-white shadow-sm cursor-pointer';
                     } else {
-                        btn.classList.add('text-white/70', 'hover:text-white', 'hover:bg-white/10');
-                        btn.classList.remove('bg-white', 'text-purple-700');
+                        btn.className = 'px-3 sm:px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 text-slate-300 hover:text-white hover:bg-white/10 cursor-pointer';
                     }
                 }
             });
