@@ -1454,53 +1454,150 @@
 </div>
 
 <!-- Net Income Modal -->
-<div id="netIncomeModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-6xl h-[95vh] flex flex-col overflow-hidden">
-        <!-- Modal Header -->
-        <div class="relative pt-6 pb-4 px-5 sm:pt-7 sm:pb-5 sm:px-6 border-b bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 flex-shrink-0 overflow-hidden">
-            <!-- Large Animated Shiny Background Text (Shifted up for clear full view) -->
-            <div class="absolute inset-x-0 top-1 sm:top-2 flex items-center justify-center pointer-events-none select-none z-0 overflow-hidden px-4" aria-hidden="true">
-                <h1 class="animated-shiny-units-text text-xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-black uppercase tracking-wider whitespace-nowrap opacity-90">
-                    Net Income Details
-                </h1>
-            </div>
+<div id="netIncomeModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md hidden z-50 flex items-center justify-center p-3 sm:p-5 transition-all duration-300">
+    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-6xl h-[92vh] flex flex-col overflow-hidden border border-slate-700/30">
+        <!-- Modal Header (21st.dev Cyber Profit Dark Glass Theme) -->
+        <div class="relative bg-[#061a12] border-b border-emerald-950/60 p-4 sm:p-5 flex-shrink-0 overflow-hidden">
+            <!-- Micro-grid Dot Pattern Background -->
+            <div class="absolute inset-0 opacity-[0.08] pointer-events-none" style="background-image: radial-gradient(rgba(16,185,129,0.9) 1px, transparent 1px); background-size: 16px 16px;"></div>
+            
+            <!-- Ambient Emerald & Cyan Radial Glows -->
+            <div class="absolute -top-20 left-1/2 -translate-x-1/2 w-96 h-40 bg-emerald-500/20 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute top-1/2 -right-16 w-60 h-60 bg-teal-500/15 rounded-full blur-3xl pointer-events-none"></div>
 
-            <div class="relative z-10">
-                <div class="flex items-center justify-between mb-2">
-                    <div class="flex items-end gap-3">
-                        <div class="p-2.5 bg-white/20 backdrop-blur-sm rounded-xl border border-white/30">
-                            <i data-lucide="trending-up" class="w-6 h-6 text-white"></i>
-                        </div>
-                        <div class="pb-1">
-                            <p class="text-green-100 text-xs font-medium">Complete income and expense breakdown</p>
-                        </div>
+            <div class="relative z-10 flex flex-col gap-3">
+                <!-- Top Row: Title, Pill & Close Action (100% Mathematically Centered Title) -->
+                <div class="relative flex items-center justify-between min-h-[38px]">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-emerald-400 text-[10px] font-extrabold uppercase tracking-widest backdrop-blur-md shadow-xs relative z-10">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                        Net Margin Live
                     </div>
-                    <button onclick="hideNetIncomeModal()" class="text-white/80 hover:text-white hover:bg-white/20 p-2 rounded-lg transition-all duration-200 backdrop-blur-sm">
-                        <i data-lucide="x" class="w-5 h-5"></i>
+
+                    <!-- 100% Mathematically Centered Title Overlay -->
+                    <div class="absolute inset-0 flex items-center justify-center pointer-events-none px-28">
+                        <h1 class="animated-shiny-boundary-text text-base sm:text-xl md:text-2xl lg:text-3xl font-black uppercase tracking-tight text-center truncate">
+                            Net Income Details
+                        </h1>
+                    </div>
+
+                    <button onclick="hideNetIncomeModal()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white flex items-center justify-center transition-all duration-200 backdrop-blur-sm border border-white/10 relative z-10" title="Close Modal">
+                        <i data-lucide="x" class="w-4 h-4"></i>
                     </button>
                 </div>
-                
-                <!-- Period Filters and Print Button Row -->
-                <div class="mt-4 flex flex-wrap items-center justify-between gap-3 bg-black/15 rounded-xl p-2 backdrop-blur-sm border border-white/10">
-                    <div class="flex gap-1 p-0.5 bg-black/20 rounded-lg shadow-inner">
-                        <button id="btn-today-income" onclick="setIncomePeriod('today')" class="px-3 py-1.5 text-xs font-bold rounded-md transition-all duration-200">Today</button>
-                        <button id="btn-week-income" onclick="setIncomePeriod('week')" class="px-3 py-1.5 text-xs font-bold rounded-md transition-all duration-200">Weekly</button>
-                        <button id="btn-month-income" onclick="setIncomePeriod('month')" class="px-3 py-1.5 text-xs font-bold rounded-md transition-all duration-200">Monthly</button>
-                        <button id="btn-year-income" onclick="setIncomePeriod('year')" class="px-3 py-1.5 text-xs font-bold rounded-md transition-all duration-200">Yearly</button>
+
+                <!-- Bottom Row: Period Segmented Buttons & Print Report -->
+                <div class="flex flex-wrap items-center justify-between gap-2.5">
+                    <div class="flex items-center p-1 bg-slate-900/90 rounded-xl border border-slate-700/80 shadow-inner">
+                        <button id="btn-today-income" onclick="setIncomePeriod('today')" class="px-3 sm:px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 bg-white text-emerald-800 shadow-sm cursor-pointer">Today</button>
+                        <button id="btn-week-income" onclick="setIncomePeriod('week')" class="px-3 sm:px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 text-slate-300 hover:text-white hover:bg-white/10 cursor-pointer">Weekly</button>
+                        <button id="btn-month-income" onclick="setIncomePeriod('month')" class="px-3 sm:px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 text-slate-300 hover:text-white hover:bg-white/10 cursor-pointer">Monthly</button>
+                        <button id="btn-year-income" onclick="setIncomePeriod('year')" class="px-3 sm:px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 text-slate-300 hover:text-white hover:bg-white/10 cursor-pointer">Yearly</button>
                     </div>
 
-                    <button onclick="printReport()" class="bg-white text-green-700 hover:bg-green-50 px-4 py-1.5 rounded-lg transition-all duration-200 shadow-md flex items-center gap-2 text-xs font-bold border border-white hover:scale-105">
-                        <i data-lucide="printer" class="w-4 h-4 text-green-700"></i>
+                    <button onclick="printReport()" class="px-3.5 sm:px-4 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-extrabold text-xs flex items-center gap-2 border border-white/20 backdrop-blur-md shadow-sm transition-all duration-200 cursor-pointer">
+                        <i data-lucide="printer" class="w-3.5 h-3.5 text-emerald-400"></i>
                         PRINT REPORT
                     </button>
                 </div>
             </div>
         </div>
         
-        <div class="flex-1 overflow-hidden flex flex-col min-h-0">
-            <!-- Detailed Report Document (Integrated) -->
-            <div class="bg-gray-50 p-4 border-b border-gray-200 flex-shrink-0 print-section overflow-y-auto max-h-[85vh]">
-                <div class="max-w-5xl mx-auto bg-white border border-gray-200 rounded-xl p-6 shadow-md shadow-slate-200/40 relative" id="incomeReport">
+        <div class="flex-1 overflow-hidden flex flex-col min-h-0 bg-slate-100/60 relative">
+            <!-- ─── 3D SVG KPI Executive Metrics Strip (21st.dev Style) ─── -->
+            <div class="bg-white/90 backdrop-blur-md p-3 sm:p-3.5 border-b border-slate-200/80 flex-shrink-0 shadow-xs relative z-20">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3.5 max-w-7xl mx-auto">
+                    
+                    <!-- 1. Total Revenue Card -->
+                    <div class="relative overflow-hidden rounded-2xl shadow-xs border border-emerald-200/80 bg-gradient-to-br from-white via-emerald-50/50 to-emerald-100/40 p-3">
+                        <div class="absolute left-0 inset-y-0 h-6 w-1 rounded-r-full bg-emerald-500 my-auto"></div>
+                        <div class="relative z-10 pl-2 pr-12">
+                            <div class="text-emerald-700 text-[8px] sm:text-[9px] font-extrabold uppercase tracking-widest leading-none mb-1">Total Revenue</div>
+                            <div class="text-xl sm:text-2xl font-black text-emerald-600 leading-none mb-0.5 tracking-tight" id="reportTotalIncome">₱0.00</div>
+                            <div class="text-[9px] font-bold text-emerald-600/75 uppercase tracking-tight">Gross Inflow</div>
+                        </div>
+                        <img src="{{ asset('image/kpi/revenue_3d.svg') }}" alt="Total Revenue" class="absolute -right-2 -bottom-2 w-14 h-14 sm:w-16 sm:h-16 object-contain pointer-events-none opacity-90 drop-shadow-sm">
+                    </div>
+
+                    <!-- 2. Total Expenses Card -->
+                    <div class="relative overflow-hidden rounded-2xl shadow-xs border border-rose-200/80 bg-gradient-to-br from-white via-rose-50/50 to-rose-100/40 p-3">
+                        <div class="absolute left-0 inset-y-0 h-6 w-1 rounded-r-full bg-rose-500 my-auto"></div>
+                        <div class="relative z-10 pl-2 pr-12">
+                            <div class="text-rose-700 text-[8px] sm:text-[9px] font-extrabold uppercase tracking-widest leading-none mb-1">Total Expenses</div>
+                            <div class="text-xl sm:text-2xl font-black text-rose-600 leading-none mb-0.5 tracking-tight" id="reportTotalExpenses">₱0.00</div>
+                            <div class="text-[9px] font-bold text-rose-600/75 uppercase tracking-tight">Operating Outflow</div>
+                        </div>
+                        <img src="{{ asset('image/kpi/expenses_3d.svg') }}" alt="Total Expenses" class="absolute -right-2 -bottom-2 w-14 h-14 sm:w-16 sm:h-16 object-contain pointer-events-none opacity-90 drop-shadow-sm">
+                    </div>
+
+                    <!-- 3. Net Income & Margin Card -->
+                    <div class="relative overflow-hidden rounded-2xl shadow-xs border border-violet-200/80 bg-gradient-to-br from-white via-violet-50/50 to-violet-100/40 p-3">
+                        <div class="absolute left-0 inset-y-0 h-6 w-1 rounded-r-full bg-violet-500 my-auto"></div>
+                        <div class="relative z-10 pl-2 pr-12">
+                            <div class="flex items-center gap-1.5 mb-1">
+                                <span class="text-violet-700 text-[8px] sm:text-[9px] font-extrabold uppercase tracking-widest leading-none">Net Income</span>
+                                <span id="reportProfitMargin" class="text-[8px] px-1.5 py-0.5 rounded-full font-bold bg-violet-100 text-violet-800 border border-violet-200">0.0% Margin</span>
+                            </div>
+                            <div class="text-xl sm:text-2xl font-black text-slate-900 leading-none mb-0.5 tracking-tight" id="reportNetIncome">₱0.00</div>
+                            <div class="text-[9px] font-bold text-violet-600/75 uppercase tracking-tight">Net Profit Takeaway</div>
+                        </div>
+                        <img src="{{ asset('image/kpi/crown_3d.svg') }}" alt="Net Income" class="absolute -right-2 -bottom-2 w-14 h-14 sm:w-16 sm:h-16 object-contain pointer-events-none opacity-90 drop-shadow-sm">
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- 💎 Fixed Savage Cyber Financial Vault & Audit Matrix Watermark Background -->
+            <div class="absolute inset-x-0 bottom-0 top-16 flex items-center justify-center pointer-events-none select-none z-0 overflow-hidden px-4" aria-hidden="true" style="transform: translateZ(0);">
+                <svg viewBox="0 0 520 200" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-[94%] max-w-4xl h-auto opacity-[0.24] transform select-none pointer-events-none">
+                    <defs>
+                        <linearGradient id="netIncomeVaultGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#10b981" />
+                            <stop offset="50%" stop-color="#059669" />
+                            <stop offset="100%" stop-color="#eab308" />
+                        </linearGradient>
+                        <linearGradient id="netIncomePulseGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stop-color="#34d399" />
+                            <stop offset="100%" stop-color="#10b981" />
+                        </linearGradient>
+                    </defs>
+
+                    <!-- Background High-Tech Financial Grid & Data Matrix Lines -->
+                    <path d="M20 170 H500" stroke="url(#netIncomeVaultGrad)" stroke-width="2.5" stroke-dasharray="10 6" stroke-linecap="round" />
+                    <path d="M50 185 H470" stroke="url(#netIncomeVaultGrad)" stroke-width="3" stroke-linecap="round" />
+
+                    <!-- Massive Ascending Cyber Growth Momentum Bars -->
+                    <rect x="70" y="115" width="28" height="55" rx="6" stroke="url(#netIncomeVaultGrad)" stroke-width="3" fill="#10b981" fill-opacity="0.08" />
+                    <rect x="115" y="85" width="28" height="85" rx="6" stroke="url(#netIncomeVaultGrad)" stroke-width="3" fill="#10b981" fill-opacity="0.1" />
+                    <rect x="375" y="60" width="28" height="110" rx="6" stroke="url(#netIncomeVaultGrad)" stroke-width="3" fill="#10b981" fill-opacity="0.12" />
+                    <rect x="420" y="30" width="28" height="140" rx="6" stroke="url(#netIncomeVaultGrad)" stroke-width="3.5" fill="#eab308" fill-opacity="0.15" />
+
+                    <!-- Savage Cyber Wealth Shield & Central Vault Mechanism -->
+                    <polygon points="260,18 350,55 350,135 260,185 170,135 170,55" stroke="url(#netIncomeVaultGrad)" stroke-width="5" fill="#061a12" fill-opacity="0.03" stroke-linejoin="round" />
+                    <polygon points="260,32 335,63 335,127 260,170 185,127 185,63" stroke="url(#netIncomePulseGrad)" stroke-width="2.5" stroke-dasharray="8 4" fill="none" stroke-linejoin="round" />
+
+                    <!-- Vault Gear Wheel & Luminous Core -->
+                    <circle cx="260" cy="100" r="46" stroke="url(#netIncomeVaultGrad)" stroke-width="4.5" fill="#ffffff" fill-opacity="0.25" />
+                    <circle cx="260" cy="100" r="34" stroke="url(#netIncomePulseGrad)" stroke-width="3" stroke-dasharray="10 5" />
+                    <circle cx="260" cy="100" r="18" fill="url(#netIncomeVaultGrad)" fill-opacity="0.3" stroke="url(#netIncomeVaultGrad)" stroke-width="3" />
+                    <circle cx="260" cy="100" r="6" fill="#eab308" />
+
+                    <!-- Radial Vault Bolt Latches -->
+                    <path d="M260 48 V62 M260 138 V152 M208 100 H222 M298 100 H312 M223 63 L233 73 M287 127 L297 137 M223 137 L233 127 M287 73 L297 63" stroke="url(#netIncomeVaultGrad)" stroke-width="3.5" stroke-linecap="round" />
+
+                    <!-- Aggressive Upward Rocketing Trend & Surge Vectors -->
+                    <path d="M60 145 L150 100 L210 115 L320 45 L460 20" stroke="url(#netIncomeVaultGrad)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" />
+                    <path d="M435 16 L465 20 L452 48" stroke="url(#netIncomeVaultGrad)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="url(#netIncomeVaultGrad)" fill-opacity="0.2" />
+
+                    <!-- Luminous Sparkle & Diamond Nodes -->
+                    <polygon points="460,20 467,13 474,20 467,27" fill="#eab308" />
+                    <polygon points="60,145 64,141 68,145 64,149" fill="#10b981" />
+                    <polygon points="320,45 325,40 330,45 325,50" fill="#34d399" />
+                </svg>
+            </div>
+
+            <!-- Detailed Report Document (Scrollable Area) -->
+            <div class="flex-1 overflow-y-auto p-4 sm:p-5 min-h-0 relative z-10 print-section" style="transform: translateZ(0);">
+                <div class="max-w-5xl mx-auto relative" id="incomeReport">
                     <!-- Report Header (Print Only) -->
                     <div class="text-center mb-10 print-only">
                         <div class="flex flex-col items-center mb-4">
@@ -1527,74 +1624,51 @@
                             </div>
                         </div>
                     </div>
-
-                    <!-- Net Income Summary Section (Screen Only) -->
-                    <div class="mb-8 p-6 bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl shadow-lg border border-gray-700 text-white relative overflow-hidden no-print">
-                        <!-- Decorative element -->
-                        <div class="absolute top-0 right-0 opacity-10 pointer-events-none">
-                            <i data-lucide="calculator" class="w-48 h-48 -mt-8 -mr-8"></i>
-                        </div>
-                        
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10">
-                            <!-- Revenue -->
-                            <div class="flex flex-col border-b md:border-b-0 md:border-r border-gray-700 pb-4 md:pb-0 md:pr-6">
-                                <span class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Total Revenue</span>
-                                <span class="text-3xl font-bold text-emerald-400" id="reportTotalIncome">₱0.00</span>
-                            </div>
-                            
-                            <!-- Expenses -->
-                            <div class="flex flex-col border-b md:border-b-0 md:border-r border-gray-700 pb-4 md:pb-0 md:pr-6 md:pl-2">
-                                <span class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Total Expenses</span>
-                                <span class="text-3xl font-bold text-red-400" id="reportTotalExpenses">₱0.00</span>
-                            </div>
-                            
-                            <!-- Net Income -->
-                            <div class="flex flex-col md:pl-2">
-                                <span class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1 flex items-center">
-                                    Net Income 
-                                    <span id="reportProfitMargin" class="ml-2 text-[9px] bg-white/10 px-2 py-0.5 rounded-full text-gray-300">0.0% Margin</span>
-                                </span>
-                                <span class="text-4xl font-bold text-white" id="reportNetIncome">₱0.00</span>
-                            </div>
-                        </div>
-                    </div>
                     
-                    <!-- Revenue Section -->
-                    <div class="mb-6">
-                        <div class="flex justify-between items-center bg-gray-100 text-gray-800 px-6 py-3 rounded-t-lg border-x border-t border-gray-200">
-                            <span class="text-[11px] uppercase font-bold tracking-[0.1em]">Revenue Breakdown</span>
-                        </div>
-                        <div class="border-x border-b border-gray-200 rounded-b-lg">
-                            <div id="revenueDetailList" class="min-h-[100px] flex flex-col justify-center">
-                                <!-- Dynamically populated -->
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Operating Expenses Section -->
-                    <div class="mb-6">
-                        <div class="flex justify-between items-center bg-red-50 text-red-900 px-6 py-3 rounded-t-lg border-x border-t border-red-100">
-                            <span class="text-[11px] uppercase font-bold tracking-[0.1em]">Operating Expenses Breakdown</span>
-                        </div>
-                        <div class="border-x border-b border-gray-200 rounded-b-lg p-0">
-                            <!-- Maintenance Breakdown -->
-                            <div class="border-b border-gray-200">
-                                <div class="bg-gray-50 px-6 py-2 border-b border-gray-200 flex justify-between text-[9px] font-bold text-slate-400 uppercase tracking-widest">
-                                    <span>Maintenance & Repairs Itemized</span>
-                                    <span id="reportMaintenanceTotal" class="text-orange-600 font-bold">Total: ₱0.00</span>
+                    <!-- Revenue Section (Translucent Frosted Card) -->
+                    <div class="mb-5 bg-white/70 backdrop-blur-sm rounded-2xl border border-emerald-300/60 shadow-sm overflow-hidden">
+                        <div class="flex justify-between items-center bg-emerald-50/80 px-4 sm:px-6 py-3 border-b border-emerald-200/80">
+                            <div class="flex items-center gap-2">
+                                <div class="w-6 h-6 rounded-lg bg-emerald-500 text-white flex items-center justify-center flex-shrink-0 shadow-xs">
+                                    <i data-lucide="trending-up" class="w-3.5 h-3.5"></i>
                                 </div>
-                                <div id="maintenanceDetailList" class="bg-white min-h-[60px] flex flex-col justify-center">
+                                <span class="text-xs font-black text-emerald-900 uppercase tracking-wider">Revenue Breakdown</span>
+                            </div>
+                        </div>
+                        <div id="revenueDetailList" class="min-h-[80px] flex flex-col justify-center bg-white/30">
+                            <!-- Dynamically populated -->
+                        </div>
+                    </div>
+                    
+                    <!-- Operating Expenses Section (Translucent Frosted Card) -->
+                    <div class="mb-5 bg-white/70 backdrop-blur-sm rounded-2xl border border-rose-300/60 shadow-sm overflow-hidden">
+                        <div class="flex justify-between items-center bg-rose-50/80 px-4 sm:px-6 py-3 border-b border-rose-200/80">
+                            <div class="flex items-center gap-2">
+                                <div class="w-6 h-6 rounded-lg bg-rose-500 text-white flex items-center justify-center flex-shrink-0 shadow-xs">
+                                    <i data-lucide="trending-down" class="w-3.5 h-3.5"></i>
+                                </div>
+                                <span class="text-xs font-black text-rose-900 uppercase tracking-wider">Operating Expenses Breakdown</span>
+                            </div>
+                        </div>
+                        <div class="divide-y divide-rose-100/60 bg-white/30">
+                            <!-- Maintenance Breakdown -->
+                            <div>
+                                <div class="bg-rose-50/40 px-4 sm:px-6 py-2 border-b border-rose-100 flex justify-between items-center text-[10px] font-extrabold text-slate-600 uppercase tracking-wider">
+                                    <span class="flex items-center gap-1.5"><i data-lucide="wrench" class="w-3 h-3 text-orange-600"></i> Maintenance & Repairs Itemized</span>
+                                    <span id="reportMaintenanceTotal" class="text-orange-600 font-black">Total: ₱0.00</span>
+                                </div>
+                                <div id="maintenanceDetailList" class="min-h-[60px] flex flex-col justify-center">
                                     <!-- Dynamically populated -->
                                 </div>
                             </div>
 
                             <!-- Office Breakdown -->
                             <div>
-                                <div class="bg-gray-50 px-6 py-2 border-b border-gray-200 flex justify-between text-[9px] font-bold text-slate-400 uppercase tracking-widest">
-                                    <span>General Office Expenses Itemized</span>
-                                    <span id="reportGeneralExpensesTotal" class="text-red-500 font-bold">Total: ₱0.00</span>
+                                <div class="bg-rose-50/40 px-4 sm:px-6 py-2 border-b border-rose-100 flex justify-between items-center text-[10px] font-extrabold text-slate-600 uppercase tracking-wider">
+                                    <span class="flex items-center gap-1.5"><i data-lucide="building" class="w-3 h-3 text-red-600"></i> General Office Expenses Itemized</span>
+                                    <span id="reportGeneralExpensesTotal" class="text-rose-600 font-black">Total: ₱0.00</span>
                                 </div>
-                                <div id="officeExpensesDetailList" class="bg-white min-h-[60px] flex flex-col justify-center rounded-b-lg">
+                                <div id="officeExpensesDetailList" class="min-h-[60px] flex flex-col justify-center">
                                     <!-- Dynamically populated -->
                                 </div>
                             </div>
@@ -3668,14 +3742,15 @@
             
             const netIncomeEl = document.getElementById('reportNetIncome');
             if (netIncomeEl) {
-                netIncomeEl.className = 'text-4xl font-bold ' + (netIncome > 0 ? 'text-emerald-400' : (netIncome < 0 ? 'text-red-400' : 'text-white'));
+                netIncomeEl.className = 'text-xl sm:text-2xl font-black leading-none mb-0.5 tracking-tight ' + 
+                    (netIncome > 0 ? 'text-emerald-600' : (netIncome < 0 ? 'text-rose-600' : 'text-slate-900'));
             }
             
             const profitMarginEl = document.getElementById('reportProfitMargin');
             if (profitMarginEl) {
                 profitMarginEl.textContent = profitMargin.toFixed(1) + '% Margin';
-                profitMarginEl.className = 'ml-2 text-[9px] px-2 py-0.5 rounded-full font-bold ' + 
-                    (netIncome > 0 ? 'bg-emerald-500/20 text-emerald-300' : (netIncome < 0 ? 'bg-red-500/20 text-red-300' : 'bg-white/10 text-gray-300'));
+                profitMarginEl.className = 'text-[8px] px-1.5 py-0.5 rounded-full font-bold border ' + 
+                    (netIncome > 0 ? 'bg-emerald-100 text-emerald-800 border-emerald-200' : (netIncome < 0 ? 'bg-rose-100 text-rose-800 border-rose-200' : 'bg-slate-100 text-slate-700 border-slate-200'));
             }
             
             safeSet('reportTimestamp', new Date().toLocaleString());
@@ -3687,28 +3762,30 @@
                 
                 if (items.length > 0) {
                     el.innerHTML = `
-                        <table class="w-full text-left border-collapse">
-                            <thead>
-                                <tr class="bg-gray-50/50 border-b border-gray-100 text-[8px] uppercase tracking-widest text-slate-400">
-                                    <th class="px-6 py-2 font-bold w-1/4">Date</th>
-                                    <th class="px-6 py-2 font-bold w-1/2">Description</th>
-                                    <th class="px-6 py-2 font-bold text-right w-1/4">Amount</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-gray-50">
-                                ${items.map(item => `
-                                    <tr class="hover:bg-gray-50/50 transition-colors">
-                                        <td class="px-6 py-2 text-[9px] text-slate-400 font-bold uppercase whitespace-nowrap">${item.date}</td>
-                                        <td class="px-6 py-2 text-[10px] font-bold text-gray-800 tracking-tight">${item.description}</td>
-                                        <td class="px-6 py-2 text-xs font-bold ${id === 'revenueDetailList' ? 'text-emerald-600' : 'text-red-500'} text-right whitespace-nowrap">${fmt(item.amount)}</td>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-white/40 border-b border-slate-200/80 text-[8px] uppercase tracking-widest text-slate-500 font-extrabold">
+                                        <th class="px-4 sm:px-6 py-2.5 w-1/4">Date</th>
+                                        <th class="px-4 sm:px-6 py-2.5 w-1/2">Description</th>
+                                        <th class="px-4 sm:px-6 py-2.5 text-right w-1/4">Amount</th>
                                     </tr>
-                                `).join('')}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody class="divide-y divide-slate-200/50 text-xs">
+                                    ${items.map(item => `
+                                        <tr class="hover:bg-white/50 transition-colors">
+                                            <td class="px-4 sm:px-6 py-2 text-[10px] text-slate-500 font-bold uppercase whitespace-nowrap">${item.date}</td>
+                                            <td class="px-4 sm:px-6 py-2 font-bold text-slate-800 tracking-tight">${item.description}</td>
+                                            <td class="px-4 sm:px-6 py-2 font-black ${id === 'revenueDetailList' ? 'text-emerald-700' : 'text-rose-600'} text-right whitespace-nowrap">${fmt(item.amount)}</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
                     `;
                 } else {
                     el.innerHTML = `
-                        <div class="px-6 py-4 text-center text-[10px] font-bold text-slate-400 uppercase tracking-widest border-b border-gray-50">
+                        <div class="px-6 py-6 text-center text-[10px] font-bold text-slate-400 uppercase tracking-widest">
                             No records found
                         </div>
                     `;
@@ -3718,6 +3795,10 @@
             renderList('revenueDetailList', breakdown.revenueItems);
             renderList('maintenanceDetailList', breakdown.maintenanceItems);
             renderList('officeExpensesDetailList', breakdown.officeItems);
+            
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
         }
 
         function renderIncomeData(data) {
@@ -4090,14 +4171,14 @@
 
             // Update button styles
             document.querySelectorAll('[id^="btn-"][id$="-income"]').forEach(btn => {
-                btn.classList.remove('bg-white', 'text-green-700');
-                btn.classList.add('text-white/70', 'hover:text-white', 'hover:bg-white/10');
+                btn.classList.remove('bg-white', 'text-emerald-800', 'text-green-700', 'shadow-sm');
+                btn.classList.add('text-slate-300', 'hover:text-white', 'hover:bg-white/10');
             });
             
             const activeBtn = document.getElementById('btn-' + period + '-income');
             if (activeBtn) {
-                activeBtn.classList.remove('text-white/70', 'hover:text-white', 'hover:bg-white/10');
-                activeBtn.classList.add('bg-white', 'text-green-700');
+                activeBtn.classList.remove('text-slate-300', 'text-white/70', 'hover:text-white', 'hover:bg-white/10');
+                activeBtn.classList.add('bg-white', 'text-emerald-800', 'shadow-sm');
             }
             
             // Re-apply filters directly
