@@ -1059,63 +1059,41 @@
                 </div>
             </div>
 
-            <!-- ⚙️ Fixed Bold Savage Cyber Mechanical Gear & Wrench Watermark Background (High Visibility) -->
+            <!-- 🏎️ Fixed Savage Fleet Cyber Taxi Watermark Background (High Visibility) -->
             <div class="absolute inset-0 top-16 flex items-center justify-center pointer-events-none select-none z-0 overflow-hidden px-4" aria-hidden="true" style="transform: translateZ(0);">
-                <svg viewBox="0 0 540 320" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-[96%] max-w-5xl h-auto opacity-[0.38] transform select-none pointer-events-none">
+                <svg viewBox="0 0 520 180" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-[96%] max-w-5xl h-auto opacity-[0.38] transform -rotate-1 select-none pointer-events-none">
                     <defs>
-                        <linearGradient id="gearOrangeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <linearGradient id="maintTaxiBodyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
                             <stop offset="0%" stop-color="#f97316" />
-                            <stop offset="35%" stop-color="#ea580c" />
-                            <stop offset="70%" stop-color="#f59e0b" />
-                            <stop offset="100%" stop-color="#eab308" />
-                        </linearGradient>
-                        <linearGradient id="wrenchAmberGrad" x1="0%" y1="100%" x2="100%" y2="0%">
-                            <stop offset="0%" stop-color="#d97706" />
-                            <stop offset="50%" stop-color="#f97316" />
+                            <stop offset="50%" stop-color="#ea580c" />
                             <stop offset="100%" stop-color="#fbbf24" />
                         </linearGradient>
-                        <radialGradient id="gearHubGlow" cx="50%" cy="50%" r="50%">
-                            <stop offset="0%" stop-color="#f97316" stop-opacity="0.45" />
-                            <stop offset="100%" stop-color="#d97706" stop-opacity="0" />
-                        </radialGradient>
+                        <linearGradient id="maintTaxiWheelGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stop-color="#d97706" />
+                            <stop offset="100%" stop-color="#f97316" />
+                        </linearGradient>
                     </defs>
-
-                    <!-- Orbiting Mechanical Calibration Matrix Rings -->
-                    <circle cx="270" cy="160" r="120" stroke="url(#wrenchAmberGrad)" stroke-width="4.5" stroke-dasharray="16 10" />
-                    <ellipse cx="270" cy="160" rx="190" ry="75" stroke="url(#gearOrangeGrad)" stroke-width="4" stroke-dasharray="10 8" transform="rotate(-15 270 160)" />
-                    <ellipse cx="270" cy="160" rx="190" ry="75" stroke="url(#wrenchAmberGrad)" stroke-width="4" stroke-dasharray="10 8" transform="rotate(15 270 160)" />
-
-                    <!-- Heavy Industrial Gear Teeth Outer Ring -->
-                    <circle cx="270" cy="160" r="85" fill="url(#gearHubGlow)" />
-                    <circle cx="270" cy="160" r="80" stroke="url(#gearOrangeGrad)" stroke-width="6.5" fill="#ea580c" fill-opacity="0.08" />
-                    <circle cx="270" cy="160" r="45" stroke="url(#wrenchAmberGrad)" stroke-width="4.5" fill="#ffffff" fill-opacity="0.3" />
-                    <circle cx="270" cy="160" r="18" fill="#f59e0b" />
-
-                    <!-- Gear Teeth Radiating Projections -->
-                    <path d="M255 70 H285 V85 H255 Z M255 235 H285 V250 H255 Z M180 145 V175 H195 V145 Z M345 145 V175 H360 V145 Z" fill="url(#gearOrangeGrad)" />
-                    <path d="M205 100 L226 121 L215 132 L194 111 Z M315 210 L336 231 L325 242 L304 221 Z M205 220 L194 209 L215 188 L226 199 Z M315 110 L304 99 L325 78 L336 89 Z" fill="url(#wrenchAmberGrad)" />
-
-                    <!-- 3D Savage Diagonal Mechanical Wrench Shaft -->
-                    <line x1="90" y1="280" x2="450" y2="40" stroke="url(#gearOrangeGrad)" stroke-width="8" stroke-linecap="round" />
-                    <line x1="90" y1="280" x2="450" y2="40" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" opacity="0.7" />
-
-                    <!-- Wrench Open End Jaw (Top Right) -->
-                    <path d="M410 40 L450 15 L475 40 L460 65 L435 55 Z" stroke="url(#gearOrangeGrad)" stroke-width="5" fill="#ea580c" fill-opacity="0.2" stroke-linejoin="round" />
-
-                    <!-- Wrench Ring End (Bottom Left) -->
-                    <circle cx="100" cy="270" r="24" stroke="url(#wrenchAmberGrad)" stroke-width="6" fill="#f59e0b" fill-opacity="0.15" />
-                    <polygon points="100,256 112,263 112,277 100,284 88,277 88,263" stroke="url(#gearOrangeGrad)" stroke-width="3" fill="#ffffff" fill-opacity="0.4" />
-
-                    <!-- Precision Hydraulic Indicator Curves -->
-                    <path d="M25 240 Q110 160 180 210 T360 90 T515 30" stroke="url(#gearOrangeGrad)" stroke-width="6.5" stroke-linecap="round" fill="none" />
-                    <path d="M25 270 Q130 200 210 240 T390 140 T515 70" stroke="url(#wrenchAmberGrad)" stroke-width="4.5" stroke-dasharray="10 6" stroke-linecap="round" fill="none" />
-                    <path d="M30 300 H510" stroke="url(#gearOrangeGrad)" stroke-width="4" stroke-dasharray="16 8" stroke-linecap="round" />
-
-                    <!-- Dynamic Floating Amber Spark Crystals -->
-                    <polygon points="515,30 525,18 535,30 525,42" fill="#f59e0b" />
-                    <polygon points="450,95 457,86 464,95 457,104" fill="#f97316" />
-                    <polygon points="85,200 92,191 99,200 92,209" fill="#ea580c" />
-                    <polygon points="130,90 136,82 142,90 136,98" fill="#fbbf24" />
+                    <!-- Speed Lines & Dynamic Motion Trails -->
+                    <path d="M10 135 H150" stroke="url(#maintTaxiBodyGrad)" stroke-width="4.5" stroke-dasharray="8 6" stroke-linecap="round" />
+                    <path d="M35 150 H210" stroke="url(#maintTaxiBodyGrad)" stroke-width="5.5" stroke-dasharray="16 8" stroke-linecap="round" />
+                    <path d="M70 162 H340" stroke="url(#maintTaxiBodyGrad)" stroke-width="6.5" stroke-linecap="round" />
+                    <!-- Aggressive Savage GT / Cyber Sedan Silhouette -->
+                    <path d="M110 138 L160 92 Q190 62 250 60 L335 60 Q385 64 415 102 L465 116 Q495 125 505 142 L500 152 Q492 158 470 158 H135 Q115 158 108 146 Z" stroke="url(#maintTaxiBodyGrad)" stroke-width="6" fill="#ea580c" fill-opacity="0.08" stroke-linejoin="round" />
+                    <!-- Cockpit Aero Chiseled Canopy -->
+                    <path d="M235 64 L180 92 H320 L360 64 Z" stroke="url(#maintTaxiBodyGrad)" stroke-width="4" fill="#f97316" fill-opacity="0.12" stroke-linejoin="round" />
+                    <path d="M328 92 L368 66 L402 98 H328 Z" stroke="url(#maintTaxiBodyGrad)" stroke-width="3.5" fill="#fbbf24" fill-opacity="0.1" stroke-linejoin="round" />
+                    <!-- Aggressive Headlight Blade & Splitter -->
+                    <path d="M460 120 L498 126 L475 134 Z" fill="#fbbf24" />
+                    <path d="M470 152 H510 L495 158 H460 Z" fill="#fbbf24" />
+                    <!-- Futuristic Turbine Wheels -->
+                    <circle cx="180" cy="154" r="26" stroke="url(#maintTaxiWheelGrad)" stroke-width="6" fill="#ffffff" fill-opacity="0.35" />
+                    <circle cx="180" cy="154" r="14" stroke="url(#maintTaxiBodyGrad)" stroke-width="4" stroke-dasharray="8 4" />
+                    <circle cx="420" cy="154" r="26" stroke="url(#maintTaxiWheelGrad)" stroke-width="6" fill="#ffffff" fill-opacity="0.35" />
+                    <circle cx="420" cy="154" r="14" stroke="url(#maintTaxiBodyGrad)" stroke-width="4" stroke-dasharray="8 4" />
+                    <!-- Savage GT Wing / Spoiler -->
+                    <path d="M100 122 L115 105 H145 L130 122 Z" stroke="url(#maintTaxiBodyGrad)" stroke-width="4" fill="#f97316" fill-opacity="0.2" stroke-linejoin="round" />
+                    <!-- Cyber Taxi Roof Beacon -->
+                    <path d="M280 52 L290 40 H330 L340 52 Z" stroke="url(#maintTaxiBodyGrad)" stroke-width="3.5" fill="#fbbf24" fill-opacity="0.3" stroke-linejoin="round" />
                 </svg>
             </div>
 
@@ -1367,65 +1345,41 @@
                 </div>
             </div>
 
-            <!-- 🧭 Fixed Bold Savage Cyber Driver Pilot Crest & Helm Watermark Background (High Visibility) -->
+            <!-- 🏎️ Fixed Savage Fleet Cyber Taxi Watermark Background (High Visibility) -->
             <div class="absolute inset-0 top-16 flex items-center justify-center pointer-events-none select-none z-0 overflow-hidden px-4" aria-hidden="true" style="transform: translateZ(0);">
-                <svg viewBox="0 0 540 320" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-[96%] max-w-5xl h-auto opacity-[0.38] transform select-none pointer-events-none">
+                <svg viewBox="0 0 520 180" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-[96%] max-w-5xl h-auto opacity-[0.38] transform -rotate-1 select-none pointer-events-none">
                     <defs>
-                        <linearGradient id="driverCyanGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <linearGradient id="driverTaxiBodyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
                             <stop offset="0%" stop-color="#0ea5e9" />
-                            <stop offset="35%" stop-color="#0284c7" />
-                            <stop offset="70%" stop-color="#38bdf8" />
-                            <stop offset="100%" stop-color="#6366f1" />
-                        </linearGradient>
-                        <linearGradient id="driverHelmGrad" x1="0%" y1="100%" x2="100%" y2="0%">
-                            <stop offset="0%" stop-color="#0369a1" />
                             <stop offset="50%" stop-color="#0284c7" />
                             <stop offset="100%" stop-color="#38bdf8" />
                         </linearGradient>
-                        <radialGradient id="driverHubGlow" cx="50%" cy="50%" r="50%">
-                            <stop offset="0%" stop-color="#0ea5e9" stop-opacity="0.45" />
-                            <stop offset="100%" stop-color="#0284c7" stop-opacity="0" />
-                        </radialGradient>
+                        <linearGradient id="driverTaxiWheelGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stop-color="#0369a1" />
+                            <stop offset="100%" stop-color="#0ea5e9" />
+                        </linearGradient>
                     </defs>
-
-                    <!-- Orbiting Navigation GPS Gyro Matrix Rings -->
-                    <circle cx="270" cy="160" r="120" stroke="url(#driverHelmGrad)" stroke-width="4.5" stroke-dasharray="16 10" />
-                    <ellipse cx="270" cy="160" rx="190" ry="75" stroke="url(#driverCyanGrad)" stroke-width="4" stroke-dasharray="10 8" transform="rotate(-15 270 160)" />
-                    <ellipse cx="270" cy="160" rx="190" ry="75" stroke="url(#driverHelmGrad)" stroke-width="4" stroke-dasharray="10 8" transform="rotate(15 270 160)" />
-
-                    <!-- Massive 3D Cyber Steering Wheel Rim Core -->
-                    <circle cx="270" cy="160" r="85" fill="url(#driverHubGlow)" />
-                    <circle cx="270" cy="160" r="80" stroke="url(#driverCyanGrad)" stroke-width="6.5" fill="#0284c7" fill-opacity="0.08" />
-                    <circle cx="270" cy="160" r="42" stroke="url(#driverHelmGrad)" stroke-width="4.5" fill="#ffffff" fill-opacity="0.3" />
-                    <circle cx="270" cy="160" r="16" fill="#38bdf8" />
-
-                    <!-- Steering Spokes & Grip Vectors -->
-                    <line x1="270" y1="80" x2="270" y2="118" stroke="url(#driverCyanGrad)" stroke-width="6" stroke-linecap="round" />
-                    <line x1="190" y1="160" x2="228" y2="160" stroke="url(#driverCyanGrad)" stroke-width="6" stroke-linecap="round" />
-                    <line x1="312" y1="160" x2="350" y2="160" stroke="url(#driverCyanGrad)" stroke-width="6" stroke-linecap="round" />
-                    <line x1="220" y1="210" x2="245" y2="185" stroke="url(#driverHelmGrad)" stroke-width="6" stroke-linecap="round" />
-                    <line x1="320" y1="210" x2="295" y2="185" stroke="url(#driverHelmGrad)" stroke-width="6" stroke-linecap="round" />
-
-                    <!-- Pilot Crest Wings (Left & Right Aerodynamic Blades) -->
-                    <path d="M190 160 Q120 120 40 140 Q100 170 190 175 Z" fill="url(#driverCyanGrad)" fill-opacity="0.25" stroke="url(#driverCyanGrad)" stroke-width="4.5" />
-                    <path d="M350 160 Q420 120 500 140 Q440 170 350 175 Z" fill="url(#driverCyanGrad)" fill-opacity="0.25" stroke="url(#driverCyanGrad)" stroke-width="4.5" />
-
-                    <!-- Speed Trajectory Precision Vectors -->
-                    <path d="M25 240 Q110 160 180 210 T360 90 T515 30" stroke="url(#driverCyanGrad)" stroke-width="6.5" stroke-linecap="round" fill="none" />
-                    <path d="M25 270 Q130 200 210 240 T390 140 T515 70" stroke="url(#driverHelmGrad)" stroke-width="4.5" stroke-dasharray="10 6" stroke-linecap="round" fill="none" />
-                    <path d="M30 300 H510" stroke="url(#driverCyanGrad)" stroke-width="4" stroke-dasharray="16 8" stroke-linecap="round" />
-
-                    <!-- Precision Compass Crosshairs -->
-                    <line x1="270" y1="20" x2="270" y2="45" stroke="url(#driverCyanGrad)" stroke-width="4" stroke-linecap="round" />
-                    <line x1="270" y1="255" x2="270" y2="280" stroke="url(#driverCyanGrad)" stroke-width="4" stroke-linecap="round" />
-                    <line x1="140" y1="160" x2="160" y2="160" stroke="url(#driverCyanGrad)" stroke-width="4" stroke-linecap="round" />
-                    <line x1="380" y1="160" x2="400" y2="160" stroke="url(#driverCyanGrad)" stroke-width="4" stroke-linecap="round" />
-
-                    <!-- Dynamic Floating Cyan Pilot Spark Crystals -->
-                    <polygon points="515,30 525,18 535,30 525,42" fill="#38bdf8" />
-                    <polygon points="450,95 457,86 464,95 457,104" fill="#0ea5e9" />
-                    <polygon points="85,200 92,191 99,200 92,209" fill="#0284c7" />
-                    <polygon points="130,90 136,82 142,90 136,98" fill="#6366f1" />
+                    <!-- Speed Lines & Dynamic Motion Trails -->
+                    <path d="M10 135 H150" stroke="url(#driverTaxiBodyGrad)" stroke-width="4.5" stroke-dasharray="8 6" stroke-linecap="round" />
+                    <path d="M35 150 H210" stroke="url(#driverTaxiBodyGrad)" stroke-width="5.5" stroke-dasharray="16 8" stroke-linecap="round" />
+                    <path d="M70 162 H340" stroke="url(#driverTaxiBodyGrad)" stroke-width="6.5" stroke-linecap="round" />
+                    <!-- Aggressive Savage GT / Cyber Sedan Silhouette -->
+                    <path d="M110 138 L160 92 Q190 62 250 60 L335 60 Q385 64 415 102 L465 116 Q495 125 505 142 L500 152 Q492 158 470 158 H135 Q115 158 108 146 Z" stroke="url(#driverTaxiBodyGrad)" stroke-width="6" fill="#0284c7" fill-opacity="0.08" stroke-linejoin="round" />
+                    <!-- Cockpit Aero Chiseled Canopy -->
+                    <path d="M235 64 L180 92 H320 L360 64 Z" stroke="url(#driverTaxiBodyGrad)" stroke-width="4" fill="#0ea5e9" fill-opacity="0.12" stroke-linejoin="round" />
+                    <path d="M328 92 L368 66 L402 98 H328 Z" stroke="url(#driverTaxiBodyGrad)" stroke-width="3.5" fill="#38bdf8" fill-opacity="0.1" stroke-linejoin="round" />
+                    <!-- Aggressive Headlight Blade & Splitter -->
+                    <path d="M460 120 L498 126 L475 134 Z" fill="#38bdf8" />
+                    <path d="M470 152 H510 L495 158 H460 Z" fill="#38bdf8" />
+                    <!-- Futuristic Turbine Wheels -->
+                    <circle cx="180" cy="154" r="26" stroke="url(#driverTaxiWheelGrad)" stroke-width="6" fill="#ffffff" fill-opacity="0.35" />
+                    <circle cx="180" cy="154" r="14" stroke="url(#driverTaxiBodyGrad)" stroke-width="4" stroke-dasharray="8 4" />
+                    <circle cx="420" cy="154" r="26" stroke="url(#driverTaxiWheelGrad)" stroke-width="6" fill="#ffffff" fill-opacity="0.35" />
+                    <circle cx="420" cy="154" r="14" stroke="url(#driverTaxiBodyGrad)" stroke-width="4" stroke-dasharray="8 4" />
+                    <!-- Savage GT Wing / Spoiler -->
+                    <path d="M100 122 L115 105 H145 L130 122 Z" stroke="url(#driverTaxiBodyGrad)" stroke-width="4" fill="#0ea5e9" fill-opacity="0.2" stroke-linejoin="round" />
+                    <!-- Cyber Taxi Roof Beacon -->
+                    <path d="M280 52 L290 40 H330 L340 52 Z" stroke="url(#driverTaxiBodyGrad)" stroke-width="3.5" fill="#38bdf8" fill-opacity="0.3" stroke-linejoin="round" />
                 </svg>
             </div>
 
@@ -1541,58 +1495,41 @@
                 </div>
             </div>
 
-            <!-- 🛑 Fixed Bold Savage Cyber Traffic Calendar & Radar Matrix Watermark Background (High Visibility) -->
+            <!-- 🏎️ Fixed Savage Fleet Cyber Taxi Watermark Background (High Visibility) -->
             <div class="absolute inset-0 top-16 flex items-center justify-center pointer-events-none select-none z-0 overflow-hidden px-4" aria-hidden="true" style="transform: translateZ(0);">
-                <svg viewBox="0 0 540 320" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-[96%] max-w-5xl h-auto opacity-[0.38] transform select-none pointer-events-none">
+                <svg viewBox="0 0 520 180" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-[96%] max-w-5xl h-auto opacity-[0.38] transform -rotate-1 select-none pointer-events-none">
                     <defs>
-                        <linearGradient id="codingPurpleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <linearGradient id="codingTaxiBodyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
                             <stop offset="0%" stop-color="#c084fc" />
-                            <stop offset="35%" stop-color="#a855f7" />
-                            <stop offset="70%" stop-color="#e879f9" />
+                            <stop offset="50%" stop-color="#a855f7" />
+                            <stop offset="100%" stop-color="#e879f9" />
+                        </linearGradient>
+                        <linearGradient id="codingTaxiWheelGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stop-color="#7e22ce" />
                             <stop offset="100%" stop-color="#ec4899" />
                         </linearGradient>
-                        <linearGradient id="codingRadarGrad" x1="0%" y1="100%" x2="100%" y2="0%">
-                            <stop offset="0%" stop-color="#7e22ce" />
-                            <stop offset="50%" stop-color="#a855f7" />
-                            <stop offset="100%" stop-color="#f472b6" />
-                        </linearGradient>
-                        <radialGradient id="codingCoreGlow" cx="50%" cy="50%" r="50%">
-                            <stop offset="0%" stop-color="#a855f7" stop-opacity="0.45" />
-                            <stop offset="100%" stop-color="#7e22ce" stop-opacity="0" />
-                        </radialGradient>
                     </defs>
-
-                    <!-- Orbiting Cyber Radar Matrix Rings -->
-                    <circle cx="270" cy="160" r="120" stroke="url(#codingRadarGrad)" stroke-width="4.5" stroke-dasharray="16 10" />
-                    <ellipse cx="270" cy="160" rx="190" ry="75" stroke="url(#codingPurpleGrad)" stroke-width="4" stroke-dasharray="10 8" transform="rotate(-15 270 160)" />
-                    <ellipse cx="270" cy="160" rx="190" ry="75" stroke="url(#codingRadarGrad)" stroke-width="4" stroke-dasharray="10 8" transform="rotate(15 270 160)" />
-
-                    <!-- Massive 3D Digital Calendar & Traffic Hexagon Core -->
-                    <circle cx="270" cy="160" r="85" fill="url(#codingCoreGlow)" />
-                    <polygon points="270,75 350,120 350,200 270,245 190,200 190,120" stroke="url(#codingPurpleGrad)" stroke-width="6.5" fill="#a855f7" fill-opacity="0.1" stroke-linejoin="round" />
-                    <polygon points="270,105 320,135 320,185 270,215 220,185 220,135" stroke="url(#codingRadarGrad)" stroke-width="4.5" fill="#ffffff" fill-opacity="0.3" stroke-linejoin="round" />
-                    <circle cx="270" cy="160" r="16" fill="#e879f9" />
-
-                    <!-- Traffic Restriction Diagonal Bar (Red/Magenta Signal) -->
-                    <line x1="210" y1="210" x2="330" y2="110" stroke="url(#codingPurpleGrad)" stroke-width="7" stroke-linecap="round" />
-                    <line x1="210" y1="210" x2="330" y2="110" stroke="#ffffff" stroke-width="2" stroke-linecap="round" opacity="0.8" />
-
-                    <!-- Multi-tier Holographic Coding Waves -->
-                    <path d="M25 240 Q110 160 180 210 T360 90 T515 30" stroke="url(#codingPurpleGrad)" stroke-width="6.5" stroke-linecap="round" fill="none" />
-                    <path d="M25 270 Q130 200 210 240 T390 140 T515 70" stroke="url(#codingRadarGrad)" stroke-width="4.5" stroke-dasharray="10 6" stroke-linecap="round" fill="none" />
-                    <path d="M30 300 H510" stroke="url(#codingPurpleGrad)" stroke-width="4" stroke-dasharray="16 8" stroke-linecap="round" />
-
-                    <!-- Precision Analytics Crosshairs -->
-                    <line x1="270" y1="20" x2="270" y2="45" stroke="url(#codingPurpleGrad)" stroke-width="4" stroke-linecap="round" />
-                    <line x1="270" y1="255" x2="270" y2="280" stroke="url(#codingPurpleGrad)" stroke-width="4" stroke-linecap="round" />
-                    <line x1="140" y1="160" x2="160" y2="160" stroke="url(#codingPurpleGrad)" stroke-width="4" stroke-linecap="round" />
-                    <line x1="380" y1="160" x2="400" y2="160" stroke="url(#codingPurpleGrad)" stroke-width="4" stroke-linecap="round" />
-
-                    <!-- Dynamic Floating Magenta Traffic Spark Crystals -->
-                    <polygon points="515,30 525,18 535,30 525,42" fill="#ec4899" />
-                    <polygon points="450,95 457,86 464,95 457,104" fill="#e879f9" />
-                    <polygon points="85,200 92,191 99,200 92,209" fill="#a855f7" />
-                    <polygon points="130,90 136,82 142,90 136,98" fill="#c084fc" />
+                    <!-- Speed Lines & Dynamic Motion Trails -->
+                    <path d="M10 135 H150" stroke="url(#codingTaxiBodyGrad)" stroke-width="4.5" stroke-dasharray="8 6" stroke-linecap="round" />
+                    <path d="M35 150 H210" stroke="url(#codingTaxiBodyGrad)" stroke-width="5.5" stroke-dasharray="16 8" stroke-linecap="round" />
+                    <path d="M70 162 H340" stroke="url(#codingTaxiBodyGrad)" stroke-width="6.5" stroke-linecap="round" />
+                    <!-- Aggressive Savage GT / Cyber Sedan Silhouette -->
+                    <path d="M110 138 L160 92 Q190 62 250 60 L335 60 Q385 64 415 102 L465 116 Q495 125 505 142 L500 152 Q492 158 470 158 H135 Q115 158 108 146 Z" stroke="url(#codingTaxiBodyGrad)" stroke-width="6" fill="#a855f7" fill-opacity="0.08" stroke-linejoin="round" />
+                    <!-- Cockpit Aero Chiseled Canopy -->
+                    <path d="M235 64 L180 92 H320 L360 64 Z" stroke="url(#codingTaxiBodyGrad)" stroke-width="4" fill="#c084fc" fill-opacity="0.12" stroke-linejoin="round" />
+                    <path d="M328 92 L368 66 L402 98 H328 Z" stroke="url(#codingTaxiBodyGrad)" stroke-width="3.5" fill="#e879f9" fill-opacity="0.1" stroke-linejoin="round" />
+                    <!-- Aggressive Headlight Blade & Splitter -->
+                    <path d="M460 120 L498 126 L475 134 Z" fill="#e879f9" />
+                    <path d="M470 152 H510 L495 158 H460 Z" fill="#e879f9" />
+                    <!-- Futuristic Turbine Wheels -->
+                    <circle cx="180" cy="154" r="26" stroke="url(#codingTaxiWheelGrad)" stroke-width="6" fill="#ffffff" fill-opacity="0.35" />
+                    <circle cx="180" cy="154" r="14" stroke="url(#codingTaxiBodyGrad)" stroke-width="4" stroke-dasharray="8 4" />
+                    <circle cx="420" cy="154" r="26" stroke="url(#codingTaxiWheelGrad)" stroke-width="6" fill="#ffffff" fill-opacity="0.35" />
+                    <circle cx="420" cy="154" r="14" stroke="url(#codingTaxiBodyGrad)" stroke-width="4" stroke-dasharray="8 4" />
+                    <!-- Savage GT Wing / Spoiler -->
+                    <path d="M100 122 L115 105 H145 L130 122 Z" stroke="url(#codingTaxiBodyGrad)" stroke-width="4" fill="#c084fc" fill-opacity="0.2" stroke-linejoin="round" />
+                    <!-- Cyber Taxi Roof Beacon -->
+                    <path d="M280 52 L290 40 H330 L340 52 Z" stroke="url(#codingTaxiBodyGrad)" stroke-width="3.5" fill="#ec4899" fill-opacity="0.3" stroke-linejoin="round" />
                 </svg>
             </div>
 
@@ -1707,66 +1644,41 @@
                 </div>
             </div>
 
-            <!-- 💎 Fixed Bold Savage Cyber Diamond Profit Crystal & Analytics Matrix Watermark Background (High Visibility) -->
+            <!-- 🏎️ Fixed Savage Fleet Cyber Taxi Watermark Background (High Visibility) -->
             <div class="absolute inset-0 top-16 flex items-center justify-center pointer-events-none select-none z-0 overflow-hidden px-4" aria-hidden="true" style="transform: translateZ(0);">
-                <svg viewBox="0 0 540 320" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-[96%] max-w-5xl h-auto opacity-[0.38] transform select-none pointer-events-none">
+                <svg viewBox="0 0 520 180" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-[96%] max-w-5xl h-auto opacity-[0.38] transform -rotate-1 select-none pointer-events-none">
                     <defs>
-                        <linearGradient id="crystalDiamondGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <linearGradient id="netIncomeTaxiBodyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
                             <stop offset="0%" stop-color="#3b82f6" />
-                            <stop offset="30%" stop-color="#6366f1" />
-                            <stop offset="65%" stop-color="#a855f7" />
+                            <stop offset="50%" stop-color="#6366f1" />
                             <stop offset="100%" stop-color="#eab308" />
                         </linearGradient>
-                        <linearGradient id="waveProfitGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+                        <linearGradient id="netIncomeTaxiWheelGrad" x1="0%" y1="0%" x2="100%" y2="0%">
                             <stop offset="0%" stop-color="#4f46e5" />
-                            <stop offset="50%" stop-color="#9333ea" />
                             <stop offset="100%" stop-color="#06b6d4" />
                         </linearGradient>
-                        <radialGradient id="crystalCoreGlow" cx="50%" cy="50%" r="50%">
-                            <stop offset="0%" stop-color="#a855f7" stop-opacity="0.45" />
-                            <stop offset="100%" stop-color="#3b82f6" stop-opacity="0" />
-                        </radialGradient>
                     </defs>
-
-                    <!-- Orbiting Gyro Financial Matrix Rings (Bold Lines) -->
-                    <circle cx="270" cy="160" r="120" stroke="url(#waveProfitGrad)" stroke-width="4.5" stroke-dasharray="16 10" />
-                    <ellipse cx="270" cy="160" rx="190" ry="75" stroke="url(#crystalDiamondGrad)" stroke-width="4" stroke-dasharray="10 8" transform="rotate(-15 270 160)" />
-                    <ellipse cx="270" cy="160" rx="190" ry="75" stroke="url(#waveProfitGrad)" stroke-width="4" stroke-dasharray="10 8" transform="rotate(15 270 160)" />
-
-                    <!-- Multi-tier Holographic Sinusoidal Profit Waves (Spans Full Area) -->
-                    <path d="M15 240 Q110 160 180 210 T360 90 T525 30" stroke="url(#crystalDiamondGrad)" stroke-width="6.5" stroke-linecap="round" fill="none" />
-                    <path d="M15 270 Q130 200 210 240 T390 140 T525 70" stroke="url(#waveProfitGrad)" stroke-width="4.5" stroke-dasharray="10 6" stroke-linecap="round" fill="none" />
-                    <path d="M15 70 Q130 30 210 60 T390 40 T525 15" stroke="url(#waveProfitGrad)" stroke-width="3.5" stroke-dasharray="8 6" stroke-linecap="round" fill="none" />
-                    <path d="M30 300 H510" stroke="url(#crystalDiamondGrad)" stroke-width="4" stroke-dasharray="16 8" stroke-linecap="round" />
-
-                    <!-- Massive 3D Savage Cyber Diamond Crystal Ledger Core -->
-                    <circle cx="270" cy="160" r="85" fill="url(#crystalCoreGlow)" />
-                    <!-- Outer Facets with Vibrant Infill -->
-                    <polygon points="270,50 375,130 335,250 205,250 165,130" stroke="url(#crystalDiamondGrad)" stroke-width="6.5" fill="#6366f1" fill-opacity="0.1" stroke-linejoin="round" />
-                    <!-- Crown & Pavilion Facet Intersections -->
-                    <line x1="165" y1="130" x2="375" y2="130" stroke="url(#crystalDiamondGrad)" stroke-width="5" />
-                    <line x1="270" y1="50" x2="235" y2="130" stroke="url(#crystalDiamondGrad)" stroke-width="4.5" />
-                    <line x1="270" y1="50" x2="305" y2="130" stroke="url(#crystalDiamondGrad)" stroke-width="4.5" />
-                    <line x1="235" y1="130" x2="270" y2="250" stroke="url(#crystalDiamondGrad)" stroke-width="5.5" />
-                    <line x1="305" y1="130" x2="270" y2="250" stroke="url(#crystalDiamondGrad)" stroke-width="5.5" />
-                    <line x1="165" y1="130" x2="270" y2="250" stroke="url(#waveProfitGrad)" stroke-width="4" />
-                    <line x1="375" y1="130" x2="270" y2="250" stroke="url(#waveProfitGrad)" stroke-width="4" />
-
-                    <!-- Central Floating Glowing Hexagon Node -->
-                    <polygon points="270,120 305,140 305,180 270,200 235,180 235,140" stroke="url(#crystalDiamondGrad)" stroke-width="4" fill="#ffffff" fill-opacity="0.4" stroke-linejoin="round" />
-                    <circle cx="270" cy="160" r="10" fill="#eab308" />
-
-                    <!-- Precision Analytics Crosshairs & Vectors -->
-                    <line x1="270" y1="20" x2="270" y2="45" stroke="url(#crystalDiamondGrad)" stroke-width="4" stroke-linecap="round" />
-                    <line x1="270" y1="255" x2="270" y2="280" stroke="url(#crystalDiamondGrad)" stroke-width="4" stroke-linecap="round" />
-                    <line x1="140" y1="160" x2="160" y2="160" stroke="url(#crystalDiamondGrad)" stroke-width="4" stroke-linecap="round" />
-                    <line x1="380" y1="160" x2="400" y2="160" stroke="url(#crystalDiamondGrad)" stroke-width="4" stroke-linecap="round" />
-
-                    <!-- Dynamic Floating Cyber Currency Crystals & Data Sparks -->
-                    <polygon points="525,30 535,18 545,30 535,42" fill="#eab308" />
-                    <polygon points="460,95 467,86 474,95 467,104" fill="#a855f7" />
-                    <polygon points="75,200 82,191 89,200 82,209" fill="#3b82f6" />
-                    <polygon points="120,90 126,82 132,90 126,98" fill="#06b6d4" />
+                    <!-- Speed Lines & Dynamic Motion Trails -->
+                    <path d="M10 135 H150" stroke="url(#netIncomeTaxiBodyGrad)" stroke-width="4.5" stroke-dasharray="8 6" stroke-linecap="round" />
+                    <path d="M35 150 H210" stroke="url(#netIncomeTaxiBodyGrad)" stroke-width="5.5" stroke-dasharray="16 8" stroke-linecap="round" />
+                    <path d="M70 162 H340" stroke="url(#netIncomeTaxiBodyGrad)" stroke-width="6.5" stroke-linecap="round" />
+                    <!-- Aggressive Savage GT / Cyber Sedan Silhouette -->
+                    <path d="M110 138 L160 92 Q190 62 250 60 L335 60 Q385 64 415 102 L465 116 Q495 125 505 142 L500 152 Q492 158 470 158 H135 Q115 158 108 146 Z" stroke="url(#netIncomeTaxiBodyGrad)" stroke-width="6" fill="#6366f1" fill-opacity="0.08" stroke-linejoin="round" />
+                    <!-- Cockpit Aero Chiseled Canopy -->
+                    <path d="M235 64 L180 92 H320 L360 64 Z" stroke="url(#netIncomeTaxiBodyGrad)" stroke-width="4" fill="#3b82f6" fill-opacity="0.12" stroke-linejoin="round" />
+                    <path d="M328 92 L368 66 L402 98 H328 Z" stroke="url(#netIncomeTaxiBodyGrad)" stroke-width="3.5" fill="#eab308" fill-opacity="0.1" stroke-linejoin="round" />
+                    <!-- Aggressive Headlight Blade & Splitter -->
+                    <path d="M460 120 L498 126 L475 134 Z" fill="#eab308" />
+                    <path d="M470 152 H510 L495 158 H460 Z" fill="#eab308" />
+                    <!-- Futuristic Turbine Wheels -->
+                    <circle cx="180" cy="154" r="26" stroke="url(#netIncomeTaxiWheelGrad)" stroke-width="6" fill="#ffffff" fill-opacity="0.35" />
+                    <circle cx="180" cy="154" r="14" stroke="url(#netIncomeTaxiBodyGrad)" stroke-width="4" stroke-dasharray="8 4" />
+                    <circle cx="420" cy="154" r="26" stroke="url(#netIncomeTaxiWheelGrad)" stroke-width="6" fill="#ffffff" fill-opacity="0.35" />
+                    <circle cx="420" cy="154" r="14" stroke="url(#netIncomeTaxiBodyGrad)" stroke-width="4" stroke-dasharray="8 4" />
+                    <!-- Savage GT Wing / Spoiler -->
+                    <path d="M100 122 L115 105 H145 L130 122 Z" stroke="url(#netIncomeTaxiBodyGrad)" stroke-width="4" fill="#6366f1" fill-opacity="0.2" stroke-linejoin="round" />
+                    <!-- Cyber Taxi Roof Beacon -->
+                    <path d="M280 52 L290 40 H330 L340 52 Z" stroke="url(#netIncomeTaxiBodyGrad)" stroke-width="3.5" fill="#eab308" fill-opacity="0.3" stroke-linejoin="round" />
                 </svg>
             </div>
 
@@ -1953,55 +1865,41 @@
                 </div>
             </div>
 
-            <!-- 🛡️ Fixed Bold Savage Cyber Expense Shield & Flow Matrix Watermark Background (High Visibility) -->
+            <!-- 🏎️ Fixed Savage Fleet Cyber Taxi Watermark Background (High Visibility) -->
             <div class="absolute inset-0 top-16 flex items-center justify-center pointer-events-none select-none z-0 overflow-hidden px-4" aria-hidden="true" style="transform: translateZ(0);">
-                <svg viewBox="0 0 540 240" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-[96%] max-w-5xl h-auto opacity-[0.38] transform select-none pointer-events-none">
+                <svg viewBox="0 0 520 180" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-[96%] max-w-5xl h-auto opacity-[0.38] transform -rotate-1 select-none pointer-events-none">
                     <defs>
-                        <linearGradient id="expenseShieldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <linearGradient id="expenseTaxiBodyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
                             <stop offset="0%" stop-color="#f43f5e" />
-                            <stop offset="30%" stop-color="#e11d48" />
-                            <stop offset="65%" stop-color="#be123c" />
+                            <stop offset="50%" stop-color="#e11d48" />
                             <stop offset="100%" stop-color="#f59e0b" />
                         </linearGradient>
-                        <linearGradient id="expenseWaveGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" stop-color="#fb7185" />
-                            <stop offset="50%" stop-color="#e11d48" />
-                            <stop offset="100%" stop-color="#9f1239" />
+                        <linearGradient id="expenseTaxiWheelGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stop-color="#be123c" />
+                            <stop offset="100%" stop-color="#f43f5e" />
                         </linearGradient>
-                        <radialGradient id="expenseCoreGlow" cx="50%" cy="50%" r="50%">
-                            <stop offset="0%" stop-color="#f43f5e" stop-opacity="0.4" />
-                            <stop offset="100%" stop-color="#be123c" stop-opacity="0" />
-                        </radialGradient>
                     </defs>
-
-                    <!-- Orbiting Precision Outflow Matrix Rings -->
-                    <circle cx="270" cy="115" r="105" stroke="url(#expenseWaveGrad)" stroke-width="4.5" stroke-dasharray="16 10" />
-                    <ellipse cx="270" cy="115" rx="160" ry="60" stroke="url(#expenseShieldGrad)" stroke-width="4" stroke-dasharray="10 8" transform="rotate(-15 270 115)" />
-                    <ellipse cx="270" cy="115" rx="160" ry="60" stroke="url(#expenseWaveGrad)" stroke-width="4" stroke-dasharray="10 8" transform="rotate(15 270 115)" />
-
-                    <!-- Multi-tier Holographic Downward Financial Outflow Vectors -->
-                    <path d="M15 40 Q110 90 180 65 T360 160 T525 210" stroke="url(#expenseShieldGrad)" stroke-width="6.5" stroke-linecap="round" fill="none" />
-                    <path d="M15 65 Q130 115 210 90 T390 185 T525 230" stroke="url(#expenseWaveGrad)" stroke-width="4.5" stroke-dasharray="10 6" stroke-linecap="round" fill="none" />
-                    <path d="M30 225 H510" stroke="url(#expenseShieldGrad)" stroke-width="4" stroke-dasharray="16 8" stroke-linecap="round" />
-
-                    <!-- Massive 3D Savage Cyber Outflow Shield Core -->
-                    <circle cx="270" cy="115" r="75" fill="url(#expenseCoreGlow)" />
-                    <!-- Outer Shield Silhouette -->
-                    <path d="M210 45 H330 L355 105 Q355 175 270 205 Q185 175 185 105 Z" stroke="url(#expenseShieldGrad)" stroke-width="6.5" fill="#e11d48" fill-opacity="0.1" stroke-linejoin="round" />
-                    <!-- Inner Shield Chamber Facets -->
-                    <path d="M230 65 H310 L330 110 Q330 160 270 185 Q210 160 210 110 Z" stroke="url(#expenseWaveGrad)" stroke-width="4.5" fill="none" />
-                    <line x1="270" y1="45" x2="270" y2="205" stroke="url(#expenseShieldGrad)" stroke-width="5" />
-                    <line x1="185" y1="105" x2="355" y2="105" stroke="url(#expenseShieldGrad)" stroke-width="4.5" />
-
-                    <!-- Central Outflow Pulse Node -->
-                    <polygon points="270,95 290,115 270,135 250,115" stroke="url(#expenseShieldGrad)" stroke-width="4" fill="#ffffff" fill-opacity="0.4" stroke-linejoin="round" />
-                    <circle cx="270" cy="115" r="8" fill="#f59e0b" />
-
-                    <!-- Dynamic Floating Ruby Data Crystals & Outflow Sparks -->
-                    <polygon points="525,210 535,198 545,210 535,222" fill="#f59e0b" />
-                    <polygon points="460,165 467,156 474,165 467,174" fill="#f43f5e" />
-                    <polygon points="75,50 82,41 89,50 82,59" fill="#e11d48" />
-                    <polygon points="120,170 126,162 132,170 126,178" fill="#fb7185" />
+                    <!-- Speed Lines & Dynamic Motion Trails -->
+                    <path d="M10 135 H150" stroke="url(#expenseTaxiBodyGrad)" stroke-width="4.5" stroke-dasharray="8 6" stroke-linecap="round" />
+                    <path d="M35 150 H210" stroke="url(#expenseTaxiBodyGrad)" stroke-width="5.5" stroke-dasharray="16 8" stroke-linecap="round" />
+                    <path d="M70 162 H340" stroke="url(#expenseTaxiBodyGrad)" stroke-width="6.5" stroke-linecap="round" />
+                    <!-- Aggressive Savage GT / Cyber Sedan Silhouette -->
+                    <path d="M110 138 L160 92 Q190 62 250 60 L335 60 Q385 64 415 102 L465 116 Q495 125 505 142 L500 152 Q492 158 470 158 H135 Q115 158 108 146 Z" stroke="url(#expenseTaxiBodyGrad)" stroke-width="6" fill="#e11d48" fill-opacity="0.08" stroke-linejoin="round" />
+                    <!-- Cockpit Aero Chiseled Canopy -->
+                    <path d="M235 64 L180 92 H320 L360 64 Z" stroke="url(#expenseTaxiBodyGrad)" stroke-width="4" fill="#f43f5e" fill-opacity="0.12" stroke-linejoin="round" />
+                    <path d="M328 92 L368 66 L402 98 H328 Z" stroke="url(#expenseTaxiBodyGrad)" stroke-width="3.5" fill="#f59e0b" fill-opacity="0.1" stroke-linejoin="round" />
+                    <!-- Aggressive Headlight Blade & Splitter -->
+                    <path d="M460 120 L498 126 L475 134 Z" fill="#f59e0b" />
+                    <path d="M470 152 H510 L495 158 H460 Z" fill="#f59e0b" />
+                    <!-- Futuristic Turbine Wheels -->
+                    <circle cx="180" cy="154" r="26" stroke="url(#expenseTaxiWheelGrad)" stroke-width="6" fill="#ffffff" fill-opacity="0.35" />
+                    <circle cx="180" cy="154" r="14" stroke="url(#expenseTaxiBodyGrad)" stroke-width="4" stroke-dasharray="8 4" />
+                    <circle cx="420" cy="154" r="26" stroke="url(#expenseTaxiWheelGrad)" stroke-width="6" fill="#ffffff" fill-opacity="0.35" />
+                    <circle cx="420" cy="154" r="14" stroke="url(#expenseTaxiBodyGrad)" stroke-width="4" stroke-dasharray="8 4" />
+                    <!-- Savage GT Wing / Spoiler -->
+                    <path d="M100 122 L115 105 H145 L130 122 Z" stroke="url(#expenseTaxiBodyGrad)" stroke-width="4" fill="#e11d48" fill-opacity="0.2" stroke-linejoin="round" />
+                    <!-- Cyber Taxi Roof Beacon -->
+                    <path d="M280 52 L290 40 H330 L340 52 Z" stroke="url(#expenseTaxiBodyGrad)" stroke-width="3.5" fill="#f59e0b" fill-opacity="0.3" stroke-linejoin="round" />
                 </svg>
             </div>
 
@@ -2192,53 +2090,41 @@
                 </div>
             </div>
 
-            <!-- 💎 Fixed Savage Cyber Financial Vault & Growth Matrix Watermark Background (Stays Stationary on Scroll) -->
+            <!-- 🏎️ Fixed Savage Fleet Cyber Taxi Watermark Background (High Visibility) -->
             <div class="absolute inset-x-0 bottom-0 top-16 flex items-center justify-center pointer-events-none select-none z-0 overflow-hidden px-4" aria-hidden="true" style="transform: translateZ(0);">
-                <svg viewBox="0 0 520 200" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-[94%] max-w-4xl h-auto opacity-[0.26] transform select-none pointer-events-none">
+                <svg viewBox="0 0 520 180" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-[96%] max-w-5xl h-auto opacity-[0.38] transform -rotate-1 select-none pointer-events-none">
                     <defs>
-                        <linearGradient id="boundaryVaultGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <linearGradient id="boundaryTaxiBodyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
                             <stop offset="0%" stop-color="#10b981" />
                             <stop offset="50%" stop-color="#059669" />
                             <stop offset="100%" stop-color="#eab308" />
                         </linearGradient>
-                        <linearGradient id="boundaryPulseGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                            <stop offset="0%" stop-color="#34d399" />
-                            <stop offset="100%" stop-color="#10b981" />
+                        <linearGradient id="boundaryTaxiWheelGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stop-color="#047857" />
+                            <stop offset="100%" stop-color="#34d399" />
                         </linearGradient>
                     </defs>
-
-                    <!-- Background High-Tech Financial Grid & Data Matrix Lines -->
-                    <path d="M20 170 H500" stroke="url(#boundaryVaultGrad)" stroke-width="2.5" stroke-dasharray="10 6" stroke-linecap="round" />
-                    <path d="M50 185 H470" stroke="url(#boundaryVaultGrad)" stroke-width="3" stroke-linecap="round" />
-
-                    <!-- Massive Ascending Cyber Growth Momentum Bars -->
-                    <rect x="70" y="115" width="28" height="55" rx="6" stroke="url(#boundaryVaultGrad)" stroke-width="3" fill="#10b981" fill-opacity="0.08" />
-                    <rect x="115" y="85" width="28" height="85" rx="6" stroke="url(#boundaryVaultGrad)" stroke-width="3" fill="#10b981" fill-opacity="0.1" />
-                    <rect x="375" y="60" width="28" height="110" rx="6" stroke="url(#boundaryVaultGrad)" stroke-width="3" fill="#10b981" fill-opacity="0.12" />
-                    <rect x="420" y="30" width="28" height="140" rx="6" stroke="url(#boundaryVaultGrad)" stroke-width="3.5" fill="#eab308" fill-opacity="0.15" />
-
-                    <!-- Savage Cyber Wealth Shield & Central Vault Mechanism -->
-                    <polygon points="260,18 350,55 350,135 260,185 170,135 170,55" stroke="url(#boundaryVaultGrad)" stroke-width="5" fill="#061a12" fill-opacity="0.03" stroke-linejoin="round" />
-                    <polygon points="260,32 335,63 335,127 260,170 185,127 185,63" stroke="url(#boundaryPulseGrad)" stroke-width="2.5" stroke-dasharray="8 4" fill="none" stroke-linejoin="round" />
-
-                    <!-- Vault Gear Wheel & Luminous Core -->
-                    <circle cx="260" cy="100" r="46" stroke="url(#boundaryVaultGrad)" stroke-width="4.5" fill="#ffffff" fill-opacity="0.25" />
-                    <circle cx="260" cy="100" r="34" stroke="url(#boundaryPulseGrad)" stroke-width="3" stroke-dasharray="10 5" />
-                    <circle cx="260" cy="100" r="18" fill="url(#boundaryVaultGrad)" fill-opacity="0.3" stroke="url(#boundaryVaultGrad)" stroke-width="3" />
-                    <circle cx="260" cy="100" r="6" fill="#eab308" />
-
-                    <!-- Radial Vault Bolt Latches -->
-                    <path d="M260 48 V62 M260 138 V152 M208 100 H222 M298 100 H312 M223 63 L233 73 M287 127 L297 137 M223 137 L233 127 M287 73 L297 63" stroke="url(#boundaryVaultGrad)" stroke-width="3.5" stroke-linecap="round" />
-
-                    <!-- Aggressive Upward Rocketing Trend & Surge Vectors -->
-                    <path d="M60 145 L150 100 L210 115 L320 45 L460 20" stroke="url(#boundaryVaultGrad)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" />
-                    <!-- Dynamic Arrow Tip -->
-                    <path d="M435 16 L465 20 L452 48" stroke="url(#boundaryVaultGrad)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="url(#boundaryVaultGrad)" fill-opacity="0.2" />
-
-                    <!-- Luminous Sparkle & Diamond Nodes -->
-                    <polygon points="460,20 467,13 474,20 467,27" fill="#eab308" />
-                    <polygon points="60,145 64,141 68,145 64,149" fill="#10b981" />
-                    <polygon points="320,45 325,40 330,45 325,50" fill="#34d399" />
+                    <!-- Speed Lines & Dynamic Motion Trails -->
+                    <path d="M10 135 H150" stroke="url(#boundaryTaxiBodyGrad)" stroke-width="4.5" stroke-dasharray="8 6" stroke-linecap="round" />
+                    <path d="M35 150 H210" stroke="url(#boundaryTaxiBodyGrad)" stroke-width="5.5" stroke-dasharray="16 8" stroke-linecap="round" />
+                    <path d="M70 162 H340" stroke="url(#boundaryTaxiBodyGrad)" stroke-width="6.5" stroke-linecap="round" />
+                    <!-- Aggressive Savage GT / Cyber Sedan Silhouette -->
+                    <path d="M110 138 L160 92 Q190 62 250 60 L335 60 Q385 64 415 102 L465 116 Q495 125 505 142 L500 152 Q492 158 470 158 H135 Q115 158 108 146 Z" stroke="url(#boundaryTaxiBodyGrad)" stroke-width="6" fill="#059669" fill-opacity="0.08" stroke-linejoin="round" />
+                    <!-- Cockpit Aero Chiseled Canopy -->
+                    <path d="M235 64 L180 92 H320 L360 64 Z" stroke="url(#boundaryTaxiBodyGrad)" stroke-width="4" fill="#10b981" fill-opacity="0.12" stroke-linejoin="round" />
+                    <path d="M328 92 L368 66 L402 98 H328 Z" stroke="url(#boundaryTaxiBodyGrad)" stroke-width="3.5" fill="#eab308" fill-opacity="0.1" stroke-linejoin="round" />
+                    <!-- Aggressive Headlight Blade & Splitter -->
+                    <path d="M460 120 L498 126 L475 134 Z" fill="#eab308" />
+                    <path d="M470 152 H510 L495 158 H460 Z" fill="#eab308" />
+                    <!-- Futuristic Turbine Wheels -->
+                    <circle cx="180" cy="154" r="26" stroke="url(#boundaryTaxiWheelGrad)" stroke-width="6" fill="#ffffff" fill-opacity="0.35" />
+                    <circle cx="180" cy="154" r="14" stroke="url(#boundaryTaxiBodyGrad)" stroke-width="4" stroke-dasharray="8 4" />
+                    <circle cx="420" cy="154" r="26" stroke="url(#boundaryTaxiWheelGrad)" stroke-width="6" fill="#ffffff" fill-opacity="0.35" />
+                    <circle cx="420" cy="154" r="14" stroke="url(#boundaryTaxiBodyGrad)" stroke-width="4" stroke-dasharray="8 4" />
+                    <!-- Savage GT Wing / Spoiler -->
+                    <path d="M100 122 L115 105 H145 L130 122 Z" stroke="url(#boundaryTaxiBodyGrad)" stroke-width="4" fill="#059669" fill-opacity="0.2" stroke-linejoin="round" />
+                    <!-- Cyber Taxi Roof Beacon -->
+                    <path d="M280 52 L290 40 H330 L340 52 Z" stroke="url(#boundaryTaxiBodyGrad)" stroke-width="3.5" fill="#eab308" fill-opacity="0.3" stroke-linejoin="round" />
                 </svg>
             </div>
 
@@ -2406,7 +2292,7 @@
 
                 <!-- 🏎️ Fixed Savage Fleet Cyber Taxi Watermark Background (Stays Stationary on Scroll) -->
                 <div class="absolute inset-x-0 bottom-0 top-16 flex items-center justify-center pointer-events-none select-none z-0 overflow-hidden px-4" aria-hidden="true" style="transform: translateZ(0);">
-                    <svg viewBox="0 0 520 180" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-[96%] max-w-5xl h-auto opacity-[0.28] transform -rotate-1 select-none pointer-events-none">
+                    <svg viewBox="0 0 520 180" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-[96%] max-w-5xl h-auto opacity-[0.38] transform -rotate-1 select-none pointer-events-none">
                         <defs>
                             <linearGradient id="savageBodyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
                                 <stop offset="0%" stop-color="#f59e0b" />
