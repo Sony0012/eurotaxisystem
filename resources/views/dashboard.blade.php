@@ -144,6 +144,18 @@
             transform: translateZ(0);
             contain: layout style paint;
         }
+        .animated-shiny-boundary-text {
+            background: linear-gradient(110deg, #6ee7b7 0%, #a7f3d0 25%, #ffffff 45%, #fef08a 55%, #ffffff 65%, #a7f3d0 80%, #6ee7b7 100%);
+            background-size: 200% 100%;
+            -webkit-background-clip: text !important;
+            -webkit-text-fill-color: transparent !important;
+            background-clip: text !important;
+            display: inline-block;
+            animation: animatedShinyText 3.5s linear infinite !important;
+            will-change: background-position;
+            transform: translateZ(0);
+            contain: layout style paint;
+        }
 
         @keyframes blob {
             0% {
@@ -1744,120 +1756,167 @@
 </div>
 
 <!-- Daily Boundary Collection Modal -->
-<div id="dailyBoundaryModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-6xl h-[95vh] flex flex-col overflow-hidden">
-        <!-- Modal Header -->
-        <div class="relative pt-6 pb-4 px-5 sm:pt-7 sm:pb-5 sm:px-6 border-b bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 flex-shrink-0 overflow-hidden">
-            <!-- Large Animated Shiny Background Text (Shifted up for clear full view) -->
-            <div class="absolute inset-x-0 top-1 sm:top-2 flex items-center justify-center pointer-events-none select-none z-0 overflow-hidden px-4" aria-hidden="true">
-                <h1 class="animated-shiny-units-text text-lg sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-black uppercase tracking-wider whitespace-nowrap opacity-90">
-                    Daily Boundary Collections
-                </h1>
-            </div>
+<div id="dailyBoundaryModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md hidden z-50 flex items-center justify-center p-3 sm:p-5 transition-all duration-300">
+    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-6xl h-[92vh] flex flex-col overflow-hidden border border-slate-700/30">
+        <!-- Modal Header (21st.dev Cyber Emerald Matrix Dark Glass Theme) -->
+        <div class="relative bg-[#061a12] border-b border-emerald-950/60 p-4 sm:p-5 flex-shrink-0 overflow-hidden">
+            <!-- Micro-grid Dot Pattern Background -->
+            <div class="absolute inset-0 opacity-[0.08] pointer-events-none" style="background-image: radial-gradient(rgba(16,185,129,0.9) 1px, transparent 1px); background-size: 16px 16px;"></div>
+            
+            <!-- Ambient Emerald & Mint Radial Glows -->
+            <div class="absolute -top-20 left-1/2 -translate-x-1/2 w-96 h-40 bg-emerald-500/20 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute top-1/2 -right-16 w-60 h-60 bg-teal-500/15 rounded-full blur-3xl pointer-events-none"></div>
 
-            <div class="relative z-10">
-                <div class="flex items-center justify-between mb-4 sm:mb-5">
-                    <div class="flex items-end gap-3">
-                        <div class="p-2.5 bg-white/20 backdrop-blur-sm rounded-xl border border-white/30">
-                            <i data-lucide="calendar" class="w-6 h-6 text-white"></i>
-                        </div>
-                        <div class="pb-1">
-                            <p class="text-green-100 text-xs font-medium">Complete boundary collection details</p>
-                        </div>
+            <div class="relative z-10 flex flex-col gap-3">
+                <!-- Top Row: Title, Pill & Close Action -->
+                <div class="flex items-center justify-between gap-3">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-emerald-400 text-[10px] font-extrabold uppercase tracking-widest backdrop-blur-md shadow-xs flex-shrink-0">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                        Revenue Stream Live
                     </div>
-                    <button onclick="hideDailyBoundaryModal()" class="text-white/80 hover:text-white hover:bg-white/20 p-2 rounded-lg transition-all duration-200 backdrop-blur-sm">
-                        <i data-lucide="x" class="w-5 h-5"></i>
+
+                    <!-- Clean Shiny Header Title (Unobstructed & Centered) -->
+                    <div class="flex-1 text-center min-w-0">
+                        <h1 class="animated-shiny-boundary-text text-lg sm:text-2xl md:text-3xl font-black uppercase tracking-tight truncate">
+                            Daily Boundary Collections
+                        </h1>
+                    </div>
+
+                    <button onclick="hideDailyBoundaryModal()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white flex items-center justify-center transition-all duration-200 backdrop-blur-sm border border-white/10 flex-shrink-0" title="Close Modal">
+                        <i data-lucide="x" class="w-4 h-4"></i>
                     </button>
                 </div>
-                
-                <!-- Search and Date Filter -->
-                <div class="flex items-center gap-3">
+
+                <!-- Bottom Row: Search Bar & Date Filter -->
+                <div class="flex items-center gap-2.5 sm:gap-3.5">
                     <div class="relative flex-1">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <i data-lucide="search" class="w-4 h-4 text-white/60"></i>
+                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-emerald-400/70">
+                            <i data-lucide="search" class="w-4 h-4"></i>
                         </div>
                         <input type="search" 
                             id="boundarySearchInput"
                             placeholder="Search by unit number, driver, or amount..."
-                            class="w-full pl-10 pr-4 py-2 bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent transition-all duration-200 text-sm"
+                            class="w-full pl-10 pr-9 py-2 bg-slate-900/80 border border-slate-700/80 rounded-xl text-white placeholder-slate-400 text-xs sm:text-sm focus:outline-none focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400/50 transition-all shadow-inner"
                             onkeyup="filterBoundaryCollections()"
-                         autocomplete="new-password" spellcheck="false" autocorrect="off" autocapitalize="off" readonly onfocus="this.removeAttribute('readonly');">
+                            autocomplete="new-password" spellcheck="false" autocorrect="off" autocapitalize="off" readonly onfocus="this.removeAttribute('readonly');">
                         <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
-                            <button onclick="clearBoundarySearch()" class="text-white/60 hover:text-white transition-colors">
+                            <button onclick="clearBoundarySearch()" class="text-slate-400 hover:text-white transition-colors">
                                 <i data-lucide="x-circle" class="w-4 h-4"></i>
                             </button>
                         </div>
                     </div>
-                    <input 
-                        type="date" 
-                        id="boundaryDateFilter"
-                        class="px-3 py-2 bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent transition-all duration-200 text-sm"
-                        onchange="filterBoundaryCollections()"
-                    >
+                    
+                    <div class="relative flex items-center flex-shrink-0">
+                        <input 
+                            type="date" 
+                            id="boundaryDateFilter"
+                            class="px-3.5 py-2 bg-slate-900/80 border border-slate-700/80 rounded-xl text-emerald-300 text-xs sm:text-sm font-semibold focus:outline-none focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400/50 transition-all shadow-inner cursor-pointer"
+                            onchange="filterBoundaryCollections()"
+                        >
+                    </div>
                 </div>
             </div>
         </div>
         
-        <div class="flex-1 overflow-hidden flex flex-col min-h-0">
-            <!-- Summary Stats -->
-            <div class="bg-gradient-to-r from-green-50 to-emerald-50 p-4 border-b border-green-200 flex-shrink-0">
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div class="bg-white rounded-lg p-3 shadow-md shadow-slate-200/40 border border-green-100 hover:shadow-md transition-shadow">
-                        <div class="flex items-center gap-2">
-                            <div class="p-1.5 bg-green-100 rounded">
-                                <i data-lucide="calendar" class="w-4 h-4 text-green-600"></i>
-                            </div>
-                            <div>
-                                <div class="text-lg font-bold text-green-600" id="totalBoundaryCount">0</div>
-                                <div class="text-xs text-gray-600 uppercase tracking-wide font-medium">Total Today</div>
-                            </div>
+        <div class="flex-1 overflow-hidden flex flex-col min-h-0 bg-slate-100/60 relative">
+            <!-- ─── Compact Summary Metrics Strip with 3D SVG Assets (21st.dev Style) ─── -->
+            <div class="bg-white/90 backdrop-blur-md p-3 sm:p-3.5 border-b border-slate-200/80 flex-shrink-0 shadow-xs relative z-20">
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3.5 max-w-7xl mx-auto">
+                    
+                    <!-- 1. Total Today Card -->
+                    <div class="relative overflow-hidden rounded-2xl shadow-xs border border-emerald-200/80 bg-gradient-to-br from-white via-emerald-50/50 to-emerald-100/40 p-2.5 sm:p-3">
+                        <div class="absolute left-0 inset-y-0 h-6 w-1 rounded-r-full bg-emerald-500 my-auto"></div>
+                        <div class="relative z-10 pl-2 pr-12">
+                            <div class="text-emerald-700 text-[8px] sm:text-[9px] font-extrabold uppercase tracking-widest leading-none mb-1">Total Today</div>
+                            <div class="text-lg sm:text-2xl font-black text-emerald-600 leading-none mb-0.5 tracking-tight" id="totalBoundaryCount">0</div>
+                            <div class="text-[9px] font-bold text-emerald-600/75 uppercase tracking-tight">Collections Count</div>
                         </div>
+                        <img src="{{ asset('image/kpi/revenue_3d.svg') }}" alt="Total Today" class="absolute -right-2 -bottom-2 w-14 h-14 sm:w-16 sm:h-16 object-contain pointer-events-none opacity-90 drop-shadow-sm">
                     </div>
-                    <div class="bg-white rounded-lg p-3 shadow-md shadow-slate-200/40 border border-green-100 hover:shadow-md transition-shadow">
-                        <div class="flex items-center gap-2">
-                            <div class="p-1.5 bg-blue-100 rounded">
-                                <i data-lucide="history" class="w-4 h-4 text-blue-600"></i>
-                            </div>
-                            <div>
-                                <div class="text-lg font-bold text-blue-600" id="uniqueUnitsCount">₱0</div>
-                                <div class="text-xs text-gray-600 uppercase tracking-wide font-medium">Yesterday Total</div>
-                            </div>
+
+                    <!-- 2. Yesterday Total Card -->
+                    <div class="relative overflow-hidden rounded-2xl shadow-xs border border-blue-200/80 bg-gradient-to-br from-white via-blue-50/50 to-blue-100/40 p-2.5 sm:p-3">
+                        <div class="absolute left-0 inset-y-0 h-6 w-1 rounded-r-full bg-blue-500 my-auto"></div>
+                        <div class="relative z-10 pl-2 pr-12">
+                            <div class="text-blue-600 text-[8px] sm:text-[9px] font-extrabold uppercase tracking-widest leading-none mb-1 truncate">Yesterday Total</div>
+                            <div class="text-lg sm:text-2xl font-black text-blue-600 leading-none mb-0.5 tracking-tight" id="uniqueUnitsCount">₱0</div>
+                            <div class="text-[9px] font-bold text-blue-600/75 uppercase tracking-tight">Previous Day</div>
                         </div>
+                        <img src="{{ asset('image/kpi/history_3d.svg') }}" alt="Yesterday Total" class="absolute -right-2 -bottom-2 w-14 h-14 sm:w-16 sm:h-16 object-contain pointer-events-none opacity-90 drop-shadow-sm">
                     </div>
-                    <div class="bg-white rounded-lg p-3 shadow-md shadow-slate-200/40 border border-green-100 hover:shadow-md transition-shadow">
-                        <div class="flex items-center gap-2">
-                            <div class="p-1.5 bg-purple-100 rounded">
-                                <i data-lucide="bar-chart-2" class="w-4 h-4 text-purple-600"></i>
-                            </div>
-                            <div>
-                                <div class="text-lg font-bold text-purple-600" id="uniqueDriversCount">₱0</div>
-                                <div class="text-xs text-gray-600 uppercase tracking-wide font-medium">Monthly Total</div>
-                            </div>
+
+                    <!-- 3. Monthly Total Card -->
+                    <div class="relative overflow-hidden rounded-2xl shadow-xs border border-purple-200/80 bg-gradient-to-br from-white via-purple-50/50 to-purple-100/40 p-2.5 sm:p-3">
+                        <div class="absolute left-0 inset-y-0 h-6 w-1 rounded-r-full bg-purple-500 my-auto"></div>
+                        <div class="relative z-10 pl-2 pr-12">
+                            <div class="text-purple-700 text-[8px] sm:text-[9px] font-extrabold uppercase tracking-widest leading-none mb-1 truncate">Monthly Total</div>
+                            <div class="text-lg sm:text-2xl font-black text-purple-600 leading-none mb-0.5 tracking-tight" id="uniqueDriversCount">₱0</div>
+                            <div class="text-[9px] font-bold text-purple-600/75 uppercase tracking-tight">This Month Revenue</div>
                         </div>
+                        <img src="{{ asset('image/kpi/profit_3d.svg') }}" alt="Monthly Total" class="absolute -right-2 -bottom-2 w-14 h-14 sm:w-16 sm:h-16 object-contain pointer-events-none opacity-90 drop-shadow-sm">
                     </div>
-                    <div class="bg-white rounded-lg p-3 shadow-md shadow-slate-200/40 border border-green-100 hover:shadow-md transition-shadow">
-                        <div class="flex items-center gap-2">
-                            <div class="p-1.5 bg-yellow-100 rounded">
-                                <i data-lucide="trending-up" class="w-4 h-4 text-yellow-600"></i>
-                            </div>
-                            <div>
-                                <div class="text-lg font-bold text-yellow-600" id="totalBoundaryAmount">₱0</div>
-                                <div class="text-xs text-gray-600 uppercase tracking-wide font-medium">Yearly Total Amount</div>
-                            </div>
+
+                    <!-- 4. Yearly Total Amount Card -->
+                    <div class="relative overflow-hidden rounded-2xl shadow-xs border border-amber-200/80 bg-gradient-to-br from-white via-amber-50/50 to-amber-100/40 p-2.5 sm:p-3">
+                        <div class="absolute left-0 inset-y-0 h-6 w-1 rounded-r-full bg-amber-500 my-auto"></div>
+                        <div class="relative z-10 pl-2 pr-12">
+                            <div class="text-amber-700 text-[8px] sm:text-[9px] font-extrabold uppercase tracking-widest leading-none mb-1 truncate">Yearly Total Amount</div>
+                            <div class="text-lg sm:text-2xl font-black text-amber-600 leading-none mb-0.5 tracking-tight" id="totalBoundaryAmount">₱0</div>
+                            <div class="text-[9px] font-bold text-amber-600/75 uppercase tracking-tight">Annual Boundary</div>
                         </div>
+                        <img src="{{ asset('image/kpi/crown_3d.svg') }}" alt="Yearly Total" class="absolute -right-2 -bottom-2 w-14 h-14 sm:w-16 sm:h-16 object-contain pointer-events-none opacity-90 drop-shadow-sm">
                     </div>
+
                 </div>
             </div>
 
-            <!-- Boundary Collections Grid -->
-            <div class="flex-1 overflow-y-auto p-4 bg-gray-50 min-h-0">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pb-4" id="boundaryGrid">
+            <!-- 🏎️ Fixed Savage Revenue Cyber Fleet Watermark Background (Stays Stationary on Scroll) -->
+            <div class="absolute inset-x-0 bottom-0 top-16 flex items-center justify-center pointer-events-none select-none z-0 overflow-hidden px-4" aria-hidden="true" style="transform: translateZ(0);">
+                <svg viewBox="0 0 520 180" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-[96%] max-w-5xl h-auto opacity-[0.26] transform -rotate-1 select-none pointer-events-none">
+                    <defs>
+                        <linearGradient id="boundaryBodyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#10b981" />
+                            <stop offset="50%" stop-color="#059669" />
+                            <stop offset="100%" stop-color="#eab308" />
+                        </linearGradient>
+                        <linearGradient id="boundaryCoinGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stop-color="#10b981" />
+                            <stop offset="100%" stop-color="#34d399" />
+                        </linearGradient>
+                    </defs>
+                    <!-- Revenue Stream Dynamic Trails -->
+                    <path d="M10 135 H160" stroke="url(#boundaryBodyGrad)" stroke-width="4.5" stroke-dasharray="8 6" stroke-linecap="round" />
+                    <path d="M40 150 H220" stroke="url(#boundaryBodyGrad)" stroke-width="5.5" stroke-dasharray="16 8" stroke-linecap="round" />
+                    <path d="M80 162 H350" stroke="url(#boundaryBodyGrad)" stroke-width="6.5" stroke-linecap="round" />
+                    <!-- Aggressive Savage GT Boundary Cyber Sedan -->
+                    <path d="M110 138 L160 92 Q190 62 250 60 L335 60 Q385 64 415 102 L465 116 Q495 125 505 142 L500 152 Q492 158 470 158 H135 Q115 158 108 146 Z" stroke="url(#boundaryBodyGrad)" stroke-width="6" fill="#10b981" fill-opacity="0.08" stroke-linejoin="round" />
+                    <!-- Cockpit Canopy & Currency Symbol -->
+                    <path d="M235 64 L180 92 H320 L360 64 Z" stroke="url(#boundaryBodyGrad)" stroke-width="4" fill="#059669" fill-opacity="0.12" stroke-linejoin="round" />
+                    <path d="M328 92 L368 66 L402 98 H328 Z" stroke="url(#boundaryBodyGrad)" stroke-width="3.5" fill="#10b981" fill-opacity="0.1" stroke-linejoin="round" />
+                    <!-- Aggressive Headlight Blade -->
+                    <path d="M460 120 L498 126 L475 134 Z" fill="#10b981" />
+                    <path d="M470 152 H510 L495 158 H460 Z" fill="#10b981" />
+                    <!-- Turbine Money Wheels -->
+                    <circle cx="180" cy="154" r="26" stroke="url(#boundaryCoinGrad)" stroke-width="6" fill="#ffffff" fill-opacity="0.35" />
+                    <circle cx="180" cy="154" r="14" stroke="url(#boundaryBodyGrad)" stroke-width="4" stroke-dasharray="8 4" />
+                    <circle cx="420" cy="154" r="26" stroke="url(#boundaryCoinGrad)" stroke-width="6" fill="#ffffff" fill-opacity="0.35" />
+                    <circle cx="420" cy="154" r="14" stroke="url(#boundaryBodyGrad)" stroke-width="4" stroke-dasharray="8 4" />
+                    <!-- Aero Wing / Spoiler -->
+                    <path d="M100 122 L115 105 H145 L130 122 Z" stroke="url(#boundaryBodyGrad)" stroke-width="4" fill="#10b981" fill-opacity="0.2" stroke-linejoin="round" />
+                    <!-- Roof Revenue Beacon -->
+                    <path d="M280 52 L290 40 H330 L340 52 Z" stroke="url(#boundaryBodyGrad)" stroke-width="3.5" fill="#10b981" fill-opacity="0.3" stroke-linejoin="round" />
+                </svg>
+            </div>
+
+            <!-- Enhanced Boundary Collections Grid (Scrolls Smoothly Above Fixed Watermark) -->
+            <div class="flex-1 overflow-y-auto p-4 sm:p-5 min-h-0 relative z-10" style="transform: translateZ(0);">
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 pb-6" id="boundaryGrid">
                     <!-- Loading State -->
                     <div class="col-span-full text-center py-16">
                         <div class="inline-flex flex-col items-center">
-                            <div class="animate-spin rounded-full h-12 w-12 border-4 border-green-600 border-t-transparent mb-4"></div>
-                            <span class="text-lg text-gray-600 font-semibold mb-2">Loading boundary collections...</span>
-                            <p class="text-sm text-slate-400">Please wait while we fetch collection details</p>
+                            <div class="animate-spin rounded-full h-12 w-12 border-4 border-emerald-500 border-t-transparent mb-4"></div>
+                            <span class="text-lg text-slate-700 font-bold mb-1">Loading boundary collections...</span>
+                            <p class="text-xs text-slate-400">Fetching live revenue records and transaction logs</p>
                         </div>
                     </div>
                 </div>
@@ -4221,63 +4280,66 @@
                 grid.innerHTML = `
                     <div class="col-span-full text-center py-20">
                         <div class="inline-flex flex-col items-center">
-                            <div class="p-4 bg-gray-100 rounded-full mb-4">
-                                <i data-lucide="calendar" class="w-8 h-8 text-slate-400"></i>
+                            <div class="w-14 h-14 rounded-2xl bg-white/70 backdrop-blur-sm border border-slate-200/60 flex items-center justify-center mb-3 text-slate-400 shadow-sm">
+                                <i data-lucide="search-x" class="w-7 h-7"></i>
                             </div>
-                            <span class="text-xl text-gray-600 font-semibold mb-2">No boundary collections found</span>
-                            <p class="text-sm text-slate-400">Try adjusting your search or date filter</p>
+                            <span class="text-base font-bold text-slate-700 mb-1">No boundary collections found</span>
+                            <p class="text-xs text-slate-400">Try adjusting your search criteria or date filter</p>
                         </div>
                     </div>
                 `;
+                if (typeof lucide !== 'undefined') lucide.createIcons();
                 return;
             }
             
             grid.innerHTML = collections.map(collection => `
-                <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden border-l-4 border-green-500 hover:scale-102">
-                    <div class="p-4">
-                        <!-- Header -->
-                        <div class="flex items-start justify-between mb-3">
-                            <div class="flex items-center gap-3">
-                                <div class="p-2 bg-green-100 rounded-lg">
-                                    <i data-lucide="car" class="w-4 h-4 text-green-600"></i>
-                                </div>
-                                <div>
-                                    <h4 class="text-lg font-bold text-slate-800">${collection.plate_number}</h4>
-                                    <span class="text-xs text-slate-500">${collection.plate_number || 'N/A'}</span>
-                                </div>
+                <div class="bg-[#f0fdf4]/35 hover:bg-[#f0fdf4]/60 rounded-2xl border border-emerald-300/60 shadow-sm hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 relative group overflow-hidden cursor-default min-h-[120px] flex flex-col justify-between p-3.5">
+                    
+                    <!-- Card Header -->
+                    <div class="flex items-center justify-between gap-2 mb-2">
+                        <div class="flex items-center gap-2 min-w-0">
+                            <div class="w-7 h-7 rounded-lg bg-white/40 flex items-center justify-center flex-shrink-0 text-emerald-700 shadow-xs border border-white/50">
+                                <i data-lucide="car" class="w-3.5 h-3.5"></i>
                             </div>
-                            <div class="text-right">
-                                <div class="text-lg font-bold text-green-600">₱${collection.boundary_amount.toLocaleString()}</div>
-                                <div class="text-xs text-slate-500">${collection.date}</div>
+                            <div class="min-w-0">
+                                <h4 class="text-xs sm:text-sm font-black text-slate-900 truncate tracking-tight">${collection.plate_number}</h4>
+                                <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-none">${collection.time || 'N/A'}</span>
                             </div>
                         </div>
-                        
-                        <!-- Driver Information -->
-                        <div class="bg-gray-50 rounded-lg p-3 mb-3">
-                            <div class="flex items-center gap-2 mb-2">
-                                <i data-lucide="user" class="w-4 h-4 text-gray-600"></i>
-                                <span class="text-sm font-medium text-slate-800">Driver: ${collection.driver_name || 'N/A'}</span>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <i data-lucide="clock" class="w-4 h-4 text-gray-600"></i>
-                                <span class="text-xs text-gray-600">Time: ${collection.time || 'N/A'}</span>
-                            </div>
-                        </div>
-                        
-                        <!-- Collection Details -->
-                        <div class="flex items-center justify-between text-xs text-slate-500">
-                            <span class="flex items-center gap-1">
-                                <i data-lucide="map-pin" class="w-3 h-3"></i>
-                                ${collection.location || 'Main Office'}
-                            </span>
-                            <span class="flex items-center gap-1">
-                                <i data-lucide="check-circle" class="w-3 h-3"></i>
-                                Verified
+                        <div class="text-right flex-shrink-0">
+                            <div class="text-xs sm:text-sm font-black text-emerald-700 leading-tight">₱${collection.boundary_amount ? Number(collection.boundary_amount).toLocaleString() : '0'}</div>
+                            <span class="px-2 py-0.5 text-[8px] font-extrabold rounded-full bg-emerald-100/90 text-emerald-800 border border-emerald-300 uppercase tracking-wider inline-block mt-0.5">
+                                COLLECTED
                             </span>
                         </div>
                     </div>
+                    
+                    <!-- Driver Details Ribbon (Translucent) -->
+                    <div class="flex items-center justify-between py-1.5 px-2 bg-white/35 border border-white/50 rounded-xl mb-2">
+                        <div class="flex items-center gap-1.5 min-w-0 flex-1">
+                            <i data-lucide="user" class="w-3.5 h-3.5 text-slate-500 flex-shrink-0"></i>
+                            <span class="text-xs font-bold text-slate-800 truncate">${collection.driver_name || 'Unassigned Driver'}</span>
+                        </div>
+                        <span class="text-[9px] font-bold text-slate-500 uppercase tracking-tight flex-shrink-0 pl-2">${collection.date || ''}</span>
+                    </div>
+
+                    <!-- Card Footer -->
+                    <div class="flex items-center justify-between text-[9px] font-bold text-slate-500 uppercase tracking-tight pt-1 border-t border-slate-300/30">
+                        <span class="flex items-center gap-1">
+                            <i data-lucide="map-pin" class="w-3 h-3 text-emerald-600"></i>
+                            ${collection.location || 'Main Office'}
+                        </span>
+                        <span class="flex items-center gap-1 text-emerald-700 font-extrabold">
+                            <i data-lucide="check-circle-2" class="w-3 h-3 text-emerald-600"></i>
+                            Verified
+                        </span>
+                    </div>
                 </div>
             `).join('');
+
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
         }
         
         function filterBoundaryCollections() {
