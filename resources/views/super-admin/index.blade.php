@@ -1120,22 +1120,6 @@
                 <p style="font-size:.75rem;color:#64748b;margin-top:.15rem;">Live tracking of daily usage, system operations, and adoption progress per account.</p>
             </div>
             <div class="flex flex-wrap items-center gap-2">
-                <!-- Search Input with Clear Button -->
-                <div style="position:relative;display:flex;align-items:center;">
-                    <i data-lucide="search" style="position:absolute;left:.6rem;top:50%;transform:translateY(-50%);width:13px;height:13px;color:#94a3b8;pointer-events:none;"></i>
-                    <input id="cam-search" type="search" name="cam_search_q_{{ uniqid() }}" placeholder="Search name, role, email…" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" readonly
-                        style="padding:.45rem 1.8rem .45rem 2rem;border:1px solid #e2e8f0;border-radius:.6rem;font-size:.78rem;outline:none;width:230px;transition:border-color .2s;background:#fff;"
-                        onfocus="this.removeAttribute('readonly');this.style.borderColor='#f59e0b';" onclick="this.removeAttribute('readonly');" onblur="this.style.borderColor='#e2e8f0'" oninput="camRenderTable()">
-                    <button type="button" onclick="document.getElementById('cam-search').value='';camRenderTable();" style="position:absolute;right:.5rem;color:#94a3b8;cursor:pointer;background:none;border:none;padding:.2rem;font-size:.75rem;line-height:1;" title="Clear search">✕</button>
-                </div>
-
-                <!-- Date Selector -->
-                <div style="position:relative;display:flex;align-items:center;">
-                    <input type="date" id="cam-date" value="{{ date('Y-m-d') }}" class="cam-filter-btn"
-                        style="padding:.38rem .7rem;font-size:.75rem;font-weight:700;color:#000;border:1px solid #e2e8f0;border-radius:.55rem;"
-                        onchange="camFetch()">
-                </div>
-
                 <!-- Daily Target Hours -->
                 <select id="cam-target" class="cam-filter-btn" style="padding:.4rem .8rem;" onchange="camFetch()">
                     <option value="6">Target: 6h/day</option>
@@ -2601,7 +2585,7 @@ async function camExecuteReset() {
             toast(json.message || 'Staff activity history successfully reset.');
             camCloseResetModal();
             // Re-fetch and re-render the entire monitoring dashboard & heatmap seamlessly
-            camFetchData();
+            camFetch();
         } else {
             toast(json.message || 'Failed to reset activity history.', true);
         }
