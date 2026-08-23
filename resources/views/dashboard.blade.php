@@ -168,6 +168,18 @@
             transform: translateZ(0);
             contain: layout style paint;
         }
+        .animated-shiny-expenses-text {
+            background: linear-gradient(110deg, #f43f5e 0%, #fb7185 25%, #ffffff 45%, #fde047 55%, #ffffff 65%, #fb7185 80%, #f43f5e 100%);
+            background-size: 200% 100%;
+            -webkit-background-clip: text !important;
+            -webkit-text-fill-color: transparent !important;
+            background-clip: text !important;
+            display: inline-block;
+            animation: animatedShinyText 3.5s linear infinite !important;
+            will-change: background-position;
+            transform: translateZ(0);
+            contain: layout style paint;
+        }
 
         @keyframes blob {
             0% {
@@ -1561,7 +1573,7 @@
 
             <!-- 💎 Fixed Bold Savage Cyber Diamond Profit Crystal & Analytics Matrix Watermark Background (High Visibility) -->
             <div class="absolute inset-0 top-16 flex items-center justify-center pointer-events-none select-none z-0 overflow-hidden px-4" aria-hidden="true" style="transform: translateZ(0);">
-                <svg viewBox="0 0 540 240" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-[96%] max-w-5xl h-auto opacity-[0.38] transform select-none pointer-events-none">
+                <svg viewBox="0 0 540 320" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-[96%] max-w-5xl h-auto opacity-[0.38] transform select-none pointer-events-none">
                     <defs>
                         <linearGradient id="crystalDiamondGrad" x1="0%" y1="0%" x2="100%" y2="100%">
                             <stop offset="0%" stop-color="#3b82f6" />
@@ -1581,43 +1593,44 @@
                     </defs>
 
                     <!-- Orbiting Gyro Financial Matrix Rings (Bold Lines) -->
-                    <circle cx="270" cy="115" r="105" stroke="url(#waveProfitGrad)" stroke-width="4.5" stroke-dasharray="16 10" />
-                    <ellipse cx="270" cy="115" rx="160" ry="60" stroke="url(#crystalDiamondGrad)" stroke-width="4" stroke-dasharray="10 8" transform="rotate(-15 270 115)" />
-                    <ellipse cx="270" cy="115" rx="160" ry="60" stroke="url(#waveProfitGrad)" stroke-width="4" stroke-dasharray="10 8" transform="rotate(15 270 115)" />
+                    <circle cx="270" cy="160" r="120" stroke="url(#waveProfitGrad)" stroke-width="4.5" stroke-dasharray="16 10" />
+                    <ellipse cx="270" cy="160" rx="190" ry="75" stroke="url(#crystalDiamondGrad)" stroke-width="4" stroke-dasharray="10 8" transform="rotate(-15 270 160)" />
+                    <ellipse cx="270" cy="160" rx="190" ry="75" stroke="url(#waveProfitGrad)" stroke-width="4" stroke-dasharray="10 8" transform="rotate(15 270 160)" />
 
-                    <!-- Multi-tier Holographic Sinusoidal Profit Waves (Bold Vectors) -->
-                    <path d="M15 190 Q110 120 180 160 T360 70 T525 20" stroke="url(#crystalDiamondGrad)" stroke-width="6.5" stroke-linecap="round" fill="none" />
-                    <path d="M15 210 Q130 160 210 185 T390 105 T525 50" stroke="url(#waveProfitGrad)" stroke-width="4.5" stroke-dasharray="10 6" stroke-linecap="round" fill="none" />
-                    <path d="M30 225 H510" stroke="url(#crystalDiamondGrad)" stroke-width="4" stroke-dasharray="16 8" stroke-linecap="round" />
+                    <!-- Multi-tier Holographic Sinusoidal Profit Waves (Spans Full Area) -->
+                    <path d="M15 240 Q110 160 180 210 T360 90 T525 30" stroke="url(#crystalDiamondGrad)" stroke-width="6.5" stroke-linecap="round" fill="none" />
+                    <path d="M15 270 Q130 200 210 240 T390 140 T525 70" stroke="url(#waveProfitGrad)" stroke-width="4.5" stroke-dasharray="10 6" stroke-linecap="round" fill="none" />
+                    <path d="M15 70 Q130 30 210 60 T390 40 T525 15" stroke="url(#waveProfitGrad)" stroke-width="3.5" stroke-dasharray="8 6" stroke-linecap="round" fill="none" />
+                    <path d="M30 300 H510" stroke="url(#crystalDiamondGrad)" stroke-width="4" stroke-dasharray="16 8" stroke-linecap="round" />
 
                     <!-- Massive 3D Savage Cyber Diamond Crystal Ledger Core -->
-                    <circle cx="270" cy="115" r="75" fill="url(#crystalCoreGlow)" />
+                    <circle cx="270" cy="160" r="85" fill="url(#crystalCoreGlow)" />
                     <!-- Outer Facets with Vibrant Infill -->
-                    <polygon points="270,25 365,90 330,195 210,195 175,90" stroke="url(#crystalDiamondGrad)" stroke-width="6.5" fill="#6366f1" fill-opacity="0.1" stroke-linejoin="round" />
+                    <polygon points="270,50 375,130 335,250 205,250 165,130" stroke="url(#crystalDiamondGrad)" stroke-width="6.5" fill="#6366f1" fill-opacity="0.1" stroke-linejoin="round" />
                     <!-- Crown & Pavilion Facet Intersections -->
-                    <line x1="175" y1="90" x2="365" y2="90" stroke="url(#crystalDiamondGrad)" stroke-width="5" />
-                    <line x1="270" y1="25" x2="238" y2="90" stroke="url(#crystalDiamondGrad)" stroke-width="4.5" />
-                    <line x1="270" y1="25" x2="302" y2="90" stroke="url(#crystalDiamondGrad)" stroke-width="4.5" />
-                    <line x1="238" y1="90" x2="270" y2="195" stroke="url(#crystalDiamondGrad)" stroke-width="5.5" />
-                    <line x1="302" y1="90" x2="270" y2="195" stroke="url(#crystalDiamondGrad)" stroke-width="5.5" />
-                    <line x1="175" y1="90" x2="270" y2="195" stroke="url(#waveProfitGrad)" stroke-width="4" />
-                    <line x1="365" y1="90" x2="270" y2="195" stroke="url(#waveProfitGrad)" stroke-width="4" />
+                    <line x1="165" y1="130" x2="375" y2="130" stroke="url(#crystalDiamondGrad)" stroke-width="5" />
+                    <line x1="270" y1="50" x2="235" y2="130" stroke="url(#crystalDiamondGrad)" stroke-width="4.5" />
+                    <line x1="270" y1="50" x2="305" y2="130" stroke="url(#crystalDiamondGrad)" stroke-width="4.5" />
+                    <line x1="235" y1="130" x2="270" y2="250" stroke="url(#crystalDiamondGrad)" stroke-width="5.5" />
+                    <line x1="305" y1="130" x2="270" y2="250" stroke="url(#crystalDiamondGrad)" stroke-width="5.5" />
+                    <line x1="165" y1="130" x2="270" y2="250" stroke="url(#waveProfitGrad)" stroke-width="4" />
+                    <line x1="375" y1="130" x2="270" y2="250" stroke="url(#waveProfitGrad)" stroke-width="4" />
 
                     <!-- Central Floating Glowing Hexagon Node -->
-                    <polygon points="270,80 300,98 300,132 270,150 240,132 240,98" stroke="url(#crystalDiamondGrad)" stroke-width="4" fill="#ffffff" fill-opacity="0.4" stroke-linejoin="round" />
-                    <circle cx="270" cy="115" r="10" fill="#eab308" />
+                    <polygon points="270,120 305,140 305,180 270,200 235,180 235,140" stroke="url(#crystalDiamondGrad)" stroke-width="4" fill="#ffffff" fill-opacity="0.4" stroke-linejoin="round" />
+                    <circle cx="270" cy="160" r="10" fill="#eab308" />
 
                     <!-- Precision Analytics Crosshairs & Vectors -->
-                    <line x1="270" y1="6" x2="270" y2="24" stroke="url(#crystalDiamondGrad)" stroke-width="4" stroke-linecap="round" />
-                    <line x1="270" y1="196" x2="270" y2="214" stroke="url(#crystalDiamondGrad)" stroke-width="4" stroke-linecap="round" />
-                    <line x1="155" y1="115" x2="173" y2="115" stroke="url(#crystalDiamondGrad)" stroke-width="4" stroke-linecap="round" />
-                    <line x1="367" y1="115" x2="385" y2="115" stroke="url(#crystalDiamondGrad)" stroke-width="4" stroke-linecap="round" />
+                    <line x1="270" y1="20" x2="270" y2="45" stroke="url(#crystalDiamondGrad)" stroke-width="4" stroke-linecap="round" />
+                    <line x1="270" y1="255" x2="270" y2="280" stroke="url(#crystalDiamondGrad)" stroke-width="4" stroke-linecap="round" />
+                    <line x1="140" y1="160" x2="160" y2="160" stroke="url(#crystalDiamondGrad)" stroke-width="4" stroke-linecap="round" />
+                    <line x1="380" y1="160" x2="400" y2="160" stroke="url(#crystalDiamondGrad)" stroke-width="4" stroke-linecap="round" />
 
                     <!-- Dynamic Floating Cyber Currency Crystals & Data Sparks -->
-                    <polygon points="525,20 535,8 545,20 535,32" fill="#eab308" />
-                    <polygon points="460,65 467,56 474,65 467,74" fill="#a855f7" />
-                    <polygon points="75,150 82,141 89,150 82,159" fill="#3b82f6" />
-                    <polygon points="120,70 126,62 132,70 126,78" fill="#06b6d4" />
+                    <polygon points="525,30 535,18 545,30 535,42" fill="#eab308" />
+                    <polygon points="460,95 467,86 474,95 467,104" fill="#a855f7" />
+                    <polygon points="75,200 82,191 89,200 82,209" fill="#3b82f6" />
+                    <polygon points="120,90 126,82 132,90 126,98" fill="#06b6d4" />
                 </svg>
             </div>
 
@@ -1713,58 +1726,156 @@
     </div>
 </div>
 
-<!-- Total Expenses Details Modal (NEW) -->
-<div id="expensesModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-6xl h-[95vh] flex flex-col overflow-hidden border border-white/20">
-        <!-- Modal Header -->
-        <div class="relative pt-6 pb-4 px-5 sm:pt-7 sm:pb-5 sm:px-6 border-b bg-gradient-to-r from-red-600 to-rose-700 flex-shrink-0 text-white overflow-hidden">
-            <!-- Large Animated Shiny Background Text (Shifted up for clear full view) -->
-            <div class="absolute inset-x-0 top-1 sm:top-2 flex items-center justify-center pointer-events-none select-none z-0 overflow-hidden px-4" aria-hidden="true">
-                <h1 class="animated-shiny-units-text text-xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-black uppercase tracking-wider whitespace-nowrap opacity-90">
-                    Total Expenses Today
-                </h1>
-            </div>
+<!-- Total Expenses Details Modal (NEW 21st.dev Ruby Obsidian & Cyber Shield Theme) -->
+<div id="expensesModal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md hidden z-50 flex items-center justify-center p-3 sm:p-5 transition-all duration-300">
+    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-6xl h-[92vh] flex flex-col overflow-hidden border border-slate-700/30">
+        <!-- Modal Header (21st.dev Deep Crimson & Ruby Obsidian Theme) -->
+        <div class="relative bg-[#140508] border-b border-rose-950/80 p-4 sm:p-5 flex-shrink-0 overflow-hidden">
+            <!-- Micro-grid Dot Pattern Background -->
+            <div class="absolute inset-0 opacity-[0.09] pointer-events-none" style="background-image: radial-gradient(rgba(244,63,94,0.9) 1px, transparent 1px); background-size: 16px 16px;"></div>
+            
+            <!-- Ambient Ruby, Crimson & Sunset Gold Radial Glows -->
+            <div class="absolute -top-20 left-1/2 -translate-x-1/2 w-96 h-40 bg-rose-600/25 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute top-1/2 -right-16 w-60 h-60 bg-red-600/20 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute bottom-0 left-10 w-48 h-20 bg-amber-600/15 rounded-full blur-2xl pointer-events-none"></div>
 
-            <div class="relative z-10">
-                <div class="flex items-center justify-between mb-2">
-                    <div class="flex items-end gap-4">
-                        <div class="p-2.5 bg-white/20 backdrop-blur-md rounded-xl border border-white/30 shadow-inner">
-                            <i data-lucide="trending-down" class="w-7 h-7"></i>
-                        </div>
-                        <div class="pb-1">
-                            <p class="text-red-100 text-[11px] font-bold uppercase tracking-widest opacity-80">Detailed expense records and computation</p>
-                        </div>
+            <div class="relative z-10 flex flex-col gap-3">
+                <!-- Top Row: Title, Pill & Close Action (100% Mathematically Centered Title) -->
+                <div class="relative flex items-center justify-between min-h-[38px]">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-500/15 border border-rose-400/30 text-rose-300 text-[10px] font-extrabold uppercase tracking-widest backdrop-blur-md shadow-xs relative z-10">
+                        <span class="w-2 h-2 rounded-full bg-rose-400 animate-pulse"></span>
+                        Expense Outflow Audit
                     </div>
-                    <button onclick="hideExpensesModal()" class="p-2 hover:bg-white/10 text-white rounded-full transition-colors">
-                        <i data-lucide="x" class="w-6 h-6"></i>
+
+                    <!-- 100% Mathematically Centered Title Overlay -->
+                    <div class="absolute inset-0 flex items-center justify-center pointer-events-none px-28">
+                        <h1 class="animated-shiny-expenses-text text-base sm:text-xl md:text-2xl lg:text-3xl font-black uppercase tracking-tight text-center truncate">
+                            Total Expenses Details
+                        </h1>
+                    </div>
+
+                    <button onclick="hideExpensesModal()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white flex items-center justify-center transition-all duration-200 backdrop-blur-sm border border-white/10 relative z-10" title="Close Modal">
+                        <i data-lucide="x" class="w-4 h-4"></i>
                     </button>
                 </div>
-                
-                <!-- Period Filters & Print Row (Expenses) -->
-                <div class="mt-4 flex flex-wrap items-center justify-between gap-3 bg-black/15 rounded-xl p-2 backdrop-blur-sm border border-white/10">
-                    <div class="flex gap-1 p-0.5 bg-black/20 rounded-lg shadow-inner">
-                        <button id="btn-today-expenses" onclick="setExpensesPeriod('today')" class="px-3 py-1.5 text-xs font-bold rounded-md transition-all duration-200">Today</button>
-                        <button id="btn-week-expenses" onclick="setExpensesPeriod('week')" class="px-3 py-1.5 text-xs font-bold rounded-md transition-all duration-200">Weekly</button>
-                        <button id="btn-month-expenses" onclick="setExpensesPeriod('month')" class="px-3 py-1.5 text-xs font-bold rounded-md transition-all duration-200">Monthly</button>
-                        <button id="btn-year-expenses" onclick="setExpensesPeriod('year')" class="px-3 py-1.5 text-xs font-bold rounded-md transition-all duration-200">Yearly</button>
+
+                <!-- Bottom Row: Period Segmented Buttons & Print Report -->
+                <div class="flex flex-wrap items-center justify-between gap-2.5">
+                    <div class="flex items-center p-1 bg-slate-900/90 rounded-xl border border-rose-900/60 shadow-inner">
+                        <button id="btn-today-expenses" onclick="setExpensesPeriod('today')" class="px-3 sm:px-3.5 py-1.5 text-xs font-black rounded-lg transition-all duration-200 bg-gradient-to-r from-rose-600 to-red-600 text-white shadow-sm cursor-pointer">Today</button>
+                        <button id="btn-week-expenses" onclick="setExpensesPeriod('week')" class="px-3 sm:px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 text-slate-300 hover:text-white hover:bg-white/10 cursor-pointer">Weekly</button>
+                        <button id="btn-month-expenses" onclick="setExpensesPeriod('month')" class="px-3 sm:px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 text-slate-300 hover:text-white hover:bg-white/10 cursor-pointer">Monthly</button>
+                        <button id="btn-year-expenses" onclick="setExpensesPeriod('year')" class="px-3 sm:px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 text-slate-300 hover:text-white hover:bg-white/10 cursor-pointer">Yearly</button>
                     </div>
 
-                    <button onclick="printExpensesNewTab()" class="flex items-center gap-2 px-4 py-1.5 bg-white text-rose-700 hover:bg-rose-50 rounded-lg font-bold text-xs uppercase tracking-widest transition-all shadow-md border border-white hover:scale-105">
-                        <i data-lucide="printer" class="w-4 h-4 text-rose-700"></i>
-                        Print Expenses
+                    <button onclick="printExpensesNewTab()" class="px-3.5 sm:px-4 py-1.5 rounded-xl bg-rose-500/15 hover:bg-rose-500/30 text-rose-200 hover:text-white font-extrabold text-xs flex items-center gap-2 border border-rose-400/30 backdrop-blur-md shadow-sm transition-all duration-200 cursor-pointer">
+                        <i data-lucide="printer" class="w-3.5 h-3.5 text-rose-400"></i>
+                        PRINT EXPENSES
                     </button>
                 </div>
             </div>
         </div>
         
-        <div class="flex-1 overflow-hidden flex flex-col min-h-0">
-            <!-- Detailed Report Document (Expenses Focused) -->
-            <div class="bg-gray-50 p-4 border-b border-gray-200 flex-shrink-0 print-section overflow-y-auto max-h-[85vh]">
-                <div class="max-w-5xl mx-auto bg-white border border-gray-200 rounded-xl p-6 shadow-md shadow-slate-200/40 relative" id="expensesReport">
+        <div class="flex-1 overflow-hidden flex flex-col min-h-0 bg-slate-100/60 relative">
+            <!-- ─── 3D SVG KPI Executive Metrics Strip (21st.dev Style) ─── -->
+            <div class="bg-white/90 backdrop-blur-md p-3 sm:p-3.5 border-b border-slate-200/80 flex-shrink-0 shadow-xs relative z-20">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3.5 max-w-7xl mx-auto">
+                    
+                    <!-- 1. Total Expenses Card -->
+                    <div class="relative overflow-hidden rounded-2xl shadow-xs border border-rose-200/80 bg-gradient-to-br from-white via-rose-50/50 to-red-100/40 p-3">
+                        <div class="absolute left-0 inset-y-0 h-6 w-1 rounded-r-full bg-rose-500 my-auto"></div>
+                        <div class="relative z-10 pl-2 pr-12">
+                            <div class="text-rose-700 text-[8px] sm:text-[9px] font-extrabold uppercase tracking-widest leading-none mb-1">Total Expenses</div>
+                            <div class="text-xl sm:text-2xl font-black text-rose-600 leading-none mb-0.5 tracking-tight" id="expensesTotalValue">₱0.00</div>
+                            <div class="text-[9px] font-bold text-rose-600/75 uppercase tracking-tight">Total Operating Outflow</div>
+                        </div>
+                        <img src="{{ asset('image/kpi/expenses_3d.svg') }}" alt="Total Expenses" class="absolute -right-2 -bottom-2 w-14 h-14 sm:w-16 sm:h-16 object-contain pointer-events-none opacity-90 drop-shadow-sm">
+                    </div>
+
+                    <!-- 2. Maintenance Outflow Card -->
+                    <div class="relative overflow-hidden rounded-2xl shadow-xs border border-orange-200/80 bg-gradient-to-br from-white via-orange-50/50 to-amber-100/40 p-3">
+                        <div class="absolute left-0 inset-y-0 h-6 w-1 rounded-r-full bg-orange-500 my-auto"></div>
+                        <div class="relative z-10 pl-2 pr-12">
+                            <div class="text-orange-700 text-[8px] sm:text-[9px] font-extrabold uppercase tracking-widest leading-none mb-1">Maintenance & Repairs</div>
+                            <div class="text-xl sm:text-2xl font-black text-orange-600 leading-none mb-0.5 tracking-tight" id="expensesMaintenanceTotal">₱0.00</div>
+                            <div class="text-[9px] font-bold text-orange-600/75 uppercase tracking-tight">Fleet Mechanical Care</div>
+                        </div>
+                        <img src="{{ asset('image/kpi/maintenance_3d.svg') }}" alt="Maintenance" class="absolute -right-2 -bottom-2 w-14 h-14 sm:w-16 sm:h-16 object-contain pointer-events-none opacity-90 drop-shadow-sm">
+                    </div>
+
+                    <!-- 3. General Office Expenses Card -->
+                    <div class="relative overflow-hidden rounded-2xl shadow-xs border border-red-200/80 bg-gradient-to-br from-white via-red-50/50 to-rose-100/40 p-3">
+                        <div class="absolute left-0 inset-y-0 h-6 w-1 rounded-r-full bg-red-500 my-auto"></div>
+                        <div class="relative z-10 pl-2 pr-12">
+                            <div class="text-red-700 text-[8px] sm:text-[9px] font-extrabold uppercase tracking-widest leading-none mb-1">Office Expenses</div>
+                            <div class="text-xl sm:text-2xl font-black text-red-600 leading-none mb-0.5 tracking-tight" id="expensesOfficeTotal">₱0.00</div>
+                            <div class="text-[9px] font-bold text-red-600/75 uppercase tracking-tight">Administrative Outflow</div>
+                        </div>
+                        <img src="{{ asset('image/kpi/history_3d.svg') }}" alt="Office Expenses" class="absolute -right-2 -bottom-2 w-14 h-14 sm:w-16 sm:h-16 object-contain pointer-events-none opacity-90 drop-shadow-sm">
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- 🛡️ Fixed Bold Savage Cyber Expense Shield & Flow Matrix Watermark Background (High Visibility) -->
+            <div class="absolute inset-0 top-16 flex items-center justify-center pointer-events-none select-none z-0 overflow-hidden px-4" aria-hidden="true" style="transform: translateZ(0);">
+                <svg viewBox="0 0 540 240" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-[96%] max-w-5xl h-auto opacity-[0.38] transform select-none pointer-events-none">
+                    <defs>
+                        <linearGradient id="expenseShieldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#f43f5e" />
+                            <stop offset="30%" stop-color="#e11d48" />
+                            <stop offset="65%" stop-color="#be123c" />
+                            <stop offset="100%" stop-color="#f59e0b" />
+                        </linearGradient>
+                        <linearGradient id="expenseWaveGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#fb7185" />
+                            <stop offset="50%" stop-color="#e11d48" />
+                            <stop offset="100%" stop-color="#9f1239" />
+                        </linearGradient>
+                        <radialGradient id="expenseCoreGlow" cx="50%" cy="50%" r="50%">
+                            <stop offset="0%" stop-color="#f43f5e" stop-opacity="0.4" />
+                            <stop offset="100%" stop-color="#be123c" stop-opacity="0" />
+                        </radialGradient>
+                    </defs>
+
+                    <!-- Orbiting Precision Outflow Matrix Rings -->
+                    <circle cx="270" cy="115" r="105" stroke="url(#expenseWaveGrad)" stroke-width="4.5" stroke-dasharray="16 10" />
+                    <ellipse cx="270" cy="115" rx="160" ry="60" stroke="url(#expenseShieldGrad)" stroke-width="4" stroke-dasharray="10 8" transform="rotate(-15 270 115)" />
+                    <ellipse cx="270" cy="115" rx="160" ry="60" stroke="url(#expenseWaveGrad)" stroke-width="4" stroke-dasharray="10 8" transform="rotate(15 270 115)" />
+
+                    <!-- Multi-tier Holographic Downward Financial Outflow Vectors -->
+                    <path d="M15 40 Q110 90 180 65 T360 160 T525 210" stroke="url(#expenseShieldGrad)" stroke-width="6.5" stroke-linecap="round" fill="none" />
+                    <path d="M15 65 Q130 115 210 90 T390 185 T525 230" stroke="url(#expenseWaveGrad)" stroke-width="4.5" stroke-dasharray="10 6" stroke-linecap="round" fill="none" />
+                    <path d="M30 225 H510" stroke="url(#expenseShieldGrad)" stroke-width="4" stroke-dasharray="16 8" stroke-linecap="round" />
+
+                    <!-- Massive 3D Savage Cyber Outflow Shield Core -->
+                    <circle cx="270" cy="115" r="75" fill="url(#expenseCoreGlow)" />
+                    <!-- Outer Shield Silhouette -->
+                    <path d="M210 45 H330 L355 105 Q355 175 270 205 Q185 175 185 105 Z" stroke="url(#expenseShieldGrad)" stroke-width="6.5" fill="#e11d48" fill-opacity="0.1" stroke-linejoin="round" />
+                    <!-- Inner Shield Chamber Facets -->
+                    <path d="M230 65 H310 L330 110 Q330 160 270 185 Q210 160 210 110 Z" stroke="url(#expenseWaveGrad)" stroke-width="4.5" fill="none" />
+                    <line x1="270" y1="45" x2="270" y2="205" stroke="url(#expenseShieldGrad)" stroke-width="5" />
+                    <line x1="185" y1="105" x2="355" y2="105" stroke="url(#expenseShieldGrad)" stroke-width="4.5" />
+
+                    <!-- Central Outflow Pulse Node -->
+                    <polygon points="270,95 290,115 270,135 250,115" stroke="url(#expenseShieldGrad)" stroke-width="4" fill="#ffffff" fill-opacity="0.4" stroke-linejoin="round" />
+                    <circle cx="270" cy="115" r="8" fill="#f59e0b" />
+
+                    <!-- Dynamic Floating Ruby Data Crystals & Outflow Sparks -->
+                    <polygon points="525,210 535,198 545,210 535,222" fill="#f59e0b" />
+                    <polygon points="460,165 467,156 474,165 467,174" fill="#f43f5e" />
+                    <polygon points="75,50 82,41 89,50 82,59" fill="#e11d48" />
+                    <polygon points="120,170 126,162 132,170 126,178" fill="#fb7185" />
+                </svg>
+            </div>
+
+            <!-- Detailed Report Document (Scrollable Area) -->
+            <div class="flex-1 overflow-y-auto p-4 sm:p-5 min-h-0 relative z-10 print-section" style="transform: translateZ(0);">
+                <div class="max-w-5xl mx-auto relative" id="expensesReport">
                     <!-- Report Header (Print Only) -->
                     <div class="text-center mb-10 print-only">
                         <div class="flex flex-col items-center mb-4">
-                            <img src="{{ asset('image/logo.png') }}" alt="Euro Taxi Logo" class="h-16 w-auto mb-2" style="height:64px; width:auto;">
+                            <img src="{{ asset('image/logo.png') }}" alt="Euro Taxi Logo" class="h-16 w-auto mb-2">
                         </div>
                         <h4 class="text-4xl font-bold uppercase tracking-[0.4em] text-slate-800 mb-2">Expense Statement</h4>
                         <div class="text-base text-gray-600 uppercase font-bold tracking-widest" id="expensesPeriodLabelPrint">Period: TODAY</div>
@@ -1788,62 +1899,36 @@
                         </div>
                     </div>
                     
-                    <!-- Total Expenses Summary Section (Screen Only) -->
-                    <div class="mb-8 p-6 bg-gradient-to-br from-red-900 to-red-800 rounded-xl shadow-lg border border-red-700 text-white relative overflow-hidden no-print">
-                        <!-- Decorative element -->
-                        <div class="absolute top-0 right-0 opacity-10 pointer-events-none">
-                            <i data-lucide="receipt" class="w-48 h-48 -mt-8 -mr-8"></i>
-                        </div>
-                        
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-10">
-                            <!-- Maintenance Expenses -->
-                            <div class="flex flex-col border-b md:border-b-0 md:border-r border-red-700 pb-4 md:pb-0 md:pr-6">
-                                <span class="text-xs font-bold text-red-200 uppercase tracking-widest mb-1">Maintenance Total</span>
-                                <span class="text-2xl font-bold text-white" id="expensesMaintenanceTotal">₱0.00</span>
-                            </div>
-                            
-                            <!-- Office Expenses -->
-                            <div class="flex flex-col md:pl-2">
-                                <span class="text-xs font-bold text-red-200 uppercase tracking-widest mb-1 flex items-center">
-                                    Office Expenses Total 
-                                </span>
-                                <span class="text-2xl font-bold text-white" id="expensesOfficeTotal">₱0.00</span>
+                    <!-- Maintenance Expenses Breakdown Section (Ultra-Clear Translucent Glass Card) -->
+                    <div class="mb-5 bg-[#fff1f2]/30 hover:bg-[#fff1f2]/50 backdrop-blur-[2px] rounded-2xl border border-rose-300/60 shadow-sm overflow-hidden transition-all duration-200">
+                        <div class="flex justify-between items-center bg-rose-500/10 px-4 sm:px-6 py-2.5 border-b border-rose-200/50">
+                            <div class="flex items-center gap-2">
+                                <div class="w-6 h-6 rounded-lg bg-orange-600 text-white flex items-center justify-center flex-shrink-0 shadow-xs">
+                                    <i data-lucide="wrench" class="w-3.5 h-3.5"></i>
+                                </div>
+                                <span class="text-xs font-black text-rose-950 uppercase tracking-wider">Maintenance & Repairs Breakdown</span>
                             </div>
                         </div>
-
-                        <!-- Grand Total -->
-                        <div class="mt-6 pt-4 border-t border-red-700/50">
-                            <span class="text-xs font-bold text-red-200 uppercase tracking-widest mb-1 block">Total Expenses</span>
-                            <span class="text-5xl font-bold text-white drop-shadow-md" id="expensesTotalValue">₱0.00</span>
+                        <div id="expensesMaintenanceList" class="min-h-[80px] flex flex-col justify-center bg-transparent">
+                            <!-- Dynamically populated -->
                         </div>
                     </div>
                     
-                    <!-- Operating Expenses Section -->
-                    <div class="mb-6">
-                        <div class="flex justify-between items-center bg-red-50 text-red-900 px-6 py-3 rounded-t-lg border-x border-t border-red-100">
-                            <span class="text-[11px] uppercase font-bold tracking-[0.1em]">Detailed Expenses Breakdown</span>
+                    <!-- General Office Expenses Breakdown Section (Ultra-Clear Translucent Glass Card) -->
+                    <div class="mb-5 bg-[#fff1f2]/30 hover:bg-[#fff1f2]/50 backdrop-blur-[2px] rounded-2xl border border-rose-300/60 shadow-sm overflow-hidden transition-all duration-200">
+                        <div class="flex justify-between items-center bg-rose-500/10 px-4 sm:px-6 py-2.5 border-b border-rose-200/50">
+                            <div class="flex items-center gap-2">
+                                <div class="w-6 h-6 rounded-lg bg-rose-600 text-white flex items-center justify-center flex-shrink-0 shadow-xs">
+                                    <i data-lucide="building" class="w-3.5 h-3.5"></i>
+                                </div>
+                                <span class="text-xs font-black text-rose-950 uppercase tracking-wider">General Office Expenses Breakdown</span>
+                            </div>
                         </div>
-                        <div class="border-x border-b border-gray-200 rounded-b-lg p-0">
-                            <!-- Maintenance Breakdown -->
-                            <div class="border-b border-gray-200">
-                                <div class="bg-gray-50 px-6 py-2 border-b border-gray-200 flex justify-between text-[9px] font-bold text-slate-400 uppercase tracking-widest">
-                                    <span>Maintenance & Repairs Itemized</span>
-                                </div>
-                                <div id="expensesMaintenanceList" class="bg-white min-h-[60px] flex flex-col justify-center"></div>
-                            </div>
-
-                            <!-- Office Breakdown -->
-                            <div>
-                                <div class="bg-gray-50 px-6 py-2 border-b border-gray-200 flex justify-between text-[9px] font-bold text-slate-400 uppercase tracking-widest">
-                                    <span>General Office Expenses Itemized</span>
-                                </div>
-                                <div id="expensesOfficeList" class="bg-white min-h-[60px] flex flex-col justify-center rounded-b-lg"></div>
-                            </div>
+                        <div id="expensesOfficeList" class="min-h-[80px] flex flex-col justify-center bg-transparent">
+                            <!-- Dynamically populated -->
                         </div>
                     </div>
                     
-                    
-
                     <!-- Report Footer (Print Only) -->
                     <div class="text-center mt-8 pt-6 border-t border-gray-100 print-only">
                         <p class="text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em] mb-1">Authenticated Expense Summary</p>
@@ -1851,6 +1936,7 @@
                     </div>
                 </div>
             </div>
+
         </div>
     </div>
 </div>
@@ -3924,14 +4010,14 @@
 
             // Update button styles
             document.querySelectorAll('[id^="btn-"][id$="-expenses"]').forEach(btn => {
-                btn.classList.remove('bg-white', 'text-red-700');
-                btn.classList.add('text-white/70', 'hover:text-white', 'hover:bg-white/10');
+                btn.classList.remove('bg-gradient-to-r', 'from-rose-600', 'to-red-600', 'text-white', 'font-black', 'shadow-sm', 'bg-white', 'text-red-700');
+                btn.classList.add('text-slate-300', 'font-bold', 'hover:text-white', 'hover:bg-white/10');
             });
             
             const activeBtn = document.getElementById('btn-' + period + '-expenses');
             if (activeBtn) {
-                activeBtn.classList.remove('text-white/70', 'hover:text-white', 'hover:bg-white/10');
-                activeBtn.classList.add('bg-white', 'text-red-700');
+                activeBtn.classList.remove('text-slate-300', 'hover:text-white', 'hover:bg-white/10');
+                activeBtn.classList.add('bg-gradient-to-r', 'from-rose-600', 'to-red-600', 'text-white', 'font-black', 'shadow-sm');
             }
             
             updateExpensesSummary(period);
@@ -3967,36 +4053,17 @@
             const doc = iframe.contentWindow.document;
             doc.open();
             doc.write(`<!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Expense Statement &mdash; ${period}</title>
+    <title>Euro Taxi - Expenses Statement (${period})</title>
     <style>
-        @page { margin: 0; size: auto; }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background: #fff; font-family: 'Segoe UI', system-ui, sans-serif; padding: 20mm; color: #111; }
-        h1 { text-align: center; font-size: 24px; font-weight: 900; text-transform: uppercase; letter-spacing: .15em; margin-bottom: 4px; }
-        .subtitle { text-align: center; font-size: 11px; color: #64748b; font-weight: 700; letter-spacing: .15em; text-transform: uppercase; margin-bottom: 32px; }
-        .section-header { display: flex; justify-content: space-between; align-items: center; background: #7f1d1d; color: white; padding: 10px 20px; border-radius: 6px 6px 0 0; }
-        .section-header span { font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: .08em; }
-        .sub-header { display: flex; justify-content: space-between; background: #f8f8f8; padding: 6px 20px; border-left: 1px solid #eee; border-right: 1px solid #eee; font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: .12em; color: #94a3b8; }
-        .sub-total { color: #dc2626; }
-        table { width: 100%; border-collapse: collapse; border: 1px solid #f0f0f0; border-top: none; margin-bottom: 24px; }
-        thead tr { background: #f8fafc; border-bottom: 1px solid #e2e8f0; }
-        thead th { padding: 8px 20px; font-size: 8px; text-transform: uppercase; letter-spacing: .12em; color: #94a3b8; font-weight: 700; text-align: left; }
-        thead th:last-child { text-align: right; }
-        tr { page-break-inside: avoid; break-inside: avoid; }
-        tbody tr { border-bottom: 1px solid #f8f8f8; }
-        tbody tr:hover { background: #fafafa; }
-        td { padding: 8px 20px; font-size: 11px; color: #1e293b; }
-        td.date { color: #94a3b8; font-weight: 700; font-size: 9px; text-transform: uppercase; }
-        td.amount { text-align: right; font-weight: 900; color: #dc2626; white-space: nowrap; }
-        .no-records { padding: 16px 20px; text-align: center; font-size: 10px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: .1em; border: 1px solid #f0f0f0; border-top: none; margin-bottom: 24px; }
-        .footer { text-align: center; margin-top: 40px; padding-top: 16px; border-top: 1px solid #e2e8f0; font-size: 9px; color: #94a3b8; }
-        img { max-height: 64px !important; width: auto !important; display: block; margin: 0 auto 8px auto; }
-        .print-only { display: block !important; }
-        .no-print { display: none !important; }
+        @page { size: portrait; margin: 15mm; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-size: 11px; color: #1e293b; margin: 0; padding: 10px; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
+        th, td { border: 1px solid #e2e8f0; padding: 6px 10px; }
+        th { background: #f8fafc; font-weight: bold; text-transform: uppercase; font-size: 9px; }
+        .text-right { text-align: right; }
+        .footer { text-align: center; margin-top: 30px; font-size: 9px; color: #94a3b8; border-top: 1px solid #e2e8f0; padding-top: 10px; }
     </style>
 </head>
 <body>
@@ -4039,19 +4106,10 @@
                 }
             });
 
-            // Summarize items for Yearly and Monthly views
-            if (window.currentExpensesPeriod === 'year' || window.currentExpensesPeriod === 'month') {
+            if (window.currentExpensesPeriod !== 'today') {
+                const periodLabel = window.currentExpensesPeriod === 'week' ? 'This Week' : (window.currentExpensesPeriod === 'month' ? 'This Month' : 'This Year');
                 const summarizeItems = (items) => {
                     const map = {};
-                    
-                    let periodLabel = '';
-                    if (window.currentExpensesPeriod === 'year') {
-                        periodLabel = new Date().getFullYear() + ' SUMMARY';
-                    } else if (window.currentExpensesPeriod === 'month') {
-                        const date = new Date();
-                        periodLabel = date.toLocaleString('default', { month: 'long', year: 'numeric' }).toUpperCase() + ' SUMMARY';
-                    }
-
                     items.forEach(item => {
                         if (!map[item.description]) {
                             map[item.description] = { 
@@ -4091,20 +4149,20 @@
                 
                 if (items.length > 0) {
                     el.innerHTML = `
-                        <table class="w-full text-left border-collapse">
+                        <table class="w-full text-left border-collapse bg-transparent">
                             <thead>
-                                <tr class="bg-gray-50 border-b border-gray-200 text-[9px] uppercase tracking-widest text-slate-500">
-                                    <th class="px-6 py-2 font-bold w-1/4 border-r border-gray-200">Date</th>
-                                    <th class="px-6 py-2 font-bold w-1/2 border-r border-gray-200">Description</th>
-                                    <th class="px-6 py-2 font-bold text-right w-1/4">Amount</th>
+                                <tr class="bg-rose-500/10 border-b border-rose-200/50 text-[9px] uppercase tracking-widest text-slate-600 font-extrabold">
+                                    <th class="px-6 py-2.5 w-1/4 border-r border-rose-200/40">Date</th>
+                                    <th class="px-6 py-2.5 w-1/2 border-r border-rose-200/40">Description</th>
+                                    <th class="px-6 py-2.5 text-right w-1/4">Amount</th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-gray-100">
+                            <tbody class="divide-y divide-rose-200/30">
                                 ${items.map(item => `
-                                    <tr class="hover:bg-gray-50 transition-colors">
-                                        <td class="px-6 py-2.5 text-[10px] text-slate-500 font-bold uppercase whitespace-nowrap border-r border-gray-100">${item.date}</td>
-                                        <td class="px-6 py-2.5 text-[10px] font-bold text-gray-800 tracking-tight border-r border-gray-100">${item.description}</td>
-                                        <td class="px-6 py-2.5 text-[11px] font-bold text-red-600 text-right whitespace-nowrap">${fmt(item.amount)}</td>
+                                    <tr class="hover:bg-rose-50/40 transition-colors">
+                                        <td class="px-6 py-2.5 text-[10px] text-slate-500 font-bold uppercase whitespace-nowrap border-r border-rose-200/30">${item.date}</td>
+                                        <td class="px-6 py-2.5 text-[10px] font-bold text-gray-800 tracking-tight border-r border-rose-200/30">${item.description}</td>
+                                        <td class="px-6 py-2.5 text-[11px] font-black text-red-600 text-right whitespace-nowrap">${fmt(item.amount)}</td>
                                     </tr>
                                 `).join('')}
                             </tbody>
@@ -4113,7 +4171,7 @@
                 } else {
                     el.innerHTML = `
                         <div class="py-6 w-full flex flex-col items-center justify-center text-slate-400">
-                            <span class="text-[10px] font-bold uppercase tracking-widest bg-gray-50 px-4 py-1.5 rounded-full ring-1 ring-slate-900/5">No records found for this period</span>
+                            <span class="text-[10px] font-bold uppercase tracking-widest bg-rose-50/60 text-rose-800 px-4 py-1.5 rounded-full ring-1 ring-rose-900/10">No records found for this period</span>
                         </div>
                     `;
                 }
