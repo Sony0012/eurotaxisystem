@@ -1965,47 +1965,47 @@
                     <div class="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3.5 max-w-7xl mx-auto">
                         
                         <!-- 1. Total Fleet Card -->
-                        <div class="group relative overflow-hidden rounded-2xl shadow-xs hover:shadow-lg border border-blue-200/80 bg-gradient-to-br from-white via-blue-50/50 to-blue-100/40 p-2.5 sm:p-3 transition-all duration-300 hover:scale-[1.01] cursor-default">
-                            <div class="absolute left-0 inset-y-0 h-5 group-hover:h-9 w-1 rounded-r-full bg-blue-500 transition-all duration-300 my-auto"></div>
+                        <div class="relative overflow-hidden rounded-2xl shadow-xs border border-blue-200/80 bg-gradient-to-br from-white via-blue-50/50 to-blue-100/40 p-2.5 sm:p-3">
+                            <div class="absolute left-0 inset-y-0 h-6 w-1 rounded-r-full bg-blue-500 my-auto"></div>
                             <div class="relative z-10 pl-2 pr-12">
                                 <div class="text-blue-600 text-[8px] sm:text-[9px] font-extrabold uppercase tracking-widest leading-none mb-1">Total Fleet</div>
                                 <div class="text-lg sm:text-2xl font-black text-slate-800 leading-none mb-0.5 tracking-tight" id="totalUnitsCount">0</div>
                                 <div class="text-[9px] font-bold text-blue-600/75 uppercase tracking-tight">Registered Fleet</div>
                             </div>
-                            <img src="{{ asset('image/kpi/taxi_3d.svg') }}" alt="Total Fleet" class="absolute -right-2 -bottom-2 w-14 h-14 sm:w-16 sm:h-16 object-contain pointer-events-none opacity-85 group-hover:opacity-100 group-hover:scale-110 group-hover:-rotate-6 transition-all duration-300 drop-shadow-sm">
+                            <img src="{{ asset('image/kpi/taxi_3d.svg') }}" alt="Total Fleet" class="absolute -right-2 -bottom-2 w-14 h-14 sm:w-16 sm:h-16 object-contain pointer-events-none opacity-90 drop-shadow-sm">
                         </div>
 
                         <!-- 2. Vacant Units Card -->
-                        <div class="group relative overflow-hidden rounded-2xl shadow-xs hover:shadow-lg border border-emerald-200/80 bg-gradient-to-br from-white via-emerald-50/50 to-emerald-100/40 p-2.5 sm:p-3 transition-all duration-300 hover:scale-[1.01] cursor-default">
-                            <div class="absolute left-0 inset-y-0 h-5 group-hover:h-9 w-1 rounded-r-full bg-emerald-500 transition-all duration-300 my-auto"></div>
+                        <div class="relative overflow-hidden rounded-2xl shadow-xs border border-emerald-200/80 bg-gradient-to-br from-white via-emerald-50/50 to-emerald-100/40 p-2.5 sm:p-3">
+                            <div class="absolute left-0 inset-y-0 h-6 w-1 rounded-r-full bg-emerald-500 my-auto"></div>
                             <div class="relative z-10 pl-2 pr-12">
                                 <div class="text-emerald-700 text-[8px] sm:text-[9px] font-extrabold uppercase tracking-widest leading-none mb-1 truncate">Vacant Units</div>
                                 <div class="text-lg sm:text-2xl font-black text-emerald-600 leading-none mb-0.5 tracking-tight" id="activeUnitsCount">0</div>
                                 <div class="text-[9px] font-bold text-emerald-600/75 uppercase tracking-tight">No Driver Assigned</div>
                             </div>
-                            <img src="{{ asset('image/kpi/drivers_3d.svg') }}" alt="Vacant Units" class="absolute -right-2 -bottom-2 w-14 h-14 sm:w-16 sm:h-16 object-contain pointer-events-none opacity-85 group-hover:opacity-100 group-hover:scale-110 group-hover:-rotate-6 transition-all duration-300 drop-shadow-sm">
+                            <img src="{{ asset('image/kpi/drivers_3d.svg') }}" alt="Vacant Units" class="absolute -right-2 -bottom-2 w-14 h-14 sm:w-16 sm:h-16 object-contain pointer-events-none opacity-90 drop-shadow-sm">
                         </div>
 
                         <!-- 3. Active (With Driver) Card -->
-                        <div class="group relative overflow-hidden rounded-2xl shadow-xs hover:shadow-lg border border-amber-200/80 bg-gradient-to-br from-white via-amber-50/50 to-amber-100/40 p-2.5 sm:p-3 transition-all duration-300 hover:scale-[1.01] cursor-default">
-                            <div class="absolute left-0 inset-y-0 h-5 group-hover:h-9 w-1 rounded-r-full bg-amber-500 transition-all duration-300 my-auto"></div>
+                        <div class="relative overflow-hidden rounded-2xl shadow-xs border border-amber-200/80 bg-gradient-to-br from-white via-amber-50/50 to-amber-100/40 p-2.5 sm:p-3">
+                            <div class="absolute left-0 inset-y-0 h-6 w-1 rounded-r-full bg-amber-500 my-auto"></div>
                             <div class="relative z-10 pl-2 pr-12">
                                 <div class="text-amber-700 text-[8px] sm:text-[9px] font-extrabold uppercase tracking-widest leading-none mb-1 truncate">Active Units</div>
                                 <div class="text-lg sm:text-2xl font-black text-amber-600 leading-none mb-0.5 tracking-tight" id="roiUnitsCount">0</div>
                                 <div class="text-[9px] font-bold text-amber-600/75 uppercase tracking-tight">With Driver</div>
                             </div>
-                            <img src="{{ asset('image/kpi/owner_active_3d.svg') }}" alt="Active Units" class="absolute -right-2 -bottom-2 w-14 h-14 sm:w-16 sm:h-16 object-contain pointer-events-none opacity-85 group-hover:opacity-100 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 drop-shadow-sm">
+                            <img src="{{ asset('image/kpi/owner_active_3d.svg') }}" alt="Active Units" class="absolute -right-2 -bottom-2 w-14 h-14 sm:w-16 sm:h-16 object-contain pointer-events-none opacity-90 drop-shadow-sm">
                         </div>
 
                         <!-- 4. Average ROI Card -->
-                        <div class="group relative overflow-hidden rounded-2xl shadow-xs hover:shadow-lg border border-violet-200/80 bg-gradient-to-br from-white via-violet-50/50 to-violet-100/40 p-2.5 sm:p-3 transition-all duration-300 hover:scale-[1.01] cursor-default">
-                            <div class="absolute left-0 inset-y-0 h-5 group-hover:h-9 w-1 rounded-r-full bg-violet-500 transition-all duration-300 my-auto"></div>
+                        <div class="relative overflow-hidden rounded-2xl shadow-xs border border-violet-200/80 bg-gradient-to-br from-white via-violet-50/50 to-violet-100/40 p-2.5 sm:p-3">
+                            <div class="absolute left-0 inset-y-0 h-6 w-1 rounded-r-full bg-violet-500 my-auto"></div>
                             <div class="relative z-10 pl-2 pr-12">
                                 <div class="text-violet-700 text-[8px] sm:text-[9px] font-extrabold uppercase tracking-widest leading-none mb-1 truncate">Average ROI</div>
                                 <div class="text-lg sm:text-2xl font-black text-violet-600 leading-none mb-0.5 tracking-tight" id="avgRoiCount">0%</div>
                                 <div class="text-[9px] font-bold text-violet-600/75 uppercase tracking-tight">ROI Achieved</div>
                             </div>
-                            <img src="{{ asset('image/kpi/crown_3d.svg') }}" alt="Average ROI" class="absolute -right-2 -bottom-2 w-14 h-14 sm:w-16 sm:h-16 object-contain pointer-events-none opacity-85 group-hover:opacity-100 group-hover:scale-110 group-hover:-rotate-6 transition-all duration-300 drop-shadow-sm">
+                            <img src="{{ asset('image/kpi/crown_3d.svg') }}" alt="Average ROI" class="absolute -right-2 -bottom-2 w-14 h-14 sm:w-16 sm:h-16 object-contain pointer-events-none opacity-90 drop-shadow-sm">
                         </div>
 
                     </div>
