@@ -2016,28 +2016,39 @@
 
                 <!-- 🏎️ Fixed Savage Fleet Cyber Taxi Watermark Background (Stays Stationary on Scroll) -->
                 <div class="absolute inset-x-0 bottom-0 top-16 flex items-center justify-center pointer-events-none select-none z-0 overflow-hidden px-4" aria-hidden="true" style="transform: translateZ(0);">
-                    <svg viewBox="0 0 520 180" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-[92%] max-w-4xl h-auto opacity-[0.09] text-slate-800 transform -rotate-1">
+                    <svg viewBox="0 0 520 180" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-[96%] max-w-5xl h-auto opacity-[0.28] transform -rotate-1 select-none pointer-events-none">
+                        <defs>
+                            <linearGradient id="savageBodyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#f59e0b" />
+                                <stop offset="50%" stop-color="#6366f1" />
+                                <stop offset="100%" stop-color="#f59e0b" />
+                            </linearGradient>
+                            <linearGradient id="savageWheelGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" stop-color="#d97706" />
+                                <stop offset="100%" stop-color="#4f46e5" />
+                            </linearGradient>
+                        </defs>
                         <!-- Speed Lines & Dynamic Motion Trails -->
-                        <path d="M10 135 H150" stroke="currentColor" stroke-width="2.5" stroke-dasharray="6 6" />
-                        <path d="M35 150 H210" stroke="currentColor" stroke-width="3.5" stroke-dasharray="14 7" />
-                        <path d="M70 162 H340" stroke="currentColor" stroke-width="4.5" />
+                        <path d="M10 135 H150" stroke="url(#savageBodyGrad)" stroke-width="4.5" stroke-dasharray="8 6" stroke-linecap="round" />
+                        <path d="M35 150 H210" stroke="url(#savageBodyGrad)" stroke-width="5.5" stroke-dasharray="16 8" stroke-linecap="round" />
+                        <path d="M70 162 H340" stroke="url(#savageBodyGrad)" stroke-width="6.5" stroke-linecap="round" />
                         <!-- Aggressive Savage GT / Cyber Sedan Silhouette -->
-                        <path d="M110 138 L160 92 Q190 62 250 60 L335 60 Q385 64 415 102 L465 116 Q495 125 505 142 L500 152 Q492 158 470 158 H135 Q115 158 108 146 Z" stroke="currentColor" stroke-width="5" fill="currentColor" fill-opacity="0.04" />
+                        <path d="M110 138 L160 92 Q190 62 250 60 L335 60 Q385 64 415 102 L465 116 Q495 125 505 142 L500 152 Q492 158 470 158 H135 Q115 158 108 146 Z" stroke="url(#savageBodyGrad)" stroke-width="6" fill="#f59e0b" fill-opacity="0.08" stroke-linejoin="round" />
                         <!-- Cockpit Aero Chiseled Canopy -->
-                        <path d="M235 64 L180 92 H320 L360 64 Z" stroke="currentColor" stroke-width="3" fill="currentColor" fill-opacity="0.1" />
-                        <path d="M328 92 L368 66 L402 98 H328 Z" stroke="currentColor" stroke-width="2.5" fill="currentColor" fill-opacity="0.08" />
+                        <path d="M235 64 L180 92 H320 L360 64 Z" stroke="url(#savageBodyGrad)" stroke-width="4" fill="#6366f1" fill-opacity="0.12" stroke-linejoin="round" />
+                        <path d="M328 92 L368 66 L402 98 H328 Z" stroke="url(#savageBodyGrad)" stroke-width="3.5" fill="#f59e0b" fill-opacity="0.1" stroke-linejoin="round" />
                         <!-- Aggressive Headlight Blade & Splitter -->
-                        <path d="M460 120 L498 126 L475 134 Z" fill="currentColor" />
-                        <path d="M470 152 H510 L495 158 H460 Z" fill="currentColor" />
+                        <path d="M460 120 L498 126 L475 134 Z" fill="#f59e0b" />
+                        <path d="M470 152 H510 L495 158 H460 Z" fill="#f59e0b" />
                         <!-- Futuristic Turbine Wheels -->
-                        <circle cx="180" cy="154" r="24" stroke="currentColor" stroke-width="5" fill="#f8fafc" />
-                        <circle cx="180" cy="154" r="12" stroke="currentColor" stroke-width="3" stroke-dasharray="6 3" />
-                        <circle cx="420" cy="154" r="24" stroke="currentColor" stroke-width="5" fill="#f8fafc" />
-                        <circle cx="420" cy="154" r="12" stroke="currentColor" stroke-width="3" stroke-dasharray="6 3" />
+                        <circle cx="180" cy="154" r="26" stroke="url(#savageWheelGrad)" stroke-width="6" fill="#ffffff" fill-opacity="0.35" />
+                        <circle cx="180" cy="154" r="14" stroke="url(#savageBodyGrad)" stroke-width="4" stroke-dasharray="8 4" />
+                        <circle cx="420" cy="154" r="26" stroke="url(#savageWheelGrad)" stroke-width="6" fill="#ffffff" fill-opacity="0.35" />
+                        <circle cx="420" cy="154" r="14" stroke="url(#savageBodyGrad)" stroke-width="4" stroke-dasharray="8 4" />
                         <!-- Savage GT Wing / Spoiler -->
-                        <path d="M100 122 L115 105 H145 L130 122 Z" stroke="currentColor" stroke-width="3" fill="currentColor" fill-opacity="0.15" />
+                        <path d="M100 122 L115 105 H145 L130 122 Z" stroke="url(#savageBodyGrad)" stroke-width="4" fill="#f59e0b" fill-opacity="0.2" stroke-linejoin="round" />
                         <!-- Cyber Taxi Roof Beacon -->
-                        <path d="M280 52 L290 40 H330 L340 52 Z" stroke="currentColor" stroke-width="2.5" fill="currentColor" fill-opacity="0.25" />
+                        <path d="M280 52 L290 40 H330 L340 52 Z" stroke="url(#savageBodyGrad)" stroke-width="3.5" fill="#f59e0b" fill-opacity="0.3" stroke-linejoin="round" />
                     </svg>
                 </div>
 
@@ -4441,11 +4452,11 @@
             }
             
             const statusCardStyles = {
-                'active': 'bg-[#f0fdf4]/80 hover:bg-[#f0fdf4]/95 border-emerald-300/70 shadow-emerald-600/5',
-                'vacant': 'bg-[#fff7ed]/80 hover:bg-[#fff7ed]/95 border-amber-300/70 shadow-amber-600/5',
-                'maintenance': 'bg-[#fff1f2]/80 hover:bg-[#fff1f2]/95 border-rose-300/70 shadow-rose-600/5',
-                'coding': 'bg-[#fefce8]/80 hover:bg-[#fefce8]/95 border-yellow-300/70 shadow-yellow-600/5',
-                'retired': 'bg-[#f8fafc]/80 hover:bg-[#f8fafc]/95 border-slate-300/70 shadow-slate-600/5'
+                'active': 'bg-emerald-50/30 hover:bg-emerald-50/55 border-emerald-400/60 shadow-sm',
+                'vacant': 'bg-amber-50/30 hover:bg-amber-50/55 border-amber-400/60 shadow-sm',
+                'maintenance': 'bg-rose-50/30 hover:bg-rose-50/55 border-rose-400/60 shadow-sm',
+                'coding': 'bg-yellow-50/30 hover:bg-yellow-50/55 border-yellow-400/60 shadow-sm',
+                'retired': 'bg-slate-100/30 hover:bg-slate-100/55 border-slate-400/60 shadow-sm'
             };
             
             const statusBadgeStyles = {
@@ -4464,7 +4475,7 @@
                 const displayStatusText = isVacant ? 'VACANT' : (unit.status || 'ACTIVE');
 
                 return `
-                <div class="${cardStyle} rounded-2xl border backdrop-blur-[2px] hover:shadow-xl hover:-translate-y-1 transition-all duration-200 relative group overflow-hidden cursor-pointer min-h-[118px] flex flex-col justify-between p-3.5" onclick="window.location.href='/units?id=${unit.id}'">
+                <div class="${cardStyle} rounded-2xl border hover:shadow-xl hover:-translate-y-1 transition-all duration-200 relative group overflow-hidden cursor-pointer min-h-[118px] flex flex-col justify-between p-3.5" onclick="window.location.href='/units?id=${unit.id}'">
                     
                     <!-- Hover Driver Overlay -->
                     <div class="absolute inset-0 bg-slate-950/95 opacity-0 group-hover:opacity-100 transition-all duration-200 flex flex-col items-center justify-center z-20 pointer-events-none p-3 backdrop-blur-sm">
@@ -4509,7 +4520,7 @@
                     <!-- Card Header -->
                     <div class="flex items-center justify-between gap-2 mb-2">
                         <div class="flex items-center gap-2 min-w-0">
-                            <div class="w-7 h-7 rounded-lg bg-white/80 flex items-center justify-center flex-shrink-0 text-slate-700 shadow-xs border border-white/80">
+                            <div class="w-7 h-7 rounded-lg bg-white/40 flex items-center justify-center flex-shrink-0 text-slate-700 shadow-xs border border-white/50">
                                 <i data-lucide="car" class="w-3.5 h-3.5"></i>
                             </div>
                             <h4 class="text-xs sm:text-sm font-black text-slate-900 truncate tracking-tight">${unit.plate_number}</h4>
@@ -4519,8 +4530,8 @@
                         </span>
                     </div>
                     
-                    <!-- Essential Metrics Ribbon (Mild Translucent) -->
-                    <div class="grid grid-cols-2 gap-1.5 text-center py-1.5 px-2 bg-white/70 border border-white/90 rounded-xl mb-2 backdrop-blur-[2px]">
+                    <!-- Essential Metrics Ribbon (High Transparency) -->
+                    <div class="grid grid-cols-2 gap-1.5 text-center py-1.5 px-2 bg-white/35 border border-white/50 rounded-xl mb-2">
                         <div class="text-left pl-1">
                             <div class="text-[8px] text-slate-500 uppercase font-bold tracking-wider leading-none mb-0.5">Total Coll.</div>
                             <div class="text-xs font-black text-emerald-700">₱${unit.total_boundary ? unit.total_boundary.toLocaleString() : '0'}</div>
@@ -4532,7 +4543,7 @@
                     </div>
 
                     <!-- Card Footer -->
-                    <div class="flex items-center justify-between text-[9px] font-bold text-slate-500 uppercase tracking-tight pt-1 border-t border-slate-200/50">
+                    <div class="flex items-center justify-between text-[9px] font-bold text-slate-500 uppercase tracking-tight pt-1 border-t border-slate-300/30">
                         <span>ID: ${unit.plate_number || 'N/A'}</span>
                         <span class="${unit.today_boundary > 0 ? 'text-blue-700 font-extrabold' : 'text-slate-400'}">
                             ${unit.today_boundary > 0 ? `+₱${unit.today_boundary.toLocaleString()}` : 'No Daily'}
