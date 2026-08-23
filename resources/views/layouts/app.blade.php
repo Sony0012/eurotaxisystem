@@ -2983,23 +2983,23 @@
          style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);z-index:999999;align-items:center;justify-content:center;padding:1.5rem;animation:sfbFadeIn .2s ease;">
          
         <div id="staff-feedback-modal-card"
-             style="background:#09090b;border:1px solid rgba(255,255,255,0.15);color:#fff;box-shadow:0 40px 80px -15px rgba(0,0,0,0.95), 0 0 0 1px rgba(255,255,255,0.08);transition:all .32s cubic-bezier(0.16, 1, 0.3, 1);overflow:hidden;border-radius:9999px;width:auto;max-width:640px;animation:sfbScaleUp .25s cubic-bezier(0.16, 1, 0.3, 1);">
+             style="background:#09090b;border:1px solid rgba(255,255,255,0.18);color:#fff;box-shadow:0 40px 80px -15px rgba(0,0,0,0.95), 0 0 0 1px rgba(255,255,255,0.1);transition:all .32s cubic-bezier(0.16, 1, 0.3, 1);overflow:hidden;border-radius:9999px;width:660px;max-width:calc(100vw - 2rem);animation:sfbScaleUp .25s cubic-bezier(0.16, 1, 0.3, 1);">
             
-            <div style="padding:1rem 1.75rem;transition:all .3s ease;" id="sfb-inner-padding">
+            <div style="padding:1.15rem 2rem;transition:all .3s ease;" id="sfb-inner-padding">
                 
                 <!-- Collapsed / Header Bar -->
                 <div class="flex items-center justify-between gap-6" id="sfb-header-row">
-                    <div class="flex flex-col select-none pr-1" id="sfb-label-wrap">
-                        <span class="font-extrabold text-[18px] text-zinc-100 tracking-tight leading-tight" id="sfb-label">
+                    <div class="flex flex-col select-none" id="sfb-label-wrap">
+                        <span class="font-extrabold text-[19px] text-white tracking-tight leading-tight" id="sfb-label">
                             Help Us Improve Euro Taxi
                         </span>
-                        <span class="text-[12px] text-zinc-400 font-medium leading-tight mt-1" id="sfb-sublabel">
+                        <span class="text-[13.5px] text-zinc-300 font-semibold leading-normal mt-0.5 whitespace-nowrap" id="sfb-sublabel">
                             How's your experience with the system today?
                         </span>
                     </div>
                     <div class="flex items-center gap-2.5 flex-shrink-0" id="sfb-emoji-group">
                         <!-- Very Sad / Terrible -->
-                        <button type="button" onclick="sfbSelectRating('very-sad', this)" title="Terrible" class="sfb-emoji-btn relative rounded-full p-3 outline-none text-zinc-400 hover:bg-white/10 hover:text-zinc-100 transition-all flex items-center justify-center active:scale-90" data-rating="very-sad">
+                        <button type="button" onclick="sfbSelectRating('very-sad', this)" title="Terrible" class="sfb-emoji-btn relative rounded-full p-3 outline-none text-zinc-300 hover:bg-white/10 hover:text-white transition-all flex items-center justify-center active:scale-90" data-rating="very-sad">
                             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <circle cx="12" cy="12" r="10" />
                                 <path d="M16 16s-1.5-2-4-2-4 2-4 2" />
@@ -3010,7 +3010,7 @@
                             </svg>
                         </button>
                         <!-- Sad / Bad -->
-                        <button type="button" onclick="sfbSelectRating('sad', this)" title="Bad" class="sfb-emoji-btn relative rounded-full p-3 outline-none text-zinc-400 hover:bg-white/10 hover:text-zinc-100 transition-all flex items-center justify-center active:scale-90" data-rating="sad">
+                        <button type="button" onclick="sfbSelectRating('sad', this)" title="Bad" class="sfb-emoji-btn relative rounded-full p-3 outline-none text-zinc-300 hover:bg-white/10 hover:text-white transition-all flex items-center justify-center active:scale-90" data-rating="sad">
                             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <circle cx="12" cy="12" r="10" />
                                 <path d="M16 16s-1.5-2-4-2-4 2-4 2" />
@@ -3019,7 +3019,7 @@
                             </svg>
                         </button>
                         <!-- Neutral / Okay -->
-                        <button type="button" onclick="sfbSelectRating('neutral', this)" title="Okay" class="sfb-emoji-btn relative rounded-full p-3 outline-none text-zinc-400 hover:bg-white/10 hover:text-zinc-100 transition-all flex items-center justify-center active:scale-90" data-rating="neutral">
+                        <button type="button" onclick="sfbSelectRating('neutral', this)" title="Okay" class="sfb-emoji-btn relative rounded-full p-3 outline-none text-zinc-300 hover:bg-white/10 hover:text-white transition-all flex items-center justify-center active:scale-90" data-rating="neutral">
                             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <circle cx="12" cy="12" r="10" />
                                 <path d="M8 13s1.5 2 4 2 4-2 4-2" />
@@ -3028,7 +3028,7 @@
                             </svg>
                         </button>
                         <!-- Happy / Amazing -->
-                        <button type="button" onclick="sfbSelectRating('happy', this)" title="Amazing" class="sfb-emoji-btn relative rounded-full p-3 outline-none text-zinc-400 hover:bg-white/10 hover:text-zinc-100 transition-all flex items-center justify-center active:scale-90" data-rating="happy">
+                        <button type="button" onclick="sfbSelectRating('happy', this)" title="Amazing" class="sfb-emoji-btn relative rounded-full p-3 outline-none text-zinc-300 hover:bg-white/10 hover:text-white transition-all flex items-center justify-center active:scale-90" data-rating="happy">
                             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <circle cx="12" cy="12" r="10" />
                                 <path d="M8 13s1.5 2 4 2 4-2 4-2" />
@@ -3039,7 +3039,7 @@
                         
                         <!-- Subtle Divider & Close Button -->
                         <div class="w-[1.5px] h-8 bg-white/20 mx-1.5"></div>
-                        <button type="button" onclick="sfbCloseModal()" class="w-10 h-10 rounded-full text-zinc-400 hover:text-white hover:bg-white/10 flex items-center justify-center transition-all active:scale-90" title="Close">
+                        <button type="button" onclick="sfbCloseModal()" class="w-10 h-10 rounded-full text-zinc-300 hover:text-white hover:bg-white/10 flex items-center justify-center transition-all active:scale-90" title="Close">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                                 <line x1="18" y1="6" x2="6" y2="18"></line>
                                 <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -3074,13 +3074,13 @@
                     </div>
 
                     <!-- English Explanation for Screenshot Attachments -->
-                    <div class="flex items-center gap-2 mb-2.5 text-zinc-400 text-[12px] select-none">
+                    <div class="flex items-center gap-2 mb-2.5 text-zinc-300 text-[12.5px] select-none">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-blue-400 flex-shrink-0">
                             <rect width="18" height="18" x="3" y="3" rx="2" ry="2"/>
                             <circle cx="9" cy="9" r="2"/>
                             <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>
                         </svg>
-                        <span>Attach screenshots or paste images (<strong class="text-zinc-200 font-semibold">Ctrl + V</strong>) to illustrate issues or suggestions clearly.</span>
+                        <span>Attach screenshots or paste images (<strong class="text-white font-bold">Ctrl + V</strong>) to illustrate issues or suggestions clearly.</span>
                     </div>
 
                     <!-- Hidden File Input -->
@@ -3099,10 +3099,10 @@
                             <span>Add Screenshot</span>
                         </button>
                     </div>
-                    <div id="sfb-images-count" class="text-[11px] text-zinc-500 font-medium mb-2" style="display:none;"></div>
+                    <div id="sfb-images-count" class="text-[11px] text-zinc-400 font-medium mb-2" style="display:none;"></div>
 
                     <div class="mt-4 flex items-center justify-between border-white/10 border-t pt-4">
-                        <p class="font-medium text-[13px] text-zinc-400 m-0">
+                        <p class="font-semibold text-[13px] text-zinc-300 m-0">
                             Your feedback helps us continuously improve the system.
                         </p>
                         <button type="button" onclick="sfbSubmitFeedback()" id="sfb-send-btn" disabled
@@ -3140,7 +3140,7 @@
         const innerPadding = document.getElementById('sfb-inner-padding');
         if (!backdrop || !card) return;
 
-        // Start in Collapsed Pill State (Matching Image 1 & 3)
+        // Start in Collapsed Pill State
         SFB_RATING = '';
         SFB_IS_PREVIEW = false;
         SFB_ATTACHED_IMAGES = [];
@@ -3148,12 +3148,12 @@
 
         if (expandedBody) expandedBody.style.display = 'none';
         card.style.borderRadius = '9999px';
-        card.style.width = 'auto';
-        if (innerPadding) innerPadding.style.padding = '1rem 1.75rem';
+        card.style.width = '660px';
+        if (innerPadding) innerPadding.style.padding = '1.15rem 2rem';
 
         document.querySelectorAll('.sfb-emoji-btn').forEach(btn => {
             btn.style.background = 'transparent';
-            btn.style.color = '#a1a1aa';
+            btn.style.color = '#d4d4d8';
             btn.style.boxShadow = 'none';
         });
 
@@ -3180,7 +3180,7 @@
         if (expandedBody) expandedBody.style.display = 'none';
         if (card) {
             card.style.borderRadius = '9999px';
-            card.style.width = 'auto';
+            card.style.width = '660px';
         }
 
         if (textarea) textarea.style.display = 'block';
@@ -3201,11 +3201,11 @@
             SFB_RATING = '';
             expandedBody.style.display = 'none';
             card.style.borderRadius = '9999px';
-            card.style.width = 'auto';
-            if (innerPadding) innerPadding.style.padding = '1rem 1.75rem';
+            card.style.width = '660px';
+            if (innerPadding) innerPadding.style.padding = '1.15rem 2rem';
             document.querySelectorAll('.sfb-emoji-btn').forEach(btn => {
                 btn.style.background = 'transparent';
-                btn.style.color = '#a1a1aa';
+                btn.style.color = '#d4d4d8';
                 btn.style.boxShadow = 'none';
             });
             return;
@@ -3221,14 +3221,14 @@
                 btn.style.boxShadow = '0 4px 20px rgba(37,99,235,0.6)';
             } else {
                 btn.style.background = 'transparent';
-                btn.style.color = '#a1a1aa';
+                btn.style.color = '#d4d4d8';
                 btn.style.boxShadow = 'none';
             }
         });
 
         // Expand to Full Card State (Matching Image 2)
         card.style.borderRadius = '36px';
-        card.style.width = '640px';
+        card.style.width = '660px';
         if (innerPadding) innerPadding.style.padding = '2rem 2.25rem';
         expandedBody.style.display = 'block';
 
