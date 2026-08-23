@@ -720,16 +720,31 @@ class SuperAdminController extends Controller
         // 3. Fetch 60-day heatmap raw data
         $startDate = Carbon::parse($date)->subDays(59)->toDateString();
         $heatmapRaw = LoginAudit::whereBetween('created_at', [$startDate . ' 00:00:00', $date . ' 23:59:59'])
-            ->selectRaw('user_id, DATE(created_at) as day, COUNT(*) as total_acts, SUM(CASE WHEN action = "login" THEN 1 ELSE 0 END) as logins')
+            ->selectRaw('user_id, DATE(created_at) as day, COUNT(*) as total_acts, SUM(CASE WHEN action = "login" THEN 1 ELSE 0 END) as logins, MIN(created_at) as first_act, MAX(created_at) as last_act')
             ->groupBy('user_id', 'day')
             ->get();
+
+        $intervalMap = [];
+        if (Schema::hasTable('user_activity_intervals')) {
+            try {
+                $intervalsRaw = \App\Models\UserActivityInterval::whereBetween('date', [$startDate, $date])
+                    ->selectRaw('user_id, date, SUM(duration_seconds) as total_seconds')
+                    ->groupBy('user_id', 'date')
+                    ->get();
+                foreach ($intervalsRaw as $ir) {
+                    $intervalMap[$ir->user_id][$ir->date] = (int) round($ir->total_seconds / 60);
+                }
+            } catch (\Throwable $e) {}
+        }
 
         $heatmapMap = [];
         foreach ($heatmapRaw as $row) {
             if ($row->user_id) {
                 $heatmapMap[$row->user_id][$row->day] = [
-                    'acts'   => (int) $row->total_acts,
-                    'logins' => (int) $row->logins,
+                    'acts'      => (int) $row->total_acts,
+                    'logins'    => (int) $row->logins,
+                    'first_act' => $row->first_act,
+                    'last_act'  => $row->last_act,
                 ];
             }
         }
@@ -873,19 +888,44 @@ class SuperAdminController extends Controller
             $heatmap = [];
             for ($i = 59; $i >= 0; $i--) {
                 $dayStr = Carbon::parse($date)->subDays($i)->toDateString();
-                $dayData = $heatmapMap[$user->id][$dayStr] ?? ['acts' => 0, 'logins' => 0];
+                $dayData = $heatmapMap[$user->id][$dayStr] ?? ['acts' => 0, 'logins' => 0, 'first_act' => null, 'last_act' => null];
                 $actsCount = $dayData['acts'];
                 $loginsCount = $dayData['logins'];
 
-                if ($i === 0 && ($isOnline || $totalMins > 0) && $actsCount === 0) {
-                    $actsCount = max(1, $userAudits->count());
-                    $loginsCount = max(1, $loginsCount);
+                if ($i === 0) {
+                    $dayMins = $totalMins;
+                    if (($isOnline || $totalMins > 0) && $actsCount === 0) {
+                        $actsCount = max(1, $userAudits->count());
+                        $loginsCount = max(1, $loginsCount);
+                    }
+                } else {
+                    if (isset($intervalMap[$user->id][$dayStr]) && $intervalMap[$user->id][$dayStr] > 0) {
+                        $dayMins = $intervalMap[$user->id][$dayStr];
+                    } elseif (!empty($dayData['first_act']) && !empty($dayData['last_act'])) {
+                        $fAct = Carbon::parse($dayData['first_act']);
+                        $lAct = Carbon::parse($dayData['last_act']);
+                        $dayMins = max(1, (int) round($fAct->diffInMinutes($lAct)));
+                    } else {
+                        $dayMins = $actsCount > 0 ? max(1, $actsCount * 3) : 0;
+                    }
+                }
+
+                // Format hours/minutes for rich 21st.dev hover tooltip
+                if ($dayMins <= 0) {
+                    $hoursFormatted = '0h (Inactive)';
+                } else {
+                    $h = intdiv($dayMins, 60);
+                    $m = $dayMins % 60;
+                    $hoursFormatted = ($h > 0 && $m > 0) ? "{$h}h {$m}m" : (($h > 0) ? "{$h}h" : "{$m}m");
                 }
 
                 $heatmap[] = [
-                    'date'       => $dayStr,
-                    'activities' => $actsCount,
-                    'logins'     => $loginsCount,
+                    'date'            => $dayStr,
+                    'date_formatted'  => Carbon::parse($dayStr)->format('l, M d, Y'),
+                    'activities'      => $actsCount,
+                    'logins'          => $loginsCount,
+                    'mins'            => $dayMins,
+                    'hours_formatted' => $hoursFormatted,
                 ];
             }
 

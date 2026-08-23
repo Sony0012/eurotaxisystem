@@ -1413,6 +1413,33 @@
             </div>
         </div>
 
+        <!-- ══ 21st.dev RICH FLOATING HOVER CARD FOR HEATMAP CELLS ══ -->
+        <div id="cam-heatmap-tooltip" style="position:fixed;z-index:999999;display:none;pointer-events:none;transform:translate(-50%, -100%);margin-top:-8px;background:rgba(15,23,42,0.96);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.14);border-radius:.75rem;padding:.75rem .9rem;color:#fff;box-shadow:0 20px 35px -5px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.06);min-width:215px;max-width:265px;transition:opacity .15s ease, transform .15s ease;opacity:0;">
+            <div style="font-size:.62rem;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.25rem;" id="cam-tt-date">
+                DATE
+            </div>
+            <div style="font-size:.82rem;font-weight:900;color:#f8fafc;margin-bottom:.5rem;display:flex;align-items:center;justify-content:space-between;">
+                <span id="cam-tt-user">Staff Name</span>
+                <span id="cam-tt-role" style="font-size:.58rem;background:rgba(255,255,255,0.1);padding:.1rem .35rem;border-radius:4px;color:#cbd5e1;font-weight:700;">Role</span>
+            </div>
+            <div style="background:rgba(255,255,255,0.07);border-radius:.45rem;padding:.4rem .6rem;margin-bottom:.4rem;display:flex;align-items:center;justify-content:space-between;">
+                <span style="font-size:.68rem;color:#cbd5e1;font-weight:600;display:flex;align-items:center;gap:.3rem;">
+                    ⏱️ Active Hours
+                </span>
+                <span style="font-size:.78rem;font-weight:900;color:#38bdf8;" id="cam-tt-hours">0h</span>
+            </div>
+            <div style="display:flex;gap:.4rem;">
+                <div style="flex:1;background:rgba(255,255,255,0.05);border-radius:.4rem;padding:.3rem .45rem;text-align:center;">
+                    <div style="font-size:.58rem;color:#94a3b8;">Operations</div>
+                    <div style="font-size:.72rem;font-weight:900;color:#facc15;" id="cam-tt-acts">0</div>
+                </div>
+                <div style="flex:1;background:rgba(255,255,255,0.05);border-radius:.4rem;padding:.3rem .45rem;text-align:center;">
+                    <div style="font-size:.58rem;color:#94a3b8;">Logins</div>
+                    <div style="font-size:.72rem;font-weight:900;color:#4ade80;" id="cam-tt-logins">0</div>
+                </div>
+            </div>
+        </div>
+
         </div><!-- /tab-activity -->
 
         
@@ -2224,7 +2251,10 @@ function camRenderHeatmap() {
             const isToday = h.date === CAM_DATE;
             const borderToday = isToday ? 'border:1.5px solid #0284c7;' : '';
             html += `<td style="width:26px;min-width:26px;max-width:26px;text-align:center;padding:0;box-sizing:border-box;">
-                <div class="cam-heatmap-cell" style="background:${c.bg};color:${c.color};${borderToday};margin:0 auto;" title="${h.date}: ${h.activities} action(s), ${h.logins} login(s)">
+                <div class="cam-heatmap-cell"
+                     style="background:${c.bg};color:${c.color};${borderToday};margin:0 auto;cursor:pointer;"
+                     onmouseenter="camShowHeatTooltip(event, '${h.date_formatted || h.date}', '${h.hours_formatted || '0h (Inactive)'}', ${h.activities || 0}, ${h.logins || 0}, '${(u.name || 'Staff').replace(/'/g, "\\'")}', '${(u.role_label || u.role || 'Staff').replace(/'/g, "\\'")}')"
+                     onmouseleave="camHideHeatTooltip()">
                     ${h.activities > 0 ? h.activities : ''}
                 </div>
             </td>`;
@@ -2574,6 +2604,48 @@ async function camExecuteReset() {
         if (btn) btn.disabled = false;
         if (btnText) btnText.textContent = 'Yes, Reset Activity';
     }
+}
+
+// ─── 21st.dev Floating Tooltip Handlers ────────────────────────
+function camShowHeatTooltip(e, dateStr, hoursStr, acts, logins, name, role) {
+    const tt = document.getElementById('cam-heatmap-tooltip');
+    if (!tt) return;
+
+    const dateEl   = document.getElementById('cam-tt-date');
+    const userEl   = document.getElementById('cam-tt-user');
+    const roleEl   = document.getElementById('cam-tt-role');
+    const hoursEl  = document.getElementById('cam-tt-hours');
+    const actsEl   = document.getElementById('cam-tt-acts');
+    const loginsEl = document.getElementById('cam-tt-logins');
+
+    if (dateEl) dateEl.textContent = dateStr;
+    if (userEl) userEl.textContent = name;
+    if (roleEl) roleEl.textContent = role;
+    if (hoursEl) hoursEl.textContent = hoursStr;
+    if (actsEl) actsEl.textContent = acts + (acts === 1 ? ' action' : ' actions');
+    if (loginsEl) loginsEl.textContent = logins + (logins === 1 ? ' session' : ' sessions');
+
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = rect.left + rect.width / 2;
+    const y = rect.top;
+
+    tt.style.left = `${x}px`;
+    tt.style.top = `${y}px`;
+    tt.style.display = 'block';
+    requestAnimationFrame(() => {
+        tt.style.opacity = '1';
+        tt.style.transform = 'translate(-50%, -100%) translateY(-6px)';
+    });
+}
+
+function camHideHeatTooltip() {
+    const tt = document.getElementById('cam-heatmap-tooltip');
+    if (!tt) return;
+    tt.style.opacity = '0';
+    tt.style.transform = 'translate(-50%, -100%) translateY(0)';
+    setTimeout(() => {
+        if (tt.style.opacity === '0') tt.style.display = 'none';
+    }, 150);
 }
 
 function camSetFilter(f) {
