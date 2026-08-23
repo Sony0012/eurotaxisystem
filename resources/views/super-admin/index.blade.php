@@ -2087,6 +2087,64 @@ function camRenderAlerts() {
     if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
+// ─── 21st.dev Premium SVG Avatars (Men & Women) ───────────────
+function camRenderAvatarSvg(name, role) {
+    const n = (name || '').toLowerCase();
+    const isWoman = n.includes('rea') || n.includes('shiella') || n.includes('orilla') || n.includes('remitra') || n.includes('mary') || n.includes('maria') || n.includes('jane') || n.includes('anna') || n.includes('grace') || n.includes('secretary') || (role && role.toLowerCase().includes('secretary'));
+    const safeId = encodeURIComponent((name || 'user').replace(/[^a-zA-Z0-9]/g, ''));
+
+    if (isWoman) {
+        // Modern 21st.dev Woman Avatar SVG
+        return `
+        <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#f472b6,#db2777);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 2px 8px rgba(219,39,119,0.22);overflow:hidden;border:1.5px solid #fbcfe8;">
+            <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;">
+                <circle cx="18" cy="18" r="18" fill="url(#wGrad_${safeId})"/>
+                <defs>
+                    <linearGradient id="wGrad_${safeId}" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#f472b6"/>
+                        <stop offset="100%" stop-color="#be185d"/>
+                    </linearGradient>
+                </defs>
+                <path d="M6 36C6 29 11.5 24 18 24C24.5 24 30 29 30 36" fill="#fdf2f8"/>
+                <path d="M13 27L18 34L23 27" fill="#f43f5e" opacity="0.9"/>
+                <rect x="15.5" y="19" width="5" height="6" rx="2.5" fill="#fed7aa"/>
+                <ellipse cx="18" cy="14.5" rx="5.5" ry="6.5" fill="#fed7aa"/>
+                <path d="M11 16C11 10 14 6 18 6C22 6 25 10 25 16C25 21 24 23.5 24 23.5C23 20.5 22.5 17 22.5 17C20 17.5 16 17.5 13.5 17C13.5 17 13 20.5 12 23.5C12 23.5 11 21 11 16Z" fill="#831843"/>
+                <path d="M12.5 12C14 9.5 17.5 9 19 11.5C21 9 24 10 24.5 13C23 11.5 20 11.5 18 13C16 11.5 14 11.5 12.5 12Z" fill="#9d174d"/>
+                <circle cx="15.5" cy="14.5" r="0.8" fill="#4c0519"/>
+                <circle cx="20.5" cy="14.5" r="0.8" fill="#4c0519"/>
+                <path d="M16.5 17.5C17 18.3 19 18.3 19.5 17.5" stroke="#e11d48" stroke-width="0.8" stroke-linecap="round"/>
+                <circle cx="12" cy="16.5" r="1.1" fill="#fff"/>
+                <circle cx="24" cy="16.5" r="1.1" fill="#fff"/>
+            </svg>
+        </div>`;
+    } else {
+        // Modern 21st.dev Man Avatar SVG
+        return `
+        <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#38bdf8,#0284c7);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 2px 8px rgba(2,132,199,0.22);overflow:hidden;border:1.5px solid #bae6fd;">
+            <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;">
+                <circle cx="18" cy="18" r="18" fill="url(#mGrad_${safeId})"/>
+                <defs>
+                    <linearGradient id="mGrad_${safeId}" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#38bdf8"/>
+                        <stop offset="100%" stop-color="#0369a1"/>
+                    </linearGradient>
+                </defs>
+                <path d="M6 36C6 28.5 11.5 23 18 23C24.5 23 30 28.5 30 36" fill="#0f172a"/>
+                <path d="M14 23L18 31L22 23" fill="#ffffff"/>
+                <path d="M17 25L18 34L19 25L18 24Z" fill="#0284c7"/>
+                <rect x="15.5" y="18.5" width="5" height="5.5" rx="2" fill="#fed7aa"/>
+                <ellipse cx="18" cy="14" rx="5.5" ry="6" fill="#fed7aa"/>
+                <path d="M12 12.5C12 8.5 14.5 5.5 18 5.5C21.5 5.5 24 8.5 24 12.5C24 13.2 23.5 13.5 23 12.5C22 10 20.5 8.5 18 8.5C15.5 8.5 14 10 13 12.5C12.5 13.5 12 13.2 12 12.5Z" fill="#1e293b"/>
+                <path d="M12 10.5C13 7.5 16 6 19 6C22 6 24 7.5 24.5 9.5C24 8.5 22 7 19 7C16 7 13.5 8.5 12 10.5Z" fill="#334155"/>
+                <circle cx="15.5" cy="14" r="0.8" fill="#0f172a"/>
+                <circle cx="20.5" cy="14" r="0.8" fill="#0f172a"/>
+                <path d="M16.5 17C17 17.7 19 17.7 19.5 17" stroke="#9a3412" stroke-width="0.75" stroke-linecap="round"/>
+            </svg>
+        </div>`;
+    }
+}
+
 // ─── User Progress Table ──────────────────────────────────────
 function camResetFilters() {
     const sInput = document.getElementById('cam-search');
@@ -2136,16 +2194,13 @@ function camRenderTable() {
         const badgeCls = u.status === 'active' ? 'cam-badge-active' : (u.status === 'idle' ? 'cam-badge-low' : (u.status === 'low' ? 'cam-badge-low' : 'cam-badge-none'));
         const badgeTxt = u.status === 'active' ? 'ACTIVE' : (u.status === 'idle' ? 'IDLE' : (u.status === 'low' ? 'LOW USAGE' : 'INACTIVE'));
         const onlineTag = u.isOnline ? `<span style="font-size:.55rem;background:#dcfce7;color:#15803d;padding:.1rem .35rem;border-radius:99px;font-weight:700;margin-left:.35rem;">LIVE</span>` : '';
-        const initials  = (u.name || 'U').split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase();
 
         return `
         <div class="cam-user-row" onclick="camOpenDetail('${u.id}')">
-            <div style="display:flex;align-items:center;gap:.65rem;min-width:0;">
-                <div style="width:34px;height:34px;border-radius:50%;background:#f1f5f9;color:#475569;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:900;flex-shrink:0;">
-                    ${initials}
-                </div>
+            <div style="display:flex;align-items:center;gap:.75rem;min-width:0;">
+                ${camRenderAvatarSvg(u.name, u.role)}
                 <div style="min-width:0;">
-                    <div style="font-weight:800;font-size:.82rem;color:#000;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                    <div style="font-weight:800;font-size:.84rem;color:#000;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
                         ${u.name}${onlineTag}
                     </div>
                     <div style="font-size:.65rem;color:#64748b;margin-top:.1rem;">
@@ -2381,8 +2436,8 @@ async function camOpenDetail(userId) {
         content.innerHTML = `
             <!-- User header -->
             <div style="display:flex;align-items:center;gap:.85rem;margin-bottom:1.25rem;">
-                <div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#f59e0b,#d97706);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:1.15rem;color:#fff;flex-shrink:0;">
-                    ${initials}
+                <div style="transform:scale(1.3);transform-origin:left center;margin-right:.4rem;">
+                    ${camRenderAvatarSvg(safeName, u.role || camUser.role)}
                 </div>
                 <div style="min-width:0;flex:1;">
                     <div style="font-weight:900;font-size:1rem;color:#000;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${safeName}</div>
@@ -2537,12 +2592,16 @@ function camPromptReset(userId, name, role) {
     const modal = document.getElementById('cam-reset-modal');
     if (!modal) return;
 
-    const initials = (name || 'U').split(/\s+/).filter(Boolean).map(n => n[0]).slice(0, 2).join('').toUpperCase() || 'U';
     const avatarEl = document.getElementById('cam-reset-avatar');
     const nameEl   = document.getElementById('cam-reset-username');
     const roleEl   = document.getElementById('cam-reset-userrole');
 
-    if (avatarEl) avatarEl.textContent = initials;
+    if (avatarEl) {
+        avatarEl.innerHTML = camRenderAvatarSvg(name, role);
+        avatarEl.style.background = 'transparent';
+        avatarEl.style.border = 'none';
+        avatarEl.style.boxShadow = 'none';
+    }
     if (nameEl) nameEl.textContent = name;
     if (roleEl) roleEl.textContent = role;
 
