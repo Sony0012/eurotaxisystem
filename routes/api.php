@@ -33,6 +33,41 @@ Route::post('/driver/register/verify-otp', [\App\Http\Controllers\Api\DriverAppC
 Route::post('/driver/register/resend-otp', [\App\Http\Controllers\Api\DriverAppController::class, 'resendRegistrationOtp']);
 Route::get('/cron/trigger-daily-coding', [NotificationController::class, 'triggerDailyCodingAlerts']);
 
+// Automated GitHub Deploy Webhook
+Route::match(['get', 'post'], '/deploy-auto-pull-2026', function (Request $request) {
+    $token = $request->query('token') ?: $request->input('token');
+    if ($token !== 'eurotaxi_secret_deploy_2026') {
+        return response()->json(['error' => 'Unauthorized token'], 403);
+    }
+
+    $commands = [
+        'git fetch origin master 2>&1',
+        'git reset --hard origin/master 2>&1',
+        'php artisan optimize:clear 2>&1',
+        'php artisan view:clear 2>&1',
+        'php artisan config:clear 2>&1',
+        'php artisan route:clear 2>&1',
+        'php artisan migrate --force 2>&1',
+    ];
+
+    $log = [];
+    foreach ($commands as $cmd) {
+        $output = [];
+        $status = 0;
+        exec($cmd, $output, $status);
+        $log[$cmd] = [
+            'status' => $status,
+            'output' => $output,
+        ];
+    }
+
+    return response()->json([
+        'success'   => true,
+        'timestamp' => now()->toDateTimeString(),
+        'results'   => $log,
+    ]);
+});
+
 // Terms & Conditions images (public — drivers view from app)
 Route::get('/driver/terms-images', function () {
     $directory = public_path('uploads/terms');
