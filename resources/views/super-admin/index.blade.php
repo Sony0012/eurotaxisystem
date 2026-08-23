@@ -1400,18 +1400,6 @@
             </div>
         </div>
 
-        <!-- ══ CAM FEEDBACK SCREENSHOT LIGHTBOX POPUP MODAL ══ -->
-        <div id="cam-feedback-lightbox" onclick="camCloseFeedbackLightbox()"
-             style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);z-index:9999999;align-items:center;justify-content:center;padding:1.5rem;cursor:zoom-out;animation:sfbFadeIn .2s ease;">
-            <div style="position:relative;max-width:92vw;max-height:92vh;display:flex;align-items:center;justify-content:center;cursor:default;" onclick="event.stopPropagation()">
-                <img id="cam-lightbox-img" src="" style="max-width:100%;max-height:86vh;border-radius:1.25rem;border:1.5px solid rgba(255,255,255,0.2);box-shadow:0 30px 60px rgba(0,0,0,0.9);object-fit:contain;background:#0f172a;">
-                <button type="button" onclick="camCloseFeedbackLightbox()"
-                    class="absolute -top-3 -right-3 w-9 h-9 rounded-full bg-zinc-900 text-white flex items-center justify-center text-sm font-bold border border-white/20 hover:bg-red-600 transition-all shadow-xl active:scale-95" title="Close">
-                    ✕
-                </button>
-            </div>
-        </div>
-
         <!-- ══ 21st.dev RICH FLOATING HOVER CARD FOR HEATMAP CELLS ══ -->
         <div id="cam-heatmap-tooltip" style="position:fixed;z-index:999999;display:none;pointer-events:none;transform:translate(-50%, -100%);margin-top:-8px;background:rgba(15,23,42,0.96);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.14);border-radius:.75rem;padding:.75rem .9rem;color:#fff;box-shadow:0 20px 35px -5px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.06);min-width:215px;max-width:265px;transition:opacity .15s ease, transform .15s ease;opacity:0;">
             <div style="font-size:.62rem;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.25rem;" id="cam-tt-date">
@@ -1551,6 +1539,18 @@
         </div><!-- /tab-feedbacks -->
 
         
+    </div>
+</div>
+
+{{-- Global Screenshot Lightbox Modal --}}
+<div id="cam-feedback-lightbox" onclick="camCloseFeedbackLightbox()"
+     style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);z-index:9999999;align-items:center;justify-content:center;padding:1.5rem;cursor:zoom-out;animation:sfbFadeIn .2s ease;">
+    <div style="position:relative;max-width:92vw;max-height:92vh;display:flex;align-items:center;justify-content:center;cursor:default;" onclick="event.stopPropagation()">
+        <img id="cam-lightbox-img" src="" style="max-width:100%;max-height:86vh;border-radius:1.25rem;border:1.5px solid rgba(255,255,255,0.2);box-shadow:0 30px 60px rgba(0,0,0,0.9);object-fit:contain;background:#0f172a;">
+        <button type="button" onclick="camCloseFeedbackLightbox()"
+            class="absolute -top-3 -right-3 w-9 h-9 rounded-full bg-zinc-900 text-white flex items-center justify-center text-sm font-bold border border-white/20 hover:bg-red-600 transition-all shadow-xl active:scale-95" title="Close">
+            ✕
+        </button>
     </div>
 </div>
 
@@ -3005,18 +3005,18 @@ function camRenderFeedbacks() {
     if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
-function camOpenFeedbackLightbox(imgSrc) {
+window.camOpenFeedbackLightbox = function(imgSrc) {
     const modal = document.getElementById('cam-feedback-lightbox');
     const img = document.getElementById('cam-lightbox-img');
     if (!modal || !img) return;
     img.src = imgSrc;
     modal.style.display = 'flex';
-}
+};
 
-function camCloseFeedbackLightbox() {
+window.camCloseFeedbackLightbox = function() {
     const modal = document.getElementById('cam-feedback-lightbox');
     if (modal) modal.style.display = 'none';
-}
+};
 
 async function camUpdateFeedbackStatus(id, newStatus) {
     try {
