@@ -2934,85 +2934,105 @@ function camRenderFeedbacks() {
     }
 
     const ratingBadges = {
-        'happy': `<span style="background:#fef3c7;border:1px solid #fde68a;color:#b45309;padding:.2rem .6rem;border-radius:99px;font-size:.68rem;font-weight:800;display:inline-flex;align-items:center;gap:.3rem;">✨ Amazing</span>`,
-        'neutral': `<span style="background:#f1f5f9;border:1px solid #e2e8f0;color:#475569;padding:.2rem .6rem;border-radius:99px;font-size:.68rem;font-weight:800;display:inline-flex;align-items:center;gap:.3rem;">😐 Okay</span>`,
-        'sad': `<span style="background:#fee2e2;border:1px solid #fecdd3;color:#be123c;padding:.2rem .6rem;border-radius:99px;font-size:.68rem;font-weight:800;display:inline-flex;align-items:center;gap:.3rem;">🙁 Bad</span>`,
-        'very-sad': `<span style="background:#fee2e2;border:1px solid #fca5a5;color:#991b1b;padding:.2rem .6rem;border-radius:99px;font-size:.68rem;font-weight:800;display:inline-flex;align-items:center;gap:.3rem;">😭 Terrible</span>`
+        'happy': `<span style="background:linear-gradient(135deg,#fef3c7,#fde68a);border:1px solid #fcd34d;color:#92400e;padding:.25rem .75rem;border-radius:99px;font-size:.72rem;font-weight:900;display:inline-flex;align-items:center;gap:.35rem;box-shadow:0 2px 4px rgba(245,158,11,0.12);">✨ Amazing</span>`,
+        'neutral': `<span style="background:linear-gradient(135deg,#f8fafc,#f1f5f9);border:1px solid #cbd5e1;color:#334155;padding:.25rem .75rem;border-radius:99px;font-size:.72rem;font-weight:900;display:inline-flex;align-items:center;gap:.35rem;box-shadow:0 2px 4px rgba(0,0,0,0.04);">😐 Okay</span>`,
+        'sad': `<span style="background:linear-gradient(135deg,#ffedd5,#fed7aa);border:1px solid #fdba74;color:#9a3412;padding:.25rem .75rem;border-radius:99px;font-size:.72rem;font-weight:900;display:inline-flex;align-items:center;gap:.35rem;box-shadow:0 2px 4px rgba(249,115,22,0.12);">🙁 Bad</span>`,
+        'very-sad': `<span style="background:linear-gradient(135deg,#fee2e2,#fecdd3);border:1px solid #fca5a5;color:#991b1b;padding:.25rem .75rem;border-radius:99px;font-size:.72rem;font-weight:900;display:inline-flex;align-items:center;gap:.35rem;box-shadow:0 2px 4px rgba(239,68,68,0.12);">😭 Terrible</span>`
+    };
+
+    const ratingAccents = {
+        'happy': '#f59e0b',
+        'neutral': '#64748b',
+        'sad': '#f97316',
+        'very-sad': '#ef4444'
     };
 
     const statusBadges = {
-        'new': `<span style="font-size:.62rem;background:#dbeafe;color:#1e40af;padding:.15rem .45rem;border-radius:6px;font-weight:800;text-transform:uppercase;">NEW</span>`,
-        'reviewed': `<span style="font-size:.62rem;background:#fef3c7;color:#92400e;padding:.15rem .45rem;border-radius:6px;font-weight:800;text-transform:uppercase;">REVIEWED</span>`,
-        'resolved': `<span style="font-size:.62rem;background:#dcfce7;color:#166534;padding:.15rem .45rem;border-radius:6px;font-weight:800;text-transform:uppercase;">RESOLVED</span>`
+        'new': `<span style="font-size:.65rem;background:#dbeafe;color:#1e40af;border:1px solid #bfdbfe;padding:.18rem .55rem;border-radius:6px;font-weight:900;text-transform:uppercase;letter-spacing:.04em;display:inline-flex;align-items:center;gap:.3rem;"><span style="width:6px;height:6px;border-radius:50%;background:#2563eb;display:inline-block;box-shadow:0 0 6px #2563eb;"></span>NEW</span>`,
+        'reviewed': `<span style="font-size:.65rem;background:#fef3c7;color:#92400e;border:1px solid #fde68a;padding:.18rem .55rem;border-radius:6px;font-weight:900;text-transform:uppercase;letter-spacing:.04em;">REVIEWED</span>`,
+        'resolved': `<span style="font-size:.65rem;background:#dcfce7;color:#166534;border:1px solid #bbf7d0;padding:.18rem .55rem;border-radius:6px;font-weight:900;text-transform:uppercase;letter-spacing:.04em;">RESOLVED</span>`
     };
 
     listEl.innerHTML = items.map(f => {
-        const ratingBadge = ratingBadges[f.rating] || ratingBadges['neutral'];
-        const statusBadge = statusBadges[f.status] || statusBadges['new'];
-        const originPage  = f.page_url ? f.page_url.replace(/https?:\/\/[^\/]+/, '') : '/';
+        const ratingBadge  = ratingBadges[f.rating] || ratingBadges['neutral'];
+        const statusBadge  = statusBadges[f.status] || statusBadges['new'];
+        const accentColor  = ratingAccents[f.rating] || '#64748b';
+        const originPage   = f.page_url ? f.page_url.replace(/https?:\/\/[^\/]+/, '') : '/';
 
         return `
-        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:.85rem;padding:1rem 1.15rem;box-shadow:0 1px 3px rgba(0,0,0,0.03);display:flex;flex-direction:column;gap:.65rem;transition:all .15s ease;">
-            <!-- Top Row: User & Meta -->
-            <div style="display:flex;align-items:center;justify-content:space-between;gap:.5rem;flex-wrap:wrap;">
-                <div style="display:flex;align-items:center;gap:.65rem;min-width:0;">
+        <div style="background:#ffffff;border:1px solid #e2e8f0;border-left:5px solid ${accentColor};border-radius:1.15rem;padding:1.25rem 1.4rem;box-shadow:0 3px 12px -2px rgba(0,0,0,0.05);display:flex;flex-direction:column;gap:.85rem;transition:all .2s ease;position:relative;" onmouseover="this.style.boxShadow='0 8px 24px -4px rgba(0,0,0,0.09)';" onmouseout="this.style.boxShadow='0 3px 12px -2px rgba(0,0,0,0.05)';">
+            
+            <!-- Top Row: User Avatar & Name & Actions -->
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:.75rem;flex-wrap:wrap;">
+                <div style="display:flex;align-items:center;gap:.75rem;min-width:0;">
                     ${camRenderAvatarSvg(f.user_name, f.user_role)}
                     <div>
-                        <div style="display:flex;align-items:center;gap:.4rem;flex-wrap:wrap;">
-                            <span style="font-weight:800;font-size:.85rem;color:#0f172a;">${f.user_name}</span>
+                        <div style="display:flex;align-items:center;gap:.45rem;flex-wrap:wrap;">
+                            <span style="font-weight:900;font-size:.92rem;color:#0f172a;letter-spacing:-.01em;">${f.user_name}</span>
                             ${camRoleBadge(f.user_role)}
                             ${statusBadge}
                         </div>
-                        <div style="font-size:.65rem;color:#94a3b8;margin-top:.1rem;">
-                            ${f.created_at} ${f.time_ago ? `(${f.time_ago})` : ''}
+                        <div style="font-size:.7rem;font-weight:600;color:#94a3b8;margin-top:.15rem;display:flex;align-items:center;gap:.35rem;">
+                            <i data-lucide="clock" style="width:12px;height:12px;"></i>
+                            <span>${f.created_at} ${f.time_ago ? `<strong style="color:#64748b;">(${f.time_ago})</strong>` : ''}</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Rating Pill & Actions -->
-                <div style="display:flex;align-items:center;gap:.5rem;">
+                <!-- Rating Pill & Status Actions -->
+                <div style="display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;">
                     ${ratingBadge}
                     
-                    <!-- Action Select / Buttons -->
-                    <select onchange="camUpdateFeedbackStatus(${f.id}, this.value)" style="font-size:.68rem;padding:.2rem .4rem;border-radius:.4rem;border:1px solid #cbd5e1;background:#f8fafc;color:#334155;font-weight:700;cursor:pointer;">
+                    <!-- Action Select Dropdown -->
+                    <select onchange="camUpdateFeedbackStatus(${f.id}, this.value)" style="font-size:.72rem;padding:.3rem .6rem;border-radius:.55rem;border:1px solid #cbd5e1;background:#f8fafc;color:#334155;font-weight:800;cursor:pointer;outline:none;transition:border-color .15s ease;">
                         <option value="new" ${f.status === 'new' ? 'selected' : ''}>New</option>
                         <option value="reviewed" ${f.status === 'reviewed' ? 'selected' : ''}>Mark Reviewed</option>
                         <option value="resolved" ${f.status === 'resolved' ? 'selected' : ''}>Mark Resolved</option>
                     </select>
 
-                    <button type="button" onclick="camDeleteFeedback(${f.id})" style="padding:.2rem .45rem;border-radius:.4rem;border:1px solid #fee2e2;background:#fff1f2;color:#e11d48;font-size:.68rem;font-weight:700;cursor:pointer;" title="Delete Feedback">
-                        <i data-lucide="trash-2" style="width:12px;height:12px;"></i>
+                    <button type="button" onclick="camDeleteFeedback(${f.id})" style="padding:.32rem .55rem;border-radius:.55rem;border:1px solid #fee2e2;background:#fff1f2;color:#e11d48;font-size:.72rem;font-weight:800;cursor:pointer;display:inline-flex;align-items:center;gap:.25rem;transition:all .15s ease;" onmouseover="this.style.background='#e11d48';this.style.color='#fff';" onmouseout="this.style.background='#fff1f2';this.style.color='#e11d48';" title="Delete Feedback">
+                        <i data-lucide="trash-2" style="width:13px;height:13px;"></i>
                     </button>
                 </div>
             </div>
 
-            <!-- Feedback Text Message -->
-            <div style="background:#f8fafc;border-left:3.5px solid #6366f1;border-radius:0 .6rem .6rem 0;padding:.65rem .85rem;font-size:.8rem;color:#1e293b;line-height:1.5;white-space:pre-wrap;">${f.feedback}</div>
+            <!-- Feedback Speech / Message Bubble -->
+            <div style="background:#f8fafc;border:1px solid #f1f5f9;border-radius:.85rem;padding:.85rem 1.15rem;font-size:.85rem;font-weight:500;color:#1e293b;line-height:1.6;white-space:pre-wrap;word-break:break-word;position:relative;">
+                ${f.feedback}
+            </div>
 
             <!-- Attached Screenshots Gallery -->
             ${f.images && Array.isArray(f.images) && f.images.length > 0 ? `
-            <div style="display:flex;align-items:center;gap:.65rem;flex-wrap:wrap;padding:.25rem 0;">
-                <span style="font-size:.68rem;font-weight:800;color:#64748b;width:100%;display:flex;align-items:center;gap:.35rem;">
-                    <i data-lucide="image" style="width:13px;height:13px;color:#3b82f6;"></i> Attached Screenshots (${f.images.length}):
+            <div style="display:flex;flex-direction:column;gap:.4rem;padding:.15rem 0;">
+                <span style="font-size:.72rem;font-weight:800;color:#475569;display:flex;align-items:center;gap:.35rem;">
+                    <i data-lucide="image" style="width:14px;height:14px;color:#3b82f6;"></i>
+                    <span>Attached Screenshots (${f.images.length}):</span>
                 </span>
-                ${f.images.map(img => `
-                    <div onclick="camOpenFeedbackLightbox('${img}')" style="cursor:pointer;position:relative;display:inline-block;width:68px;height:68px;border-radius:.75rem;overflow:hidden;border:1.5px solid #cbd5e1;box-shadow:0 2px 6px rgba(0,0,0,0.06);background:#0f172a;transition:all .2s ease;" onmouseover="this.style.transform='scale(1.08)';this.style.borderColor='#3b82f6';this.style.boxShadow='0 8px 16px rgba(59,130,246,0.25)';" onmouseout="this.style.transform='scale(1)';this.style.borderColor='#cbd5e1';this.style.boxShadow='0 2px 6px rgba(0,0,0,0.06)';" title="Click to view full screenshot popup">
-                        <img src="${img}" style="width:100%;height:100%;object-fit:cover;" onerror="this.src='/favicon.ico'">
-                        <div style="position:absolute;inset:0;background:rgba(0,0,0,0.25);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .15s ease;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0'">
-                            <span style="background:rgba(0,0,0,0.7);color:#fff;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:12px;">🔍</span>
+                <div style="display:flex;align-items:center;gap:.65rem;flex-wrap:wrap;">
+                    ${f.images.map(img => `
+                        <div onclick="camOpenFeedbackLightbox('${img}')" style="cursor:pointer;position:relative;display:inline-block;width:76px;height:76px;border-radius:.85rem;overflow:hidden;border:2px solid #cbd5e1;box-shadow:0 3px 8px rgba(0,0,0,0.06);background:#0f172a;transition:all .2s cubic-bezier(0.16,1,0.3,1);" onmouseover="this.style.transform='scale(1.08)';this.style.borderColor='#3b82f6';this.style.boxShadow='0 8px 18px rgba(59,130,246,0.25)';" onmouseout="this.style.transform='scale(1)';this.style.borderColor='#cbd5e1';this.style.boxShadow='0 3px 8px rgba(0,0,0,0.06)';" title="Click to view full screenshot popup">
+                            <img src="${img}" style="width:100%;height:100%;object-fit:cover;" onerror="this.src='/favicon.ico'">
+                            <div style="position:absolute;inset:0;background:rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .15s ease;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0'">
+                                <span style="background:rgba(0,0,0,0.75);color:#fff;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:13px;">🔍</span>
+                            </div>
                         </div>
-                    </div>
-                `).join('')}
+                    `).join('')}
+                </div>
             </div>
             ` : ''}
 
-            <!-- Origin Page Info Footer -->
-            <div style="display:flex;align-items:center;justify-content:space-between;font-size:.65rem;color:#64748b;">
-                <span style="display:flex;align-items:center;gap:.3rem;">
-                    <i data-lucide="compass" style="width:12px;height:12px;color:#94a3b8;"></i>
-                    <span>Origin: <strong style="color:#475569;">${originPage}</strong></span>
+            <!-- Origin Page Info & Meta Footer -->
+            <div style="display:flex;align-items:center;justify-content:space-between;font-size:.7rem;color:#64748b;padding-top:.6rem;border-top:1px dashed #e2e8f0;flex-wrap:wrap;gap:.5rem;">
+                <span style="display:flex;align-items:center;gap:.35rem;">
+                    <i data-lucide="compass" style="width:13px;height:13px;color:#94a3b8;"></i>
+                    <span>Origin: <strong style="color:#334155;font-weight:700;">${originPage}</strong></span>
                 </span>
-                ${f.user_email ? `<span>Email: ${f.user_email}</span>` : ''}
+                ${f.user_email ? `
+                <span style="display:flex;align-items:center;gap:.35rem;">
+                    <i data-lucide="mail" style="width:13px;height:13px;color:#94a3b8;"></i>
+                    <span>Email: <strong style="color:#334155;font-weight:700;">${f.user_email}</strong></span>
+                </span>
+                ` : ''}
             </div>
         </div>
         `;
