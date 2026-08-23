@@ -1105,25 +1105,11 @@
         }
 
         .cam-detail-panel {
-            position: fixed;
-            top: 0; right: -460px;
-            width: 440px; height: 100vh;
-            background: #fff;
-            box-shadow: -8px 0 32px rgba(0,0,0,.15);
-            z-index: 9995;
-            overflow-y: auto;
-            transition: right .3s cubic-bezier(.4,0,.2,1);
+            scroll-margin-top: 80px;
         }
-        .cam-detail-panel.open { right: 0; }
-        .cam-detail-overlay {
-            position: fixed; inset: 0; background: rgba(0,0,0,.35);
-            z-index: 9994; display: none;
-        }
-        .cam-detail-overlay.open { display: block; }
 
         @media (max-width: 768px) {
             .cam-user-row { grid-template-columns: 1fr 1fr; }
-            .cam-detail-panel { width: 100%; right: -100%; }
         }
         </style>
 
@@ -1356,16 +1342,20 @@
             </div>
         </div>
 
-        <!-- ══ USER DETAIL OVERLAY ══ -->
-        <div class="cam-detail-overlay" id="cam-overlay" onclick="camCloseDetail()"></div>
-        <div class="cam-detail-panel" id="cam-detail-panel">
-            <div style="background:#f8fafc;padding:1.25rem 1.5rem;border-bottom:1px solid #e2e8f0;position:sticky;top:0;z-index:10;">
+        <!-- ══ USER DETAIL SECTION (AUTO-SCROLL TARGET) ══ -->
+        <div class="cam-card mb-5" id="cam-detail-panel" style="display:none; scroll-margin-top: 80px;">
+            <div style="background:#f8fafc;padding:1rem 1.25rem;border-radius:.75rem;border:1px solid #e2e8f0;margin-bottom:1.25rem;">
                 <div class="flex items-center justify-between">
-                    <h3 style="font-weight:900;font-size:1rem;color:#000;">User Activity Detail</h3>
-                    <button onclick="camCloseDetail()" style="color:#64748b;cursor:pointer;padding:.3rem;"><i data-lucide="x" style="width:18px;height:18px;"></i></button>
+                    <div class="cam-section-title mb-0">
+                        <i data-lucide="user-check" style="width:15px;height:15px;color:#f59e0b;"></i>
+                        User Activity Detail
+                    </div>
+                    <button onclick="camCloseDetail()" style="color:#64748b;cursor:pointer;padding:.3rem;background:none;border:none;display:flex;align-items:center;gap:.3rem;font-size:.75rem;font-weight:700;" title="Close Details">
+                        Close <i data-lucide="x" style="width:16px;height:16px;"></i>
+                    </button>
                 </div>
             </div>
-            <div id="cam-detail-content" style="padding:1.25rem 1.5rem;">
+            <div id="cam-detail-content">
                 <!-- populated by JS -->
             </div>
         </div>
@@ -2218,16 +2208,12 @@ function camRenderRoleSummary() {
     if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
-// ─── User Detail Slide-in Panel ───────────────────────────────
+// ─── User Detail In-Page Section (Smooth Auto-Scroll) ────────
 async function camOpenDetail(userId) {
-    const overlay = document.getElementById('cam-overlay');
-    const panel   = document.getElementById('cam-detail-panel');
-    overlay?.classList.add('open');
-    panel?.classList.add('open');
-    document.body.style.overflow = 'hidden'; // Keep exact focus on panel without background jumping
-
+    const panel = document.getElementById('cam-detail-panel');
     if (panel) {
-        panel.scrollTop = 0;
+        panel.style.display = 'block';
+        panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
     const content = document.getElementById('cam-detail-content');
@@ -2402,6 +2388,11 @@ async function camOpenDetail(userId) {
             </div>
         `;
         if (typeof lucide !== 'undefined') lucide.createIcons();
+        if (panel) {
+            setTimeout(() => {
+                panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 60);
+        }
 
     } catch (e) {
         content.innerHTML = `<p style="color:#ef4444;text-align:center;padding:1rem;">Failed to load details.</p>`;
@@ -2409,9 +2400,11 @@ async function camOpenDetail(userId) {
 }
 
 function camCloseDetail() {
-    document.getElementById('cam-overlay')?.classList.remove('open');
-    document.getElementById('cam-detail-panel')?.classList.remove('open');
-    document.body.style.overflow = ''; // Restore normal scrolling
+    const panel = document.getElementById('cam-detail-panel');
+    if (panel) {
+        panel.style.display = 'none';
+    }
+    document.getElementById('cam-user-table')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 
 function camSetFilter(f) {
