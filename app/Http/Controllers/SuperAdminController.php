@@ -905,11 +905,44 @@ class SuperAdminController extends Controller
         $totalActsSum    = collect($userData)->sum('activities');
         $totalClients    = collect($userData)->pluck('role')->unique()->count();
 
+        // Server-Side Attention Alerts (Offline / Inactive Staff)
+        $alerts = [];
+        foreach ($userData as $u) {
+            if (!$u['isOnline'] && $u['todayMins'] === 0) {
+                $lastSeen = $u['last_login'] ?: 'Never logged in';
+                $alerts[] = [
+                    'user_id'  => $u['id'],
+                    'name'     => $u['name'],
+                    'role'     => $u['role'],
+                    'isOnline' => false,
+                    'msg'      => "No active presence recorded today. Last seen: {$lastSeen}.",
+                    'icon'     => 'alert-octagon',
+                    'color'    => '#ef4444',
+                    'bg'       => '#fff1f2',
+                ];
+            } elseif (!$u['isOnline'] && $u['todayMins'] > 0 && $u['todayMins'] < ($target * 60 * 0.6)) {
+                $h = intdiv($u['todayMins'], 60);
+                $m = $u['todayMins'] % 60;
+                $fmt = ($h > 0 && $m > 0) ? "{$h}h {$m}m" : (($h > 0) ? "{$h}h" : "{$m}m");
+                $alerts[] = [
+                    'user_id'  => $u['id'],
+                    'name'     => $u['name'],
+                    'role'     => $u['role'],
+                    'isOnline' => false,
+                    'msg'      => "Low activity — {$fmt} of {$target}h target. {$u['activities']} interaction(s) recorded.",
+                    'icon'     => 'alert-triangle',
+                    'color'    => '#f59e0b',
+                    'bg'       => '#fffbeb',
+                ];
+            }
+        }
+
         return response()->json([
             'success' => true,
             'date'    => $date,
             'target'  => $target,
             'users'   => $userData,
+            'alerts'  => $alerts,
             'summary' => [
                 'total'       => $totalUsersCount,
                 'active'      => $activeCount,

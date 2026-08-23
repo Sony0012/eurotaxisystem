@@ -2000,28 +2000,7 @@ function camRenderStats() {
 
 // ─── Attention Alerts ─────────────────────────────────────────
 function camRenderAlerts() {
-    const users  = CAM_DATA.users || [];
-    const alerts = [];
-
-    users.forEach(u => {
-        if (!u.isOnline && (!u.todayMins || u.todayMins === 0)) {
-            alerts.push({
-                u,
-                msg: `No active presence recorded today. ${u.last_login ? 'Last seen: ' + u.last_login : 'Never logged in'}.`,
-                icon: 'alert-octagon',
-                color: '#ef4444',
-                bg: '#fff1f2'
-            });
-        } else if (!u.isOnline && u.todayMins > 0 && u.todayMins < (CAM_TARGET * 60 * 0.6)) {
-            alerts.push({
-                u,
-                msg: `Low activity — ${camFmtH(u.todayH, u.todayMins)} of ${CAM_TARGET}h target.`,
-                icon: 'alert-triangle',
-                color: '#f59e0b',
-                bg: '#fffbeb'
-            });
-        }
-    });
+    const alerts = CAM_DATA.alerts || [];
 
     const cnt = document.getElementById('cam-alert-count');
     if (cnt) cnt.textContent = alerts.length;
@@ -2043,12 +2022,12 @@ function camRenderAlerts() {
             <i data-lucide="${a.icon}" style="width:16px;height:16px;color:${a.color};flex-shrink:0;margin-top:.15rem;"></i>
             <div style="flex:1;">
                 <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.2rem;">
-                    <span style="font-weight:800;font-size:.82rem;color:#000;">${a.u.name}</span>
-                    ${camRoleBadge(a.u.role)}
-                    ${a.u.isOnline ? '<span style="font-size:.6rem;background:#dcfce7;color:#15803d;padding:.1rem .4rem;border-radius:99px;font-weight:700;">● ONLINE</span>' : ''}
+                    <span style="font-weight:800;font-size:.82rem;color:#000;">${a.name}</span>
+                    ${camRoleBadge(a.role)}
+                    ${a.isOnline ? '<span style="font-size:.6rem;background:#dcfce7;color:#15803d;padding:.1rem .4rem;border-radius:99px;font-weight:700;">● ONLINE</span>' : ''}
                 </div>
                 <p style="font-size:.73rem;color:#475569;line-height:1.4;">${a.msg}</p>
-                <button onclick="camOpenDetail('${a.u.id}')" style="margin-top:.4rem;font-size:.68rem;font-weight:800;color:${a.color};background:none;border:none;cursor:pointer;padding:0;">View Account Detail →</button>
+                <button onclick="camOpenDetail('${a.user_id}')" style="margin-top:.4rem;font-size:.68rem;font-weight:800;color:${a.color};background:none;border:none;cursor:pointer;padding:0;">View Account Detail →</button>
             </div>
         </div>
     `).join('');
