@@ -793,13 +793,33 @@ class SuperAdminController extends Controller
                 $firstLabel = 'First active';
             }
 
-            // If user is currently online/connected, calculate live continuous elapsed active time
+            // Determine Last Active / Seen Time Today
+            $lastTimeObj = null;
+            if ($user->last_seen_at && Carbon::parse($user->last_seen_at)->toDateString() === $date) {
+                $lastTimeObj = Carbon::parse($user->last_seen_at);
+            } elseif ($lastEntry) {
+                $lastTimeObj = Carbon::parse($lastEntry->created_at);
+            } elseif (!empty($activeTimeData['intervals'])) {
+                $lastTimeObj = Carbon::parse(end($activeTimeData['intervals'])['end']);
+            }
+
+            // Calculate live continuous elapsed active time if online, OR preserve accumulated session duration if offline
             if ($isOnline) {
                 if ($firstTimeObj) {
                     $elapsedSinceStart = max(1, (int) round($firstTimeObj->diffInMinutes(now())));
                     $totalMins = max($totalMins, $elapsedSinceStart);
                 } else {
                     $totalMins = max(1, $totalMins);
+                }
+            } else {
+                // If user was active/logged in today but is now offline, preserve the accumulated session time
+                if ($firstTimeObj && $firstTimeObj->toDateString() === $date) {
+                    if ($lastTimeObj && $lastTimeObj->gt($firstTimeObj)) {
+                        $sessionDuration = max(1, (int) round($firstTimeObj->diffInMinutes($lastTimeObj)));
+                        $totalMins = max($totalMins, $sessionDuration);
+                    } else {
+                        $totalMins = max($totalMins, 1);
+                    }
                 }
             }
 
