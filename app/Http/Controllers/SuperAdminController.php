@@ -30,26 +30,31 @@ class SuperAdminController extends Controller
         // ─── Operations ────────────────────────
         'live-tracking.*' => ['icon' => 'map-pin', 'label' => 'Live Tracking', 'group' => '2. Operations'],
         'maintenance.*' => ['icon' => 'wrench', 'label' => 'Maintenance', 'group' => '2. Operations'],
+        'inventory.*' => ['icon' => 'package-check', 'label' => 'Manage Inventory', 'group' => '2. Operations'],
         'coding.*' => ['icon' => 'calendar', 'label' => 'Coding Management', 'group' => '2. Operations'],
         'driver-behavior.*' => ['icon' => 'alert-triangle', 'label' => 'Driver Behavior', 'group' => '2. Operations'],
         'spare-parts.*' => ['icon' => 'package', 'label' => 'Spare Parts Inventory', 'group' => '2. Operations'],
         'suppliers.*' => ['icon' => 'truck', 'label' => 'Suppliers', 'group' => '2. Operations'],
 
         // ─── Financial ─────────────────────────
-        'boundaries.*' => ['icon' => 'banknote', 'label' => 'Boundaries', 'group' => '3. Financial'],
+        'boundaries.*' => ['icon' => 'wallet', 'label' => 'Boundaries', 'group' => '3. Financial'],
         'office-expenses.*' => ['icon' => 'receipt', 'label' => 'Office Expenses', 'group' => '3. Financial'],
         'salary.*' => ['icon' => 'calculator', 'label' => 'Salary Management', 'group' => '3. Financial'],
         'boundary-rules.*' => ['icon' => 'settings', 'label' => 'Boundary Rules', 'group' => '3. Financial'],
 
         // ─── Legal & Admin ─────────────────────
         'decision-management.*' => ['icon' => 'file-text', 'label' => 'Franchise', 'group' => '4. Legal & Admin'],
-        'staff.*' => ['icon' => 'user-cog', 'label' => 'Staff Records', 'group' => '4. Legal & Admin'],
-        'archive.*' => ['icon' => 'archive', 'label' => 'Archive Access', 'group' => '4. Legal & Admin'],
+        'staff.*' => ['icon' => 'user-cog', 'label' => 'General Staff Records', 'group' => '4. Legal & Admin'],
         'support.*' => ['icon' => 'message-square', 'label' => 'Support Center', 'group' => '4. Legal & Admin'],
+        'announcements.*' => ['icon' => 'megaphone', 'label' => 'Announcements', 'group' => '4. Legal & Admin'],
+        'archive.*' => ['icon' => 'archive', 'label' => 'Archive Access', 'group' => '4. Legal & Admin'],
 
         // ─── Reports ───────────────────────────
-        'analytics.*' => ['icon' => 'bar-chart', 'label' => 'Analytics', 'group' => '5. Reports'],
+        'analytics.*' => ['icon' => 'bar-chart-2', 'label' => 'Analytics', 'group' => '5. Reports'],
         'unit-profitability.*' => ['icon' => 'trending-up', 'label' => 'Unit Profitability', 'group' => '5. Reports'],
+
+        // ─── Developer & Integrations ──────────
+        'github.*' => ['icon' => 'git-branch', 'label' => 'GitHub Integration', 'group' => '6. Integrations'],
     ];
 
     // ─── Dashboard ────────────────────────────────────────────────────────────

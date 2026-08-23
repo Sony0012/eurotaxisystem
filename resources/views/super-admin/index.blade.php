@@ -3550,7 +3550,7 @@ function selectAccessUser(el) {
     el.style.borderColor = '#f59e0b';
 
     currentAccessUserId = el.dataset.id;
-    document.getElementById('access-user-name').textContent = 'â€” ' + el.querySelector('[style*="font-weight:700"]').textContent.trim();
+    document.getElementById('access-user-name').textContent = '— ' + el.querySelector('[style*="font-weight:700"]').textContent.trim();
     document.getElementById('save-access-btn').disabled = false;
     document.getElementById('save-access-btn').style.opacity = '1';
     document.getElementById('access-placeholder').classList.add('hidden');
