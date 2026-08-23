@@ -764,23 +764,46 @@ class SuperAdminController extends Controller
             $status = $presenceService->determineUserStatus($user);
             $isOnline = in_array($status, ['active', 'idle']);
 
-            // 2. Accurate Accumulated Active Time for Today (Non-overlapping merged intervals)
+            // 2. Accurate Accumulated Active Time for Today (Intervals + Live Continuous Elapsed Session)
             $activeTimeData = $presenceService->calculateTodayActiveTime($user->id, $date);
             $totalMins  = $activeTimeData['total_mins'];
-            $totalHours = $activeTimeData['total_hours'];
-            $pct        = ($target > 0) ? min(100, (int) round(($totalMins / ($target * 60)) * 100)) : 0;
 
-            // If user is currently online/connected, guarantee at least 1m visible active time
-            if ($isOnline && $totalMins === 0) {
-                $totalMins = 1;
-                $totalHours = 0.02;
-                $pct = max($pct, 1);
+            // Determine First Login & First Active
+            $firstTimeObj = null;
+            $firstLabel = 'First login';
+            if ($firstLogin) {
+                $firstTimeObj = Carbon::parse($firstLogin->created_at);
+                $firstLabel = 'First login';
+            } elseif ($user->last_login && Carbon::parse($user->last_login)->toDateString() === $date) {
+                $firstTimeObj = Carbon::parse($user->last_login);
+                $firstLabel = 'First login';
+            } elseif (!empty($activeTimeData['intervals'])) {
+                $firstTimeObj = Carbon::parse($activeTimeData['intervals'][0]['start']);
+                $firstLabel = 'First active';
+            } elseif ($userAudits->isNotEmpty()) {
+                $firstTimeObj = Carbon::parse($userAudits->first()->created_at);
+                $firstLabel = 'First active';
+            } elseif ($user->last_seen_at && Carbon::parse($user->last_seen_at)->toDateString() === $date) {
+                $firstTimeObj = Carbon::parse($user->last_seen_at);
+                $firstLabel = 'First active';
             }
+
+            // If user is currently online/connected, calculate live continuous elapsed active time
+            if ($isOnline) {
+                if ($firstTimeObj) {
+                    $elapsedSinceStart = max(1, (int) round($firstTimeObj->diffInMinutes(now())));
+                    $totalMins = max($totalMins, $elapsedSinceStart);
+                } else {
+                    $totalMins = max(1, $totalMins);
+                }
+            }
+
+            $totalHours = round($totalMins / 60, 2);
+            $pct        = ($target > 0) ? min(100, (int) round(($totalMins / ($target * 60)) * 100)) : 0;
 
             // 3. Meaningful Operational Actions (Excluding automated heartbeats & background checks)
             $meaningfulActs = $userAudits->whereNotIn('action', ['login', 'logout', 'failed_login', 'session_start', 'active_presence']);
             $loginEntries   = $userAudits->where('action', 'login');
-            $firstLogin     = $loginEntries->first();
             $lastEntry      = $userAudits->last();
 
             // Distinct operational modules accessed today
@@ -798,17 +821,8 @@ class SuperAdminController extends Controller
                 $modules[] = 'Dashboard Overview';
             }
 
-            // 4. Determine First Login & Last Seen Strings
-            $firstLoginStr = null;
-            if ($firstLogin) {
-                $firstLoginStr = 'First login: ' . Carbon::parse($firstLogin->created_at)->format('h:i A');
-            } elseif ($user->last_login && Carbon::parse($user->last_login)->toDateString() === $date) {
-                $firstLoginStr = 'First login: ' . Carbon::parse($user->last_login)->format('h:i A');
-            } elseif (!empty($activeTimeData['intervals'])) {
-                $firstLoginStr = 'First active: ' . Carbon::parse($activeTimeData['intervals'][0]['start'])->format('h:i A');
-            } elseif ($userAudits->isNotEmpty()) {
-                $firstLoginStr = 'First active: ' . Carbon::parse($userAudits->first()->created_at)->format('h:i A');
-            }
+            // 4. Formatted Strings
+            $firstLoginStr = $firstTimeObj ? "{$firstLabel}: " . $firstTimeObj->format('h:i A') : null;
 
             $lastActiveStr = null;
             if ($isOnline) {
@@ -878,9 +892,9 @@ class SuperAdminController extends Controller
 
         // Summary Aggregates
         $totalUsersCount = count($userData);
-        $activeCount     = collect($userData)->where('status', 'active')->count();
+        $activeCount     = collect($userData)->whereIn('status', ['active', 'idle'])->count();
         $lowCount        = collect($userData)->where('status', 'low')->count();
-        $noneCount       = collect($userData)->whereIn('status', ['none', 'inactive'])->count();
+        $noneCount       = collect($userData)->whereIn('status', ['inactive', 'none'])->count();
         $totalHoursSum   = collect($userData)->sum('todayH');
         $activeUsersCol  = collect($userData)->where('todayH', '>', 0);
         $avgHours        = $activeUsersCol->count() > 0 ? round($totalHoursSum / $activeUsersCol->count(), 1) : 0;

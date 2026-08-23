@@ -2004,10 +2004,10 @@ function camRenderAlerts() {
     const alerts = [];
 
     users.forEach(u => {
-        if (!u.isOnline && (u.status === 'inactive' || u.status === 'none' || (u.todayH === 0 && u.todayMins === 0))) {
-            alerts.push({ u, msg: `Offline / Inactive today. ${u.last_login ? 'Last seen: ' + u.last_login : 'No activity recorded today.'}`, icon: 'alert-octagon', color: '#ef4444', bg: '#fff1f2' });
+        if (!u.isOnline && (u.todayMins === 0 || u.todayH === 0) && (u.status === 'inactive' || u.status === 'none')) {
+            alerts.push({ u, msg: `No login or activity recorded today. ${u.last_login ? 'Last seen: ' + u.last_login : 'Never logged in'}.`, icon: 'alert-octagon', color: '#ef4444', bg: '#fff1f2' });
         } else if (u.status === 'low' && !u.isOnline) {
-            alerts.push({ u, msg: `Low activity — ${camFmtH(u.todayH, u.todayMins)} of ${CAM_TARGET}h target. ${u.activities || 0} interaction(s) recorded.`, icon: 'alert-triangle', color: '#f59e0b', bg: '#fffbeb' });
+            alerts.push({ u, msg: `Low activity — ${camFmtH(u.todayH, u.todayMins)} of ${CAM_TARGET}h target. ${u.activities} interaction(s) recorded.`, icon: 'alert-triangle', color: '#f59e0b', bg: '#fffbeb' });
         }
     });
 
