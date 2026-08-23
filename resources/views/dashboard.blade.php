@@ -133,7 +133,7 @@
             }
         }
         .animated-shiny-units-text {
-            background: linear-gradient(110deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.22) 30%, rgba(255,255,255,0.95) 50%, rgba(255,255,255,0.22) 70%, rgba(255,255,255,0.18) 100%);
+            background: linear-gradient(110deg, #94a3b8 0%, #e2e8f0 20%, #ffffff 40%, #fbbf24 50%, #ffffff 60%, #e2e8f0 80%, #94a3b8 100%);
             background-size: 200% 100%;
             -webkit-background-clip: text !important;
             -webkit-text-fill-color: transparent !important;
@@ -141,7 +141,7 @@
             display: inline-block;
             animation: animatedShinyText 3s linear infinite !important;
             will-change: background-position;
-            filter: drop-shadow(0 2px 12px rgba(255,255,255,0.3));
+            filter: drop-shadow(0 4px 20px rgba(245, 158, 11, 0.25)) drop-shadow(0 2px 8px rgba(255, 255, 255, 0.3));
         }
 
         @keyframes blob {
@@ -1873,42 +1873,62 @@
             <div class="relative pt-6 pb-5 px-5 sm:px-7 border-b border-slate-800/90 bg-[#090d16] flex-shrink-0 overflow-hidden select-none">
                 
                 <!-- Subtle Radial Ambient Glow -->
-                <div class="absolute inset-0 pointer-events-none opacity-60" style="background: radial-gradient(circle at 50% -10%, rgba(245, 158, 11, 0.18), rgba(99, 102, 241, 0.12) 40%, transparent 80%);"></div>
+                <div class="absolute inset-0 pointer-events-none opacity-70" style="background: radial-gradient(circle at 50% -20%, rgba(245, 158, 11, 0.22), rgba(99, 102, 241, 0.15) 45%, transparent 80%);"></div>
                 
                 <!-- High-Tech Micro-Dot Grid Pattern SVG Background -->
                 <div class="absolute inset-0 opacity-[0.08] pointer-events-none" style="background-image: radial-gradient(rgba(255, 255, 255, 0.9) 1px, transparent 1px); background-size: 20px 20px;"></div>
 
-                <!-- Large Animated Shiny Background Watermark -->
-                <div class="absolute inset-x-0 top-1 sm:top-2 flex items-center justify-center pointer-events-none select-none z-0 overflow-hidden px-4" aria-hidden="true">
-                    <h1 class="animated-shiny-units-text text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black uppercase tracking-[0.18em] whitespace-nowrap opacity-25">
-                        Units Overview
-                    </h1>
+                <!-- 🏎️ Savage Background Cyber Fleet Watermark SVG -->
+                <div class="absolute right-0 sm:right-6 -bottom-4 sm:-bottom-6 w-80 sm:w-[420px] h-32 sm:h-44 pointer-events-none opacity-[0.14] text-amber-400 select-none overflow-hidden" aria-hidden="true">
+                    <svg viewBox="0 0 520 180" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full object-contain">
+                        <!-- Speed Lines & Dynamic Motion Trails -->
+                        <path d="M10 135 H150" stroke="currentColor" stroke-width="2" stroke-dasharray="6 6" />
+                        <path d="M35 150 H210" stroke="currentColor" stroke-width="3" stroke-dasharray="14 7" />
+                        <path d="M70 162 H340" stroke="currentColor" stroke-width="3.5" />
+                        <!-- Aggressive Savage GT / Cyber Sedan Silhouette -->
+                        <path d="M110 138 L160 92 Q190 62 250 60 L335 60 Q385 64 415 102 L465 116 Q495 125 505 142 L500 152 Q492 158 470 158 H135 Q115 158 108 146 Z" stroke="currentColor" stroke-width="4" fill="currentColor" fill-opacity="0.06" />
+                        <!-- Cockpit Aero Chiseled Canopy -->
+                        <path d="M235 64 L180 92 H320 L360 64 Z" stroke="currentColor" stroke-width="2.5" fill="currentColor" fill-opacity="0.18" />
+                        <path d="M328 92 L368 66 L402 98 H328 Z" stroke="currentColor" stroke-width="2" fill="currentColor" fill-opacity="0.12" />
+                        <!-- Aggressive Headlight Blade & Splitter -->
+                        <path d="M460 120 L498 126 L475 134 Z" fill="currentColor" />
+                        <path d="M470 152 H510 L495 158 H460 Z" fill="currentColor" />
+                        <!-- Futuristic Turbine Wheels -->
+                        <circle cx="180" cy="154" r="24" stroke="currentColor" stroke-width="4.5" fill="#090d16" />
+                        <circle cx="180" cy="154" r="12" stroke="currentColor" stroke-width="2.5" stroke-dasharray="6 3" />
+                        <circle cx="420" cy="154" r="24" stroke="currentColor" stroke-width="4.5" fill="#090d16" />
+                        <circle cx="420" cy="154" r="12" stroke="currentColor" stroke-width="2.5" stroke-dasharray="6 3" />
+                        <!-- Savage GT Wing / Spoiler -->
+                        <path d="M100 122 L115 105 H145 L130 122 Z" stroke="currentColor" stroke-width="2.5" fill="currentColor" fill-opacity="0.2" />
+                        <!-- Cyber Taxi Roof Beacon -->
+                        <path d="M280 52 L290 40 H330 L340 52 Z" stroke="currentColor" stroke-width="2" fill="currentColor" fill-opacity="0.4" />
+                    </svg>
                 </div>
 
-                <!-- Top Row: Branding, Status Pill & Close Action -->
+                <!-- Top Row: Completely Unobstructed Shiny Centerpiece -->
                 <div class="relative z-10">
-                    <div class="flex items-center justify-between mb-4 sm:mb-5">
-                        <div class="flex items-center gap-3.5">
-                            <!-- Modern 3D/Glow Fleet Icon Badge -->
-                            <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br from-amber-500/20 via-amber-600/10 to-transparent border border-amber-500/30 flex items-center justify-center shadow-lg shadow-amber-500/10 flex-shrink-0 backdrop-blur-md">
-                                <i data-lucide="car" class="w-6 h-6 text-amber-400"></i>
-                            </div>
-                            <div>
-                                <div class="flex items-center gap-2 mb-0.5">
-                                    <h2 class="text-base sm:text-lg font-black text-white tracking-tight">Units Fleet Matrix</h2>
-                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
-                                        Live Overview
-                                    </span>
-                                </div>
-                                <p class="text-slate-400 text-xs font-medium">Real-time fleet tracking, active driver assignments & collection stats</p>
+                    <div class="flex items-center justify-between gap-3 mb-4 sm:mb-5">
+                        <!-- Left: Minimal Live Badge -->
+                        <div class="flex items-center gap-2 flex-shrink-0">
+                            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900/80 border border-slate-700/80 text-amber-400 shadow-sm backdrop-blur-md">
+                                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                                <span class="text-[11px] font-black uppercase tracking-wider text-slate-200">Fleet Live Matrix</span>
                             </div>
                         </div>
-                        
-                        <!-- Sleek Close Button -->
-                        <button onclick="hideUnitsModal()" class="w-9 h-9 rounded-xl bg-slate-800/80 hover:bg-rose-500/20 border border-slate-700 hover:border-rose-500/40 text-slate-400 hover:text-rose-300 flex items-center justify-center transition-all duration-200 backdrop-blur-md shadow-sm">
-                            <i data-lucide="x" class="w-4 h-4"></i>
-                        </button>
+
+                        <!-- Center: Radiant Shiny Title (Unblocked & Front Stage) -->
+                        <div class="flex-1 text-center px-2 overflow-hidden">
+                            <h1 class="animated-shiny-units-text text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black uppercase tracking-[0.16em] whitespace-nowrap drop-shadow-lg">
+                                Units Overview
+                            </h1>
+                        </div>
+
+                        <!-- Right: Close Button -->
+                        <div class="flex items-center justify-end flex-shrink-0">
+                            <button onclick="hideUnitsModal()" class="w-9 h-9 rounded-xl bg-slate-800/80 hover:bg-rose-500/20 border border-slate-700 hover:border-rose-500/40 text-slate-400 hover:text-rose-300 flex items-center justify-center transition-all duration-200 backdrop-blur-md shadow-sm group">
+                                <i data-lucide="x" class="w-4 h-4 group-hover:rotate-90 transition-transform duration-200"></i>
+                            </button>
+                        </div>
                     </div>
                     
                     <!-- Search and Filter Row -->
@@ -1916,7 +1936,7 @@
                         <!-- 21st.dev Style Search Bar -->
                         <div class="relative flex-1">
                             <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                                <i data-lucide="search" class="w-4 h-4"></i>
+                                <i data-lucide="search" class="w-4 h-4 text-slate-400"></i>
                             </div>
                             <input type="search" 
                                 id="unitSearchInput"
