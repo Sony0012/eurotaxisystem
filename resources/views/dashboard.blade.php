@@ -1868,7 +1868,6 @@
 <!-- Units Overview Modal -->
     <div id="unitsModal" class="hidden fixed inset-0 bg-slate-950/80 z-50 flex items-center justify-center p-3 sm:p-5 backdrop-blur-md transition-all duration-300">
         <div class="bg-white rounded-3xl shadow-2xl max-w-7xl w-full mx-auto h-[92vh] sm:h-[95vh] flex flex-col ring-1 ring-white/10 overflow-hidden border border-slate-800/40">
-            
             <!-- ─── 21st.dev Inspired Dark Glassmorphism Header ─── -->
             <div class="relative pt-6 pb-5 px-5 sm:px-7 border-b border-slate-800/90 bg-[#090d16] flex-shrink-0 overflow-hidden select-none">
                 
@@ -1877,33 +1876,6 @@
                 
                 <!-- High-Tech Micro-Dot Grid Pattern SVG Background -->
                 <div class="absolute inset-0 opacity-[0.08] pointer-events-none" style="background-image: radial-gradient(rgba(255, 255, 255, 0.9) 1px, transparent 1px); background-size: 20px 20px;"></div>
-
-                <!-- 🏎️ Savage Background Cyber Fleet Watermark SVG -->
-                <div class="absolute right-0 sm:right-6 -bottom-4 sm:-bottom-6 w-80 sm:w-[420px] h-32 sm:h-44 pointer-events-none opacity-[0.14] text-amber-400 select-none overflow-hidden" aria-hidden="true">
-                    <svg viewBox="0 0 520 180" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full object-contain">
-                        <!-- Speed Lines & Dynamic Motion Trails -->
-                        <path d="M10 135 H150" stroke="currentColor" stroke-width="2" stroke-dasharray="6 6" />
-                        <path d="M35 150 H210" stroke="currentColor" stroke-width="3" stroke-dasharray="14 7" />
-                        <path d="M70 162 H340" stroke="currentColor" stroke-width="3.5" />
-                        <!-- Aggressive Savage GT / Cyber Sedan Silhouette -->
-                        <path d="M110 138 L160 92 Q190 62 250 60 L335 60 Q385 64 415 102 L465 116 Q495 125 505 142 L500 152 Q492 158 470 158 H135 Q115 158 108 146 Z" stroke="currentColor" stroke-width="4" fill="currentColor" fill-opacity="0.06" />
-                        <!-- Cockpit Aero Chiseled Canopy -->
-                        <path d="M235 64 L180 92 H320 L360 64 Z" stroke="currentColor" stroke-width="2.5" fill="currentColor" fill-opacity="0.18" />
-                        <path d="M328 92 L368 66 L402 98 H328 Z" stroke="currentColor" stroke-width="2" fill="currentColor" fill-opacity="0.12" />
-                        <!-- Aggressive Headlight Blade & Splitter -->
-                        <path d="M460 120 L498 126 L475 134 Z" fill="currentColor" />
-                        <path d="M470 152 H510 L495 158 H460 Z" fill="currentColor" />
-                        <!-- Futuristic Turbine Wheels -->
-                        <circle cx="180" cy="154" r="24" stroke="currentColor" stroke-width="4.5" fill="#090d16" />
-                        <circle cx="180" cy="154" r="12" stroke="currentColor" stroke-width="2.5" stroke-dasharray="6 3" />
-                        <circle cx="420" cy="154" r="24" stroke="currentColor" stroke-width="4.5" fill="#090d16" />
-                        <circle cx="420" cy="154" r="12" stroke="currentColor" stroke-width="2.5" stroke-dasharray="6 3" />
-                        <!-- Savage GT Wing / Spoiler -->
-                        <path d="M100 122 L115 105 H145 L130 122 Z" stroke="currentColor" stroke-width="2.5" fill="currentColor" fill-opacity="0.2" />
-                        <!-- Cyber Taxi Roof Beacon -->
-                        <path d="M280 52 L290 40 H330 L340 52 Z" stroke="currentColor" stroke-width="2" fill="currentColor" fill-opacity="0.4" />
-                    </svg>
-                </div>
 
                 <!-- Top Row: Completely Unobstructed Shiny Centerpiece -->
                 <div class="relative z-10">
@@ -1986,9 +1958,9 @@
                 </div>
             </div>
 
-            <div class="flex-1 overflow-hidden flex flex-col min-h-0 bg-slate-50">
+            <div class="flex-1 overflow-hidden flex flex-col min-h-0 bg-slate-50 relative">
                 <!-- ─── Compact Summary Metrics Strip ─── -->
-                <div class="bg-white/80 backdrop-blur-sm p-3.5 border-b border-slate-200/80 flex-shrink-0 shadow-sm">
+                <div class="bg-white/80 backdrop-blur-sm p-3.5 border-b border-slate-200/80 flex-shrink-0 shadow-sm relative z-10">
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-7xl mx-auto">
                         <!-- Total Units -->
                         <div class="bg-gradient-to-b from-white to-slate-50/80 rounded-2xl p-3 border border-slate-200/90 shadow-sm hover:shadow-md hover:border-blue-300/80 transition-all duration-200 group">
@@ -2041,9 +2013,37 @@
                     </div>
                 </div>
 
-                <!-- Enhanced Units Grid with Maximum Space -->
-                <div class="flex-1 overflow-y-auto p-4 sm:p-5 bg-slate-50/70 min-h-0">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 pb-6" id="unitsGrid">
+                <!-- Enhanced Units Grid with Massive Savage Watermark Background -->
+                <div class="flex-1 overflow-y-auto p-4 sm:p-5 bg-slate-50/60 min-h-0 relative">
+                    
+                    <!-- 🏎️ Massive Savage Fleet Cyber Taxi Watermark Background in the Table/Grid Area -->
+                    <div class="absolute inset-0 flex items-center justify-center pointer-events-none select-none z-0 overflow-hidden px-6" aria-hidden="true">
+                        <svg viewBox="0 0 520 180" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-[92%] max-w-4xl h-auto opacity-[0.07] text-slate-800 transform -rotate-1">
+                            <!-- Speed Lines & Dynamic Motion Trails -->
+                            <path d="M10 135 H150" stroke="currentColor" stroke-width="2.5" stroke-dasharray="6 6" />
+                            <path d="M35 150 H210" stroke="currentColor" stroke-width="3.5" stroke-dasharray="14 7" />
+                            <path d="M70 162 H340" stroke="currentColor" stroke-width="4.5" />
+                            <!-- Aggressive Savage GT / Cyber Sedan Silhouette -->
+                            <path d="M110 138 L160 92 Q190 62 250 60 L335 60 Q385 64 415 102 L465 116 Q495 125 505 142 L500 152 Q492 158 470 158 H135 Q115 158 108 146 Z" stroke="currentColor" stroke-width="5" fill="currentColor" fill-opacity="0.04" />
+                            <!-- Cockpit Aero Chiseled Canopy -->
+                            <path d="M235 64 L180 92 H320 L360 64 Z" stroke="currentColor" stroke-width="3" fill="currentColor" fill-opacity="0.1" />
+                            <path d="M328 92 L368 66 L402 98 H328 Z" stroke="currentColor" stroke-width="2.5" fill="currentColor" fill-opacity="0.08" />
+                            <!-- Aggressive Headlight Blade & Splitter -->
+                            <path d="M460 120 L498 126 L475 134 Z" fill="currentColor" />
+                            <path d="M470 152 H510 L495 158 H460 Z" fill="currentColor" />
+                            <!-- Futuristic Turbine Wheels -->
+                            <circle cx="180" cy="154" r="24" stroke="currentColor" stroke-width="5" fill="#f8fafc" />
+                            <circle cx="180" cy="154" r="12" stroke="currentColor" stroke-width="3" stroke-dasharray="6 3" />
+                            <circle cx="420" cy="154" r="24" stroke="currentColor" stroke-width="5" fill="#f8fafc" />
+                            <circle cx="420" cy="154" r="12" stroke="currentColor" stroke-width="3" stroke-dasharray="6 3" />
+                            <!-- Savage GT Wing / Spoiler -->
+                            <path d="M100 122 L115 105 H145 L130 122 Z" stroke="currentColor" stroke-width="3" fill="currentColor" fill-opacity="0.15" />
+                            <!-- Cyber Taxi Roof Beacon -->
+                            <path d="M280 52 L290 40 H330 L340 52 Z" stroke="currentColor" stroke-width="2.5" fill="currentColor" fill-opacity="0.25" />
+                        </svg>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 pb-6 relative z-10" id="unitsGrid">
                         <!-- Enhanced Loading State -->
                         <div class="col-span-full text-center py-16">
                             <div class="inline-flex flex-col items-center">
