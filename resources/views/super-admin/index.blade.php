@@ -2884,6 +2884,18 @@ function camRenderFeedbacks() {
             <!-- Feedback Text Message -->
             <div style="background:#f8fafc;border-left:3.5px solid #6366f1;border-radius:0 .6rem .6rem 0;padding:.65rem .85rem;font-size:.8rem;color:#1e293b;line-height:1.5;white-space:pre-wrap;">${f.feedback}</div>
 
+            <!-- Attached Screenshots Gallery -->
+            ${f.images && Array.isArray(f.images) && f.images.length > 0 ? `
+            <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;padding:.2rem 0;">
+                <span style="font-size:.65rem;font-weight:700;color:#64748b;width:100%;margin-bottom:.1rem;">Attached Screenshots (${f.images.length}):</span>
+                ${f.images.map(img => `
+                    <a href="${img}" target="_blank" style="display:inline-block;width:64px;height:64px;border-radius:.6rem;overflow:hidden;border:1.5px solid #e2e8f0;box-shadow:0 1px 3px rgba(0,0,0,0.08);background:#f1f5f9;transition:all .15s ease;" onmouseover="this.style.transform='scale(1.06)';this.style.borderColor='#3b82f6';" onmouseout="this.style.transform='scale(1)';this.style.borderColor='#e2e8f0';" title="Click to view full screenshot in new tab">
+                        <img src="${img}" style="width:100%;height:100%;object-fit:cover;" onerror="this.src='/favicon.ico'">
+                    </a>
+                `).join('')}
+            </div>
+            ` : ''}
+
             <!-- Origin Page Info Footer -->
             <div style="display:flex;align-items:center;justify-content:space-between;font-size:.65rem;color:#64748b;">
                 <span style="display:flex;align-items:center;gap:.3rem;">

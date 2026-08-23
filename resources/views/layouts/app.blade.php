@@ -3055,11 +3055,11 @@
                         </button>
                     </div>
 
-                    <div class="relative group">
-                        <textarea id="sfb-textarea" placeholder="Your feedback..." rows="6"
+                    <div class="relative group mb-3">
+                        <textarea id="sfb-textarea" placeholder="Your feedback..." rows="5"
                             class="w-full resize-none rounded-2xl border border-white/10 bg-zinc-900/70 p-4 text-[16px] text-zinc-100 leading-relaxed transition-all placeholder:text-zinc-500 focus:border-white/30 focus:bg-zinc-900/95 focus:outline-none"
                             oninput="sfbOnInputChange(this)"></textarea>
-                        <div id="sfb-preview-box" style="display:none;min-height:165px;max-height:220px;overflow-y:auto;"
+                        <div id="sfb-preview-box" style="display:none;min-height:145px;max-height:200px;overflow-y:auto;"
                             class="w-full rounded-2xl border border-white/10 bg-zinc-900/70 p-4 text-[16px] text-zinc-200 leading-relaxed">
                         </div>
                         <div class="pointer-events-none absolute right-4 bottom-3.5 flex select-none items-center gap-1.5 opacity-40">
@@ -3068,7 +3068,35 @@
                         </div>
                     </div>
 
-                    <div class="mt-5 flex items-center justify-between border-white/10 border-t pt-5">
+                    <!-- English Explanation for Screenshot Attachments -->
+                    <div class="flex items-center gap-2 mb-2.5 text-zinc-400 text-[12px] select-none">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-blue-400 flex-shrink-0">
+                            <rect width="18" height="18" x="3" y="3" rx="2" ry="2"/>
+                            <circle cx="9" cy="9" r="2"/>
+                            <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>
+                        </svg>
+                        <span>Attach screenshots or paste images (<strong class="text-zinc-200 font-semibold">Ctrl + V</strong>) to illustrate issues or suggestions clearly.</span>
+                    </div>
+
+                    <!-- Hidden File Input -->
+                    <input type="file" id="sfb-file-input" accept="image/*" multiple style="display:none;" onchange="sfbHandleFileSelect(this)">
+
+                    <!-- Screenshot Thumbnails & + Add Button Container -->
+                    <div class="flex items-center gap-2.5 flex-wrap mb-1" id="sfb-images-container">
+                        <button type="button" id="sfb-add-image-btn" onclick="document.getElementById('sfb-file-input').click()"
+                            class="flex items-center gap-2 px-3.5 py-2 rounded-xl border border-dashed border-zinc-700 bg-zinc-900/60 hover:bg-zinc-800/80 hover:border-zinc-500 text-zinc-300 text-[13px] font-medium transition-all group active:scale-95">
+                            <div class="w-6 h-6 rounded-lg bg-zinc-800 group-hover:bg-blue-600 group-hover:text-white text-zinc-400 flex items-center justify-center transition-colors">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                                </svg>
+                            </div>
+                            <span>Add Screenshot</span>
+                        </button>
+                    </div>
+                    <div id="sfb-images-count" class="text-[11px] text-zinc-500 font-medium mb-2" style="display:none;"></div>
+
+                    <div class="mt-4 flex items-center justify-between border-white/10 border-t pt-4">
                         <p class="font-medium text-[13px] text-zinc-400 m-0">
                             We appreciate your input.
                         </p>
@@ -3084,11 +3112,21 @@
         </div>
     </div>
 
+    <!-- ══ IMAGE LIGHTBOX MODAL ══ -->
+    <div id="sfb-lightbox-modal" onclick="this.style.display='none'"
+         style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.88);backdrop-filter:blur(10px);z-index:9999999;align-items:center;justify-content:center;padding:1.5rem;cursor:zoom-out;">
+        <div style="position:relative;max-width:90vw;max-height:90vh;display:flex;align-items:center;justify-content:center;" onclick="event.stopPropagation()">
+            <img id="sfb-lightbox-img" src="" style="max-width:100%;max-height:86vh;border-radius:1rem;border:1px solid rgba(255,255,255,0.15);box-shadow:0 25px 50px rgba(0,0,0,0.9);object-fit:contain;">
+            <button type="button" onclick="document.getElementById('sfb-lightbox-modal').style.display='none'" class="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-zinc-800 text-white flex items-center justify-center text-sm font-bold border border-white/20 hover:bg-red-600 transition-colors" title="Close Lightbox">✕</button>
+        </div>
+    </div>
+
     <script>
     // ─── 21st.dev Two-Phase Staff Feedback Modal Scripts ──────────
     let SFB_RATING = '';
     let SFB_IS_PREVIEW = false;
     let SFB_IS_SUBMITTING = false;
+    let SFB_ATTACHED_IMAGES = []; // Array of base64 data URLs
 
     function sfbOpenModal() {
         const backdrop = document.getElementById('staff-feedback-modal-backdrop');
@@ -3100,6 +3138,9 @@
         // Start in Collapsed Pill State (Matching Image 1 & 3)
         SFB_RATING = '';
         SFB_IS_PREVIEW = false;
+        SFB_ATTACHED_IMAGES = [];
+        sfbRenderAttachedImages();
+
         if (expandedBody) expandedBody.style.display = 'none';
         card.style.borderRadius = '9999px';
         card.style.width = 'auto';
@@ -3128,6 +3169,8 @@
         backdrop.style.display = 'none';
         SFB_RATING = '';
         SFB_IS_PREVIEW = false;
+        SFB_ATTACHED_IMAGES = [];
+        sfbRenderAttachedImages();
 
         if (expandedBody) expandedBody.style.display = 'none';
         if (card) {
@@ -3201,6 +3244,97 @@
         }
     }
 
+    // ─── Image Upload & Clipboard Paste Handlers ──────────────────
+    function sfbHandleFileSelect(input) {
+        if (!input.files || input.files.length === 0) return;
+        Array.from(input.files).forEach(file => {
+            if (file.type.startsWith('image/')) {
+                sfbProcessImageFile(file);
+            }
+        });
+        input.value = '';
+    }
+
+    function sfbProcessImageFile(file) {
+        if (SFB_ATTACHED_IMAGES.length >= 6) {
+            alert('Maximum 6 screenshot attachments reached.');
+            return;
+        }
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            SFB_ATTACHED_IMAGES.push(e.target.result);
+            sfbRenderAttachedImages();
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function sfbRemoveImage(index) {
+        SFB_ATTACHED_IMAGES.splice(index, 1);
+        sfbRenderAttachedImages();
+    }
+
+    function sfbRenderAttachedImages() {
+        const container = document.getElementById('sfb-images-container');
+        const countEl = document.getElementById('sfb-images-count');
+        const addBtn = document.getElementById('sfb-add-image-btn');
+        if (!container || !addBtn) return;
+
+        // Remove existing preview thumbnails
+        container.querySelectorAll('.sfb-thumb-item').forEach(el => el.remove());
+
+        SFB_ATTACHED_IMAGES.forEach((dataUrl, idx) => {
+            const thumb = document.createElement('div');
+            thumb.className = 'sfb-thumb-item relative group w-16 h-16 rounded-xl overflow-hidden border border-zinc-700 bg-zinc-950 shadow-md flex-shrink-0';
+            thumb.innerHTML = `
+                <img src="${dataUrl}" class="w-full h-full object-cover cursor-pointer hover:scale-105 transition-transform" onclick="sfbPreviewFullImage('${dataUrl}')" title="Click to view full image">
+                <button type="button" onclick="sfbRemoveImage(${idx})" class="absolute top-1 right-1 w-5 h-5 rounded-full bg-red-600 text-white flex items-center justify-center text-[10px] font-bold opacity-90 hover:opacity-100 hover:scale-110 shadow-sm transition-all" title="Remove screenshot">
+                    ✕
+                </button>
+            `;
+            container.insertBefore(thumb, addBtn);
+        });
+
+        if (countEl) {
+            if (SFB_ATTACHED_IMAGES.length > 0) {
+                countEl.style.display = 'block';
+                countEl.textContent = `${SFB_ATTACHED_IMAGES.length} screenshot${SFB_ATTACHED_IMAGES.length > 1 ? 's' : ''} attached (max 6)`;
+            } else {
+                countEl.style.display = 'none';
+            }
+        }
+    }
+
+    function sfbPreviewFullImage(src) {
+        const modal = document.getElementById('sfb-lightbox-modal');
+        const img = document.getElementById('sfb-lightbox-img');
+        if (!modal || !img) return;
+        img.src = src;
+        modal.style.display = 'flex';
+    }
+
+    // Global Paste Listener (Ctrl + V support)
+    document.addEventListener('paste', function(e) {
+        const modal = document.getElementById('staff-feedback-modal-backdrop');
+        if (!modal || modal.style.display === 'none') return;
+
+        const items = (e.clipboardData || e.originalEvent?.clipboardData)?.items;
+        if (!items) return;
+
+        let hasImage = false;
+        for (let i = 0; i < items.length; i++) {
+            if (items[i].type.indexOf('image') !== -1) {
+                const blob = items[i].getAsFile();
+                if (blob) {
+                    hasImage = true;
+                    sfbProcessImageFile(blob);
+                }
+            }
+        }
+        if (hasImage) {
+            e.preventDefault();
+        }
+    });
+
     function sfbTogglePreview() {
         const textarea = document.getElementById('sfb-textarea');
         const previewBox = document.getElementById('sfb-preview-box');
@@ -3249,6 +3383,7 @@
                 body: JSON.stringify({
                     rating: SFB_RATING,
                     feedback: textarea.value.trim(),
+                    images: SFB_ATTACHED_IMAGES,
                     page_url: window.location.href
                 })
             });
@@ -3257,6 +3392,8 @@
             if (json.success) {
                 textarea.value = '';
                 SFB_RATING = '';
+                SFB_ATTACHED_IMAGES = [];
+                sfbRenderAttachedImages();
                 document.querySelectorAll('.sfb-emoji-btn').forEach(btn => {
                     btn.style.background = 'transparent';
                     btn.style.color = '#a1a1aa';

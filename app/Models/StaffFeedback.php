@@ -20,8 +20,13 @@ class StaffFeedback extends Model
         'rating_label',
         'feedback',
         'page_url',
+        'images',
         'status',
         'ip_address',
+    ];
+
+    protected $casts = [
+        'images' => 'array',
     ];
 
     public function user()

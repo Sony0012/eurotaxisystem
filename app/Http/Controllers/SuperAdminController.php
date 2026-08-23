@@ -1148,7 +1148,7 @@ class SuperAdminController extends Controller
 
         $request->validate([
             'rating'   => 'required|string|in:very-sad,sad,neutral,happy',
-            'feedback' => 'required|string|max:3000',
+            'feedback' => 'required|string|max:5000',
         ]);
 
         $labels = [
@@ -1160,6 +1160,52 @@ class SuperAdminController extends Controller
 
         try {
             $user = Auth::user();
+            $imagePaths = [];
+
+            // 1. Process base64 or file images from request
+            if ($request->has('images') && is_array($request->images)) {
+                $uploadDir = public_path('uploads/staff-feedbacks');
+                if (!file_exists($uploadDir)) {
+                    @mkdir($uploadDir, 0755, true);
+                }
+
+                foreach ($request->images as $idx => $imgData) {
+                    if (empty($imgData)) continue;
+
+                    // If it's a base64 string: data:image/png;base64,xxxx
+                    if (is_string($imgData) && preg_match('/^data:image\/(\w+);base64,/', $imgData, $type)) {
+                        $imgContent = substr($imgData, strpos($imgData, ',') + 1);
+                        $ext = strtolower($type[1]);
+                        if (!in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'webp'])) {
+                            $ext = 'png';
+                        }
+                        $decoded = base64_decode($imgContent);
+                        if ($decoded !== false) {
+                            $fileName = 'feedback_' . $user->id . '_' . time() . '_' . rand(1000, 9999) . '.' . $ext;
+                            file_put_contents($uploadDir . '/' . $fileName, $decoded);
+                            $imagePaths[] = '/uploads/staff-feedbacks/' . $fileName;
+                        }
+                    } elseif (is_string($imgData) && (str_starts_with($imgData, 'http') || str_starts_with($imgData, '/uploads/'))) {
+                        $imagePaths[] = $imgData;
+                    }
+                }
+            }
+
+            // Also check for standard multipart file uploads
+            if ($request->hasFile('files')) {
+                $uploadDir = public_path('uploads/staff-feedbacks');
+                if (!file_exists($uploadDir)) {
+                    @mkdir($uploadDir, 0755, true);
+                }
+                foreach ($request->file('files') as $file) {
+                    if ($file->isValid()) {
+                        $fileName = 'feedback_' . $user->id . '_' . time() . '_' . rand(1000, 9999) . '.' . $file->getClientOriginalExtension();
+                        $file->move($uploadDir, $fileName);
+                        $imagePaths[] = '/uploads/staff-feedbacks/' . $fileName;
+                    }
+                }
+            }
+
             $feedback = StaffFeedback::create([
                 'user_id'      => $user->id,
                 'user_name'    => $user->full_name ?? ($user->first_name ? trim($user->first_name . ' ' . $user->last_name) : $user->name),
@@ -1168,6 +1214,7 @@ class SuperAdminController extends Controller
                 'rating'       => $request->rating,
                 'rating_label' => $labels[$request->rating] ?? ucfirst($request->rating),
                 'feedback'     => trim($request->feedback),
+                'images'       => !empty($imagePaths) ? $imagePaths : null,
                 'page_url'     => $request->page_url ?: url()->previous(),
                 'status'       => 'new',
                 'ip_address'   => $request->ip(),
@@ -1175,7 +1222,7 @@ class SuperAdminController extends Controller
 
             return response()->json([
                 'success'  => true,
-                'message'  => 'Thank you! Your feedback has been received.',
+                'message'  => 'Thank you! Your feedback with screenshot attachments has been received.',
                 'feedback' => $feedback,
             ]);
         } catch (\Throwable $e) {
@@ -1216,6 +1263,7 @@ class SuperAdminController extends Controller
                     'rating'       => $f->rating,
                     'rating_label' => $f->rating_label ?: ucfirst($f->rating),
                     'feedback'     => $f->feedback,
+                    'images'       => is_array($f->images) ? $f->images : (is_string($f->images) ? json_decode($f->images, true) : []),
                     'page_url'     => $f->page_url,
                     'status'       => $f->status,
                     'created_at'   => $f->created_at ? $f->created_at->format('M d, Y h:i A') : null,
