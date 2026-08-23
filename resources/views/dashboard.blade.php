@@ -1463,8 +1463,6 @@
             </div>
         </div>
     </div>
-</div>
-
 <!-- Net Income Modal -->
 <div id="netIncomeModal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md hidden z-50 flex items-center justify-center p-3 sm:p-5 transition-all duration-300">
     <div class="bg-white rounded-3xl shadow-2xl w-full max-w-6xl h-[92vh] flex flex-col overflow-hidden border border-slate-700/30">
@@ -1559,65 +1557,65 @@
                 </div>
             </div>
 
-            <!-- 💎 Fixed Savage Cyber Diamond Profit Crystal & Analytics Matrix Watermark Background -->
-            <div class="absolute inset-x-0 bottom-0 top-16 flex items-center justify-center pointer-events-none select-none z-0 overflow-hidden px-4" aria-hidden="true" style="transform: translateZ(0);">
-                <svg viewBox="0 0 540 220" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-[95%] max-w-4xl h-auto opacity-[0.27] transform select-none pointer-events-none">
+            <!-- 💎 Fixed Bold Savage Cyber Diamond Profit Crystal & Analytics Matrix Watermark Background (High Visibility) -->
+            <div class="absolute inset-0 top-16 flex items-center justify-center pointer-events-none select-none z-0 overflow-hidden px-4" aria-hidden="true" style="transform: translateZ(0);">
+                <svg viewBox="0 0 540 240" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-[96%] max-w-5xl h-auto opacity-[0.38] transform select-none pointer-events-none">
                     <defs>
                         <linearGradient id="crystalDiamondGrad" x1="0%" y1="0%" x2="100%" y2="100%">
                             <stop offset="0%" stop-color="#3b82f6" />
-                            <stop offset="35%" stop-color="#8b5cf6" />
-                            <stop offset="70%" stop-color="#d946ef" />
-                            <stop offset="100%" stop-color="#f59e0b" />
+                            <stop offset="30%" stop-color="#6366f1" />
+                            <stop offset="65%" stop-color="#a855f7" />
+                            <stop offset="100%" stop-color="#eab308" />
                         </linearGradient>
                         <linearGradient id="waveProfitGrad" x1="0%" y1="100%" x2="100%" y2="0%">
-                            <stop offset="0%" stop-color="#6366f1" />
-                            <stop offset="50%" stop-color="#8b5cf6" />
+                            <stop offset="0%" stop-color="#4f46e5" />
+                            <stop offset="50%" stop-color="#9333ea" />
                             <stop offset="100%" stop-color="#06b6d4" />
                         </linearGradient>
                         <radialGradient id="crystalCoreGlow" cx="50%" cy="50%" r="50%">
-                            <stop offset="0%" stop-color="#8b5cf6" stop-opacity="0.35" />
+                            <stop offset="0%" stop-color="#a855f7" stop-opacity="0.45" />
                             <stop offset="100%" stop-color="#3b82f6" stop-opacity="0" />
                         </radialGradient>
                     </defs>
 
-                    <!-- Orbiting Gyro Financial Matrix Rings -->
-                    <circle cx="270" cy="110" r="95" stroke="url(#waveProfitGrad)" stroke-width="2.5" stroke-dasharray="14 8" />
-                    <ellipse cx="270" cy="110" rx="140" ry="55" stroke="url(#crystalDiamondGrad)" stroke-width="2" stroke-dasharray="6 6" transform="rotate(-15 270 110)" />
-                    <ellipse cx="270" cy="110" rx="140" ry="55" stroke="url(#waveProfitGrad)" stroke-width="2" stroke-dasharray="6 6" transform="rotate(15 270 110)" />
+                    <!-- Orbiting Gyro Financial Matrix Rings (Bold Lines) -->
+                    <circle cx="270" cy="115" r="105" stroke="url(#waveProfitGrad)" stroke-width="4.5" stroke-dasharray="16 10" />
+                    <ellipse cx="270" cy="115" rx="160" ry="60" stroke="url(#crystalDiamondGrad)" stroke-width="4" stroke-dasharray="10 8" transform="rotate(-15 270 115)" />
+                    <ellipse cx="270" cy="115" rx="160" ry="60" stroke="url(#waveProfitGrad)" stroke-width="4" stroke-dasharray="10 8" transform="rotate(15 270 115)" />
 
-                    <!-- Multi-tier Holographic Sinusoidal Profit Waves -->
-                    <path d="M15 185 Q110 135 180 165 T360 85 T525 35" stroke="url(#crystalDiamondGrad)" stroke-width="4.5" stroke-linecap="round" fill="none" />
-                    <path d="M15 200 Q130 165 210 185 T390 115 T525 65" stroke="url(#waveProfitGrad)" stroke-width="3" stroke-dasharray="8 6" stroke-linecap="round" fill="none" />
-                    <path d="M40 210 H500" stroke="url(#crystalDiamondGrad)" stroke-width="2.5" stroke-dasharray="12 6" stroke-linecap="round" />
+                    <!-- Multi-tier Holographic Sinusoidal Profit Waves (Bold Vectors) -->
+                    <path d="M15 190 Q110 120 180 160 T360 70 T525 20" stroke="url(#crystalDiamondGrad)" stroke-width="6.5" stroke-linecap="round" fill="none" />
+                    <path d="M15 210 Q130 160 210 185 T390 105 T525 50" stroke="url(#waveProfitGrad)" stroke-width="4.5" stroke-dasharray="10 6" stroke-linecap="round" fill="none" />
+                    <path d="M30 225 H510" stroke="url(#crystalDiamondGrad)" stroke-width="4" stroke-dasharray="16 8" stroke-linecap="round" />
 
                     <!-- Massive 3D Savage Cyber Diamond Crystal Ledger Core -->
-                    <circle cx="270" cy="110" r="65" fill="url(#crystalCoreGlow)" />
-                    <!-- Outer Facets -->
-                    <polygon points="270,30 355,90 325,180 215,180 185,90" stroke="url(#crystalDiamondGrad)" stroke-width="5" fill="#070a1e" fill-opacity="0.04" stroke-linejoin="round" />
+                    <circle cx="270" cy="115" r="75" fill="url(#crystalCoreGlow)" />
+                    <!-- Outer Facets with Vibrant Infill -->
+                    <polygon points="270,25 365,90 330,195 210,195 175,90" stroke="url(#crystalDiamondGrad)" stroke-width="6.5" fill="#6366f1" fill-opacity="0.1" stroke-linejoin="round" />
                     <!-- Crown & Pavilion Facet Intersections -->
-                    <line x1="185" y1="90" x2="355" y2="90" stroke="url(#crystalDiamondGrad)" stroke-width="3.5" />
-                    <line x1="270" y1="30" x2="245" y2="90" stroke="url(#crystalDiamondGrad)" stroke-width="3.5" />
-                    <line x1="270" y1="30" x2="295" y2="90" stroke="url(#crystalDiamondGrad)" stroke-width="3.5" />
-                    <line x1="245" y1="90" x2="270" y2="180" stroke="url(#crystalDiamondGrad)" stroke-width="4" />
-                    <line x1="295" y1="90" x2="270" y2="180" stroke="url(#crystalDiamondGrad)" stroke-width="4" />
-                    <line x1="185" y1="90" x2="270" y2="180" stroke="url(#waveProfitGrad)" stroke-width="3" />
-                    <line x1="355" y1="90" x2="270" y2="180" stroke="url(#waveProfitGrad)" stroke-width="3" />
+                    <line x1="175" y1="90" x2="365" y2="90" stroke="url(#crystalDiamondGrad)" stroke-width="5" />
+                    <line x1="270" y1="25" x2="238" y2="90" stroke="url(#crystalDiamondGrad)" stroke-width="4.5" />
+                    <line x1="270" y1="25" x2="302" y2="90" stroke="url(#crystalDiamondGrad)" stroke-width="4.5" />
+                    <line x1="238" y1="90" x2="270" y2="195" stroke="url(#crystalDiamondGrad)" stroke-width="5.5" />
+                    <line x1="302" y1="90" x2="270" y2="195" stroke="url(#crystalDiamondGrad)" stroke-width="5.5" />
+                    <line x1="175" y1="90" x2="270" y2="195" stroke="url(#waveProfitGrad)" stroke-width="4" />
+                    <line x1="365" y1="90" x2="270" y2="195" stroke="url(#waveProfitGrad)" stroke-width="4" />
 
                     <!-- Central Floating Glowing Hexagon Node -->
-                    <polygon points="270,80 295,95 295,125 270,140 245,125 245,95" stroke="url(#crystalDiamondGrad)" stroke-width="3" fill="#ffffff" fill-opacity="0.3" stroke-linejoin="round" />
-                    <circle cx="270" cy="110" r="8" fill="#f59e0b" />
+                    <polygon points="270,80 300,98 300,132 270,150 240,132 240,98" stroke="url(#crystalDiamondGrad)" stroke-width="4" fill="#ffffff" fill-opacity="0.4" stroke-linejoin="round" />
+                    <circle cx="270" cy="115" r="10" fill="#eab308" />
 
                     <!-- Precision Analytics Crosshairs & Vectors -->
-                    <line x1="270" y1="12" x2="270" y2="28" stroke="url(#crystalDiamondGrad)" stroke-width="3" stroke-linecap="round" />
-                    <line x1="270" y1="182" x2="270" y2="198" stroke="url(#crystalDiamondGrad)" stroke-width="3" stroke-linecap="round" />
-                    <line x1="165" y1="110" x2="181" y2="110" stroke="url(#crystalDiamondGrad)" stroke-width="3" stroke-linecap="round" />
-                    <line x1="359" y1="110" x2="375" y2="110" stroke="url(#crystalDiamondGrad)" stroke-width="3" stroke-linecap="round" />
+                    <line x1="270" y1="6" x2="270" y2="24" stroke="url(#crystalDiamondGrad)" stroke-width="4" stroke-linecap="round" />
+                    <line x1="270" y1="196" x2="270" y2="214" stroke="url(#crystalDiamondGrad)" stroke-width="4" stroke-linecap="round" />
+                    <line x1="155" y1="115" x2="173" y2="115" stroke="url(#crystalDiamondGrad)" stroke-width="4" stroke-linecap="round" />
+                    <line x1="367" y1="115" x2="385" y2="115" stroke="url(#crystalDiamondGrad)" stroke-width="4" stroke-linecap="round" />
 
                     <!-- Dynamic Floating Cyber Currency Crystals & Data Sparks -->
-                    <polygon points="525,35 533,25 541,35 533,45" fill="#f59e0b" />
-                    <polygon points="460,75 465,68 470,75 465,82" fill="#8b5cf6" />
-                    <polygon points="75,155 80,148 85,155 80,162" fill="#3b82f6" />
-                    <polygon points="120,80 125,73 130,80 125,87" fill="#06b6d4" />
+                    <polygon points="525,20 535,8 545,20 535,32" fill="#eab308" />
+                    <polygon points="460,65 467,56 474,65 467,74" fill="#a855f7" />
+                    <polygon points="75,150 82,141 89,150 82,159" fill="#3b82f6" />
+                    <polygon points="120,70 126,62 132,70 126,78" fill="#06b6d4" />
                 </svg>
             </div>
 
@@ -1651,9 +1649,9 @@
                         </div>
                     </div>
                     
-                    <!-- Revenue Section (Translucent Frosted Card) -->
-                    <div class="mb-5 bg-white/75 backdrop-blur-sm rounded-2xl border border-indigo-200/80 shadow-sm overflow-hidden">
-                        <div class="flex justify-between items-center bg-gradient-to-r from-indigo-50/90 to-teal-50/90 px-4 sm:px-6 py-3 border-b border-indigo-200/80">
+                    <!-- Revenue Section (Ultra-Clear Translucent Glass Card) -->
+                    <div class="mb-5 bg-[#f0f4ff]/30 hover:bg-[#f0f4ff]/50 backdrop-blur-[2px] rounded-2xl border border-indigo-300/60 shadow-sm overflow-hidden transition-all duration-200">
+                        <div class="flex justify-between items-center bg-indigo-500/10 px-4 sm:px-6 py-2.5 border-b border-indigo-200/50">
                             <div class="flex items-center gap-2">
                                 <div class="w-6 h-6 rounded-lg bg-indigo-600 text-white flex items-center justify-center flex-shrink-0 shadow-xs">
                                     <i data-lucide="trending-up" class="w-3.5 h-3.5"></i>
@@ -1661,14 +1659,14 @@
                                 <span class="text-xs font-black text-indigo-950 uppercase tracking-wider">Revenue Breakdown</span>
                             </div>
                         </div>
-                        <div id="revenueDetailList" class="min-h-[80px] flex flex-col justify-center bg-white/40">
+                        <div id="revenueDetailList" class="min-h-[80px] flex flex-col justify-center bg-transparent">
                             <!-- Dynamically populated -->
                         </div>
                     </div>
                     
-                    <!-- Operating Expenses Section (Translucent Frosted Card) -->
-                    <div class="mb-5 bg-white/75 backdrop-blur-sm rounded-2xl border border-rose-200/80 shadow-sm overflow-hidden">
-                        <div class="flex justify-between items-center bg-gradient-to-r from-rose-50/90 to-pink-50/90 px-4 sm:px-6 py-3 border-b border-rose-200/80">
+                    <!-- Operating Expenses Section (Ultra-Clear Translucent Glass Card) -->
+                    <div class="mb-5 bg-[#fff1f2]/30 hover:bg-[#fff1f2]/50 backdrop-blur-[2px] rounded-2xl border border-rose-300/60 shadow-sm overflow-hidden transition-all duration-200">
+                        <div class="flex justify-between items-center bg-rose-500/10 px-4 sm:px-6 py-2.5 border-b border-rose-200/50">
                             <div class="flex items-center gap-2">
                                 <div class="w-6 h-6 rounded-lg bg-rose-600 text-white flex items-center justify-center flex-shrink-0 shadow-xs">
                                     <i data-lucide="trending-down" class="w-3.5 h-3.5"></i>
@@ -1676,25 +1674,25 @@
                                 <span class="text-xs font-black text-rose-950 uppercase tracking-wider">Operating Expenses Breakdown</span>
                             </div>
                         </div>
-                        <div class="divide-y divide-rose-100/60 bg-white/40">
+                        <div class="divide-y divide-rose-200/40 bg-transparent">
                             <!-- Maintenance Breakdown -->
                             <div>
-                                <div class="bg-rose-50/40 px-4 sm:px-6 py-2 border-b border-rose-100 flex justify-between items-center text-[10px] font-extrabold text-slate-600 uppercase tracking-wider">
+                                <div class="bg-rose-500/5 px-4 sm:px-6 py-1.5 border-b border-rose-200/40 flex justify-between items-center text-[10px] font-extrabold text-slate-600 uppercase tracking-wider">
                                     <span class="flex items-center gap-1.5"><i data-lucide="wrench" class="w-3 h-3 text-orange-600"></i> Maintenance & Repairs Itemized</span>
                                     <span id="reportMaintenanceTotal" class="text-orange-600 font-black">Total: ₱0.00</span>
                                 </div>
-                                <div id="maintenanceDetailList" class="min-h-[60px] flex flex-col justify-center">
+                                <div id="maintenanceDetailList" class="min-h-[60px] flex flex-col justify-center bg-transparent">
                                     <!-- Dynamically populated -->
                                 </div>
                             </div>
 
                             <!-- Office Breakdown -->
                             <div>
-                                <div class="bg-rose-50/40 px-4 sm:px-6 py-2 border-b border-rose-100 flex justify-between items-center text-[10px] font-extrabold text-slate-600 uppercase tracking-wider">
+                                <div class="bg-rose-500/5 px-4 sm:px-6 py-1.5 border-b border-rose-200/40 flex justify-between items-center text-[10px] font-extrabold text-slate-600 uppercase tracking-wider">
                                     <span class="flex items-center gap-1.5"><i data-lucide="building" class="w-3 h-3 text-red-600"></i> General Office Expenses Itemized</span>
                                     <span id="reportGeneralExpensesTotal" class="text-rose-600 font-black">Total: ₱0.00</span>
                                 </div>
-                                <div id="officeExpensesDetailList" class="min-h-[60px] flex flex-col justify-center">
+                                <div id="officeExpensesDetailList" class="min-h-[60px] flex flex-col justify-center bg-transparent">
                                     <!-- Dynamically populated -->
                                 </div>
                             </div>
@@ -1711,6 +1709,8 @@
 
         </div>
     </div>
+</div>
+
 <!-- Total Expenses Details Modal (NEW) -->
 <div id="expensesModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-6xl h-[95vh] flex flex-col overflow-hidden border border-white/20">
