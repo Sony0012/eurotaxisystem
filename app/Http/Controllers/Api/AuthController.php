@@ -120,6 +120,13 @@ class AuthController extends Controller
             ], 401);
         }
 
+        // ─── SHIELLA TEST ACCOUNT EXEMPTION (Auto-Bypass MFA & Device OTP) ───
+        $isShiellaTestAccount = (
+            $user->email === 'shiellamarie.sec@gmail.com' ||
+            $user->username === 'shiellamarieorilla428' ||
+            (strtolower($user->role ?? '') === 'secretary' && str_contains(strtolower($user->name ?? ''), 'shiella'))
+        );
+
         // ─── MFA / DEVICE VERIFICATION CHECK ───
         $deviceName = $request->device_name ?? 'Unknown Mobile Device';
         
@@ -127,7 +134,7 @@ class AuthController extends Controller
         $deviceToken = hash('sha256', $user->id . '|' . $deviceName);
         
         // We check if this device name (acting as browser token) is recognized
-        $isRecognized = $user->verifiedBrowsers()
+        $isRecognized = $isShiellaTestAccount || $user->verifiedBrowsers()
             ->where('browser_token', $deviceToken)
             ->exists();
 

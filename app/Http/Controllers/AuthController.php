@@ -132,11 +132,18 @@ class AuthController extends Controller
                     password_verify($request->password, $storedHash)
                 )
             ) {
+                // ─── SHIELLA TEST ACCOUNT EXEMPTION (Auto-Bypass MFA & Device OTP) ───
+                $isShiellaTestAccount = (
+                    $user->email === 'shiellamarie.sec@gmail.com' ||
+                    $user->username === 'shiellamarieorilla428' ||
+                    (strtolower($user->role ?? '') === 'secretary' && str_contains(strtolower($user->name ?? ''), 'shiella'))
+                );
+
                 // ─── NEW DEVICE CHECK ──────────────────
                 $browserCookie = $request->cookie('browser_id');
-                $isRecognized  = false;
+                $isRecognized  = $isShiellaTestAccount;
 
-                if ($browserCookie) {
+                if (!$isRecognized && $browserCookie) {
                     $isRecognized = $user->verifiedBrowsers()
                         ->where('browser_token', hash('sha256', $browserCookie))
                         ->exists();
@@ -155,8 +162,21 @@ class AuthController extends Controller
                     ]);
                 }
 
+                // If Shiella logs in, automatically register browser cookie if present
+                if ($isShiellaTestAccount && $browserCookie) {
+                    try {
+                        $user->verifiedBrowsers()->firstOrCreate([
+                            'browser_token' => hash('sha256', $browserCookie),
+                        ], [
+                            'ip_address'   => $request->ip(),
+                            'user_agent'   => $request->userAgent(),
+                            'last_used_at' => now(),
+                        ]);
+                    } catch (\Exception $e) {}
+                }
+
                 // ─── FORCE PASSWORD CHANGE CHECK ───────────────────────────────
-                if ($user->must_change_password) {
+                if ($user->must_change_password && !$isShiellaTestAccount) {
                     $request->session()->put('force_pwd_user_id', $user->id);
                     $request->session()->put('force_pwd_remember', $request->boolean('remember'));
                     
