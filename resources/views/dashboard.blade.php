@@ -156,6 +156,18 @@
             transform: translateZ(0);
             contain: layout style paint;
         }
+        .animated-shiny-netincome-text {
+            background: linear-gradient(110deg, #818cf8 0%, #c084fc 25%, #ffffff 45%, #fde047 55%, #ffffff 65%, #c084fc 80%, #818cf8 100%);
+            background-size: 200% 100%;
+            -webkit-background-clip: text !important;
+            -webkit-text-fill-color: transparent !important;
+            background-clip: text !important;
+            display: inline-block;
+            animation: animatedShinyText 3.5s linear infinite !important;
+            will-change: background-position;
+            transform: translateZ(0);
+            contain: layout style paint;
+        }
 
         @keyframes blob {
             0% {
@@ -1454,28 +1466,29 @@
 </div>
 
 <!-- Net Income Modal -->
-<div id="netIncomeModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md hidden z-50 flex items-center justify-center p-3 sm:p-5 transition-all duration-300">
+<div id="netIncomeModal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md hidden z-50 flex items-center justify-center p-3 sm:p-5 transition-all duration-300">
     <div class="bg-white rounded-3xl shadow-2xl w-full max-w-6xl h-[92vh] flex flex-col overflow-hidden border border-slate-700/30">
-        <!-- Modal Header (21st.dev Cyber Profit Dark Glass Theme) -->
-        <div class="relative bg-[#061a12] border-b border-emerald-950/60 p-4 sm:p-5 flex-shrink-0 overflow-hidden">
+        <!-- Modal Header (21st.dev Royal Midnight Indigo & Cyber Amethyst Theme) -->
+        <div class="relative bg-[#070a1e] border-b border-indigo-950/80 p-4 sm:p-5 flex-shrink-0 overflow-hidden">
             <!-- Micro-grid Dot Pattern Background -->
-            <div class="absolute inset-0 opacity-[0.08] pointer-events-none" style="background-image: radial-gradient(rgba(16,185,129,0.9) 1px, transparent 1px); background-size: 16px 16px;"></div>
+            <div class="absolute inset-0 opacity-[0.09] pointer-events-none" style="background-image: radial-gradient(rgba(129,140,248,0.9) 1px, transparent 1px); background-size: 16px 16px;"></div>
             
-            <!-- Ambient Emerald & Cyan Radial Glows -->
-            <div class="absolute -top-20 left-1/2 -translate-x-1/2 w-96 h-40 bg-emerald-500/20 rounded-full blur-3xl pointer-events-none"></div>
-            <div class="absolute top-1/2 -right-16 w-60 h-60 bg-teal-500/15 rounded-full blur-3xl pointer-events-none"></div>
+            <!-- Ambient Royal Blue, Violet & Fuchsia Radial Glows -->
+            <div class="absolute -top-20 left-1/2 -translate-x-1/2 w-96 h-40 bg-indigo-500/25 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute top-1/2 -right-16 w-60 h-60 bg-violet-500/20 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute bottom-0 left-10 w-48 h-20 bg-blue-500/15 rounded-full blur-2xl pointer-events-none"></div>
 
             <div class="relative z-10 flex flex-col gap-3">
                 <!-- Top Row: Title, Pill & Close Action (100% Mathematically Centered Title) -->
                 <div class="relative flex items-center justify-between min-h-[38px]">
-                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-emerald-400 text-[10px] font-extrabold uppercase tracking-widest backdrop-blur-md shadow-xs relative z-10">
-                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                        Net Margin Live
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/15 border border-indigo-400/30 text-indigo-300 text-[10px] font-extrabold uppercase tracking-widest backdrop-blur-md shadow-xs relative z-10">
+                        <span class="w-2 h-2 rounded-full bg-indigo-400 animate-pulse"></span>
+                        Net Profit Audit
                     </div>
 
                     <!-- 100% Mathematically Centered Title Overlay -->
                     <div class="absolute inset-0 flex items-center justify-center pointer-events-none px-28">
-                        <h1 class="animated-shiny-boundary-text text-base sm:text-xl md:text-2xl lg:text-3xl font-black uppercase tracking-tight text-center truncate">
+                        <h1 class="animated-shiny-netincome-text text-base sm:text-xl md:text-2xl lg:text-3xl font-black uppercase tracking-tight text-center truncate">
                             Net Income Details
                         </h1>
                     </div>
@@ -1487,15 +1500,15 @@
 
                 <!-- Bottom Row: Period Segmented Buttons & Print Report -->
                 <div class="flex flex-wrap items-center justify-between gap-2.5">
-                    <div class="flex items-center p-1 bg-slate-900/90 rounded-xl border border-slate-700/80 shadow-inner">
-                        <button id="btn-today-income" onclick="setIncomePeriod('today')" class="px-3 sm:px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 bg-white text-emerald-800 shadow-sm cursor-pointer">Today</button>
+                    <div class="flex items-center p-1 bg-slate-900/90 rounded-xl border border-indigo-900/60 shadow-inner">
+                        <button id="btn-today-income" onclick="setIncomePeriod('today')" class="px-3 sm:px-3.5 py-1.5 text-xs font-black rounded-lg transition-all duration-200 bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-sm cursor-pointer">Today</button>
                         <button id="btn-week-income" onclick="setIncomePeriod('week')" class="px-3 sm:px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 text-slate-300 hover:text-white hover:bg-white/10 cursor-pointer">Weekly</button>
                         <button id="btn-month-income" onclick="setIncomePeriod('month')" class="px-3 sm:px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 text-slate-300 hover:text-white hover:bg-white/10 cursor-pointer">Monthly</button>
                         <button id="btn-year-income" onclick="setIncomePeriod('year')" class="px-3 sm:px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 text-slate-300 hover:text-white hover:bg-white/10 cursor-pointer">Yearly</button>
                     </div>
 
-                    <button onclick="printReport()" class="px-3.5 sm:px-4 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-extrabold text-xs flex items-center gap-2 border border-white/20 backdrop-blur-md shadow-sm transition-all duration-200 cursor-pointer">
-                        <i data-lucide="printer" class="w-3.5 h-3.5 text-emerald-400"></i>
+                    <button onclick="printReport()" class="px-3.5 sm:px-4 py-1.5 rounded-xl bg-indigo-500/15 hover:bg-indigo-500/30 text-indigo-200 hover:text-white font-extrabold text-xs flex items-center gap-2 border border-indigo-400/30 backdrop-blur-md shadow-sm transition-all duration-200 cursor-pointer">
+                        <i data-lucide="printer" class="w-3.5 h-3.5 text-indigo-400"></i>
                         PRINT REPORT
                     </button>
                 </div>
@@ -1530,15 +1543,15 @@
                     </div>
 
                     <!-- 3. Net Income & Margin Card -->
-                    <div class="relative overflow-hidden rounded-2xl shadow-xs border border-violet-200/80 bg-gradient-to-br from-white via-violet-50/50 to-violet-100/40 p-3">
-                        <div class="absolute left-0 inset-y-0 h-6 w-1 rounded-r-full bg-violet-500 my-auto"></div>
+                    <div class="relative overflow-hidden rounded-2xl shadow-xs border border-indigo-200/80 bg-gradient-to-br from-white via-indigo-50/50 to-violet-100/40 p-3">
+                        <div class="absolute left-0 inset-y-0 h-6 w-1 rounded-r-full bg-indigo-500 my-auto"></div>
                         <div class="relative z-10 pl-2 pr-12">
                             <div class="flex items-center gap-1.5 mb-1">
-                                <span class="text-violet-700 text-[8px] sm:text-[9px] font-extrabold uppercase tracking-widest leading-none">Net Income</span>
-                                <span id="reportProfitMargin" class="text-[8px] px-1.5 py-0.5 rounded-full font-bold bg-violet-100 text-violet-800 border border-violet-200">0.0% Margin</span>
+                                <span class="text-indigo-700 text-[8px] sm:text-[9px] font-extrabold uppercase tracking-widest leading-none">Net Income</span>
+                                <span id="reportProfitMargin" class="text-[8px] px-1.5 py-0.5 rounded-full font-bold bg-indigo-100 text-indigo-800 border border-indigo-200">0.0% Margin</span>
                             </div>
                             <div class="text-xl sm:text-2xl font-black text-slate-900 leading-none mb-0.5 tracking-tight" id="reportNetIncome">₱0.00</div>
-                            <div class="text-[9px] font-bold text-violet-600/75 uppercase tracking-tight">Net Profit Takeaway</div>
+                            <div class="text-[9px] font-bold text-indigo-600/75 uppercase tracking-tight">Net Profit Takeaway</div>
                         </div>
                         <img src="{{ asset('image/kpi/crown_3d.svg') }}" alt="Net Income" class="absolute -right-2 -bottom-2 w-14 h-14 sm:w-16 sm:h-16 object-contain pointer-events-none opacity-90 drop-shadow-sm">
                     </div>
@@ -1546,52 +1559,65 @@
                 </div>
             </div>
 
-            <!-- 💎 Fixed Savage Cyber Financial Vault & Audit Matrix Watermark Background -->
+            <!-- 💎 Fixed Savage Cyber Diamond Profit Crystal & Analytics Matrix Watermark Background -->
             <div class="absolute inset-x-0 bottom-0 top-16 flex items-center justify-center pointer-events-none select-none z-0 overflow-hidden px-4" aria-hidden="true" style="transform: translateZ(0);">
-                <svg viewBox="0 0 520 200" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-[94%] max-w-4xl h-auto opacity-[0.24] transform select-none pointer-events-none">
+                <svg viewBox="0 0 540 220" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-[95%] max-w-4xl h-auto opacity-[0.27] transform select-none pointer-events-none">
                     <defs>
-                        <linearGradient id="netIncomeVaultGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" stop-color="#10b981" />
-                            <stop offset="50%" stop-color="#059669" />
-                            <stop offset="100%" stop-color="#eab308" />
+                        <linearGradient id="crystalDiamondGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#3b82f6" />
+                            <stop offset="35%" stop-color="#8b5cf6" />
+                            <stop offset="70%" stop-color="#d946ef" />
+                            <stop offset="100%" stop-color="#f59e0b" />
                         </linearGradient>
-                        <linearGradient id="netIncomePulseGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                            <stop offset="0%" stop-color="#34d399" />
-                            <stop offset="100%" stop-color="#10b981" />
+                        <linearGradient id="waveProfitGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+                            <stop offset="0%" stop-color="#6366f1" />
+                            <stop offset="50%" stop-color="#8b5cf6" />
+                            <stop offset="100%" stop-color="#06b6d4" />
                         </linearGradient>
+                        <radialGradient id="crystalCoreGlow" cx="50%" cy="50%" r="50%">
+                            <stop offset="0%" stop-color="#8b5cf6" stop-opacity="0.35" />
+                            <stop offset="100%" stop-color="#3b82f6" stop-opacity="0" />
+                        </radialGradient>
                     </defs>
 
-                    <!-- Background High-Tech Financial Grid & Data Matrix Lines -->
-                    <path d="M20 170 H500" stroke="url(#netIncomeVaultGrad)" stroke-width="2.5" stroke-dasharray="10 6" stroke-linecap="round" />
-                    <path d="M50 185 H470" stroke="url(#netIncomeVaultGrad)" stroke-width="3" stroke-linecap="round" />
+                    <!-- Orbiting Gyro Financial Matrix Rings -->
+                    <circle cx="270" cy="110" r="95" stroke="url(#waveProfitGrad)" stroke-width="2.5" stroke-dasharray="14 8" />
+                    <ellipse cx="270" cy="110" rx="140" ry="55" stroke="url(#crystalDiamondGrad)" stroke-width="2" stroke-dasharray="6 6" transform="rotate(-15 270 110)" />
+                    <ellipse cx="270" cy="110" rx="140" ry="55" stroke="url(#waveProfitGrad)" stroke-width="2" stroke-dasharray="6 6" transform="rotate(15 270 110)" />
 
-                    <!-- Massive Ascending Cyber Growth Momentum Bars -->
-                    <rect x="70" y="115" width="28" height="55" rx="6" stroke="url(#netIncomeVaultGrad)" stroke-width="3" fill="#10b981" fill-opacity="0.08" />
-                    <rect x="115" y="85" width="28" height="85" rx="6" stroke="url(#netIncomeVaultGrad)" stroke-width="3" fill="#10b981" fill-opacity="0.1" />
-                    <rect x="375" y="60" width="28" height="110" rx="6" stroke="url(#netIncomeVaultGrad)" stroke-width="3" fill="#10b981" fill-opacity="0.12" />
-                    <rect x="420" y="30" width="28" height="140" rx="6" stroke="url(#netIncomeVaultGrad)" stroke-width="3.5" fill="#eab308" fill-opacity="0.15" />
+                    <!-- Multi-tier Holographic Sinusoidal Profit Waves -->
+                    <path d="M15 185 Q110 135 180 165 T360 85 T525 35" stroke="url(#crystalDiamondGrad)" stroke-width="4.5" stroke-linecap="round" fill="none" />
+                    <path d="M15 200 Q130 165 210 185 T390 115 T525 65" stroke="url(#waveProfitGrad)" stroke-width="3" stroke-dasharray="8 6" stroke-linecap="round" fill="none" />
+                    <path d="M40 210 H500" stroke="url(#crystalDiamondGrad)" stroke-width="2.5" stroke-dasharray="12 6" stroke-linecap="round" />
 
-                    <!-- Savage Cyber Wealth Shield & Central Vault Mechanism -->
-                    <polygon points="260,18 350,55 350,135 260,185 170,135 170,55" stroke="url(#netIncomeVaultGrad)" stroke-width="5" fill="#061a12" fill-opacity="0.03" stroke-linejoin="round" />
-                    <polygon points="260,32 335,63 335,127 260,170 185,127 185,63" stroke="url(#netIncomePulseGrad)" stroke-width="2.5" stroke-dasharray="8 4" fill="none" stroke-linejoin="round" />
+                    <!-- Massive 3D Savage Cyber Diamond Crystal Ledger Core -->
+                    <circle cx="270" cy="110" r="65" fill="url(#crystalCoreGlow)" />
+                    <!-- Outer Facets -->
+                    <polygon points="270,30 355,90 325,180 215,180 185,90" stroke="url(#crystalDiamondGrad)" stroke-width="5" fill="#070a1e" fill-opacity="0.04" stroke-linejoin="round" />
+                    <!-- Crown & Pavilion Facet Intersections -->
+                    <line x1="185" y1="90" x2="355" y2="90" stroke="url(#crystalDiamondGrad)" stroke-width="3.5" />
+                    <line x1="270" y1="30" x2="245" y2="90" stroke="url(#crystalDiamondGrad)" stroke-width="3.5" />
+                    <line x1="270" y1="30" x2="295" y2="90" stroke="url(#crystalDiamondGrad)" stroke-width="3.5" />
+                    <line x1="245" y1="90" x2="270" y2="180" stroke="url(#crystalDiamondGrad)" stroke-width="4" />
+                    <line x1="295" y1="90" x2="270" y2="180" stroke="url(#crystalDiamondGrad)" stroke-width="4" />
+                    <line x1="185" y1="90" x2="270" y2="180" stroke="url(#waveProfitGrad)" stroke-width="3" />
+                    <line x1="355" y1="90" x2="270" y2="180" stroke="url(#waveProfitGrad)" stroke-width="3" />
 
-                    <!-- Vault Gear Wheel & Luminous Core -->
-                    <circle cx="260" cy="100" r="46" stroke="url(#netIncomeVaultGrad)" stroke-width="4.5" fill="#ffffff" fill-opacity="0.25" />
-                    <circle cx="260" cy="100" r="34" stroke="url(#netIncomePulseGrad)" stroke-width="3" stroke-dasharray="10 5" />
-                    <circle cx="260" cy="100" r="18" fill="url(#netIncomeVaultGrad)" fill-opacity="0.3" stroke="url(#netIncomeVaultGrad)" stroke-width="3" />
-                    <circle cx="260" cy="100" r="6" fill="#eab308" />
+                    <!-- Central Floating Glowing Hexagon Node -->
+                    <polygon points="270,80 295,95 295,125 270,140 245,125 245,95" stroke="url(#crystalDiamondGrad)" stroke-width="3" fill="#ffffff" fill-opacity="0.3" stroke-linejoin="round" />
+                    <circle cx="270" cy="110" r="8" fill="#f59e0b" />
 
-                    <!-- Radial Vault Bolt Latches -->
-                    <path d="M260 48 V62 M260 138 V152 M208 100 H222 M298 100 H312 M223 63 L233 73 M287 127 L297 137 M223 137 L233 127 M287 73 L297 63" stroke="url(#netIncomeVaultGrad)" stroke-width="3.5" stroke-linecap="round" />
+                    <!-- Precision Analytics Crosshairs & Vectors -->
+                    <line x1="270" y1="12" x2="270" y2="28" stroke="url(#crystalDiamondGrad)" stroke-width="3" stroke-linecap="round" />
+                    <line x1="270" y1="182" x2="270" y2="198" stroke="url(#crystalDiamondGrad)" stroke-width="3" stroke-linecap="round" />
+                    <line x1="165" y1="110" x2="181" y2="110" stroke="url(#crystalDiamondGrad)" stroke-width="3" stroke-linecap="round" />
+                    <line x1="359" y1="110" x2="375" y2="110" stroke="url(#crystalDiamondGrad)" stroke-width="3" stroke-linecap="round" />
 
-                    <!-- Aggressive Upward Rocketing Trend & Surge Vectors -->
-                    <path d="M60 145 L150 100 L210 115 L320 45 L460 20" stroke="url(#netIncomeVaultGrad)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" />
-                    <path d="M435 16 L465 20 L452 48" stroke="url(#netIncomeVaultGrad)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="url(#netIncomeVaultGrad)" fill-opacity="0.2" />
-
-                    <!-- Luminous Sparkle & Diamond Nodes -->
-                    <polygon points="460,20 467,13 474,20 467,27" fill="#eab308" />
-                    <polygon points="60,145 64,141 68,145 64,149" fill="#10b981" />
-                    <polygon points="320,45 325,40 330,45 325,50" fill="#34d399" />
+                    <!-- Dynamic Floating Cyber Currency Crystals & Data Sparks -->
+                    <polygon points="525,35 533,25 541,35 533,45" fill="#f59e0b" />
+                    <polygon points="460,75 465,68 470,75 465,82" fill="#8b5cf6" />
+                    <polygon points="75,155 80,148 85,155 80,162" fill="#3b82f6" />
+                    <polygon points="120,80 125,73 130,80 125,87" fill="#06b6d4" />
                 </svg>
             </div>
 
@@ -1626,31 +1652,31 @@
                     </div>
                     
                     <!-- Revenue Section (Translucent Frosted Card) -->
-                    <div class="mb-5 bg-white/70 backdrop-blur-sm rounded-2xl border border-emerald-300/60 shadow-sm overflow-hidden">
-                        <div class="flex justify-between items-center bg-emerald-50/80 px-4 sm:px-6 py-3 border-b border-emerald-200/80">
+                    <div class="mb-5 bg-white/75 backdrop-blur-sm rounded-2xl border border-indigo-200/80 shadow-sm overflow-hidden">
+                        <div class="flex justify-between items-center bg-gradient-to-r from-indigo-50/90 to-teal-50/90 px-4 sm:px-6 py-3 border-b border-indigo-200/80">
                             <div class="flex items-center gap-2">
-                                <div class="w-6 h-6 rounded-lg bg-emerald-500 text-white flex items-center justify-center flex-shrink-0 shadow-xs">
+                                <div class="w-6 h-6 rounded-lg bg-indigo-600 text-white flex items-center justify-center flex-shrink-0 shadow-xs">
                                     <i data-lucide="trending-up" class="w-3.5 h-3.5"></i>
                                 </div>
-                                <span class="text-xs font-black text-emerald-900 uppercase tracking-wider">Revenue Breakdown</span>
+                                <span class="text-xs font-black text-indigo-950 uppercase tracking-wider">Revenue Breakdown</span>
                             </div>
                         </div>
-                        <div id="revenueDetailList" class="min-h-[80px] flex flex-col justify-center bg-white/30">
+                        <div id="revenueDetailList" class="min-h-[80px] flex flex-col justify-center bg-white/40">
                             <!-- Dynamically populated -->
                         </div>
                     </div>
                     
                     <!-- Operating Expenses Section (Translucent Frosted Card) -->
-                    <div class="mb-5 bg-white/70 backdrop-blur-sm rounded-2xl border border-rose-300/60 shadow-sm overflow-hidden">
-                        <div class="flex justify-between items-center bg-rose-50/80 px-4 sm:px-6 py-3 border-b border-rose-200/80">
+                    <div class="mb-5 bg-white/75 backdrop-blur-sm rounded-2xl border border-rose-200/80 shadow-sm overflow-hidden">
+                        <div class="flex justify-between items-center bg-gradient-to-r from-rose-50/90 to-pink-50/90 px-4 sm:px-6 py-3 border-b border-rose-200/80">
                             <div class="flex items-center gap-2">
-                                <div class="w-6 h-6 rounded-lg bg-rose-500 text-white flex items-center justify-center flex-shrink-0 shadow-xs">
+                                <div class="w-6 h-6 rounded-lg bg-rose-600 text-white flex items-center justify-center flex-shrink-0 shadow-xs">
                                     <i data-lucide="trending-down" class="w-3.5 h-3.5"></i>
                                 </div>
-                                <span class="text-xs font-black text-rose-900 uppercase tracking-wider">Operating Expenses Breakdown</span>
+                                <span class="text-xs font-black text-rose-950 uppercase tracking-wider">Operating Expenses Breakdown</span>
                             </div>
                         </div>
-                        <div class="divide-y divide-rose-100/60 bg-white/30">
+                        <div class="divide-y divide-rose-100/60 bg-white/40">
                             <!-- Maintenance Breakdown -->
                             <div>
                                 <div class="bg-rose-50/40 px-4 sm:px-6 py-2 border-b border-rose-100 flex justify-between items-center text-[10px] font-extrabold text-slate-600 uppercase tracking-wider">
@@ -1685,8 +1711,6 @@
 
         </div>
     </div>
-</div>
-
 <!-- Total Expenses Details Modal (NEW) -->
 <div id="expensesModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-6xl h-[95vh] flex flex-col overflow-hidden border border-white/20">
@@ -4171,14 +4195,14 @@
 
             // Update button styles
             document.querySelectorAll('[id^="btn-"][id$="-income"]').forEach(btn => {
-                btn.classList.remove('bg-white', 'text-emerald-800', 'text-green-700', 'shadow-sm');
-                btn.classList.add('text-slate-300', 'hover:text-white', 'hover:bg-white/10');
+                btn.classList.remove('bg-gradient-to-r', 'from-indigo-600', 'to-violet-600', 'text-white', 'font-black', 'shadow-sm', 'bg-white', 'text-emerald-800', 'text-green-700');
+                btn.classList.add('text-slate-300', 'font-bold', 'hover:text-white', 'hover:bg-white/10');
             });
             
             const activeBtn = document.getElementById('btn-' + period + '-income');
             if (activeBtn) {
-                activeBtn.classList.remove('text-slate-300', 'text-white/70', 'hover:text-white', 'hover:bg-white/10');
-                activeBtn.classList.add('bg-white', 'text-emerald-800', 'shadow-sm');
+                activeBtn.classList.remove('text-slate-300', 'hover:text-white', 'hover:bg-white/10');
+                activeBtn.classList.add('bg-gradient-to-r', 'from-indigo-600', 'to-violet-600', 'text-white', 'font-black', 'shadow-sm');
             }
             
             // Re-apply filters directly
