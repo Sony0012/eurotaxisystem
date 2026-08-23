@@ -1463,6 +1463,8 @@
             </div>
         </div>
     </div>
+</div>
+
 <!-- Net Income Modal -->
 <div id="netIncomeModal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md hidden z-50 flex items-center justify-center p-3 sm:p-5 transition-all duration-300">
     <div class="bg-white rounded-3xl shadow-2xl w-full max-w-6xl h-[92vh] flex flex-col overflow-hidden border border-slate-700/30">
@@ -4120,6 +4122,10 @@
             renderList('expensesMaintenanceList', breakdown.maintenanceItems);
             renderList('expensesOfficeList', breakdown.officeItems);
         }
+        window.showExpensesModal = showExpensesModal;
+        window.hideExpensesModal = hideExpensesModal;
+        window.setExpensesPeriod = setExpensesPeriod;
+        window.renderExpensesReport = renderExpensesReport;
 
         
         function filterIncomeByPeriod(data, period) {
