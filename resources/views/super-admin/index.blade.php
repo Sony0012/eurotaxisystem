@@ -2072,19 +2072,15 @@ function camRenderAlerts() {
     }
 
     list.innerHTML = alerts.map(a => `
-        <div onclick="camOpenDetail('${a.user_id}')" style="display:flex;gap:.85rem;align-items:flex-start;background:${a.bg};border-radius:.85rem;padding:.9rem 1.15rem;border-left:4px solid ${a.color};cursor:pointer;transition:all .15s ease;box-shadow:0 1px 3px rgba(0,0,0,0.04);" onmouseenter="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 16px rgba(0,0,0,0.08)'" onmouseleave="this.style.transform='none';this.style.boxShadow='0 1px 3px rgba(0,0,0,0.04)'">
+        <div style="display:flex;gap:.85rem;align-items:flex-start;background:${a.bg};border-radius:.75rem;padding:.75rem 1.1rem;border-left:4px solid ${a.color};">
             <i data-lucide="${a.icon}" style="width:18px;height:18px;color:${a.color};flex-shrink:0;margin-top:.15rem;"></i>
             <div style="flex:1;">
-                <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.25rem;">
-                    <span style="font-weight:900;font-size:.85rem;color:#000;">${a.name}</span>
+                <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.2rem;">
+                    <span style="font-weight:900;font-size:.84rem;color:#000;">${a.name}</span>
                     ${camRoleBadge(a.role)}
                     ${a.isOnline ? '<span style="font-size:.6rem;background:#dcfce7;color:#15803d;padding:.1rem .4rem;border-radius:99px;font-weight:700;">● ONLINE</span>' : ''}
                 </div>
-                <p style="font-size:.74rem;color:#475569;line-height:1.45;margin:0 0 .5rem 0;">${a.msg}</p>
-                <div style="display:inline-flex;align-items:center;gap:.4rem;padding:.32rem .75rem;border-radius:.5rem;background:#fff;border:1.5px solid ${a.color};color:${a.color};font-size:.7rem;font-weight:800;box-shadow:0 1px 3px rgba(0,0,0,0.04);">
-                    <span>View User Activity Detail & Audit Trail</span>
-                    <i data-lucide="arrow-right" style="width:13px;height:13px;"></i>
-                </div>
+                <p style="font-size:.74rem;color:#475569;line-height:1.45;margin:0;">${a.msg}</p>
             </div>
         </div>
     `).join('');
