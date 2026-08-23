@@ -717,8 +717,8 @@ class SuperAdminController extends Controller
             ->orderBy('created_at')
             ->get();
 
-        // 3. Fetch 28-day heatmap raw data
-        $startDate = Carbon::parse($date)->subDays(27)->toDateString();
+        // 3. Fetch 60-day heatmap raw data
+        $startDate = Carbon::parse($date)->subDays(59)->toDateString();
         $heatmapRaw = LoginAudit::whereBetween('created_at', [$startDate . ' 00:00:00', $date . ' 23:59:59'])
             ->selectRaw('user_id, DATE(created_at) as day, COUNT(*) as total_acts, SUM(CASE WHEN action = "login" THEN 1 ELSE 0 END) as logins')
             ->groupBy('user_id', 'day')
@@ -869,9 +869,9 @@ class SuperAdminController extends Controller
                 ];
             }
 
-            // 28-day timeline heatmap
+            // 60-day timeline heatmap (scrollable history)
             $heatmap = [];
-            for ($i = 27; $i >= 0; $i--) {
+            for ($i = 59; $i >= 0; $i--) {
                 $dayStr = Carbon::parse($date)->subDays($i)->toDateString();
                 $dayData = $heatmapMap[$user->id][$dayStr] ?? ['acts' => 0, 'logins' => 0];
                 $actsCount = $dayData['acts'];

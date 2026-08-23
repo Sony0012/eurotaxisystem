@@ -1317,7 +1317,8 @@
             <div class="flex items-center justify-between mb-4">
                 <div class="cam-section-title mb-0">
                     <i data-lucide="calendar" style="width:13px;height:13px;color:#f59e0b;"></i>
-                    4-Week Activity Timeline (Heatmap)
+                    Activity Timeline & History (Heatmap)
+                    <span style="font-size:.65rem;color:#94a3b8;font-weight:600;margin-left:.5rem;">(Scroll left ◄ to view past dates)</span>
                 </div>
                 <div class="flex gap-2 items-center" style="font-size:.65rem;color:#64748b;">
                     <span style="width:10px;height:10px;border-radius:2px;background:#f1f5f9;display:inline-block;"></span>0 acts
@@ -2126,7 +2127,7 @@ function camRenderHeatmap() {
         return;
     }
 
-    // Build 28 complete day column headers
+    // Build 60 complete day column headers
     const rawDays = users[0]?.heatmap || [];
     const days = rawDays.map(h => {
         const d = new Date(h.date + 'T00:00:00');
@@ -2143,7 +2144,7 @@ function camRenderHeatmap() {
         };
     });
 
-    let html = `<div style="overflow-x:auto;max-width:100%;padding-bottom:.5rem;"><table style="border-collapse:separate;border-spacing:3px;min-width:max-content;width:100%;"><thead><tr>`;
+    let html = `<div class="cam-heatmap-scrollbox" style="overflow-x:auto;max-width:100%;padding-bottom:.5rem;scroll-behavior:smooth;"><table style="border-collapse:separate;border-spacing:3px;min-width:max-content;width:100%;"><thead><tr>`;
     html += `<th style="position:sticky;left:0;background:#fff;z-index:6;font-size:.68rem;font-weight:800;color:#475569;text-align:left;padding:.4rem .5rem;white-space:nowrap;width:125px;min-width:125px;max-width:135px;box-shadow:2px 0 4px rgba(0,0,0,.04);">Account / Role</th>`;
 
     days.forEach(d => {
@@ -2154,7 +2155,7 @@ function camRenderHeatmap() {
         </th>`;
     });
 
-    html += `<th style="position:sticky;right:0;background:#f8fafc;z-index:6;font-size:.68rem;font-weight:800;color:#475569;text-align:center;padding:.4rem .6rem;white-space:nowrap;width:110px;min-width:110px;border-left:1.5px solid #e2e8f0;box-shadow:-2px 0 4px rgba(0,0,0,.04);">Total Active (28d)</th>`;
+    html += `<th style="position:sticky;right:0;background:#f8fafc;z-index:6;font-size:.68rem;font-weight:800;color:#475569;text-align:center;padding:.4rem .6rem;white-space:nowrap;width:110px;min-width:110px;border-left:1.5px solid #e2e8f0;box-shadow:-2px 0 4px rgba(0,0,0,.04);">Total Active (${days.length}d)</th>`;
     html += `</tr></thead><tbody>`;
 
     users.forEach(u => {
@@ -2178,7 +2179,7 @@ function camRenderHeatmap() {
 
         html += `<td style="position:sticky;right:0;background:#f8fafc;z-index:5;text-align:center;padding:.35rem .6rem;width:110px;min-width:110px;border-left:1.5px solid #e2e8f0;box-shadow:-2px 0 4px rgba(0,0,0,.04);white-space:nowrap;">
             <div style="font-size:.78rem;font-weight:900;color:${activeDaysCount > 0 ? '#0284c7' : '#94a3b8'};">
-                ${activeDaysCount} <span style="font-size:.62rem;font-weight:700;color:#64748b;">/ 28 days</span>
+                ${activeDaysCount} <span style="font-size:.62rem;font-weight:700;color:#64748b;">/ ${days.length} days</span>
             </div>
             <div style="font-size:.58rem;color:#94a3b8;margin-top:.1rem;">
                 ${totalActsCount} total action${totalActsCount === 1 ? '' : 's'}
@@ -2190,6 +2191,14 @@ function camRenderHeatmap() {
 
     html += `</tbody></table></div>`;
     container.innerHTML = html;
+
+    // Smoothly focus on Today (rightmost) while preserving full leftward history
+    setTimeout(() => {
+        const scrollbox = container.querySelector('.cam-heatmap-scrollbox');
+        if (scrollbox) {
+            scrollbox.scrollLeft = scrollbox.scrollWidth;
+        }
+    }, 60);
 }
 
 // ─── Role-Based Summary ───────────────────────────────────────
