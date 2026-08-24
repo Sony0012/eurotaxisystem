@@ -30,7 +30,7 @@
                         <div class="flex items-center gap-2 md:gap-4">
                             <div class="relative w-10 h-10 md:w-12 md:h-12 flex-shrink-0">
                                 @if(!empty($driver->profile_photo))
-                                    <img src="{{ asset($driver->profile_photo) }}" 
+                                    <img src="{{ asset(ltrim($driver->profile_photo, '/')) }}" 
                                          alt="{{ $driver->full_name }}" 
                                          class="w-10 h-10 md:w-12 md:h-12 rounded-full object-cover border-2 {{ $has_shortage ? 'border-red-400' : 'border-amber-300' }} shadow-xs bg-slate-100" 
                                          onerror="this.onerror=null; this.src='{{ asset('image/avatars/driver.svg') }}';">

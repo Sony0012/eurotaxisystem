@@ -122,6 +122,7 @@ class DriverManagementController extends Controller
                 'd.contact_number', 'd.hire_date', 'd.daily_boundary_target',
                 'd.driver_type', 'd.driver_status',
                 'd.emergency_contact', 'd.emergency_phone',
+                'd.profile_photo', 'd.license_photo', 'd.nbi_clearance_photo', 'd.pnp_clearance_photo',
                 DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')) as full_name"),
                 'creator.full_name as creator_name',
                 'editor.full_name as editor_name',
@@ -975,6 +976,7 @@ class DriverManagementController extends Controller
             ->select(
                 'd.id', 'd.first_name', 'd.last_name', 'd.license_number', 'd.license_expiry',
                 'd.contact_number', 'd.hire_date', 'd.address', 'd.driver_status', 'd.suspended_until', 'd.suspension_reason',
+                'd.profile_photo', 'd.license_photo', 'd.nbi_clearance_photo', 'd.pnp_clearance_photo',
                 DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')) as full_name"),
                 'creator.full_name as creator_name'
             );
