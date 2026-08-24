@@ -11,7 +11,7 @@
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
     <div class="relative overflow-hidden rounded-2xl shadow-sm border border-red-200 bg-gradient-to-br from-red-50 to-rose-50/70 p-4 sm:p-5 flex items-center justify-between">
         <div class="flex-1 min-w-0 relative z-10">
-            <p class="text-red-500 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest mb-1">Total Accident Reports</p>
+            <p class="text-red-500 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest mb-1">Total Accident & SOS Reports</p>
             <p class="text-slate-800 text-xl sm:text-3xl font-bold tracking-tight leading-none mb-1">{{ count($accident_reports) }}</p>
         </div>
         <img src="{{ asset('image/kpi/accident_3d.svg') }}" alt="Accidents 3D" class="w-16 h-16 sm:w-20 sm:h-20 object-contain pointer-events-none flex-shrink-0">
@@ -22,7 +22,7 @@
     <div class="px-5 py-4 border-b flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div class="flex items-center gap-2">
             <i data-lucide="shield-alert" class="w-4 h-4 text-red-500"></i>
-            <h3 class="font-black text-sm text-gray-800 uppercase tracking-widest">Accident Reports Feed</h3>
+            <h3 class="font-black text-sm text-gray-800 uppercase tracking-widest">Accident & SOS Reports Feed</h3>
         </div>
         <div class="flex flex-col sm:flex-row items-center gap-3">
             <div class="relative w-full sm:w-64">
@@ -34,7 +34,7 @@
                        readonly onfocus="this.removeAttribute('readonly');"
                        autocomplete="off" aria-autocomplete="none" data-lpignore="true" data-form-type="other"
                        class="block w-full pl-9 pr-3 py-2 text-xs border border-gray-200 rounded-lg focus:ring-red-500 focus:border-red-500 cursor-text bg-white" 
-                       placeholder="Search driver, description...">
+                       placeholder="Search driver, plate, note...">
                 <i data-lucide="search" class="absolute left-3 top-2.5 w-4 h-4 text-gray-400"></i>
             </div>
             <div class="relative w-full sm:w-48">
@@ -50,8 +50,8 @@
                 <tr>
                     <th class="px-5 py-3 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Date / Time</th>
                     <th class="px-5 py-3 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Driver & Unit</th>
-                    <th class="px-5 py-3 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Type</th>
-                    <th class="px-5 py-3 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Description</th>
+                    <th class="px-5 py-3 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Type / Severity</th>
+                    <th class="px-5 py-3 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Driver Message / Evidence</th>
                     <th class="px-5 py-3 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Location</th>
                     <th class="px-5 py-3 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Status</th>
                     <th class="px-5 py-3 text-right text-[10px] font-black text-gray-400 uppercase tracking-widest">Action</th>
@@ -60,19 +60,41 @@
             <tbody class="divide-y-0">
                 @forelse($accident_reports as $r)
                 @php 
-                    $finalDescription = $r->description ?: $r->notes; 
-                    // Remove the prefix that API creates for SOS combined reports
-                    $finalDescription = preg_replace('/Emergency Alert triggered by driver.*?Description:\s*/s', '', $finalDescription);
-                    // Also clean up if it was a direct accident report without SOS
-                    $finalDescription = preg_replace('/Damage Level:.*?Description:\s*/s', '', $finalDescription);
+                    $rawNotes = $r->notes ?? '';
+                    $finalDescription = $r->description ?: $rawNotes; 
+                    
+                    // Extract damage severity
+                    $damageLevel = 'Emergency SOS';
+                    if (preg_match('/Damage Level:\s*([a-zA-Z_]+)/i', $rawNotes, $dmgMatches)) {
+                        $damageLevel = ucwords(str_replace('_', ' ', $dmgMatches[1]));
+                    } elseif ($r->accident_type) {
+                        $damageLevel = ucwords($r->accident_type);
+                    }
+                    
+                    // Clean up description text from driver
+                    $cleanDesc = $finalDescription;
+                    $cleanDesc = preg_replace('/Emergency Alert triggered by driver.*?Description:\s*/s', '', $cleanDesc);
+                    $cleanDesc = preg_replace('/Damage Level:.*?\n/s', '', $cleanDesc);
+                    $cleanDesc = preg_replace('/--- ACCIDENT REPORT ---\s*/s', '', $cleanDesc);
+                    $cleanDesc = trim(str_replace('Description:', '', $cleanDesc));
+                    if (empty($cleanDesc) || $cleanDesc === 'Emergency Alert triggered by driver') {
+                        $cleanDesc = 'Emergency SOS alert pinged by driver via mobile application.';
+                    }
                     
                     $driverName = trim(($r->driver->first_name ?? '') . ' ' . ($r->driver->last_name ?? ''));
                     if (empty($driverName)) $driverName = 'Unknown Driver';
                     
+                    $driverPhoto = $r->driver && $r->driver->profile_photo ? asset($r->driver->profile_photo) : asset('image/driver_avatar.png');
+                    $driverPhone = $r->driver->contact_number ?? 'Not provided';
+                    $driverEmergency = trim(($r->driver->emergency_contact ?? '') . ($r->driver->emergency_phone ? ' • ' . $r->driver->emergency_phone : ''));
+                    if (empty($driverEmergency)) $driverEmergency = 'None recorded';
+                    
                     $unitPlate = $r->unit->plate_number ?? 'UNKNOWN';
+                    $unitDetails = trim(($r->unit->make ?? '') . ' ' . ($r->unit->model ?? '') . ' ' . ($r->unit->year ?? ''));
+                    if (empty($unitDetails)) $unitDetails = 'Fleet Vehicle';
+                    
                     $repDate = \Carbon\Carbon::parse($r->created_at)->format('M d, Y h:i A');
-                    $repType = $r->accident_type ?? 'Emergency';
-                    $repDesc = trim($finalDescription) ?: 'Emergency alert triggered by driver.';
+                    $repType = ($r->type === 'accident' || str_contains(strtolower($rawNotes), 'accident')) ? 'Accident Report' : 'Emergency SOS';
                     $repStatus = strtoupper($r->status ?? 'RESPONDING');
                     $repPhoto = $r->photo_path ? asset($r->photo_path) : '';
                     $repLat = $r->latitude ?? '';
@@ -81,10 +103,15 @@
                 <tr class="accident-row bg-white shadow-sm border border-gray-100 rounded-xl cursor-pointer hover:-translate-y-1 hover:shadow-lg hover:border-red-200 transition-all duration-300 {{ $r->status === 'pending' ? 'bg-red-50/30 border-red-100' : '' }}" 
                     data-id="{{ $r->id }}"
                     data-driver="{{ e($driverName) }}"
+                    data-driver-photo="{{ e($driverPhoto) }}"
+                    data-driver-phone="{{ e($driverPhone) }}"
+                    data-driver-emergency="{{ e($driverEmergency) }}"
                     data-unit="{{ e($unitPlate) }}"
+                    data-unit-details="{{ e($unitDetails) }}"
                     data-date="{{ e($repDate) }}"
                     data-type="{{ e($repType) }}"
-                    data-description="{{ e($repDesc) }}"
+                    data-damage-level="{{ e($damageLevel) }}"
+                    data-description="{{ e($cleanDesc) }}"
                     data-status="{{ e($repStatus) }}"
                     data-photo="{{ e($repPhoto) }}"
                     data-latitude="{{ e($repLat) }}"
@@ -95,18 +122,32 @@
                         <div class="text-[10px] text-gray-500">{{ \Carbon\Carbon::parse($r->created_at)->format('h:i A') }}</div>
                     </td>
                     <td class="px-5 py-4 border-y border-gray-100 {{ $r->status === 'pending' ? 'border-red-100' : '' }}">
-                        <div class="text-xs font-black text-gray-800">{{ $driverName }}</div>
-                        <div class="text-[10px] font-black text-blue-600 uppercase">{{ $unitPlate }}</div>
+                        <div class="flex items-center gap-2.5">
+                            <img src="{{ $driverPhoto }}" alt="Driver" class="w-8 h-8 rounded-xl object-cover border border-amber-300 bg-slate-100 shrink-0" onerror="this.src='{{ asset('image/driver_avatar.png') }}'">
+                            <div>
+                                <div class="text-xs font-black text-gray-900 leading-tight">{{ $driverName }}</div>
+                                <div class="text-[10px] font-black text-blue-600 uppercase font-mono mt-0.5">{{ $unitPlate }}</div>
+                            </div>
+                        </div>
                     </td>
                     <td class="px-5 py-4 border-y border-gray-100 {{ $r->status === 'pending' ? 'border-red-100' : '' }}">
-                        <span class="text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full border border-red-200 bg-red-100 text-red-700">
-                            {{ $repType }}
-                        </span>
+                        <div class="flex flex-col gap-1">
+                            <span class="text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full border border-red-200 bg-red-100 text-red-700 w-max">
+                                {{ $repType }}
+                            </span>
+                            @if($damageLevel !== 'Emergency SOS')
+                            <span class="text-[9px] font-bold text-slate-500">
+                                Damage: <strong class="text-slate-800">{{ $damageLevel }}</strong>
+                            </span>
+                            @endif
+                        </div>
                     </td>
                     <td class="px-5 py-4 border-y border-gray-100 {{ $r->status === 'pending' ? 'border-red-100' : '' }}">
-                        <div class="text-xs text-gray-600 max-w-[200px] truncate">{{ $repDesc }}</div>
+                        <div class="text-xs text-gray-700 max-w-[220px] truncate font-medium">{{ $cleanDesc }}</div>
                         @if($r->photo_path)
-                            <div class="text-[9px] text-blue-500 font-bold flex items-center gap-1 mt-1"><i data-lucide="image" class="w-3 h-3"></i> Has Photo</div>
+                            <div class="text-[9px] text-blue-600 font-extrabold flex items-center gap-1.5 mt-1 bg-blue-50 border border-blue-200/80 px-2 py-0.5 rounded-md w-max" onclick="event.stopPropagation(); openPhotoLightbox('{{ asset($r->photo_path) }}')">
+                                <i data-lucide="camera" class="w-3 h-3 text-blue-600"></i> Photo Attached (View)
+                            </div>
                         @endif
                     </td>
                     <td class="px-5 py-4 border-y border-gray-100 {{ $r->status === 'pending' ? 'border-red-100' : '' }}">
@@ -123,7 +164,7 @@
                         @if($r->status === 'pending')
                             <span class="flex items-center gap-1 text-[10px] font-black uppercase tracking-widest text-red-600"><span class="w-1.5 h-1.5 rounded-full bg-red-600 animate-pulse"></span> PENDING</span>
                         @else
-                            <span class="text-[10px] font-black uppercase tracking-widest text-green-600">✓ {{ $r->status }}</span>
+                            <span class="text-[10px] font-black uppercase tracking-widest text-emerald-600">✓ {{ $r->status }}</span>
                         @endif
                     </td>
                     <td class="px-5 py-4 text-right rounded-r-xl border-y border-r border-gray-100 {{ $r->status === 'pending' ? 'border-red-100' : '' }}">
@@ -160,17 +201,23 @@
 
 <!-- Accident Report Modal (21st.dev Executive Theme) -->
 <div id="accidentModal" class="hidden fixed inset-0 z-[99999] flex items-center justify-center bg-slate-950/80 backdrop-blur-md p-3 sm:p-5" onclick="closeAccidentModal()">
-    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-2xl overflow-hidden border border-slate-700/30 flex flex-col max-h-[90vh]" onclick="event.stopPropagation()" id="accidentModalContent">
+    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-2xl overflow-hidden border border-slate-700/30 flex flex-col max-h-[92vh]" onclick="event.stopPropagation()" id="accidentModalContent">
+        <!-- Top Obsidian Header -->
         <div class="bg-slate-900 border-b border-slate-800 px-6 py-4 flex items-center justify-between shrink-0">
             <div class="flex items-center gap-3">
-                <div class="p-2 bg-rose-500/20 text-rose-400 rounded-xl border border-rose-500/30">
-                    <i data-lucide="alert-triangle" class="w-5 h-5"></i>
+                <div class="p-2.5 bg-rose-500/20 text-rose-400 rounded-2xl border border-rose-500/30 shadow-inner">
+                    <i data-lucide="shield-alert" class="w-5 h-5"></i>
                 </div>
                 <div>
-                    <h3 class="text-white font-black text-base sm:text-lg tracking-tight uppercase">
-                        Accident / SOS Report
-                    </h3>
-                    <p class="text-xs font-semibold text-slate-400">Incident Details & Emergency Assessment</p>
+                    <div class="flex items-center gap-2">
+                        <h3 class="text-white font-black text-base sm:text-lg tracking-tight uppercase" id="modHeaderTitle">
+                            Accident / SOS Report
+                        </h3>
+                        <span id="modStatusBadge" class="text-[9px] font-black uppercase px-2 py-0.5 rounded-full border bg-emerald-500/20 border-emerald-500/40 text-emerald-300">
+                            RESPONDING
+                        </span>
+                    </div>
+                    <p class="text-xs font-semibold text-slate-400" id="modDate">-</p>
                 </div>
             </div>
             <button onclick="closeAccidentModal()" type="button" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white flex items-center justify-center transition-all duration-200 backdrop-blur-sm border border-white/10 focus:outline-none">
@@ -178,42 +225,107 @@
             </button>
         </div>
         
-        <div class="p-6 overflow-y-auto flex-1 space-y-4 bg-slate-50/50">
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                <div class="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-2xs">
-                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Driver</p>
-                    <p class="text-xs sm:text-sm font-black text-slate-800 truncate" id="modDriver">-</p>
+        <!-- Modal Scrollable Body -->
+        <div class="p-5 sm:p-6 overflow-y-auto flex-1 space-y-4 bg-slate-50/50">
+            
+            <!-- Driver & Vehicle Profile Strip -->
+            <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <!-- Driver Info Left -->
+                <div class="flex items-center gap-3.5">
+                    <div class="relative">
+                        <img id="modDriverAvatar" src="{{ asset('image/driver_avatar.png') }}" 
+                             alt="Driver Photo" 
+                             class="w-14 h-14 rounded-2xl object-cover border-2 border-amber-400 shadow-sm bg-slate-100"
+                             onerror="this.src='{{ asset('image/driver_avatar.png') }}'">
+                        <span class="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 border-2 border-white rounded-full"></span>
+                    </div>
+                    <div>
+                        <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Driver On Duty</p>
+                        <h4 class="text-base font-black text-slate-900 leading-tight" id="modDriver">Driver Name</h4>
+                        <div class="flex items-center gap-2 mt-1">
+                            <a id="modDriverPhoneLink" href="tel:" class="inline-flex items-center gap-1 text-xs font-bold text-blue-600 hover:underline">
+                                <i data-lucide="phone" class="w-3 h-3 text-blue-500"></i>
+                                <span id="modDriverPhone">0991 123 4567</span>
+                            </a>
+                        </div>
+                    </div>
                 </div>
-                <div class="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-2xs">
-                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Unit Plate</p>
-                    <p class="text-xs sm:text-sm font-black text-blue-600 uppercase truncate" id="modUnit">-</p>
-                </div>
-                <div class="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-2xs">
-                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Date & Time</p>
-                    <p class="text-xs sm:text-sm font-bold text-slate-800" id="modDate">-</p>
-                </div>
-                <div class="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-2xs">
-                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Status</p>
-                    <p class="text-xs sm:text-sm font-black" id="modStatus">-</p>
+
+                <!-- Unit Info Right -->
+                <div class="bg-slate-50 border border-slate-200/80 rounded-2xl px-4 py-2.5 text-left sm:text-right w-full sm:w-auto">
+                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Assigned Taxi Unit</p>
+                    <div class="flex items-center justify-start sm:justify-end gap-2 mt-0.5">
+                        <span id="modUnit" class="px-2.5 py-0.5 bg-blue-600 text-white font-mono font-black text-xs sm:text-sm rounded-lg tracking-wider uppercase shadow-xs">
+                            EAB 8186
+                        </span>
+                    </div>
+                    <p id="modUnitDetails" class="text-[11px] font-bold text-slate-600 mt-1">Toyota Vios 2015</p>
                 </div>
             </div>
-            
-            <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-2xs">
-                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Description</p>
-                <div class="bg-rose-50/40 border border-rose-100 p-3.5 rounded-xl text-xs sm:text-sm text-slate-700 leading-relaxed font-medium whitespace-pre-wrap" id="modDesc">
+
+            <!-- Incident Overview Summary Cards -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                <div class="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-2xs">
+                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Incident Type</p>
+                    <p class="text-xs sm:text-sm font-black text-slate-800" id="modType">Emergency Alert</p>
+                </div>
+                <div class="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-2xs">
+                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Damage Severity</p>
+                    <p class="text-xs sm:text-sm font-black text-rose-600" id="modDamageLevel">Emergency SOS</p>
+                </div>
+                <div class="col-span-2 sm:col-span-1 bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-2xs">
+                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Emergency Contact</p>
+                    <p class="text-xs font-bold text-slate-700 truncate" id="modDriverEmergency">None recorded</p>
+                </div>
+            </div>
+
+            <!-- Driver Message / Incident Statement -->
+            <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-2xs">
+                <div class="flex items-center gap-2 mb-2">
+                    <i data-lucide="message-square-quote" class="w-4 h-4 text-amber-500"></i>
+                    <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Driver's Message / Incident Narrative</p>
+                </div>
+                <div class="bg-gradient-to-br from-rose-50/50 via-amber-50/30 to-slate-50 border border-rose-100/80 p-4 rounded-xl text-xs sm:text-sm text-slate-800 leading-relaxed font-medium whitespace-pre-line" id="modDesc">
                     -
                 </div>
             </div>
-            
-            <div id="modPhotoContainer" style="display: none;" class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-2xs">
-                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Attached Photo Evidence</p>
-                <div class="rounded-xl overflow-hidden border border-slate-200 bg-slate-900 flex items-center justify-center p-2 cursor-pointer" onclick="openPhotoLightbox(document.getElementById('modPhoto').src)">
-                    <img id="modPhoto" src="" alt="Accident Photo" class="max-w-full h-auto max-h-[320px] object-contain rounded-lg hover:opacity-90 transition-opacity">
+
+            <!-- Attached Photo Evidence from Driver App -->
+            <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-2xs">
+                <div class="flex items-center justify-between mb-2.5">
+                    <div class="flex items-center gap-2">
+                        <i data-lucide="camera" class="w-4 h-4 text-blue-500"></i>
+                        <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Incident Photo Evidence</p>
+                    </div>
+                    <span id="modPhotoBadge" class="text-[9px] font-bold text-blue-600 uppercase tracking-wider bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-full">
+                        Attached Photo
+                    </span>
+                </div>
+
+                <!-- When Photo is Available -->
+                <div id="modPhotoContainer" class="relative group rounded-2xl overflow-hidden border border-slate-200 bg-slate-950 flex items-center justify-center p-2 cursor-pointer transition-all hover:border-blue-400" onclick="openPhotoLightbox(document.getElementById('modPhoto').src)">
+                    <img id="modPhoto" src="" alt="Accident Photo" class="max-w-full h-auto max-h-[340px] object-contain rounded-xl transition-transform duration-300 group-hover:scale-[1.02]">
+                    <div class="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 text-white font-black text-xs uppercase tracking-wider backdrop-blur-xs">
+                        <i data-lucide="zoom-in" class="w-5 h-5"></i> Click to Zoom Fullscreen
+                    </div>
+                </div>
+
+                <!-- When No Photo is Uploaded -->
+                <div id="modNoPhotoContainer" class="p-6 bg-slate-50 border border-dashed border-slate-200 rounded-2xl text-center">
+                    <div class="w-10 h-10 rounded-full bg-slate-200/60 flex items-center justify-center mx-auto mb-2 text-slate-400">
+                        <i data-lucide="image-off" class="w-5 h-5"></i>
+                    </div>
+                    <p class="text-xs font-bold text-slate-600">No On-Scene Photo Attached</p>
+                    <p class="text-[10px] text-slate-400 mt-0.5">The driver sent an emergency SOS alert ping without an image attachment.</p>
                 </div>
             </div>
-            
-            <div id="modLocationContainer" style="display: none;" class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-2xs">
-                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Location Address</p>
+
+            <!-- GPS Location Address & Google Maps -->
+            <div id="modLocationContainer" class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-2xs">
+                <div class="flex items-center gap-2 mb-2">
+                    <i data-lucide="map-pin" class="w-4 h-4 text-emerald-500"></i>
+                    <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest">GPS Coordinates & Location Address</p>
+                </div>
                 <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200/80 mb-3">
                     <p class="text-xs sm:text-sm font-bold text-slate-800" id="modAddress">Fetching address...</p>
                 </div>
@@ -223,7 +335,11 @@
             </div>
         </div>
 
-        <div class="bg-slate-50 px-6 py-3.5 border-t border-slate-200/80 flex justify-end shrink-0">
+        <!-- Footer Action Buttons -->
+        <div class="bg-slate-50 px-6 py-3.5 border-t border-slate-200/80 flex items-center justify-between gap-3 shrink-0">
+            <a id="modCallBtn" href="tel:" class="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200/80 font-black text-xs rounded-xl transition-all uppercase tracking-wider">
+                <i data-lucide="phone-call" class="w-3.5 h-3.5"></i> Call Driver
+            </a>
             <button onclick="closeAccidentModal()" type="button" class="px-5 py-2 bg-slate-200/80 hover:bg-slate-300 text-slate-700 font-black text-xs rounded-xl transition-all uppercase tracking-wider">
                 Close
             </button>
@@ -249,45 +365,89 @@
 
         const id = row.getAttribute('data-id') || '';
         const driver = row.getAttribute('data-driver') || '-';
+        const driverPhoto = row.getAttribute('data-driver-photo') || '';
+        const driverPhone = row.getAttribute('data-driver-phone') || 'Not provided';
+        const driverEmergency = row.getAttribute('data-driver-emergency') || 'None recorded';
+        
         const unit = row.getAttribute('data-unit') || '-';
+        const unitDetails = row.getAttribute('data-unit-details') || 'Fleet Vehicle';
         const date = row.getAttribute('data-date') || '-';
+        const type = row.getAttribute('data-type') || 'Emergency Alert';
+        const damageLevel = row.getAttribute('data-damage-level') || 'Emergency SOS';
         const desc = row.getAttribute('data-description') || 'No description provided.';
         const status = row.getAttribute('data-status') || '-';
         const photo = row.getAttribute('data-photo') || '';
         const lat = row.getAttribute('data-latitude') || '';
         const lng = row.getAttribute('data-longitude') || '';
 
+        // Driver details
         const modDriver = document.getElementById('modDriver');
-        const modUnit = document.getElementById('modUnit');
-        const modDate = document.getElementById('modDate');
-        const modDesc = document.getElementById('modDesc');
-        const statusEl = document.getElementById('modStatus');
+        const modDriverAvatar = document.getElementById('modDriverAvatar');
+        const modDriverPhone = document.getElementById('modDriverPhone');
+        const modDriverPhoneLink = document.getElementById('modDriverPhoneLink');
+        const modCallBtn = document.getElementById('modCallBtn');
+        const modDriverEmergency = document.getElementById('modDriverEmergency');
 
         if (modDriver) modDriver.textContent = driver;
+        if (modDriverAvatar) modDriverAvatar.src = driverPhoto || '{{ asset("image/driver_avatar.png") }}';
+        if (modDriverPhone) modDriverPhone.textContent = driverPhone;
+        if (modDriverPhoneLink) modDriverPhoneLink.href = 'tel:' + driverPhone.replace(/[^0-9+]/g, '');
+        if (modCallBtn) modCallBtn.href = 'tel:' + driverPhone.replace(/[^0-9+]/g, '');
+        if (modDriverEmergency) modDriverEmergency.textContent = driverEmergency;
+
+        // Vehicle details
+        const modUnit = document.getElementById('modUnit');
+        const modUnitDetails = document.getElementById('modUnitDetails');
         if (modUnit) modUnit.textContent = unit;
-        if (modDate) modDate.textContent = date;
+        if (modUnitDetails) modUnitDetails.textContent = unitDetails;
+
+        // Incident info
+        const modHeaderTitle = document.getElementById('modHeaderTitle');
+        const modDate = document.getElementById('modDate');
+        const modType = document.getElementById('modType');
+        const modDamageLevel = document.getElementById('modDamageLevel');
+        const modDesc = document.getElementById('modDesc');
+        const modStatusBadge = document.getElementById('modStatusBadge');
+
+        if (modHeaderTitle) modHeaderTitle.textContent = type;
+        if (modDate) modDate.textContent = 'Reported on ' + date;
+        if (modType) modType.textContent = type;
+        if (modDamageLevel) modDamageLevel.textContent = damageLevel;
         if (modDesc) modDesc.textContent = desc;
         
-        if (statusEl) {
-            statusEl.textContent = status;
+        if (modStatusBadge) {
+            modStatusBadge.textContent = status;
             if (status === 'PENDING') {
-                statusEl.className = 'text-xs sm:text-sm font-black text-rose-600';
+                modStatusBadge.className = 'text-[9px] font-black uppercase px-2 py-0.5 rounded-full border bg-rose-500/20 border-rose-500/40 text-rose-300';
             } else {
-                statusEl.className = 'text-xs sm:text-sm font-black text-emerald-600';
+                modStatusBadge.className = 'text-[9px] font-black uppercase px-2 py-0.5 rounded-full border bg-emerald-500/20 border-emerald-500/40 text-emerald-300';
             }
         }
         
+        // Photo section
         const photoContainer = document.getElementById('modPhotoContainer');
+        const noPhotoContainer = document.getElementById('modNoPhotoContainer');
         const photoEl = document.getElementById('modPhoto');
-        if (photoContainer && photoEl) {
-            if (photo && photo.trim().length > 0) {
-                photoEl.src = photo;
-                photoContainer.style.display = 'block';
-            } else {
-                photoContainer.style.display = 'none';
+        const photoBadge = document.getElementById('modPhotoBadge');
+
+        if (photo && photo.trim().length > 0) {
+            if (photoEl) photoEl.src = photo;
+            if (photoContainer) photoContainer.style.display = 'flex';
+            if (noPhotoContainer) noPhotoContainer.style.display = 'none';
+            if (photoBadge) {
+                photoBadge.textContent = 'Photo Attached';
+                photoBadge.className = 'text-[9px] font-bold text-blue-600 uppercase tracking-wider bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-full';
+            }
+        } else {
+            if (photoContainer) photoContainer.style.display = 'none';
+            if (noPhotoContainer) noPhotoContainer.style.display = 'block';
+            if (photoBadge) {
+                photoBadge.textContent = 'No Photo Attached';
+                photoBadge.className = 'text-[9px] font-bold text-slate-400 uppercase tracking-wider bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-full';
             }
         }
         
+        // Location section
         const locationContainer = document.getElementById('modLocationContainer');
         const locationLink = document.getElementById('modLocationLink');
         const addressEl = document.getElementById('modAddress');
@@ -302,7 +462,6 @@
                 if (addressEl) addressEl.textContent = tableAddr.textContent;
             } else {
                 if (addressEl) addressEl.textContent = 'Fetching address...';
-                // Fallback fetch if not yet loaded in table
                 fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`)
                     .then(res => res.json())
                     .then(resData => {
