@@ -69,28 +69,69 @@
 
                     {{-- Assigned Drivers --}}
                     <td class="px-2 md:px-6 py-3 md:py-5 whitespace-nowrap hidden md:table-cell">
-                        <div class="flex flex-col gap-1">
-                            <div class="flex items-center gap-2">
-                                <span class="text-[10px] font-black text-gray-400 uppercase tracking-tighter">D1:</span>
-                                <span class="text-[11px] font-bold {{ $unit->driver_id ? 'text-gray-900' : 'text-gray-300 italic' }}">
-                                    @if($unit->driver_id && $primary_driver)
-                                        @php $d1 = explode('|', $primary_driver); @endphp
-                                        {{ $d1[0] }}
-                                    @else
-                                        No D1
+                        @php
+                            $d1Name = '';
+                            $d1Contact = '';
+                            if ($unit->driver_id && !empty($primary_driver)) {
+                                $d1Parts = explode('|', $primary_driver);
+                                $d1Name = trim($d1Parts[0] ?? '');
+                                $d1Contact = trim($d1Parts[1] ?? '');
+                            }
+
+                            $d2Name = '';
+                            $d2Contact = '';
+                            if ($unit->secondary_driver_id && !empty($secondary_driver)) {
+                                $d2Parts = explode('|', $secondary_driver);
+                                $d2Name = trim($d2Parts[0] ?? '');
+                                $d2Contact = trim($d2Parts[1] ?? '');
+                            }
+
+                            $d1Photo = $unit->primary_driver_photo_url ?? asset('image/avatars/driver.svg');
+                            $d2Photo = $unit->secondary_driver_photo_url ?? asset('image/avatars/driver.svg');
+                        @endphp
+                        <div class="flex items-center gap-3">
+                            {{-- Avatar stack (overlapping circles exactly like in the reference image) --}}
+                            @if($unit->driver_id || $unit->secondary_driver_id)
+                                <div class="flex -space-x-3 overflow-hidden shrink-0 py-0.5 items-center">
+                                    @if($unit->driver_id)
+                                        <div class="relative inline-block w-8 h-8 rounded-full overflow-hidden ring-2 ring-white border border-amber-400/80 bg-slate-100 shadow-sm cursor-pointer group hover:z-10 transition-all"
+                                             onclick="event.stopPropagation(); if(typeof openImageModal==='function'){ openImageModal('{{ $d1Photo }}'); }"
+                                             title="D1: {{ $d1Name ?: 'Primary Driver' }} (Click to view photo)">
+                                            <img src="{{ $d1Photo }}" alt="{{ $d1Name }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-150" onerror="this.onerror=null; this.src='{{ asset('image/avatars/driver.svg') }}';">
+                                        </div>
                                     @endif
-                                </span>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <span class="text-[10px] font-black text-gray-400 uppercase tracking-tighter">D2:</span>
-                                <span class="text-[11px] font-bold {{ $unit->secondary_driver_id ? 'text-gray-900' : 'text-gray-300 italic' }}">
-                                    @if($unit->secondary_driver_id && $secondary_driver)
-                                        @php $d2 = explode('|', $secondary_driver); @endphp
-                                        {{ $d2[0] }}
-                                    @else
-                                        No D2
+                                    @if($unit->secondary_driver_id)
+                                        <div class="relative inline-block w-8 h-8 rounded-full overflow-hidden ring-2 ring-white border border-amber-400/80 bg-slate-100 shadow-sm cursor-pointer group hover:z-10 transition-all"
+                                             onclick="event.stopPropagation(); if(typeof openImageModal==='function'){ openImageModal('{{ $d2Photo }}'); }"
+                                             title="D2: {{ $d2Name ?: 'Secondary Driver' }} (Click to view photo)">
+                                            <img src="{{ $d2Photo }}" alt="{{ $d2Name }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-150" onerror="this.onerror=null; this.src='{{ asset('image/avatars/driver.svg') }}';">
+                                        </div>
+                                    @elseif($unit->driver_id)
+                                        <div class="relative inline-flex items-center justify-center w-8 h-8 rounded-full ring-2 ring-white bg-slate-50 border border-dashed border-gray-300 text-[9px] font-bold text-gray-400 shadow-2xs" title="No D2 assigned">
+                                            <span class="text-[8px] font-black text-gray-400 uppercase">D2</span>
+                                        </div>
                                     @endif
-                                </span>
+                                </div>
+                            @else
+                                <div class="w-8 h-8 rounded-full bg-slate-50 border border-dashed border-gray-300 flex items-center justify-center text-gray-300 shrink-0">
+                                    <i data-lucide="user-x" class="w-4 h-4"></i>
+                                </div>
+                            @endif
+
+                            {{-- Driver Text Names --}}
+                            <div class="flex flex-col gap-0.5 min-w-0">
+                                <div class="flex items-center gap-1.5 truncate">
+                                    <span class="text-[10px] font-black text-gray-400 uppercase tracking-tight">D1:</span>
+                                    <span class="text-xs font-bold {{ $unit->driver_id ? 'text-gray-900' : 'text-gray-400 italic' }} truncate">
+                                        {{ $unit->driver_id && $d1Name ? $d1Name : 'No D1' }}
+                                    </span>
+                                </div>
+                                <div class="flex items-center gap-1.5 truncate">
+                                    <span class="text-[10px] font-black text-gray-400 uppercase tracking-tight">D2:</span>
+                                    <span class="text-xs font-bold {{ $unit->secondary_driver_id ? 'text-gray-900' : 'text-gray-400 italic' }} truncate">
+                                        {{ $unit->secondary_driver_id && $d2Name ? $d2Name : 'No D2' }}
+                                    </span>
+                                </div>
                             </div>
                         </div>
                     </td>

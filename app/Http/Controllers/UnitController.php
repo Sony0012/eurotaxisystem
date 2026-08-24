@@ -32,7 +32,9 @@ class UnitController extends Controller
             ->select(
                 'u.*', 
                 DB::raw("CONCAT(COALESCE(drv1.first_name,''), ' ', COALESCE(drv1.last_name,''), '|', COALESCE(drv1.contact_number, '')) as primary_driver"),
-                DB::raw("CONCAT(COALESCE(drv2.first_name,''), ' ', COALESCE(drv2.last_name,''), '|', COALESCE(drv2.contact_number, '')) as secondary_driver")
+                DB::raw("CONCAT(COALESCE(drv2.first_name,''), ' ', COALESCE(drv2.last_name,''), '|', COALESCE(drv2.contact_number, '')) as secondary_driver"),
+                'drv1.profile_photo as primary_driver_photo',
+                'drv2.profile_photo as secondary_driver_photo'
             )
             ->addSelect([
                 'total_collected' => DB::table('boundaries')
@@ -150,6 +152,14 @@ class UnitController extends Controller
             $unit->uuid = $unit->id; // Fix for undefined property in views
             $net_income = (data_get($unit, 'total_collected', 0)) - (data_get($unit, 'maintenance_cost', 0));
             $unit->roi_achieved = (data_get($unit, 'purchase_cost', 0)) > 0 && $net_income >= (data_get($unit, 'purchase_cost', 0));
+
+            // Driver profile photos
+            $unit->primary_driver_photo_url = !empty($unit->primary_driver_photo)
+                ? (str_starts_with($unit->primary_driver_photo, 'http') ? $unit->primary_driver_photo : asset(ltrim($unit->primary_driver_photo, '/')))
+                : asset('image/avatars/driver.svg');
+            $unit->secondary_driver_photo_url = !empty($unit->secondary_driver_photo)
+                ? (str_starts_with($unit->secondary_driver_photo, 'http') ? $unit->secondary_driver_photo : asset(ltrim($unit->secondary_driver_photo, '/')))
+                : asset('image/avatars/driver.svg');
 
             // Smart Pricing Automation
             $pricing = $this->getCurrentPricing($unit, $boundary_rules);

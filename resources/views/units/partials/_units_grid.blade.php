@@ -100,23 +100,59 @@
                 </div>
 
                 {{-- ── Driver Section ── --}}
-                <div class="bg-slate-50/90 rounded-2xl p-3 flex items-center gap-3 mb-3 border border-slate-100">
-                    <div class="w-8 h-8 bg-white rounded-full flex items-center justify-center border border-slate-200 shrink-0 shadow-xs">
-                        <i data-lucide="user" class="w-4 h-4 text-slate-400"></i>
-                    </div>
-                    <div class="flex-1 min-w-0">
-                        <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Primary Driver</p>
-                        <p class="text-xs font-bold text-slate-700 truncate">
-                            @if($unit->driver_id && $primary_driver)
-                                @php $d1 = explode('|', $primary_driver); @endphp
-                                {{ $d1[0] }}
-                            @else
-                                <span class="text-slate-400 font-semibold italic">Unassigned</span>
-                            @endif
-                        </p>
+                @php
+                    $d1Name = '';
+                    if ($unit->driver_id && !empty($primary_driver)) {
+                        $d1Parts = explode('|', $primary_driver);
+                        $d1Name = trim($d1Parts[0] ?? '');
+                    }
+                    $d2Name = '';
+                    if ($unit->secondary_driver_id && !empty($secondary_driver)) {
+                        $d2Parts = explode('|', $secondary_driver);
+                        $d2Name = trim($d2Parts[0] ?? '');
+                    }
+                    $d1Photo = $unit->primary_driver_photo_url ?? asset('image/avatars/driver.svg');
+                    $d2Photo = $unit->secondary_driver_photo_url ?? asset('image/avatars/driver.svg');
+                @endphp
+                <div class="bg-slate-50/90 rounded-2xl p-3 flex items-center justify-between gap-3 mb-3 border border-slate-100">
+                    <div class="flex items-center gap-2.5 min-w-0">
+                        @if($unit->driver_id || $unit->secondary_driver_id)
+                            <div class="flex -space-x-2.5 overflow-hidden shrink-0 py-0.5 items-center">
+                                @if($unit->driver_id)
+                                    <div class="relative inline-block w-8 h-8 rounded-full overflow-hidden ring-2 ring-white border border-amber-400/80 bg-slate-100 shadow-sm cursor-pointer group hover:z-10 transition-all"
+                                         onclick="event.stopPropagation(); if(typeof openImageModal==='function'){ openImageModal('{{ $d1Photo }}'); }"
+                                         title="D1: {{ $d1Name ?: 'Primary Driver' }} (Click to view photo)">
+                                        <img src="{{ $d1Photo }}" alt="{{ $d1Name }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-150" onerror="this.onerror=null; this.src='{{ asset('image/avatars/driver.svg') }}';">
+                                    </div>
+                                @endif
+                                @if($unit->secondary_driver_id)
+                                    <div class="relative inline-block w-8 h-8 rounded-full overflow-hidden ring-2 ring-white border border-amber-400/80 bg-slate-100 shadow-sm cursor-pointer group hover:z-10 transition-all"
+                                         onclick="event.stopPropagation(); if(typeof openImageModal==='function'){ openImageModal('{{ $d2Photo }}'); }"
+                                         title="D2: {{ $d2Name ?: 'Secondary Driver' }} (Click to view photo)">
+                                        <img src="{{ $d2Photo }}" alt="{{ $d2Name }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-150" onerror="this.onerror=null; this.src='{{ asset('image/avatars/driver.svg') }}';">
+                                    </div>
+                                @endif
+                            </div>
+                        @else
+                            <div class="w-8 h-8 bg-white rounded-full flex items-center justify-center border border-slate-200 shrink-0 shadow-xs">
+                                <i data-lucide="user-x" class="w-4 h-4 text-slate-300"></i>
+                            </div>
+                        @endif
+                        <div class="min-w-0 flex-1">
+                            <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">
+                                {{ $unit->secondary_driver_id ? 'Assigned Drivers' : 'Primary Driver' }}
+                            </p>
+                            <p class="text-xs font-bold text-slate-800 truncate">
+                                @if($unit->driver_id && $d1Name)
+                                    {{ $d1Name }} {{ $unit->secondary_driver_id && $d2Name ? '• ' . $d2Name : '' }}
+                                @else
+                                    <span class="text-slate-400 font-semibold italic">Unassigned</span>
+                                @endif
+                            </p>
+                        </div>
                     </div>
                     @if($unit->driver_id)
-                        <div class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.5)]"></div>
+                        <div class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.5)] shrink-0"></div>
                     @endif
                 </div>
 
