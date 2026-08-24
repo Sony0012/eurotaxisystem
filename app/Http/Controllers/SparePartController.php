@@ -56,6 +56,95 @@ class SparePartController extends Controller
     }
 
     /**
+     * Search and suggest real automotive part photos from online & local catalog
+     */
+    public function suggestImages(Request $request)
+    {
+        $query = trim($request->input('query', ''));
+        if (empty($query)) {
+            return response()->json(['success' => true, 'images' => []]);
+        }
+
+        $results = [];
+
+        // 1. DuckDuckGo Image API search for real photographic car parts
+        try {
+            $tokenUrl = "https://duckduckgo.com/?q=" . urlencode($query . ' automotive part white background') . "&t=h_&iar=images&iax=images&ia=images";
+            $ch = curl_init($tokenUrl);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
+            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            $html = curl_exec($ch);
+            curl_close($ch);
+
+            if ($html && preg_match('/vqd=([0-9-_]+)/', $html, $m)) {
+                $vqd = $m[1];
+                $apiUrl = "https://duckduckgo.com/i.js?l=us-en&o=json&q=" . urlencode($query . ' automotive part') . "&vqd=" . $vqd . "&f=,,,&p=1";
+                $ch = curl_init($apiUrl);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
+                curl_setopt($ch, CURLOPT_HTTPHEADER, ['Referer: https://duckduckgo.com/']);
+                curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+                $json = curl_exec($ch);
+                curl_close($ch);
+
+                $data = json_decode($json, true);
+                if (!empty($data['results'])) {
+                    foreach ($data['results'] as $item) {
+                        if (!empty($item['image']) && !empty($item['thumbnail'])) {
+                            $results[] = [
+                                'thumb' => $item['thumbnail'],
+                                'image' => $item['image'],
+                                'title' => $item['title'] ?? 'Car Part Photo'
+                            ];
+                        }
+                        if (count($results) >= 8) break;
+                    }
+                }
+            }
+        } catch (\Exception $e) {
+            \Log::error('Image Search Error: ' . $e->getMessage());
+        }
+
+        // 2. Fallback to Wikimedia Commons if few results
+        if (count($results) < 4) {
+            try {
+                $wikiUrl = "https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrnamespace=6&gsrsearch=" . urlencode($query . " car part filetype:bitmap") . "&gsrlimit=6&prop=imageinfo&iiprop=url|thumburl&iiurlwidth=300&format=json";
+                $ch = curl_init($wikiUrl);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($ch, CURLOPT_USERAGENT, 'EuroTaxi/1.0 (https://eurotaxisystem.site; admin@eurotaxisystem.site)');
+                curl_setopt($ch, CURLOPT_TIMEOUT, 4);
+                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+                $wikiJson = curl_exec($ch);
+                curl_close($ch);
+                $wikiData = json_decode($wikiJson, true);
+                if (!empty($wikiData['query']['pages'])) {
+                    foreach ($wikiData['query']['pages'] as $p) {
+                        if (!empty($p['imageinfo'][0])) {
+                            $info = $p['imageinfo'][0];
+                            $results[] = [
+                                'thumb' => $info['thumburl'] ?? $info['url'],
+                                'image' => $info['url'],
+                                'title' => $p['title'] ?? 'Auto Part Image'
+                            ];
+                        }
+                        if (count($results) >= 8) break;
+                    }
+                }
+            } catch (\Exception $e) {}
+        }
+
+        return response()->json([
+            'success' => true,
+            'query'   => $query,
+            'images'  => $results
+        ]);
+    }
+
+    /**
      * Store or Update a spare part
      * qty_to_add = units being purchased/restocked (always additive)
      */
@@ -63,10 +152,12 @@ class SparePartController extends Controller
     {
         $data = $request->validate([
             'id'         => 'nullable|integer|exists:spare_parts,id',
-            'name'       => 'required|string|max:35',
+            'name'       => 'required|string|max:100',
+            'category'   => 'nullable|string|max:100',
             'price'      => 'required|numeric|min:0.01|max:99999.99',
             'qty_to_add' => 'nullable|integer|min:0|max:999',
             'supplier'   => 'nullable|string|max:255',
+            'image_url'  => 'nullable|string|max:1000',
         ]);
 
         $qtyToAdd = (int)($data['qty_to_add'] ?? 0);
@@ -84,17 +175,21 @@ class SparePartController extends Controller
 
             $part->update([
                 'name'           => $data['name'],
+                'category'       => $data['category'] ?? $part->category,
                 'price'          => $data['price'],
                 'stock_quantity' => $newStock,
                 'supplier'       => $data['supplier'] ?? $part->supplier,
+                'image_url'      => $data['image_url'] ?? $part->image_url,
             ]);
         } else {
             // ── CREATE new part ───────────────────────────────────────────
             $part = SparePart::create([
                 'name'           => $data['name'],
+                'category'       => $data['category'] ?? null,
                 'price'          => $data['price'],
                 'stock_quantity' => $qtyToAdd,
                 'supplier'       => $data['supplier'] ?? null,
+                'image_url'      => $data['image_url'] ?? null,
             ]);
         }
 

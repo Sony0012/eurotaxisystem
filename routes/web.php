@@ -287,6 +287,7 @@ Route::middleware(['auth', 'page_access'])->group(function () {
     // ─── Spare Parts Management ───────────────────────────
     Route::get('/inventory-management', [SparePartController::class, 'manage'])->name('inventory.manage');
     Route::get('/spare-parts', [SparePartController::class, 'index'])->name('spare-parts.index');
+    Route::get('/spare-parts/suggest-images', [SparePartController::class, 'suggestImages'])->name('spare-parts.suggest-images');
     Route::get('/spare-parts/archived', [SparePartController::class, 'archived'])->name('spare-parts.archived');
     Route::get('/spare-parts/history', [SparePartController::class, 'history'])->name('spare-parts.history');
     Route::post('/spare-parts', [SparePartController::class, 'store'])->name('spare-parts.store');

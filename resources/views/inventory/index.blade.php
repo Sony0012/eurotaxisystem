@@ -176,10 +176,10 @@
 
 <!-- Modals -->
 
-<!-- 1. Add/Edit Part Modal -->
+<!-- 1. Mini Modal for Quick Add / Restock Part -->
 <div id="partMiniModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/50 backdrop-blur-sm">
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 overflow-hidden">
-        <div class="flex justify-between items-start mb-5">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-6 max-h-[90vh] overflow-y-auto">
+        <div class="flex justify-between items-start mb-4">
             <div class="flex items-center gap-3">
                 <div id="miniModalIcon" class="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center">
                     <i data-lucide="plus" class="w-5 h-5 text-blue-600"></i>
@@ -197,11 +197,12 @@
         <div class="space-y-4">
             <input type="hidden" id="newPartId">
             <input type="hidden" id="newPartCurrentStock" value="0">
+            <input type="hidden" id="newPartImageUrl" value="">
 
             <!-- AI Live Auto-Identification Preview -->
             <div id="aiPartDetectorPreview" class="p-3.5 rounded-2xl border transition-all duration-300 bg-slate-50 border-slate-200/80 flex items-center gap-3.5 shadow-xs">
-                <div id="aiDetectorIconBox" class="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 border bg-white border-slate-200 shadow-xs transition-all">
-                    <!-- SVG rendered dynamically -->
+                <div id="aiDetectorIconBox" class="w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 border bg-white border-slate-200 shadow-xs transition-all cursor-pointer p-1 overflow-hidden">
+                    <!-- Image rendered dynamically -->
                 </div>
                 <div class="min-w-0 flex-1">
                     <div class="flex items-center justify-between gap-2">
@@ -213,12 +214,52 @@
                     <div id="aiDetectorCategoryName" class="text-xs font-black text-slate-800 tracking-tight mt-0.5 truncate">
                         Auto Component
                     </div>
+                    <div class="text-[10px] text-slate-400 mt-0.5 flex items-center gap-1">
+                        <span>Click preview to zoom</span> · <span id="imgSourceLabel" class="text-blue-500 font-bold">Standard 3D Asset</span>
+                    </div>
                 </div>
             </div>
             
             <div>
                 <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Part Name <span class="text-red-500">*</span></label>
-                <input type="text" id="newPartName" maxlength="35" oninput="updateAIMiniModalPreview(this.value)" class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-gray-50 focus:bg-white transition-colors" placeholder="e.g. Shock Absorber (Front), Brake Pad, Air Filter...">
+                <input type="text" id="newPartName" maxlength="100" oninput="onPartNameInput(this.value)" class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-gray-50 focus:bg-white transition-colors" placeholder="e.g. Shock Absorber (Front), Brake Pad, Air Filter...">
+            </div>
+
+            <!-- AI Real Photo Suggestions Section -->
+            <div id="aiPhotoSuggestionsSection" class="p-3.5 rounded-2xl border border-blue-100 bg-blue-50/40 space-y-2.5">
+                <div class="flex items-center justify-between">
+                    <span class="text-[10px] font-black uppercase tracking-wider text-blue-700 flex items-center gap-1.5">
+                        <i data-lucide="camera" class="w-3.5 h-3.5 text-blue-600"></i> Choose Real Photo (AI Suggestions)
+                    </span>
+                    <span id="aiPhotoSearchLoader" class="hidden text-[10px] font-bold text-blue-600 flex items-center gap-1 animate-pulse">
+                        <i data-lucide="loader-2" class="w-3 h-3 animate-spin"></i> Searching real photos...
+                    </span>
+                </div>
+                
+                <!-- Quick Search Custom Keywords -->
+                <div class="flex gap-2">
+                    <input type="text" id="customPhotoQuery" placeholder="Search Google / web photos (e.g. shock absorber car)..." class="flex-1 px-3 py-1.5 text-xs bg-white border border-blue-200 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+                    <button type="button" onclick="searchCustomRealPhotos()" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg transition shadow-xs flex items-center gap-1 shrink-0">
+                        <i data-lucide="search" class="w-3 h-3"></i> Search
+                    </button>
+                </div>
+
+                <!-- Suggested Real Photos Grid -->
+                <div id="aiSuggestedPhotosGrid" class="grid grid-cols-4 gap-2 max-h-40 overflow-y-auto p-1.5 bg-white rounded-xl border border-blue-100">
+                    <div class="col-span-full py-4 text-center text-xs text-slate-400 font-medium">
+                        Type a part name above to auto-suggest real photos.
+                    </div>
+                </div>
+
+                <!-- Action button to reset to default 3D vector or custom url -->
+                <div class="flex justify-between items-center pt-1 text-[11px]">
+                    <button type="button" onclick="resetToDefault3DImage()" class="text-slate-500 hover:text-blue-600 font-bold flex items-center gap-1 transition">
+                        <i data-lucide="rotate-ccw" class="w-3 h-3"></i> Use Default 3D Asset
+                    </button>
+                    <button type="button" onclick="promptCustomImageUrl()" class="text-blue-600 hover:text-blue-700 font-bold flex items-center gap-1 transition">
+                        <i data-lucide="link" class="w-3 h-3"></i> Paste Custom URL
+                    </button>
+                </div>
             </div>
             
             <div class="grid grid-cols-2 gap-4">
@@ -697,6 +738,148 @@
         };
     }
 
+    // ── Global Real Photo Suggester State ──
+    let photoSearchDebounce = null;
+    let cachedPhotoResults = [];
+
+    function onPartNameInput(name) {
+        updateAIMiniModalPreview(name);
+        if (!name || name.trim().length < 2) return;
+        
+        clearTimeout(photoSearchDebounce);
+        photoSearchDebounce = setTimeout(() => {
+            fetchRealPhotoSuggestions(name);
+        }, 500);
+    }
+
+    async function fetchRealPhotoSuggestions(query) {
+        if (!query || query.trim().length < 2) return;
+
+        const loader = document.getElementById('aiPhotoSearchLoader');
+        const grid = document.getElementById('aiSuggestedPhotosGrid');
+        
+        if (loader) loader.classList.remove('hidden');
+        if (grid) {
+            grid.innerHTML = `
+                <div class="col-span-full py-4 flex items-center justify-center gap-2 text-blue-600 text-xs font-bold">
+                    <i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Finding real photos for "${escapeHtml(query)}"...
+                </div>
+            `;
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        try {
+            const res = await fetch(`{{ route('spare-parts.suggest-images') }}?query=${encodeURIComponent(query)}`);
+            const data = await res.json();
+            if (loader) loader.classList.add('hidden');
+
+            if (data.success && data.images && data.images.length > 0) {
+                cachedPhotoResults = data.images;
+                renderPhotoSuggestionsGrid(data.images);
+            } else {
+                if (grid) {
+                    grid.innerHTML = `
+                        <div class="col-span-full py-4 text-center text-xs text-slate-400 font-medium">
+                            No online photos found for "${escapeHtml(query)}". Defaulting to accurate 3D render.
+                        </div>
+                    `;
+                }
+            }
+        } catch (e) {
+            console.error('Photo search error:', e);
+            if (loader) loader.classList.add('hidden');
+            if (grid) {
+                grid.innerHTML = `
+                    <div class="col-span-full py-3 text-center text-xs text-slate-400 font-medium">
+                        Unable to connect to image search.
+                    </div>
+                `;
+            }
+        }
+    }
+
+    function renderPhotoSuggestionsGrid(images) {
+        const grid = document.getElementById('aiSuggestedPhotosGrid');
+        if (!grid) return;
+
+        const currentSelected = document.getElementById('newPartImageUrl').value;
+
+        grid.innerHTML = images.map((img) => {
+            const isSelected = (currentSelected === img.image || currentSelected === img.thumb);
+            return `
+                <div class="relative group cursor-pointer rounded-xl overflow-hidden border-2 ${isSelected ? 'border-blue-600 ring-2 ring-blue-400/50 shadow-md' : 'border-slate-200 hover:border-blue-400'} bg-white aspect-square flex items-center justify-center p-1 transition-all hover:scale-105"
+                     onclick="selectRealPhoto('${addslashes(img.image)}', '${addslashes(img.thumb)}')"
+                     title="${escapeHtml(img.title || 'Click to select this actual photo')}">
+                    <img src="${img.thumb}" alt="${escapeHtml(img.title || 'Part')}" class="w-full h-full object-contain filter drop-shadow-xs" onerror="this.src='${img.image}'">
+                    ${isSelected ? '<div class="absolute top-1 right-1 bg-blue-600 text-white rounded-full p-0.5 shadow-sm"><i data-lucide="check" class="w-3 h-3"></i></div>' : ''}
+                </div>
+            `;
+        }).join('');
+
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+    }
+
+    function selectRealPhoto(imageUrl, thumbUrl) {
+        const finalUrl = imageUrl || thumbUrl;
+        document.getElementById('newPartImageUrl').value = finalUrl;
+        
+        const iconBox = document.getElementById('aiDetectorIconBox');
+        const imgSourceLabel = document.getElementById('imgSourceLabel');
+
+        if (iconBox) {
+            iconBox.innerHTML = `<img src="${finalUrl}" alt="Selected Photo" class="w-full h-full object-contain filter drop-shadow-sm rounded-xl" onerror="this.src='{{ asset('image/parts/general_part.svg') }}'">`;
+            iconBox.onclick = () => openImageModal(finalUrl);
+        }
+
+        if (imgSourceLabel) {
+            imgSourceLabel.innerText = '✨ Real Photo Selected';
+            imgSourceLabel.className = 'text-green-600 font-black';
+        }
+
+        if (cachedPhotoResults.length > 0) {
+            renderPhotoSuggestionsGrid(cachedPhotoResults);
+        }
+    }
+
+    function searchCustomRealPhotos() {
+        const query = document.getElementById('customPhotoQuery').value;
+        if (!query || query.trim().length < 2) {
+            showToast('Please enter search keywords', 'error');
+            return;
+        }
+        fetchRealPhotoSuggestions(query.trim());
+    }
+
+    function resetToDefault3DImage() {
+        const name = document.getElementById('newPartName').value;
+        const meta = getPartAIMeta(name);
+        document.getElementById('newPartImageUrl').value = '';
+        
+        const iconBox = document.getElementById('aiDetectorIconBox');
+        const imgSourceLabel = document.getElementById('imgSourceLabel');
+
+        if (iconBox) {
+            iconBox.innerHTML = `<img src="${meta.imageUrl}" alt="Part Preview" class="w-full h-full object-contain filter drop-shadow-sm" onerror="this.src='{{ asset('image/parts/general_part.svg') }}'">`;
+            iconBox.onclick = () => openImageModal(meta.imageUrl);
+        }
+
+        if (imgSourceLabel) {
+            imgSourceLabel.innerText = 'Standard 3D Asset';
+            imgSourceLabel.className = 'text-blue-500 font-bold';
+        }
+
+        if (cachedPhotoResults.length > 0) {
+            renderPhotoSuggestionsGrid(cachedPhotoResults);
+        }
+    }
+
+    function promptCustomImageUrl() {
+        const url = prompt('Enter or paste image URL:');
+        if (url && url.startsWith('http')) {
+            selectRealPhoto(url, url);
+        }
+    }
+
     // ── Live AI Preview Update in Add/Edit Part Modal ──
     function updateAIMiniModalPreview(name) {
         const meta = getPartAIMeta(name);
@@ -704,11 +887,15 @@
         const catLabel = document.getElementById('aiDetectorCategoryName');
         const previewContainer = document.getElementById('aiPartDetectorPreview');
         const confidenceBadge = document.getElementById('aiConfidenceBadge');
+        const customUrl = document.getElementById('newPartImageUrl').value;
+        const imgSourceLabel = document.getElementById('imgSourceLabel');
+
+        const activeImg = customUrl || meta.imageUrl;
 
         if (iconBox) {
-            iconBox.className = `w-14 h-14 rounded-2xl p-1.5 flex items-center justify-center shrink-0 border ${meta.badgeBorder} ${meta.badgeBg} shadow-xs transition-all duration-300 transform scale-100 hover:scale-105 cursor-pointer`;
-            iconBox.innerHTML = `<img src="${meta.imageUrl}" alt="Part Preview" class="w-full h-full object-contain filter drop-shadow-sm" onerror="this.onerror=null; this.src='{{ asset('image/parts/general_part.svg') }}';">`;
-            iconBox.onclick = () => openImageModal(meta.imageUrl);
+            iconBox.className = `w-14 h-14 rounded-2xl p-1.5 flex items-center justify-center shrink-0 border ${meta.badgeBorder} ${meta.badgeBg} shadow-xs transition-all duration-300 transform scale-100 hover:scale-105 cursor-pointer bg-white`;
+            iconBox.innerHTML = `<img src="${activeImg}" alt="Part Preview" class="w-full h-full object-contain filter drop-shadow-sm rounded-xl" onerror="this.onerror=null; this.src='{{ asset('image/parts/general_part.svg') }}';">`;
+            iconBox.onclick = () => openImageModal(activeImg);
         }
 
         if (catLabel) {
@@ -723,6 +910,16 @@
         if (confidenceBadge) {
             confidenceBadge.innerText = name && name.trim().length > 1 ? '✨ AI Identified' : 'Type part name...';
             confidenceBadge.className = name && name.trim().length > 1 ? `text-[9px] font-black uppercase ${meta.textClass}` : 'text-[9px] font-bold text-slate-400';
+        }
+
+        if (imgSourceLabel) {
+            if (customUrl) {
+                imgSourceLabel.innerText = '✨ Real Photo Selected';
+                imgSourceLabel.className = 'text-green-600 font-black';
+            } else {
+                imgSourceLabel.innerText = 'Standard 3D Asset';
+                imgSourceLabel.className = 'text-blue-500 font-bold';
+            }
         }
     }
 
@@ -742,22 +939,23 @@
             else if (isLow) badgeClass = 'bg-yellow-50 text-yellow-600';
 
             const aiMeta = getPartAIMeta(p.name);
+            const partImg = p.image_url || aiMeta.imageUrl;
 
             return `
             <tr class="hover:bg-gray-50/80 transition-colors group">
                 <td class="px-8 py-4">
                     <div class="flex items-center gap-3.5">
-                        <div class="relative w-12 h-12 rounded-2xl p-1 flex items-center justify-center shrink-0 border ${aiMeta.badgeBorder} ${aiMeta.badgeBg} shadow-xs group-hover:scale-105 ${aiMeta.glowClass} transition-all cursor-pointer"
-                             onclick="openImageModal('${aiMeta.imageUrl}')"
+                        <div class="relative w-12 h-12 rounded-2xl p-1 flex items-center justify-center shrink-0 border ${aiMeta.badgeBorder} ${aiMeta.badgeBg} shadow-xs group-hover:scale-105 ${aiMeta.glowClass} transition-all cursor-pointer bg-white overflow-hidden"
+                             onclick="openImageModal('${addslashes(partImg)}')"
                              title="Click to view full image">
-                            <img src="${aiMeta.imageUrl}" alt="${p.name}" class="w-full h-full object-contain filter drop-shadow-sm" onerror="this.onerror=null; this.src='{{ asset('image/parts/general_part.svg') }}';">
+                            <img src="${partImg}" alt="${escapeHtml(p.name)}" class="w-full h-full object-contain filter drop-shadow-sm rounded-xl" onerror="this.onerror=null; this.src='${aiMeta.imageUrl}';">
                         </div>
                         <div class="min-w-0">
-                            <div class="text-sm font-black text-gray-900 tracking-tight group-hover:text-blue-600 transition-colors truncate">${p.name}</div>
+                            <div class="text-sm font-black text-gray-900 tracking-tight group-hover:text-blue-600 transition-colors truncate">${escapeHtml(p.name)}</div>
                             <div class="flex items-center gap-1.5 mt-0.5">
                                 <span class="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider ${aiMeta.textClass}">
                                     <span class="w-1.5 h-1.5 rounded-full ${aiMeta.dotClass}"></span>
-                                    ${aiMeta.category}
+                                    ${p.category || aiMeta.category}
                                 </span>
                             </div>
                         </div>
@@ -765,7 +963,7 @@
                 </td>
                 <td class="px-8 py-4">
                     <span class="inline-flex items-center px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider ${p.supplier ? 'bg-purple-50 text-purple-700' : 'bg-gray-100 text-gray-500'}">
-                        ${p.supplier || 'Unspecified'}
+                        ${escapeHtml(p.supplier || 'Unspecified')}
                     </span>
                 </td>
                 <td class="px-8 py-4 text-right">
@@ -778,7 +976,7 @@
                 </td>
                 <td class="px-8 py-4 text-right">
                     <div class="flex justify-end gap-2">
-                        <button onclick="editPart(${p.id}, '${addslashes(p.name)}', ${p.price}, ${p.stock_quantity}, '${addslashes(p.supplier||'')}')" class="p-2 text-blue-600 hover:bg-blue-100 rounded-xl transition-all" title="Purchase / Edit Part">
+                        <button onclick="editPart(${p.id}, '${addslashes(p.name)}', ${p.price}, ${p.stock_quantity}, '${addslashes(p.supplier||'')}', '${addslashes(p.image_url||'')}')" class="p-2 text-blue-600 hover:bg-blue-100 rounded-xl transition-all" title="Purchase / Edit Part">
                             <i data-lucide="shopping-cart" class="w-4 h-4"></i>
                         </button>
                         <button onclick="archivePart(${p.id})" class="p-2 text-red-500 hover:bg-red-100 rounded-xl transition-all" title="Archive Part">
@@ -810,14 +1008,14 @@
                 </td>
                 <td class="px-8 py-5">
                     <div class="flex items-center gap-3.5">
-                        <div class="relative w-11 h-11 rounded-2xl p-1 flex items-center justify-center shrink-0 border ${aiMeta.badgeBorder} ${aiMeta.badgeBg} shadow-xs cursor-pointer"
+                        <div class="relative w-11 h-11 rounded-2xl p-1 flex items-center justify-center shrink-0 border ${aiMeta.badgeBorder} ${aiMeta.badgeBg} shadow-xs cursor-pointer bg-white overflow-hidden"
                              onclick="openImageModal('${aiMeta.imageUrl}')"
                              title="Click to view full image">
-                            <img src="${aiMeta.imageUrl}" alt="${ph.description}" class="w-full h-full object-contain filter drop-shadow-sm" onerror="this.onerror=null; this.src='{{ asset('image/parts/general_part.svg') }}';">
+                            <img src="${aiMeta.imageUrl}" alt="${escapeHtml(ph.description)}" class="w-full h-full object-contain filter drop-shadow-sm rounded-xl" onerror="this.onerror=null; this.src='{{ asset('image/parts/general_part.svg') }}';">
                         </div>
                         <div class="min-w-0">
-                            <div class="text-sm font-black text-gray-800 tracking-tight">${ph.description}</div>
-                            <div class="text-xs text-blue-500 font-bold uppercase mt-0.5 tracking-wider">${ph.category}</div>
+                            <div class="text-sm font-black text-gray-800 tracking-tight">${escapeHtml(ph.description)}</div>
+                            <div class="text-xs text-blue-500 font-bold uppercase mt-0.5 tracking-wider">${escapeHtml(ph.category)}</div>
                         </div>
                     </div>
                 </td>
@@ -838,24 +1036,26 @@
 
         tbody.innerHTML = data.map(p => {
             const aiMeta = getPartAIMeta(p.name);
+            const partImg = p.image_url || aiMeta.imageUrl;
+
             return `
             <tr class="hover:bg-gray-50/80 transition-colors group">
                 <td class="px-8 py-4">
                     <div class="flex items-center gap-3.5">
-                        <div class="relative w-11 h-11 rounded-2xl p-1 flex items-center justify-center shrink-0 border ${aiMeta.badgeBorder} ${aiMeta.badgeBg} shadow-xs cursor-pointer"
-                             onclick="openImageModal('${aiMeta.imageUrl}')"
+                        <div class="relative w-11 h-11 rounded-2xl p-1 flex items-center justify-center shrink-0 border ${aiMeta.badgeBorder} ${aiMeta.badgeBg} shadow-xs cursor-pointer bg-white overflow-hidden"
+                             onclick="openImageModal('${addslashes(partImg)}')"
                              title="Click to view full image">
-                            <img src="${aiMeta.imageUrl}" alt="${p.name}" class="w-full h-full object-contain filter drop-shadow-sm" onerror="this.onerror=null; this.src='{{ asset('image/parts/general_part.svg') }}';">
+                            <img src="${partImg}" alt="${escapeHtml(p.name)}" class="w-full h-full object-contain filter drop-shadow-sm rounded-xl" onerror="this.onerror=null; this.src='{{ asset('image/parts/general_part.svg') }}';">
                         </div>
                         <div class="min-w-0">
-                            <div class="text-sm font-black text-gray-700 tracking-tight">${p.name}</div>
+                            <div class="text-sm font-black text-gray-700 tracking-tight">${escapeHtml(p.name)}</div>
                             <div class="flex items-center gap-1 mt-0.5">
-                                <span class="text-[10px] font-black uppercase tracking-wider ${aiMeta.textClass}">${aiMeta.category}</span>
+                                <span class="text-[10px] font-black uppercase tracking-wider ${aiMeta.textClass}">${p.category || aiMeta.category}</span>
                             </div>
                         </div>
                     </div>
                 </td>
-                <td class="px-8 py-4 text-xs font-bold text-gray-400 uppercase">${p.supplier || 'Unspecified'}</td>
+                <td class="px-8 py-4 text-xs font-bold text-gray-400 uppercase">${escapeHtml(p.supplier || 'Unspecified')}</td>
                 <td class="px-8 py-4 text-right flex justify-end gap-2">
                     <button onclick="restorePart(${p.id})" title="Restore Item" class="p-2 text-green-600 hover:bg-green-100 rounded-xl transition-all">
                         <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
@@ -882,6 +1082,8 @@
             document.getElementById('newPartPrice').value = '';
             document.getElementById('newPartQty').value = '';
             document.getElementById('newPartSupplier').value = '';
+            document.getElementById('newPartImageUrl').value = '';
+            document.getElementById('customPhotoQuery').value = '';
             
             document.getElementById('miniModalTitle').innerText = 'Add New Part';
             document.getElementById('miniModalSubtitle').innerText = 'Create a new item in the spare parts catalog';
@@ -892,6 +1094,13 @@
             const iconContainer = document.getElementById('miniModalIcon');
             iconContainer.className = 'w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center';
             iconContainer.innerHTML = '<i data-lucide="plus" class="w-5 h-5 text-blue-600"></i>';
+            
+            document.getElementById('aiSuggestedPhotosGrid').innerHTML = `
+                <div class="col-span-full py-4 text-center text-xs text-slate-400 font-medium">
+                    Type a part name above to auto-suggest real photos.
+                </div>
+            `;
+            
             updateAIMiniModalPreview('');
             lucide.createIcons();
         }
@@ -901,7 +1110,7 @@
         document.getElementById('partMiniModal').classList.add('hidden');
     }
 
-    function editPart(id, name, price, qty, supplier) {
+    function editPart(id, name, price, qty, supplier, imageUrl = '') {
         openPartMiniModal(true);
         document.getElementById('newPartId').value = id;
         document.getElementById('newPartCurrentStock').value = qty;
@@ -909,6 +1118,8 @@
         document.getElementById('newPartPrice').value = price;
         document.getElementById('newPartQty').value = ''; 
         document.getElementById('newPartSupplier').value = supplier || '';
+        document.getElementById('newPartImageUrl').value = imageUrl || '';
+        document.getElementById('customPhotoQuery').value = name || '';
 
         document.getElementById('miniModalTitle').innerText = 'Purchase / Edit Part';
         document.getElementById('miniModalSubtitle').innerText = 'Add stock or update part details';
@@ -921,6 +1132,7 @@
         iconContainer.innerHTML = '<i data-lucide="shopping-cart" class="w-5 h-5 text-blue-600"></i>';
         
         updateAIMiniModalPreview(name);
+        fetchRealPhotoSuggestions(name);
         lucide.createIcons();
     }
 
@@ -930,6 +1142,8 @@
         const price = document.getElementById('newPartPrice').value;
         const qty_to_add = parseInt(document.getElementById('newPartQty').value) || 0;
         const supplier = document.getElementById('newPartSupplier').value;
+        const image_url = document.getElementById('newPartImageUrl').value;
+        const meta = getPartAIMeta(name);
 
         if(!name || !price) {
             showToast('Part Name and Price are required.', 'error');
@@ -945,7 +1159,15 @@
             const res = await fetch("{{ route('spare-parts.store') }}", {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-                body: JSON.stringify({ id, name, price, qty_to_add, supplier })
+                body: JSON.stringify({
+                    id,
+                    name,
+                    category: meta.category,
+                    price,
+                    qty_to_add,
+                    supplier,
+                    image_url
+                })
             });
             const result = await res.json();
             if(result.success) {
@@ -960,6 +1182,13 @@
                 showToast(result.message || 'Something went wrong.', 'error');
             }
         } catch(e) { console.error(e); }
+    }
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return String(str).replace(/[&<>"']/g, function(m) {
+            return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m];
+        });
     }
 
     async function archivePart(id) {
