@@ -468,8 +468,17 @@ class UnitController extends Controller
         if (!empty($driver_ids)) {
             $assigned_drivers = DB::table('drivers as d')
                 ->whereIn('d.id', $driver_ids)
-                ->select('d.id', DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')) as full_name"), 'd.license_number', 'd.contact_number', 'd.license_expiry', 'd.hire_date', 'd.daily_boundary_target')
-                ->get()->toArray();
+                ->select('d.id', DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')) as full_name"), 'd.license_number', 'd.contact_number', 'd.license_expiry', 'd.hire_date', 'd.daily_boundary_target', 'd.profile_photo')
+                ->get()->map(function($d) {
+                    $item = (array) $d;
+                    $photo = $d->profile_photo ?? '';
+                    if (!empty($photo)) {
+                        $item['profile_photo_url'] = str_starts_with($photo, 'http') ? $photo : asset(ltrim($photo, '/'));
+                    } else {
+                        $item['profile_photo_url'] = asset('image/avatars/driver.svg');
+                    }
+                    return $item;
+                })->toArray();
         }
 
         // ROI data from real boundaries
@@ -655,8 +664,17 @@ class UnitController extends Controller
         if (!empty($driver_ids)) {
             $assigned_drivers = DB::table('drivers as d')
                 ->whereIn('d.id', $driver_ids)
-                ->select('d.id', DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')) as full_name"), 'd.license_number', 'd.contact_number', 'd.license_expiry', 'd.hire_date', 'd.daily_boundary_target')
-                ->get()->toArray();
+                ->select('d.id', DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')) as full_name"), 'd.license_number', 'd.contact_number', 'd.license_expiry', 'd.hire_date', 'd.daily_boundary_target', 'd.profile_photo')
+                ->get()->map(function($d) {
+                    $item = (array) $d;
+                    $photo = $d->profile_photo ?? '';
+                    if (!empty($photo)) {
+                        $item['profile_photo_url'] = str_starts_with($photo, 'http') ? $photo : asset(ltrim($photo, '/'));
+                    } else {
+                        $item['profile_photo_url'] = asset('image/avatars/driver.svg');
+                    }
+                    return $item;
+                })->toArray();
         }
 
         $roi = DB::table('boundaries')

@@ -301,10 +301,17 @@
                 let driversOverviewHtml = '';
                 if (assignedDrivers.length > 0) {
                     assignedDrivers.forEach(d => {
-                        driversOverviewHtml += `<div class="bg-gray-50 p-3 rounded">
-                            <div class="font-medium">${d.full_name || ''}</div>
-                            <div class="text-sm text-gray-600">${d.license_number || ''}</div>
-                            <div class="text-sm text-gray-600">Contact: ${d.contact_number || 'N/A'}</div>
+                        const avatarSrc = d.profile_photo_url || (d.profile_photo ? (d.profile_photo.startsWith('http') ? d.profile_photo : `/${d.profile_photo.replace(/^\//, '')}`) : '/image/avatars/driver.svg');
+                        const safeName = (d.full_name || 'Driver').trim();
+
+                        driversOverviewHtml += `<div class="bg-gray-50 p-3 rounded-xl border border-gray-100 flex items-center gap-3">
+                            <div class="relative w-11 h-11 rounded-full overflow-hidden border-2 border-amber-400 bg-slate-100 flex-shrink-0 cursor-pointer shadow-xs group" onclick="event.stopPropagation(); if(typeof openImageModal==='function'){ openImageModal('${avatarSrc}'); }" title="Click to view profile photo">
+                                <img src="${avatarSrc}" alt="${safeName}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200" onerror="this.onerror=null; this.src='/image/avatars/driver.svg';">
+                            </div>
+                            <div class="min-w-0 flex-1">
+                                <div class="font-bold text-sm text-gray-900 truncate">${safeName}</div>
+                                <div class="text-xs text-gray-500 truncate">${d.license_number || ''} • Contact: ${d.contact_number || 'N/A'}</div>
+                            </div>
                         </div>`;
                     });
                 }
@@ -312,26 +319,34 @@
                 let driversTabHtml = '';
                 if (assignedDrivers.length > 0) {
                     assignedDrivers.forEach(d => {
-                        driversTabHtml += `<div class="border border-gray-200 rounded-lg p-4">
-                            <div class="flex justify-between items-start">
-                                <div>
-                                    <h5 class="font-semibold text-gray-900">${d.full_name || ''}</h5>
-                                    <p class="text-sm text-gray-600">License: ${d.license_number || ''}</p>
-                                    <p class="text-sm text-gray-600">Contact: ${d.contact_number || 'N/A'}</p>
+                        const avatarSrc = d.profile_photo_url || (d.profile_photo ? (d.profile_photo.startsWith('http') ? d.profile_photo : `/${d.profile_photo.replace(/^\//, '')}`) : '/image/avatars/driver.svg');
+                        const safeName = (d.full_name || 'Driver').trim();
+
+                        driversTabHtml += `<div class="bg-gray-50 border border-gray-100 rounded-2xl p-5 sm:p-6 shadow-xs hover:border-blue-200 transition-colors">
+                            <div class="flex items-center justify-between pb-4 border-b border-gray-200/60">
+                                <div class="flex items-center gap-3.5 sm:gap-4">
+                                    <div class="relative w-14 h-14 sm:w-16 sm:h-16 rounded-full overflow-hidden border-2 border-amber-400 bg-slate-100 flex-shrink-0 cursor-pointer shadow-xs group" onclick="event.stopPropagation(); if(typeof openImageModal==='function'){ openImageModal('${avatarSrc}'); }" title="Click to view full profile photo">
+                                        <img src="${avatarSrc}" alt="${safeName}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200" onerror="this.onerror=null; this.src='/image/avatars/driver.svg';">
+                                    </div>
+                                    <div>
+                                        <h5 class="font-black text-base sm:text-lg text-gray-900 leading-tight">${safeName}</h5>
+                                        <p class="text-xs text-gray-500 font-bold uppercase tracking-tight mt-1">License: ${d.license_number || 'N/A'}</p>
+                                        <p class="text-xs text-gray-500 font-medium">Contact: ${d.contact_number || 'N/A'}</p>
+                                    </div>
                                 </div>
-                                <span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">Active</span>
+                                <span class="px-2.5 py-1 text-xs font-bold rounded-full bg-green-100 text-green-800 uppercase tracking-tight">Active</span>
                             </div>
-                            <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                                <div><span class="text-gray-600">License Number:</span><p class="font-medium">${d.license_number || 'N/A'}</p></div>
-                                <div><span class="text-gray-600">Contact:</span><p class="font-medium">${d.contact_number || 'N/A'}</p></div>
-                                <div><span class="text-gray-600">Daily Target:</span><p class="font-medium">₱${parseFloat(d.daily_boundary_target || 1100).toLocaleString('en-PH', {minimumFractionDigits:2})}</p></div>
-                                <div><span class="text-gray-600">Hire Date:</span><p class="font-medium">${d.hire_date || 'Not set'}</p></div>
-                                <div><span class="text-gray-600">License Expiry:</span><p class="font-medium">${d.license_expiry || 'Not set'}</p></div>
+                            <div class="mt-4 grid grid-cols-2 gap-3.5 text-xs">
+                                <div><span class="text-gray-400 uppercase font-black tracking-widest text-[10px] block mb-0.5">License Number:</span><p class="font-bold text-gray-900">${d.license_number || 'N/A'}</p></div>
+                                <div><span class="text-gray-400 uppercase font-black tracking-widest text-[10px] block mb-0.5">Contact:</span><p class="font-bold text-gray-900">${d.contact_number || 'N/A'}</p></div>
+                                <div><span class="text-gray-400 uppercase font-black tracking-widest text-[10px] block mb-0.5">Daily Target:</span><p class="font-bold text-blue-600">₱${parseFloat(d.daily_boundary_target || 1100).toLocaleString('en-PH', {minimumFractionDigits:2})}</p></div>
+                                <div><span class="text-gray-400 uppercase font-black tracking-widest text-[10px] block mb-0.5">Hire Date:</span><p class="font-bold text-gray-900">${d.hire_date || 'Not set'}</p></div>
+                                <div class="col-span-2 sm:col-span-1"><span class="text-gray-400 uppercase font-black tracking-widest text-[10px] block mb-0.5">License Expiry:</span><p class="font-bold text-gray-900">${d.license_expiry || 'Not set'}</p></div>
                             </div>
                         </div>`;
                     });
                 } else {
-                    driversTabHtml = `<div class="text-center py-8 text-gray-500"><i data-lucide="users" class="w-12 h-12 mx-auto mb-4 text-gray-300"></i><p>No drivers assigned to this unit</p></div>`;
+                    driversTabHtml = `<div class="text-center py-8 text-gray-500 col-span-2"><i data-lucide="users" class="w-12 h-12 mx-auto mb-4 text-gray-300"></i><p>No drivers assigned to this unit</p></div>`;
                 }
 
                 let boundaryRowsHtml = '';
@@ -653,7 +668,7 @@
                                             <span class="text-gray-400 font-bold uppercase text-[10px] tracking-tight">Status</span>
                                             <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase ${assignedDrivers.length >= 2 ? 'bg-red-50 text-red-600 border border-red-100' : 'bg-green-50 text-green-600 border border-green-100'}">${assignedDrivers.length >= 2 ? 'Full' : 'Available'}</span>
                                         </div>
-                                        ${driversOverviewHtml ? '<div class="space-y-3">' + driversOverviewHtml.replace(/bg-gray-50/g, 'bg-gray-50 border border-gray-100 rounded-xl p-4') + '</div>' : `
+                                        ${driversOverviewHtml ? '<div class="space-y-3">' + driversOverviewHtml + '</div>' : `
                                             <div class="text-center py-10">
                                                 <div class="bg-gray-50 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3">
                                                     <i data-lucide="user-x" class="w-6 h-6 text-gray-300"></i>
@@ -673,7 +688,7 @@
                                     <i data-lucide="users" class="w-5 h-5 text-blue-600"></i> Assigned Drivers Details
                                 </h4>
                                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                                    ${driversTabHtml.replace(/border border-gray-200/g, 'bg-gray-50 border border-gray-100 shadow-sm').replace(/p-4/g, 'p-6').replace(/rounded-lg/g, 'rounded-2xl')}
+                                    ${driversTabHtml}
                                 </div>
                             </div>
                         </div>

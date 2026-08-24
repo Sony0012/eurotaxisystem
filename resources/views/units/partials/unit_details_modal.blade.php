@@ -178,14 +178,22 @@
                         @if(!empty($assigned_drivers))
                             <div class="mt-4 space-y-2.5">
                                 @foreach($assigned_drivers as $driver)
-                                    <div class="bg-gray-50 p-3 sm:p-4 rounded-xl border border-gray-100 group hover:border-blue-200 transition-colors">
-                                        <div class="flex justify-between items-start mb-1.5">
-                                            <p class="text-xs sm:text-sm font-black text-gray-900 group-hover:text-blue-600 transition-colors">{{ $driver->full_name }}</p>
-                                            <span class="text-[8px] font-black bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded uppercase">Active</span>
+                                    @php
+                                        $dPhoto = !empty($driver->profile_photo) ? (str_starts_with($driver->profile_photo, 'http') ? $driver->profile_photo : asset(ltrim($driver->profile_photo, '/'))) : asset('image/avatars/driver.svg');
+                                    @endphp
+                                    <div class="bg-gray-50 p-3 rounded-xl border border-gray-100 group hover:border-blue-200 transition-colors flex items-center gap-3">
+                                        <div class="relative w-10 h-10 rounded-full overflow-hidden border border-amber-400 bg-slate-100 flex-shrink-0 cursor-pointer shadow-xs" onclick="event.stopPropagation(); if(typeof openImageModal==='function'){ openImageModal('{{ $dPhoto }}'); }" title="Click to view photo">
+                                            <img src="{{ $dPhoto }}" alt="{{ $driver->full_name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform" onerror="this.onerror=null; this.src='{{ asset('image/avatars/driver.svg') }}';">
                                         </div>
-                                        <div class="grid grid-cols-2 gap-2 text-[10px]">
-                                            <p class="text-gray-500 font-medium">TBD-{{ substr($driver->license_number ?? '0000', -4) }} EFF</p>
-                                            <p class="text-gray-500 font-medium text-right">Contact: {{ $driver->contact_number ?? 'N/A' }}</p>
+                                        <div class="min-w-0 flex-1">
+                                            <div class="flex justify-between items-start">
+                                                <p class="text-xs sm:text-sm font-black text-gray-900 group-hover:text-blue-600 transition-colors truncate">{{ $driver->full_name }}</p>
+                                                <span class="text-[8px] font-black bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded uppercase flex-shrink-0">Active</span>
+                                            </div>
+                                            <div class="grid grid-cols-2 gap-2 text-[10px] mt-0.5">
+                                                <p class="text-gray-500 font-medium truncate">TBD-{{ substr($driver->license_number ?? '0000', -4) }}</p>
+                                                <p class="text-gray-500 font-medium text-right truncate">Contact: {{ $driver->contact_number ?? 'N/A' }}</p>
+                                            </div>
                                         </div>
                                     </div>
                                 @endforeach
@@ -210,15 +218,28 @@
                 @if(!empty($assigned_drivers))
                     <div class="space-y-4">
                         @foreach($assigned_drivers as $driver)
-                            <div class="border border-gray-100 rounded-xl p-3 sm:p-4 bg-gray-50 bg-opacity-50">
-                                <div class="flex justify-between items-start border-b border-gray-100 pb-2.5 mb-3">
-                                    <div>
-                                        <h5 class="font-extrabold text-sm sm:text-base text-gray-900">{{ $driver->full_name }}</h5>
-                                        <p class="text-[10px] sm:text-xs text-gray-500 font-bold uppercase tracking-tight mt-0.5">License: {{ $driver->license_number }}</p>
+                            @php
+                                $dPhoto = !empty($driver->profile_photo) ? (str_starts_with($driver->profile_photo, 'http') ? $driver->profile_photo : asset(ltrim($driver->profile_photo, '/'))) : asset('image/avatars/driver.svg');
+                            @endphp
+                            <div class="border border-gray-100 rounded-2xl p-4 sm:p-5 bg-gray-50/70 hover:border-blue-200 transition-all shadow-xs">
+                                <div class="flex justify-between items-center border-b border-gray-200/60 pb-3.5 mb-3.5">
+                                    <div class="flex items-center gap-3.5 sm:gap-4">
+                                        <div class="relative w-13 h-13 sm:w-14 sm:h-14 rounded-full overflow-hidden border-2 border-amber-400 bg-slate-100 flex-shrink-0 cursor-pointer shadow-xs group" onclick="event.stopPropagation(); if(typeof openImageModal==='function'){ openImageModal('{{ $dPhoto }}'); }" title="Click to view full photo">
+                                            <img src="{{ $dPhoto }}" alt="{{ $driver->full_name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform" onerror="this.onerror=null; this.src='{{ asset('image/avatars/driver.svg') }}';">
+                                        </div>
+                                        <div>
+                                            <h5 class="font-extrabold text-sm sm:text-base text-gray-900">{{ $driver->full_name }}</h5>
+                                            <p class="text-[10px] sm:text-xs text-gray-500 font-bold uppercase tracking-tight mt-0.5">License: {{ $driver->license_number }}</p>
+                                            <p class="text-xs text-gray-500 font-medium">Contact: {{ $driver->contact_number ?? 'N/A' }}</p>
+                                        </div>
                                     </div>
                                     <span class="px-2 py-0.5 text-[9px] font-bold rounded bg-green-100 text-green-700 uppercase">Active</span>
                                 </div>
-                                <div class="grid grid-cols-2 gap-3.5 text-xs">
+                                <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
+                                    <div>
+                                        <span class="text-[10px] text-gray-400 uppercase font-black tracking-widest block mb-0.5">License Number</span>
+                                        <p class="font-bold text-gray-800">{{ $driver->license_number ?? 'N/A' }}</p>
+                                    </div>
                                     <div>
                                         <span class="text-[10px] text-gray-400 uppercase font-black tracking-widest block mb-0.5">Contact Number</span>
                                         <p class="font-bold text-gray-800">{{ $driver->contact_number ?? 'N/A' }}</p>
@@ -231,7 +252,7 @@
                                         <span class="text-[10px] text-gray-400 uppercase font-black tracking-widest block mb-0.5">Hire Date</span>
                                         <p class="font-bold text-gray-800">{{ !empty($driver->hire_date) ? \Carbon\Carbon::parse($driver->hire_date)->format('M d, Y') : 'Not set' }}</p>
                                     </div>
-                                    <div>
+                                    <div class="col-span-2 sm:col-span-1">
                                         <span class="text-[10px] text-gray-400 uppercase font-black tracking-widest block mb-0.5">License Expiry</span>
                                         <p class="font-bold text-gray-800">{{ !empty($driver->license_expiry) ? \Carbon\Carbon::parse($driver->license_expiry)->format('M d, Y') : 'Not set' }}</p>
                                     </div>
