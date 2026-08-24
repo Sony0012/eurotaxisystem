@@ -68,7 +68,7 @@
                     </td>
 
                     {{-- Assigned Drivers --}}
-                    <td class="px-2 md:px-6 py-3 md:py-5 whitespace-nowrap hidden md:table-cell">
+                    <td class="px-2 md:px-6 py-3 md:py-5 whitespace-nowrap hidden md:table-cell align-middle">
                         @php
                             $d1Name = '';
                             $d1Contact = '';
@@ -89,9 +89,9 @@
                             $d1Photo = $unit->primary_driver_photo_url ?? asset('image/avatars/driver.svg');
                             $d2Photo = $unit->secondary_driver_photo_url ?? asset('image/avatars/driver.svg');
                         @endphp
-                        <div class="flex items-center justify-between gap-3 max-w-[260px]">
+                        <div class="flex items-center justify-between gap-3 max-w-[260px] my-auto">
                             {{-- Driver Text Names on the LEFT --}}
-                            <div class="flex flex-col gap-0.5 min-w-0 flex-1">
+                            <div class="flex flex-col gap-0.5 min-w-0 flex-1 justify-center">
                                 <div class="flex items-center gap-1.5 truncate">
                                     <span class="text-[10px] font-black text-gray-400 uppercase tracking-tight">D1:</span>
                                     <span class="text-xs font-bold {{ $unit->driver_id ? 'text-gray-900' : 'text-gray-400 italic' }} truncate">
@@ -108,29 +108,29 @@
 
                             {{-- Avatar stack on the RIGHT side (larger avatars with overlapping ring) --}}
                             @if($unit->driver_id || $unit->secondary_driver_id)
-                                <div class="flex -space-x-3.5 overflow-hidden shrink-0 py-0.5 items-center">
+                                <div class="flex -space-x-3.5 overflow-hidden shrink-0 items-center justify-center">
                                     @if($unit->driver_id)
-                                        <div class="relative inline-block w-9.5 h-9.5 sm:w-10 sm:h-10 rounded-full overflow-hidden ring-2 ring-white border-2 border-amber-400 bg-slate-100 shadow-sm cursor-pointer group hover:z-10 transition-all"
+                                        <div class="relative inline-block w-10 h-10 sm:w-11 sm:h-11 rounded-full overflow-hidden ring-2 ring-white border-2 border-amber-400 bg-slate-100 shadow-sm cursor-pointer group hover:z-10 transition-all"
                                              onclick="event.stopPropagation(); if(typeof openImageModal==='function'){ openImageModal('{{ $d1Photo }}'); }"
                                              title="D1: {{ $d1Name ?: 'Primary Driver' }} (Click to view photo)">
                                             <img src="{{ $d1Photo }}" alt="{{ $d1Name }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-150" onerror="this.onerror=null; this.src='{{ asset('image/avatars/driver.svg') }}';">
                                         </div>
                                     @endif
                                     @if($unit->secondary_driver_id)
-                                        <div class="relative inline-block w-9.5 h-9.5 sm:w-10 sm:h-10 rounded-full overflow-hidden ring-2 ring-white border-2 border-amber-400 bg-slate-100 shadow-sm cursor-pointer group hover:z-10 transition-all"
+                                        <div class="relative inline-block w-10 h-10 sm:w-11 sm:h-11 rounded-full overflow-hidden ring-2 ring-white border-2 border-amber-400 bg-slate-100 shadow-sm cursor-pointer group hover:z-10 transition-all"
                                              onclick="event.stopPropagation(); if(typeof openImageModal==='function'){ openImageModal('{{ $d2Photo }}'); }"
                                              title="D2: {{ $d2Name ?: 'Secondary Driver' }} (Click to view photo)">
                                             <img src="{{ $d2Photo }}" alt="{{ $d2Name }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-150" onerror="this.onerror=null; this.src='{{ asset('image/avatars/driver.svg') }}';">
                                         </div>
                                     @elseif($unit->driver_id)
-                                        <div class="relative inline-flex items-center justify-center w-9.5 h-9.5 sm:w-10 sm:h-10 rounded-full ring-2 ring-white bg-slate-50 border border-dashed border-gray-300 text-[10px] font-bold text-gray-400 shadow-2xs" title="No D2 assigned">
-                                            <span class="text-[9px] font-black text-gray-400 uppercase">D2</span>
+                                        <div class="relative inline-flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 rounded-full ring-2 ring-white bg-slate-50 border-2 border-dashed border-slate-300 text-[10px] font-black text-slate-400 shadow-2xs" title="No D2 assigned">
+                                            <span>D2</span>
                                         </div>
                                     @endif
                                 </div>
                             @else
-                                <div class="w-9.5 h-9.5 rounded-full bg-slate-50 border border-dashed border-gray-300 flex items-center justify-center text-gray-300 shrink-0">
-                                    <i data-lucide="user-x" class="w-4 h-4"></i>
+                                <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-slate-50/90 border-2 border-dashed border-slate-300 flex items-center justify-center text-slate-400 shrink-0 shadow-2xs" title="No drivers assigned">
+                                    <i data-lucide="user-x" class="w-5 h-5 text-slate-400"></i>
                                 </div>
                             @endif
                         </div>
