@@ -374,18 +374,27 @@
         const container = document.getElementById('appContentArea');
         if (!container) return;
         const toast = document.createElement('div');
-        toast.className = `alert-slide mb-4 p-4 rounded-lg border flex items-center gap-3 shadow-md transform transition-all duration-300 ${
-            type === 'success' ? 'bg-green-50 border-green-200 text-green-800' : 'bg-red-50 border-red-200 text-red-800'
-        }`;
+        
+        let colorClasses = 'bg-green-50 border-green-200 text-green-800';
+        let iconName = 'check-circle';
+        if (type === 'error') {
+            colorClasses = 'bg-red-50 border-red-200 text-red-800';
+            iconName = 'alert-circle';
+        } else if (type === 'info') {
+            colorClasses = 'bg-blue-50 border-blue-200 text-blue-800';
+            iconName = 'info';
+        }
+
+        toast.className = `alert-slide mb-3 p-3 rounded-xl border flex items-center gap-2.5 shadow-sm transform transition-all duration-300 ${colorClasses}`;
         toast.innerHTML = `
-            <i data-lucide="${type === 'success' ? 'check-circle' : 'alert-circle'}" class="w-5 h-5 flex-shrink-0"></i>
-            <div class="flex-1 font-bold text-sm tracking-tight">${message}</div>
+            <i data-lucide="${iconName}" class="w-4 h-4 flex-shrink-0"></i>
+            <div class="flex-1 font-bold text-xs tracking-tight">${message}</div>
             <button onclick="this.parentElement.remove()" class="text-gray-400 hover:text-gray-600">
-                <i data-lucide="x" class="w-4 h-4"></i>
+                <i data-lucide="x" class="w-3.5 h-3.5"></i>
             </button>
         `;
         container.prepend(toast);
-        lucide.createIcons();
+        if (typeof lucide !== 'undefined') lucide.createIcons();
         setTimeout(() => {
             toast.style.opacity = '0';
             setTimeout(() => toast.remove(), 300);
@@ -1090,8 +1099,6 @@
         if (cachedPhotoResults.length > 0) {
             renderPhotoSuggestionsGrid(cachedPhotoResults);
         }
-
-        showToast(`AI assigned 3D asset for "${meta.category}"`, 'info');
     }
 
     function promptCustomImageUrl() {
