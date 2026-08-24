@@ -65,9 +65,8 @@
                     $finalDescription = preg_replace('/Emergency Alert triggered by driver.*?Description:\s*/s', '', $finalDescription);
                     // Also clean up if it was a direct accident report without SOS
                     $finalDescription = preg_replace('/Damage Level:.*?Description:\s*/s', '', $finalDescription);
-                @endphp
-                <tr class="bg-white shadow-sm border border-gray-100 rounded-xl cursor-pointer hover:-translate-y-1 hover:shadow-lg hover:border-red-200 transition-all duration-300 {{ $r->status === 'pending' ? 'bg-red-50/30 border-red-100' : '' }}" 
-                    onclick="openAccidentModal({{ json_encode([
+                    
+                    $reportPayload = [
                         'id' => $r->id,
                         'date' => \Carbon\Carbon::parse($r->created_at)->format('M d, Y h:i A'),
                         'driver' => trim(($r->driver->first_name ?? '') . ' ' . ($r->driver->last_name ?? '')),
@@ -78,7 +77,11 @@
                         'latitude' => $r->latitude,
                         'longitude' => $r->longitude,
                         'photo_path' => $r->photo_path ? asset($r->photo_path) : null
-                    ]) }})">
+                    ];
+                @endphp
+                <tr class="bg-white shadow-sm border border-gray-100 rounded-xl cursor-pointer hover:-translate-y-1 hover:shadow-lg hover:border-red-200 transition-all duration-300 {{ $r->status === 'pending' ? 'bg-red-50/30 border-red-100' : '' }}" 
+                    data-report="{{ htmlspecialchars(json_encode($reportPayload), ENT_QUOTES, 'UTF-8') }}"
+                    onclick="openAccidentModal(this)">
                     <td class="px-5 py-4 rounded-l-xl border-y border-l border-gray-100 {{ $r->status === 'pending' ? 'border-red-100' : '' }}">
                         <div class="text-xs font-black text-gray-800">{{ \Carbon\Carbon::parse($r->created_at)->format('M d, Y') }}</div>
                         <div class="text-[10px] text-gray-500">{{ \Carbon\Carbon::parse($r->created_at)->format('h:i A') }}</div>
@@ -135,7 +138,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="6" class="px-5 py-12 text-center">
+                    <td colspan="7" class="px-5 py-12 text-center">
                         <i data-lucide="check-circle" class="w-8 h-8 text-gray-300 mx-auto mb-2"></i>
                         <p class="text-sm font-medium text-gray-500">No accident reports found.</p>
                         <p class="text-xs text-gray-400">Accident SOS alerts from the driver app will appear here.</p>
@@ -147,79 +150,106 @@
     </div>
 </div>
 
-<!-- Accident Report Modal -->
-<div id="accidentModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9999] hidden items-center justify-center p-4 opacity-0 transition-opacity duration-300">
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden transform scale-95 transition-transform duration-300" id="accidentModalContent">
-        <div class="bg-red-600 px-6 py-4 flex items-center justify-between">
-            <h3 class="text-white font-black text-lg tracking-wider uppercase flex items-center gap-2">
-                <i data-lucide="alert-triangle" class="w-5 h-5"></i>
-                Accident Report Details
-            </h3>
-            <button onclick="closeAccidentModal()" class="text-white/80 hover:text-white transition-colors">
-                <i data-lucide="x" class="w-6 h-6"></i>
+<!-- Accident Report Modal (21st.dev Executive Theme) -->
+<div id="accidentModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-[9999] hidden items-center justify-center p-3 sm:p-5 opacity-0 transition-opacity duration-300">
+    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-2xl overflow-hidden transform scale-95 transition-transform duration-300 border border-slate-700/30 flex flex-col max-h-[90vh]" id="accidentModalContent">
+        <div class="bg-slate-900 border-b border-slate-800 px-6 py-4 flex items-center justify-between shrink-0">
+            <div class="flex items-center gap-3">
+                <div class="p-2 bg-rose-500/20 text-rose-400 rounded-xl border border-rose-500/30">
+                    <i data-lucide="alert-triangle" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <h3 class="text-white font-black text-base sm:text-lg tracking-tight uppercase">
+                        Accident / SOS Report
+                    </h3>
+                    <p class="text-xs font-semibold text-slate-400">Incident Details & Emergency Assessment</p>
+                </div>
+            </div>
+            <button onclick="closeAccidentModal()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white flex items-center justify-center transition-all duration-200 backdrop-blur-sm border border-white/10 focus:outline-none">
+                <i data-lucide="x" class="w-4 h-4"></i>
             </button>
         </div>
         
-        <div class="p-6 overflow-y-auto max-h-[80vh]">
-            <div class="grid grid-cols-2 gap-4 mb-6">
-                <div class="bg-gray-50 p-3 rounded-xl border border-gray-100">
-                    <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Driver</p>
-                    <p class="text-sm font-bold text-gray-800" id="modDriver">-</p>
+        <div class="p-6 overflow-y-auto flex-1 space-y-4 bg-slate-50/50">
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div class="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-2xs">
+                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Driver</p>
+                    <p class="text-xs sm:text-sm font-black text-slate-800 truncate" id="modDriver">-</p>
                 </div>
-                <div class="bg-gray-50 p-3 rounded-xl border border-gray-100">
-                    <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Unit / Plate</p>
-                    <p class="text-sm font-bold text-blue-600 uppercase" id="modUnit">-</p>
+                <div class="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-2xs">
+                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Unit Plate</p>
+                    <p class="text-xs sm:text-sm font-black text-blue-600 uppercase truncate" id="modUnit">-</p>
                 </div>
-                <div class="bg-gray-50 p-3 rounded-xl border border-gray-100">
-                    <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Date & Time</p>
-                    <p class="text-sm font-bold text-gray-800" id="modDate">-</p>
+                <div class="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-2xs">
+                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Date & Time</p>
+                    <p class="text-xs sm:text-sm font-bold text-slate-800" id="modDate">-</p>
                 </div>
-                <div class="bg-gray-50 p-3 rounded-xl border border-gray-100">
-                    <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Status</p>
-                    <p class="text-sm font-black" id="modStatus">-</p>
+                <div class="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-2xs">
+                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Status</p>
+                    <p class="text-xs sm:text-sm font-black" id="modStatus">-</p>
                 </div>
             </div>
             
-            <div class="mb-6">
-                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Description</p>
-                <div class="bg-red-50/50 border border-red-100 p-4 rounded-xl text-sm text-gray-700 leading-relaxed font-medium" id="modDesc">
+            <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-2xs">
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Description</p>
+                <div class="bg-rose-50/40 border border-rose-100 p-3.5 rounded-xl text-xs sm:text-sm text-slate-700 leading-relaxed font-medium" id="modDesc">
                     -
                 </div>
             </div>
             
-            <div class="mb-6" id="modPhotoContainer" style="display: none;">
-                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Attached Photo</p>
-                <div class="rounded-xl overflow-hidden border border-gray-200 bg-gray-50 flex items-center justify-center">
-                    <img id="modPhoto" src="" alt="Accident Photo" class="max-w-full h-auto max-h-[300px] object-contain">
+            <div id="modPhotoContainer" style="display: none;" class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-2xs">
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Attached Photo Evidence</p>
+                <div class="rounded-xl overflow-hidden border border-slate-200 bg-slate-900 flex items-center justify-center p-2">
+                    <img id="modPhoto" src="" alt="Accident Photo" class="max-w-full h-auto max-h-[320px] object-contain rounded-lg">
                 </div>
             </div>
             
-            <div id="modLocationContainer" style="display: none;" class="mb-6">
-                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Location Address</p>
-                <div class="bg-gray-50 p-4 rounded-xl border border-gray-100 mb-3">
-                    <p class="text-sm font-bold text-gray-800" id="modAddress">Fetching address...</p>
+            <div id="modLocationContainer" style="display: none;" class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-2xs">
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Location Address</p>
+                <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200/80 mb-3">
+                    <p class="text-xs sm:text-sm font-bold text-slate-800" id="modAddress">Fetching address...</p>
                 </div>
-                <a id="modLocationLink" href="#" target="_blank" class="w-full flex items-center justify-center gap-2 bg-blue-50 text-blue-700 py-3 rounded-xl border border-blue-200 hover:bg-blue-100 transition-colors font-black text-xs uppercase tracking-widest">
+                <a id="modLocationLink" href="#" target="_blank" class="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-3 rounded-xl shadow-md shadow-blue-500/20 transition-all font-black text-xs uppercase tracking-wider">
                     <i data-lucide="map-pin" class="w-4 h-4"></i> View Exact Location on Google Maps
                 </a>
             </div>
+        </div>
+
+        <div class="bg-slate-50 px-6 py-3.5 border-t border-slate-200/80 flex justify-end shrink-0">
+            <button onclick="closeAccidentModal()" class="px-5 py-2 bg-slate-200/80 hover:bg-slate-300 text-slate-700 font-black text-xs rounded-xl transition-all uppercase tracking-wider">
+                Close
+            </button>
         </div>
     </div>
 </div>
 
 <script>
-    function openAccidentModal(data) {
-        document.getElementById('modDriver').textContent = data.driver;
-        document.getElementById('modUnit').textContent = data.unit;
-        document.getElementById('modDate').textContent = data.date;
-        document.getElementById('modDesc').textContent = data.description;
+    function openAccidentModal(target) {
+        let data;
+        if (target instanceof HTMLElement) {
+            const raw = target.getAttribute('data-report');
+            try {
+                data = JSON.parse(raw);
+            } catch(e) {
+                console.error('Failed to parse report data', e);
+                return;
+            }
+        } else {
+            data = target;
+        }
+        if (!data) return;
+
+        document.getElementById('modDriver').textContent = data.driver || '-';
+        document.getElementById('modUnit').textContent = data.unit || '-';
+        document.getElementById('modDate').textContent = data.date || '-';
+        document.getElementById('modDesc').textContent = data.description || 'No description provided.';
         
         const statusEl = document.getElementById('modStatus');
-        statusEl.textContent = data.status;
+        statusEl.textContent = data.status || '-';
         if (data.status === 'PENDING') {
-            statusEl.className = 'text-sm font-black text-red-600';
+            statusEl.className = 'text-xs sm:text-sm font-black text-rose-600';
         } else {
-            statusEl.className = 'text-sm font-black text-green-600';
+            statusEl.className = 'text-xs sm:text-sm font-black text-emerald-600';
         }
         
         const photoContainer = document.getElementById('modPhotoContainer');
@@ -264,6 +294,8 @@
         modal.classList.remove('hidden');
         modal.classList.add('flex');
         
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+
         // Trigger animations
         setTimeout(() => {
             modal.classList.remove('opacity-0');
@@ -283,6 +315,14 @@
             modal.classList.remove('flex');
         }, 300);
     }
+
+    // Close on backdrop click and Escape key
+    document.getElementById('accidentModal')?.addEventListener('click', function(e) {
+        if (e.target === this) closeAccidentModal();
+    });
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') closeAccidentModal();
+    });
 
     async function processTableGeocoding() {
         const elements = document.querySelectorAll('.reverse-geocode');
@@ -355,7 +395,7 @@
                     noResultsRow = document.createElement('tr');
                     noResultsRow.className = 'no-results-filter';
                     noResultsRow.innerHTML = `
-                        <td colspan="6" class="px-5 py-8 text-center text-gray-500 text-sm">
+                        <td colspan="7" class="px-5 py-8 text-center text-gray-500 text-sm">
                             No accident reports match your search criteria.
                         </td>
                     `;
@@ -365,6 +405,8 @@
             } else if (noResultsRow) {
                 noResultsRow.style.display = 'none';
             }
+        }
+
         if (searchInput) {
             let isUserTyping = false;
 
