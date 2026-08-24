@@ -13,8 +13,12 @@
             <tr class="hover:bg-slate-50/80 transition-colors">
                 <td class="px-6 sm:px-8 py-5 whitespace-nowrap">
                     <div class="flex items-center gap-3">
-                        <div class="w-9 h-9 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center font-black text-xs shadow-2xs shrink-0">
-                            {{ strtoupper(substr($driver->first_name ?? ($driver->full_name ?? 'D'), 0, 1)) }}
+                        <div class="relative w-9 h-9 rounded-xl overflow-hidden shrink-0 border border-amber-300 bg-slate-100 shadow-2xs">
+                            @if(!empty($driver->profile_photo))
+                                <img src="{{ asset($driver->profile_photo) }}" alt="{{ $driver->full_name }}" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='{{ asset('image/avatars/driver.svg') }}';">
+                            @else
+                                <img src="{{ asset('image/avatars/driver.svg') }}" alt="{{ $driver->full_name }}" class="w-full h-full object-cover bg-amber-50">
+                            @endif
                         </div>
                         <div>
                             <div class="text-sm font-black text-slate-900">{{ $driver->full_name ?? 'N/A' }}</div>

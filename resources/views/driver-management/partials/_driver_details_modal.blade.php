@@ -4,9 +4,9 @@
         {{-- Modal Header (Deep Navy) --}}
         <div class="bg-slate-800 p-5 shrink-0">
             <div class="flex justify-between items-center">
-                <div class="flex items-center gap-3">
-                    <div class="p-2.5 bg-white/20 rounded-xl flex items-center justify-center">
-                        <i data-lucide="user-check" class="w-6 h-6 text-blue-400"></i>
+                <div class="flex items-center gap-3.5">
+                    <div class="relative w-12 h-12 rounded-2xl overflow-hidden flex-shrink-0 border-2 border-amber-400 bg-slate-900 shadow-sm">
+                        <img id="driverDetailsAvatar" src="{{ asset('image/avatars/driver.svg') }}" alt="Driver Avatar" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='{{ asset('image/avatars/driver.svg') }}';">
                     </div>
                     <div>
                         <h3 class="text-xl font-black text-white tracking-wide uppercase" id="driverDetailsName">Driver Details</h3>

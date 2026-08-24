@@ -26,6 +26,15 @@
             document.getElementById('driverDetailsName').textContent = data.full_name || 'Driver Details';
             document.getElementById('driverDetailsSubtitle').textContent = data.assigned_unit ? `Assigned to ${data.assigned_unit}` : 'Not currently assigned';
 
+            const avatarEl = document.getElementById('driverDetailsAvatar');
+            if (avatarEl) {
+                if (data.profile_photo) {
+                    avatarEl.src = data.profile_photo.startsWith('http') ? data.profile_photo : '{{ asset("") }}' + data.profile_photo.replace(/^\//, '');
+                } else {
+                    avatarEl.src = '{{ asset("image/avatars/driver.svg") }}';
+                }
+            }
+
             document.getElementById('basicInfoContent').innerHTML = `
                 <div>
                     <p><span class="font-semibold text-gray-500">First Name:</span> ${data.first_name || ''}</p>

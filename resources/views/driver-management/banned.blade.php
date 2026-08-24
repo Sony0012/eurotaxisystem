@@ -124,8 +124,12 @@
                 
                 {{-- Card Header --}}
                 <div class="p-6 border-b border-gray-50 flex items-start gap-4 bg-slate-50/50">
-                    <div class="w-14 h-14 bg-gradient-to-br {{ $driver->driver_status === 'suspended' ? 'from-amber-500 to-orange-600 shadow-amber-500/10' : 'from-red-500 to-rose-600 shadow-red-500/10' }} rounded-2xl flex items-center justify-center text-white text-lg font-black shrink-0 shadow-lg">
-                        {{ substr($driver->first_name, 0, 1) }}{{ substr($driver->last_name, 0, 1) }}
+                    <div class="relative w-14 h-14 rounded-2xl overflow-hidden shrink-0 border-2 {{ $driver->driver_status === 'suspended' ? 'border-amber-400' : 'border-red-400' }} shadow-sm bg-slate-100">
+                        @if(!empty($driver->profile_photo))
+                            <img src="{{ asset($driver->profile_photo) }}" alt="{{ $driver->full_name }}" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='{{ asset('image/avatars/driver.svg') }}';">
+                        @else
+                            <img src="{{ asset('image/avatars/driver.svg') }}" alt="{{ $driver->full_name }}" class="w-full h-full object-cover bg-amber-50">
+                        @endif
                     </div>
                     <div class="flex-1 min-w-0">
                         <div class="flex items-center gap-2 flex-wrap">
