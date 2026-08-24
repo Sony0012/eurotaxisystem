@@ -40,36 +40,67 @@
 <div class="space-y-8">
 
     {{-- ── Hero Header Panel ──────────────────────────────── --}}
-    <div class="relative bg-slate-900 rounded-[2.5rem] p-8 overflow-hidden shadow-2xl border border-orange-500/10">
-        <div class="absolute -right-24 -top-24 w-96 h-96 bg-orange-600/10 rounded-full blur-[120px] pointer-events-none"></div>
-        <div class="absolute -left-24 -bottom-24 w-72 h-72 bg-red-500/8 rounded-full blur-[100px] pointer-events-none"></div>
+    <div class="relative bg-gradient-to-br from-slate-950 via-slate-900 to-zinc-900 rounded-[2.25rem] p-6 sm:p-8 overflow-hidden shadow-2xl border border-slate-800">
+        <!-- SVG Decorative Mesh / Glow -->
+        <div class="absolute -right-20 -top-20 w-80 h-80 bg-red-600/15 rounded-full blur-[100px] pointer-events-none"></div>
+        <div class="absolute -left-20 -bottom-20 w-80 h-80 bg-amber-500/10 rounded-full blur-[100px] pointer-events-none"></div>
+        <svg class="absolute right-0 bottom-0 w-96 h-96 opacity-5 pointer-events-none" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M100 0C44.7715 0 0 44.7715 0 100C0 155.228 44.7715 200 100 200C155.228 200 200 155.228 200 100C200 44.7715 155.228 0 100 0Z" stroke="white" stroke-width="2" stroke-dasharray="8 8"/>
+            <path d="M100 30C61.3401 30 30 61.3401 30 100C30 138.66 61.3401 170 100 170C138.66 170 170 138.66 170 100C170 61.3401 138.66 30 100 30Z" stroke="white" stroke-width="1.5"/>
+            <path d="M100 60C77.9086 60 60 77.9086 60 100C60 122.091 77.9086 140 100 140C122.091 140 140 122.091 140 100C140 77.9086 122.091 60 100 60Z" stroke="white" stroke-width="1"/>
+        </svg>
 
-        <div class="relative flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-            <div class="flex items-center gap-5">
-                <div class="w-16 h-16 bg-gradient-to-br from-orange-500 to-red-600 rounded-3xl flex items-center justify-center shadow-xl shadow-orange-500/25 pulse-ring shrink-0">
-                    <i data-lucide="flag" class="w-8 h-8 text-white"></i>
+        <div class="relative flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+            <div class="flex items-center gap-4 sm:gap-5">
+                <div class="w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-orange-500 via-rose-500 to-red-600 rounded-2xl flex items-center justify-center shadow-xl shadow-red-500/25 pulse-ring shrink-0 border border-white/20">
+                    <svg class="w-7 h-7 sm:w-8 sm:h-8 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/>
+                        <line x1="4" y1="22" x2="4" y2="15"/>
+                    </svg>
                 </div>
                 <div>
-                    <h3 class="text-2xl font-black text-white tracking-tight">Flagged Units Registry</h3>
-                    <p class="text-sm text-slate-400 mt-1 font-medium max-w-xl leading-relaxed">
-                        Units manually marked as missing/stolen, or automatically flagged by the system due to overdue boundaries exceeding 48 hours.
+                    <div class="flex items-center gap-2.5 flex-wrap">
+                        <h3 class="text-xl sm:text-2xl lg:text-3xl font-black text-white tracking-tight">Flagged Units Registry</h3>
+                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-red-500/20 text-red-400 border border-red-500/30 flex items-center gap-1">
+                            <span class="w-1.5 h-1.5 rounded-full bg-red-400 animate-ping"></span> Live Radar
+                        </span>
+                    </div>
+                    <p class="text-xs sm:text-sm text-slate-400 mt-1 font-medium max-w-xl leading-relaxed">
+                        Central registry for units manually reported as missing/stolen or automatically flagged by the system due to boundary delays exceeding 48 hours.
                     </p>
                 </div>
             </div>
 
-            {{-- Stats row --}}
-            <div class="flex flex-wrap gap-3 shrink-0">
-                <div class="flex flex-col text-center bg-red-500/10 px-5 py-3 rounded-2xl border border-red-500/15">
-                    <span class="text-[10px] font-black text-red-400 uppercase tracking-widest mb-0.5">Total Flagged</span>
-                    <span class="text-3xl font-black text-red-400 tracking-tight" id="total-flagged-count">{{ $flaggedCount }}</span>
+            {{-- Stats row with modern glassmorphism & SVG icons --}}
+            <div class="flex flex-wrap sm:flex-nowrap gap-3 shrink-0 w-full lg:w-auto">
+                <div class="flex-1 sm:flex-initial flex items-center gap-3 bg-red-500/10 hover:bg-red-500/15 transition-all px-4 sm:px-5 py-3 rounded-2xl border border-red-500/25 backdrop-blur-md shadow-lg shadow-red-500/5 min-w-[130px]">
+                    <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-red-500/20 flex items-center justify-center text-red-400 shrink-0">
+                        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                    </div>
+                    <div>
+                        <span class="text-[9px] sm:text-[10px] font-black text-red-300 uppercase tracking-widest block">Total Flagged</span>
+                        <span class="text-2xl sm:text-3xl font-black text-red-400 tracking-tight" id="total-flagged-count">{{ $flaggedCount }}</span>
+                    </div>
                 </div>
-                <div class="flex flex-col text-center bg-slate-800/60 px-5 py-3 rounded-2xl border border-slate-700/40">
-                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Missing</span>
-                    <span class="text-3xl font-black text-white tracking-tight">{{ $stolenCount }}</span>
+
+                <div class="flex-1 sm:flex-initial flex items-center gap-3 bg-slate-800/60 hover:bg-slate-800/80 transition-all px-4 sm:px-5 py-3 rounded-2xl border border-slate-700/50 backdrop-blur-md min-w-[130px]">
+                    <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-slate-700/50 flex items-center justify-center text-slate-300 shrink-0">
+                        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/></svg>
+                    </div>
+                    <div>
+                        <span class="text-[9px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest block">Missing</span>
+                        <span class="text-2xl sm:text-3xl font-black text-white tracking-tight">{{ $stolenCount }}</span>
+                    </div>
                 </div>
-                <div class="flex flex-col text-center bg-slate-800/60 px-5 py-3 rounded-2xl border border-slate-700/40">
-                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Auto-Detected</span>
-                    <span class="text-3xl font-black text-white tracking-tight">{{ $autoCount }}</span>
+
+                <div class="flex-1 sm:flex-initial flex items-center gap-3 bg-slate-800/60 hover:bg-slate-800/80 transition-all px-4 sm:px-5 py-3 rounded-2xl border border-slate-700/50 backdrop-blur-md min-w-[130px]">
+                    <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-slate-700/50 flex items-center justify-center text-amber-400 shrink-0">
+                        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    </div>
+                    <div>
+                        <span class="text-[9px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest block">Auto-Detected</span>
+                        <span class="text-2xl sm:text-3xl font-black text-white tracking-tight">{{ $autoCount }}</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -129,149 +160,130 @@
             $isMissing      = $unit->flag_source === 'manual_stolen';
             $isAuto         = $unit->flag_source === 'auto_boundary';
 
-            $badgeText  = $isMissing ? 'Missing' : 'Auto-Flagged';
+            $badgeText  = $isMissing ? 'Missing / Stolen' : 'Auto-Flagged';
             $badgeCss   = $isMissing
-                ? 'bg-red-100 text-red-700 border-red-200'
-                : 'bg-orange-100 text-orange-700 border-orange-200';
+                ? 'bg-red-50 text-red-700 border-red-200'
+                : 'bg-amber-50 text-amber-700 border-amber-200';
             $gradientCss = $isMissing
                 ? 'from-red-500 to-rose-600 shadow-red-500/20'
                 : 'from-orange-500 to-amber-600 shadow-orange-500/20';
             $pulseClass = $isMissing ? 'pulse-ring' : 'pulse-ring-amber';
+
+            $dPhoto = $unit->suspect_photo ?? asset('image/avatars/driver.svg');
+            $dName = $unit->suspect_driver ?? 'Unknown Driver';
+            $dContact = $unit->suspect_contact ?? '—';
         @endphp
 
-        <div class="flag-card bg-white rounded-[2rem] border border-gray-100 shadow-sm overflow-hidden flex flex-col"
+        <div class="flag-card bg-white rounded-3xl border border-slate-200/80 shadow-sm hover:shadow-xl hover:border-orange-300 transition-all duration-300 overflow-hidden flex flex-col justify-between"
              id="flagcard-{{ $unit->uuid }}"
              data-flag-source="{{ $unit->flag_source }}"
              data-search-terms="{{ strtolower($unit->plate_number . ' ' . $unit->make . ' ' . $unit->model . ' ' . ($unit->suspect_driver ?? '') . ' ' . ($unit->last_known_driver ?? '')) }}">
 
-            {{-- Card Header --}}
-            <div class="p-6 bg-slate-50/60 border-b border-gray-50 flex items-start gap-4">
-                <div class="w-14 h-14 bg-gradient-to-br {{ $gradientCss }} rounded-2xl flex items-center justify-center text-white text-lg font-black shrink-0 shadow-lg {{ $pulseClass }}">
-                    <i data-lucide="{{ $isMissing ? 'alert-triangle' : 'clock' }}" class="w-6 h-6"></i>
-                </div>
-                <div class="flex-1 min-w-0">
-                    <div class="flex items-center gap-2 flex-wrap">
-                        <h4 class="text-base font-black text-slate-900 tracking-tight">{{ $unit->plate_number }}</h4>
-                        <span class="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-widest border {{ $badgeCss }}">{{ $badgeText }}</span>
+            {{-- 1. Card Header --}}
+            <div class="p-5 sm:p-6 bg-gradient-to-r from-slate-50 via-slate-50/70 to-orange-50/30 border-b border-slate-100 flex items-start justify-between gap-3">
+                <div class="flex items-center gap-3.5">
+                    <div class="w-12 h-12 bg-gradient-to-br {{ $gradientCss }} rounded-2xl flex items-center justify-center text-white text-base font-black shrink-0 shadow-md {{ $pulseClass }}">
+                        <i data-lucide="{{ $isMissing ? 'alert-triangle' : 'clock' }}" class="w-6 h-6"></i>
                     </div>
-                    <p class="text-xs text-slate-500 font-bold mt-0.5">{{ $unit->make }} {{ $unit->model }} @if(!empty($unit->year))({{ $unit->year }})@endif</p>
-                    <p class="text-[10px] text-slate-400 mt-0.5 font-bold uppercase tracking-widest">Unit ID: UNT-{{ str_pad($unit->uuid, 4, '0', STR_PAD_LEFT) }}</p>
-                </div>
-            </div>
-
-            {{-- Card Body --}}
-            <div class="p-6 flex-1 space-y-4">
-                <div class="space-y-3">
-                    {{-- Status & Days Inactive Group --}}
-                    <div class="card-status-section grid grid-cols-2 gap-4 p-2 bg-slate-50/50 rounded-xl border border-slate-100/50">
-                        <div class="space-y-0.5">
-                            <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Status</span>
-                            <span class="text-xs font-black text-red-600 capitalize">
-                                @if(($unit->flag_source ?? '') === 'auto_boundary')
-                                    Missing (Auto-Flagged)
-                                @elseif(($unit->flag_source ?? '') === 'manual_stolen')
-                                    Missing (Manual Flag)
-                                @else
-                                    {{ str_replace('_', ' ', $unit->status) }}
-                                @endif
-                            </span>
-                        </div>
-                        <div class="space-y-0.5">
-                            <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Days Inactive</span>
-                            <span class="text-xs font-black {{ ($unit->days_inactive ?? 0) > 7 ? 'text-red-600' : 'text-amber-600' }}">
-                                {{ $unit->days_inactive !== null ? $unit->days_inactive . ' day(s)' : 'N/A' }}
-                            </span>
-                        </div>
-                    </div>
-
-                    {{-- Suspect Driver & Contact Group --}}
-                    <div class="card-driver-section grid grid-cols-2 gap-4 p-2 bg-slate-50/50 rounded-xl border border-slate-100/50">
-                        <div class="space-y-0.5">
-                            <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Suspect Driver</span>
-                            <span class="text-xs font-bold text-slate-700 truncate block">{{ $unit->suspect_driver ?? 'Unknown' }}</span>
-                        </div>
-                        <div class="space-y-0.5">
-                            <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Contact</span>
-                            <span class="text-xs font-bold text-slate-600">{{ $unit->suspect_contact ?? '—' }}</span>
-                        </div>
-                    </div>
-                </div>
-
-                @if(!empty($unit->missing_since))
-                <div class="pt-3 border-t border-gray-50 space-y-0.5">
-                    <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Missing Since</span>
-                    <span class="text-xs font-bold text-slate-700">{{ $unit->missing_since }}</span>
-                </div>
-                @endif
-
-                @if(!empty($unit->description))
-                <div class="card-description-section p-3.5 bg-slate-50 rounded-2xl border border-slate-100/85 space-y-1">
-                    <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Description / Details</span>
-                    <p class="text-xs text-slate-600 font-medium leading-relaxed">{{ $unit->description }}</p>
-                </div>
-                @endif
-
-                <div class="card-audit-section space-y-3">
-                    @if(!empty($unit->last_boundary_date))
-                    <div class="pt-3 border-t border-gray-50 space-y-0.5">
-                        <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Last Boundary Submitted</span>
-                        <span class="text-xs font-bold text-slate-600">{{ $unit->last_boundary_date }}</span>
-                    </div>
-                    @endif
-
-                    @if(!empty($unit->last_known_driver) && $unit->last_known_driver !== 'No boundary record')
-                    <div class="space-y-0.5">
-                        <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Last Known Driver</span>
-                        <span class="text-xs font-bold text-slate-700">{{ $unit->last_known_driver }}</span>
-                    </div>
-                    @endif
-                </div>
-
-                @if(!empty($unit->stolen_driver_license_no))
-                <div class="pt-3 border-t border-gray-50 flex items-center gap-2 p-2 bg-red-50 rounded-xl border border-red-100">
-                    <i data-lucide="credit-card" class="w-4 h-4 text-red-500 shrink-0"></i>
                     <div>
-                        <span class="text-[9px] font-black text-red-500 uppercase tracking-widest block">Suspect License No.</span>
-                        <span class="text-xs font-black text-red-800 font-mono tracking-wider">{{ $unit->stolen_driver_license_no }}</span>
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <h4 class="text-lg font-black text-slate-900 tracking-tight">{{ $unit->plate_number }}</h4>
+                            <span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider border {{ $badgeCss }}">{{ $badgeText }}</span>
+                        </div>
+                        <p class="text-xs text-slate-500 font-bold mt-0.5">{{ $unit->make }} {{ $unit->model }} @if(!empty($unit->year))({{ $unit->year }})@endif</p>
+                        <span class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Unit ID: UNT-{{ str_pad($unit->uuid, 4, '0', STR_PAD_LEFT) }}</span>
                     </div>
                 </div>
-                @endif
 
-                {{-- Flag Source Info --}}
-                <div class="pt-3 border-t border-gray-50 flex items-start gap-2 text-[10px] font-semibold text-slate-400 italic">
-                    <i data-lucide="{{ $isAuto ? 'cpu' : 'user-check' }}" class="w-3.5 h-3.5 mt-0.5 shrink-0"></i>
-                    <span>
-                        @if($isMissing) Manually reported as missing or stolen
-                        @else Auto-detected: no boundary submitted for 48+ hours
-                        @endif
+                <div class="text-right shrink-0">
+                    <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Days Inactive</span>
+                    <span class="inline-flex items-center gap-1 font-black text-xs px-2.5 py-1 rounded-full {{ ($unit->days_inactive ?? 0) > 7 ? 'bg-red-50 text-red-600 border border-red-100' : 'bg-amber-50 text-amber-700 border border-amber-200' }} mt-0.5">
+                        <i data-lucide="clock" class="w-3 h-3"></i>
+                        {{ $unit->days_inactive !== null ? $unit->days_inactive . ' day(s)' : 'N/A' }}
                     </span>
                 </div>
             </div>
 
-            {{-- Card Footer Actions --}}
-            <div class="p-5 border-t border-gray-50 bg-slate-50 flex justify-between items-center gap-2 relative z-10 pointer-events-auto">
+            {{-- 2. Card Body --}}
+            <div class="p-5 sm:p-6 flex-1 space-y-4">
+                
+                {{-- 👤 Suspect / Assigned Driver Profile Card with Picture --}}
+                <div class="p-3.5 bg-slate-50/80 hover:bg-slate-100/80 transition-colors rounded-2xl border border-slate-200/60 flex items-center gap-3.5 group">
+                    <div class="relative w-13 h-13 sm:w-14 sm:h-14 rounded-full overflow-hidden border-2 border-amber-400 bg-slate-200 flex-shrink-0 cursor-pointer shadow-xs"
+                         onclick="event.stopPropagation(); if(typeof openImageModal==='function'){ openImageModal('{{ $dPhoto }}'); }"
+                         title="Click to view driver photo">
+                        <img src="{{ $dPhoto }}" alt="{{ $dName }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200" onerror="this.onerror=null; this.src='{{ asset('image/avatars/driver.svg') }}';">
+                    </div>
+                    <div class="min-w-0 flex-1">
+                        <div class="flex items-center justify-between gap-1">
+                            <span class="text-[9px] font-black uppercase tracking-wider text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200/60">
+                                {{ $isMissing ? 'Suspect Driver' : 'Assigned Driver' }}
+                            </span>
+                            @if(!empty($unit->missing_since))
+                                <span class="text-[10px] font-bold text-slate-400">Since {{ $unit->missing_since }}</span>
+                            @endif
+                        </div>
+                        <h5 class="text-sm font-extrabold text-slate-900 truncate mt-1 group-hover:text-blue-600 transition-colors">{{ $dName }}</h5>
+                        <p class="text-xs text-slate-500 font-medium flex items-center gap-1 mt-0.5">
+                            <i data-lucide="phone" class="w-3 h-3 text-slate-400 shrink-0"></i>
+                            <span class="truncate">{{ $dContact }}</span>
+                        </p>
+                    </div>
+                </div>
+
+                {{-- Description / Delay Reason Box --}}
+                @if(!empty($unit->description))
+                <div class="p-3 bg-amber-50/60 rounded-xl border border-amber-200/50 flex items-start gap-2.5">
+                    <i data-lucide="alert-circle" class="w-4 h-4 text-amber-600 shrink-0 mt-0.5"></i>
+                    <p class="text-xs text-amber-950 font-medium leading-relaxed">{{ $unit->description }}</p>
+                </div>
+                @endif
+
+                {{-- Last Boundary & Last Known Driver --}}
+                <div class="grid grid-cols-2 gap-3 pt-2 border-t border-slate-100 text-xs">
+                    <div class="space-y-0.5">
+                        <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Last Boundary</span>
+                        <span class="font-bold text-slate-700 block text-[11px]">{{ $unit->last_boundary_date ?? 'No record' }}</span>
+                    </div>
+                    <div class="space-y-0.5">
+                        <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Last Known Driver</span>
+                        <span class="font-bold text-slate-700 block text-[11px] truncate">{{ $unit->last_known_driver ?? 'None' }}</span>
+                    </div>
+                </div>
+
+                @if(!empty($unit->stolen_driver_license_no))
+                <div class="flex items-center gap-2 p-2 bg-red-50 rounded-xl border border-red-100 text-xs">
+                    <i data-lucide="credit-card" class="w-3.5 h-3.5 text-red-500 shrink-0"></i>
+                    <span class="text-[9px] font-black text-red-500 uppercase tracking-wider">License:</span>
+                    <span class="font-bold text-red-800 font-mono">{{ $unit->stolen_driver_license_no }}</span>
+                </div>
+                @endif
+            </div>
+
+            {{-- 3. Card Footer Actions --}}
+            <div class="p-4 sm:p-5 border-t border-slate-100 bg-slate-50/80 flex items-center justify-between gap-2">
                 <button type="button" onclick="viewUnitDetails({{ $unit->uuid }})"
-                   class="flex items-center gap-1.5 px-3 py-2 text-[10px] font-black text-slate-600 bg-white border border-gray-200 rounded-xl hover:bg-slate-100 transition-all cursor-pointer">
-                    <i data-lucide="eye" class="w-3.5 h-3.5"></i> View
+                   class="flex items-center gap-1.5 px-3.5 py-2 text-xs font-black text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-100 hover:border-slate-300 transition-all shadow-xs cursor-pointer">
+                    <i data-lucide="eye" class="w-3.5 h-3.5 text-slate-500"></i> View Details
                 </button>
                 
                 @if($isMissing)
                 <button type="button"
                         onclick="recoverUnit({{ $unit->uuid }}, '{{ $unit->plate_number }}')"
-                        class="relative z-50 pointer-events-auto flex items-center gap-1.5 px-4 py-2 bg-slate-900 hover:bg-slate-700 text-white text-[10px] font-black rounded-xl transition-all active:scale-95 shadow-md cursor-pointer">
-                    <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-400"></i> Mark Recovered
+                        class="flex items-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black rounded-xl transition-all active:scale-95 shadow-md shadow-emerald-500/20 cursor-pointer">
+                    <i data-lucide="shield-check" class="w-4 h-4"></i> Mark Recovered
                 </button>
                 @else
                 <div class="flex items-center gap-2">
                     <button type="button"
                             onclick="ignoreFlag({{ $unit->uuid }}, '{{ $unit->plate_number }}')"
-                            class="relative z-50 pointer-events-auto flex items-center gap-1.5 px-3 py-2 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 text-[10px] font-black rounded-xl transition-all active:scale-95 cursor-pointer"
+                            class="flex items-center gap-1.5 px-3 py-2 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 text-xs font-bold rounded-xl transition-all cursor-pointer"
                             title="Postpone this alert for 24 hours">
-                        <i data-lucide="clock" class="w-3.5 h-3.5 text-orange-500"></i> Ignore
+                        <i data-lucide="clock" class="w-3.5 h-3.5 text-amber-500"></i> Ignore
                     </button>
                     <button type="button"
                             onclick="openManualFlagModal({{ $unit->uuid }})"
-                            class="relative z-50 pointer-events-auto flex items-center gap-1.5 px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-[10px] font-black rounded-xl transition-all active:scale-95 shadow-md shadow-red-500/20 cursor-pointer">
+                            class="flex items-center gap-1.5 px-3.5 py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-black rounded-xl transition-all active:scale-95 shadow-md shadow-red-500/20 cursor-pointer">
                         <i data-lucide="alert-triangle" class="w-3.5 h-3.5"></i> Mark Missing
                     </button>
                 </div>

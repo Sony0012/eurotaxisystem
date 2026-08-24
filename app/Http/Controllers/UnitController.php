@@ -1012,7 +1012,7 @@ class UnitController extends Controller
                 ->keyBy('unit_id');
                 
             $all_drivers = DB::table('drivers')
-                ->select('id', 'first_name', 'last_name', 'contact_number')
+                ->select('id', 'first_name', 'last_name', 'contact_number', 'profile_photo')
                 ->get()
                 ->keyBy('id');
         }
@@ -1046,18 +1046,26 @@ class UnitController extends Controller
                         ? trim($suspect->first_name . ' ' . $suspect->last_name)
                         : 'Unknown';
                     $unit->suspect_contact = $suspect->contact_number ?? null;
+                    $unit->suspect_photo = !empty($suspect?->profile_photo)
+                        ? (str_starts_with($suspect->profile_photo, 'http') ? $suspect->profile_photo : asset(ltrim($suspect->profile_photo, '/')))
+                        : asset('image/avatars/driver.svg');
                     $unit->is_vacant = false;
                 } else {
                     $unit->suspect_driver = 'NO ASSIGNED DRIVER';
                     $unit->suspect_contact = null;
+                    $unit->suspect_photo = asset('image/avatars/driver.svg');
                     $unit->is_vacant = true;
                 }
 
                 if ($lastBoundaryDriverId) {
                     $lastD = $all_drivers->get($lastBoundaryDriverId);
                     $unit->last_known_driver = $lastD ? trim($lastD->first_name . ' ' . $lastD->last_name) : 'Unknown';
+                    $unit->last_known_driver_photo = !empty($lastD?->profile_photo)
+                        ? (str_starts_with($lastD->profile_photo, 'http') ? $lastD->profile_photo : asset(ltrim($lastD->profile_photo, '/')))
+                        : asset('image/avatars/driver.svg');
                 } else {
                     $unit->last_known_driver = 'None';
+                    $unit->last_known_driver_photo = asset('image/avatars/driver.svg');
                 }
             } else {
                 $unit->last_boundary_date = null;
