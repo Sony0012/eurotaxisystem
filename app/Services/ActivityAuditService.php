@@ -172,23 +172,23 @@ class ActivityAuditService
         $apiKey = config('services.gemini.api_key', env('GEMINI_API_KEY', ''));
 
         if (!empty($apiKey) && count($actionList) > 0) {
-            $cacheKey = "ai_staff_narrative_v2_{$user->id}_{$date}_" . md5(json_encode($actionList));
+            $cacheKey = "ai_staff_narrative_v3_en_{$user->id}_{$date}_" . md5(json_encode($actionList));
             if (Cache::has($cacheKey)) {
                 $aiSummary = Cache::get($cacheKey);
             } else {
                 try {
                     $prompt = "You are the Executive Operations AI Auditor for Euro Taxi System.\n"
-                        . "Write a concise, 2-3 sentence executive paragraph in Filipino/Tagalog summarizing this staff member's workday on {$todayStr}.\n"
+                        . "Write a detailed, high-level corporate executive audit narrative in English summarizing this staff member's workday on {$todayStr}.\n"
                         . "Staff Name: {$userName}\n"
                         . "Role: {$userRole}\n"
                         . "Total Working Time: {$totalMins} minutes ({$hourFmt})\n"
-                        . "Current Status: " . ($isOnline ? 'Online/Active' : 'Offline') . "\n"
-                        . "Recorded Actions:\n" . implode("\n", array_slice($actionList, 0, 30)) . "\n\n"
+                        . "Current Status: " . ($isOnline ? 'Online / Active' : 'Offline') . "\n"
+                        . "Recorded Events (" . count($actionList) . "):\n" . implode("\n", array_slice($actionList, 0, 35)) . "\n\n"
                         . "Guidelines:\n"
-                        . "1. Be 100% factual and accurate based strictly on the provided actions.\n"
-                        . "2. Highlight what modules they worked on, records they modified, or if they were idle.\n"
-                        . "3. Keep tone professional, respectful, and authoritative.\n"
-                        . "4. Output ONLY the paragraph.";
+                        . "1. Provide a comprehensive, professional narrative paragraph (3-4 sentences).\n"
+                        . "2. Explicitly specify the total active working time, key modules accessed, exact operations/records modified, and current presence status.\n"
+                        . "3. Maintain an authoritative, audit-compliant corporate executive tone.\n"
+                        . "4. Output ONLY the narrative paragraph.";
 
                     $endpoint = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" . $apiKey;
                     $res = \Illuminate\Support\Facades\Http::withoutVerifying()->timeout(8)->post($endpoint, [
@@ -220,7 +220,7 @@ class ActivityAuditService
     }
 
     /**
-     * Local deterministic smart narrative builder (Zero latency, 100% fact-checked).
+     * Local deterministic smart narrative builder in English (Zero latency, 100% fact-checked).
      */
     protected static function buildLocalSummary(
         string $userName,
@@ -234,21 +234,37 @@ class ActivityAuditService
         $hours = (int) floor($totalMins / 60);
         $mins  = (int) ($totalMins % 60);
         $timeStr = ($hours > 0 && $mins > 0) 
-            ? "{$hours} oras at {$mins} minuto" 
-            : (($hours > 0) ? "{$hours} oras" : ($mins > 0 ? "{$mins} minuto" : "0 minuto"));
+            ? "{$hours} hours and {$mins} minutes" 
+            : (($hours > 0) ? "{$hours} hours" : ($mins > 0 ? "{$mins} minutes" : "0 minutes"));
 
         if (empty($actions)) {
-            return "Si {$userName} ({$userRole}) ay walang naitalang aktibidad o pag-login ngayong araw ({$dateStr}). Nananatiling 0h ang kanyang daily usage progress.";
+            return "{$userName} ({$userRole}) has no recorded platform interactions or logins for {$dateStr}. Daily usage progress remains at 0h with no system events captured.";
         }
-
-        $moduleStr = !empty($modules) ? implode(', ', $modules) : 'Dashboard Overview';
-        $statusStr = $isOnline ? 'kasalukuyang aktibo at online' : 'nakapag-offline na matapos ang kanyang sesyon';
 
         $actionCount = count($actions);
-        if ($actionCount === 1 && str_contains(strtolower($actions[0]), 'logged in')) {
-            return "Si {$userName} ({$userRole}) ay nag-login sa system ngayong araw na may kabuuang active time na {$timeStr}. Binisita niya ang {$moduleStr} at {$statusStr}.";
+        $moduleStr = !empty($modules) ? implode(', ', $modules) : 'General Operations';
+        $statusStr = $isOnline 
+            ? "is currently active with an ongoing live session" 
+            : "has concluded their operational shift and is currently offline";
+
+        // Count types of actions
+        $pagesVisited = 0;
+        $mutations = 0;
+        $logins = 0;
+        foreach ($actions as $act) {
+            $la = strtolower($act);
+            if (str_contains($la, 'accessed') || str_contains($la, 'viewed') || str_contains($la, 'opened')) $pagesVisited++;
+            elseif (str_contains($la, 'submitted') || str_contains($la, 'updated') || str_contains($la, 'created') || str_contains($la, 'deleted') || str_contains($la, 'modified')) $mutations++;
+            elseif (str_contains($la, 'logged in')) $logins++;
         }
 
-        return "Si {$userName} ({$userRole}) ay nakapagtala ng {$actionCount} operasyon na may kabuuang active time na {$timeStr} ngayong {$dateStr}. Sa kanyang shift, binisita at ginalaw niya ang mga modyul ng {$moduleStr}, at siya ay {$statusStr}.";
+        $breakdownParts = [];
+        if ($mutations > 0) $breakdownParts[] = "executed {$mutations} verified data modification(s)";
+        if ($pagesVisited > 0) $breakdownParts[] = "navigated across {$pagesVisited} operational page(s)";
+        if ($logins > 0) $breakdownParts[] = "initiated {$logins} authenticated login session(s)";
+
+        $breakdownStr = !empty($breakdownParts) ? implode(', ', $breakdownParts) : "performed {$actionCount} operational interaction(s)";
+
+        return "{$userName} ({$userRole}) accumulated a total active operating time of {$timeStr} on {$dateStr}, logging {$actionCount} total system events. During this period, the user {$breakdownStr} within the {$moduleStr} module(s). The account {$statusStr}, maintaining full data audit and operational compliance.";
     }
 }

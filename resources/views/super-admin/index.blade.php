@@ -2602,29 +2602,34 @@ async function camOpenDetail(userId) {
             </div>
 
             <!-- ══ AI SHIFT EXECUTIVE SUMMARY CARD ══ -->
-            <div style="background:linear-gradient(135deg, #0f172a, #1e293b);border-radius:1rem;padding:1.15rem;margin-bottom:1.25rem;border:1px solid #334155;color:#fff;box-shadow:0 10px 25px -5px rgba(15,23,42,0.3);position:relative;overflow:hidden;">
-                <div style="position:absolute;top:-20px;right:-20px;width:90px;height:90px;background:radial-gradient(circle, rgba(59,130,246,0.25), transparent 70%);border-radius:50%;"></div>
+            <div style="background:linear-gradient(135deg, #090d16, #151e2e);border-radius:1rem;padding:1.25rem;margin-bottom:1.25rem;border:1px solid rgba(59, 130, 246, 0.2);color:#fff;box-shadow:0 10px 25px -5px rgba(15,23,42,0.4);position:relative;overflow:hidden;">
+                <div style="position:absolute;top:-25px;right:-25px;width:110px;height:110px;background:radial-gradient(circle, rgba(59,130,246,0.2), transparent 70%);border-radius:50%;"></div>
                 
-                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.65rem;">
-                    <div style="display:flex;align-items:center;gap:.5rem;">
-                        <div style="width:26px;height:26px;border-radius:.45rem;background:linear-gradient(135deg, #3b82f6, #6366f1);display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(99,102,241,0.4);">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;">
+                    <div style="display:flex;align-items:center;gap:.55rem;">
+                        <div style="width:28px;height:28px;border-radius:.5rem;background:linear-gradient(135deg, #2563eb, #7c3aed);display:flex;align-items:center;justify-content:center;box-shadow:0 2px 10px rgba(99,102,241,0.45);">
                             <i data-lucide="sparkles" style="width:14px;height:14px;color:#fff;"></i>
                         </div>
-                        <span style="font-size:.7rem;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:#93c5fd;">AI Shift Summary & Narrative</span>
+                        <div>
+                            <span style="font-size:.74rem;font-weight:900;text-transform:uppercase;letter-spacing:.09em;color:#bfdbfe;display:block;line-height:1.2;">AI Shift Executive Narrative</span>
+                            <span style="font-size:.58rem;color:#64748b;font-weight:600;">Automated Audit & Operational Intelligence</span>
+                        </div>
                     </div>
-                    <span style="font-size:.58rem;font-weight:800;background:rgba(34,197,94,0.15);color:#4ade80;border:1px solid rgba(34,197,94,0.3);padding:.12rem .45rem;border-radius:99px;display:flex;align-items:center;gap:.25rem;">
-                        <i data-lucide="shield-check" style="width:10px;height:10px;"></i> 100% Fact-Checked
+                    <span style="font-size:.6rem;font-weight:800;background:rgba(34,197,94,0.12);color:#4ade80;border:1px solid rgba(34,197,94,0.25);padding:.15rem .55rem;border-radius:99px;display:flex;align-items:center;gap:.3rem;">
+                        <i data-lucide="shield-check" style="width:11px;height:11px;"></i> Verified 100%
                     </span>
                 </div>
 
-                <p style="font-size:.78rem;line-height:1.55;color:#e2e8f0;margin:0 0 .75rem 0;font-weight:500;">
-                    ${aiSummary.summary_text || 'Compiling verified executive shift summary...'}
-                </p>
+                <div style="background:rgba(255,255,255,0.03);border-radius:.65rem;padding:.85rem .95rem;border:1px solid rgba(255,255,255,0.06);margin-bottom:.75rem;">
+                    <p style="font-size:.81rem;line-height:1.65;color:#f1f5f9;margin:0;font-weight:450;letter-spacing:.01em;">
+                        ${aiSummary.summary_text || 'Compiling verified executive shift summary...'}
+                    </p>
+                </div>
 
-                <div style="display:flex;align-items:center;justify-content:space-between;padding-top:.55rem;border-top:1px solid rgba(255,255,255,0.1);font-size:.62rem;color:#94a3b8;">
-                    <span>Generated at ${aiSummary.generated_at || 'Just now'}</span>
-                    <button type="button" onclick="camOpenDetail('${userId}')" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:#93c5fd;font-weight:800;padding:.15rem .5rem;border-radius:.35rem;cursor:pointer;display:flex;align-items:center;gap:.25rem;transition:all .2s;" onmouseover="this.style.background='rgba(255,255,255,0.15)'" onmouseout="this.style.background='rgba(255,255,255,0.08)'">
-                        <i data-lucide="refresh-cw" style="width:9px;height:9px;"></i> Refresh Summary
+                <div style="display:flex;align-items:center;justify-content:space-between;padding-top:.5rem;font-size:.62rem;color:#94a3b8;">
+                    <span style="display:flex;align-items:center;gap:.35rem;"><i data-lucide="clock" style="width:10px;height:10px;"></i> Generated at ${aiSummary.generated_at || 'Just now'}</span>
+                    <button type="button" onclick="camOpenDetail('${userId}')" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);color:#93c5fd;font-weight:800;padding:.2rem .6rem;border-radius:.4rem;cursor:pointer;display:flex;align-items:center;gap:.3rem;transition:all .2s;" onmouseover="this.style.background='rgba(255,255,255,0.12)'" onmouseout="this.style.background='rgba(255,255,255,0.06)'">
+                        <i data-lucide="refresh-cw" style="width:10px;height:10px;"></i> Refresh Summary
                     </button>
                 </div>
             </div>
