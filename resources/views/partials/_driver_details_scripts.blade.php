@@ -35,26 +35,152 @@
                 }
             }
 
-            document.getElementById('basicInfoContent').innerHTML = `
-                <div>
-                    <p><span class="font-semibold text-gray-500">First Name:</span> ${data.first_name || ''}</p>
-                    <p><span class="font-semibold text-gray-500">Last Name:</span> ${data.last_name || ''}</p>
+            const statusColorMap = {
+                'available': 'bg-emerald-50 text-emerald-700 border-emerald-200',
+                'assigned': 'bg-blue-50 text-blue-700 border-blue-200',
+                'on_leave': 'bg-amber-50 text-amber-700 border-amber-200',
+                'suspended': 'bg-orange-50 text-orange-700 border-orange-200',
+                'banned': 'bg-red-50 text-red-700 border-red-200'
+            };
+            const statusClass = statusColorMap[data.driver_status] || 'bg-slate-100 text-slate-700 border-slate-200';
+            const driverStatusLabel = (data.driver_status || 'available').replace('_', ' ').toUpperCase();
+            const regKey = 'DRV-' + String(data.id || 0).padStart(4, '0');
+            const unpaidShortage = parseFloat(data.net_shortage || 0);
+            const pendingDebt = parseFloat(data.total_pending_debt || 0);
 
-                    <p><span class="font-semibold text-gray-500">Contact:</span> ${data.contact_number || 'N/A'}</p>
-                    <p><span class="font-semibold text-gray-500">Address:</span> ${data.address || 'N/A'}</p>
-                    <p><span class="font-semibold text-gray-500">Emergency Contact:</span> ${data.emergency_contact || 'N/A'}</p>
-                    <p><span class="font-semibold text-gray-500">Emergency Phone:</span> ${data.emergency_phone || 'N/A'}</p>
+            document.getElementById('basicInfoContent').innerHTML = `
+                <!-- Left Column: Identity, Contacts & Liabilities -->
+                <div class="space-y-5">
+                    <!-- Identity Card -->
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs">
+                        <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                            <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Personal Identification</span>
+                            <span class="text-[10px] font-mono font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200">${regKey}</span>
+                        </div>
+                        <div class="mt-3">
+                            <h3 class="text-lg font-black text-slate-900 leading-tight">${data.first_name || ''} ${data.last_name || ''}</h3>
+                            <div class="flex items-center gap-2 mt-2 flex-wrap">
+                                <span class="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider border ${statusClass}">
+                                    ${driverStatusLabel}
+                                </span>
+                                <span class="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-slate-100 text-slate-600 border border-slate-200">
+                                    ${(data.driver_type || 'regular').toUpperCase()} DRIVER
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Contact Details Card -->
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
+                        <div>
+                            <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Primary Contact</span>
+                            <a href="tel:${(data.contact_number || '').replace(/[^0-9+]/g, '')}" class="inline-flex items-center gap-2 text-sm font-bold text-blue-600 hover:underline">
+                                <div class="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                                    <i data-lucide="phone" class="w-3.5 h-3.5"></i>
+                                </div>
+                                <span>${data.contact_number || 'No contact provided'}</span>
+                            </a>
+                        </div>
+                        <div class="pt-3 border-t border-slate-100">
+                            <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Residential Address</span>
+                            <div class="flex items-start gap-2 text-xs font-semibold text-slate-700">
+                                <div class="w-7 h-7 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center shrink-0 mt-0.5">
+                                    <i data-lucide="map-pin" class="w-3.5 h-3.5"></i>
+                                </div>
+                                <span class="leading-relaxed">${data.address || 'No residential address recorded'}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Emergency Contact Card -->
+                    <div class="bg-gradient-to-br from-rose-50/80 to-red-50/40 p-4 rounded-2xl border border-rose-100/90 shadow-2xs">
+                        <div class="flex items-center gap-2 mb-2">
+                            <div class="p-1 bg-rose-500 text-white rounded-md">
+                                <i data-lucide="shield-alert" class="w-3 h-3"></i>
+                            </div>
+                            <span class="text-[10px] font-black text-rose-800 uppercase tracking-widest">Emergency Contact</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-xs font-black text-slate-900">${data.emergency_contact || 'None Listed'}</p>
+                                <p class="text-[11px] font-bold text-rose-600 font-mono mt-0.5">${data.emergency_phone || 'No phone recorded'}</p>
+                            </div>
+                            ${data.emergency_phone ? `
+                                <a href="tel:${data.emergency_phone.replace(/[^0-9+]/g, '')}" class="px-3 py-1.5 bg-rose-600 text-white text-[10px] font-black uppercase tracking-wider rounded-lg shadow-xs hover:bg-rose-700 transition-all flex items-center gap-1.5">
+                                    <i data-lucide="phone-call" class="w-3 h-3"></i> Call
+                                </a>
+                            ` : ''}
+                        </div>
+                    </div>
+
+                    <!-- Outstanding Liabilities Card -->
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs">
+                        <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-3">Outstanding Liabilities</span>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="p-3.5 rounded-xl border ${unpaidShortage > 0 ? 'bg-rose-50/80 border-rose-200 text-rose-800' : 'bg-slate-50 border-slate-100 text-slate-700'}">
+                                <span class="text-[9px] font-black uppercase tracking-wider text-slate-400 block mb-1">Unpaid Shortage</span>
+                                <p class="text-sm font-black ${unpaidShortage > 0 ? 'text-rose-600' : 'text-slate-900'}">₱${unpaidShortage.toLocaleString('en-PH', {minimumFractionDigits: 2})}</p>
+                            </div>
+                            <div class="p-3.5 rounded-xl border ${pendingDebt > 0 ? 'bg-amber-50/80 border-amber-200 text-amber-800' : 'bg-slate-50 border-slate-100 text-slate-700'}">
+                                <span class="text-[9px] font-black uppercase tracking-wider text-slate-400 block mb-1">Pending Debt</span>
+                                <p class="text-sm font-black ${pendingDebt > 0 ? 'text-amber-600' : 'text-slate-900'}">₱${pendingDebt.toLocaleString('en-PH', {minimumFractionDigits: 2})}</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div>
-                    <p><span class="font-semibold text-gray-500">Hire Date:</span> ${data.hire_date || 'N/A'}</p>
-                    <p><span class="font-semibold text-gray-500">Standard Rate:</span> ₱${data.assigned_boundary_rate ? parseFloat(data.assigned_boundary_rate).toLocaleString() : '0.00'}</p>
-                    <p><span class="font-semibold text-gray-500">Active Target:</span> ₱${data.current_pricing ? data.current_pricing.rate.toFixed(2) : '0.00'}</p>
-                    ${data.current_pricing && data.current_pricing.label ? `<p class="text-[10px] text-blue-600 font-bold">${data.current_pricing.label}</p>` : ''}
-                    <p><span class="font-semibold text-gray-500">Status:</span> 
-                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${data.is_active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}">
-                            ${data.is_active ? 'Active' : 'Inactive'}
-                        </span>
-                    </p>
+
+                <!-- Right Column: Employment & Financial Operations -->
+                <div class="space-y-5">
+                    <!-- Employment Tenure & Assigned Unit Card -->
+                    <div class="bg-slate-900 text-white p-5 rounded-2xl border border-slate-800 shadow-md">
+                        <div class="flex items-center justify-between pb-4 border-b border-slate-800">
+                            <div>
+                                <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Employment Tenure</span>
+                                <p class="text-sm font-black text-white mt-0.5">Joined ${data.hire_date || 'N/A'}</p>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Assigned Taxi Unit</span>
+                                <p class="text-sm font-black text-amber-400 font-mono mt-0.5">${data.assigned_unit || 'UNASSIGNED'}</p>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3 mt-4">
+                            <div class="p-3 rounded-xl bg-slate-800/80 border border-slate-700/60">
+                                <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Standard Daily Rate</span>
+                                <p class="text-sm font-black text-white">₱${data.assigned_boundary_rate ? parseFloat(data.assigned_boundary_rate).toLocaleString('en-PH', {minimumFractionDigits:2}) : '0.00'}</p>
+                            </div>
+                            <div class="p-3 rounded-xl bg-blue-950/60 border border-blue-500/30">
+                                <span class="text-[9px] font-bold text-blue-300 uppercase tracking-wider block mb-1">Active Targeted Rate</span>
+                                <p class="text-sm font-black text-blue-400">₱${data.daily_boundary_target ? parseFloat(data.daily_boundary_target).toLocaleString('en-PH', {minimumFractionDigits:2}) : '0.00'}</p>
+                            </div>
+                        </div>
+                        ${data.current_pricing && data.current_pricing.label ? `
+                            <div class="mt-3 bg-blue-500/10 border border-blue-500/20 px-3 py-1.5 rounded-lg flex items-center justify-between text-xs">
+                                <span class="text-blue-300 font-bold">Applied Pricing Scheme:</span>
+                                <span class="text-blue-400 font-black uppercase text-[10px]">${data.current_pricing.label}</span>
+                            </div>
+                        ` : ''}
+                    </div>
+
+                    <!-- 30-Day Operational Snapshot Card -->
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs space-y-3">
+                        <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                            <div class="flex items-center gap-2">
+                                <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
+                                <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest">30-Day Shift Activity</span>
+                            </div>
+                            <span class="text-xs font-black text-emerald-600">${data.paid_shifts_count || 0} / ${data.shifts_count || 0} Paid Shifts</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3 pt-1">
+                            <div class="p-3 bg-slate-50 rounded-xl border border-slate-100 text-center">
+                                <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-0.5">Missed Incentives</span>
+                                <span class="text-xs font-black text-slate-700">${data.missed_incentive_count || 0}</span>
+                            </div>
+                            <div class="p-3 bg-slate-50 rounded-xl border border-slate-100 text-center">
+                                <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-0.5">Reported Incidents</span>
+                                <span class="text-xs font-black ${parseInt(data.incidents_count || 0) > 0 ? 'text-rose-600' : 'text-slate-700'}">${data.incidents_count || 0}</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             `;
 
