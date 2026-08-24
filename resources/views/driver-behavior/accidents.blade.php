@@ -84,7 +84,7 @@
                     $driverName = trim(($r->driver->first_name ?? '') . ' ' . ($r->driver->last_name ?? ''));
                     if (empty($driverName)) $driverName = 'Unknown Driver';
                     
-                    $driverPhoto = $r->driver && $r->driver->profile_photo ? asset($r->driver->profile_photo) : asset('image/driver_avatar.png');
+                    $driverPhoto = $r->driver && $r->driver->profile_photo ? asset($r->driver->profile_photo) : asset('image/avatars/driver.svg');
                     $driverPhone = $r->driver->contact_number ?? 'Not provided';
                     $driverEmergency = trim(($r->driver->emergency_contact ?? '') . ($r->driver->emergency_phone ? ' • ' . $r->driver->emergency_phone : ''));
                     if (empty($driverEmergency)) $driverEmergency = 'None recorded';
@@ -123,7 +123,7 @@
                     </td>
                     <td class="px-5 py-4 border-y border-gray-100 {{ $r->status === 'pending' ? 'border-red-100' : '' }}">
                         <div class="flex items-center gap-2.5">
-                            <img src="{{ $driverPhoto }}" alt="Driver" class="w-8 h-8 rounded-xl object-cover border border-amber-300 bg-slate-100 shrink-0" onerror="this.src='{{ asset('image/driver_avatar.png') }}'">
+                            <img src="{{ $driverPhoto }}" alt="Driver" class="w-8 h-8 rounded-xl object-cover border border-amber-300 bg-slate-100 shrink-0" onerror="this.src='{{ asset('image/avatars/driver.svg') }}'">
                             <div>
                                 <div class="text-xs font-black text-gray-900 leading-tight">{{ $driverName }}</div>
                                 <div class="text-[10px] font-black text-blue-600 uppercase font-mono mt-0.5">{{ $unitPlate }}</div>
@@ -233,10 +233,10 @@
                 <!-- Driver Info Left -->
                 <div class="flex items-center gap-3.5">
                     <div class="relative">
-                        <img id="modDriverAvatar" src="{{ asset('image/driver_avatar.png') }}" 
+                        <img id="modDriverAvatar" src="{{ asset('image/avatars/driver.svg') }}" 
                              alt="Driver Photo" 
                              class="w-14 h-14 rounded-2xl object-cover border-2 border-amber-400 shadow-sm bg-slate-100"
-                             onerror="this.src='{{ asset('image/driver_avatar.png') }}'">
+                             onerror="this.src='{{ asset('image/avatars/driver.svg') }}'">
                         <span class="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 border-2 border-white rounded-full"></span>
                     </div>
                     <div>
@@ -389,7 +389,7 @@
         const modDriverEmergency = document.getElementById('modDriverEmergency');
 
         if (modDriver) modDriver.textContent = driver;
-        if (modDriverAvatar) modDriverAvatar.src = driverPhoto || '{{ asset("image/driver_avatar.png") }}';
+        if (modDriverAvatar) modDriverAvatar.src = driverPhoto || '{{ asset("image/avatars/driver.svg") }}';
         if (modDriverPhone) modDriverPhone.textContent = driverPhone;
         if (modDriverPhoneLink) modDriverPhoneLink.href = 'tel:' + driverPhone.replace(/[^0-9+]/g, '');
         if (modCallBtn) modCallBtn.href = 'tel:' + driverPhone.replace(/[^0-9+]/g, '');
