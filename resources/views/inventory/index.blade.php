@@ -238,7 +238,7 @@
                 
                 <!-- Quick Search Custom Keywords -->
                 <div class="flex gap-2">
-                    <input type="text" id="customPhotoQuery" placeholder="Search Google / web photos (e.g. shock absorber car)..." class="flex-1 px-3 py-1.5 text-xs bg-white border border-blue-200 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="text" id="customPhotoQuery" onkeydown="if(event.key === 'Enter'){ event.preventDefault(); searchCustomRealPhotos(); }" placeholder="Search Google / web photos (e.g. shock absorber car)..." class="flex-1 px-3 py-1.5 text-xs bg-white border border-blue-200 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
                     <button type="button" onclick="searchCustomRealPhotos()" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg transition shadow-xs flex items-center gap-1 shrink-0">
                         <i data-lucide="search" class="w-3 h-3"></i> Search
                     </button>
@@ -744,6 +744,10 @@
 
     function onPartNameInput(name) {
         updateAIMiniModalPreview(name);
+        const customInput = document.getElementById('customPhotoQuery');
+        if (customInput && (!document.activeElement || document.activeElement !== customInput)) {
+            customInput.value = name;
+        }
         if (!name || name.trim().length < 2) return;
         
         clearTimeout(photoSearchDebounce);

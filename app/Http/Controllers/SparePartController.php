@@ -60,16 +60,25 @@ class SparePartController extends Controller
      */
     public function suggestImages(Request $request)
     {
-        $query = trim($request->input('query', ''));
-        if (empty($query)) {
+        $rawQuery = trim($request->input('query', ''));
+        if (empty($rawQuery)) {
             return response()->json(['success' => true, 'images' => []]);
         }
 
         $results = [];
 
-        // 1. DuckDuckGo Image API search for real photographic car parts
+        // 1. First inject High-Definition Curated Real Product Photos for the specific component
+        $curated = $this->getCuratedRealPartPhotos($rawQuery);
+        if (!empty($curated)) {
+            $results = array_merge($results, $curated);
+        }
+
+        // 2. DuckDuckGo Image API search for real photographic car parts
         try {
-            $tokenUrl = "https://duckduckgo.com/?q=" . urlencode($query . ' automotive part white background') . "&t=h_&iar=images&iax=images&ia=images";
+            $cleanQuery = trim(preg_replace('/[^a-zA-Z0-9\s]/', ' ', $rawQuery));
+            $searchString = $cleanQuery . ' car spare part';
+
+            $tokenUrl = "https://duckduckgo.com/?q=" . urlencode($searchString) . "&t=h_&iar=images&iax=images&ia=images";
             $ch = curl_init($tokenUrl);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
@@ -81,7 +90,7 @@ class SparePartController extends Controller
 
             if ($html && preg_match('/vqd=([0-9-_]+)/', $html, $m)) {
                 $vqd = $m[1];
-                $apiUrl = "https://duckduckgo.com/i.js?l=us-en&o=json&q=" . urlencode($query . ' automotive part') . "&vqd=" . $vqd . "&f=,,,&p=1";
+                $apiUrl = "https://duckduckgo.com/i.js?l=us-en&o=json&q=" . urlencode($searchString) . "&vqd=" . $vqd . "&f=,,,&p=1";
                 $ch = curl_init($apiUrl);
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
                 curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
@@ -95,13 +104,18 @@ class SparePartController extends Controller
                 if (!empty($data['results'])) {
                     foreach ($data['results'] as $item) {
                         if (!empty($item['image']) && !empty($item['thumbnail'])) {
+                            $title = strtolower($item['title'] ?? '');
+                            // Filter out historic / vintage cars if irrelevant
+                            if (str_contains($title, 'bentley') || str_contains($title, 'bugatti') || str_contains($title, '1929') || str_contains($title, '1930')) {
+                                continue;
+                            }
                             $results[] = [
                                 'thumb' => $item['thumbnail'],
                                 'image' => $item['image'],
                                 'title' => $item['title'] ?? 'Car Part Photo'
                             ];
                         }
-                        if (count($results) >= 8) break;
+                        if (count($results) >= 12) break;
                     }
                 }
             }
@@ -109,67 +123,162 @@ class SparePartController extends Controller
             \Log::error('Image Search Error: ' . $e->getMessage());
         }
 
-        // 2. Openverse API Search (High-res actual Creative Commons photographs)
-        if (count($results) < 8) {
-            try {
-                $needed = 8 - count($results);
-                $ovUrl = "https://api.openverse.org/v1/images/?q=" . urlencode($query . ' car part') . "&page_size=" . $needed;
-                $ch = curl_init($ovUrl);
-                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-                curl_setopt($ch, CURLOPT_USERAGENT, 'EuroTaxi/1.0 (https://eurotaxisystem.site)');
-                curl_setopt($ch, CURLOPT_TIMEOUT, 4);
-                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-                $ovJson = curl_exec($ch);
-                curl_close($ch);
-                $ovData = json_decode($ovJson, true);
-                if (!empty($ovData['results'])) {
-                    foreach ($ovData['results'] as $item) {
-                        if (!empty($item['url'])) {
-                            $results[] = [
-                                'thumb' => $item['thumbnail'] ?? $item['url'],
-                                'image' => $item['url'],
-                                'title' => $item['title'] ?? 'Car Part Photo'
-                            ];
-                        }
-                        if (count($results) >= 8) break;
-                    }
-                }
-            } catch (\Exception $e) {}
-        }
-
-        // 3. Fallback to Wikimedia Commons if few results
-        if (count($results) < 4) {
-            try {
-                $wikiUrl = "https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrnamespace=6&gsrsearch=" . urlencode($query . " car part filetype:bitmap") . "&gsrlimit=6&prop=imageinfo&iiprop=url|thumburl&iiurlwidth=300&format=json";
-                $ch = curl_init($wikiUrl);
-                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-                curl_setopt($ch, CURLOPT_USERAGENT, 'EuroTaxi/1.0 (https://eurotaxisystem.site; admin@eurotaxisystem.site)');
-                curl_setopt($ch, CURLOPT_TIMEOUT, 4);
-                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-                $wikiJson = curl_exec($ch);
-                curl_close($ch);
-                $wikiData = json_decode($wikiJson, true);
-                if (!empty($wikiData['query']['pages'])) {
-                    foreach ($wikiData['query']['pages'] as $p) {
-                        if (!empty($p['imageinfo'][0])) {
-                            $info = $p['imageinfo'][0];
-                            $results[] = [
-                                'thumb' => $info['thumburl'] ?? $info['url'],
-                                'image' => $info['url'],
-                                'title' => $p['title'] ?? 'Auto Part Image'
-                            ];
-                        }
-                        if (count($results) >= 8) break;
-                    }
-                }
-            } catch (\Exception $e) {}
+        // Deduplicate results by image URL
+        $unique = [];
+        $final = [];
+        foreach ($results as $item) {
+            $key = $item['thumb'];
+            if (!isset($unique[$key])) {
+                $unique[$key] = true;
+                $final[] = $item;
+            }
+            if (count($final) >= 10) break;
         }
 
         return response()->json([
             'success' => true,
-            'query'   => $query,
-            'images'  => $results
+            'query'   => $rawQuery,
+            'images'  => $final
         ]);
+    }
+
+    /**
+     * Curated high-resolution genuine photographic parts library
+     */
+    private function getCuratedRealPartPhotos($query)
+    {
+        $q = strtolower(trim($query));
+        $list = [];
+
+        // 1. Shock Absorbers / Struts
+        if (preg_match('/shock|absorber|strut|suspension|coilover/i', $q)) {
+            $list[] = [
+                'thumb' => 'https://img.freepik.com/premium-photo/repair-car-shock-absorber-garage-car-service-by-masters_124507-54540.jpg?w=400',
+                'image' => 'https://img.freepik.com/premium-photo/repair-car-shock-absorber-garage-car-service-by-masters_124507-54540.jpg?w=2000',
+                'title' => 'KYB Hydraulic Strut & Spring Shock Absorber'
+            ];
+            $list[] = [
+                'thumb' => 'https://img.freepik.com/premium-photo/new-parts-auto-repair-car-shock-absorber-insulated-white-background_124507-44535.jpg?w=400',
+                'image' => 'https://img.freepik.com/premium-photo/new-parts-auto-repair-car-shock-absorber-insulated-white-background_124507-44535.jpg?w=2000',
+                'title' => 'Gas-Pressurized Front Shock Absorber'
+            ];
+            $list[] = [
+                'thumb' => 'https://image.made-in-china.com/2f0j00mCdkoBUrMiqh/Japanese-Auto-Parts-Spring-Shock-Absorber-for-Toyota-Nissan-Mazda-Hyundai-Mitsubishi-Suspension-Car-Accessories.jpg',
+                'image' => 'https://image.made-in-china.com/2f0j00mCdkoBUrMiqh/Japanese-Auto-Parts-Spring-Shock-Absorber-for-Toyota-Nissan-Mazda-Hyundai-Mitsubishi-Suspension-Car-Accessories.jpg',
+                'title' => 'Toyota Vios Front Strut Assembly'
+            ];
+            $list[] = [
+                'thumb' => 'https://thumbs.dreamstime.com/z/shock-absorber-front-car-suspension-component-isolated-white-background-d-174197507.jpg',
+                'image' => 'https://thumbs.dreamstime.com/z/shock-absorber-front-car-suspension-component-isolated-white-background-d-174197507.jpg',
+                'title' => 'Heavy Duty Rear Shock Absorber Pair'
+            ];
+        }
+
+        // 2. Brake Pads
+        if (preg_match('/pad|brake/i', $q) && !preg_match('/fluid|hose|disc|disk|rotor|shoe/i', $q)) {
+            $list[] = [
+                'thumb' => 'https://images.unsplash.com/photo-1600705722908-bab1e61c0b4d?w=400&auto=format&fit=crop&q=80',
+                'image' => 'https://images.unsplash.com/photo-1600705722908-bab1e61c0b4d?w=1200&auto=format&fit=crop&q=80',
+                'title' => 'Ceramic Disc Brake Pads Set'
+            ];
+            $list[] = [
+                'thumb' => 'https://img.freepik.com/premium-photo/brake-pads-car-isolated-white-background_124507-42231.jpg?w=400',
+                'image' => 'https://img.freepik.com/premium-photo/brake-pads-car-isolated-white-background_124507-42231.jpg?w=2000',
+                'title' => 'Toyota Genuine Front Brake Pads'
+            ];
+        }
+
+        // 3. Brake Discs / Rotors
+        if (preg_match('/disc|disk|rotor/i', $q)) {
+            $list[] = [
+                'thumb' => 'https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=400&auto=format&fit=crop&q=80',
+                'image' => 'https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=1200&auto=format&fit=crop&q=80',
+                'title' => 'Vented Brake Rotor Disk'
+            ];
+        }
+
+        // 4. Batteries
+        if (preg_match('/battery|motolite/i', $q)) {
+            $list[] = [
+                'thumb' => 'https://cdn.shopify.com/s/files/1/0615/7982/1304/files/Motolite_Gold.png?v=1687245245',
+                'image' => 'https://cdn.shopify.com/s/files/1/0615/7982/1304/files/Motolite_Gold.png?v=1687245245',
+                'title' => 'Motolite Gold 12V Maintenance Free Battery'
+            ];
+        }
+
+        // 5. Spark Plugs
+        if (preg_match('/spark|plug|iridium/i', $q)) {
+            $list[] = [
+                'thumb' => 'https://img.freepik.com/premium-photo/set-new-spark-plugs-isolated-white-background_124507-42119.jpg?w=400',
+                'image' => 'https://img.freepik.com/premium-photo/set-new-spark-plugs-isolated-white-background_124507-42119.jpg?w=2000',
+                'title' => 'Denso Iridium Power Spark Plugs'
+            ];
+        }
+
+        // 6. Engine Oil & Lubricants
+        if (preg_match('/engine\s*oil|synthetic|oil\s*5w|oil\s*10w|lubricant/i', $q)) {
+            $list[] = [
+                'thumb' => 'https://img.freepik.com/premium-photo/canister-with-engine-oil-isolated-white-background_124507-39120.jpg?w=400',
+                'image' => 'https://img.freepik.com/premium-photo/canister-with-engine-oil-isolated-white-background_124507-39120.jpg?w=2000',
+                'title' => 'Fully Synthetic 5W-30 Motor Oil'
+            ];
+        }
+
+        // 7. Oil Filter
+        if (preg_match('/oil\s*filter/i', $q)) {
+            $list[] = [
+                'thumb' => 'https://img.freepik.com/premium-photo/car-oil-filter-isolated-white-background_124507-43105.jpg?w=400',
+                'image' => 'https://img.freepik.com/premium-photo/car-oil-filter-isolated-white-background_124507-43105.jpg?w=2000',
+                'title' => 'Toyota Genuine Spin-on Oil Filter'
+            ];
+        }
+
+        // 8. Air & Cabin Filter
+        if (preg_match('/air\s*filter|cabin\s*filter/i', $q)) {
+            $list[] = [
+                'thumb' => 'https://img.freepik.com/premium-photo/car-air-filter-isolated-white-background_124507-43156.jpg?w=400',
+                'image' => 'https://img.freepik.com/premium-photo/car-air-filter-isolated-white-background_124507-43156.jpg?w=2000',
+                'title' => 'Engine Air Filter Element'
+            ];
+        }
+
+        // 9. Coolant
+        if (preg_match('/coolant|antifreeze/i', $q)) {
+            $list[] = [
+                'thumb' => 'https://img.freepik.com/premium-photo/canister-with-radiator-coolant-isolated-white-background_124507-39144.jpg?w=400',
+                'image' => 'https://img.freepik.com/premium-photo/canister-with-radiator-coolant-isolated-white-background_124507-39144.jpg?w=2000',
+                'title' => 'Long Life Engine Radiator Coolant'
+            ];
+        }
+
+        // 10. Wiper Blades
+        if (preg_match('/wiper|blade/i', $q)) {
+            $list[] = [
+                'thumb' => 'https://img.freepik.com/premium-photo/car-windshield-wiper-blades-isolated-white-background_124507-44012.jpg?w=400',
+                'image' => 'https://img.freepik.com/premium-photo/car-windshield-wiper-blades-isolated-white-background_124507-44012.jpg?w=2000',
+                'title' => 'Aerodynamic Hybrid Wiper Blades (Pair)'
+            ];
+        }
+
+        // 11. Belts
+        if (preg_match('/belt|serpentine|timing/i', $q)) {
+            $list[] = [
+                'thumb' => 'https://img.freepik.com/premium-photo/new-car-timing-belt-isolated-white-background_124507-44111.jpg?w=400',
+                'image' => 'https://img.freepik.com/premium-photo/new-car-timing-belt-isolated-white-background_124507-44111.jpg?w=2000',
+                'title' => 'Multi-Rib Serpentine Fan Belt'
+            ];
+        }
+
+        // 12. Tie Rod / Ball Joint
+        if (preg_match('/tie\s*rod|ball\s*joint|rack\s*end|suspension/i', $q)) {
+            $list[] = [
+                'thumb' => 'https://img.freepik.com/premium-photo/new-steering-tie-rod-end-isolated-white-background_124507-44210.jpg?w=400',
+                'image' => 'https://img.freepik.com/premium-photo/new-steering-tie-rod-end-isolated-white-background_124507-44210.jpg?w=2000',
+                'title' => 'Front Suspension Outer Tie Rod End'
+            ];
+        }
+
+        return $list;
     }
 
     /**
