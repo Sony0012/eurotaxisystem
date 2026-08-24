@@ -197,10 +197,28 @@
         <div class="space-y-4">
             <input type="hidden" id="newPartId">
             <input type="hidden" id="newPartCurrentStock" value="0">
+
+            <!-- AI Live Auto-Identification Preview -->
+            <div id="aiPartDetectorPreview" class="p-3.5 rounded-2xl border transition-all duration-300 bg-slate-50 border-slate-200/80 flex items-center gap-3.5 shadow-xs">
+                <div id="aiDetectorIconBox" class="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 border bg-white border-slate-200 shadow-xs transition-all">
+                    <!-- SVG rendered dynamically -->
+                </div>
+                <div class="min-w-0 flex-1">
+                    <div class="flex items-center justify-between gap-2">
+                        <span class="text-[9px] font-black uppercase tracking-widest text-blue-600 flex items-center gap-1">
+                            <i data-lucide="sparkles" class="w-3 h-3 text-blue-500"></i> AI Auto-Identified
+                        </span>
+                        <span id="aiConfidenceBadge" class="text-[9px] font-bold text-slate-400">Live Detector</span>
+                    </div>
+                    <div id="aiDetectorCategoryName" class="text-xs font-black text-slate-800 tracking-tight mt-0.5 truncate">
+                        Auto Component
+                    </div>
+                </div>
+            </div>
             
             <div>
                 <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Part Name <span class="text-red-500">*</span></label>
-                <input type="text" id="newPartName" maxlength="35" class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-gray-50 focus:bg-white transition-colors" placeholder="e.g. Brake Pad">
+                <input type="text" id="newPartName" maxlength="35" oninput="updateAIMiniModalPreview(this.value)" class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-gray-50 focus:bg-white transition-colors" placeholder="e.g. Shock Absorber (Front), Brake Pad, Air Filter...">
             </div>
             
             <div class="grid grid-cols-2 gap-4">
@@ -412,6 +430,267 @@
         } catch(e) { console.error(e); }
     }
 
+    // ── AI Smart Auto Part Classifier & SVG Visual Generator ──
+    function getPartAIMeta(name = '') {
+        const raw = (name || '').toLowerCase().trim();
+
+        // 1. Suspension & Steering (Shocks, struts, coil springs, bushings, tie rods, ball joints, control arms)
+        if (/shock|absorber|strut|suspension|spring|coil|bushing|stabilizer|tie\s*rod|ball\s*joint|rack\s*end|control\s*arm|sway\s*bar|end\s*link|knuckle|crossmember|strut\s*mount/i.test(raw)) {
+            return {
+                category: 'Suspension & Steering',
+                badgeBg: 'bg-gradient-to-br from-amber-50 to-orange-50/80',
+                badgeBorder: 'border-amber-200/90',
+                textClass: 'text-amber-600',
+                dotClass: 'bg-amber-500',
+                glowClass: 'group-hover:border-amber-400',
+                svg: `<svg class="w-6 h-6 text-amber-500 shrink-0 drop-shadow-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="3.5" r="1.8"></circle>
+                        <line x1="12" y1="5.3" x2="12" y2="8"></line>
+                        <rect x="9.5" y="8" width="5" height="3" rx="0.8" fill="currentColor" fill-opacity="0.25"></rect>
+                        <path d="M10 11l4 1.8-4 1.8 4 1.8-4 1.8 4 1.8"></path>
+                        <rect x="9" y="19" width="6" height="2" rx="0.5"></rect>
+                        <circle cx="12" cy="22" r="1.5"></circle>
+                      </svg>`
+            };
+        }
+
+        // 2. Braking System (Pads, rotors, caliper, shoe, disk, disc, hose, handbrake, fluid)
+        if (/brake|rotor|caliper|pad|shoe|disk|disc|hose|handbrake|drum\s*brake|abs\s*sensor/i.test(raw)) {
+            return {
+                category: 'Braking System',
+                badgeBg: 'bg-gradient-to-br from-rose-50 to-red-50/80',
+                badgeBorder: 'border-rose-200/90',
+                textClass: 'text-rose-600',
+                dotClass: 'bg-rose-500',
+                glowClass: 'group-hover:border-rose-400',
+                svg: `<svg class="w-6 h-6 text-rose-500 shrink-0 drop-shadow-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="9"></circle>
+                        <circle cx="12" cy="12" r="3.5"></circle>
+                        <circle cx="12" cy="6.5" r="1" fill="currentColor"></circle>
+                        <circle cx="12" cy="17.5" r="1" fill="currentColor"></circle>
+                        <circle cx="6.5" cy="12" r="1" fill="currentColor"></circle>
+                        <circle cx="17.5" cy="12" r="1" fill="currentColor"></circle>
+                        <path d="M3.5 8.5a9 9 0 0 1 7.5-5V9l-3.5 1.5z" fill="currentColor" fill-opacity="0.25"></path>
+                      </svg>`
+            };
+        }
+
+        // 3. Filtration System (Air filter, cabin filter, oil filter, fuel filter, AC filter)
+        if (/filter|intake\s*filter|air\s*cleaner/i.test(raw)) {
+            return {
+                category: 'Filtration System',
+                badgeBg: 'bg-gradient-to-br from-sky-50 to-blue-50/80',
+                badgeBorder: 'border-sky-200/90',
+                textClass: 'text-sky-600',
+                dotClass: 'bg-sky-500',
+                glowClass: 'group-hover:border-sky-400',
+                svg: `<svg class="w-6 h-6 text-sky-500 shrink-0 drop-shadow-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="4" y="4" width="16" height="16" rx="3"></rect>
+                        <line x1="4" y1="8" x2="20" y2="8"></line>
+                        <line x1="4" y1="12" x2="20" y2="12"></line>
+                        <line x1="4" y1="16" x2="20" y2="16"></line>
+                        <line x1="8" y1="4" x2="8" y2="20"></line>
+                        <line x1="12" y1="4" x2="12" y2="20"></line>
+                        <line x1="16" y1="4" x2="16" y2="20"></line>
+                      </svg>`
+            };
+        }
+
+        // 4. Fluids & Lubricants (Engine oil, ATF, CVT, gear oil, coolant, grease)
+        if (/fluid|oil|atf|cvt|coolant|grease|lubricant|synthetic|mineral|petroleum|steering\s*fluid/i.test(raw)) {
+            return {
+                category: 'Fluids & Lubricants',
+                badgeBg: 'bg-gradient-to-br from-emerald-50 to-teal-50/80',
+                badgeBorder: 'border-emerald-200/90',
+                textClass: 'text-emerald-600',
+                dotClass: 'bg-emerald-500',
+                glowClass: 'group-hover:border-emerald-400',
+                svg: `<svg class="w-6 h-6 text-emerald-500 shrink-0 drop-shadow-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M7 4h10v3l-2 3v10a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V10L5 7V4h2z"></path>
+                        <path d="M12 12a2 2 0 0 0-2 2c0 1.5 2 3.5 2 3.5s2-2 2-3.5a2 2 0 0 0-2-2z" fill="currentColor"></path>
+                        <line x1="9" y1="2" x2="15" y2="2"></line>
+                      </svg>`
+            };
+        }
+
+        // 5. Electrical & Lighting (Battery, alternator, starter, bulb, headlight, fuse, relay, horn)
+        if (/battery|alternator|starter|bulb|headlight|taillight|signal|fuse|relay|horn|sensor|wire|harness|switch|ecu/i.test(raw)) {
+            return {
+                category: 'Electrical & Lighting',
+                badgeBg: 'bg-gradient-to-br from-violet-50 to-purple-50/80',
+                badgeBorder: 'border-violet-200/90',
+                textClass: 'text-violet-600',
+                dotClass: 'bg-violet-500',
+                glowClass: 'group-hover:border-violet-400',
+                svg: `<svg class="w-6 h-6 text-violet-500 shrink-0 drop-shadow-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="6" width="18" height="15" rx="3"></rect>
+                        <line x1="6" y1="3" x2="8" y2="6"></line>
+                        <line x1="16" y1="3" x2="18" y2="6"></line>
+                        <line x1="7" y1="11" x2="11" y2="11"></line>
+                        <line x1="9" y1="9" x2="9" y2="13"></line>
+                        <line x1="14" y1="11" x2="17" y2="11"></line>
+                      </svg>`
+            };
+        }
+
+        // 6. Engine, Ignition & Belts (Spark plugs, ignition coil, belts, pistons, gaskets, valves)
+        if (/spark|plug|ignition|piston|belt|timing|serpentine|gasket|valve|cylinder|camshaft|crankshaft|engine|motor|injector/i.test(raw)) {
+            return {
+                category: 'Engine & Ignition',
+                badgeBg: 'bg-gradient-to-br from-orange-50 to-amber-50/80',
+                badgeBorder: 'border-orange-200/90',
+                textClass: 'text-orange-600',
+                dotClass: 'bg-orange-500',
+                glowClass: 'group-hover:border-orange-400',
+                svg: `<svg class="w-6 h-6 text-orange-500 shrink-0 drop-shadow-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M10 2h4v3h-4z"></path>
+                        <rect x="9" y="5" width="6" height="5" rx="1"></rect>
+                        <path d="M11 10v4l-3 3 1 1 3-3v4h2v-4l3 3 1-1-3-3v-4h-4z" fill="currentColor" fill-opacity="0.25"></path>
+                        <line x1="12" y1="18" x2="12" y2="22"></line>
+                      </svg>`
+            };
+        }
+
+        // 7. Cooling & Climate (Radiator, water pump, thermostat, fan, AC compressor, condenser)
+        if (/radiator|cool|thermostat|water\s*pump|compressor|condenser|evaporator|blower|heater|fan/i.test(raw)) {
+            return {
+                category: 'Cooling & Climate',
+                badgeBg: 'bg-gradient-to-br from-cyan-50 to-teal-50/80',
+                badgeBorder: 'border-cyan-200/90',
+                textClass: 'text-cyan-600',
+                dotClass: 'bg-cyan-500',
+                glowClass: 'group-hover:border-cyan-400',
+                svg: `<svg class="w-6 h-6 text-cyan-500 shrink-0 drop-shadow-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="5" width="18" height="14" rx="2"></rect>
+                        <line x1="7" y1="9" x2="7" y2="15"></line>
+                        <line x1="10" y1="9" x2="10" y2="15"></line>
+                        <line x1="14" y1="9" x2="14" y2="15"></line>
+                        <line x1="17" y1="9" x2="17" y2="15"></line>
+                        <path d="M12 2v3m0 14v3"></path>
+                      </svg>`
+            };
+        }
+
+        // 8. Tires, Wheels & Hubs
+        if (/tire|tyre|wheel|rim|bearing|hub|lug\s*nut|valve\s*stem/i.test(raw)) {
+            return {
+                category: 'Tires & Wheels',
+                badgeBg: 'bg-gradient-to-br from-slate-100 to-zinc-100',
+                badgeBorder: 'border-slate-300',
+                textClass: 'text-slate-700',
+                dotClass: 'bg-slate-600',
+                glowClass: 'group-hover:border-slate-400',
+                svg: `<svg class="w-6 h-6 text-slate-700 shrink-0 drop-shadow-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="9.5"></circle>
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <circle cx="12" cy="12" r="2" fill="currentColor"></circle>
+                        <line x1="12" y1="2.5" x2="12" y2="4.5"></line>
+                        <line x1="12" y1="19.5" x2="12" y2="21.5"></line>
+                        <line x1="2.5" y1="12" x2="4.5" y2="12"></line>
+                        <line x1="19.5" y1="12" x2="21.5" y2="12"></line>
+                      </svg>`
+            };
+        }
+
+        // 9. Drivetrain & Transmission
+        if (/clutch|flywheel|axle|cv\s*joint|drive\s*shaft|differential|transmission|gearbox|gear/i.test(raw)) {
+            return {
+                category: 'Drivetrain & Transmission',
+                badgeBg: 'bg-gradient-to-br from-indigo-50 to-blue-50/80',
+                badgeBorder: 'border-indigo-200/90',
+                textClass: 'text-indigo-600',
+                dotClass: 'bg-indigo-500',
+                glowClass: 'group-hover:border-indigo-400',
+                svg: `<svg class="w-6 h-6 text-indigo-500 shrink-0 drop-shadow-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="9" cy="9" r="4.5"></circle>
+                        <circle cx="16" cy="16" r="4.5"></circle>
+                        <circle cx="9" cy="9" r="1.5" fill="currentColor"></circle>
+                        <circle cx="16" cy="16" r="1.5" fill="currentColor"></circle>
+                        <path d="M9 3v2m0 8v2M3 9h2m8 0h2m1 7v2m0 8v2m-6-3h2m8 0h2"></path>
+                      </svg>`
+            };
+        }
+
+        // 10. Body, Glass & Wipers
+        if (/wiper|blade|mirror|door|bumper|windshield|glass|handle|fender|hood|trunk|latch|lock/i.test(raw)) {
+            return {
+                category: 'Body, Glass & Wipers',
+                badgeBg: 'bg-gradient-to-br from-blue-50 to-indigo-50/80',
+                badgeBorder: 'border-blue-200/90',
+                textClass: 'text-blue-600',
+                dotClass: 'bg-blue-500',
+                glowClass: 'group-hover:border-blue-400',
+                svg: `<svg class="w-6 h-6 text-blue-500 shrink-0 drop-shadow-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4 19l14-14"></path>
+                        <path d="M18 5l2 2-14 14-2-2z" fill="currentColor" fill-opacity="0.25"></path>
+                        <circle cx="4" cy="20" r="1.8"></circle>
+                        <path d="M5 9a14 14 0 0 1 14 0" stroke-dasharray="2 2"></path>
+                      </svg>`
+            };
+        }
+
+        // 11. Hardware & Fasteners
+        if (/bolt|nut|screw|clip|clamp|bracket|washer|pin|fitting/i.test(raw)) {
+            return {
+                category: 'Hardware & Fasteners',
+                badgeBg: 'bg-gradient-to-br from-slate-50 to-gray-100',
+                badgeBorder: 'border-slate-200/90',
+                textClass: 'text-slate-600',
+                dotClass: 'bg-slate-500',
+                glowClass: 'group-hover:border-slate-400',
+                svg: `<svg class="w-6 h-6 text-slate-600 shrink-0 drop-shadow-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 4h6v3l-1 1v12h-4V8L9 7V4z"></path>
+                        <line x1="7" y1="4" x2="17" y2="4"></line>
+                        <line x1="9" y1="11" x2="15" y2="11"></line>
+                        <line x1="9" y1="14" x2="15" y2="14"></line>
+                      </svg>`
+            };
+        }
+
+        // 12. Default Precision Auto Part / Component
+        return {
+            category: 'Auto Component',
+            badgeBg: 'bg-gradient-to-br from-slate-50 to-blue-50/60',
+            badgeBorder: 'border-slate-200/90',
+            textClass: 'text-slate-600',
+            dotClass: 'bg-blue-500',
+            glowClass: 'group-hover:border-blue-400',
+            svg: `<svg class="w-6 h-6 text-blue-500 shrink-0 drop-shadow-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                    <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                    <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                  </svg>`
+        };
+    }
+
+    // ── Live AI Preview Update in Add/Edit Part Modal ──
+    function updateAIMiniModalPreview(name) {
+        const meta = getPartAIMeta(name);
+        const iconBox = document.getElementById('aiDetectorIconBox');
+        const catLabel = document.getElementById('aiDetectorCategoryName');
+        const previewContainer = document.getElementById('aiPartDetectorPreview');
+        const confidenceBadge = document.getElementById('aiConfidenceBadge');
+
+        if (iconBox) {
+            iconBox.className = `w-12 h-12 rounded-xl flex items-center justify-center shrink-0 border ${meta.badgeBorder} ${meta.badgeBg} shadow-xs transition-all duration-300 transform scale-100 hover:scale-105`;
+            iconBox.innerHTML = meta.svg;
+        }
+
+        if (catLabel) {
+            catLabel.innerText = meta.category;
+            catLabel.className = `text-xs font-black ${meta.textClass} tracking-tight mt-0.5 truncate`;
+        }
+
+        if (previewContainer) {
+            previewContainer.className = `p-3.5 rounded-2xl border transition-all duration-300 ${meta.badgeBg} ${meta.badgeBorder} flex items-center gap-3.5 shadow-xs`;
+        }
+
+        if (confidenceBadge) {
+            confidenceBadge.innerText = name && name.trim().length > 1 ? '✨ AI Identified' : 'Type part name...';
+            confidenceBadge.className = name && name.trim().length > 1 ? `text-[9px] font-black uppercase ${meta.textClass}` : 'text-[9px] font-bold text-slate-400';
+        }
+    }
+
     // --- Rendering Tables ---
     function renderActiveParts(data) {
         const tbody = document.getElementById('activePartsTable');
@@ -427,10 +706,25 @@
             if (isOut) badgeClass = 'bg-red-50 text-red-600';
             else if (isLow) badgeClass = 'bg-yellow-50 text-yellow-600';
 
+            const aiMeta = getPartAIMeta(p.name);
+
             return `
             <tr class="hover:bg-gray-50/80 transition-colors group">
                 <td class="px-8 py-4">
-                    <div class="text-sm font-black text-gray-900 tracking-tight">${p.name}</div>
+                    <div class="flex items-center gap-3.5">
+                        <div class="relative w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 border ${aiMeta.badgeBorder} ${aiMeta.badgeBg} shadow-xs group-hover:scale-105 ${aiMeta.glowClass} transition-all">
+                            ${aiMeta.svg}
+                        </div>
+                        <div class="min-w-0">
+                            <div class="text-sm font-black text-gray-900 tracking-tight group-hover:text-blue-600 transition-colors truncate">${p.name}</div>
+                            <div class="flex items-center gap-1.5 mt-0.5">
+                                <span class="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider ${aiMeta.textClass}">
+                                    <span class="w-1.5 h-1.5 rounded-full ${aiMeta.dotClass}"></span>
+                                    ${aiMeta.category}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
                 </td>
                 <td class="px-8 py-4">
                     <span class="inline-flex items-center px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider ${p.supplier ? 'bg-purple-50 text-purple-700' : 'bg-gray-100 text-gray-500'}">
@@ -470,14 +764,23 @@
 
         tbody.innerHTML = data.map(ph => {
             const dateStr = new Date(ph.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            const aiMeta = getPartAIMeta(ph.description);
+
             return `
             <tr class="hover:bg-gray-50/80 transition-colors">
                 <td class="px-8 py-5 whitespace-nowrap">
                     <div class="text-sm font-bold text-gray-700">${dateStr}</div>
                 </td>
                 <td class="px-8 py-5">
-                    <div class="text-sm font-black text-gray-800 tracking-tight">${ph.description}</div>
-                    <div class="text-xs text-blue-500 font-bold uppercase mt-1 tracking-wider">${ph.category}</div>
+                    <div class="flex items-center gap-3.5">
+                        <div class="relative w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border ${aiMeta.badgeBorder} ${aiMeta.badgeBg} shadow-xs">
+                            ${aiMeta.svg}
+                        </div>
+                        <div class="min-w-0">
+                            <div class="text-sm font-black text-gray-800 tracking-tight">${ph.description}</div>
+                            <div class="text-xs text-blue-500 font-bold uppercase mt-0.5 tracking-wider">${ph.category}</div>
+                        </div>
+                    </div>
                 </td>
                 <td class="px-8 py-5 text-right">
                     <div class="text-base font-black text-green-600">₱${parseFloat(ph.amount).toFixed(2)}</div>
@@ -494,9 +797,23 @@
             return;
         }
 
-        tbody.innerHTML = data.map(p => `
+        tbody.innerHTML = data.map(p => {
+            const aiMeta = getPartAIMeta(p.name);
+            return `
             <tr class="hover:bg-gray-50/80 transition-colors group">
-                <td class="px-8 py-4 text-sm font-medium text-gray-600">${p.name}</td>
+                <td class="px-8 py-4">
+                    <div class="flex items-center gap-3.5">
+                        <div class="relative w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border ${aiMeta.badgeBorder} ${aiMeta.badgeBg} shadow-xs">
+                            ${aiMeta.svg}
+                        </div>
+                        <div class="min-w-0">
+                            <div class="text-sm font-black text-gray-700 tracking-tight">${p.name}</div>
+                            <div class="flex items-center gap-1 mt-0.5">
+                                <span class="text-[10px] font-black uppercase tracking-wider ${aiMeta.textClass}">${aiMeta.category}</span>
+                            </div>
+                        </div>
+                    </div>
+                </td>
                 <td class="px-8 py-4 text-xs font-bold text-gray-400 uppercase">${p.supplier || 'Unspecified'}</td>
                 <td class="px-8 py-4 text-right flex justify-end gap-2">
                     <button onclick="restorePart(${p.id})" title="Restore Item" class="p-2 text-green-600 hover:bg-green-100 rounded-xl transition-all">
@@ -507,7 +824,8 @@
                     </button>
                 </td>
             </tr>
-        `).join('');
+            `;
+        }).join('');
         lucide.createIcons();
     }
 
@@ -533,6 +851,7 @@
             const iconContainer = document.getElementById('miniModalIcon');
             iconContainer.className = 'w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center';
             iconContainer.innerHTML = '<i data-lucide="plus" class="w-5 h-5 text-blue-600"></i>';
+            updateAIMiniModalPreview('');
             lucide.createIcons();
         }
     }
@@ -560,6 +879,7 @@
         iconContainer.className = 'w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center';
         iconContainer.innerHTML = '<i data-lucide="shopping-cart" class="w-5 h-5 text-blue-600"></i>';
         
+        updateAIMiniModalPreview(name);
         lucide.createIcons();
     }
 
