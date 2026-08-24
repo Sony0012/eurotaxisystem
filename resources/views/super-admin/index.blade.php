@@ -2552,9 +2552,10 @@ async function camOpenDetail(userId) {
             return;
         }
 
-        const u       = json.user || {};
-        const audit   = json.todayAudit || [];
-        const history = json.history    || [];
+        const u         = json.user || {};
+        const audit     = json.todayAudit || [];
+        const history   = json.history    || [];
+        const aiSummary = json.ai_summary || {};
 
         // Match from state
         const camUser  = (CAM_DATA.users || []).find(x => String(x.id) === String(userId)) || {};
@@ -2564,9 +2565,9 @@ async function camOpenDetail(userId) {
         const todayH   = camUser.todayH || 0;
         const pct      = camUser.pct || 0;
         const barC     = camBarColor(pct);
-        const sessions = camUser.sessionList || [];
+        const isOnline = u.is_online || camUser.isOnline || false;
         const modules  = camUser.modules || [];
-        const isOnline = !!(camUser.isOnline || u.is_online);
+        const sessions = camUser.sessionList || [];
 
         // Activity evidence level
         const lvlBars = [
@@ -2578,6 +2579,13 @@ async function camOpenDetail(userId) {
         ];
 
         content.innerHTML = `
+            <!-- Action Breadcrumbs -->
+            <div style="margin-bottom:1rem;font-size:.65rem;color:#64748b;display:flex;align-items:center;gap:.35rem;">
+                <span style="cursor:pointer;" onclick="camCloseDetail()">Activity Monitor</span>
+                <span>/</span>
+                <span style="color:#0f172a;font-weight:800;">User Detail</span>
+            </div>
+
             <!-- User header -->
             <div style="display:flex;align-items:center;gap:.85rem;margin-bottom:1.25rem;">
                 <div style="transform:scale(1.3);transform-origin:left center;margin-right:.4rem;">
@@ -2590,6 +2598,34 @@ async function camOpenDetail(userId) {
                         ${camRoleBadge(u.role || camUser.role)}
                         ${isOnline ? '<span style="font-size:.6rem;background:#dcfce7;color:#15803d;padding:.1rem .45rem;border-radius:99px;font-weight:800;">● ONLINE NOW</span>' : ''}
                     </div>
+                </div>
+            </div>
+
+            <!-- ══ AI SHIFT EXECUTIVE SUMMARY CARD ══ -->
+            <div style="background:linear-gradient(135deg, #0f172a, #1e293b);border-radius:1rem;padding:1.15rem;margin-bottom:1.25rem;border:1px solid #334155;color:#fff;box-shadow:0 10px 25px -5px rgba(15,23,42,0.3);position:relative;overflow:hidden;">
+                <div style="position:absolute;top:-20px;right:-20px;width:90px;height:90px;background:radial-gradient(circle, rgba(59,130,246,0.25), transparent 70%);border-radius:50%;"></div>
+                
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.65rem;">
+                    <div style="display:flex;align-items:center;gap:.5rem;">
+                        <div style="width:26px;height:26px;border-radius:.45rem;background:linear-gradient(135deg, #3b82f6, #6366f1);display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(99,102,241,0.4);">
+                            <i data-lucide="sparkles" style="width:14px;height:14px;color:#fff;"></i>
+                        </div>
+                        <span style="font-size:.7rem;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:#93c5fd;">AI Shift Summary & Narrative</span>
+                    </div>
+                    <span style="font-size:.58rem;font-weight:800;background:rgba(34,197,94,0.15);color:#4ade80;border:1px solid rgba(34,197,94,0.3);padding:.12rem .45rem;border-radius:99px;display:flex;align-items:center;gap:.25rem;">
+                        <i data-lucide="shield-check" style="width:10px;height:10px;"></i> 100% Fact-Checked
+                    </span>
+                </div>
+
+                <p style="font-size:.78rem;line-height:1.55;color:#e2e8f0;margin:0 0 .75rem 0;font-weight:500;">
+                    ${aiSummary.summary_text || 'Compiling verified executive shift summary...'}
+                </p>
+
+                <div style="display:flex;align-items:center;justify-content:space-between;padding-top:.55rem;border-top:1px solid rgba(255,255,255,0.1);font-size:.62rem;color:#94a3b8;">
+                    <span>Generated at ${aiSummary.generated_at || 'Just now'}</span>
+                    <button type="button" onclick="camOpenDetail('${userId}')" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:#93c5fd;font-weight:800;padding:.15rem .5rem;border-radius:.35rem;cursor:pointer;display:flex;align-items:center;gap:.25rem;transition:all .2s;" onmouseover="this.style.background='rgba(255,255,255,0.15)'" onmouseout="this.style.background='rgba(255,255,255,0.08)'">
+                        <i data-lucide="refresh-cw" style="width:9px;height:9px;"></i> Refresh Summary
+                    </button>
                 </div>
             </div>
 
@@ -2666,24 +2702,45 @@ async function camOpenDetail(userId) {
                 `).join('')}
             </div>` : ''}
 
-            <!-- Today's Timeline -->
+            <!-- Today's Timeline with Action Icons -->
             <div style="margin-bottom:1.25rem;">
                 <div style="font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#64748b;margin-bottom:.75rem;">
-                    Today's Audit Trail <span style="color:#f59e0b;font-weight:800;">(${new Date(CAM_DATE).toLocaleDateString('en-US',{month:'short',day:'numeric'})})</span>
+                    Today's Audit Trail & Evidence <span style="color:#f59e0b;font-weight:800;">(${new Date(CAM_DATE).toLocaleDateString('en-US',{month:'short',day:'numeric'})})</span>
                 </div>
                 ${audit.length === 0
                     ? `<div style="color:#94a3b8;font-size:.75rem;text-align:center;padding:.85rem;background:#f8fafc;border-radius:.6rem;">No explicit transaction logs recorded yet for this day.</div>`
                     : `<div style="position:relative;">
                         ${audit.map(ev => {
                             const ts = new Date(ev.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-                            return `<div class="cam-timeline-item">
-                                <div class="cam-timeline-dot"></div>
-                                <div style="display:flex;justify-content:space-between;align-items:baseline;">
-                                    <span style="font-size:.75rem;font-weight:800;color:#000;">${ev.action}</span>
-                                    <span style="font-size:.63rem;color:#94a3b8;margin-left:.5rem;">${ts}</span>
+                            let actionIcon = 'activity';
+                            let actionBadgeColor = '#64748b';
+                            let actionBgColor = '#f1f5f9';
+
+                            const act = (ev.action || '').toLowerCase();
+                            const notes = (ev.notes || '').toLowerCase();
+                            if (act.includes('login') || act.includes('session')) {
+                                actionIcon = 'log-in'; actionBadgeColor = '#16a34a'; actionBgColor = '#dcfce7';
+                            } else if (act.includes('logout')) {
+                                actionIcon = 'log-out'; actionBadgeColor = '#dc2626'; actionBgColor = '#fee2e2';
+                            } else if (act.includes('page') || act.includes('view') || notes.includes('accessed')) {
+                                actionIcon = 'layout'; actionBadgeColor = '#0284c7'; actionBgColor = '#e0f2fe';
+                            } else if (act.includes('post') || act.includes('create') || act.includes('store') || notes.includes('created') || notes.includes('submitted')) {
+                                actionIcon = 'plus-circle'; actionBadgeColor = '#7c3aed'; actionBgColor = '#ede9fe';
+                            } else if (act.includes('put') || act.includes('patch') || act.includes('update') || notes.includes('updated')) {
+                                actionIcon = 'edit-3'; actionBadgeColor = '#d97706'; actionBgColor = '#fef3c7';
+                            } else if (act.includes('delete') || act.includes('rejected')) {
+                                actionIcon = 'trash-2'; actionBadgeColor = '#e11d48'; actionBgColor = '#ffe4e6';
+                            }
+
+                            return `<div class="cam-timeline-item" style="padding-left:1.75rem;position:relative;margin-bottom:.85rem;border-left:2px solid #e2e8f0;margin-left:.5rem;">
+                                <div style="position:absolute;left:-11px;top:0;width:20px;height:20px;border-radius:50%;background:${actionBgColor};color:${actionBadgeColor};display:flex;align-items:center;justify-content:center;border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,0.1);">
+                                    <i data-lucide="${actionIcon}" style="width:10px;height:10px;"></i>
                                 </div>
-                                ${ev.notes ? `<div style="font-size:.67rem;color:#64748b;margin-top:.2rem;background:#f8fafc;padding:.3rem .5rem;border-radius:.35rem;white-space:pre-line;">${ev.notes}</div>` : ''}
-                                ${ev.ip_address ? `<div style="font-size:.58rem;color:#94a3b8;margin-top:.15rem;font-family:monospace;">IP: ${ev.ip_address}</div>` : ''}
+                                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.2rem;">
+                                    <span style="font-size:.74rem;font-weight:900;color:#0f172a;">${ev.notes ? ev.notes : ev.action}</span>
+                                    <span style="font-size:.62rem;color:#64748b;font-weight:700;font-mono;">${ts}</span>
+                                </div>
+                                ${ev.ip_address ? `<div style="font-size:.58rem;color:#94a3b8;margin-top:.15rem;display:flex;gap:.5rem;align-items:center;"><span>IP: <code>${ev.ip_address}</code></span> • <span>${ev.user_agent ? (ev.user_agent.includes('Windows') ? 'Windows' : (ev.user_agent.includes('Android') ? 'Android' : (ev.user_agent.includes('iPhone') ? 'iPhone' : 'Web Browser'))) : 'Web Browser'}</span></div>` : ''}
                             </div>`;
                         }).join('')}
                     </div>`

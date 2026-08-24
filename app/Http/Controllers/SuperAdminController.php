@@ -1092,9 +1092,36 @@ class SuperAdminController extends Controller
             ->limit(50)
             ->get();
 
+        $presenceService = app(\App\Services\PresenceService::class);
+        $status = $presenceService->determineUserStatus($user);
+        $isOnline = in_array($status, ['active', 'idle']);
+        $activeTimeData = $presenceService->calculateTodayActiveTime($user->id, $date);
+
+        $todayMins = $activeTimeData['total_mins'];
+        $firstLoginEntry = $todayAudits->where('action', 'login')->first();
+        $firstTimeObj = $firstLoginEntry ? Carbon::parse($firstLoginEntry->created_at) : ($user->last_login && Carbon::parse($user->last_login)->toDateString() === $date ? Carbon::parse($user->last_login) : ($todayAudits->isNotEmpty() ? Carbon::parse($todayAudits->first()->created_at) : null));
+        $lastTimeObj = $user->last_seen_at && Carbon::parse($user->last_seen_at)->toDateString() === $date ? Carbon::parse($user->last_seen_at) : ($todayAudits->isNotEmpty() ? Carbon::parse($todayAudits->last()->created_at) : null);
+
+        if ($todayMins === 0 && $firstTimeObj) {
+            $endPoint = $isOnline ? now() : ($lastTimeObj ?: $firstTimeObj);
+            $todayMins = max(1, (int) round($firstTimeObj->diffInMinutes($endPoint)));
+        }
+
+        $aiSummary = \App\Services\ActivityAuditService::generateExecutiveSummary(
+            $user,
+            $date,
+            $todayAudits,
+            [
+                'hours'     => round($todayMins / 60, 2),
+                'mins'      => $todayMins,
+                'is_online' => $isOnline,
+                'status'    => $status,
+            ]
+        );
+
         return response()->json([
-            'success' => true,
-            'user'    => [
+            'success'    => true,
+            'user'       => [
                 'id'              => $user->id,
                 'name'            => $user->full_name ?? $user->name,
                 'email'           => $user->email,
@@ -1105,6 +1132,7 @@ class SuperAdminController extends Controller
                 'approval_status' => $user->approval_status,
                 'is_disabled'     => (bool) $user->is_disabled,
             ],
+            'ai_summary' => $aiSummary,
             'todayAudit' => $todayAudits,
             'history'    => $history,
         ]);

@@ -65,6 +65,9 @@ class CheckAccountStatus
                         \App\Models\LoginAudit::log('active_presence', $user, 'Active usage continuous checkpoint');
                     }
                 }
+
+                // Record detailed page view and button action breadcrumbs
+                \App\Services\ActivityAuditService::recordRequest($request, $user);
             } catch (\Throwable $e) {
                 // Fail silently to never disrupt web traffic
             }
