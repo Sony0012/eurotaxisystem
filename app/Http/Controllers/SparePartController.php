@@ -109,7 +109,35 @@ class SparePartController extends Controller
             \Log::error('Image Search Error: ' . $e->getMessage());
         }
 
-        // 2. Fallback to Wikimedia Commons if few results
+        // 2. Openverse API Search (High-res actual Creative Commons photographs)
+        if (count($results) < 8) {
+            try {
+                $needed = 8 - count($results);
+                $ovUrl = "https://api.openverse.org/v1/images/?q=" . urlencode($query . ' car part') . "&page_size=" . $needed;
+                $ch = curl_init($ovUrl);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($ch, CURLOPT_USERAGENT, 'EuroTaxi/1.0 (https://eurotaxisystem.site)');
+                curl_setopt($ch, CURLOPT_TIMEOUT, 4);
+                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+                $ovJson = curl_exec($ch);
+                curl_close($ch);
+                $ovData = json_decode($ovJson, true);
+                if (!empty($ovData['results'])) {
+                    foreach ($ovData['results'] as $item) {
+                        if (!empty($item['url'])) {
+                            $results[] = [
+                                'thumb' => $item['thumbnail'] ?? $item['url'],
+                                'image' => $item['url'],
+                                'title' => $item['title'] ?? 'Car Part Photo'
+                            ];
+                        }
+                        if (count($results) >= 8) break;
+                    }
+                }
+            } catch (\Exception $e) {}
+        }
+
+        // 3. Fallback to Wikimedia Commons if few results
         if (count($results) < 4) {
             try {
                 $wikiUrl = "https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrnamespace=6&gsrsearch=" . urlencode($query . " car part filetype:bitmap") . "&gsrlimit=6&prop=imageinfo&iiprop=url|thumburl&iiurlwidth=300&format=json";
