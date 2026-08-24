@@ -497,11 +497,304 @@
                 dotClass: 'bg-slate-600',
                 glowClass: 'group-hover:border-slate-400'
             };
+    // ── AI Procedural Vector Generator Engine (Synthesizes custom SVG graphics on the fly) ──
+    function generateDynamicPartSVG(partName) {
+        const raw = (partName || 'Auto Part').toLowerCase();
+        const id = 'svg_' + Math.random().toString(36).substring(2, 9);
+
+        // Color extraction from keywords
+        let pColor = '#2563eb', sColor = '#3b82f6', aColor = '#60a5fa';
+        if (/red|brembo|ferodo|sport/i.test(raw)) {
+            pColor = '#dc2626'; sColor = '#ef4444'; aColor = '#f87171';
+        } else if (/gold|yellow|motolite|ohlins/i.test(raw)) {
+            pColor = '#d97706'; sColor = '#f59e0b'; aColor = '#fbbf24';
+        } else if (/green|tein|monster/i.test(raw)) {
+            pColor = '#16a34a'; sColor = '#22c55e'; aColor = '#4ade80';
+        } else if (/black|dark|carbon/i.test(raw)) {
+            pColor = '#1e293b'; sColor = '#334155'; aColor = '#64748b';
+        } else if (/purple|hks/i.test(raw)) {
+            pColor = '#9333ea'; sColor = '#a855f7'; aColor = '#c084fc';
+        }
+
+        const isDrilled = /drill|slot|vent/i.test(raw);
+        let content = '';
+
+        // 1. SHOCK ABSORBER / STRUT / COILOVER
+        if (/shock|strut|coilover|absorber|spring|suspension/i.test(raw)) {
+            content = `
+                <rect x="65" y="16" width="70" height="12" rx="4" fill="${pColor}"/>
+                <circle cx="100" cy="22" r="5" fill="#f8fafc"/>
+                <rect x="94" y="28" width="12" height="72" rx="2" fill="url(#${id}_metal)"/>
+                ${[35, 47, 59, 71, 83, 95].map(y => `
+                    <path d="M 68 ${y+6} Q 100 ${y} 132 ${y+6}" fill="none" stroke="url(#${id}_spring)" stroke-width="9" stroke-linecap="round"/>
+                    <path d="M 68 ${y+6} Q 100 ${y+2} 132 ${y+6}" fill="none" stroke="${aColor}" stroke-width="2" stroke-linecap="round"/>
+                `).join('')}
+                <rect x="74" y="106" width="52" height="8" rx="2" fill="${pColor}"/>
+                <rect x="78" y="114" width="44" height="6" rx="2" fill="${sColor}"/>
+                <rect x="82" y="120" width="36" height="52" rx="4" fill="url(#${id}_body)"/>
+                <line x1="88" y1="120" x2="88" y2="172" stroke="#94a3b8" stroke-width="1.5" stroke-opacity="0.5"/>
+                <circle cx="100" cy="180" r="14" fill="url(#${id}_body)"/>
+                <circle cx="100" cy="180" r="7" fill="${pColor}"/>
+                <circle cx="100" cy="180" r="4" fill="#0f172a"/>
+            `;
+        }
+        // 2. BRAKE ROTOR / DISK
+        else if (/rotor|disc|disk|brake\s*rotor/i.test(raw)) {
+            const drilledHoles = isDrilled ? Array.from({length: 12}).map((_, i) => {
+                const rad1 = (i * 30) * Math.PI / 180;
+                const rad2 = (i * 30 + 15) * Math.PI / 180;
+                return `
+                    <circle cx="${(100 + 64 * Math.cos(rad1)).toFixed(1)}" cy="${(100 + 64 * Math.sin(rad1)).toFixed(1)}" r="2.5" fill="#1e293b"/>
+                    <circle cx="${(100 + 74 * Math.cos(rad2)).toFixed(1)}" cy="${(100 + 74 * Math.sin(rad2)).toFixed(1)}" r="2.5" fill="#1e293b"/>
+                `;
+            }).join('') : '';
+
+            const lugBolts = [0, 72, 144, 216, 288].map(a => {
+                const rad = (a - 90) * Math.PI / 180;
+                return `<circle cx="${(100 + 26 * Math.cos(rad)).toFixed(1)}" cy="${(100 + 26 * Math.sin(rad)).toFixed(1)}" r="5.5" fill="#f8fafc"/><circle cx="${(100 + 26 * Math.cos(rad)).toFixed(1)}" cy="${(100 + 26 * Math.sin(rad)).toFixed(1)}" r="3" fill="#0f172a"/>`;
+            }).join('');
+
+            content = `
+                <circle cx="100" cy="100" r="82" fill="url(#${id}_rotor)"/>
+                <circle cx="100" cy="100" r="76" fill="none" stroke="#e2e8f0" stroke-width="1.5"/>
+                <circle cx="100" cy="100" r="68" fill="none" stroke="#64748b" stroke-width="0.75"/>
+                <circle cx="100" cy="100" r="60" fill="none" stroke="#cbd5e1" stroke-width="1.5"/>
+                ${drilledHoles}
+                <circle cx="100" cy="100" r="46" fill="url(#${id}_hat)"/>
+                <circle cx="100" cy="100" r="42" fill="none" stroke="#f8fafc" stroke-width="1.5" stroke-opacity="0.4"/>
+                ${lugBolts}
+                <circle cx="100" cy="100" r="14" fill="#0f172a"/>
+                <circle cx="100" cy="100" r="11" fill="#020617"/>
+            `;
+        }
+        // 3. BRAKE PADS / CALIPER
+        else if (/pad|brake|caliper/i.test(raw)) {
+            content = `
+                <rect x="30" y="45" width="140" height="45" rx="6" fill="#334155"/>
+                <rect x="42" y="52" width="116" height="34" rx="4" fill="${pColor}"/>
+                <rect x="98" y="52" width="4" height="34" fill="#1e293b"/>
+                <rect x="25" y="105" width="150" height="52" rx="8" fill="#1e293b"/>
+                <rect x="38" y="112" width="124" height="40" rx="4" fill="url(#${id}_ceramic)"/>
+                <polygon points="38,112 55,112 38,152" fill="#78350f" opacity="0.6"/>
+                <polygon points="162,112 145,112 162,152" fill="#78350f" opacity="0.6"/>
+                <rect x="98" y="112" width="4" height="40" fill="#451a03"/>
+                <rect x="20" y="145" width="12" height="15" rx="2" fill="#94a3b8"/>
+                <rect x="168" y="145" width="12" height="15" rx="2" fill="#94a3b8"/>
+            `;
+        }
+        // 4. TIRES / WHEELS / RIMS
+        else if (/tire|tyre|wheel|rim|mag/i.test(raw)) {
+            const spokes = [0, 72, 144, 216, 288].map(a => {
+                const rad = a * Math.PI / 180;
+                return `<circle cx="${(100 + 38 * Math.cos(rad)).toFixed(1)}" cy="${(100 + 38 * Math.sin(rad)).toFixed(1)}" r="18" fill="#e2e8f0"/><circle cx="${(100 + 38 * Math.cos(rad)).toFixed(1)}" cy="${(100 + 38 * Math.sin(rad)).toFixed(1)}" r="11" fill="#1e293b"/>`;
+            }).join('');
+
+            const treads = Array.from({length: 24}).map((_, i) => {
+                const rad = (i * 15) * Math.PI / 180;
+                return `<line x1="${(100 + 72 * Math.cos(rad)).toFixed(1)}" y1="${(100 + 72 * Math.sin(rad)).toFixed(1)}" x2="${(100 + 82 * Math.cos(rad)).toFixed(1)}" y2="${(100 + 82 * Math.sin(rad)).toFixed(1)}" stroke="#0f172a" stroke-width="2.5"/>`;
+            }).join('');
+
+            content = `
+                <circle cx="100" cy="100" r="82" fill="#1e293b"/>
+                <circle cx="100" cy="100" r="74" fill="#334155"/>
+                <circle cx="100" cy="100" r="62" fill="#0f172a"/>
+                ${treads}
+                <circle cx="100" cy="100" r="54" fill="#cbd5e1"/>
+                <circle cx="100" cy="100" r="48" fill="#94a3b8"/>
+                ${spokes}
+                <circle cx="100" cy="100" r="22" fill="#f8fafc"/>
+                <circle cx="100" cy="100" r="16" fill="${pColor}"/>
+                <circle cx="100" cy="100" r="8" fill="#ffffff"/>
+            `;
+        }
+        // 5. SPARK PLUG
+        else if (/spark|plug|iridium/i.test(raw)) {
+            content = `
+                <rect x="94" y="18" width="12" height="15" rx="2" fill="#cbd5e1"/>
+                <rect x="84" y="33" width="32" height="70" rx="4" fill="#f8fafc"/>
+                <ellipse cx="100" cy="45" rx="19" ry="5" fill="#e2e8f0"/>
+                <ellipse cx="100" cy="60" rx="19" ry="5" fill="#e2e8f0"/>
+                <ellipse cx="100" cy="75" rx="19" ry="5" fill="#e2e8f0"/>
+                <ellipse cx="100" cy="90" rx="19" ry="5" fill="#e2e8f0"/>
+                <rect x="78" y="103" width="44" height="26" rx="2" fill="#64748b"/>
+                <rect x="86" y="129" width="28" height="42" fill="#475569"/>
+                ${[133, 139, 145, 151, 157, 163].map(y => `<line x1="86" y1="${y}" x2="114" y2="${y+2}" stroke="#94a3b8" stroke-width="2"/>`).join('')}
+                <rect x="97" y="171" width="6" height="14" fill="#f8fafc"/>
+                <rect x="98.5" y="185" width="3" height="6" fill="#f59e0b"/>
+                <path d="M 88 171 L 88 193 L 100 193" fill="none" stroke="#64748b" stroke-width="3.5" stroke-linecap="round"/>
+            `;
+        }
+        // 6. BATTERY
+        else if (/battery|motolite/i.test(raw)) {
+            content = `
+                <rect x="35" y="60" width="130" height="115" rx="8" fill="#1e293b"/>
+                <rect x="30" y="50" width="140" height="30" rx="4" fill="${pColor}"/>
+                <rect x="48" y="32" width="18" height="18" rx="2" fill="#ef4444"/>
+                <circle cx="57" cy="32" r="6" fill="#94a3b8"/>
+                <rect x="134" y="32" width="18" height="18" rx="2" fill="#3b82f6"/>
+                <circle cx="143" cy="32" r="6" fill="#94a3b8"/>
+                <rect x="48" y="95" width="104" height="65" rx="6" fill="#0f172a"/>
+                <rect x="54" y="102" width="92" height="24" rx="3" fill="${sColor}"/>
+                <circle cx="100" cy="142" r="8" fill="#22c55e"/>
+            `;
+        }
+        // 7. OIL & FLUIDS
+        else if (/oil|fluid|coolant|synthetic/i.test(raw)) {
+            content = `
+                <rect x="85" y="24" width="30" height="22" rx="3" fill="${pColor}"/>
+                <rect x="90" y="46" width="20" height="18" fill="${sColor}"/>
+                <path d="M 55 64 L 145 64 L 155 175 L 45 175 Z" fill="${pColor}"/>
+                <path d="M 55 64 L 75 64 L 65 175 L 45 175 Z" fill="#0f172a" opacity="0.2"/>
+                <rect x="62" y="75" width="6" height="85" rx="2" fill="#facc15"/>
+                <rect x="78" y="90" width="65" height="65" rx="6" fill="#f8fafc"/>
+                <circle cx="110" cy="122" r="16" fill="${sColor}"/>
+                <path d="M 110 110 Q 120 125 110 132 Q 100 125 110 110 Z" fill="#facc15"/>
+            `;
+        }
+        // 8. FILTERS
+        else if (/filter/i.test(raw)) {
+            if (/oil/i.test(raw)) {
+                content = `
+                    <rect x="60" y="45" width="80" height="120" rx="14" fill="#0f172a"/>
+                    <ellipse cx="100" cy="55" rx="40" ry="12" fill="#334155"/>
+                    <ellipse cx="100" cy="165" rx="40" ry="12" fill="#475569"/>
+                    <ellipse cx="100" cy="165" rx="32" ry="8" fill="#dc2626"/>
+                    <ellipse cx="100" cy="165" rx="14" ry="4" fill="#0f172a"/>
+                `;
+            } else {
+                content = `
+                    <rect x="35" y="45" width="130" height="110" rx="8" fill="${pColor}"/>
+                    <rect x="46" y="56" width="108" height="88" rx="4" fill="#fef08a"/>
+                    ${[52, 60, 68, 76, 84, 92, 100, 108, 116, 124, 132, 140, 148].map(x => `<line x1="${x}" y1="56" x2="${x}" y2="144" stroke="#ca8a04" stroke-width="2.5"/>`).join('')}
+                `;
+            }
+        }
+        // 9. WIPER BLADES
+        else if (/wiper|blade/i.test(raw)) {
+            content = `
+                <path d="M 25 145 Q 100 65 175 125" fill="none" stroke="#1e293b" stroke-width="12" stroke-linecap="round"/>
+                <path d="M 25 151 Q 100 71 175 131" fill="none" stroke="#64748b" stroke-width="4" stroke-linecap="round"/>
+                <rect x="90" y="80" width="20" height="16" rx="3" fill="${pColor}"/>
+            `;
+        }
+        // 10. BELTS
+        else if (/belt|timing|serpentine/i.test(raw)) {
+            content = `
+                <ellipse cx="100" cy="100" rx="72" ry="48" fill="none" stroke="#0f172a" stroke-width="14"/>
+                <ellipse cx="100" cy="100" rx="72" ry="48" fill="none" stroke="#475569" stroke-width="2" stroke-dasharray="4,4"/>
+                <circle cx="65" cy="100" r="24" fill="#94a3b8"/>
+                <circle cx="65" cy="100" r="8" fill="#1e293b"/>
+                <circle cx="135" cy="100" r="18" fill="#cbd5e1"/>
+                <circle cx="135" cy="100" r="6" fill="#1e293b"/>
+            `;
+        }
+        // 11. ALTERNATOR / MOTOR
+        else if (/alternator|starter|motor|pump|generator/i.test(raw)) {
+            content = `
+                <circle cx="100" cy="105" r="58" fill="#94a3b8"/>
+                ${Array.from({length: 8}).map((_, i) => {
+                    const rad = (i * 45) * Math.PI / 180;
+                    return `<circle cx="${(100 + 40 * Math.cos(rad)).toFixed(1)}" cy="${(105 + 40 * Math.sin(rad)).toFixed(1)}" r="10" fill="#c2410c"/>`;
+                }).join('')}
+                <circle cx="100" cy="105" r="32" fill="#1e293b"/>
+                <circle cx="100" cy="105" r="12" fill="#e2e8f0"/>
+                <rect x="88" y="24" width="24" height="24" rx="4" fill="${pColor}"/>
+            `;
+        }
+        // 12. GENERAL PRECISION GEARS & CHASSIS
+        else {
+            content = `
+                <circle cx="85" cy="90" r="48" fill="#94a3b8"/>
+                ${Array.from({length: 8}).map((_, i) => {
+                    const rad = (i * 45) * Math.PI / 180;
+                    return `<rect x="${(85 + 46 * Math.cos(rad) - 6).toFixed(1)}" y="${(90 + 46 * Math.sin(rad) - 6).toFixed(1)}" width="12" height="12" rx="2" fill="#64748b"/>`;
+                }).join('')}
+                <circle cx="85" cy="90" r="28" fill="#f8fafc"/>
+                <circle cx="85" cy="90" r="14" fill="#0f172a"/>
+                <circle cx="130" cy="135" r="34" fill="${pColor}"/>
+                <circle cx="130" cy="135" r="18" fill="#f8fafc"/>
+                <circle cx="130" cy="135" r="8" fill="#0f172a"/>
+            `;
+        }
+
+        const svg = `
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="100%" height="100%">
+                <defs>
+                    <linearGradient id="${id}_spring" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="${aColor}"/>
+                        <stop offset="50%" stop-color="${sColor}"/>
+                        <stop offset="100%" stop-color="${pColor}"/>
+                    </linearGradient>
+                    <linearGradient id="${id}_metal" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stop-color="#94a3b8"/>
+                        <stop offset="50%" stop-color="#f8fafc"/>
+                        <stop offset="100%" stop-color="#64748b"/>
+                    </linearGradient>
+                    <linearGradient id="${id}_body" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stop-color="#1e293b"/>
+                        <stop offset="50%" stop-color="#475569"/>
+                        <stop offset="100%" stop-color="#0f172a"/>
+                    </linearGradient>
+                    <linearGradient id="${id}_rotor" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#f8fafc"/>
+                        <stop offset="40%" stop-color="#cbd5e1"/>
+                        <stop offset="80%" stop-color="#94a3b8"/>
+                        <stop offset="100%" stop-color="#64748b"/>
+                    </linearGradient>
+                    <linearGradient id="${id}_hat" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stop-color="${pColor}"/>
+                        <stop offset="100%" stop-color="${sColor}"/>
+                    </linearGradient>
+                    <linearGradient id="${id}_ceramic" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stop-color="#92400e"/>
+                        <stop offset="50%" stop-color="#b45309"/>
+                        <stop offset="100%" stop-color="#78350f"/>
+                    </linearGradient>
+                    <filter id="${id}_shadow" x="-10%" y="-10%" width="120%" height="120%">
+                        <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#0f172a" flood-opacity="0.2"/>
+                    </filter>
+                </defs>
+                <g filter="url(#${id}_shadow)">
+                    ${content}
+                </g>
+            </svg>
+        `.trim();
+
+        return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+    }
+
+    // --- AI Semantic Classification Engine ---
+    function getPartAIMeta(partName) {
+        const raw = (partName || '').toLowerCase().trim();
+        const customGeneratedSvg = generateDynamicPartSVG(partName);
+
+        // 1. Braking System
+        if (/brake\s*fluid/i.test(raw)) {
+            return {
+                category: 'Braking System',
+                imageUrl: customGeneratedSvg,
+                badgeBg: 'bg-gradient-to-br from-amber-50 to-orange-50/80',
+                badgeBorder: 'border-amber-200/90',
+                textClass: 'text-amber-600',
+                dotClass: 'bg-amber-500',
+                glowClass: 'group-hover:border-amber-400'
+            };
+        }
+        if (/brake\s*hose/i.test(raw)) {
+            return {
+                category: 'Braking System',
+                imageUrl: customGeneratedSvg,
+                badgeBg: 'bg-gradient-to-br from-slate-100 to-zinc-100',
+                badgeBorder: 'border-slate-300',
+                textClass: 'text-slate-700',
+                dotClass: 'bg-slate-600',
+                glowClass: 'group-hover:border-slate-400'
+            };
         }
         if (/brake\s*shoe/i.test(raw)) {
             return {
                 category: 'Braking System',
-                imageUrl: '{{ asset('image/parts/brake_shoe.svg') }}',
+                imageUrl: customGeneratedSvg,
                 badgeBg: 'bg-gradient-to-br from-rose-50 to-orange-50/80',
                 badgeBorder: 'border-rose-200/90',
                 textClass: 'text-rose-600',
@@ -512,7 +805,7 @@
         if (/brake\s*disk|brake\s*disc|rotor/i.test(raw)) {
             return {
                 category: 'Braking System',
-                imageUrl: '{{ asset('image/parts/brake_disk.svg') }}',
+                imageUrl: customGeneratedSvg,
                 badgeBg: 'bg-gradient-to-br from-slate-100 to-gray-100',
                 badgeBorder: 'border-slate-300',
                 textClass: 'text-slate-700',
@@ -520,10 +813,10 @@
                 glowClass: 'group-hover:border-slate-400'
             };
         }
-        if (/brake\s*pad|brake/i.test(raw)) {
+        if (/brake\s*pad|brake|caliper/i.test(raw)) {
             return {
                 category: 'Braking System',
-                imageUrl: '{{ asset('image/parts/brake_pads.svg') }}',
+                imageUrl: customGeneratedSvg,
                 badgeBg: 'bg-gradient-to-br from-rose-50 to-red-50/80',
                 badgeBorder: 'border-rose-200/90',
                 textClass: 'text-rose-600',
@@ -532,11 +825,11 @@
             };
         }
 
-        // 2. Specific Suspension & Steering Components
+        // 2. Suspension & Steering
         if (/shock|strut|absorber|spring|coil/i.test(raw)) {
             return {
                 category: 'Suspension & Steering',
-                imageUrl: '{{ asset('image/parts/shock_absorber.svg') }}',
+                imageUrl: customGeneratedSvg,
                 badgeBg: 'bg-gradient-to-br from-amber-50 to-orange-50/80',
                 badgeBorder: 'border-amber-200/90',
                 textClass: 'text-amber-600',
@@ -544,10 +837,10 @@
                 glowClass: 'group-hover:border-amber-400'
             };
         }
-        if (/bushing/i.test(raw)) {
+        if (/bushing|ball\s*joint|tie\s*rod|rack\s*end|link|stabilizer|control\s*arm/i.test(raw)) {
             return {
                 category: 'Suspension & Steering',
-                imageUrl: '{{ asset('image/parts/suspension_bushing.svg') }}',
+                imageUrl: customGeneratedSvg,
                 badgeBg: 'bg-gradient-to-br from-slate-100 to-zinc-100',
                 badgeBorder: 'border-slate-300',
                 textClass: 'text-slate-700',
@@ -555,23 +848,12 @@
                 glowClass: 'group-hover:border-slate-400'
             };
         }
-        if (/ball\s*joint|tie\s*rod|rack\s*end|link|stabilizer|control\s*arm/i.test(raw)) {
-            return {
-                category: 'Suspension & Steering',
-                imageUrl: '{{ asset('image/parts/ball_joint.svg') }}',
-                badgeBg: 'bg-gradient-to-br from-slate-100 to-gray-100',
-                badgeBorder: 'border-slate-300',
-                textClass: 'text-slate-700',
-                dotClass: 'bg-slate-600',
-                glowClass: 'group-hover:border-slate-400'
-            };
-        }
 
-        // 3. Specific Filtration Components
-        if (/cabin|ac\s*filter/i.test(raw)) {
+        // 3. Filtration
+        if (/filter/i.test(raw)) {
             return {
                 category: 'Filtration System',
-                imageUrl: '{{ asset('image/parts/cabin_filter.svg') }}',
+                imageUrl: customGeneratedSvg,
                 badgeBg: 'bg-gradient-to-br from-sky-50 to-blue-50/80',
                 badgeBorder: 'border-sky-200/90',
                 textClass: 'text-sky-600',
@@ -579,45 +861,12 @@
                 glowClass: 'group-hover:border-sky-400'
             };
         }
-        if (/oil\s*filter/i.test(raw)) {
-            return {
-                category: 'Filtration System',
-                imageUrl: '{{ asset('image/parts/oil_filter.svg') }}',
-                badgeBg: 'bg-gradient-to-br from-slate-100 to-zinc-100',
-                badgeBorder: 'border-slate-300',
-                textClass: 'text-slate-700',
-                dotClass: 'bg-slate-600',
-                glowClass: 'group-hover:border-slate-400'
-            };
-        }
-        if (/air\s*filter|filter/i.test(raw)) {
-            return {
-                category: 'Filtration System',
-                imageUrl: '{{ asset('image/parts/air_filter.svg') }}',
-                badgeBg: 'bg-gradient-to-br from-orange-50 to-amber-50/80',
-                badgeBorder: 'border-orange-200/90',
-                textClass: 'text-orange-600',
-                dotClass: 'bg-orange-500',
-                glowClass: 'group-hover:border-orange-400'
-            };
-        }
 
-        // 4. Specific Fluids & Oils
-        if (/atf|cvt|transmission\s*fluid/i.test(raw)) {
+        // 4. Fluids & Oils
+        if (/oil|fluid|lubricant|synthetic/i.test(raw)) {
             return {
                 category: 'Fluids & Lubricants',
-                imageUrl: '{{ asset('image/parts/transmission_fluid.svg') }}',
-                badgeBg: 'bg-gradient-to-br from-rose-50 to-red-50/80',
-                badgeBorder: 'border-rose-200/90',
-                textClass: 'text-rose-600',
-                dotClass: 'bg-rose-500',
-                glowClass: 'group-hover:border-rose-400'
-            };
-        }
-        if (/oil|engine\s*oil|lubricant|synthetic|mineral|fluid/i.test(raw)) {
-            return {
-                category: 'Fluids & Lubricants',
-                imageUrl: '{{ asset('image/parts/engine_oil.svg') }}',
+                imageUrl: customGeneratedSvg,
                 badgeBg: 'bg-gradient-to-br from-amber-50 to-yellow-50/80',
                 badgeBorder: 'border-amber-200/90',
                 textClass: 'text-amber-600',
@@ -626,22 +875,11 @@
             };
         }
 
-        // 5. Electrical & Lighting
-        if (/battery/i.test(raw)) {
+        // 5. Electrical
+        if (/battery|alternator|starter|generator|bulb|light/i.test(raw)) {
             return {
                 category: 'Electrical & Lighting',
-                imageUrl: '{{ asset('image/parts/car_battery.svg') }}',
-                badgeBg: 'bg-gradient-to-br from-slate-100 to-zinc-100',
-                badgeBorder: 'border-slate-300',
-                textClass: 'text-slate-700',
-                dotClass: 'bg-slate-600',
-                glowClass: 'group-hover:border-slate-400'
-            };
-        }
-        if (/alternator/i.test(raw)) {
-            return {
-                category: 'Electrical & Lighting',
-                imageUrl: '{{ asset('image/parts/alternator.svg') }}',
+                imageUrl: customGeneratedSvg,
                 badgeBg: 'bg-gradient-to-br from-slate-100 to-zinc-100',
                 badgeBorder: 'border-slate-300',
                 textClass: 'text-slate-700',
@@ -651,10 +889,10 @@
         }
 
         // 6. Engine & Ignition
-        if (/spark|plug|ignition/i.test(raw)) {
+        if (/spark|plug|ignition|timing|belt|serpentine/i.test(raw)) {
             return {
-                category: 'Engine & Ignition',
-                imageUrl: '{{ asset('image/parts/spark_plug.svg') }}',
+                category: 'Engine & Belts',
+                imageUrl: customGeneratedSvg,
                 badgeBg: 'bg-gradient-to-br from-slate-100 to-sky-50',
                 badgeBorder: 'border-slate-300',
                 textClass: 'text-slate-700',
@@ -662,36 +900,12 @@
                 glowClass: 'group-hover:border-slate-400'
             };
         }
-        if (/timing|belt|serpentine|fan\s*belt/i.test(raw)) {
-            return {
-                category: 'Engine & Belts',
-                imageUrl: '{{ asset('image/parts/timing_belt.svg') }}',
-                badgeBg: 'bg-gradient-to-br from-slate-100 to-zinc-100',
-                badgeBorder: 'border-slate-300',
-                textClass: 'text-slate-700',
-                dotClass: 'bg-slate-600',
-                glowClass: 'group-hover:border-slate-400'
-            };
-        }
 
-        // 7. Cooling & Climate
-        if (/radiator|coolant|water\s*pump|thermostat/i.test(raw)) {
-            return {
-                category: 'Cooling & Climate',
-                imageUrl: '{{ asset('image/parts/radiator.svg') }}',
-                badgeBg: 'bg-gradient-to-br from-cyan-50 to-blue-50/80',
-                badgeBorder: 'border-cyan-200/90',
-                textClass: 'text-cyan-600',
-                dotClass: 'bg-cyan-500',
-                glowClass: 'group-hover:border-cyan-400'
-            };
-        }
-
-        // 8. Tires & Wheels
+        // 7. Tires & Wheels
         if (/tire|tyre|wheel|rim|bearing|hub/i.test(raw)) {
             return {
                 category: 'Tires & Wheels',
-                imageUrl: '{{ asset('image/parts/tire_wheel.svg') }}',
+                imageUrl: customGeneratedSvg,
                 badgeBg: 'bg-gradient-to-br from-slate-100 to-zinc-100',
                 badgeBorder: 'border-slate-300',
                 textClass: 'text-slate-700',
@@ -700,36 +914,10 @@
             };
         }
 
-        // 9. Drivetrain & Clutch
-        if (/clutch|flywheel|axle|cv\s*joint/i.test(raw)) {
-            return {
-                category: 'Drivetrain & Clutch',
-                imageUrl: '{{ asset('image/parts/clutch_disc.svg') }}',
-                badgeBg: 'bg-gradient-to-br from-slate-100 to-zinc-100',
-                badgeBorder: 'border-slate-300',
-                textClass: 'text-slate-700',
-                dotClass: 'bg-slate-600',
-                glowClass: 'group-hover:border-slate-400'
-            };
-        }
-
-        // 10. Wipers & Glass
-        if (/wiper|blade|windshield/i.test(raw)) {
-            return {
-                category: 'Body & Wipers',
-                imageUrl: '{{ asset('image/parts/wiper_blade.svg') }}',
-                badgeBg: 'bg-gradient-to-br from-blue-50 to-indigo-50/80',
-                badgeBorder: 'border-blue-200/90',
-                textClass: 'text-blue-600',
-                dotClass: 'bg-blue-500',
-                glowClass: 'group-hover:border-blue-400'
-            };
-        }
-
-        // Default Precision Component
+        // Default Auto Component
         return {
             category: 'Auto Component',
-            imageUrl: '{{ asset('image/parts/general_part.svg') }}',
+            imageUrl: customGeneratedSvg,
             badgeBg: 'bg-gradient-to-br from-slate-50 to-blue-50/60',
             badgeBorder: 'border-slate-200/90',
             textClass: 'text-slate-600',
@@ -807,37 +995,63 @@
         if (!grid) return;
 
         const currentSelected = document.getElementById('newPartImageUrl').value;
+        const partName = document.getElementById('newPartName').value || 'Automotive Part';
+        const dynamicSvgUrl = generateDynamicPartSVG(partName);
+        const isSvgSelected = (!currentSelected || currentSelected === dynamicSvgUrl);
 
-        grid.innerHTML = images.map((img) => {
+        // Prepend AI Generated SVG card
+        const svgCardHtml = `
+            <div class="relative group cursor-pointer rounded-xl overflow-hidden border-2 ${isSvgSelected ? 'border-blue-600 ring-2 ring-blue-400/50 shadow-md' : 'border-slate-200 hover:border-blue-400'} bg-blue-50/40 aspect-square flex flex-col items-center justify-center p-1.5 transition-all hover:scale-105"
+                 onclick="selectRealPhoto('', '')"
+                 title="✨ AI Generated 3D Vector for '${escapeHtml(partName)}'">
+                <img src="${dynamicSvgUrl}" alt="AI Generated 3D Asset" class="w-full h-full object-contain filter drop-shadow-xs">
+                <div class="absolute bottom-0 inset-x-0 bg-blue-600/90 text-[8px] text-white text-center font-bold py-0.5 tracking-wider uppercase">✨ AI Vector</div>
+                ${isSvgSelected ? '<div class="absolute top-1 right-1 bg-blue-600 text-white rounded-full p-0.5 shadow-sm"><i data-lucide="check" class="w-3 h-3"></i></div>' : ''}
+            </div>
+        `;
+
+        const photosHtml = images.map((img) => {
             const isSelected = (currentSelected === img.image || currentSelected === img.thumb);
             return `
-                <div class="relative group cursor-pointer rounded-xl overflow-hidden border-2 ${isSelected ? 'border-blue-600 ring-2 ring-blue-400/50 shadow-md' : 'border-slate-200 hover:border-blue-400'} bg-white aspect-square flex items-center justify-center p-1 transition-all hover:scale-105"
+                <div class="relative group cursor-pointer rounded-xl overflow-hidden border-2 ${isSelected ? 'border-blue-600 ring-2 ring-blue-400/50 shadow-md' : 'border-slate-200 hover:border-blue-400'} bg-white aspect-square flex items-center justify-center p-1.5 transition-all hover:scale-105"
                      onclick="selectRealPhoto('${addslashes(img.image)}', '${addslashes(img.thumb)}')"
                      title="${escapeHtml(img.title || 'Click to select this actual photo')}">
                     <img src="${img.thumb}" alt="${escapeHtml(img.title || 'Part')}" class="w-full h-full object-contain filter drop-shadow-xs" onerror="this.src='${img.image}'">
+                    <div class="absolute bottom-0 inset-x-0 bg-slate-900/70 text-[8px] text-white text-center font-semibold py-0.5 truncate px-1">📸 Photo</div>
                     ${isSelected ? '<div class="absolute top-1 right-1 bg-blue-600 text-white rounded-full p-0.5 shadow-sm"><i data-lucide="check" class="w-3 h-3"></i></div>' : ''}
                 </div>
             `;
         }).join('');
 
+        grid.innerHTML = svgCardHtml + photosHtml;
+
         if (typeof lucide !== 'undefined') lucide.createIcons();
     }
 
     function selectRealPhoto(imageUrl, thumbUrl) {
-        const finalUrl = imageUrl || thumbUrl;
+        const finalUrl = imageUrl || thumbUrl || '';
         document.getElementById('newPartImageUrl').value = finalUrl;
         
         const iconBox = document.getElementById('aiDetectorIconBox');
         const imgSourceLabel = document.getElementById('imgSourceLabel');
+        const name = document.getElementById('newPartName').value;
+        const meta = getPartAIMeta(name);
+
+        const activeImg = finalUrl || meta.imageUrl;
 
         if (iconBox) {
-            iconBox.innerHTML = `<img src="${finalUrl}" alt="Selected Photo" class="w-full h-full object-contain filter drop-shadow-sm rounded-xl" onerror="this.src='{{ asset('image/parts/general_part.svg') }}'">`;
-            iconBox.onclick = () => openImageModal(finalUrl);
+            iconBox.innerHTML = `<img src="${activeImg}" alt="Selected Asset" class="w-full h-full object-contain filter drop-shadow-sm rounded-xl" onerror="this.src='{{ asset('image/parts/general_part.svg') }}'">`;
+            iconBox.onclick = () => openImageModal(activeImg);
         }
 
         if (imgSourceLabel) {
-            imgSourceLabel.innerText = '✨ Real Photo Selected';
-            imgSourceLabel.className = 'text-green-600 font-black';
+            if (finalUrl) {
+                imgSourceLabel.innerText = '✨ Real Photo Selected';
+                imgSourceLabel.className = 'text-green-600 font-black';
+            } else {
+                imgSourceLabel.innerText = `🎨 AI 3D Asset (${meta.category})`;
+                imgSourceLabel.className = 'text-blue-600 font-bold';
+            }
         }
 
         if (cachedPhotoResults.length > 0) {
