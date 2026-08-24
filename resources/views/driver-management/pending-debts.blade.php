@@ -121,40 +121,83 @@
 <div class="w-full mx-auto space-y-6 pb-20 relative z-10">
 
     {{-- ══════════════════════
-         STATS
+         STATS (SVG Powered Luxury Cards)
     ══════════════════════ --}}
     <div class="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-3 gap-4">
 
-        <div class="stat-card bg-white rounded-2xl border border-gray-100 p-5 flex items-center gap-4 relative overflow-hidden">
-            <div class="absolute -right-3 -top-3 w-20 h-20 rounded-full bg-red-50 blur-xl pointer-events-none"></div>
-            <div class="w-12 h-12 rounded-xl bg-red-50 border border-red-100 flex items-center justify-center shrink-0 z-10">
-                <i data-lucide="users" class="w-5 h-5 text-red-500"></i>
+        {{-- Card 1: Active Debtors --}}
+        <div class="stat-card bg-white rounded-2xl sm:rounded-3xl border border-slate-200/90 p-5 sm:p-6 flex items-center justify-between gap-4 relative overflow-hidden shadow-xs hover:shadow-md hover:border-rose-300 transition-all duration-300 group">
+            <div class="absolute -right-6 -bottom-6 w-32 h-32 rounded-full bg-gradient-to-br from-rose-500/10 to-orange-500/5 blur-2xl pointer-events-none group-hover:scale-125 transition-transform duration-500"></div>
+            <div class="flex items-center gap-4 relative z-10">
+                <div class="w-13 h-13 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-rose-50 to-orange-50/80 border border-rose-100 flex items-center justify-center shrink-0 shadow-xs group-hover:scale-105 transition-transform duration-300">
+                    <svg class="w-7 h-7 text-rose-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                    </svg>
+                </div>
+                <div>
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1.5 flex items-center gap-1.5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse"></span> Active Debtors
+                    </p>
+                    <h3 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight leading-none" id="stat-debtors">—</h3>
+                </div>
             </div>
-            <div class="z-10">
-                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Active Debtors</p>
-                <p class="text-3xl font-black text-gray-900 leading-none mt-0.5" id="stat-debtors">—</p>
+            <div class="hidden sm:flex items-center relative z-10">
+                <span class="px-2.5 py-1 rounded-full text-[10px] font-black bg-rose-50 text-rose-600 border border-rose-100 uppercase tracking-wider">
+                    Unsettled
+                </span>
             </div>
         </div>
 
-        <div class="stat-card bg-white rounded-2xl border border-gray-100 p-5 flex items-center gap-4 relative overflow-hidden">
-            <div class="absolute -right-3 -top-3 w-20 h-20 rounded-full bg-rose-50 blur-xl pointer-events-none"></div>
-            <div class="w-12 h-12 rounded-xl bg-rose-50 border border-rose-100 flex items-center justify-center shrink-0 z-10">
-                <i data-lucide="alert-circle" class="w-5 h-5 text-rose-500"></i>
+        {{-- Card 2: Total Outstanding --}}
+        <div class="stat-card bg-white rounded-2xl sm:rounded-3xl border border-slate-200/90 p-5 sm:p-6 flex items-center justify-between gap-4 relative overflow-hidden shadow-xs hover:shadow-md hover:border-red-300 transition-all duration-300 group">
+            <div class="absolute -right-6 -bottom-6 w-32 h-32 rounded-full bg-gradient-to-br from-red-500/10 to-rose-500/5 blur-2xl pointer-events-none group-hover:scale-125 transition-transform duration-500"></div>
+            <div class="flex items-center gap-4 relative z-10">
+                <div class="w-13 h-13 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-red-50 to-rose-50/80 border border-red-100 flex items-center justify-center shrink-0 shadow-xs group-hover:scale-105 transition-transform duration-300">
+                    <svg class="w-7 h-7 text-red-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                    </svg>
+                </div>
+                <div>
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1.5 flex items-center gap-1.5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span> Total Outstanding
+                    </p>
+                    <h3 class="text-2xl sm:text-3xl font-black text-red-600 tracking-tight leading-none" id="stat-total-pending">₱0.00</h3>
+                </div>
             </div>
-            <div class="z-10">
-                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Total Outstanding</p>
-                <p class="text-2xl font-black text-rose-600 leading-none mt-0.5" id="stat-total-pending">₱0.00</p>
+            <div class="hidden sm:flex items-center relative z-10">
+                <span class="px-2.5 py-1 rounded-full text-[10px] font-black bg-red-50 text-red-600 border border-red-100 uppercase tracking-wider">
+                    Pending
+                </span>
             </div>
         </div>
 
-        <div class="stat-card bg-white rounded-2xl border border-gray-100 p-5 flex items-center gap-4 relative overflow-hidden">
-            <div class="absolute -right-3 -top-3 w-20 h-20 rounded-full bg-emerald-50 blur-xl pointer-events-none"></div>
-            <div class="w-12 h-12 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center shrink-0 z-10">
-                <i data-lucide="piggy-bank" class="w-5 h-5 text-emerald-500"></i>
+        {{-- Card 3: Total Collected --}}
+        <div class="stat-card bg-white rounded-2xl sm:rounded-3xl border border-slate-200/90 p-5 sm:p-6 flex items-center justify-between gap-4 relative overflow-hidden shadow-xs hover:shadow-md hover:border-emerald-300 transition-all duration-300 group">
+            <div class="absolute -right-6 -bottom-6 w-32 h-32 rounded-full bg-gradient-to-br from-emerald-500/10 to-teal-500/5 blur-2xl pointer-events-none group-hover:scale-125 transition-transform duration-500"></div>
+            <div class="flex items-center gap-4 relative z-10">
+                <div class="w-13 h-13 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-emerald-50 to-teal-50/80 border border-emerald-100 flex items-center justify-center shrink-0 shadow-xs group-hover:scale-105 transition-transform duration-300">
+                    <svg class="w-7 h-7 text-emerald-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M19 5c-1.5 0-2.8 1.4-3 2-3.5-1.5-11-.3-11 5 0 1.8 0 3 2 4.5V20h4v-2h3v2h4v-4c1-.5 1.7-1 2-2h2v-4h-2c0-1-.5-1.5-1-2V5z"></path>
+                        <path d="M2 9v1c0 1.1.9 2 2 2h1"></path>
+                        <circle cx="16" cy="11" r="1"></circle>
+                    </svg>
+                </div>
+                <div>
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1.5 flex items-center gap-1.5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Total Collected
+                    </p>
+                    <h3 class="text-2xl sm:text-3xl font-black text-emerald-600 tracking-tight leading-none" id="stat-collections">₱0.00</h3>
+                </div>
             </div>
-            <div class="z-10">
-                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Total Collected</p>
-                <p class="text-2xl font-black text-emerald-600 leading-none mt-0.5" id="stat-collections">₱0.00</p>
+            <div class="hidden sm:flex items-center relative z-10">
+                <span class="px-2.5 py-1 rounded-full text-[10px] font-black bg-emerald-50 text-emerald-600 border border-emerald-100 uppercase tracking-wider">
+                    Recovered
+                </span>
             </div>
         </div>
     </div>
@@ -451,47 +494,46 @@ function renderCards(searchTerm = currentSearchTerm, page = 1) {
 
     /* 3. Render cards */
     paginatedData.forEach(driver => {
-        const initials   = driver.driver_name.trim().split(' ').slice(0,2).map(n=>n[0]).join('').toUpperCase();
+        const photoUrl   = driver.profile_photo_url || '{{ asset('image/avatars/driver.svg') }}';
         const totalDebt  = parseFloat(driver.total_remaining) +
                            driver.debts.reduce((s,d) => s + parseFloat(d.total_paid), 0);
         const totalPaid  = driver.debts.reduce((s,d) => s + parseFloat(d.total_paid), 0);
         const paidPct    = totalDebt > 0 ? Math.min(100,(totalPaid / totalDebt * 100)) : 0;
         const remaining  = parseFloat(driver.total_remaining);
 
-        const firstMeta  = debtMeta(driver.debts[0] || {});
-        const colors = ['#0f172a','#1e3a5f','#7c3aed','#0369a1','#065f46','#92400e','#991b1b'];
-        const avatarBg = colors[driver.driver_name.charCodeAt(0) % colors.length];
-
         html += `
-        <div class="driver-card bg-white border-2 border-gray-200 rounded-2xl p-5 select-none"
+        <div class="driver-card bg-white border border-slate-200/90 rounded-2xl p-5 select-none transition-all duration-200 hover:border-amber-400 hover:shadow-lg group flex flex-col justify-between"
              id="dcard-${driver.driver_id}"
              onclick="openDriverPanel(${driver.driver_id})">
 
-            {{-- Top row: avatar + name --}}
-            <div class="flex items-center gap-3 mb-4">
-                <div class="w-12 h-12 rounded-full flex items-center justify-center shrink-0 text-white font-black text-sm shadow-md"
-                     style="background:${avatarBg};">
-                    ${initials}
+            {{-- Top row: Actual Driver Profile Photo + Name + Unit Plate --}}
+            <div class="flex items-center gap-3.5 mb-4">
+                <div class="relative w-12 h-12 sm:w-14 sm:h-14 rounded-full overflow-hidden border-2 border-amber-400 bg-slate-100 shrink-0 shadow-sm cursor-pointer group-hover:scale-105 transition-transform"
+                     onclick="event.stopPropagation(); if(typeof openImageModal==='function'){ openImageModal('${photoUrl}'); }"
+                     title="Click to view driver photo">
+                    <img src="${photoUrl}" alt="${driver.driver_name}" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='{{ asset('image/avatars/driver.svg') }}';">
                 </div>
                 <div class="flex-1 min-w-0">
-                    <h4 class="text-sm font-black text-gray-900 truncate">${driver.driver_name}</h4>
-                    <div class="flex items-center gap-1.5 mt-0.5">
-                        <i data-lucide="car" class="w-3 h-3 text-gray-400 shrink-0"></i>
-                        <span class="text-[11px] font-bold text-gray-400 truncate">${driver.unit_plate || 'No Unit Assigned'}</span>
+                    <h4 class="text-sm font-black text-slate-900 group-hover:text-amber-600 transition-colors truncate">${driver.driver_name}</h4>
+                    <div class="flex items-center gap-1.5 mt-1">
+                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-black uppercase bg-slate-50 text-slate-600 border border-slate-200/80">
+                            <i data-lucide="car" class="w-3 h-3 text-slate-400"></i>
+                            ${driver.unit_plate || 'No Unit'}
+                        </span>
                     </div>
                 </div>
             </div>
 
-            <div class="border-t border-gray-100 mb-4"></div>
+            <div class="border-t border-slate-100 mb-3.5"></div>
 
             <div class="space-y-3">
                 <div class="flex justify-between items-end">
                     <div>
-                        <p class="text-[9px] font-black uppercase tracking-widest text-gray-400 mb-0.5">Outstanding Balance</p>
-                        <p class="text-xl font-black text-red-600">₱${remaining.toLocaleString('en-PH',{minimumFractionDigits:2})}</p>
+                        <p class="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-0.5">Outstanding Balance</p>
+                        <p class="text-xl font-black text-red-600 tracking-tight">₱${remaining.toLocaleString('en-PH',{minimumFractionDigits:2})}</p>
                     </div>
                     <div class="text-right">
-                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-black uppercase bg-slate-100 text-slate-600 border border-slate-200">
+                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-black uppercase bg-rose-50 text-rose-700 border border-rose-200">
                             ${driver.debts.length} item${driver.debts.length > 1 ? 's' : ''}
                         </span>
                     </div>
@@ -499,17 +541,17 @@ function renderCards(searchTerm = currentSearchTerm, page = 1) {
 
                 <div>
                     <div class="flex justify-between items-center mb-1.5">
-                        <span class="text-[9px] font-black uppercase tracking-widest text-gray-400">Settlement Progress</span>
-                        <span class="text-[10px] font-black text-gray-500">${paidPct.toFixed(0)}%</span>
+                        <span class="text-[9px] font-black uppercase tracking-widest text-slate-400">Settlement Progress</span>
+                        <span class="text-[10px] font-black text-slate-700">${paidPct.toFixed(0)}%</span>
                     </div>
-                    <div class="pbar-track">
-                        <div class="pbar-fill" style="width:${paidPct}%"></div>
+                    <div class="pbar-track bg-slate-100 rounded-full h-2 overflow-hidden">
+                        <div class="pbar-fill h-full rounded-full bg-gradient-to-r from-red-500 via-orange-500 to-emerald-500 transition-all duration-500" style="width:${paidPct}%"></div>
                     </div>
                 </div>
 
-                <div class="flex items-center gap-1.5 pt-1">
-                    <i data-lucide="hand-click" class="w-3 h-3 text-slate-400"></i>
-                    <span class="text-[10px] font-bold text-slate-400">Click to view &amp; pay liabilities</span>
+                <div class="flex items-center justify-between pt-1 text-slate-400 group-hover:text-slate-700 transition-colors">
+                    <span class="text-[10px] font-bold">Click to view &amp; pay liabilities</span>
+                    <i data-lucide="chevron-right" class="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform"></i>
                 </div>
             </div>
         </div>`;
@@ -689,26 +731,28 @@ function renderModal(driver) {
     });
 
     /* Inject into modal elements */
+    const photoUrl = driver.profile_photo_url || '{{ asset('image/avatars/driver.svg') }}';
     document.getElementById('driver-modal-header').innerHTML = `
-        <div class="bg-gradient-to-r from-slate-900 to-slate-800 px-6 py-5 flex items-center justify-between">
+        <div class="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 px-6 py-5 flex items-center justify-between border-b border-slate-700">
             <div class="flex items-center gap-4">
-                <div class="w-11 h-11 rounded-full flex items-center justify-center text-white font-black text-sm border-2 border-white/20"
-                     style="background:${avatarBg}80;">
-                    ${initials}
+                <div class="relative w-12 h-12 sm:w-14 sm:h-14 rounded-full overflow-hidden border-2 border-amber-400 bg-slate-800 shrink-0 shadow-md cursor-pointer group hover:scale-105 transition-transform"
+                     onclick="event.stopPropagation(); if(typeof openImageModal==='function'){ openImageModal('${photoUrl}'); }"
+                     title="Click to view driver photo">
+                    <img src="${photoUrl}" alt="${driver.driver_name}" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='{{ asset('image/avatars/driver.svg') }}';">
                 </div>
                 <div>
                     <div class="flex items-center gap-2">
-                        <h3 class="text-base font-black text-white">${driver.driver_name}</h3>
-                        <span class="px-2 py-0.5 bg-white/10 text-white text-[9px] font-black uppercase rounded-full border border-white/20">
+                        <h3 class="text-base sm:text-lg font-black text-white">${driver.driver_name}</h3>
+                        <span class="px-2.5 py-0.5 bg-amber-400/20 text-amber-300 text-[9px] font-black uppercase rounded-full border border-amber-400/30">
                             ${driver.debts.length} Liabilit${driver.debts.length > 1 ? 'ies' : 'y'}
                         </span>
                     </div>
-                    <div class="flex items-center gap-3 mt-0.5">
-                        <span class="text-[10px] font-bold text-gray-400 flex items-center gap-1">
-                            <i data-lucide="car" class="w-3 h-3"></i> ${driver.unit_plate || 'No Unit'}
+                    <div class="flex items-center gap-3 mt-1">
+                        <span class="text-[11px] font-bold text-slate-300 flex items-center gap-1.5">
+                            <i data-lucide="car" class="w-3.5 h-3.5 text-amber-400"></i> ${driver.unit_plate || 'No Unit Assigned'}
                         </span>
-                        <span class="text-gray-600">•</span>
-                        <span class="text-[10px] font-bold text-gray-400">${paidPct.toFixed(0)}% settled overall</span>
+                        <span class="text-slate-600">•</span>
+                        <span class="text-[11px] font-bold text-slate-300">${paidPct.toFixed(0)}% settled overall</span>
                     </div>
                 </div>
             </div>
@@ -716,11 +760,11 @@ function renderModal(driver) {
             <div class="flex items-center gap-4">
                 <div class="text-right">
                     <p class="text-[9px] font-black uppercase tracking-widest text-red-300">Total Outstanding</p>
-                    <p class="text-2xl font-black text-white">₱${parseFloat(driver.total_remaining).toLocaleString('en-PH',{minimumFractionDigits:2})}</p>
+                    <p class="text-2xl font-black text-white tracking-tight">₱${parseFloat(driver.total_remaining).toLocaleString('en-PH',{minimumFractionDigits:2})}</p>
                 </div>
                 <button onclick="closeModal()"
-                    class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors border border-white/20">
-                    <i data-lucide="x" class="w-4 h-4 text-white"></i>
+                    class="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors border border-white/20 text-white">
+                    <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
             </div>
         </div>`;
@@ -863,19 +907,22 @@ function renderGroupedList(items, type) {
                         <p class="text-xs font-bold text-gray-600 leading-snug line-clamp-2">${item.description}</p>
                     </div>`;
             } else {
+                const sPhoto = item.profile_photo_url || '{{ asset('image/avatars/driver.svg') }}';
                 html += `
-                    <div class="bg-white border border-gray-100 rounded-xl p-5 flex items-center gap-4 hover:border-emerald-200 hover:shadow-md transition-all relative overflow-hidden group">
-                        <div class="absolute inset-y-0 left-0 w-1 bg-emerald-400 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                        <div class="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 border border-emerald-100">
-                            <i data-lucide="check-circle" class="w-5 h-5"></i>
+                    <div class="bg-white border border-slate-200/90 rounded-2xl p-4 flex items-center gap-3.5 hover:border-emerald-300 hover:shadow-md transition-all relative overflow-hidden group">
+                        <div class="absolute inset-y-0 left-0 w-1 bg-emerald-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        <div class="relative w-11 h-11 rounded-full overflow-hidden border-2 border-amber-400 bg-slate-100 shrink-0 shadow-xs cursor-pointer hover:scale-105 transition-transform"
+                             onclick="event.stopPropagation(); if(typeof openImageModal==='function'){ openImageModal('${sPhoto}'); }"
+                             title="Click to view driver photo">
+                            <img src="${sPhoto}" alt="${item.driver_name}" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='{{ asset('image/avatars/driver.svg') }}';">
                         </div>
                         <div class="flex-1 min-w-0">
-                            <h5 class="text-sm font-black text-gray-900 truncate">
-                                ${item.driver_name} <span class="text-[10px] font-bold text-gray-400 ml-1">${item.unit_plate||''}</span>
+                            <h5 class="text-sm font-black text-slate-900 truncate">
+                                ${item.driver_name} <span class="text-[10px] font-bold text-slate-400 ml-1">(${item.unit_plate||'No Unit'})</span>
                             </h5>
-                            <p class="text-xs text-gray-500 truncate mt-0.5">${item.description}</p>
+                            <p class="text-xs text-slate-500 truncate mt-0.5">${item.description}</p>
                             <p class="text-[9px] font-black uppercase tracking-widest text-emerald-600 mt-1.5 flex items-center gap-1">
-                                <i data-lucide="clock" class="w-3 h-3"></i> Settled ${new Date(item.date).toLocaleDateString('en-PH')}
+                                <i data-lucide="check-circle-2" class="w-3 h-3 text-emerald-500"></i> Settled ${new Date(item.date).toLocaleDateString('en-PH')}
                             </p>
                         </div>
                     </div>`;
@@ -947,6 +994,54 @@ function fetchDebtHistory() {
         document.getElementById('loading-history').innerHTML =
             `<div class="text-center py-10 text-red-500 font-bold text-sm">Failed to load history.</div>`;
     });
+}
+
+/* ─── Image Modal Lightbox ────────────────────────────── */
+function openImageModal(src) {
+    if (!src) return;
+    let modal = document.getElementById('imagePreviewModalOverlay');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'imagePreviewModalOverlay';
+        modal.className = 'fixed inset-0 bg-slate-900/95 backdrop-blur-sm z-[9999] flex items-center justify-center hidden opacity-0 transition-opacity duration-300';
+        modal.onclick = function(e) {
+            if (e.target === modal) closeImageModal();
+        };
+        modal.innerHTML = `
+            <button type="button" class="absolute top-6 right-6 text-white/70 hover:text-white bg-white/10 hover:bg-white/20 p-3 rounded-full transition-colors group cursor-pointer" onclick="closeImageModal()">
+                <i data-lucide="x" class="w-6 h-6 group-hover:scale-110 transition-transform"></i>
+            </button>
+            <div class="relative w-full max-w-[90vw] h-[90vh] flex justify-center items-center p-4">
+                <img id="imagePreviewModalImg" src="" class="max-w-full max-h-full object-contain rounded-2xl shadow-2xl scale-95 transition-transform duration-300 border border-white/10" />
+            </div>
+        `;
+        document.body.appendChild(modal);
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+    }
+    
+    const img = document.getElementById('imagePreviewModalImg');
+    img.src = src;
+    
+    modal.classList.remove('hidden');
+    void modal.offsetWidth;
+    modal.classList.remove('opacity-0');
+    img.classList.remove('scale-95');
+    img.classList.add('scale-100');
+}
+
+function closeImageModal() {
+    const modal = document.getElementById('imagePreviewModalOverlay');
+    const img = document.getElementById('imagePreviewModalImg');
+    if (modal) {
+        modal.classList.add('opacity-0');
+        if (img) {
+            img.classList.remove('scale-100');
+            img.classList.add('scale-95');
+        }
+        setTimeout(() => {
+            modal.classList.add('hidden');
+        }, 300);
+    }
 }
 </script>
 @endpush

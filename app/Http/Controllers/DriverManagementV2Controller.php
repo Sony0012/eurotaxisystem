@@ -833,11 +833,19 @@ class DriverManagementV2Controller extends Controller
                 'db.severity', 'db.total_charge_to_driver as total_charge', 
                 'db.incident_type',
                 DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')) as driver_name"),
+                'd.profile_photo',
                 'u.plate_number as unit_plate'
             )
             ->orderBy('db.updated_at', 'desc')
             ->limit(20)
             ->get();
+
+        $settledDebts = $settledDebts->map(function($s) {
+            $s->profile_photo_url = !empty($s->profile_photo)
+                ? (str_starts_with($s->profile_photo, 'http') ? $s->profile_photo : asset(ltrim($s->profile_photo, '/')))
+                : asset('image/avatars/driver.svg');
+            return $s;
+        });
 
         // 2. Get recent payment transactions from Expenses
         $payments = DB::table('expenses as e')
@@ -881,6 +889,7 @@ class DriverManagementV2Controller extends Controller
                 'db.severity', 'db.total_charge_to_driver as total_charge', 
                 'db.total_paid', 'db.remaining_balance', 'db.incident_type',
                 DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')) as driver_name"),
+                'd.profile_photo',
                 'u.plate_number as unit_plate'
             )
             ->orderBy('db.timestamp', 'desc')
@@ -890,9 +899,15 @@ class DriverManagementV2Controller extends Controller
         foreach ($debtsRaw as $debt) {
             $dId = $debt->driver_id;
             if (!isset($drivers[$dId])) {
+                $photoUrl = !empty($debt->profile_photo)
+                    ? (str_starts_with($debt->profile_photo, 'http') ? $debt->profile_photo : asset(ltrim($debt->profile_photo, '/')))
+                    : asset('image/avatars/driver.svg');
+
                 $drivers[$dId] = [
                     'driver_id' => $dId,
                     'driver_name' => trim($debt->driver_name),
+                    'profile_photo' => $debt->profile_photo,
+                    'profile_photo_url' => $photoUrl,
                     'unit_plate' => $debt->unit_plate,
                     'total_remaining' => 0,
                     'debts' => []
