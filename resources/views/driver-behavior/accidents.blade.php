@@ -79,7 +79,7 @@
                         'photo_path' => $r->photo_path ? asset($r->photo_path) : null
                     ];
                 @endphp
-                <tr class="bg-white shadow-sm border border-gray-100 rounded-xl cursor-pointer hover:-translate-y-1 hover:shadow-lg hover:border-red-200 transition-all duration-300 {{ $r->status === 'pending' ? 'bg-red-50/30 border-red-100' : '' }}" 
+                <tr class="accident-row bg-white shadow-sm border border-gray-100 rounded-xl cursor-pointer hover:-translate-y-1 hover:shadow-lg hover:border-red-200 transition-all duration-300 {{ $r->status === 'pending' ? 'bg-red-50/30 border-red-100' : '' }}" 
                     data-report="{{ htmlspecialchars(json_encode($reportPayload), ENT_QUOTES, 'UTF-8') }}"
                     onclick="openAccidentModal(this)">
                     <td class="px-5 py-4 rounded-l-xl border-y border-l border-gray-100 {{ $r->status === 'pending' ? 'border-red-100' : '' }}">
@@ -151,8 +151,8 @@
 </div>
 
 <!-- Accident Report Modal (21st.dev Executive Theme) -->
-<div id="accidentModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-[9999] hidden items-center justify-center p-3 sm:p-5 opacity-0 transition-opacity duration-300">
-    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-2xl overflow-hidden transform scale-95 transition-transform duration-300 border border-slate-700/30 flex flex-col max-h-[90vh]" id="accidentModalContent">
+<div id="accidentModal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-md z-[9999] flex items-center justify-center p-3 sm:p-5 transition-all">
+    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-2xl overflow-hidden border border-slate-700/30 flex flex-col max-h-[90vh]" id="accidentModalContent">
         <div class="bg-slate-900 border-b border-slate-800 px-6 py-4 flex items-center justify-between shrink-0">
             <div class="flex items-center gap-3">
                 <div class="p-2 bg-rose-500/20 text-rose-400 rounded-xl border border-rose-500/30">
@@ -165,7 +165,7 @@
                     <p class="text-xs font-semibold text-slate-400">Incident Details & Emergency Assessment</p>
                 </div>
             </div>
-            <button onclick="closeAccidentModal()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white flex items-center justify-center transition-all duration-200 backdrop-blur-sm border border-white/10 focus:outline-none">
+            <button onclick="closeAccidentModal()" type="button" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white flex items-center justify-center transition-all duration-200 backdrop-blur-sm border border-white/10 focus:outline-none">
                 <i data-lucide="x" class="w-4 h-4"></i>
             </button>
         </div>
@@ -199,8 +199,8 @@
             
             <div id="modPhotoContainer" style="display: none;" class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-2xs">
                 <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Attached Photo Evidence</p>
-                <div class="rounded-xl overflow-hidden border border-slate-200 bg-slate-900 flex items-center justify-center p-2">
-                    <img id="modPhoto" src="" alt="Accident Photo" class="max-w-full h-auto max-h-[320px] object-contain rounded-lg">
+                <div class="rounded-xl overflow-hidden border border-slate-200 bg-slate-900 flex items-center justify-center p-2 cursor-pointer" onclick="openPhotoLightbox(document.getElementById('modPhoto').src)">
+                    <img id="modPhoto" src="" alt="Accident Photo" class="max-w-full h-auto max-h-[320px] object-contain rounded-lg hover:opacity-90 transition-opacity">
                 </div>
             </div>
             
@@ -216,10 +216,20 @@
         </div>
 
         <div class="bg-slate-50 px-6 py-3.5 border-t border-slate-200/80 flex justify-end shrink-0">
-            <button onclick="closeAccidentModal()" class="px-5 py-2 bg-slate-200/80 hover:bg-slate-300 text-slate-700 font-black text-xs rounded-xl transition-all uppercase tracking-wider">
+            <button onclick="closeAccidentModal()" type="button" class="px-5 py-2 bg-slate-200/80 hover:bg-slate-300 text-slate-700 font-black text-xs rounded-xl transition-all uppercase tracking-wider">
                 Close
             </button>
         </div>
+    </div>
+</div>
+
+<!-- Photo Lightbox Modal -->
+<div id="accidentPhotoLightbox" class="hidden fixed inset-0 bg-black/90 backdrop-blur-md z-[10000] flex items-center justify-center p-4" onclick="closePhotoLightbox()">
+    <div class="relative max-w-4xl max-h-[90vh] flex items-center justify-center" onclick="event.stopPropagation()">
+        <img id="lightboxPhotoImg" src="" alt="Full Screen Accident Photo" class="max-w-full max-h-[85vh] object-contain rounded-2xl shadow-2xl">
+        <button onclick="closePhotoLightbox()" class="absolute -top-12 right-0 text-white/80 hover:text-white bg-white/10 hover:bg-white/20 p-2 rounded-full backdrop-blur-sm transition-all">
+            <i data-lucide="x" class="w-6 h-6"></i>
+        </button>
     </div>
 </div>
 
@@ -290,38 +300,48 @@
         }
         
         const modal = document.getElementById('accidentModal');
-        const modalContent = document.getElementById('accidentModalContent');
         modal.classList.remove('hidden');
-        modal.classList.add('flex');
         
         if (typeof lucide !== 'undefined') lucide.createIcons();
-
-        // Trigger animations
-        setTimeout(() => {
-            modal.classList.remove('opacity-0');
-            modalContent.classList.remove('scale-95');
-        }, 10);
     }
     
     function closeAccidentModal() {
         const modal = document.getElementById('accidentModal');
-        const modalContent = document.getElementById('accidentModalContent');
-        
-        modal.classList.add('opacity-0');
-        modalContent.classList.add('scale-95');
-        
-        setTimeout(() => {
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-        }, 300);
+        modal.classList.add('hidden');
     }
 
-    // Close on backdrop click and Escape key
-    document.getElementById('accidentModal')?.addEventListener('click', function(e) {
-        if (e.target === this) closeAccidentModal();
+    function openPhotoLightbox(src) {
+        if (!src) return;
+        const lb = document.getElementById('accidentPhotoLightbox');
+        const img = document.getElementById('lightboxPhotoImg');
+        img.src = src;
+        lb.classList.remove('hidden');
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+    }
+
+    function closePhotoLightbox() {
+        document.getElementById('accidentPhotoLightbox')?.classList.add('hidden');
+    }
+
+    // Global Row and Backdrop click handler
+    document.addEventListener('click', function(e) {
+        const modal = document.getElementById('accidentModal');
+        if (e.target === modal) {
+            closeAccidentModal();
+            return;
+        }
+
+        const row = e.target.closest('.accident-row');
+        if (row && !e.target.closest('a') && !e.target.closest('button') && !e.target.closest('form')) {
+            openAccidentModal(row);
+        }
     });
+
     document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') closeAccidentModal();
+        if (e.key === 'Escape') {
+            closePhotoLightbox();
+            closeAccidentModal();
+        }
     });
 
     async function processTableGeocoding() {
