@@ -823,10 +823,15 @@ class SuperAdminController extends Controller
                 $lastTimeObj = Carbon::parse(end($activeTimeData['intervals'])['end']);
             }
 
+            $todayMidnight = Carbon::parse($date . ' 00:00:00');
+            $todayEnd = Carbon::parse($date . ' 23:59:59');
+
             // Calculate live continuous elapsed active time if online, OR preserve accumulated session duration if offline
             if ($isOnline) {
                 if ($firstTimeObj) {
-                    $elapsedSinceStart = max(1, (int) round($firstTimeObj->diffInMinutes(now())));
+                    $effectiveStart = $firstTimeObj->lt($todayMidnight) ? $todayMidnight : $firstTimeObj;
+                    $effectiveNow = now()->gt($todayEnd) ? $todayEnd : now();
+                    $elapsedSinceStart = max(1, (int) round($effectiveStart->diffInMinutes($effectiveNow)));
                     $totalMins = max($totalMins, $elapsedSinceStart);
                 } else {
                     $totalMins = max(1, $totalMins);
@@ -835,7 +840,9 @@ class SuperAdminController extends Controller
                 // If user was active/logged in today but is now offline, preserve the accumulated session time
                 if ($firstTimeObj && $firstTimeObj->toDateString() === $date) {
                     if ($lastTimeObj && $lastTimeObj->gt($firstTimeObj)) {
-                        $sessionDuration = max(1, (int) round($firstTimeObj->diffInMinutes($lastTimeObj)));
+                        $effectiveStart = $firstTimeObj->lt($todayMidnight) ? $todayMidnight : $firstTimeObj;
+                        $effectiveEnd = $lastTimeObj->gt($todayEnd) ? $todayEnd : $lastTimeObj;
+                        $sessionDuration = max(1, (int) round($effectiveStart->diffInMinutes($effectiveEnd)));
                         $totalMins = max($totalMins, $sessionDuration);
                     } else {
                         $totalMins = max($totalMins, 1);
@@ -876,6 +883,19 @@ class SuperAdminController extends Controller
                 $lastActiveStr = Carbon::parse($lastEntry->created_at)->format('M d, Y h:i A');
             } elseif ($user->last_login) {
                 $lastActiveStr = Carbon::parse($user->last_login)->format('M d, Y h:i A');
+            }
+
+            // Explicit Last Offline String
+            $lastOfflineTime = $user->last_seen_at ? Carbon::parse($user->last_seen_at) : ($lastEntry ? Carbon::parse($lastEntry->created_at) : ($user->last_login ? Carbon::parse($user->last_login) : null));
+            $lastOfflineStr = null;
+            if ($lastOfflineTime) {
+                if ($lastOfflineTime->toDateString() === $date) {
+                    $lastOfflineStr = 'Last offline: ' . $lastOfflineTime->format('h:i A');
+                } else {
+                    $lastOfflineStr = 'Last offline: ' . $lastOfflineTime->format('M d, Y h:i A');
+                }
+            } else {
+                $lastOfflineStr = 'Never logged in';
             }
 
             // Format sessions list for drill-down modal
@@ -953,6 +973,7 @@ class SuperAdminController extends Controller
                 'status'        => $status,
                 'firstLogin'    => $firstLoginStr,
                 'lastActive'    => $lastActiveStr,
+                'lastOffline'   => $lastOfflineStr,
                 'heatmap'       => $heatmap,
                 'isOnline'      => $isOnline,
             ];

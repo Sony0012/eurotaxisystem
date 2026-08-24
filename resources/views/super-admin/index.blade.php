@@ -2033,11 +2033,19 @@
 // CLIENT & STAFF ACTIVITY MONITORING — Real Data Engine
 // ══════════════════════════════════════════════════════════════
 
+function camGetTodayDate() {
+    const d = new Date();
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+}
+
 // ─── State ───────────────────────────────────────────────────
 let CAM_DATA        = { users: [], summary: {} };
 let CAM_FILTER      = 'all';
 let CAM_LOADING     = false;
-let CAM_DATE        = new Date().toISOString().slice(0, 10);
+let CAM_DATE        = camGetTodayDate();
 let CAM_TARGET      = 4;
 
 // ─── Helpers ─────────────────────────────────────────────────
@@ -2101,8 +2109,18 @@ async function camFetch(silent = false) {
 
     try {
         const target = document.getElementById('cam-target')?.value || 4;
+        const todayLocal = camGetTodayDate();
         const dateInput = document.getElementById('cam-date');
-        const date = dateInput && dateInput.value ? dateInput.value : CAM_DATE;
+        
+        let date = todayLocal;
+        if (dateInput) {
+            if (dateInput.dataset.manual === 'true' && dateInput.value) {
+                date = dateInput.value;
+            } else {
+                date = todayLocal;
+                dateInput.value = todayLocal;
+            }
+        }
         CAM_TARGET = parseInt(target);
         CAM_DATE   = date;
 
@@ -2330,7 +2348,7 @@ function camRenderTable() {
                         ${u.name}${onlineTag}
                     </div>
                     <div style="font-size:.65rem;color:#64748b;margin-top:.1rem;">
-                        ${u.firstLogin ? u.firstLogin : (u.last_login ? 'Last seen: ' + u.last_login : 'Never logged in')}
+                        ${u.isOnline ? (u.firstLogin || 'Online now') : (u.lastOffline || (u.last_login ? 'Last offline: ' + u.last_login : 'Never logged in'))}
                     </div>
                 </div>
             </div>
@@ -2578,12 +2596,12 @@ async function camOpenDetail(userId) {
             <!-- Quick stats -->
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:.65rem;margin-bottom:1.25rem;">
                 <div style="background:#f8fafc;border-radius:.75rem;padding:.75rem;">
-                    <div style="font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#94a3b8;margin-bottom:.2rem;">First Login Today</div>
-                    <div style="font-size:.85rem;font-weight:800;color:#000;">${camUser.firstLogin || (isOnline ? 'Online Session' : '—')}</div>
+                    <div style="font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#94a3b8;margin-bottom:.2rem;">${isOnline ? 'First Login Today' : 'Last Offline'}</div>
+                    <div style="font-size:.85rem;font-weight:800;color:#000;">${isOnline ? (camUser.firstLogin || 'Online Session') : (camUser.lastOffline || camUser.lastActive || '—')}</div>
                 </div>
                 <div style="background:#f8fafc;border-radius:.75rem;padding:.75rem;">
-                    <div style="font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#94a3b8;margin-bottom:.2rem;">Last Recorded Action</div>
-                    <div style="font-size:.85rem;font-weight:800;color:#000;">${camUser.lastActive || (isOnline ? 'Active Now' : '—')}</div>
+                    <div style="font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#94a3b8;margin-bottom:.2rem;">${isOnline ? 'Current Presence' : 'Last Recorded Action'}</div>
+                    <div style="font-size:.85rem;font-weight:800;color:#000;">${isOnline ? 'Online Now 🟢' : (camUser.lastActive || '—')}</div>
                 </div>
                 <div style="background:#f8fafc;border-radius:.75rem;padding:.75rem;">
                     <div style="font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#94a3b8;margin-bottom:.2rem;">Active Sessions</div>
@@ -3127,9 +3145,18 @@ function camInit() {
         if (btn) btn.classList.toggle('active', k === 'all');
     });
 
-    // Set today's date on the date input
+    // Set today's local date on the date input
     const di = document.getElementById('cam-date');
-    if (di && !di.value) di.value = new Date().toISOString().slice(0, 10);
+    if (di) {
+        if (!di.value) di.value = camGetTodayDate();
+        if (!di._hasChangeListener) {
+            di._hasChangeListener = true;
+            di.addEventListener('change', () => {
+                di.dataset.manual = (di.value !== camGetTodayDate()) ? 'true' : 'false';
+                camFetch();
+            });
+        }
+    }
     camFetch();
 
     // Background Auto-Refresh every 25 seconds for live real-time progress
