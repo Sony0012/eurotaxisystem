@@ -205,8 +205,8 @@
                     <td class="px-3 md:px-6 py-4 md:py-5 whitespace-nowrap text-right">
                         <button type="button"
                             class="driver-action-btn p-1.5 md:p-2 text-gray-400 hover:text-gray-800 hover:bg-gray-200 rounded-full transition-colors focus:outline-none"
-                            data-dropdown-id="dropdown-{{ $driver->uuid }}"
-                            onclick="toggleDriverDropdown('dropdown-{{ $driver->uuid }}', event)" title="Actions">
+                            data-dropdown-id="dropdown-{{ $driver->id }}"
+                            onclick="toggleDriverDropdown('dropdown-{{ $driver->id }}', event)" title="Actions">
                             <i data-lucide="more-vertical" class="w-4 h-4 md:w-5 md:h-5"></i>
                         </button>
                     </td>
@@ -230,30 +230,30 @@
 
 {{-- Floating dropdowns rendered at body level to escape overflow containers --}}
 @foreach($drivers as $driver)
-<div id="dropdown-{{ $driver->uuid }}"
+<div id="dropdown-{{ $driver->id }}"
     class="driver-action-dropdown hidden fixed w-48 bg-white rounded-xl shadow-2xl border border-gray-100 py-1"
     style="z-index: 99999;">
     <button type="button"
         class="w-full text-left px-4 py-3 text-xs font-bold text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors flex items-center gap-2.5"
-        onclick="event.stopPropagation(); closeAllDriverDropdowns(); openEditDriverModal({{ $driver->uuid }})">
+        onclick="event.stopPropagation(); closeAllDriverDropdowns(); openEditDriverModal({{ $driver->id }})">
         <i data-lucide="edit-2" class="w-3.5 h-3.5"></i> Edit Driver
     </button>
     @if($driver->driver_status === 'banned' || $driver->driver_status === 'suspended')
     <button type="button"
         class="w-full text-left px-4 py-3 text-xs font-bold text-green-600 hover:bg-green-50 transition-colors flex items-center gap-2.5 border-t border-gray-50"
-        onclick="event.stopPropagation(); closeAllDriverDropdowns(); unbanDriver({{ $driver->uuid }}, '{{ $driver->full_name }}')">
+        onclick="event.stopPropagation(); closeAllDriverDropdowns(); unbanDriver({{ $driver->id }}, '{{ $driver->full_name }}')">
         <i data-lucide="shield-check" class="w-3.5 h-3.5"></i> Restore Driver
     </button>
     @else
     <button type="button"
         class="w-full text-left px-4 py-3 text-xs font-bold text-red-600 hover:bg-red-50 transition-colors flex items-center gap-2.5 border-t border-gray-50"
-        onclick="event.stopPropagation(); closeAllDriverDropdowns(); window.location.href = '{{ route('driver-management.banned') }}?suspend_driver_id={{ $driver->uuid }}'">
+        onclick="event.stopPropagation(); closeAllDriverDropdowns(); window.location.href = '{{ route('driver-management.banned') }}?suspend_driver_id={{ $driver->id }}'">
         <i data-lucide="shield-alert" class="w-3.5 h-3.5"></i> Suspend / Ban
     </button>
     @endif
     <button type="button"
         class="w-full text-left px-4 py-3 text-xs font-bold text-orange-500 hover:bg-orange-50 transition-colors flex items-center gap-2.5 border-t border-gray-50"
-        onclick="event.stopPropagation(); closeAllDriverDropdowns(); deleteDriver({{ $driver->uuid }}, '{{ $driver->full_name }}')">
+        onclick="event.stopPropagation(); closeAllDriverDropdowns(); deleteDriver({{ $driver->id }}, '{{ $driver->full_name }}')">
         <i data-lucide="archive" class="w-3.5 h-3.5"></i> Archive
     </button>
 </div>
