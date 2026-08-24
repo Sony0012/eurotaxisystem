@@ -120,84 +120,85 @@
 
 <div class="w-full mx-auto space-y-6 pb-20 relative z-10">
 
-    {{-- ══════════════════════
-         STATS (SVG Powered Luxury Cards)
-    ══════════════════════ --}}
-    <div class="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-3 gap-4">
+    {{-- ── Hero Header Panel with SVG Decorative Mesh & Glassmorphic Stats ── --}}
+    <div class="relative bg-gradient-to-br from-slate-950 via-slate-900 to-zinc-900 rounded-[2.25rem] p-6 sm:p-8 overflow-hidden shadow-2xl border border-slate-800">
+        <!-- SVG Decorative Mesh / Glow -->
+        <div class="absolute -right-20 -top-20 w-80 h-80 bg-rose-600/15 rounded-full blur-[100px] pointer-events-none"></div>
+        <div class="absolute -left-20 -bottom-20 w-80 h-80 bg-emerald-500/10 rounded-full blur-[100px] pointer-events-none"></div>
+        <svg class="absolute right-0 bottom-0 w-96 h-96 opacity-5 pointer-events-none" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M100 0C44.7715 0 0 44.7715 0 100C0 155.228 44.7715 200 100 200C155.228 200 200 155.228 200 100C200 44.7715 155.228 0 100 0Z" stroke="white" stroke-width="2" stroke-dasharray="8 8"/>
+            <path d="M100 30C61.3401 30 30 61.3401 30 100C30 138.66 61.3401 170 100 170C138.66 170 170 138.66 170 100C170 61.3401 138.66 30 100 30Z" stroke="white" stroke-width="1.5"/>
+            <path d="M100 60C77.9086 60 60 77.9086 60 100C60 122.091 77.9086 140 100 140C122.091 140 140 122.091 140 100C140 77.9086 122.091 60 100 60Z" stroke="white" stroke-width="1"/>
+        </svg>
 
-        {{-- Card 1: Active Debtors --}}
-        <div class="stat-card bg-white rounded-2xl sm:rounded-3xl border border-slate-200/90 p-5 sm:p-6 flex items-center justify-between gap-4 relative overflow-hidden shadow-xs hover:shadow-md hover:border-rose-300 transition-all duration-300 group">
-            <div class="absolute -right-6 -bottom-6 w-32 h-32 rounded-full bg-gradient-to-br from-rose-500/10 to-orange-500/5 blur-2xl pointer-events-none group-hover:scale-125 transition-transform duration-500"></div>
-            <div class="flex items-center gap-4 relative z-10">
-                <div class="w-13 h-13 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-rose-50 to-orange-50/80 border border-rose-100 flex items-center justify-center shrink-0 shadow-xs group-hover:scale-105 transition-transform duration-300">
-                    <svg class="w-7 h-7 text-rose-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
-                        <circle cx="9" cy="7" r="4"></circle>
-                        <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
-                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+        <div class="relative flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+            <div class="flex items-center gap-4 sm:gap-5">
+                <div class="w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-amber-500 via-rose-500 to-red-600 rounded-2xl flex items-center justify-center shadow-xl shadow-red-500/25 shrink-0 border border-white/20">
+                    <svg class="w-7 h-7 sm:w-8 sm:h-8 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="2" y="5" width="20" height="14" rx="2"></rect>
+                        <line x1="2" y1="10" x2="22" y2="10"></line>
                     </svg>
                 </div>
                 <div>
-                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1.5 flex items-center gap-1.5">
-                        <span class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse"></span> Active Debtors
+                    <div class="flex items-center gap-2.5 flex-wrap">
+                        <h3 class="text-xl sm:text-2xl lg:text-3xl font-black text-white tracking-tight">Financial Liabilities</h3>
+                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-rose-500/20 text-rose-400 border border-rose-500/30 flex items-center gap-1">
+                            <span class="w-1.5 h-1.5 rounded-full bg-rose-400 animate-ping"></span> Live Audit
+                        </span>
+                    </div>
+                    <p class="text-xs sm:text-sm text-slate-400 mt-1 font-medium max-w-xl leading-relaxed">
+                        Track and manage driver accident charges, parts shortages, and boundary liabilities in real time.
                     </p>
-                    <h3 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight leading-none" id="stat-debtors">—</h3>
                 </div>
             </div>
-            <div class="hidden sm:flex items-center relative z-10">
-                <span class="px-2.5 py-1 rounded-full text-[10px] font-black bg-rose-50 text-rose-600 border border-rose-100 uppercase tracking-wider">
-                    Unsettled
-                </span>
-            </div>
-        </div>
 
-        {{-- Card 2: Total Outstanding --}}
-        <div class="stat-card bg-white rounded-2xl sm:rounded-3xl border border-slate-200/90 p-5 sm:p-6 flex items-center justify-between gap-4 relative overflow-hidden shadow-xs hover:shadow-md hover:border-red-300 transition-all duration-300 group">
-            <div class="absolute -right-6 -bottom-6 w-32 h-32 rounded-full bg-gradient-to-br from-red-500/10 to-rose-500/5 blur-2xl pointer-events-none group-hover:scale-125 transition-transform duration-500"></div>
-            <div class="flex items-center gap-4 relative z-10">
-                <div class="w-13 h-13 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-red-50 to-rose-50/80 border border-red-100 flex items-center justify-center shrink-0 shadow-xs group-hover:scale-105 transition-transform duration-300">
-                    <svg class="w-7 h-7 text-red-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <line x1="12" y1="8" x2="12" y2="12"></line>
-                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                    </svg>
+            {{-- Stats row with modern glassmorphism & SVG icons --}}
+            <div class="flex flex-wrap sm:flex-nowrap gap-3 shrink-0 w-full lg:w-auto">
+                {{-- Active Debtors --}}
+                <div class="flex-1 sm:flex-initial flex items-center gap-3.5 bg-rose-500/10 hover:bg-rose-500/15 transition-all px-4 sm:px-5 py-3.5 rounded-2xl border border-rose-500/25 backdrop-blur-md shadow-lg shadow-rose-500/5 min-w-[140px]">
+                    <div class="w-10 h-10 rounded-xl bg-rose-500/20 flex items-center justify-center text-rose-400 shrink-0">
+                        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <span class="text-[9px] sm:text-[10px] font-black text-rose-300 uppercase tracking-widest block">Active Debtors</span>
+                        <span class="text-2xl sm:text-3xl font-black text-rose-400 tracking-tight" id="stat-debtors">—</span>
+                    </div>
                 </div>
-                <div>
-                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1.5 flex items-center gap-1.5">
-                        <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span> Total Outstanding
-                    </p>
-                    <h3 class="text-2xl sm:text-3xl font-black text-red-600 tracking-tight leading-none" id="stat-total-pending">₱0.00</h3>
-                </div>
-            </div>
-            <div class="hidden sm:flex items-center relative z-10">
-                <span class="px-2.5 py-1 rounded-full text-[10px] font-black bg-red-50 text-red-600 border border-red-100 uppercase tracking-wider">
-                    Pending
-                </span>
-            </div>
-        </div>
 
-        {{-- Card 3: Total Collected --}}
-        <div class="stat-card bg-white rounded-2xl sm:rounded-3xl border border-slate-200/90 p-5 sm:p-6 flex items-center justify-between gap-4 relative overflow-hidden shadow-xs hover:shadow-md hover:border-emerald-300 transition-all duration-300 group">
-            <div class="absolute -right-6 -bottom-6 w-32 h-32 rounded-full bg-gradient-to-br from-emerald-500/10 to-teal-500/5 blur-2xl pointer-events-none group-hover:scale-125 transition-transform duration-500"></div>
-            <div class="flex items-center gap-4 relative z-10">
-                <div class="w-13 h-13 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-emerald-50 to-teal-50/80 border border-emerald-100 flex items-center justify-center shrink-0 shadow-xs group-hover:scale-105 transition-transform duration-300">
-                    <svg class="w-7 h-7 text-emerald-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M19 5c-1.5 0-2.8 1.4-3 2-3.5-1.5-11-.3-11 5 0 1.8 0 3 2 4.5V20h4v-2h3v2h4v-4c1-.5 1.7-1 2-2h2v-4h-2c0-1-.5-1.5-1-2V5z"></path>
-                        <path d="M2 9v1c0 1.1.9 2 2 2h1"></path>
-                        <circle cx="16" cy="11" r="1"></circle>
-                    </svg>
+                {{-- Total Outstanding --}}
+                <div class="flex-1 sm:flex-initial flex items-center gap-3.5 bg-red-500/15 hover:bg-red-500/20 transition-all px-4 sm:px-5 py-3.5 rounded-2xl border border-red-500/30 backdrop-blur-md shadow-lg shadow-red-500/10 min-w-[170px]">
+                    <div class="w-10 h-10 rounded-xl bg-red-500/20 flex items-center justify-center text-red-400 shrink-0">
+                        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="8" x2="12" y2="12"></line>
+                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                        </svg>
+                    </div>
+                    <div>
+                        <span class="text-[9px] sm:text-[10px] font-black text-red-300 uppercase tracking-widest block">Total Outstanding</span>
+                        <span class="text-xl sm:text-2xl font-black text-white tracking-tight" id="stat-total-pending">₱0.00</span>
+                    </div>
                 </div>
-                <div>
-                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1.5 flex items-center gap-1.5">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Total Collected
-                    </p>
-                    <h3 class="text-2xl sm:text-3xl font-black text-emerald-600 tracking-tight leading-none" id="stat-collections">₱0.00</h3>
+
+                {{-- Total Collected --}}
+                <div class="flex-1 sm:flex-initial flex items-center gap-3.5 bg-emerald-500/10 hover:bg-emerald-500/15 transition-all px-4 sm:px-5 py-3.5 rounded-2xl border border-emerald-500/25 backdrop-blur-md shadow-lg shadow-emerald-500/5 min-w-[160px]">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center text-emerald-400 shrink-0">
+                        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                            <path d="M19 5c-1.5 0-2.8 1.4-3 2-3.5-1.5-11-.3-11 5 0 1.8 0 3 2 4.5V20h4v-2h3v2h4v-4c1-.5 1.7-1 2-2h2v-4h-2c0-1-.5-1.5-1-2V5z"></path>
+                            <path d="M2 9v1c0 1.1.9 2 2 2h1"></path>
+                            <circle cx="16" cy="11" r="1"></circle>
+                        </svg>
+                    </div>
+                    <div>
+                        <span class="text-[9px] sm:text-[10px] font-black text-emerald-300 uppercase tracking-widest block">Total Collected</span>
+                        <span class="text-xl sm:text-2xl font-black text-emerald-400 tracking-tight" id="stat-collections">₱0.00</span>
+                    </div>
                 </div>
-            </div>
-            <div class="hidden sm:flex items-center relative z-10">
-                <span class="px-2.5 py-1 rounded-full text-[10px] font-black bg-emerald-50 text-emerald-600 border border-emerald-100 uppercase tracking-wider">
-                    Recovered
-                </span>
             </div>
         </div>
     </div>
