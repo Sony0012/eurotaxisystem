@@ -279,17 +279,57 @@ class SparePartController extends Controller
             ];
         }
 
-        // 13. General Fallback Real Automotive Part Images
+        // 13. Window & Automotive Glass
+        if (preg_match('/window|glass|windshield|windscreen|tint|regulator/i', $q)) {
+            $list[] = [
+                'thumb' => "{$baseUrl}/window_glass.png",
+                'image' => "{$baseUrl}/window_glass.png",
+                'title' => 'Tempered Automotive Car Window Glass'
+            ];
+        }
+
+        // 14. Mirrors & Body Panels
+        if (preg_match('/mirror|side\s*mirror|rearview/i', $q)) {
+            $list[] = [
+                'thumb' => "{$baseUrl}/side_mirror.png",
+                'image' => "{$baseUrl}/side_mirror.png",
+                'title' => 'Aerodynamic Electric Side Wing Mirror'
+            ];
+        }
+
+        // 15. Exhaust & Emissions
+        if (preg_match('/exhaust|muffler|pipe|header|catalytic|downpipe/i', $q)) {
+            $list[] = [
+                'thumb' => "{$baseUrl}/exhaust.png",
+                'image' => "{$baseUrl}/exhaust.png",
+                'title' => 'Polished Dual Tip Stainless Exhaust Muffler'
+            ];
+        }
+
+        // 16. Engine Internals (Piston & Rods)
+        if (preg_match('/piston|rod|crank|cam|valve|engine\s*block/i', $q)) {
+            $list[] = [
+                'thumb' => "{$baseUrl}/piston.png",
+                'image' => "{$baseUrl}/piston.png",
+                'title' => 'Forged Aluminum Engine Piston & Rod'
+            ];
+        }
+
+        // 17. Cooling & Radiators
+        if (preg_match('/radiator|condenser|cooling\s*fan/i', $q)) {
+            $list[] = [
+                'thumb' => "{$baseUrl}/radiator.png",
+                'image' => "{$baseUrl}/radiator.png",
+                'title' => 'Aluminum Engine Cooling Radiator'
+            ];
+        }
+
+        // 18. General Fallback Real Automotive Part Images
         if (empty($list)) {
             $list[] = [
                 'thumb' => "{$baseUrl}/brake_disk.png",
                 'image' => "{$baseUrl}/brake_disk.png",
-                'title' => 'Precision Brake Component'
-            ];
-            $list[] = [
-                'thumb' => "{$baseUrl}/shock_absorber.png",
-                'image' => "{$baseUrl}/shock_absorber.png",
-                'title' => 'Suspension Damper Assembly'
+                'title' => 'Precision Automotive Component'
             ];
         }
 
