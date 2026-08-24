@@ -66,37 +66,45 @@
                     // Also clean up if it was a direct accident report without SOS
                     $finalDescription = preg_replace('/Damage Level:.*?Description:\s*/s', '', $finalDescription);
                     
-                    $reportPayload = [
-                        'id' => $r->id,
-                        'date' => \Carbon\Carbon::parse($r->created_at)->format('M d, Y h:i A'),
-                        'driver' => trim(($r->driver->first_name ?? '') . ' ' . ($r->driver->last_name ?? '')),
-                        'unit' => $r->unit->plate_number ?? 'UNKNOWN',
-                        'type' => $r->accident_type ?? 'Emergency',
-                        'description' => trim($finalDescription) ?: 'No description provided.',
-                        'status' => strtoupper($r->status),
-                        'latitude' => $r->latitude,
-                        'longitude' => $r->longitude,
-                        'photo_path' => $r->photo_path ? asset($r->photo_path) : null
-                    ];
+                    $driverName = trim(($r->driver->first_name ?? '') . ' ' . ($r->driver->last_name ?? ''));
+                    if (empty($driverName)) $driverName = 'Unknown Driver';
+                    
+                    $unitPlate = $r->unit->plate_number ?? 'UNKNOWN';
+                    $repDate = \Carbon\Carbon::parse($r->created_at)->format('M d, Y h:i A');
+                    $repType = $r->accident_type ?? 'Emergency';
+                    $repDesc = trim($finalDescription) ?: 'Emergency alert triggered by driver.';
+                    $repStatus = strtoupper($r->status ?? 'RESPONDING');
+                    $repPhoto = $r->photo_path ? asset($r->photo_path) : '';
+                    $repLat = $r->latitude ?? '';
+                    $repLng = $r->longitude ?? '';
                 @endphp
                 <tr class="accident-row bg-white shadow-sm border border-gray-100 rounded-xl cursor-pointer hover:-translate-y-1 hover:shadow-lg hover:border-red-200 transition-all duration-300 {{ $r->status === 'pending' ? 'bg-red-50/30 border-red-100' : '' }}" 
-                    data-report="{{ htmlspecialchars(json_encode($reportPayload), ENT_QUOTES, 'UTF-8') }}"
+                    data-id="{{ $r->id }}"
+                    data-driver="{{ e($driverName) }}"
+                    data-unit="{{ e($unitPlate) }}"
+                    data-date="{{ e($repDate) }}"
+                    data-type="{{ e($repType) }}"
+                    data-description="{{ e($repDesc) }}"
+                    data-status="{{ e($repStatus) }}"
+                    data-photo="{{ e($repPhoto) }}"
+                    data-latitude="{{ e($repLat) }}"
+                    data-longitude="{{ e($repLng) }}"
                     onclick="openAccidentModal(this)">
                     <td class="px-5 py-4 rounded-l-xl border-y border-l border-gray-100 {{ $r->status === 'pending' ? 'border-red-100' : '' }}">
                         <div class="text-xs font-black text-gray-800">{{ \Carbon\Carbon::parse($r->created_at)->format('M d, Y') }}</div>
                         <div class="text-[10px] text-gray-500">{{ \Carbon\Carbon::parse($r->created_at)->format('h:i A') }}</div>
                     </td>
                     <td class="px-5 py-4 border-y border-gray-100 {{ $r->status === 'pending' ? 'border-red-100' : '' }}">
-                        <div class="text-xs font-black text-gray-800">{{ $r->driver->first_name ?? '' }} {{ $r->driver->last_name ?? '' }}</div>
-                        <div class="text-[10px] font-black text-blue-600 uppercase">{{ $r->unit->plate_number ?? 'UNKNOWN' }}</div>
+                        <div class="text-xs font-black text-gray-800">{{ $driverName }}</div>
+                        <div class="text-[10px] font-black text-blue-600 uppercase">{{ $unitPlate }}</div>
                     </td>
                     <td class="px-5 py-4 border-y border-gray-100 {{ $r->status === 'pending' ? 'border-red-100' : '' }}">
                         <span class="text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full border border-red-200 bg-red-100 text-red-700">
-                            {{ $r->accident_type ?? 'Emergency' }}
+                            {{ $repType }}
                         </span>
                     </td>
                     <td class="px-5 py-4 border-y border-gray-100 {{ $r->status === 'pending' ? 'border-red-100' : '' }}">
-                        <div class="text-xs text-gray-600 max-w-[200px] truncate">{{ $finalDescription ?: 'No description' }}</div>
+                        <div class="text-xs text-gray-600 max-w-[200px] truncate">{{ $repDesc }}</div>
                         @if($r->photo_path)
                             <div class="text-[9px] text-blue-500 font-bold flex items-center gap-1 mt-1"><i data-lucide="image" class="w-3 h-3"></i> Has Photo</div>
                         @endif
@@ -151,8 +159,8 @@
 </div>
 
 <!-- Accident Report Modal (21st.dev Executive Theme) -->
-<div id="accidentModal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-md z-[9999] flex items-center justify-center p-3 sm:p-5 transition-all">
-    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-2xl overflow-hidden border border-slate-700/30 flex flex-col max-h-[90vh]" id="accidentModalContent">
+<div id="accidentModal" class="hidden fixed inset-0 z-[99999] flex items-center justify-center bg-slate-950/80 backdrop-blur-md p-3 sm:p-5" onclick="closeAccidentModal()">
+    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-2xl overflow-hidden border border-slate-700/30 flex flex-col max-h-[90vh]" onclick="event.stopPropagation()" id="accidentModalContent">
         <div class="bg-slate-900 border-b border-slate-800 px-6 py-4 flex items-center justify-between shrink-0">
             <div class="flex items-center gap-3">
                 <div class="p-2 bg-rose-500/20 text-rose-400 rounded-xl border border-rose-500/30">
@@ -192,7 +200,7 @@
             
             <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-2xs">
                 <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Description</p>
-                <div class="bg-rose-50/40 border border-rose-100 p-3.5 rounded-xl text-xs sm:text-sm text-slate-700 leading-relaxed font-medium" id="modDesc">
+                <div class="bg-rose-50/40 border border-rose-100 p-3.5 rounded-xl text-xs sm:text-sm text-slate-700 leading-relaxed font-medium whitespace-pre-wrap" id="modDesc">
                     -
                 </div>
             </div>
@@ -224,123 +232,125 @@
 </div>
 
 <!-- Photo Lightbox Modal -->
-<div id="accidentPhotoLightbox" class="hidden fixed inset-0 bg-black/90 backdrop-blur-md z-[10000] flex items-center justify-center p-4" onclick="closePhotoLightbox()">
+<div id="accidentPhotoLightbox" class="hidden fixed inset-0 bg-black/90 backdrop-blur-md z-[100000] flex items-center justify-center p-4" onclick="closePhotoLightbox()">
     <div class="relative max-w-4xl max-h-[90vh] flex items-center justify-center" onclick="event.stopPropagation()">
         <img id="lightboxPhotoImg" src="" alt="Full Screen Accident Photo" class="max-w-full max-h-[85vh] object-contain rounded-2xl shadow-2xl">
-        <button onclick="closePhotoLightbox()" class="absolute -top-12 right-0 text-white/80 hover:text-white bg-white/10 hover:bg-white/20 p-2 rounded-full backdrop-blur-sm transition-all">
+        <button onclick="closePhotoLightbox()" type="button" class="absolute -top-12 right-0 text-white/80 hover:text-white bg-white/10 hover:bg-white/20 p-2 rounded-full backdrop-blur-sm transition-all">
             <i data-lucide="x" class="w-6 h-6"></i>
         </button>
     </div>
 </div>
 
 <script>
-    function openAccidentModal(target) {
-        let data;
-        if (target instanceof HTMLElement) {
-            const raw = target.getAttribute('data-report');
-            try {
-                data = JSON.parse(raw);
-            } catch(e) {
-                console.error('Failed to parse report data', e);
-                return;
-            }
-        } else {
-            data = target;
-        }
-        if (!data) return;
+    window.openAccidentModal = function(el) {
+        if (!el) return;
+        const row = (el instanceof HTMLElement) ? (el.classList.contains('accident-row') ? el : el.closest('.accident-row')) : null;
+        if (!row) return;
 
-        document.getElementById('modDriver').textContent = data.driver || '-';
-        document.getElementById('modUnit').textContent = data.unit || '-';
-        document.getElementById('modDate').textContent = data.date || '-';
-        document.getElementById('modDesc').textContent = data.description || 'No description provided.';
-        
+        const id = row.getAttribute('data-id') || '';
+        const driver = row.getAttribute('data-driver') || '-';
+        const unit = row.getAttribute('data-unit') || '-';
+        const date = row.getAttribute('data-date') || '-';
+        const desc = row.getAttribute('data-description') || 'No description provided.';
+        const status = row.getAttribute('data-status') || '-';
+        const photo = row.getAttribute('data-photo') || '';
+        const lat = row.getAttribute('data-latitude') || '';
+        const lng = row.getAttribute('data-longitude') || '';
+
+        const modDriver = document.getElementById('modDriver');
+        const modUnit = document.getElementById('modUnit');
+        const modDate = document.getElementById('modDate');
+        const modDesc = document.getElementById('modDesc');
         const statusEl = document.getElementById('modStatus');
-        statusEl.textContent = data.status || '-';
-        if (data.status === 'PENDING') {
-            statusEl.className = 'text-xs sm:text-sm font-black text-rose-600';
-        } else {
-            statusEl.className = 'text-xs sm:text-sm font-black text-emerald-600';
+
+        if (modDriver) modDriver.textContent = driver;
+        if (modUnit) modUnit.textContent = unit;
+        if (modDate) modDate.textContent = date;
+        if (modDesc) modDesc.textContent = desc;
+        
+        if (statusEl) {
+            statusEl.textContent = status;
+            if (status === 'PENDING') {
+                statusEl.className = 'text-xs sm:text-sm font-black text-rose-600';
+            } else {
+                statusEl.className = 'text-xs sm:text-sm font-black text-emerald-600';
+            }
         }
         
         const photoContainer = document.getElementById('modPhotoContainer');
         const photoEl = document.getElementById('modPhoto');
-        if (data.photo_path) {
-            photoEl.src = data.photo_path;
-            photoContainer.style.display = 'block';
-        } else {
-            photoContainer.style.display = 'none';
+        if (photoContainer && photoEl) {
+            if (photo && photo.trim().length > 0) {
+                photoEl.src = photo;
+                photoContainer.style.display = 'block';
+            } else {
+                photoContainer.style.display = 'none';
+            }
         }
         
         const locationContainer = document.getElementById('modLocationContainer');
         const locationLink = document.getElementById('modLocationLink');
         const addressEl = document.getElementById('modAddress');
         
-        if (data.latitude && data.longitude) {
-            locationLink.href = `https://www.google.com/maps?q=${data.latitude},${data.longitude}`;
-            locationContainer.style.display = 'block';
+        if (lat && lng) {
+            if (locationLink) locationLink.href = `https://www.google.com/maps?q=${lat},${lng}`;
+            if (locationContainer) locationContainer.style.display = 'block';
             
             // Get cached address from table row
-            const tableAddr = document.getElementById('addr-' + data.id);
-            if (tableAddr && tableAddr.textContent !== 'Fetching address...') {
-                addressEl.textContent = tableAddr.textContent;
+            const tableAddr = document.getElementById('addr-' + id);
+            if (tableAddr && tableAddr.textContent && tableAddr.textContent !== 'Fetching address...') {
+                if (addressEl) addressEl.textContent = tableAddr.textContent;
             } else {
-                addressEl.textContent = 'Fetching address...';
+                if (addressEl) addressEl.textContent = 'Fetching address...';
                 // Fallback fetch if not yet loaded in table
-                fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${data.latitude}&lon=${data.longitude}&zoom=18&addressdetails=1`)
+                fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`)
                     .then(res => res.json())
                     .then(resData => {
-                        addressEl.textContent = resData.display_name || 'Address not found';
+                        if (addressEl) addressEl.textContent = resData.display_name || 'Address not found';
                     })
                     .catch(() => {
-                        addressEl.textContent = 'Coordinates: ' + data.latitude + ', ' + data.longitude;
+                        if (addressEl) addressEl.textContent = 'Coordinates: ' + lat + ', ' + lng;
                     });
             }
         } else {
-            locationContainer.style.display = 'none';
+            if (locationContainer) locationContainer.style.display = 'none';
         }
         
         const modal = document.getElementById('accidentModal');
-        modal.classList.remove('hidden');
+        if (modal) {
+            modal.classList.remove('hidden');
+        }
         
-        if (typeof lucide !== 'undefined') lucide.createIcons();
-    }
+        if (window.lucide && typeof window.lucide.createIcons === 'function') {
+            window.lucide.createIcons();
+        }
+    };
     
-    function closeAccidentModal() {
+    window.closeAccidentModal = function() {
         const modal = document.getElementById('accidentModal');
-        modal.classList.add('hidden');
-    }
+        if (modal) modal.classList.add('hidden');
+    };
 
-    function openPhotoLightbox(src) {
+    window.openPhotoLightbox = function(src) {
         if (!src) return;
         const lb = document.getElementById('accidentPhotoLightbox');
         const img = document.getElementById('lightboxPhotoImg');
-        img.src = src;
-        lb.classList.remove('hidden');
-        if (typeof lucide !== 'undefined') lucide.createIcons();
-    }
-
-    function closePhotoLightbox() {
-        document.getElementById('accidentPhotoLightbox')?.classList.add('hidden');
-    }
-
-    // Global Row and Backdrop click handler
-    document.addEventListener('click', function(e) {
-        const modal = document.getElementById('accidentModal');
-        if (e.target === modal) {
-            closeAccidentModal();
-            return;
+        if (img) img.src = src;
+        if (lb) lb.classList.remove('hidden');
+        if (window.lucide && typeof window.lucide.createIcons === 'function') {
+            window.lucide.createIcons();
         }
+    };
 
-        const row = e.target.closest('.accident-row');
-        if (row && !e.target.closest('a') && !e.target.closest('button') && !e.target.closest('form')) {
-            openAccidentModal(row);
-        }
-    });
+    window.closePhotoLightbox = function() {
+        const lb = document.getElementById('accidentPhotoLightbox');
+        if (lb) lb.classList.add('hidden');
+    };
 
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
-            closePhotoLightbox();
-            closeAccidentModal();
+            window.closePhotoLightbox();
+            window.closeAccidentModal();
         }
     });
 
@@ -364,29 +374,26 @@
             }
         }
     }
-    document.addEventListener('DOMContentLoaded', processTableGeocoding);
 
-    // Filter Logic
-    document.addEventListener('DOMContentLoaded', function() {
+    function initAccidentsPage() {
+        processTableGeocoding();
+
         const searchInput = document.getElementById('accidentSearchInput');
         const dateFilter = document.getElementById('accidentDateFilter');
         const tableBody = document.querySelector('table tbody');
-        const rows = tableBody.querySelectorAll('tr:not(.no-results)');
+        if (!tableBody) return;
+        const rows = tableBody.querySelectorAll('tr.accident-row');
 
         function filterTable() {
-            const searchTerm = searchInput.value.toLowerCase();
-            const dateTerm = dateFilter.value; // YYYY-MM-DD format
+            const searchTerm = (searchInput ? searchInput.value : '').toLowerCase();
+            const dateTerm = dateFilter ? dateFilter.value : '';
             
             let visibleCount = 0;
 
             rows.forEach(row => {
-                // If this is the "No reports" row, ignore it
-                if (row.querySelector('td[colspan]')) return;
-
                 const textContent = row.textContent.toLowerCase();
                 const dateText = row.querySelector('td:first-child')?.textContent || '';
                 
-                // For date filtering: convert 'Jul 02, 2026' to YYYY-MM-DD
                 let matchesDate = true;
                 if (dateTerm) {
                     const parsedRowDate = new Date(dateText.split('\n')[0]);
@@ -410,7 +417,7 @@
 
             // Handle no results
             let noResultsRow = tableBody.querySelector('.no-results-filter');
-            if (visibleCount === 0 && rows.length > 0 && !rows[0].querySelector('td[colspan]')) {
+            if (visibleCount === 0 && rows.length > 0) {
                 if (!noResultsRow) {
                     noResultsRow = document.createElement('tr');
                     noResultsRow.className = 'no-results-filter';
@@ -454,6 +461,13 @@
             });
         }
         if (dateFilter) dateFilter.addEventListener('change', filterTable);
-    });
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initAccidentsPage);
+    } else {
+        initAccidentsPage();
+    }
+    document.addEventListener('page:loaded', initAccidentsPage);
 </script>
 @endsection
