@@ -149,135 +149,96 @@ class SparePartController extends Controller
     {
         $q = strtolower(trim($query));
         $list = [];
+        $baseUrl = url('image/parts_photos');
 
         // 1. Tires, Wheels & Rims
         if (preg_match('/tire|tyre|wheel|rim|mag\s*wheel|radial|tubeless/i', $q)) {
             $list[] = [
-                'thumb' => 'https://img.freepik.com/premium-photo/car-tire-isolated-white-background_124507-39148.jpg?w=400',
-                'image' => 'https://img.freepik.com/premium-photo/car-tire-isolated-white-background_124507-39148.jpg?w=2000',
-                'title' => 'Radial Tubeless Car Tire'
+                'thumb' => "{$baseUrl}/tire.png",
+                'image' => "{$baseUrl}/tire.png",
+                'title' => 'Radial Tubeless Car Tire & Mag Wheel'
             ];
             $list[] = [
-                'thumb' => 'https://images.unsplash.com/photo-1578844251758-2f71da64c96f?w=400&auto=format&fit=crop&q=80',
-                'image' => 'https://images.unsplash.com/photo-1578844251758-2f71da64c96f?w=1200&auto=format&fit=crop&q=80',
-                'title' => 'High Performance All-Season Car Tire'
-            ];
-            $list[] = [
-                'thumb' => 'https://img.freepik.com/premium-photo/alloy-wheel-car-isolated-white-background_124507-44018.jpg?w=400',
-                'image' => 'https://img.freepik.com/premium-photo/alloy-wheel-car-isolated-white-background_124507-44018.jpg?w=2000',
-                'title' => 'Silver Alloy Mag Wheel Rim'
-            ];
-            $list[] = [
-                'thumb' => 'https://img.freepik.com/premium-photo/set-four-car-wheels-isolated-white-background_124507-44020.jpg?w=400',
-                'image' => 'https://img.freepik.com/premium-photo/set-four-car-wheels-isolated-white-background_124507-44020.jpg?w=2000',
-                'title' => 'Set of 4 Mounted Car Tires & Rims'
+                'thumb' => 'https://image.made-in-china.com/2f0j00mCdkoBUrMiqh/Japanese-Auto-Parts-Spring-Shock-Absorber-for-Toyota-Nissan-Mazda-Hyundai-Mitsubishi-Suspension-Car-Accessories.jpg',
+                'image' => 'https://image.made-in-china.com/2f0j00mCdkoBUrMiqh/Japanese-Auto-Parts-Spring-Shock-Absorber-for-Toyota-Nissan-Mazda-Hyundai-Mitsubishi-Suspension-Car-Accessories.jpg',
+                'title' => 'Alloy Wheel Rim Component'
             ];
         }
 
         // 2. Shock Absorbers / Struts
         if (preg_match('/shock|absorber|strut|suspension|coilover|spring/i', $q)) {
             $list[] = [
-                'thumb' => 'https://img.freepik.com/premium-photo/repair-car-shock-absorber-garage-car-service-by-masters_124507-54540.jpg?w=400',
-                'image' => 'https://img.freepik.com/premium-photo/repair-car-shock-absorber-garage-car-service-by-masters_124507-54540.jpg?w=2000',
-                'title' => 'KYB Hydraulic Strut & Spring Shock Absorber'
-            ];
-            $list[] = [
-                'thumb' => 'https://img.freepik.com/premium-photo/new-parts-auto-repair-car-shock-absorber-insulated-white-background_124507-44535.jpg?w=400',
-                'image' => 'https://img.freepik.com/premium-photo/new-parts-auto-repair-car-shock-absorber-insulated-white-background_124507-44535.jpg?w=2000',
-                'title' => 'Gas-Pressurized Front Shock Absorber'
+                'thumb' => "{$baseUrl}/shock_absorber.png",
+                'image' => "{$baseUrl}/shock_absorber.png",
+                'title' => 'KYB Coilover Spring & Strut Shock Absorber'
             ];
             $list[] = [
                 'thumb' => 'https://image.made-in-china.com/2f0j00mCdkoBUrMiqh/Japanese-Auto-Parts-Spring-Shock-Absorber-for-Toyota-Nissan-Mazda-Hyundai-Mitsubishi-Suspension-Car-Accessories.jpg',
                 'image' => 'https://image.made-in-china.com/2f0j00mCdkoBUrMiqh/Japanese-Auto-Parts-Spring-Shock-Absorber-for-Toyota-Nissan-Mazda-Hyundai-Mitsubishi-Suspension-Car-Accessories.jpg',
                 'title' => 'Toyota Vios Front Strut Assembly'
             ];
+        }
+
+        // 3. Brake Discs / Rotors
+        if (preg_match('/disc|disk|rotor/i', $q)) {
             $list[] = [
-                'thumb' => 'https://thumbs.dreamstime.com/z/shock-absorber-front-car-suspension-component-isolated-white-background-d-174197507.jpg',
-                'image' => 'https://thumbs.dreamstime.com/z/shock-absorber-front-car-suspension-component-isolated-white-background-d-174197507.jpg',
-                'title' => 'Heavy Duty Rear Shock Absorber Pair'
+                'thumb' => "{$baseUrl}/brake_disk.png",
+                'image' => "{$baseUrl}/brake_disk.png",
+                'title' => 'Cast Iron Vented Brake Disc Rotor'
             ];
         }
 
-        // 3. Brake Pads & Calipers
-        if (preg_match('/pad|brake|caliper/i', $q) && !preg_match('/fluid|hose|disc|disk|rotor|shoe/i', $q)) {
+        // 4. Brake Pads & Calipers
+        if (preg_match('/pad|brake|caliper/i', $q)) {
             $list[] = [
-                'thumb' => 'https://images.unsplash.com/photo-1600705722908-bab1e61c0b4d?w=400&auto=format&fit=crop&q=80',
-                'image' => 'https://images.unsplash.com/photo-1600705722908-bab1e61c0b4d?w=1200&auto=format&fit=crop&q=80',
+                'thumb' => "{$baseUrl}/brake_pads.png",
+                'image' => "{$baseUrl}/brake_pads.png",
                 'title' => 'Ceramic Disc Brake Pads Set'
             ];
             $list[] = [
-                'thumb' => 'https://img.freepik.com/premium-photo/brake-pads-car-isolated-white-background_124507-42231.jpg?w=400',
-                'image' => 'https://img.freepik.com/premium-photo/brake-pads-car-isolated-white-background_124507-42231.jpg?w=2000',
-                'title' => 'Toyota Genuine Front Brake Pads'
-            ];
-            $list[] = [
-                'thumb' => 'https://img.freepik.com/premium-photo/red-brake-caliper-isolated-white-background_124507-44025.jpg?w=400',
-                'image' => 'https://img.freepik.com/premium-photo/red-brake-caliper-isolated-white-background_124507-44025.jpg?w=2000',
-                'title' => 'Hydraulic Disc Brake Caliper'
-            ];
-        }
-
-        // 4. Brake Discs / Rotors
-        if (preg_match('/disc|disk|rotor/i', $q)) {
-            $list[] = [
-                'thumb' => 'https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=400&auto=format&fit=crop&q=80',
-                'image' => 'https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=1200&auto=format&fit=crop&q=80',
-                'title' => 'Vented Brake Rotor Disk'
-            ];
-            $list[] = [
-                'thumb' => 'https://img.freepik.com/premium-photo/brake-disc-isolated-white-background_124507-42235.jpg?w=400',
-                'image' => 'https://img.freepik.com/premium-photo/brake-disc-isolated-white-background_124507-42235.jpg?w=2000',
-                'title' => 'Cross-Drilled Performance Brake Rotor'
+                'thumb' => "{$baseUrl}/brake_disk.png",
+                'image' => "{$baseUrl}/brake_disk.png",
+                'title' => 'Vented Brake Disc Rotor'
             ];
         }
 
         // 5. Batteries
         if (preg_match('/battery|motolite|amaron|yuasa/i', $q)) {
             $list[] = [
-                'thumb' => 'https://cdn.shopify.com/s/files/1/0615/7982/1304/files/Motolite_Gold.png?v=1687245245',
-                'image' => 'https://cdn.shopify.com/s/files/1/0615/7982/1304/files/Motolite_Gold.png?v=1687245245',
+                'thumb' => "{$baseUrl}/battery.png",
+                'image' => "{$baseUrl}/battery.png",
                 'title' => 'Motolite Gold 12V Maintenance Free Battery'
             ];
             $list[] = [
-                'thumb' => 'https://img.freepik.com/premium-photo/car-battery-isolated-white-background_124507-39130.jpg?w=400',
-                'image' => 'https://img.freepik.com/premium-photo/car-battery-isolated-white-background_124507-39130.jpg?w=2000',
-                'title' => 'Heavy Duty 12V Automotive Lead-Acid Battery'
+                'thumb' => 'https://cdn.shopify.com/s/files/1/0615/7982/1304/files/Motolite_Gold.png?v=1687245245',
+                'image' => 'https://cdn.shopify.com/s/files/1/0615/7982/1304/files/Motolite_Gold.png?v=1687245245',
+                'title' => 'Motolite 12V Automotive Battery'
             ];
         }
 
         // 6. Spark Plugs & Ignition Coils
         if (preg_match('/spark|plug|iridium|ignition|coil/i', $q)) {
             $list[] = [
-                'thumb' => 'https://img.freepik.com/premium-photo/set-new-spark-plugs-isolated-white-background_124507-42119.jpg?w=400',
-                'image' => 'https://img.freepik.com/premium-photo/set-new-spark-plugs-isolated-white-background_124507-42119.jpg?w=2000',
-                'title' => 'Denso Iridium Power Spark Plugs'
-            ];
-            $list[] = [
-                'thumb' => 'https://img.freepik.com/premium-photo/ignition-coil-isolated-white-background_124507-43110.jpg?w=400',
-                'image' => 'https://img.freepik.com/premium-photo/ignition-coil-isolated-white-background_124507-43110.jpg?w=2000',
-                'title' => 'Electronic Ignition Coil Pack'
+                'thumb' => "{$baseUrl}/spark_plug.png",
+                'image' => "{$baseUrl}/spark_plug.png",
+                'title' => 'Denso Iridium Power Spark Plug'
             ];
         }
 
         // 7. Engine Oil & Lubricants
         if (preg_match('/engine\s*oil|synthetic|oil\s*5w|oil\s*10w|oil\s*20w|lubricant|motul|castrol|shell/i', $q)) {
             $list[] = [
-                'thumb' => 'https://img.freepik.com/premium-photo/canister-with-engine-oil-isolated-white-background_124507-39120.jpg?w=400',
-                'image' => 'https://img.freepik.com/premium-photo/canister-with-engine-oil-isolated-white-background_124507-39120.jpg?w=2000',
+                'thumb' => "{$baseUrl}/engine_oil.png",
+                'image' => "{$baseUrl}/engine_oil.png",
                 'title' => 'Fully Synthetic 5W-30 Motor Oil'
-            ];
-            $list[] = [
-                'thumb' => 'https://img.freepik.com/premium-photo/bottles-car-oil-isolated-white-background_124507-39122.jpg?w=400',
-                'image' => 'https://img.freepik.com/premium-photo/bottles-car-oil-isolated-white-background_124507-39122.jpg?w=2000',
-                'title' => '1L Precision Synthetic Motor Engine Oil'
             ];
         }
 
         // 8. Oil Filter
         if (preg_match('/oil\s*filter/i', $q)) {
             $list[] = [
-                'thumb' => 'https://img.freepik.com/premium-photo/car-oil-filter-isolated-white-background_124507-43105.jpg?w=400',
-                'image' => 'https://img.freepik.com/premium-photo/car-oil-filter-isolated-white-background_124507-43105.jpg?w=2000',
+                'thumb' => "{$baseUrl}/oil_filter.png",
+                'image' => "{$baseUrl}/oil_filter.png",
                 'title' => 'Toyota Genuine Spin-on Oil Filter'
             ];
         }
@@ -285,124 +246,50 @@ class SparePartController extends Controller
         // 9. Air & Cabin Filter
         if (preg_match('/air\s*filter|cabin\s*filter/i', $q)) {
             $list[] = [
-                'thumb' => 'https://img.freepik.com/premium-photo/car-air-filter-isolated-white-background_124507-43156.jpg?w=400',
-                'image' => 'https://img.freepik.com/premium-photo/car-air-filter-isolated-white-background_124507-43156.jpg?w=2000',
+                'thumb' => "{$baseUrl}/air_filter.png",
+                'image' => "{$baseUrl}/air_filter.png",
                 'title' => 'Engine Air Filter Element'
             ];
-            $list[] = [
-                'thumb' => 'https://img.freepik.com/premium-photo/cabin-air-filter-isolated-white-background_124507-43158.jpg?w=400',
-                'image' => 'https://img.freepik.com/premium-photo/cabin-air-filter-isolated-white-background_124507-43158.jpg?w=2000',
-                'title' => 'Activated Carbon Cabin AC Air Filter'
-            ];
         }
 
-        // 10. Coolant & Radiator
-        if (preg_match('/coolant|antifreeze|radiator/i', $q)) {
-            $list[] = [
-                'thumb' => 'https://img.freepik.com/premium-photo/canister-with-radiator-coolant-isolated-white-background_124507-39144.jpg?w=400',
-                'image' => 'https://img.freepik.com/premium-photo/canister-with-radiator-coolant-isolated-white-background_124507-39144.jpg?w=2000',
-                'title' => 'Toyota Super Long Life Coolant'
-            ];
-            $list[] = [
-                'thumb' => 'https://img.freepik.com/premium-photo/car-radiator-isolated-white-background_124507-43120.jpg?w=400',
-                'image' => 'https://img.freepik.com/premium-photo/car-radiator-isolated-white-background_124507-43120.jpg?w=2000',
-                'title' => 'Aluminum Engine Cooling Radiator'
-            ];
-        }
-
-        // 11. Wiper Blades
+        // 10. Wiper Blades
         if (preg_match('/wiper|blade/i', $q)) {
             $list[] = [
-                'thumb' => 'https://img.freepik.com/premium-photo/car-windshield-wiper-blades-isolated-white-background_124507-44012.jpg?w=400',
-                'image' => 'https://img.freepik.com/premium-photo/car-windshield-wiper-blades-isolated-white-background_124507-44012.jpg?w=2000',
-                'title' => 'Aerodynamic Hybrid Wiper Blades (Pair)'
+                'thumb' => "{$baseUrl}/wiper_blade.png",
+                'image' => "{$baseUrl}/wiper_blade.png",
+                'title' => 'Aerodynamic Hybrid Wiper Blade'
             ];
         }
 
-        // 12. Belts
+        // 11. Belts
         if (preg_match('/belt|serpentine|timing|fan\s*belt|alternator\s*belt/i', $q)) {
             $list[] = [
-                'thumb' => 'https://img.freepik.com/premium-photo/new-car-timing-belt-isolated-white-background_124507-44111.jpg?w=400',
-                'image' => 'https://img.freepik.com/premium-photo/new-car-timing-belt-isolated-white-background_124507-44111.jpg?w=2000',
-                'title' => 'Multi-Rib Serpentine Fan Belt'
+                'thumb' => "{$baseUrl}/timing_belt.png",
+                'image' => "{$baseUrl}/timing_belt.png",
+                'title' => 'Multi-Rib Serpentine Timing Belt'
             ];
         }
 
-        // 13. Tie Rod, Ball Joint & Suspension Links
-        if (preg_match('/tie\s*rod|ball\s*joint|rack\s*end|link|bushing|control\s*arm/i', $q)) {
-            $list[] = [
-                'thumb' => 'https://img.freepik.com/premium-photo/new-steering-tie-rod-end-isolated-white-background_124507-44210.jpg?w=400',
-                'image' => 'https://img.freepik.com/premium-photo/new-steering-tie-rod-end-isolated-white-background_124507-44210.jpg?w=2000',
-                'title' => 'Front Suspension Outer Tie Rod End'
-            ];
-            $list[] = [
-                'thumb' => 'https://img.freepik.com/premium-photo/suspension-ball-joint-isolated-white-background_124507-44215.jpg?w=400',
-                'image' => 'https://img.freepik.com/premium-photo/suspension-ball-joint-isolated-white-background_124507-44215.jpg?w=2000',
-                'title' => 'Lower Control Arm Ball Joint'
-            ];
-        }
-
-        // 14. Wheel Hub & Bearing
-        if (preg_match('/bearing|hub/i', $q)) {
-            $list[] = [
-                'thumb' => 'https://img.freepik.com/premium-photo/wheel-bearing-isolated-white-background_124507-44030.jpg?w=400',
-                'image' => 'https://img.freepik.com/premium-photo/wheel-bearing-isolated-white-background_124507-44030.jpg?w=2000',
-                'title' => 'Front Wheel Hub & Bearing Assembly'
-            ];
-        }
-
-        // 15. Clutch & Drivetrain
-        if (preg_match('/clutch|flywheel|pressure\s*plate/i', $q)) {
-            $list[] = [
-                'thumb' => 'https://img.freepik.com/premium-photo/car-clutch-isolated-white-background_124507-44040.jpg?w=400',
-                'image' => 'https://img.freepik.com/premium-photo/car-clutch-isolated-white-background_124507-44040.jpg?w=2000',
-                'title' => 'Aisin Clutch Disc & Pressure Plate Set'
-            ];
-        }
-
-        // 16. Alternator & Starter Motor
+        // 12. Alternator & Starter Motor
         if (preg_match('/alternator|starter|dynamo/i', $q)) {
             $list[] = [
-                'thumb' => 'https://img.freepik.com/premium-photo/car-alternator-isolated-white-background_124507-43140.jpg?w=400',
-                'image' => 'https://img.freepik.com/premium-photo/car-alternator-isolated-white-background_124507-43140.jpg?w=2000',
+                'thumb' => "{$baseUrl}/alternator.png",
+                'image' => "{$baseUrl}/alternator.png",
                 'title' => '12V 80A Automotive Alternator'
             ];
-            $list[] = [
-                'thumb' => 'https://img.freepik.com/premium-photo/car-starter-motor-isolated-white-background_124507-43145.jpg?w=400',
-                'image' => 'https://img.freepik.com/premium-photo/car-starter-motor-isolated-white-background_124507-43145.jpg?w=2000',
-                'title' => 'Electric Engine Starter Motor'
-            ];
         }
 
-        // 17. Horn & Electrical
-        if (preg_match('/horn|relay|fuse/i', $q)) {
-            $list[] = [
-                'thumb' => 'https://img.freepik.com/premium-photo/car-horn-isolated-white-background_124507-44050.jpg?w=400',
-                'image' => 'https://img.freepik.com/premium-photo/car-horn-isolated-white-background_124507-44050.jpg?w=2000',
-                'title' => 'Dual Snail Electric Horn Set'
-            ];
-        }
-
-        // 18. Lights & Bulbs
-        if (preg_match('/bulb|light|lamp|headlight|taillight|fog/i', $q)) {
-            $list[] = [
-                'thumb' => 'https://img.freepik.com/premium-photo/car-headlight-bulb-isolated-white-background_124507-44060.jpg?w=400',
-                'image' => 'https://img.freepik.com/premium-photo/car-headlight-bulb-isolated-white-background_124507-44060.jpg?w=2000',
-                'title' => 'H4 LED High-Power Headlight Bulbs'
-            ];
-        }
-
-        // 19. General Fallback Real Automotive Part Images
+        // 13. General Fallback Real Automotive Part Images
         if (empty($list)) {
             $list[] = [
-                'thumb' => 'https://img.freepik.com/premium-photo/auto-parts-isolated-white-background_124507-44000.jpg?w=400',
-                'image' => 'https://img.freepik.com/premium-photo/auto-parts-isolated-white-background_124507-44000.jpg?w=2000',
-                'title' => 'Precision Automotive Replacement Part'
+                'thumb' => "{$baseUrl}/brake_disk.png",
+                'image' => "{$baseUrl}/brake_disk.png",
+                'title' => 'Precision Brake Component'
             ];
             $list[] = [
-                'thumb' => 'https://img.freepik.com/premium-photo/car-parts-isolated-white-background_124507-44002.jpg?w=400',
-                'image' => 'https://img.freepik.com/premium-photo/car-parts-isolated-white-background_124507-44002.jpg?w=2000',
-                'title' => 'Genuine OEM Engine Component'
+                'thumb' => "{$baseUrl}/shock_absorber.png",
+                'image' => "{$baseUrl}/shock_absorber.png",
+                'title' => 'Suspension Damper Assembly'
             ];
         }
 

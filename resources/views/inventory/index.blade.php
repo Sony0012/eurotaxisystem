@@ -863,18 +863,21 @@
         const imgSourceLabel = document.getElementById('imgSourceLabel');
 
         if (iconBox) {
-            iconBox.innerHTML = `<img src="${meta.imageUrl}" alt="Part Preview" class="w-full h-full object-contain filter drop-shadow-sm" onerror="this.src='{{ asset('image/parts/general_part.svg') }}'">`;
+            iconBox.className = `w-14 h-14 rounded-2xl p-1.5 flex items-center justify-center shrink-0 border ${meta.badgeBorder} ${meta.badgeBg} shadow-xs transition-all duration-300 transform scale-100 hover:scale-105 cursor-pointer bg-white`;
+            iconBox.innerHTML = `<img src="${meta.imageUrl}" alt="AI 3D Asset" class="w-full h-full object-contain filter drop-shadow-sm" onerror="this.src='{{ asset('image/parts/general_part.svg') }}'">`;
             iconBox.onclick = () => openImageModal(meta.imageUrl);
         }
 
         if (imgSourceLabel) {
-            imgSourceLabel.innerText = 'Standard 3D Asset';
-            imgSourceLabel.className = 'text-blue-500 font-bold';
+            imgSourceLabel.innerText = `🎨 AI 3D Asset (${meta.category})`;
+            imgSourceLabel.className = 'text-blue-600 font-bold';
         }
 
         if (cachedPhotoResults.length > 0) {
             renderPhotoSuggestionsGrid(cachedPhotoResults);
         }
+
+        showToast(`AI assigned 3D asset for "${meta.category}"`, 'info');
     }
 
     function promptCustomImageUrl() {
