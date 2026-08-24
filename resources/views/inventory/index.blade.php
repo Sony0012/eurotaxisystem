@@ -430,236 +430,270 @@
         } catch(e) { console.error(e); }
     }
 
-    // ── AI Smart Auto Part Classifier & SVG Visual Generator ──
+    // ── AI Smart Auto Part Classifier & 3D Image Asset Engine ──
     function getPartAIMeta(name = '') {
         const raw = (name || '').toLowerCase().trim();
 
-        // 1. Suspension & Steering (Shocks, struts, coil springs, bushings, tie rods, ball joints, control arms)
-        if (/shock|absorber|strut|suspension|spring|coil|bushing|stabilizer|tie\s*rod|ball\s*joint|rack\s*end|control\s*arm|sway\s*bar|end\s*link|knuckle|crossmember|strut\s*mount/i.test(raw)) {
+        // 1. Specific Braking System Components
+        if (/brake\s*fluid/i.test(raw)) {
             return {
-                category: 'Suspension & Steering',
-                badgeBg: 'bg-gradient-to-br from-amber-50 to-orange-50/80',
+                category: 'Braking System',
+                imageUrl: '{{ asset('image/parts/brake_fluid.svg') }}',
+                badgeBg: 'bg-gradient-to-br from-amber-50 to-yellow-50/80',
                 badgeBorder: 'border-amber-200/90',
                 textClass: 'text-amber-600',
                 dotClass: 'bg-amber-500',
-                glowClass: 'group-hover:border-amber-400',
-                svg: `<svg class="w-6 h-6 text-amber-500 shrink-0 drop-shadow-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="3.5" r="1.8"></circle>
-                        <line x1="12" y1="5.3" x2="12" y2="8"></line>
-                        <rect x="9.5" y="8" width="5" height="3" rx="0.8" fill="currentColor" fill-opacity="0.25"></rect>
-                        <path d="M10 11l4 1.8-4 1.8 4 1.8-4 1.8 4 1.8"></path>
-                        <rect x="9" y="19" width="6" height="2" rx="0.5"></rect>
-                        <circle cx="12" cy="22" r="1.5"></circle>
-                      </svg>`
+                glowClass: 'group-hover:border-amber-400'
             };
         }
-
-        // 2. Braking System (Pads, rotors, caliper, shoe, disk, disc, hose, handbrake, fluid)
-        if (/brake|rotor|caliper|pad|shoe|disk|disc|hose|handbrake|drum\s*brake|abs\s*sensor/i.test(raw)) {
+        if (/brake\s*hose|brake\s*line/i.test(raw)) {
             return {
                 category: 'Braking System',
-                badgeBg: 'bg-gradient-to-br from-rose-50 to-red-50/80',
-                badgeBorder: 'border-rose-200/90',
-                textClass: 'text-rose-600',
-                dotClass: 'bg-rose-500',
-                glowClass: 'group-hover:border-rose-400',
-                svg: `<svg class="w-6 h-6 text-rose-500 shrink-0 drop-shadow-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="9"></circle>
-                        <circle cx="12" cy="12" r="3.5"></circle>
-                        <circle cx="12" cy="6.5" r="1" fill="currentColor"></circle>
-                        <circle cx="12" cy="17.5" r="1" fill="currentColor"></circle>
-                        <circle cx="6.5" cy="12" r="1" fill="currentColor"></circle>
-                        <circle cx="17.5" cy="12" r="1" fill="currentColor"></circle>
-                        <path d="M3.5 8.5a9 9 0 0 1 7.5-5V9l-3.5 1.5z" fill="currentColor" fill-opacity="0.25"></path>
-                      </svg>`
-            };
-        }
-
-        // 3. Filtration System (Air filter, cabin filter, oil filter, fuel filter, AC filter)
-        if (/filter|intake\s*filter|air\s*cleaner/i.test(raw)) {
-            return {
-                category: 'Filtration System',
-                badgeBg: 'bg-gradient-to-br from-sky-50 to-blue-50/80',
-                badgeBorder: 'border-sky-200/90',
-                textClass: 'text-sky-600',
-                dotClass: 'bg-sky-500',
-                glowClass: 'group-hover:border-sky-400',
-                svg: `<svg class="w-6 h-6 text-sky-500 shrink-0 drop-shadow-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <rect x="4" y="4" width="16" height="16" rx="3"></rect>
-                        <line x1="4" y1="8" x2="20" y2="8"></line>
-                        <line x1="4" y1="12" x2="20" y2="12"></line>
-                        <line x1="4" y1="16" x2="20" y2="16"></line>
-                        <line x1="8" y1="4" x2="8" y2="20"></line>
-                        <line x1="12" y1="4" x2="12" y2="20"></line>
-                        <line x1="16" y1="4" x2="16" y2="20"></line>
-                      </svg>`
-            };
-        }
-
-        // 4. Fluids & Lubricants (Engine oil, ATF, CVT, gear oil, coolant, grease)
-        if (/fluid|oil|atf|cvt|coolant|grease|lubricant|synthetic|mineral|petroleum|steering\s*fluid/i.test(raw)) {
-            return {
-                category: 'Fluids & Lubricants',
-                badgeBg: 'bg-gradient-to-br from-emerald-50 to-teal-50/80',
-                badgeBorder: 'border-emerald-200/90',
-                textClass: 'text-emerald-600',
-                dotClass: 'bg-emerald-500',
-                glowClass: 'group-hover:border-emerald-400',
-                svg: `<svg class="w-6 h-6 text-emerald-500 shrink-0 drop-shadow-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M7 4h10v3l-2 3v10a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V10L5 7V4h2z"></path>
-                        <path d="M12 12a2 2 0 0 0-2 2c0 1.5 2 3.5 2 3.5s2-2 2-3.5a2 2 0 0 0-2-2z" fill="currentColor"></path>
-                        <line x1="9" y1="2" x2="15" y2="2"></line>
-                      </svg>`
-            };
-        }
-
-        // 5. Electrical & Lighting (Battery, alternator, starter, bulb, headlight, fuse, relay, horn)
-        if (/battery|alternator|starter|bulb|headlight|taillight|signal|fuse|relay|horn|sensor|wire|harness|switch|ecu/i.test(raw)) {
-            return {
-                category: 'Electrical & Lighting',
-                badgeBg: 'bg-gradient-to-br from-violet-50 to-purple-50/80',
-                badgeBorder: 'border-violet-200/90',
-                textClass: 'text-violet-600',
-                dotClass: 'bg-violet-500',
-                glowClass: 'group-hover:border-violet-400',
-                svg: `<svg class="w-6 h-6 text-violet-500 shrink-0 drop-shadow-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <rect x="3" y="6" width="18" height="15" rx="3"></rect>
-                        <line x1="6" y1="3" x2="8" y2="6"></line>
-                        <line x1="16" y1="3" x2="18" y2="6"></line>
-                        <line x1="7" y1="11" x2="11" y2="11"></line>
-                        <line x1="9" y1="9" x2="9" y2="13"></line>
-                        <line x1="14" y1="11" x2="17" y2="11"></line>
-                      </svg>`
-            };
-        }
-
-        // 6. Engine, Ignition & Belts (Spark plugs, ignition coil, belts, pistons, gaskets, valves)
-        if (/spark|plug|ignition|piston|belt|timing|serpentine|gasket|valve|cylinder|camshaft|crankshaft|engine|motor|injector/i.test(raw)) {
-            return {
-                category: 'Engine & Ignition',
-                badgeBg: 'bg-gradient-to-br from-orange-50 to-amber-50/80',
-                badgeBorder: 'border-orange-200/90',
-                textClass: 'text-orange-600',
-                dotClass: 'bg-orange-500',
-                glowClass: 'group-hover:border-orange-400',
-                svg: `<svg class="w-6 h-6 text-orange-500 shrink-0 drop-shadow-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M10 2h4v3h-4z"></path>
-                        <rect x="9" y="5" width="6" height="5" rx="1"></rect>
-                        <path d="M11 10v4l-3 3 1 1 3-3v4h2v-4l3 3 1-1-3-3v-4h-4z" fill="currentColor" fill-opacity="0.25"></path>
-                        <line x1="12" y1="18" x2="12" y2="22"></line>
-                      </svg>`
-            };
-        }
-
-        // 7. Cooling & Climate (Radiator, water pump, thermostat, fan, AC compressor, condenser)
-        if (/radiator|cool|thermostat|water\s*pump|compressor|condenser|evaporator|blower|heater|fan/i.test(raw)) {
-            return {
-                category: 'Cooling & Climate',
-                badgeBg: 'bg-gradient-to-br from-cyan-50 to-teal-50/80',
-                badgeBorder: 'border-cyan-200/90',
-                textClass: 'text-cyan-600',
-                dotClass: 'bg-cyan-500',
-                glowClass: 'group-hover:border-cyan-400',
-                svg: `<svg class="w-6 h-6 text-cyan-500 shrink-0 drop-shadow-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <rect x="3" y="5" width="18" height="14" rx="2"></rect>
-                        <line x1="7" y1="9" x2="7" y2="15"></line>
-                        <line x1="10" y1="9" x2="10" y2="15"></line>
-                        <line x1="14" y1="9" x2="14" y2="15"></line>
-                        <line x1="17" y1="9" x2="17" y2="15"></line>
-                        <path d="M12 2v3m0 14v3"></path>
-                      </svg>`
-            };
-        }
-
-        // 8. Tires, Wheels & Hubs
-        if (/tire|tyre|wheel|rim|bearing|hub|lug\s*nut|valve\s*stem/i.test(raw)) {
-            return {
-                category: 'Tires & Wheels',
+                imageUrl: '{{ asset('image/parts/brake_hose.svg') }}',
                 badgeBg: 'bg-gradient-to-br from-slate-100 to-zinc-100',
                 badgeBorder: 'border-slate-300',
                 textClass: 'text-slate-700',
                 dotClass: 'bg-slate-600',
-                glowClass: 'group-hover:border-slate-400',
-                svg: `<svg class="w-6 h-6 text-slate-700 shrink-0 drop-shadow-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="9.5"></circle>
-                        <circle cx="12" cy="12" r="5"></circle>
-                        <circle cx="12" cy="12" r="2" fill="currentColor"></circle>
-                        <line x1="12" y1="2.5" x2="12" y2="4.5"></line>
-                        <line x1="12" y1="19.5" x2="12" y2="21.5"></line>
-                        <line x1="2.5" y1="12" x2="4.5" y2="12"></line>
-                        <line x1="19.5" y1="12" x2="21.5" y2="12"></line>
-                      </svg>`
+                glowClass: 'group-hover:border-slate-400'
+            };
+        }
+        if (/brake\s*shoe/i.test(raw)) {
+            return {
+                category: 'Braking System',
+                imageUrl: '{{ asset('image/parts/brake_shoe.svg') }}',
+                badgeBg: 'bg-gradient-to-br from-rose-50 to-orange-50/80',
+                badgeBorder: 'border-rose-200/90',
+                textClass: 'text-rose-600',
+                dotClass: 'bg-rose-500',
+                glowClass: 'group-hover:border-rose-400'
+            };
+        }
+        if (/brake\s*disk|brake\s*disc|rotor/i.test(raw)) {
+            return {
+                category: 'Braking System',
+                imageUrl: '{{ asset('image/parts/brake_disk.svg') }}',
+                badgeBg: 'bg-gradient-to-br from-slate-100 to-gray-100',
+                badgeBorder: 'border-slate-300',
+                textClass: 'text-slate-700',
+                dotClass: 'bg-slate-600',
+                glowClass: 'group-hover:border-slate-400'
+            };
+        }
+        if (/brake\s*pad|brake/i.test(raw)) {
+            return {
+                category: 'Braking System',
+                imageUrl: '{{ asset('image/parts/brake_pads.svg') }}',
+                badgeBg: 'bg-gradient-to-br from-rose-50 to-red-50/80',
+                badgeBorder: 'border-rose-200/90',
+                textClass: 'text-rose-600',
+                dotClass: 'bg-rose-500',
+                glowClass: 'group-hover:border-rose-400'
             };
         }
 
-        // 9. Drivetrain & Transmission
-        if (/clutch|flywheel|axle|cv\s*joint|drive\s*shaft|differential|transmission|gearbox|gear/i.test(raw)) {
+        // 2. Specific Suspension & Steering Components
+        if (/shock|strut|absorber|spring|coil/i.test(raw)) {
             return {
-                category: 'Drivetrain & Transmission',
-                badgeBg: 'bg-gradient-to-br from-indigo-50 to-blue-50/80',
-                badgeBorder: 'border-indigo-200/90',
-                textClass: 'text-indigo-600',
-                dotClass: 'bg-indigo-500',
-                glowClass: 'group-hover:border-indigo-400',
-                svg: `<svg class="w-6 h-6 text-indigo-500 shrink-0 drop-shadow-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="9" cy="9" r="4.5"></circle>
-                        <circle cx="16" cy="16" r="4.5"></circle>
-                        <circle cx="9" cy="9" r="1.5" fill="currentColor"></circle>
-                        <circle cx="16" cy="16" r="1.5" fill="currentColor"></circle>
-                        <path d="M9 3v2m0 8v2M3 9h2m8 0h2m1 7v2m0 8v2m-6-3h2m8 0h2"></path>
-                      </svg>`
+                category: 'Suspension & Steering',
+                imageUrl: '{{ asset('image/parts/shock_absorber.svg') }}',
+                badgeBg: 'bg-gradient-to-br from-amber-50 to-orange-50/80',
+                badgeBorder: 'border-amber-200/90',
+                textClass: 'text-amber-600',
+                dotClass: 'bg-amber-500',
+                glowClass: 'group-hover:border-amber-400'
+            };
+        }
+        if (/bushing/i.test(raw)) {
+            return {
+                category: 'Suspension & Steering',
+                imageUrl: '{{ asset('image/parts/suspension_bushing.svg') }}',
+                badgeBg: 'bg-gradient-to-br from-slate-100 to-zinc-100',
+                badgeBorder: 'border-slate-300',
+                textClass: 'text-slate-700',
+                dotClass: 'bg-slate-600',
+                glowClass: 'group-hover:border-slate-400'
+            };
+        }
+        if (/ball\s*joint|tie\s*rod|rack\s*end|link|stabilizer|control\s*arm/i.test(raw)) {
+            return {
+                category: 'Suspension & Steering',
+                imageUrl: '{{ asset('image/parts/ball_joint.svg') }}',
+                badgeBg: 'bg-gradient-to-br from-slate-100 to-gray-100',
+                badgeBorder: 'border-slate-300',
+                textClass: 'text-slate-700',
+                dotClass: 'bg-slate-600',
+                glowClass: 'group-hover:border-slate-400'
             };
         }
 
-        // 10. Body, Glass & Wipers
-        if (/wiper|blade|mirror|door|bumper|windshield|glass|handle|fender|hood|trunk|latch|lock/i.test(raw)) {
+        // 3. Specific Filtration Components
+        if (/cabin|ac\s*filter/i.test(raw)) {
             return {
-                category: 'Body, Glass & Wipers',
+                category: 'Filtration System',
+                imageUrl: '{{ asset('image/parts/cabin_filter.svg') }}',
+                badgeBg: 'bg-gradient-to-br from-sky-50 to-blue-50/80',
+                badgeBorder: 'border-sky-200/90',
+                textClass: 'text-sky-600',
+                dotClass: 'bg-sky-500',
+                glowClass: 'group-hover:border-sky-400'
+            };
+        }
+        if (/oil\s*filter/i.test(raw)) {
+            return {
+                category: 'Filtration System',
+                imageUrl: '{{ asset('image/parts/oil_filter.svg') }}',
+                badgeBg: 'bg-gradient-to-br from-slate-100 to-zinc-100',
+                badgeBorder: 'border-slate-300',
+                textClass: 'text-slate-700',
+                dotClass: 'bg-slate-600',
+                glowClass: 'group-hover:border-slate-400'
+            };
+        }
+        if (/air\s*filter|filter/i.test(raw)) {
+            return {
+                category: 'Filtration System',
+                imageUrl: '{{ asset('image/parts/air_filter.svg') }}',
+                badgeBg: 'bg-gradient-to-br from-orange-50 to-amber-50/80',
+                badgeBorder: 'border-orange-200/90',
+                textClass: 'text-orange-600',
+                dotClass: 'bg-orange-500',
+                glowClass: 'group-hover:border-orange-400'
+            };
+        }
+
+        // 4. Specific Fluids & Oils
+        if (/atf|cvt|transmission\s*fluid/i.test(raw)) {
+            return {
+                category: 'Fluids & Lubricants',
+                imageUrl: '{{ asset('image/parts/transmission_fluid.svg') }}',
+                badgeBg: 'bg-gradient-to-br from-rose-50 to-red-50/80',
+                badgeBorder: 'border-rose-200/90',
+                textClass: 'text-rose-600',
+                dotClass: 'bg-rose-500',
+                glowClass: 'group-hover:border-rose-400'
+            };
+        }
+        if (/oil|engine\s*oil|lubricant|synthetic|mineral|fluid/i.test(raw)) {
+            return {
+                category: 'Fluids & Lubricants',
+                imageUrl: '{{ asset('image/parts/engine_oil.svg') }}',
+                badgeBg: 'bg-gradient-to-br from-amber-50 to-yellow-50/80',
+                badgeBorder: 'border-amber-200/90',
+                textClass: 'text-amber-600',
+                dotClass: 'bg-amber-500',
+                glowClass: 'group-hover:border-amber-400'
+            };
+        }
+
+        // 5. Electrical & Lighting
+        if (/battery/i.test(raw)) {
+            return {
+                category: 'Electrical & Lighting',
+                imageUrl: '{{ asset('image/parts/car_battery.svg') }}',
+                badgeBg: 'bg-gradient-to-br from-slate-100 to-zinc-100',
+                badgeBorder: 'border-slate-300',
+                textClass: 'text-slate-700',
+                dotClass: 'bg-slate-600',
+                glowClass: 'group-hover:border-slate-400'
+            };
+        }
+        if (/alternator/i.test(raw)) {
+            return {
+                category: 'Electrical & Lighting',
+                imageUrl: '{{ asset('image/parts/alternator.svg') }}',
+                badgeBg: 'bg-gradient-to-br from-slate-100 to-zinc-100',
+                badgeBorder: 'border-slate-300',
+                textClass: 'text-slate-700',
+                dotClass: 'bg-slate-600',
+                glowClass: 'group-hover:border-slate-400'
+            };
+        }
+
+        // 6. Engine & Ignition
+        if (/spark|plug|ignition/i.test(raw)) {
+            return {
+                category: 'Engine & Ignition',
+                imageUrl: '{{ asset('image/parts/spark_plug.svg') }}',
+                badgeBg: 'bg-gradient-to-br from-slate-100 to-sky-50',
+                badgeBorder: 'border-slate-300',
+                textClass: 'text-slate-700',
+                dotClass: 'bg-slate-600',
+                glowClass: 'group-hover:border-slate-400'
+            };
+        }
+        if (/timing|belt|serpentine|fan\s*belt/i.test(raw)) {
+            return {
+                category: 'Engine & Belts',
+                imageUrl: '{{ asset('image/parts/timing_belt.svg') }}',
+                badgeBg: 'bg-gradient-to-br from-slate-100 to-zinc-100',
+                badgeBorder: 'border-slate-300',
+                textClass: 'text-slate-700',
+                dotClass: 'bg-slate-600',
+                glowClass: 'group-hover:border-slate-400'
+            };
+        }
+
+        // 7. Cooling & Climate
+        if (/radiator|coolant|water\s*pump|thermostat/i.test(raw)) {
+            return {
+                category: 'Cooling & Climate',
+                imageUrl: '{{ asset('image/parts/radiator.svg') }}',
+                badgeBg: 'bg-gradient-to-br from-cyan-50 to-blue-50/80',
+                badgeBorder: 'border-cyan-200/90',
+                textClass: 'text-cyan-600',
+                dotClass: 'bg-cyan-500',
+                glowClass: 'group-hover:border-cyan-400'
+            };
+        }
+
+        // 8. Tires & Wheels
+        if (/tire|tyre|wheel|rim|bearing|hub/i.test(raw)) {
+            return {
+                category: 'Tires & Wheels',
+                imageUrl: '{{ asset('image/parts/tire_wheel.svg') }}',
+                badgeBg: 'bg-gradient-to-br from-slate-100 to-zinc-100',
+                badgeBorder: 'border-slate-300',
+                textClass: 'text-slate-700',
+                dotClass: 'bg-slate-600',
+                glowClass: 'group-hover:border-slate-400'
+            };
+        }
+
+        // 9. Drivetrain & Clutch
+        if (/clutch|flywheel|axle|cv\s*joint/i.test(raw)) {
+            return {
+                category: 'Drivetrain & Clutch',
+                imageUrl: '{{ asset('image/parts/clutch_disc.svg') }}',
+                badgeBg: 'bg-gradient-to-br from-slate-100 to-zinc-100',
+                badgeBorder: 'border-slate-300',
+                textClass: 'text-slate-700',
+                dotClass: 'bg-slate-600',
+                glowClass: 'group-hover:border-slate-400'
+            };
+        }
+
+        // 10. Wipers & Glass
+        if (/wiper|blade|windshield/i.test(raw)) {
+            return {
+                category: 'Body & Wipers',
+                imageUrl: '{{ asset('image/parts/wiper_blade.svg') }}',
                 badgeBg: 'bg-gradient-to-br from-blue-50 to-indigo-50/80',
                 badgeBorder: 'border-blue-200/90',
                 textClass: 'text-blue-600',
                 dotClass: 'bg-blue-500',
-                glowClass: 'group-hover:border-blue-400',
-                svg: `<svg class="w-6 h-6 text-blue-500 shrink-0 drop-shadow-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M4 19l14-14"></path>
-                        <path d="M18 5l2 2-14 14-2-2z" fill="currentColor" fill-opacity="0.25"></path>
-                        <circle cx="4" cy="20" r="1.8"></circle>
-                        <path d="M5 9a14 14 0 0 1 14 0" stroke-dasharray="2 2"></path>
-                      </svg>`
+                glowClass: 'group-hover:border-blue-400'
             };
         }
 
-        // 11. Hardware & Fasteners
-        if (/bolt|nut|screw|clip|clamp|bracket|washer|pin|fitting/i.test(raw)) {
-            return {
-                category: 'Hardware & Fasteners',
-                badgeBg: 'bg-gradient-to-br from-slate-50 to-gray-100',
-                badgeBorder: 'border-slate-200/90',
-                textClass: 'text-slate-600',
-                dotClass: 'bg-slate-500',
-                glowClass: 'group-hover:border-slate-400',
-                svg: `<svg class="w-6 h-6 text-slate-600 shrink-0 drop-shadow-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M9 4h6v3l-1 1v12h-4V8L9 7V4z"></path>
-                        <line x1="7" y1="4" x2="17" y2="4"></line>
-                        <line x1="9" y1="11" x2="15" y2="11"></line>
-                        <line x1="9" y1="14" x2="15" y2="14"></line>
-                      </svg>`
-            };
-        }
-
-        // 12. Default Precision Auto Part / Component
+        // Default Precision Component
         return {
             category: 'Auto Component',
+            imageUrl: '{{ asset('image/parts/general_part.svg') }}',
             badgeBg: 'bg-gradient-to-br from-slate-50 to-blue-50/60',
             badgeBorder: 'border-slate-200/90',
             textClass: 'text-slate-600',
             dotClass: 'bg-blue-500',
-            glowClass: 'group-hover:border-blue-400',
-            svg: `<svg class="w-6 h-6 text-blue-500 shrink-0 drop-shadow-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
-                    <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
-                    <line x1="12" y1="22.08" x2="12" y2="12"></line>
-                  </svg>`
+            glowClass: 'group-hover:border-blue-400'
         };
     }
 
@@ -672,8 +706,9 @@
         const confidenceBadge = document.getElementById('aiConfidenceBadge');
 
         if (iconBox) {
-            iconBox.className = `w-12 h-12 rounded-xl flex items-center justify-center shrink-0 border ${meta.badgeBorder} ${meta.badgeBg} shadow-xs transition-all duration-300 transform scale-100 hover:scale-105`;
-            iconBox.innerHTML = meta.svg;
+            iconBox.className = `w-14 h-14 rounded-2xl p-1.5 flex items-center justify-center shrink-0 border ${meta.badgeBorder} ${meta.badgeBg} shadow-xs transition-all duration-300 transform scale-100 hover:scale-105 cursor-pointer`;
+            iconBox.innerHTML = `<img src="${meta.imageUrl}" alt="Part Preview" class="w-full h-full object-contain filter drop-shadow-sm" onerror="this.onerror=null; this.src='{{ asset('image/parts/general_part.svg') }}';">`;
+            iconBox.onclick = () => openImageModal(meta.imageUrl);
         }
 
         if (catLabel) {
@@ -712,8 +747,10 @@
             <tr class="hover:bg-gray-50/80 transition-colors group">
                 <td class="px-8 py-4">
                     <div class="flex items-center gap-3.5">
-                        <div class="relative w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 border ${aiMeta.badgeBorder} ${aiMeta.badgeBg} shadow-xs group-hover:scale-105 ${aiMeta.glowClass} transition-all">
-                            ${aiMeta.svg}
+                        <div class="relative w-12 h-12 rounded-2xl p-1 flex items-center justify-center shrink-0 border ${aiMeta.badgeBorder} ${aiMeta.badgeBg} shadow-xs group-hover:scale-105 ${aiMeta.glowClass} transition-all cursor-pointer"
+                             onclick="openImageModal('${aiMeta.imageUrl}')"
+                             title="Click to view full image">
+                            <img src="${aiMeta.imageUrl}" alt="${p.name}" class="w-full h-full object-contain filter drop-shadow-sm" onerror="this.onerror=null; this.src='{{ asset('image/parts/general_part.svg') }}';">
                         </div>
                         <div class="min-w-0">
                             <div class="text-sm font-black text-gray-900 tracking-tight group-hover:text-blue-600 transition-colors truncate">${p.name}</div>
@@ -773,8 +810,10 @@
                 </td>
                 <td class="px-8 py-5">
                     <div class="flex items-center gap-3.5">
-                        <div class="relative w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border ${aiMeta.badgeBorder} ${aiMeta.badgeBg} shadow-xs">
-                            ${aiMeta.svg}
+                        <div class="relative w-11 h-11 rounded-2xl p-1 flex items-center justify-center shrink-0 border ${aiMeta.badgeBorder} ${aiMeta.badgeBg} shadow-xs cursor-pointer"
+                             onclick="openImageModal('${aiMeta.imageUrl}')"
+                             title="Click to view full image">
+                            <img src="${aiMeta.imageUrl}" alt="${ph.description}" class="w-full h-full object-contain filter drop-shadow-sm" onerror="this.onerror=null; this.src='{{ asset('image/parts/general_part.svg') }}';">
                         </div>
                         <div class="min-w-0">
                             <div class="text-sm font-black text-gray-800 tracking-tight">${ph.description}</div>
@@ -803,8 +842,10 @@
             <tr class="hover:bg-gray-50/80 transition-colors group">
                 <td class="px-8 py-4">
                     <div class="flex items-center gap-3.5">
-                        <div class="relative w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border ${aiMeta.badgeBorder} ${aiMeta.badgeBg} shadow-xs">
-                            ${aiMeta.svg}
+                        <div class="relative w-11 h-11 rounded-2xl p-1 flex items-center justify-center shrink-0 border ${aiMeta.badgeBorder} ${aiMeta.badgeBg} shadow-xs cursor-pointer"
+                             onclick="openImageModal('${aiMeta.imageUrl}')"
+                             title="Click to view full image">
+                            <img src="${aiMeta.imageUrl}" alt="${p.name}" class="w-full h-full object-contain filter drop-shadow-sm" onerror="this.onerror=null; this.src='{{ asset('image/parts/general_part.svg') }}';">
                         </div>
                         <div class="min-w-0">
                             <div class="text-sm font-black text-gray-700 tracking-tight">${p.name}</div>
@@ -1075,5 +1116,54 @@
     function addslashes(str) {
         return (str + '').replace(/[\\"']/g, '\\$&').replace(/\u0000/g, '\\0');
     }
+
+    /* ─── Part Image Lightbox Modal ────────────────────────────── */
+    function openImageModal(src) {
+        if (!src) return;
+        let modal = document.getElementById('imagePreviewModalOverlay');
+        if (!modal) {
+            modal = document.createElement('div');
+            modal.id = 'imagePreviewModalOverlay';
+            modal.className = 'fixed inset-0 bg-slate-900/95 backdrop-blur-md z-[9999] flex items-center justify-center hidden opacity-0 transition-opacity duration-300';
+            modal.onclick = function(e) {
+                if (e.target === modal) closeImageModal();
+            };
+            modal.innerHTML = `
+                <button type="button" class="absolute top-6 right-6 text-white/70 hover:text-white bg-white/10 hover:bg-white/20 p-3 rounded-full transition-colors group cursor-pointer" onclick="closeImageModal()">
+                    <i data-lucide="x" class="w-6 h-6 group-hover:scale-110 transition-transform"></i>
+                </button>
+                <div class="relative w-full max-w-[85vw] max-h-[85vh] flex justify-center items-center p-6">
+                    <img id="imagePreviewModalImg" src="" class="max-w-full max-h-[75vh] object-contain rounded-3xl shadow-2xl scale-95 transition-transform duration-300 bg-white/5 p-6 border border-white/10" />
+                </div>
+            `;
+            document.body.appendChild(modal);
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+        
+        const img = document.getElementById('imagePreviewModalImg');
+        img.src = src;
+        
+        modal.classList.remove('hidden');
+        void modal.offsetWidth;
+        modal.classList.remove('opacity-0');
+        img.classList.remove('scale-95');
+        img.classList.add('scale-100');
+    }
+
+    function closeImageModal() {
+        const modal = document.getElementById('imagePreviewModalOverlay');
+        const img = document.getElementById('imagePreviewModalImg');
+        if (modal) {
+            modal.classList.add('opacity-0');
+            if (img) {
+                img.classList.remove('scale-100');
+                img.classList.add('scale-95');
+            }
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        }
+    }
 </script>
 @endpush
+
