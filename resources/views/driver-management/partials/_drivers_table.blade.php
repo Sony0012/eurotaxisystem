@@ -28,17 +28,22 @@
                     {{-- Driver Profile --}}
                     <td class="px-3 md:px-6 py-4 md:py-5">
                         <div class="flex items-center gap-2 md:gap-4">
-                            <div class="relative w-10 h-10 md:w-12 md:h-12 flex-shrink-0">
+                            <div class="relative w-10 h-10 md:w-12 md:h-12 flex-shrink-0 cursor-pointer group/avatar"
+                                 onclick="event.stopPropagation(); if(typeof openImageModal === 'function') openImageModal('{{ !empty($driver->profile_photo) ? asset(ltrim($driver->profile_photo, '/')) : asset('image/avatars/driver.svg') }}');"
+                                 title="Click to view full photo">
                                 @if(!empty($driver->profile_photo))
                                     <img src="{{ asset(ltrim($driver->profile_photo, '/')) }}" 
                                          alt="{{ $driver->full_name }}" 
-                                         class="w-10 h-10 md:w-12 md:h-12 rounded-full object-cover border-2 {{ $has_shortage ? 'border-red-400' : 'border-amber-300' }} shadow-xs bg-slate-100" 
+                                         class="w-10 h-10 md:w-12 md:h-12 rounded-full object-cover border-2 {{ $has_shortage ? 'border-red-400' : 'border-amber-300' }} shadow-xs bg-slate-100 group-hover/avatar:scale-105 transition-transform" 
                                          onerror="this.onerror=null; this.src='{{ asset('image/avatars/driver.svg') }}';">
                                 @else
                                     <img src="{{ asset('image/avatars/driver.svg') }}" 
                                          alt="{{ $driver->full_name }}" 
-                                         class="w-10 h-10 md:w-12 md:h-12 rounded-full object-cover border-2 {{ $has_shortage ? 'border-red-400' : 'border-amber-300' }} shadow-xs bg-amber-50">
+                                         class="w-10 h-10 md:w-12 md:h-12 rounded-full object-cover border-2 {{ $has_shortage ? 'border-red-400' : 'border-amber-300' }} shadow-xs bg-amber-50 group-hover/avatar:scale-105 transition-transform">
                                 @endif
+                                <div class="absolute inset-0 rounded-full bg-black/30 opacity-0 group-hover/avatar:opacity-100 flex items-center justify-center transition-opacity">
+                                    <i data-lucide="maximize-2" class="w-3.5 h-3.5 text-white"></i>
+                                </div>
                                 @if($has_shortage)
                                     <span class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-red-500 border-2 border-white rounded-full" title="Has Boundary Shortage"></span>
                                 @elseif($driver->is_active)

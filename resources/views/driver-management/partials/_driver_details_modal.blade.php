@@ -5,8 +5,11 @@
         <div class="bg-slate-800 p-5 shrink-0">
             <div class="flex justify-between items-center">
                 <div class="flex items-center gap-3.5">
-                    <div class="relative w-12 h-12 rounded-2xl overflow-hidden flex-shrink-0 border-2 border-amber-400 bg-slate-900 shadow-sm">
-                        <img id="driverDetailsAvatar" src="{{ asset('image/avatars/driver.svg') }}" alt="Driver Avatar" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='{{ asset('image/avatars/driver.svg') }}';">
+                    <div class="relative w-12 h-12 rounded-2xl overflow-hidden flex-shrink-0 border-2 border-amber-400 bg-slate-900 shadow-sm cursor-pointer group/modalAvatar" onclick="viewDriverModalAvatar()" title="Click to view full photo">
+                        <img id="driverDetailsAvatar" src="{{ asset('image/avatars/driver.svg') }}" alt="Driver Avatar" class="w-full h-full object-cover group-hover/modalAvatar:scale-110 transition-transform duration-300" onerror="this.onerror=null; this.src='{{ asset('image/avatars/driver.svg') }}';">
+                        <div class="absolute inset-0 bg-black/40 opacity-0 group-hover/modalAvatar:opacity-100 flex items-center justify-center transition-opacity">
+                            <i data-lucide="maximize-2" class="w-4 h-4 text-white"></i>
+                        </div>
                     </div>
                     <div>
                         <h3 class="text-xl font-black text-white tracking-wide uppercase" id="driverDetailsName">Driver Details</h3>
@@ -281,17 +284,17 @@
                         <div class="grid grid-cols-2 gap-3 mt-4">
                             <div class="p-3 rounded-xl bg-slate-800/80 border border-slate-700/60">
                                 <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Standard Daily Rate</span>
-                                <p class="text-sm font-black text-white">₱${data.assigned_boundary_rate ? parseFloat(data.assigned_boundary_rate).toLocaleString('en-PH', {minimumFractionDigits:2}) : '0.00'}</p>
+                                <p class="text-sm font-black text-white">₱${(data.assigned_boundary_rate ? parseFloat(data.assigned_boundary_rate) : (data.current_pricing && data.current_pricing.base ? parseFloat(data.current_pricing.base) : (data.daily_boundary_target ? parseFloat(data.daily_boundary_target) : 0))).toLocaleString('en-PH', {minimumFractionDigits:2})}</p>
                             </div>
                             <div class="p-3 rounded-xl bg-blue-950/60 border border-blue-500/30">
                                 <span class="text-[9px] font-bold text-blue-300 uppercase tracking-wider block mb-1">Active Targeted Rate</span>
-                                <p class="text-sm font-black text-blue-400">₱${data.daily_boundary_target ? parseFloat(data.daily_boundary_target).toLocaleString('en-PH', {minimumFractionDigits:2}) : '0.00'}</p>
+                                <p class="text-sm font-black text-blue-400">₱${(data.current_pricing ? parseFloat(data.current_pricing.rate) : (data.daily_boundary_target ? parseFloat(data.daily_boundary_target) : (data.assigned_boundary_rate ? parseFloat(data.assigned_boundary_rate) : 0))).toLocaleString('en-PH', {minimumFractionDigits:2})}</p>
                             </div>
                         </div>
                         ${data.current_pricing && data.current_pricing.label ? `
-                            <div class="mt-3 bg-blue-500/10 border border-blue-500/20 px-3 py-1.5 rounded-lg flex items-center justify-between text-xs">
+                            <div class="mt-3 bg-blue-500/10 border border-blue-500/20 px-3 py-2 rounded-lg flex items-center justify-between text-xs">
                                 <span class="text-blue-300 font-bold">Applied Pricing Scheme:</span>
-                                <span class="text-blue-400 font-black uppercase text-[10px]">${data.current_pricing.label}</span>
+                                <span class="text-blue-400 font-black uppercase text-[10px] tracking-wide">${data.current_pricing.label} ${data.current_pricing.type === 'coding' ? '(50% CODING DISCOUNT)' : ''}</span>
                             </div>
                         ` : ''}
                     </div>
@@ -800,6 +803,13 @@
                 </div>
             `;
             if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+    }
+
+    function viewDriverModalAvatar() {
+        const avatarEl = document.getElementById('driverDetailsAvatar');
+        if (avatarEl && avatarEl.src) {
+            openImageModal(avatarEl.src);
         }
     }
 
