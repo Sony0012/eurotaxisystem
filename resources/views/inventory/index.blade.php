@@ -480,32 +480,6 @@
         } catch(e) { console.error(e); }
     }
 
-    // ── AI Smart Auto Part Classifier & 3D Image Asset Engine ──
-    function getPartAIMeta(name = '') {
-        const raw = (name || '').toLowerCase().trim();
-
-        // 1. Specific Braking System Components
-        if (/brake\s*fluid/i.test(raw)) {
-            return {
-                category: 'Braking System',
-                imageUrl: '{{ asset('image/parts/brake_fluid.svg') }}',
-                badgeBg: 'bg-gradient-to-br from-amber-50 to-yellow-50/80',
-                badgeBorder: 'border-amber-200/90',
-                textClass: 'text-amber-600',
-                dotClass: 'bg-amber-500',
-                glowClass: 'group-hover:border-amber-400'
-            };
-        }
-        if (/brake\s*hose|brake\s*line/i.test(raw)) {
-            return {
-                category: 'Braking System',
-                imageUrl: '{{ asset('image/parts/brake_hose.svg') }}',
-                badgeBg: 'bg-gradient-to-br from-slate-100 to-zinc-100',
-                badgeBorder: 'border-slate-300',
-                textClass: 'text-slate-700',
-                dotClass: 'bg-slate-600',
-                glowClass: 'group-hover:border-slate-400'
-            };
     // ── AI Universal Procedural Vector Generator Engine (Synthesizes custom SVG graphics on the fly for ANY automotive part) ──
     function generateDynamicPartSVG(partName) {
         const raw = (partName || 'Auto Part').toLowerCase();
