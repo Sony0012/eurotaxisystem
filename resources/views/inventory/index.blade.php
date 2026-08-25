@@ -346,9 +346,6 @@
     </div>
 </div>
 
-@endsection
-
-@push('scripts')
 <script>
     let activeParts = [];
     let archivedParts = [];
@@ -356,17 +353,27 @@
     let suppliersList = [];
     let currentTab = 'active';
 
-    document.addEventListener('DOMContentLoaded', () => {
+    function initInventoryModule() {
         loadActiveParts();
         loadSuppliers();
-        if(typeof lucide !== 'undefined') lucide.createIcons();
+        if (typeof lucide !== 'undefined') lucide.createIcons();
 
-        // Phone Number format
         const sPhone = document.getElementById('supplierPhone');
         if (sPhone) {
-            sPhone.addEventListener('input', function() {
+            sPhone.oninput = function() {
                 this.value = this.value.replace(/[^0-9]/g, '').substring(0, 11);
-            });
+            };
+        }
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initInventoryModule);
+    } else {
+        initInventoryModule();
+    }
+    document.addEventListener('page:loaded', (e) => {
+        if (e.detail && e.detail.url && e.detail.url.includes('inventory')) {
+            initInventoryModule();
         }
     });
 
@@ -437,44 +444,60 @@
 
     // --- Loading Data ---
     async function loadActiveParts() {
+        const tbody = document.getElementById('activePartsTable');
         try {
             const res = await fetch("{{ route('spare-parts.index') }}");
+            if (!res.ok) {
+                if (tbody) tbody.innerHTML = `<tr><td colspan="5" class="text-center py-16 text-red-500 font-bold text-sm">Failed to load inventory. <button onclick="loadActiveParts()" class="ml-2 underline text-blue-600 font-black">Retry</button></td></tr>`;
+                return;
+            }
             const result = await res.json();
             if (result.success) {
-                activeParts = result.data;
+                activeParts = result.data || [];
                 renderActiveParts(activeParts);
+            } else {
+                if (tbody) tbody.innerHTML = `<tr><td colspan="5" class="text-center py-16 text-red-500 font-bold text-sm">${result.message || 'Failed to load inventory.'}</td></tr>`;
             }
-        } catch(e) { console.error(e); }
+        } catch(e) {
+            console.error('loadActiveParts error:', e);
+            if (tbody) tbody.innerHTML = `<tr><td colspan="5" class="text-center py-16 text-red-500 font-bold text-sm">Connection error. <button onclick="loadActiveParts()" class="ml-2 underline text-blue-600 font-black">Retry</button></td></tr>`;
+        }
     }
 
     async function loadHistory() {
+        const tbody = document.getElementById('historyTable');
         try {
             const res = await fetch("{{ route('spare-parts.history') }}");
+            if (!res.ok) return;
             const result = await res.json();
             if (result.success) {
-                purchaseHistory = result.data;
+                purchaseHistory = result.data || [];
                 renderHistory(purchaseHistory);
             }
         } catch(e) { console.error(e); }
     }
 
     async function loadArchivedParts() {
+        const tbody = document.getElementById('archivedTable');
         try {
             const res = await fetch("{{ route('spare-parts.archived') }}");
+            if (!res.ok) return;
             const result = await res.json();
             if (result.success) {
-                archivedParts = result.data;
+                archivedParts = result.data || [];
                 renderArchivedParts(archivedParts);
             }
         } catch(e) { console.error(e); }
     }
 
     async function loadSuppliers() {
+        const tbody = document.getElementById('suppliersTableBody');
         try {
             const res = await fetch("{{ route('suppliers.index') }}");
+            if (!res.ok) return;
             const result = await res.json();
             if(result.success) {
-                suppliersList = result.data;
+                suppliersList = result.data || [];
                 renderSuppliers(suppliersList);
             }
         } catch(e) { console.error(e); }
@@ -1799,6 +1822,38 @@
             }, 300);
         }
     }
+
+    // Expose all functions to global window scope for seamless SPA and inline event binding
+    window.switchTab = switchTab;
+    window.filterTables = filterTables;
+    window.loadActiveParts = loadActiveParts;
+    window.loadHistory = loadHistory;
+    window.loadArchivedParts = loadArchivedParts;
+    window.loadSuppliers = loadSuppliers;
+    window.openSuppliersModal = openSuppliersModal;
+    window.closeSuppliersModal = closeSuppliersModal;
+    window.openPartMiniModal = openPartMiniModal;
+    window.closePartMiniModal = closePartMiniModal;
+    window.editPart = editPart;
+    window.saveNewPart = saveNewPart;
+    window.archivePart = archivePart;
+    window.restorePart = restorePart;
+    window.forceDeletePart = forceDeletePart;
+    window.saveSupplier = saveSupplier;
+    window.resetSupplierForm = resetSupplierForm;
+    window.editSupplier = editSupplier;
+    window.deleteSupplier = deleteSupplier;
+    window.openImageModal = openImageModal;
+    window.closeImageModal = closeImageModal;
+    window.selectRealPhoto = selectRealPhoto;
+    window.clearCustomPhotoSelection = clearCustomPhotoSelection;
+    window.promptCustomImageUrl = promptCustomImageUrl;
+    window.onCustomPhotoSearch = onCustomPhotoSearch;
+    window.fetchRealPhotoSuggestions = fetchRealPhotoSuggestions;
+    window.onPartNameInput = onPartNameInput;
+    window.updateAIMiniModalPreview = updateAIMiniModalPreview;
+    window.generateDynamicPartSVG = generateDynamicPartSVG;
+    window.getPartAIMeta = getPartAIMeta;
 </script>
-@endpush
+@endsection
 
