@@ -480,130 +480,142 @@
         }
     }
 
-    // ── AI Real-Time Procedural SVG Synthesis Engine (Synthesizes custom vector graphics on the fly for ANY automotive part) ──
+    // ── AI Universal Real-Time Procedural Vector Engine (Expanded 45+ Automotive Component Blueprints) ──
     function generateDynamicPartSVG(partName) {
         const raw = (partName || 'Auto Part').toLowerCase().trim();
         const id = 'svg_' + Math.random().toString(36).substring(2, 9);
 
         // Dynamic Color Palette Extraction from Part Name
-        let pColor = '#2563eb', sColor = '#3b82f6', aColor = '#60a5fa'; // Default Blue
-        if (/red|brembo|ferodo|sport|racing/i.test(raw)) {
+        let pColor = '#2563eb', sColor = '#3b82f6', aColor = '#60a5fa'; // Default Racing Blue
+        if (/red|brembo|ferodo|sport|racing|sti|type\s*r/i.test(raw)) {
             pColor = '#dc2626'; sColor = '#ef4444'; aColor = '#f87171';
-        } else if (/gold|yellow|motolite|ohlins/i.test(raw)) {
+        } else if (/gold|yellow|motolite|ohlins|amaron/i.test(raw)) {
             pColor = '#d97706'; sColor = '#f59e0b'; aColor = '#fbbf24';
-        } else if (/green|tein|monster|eco/i.test(raw)) {
+        } else if (/green|tein|monster|eco|hybrid/i.test(raw)) {
             pColor = '#16a34a'; sColor = '#22c55e'; aColor = '#4ade80';
-        } else if (/black|dark|carbon|shadow/i.test(raw)) {
+        } else if (/black|dark|carbon|shadow|stealth/i.test(raw)) {
             pColor = '#1e293b'; sColor = '#334155'; aColor = '#64748b';
         } else if (/purple|hks/i.test(raw)) {
             pColor = '#9333ea'; sColor = '#a855f7'; aColor = '#c084fc';
-        } else if (/cyan|sky|teal|cool/i.test(raw)) {
+        } else if (/cyan|sky|teal|cool|blue/i.test(raw)) {
             pColor = '#0284c7'; sColor = '#38bdf8'; aColor = '#bae6fd';
         }
 
         const isDrilled = /drill|slot|vent/i.test(raw);
         let content = '';
 
-        // 1. WINDOW / WINDSHIELD / AUTOMOTIVE GLASS / TINT / REGULATOR
-        if (/window|glass|windshield|windscreen|tint|regulator/i.test(raw)) {
+        // 1. CYLINDER HEAD / CYLINDER BLOCK / HEAD ASSEMBLY
+        if (/cylinder\s*head|cylinder\s*block|head\s*assembly/i.test(raw)) {
             content = `
-                <path d="M 45 40 L 155 32 Q 165 32 168 42 L 160 148 Q 158 155 150 155 L 42 155 Q 35 155 35 146 L 38 48 Q 39 40 45 40 Z" fill="url(#${id}_glass)" stroke="#38bdf8" stroke-width="2.5"/>
-                <polygon points="58,40 85,38 72,155 45,155" fill="#ffffff" opacity="0.35"/>
-                <polygon points="105,36 120,35 108,155 93,155" fill="#ffffff" opacity="0.2"/>
-                <rect x="35" y="152" width="130" height="14" rx="3" fill="#334155"/>
-                <circle cx="65" cy="159" r="3.5" fill="#94a3b8"/>
-                <circle cx="135" cy="159" r="3.5" fill="#94a3b8"/>
-                <path d="M 85 166 L 115 166 L 100 185 Z" fill="${pColor}"/>
+                <rect x="25" y="45" width="150" height="110" rx="8" fill="url(#${id}_metal)" stroke="#475569" stroke-width="2"/>
+                <rect x="35" y="32" width="130" height="22" rx="4" fill="#334155"/>
+                <circle cx="55" cy="43" r="7" fill="url(#${id}_metal)"/>
+                <circle cx="145" cy="43" r="7" fill="url(#${id}_metal)"/>
+                ${[48, 82, 116, 150].map(x => `
+                    <rect x="${x-10}" y="60" width="20" height="42" rx="3" fill="#1e293b"/>
+                    <circle cx="${x}" cy="72" r="6" fill="#cbd5e1"/>
+                    <circle cx="${x}" cy="72" r="3" fill="#0f172a"/>
+                    <rect x="${x-6}" y="84" width="12" height="14" rx="2" fill="${pColor}"/>
+                    <circle cx="${x}" cy="130" r="12" fill="#0f172a"/>
+                    <circle cx="${x-4}" cy="128" r="4" fill="url(#${id}_metal)"/>
+                    <circle cx="${x+4}" cy="128" r="4" fill="url(#${id}_metal)"/>
+                `).join('')}
+                <rect x="30" y="145" width="140" height="10" rx="2" fill="#0f172a"/>
+                ${[38, 72, 106, 140, 162].map(x => `<circle cx="${x}" cy="150" r="3" fill="#94a3b8"/>`).join('')}
             `;
         }
-        // 2. DOOR / DOOR HANDLE / LATCH / LOCK
-        else if (/door|handle|latch|lock/i.test(raw)) {
+        // 2. ENGINE COVER / VALVE COVER / CAM COVER / ROCKER COVER / BEAUTY COVER
+        else if (/engine\s*cover|valve\s*cover|cam\s*cover|rocker\s*cover|beauty\s*cover/i.test(raw)) {
             content = `
-                <rect x="35" y="35" width="130" height="130" rx="14" fill="${pColor}"/>
-                <path d="M 35 35 Q 100 45 165 35" stroke="#ffffff" stroke-width="2.5" stroke-opacity="0.5" fill="none"/>
-                <rect x="55" y="85" width="90" height="30" rx="8" fill="#1e293b"/>
-                <rect x="62" y="92" width="76" height="16" rx="5" fill="url(#${id}_metal)"/>
-                <circle cx="128" cy="100" r="3" fill="#0f172a"/>
+                <path d="M 30 50 Q 100 35 170 50 L 165 150 Q 100 160 35 150 Z" fill="${pColor}" stroke="#0f172a" stroke-width="2.5"/>
+                <path d="M 38 58 Q 100 46 162 58 L 158 142 Q 100 152 42 142 Z" fill="#1e293b" opacity="0.85"/>
+                ${[70, 82, 94, 106, 118, 130].map(y => `
+                    <line x1="55" y1="${y}" x2="145" y2="${y}" stroke="url(#${id}_metal)" stroke-width="3" stroke-linecap="round"/>
+                `).join('')}
+                <circle cx="60" cy="75" r="14" fill="#0f172a" stroke="#eab308" stroke-width="2.5"/>
+                <rect x="52" y="72" width="16" height="6" rx="2" fill="#eab308"/>
+                <rect x="80" y="92" width="40" height="24" rx="4" fill="url(#${id}_metal)" stroke="#ffffff" stroke-width="1"/>
+                <text x="100" y="108" font-size="9" font-weight="900" font-family="sans-serif" text-anchor="middle" fill="#0f172a">V6 DOHC</text>
             `;
         }
-        // 3. SIDE MIRROR / REARVIEW / WING MIRROR
-        else if (/mirror|side\s*mirror|rearview/i.test(raw)) {
+        // 3. HEAD GASKET / VALVE COVER GASKET / GASKET / SEAL / O-RING
+        else if (/head\s*gasket|gasket|seal|o-ring|grommet/i.test(raw)) {
             content = `
-                <path d="M 45 60 Q 155 35 165 75 Q 170 120 120 135 L 55 130 Z" fill="#1e293b"/>
-                <path d="M 52 68 Q 145 46 153 78 Q 157 114 115 125 L 60 122 Z" fill="url(#${id}_glass)" stroke="#38bdf8" stroke-width="1.5"/>
-                <path d="M 45 110 L 25 145 L 65 145 Z" fill="#334155"/>
-                <line x1="85" y1="58" x2="135" y2="95" stroke="#ffffff" stroke-width="3" stroke-linecap="round" opacity="0.6"/>
-                <rect x="135" y="105" width="22" height="6" rx="2" fill="#f59e0b"/>
+                <rect x="25" y="55" width="150" height="90" rx="6" fill="#334155" stroke="#94a3b8" stroke-width="2"/>
+                ${[48, 82, 116, 150].map(x => `
+                    <circle cx="${x}" cy="100" r="15" fill="#0f172a" stroke="url(#${id}_metal)" stroke-width="3.5"/>
+                    <circle cx="${x}" cy="100" r="13" fill="#020617"/>
+                `).join('')}
+                ${[35, 65, 99, 133, 165].map(x => `
+                    <circle cx="${x}" cy="70" r="4" fill="#38bdf8"/>
+                    <circle cx="${x}" cy="130" r="4" fill="#38bdf8"/>
+                    <circle cx="${x}" cy="100" r="2.5" fill="#f59e0b"/>
+                `).join('')}
             `;
         }
-        // 4. BUMPER / GRILLE / HOOD / TRUNK / FENDER / BODY PANELS / SPOILER
-        else if (/bumper|grille|hood|trunk|fender|body|spoiler/i.test(raw)) {
+        // 4. INTAKE MANIFOLD / THROTTLE BODY / PLENUM / AIR INTAKE
+        else if (/intake\s*manifold|throttle\s*body|plenum|air\s*intake/i.test(raw)) {
             content = `
-                <path d="M 25 70 Q 100 50 175 70 L 165 135 Q 100 150 35 135 Z" fill="${pColor}"/>
-                <rect x="45" y="78" width="110" height="38" rx="8" fill="#0f172a"/>
-                ${[84, 90, 96, 102, 108].map(y => `<line x1="50" y1="${y}" x2="150" y2="${y}" stroke="#475569" stroke-width="2"/>`).join('')}
-                <ellipse cx="100" cy="97" rx="16" ry="10" fill="${sColor}"/>
+                <rect x="35" y="40" width="130" height="30" rx="10" fill="url(#${id}_metal)"/>
+                <rect x="20" y="44" width="20" height="22" rx="4" fill="#1e293b"/>
+                <circle cx="28" cy="55" r="7" fill="#f59e0b"/>
+                ${[55, 85, 115, 145].map(x => `
+                    <path d="M ${x} 65 Q ${x+8} 110 ${x} 145" fill="none" stroke="url(#${id}_metal)" stroke-width="14" stroke-linecap="round"/>
+                    <path d="M ${x} 65 Q ${x+8} 110 ${x} 145" fill="none" stroke="#ffffff" stroke-width="2" stroke-opacity="0.5"/>
+                    <circle cx="${x}" cy="148" r="7" fill="${pColor}"/>
+                `).join('')}
+                <rect x="42" y="145" width="116" height="12" rx="3" fill="#334155"/>
             `;
         }
-        // 5. LIGHTING / HEADLIGHT / TAILLIGHT / BULB / FOG / LED / XENON
-        else if (/headlight|light|lamp|bulb|taillight|fog|led|xenon/i.test(raw)) {
+        // 5. EXHAUST MANIFOLD / EXHAUST HEADER / HEADERS / DOWNPIPE
+        else if (/exhaust\s*manifold|header|downpipe|extractors/i.test(raw)) {
             content = `
-                <path d="M 35 60 Q 140 45 165 85 Q 155 135 45 135 Z" fill="#1e293b"/>
-                <path d="M 42 66 Q 133 53 154 88 Q 145 128 50 128 Z" fill="url(#${id}_glass)" stroke="#67e8f9" stroke-width="2"/>
-                <circle cx="85" cy="98" r="22" fill="#0284c7"/>
-                <circle cx="85" cy="98" r="15" fill="#e0f2fe"/>
-                <circle cx="85" cy="98" r="8" fill="#ffffff"/>
-                <circle cx="130" cy="95" r="10" fill="#f59e0b"/>
+                <rect x="40" y="35" width="120" height="14" rx="3" fill="#334155"/>
+                ${[55, 85, 115, 145].map((x, i) => `
+                    <circle cx="${x}" cy="42" r="5" fill="#0f172a"/>
+                    <path d="M ${x} 45 Q ${x} 95 ${90 + i*6} 125" fill="none" stroke="url(#${id}_metal)" stroke-width="9" stroke-linecap="round"/>
+                `).join('')}
+                <rect x="85" y="125" width="30" height="28" rx="6" fill="#d97706"/>
+                <rect x="80" y="153" width="40" height="12" rx="3" fill="#1e293b"/>
+                <circle cx="87" cy="159" r="3.5" fill="#94a3b8"/>
+                <circle cx="113" cy="159" r="3.5" fill="#94a3b8"/>
             `;
         }
-        // 6. STEERING WHEEL / RACK / TIE ROD / COLUMN
-        else if (/steering|wheel\s*steer|rack|tie\s*rod|column/i.test(raw)) {
+        // 6. OIL PAN / SUMP / OIL SUMP
+        else if (/oil\s*pan|sump|oil\s*sump/i.test(raw)) {
             content = `
-                <circle cx="100" cy="100" r="72" fill="none" stroke="#1e293b" stroke-width="16"/>
-                <circle cx="100" cy="100" r="72" fill="none" stroke="#475569" stroke-width="2" stroke-dasharray="3,3"/>
-                <circle cx="100" cy="100" r="28" fill="${pColor}"/>
-                <circle cx="100" cy="100" r="14" fill="#f8fafc"/>
-                <line x1="36" y1="100" x2="72" y2="100" stroke="#334155" stroke-width="10" stroke-linecap="round"/>
-                <line x1="164" y1="100" x2="128" y2="100" stroke="#334155" stroke-width="10" stroke-linecap="round"/>
-                <line x1="100" y1="128" x2="100" y2="164" stroke="#334155" stroke-width="10" stroke-linecap="round"/>
+                <polygon points="30,45 170,45 160,140 115,160 40,150" fill="url(#${id}_metal)" stroke="#334155" stroke-width="2"/>
+                <rect x="25" y="42" width="150" height="10" rx="3" fill="#334155"/>
+                ${[35, 55, 75, 95, 115, 135, 155].map(x => `<circle cx="${x}" cy="47" r="2.5" fill="#94a3b8"/>`).join('')}
+                <rect x="110" y="110" width="40" height="40" rx="6" fill="#1e293b"/>
+                <circle cx="130" cy="135" r="8" fill="#f59e0b"/>
+                <circle cx="130" cy="135" r="4" fill="#0f172a"/>
             `;
         }
-        // 7. SEATS / SEATBELT / CUSHION / UPHOLSTERY
-        else if (/seat|seatbelt|cushion|upholstery/i.test(raw)) {
+        // 7. TIMING CHAIN / TIMING BELT / TIMING KIT / CAM GEAR / TENSIONER
+        else if (/timing\s*chain|timing\s*belt|timing\s*kit|cam\s*gear|tensioner/i.test(raw)) {
             content = `
-                <rect x="80" y="24" width="40" height="25" rx="8" fill="#1e293b"/>
-                <path d="M 60 52 L 140 52 L 132 140 L 68 140 Z" fill="${pColor}"/>
-                <path d="M 75 56 L 125 56 L 120 135 L 80 135 Z" fill="#0f172a" opacity="0.3"/>
-                <rect x="50" y="135" width="100" height="35" rx="10" fill="#1e293b"/>
-                <rect x="58" y="140" width="84" height="25" rx="6" fill="${sColor}"/>
-            `;
-        }
-        // 8. EXHAUST / MUFFLER / PIPE / HEADER / CATALYTIC / DOWNPIPE
-        else if (/exhaust|muffler|pipe|header|catalytic|downpipe/i.test(raw)) {
-            content = `
-                <rect x="45" y="70" width="110" height="55" rx="20" fill="url(#${id}_metal)"/>
-                <line x1="30" y1="97" x2="45" y2="97" stroke="#64748b" stroke-width="14" stroke-linecap="round"/>
-                <rect x="150" y="80" width="30" height="15" rx="6" fill="url(#${id}_metal)" stroke="#38bdf8" stroke-width="1.5"/>
-                <ellipse cx="178" cy="87.5" rx="3" ry="6" fill="#0f172a"/>
-                <rect x="150" y="100" width="30" height="15" rx="6" fill="url(#${id}_metal)" stroke="#38bdf8" stroke-width="1.5"/>
-                <ellipse cx="178" cy="107.5" rx="3" ry="6" fill="#0f172a"/>
-            `;
-        }
-        // 9. TURBOCHARGER / SUPERCHARGER / INTERCOOLER / BLOW OFF
-        else if (/turbo|supercharger|intercooler|blow\s*off/i.test(raw)) {
-            content = `
-                <ellipse cx="100" cy="100" rx="60" ry="50" fill="url(#${id}_metal)"/>
-                <path d="M 60 60 Q 100 20 145 50 L 155 35 Q 95 5 45 50 Z" fill="#64748b"/>
-                <circle cx="100" cy="100" r="32" fill="#0f172a"/>
-                ${Array.from({length: 8}).map((_, i) => {
-                    const rad = (i * 45) * Math.PI / 180;
-                    return `<line x1="100" y1="100" x2="${(100 + 28 * Math.cos(rad)).toFixed(1)}" y2="${(100 + 28 * Math.sin(rad)).toFixed(1)}" stroke="#38bdf8" stroke-width="3" stroke-linecap="round"/>`;
+                <circle cx="65" cy="65" r="28" fill="url(#${id}_metal)" stroke="#334155" stroke-width="2"/>
+                ${Array.from({length: 12}).map((_, i) => {
+                    const rad = (i * 30) * Math.PI / 180;
+                    return `<rect x="${(65 + 26 * Math.cos(rad) - 3).toFixed(1)}" y="${(65 + 26 * Math.sin(rad) - 3).toFixed(1)}" width="6" height="6" fill="#1e293b"/>`;
                 }).join('')}
-                <circle cx="100" cy="100" r="10" fill="url(#${id}_metal)"/>
+                <circle cx="65" cy="65" r="10" fill="${pColor}"/>
+
+                <circle cx="135" cy="65" r="28" fill="url(#${id}_metal)" stroke="#334155" stroke-width="2"/>
+                ${Array.from({length: 12}).map((_, i) => {
+                    const rad = (i * 30) * Math.PI / 180;
+                    return `<rect x="${(135 + 26 * Math.cos(rad) - 3).toFixed(1)}" y="${(65 + 26 * Math.sin(rad) - 3).toFixed(1)}" width="6" height="6" fill="#1e293b"/>`;
+                }).join('')}
+                <circle cx="135" cy="65" r="10" fill="${pColor}"/>
+
+                <circle cx="100" cy="150" r="20" fill="url(#${id}_metal)"/>
+                <circle cx="100" cy="150" r="7" fill="#0f172a"/>
+                <path d="M 65 37 L 135 37 Q 165 65 135 95 L 115 135 Q 100 172 85 135 L 65 95 Q 35 65 65 37 Z" fill="none" stroke="#f59e0b" stroke-width="6" stroke-dasharray="4,3"/>
             `;
         }
-        // 10. ENGINE PISTON / ROD / CRANK / CAM / VALVE / CYLINDER
-        else if (/piston|rod|crank|cam|valve|cylinder|engine\s*block/i.test(raw)) {
+        // 8. PISTON / CONNECTING ROD / WRIST PIN / CRANKSHAFT / CAMSHAFT
+        else if (/piston|connecting\s*rod|wrist\s*pin|crankshaft|camshaft|engine\s*block/i.test(raw)) {
             content = `
                 <rect x="60" y="35" width="80" height="50" rx="6" fill="url(#${id}_metal)"/>
                 <line x1="60" y1="46" x2="140" y2="46" stroke="#334155" stroke-width="2"/>
@@ -615,38 +627,74 @@
                 <circle cx="100" cy="160" r="10" fill="#94a3b8"/>
             `;
         }
-        // 11. RADIATOR / CONDENSER / COOLING FAN / INTERCOOLER
-        else if (/radiator|condenser|cooling\s*fan|fan\s*blade/i.test(raw)) {
+        // 9. TURBOCHARGER / SUPERCHARGER / INTERCOOLER / WASTEGATE / BLOW OFF
+        else if (/turbo|supercharger|intercooler|wastegate|blow\s*off/i.test(raw)) {
             content = `
-                <rect x="35" y="45" width="130" height="110" rx="8" fill="#334155"/>
-                <rect x="42" y="55" width="116" height="90" fill="#94a3b8"/>
-                ${[60, 68, 76, 84, 92, 100, 108, 116, 124, 132, 140].map(y => `<line x1="42" y1="${y}" x2="158" y2="${y}" stroke="#475569" stroke-width="2"/>`).join('')}
-                <rect x="35" y="40" width="130" height="15" rx="3" fill="#0284c7"/>
-                <rect x="35" y="145" width="130" height="15" rx="3" fill="#0284c7"/>
-                <circle cx="55" cy="47" r="5" fill="#f8fafc"/>
-                <circle cx="145" cy="152" r="5" fill="#f8fafc"/>
+                <ellipse cx="100" cy="100" rx="60" ry="50" fill="url(#${id}_metal)"/>
+                <path d="M 60 60 Q 100 20 145 50 L 155 35 Q 95 5 45 50 Z" fill="#64748b"/>
+                <circle cx="100" cy="100" r="32" fill="#0f172a"/>
+                ${Array.from({length: 8}).map((_, i) => {
+                    const rad = (i * 45) * Math.PI / 180;
+                    return `<line x1="100" y1="100" x2="${(100 + 28 * Math.cos(rad)).toFixed(1)}" y2="${(100 + 28 * Math.sin(rad)).toFixed(1)}" stroke="#38bdf8" stroke-width="3" stroke-linecap="round"/>`;
+                }).join('')}
+                <circle cx="100" cy="100" r="10" fill="url(#${id}_metal)"/>
             `;
         }
-        // 12. SHOCK ABSORBER / STRUT / COILOVER / SPRING / SUSPENSION
-        else if (/shock|strut|coilover|absorber|spring|suspension/i.test(raw)) {
+        // 10. CV AXLE / DRIVESHAFT / PROPELLER SHAFT / HALF SHAFT / CV JOINT
+        else if (/cv\s*axle|axle|driveshaft|propeller\s*shaft|half\s*shaft|cv\s*joint|universal\s*joint/i.test(raw)) {
             content = `
-                <rect x="65" y="16" width="70" height="12" rx="4" fill="${pColor}"/>
-                <circle cx="100" cy="22" r="5" fill="#f8fafc"/>
-                <rect x="94" y="28" width="12" height="72" rx="2" fill="url(#${id}_metal)"/>
-                ${[35, 47, 59, 71, 83, 95].map(y => `
-                    <path d="M 68 ${y+6} Q 100 ${y} 132 ${y+6}" fill="none" stroke="url(#${id}_spring)" stroke-width="9" stroke-linecap="round"/>
-                    <path d="M 68 ${y+6} Q 100 ${y+2} 132 ${y+6}" fill="none" stroke="${aColor}" stroke-width="2" stroke-linecap="round"/>
+                <rect x="65" y="93" width="70" height="14" rx="3" fill="url(#${id}_metal)"/>
+                <rect x="25" y="85" width="20" height="30" rx="4" fill="#334155"/>
+                <rect x="15" y="95" width="14" height="10" fill="#94a3b8"/>
+                ${[40, 48, 56].map(x => `
+                    <path d="M ${x} 80 L ${x+4} 100 L ${x} 120" fill="none" stroke="#0f172a" stroke-width="9" stroke-linecap="round"/>
                 `).join('')}
-                <rect x="74" y="106" width="52" height="8" rx="2" fill="${pColor}"/>
-                <rect x="78" y="114" width="44" height="6" rx="2" fill="${sColor}"/>
-                <rect x="82" y="120" width="36" height="52" rx="4" fill="url(#${id}_body)"/>
-                <line x1="88" y1="120" x2="88" y2="172" stroke="#94a3b8" stroke-width="1.5" stroke-opacity="0.5"/>
-                <circle cx="100" cy="180" r="14" fill="url(#${id}_body)"/>
-                <circle cx="100" cy="180" r="7" fill="${pColor}"/>
-                <circle cx="100" cy="180" r="4" fill="#0f172a"/>
+                ${[135, 143, 151].map(x => `
+                    <path d="M ${x} 80 L ${x+4} 100 L ${x} 120" fill="none" stroke="#0f172a" stroke-width="9" stroke-linecap="round"/>
+                `).join('')}
+                <rect x="155" y="85" width="20" height="30" rx="4" fill="#334155"/>
+                <rect x="172" y="94" width="16" height="12" fill="url(#${id}_metal)"/>
             `;
         }
-        // 13. BRAKE ROTOR / DISK / DISC
+        // 11. DIFFERENTIAL / DIFF / LIMITED SLIP / LSD / FINAL DRIVE
+        else if (/differential|diff|limited\s*slip|lsd|final\s*drive/i.test(raw)) {
+            content = `
+                <circle cx="100" cy="100" r="55" fill="url(#${id}_metal)"/>
+                <circle cx="100" cy="100" r="45" fill="#1e293b"/>
+                <circle cx="100" cy="100" r="35" fill="#d97706" stroke="#f59e0b" stroke-width="4" stroke-dasharray="6,4"/>
+                <circle cx="100" cy="100" r="15" fill="url(#${id}_metal)"/>
+                <line x1="15" y1="100" x2="48" y2="100" stroke="#475569" stroke-width="16" stroke-linecap="round"/>
+                <line x1="152" y1="100" x2="185" y2="100" stroke="#475569" stroke-width="16" stroke-linecap="round"/>
+                <rect x="92" y="25" width="16" height="28" rx="4" fill="#334155"/>
+            `;
+        }
+        // 12. CLUTCH / FLYWHEEL / PRESSURE PLATE / TRANSMISSION / GEARBOX
+        else if (/clutch|flywheel|pressure\s*plate|transmission|gearbox/i.test(raw)) {
+            content = `
+                <circle cx="100" cy="100" r="80" fill="#334155"/>
+                <circle cx="100" cy="100" r="72" fill="url(#${id}_ceramic)"/>
+                <circle cx="100" cy="100" r="45" fill="url(#${id}_metal)"/>
+                ${[0, 90, 180, 270].map(a => {
+                    const rad = a * Math.PI / 180;
+                    return `<rect x="${(100 + 26 * Math.cos(rad) - 8).toFixed(1)}" y="${(100 + 26 * Math.sin(rad) - 8).toFixed(1)}" width="16" height="16" rx="3" fill="#f59e0b"/>`;
+                }).join('')}
+                <circle cx="100" cy="100" r="16" fill="#0f172a"/>
+            `;
+        }
+        // 13. BRAKE MASTER CYLINDER / BRAKE BOOSTER / HYDROBOOST
+        else if (/master\s*cylinder|brake\s*booster|hydroboost/i.test(raw)) {
+            content = `
+                <ellipse cx="65" cy="100" rx="35" ry="50" fill="#1e293b" stroke="#334155" stroke-width="3"/>
+                <ellipse cx="65" cy="100" rx="25" ry="38" fill="#0f172a"/>
+                <rect x="85" y="90" width="75" height="20" rx="4" fill="url(#${id}_metal)"/>
+                <rect x="100" y="50" width="50" height="42" rx="8" fill="#e0f2fe" opacity="0.9" stroke="#38bdf8" stroke-width="1.5"/>
+                <rect x="102" y="70" width="46" height="20" rx="4" fill="#fef08a" opacity="0.8"/>
+                <rect x="115" y="40" width="20" height="12" rx="3" fill="#eab308"/>
+                <circle cx="135" cy="100" r="4" fill="#ef4444"/>
+                <circle cx="150" cy="100" r="4" fill="#ef4444"/>
+            `;
+        }
+        // 14. BRAKE ROTOR / BRAKE DISC / ROTOR
         else if (/rotor|disc|disk|brake\s*rotor/i.test(raw)) {
             const drilledHoles = isDrilled ? Array.from({length: 12}).map((_, i) => {
                 const rad1 = (i * 30) * Math.PI / 180;
@@ -675,7 +723,7 @@
                 <circle cx="100" cy="100" r="11" fill="#020617"/>
             `;
         }
-        // 14. BRAKE PADS / CALIPER / BRAKE SHOE
+        // 15. BRAKE PADS / CALIPER / BRAKE SHOE
         else if (/pad|brake|caliper|brake\s*shoe/i.test(raw)) {
             content = `
                 <rect x="30" y="45" width="140" height="45" rx="6" fill="#334155"/>
@@ -690,8 +738,78 @@
                 <rect x="168" y="145" width="12" height="15" rx="2" fill="#94a3b8"/>
             `;
         }
-        // 15. TIRES / WHEELS / RIMS / MAGS
-        else if (/tire|tyre|wheel|rim|mag/i.test(raw)) {
+        // 16. SHOCK ABSORBER / STRUT / COILOVER / SPRING / SUSPENSION
+        else if (/shock|strut|coilover|absorber|spring|suspension|damper/i.test(raw)) {
+            content = `
+                <rect x="65" y="16" width="70" height="12" rx="4" fill="${pColor}"/>
+                <circle cx="100" cy="22" r="5" fill="#f8fafc"/>
+                <rect x="94" y="28" width="12" height="72" rx="2" fill="url(#${id}_metal)"/>
+                ${[35, 47, 59, 71, 83, 95].map(y => `
+                    <path d="M 68 ${y+6} Q 100 ${y} 132 ${y+6}" fill="none" stroke="url(#${id}_spring)" stroke-width="9" stroke-linecap="round"/>
+                    <path d="M 68 ${y+6} Q 100 ${y+2} 132 ${y+6}" fill="none" stroke="${aColor}" stroke-width="2" stroke-linecap="round"/>
+                `).join('')}
+                <rect x="74" y="106" width="52" height="8" rx="2" fill="${pColor}"/>
+                <rect x="78" y="114" width="44" height="6" rx="2" fill="${sColor}"/>
+                <rect x="82" y="120" width="36" height="52" rx="4" fill="url(#${id}_body)"/>
+                <line x1="88" y1="120" x2="88" y2="172" stroke="#94a3b8" stroke-width="1.5" stroke-opacity="0.5"/>
+                <circle cx="100" cy="180" r="14" fill="url(#${id}_body)"/>
+                <circle cx="100" cy="180" r="7" fill="${pColor}"/>
+                <circle cx="100" cy="180" r="4" fill="#0f172a"/>
+            `;
+        }
+        // 17. CONTROL ARM / WISHBONE / TRAILING ARM / A-ARM / SWAY BAR / STABILIZER LINK
+        else if (/control\s*arm|wishbone|trailing\s*arm|a-arm|sway\s*bar|stabilizer\s*link/i.test(raw)) {
+            content = `
+                <path d="M 45 135 L 155 135 L 100 45 Z" fill="none" stroke="url(#${id}_metal)" stroke-width="22" stroke-linejoin="round"/>
+                <circle cx="45" cy="135" r="20" fill="#1e293b"/>
+                <circle cx="45" cy="135" r="8" fill="#94a3b8"/>
+                <circle cx="155" cy="135" r="20" fill="#1e293b"/>
+                <circle cx="155" cy="135" r="8" fill="#94a3b8"/>
+                <circle cx="100" cy="45" r="18" fill="${pColor}"/>
+                <circle cx="100" cy="45" r="8" fill="#f8fafc"/>
+                <rect x="96" y="20" width="8" height="20" rx="2" fill="url(#${id}_metal)"/>
+            `;
+        }
+        // 18. STEERING RACK / PINION / TIE ROD / STEERING COLUMN
+        else if (/steering\s*rack|pinion|tie\s*rod|steering\s*column/i.test(raw)) {
+            content = `
+                <rect x="40" y="93" width="120" height="14" rx="3" fill="url(#${id}_metal)"/>
+                <rect x="85" y="55" width="30" height="48" rx="6" fill="#334155"/>
+                <circle cx="100" cy="65" r="8" fill="#f59e0b"/>
+                ${[30, 36, 42, 148, 154, 160].map(x => `
+                    <rect x="${x}" y="85" width="5" height="30" rx="2" fill="#0f172a"/>
+                `).join('')}
+                <circle cx="20" cy="100" r="7" fill="${pColor}"/>
+                <circle cx="180" cy="100" r="7" fill="${pColor}"/>
+            `;
+        }
+        // 19. STEERING WHEEL
+        else if (/steering\s*wheel/i.test(raw)) {
+            content = `
+                <circle cx="100" cy="100" r="72" fill="none" stroke="#1e293b" stroke-width="16"/>
+                <circle cx="100" cy="100" r="72" fill="none" stroke="#475569" stroke-width="2" stroke-dasharray="3,3"/>
+                <circle cx="100" cy="100" r="28" fill="${pColor}"/>
+                <circle cx="100" cy="100" r="14" fill="#f8fafc"/>
+                <line x1="36" y1="100" x2="72" y2="100" stroke="#334155" stroke-width="10" stroke-linecap="round"/>
+                <line x1="164" y1="100" x2="128" y2="100" stroke="#334155" stroke-width="10" stroke-linecap="round"/>
+                <line x1="100" y1="128" x2="100" y2="164" stroke="#334155" stroke-width="10" stroke-linecap="round"/>
+            `;
+        }
+        // 20. WHEEL BEARING / WHEEL HUB / HUB ASSEMBLY / SPINDLE
+        else if (/wheel\s*bearing|wheel\s*hub|hub\s*assembly|spindle/i.test(raw)) {
+            content = `
+                <circle cx="100" cy="100" r="75" fill="url(#${id}_metal)"/>
+                <circle cx="100" cy="100" r="58" fill="#1e293b"/>
+                ${Array.from({length: 8}).map((_, i) => {
+                    const rad = (i * 45) * Math.PI / 180;
+                    return `<circle cx="${(100 + 44 * Math.cos(rad)).toFixed(1)}" cy="${(100 + 44 * Math.sin(rad)).toFixed(1)}" r="9" fill="url(#${id}_metal)"/>`;
+                }).join('')}
+                <circle cx="100" cy="100" r="30" fill="url(#${id}_metal)"/>
+                <circle cx="100" cy="100" r="18" fill="#0f172a"/>
+            `;
+        }
+        // 21. TIRES / WHEELS / RIMS / MAGS / ALLOY WHEEL
+        else if (/tire|tyre|wheel|rim|mag|alloy\s*wheel/i.test(raw)) {
             const spokes = [0, 72, 144, 216, 288].map(a => {
                 const rad = a * Math.PI / 180;
                 return `<circle cx="${(100 + 38 * Math.cos(rad)).toFixed(1)}" cy="${(100 + 38 * Math.sin(rad)).toFixed(1)}" r="18" fill="#e2e8f0"/><circle cx="${(100 + 38 * Math.cos(rad)).toFixed(1)}" cy="${(100 + 38 * Math.sin(rad)).toFixed(1)}" r="11" fill="#1e293b"/>`;
@@ -715,8 +833,65 @@
                 <circle cx="100" cy="100" r="8" fill="#ffffff"/>
             `;
         }
-        // 16. SPARK PLUG / IGNITION COIL
-        else if (/spark|plug|iridium|ignition|coil/i.test(raw)) {
+        // 22. RADIATOR HOSE / COOLANT HOSE / HEATER HOSE
+        else if (/radiator\s*hose|coolant\s*hose|heater\s*hose/i.test(raw)) {
+            content = `
+                <path d="M 35 140 Q 55 55 125 55 L 165 75" fill="none" stroke="${pColor}" stroke-width="26" stroke-linecap="round"/>
+                <path d="M 35 140 Q 55 55 125 55 L 165 75" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" opacity="0.4"/>
+                <rect x="25" y="125" width="14" height="30" rx="3" fill="url(#${id}_metal)"/>
+                <circle cx="32" cy="140" r="3" fill="#0f172a"/>
+                <rect x="150" y="60" width="14" height="30" rx="3" fill="url(#${id}_metal)"/>
+                <circle cx="157" cy="75" r="3" fill="#0f172a"/>
+            `;
+        }
+        // 23. RADIATOR / CONDENSER / COOLING FAN / FAN BLADE
+        else if (/radiator|condenser|cooling\s*fan|fan\s*blade/i.test(raw)) {
+            content = `
+                <rect x="35" y="45" width="130" height="110" rx="8" fill="#334155"/>
+                <rect x="42" y="55" width="116" height="90" fill="#94a3b8"/>
+                ${[60, 68, 76, 84, 92, 100, 108, 116, 124, 132, 140].map(y => `<line x1="42" y1="${y}" x2="158" y2="${y}" stroke="#475569" stroke-width="2"/>`).join('')}
+                <rect x="35" y="40" width="130" height="15" rx="3" fill="#0284c7"/>
+                <rect x="35" y="145" width="130" height="15" rx="3" fill="#0284c7"/>
+                <circle cx="55" cy="47" r="5" fill="#f8fafc"/>
+                <circle cx="145" cy="152" r="5" fill="#f8fafc"/>
+            `;
+        }
+        // 24. WATER PUMP / THERMOSTAT / WATER NECK
+        else if (/water\s*pump|thermostat|water\s*neck/i.test(raw)) {
+            content = `
+                <circle cx="100" cy="100" r="52" fill="url(#${id}_metal)"/>
+                <circle cx="100" cy="100" r="36" fill="#1e293b"/>
+                ${Array.from({length: 6}).map((_, i) => {
+                    const rad = (i * 60) * Math.PI / 180;
+                    return `<path d="M 100 100 Q ${(100 + 30 * Math.cos(rad)).toFixed(1)} ${(100 + 30 * Math.sin(rad)).toFixed(1)} ${(100 + 48 * Math.cos(rad+0.5)).toFixed(1)} ${(100 + 48 * Math.sin(rad+0.5)).toFixed(1)}" stroke="#38bdf8" stroke-width="4" fill="none"/>`;
+                }).join('')}
+                <rect x="35" y="85" width="30" height="30" rx="4" fill="${pColor}"/>
+                <rect x="135" y="85" width="30" height="30" rx="4" fill="${pColor}"/>
+            `;
+        }
+        // 25. FUEL PUMP / FUEL TANK / GAS TANK
+        else if (/fuel\s*pump|fuel\s*tank|gas\s*tank/i.test(raw)) {
+            content = `
+                <rect x="40" y="55" width="120" height="90" rx="14" fill="#1e293b" stroke="#475569" stroke-width="2"/>
+                <circle cx="100" cy="100" r="30" fill="url(#${id}_metal)"/>
+                <circle cx="100" cy="100" r="18" fill="#334155"/>
+                <rect x="94" y="35" width="12" height="25" rx="3" fill="#f59e0b"/>
+                <rect x="135" y="45" width="16" height="20" rx="4" fill="#38bdf8"/>
+            `;
+        }
+        // 26. FUEL INJECTOR / INJECTOR / FUEL RAIL / NOZZLE
+        else if (/fuel\s*injector|injector|fuel\s*rail|nozzle/i.test(raw)) {
+            content = `
+                <rect x="90" y="25" width="20" height="35" rx="4" fill="#1e293b"/>
+                <rect x="94" y="60" width="12" height="80" rx="2" fill="url(#${id}_metal)"/>
+                <circle cx="100" cy="75" r="8" fill="#ef4444"/>
+                <circle cx="100" cy="130" r="8" fill="#3b82f6"/>
+                <path d="M 96 140 L 104 140 L 100 180 Z" fill="url(#${id}_metal)"/>
+                <circle cx="100" cy="180" r="3" fill="#f59e0b"/>
+            `;
+        }
+        // 27. SPARK PLUG / IGNITION COIL / GLOW PLUG / IRIDIUM
+        else if (/spark|plug|ignition\s*coil|glow\s*plug|iridium/i.test(raw)) {
             content = `
                 <rect x="94" y="18" width="12" height="15" rx="2" fill="#cbd5e1"/>
                 <rect x="84" y="33" width="32" height="70" rx="4" fill="#f8fafc"/>
@@ -732,8 +907,33 @@
                 <path d="M 88 171 L 88 193 L 100 193" fill="none" stroke="#64748b" stroke-width="3.5" stroke-linecap="round"/>
             `;
         }
-        // 17. BATTERY / MOTOLITE / AMARON
-        else if (/battery|motolite|amaron/i.test(raw)) {
+        // 28. ALTERNATOR / GENERATOR / DYNAMO / STATOR
+        else if (/alternator|generator|dynamo|stator/i.test(raw)) {
+            content = `
+                <circle cx="100" cy="105" r="58" fill="#94a3b8"/>
+                ${Array.from({length: 8}).map((_, i) => {
+                    const rad = (i * 45) * Math.PI / 180;
+                    return `<circle cx="${(100 + 40 * Math.cos(rad)).toFixed(1)}" cy="${(105 + 40 * Math.sin(rad)).toFixed(1)}" r="10" fill="#c2410c"/>`;
+                }).join('')}
+                <circle cx="100" cy="105" r="32" fill="#1e293b"/>
+                <circle cx="100" cy="105" r="12" fill="#e2e8f0"/>
+                <rect x="88" y="24" width="24" height="24" rx="4" fill="${pColor}"/>
+            `;
+        }
+        // 29. STARTER MOTOR / STARTER SOLENOID
+        else if (/starter|starter\s*motor|starter\s*solenoid/i.test(raw)) {
+            content = `
+                <rect x="40" y="80" width="100" height="55" rx="12" fill="url(#${id}_metal)"/>
+                <rect x="70" y="45" width="70" height="35" rx="8" fill="#1e293b"/>
+                <circle cx="155" cy="107" r="16" fill="#f59e0b"/>
+                ${Array.from({length: 8}).map((_, i) => {
+                    const rad = (i * 45) * Math.PI / 180;
+                    return `<rect x="${(155 + 14 * Math.cos(rad) - 2).toFixed(1)}" y="${(107 + 14 * Math.sin(rad) - 2).toFixed(1)}" width="4" height="4" fill="#0f172a"/>`;
+                }).join('')}
+            `;
+        }
+        // 30. BATTERY / MOTOLITE / AMARON / CAR BATTERY / 12V
+        else if (/battery|motolite|amaron|car\s*battery|12v/i.test(raw)) {
             content = `
                 <rect x="35" y="60" width="130" height="115" rx="8" fill="#1e293b"/>
                 <rect x="30" y="50" width="140" height="30" rx="4" fill="${pColor}"/>
@@ -746,8 +946,118 @@
                 <circle cx="100" cy="142" r="8" fill="#22c55e"/>
             `;
         }
-        // 18. OIL & FLUIDS / COOLANT / SYNTHETIC
-        else if (/oil|fluid|coolant|synthetic|lubricant/i.test(raw)) {
+        // 31. AC COMPRESSOR / AIRCON COMPRESSOR / AC CLUTCH
+        else if (/ac\s*compressor|aircon\s*compressor|ac\s*clutch/i.test(raw)) {
+            content = `
+                <rect x="60" y="60" width="90" height="80" rx="16" fill="url(#${id}_metal)"/>
+                <rect x="35" y="70" width="28" height="60" rx="6" fill="#1e293b"/>
+                <circle cx="48" cy="100" r="18" fill="#64748b"/>
+                <circle cx="48" cy="100" r="8" fill="#cbd5e1"/>
+                <rect x="95" y="42" width="18" height="20" rx="4" fill="#ef4444"/>
+                <rect x="122" y="42" width="18" height="20" rx="4" fill="#3b82f6"/>
+            `;
+        }
+        // 32. SENSORS & PROBES (O2, ABS, MAF, MAP, TPS, LAMBDA)
+        else if (/sensor|probe|o2|abs|maf|map|tps|lambda/i.test(raw)) {
+            content = `
+                <rect x="92" y="25" width="16" height="65" rx="3" fill="url(#${id}_metal)"/>
+                <rect x="88" y="90" width="24" height="20" rx="2" fill="#eab308"/>
+                <rect x="84" y="110" width="32" height="35" rx="4" fill="#1e293b"/>
+                <path d="M 100 145 Q 85 170 120 180" fill="none" stroke="#dc2626" stroke-width="5" stroke-linecap="round"/>
+                <path d="M 95 145 Q 75 165 110 185" fill="none" stroke="#2563eb" stroke-width="5" stroke-linecap="round"/>
+            `;
+        }
+        // 33. FUSE / RELAY / FUSE BOX / SWITCH / ECU / MODULE
+        else if (/fuse|relay|fuse\s*box|switch|ecu|module/i.test(raw)) {
+            content = `
+                <rect x="50" y="40" width="100" height="90" rx="8" fill="${pColor}" opacity="0.85"/>
+                <path d="M 70 85 Q 100 50 100 85 Q 100 120 130 85" fill="none" stroke="#facc15" stroke-width="6" stroke-linecap="round"/>
+                <rect x="65" y="130" width="20" height="45" rx="3" fill="url(#${id}_metal)"/>
+                <rect x="115" y="130" width="20" height="45" rx="3" fill="url(#${id}_metal)"/>
+            `;
+        }
+        // 34. HORN / SNAIL HORN / ALARM / SIREN
+        else if (/horn|snail\s*horn|alarm|siren/i.test(raw)) {
+            content = `
+                <circle cx="100" cy="100" r="55" fill="#1e293b"/>
+                <circle cx="100" cy="100" r="46" fill="${pColor}"/>
+                <path d="M 100 65 A 35 35 0 0 1 135 100 A 35 35 0 0 1 100 135 A 25 25 0 0 1 75 100 A 15 15 0 0 1 100 85" fill="none" stroke="url(#${id}_metal)" stroke-width="12" stroke-linecap="round"/>
+                <circle cx="100" cy="100" r="12" fill="#0f172a"/>
+                <rect x="90" y="32" width="20" height="15" rx="3" fill="#64748b"/>
+            `;
+        }
+        // 35. WINDOW / GLASS / WINDSHIELD / WINDSCREEN / TINT / REGULATOR
+        else if (/window|glass|windshield|windscreen|tint|regulator/i.test(raw)) {
+            content = `
+                <path d="M 45 40 L 155 32 Q 165 32 168 42 L 160 148 Q 158 155 150 155 L 42 155 Q 35 155 35 146 L 38 48 Q 39 40 45 40 Z" fill="url(#${id}_glass)" stroke="#38bdf8" stroke-width="2.5"/>
+                <polygon points="58,40 85,38 72,155 45,155" fill="#ffffff" opacity="0.35"/>
+                <polygon points="105,36 120,35 108,155 93,155" fill="#ffffff" opacity="0.2"/>
+                <rect x="35" y="152" width="130" height="14" rx="3" fill="#334155"/>
+                <circle cx="65" cy="159" r="3.5" fill="#94a3b8"/>
+                <circle cx="135" cy="159" r="3.5" fill="#94a3b8"/>
+                <path d="M 85 166 L 115 166 L 100 185 Z" fill="${pColor}"/>
+            `;
+        }
+        // 36. MIRROR / SIDE MIRROR / REARVIEW MIRROR / WING MIRROR
+        else if (/mirror|side\s*mirror|rearview\s*mirror|wing\s*mirror/i.test(raw)) {
+            content = `
+                <path d="M 45 60 Q 155 35 165 75 Q 170 120 120 135 L 55 130 Z" fill="#1e293b"/>
+                <path d="M 52 68 Q 145 46 153 78 Q 157 114 115 125 L 60 122 Z" fill="url(#${id}_glass)" stroke="#38bdf8" stroke-width="1.5"/>
+                <path d="M 45 110 L 25 145 L 65 145 Z" fill="#334155"/>
+                <line x1="85" y1="58" x2="135" y2="95" stroke="#ffffff" stroke-width="3" stroke-linecap="round" opacity="0.6"/>
+                <rect x="135" y="105" width="22" height="6" rx="2" fill="#f59e0b"/>
+            `;
+        }
+        // 37. BUMPER / GRILLE / HOOD / TRUNK / FENDER / SPOILER
+        else if (/bumper|grille|hood|trunk|fender|spoiler/i.test(raw)) {
+            content = `
+                <path d="M 25 70 Q 100 50 175 70 L 165 135 Q 100 150 35 135 Z" fill="${pColor}"/>
+                <rect x="45" y="78" width="110" height="38" rx="8" fill="#0f172a"/>
+                ${[84, 90, 96, 102, 108].map(y => `<line x1="50" y1="${y}" x2="150" y2="${y}" stroke="#475569" stroke-width="2"/>`).join('')}
+                <ellipse cx="100" cy="97" rx="16" ry="10" fill="${sColor}"/>
+            `;
+        }
+        // 38. DOOR / DOOR HANDLE / LATCH / LOCK
+        else if (/door|handle|latch|lock/i.test(raw)) {
+            content = `
+                <rect x="35" y="35" width="130" height="130" rx="14" fill="${pColor}"/>
+                <path d="M 35 35 Q 100 45 165 35" stroke="#ffffff" stroke-width="2.5" stroke-opacity="0.5" fill="none"/>
+                <rect x="55" y="85" width="90" height="30" rx="8" fill="#1e293b"/>
+                <rect x="62" y="92" width="76" height="16" rx="5" fill="url(#${id}_metal)"/>
+                <circle cx="128" cy="100" r="3" fill="#0f172a"/>
+            `;
+        }
+        // 39. LIGHTING / HEADLIGHT / TAILLIGHT / BULB / FOG / LED / XENON
+        else if (/headlight|light|lamp|bulb|taillight|fog|led|xenon/i.test(raw)) {
+            content = `
+                <path d="M 35 60 Q 140 45 165 85 Q 155 135 45 135 Z" fill="#1e293b"/>
+                <path d="M 42 66 Q 133 53 154 88 Q 145 128 50 128 Z" fill="url(#${id}_glass)" stroke="#67e8f9" stroke-width="2"/>
+                <circle cx="85" cy="98" r="22" fill="#0284c7"/>
+                <circle cx="85" cy="98" r="15" fill="#e0f2fe"/>
+                <circle cx="85" cy="98" r="8" fill="#ffffff"/>
+                <circle cx="130" cy="95" r="10" fill="#f59e0b"/>
+            `;
+        }
+        // 40. WIPER / WIPER BLADE / WIPER ARM
+        else if (/wiper|blade/i.test(raw)) {
+            content = `
+                <path d="M 25 145 Q 100 65 175 125" fill="none" stroke="#1e293b" stroke-width="12" stroke-linecap="round"/>
+                <path d="M 25 151 Q 100 71 175 131" fill="none" stroke="#64748b" stroke-width="4" stroke-linecap="round"/>
+                <rect x="90" y="80" width="20" height="16" rx="3" fill="${pColor}"/>
+            `;
+        }
+        // 41. SEAT / SEATBELT / CUSHION / UPHOLSTERY / INTERIOR / DASHBOARD
+        else if (/seat|seatbelt|cushion|upholstery|interior|dashboard/i.test(raw)) {
+            content = `
+                <rect x="80" y="24" width="40" height="25" rx="8" fill="#1e293b"/>
+                <path d="M 60 52 L 140 52 L 132 140 L 68 140 Z" fill="${pColor}"/>
+                <path d="M 75 56 L 125 56 L 120 135 L 80 135 Z" fill="#0f172a" opacity="0.3"/>
+                <rect x="50" y="135" width="100" height="35" rx="10" fill="#1e293b"/>
+                <rect x="58" y="140" width="84" height="25" rx="6" fill="${sColor}"/>
+            `;
+        }
+        // 42. OIL & FLUIDS / COOLANT / SYNTHETIC / LUBRICANT / ATF
+        else if (/oil|fluid|coolant|synthetic|lubricant|atf/i.test(raw)) {
             content = `
                 <rect x="85" y="24" width="30" height="22" rx="3" fill="${pColor}"/>
                 <rect x="90" y="46" width="20" height="18" fill="${sColor}"/>
@@ -759,7 +1069,7 @@
                 <path d="M 110 110 Q 120 125 110 132 Q 100 125 110 110 Z" fill="#facc15"/>
             `;
         }
-        // 19. FILTERS (OIL, AIR, CABIN, FUEL)
+        // 43. FILTERS (OIL, AIR, CABIN, FUEL)
         else if (/filter/i.test(raw)) {
             if (/oil/i.test(raw)) {
                 content = `
@@ -777,130 +1087,7 @@
                 `;
             }
         }
-        // 20. WIPER BLADES
-        else if (/wiper|blade/i.test(raw)) {
-            content = `
-                <path d="M 25 145 Q 100 65 175 125" fill="none" stroke="#1e293b" stroke-width="12" stroke-linecap="round"/>
-                <path d="M 25 151 Q 100 71 175 131" fill="none" stroke="#64748b" stroke-width="4" stroke-linecap="round"/>
-                <rect x="90" y="80" width="20" height="16" rx="3" fill="${pColor}"/>
-            `;
-        }
-        // 21. BELTS (TIMING, SERPENTINE, FAN)
-        else if (/belt|timing|serpentine/i.test(raw)) {
-            content = `
-                <ellipse cx="100" cy="100" rx="72" ry="48" fill="none" stroke="#0f172a" stroke-width="14"/>
-                <ellipse cx="100" cy="100" rx="72" ry="48" fill="none" stroke="#475569" stroke-width="2" stroke-dasharray="4,4"/>
-                <circle cx="65" cy="100" r="24" fill="#94a3b8"/>
-                <circle cx="65" cy="100" r="8" fill="#1e293b"/>
-                <circle cx="135" cy="100" r="18" fill="#cbd5e1"/>
-                <circle cx="135" cy="100" r="6" fill="#1e293b"/>
-            `;
-        }
-        // 22. ALTERNATOR / STARTER / DYNAMO / GENERATOR
-        else if (/alternator|starter|motor|dynamo|generator/i.test(raw)) {
-            content = `
-                <circle cx="100" cy="105" r="58" fill="#94a3b8"/>
-                ${Array.from({length: 8}).map((_, i) => {
-                    const rad = (i * 45) * Math.PI / 180;
-                    return `<circle cx="${(100 + 40 * Math.cos(rad)).toFixed(1)}" cy="${(105 + 40 * Math.sin(rad)).toFixed(1)}" r="10" fill="#c2410c"/>`;
-                }).join('')}
-                <circle cx="100" cy="105" r="32" fill="#1e293b"/>
-                <circle cx="100" cy="105" r="12" fill="#e2e8f0"/>
-                <rect x="88" y="24" width="24" height="24" rx="4" fill="${pColor}"/>
-            `;
-        }
-        // 23. SENSORS & PROBES (O2, ABS, TPS, MAP, MAF)
-        else if (/sensor|probe|o2|abs|tps|map|maf/i.test(raw)) {
-            content = `
-                <rect x="92" y="25" width="16" height="65" rx="3" fill="url(#${id}_metal)"/>
-                <rect x="88" y="90" width="24" height="20" rx="2" fill="#eab308"/>
-                <rect x="84" y="110" width="32" height="35" rx="4" fill="#1e293b"/>
-                <path d="M 100 145 Q 85 170 120 180" fill="none" stroke="#dc2626" stroke-width="5" stroke-linecap="round"/>
-                <path d="M 95 145 Q 75 165 110 185" fill="none" stroke="#2563eb" stroke-width="5" stroke-linecap="round"/>
-            `;
-        }
-        // 24. HORN / ALARM / SIREN
-        else if (/horn|alarm|siren/i.test(raw)) {
-            content = `
-                <circle cx="100" cy="100" r="55" fill="#1e293b"/>
-                <circle cx="100" cy="100" r="46" fill="${pColor}"/>
-                <path d="M 100 65 A 35 35 0 0 1 135 100 A 35 35 0 0 1 100 135 A 25 25 0 0 1 75 100 A 15 15 0 0 1 100 85" fill="none" stroke="url(#${id}_metal)" stroke-width="12" stroke-linecap="round"/>
-                <circle cx="100" cy="100" r="12" fill="#0f172a"/>
-                <rect x="90" y="32" width="20" height="15" rx="3" fill="#64748b"/>
-            `;
-        }
-        // 25. FUEL INJECTOR / NOZZLE
-        else if (/injector|nozzle|fuel\s*rail/i.test(raw)) {
-            content = `
-                <rect x="90" y="25" width="20" height="35" rx="4" fill="#1e293b"/>
-                <rect x="94" y="60" width="12" height="80" rx="2" fill="url(#${id}_metal)"/>
-                <circle cx="100" cy="75" r="8" fill="#ef4444"/>
-                <circle cx="100" cy="130" r="8" fill="#3b82f6"/>
-                <path d="M 96 140 L 104 140 L 100 180 Z" fill="url(#${id}_metal)"/>
-                <circle cx="100" cy="180" r="3" fill="#f59e0b"/>
-            `;
-        }
-        // 26. PUMPS (FUEL, WATER, OIL, POWER STEERING)
-        else if (/pump/i.test(raw)) {
-            content = `
-                <circle cx="100" cy="100" r="52" fill="url(#${id}_metal)"/>
-                <circle cx="100" cy="100" r="36" fill="#1e293b"/>
-                ${Array.from({length: 6}).map((_, i) => {
-                    const rad = (i * 60) * Math.PI / 180;
-                    return `<path d="M 100 100 Q ${(100 + 30 * Math.cos(rad)).toFixed(1)} ${(100 + 30 * Math.sin(rad)).toFixed(1)} ${(100 + 48 * Math.cos(rad+0.5)).toFixed(1)} ${(100 + 48 * Math.sin(rad+0.5)).toFixed(1)}" stroke="#38bdf8" stroke-width="4" fill="none"/>`;
-                }).join('')}
-                <rect x="35" y="85" width="30" height="30" rx="4" fill="${pColor}"/>
-                <rect x="135" y="85" width="30" height="30" rx="4" fill="${pColor}"/>
-            `;
-        }
-        // 27. CLUTCH / FLYWHEEL / TRANSMISSION / GEARBOX
-        else if (/clutch|flywheel|transmission|gearbox/i.test(raw)) {
-            content = `
-                <circle cx="100" cy="100" r="80" fill="#334155"/>
-                <circle cx="100" cy="100" r="72" fill="url(#${id}_ceramic)"/>
-                <circle cx="100" cy="100" r="45" fill="url(#${id}_metal)"/>
-                ${[0, 90, 180, 270].map(a => {
-                    const rad = a * Math.PI / 180;
-                    return `<rect x="${(100 + 26 * Math.cos(rad) - 8).toFixed(1)}" y="${(100 + 26 * Math.sin(rad) - 8).toFixed(1)}" width="16" height="16" rx="3" fill="#f59e0b"/>`;
-                }).join('')}
-                <circle cx="100" cy="100" r="16" fill="#0f172a"/>
-            `;
-        }
-        // 28. BUSHING / CONTROL ARM / BALL JOINT / LINK
-        else if (/bushing|bush|ball\s*joint|control\s*arm|link|arm/i.test(raw)) {
-            content = `
-                <path d="M 50 140 L 150 140 L 100 50 Z" fill="none" stroke="url(#${id}_metal)" stroke-width="24" stroke-linejoin="round"/>
-                <circle cx="50" cy="140" r="22" fill="#1e293b"/>
-                <circle cx="50" cy="140" r="10" fill="#94a3b8"/>
-                <circle cx="150" cy="140" r="22" fill="#1e293b"/>
-                <circle cx="150" cy="140" r="10" fill="#94a3b8"/>
-                <circle cx="100" cy="50" r="20" fill="${pColor}"/>
-                <circle cx="100" cy="50" r="8" fill="#f8fafc"/>
-            `;
-        }
-        // 29. BEARING / WHEEL HUB
-        else if (/bearing|hub/i.test(raw)) {
-            content = `
-                <circle cx="100" cy="100" r="75" fill="url(#${id}_metal)"/>
-                <circle cx="100" cy="100" r="58" fill="#1e293b"/>
-                ${Array.from({length: 8}).map((_, i) => {
-                    const rad = (i * 45) * Math.PI / 180;
-                    return `<circle cx="${(100 + 44 * Math.cos(rad)).toFixed(1)}" cy="${(100 + 44 * Math.sin(rad)).toFixed(1)}" r="9" fill="url(#${id}_metal)"/>`;
-                }).join('')}
-                <circle cx="100" cy="100" r="30" fill="url(#${id}_metal)"/>
-                <circle cx="100" cy="100" r="18" fill="#0f172a"/>
-            `;
-        }
-        // 30. FUSE / RELAY / SWITCH / ECU
-        else if (/fuse|relay|switch|ecu/i.test(raw)) {
-            content = `
-                <rect x="50" y="40" width="100" height="90" rx="8" fill="${pColor}" opacity="0.85"/>
-                <path d="M 70 85 Q 100 50 100 85 Q 100 120 130 85" fill="none" stroke="#facc15" stroke-width="6" stroke-linecap="round"/>
-                <rect x="65" y="130" width="20" height="45" rx="3" fill="url(#${id}_metal)"/>
-                <rect x="115" y="130" width="20" height="45" rx="3" fill="url(#${id}_metal)"/>
-            `;
-        }
-        // 31. FASTENER / BOLT / NUT / SCREW / BRACKET / MOUNT
+        // 44. BOLT / NUT / SCREW / FASTENER / BRACKET / MOUNT
         else if (/bolt|nut|screw|fastener|bracket|mount/i.test(raw)) {
             content = `
                 <polygon points="100,25 140,48 140,94 100,117 60,94 60,48" fill="url(#${id}_metal)"/>
@@ -909,24 +1096,23 @@
                 ${[125, 137, 149, 161, 173].map(y => `<line x1="85" y1="${y}" x2="115" y2="${y+3}" stroke="#334155" stroke-width="2.5"/>`).join('')}
             `;
         }
-        // 32. UNIVERSAL REAL-TIME PROCEDURAL BLUEPRINT (For ANY other unique/custom automotive name)
+        // 45. DYNAMIC DETERMINISTIC PROCEDURAL BLUEPRINT (For ANY other unique custom automotive name)
         else {
-            // Calculate a deterministic hash for unique visual variations
             let hash = 0;
             for (let i = 0; i < raw.length; i++) hash = (hash << 5) - hash + raw.charCodeAt(i);
-            const teeth = 6 + (Math.abs(hash) % 5);
-            const innerR = 24 + (Math.abs(hash) % 12);
+            const teeth = 6 + (Math.abs(hash) % 6);
+            const innerR = 24 + (Math.abs(hash) % 14);
 
             content = `
-                <circle cx="100" cy="100" r="68" fill="url(#${id}_metal)"/>
+                <circle cx="100" cy="100" r="70" fill="url(#${id}_metal)" stroke="#334155" stroke-width="2"/>
                 ${Array.from({length: teeth}).map((_, i) => {
                     const rad = (i * (360 / teeth)) * Math.PI / 180;
-                    return `<rect x="${(100 + 64 * Math.cos(rad) - 7).toFixed(1)}" y="${(100 + 64 * Math.sin(rad) - 7).toFixed(1)}" width="14" height="14" rx="3" fill="${pColor}"/>`;
+                    return `<rect x="${(100 + 66 * Math.cos(rad) - 7).toFixed(1)}" y="${(100 + 66 * Math.sin(rad) - 7).toFixed(1)}" width="14" height="14" rx="3" fill="${pColor}"/>`;
                 }).join('')}
                 <circle cx="100" cy="100" r="${innerR}" fill="#1e293b"/>
-                <circle cx="100" cy="100" r="${(innerR * 0.55).toFixed(1)}" fill="url(#${id}_metal)"/>
+                <circle cx="100" cy="100" r="${(innerR * 0.6).toFixed(1)}" fill="url(#${id}_metal)"/>
                 <circle cx="100" cy="100" r="${(innerR * 0.25).toFixed(1)}" fill="#0f172a"/>
-                <line x1="45" y1="45" x2="155" y2="155" stroke="#ffffff" stroke-width="2" stroke-opacity="0.3"/>
+                <line x1="45" y1="45" x2="155" y2="155" stroke="#ffffff" stroke-width="2" stroke-opacity="0.4"/>
             `;
         }
 
@@ -986,21 +1172,270 @@
         const raw = (partName || '').toLowerCase().trim();
         const customGeneratedSvg = generateDynamicPartSVG(partName);
 
-        // 1. Body, Glass & Windows
-        if (/window|glass|windshield|windscreen|tint|regulator/i.test(raw)) {
+        // 1. Engine & Cylinder Head
+        if (/cylinder\s*head|cylinder\s*block|head\s*assembly/i.test(raw)) {
             return {
-                category: 'Body & Glass',
+                category: 'Engine & Cylinder Head',
                 imageUrl: customGeneratedSvg,
-                badgeBg: 'bg-gradient-to-br from-cyan-50 to-sky-50',
+                badgeBg: 'bg-gradient-to-br from-indigo-50 to-blue-50',
+                badgeBorder: 'border-indigo-200',
+                textClass: 'text-indigo-600',
+                dotClass: 'bg-indigo-500',
+                glowClass: 'group-hover:border-indigo-400'
+            };
+        }
+
+        // 2. Engine & Valve Cover
+        if (/engine\s*cover|valve\s*cover|cam\s*cover|rocker\s*cover|beauty\s*cover/i.test(raw)) {
+            return {
+                category: 'Engine & Valve Cover',
+                imageUrl: customGeneratedSvg,
+                badgeBg: 'bg-gradient-to-br from-red-50 to-rose-50',
+                badgeBorder: 'border-red-200',
+                textClass: 'text-red-600',
+                dotClass: 'bg-red-500',
+                glowClass: 'group-hover:border-red-400'
+            };
+        }
+
+        // 3. Gaskets & Seals
+        if (/head\s*gasket|gasket|seal|o-ring|grommet/i.test(raw)) {
+            return {
+                category: 'Gaskets & Seals',
+                imageUrl: customGeneratedSvg,
+                badgeBg: 'bg-gradient-to-br from-amber-50 to-orange-50',
+                badgeBorder: 'border-amber-200',
+                textClass: 'text-amber-600',
+                dotClass: 'bg-amber-500',
+                glowClass: 'group-hover:border-amber-400'
+            };
+        }
+
+        // 4. Air Intake & Throttle
+        if (/intake\s*manifold|throttle\s*body|plenum|air\s*intake/i.test(raw)) {
+            return {
+                category: 'Air Intake & Throttle',
+                imageUrl: customGeneratedSvg,
+                badgeBg: 'bg-gradient-to-br from-sky-50 to-cyan-50',
+                badgeBorder: 'border-sky-200',
+                textClass: 'text-sky-600',
+                dotClass: 'bg-sky-500',
+                glowClass: 'group-hover:border-sky-400'
+            };
+        }
+
+        // 5. Exhaust & Headers
+        if (/exhaust\s*manifold|header|downpipe|extractors|exhaust|muffler|catalytic|resonator/i.test(raw)) {
+            return {
+                category: 'Exhaust & Headers',
+                imageUrl: customGeneratedSvg,
+                badgeBg: 'bg-gradient-to-br from-violet-50 to-purple-50',
+                badgeBorder: 'border-violet-200',
+                textClass: 'text-violet-600',
+                dotClass: 'bg-violet-500',
+                glowClass: 'group-hover:border-violet-400'
+            };
+        }
+
+        // 6. Lubrication & Sump
+        if (/oil\s*pan|sump|oil\s*sump/i.test(raw)) {
+            return {
+                category: 'Lubrication & Sump',
+                imageUrl: customGeneratedSvg,
+                badgeBg: 'bg-gradient-to-br from-slate-100 to-amber-50',
+                badgeBorder: 'border-amber-200',
+                textClass: 'text-amber-700',
+                dotClass: 'bg-amber-600',
+                glowClass: 'group-hover:border-amber-400'
+            };
+        }
+
+        // 7. Timing & Valvetrain
+        if (/timing\s*chain|timing\s*belt|timing\s*kit|cam\s*gear|tensioner/i.test(raw)) {
+            return {
+                category: 'Timing & Valvetrain',
+                imageUrl: customGeneratedSvg,
+                badgeBg: 'bg-gradient-to-br from-yellow-50 to-amber-50',
+                badgeBorder: 'border-yellow-200',
+                textClass: 'text-yellow-700',
+                dotClass: 'bg-yellow-500',
+                glowClass: 'group-hover:border-yellow-400'
+            };
+        }
+
+        // 8. Engine Internals
+        if (/piston|connecting\s*rod|wrist\s*pin|crankshaft|camshaft|engine\s*block/i.test(raw)) {
+            return {
+                category: 'Engine Internals',
+                imageUrl: customGeneratedSvg,
+                badgeBg: 'bg-gradient-to-br from-red-50 to-orange-50',
+                badgeBorder: 'border-red-200',
+                textClass: 'text-red-600',
+                dotClass: 'bg-red-500',
+                glowClass: 'group-hover:border-red-400'
+            };
+        }
+
+        // 9. Turbo & Forced Induction
+        if (/turbo|turbocharger|supercharger|intercooler|wastegate|blow\s*off/i.test(raw)) {
+            return {
+                category: 'Turbo & Forced Induction',
+                imageUrl: customGeneratedSvg,
+                badgeBg: 'bg-gradient-to-br from-fuchsia-50 to-pink-50',
+                badgeBorder: 'border-fuchsia-200',
+                textClass: 'text-fuchsia-600',
+                dotClass: 'bg-fuchsia-500',
+                glowClass: 'group-hover:border-fuchsia-400'
+            };
+        }
+
+        // 10. Drivetrain & Axles
+        if (/cv\s*axle|axle|driveshaft|propeller\s*shaft|half\s*shaft|cv\s*joint|universal\s*joint/i.test(raw)) {
+            return {
+                category: 'Drivetrain & Axles',
+                imageUrl: customGeneratedSvg,
+                badgeBg: 'bg-gradient-to-br from-slate-100 to-zinc-100',
+                badgeBorder: 'border-slate-300',
+                textClass: 'text-slate-700',
+                dotClass: 'bg-slate-600',
+                glowClass: 'group-hover:border-slate-400'
+            };
+        }
+
+        // 11. Drivetrain & Differential
+        if (/differential|diff|limited\s*slip|lsd|final\s*drive/i.test(raw)) {
+            return {
+                category: 'Drivetrain & Differential',
+                imageUrl: customGeneratedSvg,
+                badgeBg: 'bg-gradient-to-br from-amber-50 to-yellow-50',
+                badgeBorder: 'border-amber-200',
+                textClass: 'text-amber-600',
+                dotClass: 'bg-amber-500',
+                glowClass: 'group-hover:border-amber-400'
+            };
+        }
+
+        // 12. Clutch & Transmission
+        if (/clutch|flywheel|pressure\s*plate|transmission|gearbox/i.test(raw)) {
+            return {
+                category: 'Clutch & Transmission',
+                imageUrl: customGeneratedSvg,
+                badgeBg: 'bg-gradient-to-br from-zinc-100 to-stone-100',
+                badgeBorder: 'border-zinc-300',
+                textClass: 'text-zinc-700',
+                dotClass: 'bg-zinc-600',
+                glowClass: 'group-hover:border-zinc-400'
+            };
+        }
+
+        // 13. Braking System
+        if (/brake|pad|rotor|disc|caliper|master\s*cylinder|booster/i.test(raw)) {
+            return {
+                category: 'Braking System',
+                imageUrl: customGeneratedSvg,
+                badgeBg: 'bg-gradient-to-br from-rose-50 to-red-50',
+                badgeBorder: 'border-rose-200',
+                textClass: 'text-rose-600',
+                dotClass: 'bg-rose-500',
+                glowClass: 'group-hover:border-rose-400'
+            };
+        }
+
+        // 14. Suspension System
+        if (/shock|strut|coilover|spring|suspension|damper|control\s*arm|wishbone|sway\s*bar/i.test(raw)) {
+            return {
+                category: 'Suspension System',
+                imageUrl: customGeneratedSvg,
+                badgeBg: 'bg-gradient-to-br from-amber-50 to-orange-50',
+                badgeBorder: 'border-amber-200',
+                textClass: 'text-amber-600',
+                dotClass: 'bg-amber-500',
+                glowClass: 'group-hover:border-amber-400'
+            };
+        }
+
+        // 15. Steering System
+        if (/steering|rack|pinion|tie\s*rod/i.test(raw)) {
+            return {
+                category: 'Steering System',
+                imageUrl: customGeneratedSvg,
+                badgeBg: 'bg-gradient-to-br from-slate-100 to-blue-50',
+                badgeBorder: 'border-slate-300',
+                textClass: 'text-slate-700',
+                dotClass: 'bg-slate-600',
+                glowClass: 'group-hover:border-slate-400'
+            };
+        }
+
+        // 16. Wheel Hub & Bearings
+        if (/wheel\s*bearing|wheel\s*hub|hub\s*assembly|spindle/i.test(raw)) {
+            return {
+                category: 'Wheel Hub & Bearings',
+                imageUrl: customGeneratedSvg,
+                badgeBg: 'bg-gradient-to-br from-slate-100 to-gray-100',
+                badgeBorder: 'border-slate-300',
+                textClass: 'text-slate-700',
+                dotClass: 'bg-slate-600',
+                glowClass: 'group-hover:border-slate-400'
+            };
+        }
+
+        // 17. Tires & Wheels
+        if (/tire|tyre|wheel|rim|mag|alloy\s*wheel/i.test(raw)) {
+            return {
+                category: 'Tires & Wheels',
+                imageUrl: customGeneratedSvg,
+                badgeBg: 'bg-gradient-to-br from-slate-100 to-zinc-100',
+                badgeBorder: 'border-slate-300',
+                textClass: 'text-slate-700',
+                dotClass: 'bg-slate-600',
+                glowClass: 'group-hover:border-slate-400'
+            };
+        }
+
+        // 18. Cooling System & Water Pump
+        if (/radiator|condenser|cooling|coolant|water\s*pump|thermostat/i.test(raw)) {
+            return {
+                category: 'Cooling System',
+                imageUrl: customGeneratedSvg,
+                badgeBg: 'bg-gradient-to-br from-cyan-50 to-blue-50',
                 badgeBorder: 'border-cyan-200',
                 textClass: 'text-cyan-600',
                 dotClass: 'bg-cyan-500',
                 glowClass: 'group-hover:border-cyan-400'
             };
         }
-        if (/door|handle|latch|lock|mirror|side\s*mirror|bumper|hood|trunk|fender|grille|body|spoiler/i.test(raw)) {
+
+        // 19. Fuel Delivery & Injection
+        if (/fuel\s*pump|fuel\s*tank|injector|nozzle|fuel\s*rail/i.test(raw)) {
             return {
-                category: 'Body & Exterior',
+                category: 'Fuel Delivery & Injection',
+                imageUrl: customGeneratedSvg,
+                badgeBg: 'bg-gradient-to-br from-emerald-50 to-green-50',
+                badgeBorder: 'border-emerald-200',
+                textClass: 'text-emerald-600',
+                dotClass: 'bg-emerald-500',
+                glowClass: 'group-hover:border-emerald-400'
+            };
+        }
+
+        // 20. Ignition System
+        if (/spark|plug|ignition|glow\s*plug|iridium/i.test(raw)) {
+            return {
+                category: 'Ignition System',
+                imageUrl: customGeneratedSvg,
+                badgeBg: 'bg-gradient-to-br from-slate-100 to-sky-50',
+                badgeBorder: 'border-slate-300',
+                textClass: 'text-slate-700',
+                dotClass: 'bg-slate-600',
+                glowClass: 'group-hover:border-slate-400'
+            };
+        }
+
+        // 21. Electrical & Charging
+        if (/battery|alternator|starter|generator|fuse|relay|horn|ecu/i.test(raw)) {
+            return {
+                category: 'Electrical & Charging',
                 imageUrl: customGeneratedSvg,
                 badgeBg: 'bg-gradient-to-br from-blue-50 to-indigo-50',
                 badgeBorder: 'border-blue-200',
@@ -1010,7 +1445,46 @@
             };
         }
 
-        // 2. Lighting & Lamps
+        // 22. Air Conditioning & Climate
+        if (/ac|aircon|compressor|climate|blower|evaporator/i.test(raw)) {
+            return {
+                category: 'Air Conditioning & Climate',
+                imageUrl: customGeneratedSvg,
+                badgeBg: 'bg-gradient-to-br from-sky-50 to-blue-50',
+                badgeBorder: 'border-sky-200',
+                textClass: 'text-sky-600',
+                dotClass: 'bg-sky-500',
+                glowClass: 'group-hover:border-sky-400'
+            };
+        }
+
+        // 23. Sensors & Electronics
+        if (/sensor|probe|o2|abs|maf|map|tps|lambda/i.test(raw)) {
+            return {
+                category: 'Sensors & Electronics',
+                imageUrl: customGeneratedSvg,
+                badgeBg: 'bg-gradient-to-br from-teal-50 to-cyan-50',
+                badgeBorder: 'border-teal-200',
+                textClass: 'text-teal-600',
+                dotClass: 'bg-teal-500',
+                glowClass: 'group-hover:border-teal-400'
+            };
+        }
+
+        // 24. Body, Glass & Exterior
+        if (/window|glass|windshield|mirror|bumper|door|handle|hood|trunk|fender|grille/i.test(raw)) {
+            return {
+                category: 'Body & Exterior',
+                imageUrl: customGeneratedSvg,
+                badgeBg: 'bg-gradient-to-br from-cyan-50 to-sky-50',
+                badgeBorder: 'border-cyan-200',
+                textClass: 'text-cyan-600',
+                dotClass: 'bg-cyan-500',
+                glowClass: 'group-hover:border-cyan-400'
+            };
+        }
+
+        // 25. Lighting & Lamps
         if (/headlight|light|lamp|bulb|taillight|fog|led|xenon/i.test(raw)) {
             return {
                 category: 'Lighting & Lamps',
@@ -1023,105 +1497,7 @@
             };
         }
 
-        // 3. Braking System
-        if (/brake\s*fluid/i.test(raw)) {
-            return {
-                category: 'Braking System',
-                imageUrl: customGeneratedSvg,
-                badgeBg: 'bg-gradient-to-br from-amber-50 to-orange-50/80',
-                badgeBorder: 'border-amber-200/90',
-                textClass: 'text-amber-600',
-                dotClass: 'bg-amber-500',
-                glowClass: 'group-hover:border-amber-400'
-            };
-        }
-        if (/brake\s*disk|brake\s*disc|rotor/i.test(raw)) {
-            return {
-                category: 'Braking System',
-                imageUrl: customGeneratedSvg,
-                badgeBg: 'bg-gradient-to-br from-slate-100 to-gray-100',
-                badgeBorder: 'border-slate-300',
-                textClass: 'text-slate-700',
-                dotClass: 'bg-slate-600',
-                glowClass: 'group-hover:border-slate-400'
-            };
-        }
-        if (/brake\s*pad|brake|caliper|brake\s*shoe|brake\s*hose/i.test(raw)) {
-            return {
-                category: 'Braking System',
-                imageUrl: customGeneratedSvg,
-                badgeBg: 'bg-gradient-to-br from-rose-50 to-red-50/80',
-                badgeBorder: 'border-rose-200/90',
-                textClass: 'text-rose-600',
-                dotClass: 'bg-rose-500',
-                glowClass: 'group-hover:border-rose-400'
-            };
-        }
-
-        // 4. Suspension & Steering
-        if (/shock|strut|absorber|spring|coil/i.test(raw)) {
-            return {
-                category: 'Suspension & Steering',
-                imageUrl: customGeneratedSvg,
-                badgeBg: 'bg-gradient-to-br from-amber-50 to-orange-50/80',
-                badgeBorder: 'border-amber-200/90',
-                textClass: 'text-amber-600',
-                dotClass: 'bg-amber-500',
-                glowClass: 'group-hover:border-amber-400'
-            };
-        }
-        if (/steering|wheel\s*steer|bushing|ball\s*joint|tie\s*rod|rack\s*end|link|stabilizer|control\s*arm/i.test(raw)) {
-            return {
-                category: 'Suspension & Steering',
-                imageUrl: customGeneratedSvg,
-                badgeBg: 'bg-gradient-to-br from-slate-100 to-zinc-100',
-                badgeBorder: 'border-slate-300',
-                textClass: 'text-slate-700',
-                dotClass: 'bg-slate-600',
-                glowClass: 'group-hover:border-slate-400'
-            };
-        }
-
-        // 5. Exhaust & Turbo
-        if (/exhaust|muffler|pipe|header|catalytic|turbo|supercharger|intercooler|downpipe/i.test(raw)) {
-            return {
-                category: 'Exhaust & Forced Induction',
-                imageUrl: customGeneratedSvg,
-                badgeBg: 'bg-gradient-to-br from-violet-50 to-purple-50',
-                badgeBorder: 'border-violet-200',
-                textClass: 'text-violet-600',
-                dotClass: 'bg-violet-500',
-                glowClass: 'group-hover:border-violet-400'
-            };
-        }
-
-        // 6. Engine Internals & Pumps
-        if (/piston|rod|crank|cam|valve|engine\s*block|pump|water\s*pump|fuel\s*pump|oil\s*pump/i.test(raw)) {
-            return {
-                category: 'Engine Internals & Pumps',
-                imageUrl: customGeneratedSvg,
-                badgeBg: 'bg-gradient-to-br from-red-50 to-orange-50',
-                badgeBorder: 'border-red-200',
-                textClass: 'text-red-600',
-                dotClass: 'bg-red-500',
-                glowClass: 'group-hover:border-red-400'
-            };
-        }
-
-        // 7. Interior & Cabin
-        if (/seat|seatbelt|cushion|upholstery|interior|dashboard/i.test(raw)) {
-            return {
-                category: 'Interior & Cabin',
-                imageUrl: customGeneratedSvg,
-                badgeBg: 'bg-gradient-to-br from-teal-50 to-emerald-50',
-                badgeBorder: 'border-teal-200',
-                textClass: 'text-teal-600',
-                dotClass: 'bg-teal-500',
-                glowClass: 'group-hover:border-teal-400'
-            };
-        }
-
-        // 8. Filtration
+        // 26. Filtration System
         if (/filter/i.test(raw)) {
             return {
                 category: 'Filtration System',
@@ -1134,8 +1510,8 @@
             };
         }
 
-        // 9. Fluids & Oils
-        if (/oil|fluid|lubricant|synthetic|coolant|antifreeze/i.test(raw)) {
+        // 27. Fluids & Lubricants
+        if (/oil|fluid|lubricant|synthetic|atf/i.test(raw)) {
             return {
                 category: 'Fluids & Lubricants',
                 imageUrl: customGeneratedSvg,
@@ -1147,36 +1523,10 @@
             };
         }
 
-        // 10. Electrical & Sensors
-        if (/battery|alternator|starter|generator|sensor|probe|o2|abs|fuse|relay|horn|ecu/i.test(raw)) {
+        // 28. Hardware & Fasteners
+        if (/bolt|nut|screw|fastener|bracket|mount/i.test(raw)) {
             return {
-                category: 'Electrical & Sensors',
-                imageUrl: customGeneratedSvg,
-                badgeBg: 'bg-gradient-to-br from-slate-100 to-zinc-100',
-                badgeBorder: 'border-slate-300',
-                textClass: 'text-slate-700',
-                dotClass: 'bg-slate-600',
-                glowClass: 'group-hover:border-slate-400'
-            };
-        }
-
-        // 11. Engine Belts & Ignition
-        if (/spark|plug|ignition|timing|belt|serpentine/i.test(raw)) {
-            return {
-                category: 'Engine & Belts',
-                imageUrl: customGeneratedSvg,
-                badgeBg: 'bg-gradient-to-br from-slate-100 to-sky-50',
-                badgeBorder: 'border-slate-300',
-                textClass: 'text-slate-700',
-                dotClass: 'bg-slate-600',
-                glowClass: 'group-hover:border-slate-400'
-            };
-        }
-
-        // 12. Tires & Wheels
-        if (/tire|tyre|wheel|rim|bearing|hub|mag/i.test(raw)) {
-            return {
-                category: 'Tires & Wheels',
+                category: 'Hardware & Fasteners',
                 imageUrl: customGeneratedSvg,
                 badgeBg: 'bg-gradient-to-br from-slate-100 to-zinc-100',
                 badgeBorder: 'border-slate-300',
