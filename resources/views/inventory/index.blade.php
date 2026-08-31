@@ -199,67 +199,30 @@
             <input type="hidden" id="newPartCurrentStock" value="0">
             <input type="hidden" id="newPartImageUrl" value="">
 
-            <!-- AI Live Auto-Identification Preview -->
-            <div id="aiPartDetectorPreview" class="p-3.5 rounded-2xl border transition-all duration-300 bg-slate-50 border-slate-200/80 flex items-center gap-3.5 shadow-xs">
-                <div id="aiDetectorIconBox" class="w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 border bg-white border-slate-200 shadow-xs transition-all cursor-pointer p-1 overflow-hidden">
-                    <!-- Image rendered dynamically -->
+            <!-- AI Live Real-Time Vector Generator Preview -->
+            <div id="aiPartDetectorPreview" class="p-4 rounded-2xl border transition-all duration-300 bg-gradient-to-br from-slate-50 to-blue-50/50 border-blue-100 flex items-center gap-4 shadow-xs">
+                <div id="aiDetectorIconBox" class="w-16 h-16 rounded-2xl flex items-center justify-center shrink-0 border bg-white border-slate-200 shadow-sm transition-all cursor-pointer p-1.5 overflow-hidden hover:scale-105" onclick="openImageModal(document.getElementById('newPartImageUrl').value)" title="Click to view large preview">
+                    <!-- SVG rendered dynamically in real-time -->
                 </div>
                 <div class="min-w-0 flex-1">
                     <div class="flex items-center justify-between gap-2">
-                        <span class="text-[9px] font-black uppercase tracking-widest text-blue-600 flex items-center gap-1">
-                            <i data-lucide="sparkles" class="w-3 h-3 text-blue-500"></i> AI Auto-Identified
+                        <span class="text-[10px] font-black uppercase tracking-wider text-blue-600 flex items-center gap-1.5">
+                            <i data-lucide="sparkles" class="w-3.5 h-3.5 text-blue-500"></i> AI Real-Time Vector Engine
                         </span>
-                        <span id="aiConfidenceBadge" class="text-[9px] font-bold text-slate-400">Live Detector</span>
+                        <span id="aiConfidenceBadge" class="text-[9px] font-bold text-slate-400">Live Generator</span>
                     </div>
-                    <div id="aiDetectorCategoryName" class="text-xs font-black text-slate-800 tracking-tight mt-0.5 truncate">
+                    <div id="aiDetectorCategoryName" class="text-sm font-black text-slate-800 tracking-tight mt-0.5 truncate">
                         Auto Component
                     </div>
-                    <div class="text-[10px] text-slate-400 mt-0.5 flex items-center gap-1">
-                        <span>Click preview to zoom</span> · <span id="imgSourceLabel" class="text-blue-500 font-bold">Standard 3D Asset</span>
+                    <div class="text-[11px] text-slate-500 mt-0.5 flex items-center gap-1.5 font-medium">
+                        <span id="imgSourceLabel" class="text-blue-600 font-bold">Auto-generated procedural SVG based on part name</span>
                     </div>
                 </div>
             </div>
             
             <div>
                 <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Part Name <span class="text-red-500">*</span></label>
-                <input type="text" id="newPartName" maxlength="100" oninput="onPartNameInput(this.value)" class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-gray-50 focus:bg-white transition-colors" placeholder="e.g. Shock Absorber (Front), Brake Pad, Air Filter...">
-            </div>
-
-            <!-- AI Real Photo Suggestions Section -->
-            <div id="aiPhotoSuggestionsSection" class="p-3.5 rounded-2xl border border-blue-100 bg-blue-50/40 space-y-2.5">
-                <div class="flex items-center justify-between">
-                    <span class="text-[10px] font-black uppercase tracking-wider text-blue-700 flex items-center gap-1.5">
-                        <i data-lucide="camera" class="w-3.5 h-3.5 text-blue-600"></i> Choose Real Photo (AI Suggestions)
-                    </span>
-                    <span id="aiPhotoSearchLoader" class="hidden text-[10px] font-bold text-blue-600 flex items-center gap-1 animate-pulse">
-                        <i data-lucide="loader-2" class="w-3 h-3 animate-spin"></i> Searching real photos...
-                    </span>
-                </div>
-                
-                <!-- Quick Search Custom Keywords -->
-                <div class="flex gap-2">
-                    <input type="text" id="customPhotoQuery" onkeydown="if(event.key === 'Enter'){ event.preventDefault(); searchCustomRealPhotos(); }" placeholder="Search Google / web photos (e.g. shock absorber car)..." class="flex-1 px-3 py-1.5 text-xs bg-white border border-blue-200 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
-                    <button type="button" onclick="searchCustomRealPhotos()" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg transition shadow-xs flex items-center gap-1 shrink-0">
-                        <i data-lucide="search" class="w-3 h-3"></i> Search
-                    </button>
-                </div>
-
-                <!-- Suggested Real Photos Grid -->
-                <div id="aiSuggestedPhotosGrid" class="grid grid-cols-4 gap-2 max-h-40 overflow-y-auto p-1.5 bg-white rounded-xl border border-blue-100">
-                    <div class="col-span-full py-4 text-center text-xs text-slate-400 font-medium">
-                        Type a part name above to auto-suggest real photos.
-                    </div>
-                </div>
-
-                <!-- Action button to reset to default 3D vector or custom url -->
-                <div class="flex justify-between items-center pt-1 text-[11px]">
-                    <button type="button" onclick="resetToDefault3DImage()" class="text-slate-500 hover:text-blue-600 font-bold flex items-center gap-1 transition">
-                        <i data-lucide="rotate-ccw" class="w-3 h-3"></i> Use Default 3D Asset
-                    </button>
-                    <button type="button" onclick="promptCustomImageUrl()" class="text-blue-600 hover:text-blue-700 font-bold flex items-center gap-1 transition">
-                        <i data-lucide="link" class="w-3 h-3"></i> Paste Custom URL
-                    </button>
-                </div>
+                <input type="text" id="newPartName" maxlength="100" oninput="onPartNameInput(this.value)" class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-gray-50 focus:bg-white transition-colors" placeholder="e.g. Shock Absorber (Front), Brake Pad, Window Glass, Side Mirror, Exhaust...">
             </div>
             
             <div class="grid grid-cols-2 gap-4">
@@ -517,31 +480,31 @@
         }
     }
 
-    // ── AI Universal Procedural Vector Generator Engine (Synthesizes custom SVG graphics on the fly for ANY automotive part) ──
+    // ── AI Real-Time Procedural SVG Synthesis Engine (Synthesizes custom vector graphics on the fly for ANY automotive part) ──
     function generateDynamicPartSVG(partName) {
-        const raw = (partName || 'Auto Part').toLowerCase();
+        const raw = (partName || 'Auto Part').toLowerCase().trim();
         const id = 'svg_' + Math.random().toString(36).substring(2, 9);
 
         // Dynamic Color Palette Extraction from Part Name
         let pColor = '#2563eb', sColor = '#3b82f6', aColor = '#60a5fa'; // Default Blue
-        if (/red|brembo|ferodo|sport/i.test(raw)) {
+        if (/red|brembo|ferodo|sport|racing/i.test(raw)) {
             pColor = '#dc2626'; sColor = '#ef4444'; aColor = '#f87171';
         } else if (/gold|yellow|motolite|ohlins/i.test(raw)) {
             pColor = '#d97706'; sColor = '#f59e0b'; aColor = '#fbbf24';
-        } else if (/green|tein|monster/i.test(raw)) {
+        } else if (/green|tein|monster|eco/i.test(raw)) {
             pColor = '#16a34a'; sColor = '#22c55e'; aColor = '#4ade80';
-        } else if (/black|dark|carbon/i.test(raw)) {
+        } else if (/black|dark|carbon|shadow/i.test(raw)) {
             pColor = '#1e293b'; sColor = '#334155'; aColor = '#64748b';
         } else if (/purple|hks/i.test(raw)) {
             pColor = '#9333ea'; sColor = '#a855f7'; aColor = '#c084fc';
-        } else if (/cyan|sky|teal/i.test(raw)) {
+        } else if (/cyan|sky|teal|cool/i.test(raw)) {
             pColor = '#0284c7'; sColor = '#38bdf8'; aColor = '#bae6fd';
         }
 
         const isDrilled = /drill|slot|vent/i.test(raw);
         let content = '';
 
-        // 1. WINDOW / WINDSHIELD / AUTOMOTIVE GLASS / REGULATOR
+        // 1. WINDOW / WINDSHIELD / AUTOMOTIVE GLASS / TINT / REGULATOR
         if (/window|glass|windshield|windscreen|tint|regulator/i.test(raw)) {
             content = `
                 <path d="M 45 40 L 155 32 Q 165 32 168 42 L 160 148 Q 158 155 150 155 L 42 155 Q 35 155 35 146 L 38 48 Q 39 40 45 40 Z" fill="url(#${id}_glass)" stroke="#38bdf8" stroke-width="2.5"/>
@@ -553,8 +516,8 @@
                 <path d="M 85 166 L 115 166 L 100 185 Z" fill="${pColor}"/>
             `;
         }
-        // 2. DOOR / DOOR HANDLE / LATCH
-        else if (/door|handle|latch/i.test(raw)) {
+        // 2. DOOR / DOOR HANDLE / LATCH / LOCK
+        else if (/door|handle|latch|lock/i.test(raw)) {
             content = `
                 <rect x="35" y="35" width="130" height="130" rx="14" fill="${pColor}"/>
                 <path d="M 35 35 Q 100 45 165 35" stroke="#ffffff" stroke-width="2.5" stroke-opacity="0.5" fill="none"/>
@@ -563,7 +526,7 @@
                 <circle cx="128" cy="100" r="3" fill="#0f172a"/>
             `;
         }
-        // 3. SIDE MIRROR / REARVIEW
+        // 3. SIDE MIRROR / REARVIEW / WING MIRROR
         else if (/mirror|side\s*mirror|rearview/i.test(raw)) {
             content = `
                 <path d="M 45 60 Q 155 35 165 75 Q 170 120 120 135 L 55 130 Z" fill="#1e293b"/>
@@ -573,8 +536,8 @@
                 <rect x="135" y="105" width="22" height="6" rx="2" fill="#f59e0b"/>
             `;
         }
-        // 4. BUMPER / GRILLE / HOOD / FENDER / BODY PANELS
-        else if (/bumper|grille|hood|trunk|fender|body/i.test(raw)) {
+        // 4. BUMPER / GRILLE / HOOD / TRUNK / FENDER / BODY PANELS / SPOILER
+        else if (/bumper|grille|hood|trunk|fender|body|spoiler/i.test(raw)) {
             content = `
                 <path d="M 25 70 Q 100 50 175 70 L 165 135 Q 100 150 35 135 Z" fill="${pColor}"/>
                 <rect x="45" y="78" width="110" height="38" rx="8" fill="#0f172a"/>
@@ -582,8 +545,8 @@
                 <ellipse cx="100" cy="97" rx="16" ry="10" fill="${sColor}"/>
             `;
         }
-        // 5. LIGHTING / HEADLIGHT / TAILLIGHT / BULB / FOG
-        else if (/headlight|light|lamp|bulb|taillight|fog/i.test(raw)) {
+        // 5. LIGHTING / HEADLIGHT / TAILLIGHT / BULB / FOG / LED / XENON
+        else if (/headlight|light|lamp|bulb|taillight|fog|led|xenon/i.test(raw)) {
             content = `
                 <path d="M 35 60 Q 140 45 165 85 Q 155 135 45 135 Z" fill="#1e293b"/>
                 <path d="M 42 66 Q 133 53 154 88 Q 145 128 50 128 Z" fill="url(#${id}_glass)" stroke="#67e8f9" stroke-width="2"/>
@@ -593,8 +556,8 @@
                 <circle cx="130" cy="95" r="10" fill="#f59e0b"/>
             `;
         }
-        // 6. STEERING WHEEL & COLUMN
-        else if (/steering|wheel\s*steer|rack/i.test(raw)) {
+        // 6. STEERING WHEEL / RACK / TIE ROD / COLUMN
+        else if (/steering|wheel\s*steer|rack|tie\s*rod|column/i.test(raw)) {
             content = `
                 <circle cx="100" cy="100" r="72" fill="none" stroke="#1e293b" stroke-width="16"/>
                 <circle cx="100" cy="100" r="72" fill="none" stroke="#475569" stroke-width="2" stroke-dasharray="3,3"/>
@@ -605,7 +568,7 @@
                 <line x1="100" y1="128" x2="100" y2="164" stroke="#334155" stroke-width="10" stroke-linecap="round"/>
             `;
         }
-        // 7. SEATS / SEATBELT / INTERIOR
+        // 7. SEATS / SEATBELT / CUSHION / UPHOLSTERY
         else if (/seat|seatbelt|cushion|upholstery/i.test(raw)) {
             content = `
                 <rect x="80" y="24" width="40" height="25" rx="8" fill="#1e293b"/>
@@ -615,7 +578,7 @@
                 <rect x="58" y="140" width="84" height="25" rx="6" fill="${sColor}"/>
             `;
         }
-        // 8. EXHAUST / MUFFLER / PIPE / HEADER
+        // 8. EXHAUST / MUFFLER / PIPE / HEADER / CATALYTIC / DOWNPIPE
         else if (/exhaust|muffler|pipe|header|catalytic|downpipe/i.test(raw)) {
             content = `
                 <rect x="45" y="70" width="110" height="55" rx="20" fill="url(#${id}_metal)"/>
@@ -626,7 +589,7 @@
                 <ellipse cx="178" cy="107.5" rx="3" ry="6" fill="#0f172a"/>
             `;
         }
-        // 9. TURBOCHARGER / SUPERCHARGER / INTERCOOLER
+        // 9. TURBOCHARGER / SUPERCHARGER / INTERCOOLER / BLOW OFF
         else if (/turbo|supercharger|intercooler|blow\s*off/i.test(raw)) {
             content = `
                 <ellipse cx="100" cy="100" rx="60" ry="50" fill="url(#${id}_metal)"/>
@@ -639,8 +602,8 @@
                 <circle cx="100" cy="100" r="10" fill="url(#${id}_metal)"/>
             `;
         }
-        // 10. ENGINE PISTON / ROD / CRANK / CAM / VALVE
-        else if (/piston|rod|crank|cam|valve|engine\s*block/i.test(raw)) {
+        // 10. ENGINE PISTON / ROD / CRANK / CAM / VALVE / CYLINDER
+        else if (/piston|rod|crank|cam|valve|cylinder|engine\s*block/i.test(raw)) {
             content = `
                 <rect x="60" y="35" width="80" height="50" rx="6" fill="url(#${id}_metal)"/>
                 <line x1="60" y1="46" x2="140" y2="46" stroke="#334155" stroke-width="2"/>
@@ -652,8 +615,8 @@
                 <circle cx="100" cy="160" r="10" fill="#94a3b8"/>
             `;
         }
-        // 11. RADIATOR / CONDENSER / COOLING FAN
-        else if (/radiator|condenser|cooling\s*fan/i.test(raw)) {
+        // 11. RADIATOR / CONDENSER / COOLING FAN / INTERCOOLER
+        else if (/radiator|condenser|cooling\s*fan|fan\s*blade/i.test(raw)) {
             content = `
                 <rect x="35" y="45" width="130" height="110" rx="8" fill="#334155"/>
                 <rect x="42" y="55" width="116" height="90" fill="#94a3b8"/>
@@ -664,7 +627,7 @@
                 <circle cx="145" cy="152" r="5" fill="#f8fafc"/>
             `;
         }
-        // 12. SHOCK ABSORBER / STRUT / COILOVER
+        // 12. SHOCK ABSORBER / STRUT / COILOVER / SPRING / SUSPENSION
         else if (/shock|strut|coilover|absorber|spring|suspension/i.test(raw)) {
             content = `
                 <rect x="65" y="16" width="70" height="12" rx="4" fill="${pColor}"/>
@@ -683,7 +646,7 @@
                 <circle cx="100" cy="180" r="4" fill="#0f172a"/>
             `;
         }
-        // 13. BRAKE ROTOR / DISK
+        // 13. BRAKE ROTOR / DISK / DISC
         else if (/rotor|disc|disk|brake\s*rotor/i.test(raw)) {
             const drilledHoles = isDrilled ? Array.from({length: 12}).map((_, i) => {
                 const rad1 = (i * 30) * Math.PI / 180;
@@ -712,8 +675,8 @@
                 <circle cx="100" cy="100" r="11" fill="#020617"/>
             `;
         }
-        // 14. BRAKE PADS / CALIPER
-        else if (/pad|brake|caliper/i.test(raw)) {
+        // 14. BRAKE PADS / CALIPER / BRAKE SHOE
+        else if (/pad|brake|caliper|brake\s*shoe/i.test(raw)) {
             content = `
                 <rect x="30" y="45" width="140" height="45" rx="6" fill="#334155"/>
                 <rect x="42" y="52" width="116" height="34" rx="4" fill="${pColor}"/>
@@ -727,7 +690,7 @@
                 <rect x="168" y="145" width="12" height="15" rx="2" fill="#94a3b8"/>
             `;
         }
-        // 15. TIRES / WHEELS / RIMS
+        // 15. TIRES / WHEELS / RIMS / MAGS
         else if (/tire|tyre|wheel|rim|mag/i.test(raw)) {
             const spokes = [0, 72, 144, 216, 288].map(a => {
                 const rad = a * Math.PI / 180;
@@ -752,8 +715,8 @@
                 <circle cx="100" cy="100" r="8" fill="#ffffff"/>
             `;
         }
-        // 16. SPARK PLUG
-        else if (/spark|plug|iridium/i.test(raw)) {
+        // 16. SPARK PLUG / IGNITION COIL
+        else if (/spark|plug|iridium|ignition|coil/i.test(raw)) {
             content = `
                 <rect x="94" y="18" width="12" height="15" rx="2" fill="#cbd5e1"/>
                 <rect x="84" y="33" width="32" height="70" rx="4" fill="#f8fafc"/>
@@ -769,8 +732,8 @@
                 <path d="M 88 171 L 88 193 L 100 193" fill="none" stroke="#64748b" stroke-width="3.5" stroke-linecap="round"/>
             `;
         }
-        // 17. BATTERY
-        else if (/battery|motolite/i.test(raw)) {
+        // 17. BATTERY / MOTOLITE / AMARON
+        else if (/battery|motolite|amaron/i.test(raw)) {
             content = `
                 <rect x="35" y="60" width="130" height="115" rx="8" fill="#1e293b"/>
                 <rect x="30" y="50" width="140" height="30" rx="4" fill="${pColor}"/>
@@ -783,8 +746,8 @@
                 <circle cx="100" cy="142" r="8" fill="#22c55e"/>
             `;
         }
-        // 18. OIL & FLUIDS
-        else if (/oil|fluid|coolant|synthetic/i.test(raw)) {
+        // 18. OIL & FLUIDS / COOLANT / SYNTHETIC
+        else if (/oil|fluid|coolant|synthetic|lubricant/i.test(raw)) {
             content = `
                 <rect x="85" y="24" width="30" height="22" rx="3" fill="${pColor}"/>
                 <rect x="90" y="46" width="20" height="18" fill="${sColor}"/>
@@ -796,7 +759,7 @@
                 <path d="M 110 110 Q 120 125 110 132 Q 100 125 110 110 Z" fill="#facc15"/>
             `;
         }
-        // 19. FILTERS
+        // 19. FILTERS (OIL, AIR, CABIN, FUEL)
         else if (/filter/i.test(raw)) {
             if (/oil/i.test(raw)) {
                 content = `
@@ -822,7 +785,7 @@
                 <rect x="90" y="80" width="20" height="16" rx="3" fill="${pColor}"/>
             `;
         }
-        // 21. BELTS
+        // 21. BELTS (TIMING, SERPENTINE, FAN)
         else if (/belt|timing|serpentine/i.test(raw)) {
             content = `
                 <ellipse cx="100" cy="100" rx="72" ry="48" fill="none" stroke="#0f172a" stroke-width="14"/>
@@ -833,8 +796,8 @@
                 <circle cx="135" cy="100" r="6" fill="#1e293b"/>
             `;
         }
-        // 22. ALTERNATOR / MOTOR / PUMP
-        else if (/alternator|starter|motor|pump|generator/i.test(raw)) {
+        // 22. ALTERNATOR / STARTER / DYNAMO / GENERATOR
+        else if (/alternator|starter|motor|dynamo|generator/i.test(raw)) {
             content = `
                 <circle cx="100" cy="105" r="58" fill="#94a3b8"/>
                 ${Array.from({length: 8}).map((_, i) => {
@@ -846,8 +809,8 @@
                 <rect x="88" y="24" width="24" height="24" rx="4" fill="${pColor}"/>
             `;
         }
-        // 23. SENSORS & PROBES
-        else if (/sensor|probe|o2|abs|tps|map/i.test(raw)) {
+        // 23. SENSORS & PROBES (O2, ABS, TPS, MAP, MAF)
+        else if (/sensor|probe|o2|abs|tps|map|maf/i.test(raw)) {
             content = `
                 <rect x="92" y="25" width="16" height="65" rx="3" fill="url(#${id}_metal)"/>
                 <rect x="88" y="90" width="24" height="20" rx="2" fill="#eab308"/>
@@ -856,7 +819,7 @@
                 <path d="M 95 145 Q 75 165 110 185" fill="none" stroke="#2563eb" stroke-width="5" stroke-linecap="round"/>
             `;
         }
-        // 24. HORN / ALARM
+        // 24. HORN / ALARM / SIREN
         else if (/horn|alarm|siren/i.test(raw)) {
             content = `
                 <circle cx="100" cy="100" r="55" fill="#1e293b"/>
@@ -866,19 +829,104 @@
                 <rect x="90" y="32" width="20" height="15" rx="3" fill="#64748b"/>
             `;
         }
-        // 25. GENERAL PRECISION GEARS & CHASSIS
-        else {
+        // 25. FUEL INJECTOR / NOZZLE
+        else if (/injector|nozzle|fuel\s*rail/i.test(raw)) {
             content = `
-                <circle cx="85" cy="90" r="48" fill="#94a3b8"/>
+                <rect x="90" y="25" width="20" height="35" rx="4" fill="#1e293b"/>
+                <rect x="94" y="60" width="12" height="80" rx="2" fill="url(#${id}_metal)"/>
+                <circle cx="100" cy="75" r="8" fill="#ef4444"/>
+                <circle cx="100" cy="130" r="8" fill="#3b82f6"/>
+                <path d="M 96 140 L 104 140 L 100 180 Z" fill="url(#${id}_metal)"/>
+                <circle cx="100" cy="180" r="3" fill="#f59e0b"/>
+            `;
+        }
+        // 26. PUMPS (FUEL, WATER, OIL, POWER STEERING)
+        else if (/pump/i.test(raw)) {
+            content = `
+                <circle cx="100" cy="100" r="52" fill="url(#${id}_metal)"/>
+                <circle cx="100" cy="100" r="36" fill="#1e293b"/>
+                ${Array.from({length: 6}).map((_, i) => {
+                    const rad = (i * 60) * Math.PI / 180;
+                    return `<path d="M 100 100 Q ${(100 + 30 * Math.cos(rad)).toFixed(1)} ${(100 + 30 * Math.sin(rad)).toFixed(1)} ${(100 + 48 * Math.cos(rad+0.5)).toFixed(1)} ${(100 + 48 * Math.sin(rad+0.5)).toFixed(1)}" stroke="#38bdf8" stroke-width="4" fill="none"/>`;
+                }).join('')}
+                <rect x="35" y="85" width="30" height="30" rx="4" fill="${pColor}"/>
+                <rect x="135" y="85" width="30" height="30" rx="4" fill="${pColor}"/>
+            `;
+        }
+        // 27. CLUTCH / FLYWHEEL / TRANSMISSION / GEARBOX
+        else if (/clutch|flywheel|transmission|gearbox/i.test(raw)) {
+            content = `
+                <circle cx="100" cy="100" r="80" fill="#334155"/>
+                <circle cx="100" cy="100" r="72" fill="url(#${id}_ceramic)"/>
+                <circle cx="100" cy="100" r="45" fill="url(#${id}_metal)"/>
+                ${[0, 90, 180, 270].map(a => {
+                    const rad = a * Math.PI / 180;
+                    return `<rect x="${(100 + 26 * Math.cos(rad) - 8).toFixed(1)}" y="${(100 + 26 * Math.sin(rad) - 8).toFixed(1)}" width="16" height="16" rx="3" fill="#f59e0b"/>`;
+                }).join('')}
+                <circle cx="100" cy="100" r="16" fill="#0f172a"/>
+            `;
+        }
+        // 28. BUSHING / CONTROL ARM / BALL JOINT / LINK
+        else if (/bushing|bush|ball\s*joint|control\s*arm|link|arm/i.test(raw)) {
+            content = `
+                <path d="M 50 140 L 150 140 L 100 50 Z" fill="none" stroke="url(#${id}_metal)" stroke-width="24" stroke-linejoin="round"/>
+                <circle cx="50" cy="140" r="22" fill="#1e293b"/>
+                <circle cx="50" cy="140" r="10" fill="#94a3b8"/>
+                <circle cx="150" cy="140" r="22" fill="#1e293b"/>
+                <circle cx="150" cy="140" r="10" fill="#94a3b8"/>
+                <circle cx="100" cy="50" r="20" fill="${pColor}"/>
+                <circle cx="100" cy="50" r="8" fill="#f8fafc"/>
+            `;
+        }
+        // 29. BEARING / WHEEL HUB
+        else if (/bearing|hub/i.test(raw)) {
+            content = `
+                <circle cx="100" cy="100" r="75" fill="url(#${id}_metal)"/>
+                <circle cx="100" cy="100" r="58" fill="#1e293b"/>
                 ${Array.from({length: 8}).map((_, i) => {
                     const rad = (i * 45) * Math.PI / 180;
-                    return `<rect x="${(85 + 46 * Math.cos(rad) - 6).toFixed(1)}" y="${(90 + 46 * Math.sin(rad) - 6).toFixed(1)}" width="12" height="12" rx="2" fill="#64748b"/>`;
+                    return `<circle cx="${(100 + 44 * Math.cos(rad)).toFixed(1)}" cy="${(100 + 44 * Math.sin(rad)).toFixed(1)}" r="9" fill="url(#${id}_metal)"/>`;
                 }).join('')}
-                <circle cx="85" cy="90" r="28" fill="#f8fafc"/>
-                <circle cx="85" cy="90" r="14" fill="#0f172a"/>
-                <circle cx="130" cy="135" r="34" fill="${pColor}"/>
-                <circle cx="130" cy="135" r="18" fill="#f8fafc"/>
-                <circle cx="130" cy="135" r="8" fill="#0f172a"/>
+                <circle cx="100" cy="100" r="30" fill="url(#${id}_metal)"/>
+                <circle cx="100" cy="100" r="18" fill="#0f172a"/>
+            `;
+        }
+        // 30. FUSE / RELAY / SWITCH / ECU
+        else if (/fuse|relay|switch|ecu/i.test(raw)) {
+            content = `
+                <rect x="50" y="40" width="100" height="90" rx="8" fill="${pColor}" opacity="0.85"/>
+                <path d="M 70 85 Q 100 50 100 85 Q 100 120 130 85" fill="none" stroke="#facc15" stroke-width="6" stroke-linecap="round"/>
+                <rect x="65" y="130" width="20" height="45" rx="3" fill="url(#${id}_metal)"/>
+                <rect x="115" y="130" width="20" height="45" rx="3" fill="url(#${id}_metal)"/>
+            `;
+        }
+        // 31. FASTENER / BOLT / NUT / SCREW / BRACKET / MOUNT
+        else if (/bolt|nut|screw|fastener|bracket|mount/i.test(raw)) {
+            content = `
+                <polygon points="100,25 140,48 140,94 100,117 60,94 60,48" fill="url(#${id}_metal)"/>
+                <circle cx="100" cy="71" r="24" fill="#64748b"/>
+                <rect x="85" y="117" width="30" height="65" rx="2" fill="url(#${id}_metal)"/>
+                ${[125, 137, 149, 161, 173].map(y => `<line x1="85" y1="${y}" x2="115" y2="${y+3}" stroke="#334155" stroke-width="2.5"/>`).join('')}
+            `;
+        }
+        // 32. UNIVERSAL REAL-TIME PROCEDURAL BLUEPRINT (For ANY other unique/custom automotive name)
+        else {
+            // Calculate a deterministic hash for unique visual variations
+            let hash = 0;
+            for (let i = 0; i < raw.length; i++) hash = (hash << 5) - hash + raw.charCodeAt(i);
+            const teeth = 6 + (Math.abs(hash) % 5);
+            const innerR = 24 + (Math.abs(hash) % 12);
+
+            content = `
+                <circle cx="100" cy="100" r="68" fill="url(#${id}_metal)"/>
+                ${Array.from({length: teeth}).map((_, i) => {
+                    const rad = (i * (360 / teeth)) * Math.PI / 180;
+                    return `<rect x="${(100 + 64 * Math.cos(rad) - 7).toFixed(1)}" y="${(100 + 64 * Math.sin(rad) - 7).toFixed(1)}" width="14" height="14" rx="3" fill="${pColor}"/>`;
+                }).join('')}
+                <circle cx="100" cy="100" r="${innerR}" fill="#1e293b"/>
+                <circle cx="100" cy="100" r="${(innerR * 0.55).toFixed(1)}" fill="url(#${id}_metal)"/>
+                <circle cx="100" cy="100" r="${(innerR * 0.25).toFixed(1)}" fill="#0f172a"/>
+                <line x1="45" y1="45" x2="155" y2="155" stroke="#ffffff" stroke-width="2" stroke-opacity="0.3"/>
             `;
         }
 
@@ -950,7 +998,7 @@
                 glowClass: 'group-hover:border-cyan-400'
             };
         }
-        if (/door|handle|latch|lock|mirror|side\s*mirror|bumper|hood|trunk|fender|grille|body/i.test(raw)) {
+        if (/door|handle|latch|lock|mirror|side\s*mirror|bumper|hood|trunk|fender|grille|body|spoiler/i.test(raw)) {
             return {
                 category: 'Body & Exterior',
                 imageUrl: customGeneratedSvg,
@@ -1035,7 +1083,7 @@
         }
 
         // 5. Exhaust & Turbo
-        if (/exhaust|muffler|pipe|header|catalytic|turbo|supercharger|intercooler/i.test(raw)) {
+        if (/exhaust|muffler|pipe|header|catalytic|turbo|supercharger|intercooler|downpipe/i.test(raw)) {
             return {
                 category: 'Exhaust & Forced Induction',
                 imageUrl: customGeneratedSvg,
@@ -1100,7 +1148,7 @@
         }
 
         // 10. Electrical & Sensors
-        if (/battery|alternator|starter|generator|sensor|probe|o2|abs|fuse|relay|horn/i.test(raw)) {
+        if (/battery|alternator|starter|generator|sensor|probe|o2|abs|fuse|relay|horn|ecu/i.test(raw)) {
             return {
                 category: 'Electrical & Sensors',
                 imageUrl: customGeneratedSvg,
@@ -1126,7 +1174,7 @@
         }
 
         // 12. Tires & Wheels
-        if (/tire|tyre|wheel|rim|bearing|hub/i.test(raw)) {
+        if (/tire|tyre|wheel|rim|bearing|hub|mag/i.test(raw)) {
             return {
                 category: 'Tires & Wheels',
                 imageUrl: customGeneratedSvg,
@@ -1150,177 +1198,9 @@
         };
     }
 
-    // ── Global Real Photo Suggester State ──
-    let photoSearchDebounce = null;
-    let cachedPhotoResults = [];
-
+    // ── Instant Real-Time Input Handler ──
     function onPartNameInput(name) {
         updateAIMiniModalPreview(name);
-        const customInput = document.getElementById('customPhotoQuery');
-        if (customInput && (!document.activeElement || document.activeElement !== customInput)) {
-            customInput.value = name;
-        }
-        if (!name || name.trim().length < 2) return;
-        
-        clearTimeout(photoSearchDebounce);
-        photoSearchDebounce = setTimeout(() => {
-            fetchRealPhotoSuggestions(name);
-        }, 500);
-    }
-
-    async function fetchRealPhotoSuggestions(query) {
-        if (!query || query.trim().length < 2) return;
-
-        const loader = document.getElementById('aiPhotoSearchLoader');
-        const grid = document.getElementById('aiSuggestedPhotosGrid');
-        
-        if (loader) loader.classList.remove('hidden');
-        if (grid) {
-            grid.innerHTML = `
-                <div class="col-span-full py-4 flex items-center justify-center gap-2 text-blue-600 text-xs font-bold">
-                    <i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Finding real photos for "${escapeHtml(query)}"...
-                </div>
-            `;
-            if (typeof lucide !== 'undefined') lucide.createIcons();
-        }
-
-        try {
-            const res = await fetch(`{{ route('spare-parts.suggest-images') }}?query=${encodeURIComponent(query)}`);
-            const data = await res.json();
-            if (loader) loader.classList.add('hidden');
-
-            if (data.success && data.images && data.images.length > 0) {
-                cachedPhotoResults = data.images;
-                renderPhotoSuggestionsGrid(data.images);
-            } else {
-                if (grid) {
-                    grid.innerHTML = `
-                        <div class="col-span-full py-4 text-center text-xs text-slate-400 font-medium">
-                            No online photos found for "${escapeHtml(query)}". Defaulting to accurate 3D render.
-                        </div>
-                    `;
-                }
-            }
-        } catch (e) {
-            console.error('Photo search error:', e);
-            if (loader) loader.classList.add('hidden');
-            if (grid) {
-                grid.innerHTML = `
-                    <div class="col-span-full py-3 text-center text-xs text-slate-400 font-medium">
-                        Unable to connect to image search.
-                    </div>
-                `;
-            }
-        }
-    }
-
-    function renderPhotoSuggestionsGrid(images) {
-        const grid = document.getElementById('aiSuggestedPhotosGrid');
-        if (!grid) return;
-
-        const currentSelected = document.getElementById('newPartImageUrl').value;
-        const partName = document.getElementById('newPartName').value || 'Automotive Part';
-        const dynamicSvgUrl = generateDynamicPartSVG(partName);
-        const isSvgSelected = (!currentSelected || currentSelected === dynamicSvgUrl);
-
-        // Prepend AI Generated SVG card
-        const svgCardHtml = `
-            <div class="relative group cursor-pointer rounded-xl overflow-hidden border-2 ${isSvgSelected ? 'border-blue-600 ring-2 ring-blue-400/50 shadow-md' : 'border-slate-200 hover:border-blue-400'} bg-blue-50/40 aspect-square flex flex-col items-center justify-center p-1.5 transition-all hover:scale-105"
-                 onclick="selectRealPhoto('', '')"
-                 title="✨ AI Generated 3D Vector for '${escapeHtml(partName)}'">
-                <img src="${dynamicSvgUrl}" alt="AI Generated 3D Asset" class="w-full h-full object-contain filter drop-shadow-xs">
-                <div class="absolute bottom-0 inset-x-0 bg-blue-600/90 text-[8px] text-white text-center font-bold py-0.5 tracking-wider uppercase">✨ AI Vector</div>
-                ${isSvgSelected ? '<div class="absolute top-1 right-1 bg-blue-600 text-white rounded-full p-0.5 shadow-sm"><i data-lucide="check" class="w-3 h-3"></i></div>' : ''}
-            </div>
-        `;
-
-        const photosHtml = images.map((img) => {
-            const isSelected = (currentSelected === img.image || currentSelected === img.thumb);
-            return `
-                <div class="relative group cursor-pointer rounded-xl overflow-hidden border-2 ${isSelected ? 'border-blue-600 ring-2 ring-blue-400/50 shadow-md' : 'border-slate-200 hover:border-blue-400'} bg-white aspect-square flex items-center justify-center p-1.5 transition-all hover:scale-105"
-                     onclick="selectRealPhoto('${addslashes(img.image)}', '${addslashes(img.thumb)}')"
-                     title="${escapeHtml(img.title || 'Click to select this actual photo')}">
-                    <img src="${img.thumb}" alt="${escapeHtml(img.title || 'Part')}" class="w-full h-full object-contain filter drop-shadow-xs" onerror="this.src='${img.image}'">
-                    <div class="absolute bottom-0 inset-x-0 bg-slate-900/70 text-[8px] text-white text-center font-semibold py-0.5 truncate px-1">📸 Photo</div>
-                    ${isSelected ? '<div class="absolute top-1 right-1 bg-blue-600 text-white rounded-full p-0.5 shadow-sm"><i data-lucide="check" class="w-3 h-3"></i></div>' : ''}
-                </div>
-            `;
-        }).join('');
-
-        grid.innerHTML = svgCardHtml + photosHtml;
-
-        if (typeof lucide !== 'undefined') lucide.createIcons();
-    }
-
-    function selectRealPhoto(imageUrl, thumbUrl) {
-        const finalUrl = imageUrl || thumbUrl || '';
-        document.getElementById('newPartImageUrl').value = finalUrl;
-        
-        const iconBox = document.getElementById('aiDetectorIconBox');
-        const imgSourceLabel = document.getElementById('imgSourceLabel');
-        const name = document.getElementById('newPartName').value;
-        const meta = getPartAIMeta(name);
-
-        const activeImg = finalUrl || meta.imageUrl;
-
-        if (iconBox) {
-            iconBox.innerHTML = `<img src="${activeImg}" alt="Selected Asset" class="w-full h-full object-contain filter drop-shadow-sm rounded-xl" onerror="this.src='{{ asset('image/parts/general_part.svg') }}'">`;
-            iconBox.onclick = () => openImageModal(activeImg);
-        }
-
-        if (imgSourceLabel) {
-            if (finalUrl) {
-                imgSourceLabel.innerText = '✨ Real Photo Selected';
-                imgSourceLabel.className = 'text-green-600 font-black';
-            } else {
-                imgSourceLabel.innerText = `🎨 AI 3D Asset (${meta.category})`;
-                imgSourceLabel.className = 'text-blue-600 font-bold';
-            }
-        }
-
-        if (cachedPhotoResults.length > 0) {
-            renderPhotoSuggestionsGrid(cachedPhotoResults);
-        }
-    }
-
-    function searchCustomRealPhotos() {
-        const query = document.getElementById('customPhotoQuery').value;
-        if (!query || query.trim().length < 2) {
-            showToast('Please enter search keywords', 'error');
-            return;
-        }
-        fetchRealPhotoSuggestions(query.trim());
-    }
-
-    function resetToDefault3DImage() {
-        const name = document.getElementById('newPartName').value;
-        const meta = getPartAIMeta(name);
-        document.getElementById('newPartImageUrl').value = '';
-        
-        const iconBox = document.getElementById('aiDetectorIconBox');
-        const imgSourceLabel = document.getElementById('imgSourceLabel');
-
-        if (iconBox) {
-            iconBox.className = `w-14 h-14 rounded-2xl p-1.5 flex items-center justify-center shrink-0 border ${meta.badgeBorder} ${meta.badgeBg} shadow-xs transition-all duration-300 transform scale-100 hover:scale-105 cursor-pointer bg-white`;
-            iconBox.innerHTML = `<img src="${meta.imageUrl}" alt="AI 3D Asset" class="w-full h-full object-contain filter drop-shadow-sm" onerror="this.src='{{ asset('image/parts/general_part.svg') }}'">`;
-            iconBox.onclick = () => openImageModal(meta.imageUrl);
-        }
-
-        if (imgSourceLabel) {
-            imgSourceLabel.innerText = `🎨 AI 3D Asset (${meta.category})`;
-            imgSourceLabel.className = 'text-blue-600 font-bold';
-        }
-
-        if (cachedPhotoResults.length > 0) {
-            renderPhotoSuggestionsGrid(cachedPhotoResults);
-        }
-    }
-
-    function promptCustomImageUrl() {
-        const url = prompt('Enter or paste image URL:');
-        if (url && url.startsWith('http')) {
-            selectRealPhoto(url, url);
-        }
     }
 
     // ── Live AI Preview Update in Add/Edit Part Modal ──
@@ -1330,39 +1210,35 @@
         const catLabel = document.getElementById('aiDetectorCategoryName');
         const previewContainer = document.getElementById('aiPartDetectorPreview');
         const confidenceBadge = document.getElementById('aiConfidenceBadge');
-        const customUrl = document.getElementById('newPartImageUrl').value;
         const imgSourceLabel = document.getElementById('imgSourceLabel');
 
-        const activeImg = customUrl || meta.imageUrl;
+        const activeImg = meta.imageUrl;
+        const hiddenImg = document.getElementById('newPartImageUrl');
+        if (hiddenImg) hiddenImg.value = activeImg;
 
         if (iconBox) {
-            iconBox.className = `w-14 h-14 rounded-2xl p-1.5 flex items-center justify-center shrink-0 border ${meta.badgeBorder} ${meta.badgeBg} shadow-xs transition-all duration-300 transform scale-100 hover:scale-105 cursor-pointer bg-white`;
-            iconBox.innerHTML = `<img src="${activeImg}" alt="Part Preview" class="w-full h-full object-contain filter drop-shadow-sm rounded-xl" onerror="this.onerror=null; this.src='{{ asset('image/parts/general_part.svg') }}';">`;
+            iconBox.className = `w-16 h-16 rounded-2xl p-1.5 flex items-center justify-center shrink-0 border ${meta.badgeBorder} ${meta.badgeBg} shadow-sm transition-all duration-300 transform scale-100 hover:scale-105 cursor-pointer bg-white`;
+            iconBox.innerHTML = `<img src="${activeImg}" alt="Procedural Vector Preview" class="w-full h-full object-contain filter drop-shadow-sm rounded-xl">`;
             iconBox.onclick = () => openImageModal(activeImg);
         }
 
         if (catLabel) {
             catLabel.innerText = meta.category;
-            catLabel.className = `text-xs font-black ${meta.textClass} tracking-tight mt-0.5 truncate`;
+            catLabel.className = `text-sm font-black ${meta.textClass} tracking-tight mt-0.5 truncate`;
         }
 
         if (previewContainer) {
-            previewContainer.className = `p-3.5 rounded-2xl border transition-all duration-300 ${meta.badgeBg} ${meta.badgeBorder} flex items-center gap-3.5 shadow-xs`;
+            previewContainer.className = `p-4 rounded-2xl border transition-all duration-300 ${meta.badgeBg} ${meta.badgeBorder} flex items-center gap-4 shadow-xs`;
         }
 
         if (confidenceBadge) {
-            confidenceBadge.innerText = name && name.trim().length > 1 ? '✨ AI Identified' : 'Type part name...';
-            confidenceBadge.className = name && name.trim().length > 1 ? `text-[9px] font-black uppercase ${meta.textClass}` : 'text-[9px] font-bold text-slate-400';
+            confidenceBadge.innerText = name && name.trim().length > 1 ? '✨ Realtime SVG' : 'Live Generator';
+            confidenceBadge.className = name && name.trim().length > 1 ? `text-[9px] font-black uppercase px-2 py-0.5 rounded-full bg-white shadow-xs ${meta.textClass}` : 'text-[9px] font-bold text-slate-400';
         }
 
         if (imgSourceLabel) {
-            if (customUrl) {
-                imgSourceLabel.innerText = '✨ Real Photo Selected';
-                imgSourceLabel.className = 'text-green-600 font-black';
-            } else {
-                imgSourceLabel.innerText = 'Standard 3D Asset';
-                imgSourceLabel.className = 'text-blue-500 font-bold';
-            }
+            imgSourceLabel.innerText = `Procedural Vector · ${meta.category}`;
+            imgSourceLabel.className = `${meta.textClass} font-bold`;
         }
     }
 
@@ -1382,7 +1258,7 @@
             else if (isLow) badgeClass = 'bg-yellow-50 text-yellow-600';
 
             const aiMeta = getPartAIMeta(p.name);
-            const partImg = p.image_url || aiMeta.imageUrl;
+            const partImg = generateDynamicPartSVG(p.name);
 
             return `
             <tr class="hover:bg-gray-50/80 transition-colors group">
@@ -1390,8 +1266,8 @@
                     <div class="flex items-center gap-3.5">
                         <div class="relative w-12 h-12 rounded-2xl p-1 flex items-center justify-center shrink-0 border ${aiMeta.badgeBorder} ${aiMeta.badgeBg} shadow-xs group-hover:scale-105 ${aiMeta.glowClass} transition-all cursor-pointer bg-white overflow-hidden"
                              onclick="openImageModal('${addslashes(partImg)}')"
-                             title="Click to view full image">
-                            <img src="${partImg}" alt="${escapeHtml(p.name)}" class="w-full h-full object-contain filter drop-shadow-sm rounded-xl" onerror="this.onerror=null; this.src='${aiMeta.imageUrl}';">
+                             title="Click to view procedural vector">
+                            <img src="${partImg}" alt="${escapeHtml(p.name)}" class="w-full h-full object-contain filter drop-shadow-sm rounded-xl">
                         </div>
                         <div class="min-w-0">
                             <div class="text-sm font-black text-gray-900 tracking-tight group-hover:text-blue-600 transition-colors truncate">${escapeHtml(p.name)}</div>
@@ -1419,7 +1295,7 @@
                 </td>
                 <td class="px-8 py-4 text-right">
                     <div class="flex justify-end gap-2">
-                        <button onclick="editPart(${p.id}, '${addslashes(p.name)}', ${p.price}, ${p.stock_quantity}, '${addslashes(p.supplier||'')}', '${addslashes(p.image_url||'')}')" class="p-2 text-blue-600 hover:bg-blue-100 rounded-xl transition-all" title="Purchase / Edit Part">
+                        <button onclick="editPart(${p.id}, '${addslashes(p.name)}', ${p.price}, ${p.stock_quantity}, '${addslashes(p.supplier||'')}')" class="p-2 text-blue-600 hover:bg-blue-100 rounded-xl transition-all" title="Purchase / Edit Part">
                             <i data-lucide="shopping-cart" class="w-4 h-4"></i>
                         </button>
                         <button onclick="archivePart(${p.id})" class="p-2 text-red-500 hover:bg-red-100 rounded-xl transition-all" title="Archive Part">
@@ -1443,6 +1319,7 @@
         tbody.innerHTML = data.map(ph => {
             const dateStr = new Date(ph.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
             const aiMeta = getPartAIMeta(ph.description);
+            const partImg = generateDynamicPartSVG(ph.description);
 
             return `
             <tr class="hover:bg-gray-50/80 transition-colors">
@@ -1452,9 +1329,9 @@
                 <td class="px-8 py-5">
                     <div class="flex items-center gap-3.5">
                         <div class="relative w-11 h-11 rounded-2xl p-1 flex items-center justify-center shrink-0 border ${aiMeta.badgeBorder} ${aiMeta.badgeBg} shadow-xs cursor-pointer bg-white overflow-hidden"
-                             onclick="openImageModal('${aiMeta.imageUrl}')"
-                             title="Click to view full image">
-                            <img src="${aiMeta.imageUrl}" alt="${escapeHtml(ph.description)}" class="w-full h-full object-contain filter drop-shadow-sm rounded-xl" onerror="this.onerror=null; this.src='{{ asset('image/parts/general_part.svg') }}';">
+                             onclick="openImageModal('${addslashes(partImg)}')"
+                             title="Click to view procedural vector">
+                            <img src="${partImg}" alt="${escapeHtml(ph.description)}" class="w-full h-full object-contain filter drop-shadow-sm rounded-xl">
                         </div>
                         <div class="min-w-0">
                             <div class="text-sm font-black text-gray-800 tracking-tight">${escapeHtml(ph.description)}</div>
@@ -1479,7 +1356,7 @@
 
         tbody.innerHTML = data.map(p => {
             const aiMeta = getPartAIMeta(p.name);
-            const partImg = p.image_url || aiMeta.imageUrl;
+            const partImg = generateDynamicPartSVG(p.name);
 
             return `
             <tr class="hover:bg-gray-50/80 transition-colors group">
@@ -1487,8 +1364,8 @@
                     <div class="flex items-center gap-3.5">
                         <div class="relative w-11 h-11 rounded-2xl p-1 flex items-center justify-center shrink-0 border ${aiMeta.badgeBorder} ${aiMeta.badgeBg} shadow-xs cursor-pointer bg-white overflow-hidden"
                              onclick="openImageModal('${addslashes(partImg)}')"
-                             title="Click to view full image">
-                            <img src="${partImg}" alt="${escapeHtml(p.name)}" class="w-full h-full object-contain filter drop-shadow-sm rounded-xl" onerror="this.onerror=null; this.src='{{ asset('image/parts/general_part.svg') }}';">
+                             title="Click to view procedural vector">
+                            <img src="${partImg}" alt="${escapeHtml(p.name)}" class="w-full h-full object-contain filter drop-shadow-sm rounded-xl">
                         </div>
                         <div class="min-w-0">
                             <div class="text-sm font-black text-gray-700 tracking-tight">${escapeHtml(p.name)}</div>
@@ -1526,7 +1403,6 @@
             document.getElementById('newPartQty').value = '';
             document.getElementById('newPartSupplier').value = '';
             document.getElementById('newPartImageUrl').value = '';
-            document.getElementById('customPhotoQuery').value = '';
             
             document.getElementById('miniModalTitle').innerText = 'Add New Part';
             document.getElementById('miniModalSubtitle').innerText = 'Create a new item in the spare parts catalog';
@@ -1538,12 +1414,6 @@
             iconContainer.className = 'w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center';
             iconContainer.innerHTML = '<i data-lucide="plus" class="w-5 h-5 text-blue-600"></i>';
             
-            document.getElementById('aiSuggestedPhotosGrid').innerHTML = `
-                <div class="col-span-full py-4 text-center text-xs text-slate-400 font-medium">
-                    Type a part name above to auto-suggest real photos.
-                </div>
-            `;
-            
             updateAIMiniModalPreview('');
             lucide.createIcons();
         }
@@ -1553,7 +1423,7 @@
         document.getElementById('partMiniModal').classList.add('hidden');
     }
 
-    function editPart(id, name, price, qty, supplier, imageUrl = '') {
+    function editPart(id, name, price, qty, supplier) {
         openPartMiniModal(true);
         document.getElementById('newPartId').value = id;
         document.getElementById('newPartCurrentStock').value = qty;
@@ -1561,8 +1431,7 @@
         document.getElementById('newPartPrice').value = price;
         document.getElementById('newPartQty').value = ''; 
         document.getElementById('newPartSupplier').value = supplier || '';
-        document.getElementById('newPartImageUrl').value = imageUrl || '';
-        document.getElementById('customPhotoQuery').value = name || '';
+        document.getElementById('newPartImageUrl').value = generateDynamicPartSVG(name);
 
         document.getElementById('miniModalTitle').innerText = 'Purchase / Edit Part';
         document.getElementById('miniModalSubtitle').innerText = 'Add stock or update part details';
@@ -1575,17 +1444,16 @@
         iconContainer.innerHTML = '<i data-lucide="shopping-cart" class="w-5 h-5 text-blue-600"></i>';
         
         updateAIMiniModalPreview(name);
-        fetchRealPhotoSuggestions(name);
         lucide.createIcons();
     }
 
     async function saveNewPart() {
         const id = document.getElementById('newPartId').value;
-        const name = document.getElementById('newPartName').value;
+        const name = document.getElementById('newPartName').value.trim();
         const price = document.getElementById('newPartPrice').value;
         const qty_to_add = parseInt(document.getElementById('newPartQty').value) || 0;
         const supplier = document.getElementById('newPartSupplier').value;
-        const image_url = document.getElementById('newPartImageUrl').value;
+        const image_url = generateDynamicPartSVG(name);
         const meta = getPartAIMeta(name);
 
         if(!name || !price) {
@@ -1848,12 +1716,6 @@
     window.generateDynamicPartSVG = generateDynamicPartSVG;
     window.getPartAIMeta = getPartAIMeta;
     window.onPartNameInput = onPartNameInput;
-    window.fetchRealPhotoSuggestions = fetchRealPhotoSuggestions;
-    window.renderPhotoSuggestionsGrid = renderPhotoSuggestionsGrid;
-    window.selectRealPhoto = selectRealPhoto;
-    window.searchCustomRealPhotos = searchCustomRealPhotos;
-    window.resetToDefault3DImage = resetToDefault3DImage;
-    window.promptCustomImageUrl = promptCustomImageUrl;
     window.updateAIMiniModalPreview = updateAIMiniModalPreview;
     window.renderActiveParts = renderActiveParts;
     window.renderHistory = renderHistory;
