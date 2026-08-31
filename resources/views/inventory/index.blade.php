@@ -1288,6 +1288,366 @@
             glowClass: 'group-hover:border-blue-400'
         };
     }
+
+    // ── Instant Real-Time Input Handler ──
+    function onPartNameInput(name) {
+        updateAIMiniModalPreview(name);
+    }
+
+    // ── Live AI Preview Update in Add/Edit Part Modal ──
+    function updateAIMiniModalPreview(name) {
+        const meta = getPartAIMeta(name);
+        const iconBox = document.getElementById('aiDetectorIconBox');
+        const catLabel = document.getElementById('aiDetectorCategoryName');
+        const previewContainer = document.getElementById('aiPartDetectorPreview');
+        const confidenceBadge = document.getElementById('aiConfidenceBadge');
+        const imgSourceLabel = document.getElementById('imgSourceLabel');
+
+        const activeImg = meta.imageUrl;
+        const hiddenImg = document.getElementById('newPartImageUrl');
+        if (hiddenImg) hiddenImg.value = activeImg;
+
+        if (iconBox) {
+            iconBox.className = `w-16 h-16 rounded-2xl p-1.5 flex items-center justify-center shrink-0 border ${meta.badgeBorder} ${meta.badgeBg} shadow-sm transition-all duration-300 transform scale-100 hover:scale-105 cursor-pointer bg-white`;
+            iconBox.innerHTML = `<img src="${activeImg}" alt="Procedural Vector Preview" class="w-full h-full object-contain filter drop-shadow-sm rounded-xl">`;
+            iconBox.onclick = () => openImageModal(activeImg);
+        }
+
+        if (catLabel) {
+            catLabel.innerText = meta.category;
+            catLabel.className = `text-sm font-black ${meta.textClass} tracking-tight mt-0.5 truncate`;
+        }
+
+        if (previewContainer) {
+            previewContainer.className = `p-4 rounded-2xl border transition-all duration-300 ${meta.badgeBg} ${meta.badgeBorder} flex items-center gap-4 shadow-xs`;
+        }
+
+        if (confidenceBadge) {
+            confidenceBadge.innerText = name && name.trim().length > 1 ? '✨ Realtime SVG' : 'Live Generator';
+            confidenceBadge.className = name && name.trim().length > 1 ? `text-[9px] font-black uppercase px-2 py-0.5 rounded-full bg-white shadow-xs ${meta.textClass}` : 'text-[9px] font-bold text-slate-400';
+        }
+
+        if (imgSourceLabel) {
+            imgSourceLabel.innerText = `Procedural Vector · ${meta.category}`;
+            imgSourceLabel.className = `${meta.textClass} font-bold`;
+        }
+    }
+
+    // --- Rendering Active Parts Table with Dedicated Edit, Purchase, and Archive Actions ---
+    function renderActiveParts(data) {
+        const tbody = document.getElementById('activePartsTable');
+        if (!tbody) return;
+        if (data.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" class="text-center py-16 text-gray-500 text-sm font-medium">No parts found.</td></tr>`;
+            return;
+        }
+
+        tbody.innerHTML = data.map(p => {
+            const isOut = p.stock_quantity <= 0;
+            const isLow = !isOut && p.stock_quantity <= 5;
+            let badgeClass = 'bg-green-50 text-green-700';
+            if (isOut) badgeClass = 'bg-red-50 text-red-600';
+            else if (isLow) badgeClass = 'bg-yellow-50 text-yellow-600';
+
+            const aiMeta = getPartAIMeta(p.name);
+            const partImg = generateDynamicPartSVG(p.name);
+
+            return `
+            <tr class="hover:bg-gray-50/80 transition-colors group">
+                <td class="px-8 py-4">
+                    <div class="flex items-center gap-3.5">
+                        <div class="relative w-12 h-12 rounded-2xl p-1 flex items-center justify-center shrink-0 border ${aiMeta.badgeBorder} ${aiMeta.badgeBg} shadow-xs group-hover:scale-105 ${aiMeta.glowClass} transition-all cursor-pointer bg-white overflow-hidden"
+                             onclick="openImageModal('${addslashes(partImg)}')"
+                             title="Click to view procedural vector">
+                            <img src="${partImg}" alt="${escapeHtml(p.name)}" class="w-full h-full object-contain filter drop-shadow-sm rounded-xl">
+                        </div>
+                        <div class="min-w-0">
+                            <div class="text-sm font-black text-gray-900 tracking-tight group-hover:text-blue-600 transition-colors truncate">${escapeHtml(p.name)}</div>
+                            <div class="flex items-center gap-1.5 mt-0.5">
+                                <span class="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider ${aiMeta.textClass}">
+                                    <span class="w-1.5 h-1.5 rounded-full ${aiMeta.dotClass}"></span>
+                                    ${p.category || aiMeta.category}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </td>
+                <td class="px-8 py-4">
+                    <span class="inline-flex items-center px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider ${p.supplier ? 'bg-purple-50 text-purple-700' : 'bg-gray-100 text-gray-500'}">
+                        ${escapeHtml(p.supplier || 'Unspecified')}
+                    </span>
+                </td>
+                <td class="px-8 py-4 text-right">
+                    <div class="text-sm font-bold text-gray-900">₱${parseFloat(p.price).toFixed(2)}</div>
+                </td>
+                <td class="px-8 py-4 text-center">
+                    <span class="inline-flex px-3 py-1.5 rounded-lg text-xs font-black ${badgeClass}">
+                        ${p.stock_quantity}
+                    </span>
+                </td>
+                <td class="px-8 py-4 text-right">
+                    <div class="flex justify-end items-center gap-1.5">
+                        <!-- 1. Dedicated Edit Button -->
+                        <button onclick="openEditPartModal(${p.id}, '${addslashes(p.name)}', ${p.price}, ${p.stock_quantity}, '${addslashes(p.supplier||'')}')" 
+                                class="p-2 text-amber-600 hover:text-amber-700 hover:bg-amber-50 rounded-xl transition-all group-hover:shadow-xs border border-transparent hover:border-amber-200" 
+                                title="Edit Part Details (Name, Price, Supplier)">
+                            <i data-lucide="edit-3" class="w-4 h-4"></i>
+                        </button>
+                        <!-- 2. Purchase / Restock Button -->
+                        <button onclick="openRestockPartModal(${p.id}, '${addslashes(p.name)}', ${p.price}, ${p.stock_quantity}, '${addslashes(p.supplier||'')}')" 
+                                class="p-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-xl transition-all group-hover:shadow-xs border border-transparent hover:border-blue-200" 
+                                title="Purchase / Add Stock">
+                            <i data-lucide="shopping-cart" class="w-4 h-4"></i>
+                        </button>
+                        <!-- 3. Archive Button -->
+                        <button onclick="archivePart(${p.id})" 
+                                class="p-2 text-red-500 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all group-hover:shadow-xs border border-transparent hover:border-red-200" 
+                                title="Archive Part">
+                            <i data-lucide="trash" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+            `;
+        }).join('');
+        lucide.createIcons();
+    }
+
+    function renderHistory(data) {
+        const tbody = document.getElementById('historyTable');
+        if (!tbody) return;
+        if (data.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="3" class="text-center py-16 text-gray-500 text-sm font-medium">No purchase records found.</td></tr>`;
+            return;
+        }
+
+        tbody.innerHTML = data.map(ph => {
+            const dateStr = new Date(ph.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            const aiMeta = getPartAIMeta(ph.description);
+            const partImg = generateDynamicPartSVG(ph.description);
+
+            return `
+            <tr class="hover:bg-gray-50/80 transition-colors">
+                <td class="px-8 py-5 whitespace-nowrap">
+                    <div class="text-sm font-bold text-gray-700">${dateStr}</div>
+                </td>
+                <td class="px-8 py-5">
+                    <div class="flex items-center gap-3.5">
+                        <div class="relative w-11 h-11 rounded-2xl p-1 flex items-center justify-center shrink-0 border ${aiMeta.badgeBorder} ${aiMeta.badgeBg} shadow-xs cursor-pointer bg-white overflow-hidden"
+                             onclick="openImageModal('${addslashes(partImg)}')"
+                             title="Click to view procedural vector">
+                            <img src="${partImg}" alt="${escapeHtml(ph.description)}" class="w-full h-full object-contain filter drop-shadow-sm rounded-xl">
+                        </div>
+                        <div class="min-w-0">
+                            <div class="text-sm font-black text-gray-800 tracking-tight">${escapeHtml(ph.description)}</div>
+                            <div class="text-xs text-blue-500 font-bold uppercase mt-0.5 tracking-wider">${escapeHtml(ph.category)}</div>
+                        </div>
+                    </div>
+                </td>
+                <td class="px-8 py-5 text-right">
+                    <div class="text-base font-black text-green-600">₱${parseFloat(ph.amount).toFixed(2)}</div>
+                </td>
+            </tr>
+            `;
+        }).join('');
+    }
+
+    function renderArchivedParts(data) {
+        const tbody = document.getElementById('archivedTable');
+        if (!tbody) return;
+        if (data.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="3" class="text-center py-16 text-gray-500 text-sm font-medium">No archived parts found.</td></tr>`;
+            return;
+        }
+
+        tbody.innerHTML = data.map(p => {
+            const aiMeta = getPartAIMeta(p.name);
+            const partImg = generateDynamicPartSVG(p.name);
+
+            return `
+            <tr class="hover:bg-gray-50/80 transition-colors group">
+                <td class="px-8 py-4">
+                    <div class="flex items-center gap-3.5">
+                        <div class="relative w-11 h-11 rounded-2xl p-1 flex items-center justify-center shrink-0 border ${aiMeta.badgeBorder} ${aiMeta.badgeBg} shadow-xs cursor-pointer bg-white overflow-hidden"
+                             onclick="openImageModal('${addslashes(partImg)}')"
+                             title="Click to view procedural vector">
+                            <img src="${partImg}" alt="${escapeHtml(p.name)}" class="w-full h-full object-contain filter drop-shadow-sm rounded-xl">
+                        </div>
+                        <div class="min-w-0">
+                            <div class="text-sm font-black text-gray-700 tracking-tight">${escapeHtml(p.name)}</div>
+                            <div class="flex items-center gap-1 mt-0.5">
+                                <span class="text-[10px] font-black uppercase tracking-wider ${aiMeta.textClass}">${p.category || aiMeta.category}</span>
+                            </div>
+                        </div>
+                    </div>
+                </td>
+                <td class="px-8 py-4 text-xs font-bold text-gray-400 uppercase">${escapeHtml(p.supplier || 'Unspecified')}</td>
+                <td class="px-8 py-4 text-right flex justify-end gap-2">
+                    <button onclick="restorePart(${p.id})" title="Restore Item" class="p-2 text-green-600 hover:bg-green-100 rounded-xl transition-all">
+                        <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+                    </button>
+                    <button onclick="forceDeletePart(${p.id})" title="Delete Permanently" class="p-2 text-red-500 hover:bg-red-100 rounded-xl transition-all">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                    </button>
+                </td>
+            </tr>
+            `;
+        }).join('');
+        lucide.createIcons();
+    }
+
+    // --- Modal Management & Part Actions ---
+    function openPartMiniModal(mode = 'add') {
+        const modal = document.getElementById('partMiniModal');
+        modal.classList.remove('hidden');
+        document.getElementById('qtyError').classList.add('hidden');
+        
+        const iconContainer = document.getElementById('miniModalIcon');
+        const nameInput = document.getElementById('newPartName');
+
+        if (mode === 'add') {
+            document.getElementById('newPartId').value = '';
+            document.getElementById('newPartCurrentStock').value = '0';
+            nameInput.value = '';
+            nameInput.readOnly = false;
+            document.getElementById('newPartPrice').value = '';
+            document.getElementById('newPartQty').value = '';
+            document.getElementById('newPartSupplier').value = '';
+            document.getElementById('newPartImageUrl').value = '';
+            
+            document.getElementById('miniModalTitle').innerText = 'Add New Part';
+            document.getElementById('miniModalSubtitle').innerText = 'Create a new item in the spare parts catalog';
+            document.getElementById('lblQtyMode').innerText = 'Initial Qty';
+            document.getElementById('txtSavePart').innerText = 'Save Part';
+            
+            iconContainer.className = 'w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center';
+            iconContainer.innerHTML = '<i data-lucide="plus" class="w-5 h-5 text-blue-600"></i>';
+            
+            updateAIMiniModalPreview('');
+        }
+        lucide.createIcons();
+    }
+
+    function closePartMiniModal() {
+        document.getElementById('partMiniModal').classList.add('hidden');
+    }
+
+    // ── 1. Dedicated Edit Part Modal (Editable Name, Price, Supplier, Live SVG Preview) ──
+    function openEditPartModal(id, name, price, qty, supplier) {
+        openPartMiniModal('edit');
+        document.getElementById('newPartId').value = id;
+        document.getElementById('newPartCurrentStock').value = qty;
+        
+        const nameInput = document.getElementById('newPartName');
+        nameInput.value = name;
+        nameInput.readOnly = false; // EDITABLE so user can rename the part!
+        
+        document.getElementById('newPartPrice').value = price;
+        document.getElementById('newPartQty').value = '0'; // 0 qty to add (pure detail edit)
+        document.getElementById('newPartSupplier').value = supplier || '';
+        document.getElementById('newPartImageUrl').value = generateDynamicPartSVG(name);
+
+        document.getElementById('miniModalTitle').innerText = 'Edit Part Details';
+        document.getElementById('miniModalSubtitle').innerText = 'Modify part name, price, supplier, or category';
+        document.getElementById('lblQtyMode').innerHTML = `Stock Qty <span class="text-gray-400 font-normal ml-1">(Current: ${qty})</span>`;
+        document.getElementById('txtSavePart').innerText = 'Save Changes';
+
+        const iconContainer = document.getElementById('miniModalIcon');
+        iconContainer.className = 'w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center';
+        iconContainer.innerHTML = '<i data-lucide="edit-3" class="w-5 h-5 text-amber-600"></i>';
+        
+        updateAIMiniModalPreview(name);
+        lucide.createIcons();
+    }
+
+    // ── 2. Dedicated Purchase / Restock Modal (Add Incoming Units & Record Expense) ──
+    function openRestockPartModal(id, name, price, qty, supplier) {
+        openPartMiniModal('restock');
+        document.getElementById('newPartId').value = id;
+        document.getElementById('newPartCurrentStock').value = qty;
+        
+        const nameInput = document.getElementById('newPartName');
+        nameInput.value = name;
+        nameInput.readOnly = true; // Locked to this part
+        
+        document.getElementById('newPartPrice').value = price;
+        document.getElementById('newPartQty').value = ''; 
+        document.getElementById('newPartSupplier').value = supplier || '';
+        document.getElementById('newPartImageUrl').value = generateDynamicPartSVG(name);
+
+        document.getElementById('miniModalTitle').innerText = 'Purchase / Restock Part';
+        document.getElementById('miniModalSubtitle').innerText = 'Add incoming stock units & record in Office Expenses';
+        document.getElementById('lblQtyMode').innerHTML = `Qty to Purchase <span class="text-gray-400 font-normal ml-1">(Current: ${qty})</span>`;
+        document.getElementById('txtSavePart').innerText = 'Confirm Purchase';
+
+        const iconContainer = document.getElementById('miniModalIcon');
+        iconContainer.className = 'w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center';
+        iconContainer.innerHTML = '<i data-lucide="shopping-cart" class="w-5 h-5 text-blue-600"></i>';
+        
+        updateAIMiniModalPreview(name);
+        lucide.createIcons();
+    }
+
+    // Legacy alias
+    function editPart(id, name, price, qty, supplier) {
+        openEditPartModal(id, name, price, qty, supplier);
+    }
+
+    async function saveNewPart() {
+        const id = document.getElementById('newPartId').value;
+        const name = document.getElementById('newPartName').value.trim();
+        const price = document.getElementById('newPartPrice').value;
+        const qty_to_add = parseInt(document.getElementById('newPartQty').value) || 0;
+        const supplier = document.getElementById('newPartSupplier').value;
+        const image_url = generateDynamicPartSVG(name);
+        const meta = getPartAIMeta(name);
+
+        if(!name || !price) {
+            showToast('Part Name and Price are required.', 'error');
+            return;
+        }
+
+        if (id && qty_to_add < 0) {
+            document.getElementById('qtyError').classList.remove('hidden');
+            return;
+        }
+
+        try {
+            const res = await fetch("{{ route('spare-parts.store') }}", {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                body: JSON.stringify({
+                    id,
+                    name,
+                    category: meta.category,
+                    price,
+                    qty_to_add,
+                    supplier,
+                    image_url
+                })
+            });
+            const result = await res.json();
+            if(result.success) {
+                showToast(result.message, 'success');
+                closePartMiniModal();
+                loadActiveParts();
+                if(qty_to_add > 0) {
+                    loadHistory();
+                    setTimeout(() => window.location.reload(), 1500); // Reload to update metric cards
+                }
+            } else {
+                showToast(result.message || 'Something went wrong.', 'error');
+            }
+        } catch(e) { console.error(e); }
+    }
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return String(str).replace(/[&<>"']/g, function(m) {
+            return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m];
+        });
+    }
+
     async function archivePart(id) {
         if(!confirm('Are you sure you want to archive this part?')) return;
         try {
