@@ -1882,6 +1882,7 @@
     }
 
     // --- Rendering Tables ---
+    // --- Rendering Active Parts Table with Dedicated Edit, Purchase, and Archive Actions ---
     function renderActiveParts(data) {
         const tbody = document.getElementById('activePartsTable');
         if (data.length === 0) {
@@ -1933,11 +1934,23 @@
                     </span>
                 </td>
                 <td class="px-8 py-4 text-right">
-                    <div class="flex justify-end gap-2">
-                        <button onclick="editPart(${p.id}, '${addslashes(p.name)}', ${p.price}, ${p.stock_quantity}, '${addslashes(p.supplier||'')}')" class="p-2 text-blue-600 hover:bg-blue-100 rounded-xl transition-all" title="Purchase / Edit Part">
+                    <div class="flex justify-end items-center gap-1.5">
+                        <!-- 1. Dedicated Edit Button -->
+                        <button onclick="openEditPartModal(${p.id}, '${addslashes(p.name)}', ${p.price}, ${p.stock_quantity}, '${addslashes(p.supplier||'')}')" 
+                                class="p-2 text-amber-600 hover:text-amber-700 hover:bg-amber-50 rounded-xl transition-all group-hover:shadow-xs border border-transparent hover:border-amber-200" 
+                                title="Edit Part Details (Name, Price, Supplier)">
+                            <i data-lucide="edit-3" class="w-4 h-4"></i>
+                        </button>
+                        <!-- 2. Purchase / Restock Button -->
+                        <button onclick="openRestockPartModal(${p.id}, '${addslashes(p.name)}', ${p.price}, ${p.stock_quantity}, '${addslashes(p.supplier||'')}')" 
+                                class="p-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-xl transition-all group-hover:shadow-xs border border-transparent hover:border-blue-200" 
+                                title="Purchase / Add Stock">
                             <i data-lucide="shopping-cart" class="w-4 h-4"></i>
                         </button>
-                        <button onclick="archivePart(${p.id})" class="p-2 text-red-500 hover:bg-red-100 rounded-xl transition-all" title="Archive Part">
+                        <!-- 3. Archive Button -->
+                        <button onclick="archivePart(${p.id})" 
+                                class="p-2 text-red-500 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all group-hover:shadow-xs border border-transparent hover:border-red-200" 
+                                title="Archive Part">
                             <i data-lucide="trash" class="w-4 h-4"></i>
                         </button>
                     </div>
@@ -2029,15 +2042,21 @@
         lucide.createIcons();
     }
 
-    // --- Actions ---
-    function openPartMiniModal(isEdit = false) {
+    // --- Modal Management & Part Actions ---
+    function openPartMiniModal(mode = 'add') {
         const modal = document.getElementById('partMiniModal');
         modal.classList.remove('hidden');
         document.getElementById('qtyError').classList.add('hidden');
         
-        if (!isEdit) {
+        const iconContainer = document.getElementById('miniModalIcon');
+        const qtyInputContainer = document.getElementById('newPartQtyContainer');
+        const nameInput = document.getElementById('newPartName');
+
+        if (mode === 'add') {
             document.getElementById('newPartId').value = '';
-            document.getElementById('newPartName').value = '';
+            document.getElementById('newPartCurrentStock').value = '0';
+            nameInput.value = '';
+            nameInput.readOnly = false;
             document.getElementById('newPartPrice').value = '';
             document.getElementById('newPartQty').value = '';
             document.getElementById('newPartSupplier').value = '';
@@ -2047,36 +2066,66 @@
             document.getElementById('miniModalSubtitle').innerText = 'Create a new item in the spare parts catalog';
             document.getElementById('lblQtyMode').innerText = 'Initial Qty';
             document.getElementById('txtSavePart').innerText = 'Save Part';
-            document.getElementById('newPartName').readOnly = false;
             
-            const iconContainer = document.getElementById('miniModalIcon');
             iconContainer.className = 'w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center';
             iconContainer.innerHTML = '<i data-lucide="plus" class="w-5 h-5 text-blue-600"></i>';
             
             updateAIMiniModalPreview('');
-            lucide.createIcons();
         }
+        lucide.createIcons();
     }
 
     function closePartMiniModal() {
         document.getElementById('partMiniModal').classList.add('hidden');
     }
 
-    function editPart(id, name, price, qty, supplier) {
-        openPartMiniModal(true);
+    // ── 1. Dedicated Edit Part Modal (Editable Name, Price, Supplier, Live SVG Preview) ──
+    function openEditPartModal(id, name, price, qty, supplier) {
+        openPartMiniModal('edit');
         document.getElementById('newPartId').value = id;
         document.getElementById('newPartCurrentStock').value = qty;
-        document.getElementById('newPartName').value = name;
+        
+        const nameInput = document.getElementById('newPartName');
+        nameInput.value = name;
+        nameInput.readOnly = false; // EDITABLE so user can rename the part!
+        
+        document.getElementById('newPartPrice').value = price;
+        document.getElementById('newPartQty').value = '0'; // 0 qty to add (pure detail edit)
+        document.getElementById('newPartSupplier').value = supplier || '';
+        document.getElementById('newPartImageUrl').value = generateDynamicPartSVG(name);
+
+        document.getElementById('miniModalTitle').innerText = 'Edit Part Details';
+        document.getElementById('miniModalSubtitle').innerText = 'Modify part name, price, supplier, or category';
+        document.getElementById('lblQtyMode').innerHTML = `Stock Qty <span class="text-gray-400 font-normal ml-1">(Current: ${qty})</span>`;
+        document.getElementById('txtSavePart').innerText = 'Save Changes';
+
+        const iconContainer = document.getElementById('miniModalIcon');
+        iconContainer.className = 'w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center';
+        iconContainer.innerHTML = '<i data-lucide="edit-3" class="w-5 h-5 text-amber-600"></i>';
+        
+        updateAIMiniModalPreview(name);
+        lucide.createIcons();
+    }
+
+    // ── 2. Dedicated Purchase / Restock Modal (Add Incoming Units & Record Expense) ──
+    function openRestockPartModal(id, name, price, qty, supplier) {
+        openPartMiniModal('restock');
+        document.getElementById('newPartId').value = id;
+        document.getElementById('newPartCurrentStock').value = qty;
+        
+        const nameInput = document.getElementById('newPartName');
+        nameInput.value = name;
+        nameInput.readOnly = true; // Locked to this part
+        
         document.getElementById('newPartPrice').value = price;
         document.getElementById('newPartQty').value = ''; 
         document.getElementById('newPartSupplier').value = supplier || '';
         document.getElementById('newPartImageUrl').value = generateDynamicPartSVG(name);
 
-        document.getElementById('miniModalTitle').innerText = 'Purchase / Edit Part';
-        document.getElementById('miniModalSubtitle').innerText = 'Add stock or update part details';
-        document.getElementById('lblQtyMode').innerHTML = `Add Stock <span class="text-gray-400 font-normal ml-1">(Current: ${qty})</span>`;
-        document.getElementById('txtSavePart').innerText = 'Save Changes';
-        document.getElementById('newPartName').readOnly = true;
+        document.getElementById('miniModalTitle').innerText = 'Purchase / Restock Part';
+        document.getElementById('miniModalSubtitle').innerText = 'Add incoming stock units & record in Office Expenses';
+        document.getElementById('lblQtyMode').innerHTML = `Qty to Purchase <span class="text-gray-400 font-normal ml-1">(Current: ${qty})</span>`;
+        document.getElementById('txtSavePart').innerText = 'Confirm Purchase';
 
         const iconContainer = document.getElementById('miniModalIcon');
         iconContainer.className = 'w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center';
@@ -2084,6 +2133,11 @@
         
         updateAIMiniModalPreview(name);
         lucide.createIcons();
+    }
+
+    // Legacy alias
+    function editPart(id, name, price, qty, supplier) {
+        openEditPartModal(id, name, price, qty, supplier);
     }
 
     async function saveNewPart() {
@@ -2134,7 +2188,7 @@
         } catch(e) { console.error(e); }
     }
 
-    function escapeHtml(str) {
+        function escapeHtml(str) {
         if (!str) return '';
         return String(str).replace(/[&<>"']/g, function(m) {
             return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m];
@@ -2359,6 +2413,8 @@
     window.renderActiveParts = renderActiveParts;
     window.renderHistory = renderHistory;
     window.renderArchivedParts = renderArchivedParts;
+    window.openEditPartModal = openEditPartModal;
+    window.openRestockPartModal = openRestockPartModal;
     window.openPartMiniModal = openPartMiniModal;
     window.closePartMiniModal = closePartMiniModal;
     window.editPart = editPart;
