@@ -480,10 +480,19 @@
         }
     }
 
-    // ── AI Priority-Aware Encyclopedic Automotive Vector Engine ──
+    // ── AI Morphological & Attribute-Aware Automotive Vector Engine (100% Unique & Distinct Graphics) ──
     function generateDynamicPartSVG(partName) {
         const raw = (partName || 'Auto Part').toLowerCase().trim();
         const id = 'svg_' + Math.random().toString(36).substring(2, 9);
+
+        // Attribute Analysis
+        const isFront = /front|fr|f\//i.test(raw);
+        const isRear = /rear|rr|r\//i.test(raw);
+        const isLeft = /left|lh|driver/i.test(raw);
+        const isRight = /right|rh|pass/i.test(raw);
+        const isGenuine = /genuine|orig|oem|toyota|mitsubishi|nissan|honda|hyundai|isuzu/i.test(raw);
+        const isCeramic = /ceramic|carbon|kevlar/i.test(raw);
+        const isDrilled = /drill|slot|vent/i.test(raw);
 
         // Dynamic Color Extraction
         let pColor = '#2563eb', sColor = '#3b82f6', aColor = '#60a5fa'; // Default Racing Blue
@@ -501,13 +510,105 @@
             pColor = '#0284c7'; sColor = '#38bdf8'; aColor = '#bae6fd';
         }
 
-        const isDrilled = /drill|slot|vent/i.test(raw);
         let content = '';
 
         // ══════════════════════════════════════════════════════════════════
-        // PRIORITY TIER 1: HIGH-PRECISION SPECIFIC CAPS, PLUGS & LIDS
+        // TIER 1: HIGH-PRECISION BRAKE SUB-COMPONENTS (Shoes vs Pads vs Calipers)
         // ══════════════════════════════════════════════════════════════════
-        if (/radiator\s*cap/i.test(raw)) {
+        
+        // 1. DRUM BRAKE SHOES (Curved crescent shoes with springs & wheel cylinder)
+        if (/brake\s*shoe|drum\s*brake|rear\s*shoe/i.test(raw)) {
+            content = `
+                <circle cx="100" cy="100" r="76" fill="none" stroke="#1e293b" stroke-width="4" stroke-dasharray="6,6"/>
+                <rect x="75" y="24" width="50" height="24" rx="6" fill="url(#${id}_metal)" stroke="#334155" stroke-width="2"/>
+                <rect x="68" y="28" width="12" height="16" rx="3" fill="#0f172a"/>
+                <rect x="120" y="28" width="12" height="16" rx="3" fill="#0f172a"/>
+
+                <path d="M 68 38 A 68 68 0 0 0 68 162 L 60 156 A 76 76 0 0 1 60 44 Z" fill="url(#${id}_ceramic)" stroke="#78350f" stroke-width="1.5"/>
+                <path d="M 72 45 A 60 60 0 0 0 72 155" fill="none" stroke="url(#${id}_metal)" stroke-width="8" stroke-linecap="round"/>
+
+                <path d="M 132 38 A 68 68 0 0 1 132 162 L 140 156 A 76 76 0 0 0 140 44 Z" fill="url(#${id}_ceramic)" stroke="#78350f" stroke-width="1.5"/>
+                <path d="M 128 45 A 60 60 0 0 1 128 155" fill="none" stroke="url(#${id}_metal)" stroke-width="8" stroke-linecap="round"/>
+
+                <path d="M 75 55 L 82 50 L 90 58 L 98 50 L 106 58 L 114 50 L 125 55" fill="none" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/>
+                <rect x="85" y="148" width="30" height="14" rx="3" fill="url(#${id}_metal)"/>
+                <circle cx="100" cy="155" r="5" fill="#f59e0b"/>
+                <path d="M 75 145 L 82 140 L 90 148 L 98 140 L 106 148 L 114 140 L 125 145" fill="none" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/>
+
+                <circle cx="65" cy="100" r="6" fill="#38bdf8"/>
+                <circle cx="135" cy="100" r="6" fill="#38bdf8"/>
+                <circle cx="100" cy="100" r="16" fill="#1e293b"/>
+                <rect x="65" y="174" width="70" height="14" rx="3" fill="#1e293b"/>
+                <text x="100" y="184" font-size="8" font-weight="900" font-family="sans-serif" text-anchor="middle" fill="#f59e0b">DRUM SHOES</text>
+            `;
+        }
+        // 2. BRAKE CALIPER (Multi-piston monoblock housing with bleed screw)
+        else if (/caliper|monoblock|brake\s*caliper/i.test(raw)) {
+            content = `
+                <path d="M 35 60 Q 100 45 165 60 L 165 140 Q 100 155 35 140 Z" fill="${pColor}" stroke="#0f172a" stroke-width="3"/>
+                <rect x="50" y="70" width="100" height="60" rx="8" fill="#1e293b"/>
+                <circle cx="75" cy="100" r="18" fill="url(#${id}_metal)" stroke="#94a3b8" stroke-width="2"/>
+                <circle cx="75" cy="100" r="10" fill="#0f172a"/>
+                <circle cx="125" cy="100" r="18" fill="url(#${id}_metal)" stroke="#94a3b8" stroke-width="2"/>
+                <circle cx="125" cy="100" r="10" fill="#0f172a"/>
+                <rect x="94" y="32" width="12" height="20" rx="3" fill="url(#${id}_metal)"/>
+                <circle cx="100" cy="38" r="3" fill="#ef4444"/>
+                <text x="100" y="148" font-size="9" font-weight="900" font-family="sans-serif" text-anchor="middle" fill="#ffffff">4-PISTON CALIPER</text>
+            `;
+        }
+        // 3. BRAKE PADS (Distinct Front vs Rear vs Genuine OEM vs Standard)
+        else if (/brake\s*pad|disc\s*pad/i.test(raw)) {
+            if (isFront || isGenuine) {
+                // High-End Heavy Duty Front Pad Assembly with Chamfers & OEM Stamp
+                content = `
+                    <rect x="25" y="38" width="150" height="52" rx="8" fill="#1e293b" stroke="#334155" stroke-width="2"/>
+                    <rect x="38" y="44" width="124" height="40" rx="4" fill="url(#${id}_ceramic)"/>
+                    <polygon points="38,44 54,44 38,84" fill="#78350f" opacity="0.7"/>
+                    <polygon points="162,44 146,44 162,84" fill="#78350f" opacity="0.7"/>
+                    <line x1="100" y1="44" x2="100" y2="84" stroke="#451a03" stroke-width="4"/>
+                    <rect x="18" y="70" width="14" height="16" rx="2" fill="#eab308"/>
+                    
+                    <rect x="25" y="108" width="150" height="52" rx="8" fill="#1e293b" stroke="#334155" stroke-width="2"/>
+                    <rect x="38" y="114" width="124" height="40" rx="4" fill="url(#${id}_ceramic)"/>
+                    <polygon points="38,114 54,114 38,154" fill="#78350f" opacity="0.7"/>
+                    <polygon points="162,114 146,114 162,154" fill="#78350f" opacity="0.7"/>
+                    <line x1="100" y1="114" x2="100" y2="154" stroke="#451a03" stroke-width="4"/>
+                    <rect x="168" y="140" width="14" height="16" rx="2" fill="#eab308"/>
+
+                    <rect x="65" y="93" width="70" height="14" rx="3" fill="#facc15"/>
+                    <text x="100" y="103" font-size="7" font-weight="900" font-family="sans-serif" text-anchor="middle" fill="#0f172a">GENUINE FRONT</text>
+                `;
+            } else if (isRear) {
+                // Compact Rear Pad Assembly with Parking Brake Retainer
+                content = `
+                    <rect x="35" y="48" width="130" height="42" rx="6" fill="#334155"/>
+                    <rect x="45" y="54" width="110" height="30" rx="4" fill="url(#${id}_ceramic)"/>
+                    <rect x="35" y="108" width="130" height="42" rx="6" fill="#334155"/>
+                    <rect x="45" y="114" width="110" height="30" rx="4" fill="url(#${id}_ceramic)"/>
+                    <circle cx="100" cy="70" r="6" fill="#94a3b8"/>
+                    <circle cx="100" cy="130" r="6" fill="#94a3b8"/>
+                    <rect x="70" y="94" width="60" height="12" rx="2" fill="#e2e8f0"/>
+                    <text x="100" y="103" font-size="7" font-weight="900" font-family="sans-serif" text-anchor="middle" fill="#1e293b">REAR AXLE</text>
+                `;
+            } else {
+                // Standard Disc Brake Pads
+                content = `
+                    <rect x="30" y="45" width="140" height="45" rx="6" fill="#334155"/>
+                    <rect x="42" y="52" width="116" height="34" rx="4" fill="${pColor}"/>
+                    <rect x="98" y="52" width="4" height="34" fill="#1e293b"/>
+                    <rect x="25" y="105" width="150" height="52" rx="8" fill="#1e293b"/>
+                    <rect x="38" y="112" width="124" height="40" rx="4" fill="url(#${id}_ceramic)"/>
+                    <polygon points="38,112 55,112 38,152" fill="#78350f" opacity="0.6"/>
+                    <polygon points="162,112 145,112 162,152" fill="#78350f" opacity="0.6"/>
+                    <rect x="98" y="112" width="4" height="40" fill="#451a03"/>
+                `;
+            }
+        }
+
+        // ══════════════════════════════════════════════════════════════════
+        // TIER 2: CAPS, LIDS, RINGS & GASKETS
+        // ══════════════════════════════════════════════════════════════════
+        else if (/radiator\s*cap/i.test(raw)) {
             content = `
                 <rect x="25" y="86" width="150" height="28" rx="14" fill="url(#${id}_metal)" stroke="#334155" stroke-width="2"/>
                 <circle cx="38" cy="100" r="8" fill="#1e293b"/>
@@ -553,30 +654,6 @@
                 <text x="100" y="125" font-size="8" font-weight="900" font-family="sans-serif" text-anchor="middle" fill="#f8fafc">SAE 5W-30</text>
             `;
         }
-        else if (/distributor\s*cap/i.test(raw)) {
-            content = `
-                <circle cx="100" cy="105" r="58" fill="#991b1b" stroke="#7f1d1d" stroke-width="2"/>
-                <circle cx="100" cy="105" r="12" fill="#1e293b"/>
-                <circle cx="100" cy="105" r="6" fill="#f59e0b"/>
-                ${[0, 90, 180, 270].map(a => {
-                    const rad = a * Math.PI / 180;
-                    return `<circle cx="${(100 + 40 * Math.cos(rad)).toFixed(1)}" cy="${(105 + 40 * Math.sin(rad)).toFixed(1)}" r="10" fill="#1e293b"/><circle cx="${(100 + 40 * Math.cos(rad)).toFixed(1)}" cy="${(105 + 40 * Math.sin(rad)).toFixed(1)}" r="5" fill="#f59e0b"/>`;
-                }).join('')}
-                <rect x="90" y="25" width="20" height="25" rx="3" fill="url(#${id}_metal)"/>
-            `;
-        }
-        else if (/center\s*cap|hub\s*cap|wheel\s*cap/i.test(raw)) {
-            content = `
-                <circle cx="100" cy="100" r="70" fill="url(#${id}_metal)" stroke="#334155" stroke-width="2"/>
-                <circle cx="100" cy="100" r="55" fill="${pColor}"/>
-                <circle cx="100" cy="100" r="42" fill="#0f172a"/>
-                <polygon points="100,75 115,115 85,115" fill="url(#${id}_metal)"/>
-            `;
-        }
-
-        // ══════════════════════════════════════════════════════════════════
-        // PRIORITY TIER 2: RINGS, SPRINGS, VALVES, SEALS & GASKETS
-        // ══════════════════════════════════════════════════════════════════
         else if (/piston\s*ring|compression\s*ring|oil\s*ring|scraper\s*ring/i.test(raw)) {
             content = `
                 <path d="M 45 48 A 65 65 0 1 1 155 48" fill="none" stroke="url(#${id}_metal)" stroke-width="11" stroke-linecap="round"/>
@@ -609,38 +686,9 @@
                 <circle cx="100" cy="100" r="58" fill="none" stroke="#0f172a" stroke-width="2"/>
             `;
         }
-        else if (/valve\s*spring|retainer|dual\s*spring/i.test(raw)) {
-            content = `
-                <rect x="75" y="25" width="50" height="14" rx="4" fill="#f59e0b"/>
-                <circle cx="100" cy="32" r="6" fill="#0f172a"/>
-                ${[45, 62, 79, 96, 113, 130, 147].map(y => `
-                    <path d="M 72 ${y+8} Q 100 ${y} 128 ${y+8}" fill="none" stroke="url(#${id}_spring)" stroke-width="10" stroke-linecap="round"/>
-                    <path d="M 72 ${y+8} Q 100 ${y+2} 128 ${y+8}" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" opacity="0.5"/>
-                `).join('')}
-                <rect x="75" y="165" width="50" height="10" rx="2" fill="#334155"/>
-            `;
-        }
-        else if (/engine\s*valve|intake\s*valve|exhaust\s*valve|poppet\s*valve/i.test(raw)) {
-            content = `
-                <rect x="96" y="20" width="8" height="135" rx="2" fill="url(#${id}_metal)"/>
-                <rect x="94" y="25" width="12" height="4" fill="#0f172a"/>
-                <path d="M 96 155 L 60 180 L 140 180 L 104 155 Z" fill="url(#${id}_metal)" stroke="#334155" stroke-width="2"/>
-                <ellipse cx="100" cy="180" rx="40" ry="8" fill="#1e293b"/>
-            `;
-        }
-        else if (/rocker\s*arm|lifter|tappet|cam\s*follower/i.test(raw)) {
-            content = `
-                <path d="M 45 100 Q 100 70 155 95 L 145 125 Q 100 100 55 125 Z" fill="url(#${id}_metal)" stroke="#334155" stroke-width="2"/>
-                <circle cx="100" cy="98" r="16" fill="#1e293b"/>
-                <circle cx="100" cy="98" r="8" fill="#94a3b8"/>
-                <circle cx="48" cy="110" r="12" fill="#d97706"/>
-                <circle cx="48" cy="110" r="5" fill="#0f172a"/>
-                <rect x="145" y="75" width="10" height="35" rx="3" fill="${pColor}"/>
-            `;
-        }
 
         // ══════════════════════════════════════════════════════════════════
-        // PRIORITY TIER 3: HOSES, PIPES, DUCTS, FANS & CABLES
+        // TIER 3: HOSES, PIPES, DUCTS, FANS & CABLES
         // ══════════════════════════════════════════════════════════════════
         else if (/radiator\s*hose|coolant\s*hose|heater\s*hose|coolant\s*pipe/i.test(raw)) {
             content = `
@@ -680,56 +728,11 @@
                 <circle cx="165" cy="40" r="5" fill="#0f172a"/>
             `;
         }
-        else if (/exhaust\s*pipe|downpipe|tailpipe|midpipe/i.test(raw)) {
-            content = `
-                <path d="M 30 150 Q 80 150 120 80 L 170 50" fill="none" stroke="url(#${id}_metal)" stroke-width="24" stroke-linecap="round"/>
-                <rect x="20" y="136" width="14" height="28" rx="2" fill="#334155"/>
-                <rect x="162" y="38" width="14" height="24" rx="2" fill="#38bdf8"/>
-            `;
-        }
 
         // ══════════════════════════════════════════════════════════════════
-        // PRIORITY TIER 4: SPECIFIC SENSORS, VALVES, ACTUATORS & METERS
+        // TIER 4: MAJOR MECHANICAL ASSEMBLIES
         // ══════════════════════════════════════════════════════════════════
-        else if (/tpms|tire\s*pressure/i.test(raw)) {
-            content = `
-                <rect x="50" y="95" width="70" height="50" rx="10" fill="#1e293b" stroke="#334155" stroke-width="2"/>
-                <rect x="110" y="55" width="16" height="50" rx="4" fill="url(#${id}_metal)"/>
-                <rect x="112" y="30" width="12" height="28" rx="3" fill="#eab308"/>
-                <circle cx="85" cy="120" r="10" fill="#38bdf8"/>
-            `;
-        }
-        else if (/blow\s*off|bov|wastegate/i.test(raw)) {
-            content = `
-                <rect x="70" y="60" width="60" height="70" rx="12" fill="${pColor}"/>
-                <path d="M 130 80 L 170 65 L 170 105 Z" fill="url(#${id}_metal)"/>
-                <rect x="92" y="30" width="16" height="30" rx="3" fill="#f59e0b"/>
-                <rect x="88" y="130" width="24" height="25" rx="4" fill="#1e293b"/>
-            `;
-        }
-        else if (/throttle\s*body/i.test(raw)) {
-            content = `
-                <rect x="50" y="50" width="100" height="100" rx="16" fill="url(#${id}_metal)" stroke="#334155" stroke-width="3"/>
-                <circle cx="100" cy="100" r="38" fill="#1e293b"/>
-                <ellipse cx="100" cy="100" rx="34" ry="12" fill="#f59e0b" stroke="#d97706" stroke-width="2"/>
-                <line x1="62" y1="100" x2="138" y2="100" stroke="#cbd5e1" stroke-width="4"/>
-                <rect x="145" y="75" width="22" height="50" rx="6" fill="${pColor}"/>
-            `;
-        }
-        else if (/sensor|probe|o2|abs|maf|map|tps|lambda/i.test(raw)) {
-            content = `
-                <rect x="92" y="25" width="16" height="65" rx="3" fill="url(#${id}_metal)"/>
-                <rect x="88" y="90" width="24" height="20" rx="2" fill="#eab308"/>
-                <rect x="84" y="110" width="32" height="35" rx="4" fill="#1e293b"/>
-                <path d="M 100 145 Q 85 170 120 180" fill="none" stroke="#dc2626" stroke-width="5" stroke-linecap="round"/>
-                <path d="M 95 145 Q 75 165 110 185" fill="none" stroke="#2563eb" stroke-width="5" stroke-linecap="round"/>
-            `;
-        }
-
-        // ══════════════════════════════════════════════════════════════════
-        // PRIORITY TIER 5: MAJOR MECHANICAL ASSEMBLIES
-        // ══════════════════════════════════════════════════════════════════
-        else if (/cylinder\s*head|head\s*assembly|bare\s*head/i.test(raw)) {
+        else if (/cylinder\s*head|head\s*assembly/i.test(raw)) {
             content = `
                 <rect x="25" y="45" width="150" height="110" rx="8" fill="url(#${id}_metal)" stroke="#475569" stroke-width="2"/>
                 <rect x="35" y="32" width="130" height="22" rx="4" fill="#334155"/>
@@ -775,7 +778,7 @@
                 <path d="M 135 110 C 130 155, 170 155, 165 110 Z" fill="#1e293b"/>
             `;
         }
-        else if (/camshaft|cam\s*shaft|cam\s*lobe/i.test(raw)) {
+        else if (/camshaft|cam\s*shaft/i.test(raw)) {
             content = `
                 <line x1="25" y1="100" x2="175" y2="100" stroke="url(#${id}_metal)" stroke-width="16" stroke-linecap="round"/>
                 ${[45, 75, 105, 135, 165].map((x, i) => `
@@ -783,20 +786,6 @@
                     <circle cx="${x}" cy="100" r="6" fill="#94a3b8"/>
                 `).join('')}
                 <circle cx="25" cy="100" r="16" fill="${pColor}"/>
-            `;
-        }
-        else if (/harmonic\s*balancer|crankshaft\s*pulley|damper\s*pulley/i.test(raw)) {
-            content = `
-                <circle cx="100" cy="100" r="75" fill="url(#${id}_metal)"/>
-                <circle cx="100" cy="100" r="62" fill="#0f172a"/>
-                <circle cx="100" cy="100" r="54" fill="url(#${id}_metal)"/>
-                ${[0, 60, 120, 180, 240, 300].map(a => {
-                    const rad = a * Math.PI / 180;
-                    return `<circle cx="${(100 + 38 * Math.cos(rad)).toFixed(1)}" cy="${(100 + 38 * Math.sin(rad)).toFixed(1)}" r="8" fill="#1e293b"/>`;
-                }).join('')}
-                <circle cx="100" cy="100" r="22" fill="#1e293b"/>
-                <rect x="96" y="80" width="8" height="12" fill="#cbd5e1"/>
-                <circle cx="100" cy="100" r="12" fill="#0f172a"/>
             `;
         }
         else if (/piston|connecting\s*rod|conrod/i.test(raw)) {
@@ -809,181 +798,6 @@
                 <path d="M 94 70 L 92 145 L 82 145 L 82 175 L 118 175 L 118 145 L 108 145 L 106 70 Z" fill="url(#${id}_metal)"/>
                 <circle cx="100" cy="160" r="16" fill="#0f172a"/>
                 <circle cx="100" cy="160" r="10" fill="#94a3b8"/>
-            `;
-        }
-        else if (/intake\s*manifold|plenum|air\s*intake/i.test(raw)) {
-            content = `
-                <rect x="35" y="40" width="130" height="30" rx="10" fill="url(#${id}_metal)"/>
-                <rect x="20" y="44" width="20" height="22" rx="4" fill="#1e293b"/>
-                <circle cx="28" cy="55" r="7" fill="#f59e0b"/>
-                ${[55, 85, 115, 145].map(x => `
-                    <path d="M ${x} 65 Q ${x+8} 110 ${x} 145" fill="none" stroke="url(#${id}_metal)" stroke-width="14" stroke-linecap="round"/>
-                    <path d="M ${x} 65 Q ${x+8} 110 ${x} 145" fill="none" stroke="#ffffff" stroke-width="2" stroke-opacity="0.5"/>
-                    <circle cx="${x}" cy="148" r="7" fill="${pColor}"/>
-                `).join('')}
-                <rect x="42" y="145" width="116" height="12" rx="3" fill="#334155"/>
-            `;
-        }
-        else if (/exhaust\s*manifold|header|extractors/i.test(raw)) {
-            content = `
-                <rect x="40" y="35" width="120" height="14" rx="3" fill="#334155"/>
-                ${[55, 85, 115, 145].map((x, i) => `
-                    <circle cx="${x}" cy="42" r="5" fill="#0f172a"/>
-                    <path d="M ${x} 45 Q ${x} 95 ${90 + i*6} 125" fill="none" stroke="url(#${id}_metal)" stroke-width="9" stroke-linecap="round"/>
-                `).join('')}
-                <rect x="85" y="125" width="30" height="28" rx="6" fill="#d97706"/>
-                <rect x="80" y="153" width="40" height="12" rx="3" fill="#1e293b"/>
-                <circle cx="87" cy="159" r="3.5" fill="#94a3b8"/>
-                <circle cx="113" cy="159" r="3.5" fill="#94a3b8"/>
-            `;
-        }
-        else if (/muffler|resonator|exhaust|silencer/i.test(raw)) {
-            content = `
-                <rect x="45" y="65" width="110" height="70" rx="30" fill="url(#${id}_metal)" stroke="#334155" stroke-width="2"/>
-                <line x1="20" y1="100" x2="45" y2="100" stroke="#475569" stroke-width="16" stroke-linecap="round"/>
-                <line x1="155" y1="85" x2="185" y2="85" stroke="#38bdf8" stroke-width="14" stroke-linecap="round"/>
-                <line x1="155" y1="115" x2="185" y2="115" stroke="#38bdf8" stroke-width="14" stroke-linecap="round"/>
-            `;
-        }
-        else if (/oil\s*pan|sump|oil\s*sump/i.test(raw)) {
-            content = `
-                <polygon points="30,45 170,45 160,140 115,160 40,150" fill="url(#${id}_metal)" stroke="#334155" stroke-width="2"/>
-                <rect x="25" y="42" width="150" height="10" rx="3" fill="#334155"/>
-                ${[35, 55, 75, 95, 115, 135, 155].map(x => `<circle cx="${x}" cy="47" r="2.5" fill="#94a3b8"/>`).join('')}
-                <rect x="110" y="110" width="40" height="40" rx="6" fill="#1e293b"/>
-                <circle cx="130" cy="135" r="8" fill="#f59e0b"/>
-                <circle cx="130" cy="135" r="4" fill="#0f172a"/>
-            `;
-        }
-        else if (/oil\s*pump|pickup\s*tube/i.test(raw)) {
-            content = `
-                <circle cx="85" cy="80" r="45" fill="url(#${id}_metal)"/>
-                <circle cx="85" cy="80" r="30" fill="#1e293b"/>
-                <circle cx="85" cy="80" r="14" fill="#f59e0b"/>
-                <path d="M 105 100 Q 140 120 140 160 L 120 170 L 105 155 Z" fill="url(#${id}_metal)"/>
-                <ellipse cx="130" cy="165" rx="22" ry="12" fill="#334155"/>
-                <ellipse cx="130" cy="165" rx="16" ry="7" fill="#f59e0b" stroke="#0f172a" stroke-dasharray="2,2"/>
-            `;
-        }
-        else if (/dipstick/i.test(raw)) {
-            content = `
-                <circle cx="100" cy="40" r="22" fill="#eab308" stroke="#ca8a04" stroke-width="4"/>
-                <circle cx="100" cy="40" r="12" fill="#ffffff"/>
-                <rect x="94" y="62" width="12" height="20" rx="3" fill="#ca8a04"/>
-                <line x1="100" y1="82" x2="100" y2="180" stroke="url(#${id}_metal)" stroke-width="6" stroke-linecap="round"/>
-                <rect x="97" y="150" width="6" height="25" fill="#ca8a04"/>
-                <line x1="95" y1="155" x2="105" y2="155" stroke="#0f172a" stroke-width="2"/>
-                <line x1="95" y1="170" x2="105" y2="170" stroke="#0f172a" stroke-width="2"/>
-            `;
-        }
-        else if (/timing\s*chain|timing\s*belt|timing\s*kit|cam\s*gear|tensioner/i.test(raw)) {
-            content = `
-                <circle cx="65" cy="65" r="28" fill="url(#${id}_metal)" stroke="#334155" stroke-width="2"/>
-                ${Array.from({length: 12}).map((_, i) => {
-                    const rad = (i * 30) * Math.PI / 180;
-                    return `<rect x="${(65 + 26 * Math.cos(rad) - 3).toFixed(1)}" y="${(65 + 26 * Math.sin(rad) - 3).toFixed(1)}" width="6" height="6" fill="#1e293b"/>`;
-                }).join('')}
-                <circle cx="65" cy="65" r="10" fill="${pColor}"/>
-
-                <circle cx="135" cy="65" r="28" fill="url(#${id}_metal)" stroke="#334155" stroke-width="2"/>
-                ${Array.from({length: 12}).map((_, i) => {
-                    const rad = (i * 30) * Math.PI / 180;
-                    return `<rect x="${(135 + 26 * Math.cos(rad) - 3).toFixed(1)}" y="${(65 + 26 * Math.sin(rad) - 3).toFixed(1)}" width="6" height="6" fill="#1e293b"/>`;
-                }).join('')}
-                <circle cx="135" cy="65" r="10" fill="${pColor}"/>
-
-                <circle cx="100" cy="150" r="20" fill="url(#${id}_metal)"/>
-                <circle cx="100" cy="150" r="7" fill="#0f172a"/>
-                <path d="M 65 37 L 135 37 Q 165 65 135 95 L 115 135 Q 100 172 85 135 L 65 95 Q 35 65 65 37 Z" fill="none" stroke="#f59e0b" stroke-width="6" stroke-dasharray="4,3"/>
-            `;
-        }
-        else if (/turbo|supercharger|intercooler/i.test(raw)) {
-            content = `
-                <ellipse cx="100" cy="100" rx="60" ry="50" fill="url(#${id}_metal)"/>
-                <path d="M 60 60 Q 100 20 145 50 L 155 35 Q 95 5 45 50 Z" fill="#64748b"/>
-                <circle cx="100" cy="100" r="32" fill="#0f172a"/>
-                ${Array.from({length: 8}).map((_, i) => {
-                    const rad = (i * 45) * Math.PI / 180;
-                    return `<line x1="100" y1="100" x2="${(100 + 28 * Math.cos(rad)).toFixed(1)}" y2="${(100 + 28 * Math.sin(rad)).toFixed(1)}" stroke="#38bdf8" stroke-width="3" stroke-linecap="round"/>`;
-                }).join('')}
-                <circle cx="100" cy="100" r="10" fill="url(#${id}_metal)"/>
-            `;
-        }
-        else if (/fuel\s*rail/i.test(raw)) {
-            content = `
-                <rect x="25" y="70" width="150" height="20" rx="6" fill="url(#${id}_metal)" stroke="#334155" stroke-width="2"/>
-                ${[45, 80, 115, 150].map(x => `
-                    <rect x="${x-8}" y="90" width="16" height="35" rx="4" fill="${pColor}"/>
-                    <circle cx="${x}" cy="130" r="5" fill="#f59e0b"/>
-                `).join('')}
-                <circle cx="25" cy="80" r="8" fill="#38bdf8"/>
-                <circle cx="175" cy="80" r="8" fill="#38bdf8"/>
-            `;
-        }
-        else if (/fuel\s*injector|injector/i.test(raw)) {
-            content = `
-                <rect x="90" y="25" width="20" height="35" rx="4" fill="#1e293b"/>
-                <rect x="94" y="60" width="12" height="80" rx="2" fill="url(#${id}_metal)"/>
-                <circle cx="100" cy="75" r="8" fill="#ef4444"/>
-                <circle cx="100" cy="130" r="8" fill="#3b82f6"/>
-                <path d="M 96 140 L 104 140 L 100 180 Z" fill="url(#${id}_metal)"/>
-                <circle cx="100" cy="180" r="3" fill="#f59e0b"/>
-            `;
-        }
-        else if (/fuel\s*pump|fuel\s*tank|gas\s*tank/i.test(raw)) {
-            content = `
-                <rect x="40" y="55" width="120" height="90" rx="14" fill="#1e293b" stroke="#475569" stroke-width="2"/>
-                <circle cx="100" cy="100" r="30" fill="url(#${id}_metal)"/>
-                <circle cx="100" cy="100" r="18" fill="#334155"/>
-                <rect x="94" y="35" width="12" height="25" rx="3" fill="#f59e0b"/>
-                <rect x="135" y="45" width="16" height="20" rx="4" fill="#38bdf8"/>
-            `;
-        }
-        else if (/cv\s*axle|axle|driveshaft|propeller\s*shaft|half\s*shaft|cv\s*joint/i.test(raw)) {
-            content = `
-                <rect x="65" y="93" width="70" height="14" rx="3" fill="url(#${id}_metal)"/>
-                <rect x="25" y="85" width="20" height="30" rx="4" fill="#334155"/>
-                <rect x="15" y="95" width="14" height="10" fill="#94a3b8"/>
-                ${[40, 48, 56, 135, 143, 151].map(x => `
-                    <path d="M ${x} 80 L ${x+4} 100 L ${x} 120" fill="none" stroke="#0f172a" stroke-width="9" stroke-linecap="round"/>
-                `).join('')}
-                <rect x="155" y="85" width="20" height="30" rx="4" fill="#334155"/>
-                <rect x="172" y="94" width="16" height="12" fill="url(#${id}_metal)"/>
-            `;
-        }
-        else if (/differential|diff|limited\s*slip|lsd/i.test(raw)) {
-            content = `
-                <circle cx="100" cy="100" r="55" fill="url(#${id}_metal)"/>
-                <circle cx="100" cy="100" r="45" fill="#1e293b"/>
-                <circle cx="100" cy="100" r="35" fill="#d97706" stroke="#f59e0b" stroke-width="4" stroke-dasharray="6,4"/>
-                <circle cx="100" cy="100" r="15" fill="url(#${id}_metal)"/>
-                <line x1="15" y1="100" x2="48" y2="100" stroke="#475569" stroke-width="16" stroke-linecap="round"/>
-                <line x1="152" y1="100" x2="185" y2="100" stroke="#475569" stroke-width="16" stroke-linecap="round"/>
-                <rect x="92" y="25" width="16" height="28" rx="4" fill="#334155"/>
-            `;
-        }
-        else if (/clutch|flywheel|pressure\s*plate|transmission|gearbox/i.test(raw)) {
-            content = `
-                <circle cx="100" cy="100" r="80" fill="#334155"/>
-                <circle cx="100" cy="100" r="72" fill="url(#${id}_ceramic)"/>
-                <circle cx="100" cy="100" r="45" fill="url(#${id}_metal)"/>
-                ${[0, 90, 180, 270].map(a => {
-                    const rad = a * Math.PI / 180;
-                    return `<rect x="${(100 + 26 * Math.cos(rad) - 8).toFixed(1)}" y="${(100 + 26 * Math.sin(rad) - 8).toFixed(1)}" width="16" height="16" rx="3" fill="#f59e0b"/>`;
-                }).join('')}
-                <circle cx="100" cy="100" r="16" fill="#0f172a"/>
-            `;
-        }
-        else if (/master\s*cylinder|brake\s*booster|hydroboost/i.test(raw)) {
-            content = `
-                <ellipse cx="65" cy="100" rx="35" ry="50" fill="#1e293b" stroke="#334155" stroke-width="3"/>
-                <ellipse cx="65" cy="100" rx="25" ry="38" fill="#0f172a"/>
-                <rect x="85" y="90" width="75" height="20" rx="4" fill="url(#${id}_metal)"/>
-                <rect x="100" y="50" width="50" height="42" rx="8" fill="#e0f2fe" opacity="0.9" stroke="#38bdf8" stroke-width="1.5"/>
-                <rect x="102" y="70" width="46" height="20" rx="4" fill="#fef08a" opacity="0.8"/>
-                <rect x="115" y="40" width="20" height="12" rx="3" fill="#eab308"/>
-                <circle cx="135" cy="100" r="4" fill="#ef4444"/>
-                <circle cx="150" cy="100" r="4" fill="#ef4444"/>
             `;
         }
         else if (/rotor|disc|disk|brake\s*rotor/i.test(raw)) {
@@ -1012,20 +826,6 @@
                 ${lugBolts}
                 <circle cx="100" cy="100" r="14" fill="#0f172a"/>
                 <circle cx="100" cy="100" r="11" fill="#020617"/>
-            `;
-        }
-        else if (/pad|caliper|brake\s*shoe/i.test(raw)) {
-            content = `
-                <rect x="30" y="45" width="140" height="45" rx="6" fill="#334155"/>
-                <rect x="42" y="52" width="116" height="34" rx="4" fill="${pColor}"/>
-                <rect x="98" y="52" width="4" height="34" fill="#1e293b"/>
-                <rect x="25" y="105" width="150" height="52" rx="8" fill="#1e293b"/>
-                <rect x="38" y="112" width="124" height="40" rx="4" fill="url(#${id}_ceramic)"/>
-                <polygon points="38,112 55,112 38,152" fill="#78350f" opacity="0.6"/>
-                <polygon points="162,112 145,112 162,152" fill="#78350f" opacity="0.6"/>
-                <rect x="98" y="112" width="4" height="40" fill="#451a03"/>
-                <rect x="20" y="145" width="12" height="15" rx="2" fill="#94a3b8"/>
-                <rect x="168" y="145" width="12" height="15" rx="2" fill="#94a3b8"/>
             `;
         }
         else if (/shock|strut|coilover|spring|damper/i.test(raw)) {
@@ -1057,7 +857,7 @@
                 <circle cx="145" cy="152" r="5" fill="#f8fafc"/>
             `;
         }
-        else if (/water\s*pump|thermostat|water\s*neck/i.test(raw)) {
+        else if (/water\s*pump|thermostat/i.test(raw)) {
             content = `
                 <circle cx="100" cy="100" r="52" fill="url(#${id}_metal)"/>
                 <circle cx="100" cy="100" r="36" fill="#1e293b"/>
@@ -1085,7 +885,7 @@
                 <path d="M 88 171 L 88 193 L 100 193" fill="none" stroke="#64748b" stroke-width="3.5" stroke-linecap="round"/>
             `;
         }
-        else if (/alternator|generator|dynamo|stator/i.test(raw)) {
+        else if (/alternator|generator/i.test(raw)) {
             content = `
                 <circle cx="100" cy="105" r="58" fill="#94a3b8"/>
                 ${Array.from({length: 8}).map((_, i) => {
@@ -1095,17 +895,6 @@
                 <circle cx="100" cy="105" r="32" fill="#1e293b"/>
                 <circle cx="100" cy="105" r="12" fill="#e2e8f0"/>
                 <rect x="88" y="24" width="24" height="24" rx="4" fill="${pColor}"/>
-            `;
-        }
-        else if (/starter/i.test(raw)) {
-            content = `
-                <rect x="40" y="80" width="100" height="55" rx="12" fill="url(#${id}_metal)"/>
-                <rect x="70" y="45" width="70" height="35" rx="8" fill="#1e293b"/>
-                <circle cx="155" cy="107" r="16" fill="#f59e0b"/>
-                ${Array.from({length: 8}).map((_, i) => {
-                    const rad = (i * 45) * Math.PI / 180;
-                    return `<rect x="${(155 + 14 * Math.cos(rad) - 2).toFixed(1)}" y="${(107 + 14 * Math.sin(rad) - 2).toFixed(1)}" width="4" height="4" fill="#0f172a"/>`;
-                }).join('')}
             `;
         }
         else if (/battery|motolite|amaron|12v/i.test(raw)) {
@@ -1119,113 +908,6 @@
                 <rect x="48" y="95" width="104" height="65" rx="6" fill="#0f172a"/>
                 <rect x="54" y="102" width="92" height="24" rx="3" fill="${sColor}"/>
                 <circle cx="100" cy="142" r="8" fill="#22c55e"/>
-            `;
-        }
-        else if (/ecu|pcm|tcm|computer|module/i.test(raw)) {
-            content = `
-                <rect x="35" y="50" width="130" height="110" rx="10" fill="url(#${id}_metal)" stroke="#334155" stroke-width="2"/>
-                ${[60, 72, 84, 96, 108, 120, 132, 144].map(y => `<line x1="45" y1="${y}" x2="155" y2="${y}" stroke="#475569" stroke-width="2"/>`).join('')}
-                <rect x="55" y="30" width="40" height="24" rx="3" fill="#1e293b"/>
-                <rect x="105" y="30" width="40" height="24" rx="3" fill="#1e293b"/>
-                <rect x="75" y="80" width="50" height="35" rx="4" fill="#0f172a"/>
-                <text x="100" y="102" font-size="10" font-weight="900" font-family="sans-serif" text-anchor="middle" fill="#38bdf8">ECU 32-BIT</text>
-            `;
-        }
-        else if (/engine\s*mount|motor\s*mount|transmission\s*mount/i.test(raw)) {
-            content = `
-                <path d="M 40 145 L 70 65 L 130 65 L 160 145 Z" fill="#334155"/>
-                <circle cx="100" cy="100" r="32" fill="#0f172a"/>
-                <circle cx="100" cy="100" r="16" fill="url(#${id}_metal)"/>
-                <rect x="94" y="30" width="12" height="40" rx="3" fill="url(#${id}_metal)"/>
-            `;
-        }
-        else if (/ac\s*compressor|aircon\s*compressor|ac\s*clutch/i.test(raw)) {
-            content = `
-                <rect x="60" y="60" width="90" height="80" rx="16" fill="url(#${id}_metal)"/>
-                <rect x="35" y="70" width="28" height="60" rx="6" fill="#1e293b"/>
-                <circle cx="48" cy="100" r="18" fill="#64748b"/>
-                <circle cx="48" cy="100" r="8" fill="#cbd5e1"/>
-                <rect x="95" y="42" width="18" height="20" rx="4" fill="#ef4444"/>
-                <rect x="122" y="42" width="18" height="20" rx="4" fill="#3b82f6"/>
-            `;
-        }
-        else if (/fuse|relay/i.test(raw)) {
-            content = `
-                <rect x="50" y="40" width="100" height="90" rx="8" fill="${pColor}" opacity="0.85"/>
-                <path d="M 70 85 Q 100 50 100 85 Q 100 120 130 85" fill="none" stroke="#facc15" stroke-width="6" stroke-linecap="round"/>
-                <rect x="65" y="130" width="20" height="45" rx="3" fill="url(#${id}_metal)"/>
-                <rect x="115" y="130" width="20" height="45" rx="3" fill="url(#${id}_metal)"/>
-            `;
-        }
-        else if (/horn|snail\s*horn|alarm|siren/i.test(raw)) {
-            content = `
-                <circle cx="100" cy="100" r="55" fill="#1e293b"/>
-                <circle cx="100" cy="100" r="46" fill="${pColor}"/>
-                <path d="M 100 65 A 35 35 0 0 1 135 100 A 35 35 0 0 1 100 135 A 25 25 0 0 1 75 100 A 15 15 0 0 1 100 85" fill="none" stroke="url(#${id}_metal)" stroke-width="12" stroke-linecap="round"/>
-                <circle cx="100" cy="100" r="12" fill="#0f172a"/>
-                <rect x="90" y="32" width="20" height="15" rx="3" fill="#64748b"/>
-            `;
-        }
-        else if (/window|glass|windshield|windscreen|tint|regulator/i.test(raw)) {
-            content = `
-                <path d="M 45 40 L 155 32 Q 165 32 168 42 L 160 148 Q 158 155 150 155 L 42 155 Q 35 155 35 146 L 38 48 Q 39 40 45 40 Z" fill="url(#${id}_glass)" stroke="#38bdf8" stroke-width="2.5"/>
-                <polygon points="58,40 85,38 72,155 45,155" fill="#ffffff" opacity="0.35"/>
-                <polygon points="105,36 120,35 108,155 93,155" fill="#ffffff" opacity="0.2"/>
-                <rect x="35" y="152" width="130" height="14" rx="3" fill="#334155"/>
-                <circle cx="65" cy="159" r="3.5" fill="#94a3b8"/>
-                <circle cx="135" cy="159" r="3.5" fill="#94a3b8"/>
-            `;
-        }
-        else if (/mirror|side\s*mirror|rearview/i.test(raw)) {
-            content = `
-                <path d="M 45 60 Q 155 35 165 75 Q 170 120 120 135 L 55 130 Z" fill="#1e293b"/>
-                <path d="M 52 68 Q 145 46 153 78 Q 157 114 115 125 L 60 122 Z" fill="url(#${id}_glass)" stroke="#38bdf8" stroke-width="1.5"/>
-                <path d="M 45 110 L 25 145 L 65 145 Z" fill="#334155"/>
-                <line x1="85" y1="58" x2="135" y2="95" stroke="#ffffff" stroke-width="3" stroke-linecap="round" opacity="0.6"/>
-                <rect x="135" y="105" width="22" height="6" rx="2" fill="#f59e0b"/>
-            `;
-        }
-        else if (/bumper|grille|hood|trunk|fender|spoiler/i.test(raw)) {
-            content = `
-                <path d="M 25 70 Q 100 50 175 70 L 165 135 Q 100 150 35 135 Z" fill="${pColor}"/>
-                <rect x="45" y="78" width="110" height="38" rx="8" fill="#0f172a"/>
-                ${[84, 90, 96, 102, 108].map(y => `<line x1="50" y1="${y}" x2="150" y2="${y}" stroke="#475569" stroke-width="2"/>`).join('')}
-                <ellipse cx="100" cy="97" rx="16" ry="10" fill="${sColor}"/>
-            `;
-        }
-        else if (/door|handle|latch|lock/i.test(raw)) {
-            content = `
-                <rect x="35" y="35" width="130" height="130" rx="14" fill="${pColor}"/>
-                <path d="M 35 35 Q 100 45 165 35" stroke="#ffffff" stroke-width="2.5" stroke-opacity="0.5" fill="none"/>
-                <rect x="55" y="85" width="90" height="30" rx="8" fill="#1e293b"/>
-                <rect x="62" y="92" width="76" height="16" rx="5" fill="url(#${id}_metal)"/>
-                <circle cx="128" cy="100" r="3" fill="#0f172a"/>
-            `;
-        }
-        else if (/headlight|light|lamp|bulb|taillight|fog|led|xenon/i.test(raw)) {
-            content = `
-                <path d="M 35 60 Q 140 45 165 85 Q 155 135 45 135 Z" fill="#1e293b"/>
-                <path d="M 42 66 Q 133 53 154 88 Q 145 128 50 128 Z" fill="url(#${id}_glass)" stroke="#67e8f9" stroke-width="2"/>
-                <circle cx="85" cy="98" r="22" fill="#0284c7"/>
-                <circle cx="85" cy="98" r="15" fill="#e0f2fe"/>
-                <circle cx="85" cy="98" r="8" fill="#ffffff"/>
-                <circle cx="130" cy="95" r="10" fill="#f59e0b"/>
-            `;
-        }
-        else if (/wiper|blade/i.test(raw)) {
-            content = `
-                <path d="M 25 145 Q 100 65 175 125" fill="none" stroke="#1e293b" stroke-width="12" stroke-linecap="round"/>
-                <path d="M 25 151 Q 100 71 175 131" fill="none" stroke="#64748b" stroke-width="4" stroke-linecap="round"/>
-                <rect x="90" y="80" width="20" height="16" rx="3" fill="${pColor}"/>
-            `;
-        }
-        else if (/seat|seatbelt|cushion|upholstery|interior|dashboard/i.test(raw)) {
-            content = `
-                <rect x="80" y="24" width="40" height="25" rx="8" fill="#1e293b"/>
-                <path d="M 60 52 L 140 52 L 132 140 L 68 140 Z" fill="${pColor}"/>
-                <path d="M 75 56 L 125 56 L 120 135 L 80 135 Z" fill="#0f172a" opacity="0.3"/>
-                <rect x="50" y="135" width="100" height="35" rx="10" fill="#1e293b"/>
-                <rect x="58" y="140" width="84" height="25" rx="6" fill="${sColor}"/>
             `;
         }
         else if (/oil|fluid|coolant|synthetic|lubricant|atf/i.test(raw)) {
@@ -1256,38 +938,6 @@
                     ${[52, 60, 68, 76, 84, 92, 100, 108, 116, 124, 132, 140, 148].map(x => `<line x1="${x}" y1="56" x2="${x}" y2="144" stroke="#ca8a04" stroke-width="2.5"/>`).join('')}
                 `;
             }
-        }
-        else if (/tire|tyre|wheel|rim|mag|alloy\s*wheel/i.test(raw)) {
-            const spokes = [0, 72, 144, 216, 288].map(a => {
-                const rad = a * Math.PI / 180;
-                return `<circle cx="${(100 + 38 * Math.cos(rad)).toFixed(1)}" cy="${(100 + 38 * Math.sin(rad)).toFixed(1)}" r="18" fill="#e2e8f0"/><circle cx="${(100 + 38 * Math.cos(rad)).toFixed(1)}" cy="${(100 + 38 * Math.sin(rad)).toFixed(1)}" r="11" fill="#1e293b"/>`;
-            }).join('');
-
-            const treads = Array.from({length: 24}).map((_, i) => {
-                const rad = (i * 15) * Math.PI / 180;
-                return `<line x1="${(100 + 72 * Math.cos(rad)).toFixed(1)}" y1="${(100 + 72 * Math.sin(rad)).toFixed(1)}" x2="${(100 + 82 * Math.cos(rad)).toFixed(1)}" y2="${(100 + 82 * Math.sin(rad)).toFixed(1)}" stroke="#0f172a" stroke-width="2.5"/>`;
-            }).join('');
-
-            content = `
-                <circle cx="100" cy="100" r="82" fill="#1e293b"/>
-                <circle cx="100" cy="100" r="74" fill="#334155"/>
-                <circle cx="100" cy="100" r="62" fill="#0f172a"/>
-                ${treads}
-                <circle cx="100" cy="100" r="54" fill="#cbd5e1"/>
-                <circle cx="100" cy="100" r="48" fill="#94a3b8"/>
-                ${spokes}
-                <circle cx="100" cy="100" r="22" fill="#f8fafc"/>
-                <circle cx="100" cy="100" r="16" fill="${pColor}"/>
-                <circle cx="100" cy="100" r="8" fill="#ffffff"/>
-            `;
-        }
-        else if (/bolt|nut|screw|fastener|bracket|mount|clamp/i.test(raw)) {
-            content = `
-                <polygon points="100,25 140,48 140,94 100,117 60,94 60,48" fill="url(#${id}_metal)"/>
-                <circle cx="100" cy="71" r="24" fill="#64748b"/>
-                <rect x="85" y="117" width="30" height="65" rx="2" fill="url(#${id}_metal)"/>
-                ${[125, 137, 149, 161, 173].map(y => `<line x1="85" y1="${y}" x2="115" y2="${y+3}" stroke="#334155" stroke-width="2.5"/>`).join('')}
-            `;
         }
         else {
             let hash = 0;
@@ -1359,12 +1009,54 @@
         return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
     }
 
-    // --- AI Semantic Categorization Engine (Strict Hierarchical Priorities) ---
+    // --- AI Semantic Categorization Engine (Strict Distinct Categories) ---
     function getPartAIMeta(partName) {
         const raw = (partName || '').toLowerCase().trim();
         const customGeneratedSvg = generateDynamicPartSVG(partName);
 
-        // Tier 1: Caps & Lids
+        // 1. Drum Brake Shoes
+        if (/brake\s*shoe|drum\s*brake|rear\s*shoe/i.test(raw)) {
+            return {
+                category: 'Braking (Drum Brake Shoes)',
+                imageUrl: customGeneratedSvg,
+                badgeBg: 'bg-gradient-to-br from-amber-50 to-orange-50',
+                badgeBorder: 'border-amber-200',
+                textClass: 'text-amber-600',
+                dotClass: 'bg-amber-500',
+                glowClass: 'group-hover:border-amber-400'
+            };
+        }
+
+        // 2. Brake Calipers
+        if (/caliper|monoblock|brake\s*caliper/i.test(raw)) {
+            return {
+                category: 'Braking (Brake Calipers)',
+                imageUrl: customGeneratedSvg,
+                badgeBg: 'bg-gradient-to-br from-red-50 to-rose-50',
+                badgeBorder: 'border-red-200',
+                textClass: 'text-red-600',
+                dotClass: 'bg-red-500',
+                glowClass: 'group-hover:border-red-400'
+            };
+        }
+
+        // 3. Brake Pads (Front, Rear, OEM)
+        if (/brake\s*pad|disc\s*pad/i.test(raw)) {
+            const isFront = /front|fr/i.test(raw);
+            const isRear = /rear|rr/i.test(raw);
+            const label = isFront ? 'Braking (Front Brake Pads)' : (isRear ? 'Braking (Rear Brake Pads)' : 'Braking (Brake Pads)');
+            return {
+                category: label,
+                imageUrl: customGeneratedSvg,
+                badgeBg: 'bg-gradient-to-br from-rose-50 to-red-50',
+                badgeBorder: 'border-rose-200',
+                textClass: 'text-rose-600',
+                dotClass: 'bg-rose-500',
+                glowClass: 'group-hover:border-rose-400'
+            };
+        }
+
+        // 4. Radiator Cap
         if (/radiator\s*cap/i.test(raw)) {
             return {
                 category: 'Cooling (Radiator Cap)',
@@ -1376,6 +1068,8 @@
                 glowClass: 'group-hover:border-cyan-400'
             };
         }
+
+        // 5. Fuel Cap
         if (/fuel\s*cap|gas\s*cap|filler\s*cap/i.test(raw)) {
             return {
                 category: 'Fuel Delivery (Fuel Cap)',
@@ -1387,6 +1081,8 @@
                 glowClass: 'group-hover:border-emerald-400'
             };
         }
+
+        // 6. Oil Cap
         if (/oil\s*(filler\s*)?cap/i.test(raw)) {
             return {
                 category: 'Lubrication (Oil Cap)',
@@ -1398,19 +1094,8 @@
                 glowClass: 'group-hover:border-amber-400'
             };
         }
-        if (/distributor\s*cap/i.test(raw)) {
-            return {
-                category: 'Ignition (Distributor Cap)',
-                imageUrl: customGeneratedSvg,
-                badgeBg: 'bg-gradient-to-br from-red-50 to-orange-50',
-                badgeBorder: 'border-red-200',
-                textClass: 'text-red-600',
-                dotClass: 'bg-red-500',
-                glowClass: 'group-hover:border-red-400'
-            };
-        }
 
-        // Tier 2: Rings, Seals & Gaskets
+        // 7. Piston Rings
         if (/piston\s*ring|compression\s*ring|oil\s*ring|scraper\s*ring/i.test(raw)) {
             return {
                 category: 'Engine Internals (Piston Rings)',
@@ -1422,6 +1107,8 @@
                 glowClass: 'group-hover:border-amber-400'
             };
         }
+
+        // 8. Head Gasket
         if (/head\s*gasket/i.test(raw)) {
             return {
                 category: 'Gaskets & Seals (Head Gasket)',
@@ -1433,19 +1120,8 @@
                 glowClass: 'group-hover:border-amber-400'
             };
         }
-        if (/gasket|seal|o-ring/i.test(raw)) {
-            return {
-                category: 'Gaskets & Seals',
-                imageUrl: customGeneratedSvg,
-                badgeBg: 'bg-gradient-to-br from-amber-50 to-yellow-50',
-                badgeBorder: 'border-amber-200',
-                textClass: 'text-amber-600',
-                dotClass: 'bg-amber-500',
-                glowClass: 'group-hover:border-amber-400'
-            };
-        }
 
-        // Tier 3: Hoses, Pipes & Ducts
+        // 9. Radiator Hose
         if (/radiator\s*hose|coolant\s*hose|heater\s*hose|coolant\s*pipe/i.test(raw)) {
             return {
                 category: 'Cooling Hoses & Pipes',
@@ -1457,6 +1133,8 @@
                 glowClass: 'group-hover:border-cyan-400'
             };
         }
+
+        // 10. Radiator Fan
         if (/radiator\s*fan|cooling\s*fan|fan\s*blade/i.test(raw)) {
             return {
                 category: 'Cooling (Radiator Fan)',
@@ -1468,87 +1146,8 @@
                 glowClass: 'group-hover:border-cyan-400'
             };
         }
-        if (/brake\s*hose|brake\s*line/i.test(raw)) {
-            return {
-                category: 'Braking (Brake Lines)',
-                imageUrl: customGeneratedSvg,
-                badgeBg: 'bg-gradient-to-br from-rose-50 to-red-50',
-                badgeBorder: 'border-rose-200',
-                textClass: 'text-rose-600',
-                dotClass: 'bg-rose-500',
-                glowClass: 'group-hover:border-rose-400'
-            };
-        }
-        if (/exhaust\s*pipe|tailpipe|downpipe|midpipe/i.test(raw)) {
-            return {
-                category: 'Exhaust (Pipes & Tips)',
-                imageUrl: customGeneratedSvg,
-                badgeBg: 'bg-gradient-to-br from-violet-50 to-purple-50',
-                badgeBorder: 'border-violet-200',
-                textClass: 'text-violet-600',
-                dotClass: 'bg-violet-500',
-                glowClass: 'group-hover:border-violet-400'
-            };
-        }
 
-        // Tier 4: Sensors & Valvetrain
-        if (/tpms|tire\s*pressure/i.test(raw)) {
-            return {
-                category: 'Tires & Wheels (TPMS)',
-                imageUrl: customGeneratedSvg,
-                badgeBg: 'bg-gradient-to-br from-slate-100 to-zinc-100',
-                badgeBorder: 'border-slate-300',
-                textClass: 'text-slate-700',
-                dotClass: 'bg-slate-600',
-                glowClass: 'group-hover:border-slate-400'
-            };
-        }
-        if (/blow\s*off|bov|wastegate/i.test(raw)) {
-            return {
-                category: 'Turbo & Forced Induction (BOV)',
-                imageUrl: customGeneratedSvg,
-                badgeBg: 'bg-gradient-to-br from-fuchsia-50 to-pink-50',
-                badgeBorder: 'border-fuchsia-200',
-                textClass: 'text-fuchsia-600',
-                dotClass: 'bg-fuchsia-500',
-                glowClass: 'group-hover:border-fuchsia-400'
-            };
-        }
-        if (/valve\s*spring|retainer/i.test(raw)) {
-            return {
-                category: 'Valvetrain (Valve Springs)',
-                imageUrl: customGeneratedSvg,
-                badgeBg: 'bg-gradient-to-br from-purple-50 to-indigo-50',
-                badgeBorder: 'border-purple-200',
-                textClass: 'text-purple-600',
-                dotClass: 'bg-purple-500',
-                glowClass: 'group-hover:border-purple-400'
-            };
-        }
-        if (/engine\s*valve|intake\s*valve|exhaust\s*valve|poppet\s*valve/i.test(raw)) {
-            return {
-                category: 'Valvetrain (Engine Valves)',
-                imageUrl: customGeneratedSvg,
-                badgeBg: 'bg-gradient-to-br from-purple-50 to-indigo-50',
-                badgeBorder: 'border-purple-200',
-                textClass: 'text-purple-600',
-                dotClass: 'bg-purple-500',
-                glowClass: 'group-hover:border-purple-400'
-            };
-        }
-        if (/rocker\s*arm|lifter|tappet/i.test(raw)) {
-            return {
-                category: 'Valvetrain (Rocker Arms & Lifters)',
-                imageUrl: customGeneratedSvg,
-                badgeBg: 'bg-gradient-to-br from-purple-50 to-indigo-50',
-                badgeBorder: 'border-purple-200',
-                textClass: 'text-purple-600',
-                dotClass: 'bg-purple-500',
-                glowClass: 'group-hover:border-purple-400'
-            };
-        }
-
-        // Tier 5: Major Assemblies
+        // 11. Cylinder Head
         if (/cylinder\s*head|head\s*assembly/i.test(raw)) {
             return {
                 category: 'Engine & Cylinder Head',
@@ -1560,6 +1159,8 @@
                 glowClass: 'group-hover:border-indigo-400'
             };
         }
+
+        // 12. Valve Cover
         if (/engine\s*cover|valve\s*cover|cam\s*cover|rocker\s*cover/i.test(raw)) {
             return {
                 category: 'Engine & Valve Cover',
@@ -1571,6 +1172,8 @@
                 glowClass: 'group-hover:border-red-400'
             };
         }
+
+        // 13. Crankshaft
         if (/crankshaft|stroker\s*crank/i.test(raw)) {
             return {
                 category: 'Engine Internals (Crankshaft)',
@@ -1582,17 +1185,8 @@
                 glowClass: 'group-hover:border-slate-400'
             };
         }
-        if (/camshaft|cam\s*shaft/i.test(raw)) {
-            return {
-                category: 'Valvetrain (Camshaft)',
-                imageUrl: customGeneratedSvg,
-                badgeBg: 'bg-gradient-to-br from-purple-50 to-indigo-50',
-                badgeBorder: 'border-purple-200',
-                textClass: 'text-purple-600',
-                dotClass: 'bg-purple-500',
-                glowClass: 'group-hover:border-purple-400'
-            };
-        }
+
+        // 14. Pistons
         if (/piston|connecting\s*rod|conrod/i.test(raw)) {
             return {
                 category: 'Engine Internals (Pistons)',
@@ -1604,127 +1198,8 @@
                 glowClass: 'group-hover:border-red-400'
             };
         }
-        if (/throttle\s*body/i.test(raw)) {
-            return {
-                category: 'Air Intake (Throttle Body)',
-                imageUrl: customGeneratedSvg,
-                badgeBg: 'bg-gradient-to-br from-sky-50 to-cyan-50',
-                badgeBorder: 'border-sky-200',
-                textClass: 'text-sky-600',
-                dotClass: 'bg-sky-500',
-                glowClass: 'group-hover:border-sky-400'
-            };
-        }
-        if (/intake\s*manifold|plenum/i.test(raw)) {
-            return {
-                category: 'Air Intake & Manifold',
-                imageUrl: customGeneratedSvg,
-                badgeBg: 'bg-gradient-to-br from-sky-50 to-cyan-50',
-                badgeBorder: 'border-sky-200',
-                textClass: 'text-sky-600',
-                dotClass: 'bg-sky-500',
-                glowClass: 'group-hover:border-sky-400'
-            };
-        }
-        if (/exhaust|header|extractors|muffler/i.test(raw)) {
-            return {
-                category: 'Exhaust & Headers',
-                imageUrl: customGeneratedSvg,
-                badgeBg: 'bg-gradient-to-br from-violet-50 to-purple-50',
-                badgeBorder: 'border-violet-200',
-                textClass: 'text-violet-600',
-                dotClass: 'bg-violet-500',
-                glowClass: 'group-hover:border-violet-400'
-            };
-        }
-        if (/oil\s*pan|sump|oil\s*pump|dipstick/i.test(raw)) {
-            return {
-                category: 'Lubrication & Sump',
-                imageUrl: customGeneratedSvg,
-                badgeBg: 'bg-gradient-to-br from-slate-100 to-amber-50',
-                badgeBorder: 'border-amber-200',
-                textClass: 'text-amber-700',
-                dotClass: 'bg-amber-600',
-                glowClass: 'group-hover:border-amber-400'
-            };
-        }
-        if (/turbo|supercharger|intercooler/i.test(raw)) {
-            return {
-                category: 'Turbo & Forced Induction',
-                imageUrl: customGeneratedSvg,
-                badgeBg: 'bg-gradient-to-br from-fuchsia-50 to-pink-50',
-                badgeBorder: 'border-fuchsia-200',
-                textClass: 'text-fuchsia-600',
-                dotClass: 'bg-fuchsia-500',
-                glowClass: 'group-hover:border-fuchsia-400'
-            };
-        }
-        if (/fuel\s*rail/i.test(raw)) {
-            return {
-                category: 'Fuel Delivery (Fuel Rail)',
-                imageUrl: customGeneratedSvg,
-                badgeBg: 'bg-gradient-to-br from-emerald-50 to-green-50',
-                badgeBorder: 'border-emerald-200',
-                textClass: 'text-emerald-600',
-                dotClass: 'bg-emerald-500',
-                glowClass: 'group-hover:border-emerald-400'
-            };
-        }
-        if (/fuel\s*injector|injector/i.test(raw)) {
-            return {
-                category: 'Fuel Injection (Injectors)',
-                imageUrl: customGeneratedSvg,
-                badgeBg: 'bg-gradient-to-br from-emerald-50 to-green-50',
-                badgeBorder: 'border-emerald-200',
-                textClass: 'text-emerald-600',
-                dotClass: 'bg-emerald-500',
-                glowClass: 'group-hover:border-emerald-400'
-            };
-        }
-        if (/fuel\s*pump|fuel\s*tank|gas\s*tank/i.test(raw)) {
-            return {
-                category: 'Fuel Delivery (Fuel Pump & Tank)',
-                imageUrl: customGeneratedSvg,
-                badgeBg: 'bg-gradient-to-br from-emerald-50 to-green-50',
-                badgeBorder: 'border-emerald-200',
-                textClass: 'text-emerald-600',
-                dotClass: 'bg-emerald-500',
-                glowClass: 'group-hover:border-emerald-400'
-            };
-        }
-        if (/radiator/i.test(raw)) {
-            return {
-                category: 'Cooling System (Radiator)',
-                imageUrl: customGeneratedSvg,
-                badgeBg: 'bg-gradient-to-br from-cyan-50 to-blue-50',
-                badgeBorder: 'border-cyan-200',
-                textClass: 'text-cyan-600',
-                dotClass: 'bg-cyan-500',
-                glowClass: 'group-hover:border-cyan-400'
-            };
-        }
-        if (/water\s*pump|thermostat/i.test(raw)) {
-            return {
-                category: 'Cooling (Water Pump & Thermostat)',
-                imageUrl: customGeneratedSvg,
-                badgeBg: 'bg-gradient-to-br from-cyan-50 to-blue-50',
-                badgeBorder: 'border-cyan-200',
-                textClass: 'text-cyan-600',
-                dotClass: 'bg-cyan-500',
-                glowClass: 'group-hover:border-cyan-400'
-            };
-        }
-        if (/master\s*cylinder|brake\s*booster|booster/i.test(raw)) {
-            return {
-                category: 'Braking (Master Cylinder & Booster)',
-                imageUrl: customGeneratedSvg,
-                badgeBg: 'bg-gradient-to-br from-rose-50 to-red-50',
-                badgeBorder: 'border-rose-200',
-                textClass: 'text-rose-600',
-                dotClass: 'bg-rose-500',
-                glowClass: 'group-hover:border-rose-400'
-            };
-        }
+
+        // 15. Brake Rotors
         if (/rotor|disc|disk|brake\s*rotor/i.test(raw)) {
             return {
                 category: 'Braking (Rotors)',
@@ -1736,28 +1211,21 @@
                 glowClass: 'group-hover:border-rose-400'
             };
         }
-        if (/pad|caliper|brake\s*shoe/i.test(raw)) {
+
+        // 16. Radiator
+        if (/radiator/i.test(raw)) {
             return {
-                category: 'Braking (Pads & Calipers)',
+                category: 'Cooling System (Radiator)',
                 imageUrl: customGeneratedSvg,
-                badgeBg: 'bg-gradient-to-br from-rose-50 to-red-50',
-                badgeBorder: 'border-rose-200',
-                textClass: 'text-rose-600',
-                dotClass: 'bg-rose-500',
-                glowClass: 'group-hover:border-rose-400'
+                badgeBg: 'bg-gradient-to-br from-cyan-50 to-blue-50',
+                badgeBorder: 'border-cyan-200',
+                textClass: 'text-cyan-600',
+                dotClass: 'bg-cyan-500',
+                glowClass: 'group-hover:border-cyan-400'
             };
         }
-        if (/spark|plug|ignition|battery|alternator|starter|fuse|relay|horn|ecu/i.test(raw)) {
-            return {
-                category: 'Ignition & Electrical',
-                imageUrl: customGeneratedSvg,
-                badgeBg: 'bg-gradient-to-br from-blue-50 to-indigo-50',
-                badgeBorder: 'border-blue-200',
-                textClass: 'text-blue-600',
-                dotClass: 'bg-blue-500',
-                glowClass: 'group-hover:border-blue-400'
-            };
-        }
+
+        // 17. Suspension Shocks & Coilovers
         if (/shock|strut|coilover|spring|damper/i.test(raw)) {
             return {
                 category: 'Suspension System',
@@ -1769,6 +1237,8 @@
                 glowClass: 'group-hover:border-amber-400'
             };
         }
+
+        // 18. Drivetrain & Axles
         if (/cv\s*axle|axle|driveshaft|differential|clutch|transmission/i.test(raw)) {
             return {
                 category: 'Drivetrain & Transmission',
@@ -1780,6 +1250,8 @@
                 glowClass: 'group-hover:border-slate-400'
             };
         }
+
+        // 19. Tires & Wheels
         if (/tire|tyre|wheel|rim|mag/i.test(raw)) {
             return {
                 category: 'Tires & Wheels',
@@ -1791,17 +1263,8 @@
                 glowClass: 'group-hover:border-slate-400'
             };
         }
-        if (/window|glass|windshield|mirror|bumper|door|handle|hood|trunk|fender|grille|wiper/i.test(raw)) {
-            return {
-                category: 'Body & Exterior',
-                imageUrl: customGeneratedSvg,
-                badgeBg: 'bg-gradient-to-br from-cyan-50 to-sky-50',
-                badgeBorder: 'border-cyan-200',
-                textClass: 'text-cyan-600',
-                dotClass: 'bg-cyan-500',
-                glowClass: 'group-hover:border-cyan-400'
-            };
-        }
+
+        // 20. Filtration & Fluids
         if (/filter|oil|fluid|synthetic|lubricant|atf/i.test(raw)) {
             return {
                 category: 'Filtration & Fluids',
@@ -1811,17 +1274,6 @@
                 textClass: 'text-amber-600',
                 dotClass: 'bg-amber-500',
                 glowClass: 'group-hover:border-amber-400'
-            };
-        }
-        if (/bolt|nut|screw|fastener|bracket|mount|clamp/i.test(raw)) {
-            return {
-                category: 'Hardware & Fasteners',
-                imageUrl: customGeneratedSvg,
-                badgeBg: 'bg-gradient-to-br from-slate-100 to-zinc-100',
-                badgeBorder: 'border-slate-300',
-                textClass: 'text-slate-700',
-                dotClass: 'bg-slate-600',
-                glowClass: 'group-hover:border-slate-400'
             };
         }
 
@@ -1836,365 +1288,6 @@
             glowClass: 'group-hover:border-blue-400'
         };
     }
-
-    // ── Instant Real-Time Input Handler ──
-    function onPartNameInput(name) {
-        updateAIMiniModalPreview(name);
-    }
-
-    // ── Live AI Preview Update in Add/Edit Part Modal ──
-    function updateAIMiniModalPreview(name) {
-        const meta = getPartAIMeta(name);
-        const iconBox = document.getElementById('aiDetectorIconBox');
-        const catLabel = document.getElementById('aiDetectorCategoryName');
-        const previewContainer = document.getElementById('aiPartDetectorPreview');
-        const confidenceBadge = document.getElementById('aiConfidenceBadge');
-        const imgSourceLabel = document.getElementById('imgSourceLabel');
-
-        const activeImg = meta.imageUrl;
-        const hiddenImg = document.getElementById('newPartImageUrl');
-        if (hiddenImg) hiddenImg.value = activeImg;
-
-        if (iconBox) {
-            iconBox.className = `w-16 h-16 rounded-2xl p-1.5 flex items-center justify-center shrink-0 border ${meta.badgeBorder} ${meta.badgeBg} shadow-sm transition-all duration-300 transform scale-100 hover:scale-105 cursor-pointer bg-white`;
-            iconBox.innerHTML = `<img src="${activeImg}" alt="Procedural Vector Preview" class="w-full h-full object-contain filter drop-shadow-sm rounded-xl">`;
-            iconBox.onclick = () => openImageModal(activeImg);
-        }
-
-        if (catLabel) {
-            catLabel.innerText = meta.category;
-            catLabel.className = `text-sm font-black ${meta.textClass} tracking-tight mt-0.5 truncate`;
-        }
-
-        if (previewContainer) {
-            previewContainer.className = `p-4 rounded-2xl border transition-all duration-300 ${meta.badgeBg} ${meta.badgeBorder} flex items-center gap-4 shadow-xs`;
-        }
-
-        if (confidenceBadge) {
-            confidenceBadge.innerText = name && name.trim().length > 1 ? '✨ Realtime SVG' : 'Live Generator';
-            confidenceBadge.className = name && name.trim().length > 1 ? `text-[9px] font-black uppercase px-2 py-0.5 rounded-full bg-white shadow-xs ${meta.textClass}` : 'text-[9px] font-bold text-slate-400';
-        }
-
-        if (imgSourceLabel) {
-            imgSourceLabel.innerText = `Procedural Vector · ${meta.category}`;
-            imgSourceLabel.className = `${meta.textClass} font-bold`;
-        }
-    }
-
-    // --- Rendering Tables ---
-    // --- Rendering Active Parts Table with Dedicated Edit, Purchase, and Archive Actions ---
-    function renderActiveParts(data) {
-        const tbody = document.getElementById('activePartsTable');
-        if (data.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="5" class="text-center py-16 text-gray-500 text-sm font-medium">No parts found.</td></tr>`;
-            return;
-        }
-
-        tbody.innerHTML = data.map(p => {
-            const isOut = p.stock_quantity <= 0;
-            const isLow = !isOut && p.stock_quantity <= 5;
-            let badgeClass = 'bg-green-50 text-green-700';
-            if (isOut) badgeClass = 'bg-red-50 text-red-600';
-            else if (isLow) badgeClass = 'bg-yellow-50 text-yellow-600';
-
-            const aiMeta = getPartAIMeta(p.name);
-            const partImg = generateDynamicPartSVG(p.name);
-
-            return `
-            <tr class="hover:bg-gray-50/80 transition-colors group">
-                <td class="px-8 py-4">
-                    <div class="flex items-center gap-3.5">
-                        <div class="relative w-12 h-12 rounded-2xl p-1 flex items-center justify-center shrink-0 border ${aiMeta.badgeBorder} ${aiMeta.badgeBg} shadow-xs group-hover:scale-105 ${aiMeta.glowClass} transition-all cursor-pointer bg-white overflow-hidden"
-                             onclick="openImageModal('${addslashes(partImg)}')"
-                             title="Click to view procedural vector">
-                            <img src="${partImg}" alt="${escapeHtml(p.name)}" class="w-full h-full object-contain filter drop-shadow-sm rounded-xl">
-                        </div>
-                        <div class="min-w-0">
-                            <div class="text-sm font-black text-gray-900 tracking-tight group-hover:text-blue-600 transition-colors truncate">${escapeHtml(p.name)}</div>
-                            <div class="flex items-center gap-1.5 mt-0.5">
-                                <span class="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider ${aiMeta.textClass}">
-                                    <span class="w-1.5 h-1.5 rounded-full ${aiMeta.dotClass}"></span>
-                                    ${p.category || aiMeta.category}
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                </td>
-                <td class="px-8 py-4">
-                    <span class="inline-flex items-center px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider ${p.supplier ? 'bg-purple-50 text-purple-700' : 'bg-gray-100 text-gray-500'}">
-                        ${escapeHtml(p.supplier || 'Unspecified')}
-                    </span>
-                </td>
-                <td class="px-8 py-4 text-right">
-                    <div class="text-sm font-bold text-gray-900">₱${parseFloat(p.price).toFixed(2)}</div>
-                </td>
-                <td class="px-8 py-4 text-center">
-                    <span class="inline-flex px-3 py-1.5 rounded-lg text-xs font-black ${badgeClass}">
-                        ${p.stock_quantity}
-                    </span>
-                </td>
-                <td class="px-8 py-4 text-right">
-                    <div class="flex justify-end items-center gap-1.5">
-                        <!-- 1. Dedicated Edit Button -->
-                        <button onclick="openEditPartModal(${p.id}, '${addslashes(p.name)}', ${p.price}, ${p.stock_quantity}, '${addslashes(p.supplier||'')}')" 
-                                class="p-2 text-amber-600 hover:text-amber-700 hover:bg-amber-50 rounded-xl transition-all group-hover:shadow-xs border border-transparent hover:border-amber-200" 
-                                title="Edit Part Details (Name, Price, Supplier)">
-                            <i data-lucide="edit-3" class="w-4 h-4"></i>
-                        </button>
-                        <!-- 2. Purchase / Restock Button -->
-                        <button onclick="openRestockPartModal(${p.id}, '${addslashes(p.name)}', ${p.price}, ${p.stock_quantity}, '${addslashes(p.supplier||'')}')" 
-                                class="p-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-xl transition-all group-hover:shadow-xs border border-transparent hover:border-blue-200" 
-                                title="Purchase / Add Stock">
-                            <i data-lucide="shopping-cart" class="w-4 h-4"></i>
-                        </button>
-                        <!-- 3. Archive Button -->
-                        <button onclick="archivePart(${p.id})" 
-                                class="p-2 text-red-500 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all group-hover:shadow-xs border border-transparent hover:border-red-200" 
-                                title="Archive Part">
-                            <i data-lucide="trash" class="w-4 h-4"></i>
-                        </button>
-                    </div>
-                </td>
-            </tr>
-            `;
-        }).join('');
-        lucide.createIcons();
-    }
-
-    function renderHistory(data) {
-        const tbody = document.getElementById('historyTable');
-        if (data.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="3" class="text-center py-16 text-gray-500 text-sm font-medium">No purchase records found.</td></tr>`;
-            return;
-        }
-
-        tbody.innerHTML = data.map(ph => {
-            const dateStr = new Date(ph.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-            const aiMeta = getPartAIMeta(ph.description);
-            const partImg = generateDynamicPartSVG(ph.description);
-
-            return `
-            <tr class="hover:bg-gray-50/80 transition-colors">
-                <td class="px-8 py-5 whitespace-nowrap">
-                    <div class="text-sm font-bold text-gray-700">${dateStr}</div>
-                </td>
-                <td class="px-8 py-5">
-                    <div class="flex items-center gap-3.5">
-                        <div class="relative w-11 h-11 rounded-2xl p-1 flex items-center justify-center shrink-0 border ${aiMeta.badgeBorder} ${aiMeta.badgeBg} shadow-xs cursor-pointer bg-white overflow-hidden"
-                             onclick="openImageModal('${addslashes(partImg)}')"
-                             title="Click to view procedural vector">
-                            <img src="${partImg}" alt="${escapeHtml(ph.description)}" class="w-full h-full object-contain filter drop-shadow-sm rounded-xl">
-                        </div>
-                        <div class="min-w-0">
-                            <div class="text-sm font-black text-gray-800 tracking-tight">${escapeHtml(ph.description)}</div>
-                            <div class="text-xs text-blue-500 font-bold uppercase mt-0.5 tracking-wider">${escapeHtml(ph.category)}</div>
-                        </div>
-                    </div>
-                </td>
-                <td class="px-8 py-5 text-right">
-                    <div class="text-base font-black text-green-600">₱${parseFloat(ph.amount).toFixed(2)}</div>
-                </td>
-            </tr>
-            `;
-        }).join('');
-    }
-
-    function renderArchivedParts(data) {
-        const tbody = document.getElementById('archivedTable');
-        if (data.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="3" class="text-center py-16 text-gray-500 text-sm font-medium">No archived parts found.</td></tr>`;
-            return;
-        }
-
-        tbody.innerHTML = data.map(p => {
-            const aiMeta = getPartAIMeta(p.name);
-            const partImg = generateDynamicPartSVG(p.name);
-
-            return `
-            <tr class="hover:bg-gray-50/80 transition-colors group">
-                <td class="px-8 py-4">
-                    <div class="flex items-center gap-3.5">
-                        <div class="relative w-11 h-11 rounded-2xl p-1 flex items-center justify-center shrink-0 border ${aiMeta.badgeBorder} ${aiMeta.badgeBg} shadow-xs cursor-pointer bg-white overflow-hidden"
-                             onclick="openImageModal('${addslashes(partImg)}')"
-                             title="Click to view procedural vector">
-                            <img src="${partImg}" alt="${escapeHtml(p.name)}" class="w-full h-full object-contain filter drop-shadow-sm rounded-xl">
-                        </div>
-                        <div class="min-w-0">
-                            <div class="text-sm font-black text-gray-700 tracking-tight">${escapeHtml(p.name)}</div>
-                            <div class="flex items-center gap-1 mt-0.5">
-                                <span class="text-[10px] font-black uppercase tracking-wider ${aiMeta.textClass}">${p.category || aiMeta.category}</span>
-                            </div>
-                        </div>
-                    </div>
-                </td>
-                <td class="px-8 py-4 text-xs font-bold text-gray-400 uppercase">${escapeHtml(p.supplier || 'Unspecified')}</td>
-                <td class="px-8 py-4 text-right flex justify-end gap-2">
-                    <button onclick="restorePart(${p.id})" title="Restore Item" class="p-2 text-green-600 hover:bg-green-100 rounded-xl transition-all">
-                        <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
-                    </button>
-                    <button onclick="forceDeletePart(${p.id})" title="Delete Permanently" class="p-2 text-red-500 hover:bg-red-100 rounded-xl transition-all">
-                        <i data-lucide="trash-2" class="w-4 h-4"></i>
-                    </button>
-                </td>
-            </tr>
-            `;
-        }).join('');
-        lucide.createIcons();
-    }
-
-    // --- Modal Management & Part Actions ---
-    function openPartMiniModal(mode = 'add') {
-        const modal = document.getElementById('partMiniModal');
-        modal.classList.remove('hidden');
-        document.getElementById('qtyError').classList.add('hidden');
-        
-        const iconContainer = document.getElementById('miniModalIcon');
-        const qtyInputContainer = document.getElementById('newPartQtyContainer');
-        const nameInput = document.getElementById('newPartName');
-
-        if (mode === 'add') {
-            document.getElementById('newPartId').value = '';
-            document.getElementById('newPartCurrentStock').value = '0';
-            nameInput.value = '';
-            nameInput.readOnly = false;
-            document.getElementById('newPartPrice').value = '';
-            document.getElementById('newPartQty').value = '';
-            document.getElementById('newPartSupplier').value = '';
-            document.getElementById('newPartImageUrl').value = '';
-            
-            document.getElementById('miniModalTitle').innerText = 'Add New Part';
-            document.getElementById('miniModalSubtitle').innerText = 'Create a new item in the spare parts catalog';
-            document.getElementById('lblQtyMode').innerText = 'Initial Qty';
-            document.getElementById('txtSavePart').innerText = 'Save Part';
-            
-            iconContainer.className = 'w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center';
-            iconContainer.innerHTML = '<i data-lucide="plus" class="w-5 h-5 text-blue-600"></i>';
-            
-            updateAIMiniModalPreview('');
-        }
-        lucide.createIcons();
-    }
-
-    function closePartMiniModal() {
-        document.getElementById('partMiniModal').classList.add('hidden');
-    }
-
-    // ── 1. Dedicated Edit Part Modal (Editable Name, Price, Supplier, Live SVG Preview) ──
-    function openEditPartModal(id, name, price, qty, supplier) {
-        openPartMiniModal('edit');
-        document.getElementById('newPartId').value = id;
-        document.getElementById('newPartCurrentStock').value = qty;
-        
-        const nameInput = document.getElementById('newPartName');
-        nameInput.value = name;
-        nameInput.readOnly = false; // EDITABLE so user can rename the part!
-        
-        document.getElementById('newPartPrice').value = price;
-        document.getElementById('newPartQty').value = '0'; // 0 qty to add (pure detail edit)
-        document.getElementById('newPartSupplier').value = supplier || '';
-        document.getElementById('newPartImageUrl').value = generateDynamicPartSVG(name);
-
-        document.getElementById('miniModalTitle').innerText = 'Edit Part Details';
-        document.getElementById('miniModalSubtitle').innerText = 'Modify part name, price, supplier, or category';
-        document.getElementById('lblQtyMode').innerHTML = `Stock Qty <span class="text-gray-400 font-normal ml-1">(Current: ${qty})</span>`;
-        document.getElementById('txtSavePart').innerText = 'Save Changes';
-
-        const iconContainer = document.getElementById('miniModalIcon');
-        iconContainer.className = 'w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center';
-        iconContainer.innerHTML = '<i data-lucide="edit-3" class="w-5 h-5 text-amber-600"></i>';
-        
-        updateAIMiniModalPreview(name);
-        lucide.createIcons();
-    }
-
-    // ── 2. Dedicated Purchase / Restock Modal (Add Incoming Units & Record Expense) ──
-    function openRestockPartModal(id, name, price, qty, supplier) {
-        openPartMiniModal('restock');
-        document.getElementById('newPartId').value = id;
-        document.getElementById('newPartCurrentStock').value = qty;
-        
-        const nameInput = document.getElementById('newPartName');
-        nameInput.value = name;
-        nameInput.readOnly = true; // Locked to this part
-        
-        document.getElementById('newPartPrice').value = price;
-        document.getElementById('newPartQty').value = ''; 
-        document.getElementById('newPartSupplier').value = supplier || '';
-        document.getElementById('newPartImageUrl').value = generateDynamicPartSVG(name);
-
-        document.getElementById('miniModalTitle').innerText = 'Purchase / Restock Part';
-        document.getElementById('miniModalSubtitle').innerText = 'Add incoming stock units & record in Office Expenses';
-        document.getElementById('lblQtyMode').innerHTML = `Qty to Purchase <span class="text-gray-400 font-normal ml-1">(Current: ${qty})</span>`;
-        document.getElementById('txtSavePart').innerText = 'Confirm Purchase';
-
-        const iconContainer = document.getElementById('miniModalIcon');
-        iconContainer.className = 'w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center';
-        iconContainer.innerHTML = '<i data-lucide="shopping-cart" class="w-5 h-5 text-blue-600"></i>';
-        
-        updateAIMiniModalPreview(name);
-        lucide.createIcons();
-    }
-
-    // Legacy alias
-    function editPart(id, name, price, qty, supplier) {
-        openEditPartModal(id, name, price, qty, supplier);
-    }
-
-    async function saveNewPart() {
-        const id = document.getElementById('newPartId').value;
-        const name = document.getElementById('newPartName').value.trim();
-        const price = document.getElementById('newPartPrice').value;
-        const qty_to_add = parseInt(document.getElementById('newPartQty').value) || 0;
-        const supplier = document.getElementById('newPartSupplier').value;
-        const image_url = generateDynamicPartSVG(name);
-        const meta = getPartAIMeta(name);
-
-        if(!name || !price) {
-            showToast('Part Name and Price are required.', 'error');
-            return;
-        }
-
-        if (id && qty_to_add < 0) {
-            document.getElementById('qtyError').classList.remove('hidden');
-            return;
-        }
-
-        try {
-            const res = await fetch("{{ route('spare-parts.store') }}", {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-                body: JSON.stringify({
-                    id,
-                    name,
-                    category: meta.category,
-                    price,
-                    qty_to_add,
-                    supplier,
-                    image_url
-                })
-            });
-            const result = await res.json();
-            if(result.success) {
-                showToast(result.message, 'success');
-                closePartMiniModal();
-                loadActiveParts();
-                if(qty_to_add > 0) {
-                    loadHistory();
-                    setTimeout(() => window.location.reload(), 1500); // Reload to update metric cards
-                }
-            } else {
-                showToast(result.message || 'Something went wrong.', 'error');
-            }
-        } catch(e) { console.error(e); }
-    }
-
-        function escapeHtml(str) {
-        if (!str) return '';
-        return String(str).replace(/[&<>"']/g, function(m) {
-            return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m];
-        });
-    }
-
     async function archivePart(id) {
         if(!confirm('Are you sure you want to archive this part?')) return;
         try {
