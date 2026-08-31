@@ -353,32 +353,28 @@
     let suppliersList = [];
     let currentTab = 'active';
 
-    function initInventoryModule() {
+    function initInventoryPage() {
         loadActiveParts();
         loadSuppliers();
-        if (typeof lucide !== 'undefined') lucide.createIcons();
+        if(typeof lucide !== 'undefined') lucide.createIcons();
 
+        // Phone Number format
         const sPhone = document.getElementById('supplierPhone');
         if (sPhone) {
-            sPhone.oninput = function() {
+            sPhone.addEventListener('input', function() {
                 this.value = this.value.replace(/[^0-9]/g, '').substring(0, 11);
-            };
+            });
         }
     }
 
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initInventoryModule);
+        document.addEventListener('DOMContentLoaded', initInventoryPage);
     } else {
-        initInventoryModule();
+        initInventoryPage();
     }
-    document.addEventListener('page:loaded', (e) => {
-        if (e.detail && e.detail.url && e.detail.url.includes('inventory')) {
-            initInventoryModule();
-        }
-    });
 
     function showToast(message, type = 'success') {
-        const container = document.getElementById('appContentArea');
+        const container = document.getElementById('appContentArea') || document.body;
         if (!container) return;
         const toast = document.createElement('div');
         
@@ -420,18 +416,22 @@
         else if (tab === 'history') activeClass = 'bg-blue-600 text-white';
         else if (tab === 'archived') activeClass = 'bg-red-600 text-white';
 
-        document.getElementById(`tab-${tab}`).className = `inventory-tab px-4 py-2 rounded-lg text-sm font-bold transition whitespace-nowrap ${activeClass}`;
-        document.getElementById(`section-${tab}`).classList.remove('hidden');
+        const tabBtn = document.getElementById(`tab-${tab}`);
+        if (tabBtn) tabBtn.className = `inventory-tab px-4 py-2 rounded-lg text-sm font-bold transition whitespace-nowrap ${activeClass}`;
+        const sec = document.getElementById(`section-${tab}`);
+        if (sec) sec.classList.remove('hidden');
 
         // Search container visibility
-        document.getElementById('searchContainer').classList.toggle('hidden', tab === 'history');
+        const searchBox = document.getElementById('searchContainer');
+        if (searchBox) searchBox.classList.toggle('hidden', tab === 'history');
 
         if (tab === 'history' && purchaseHistory.length === 0) loadHistory();
         if (tab === 'archived' && archivedParts.length === 0) loadArchivedParts();
     }
 
     function filterTables() {
-        const query = document.getElementById('partsSearchInput').value.toLowerCase();
+        const input = document.getElementById('partsSearchInput');
+        const query = input ? input.value.toLowerCase() : '';
         
         if (currentTab === 'active') {
             const filtered = activeParts.filter(p => (p.name || '').toLowerCase().includes(query) || (p.supplier || '').toLowerCase().includes(query));
@@ -447,20 +447,19 @@
         const tbody = document.getElementById('activePartsTable');
         try {
             const res = await fetch("{{ route('spare-parts.index') }}");
-            if (!res.ok) {
-                if (tbody) tbody.innerHTML = `<tr><td colspan="5" class="text-center py-16 text-red-500 font-bold text-sm">Failed to load inventory. <button onclick="loadActiveParts()" class="ml-2 underline text-blue-600 font-black">Retry</button></td></tr>`;
-                return;
-            }
+            if (!res.ok) throw new Error('HTTP ' + res.status);
             const result = await res.json();
             if (result.success) {
                 activeParts = result.data || [];
                 renderActiveParts(activeParts);
             } else {
-                if (tbody) tbody.innerHTML = `<tr><td colspan="5" class="text-center py-16 text-red-500 font-bold text-sm">${result.message || 'Failed to load inventory.'}</td></tr>`;
+                throw new Error(result.message || 'Error loading inventory');
             }
-        } catch(e) {
+        } catch(e) { 
             console.error('loadActiveParts error:', e);
-            if (tbody) tbody.innerHTML = `<tr><td colspan="5" class="text-center py-16 text-red-500 font-bold text-sm">Connection error. <button onclick="loadActiveParts()" class="ml-2 underline text-blue-600 font-black">Retry</button></td></tr>`;
+            if (tbody) {
+                tbody.innerHTML = `<tr><td colspan="5" class="text-center py-12 text-red-500 font-bold text-sm">Failed to load inventory. <button onclick="loadActiveParts()" class="ml-2 underline text-blue-600 font-bold cursor-pointer">Click to Retry</button></td></tr>`;
+            }
         }
     }
 
@@ -468,39 +467,54 @@
         const tbody = document.getElementById('historyTable');
         try {
             const res = await fetch("{{ route('spare-parts.history') }}");
-            if (!res.ok) return;
+            if (!res.ok) throw new Error('HTTP ' + res.status);
             const result = await res.json();
             if (result.success) {
                 purchaseHistory = result.data || [];
                 renderHistory(purchaseHistory);
             }
-        } catch(e) { console.error(e); }
+        } catch(e) { 
+            console.error('loadHistory error:', e);
+            if (tbody) {
+                tbody.innerHTML = `<tr><td colspan="3" class="text-center py-12 text-red-500 font-bold text-sm">Failed to load purchase history. <button onclick="loadHistory()" class="ml-2 underline text-blue-600 font-bold cursor-pointer">Retry</button></td></tr>`;
+            }
+        }
     }
 
     async function loadArchivedParts() {
         const tbody = document.getElementById('archivedTable');
         try {
             const res = await fetch("{{ route('spare-parts.archived') }}");
-            if (!res.ok) return;
+            if (!res.ok) throw new Error('HTTP ' + res.status);
             const result = await res.json();
             if (result.success) {
                 archivedParts = result.data || [];
                 renderArchivedParts(archivedParts);
             }
-        } catch(e) { console.error(e); }
+        } catch(e) { 
+            console.error('loadArchivedParts error:', e);
+            if (tbody) {
+                tbody.innerHTML = `<tr><td colspan="3" class="text-center py-12 text-red-500 font-bold text-sm">Failed to load archived parts. <button onclick="loadArchivedParts()" class="ml-2 underline text-blue-600 font-bold cursor-pointer">Retry</button></td></tr>`;
+            }
+        }
     }
 
     async function loadSuppliers() {
         const tbody = document.getElementById('suppliersTableBody');
         try {
             const res = await fetch("{{ route('suppliers.index') }}");
-            if (!res.ok) return;
+            if (!res.ok) throw new Error('HTTP ' + res.status);
             const result = await res.json();
             if(result.success) {
                 suppliersList = result.data || [];
                 renderSuppliers(suppliersList);
             }
-        } catch(e) { console.error(e); }
+        } catch(e) { 
+            console.error('loadSuppliers error:', e);
+            if (tbody) {
+                tbody.innerHTML = `<tr><td class="text-center py-4 text-red-500 text-sm font-bold">Failed to load suppliers. <button onclick="loadSuppliers()" class="ml-2 underline text-blue-600 font-bold cursor-pointer">Retry</button></td></tr>`;
+            }
+        }
     }
 
     // ── AI Universal Procedural Vector Generator Engine (Synthesizes custom SVG graphics on the fly for ANY automotive part) ──
@@ -1823,37 +1837,47 @@
         }
     }
 
-    // Expose all functions to global window scope for seamless SPA and inline event binding
+    // ── Bind All Functions to Window to Guarantee Global Accessibility ──
+    window.showToast = showToast;
     window.switchTab = switchTab;
     window.filterTables = filterTables;
     window.loadActiveParts = loadActiveParts;
     window.loadHistory = loadHistory;
     window.loadArchivedParts = loadArchivedParts;
     window.loadSuppliers = loadSuppliers;
-    window.openSuppliersModal = openSuppliersModal;
-    window.closeSuppliersModal = closeSuppliersModal;
+    window.generateDynamicPartSVG = generateDynamicPartSVG;
+    window.getPartAIMeta = getPartAIMeta;
+    window.onPartNameInput = onPartNameInput;
+    window.fetchRealPhotoSuggestions = fetchRealPhotoSuggestions;
+    window.renderPhotoSuggestionsGrid = renderPhotoSuggestionsGrid;
+    window.selectRealPhoto = selectRealPhoto;
+    window.searchCustomRealPhotos = searchCustomRealPhotos;
+    window.resetToDefault3DImage = resetToDefault3DImage;
+    window.promptCustomImageUrl = promptCustomImageUrl;
+    window.updateAIMiniModalPreview = updateAIMiniModalPreview;
+    window.renderActiveParts = renderActiveParts;
+    window.renderHistory = renderHistory;
+    window.renderArchivedParts = renderArchivedParts;
     window.openPartMiniModal = openPartMiniModal;
     window.closePartMiniModal = closePartMiniModal;
     window.editPart = editPart;
     window.saveNewPart = saveNewPart;
+    window.escapeHtml = escapeHtml;
     window.archivePart = archivePart;
     window.restorePart = restorePart;
     window.forceDeletePart = forceDeletePart;
-    window.saveSupplier = saveSupplier;
+    window.openSuppliersModal = openSuppliersModal;
+    window.closeSuppliersModal = closeSuppliersModal;
     window.resetSupplierForm = resetSupplierForm;
+    window.renderSuppliers = renderSuppliers;
+    window.saveSupplier = saveSupplier;
     window.editSupplier = editSupplier;
     window.deleteSupplier = deleteSupplier;
+    window.addslashes = addslashes;
     window.openImageModal = openImageModal;
     window.closeImageModal = closeImageModal;
-    window.selectRealPhoto = selectRealPhoto;
-    window.clearCustomPhotoSelection = clearCustomPhotoSelection;
-    window.promptCustomImageUrl = promptCustomImageUrl;
-    window.onCustomPhotoSearch = onCustomPhotoSearch;
-    window.fetchRealPhotoSuggestions = fetchRealPhotoSuggestions;
-    window.onPartNameInput = onPartNameInput;
-    window.updateAIMiniModalPreview = updateAIMiniModalPreview;
-    window.generateDynamicPartSVG = generateDynamicPartSVG;
-    window.getPartAIMeta = getPartAIMeta;
+    window.initInventoryPage = initInventoryPage;
 </script>
 @endsection
+
 
