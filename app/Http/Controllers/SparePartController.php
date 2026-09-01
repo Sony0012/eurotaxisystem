@@ -357,12 +357,24 @@ class SparePartController extends Controller
 
         $data = $request->validate([
             'id'         => 'nullable|integer|exists:spare_parts,id',
-            'name'       => 'required|string|max:100',
+            'name'       => ['required', 'string', 'min:2', 'max:70', 'regex:/^[a-zA-Z0-9\s\(\)\/\-\.,]+$/'],
             'category'   => 'nullable|string|max:100',
-            'price'      => 'required|numeric|min:0.01|max:99999.99',
-            'qty_to_add' => 'nullable|integer|min:0|max:999',
+            'price'      => 'required|numeric|min:0.01|max:500000',
+            'qty_to_add' => 'nullable|integer|min:0|max:10000',
             'supplier'   => 'nullable|string|max:255',
             'image_url'  => 'nullable|string',
+        ], [
+            'name.required'      => 'Part name is required.',
+            'name.min'           => 'Part name must be at least 2 characters.',
+            'name.max'           => 'Part name cannot exceed 70 characters.',
+            'name.regex'         => 'Part name cannot contain special symbols. Only letters, numbers, spaces, and () / - . are allowed.',
+            'price.required'     => 'Price is required.',
+            'price.numeric'      => 'Price must be a valid number.',
+            'price.min'          => 'Price must be at least ₱0.01.',
+            'price.max'          => 'Price cannot exceed ₱500,000.00.',
+            'qty_to_add.integer' => 'Quantity must be a whole number.',
+            'qty_to_add.min'     => 'Quantity cannot be negative.',
+            'qty_to_add.max'     => 'Quantity cannot exceed 10,000 units.',
         ]);
 
         $qtyToAdd = (int)($data['qty_to_add'] ?? 0);

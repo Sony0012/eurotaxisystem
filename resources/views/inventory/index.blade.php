@@ -221,19 +221,33 @@
             </div>
             
             <div>
-                <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Part Name <span class="text-red-500">*</span></label>
-                <input type="text" id="newPartName" list="automotivePartsDatalist" maxlength="100" oninput="onPartNameInput(this.value)" class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-gray-50 focus:bg-white transition-colors" placeholder="e.g. Shock Absorber (Front), Brake Pad, Window Glass, Side Mirror, Exhaust...">
+                <div class="flex justify-between items-center mb-1.5 ml-1">
+                    <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest">Part Name <span class="text-red-500">*</span></label>
+                    <span class="text-[10px] text-gray-400 font-semibold">Max 70 chars · No symbols</span>
+                </div>
+                <input type="text" id="newPartName" list="automotivePartsDatalist" maxlength="70" oninput="handlePartNameValidation(this)" class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-gray-50 focus:bg-white transition-colors" placeholder="e.g. Shock Absorber (Front), Brake Pad, Oil Filter...">
+                <p id="nameError" class="hidden text-xs text-red-500 mt-1 font-medium">Part name contains forbidden symbols.</p>
             </div>
             
             <div class="grid grid-cols-2 gap-4">
                 <div>
-                    <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Price (₱) <span class="text-red-500">*</span></label>
-                    <input type="number" step="0.01" id="newPartPrice" class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-gray-50 focus:bg-white transition-colors" placeholder="0.00">
+                    <div class="flex justify-between items-center mb-1.5 ml-1">
+                        <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest">Price (₱) <span class="text-red-500">*</span></label>
+                        <span class="text-[10px] text-gray-400 font-semibold">Max ₱500k</span>
+                    </div>
+                    <div class="relative">
+                        <span class="absolute left-3.5 top-2.5 text-gray-400 font-bold text-sm">₱</span>
+                        <input type="text" id="newPartPrice" maxlength="9" oninput="handlePriceValidation(this)" onkeydown="filterNumericKeydown(event, true)" class="w-full pl-8 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-gray-50 focus:bg-white transition-colors font-medium tabular-nums" placeholder="0.00">
+                    </div>
+                    <p id="priceError" class="hidden text-xs text-red-500 mt-1 font-medium">Price cannot exceed ₱500,000.00</p>
                 </div>
                 <div>
-                    <label id="lblQtyMode" class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Initial Qty</label>
-                    <input type="number" id="newPartQty" min="0" class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-gray-50 focus:bg-white transition-colors" placeholder="0">
-                    <p id="qtyError" class="hidden text-xs text-red-500 mt-1 font-medium">Cannot reduce stock here. Only add.</p>
+                    <div class="flex justify-between items-center mb-1.5 ml-1">
+                        <label id="lblQtyMode" class="block text-[10px] font-black text-gray-400 uppercase tracking-widest">Initial Qty</label>
+                        <span class="text-[10px] text-gray-400 font-semibold">Max 10,000</span>
+                    </div>
+                    <input type="text" id="newPartQty" maxlength="5" oninput="handleQtyValidation(this)" onkeydown="filterNumericKeydown(event, false)" class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-gray-50 focus:bg-white transition-colors font-medium tabular-nums" placeholder="0">
+                    <p id="qtyError" class="hidden text-xs text-red-500 mt-1 font-medium">Quantity cannot exceed 10,000 units.</p>
                 </div>
             </div>
             
@@ -1904,11 +1918,104 @@
         lucide.createIcons();
     }
 
+    // ── Strict Real-Time Input Sanitation & Validation Handlers ──
+    function filterNumericKeydown(e, allowDecimal = false) {
+        // Allow navigation, backspace, delete, tab, arrows
+        if ([8, 9, 27, 13, 46, 37, 39, 36, 35].includes(e.keyCode) ||
+            ((e.ctrlKey || e.metaKey) && [65, 67, 86, 88].includes(e.keyCode))) {
+            return;
+        }
+        if (allowDecimal && (e.key === '.' || e.key === 'Decimal')) {
+            if (e.target.value.includes('.')) {
+                e.preventDefault();
+            }
+            return;
+        }
+        // Block non-digit keys (e, E, +, -, etc.)
+        if (!/^[0-9]$/.test(e.key)) {
+            e.preventDefault();
+        }
+    }
+
+    function handlePartNameValidation(input) {
+        const errorEl = document.getElementById('nameError');
+        const raw = input.value;
+        // Allowed: letters, numbers, spaces, and safe automotive symbols () / - . ,
+        const sanitized = raw.replace(/[^a-zA-Z0-9\s\(\)\/\-\.,]/g, '');
+        if (raw !== sanitized) {
+            input.value = sanitized;
+            if (errorEl) {
+                errorEl.innerText = 'Special symbols are not allowed. Only letters, numbers, and () / - . are valid.';
+                errorEl.classList.remove('hidden');
+                setTimeout(() => errorEl.classList.add('hidden'), 3000);
+            }
+        } else if (errorEl) {
+            errorEl.classList.add('hidden');
+        }
+        onPartNameInput(input.value);
+    }
+
+    function handlePriceValidation(input) {
+        const errorEl = document.getElementById('priceError');
+        let val = input.value.replace(/[^0-9.]/g, '');
+        const parts = val.split('.');
+        if (parts.length > 2) {
+            val = parts[0] + '.' + parts.slice(1).join('');
+        }
+        if (parts.length === 2 && parts[1].length > 2) {
+            val = parts[0] + '.' + parts[1].substring(0, 2);
+        }
+        if (val.length > 1 && val.startsWith('0') && !val.startsWith('0.')) {
+            val = val.replace(/^0+/, '') || '0';
+        }
+
+        const num = parseFloat(val);
+        if (!isNaN(num) && num > 500000) {
+            val = '500000';
+            if (errorEl) {
+                errorEl.innerText = 'Maximum price is ₱500,000.00';
+                errorEl.classList.remove('hidden');
+            }
+        } else if (errorEl) {
+            errorEl.classList.add('hidden');
+        }
+
+        input.value = val;
+    }
+
+    function handleQtyValidation(input) {
+        const errorEl = document.getElementById('qtyError');
+        let val = input.value.replace(/[^0-9]/g, '');
+        if (val.length > 1 && val.startsWith('0')) {
+            val = val.replace(/^0+/, '') || '0';
+        }
+
+        const num = parseInt(val, 10);
+        if (!isNaN(num) && num > 10000) {
+            val = '10000';
+            if (errorEl) {
+                errorEl.innerText = 'Maximum quantity is 10,000 units.';
+                errorEl.classList.remove('hidden');
+            }
+        } else if (errorEl) {
+            errorEl.classList.add('hidden');
+        }
+
+        input.value = val;
+    }
+
     // --- Modal Management & Part Actions ---
     function openPartMiniModal(mode = 'add') {
         const modal = document.getElementById('partMiniModal');
         modal.classList.remove('hidden');
-        document.getElementById('qtyError').classList.add('hidden');
+        
+        // Hide all error hints
+        const nameErr = document.getElementById('nameError');
+        const priceErr = document.getElementById('priceError');
+        const qtyErr = document.getElementById('qtyError');
+        if (nameErr) nameErr.classList.add('hidden');
+        if (priceErr) priceErr.classList.add('hidden');
+        if (qtyErr) qtyErr.classList.add('hidden');
         
         const iconContainer = document.getElementById('miniModalIcon');
         const nameInput = document.getElementById('newPartName');
@@ -1924,7 +2031,7 @@
             document.getElementById('newPartImageUrl').value = '';
             
             document.getElementById('miniModalTitle').innerText = 'Add New Part';
-            document.getElementById('miniModalSubtitle').innerText = 'Create a new item in the spare parts catalog';
+            document.getElementById('miniModalSubtitle').innerText = 'Create a new item in the spare parts catalog (Max ₱500k · Max 10k Qty)';
             document.getElementById('lblQtyMode').innerText = 'Initial Qty';
             document.getElementById('txtSavePart').innerText = 'Save Part';
             
@@ -1950,7 +2057,7 @@
         nameInput.value = name;
         nameInput.readOnly = false; // EDITABLE so user can rename the part!
         
-        document.getElementById('newPartPrice').value = price;
+        document.getElementById('newPartPrice').value = parseFloat(price).toFixed(2);
         document.getElementById('newPartQty').value = '0'; // 0 qty to add (pure detail edit)
         document.getElementById('newPartSupplier').value = supplier || '';
         document.getElementById('newPartImageUrl').value = generateDynamicPartSVG(name);
@@ -1978,7 +2085,7 @@
         nameInput.value = name;
         nameInput.readOnly = true; // Locked to this part
         
-        document.getElementById('newPartPrice').value = price;
+        document.getElementById('newPartPrice').value = parseFloat(price).toFixed(2);
         document.getElementById('newPartQty').value = ''; 
         document.getElementById('newPartSupplier').value = supplier || '';
         document.getElementById('newPartImageUrl').value = generateDynamicPartSVG(name);
@@ -2010,20 +2117,46 @@
         const supplier = document.getElementById('newPartSupplier').value.trim() || null;
         const meta = getPartAIMeta(name);
 
+        // Strict Validations
         if (!name) {
             showToast('Please enter the part name.', 'error');
             document.getElementById('newPartName').focus();
             return;
         }
 
-        if (isNaN(price) || price <= 0) {
-            showToast('Please enter a valid price greater than ₱0.00.', 'error');
+        if (/[^a-zA-Z0-9\s\(\)\/\-\.,]/.test(name)) {
+            showToast('Part name contains forbidden symbols. Only letters, numbers, and () / - . are allowed.', 'error');
+            document.getElementById('newPartName').focus();
+            return;
+        }
+
+        if (name.length < 2 || name.length > 70) {
+            showToast('Part name must be between 2 and 70 characters.', 'error');
+            document.getElementById('newPartName').focus();
+            return;
+        }
+
+        if (isNaN(price) || price < 0.01) {
+            showToast('Please enter a valid price (minimum ₱0.01).', 'error');
             document.getElementById('newPartPrice').focus();
             return;
         }
 
-        if (id && qty_to_add < 0) {
-            document.getElementById('qtyError').classList.remove('hidden');
+        if (price > 500000) {
+            showToast('Price cannot exceed ₱500,000.00.', 'error');
+            document.getElementById('newPartPrice').focus();
+            return;
+        }
+
+        if (qty_to_add < 0) {
+            showToast('Quantity cannot be negative.', 'error');
+            document.getElementById('newPartQty').focus();
+            return;
+        }
+
+        if (qty_to_add > 10000) {
+            showToast('Quantity cannot exceed 10,000 units.', 'error');
+            document.getElementById('newPartQty').focus();
             return;
         }
 
