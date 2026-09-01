@@ -342,6 +342,19 @@ class SparePartController extends Controller
      */
     public function store(Request $request)
     {
+        // Sanitize incoming request inputs
+        $input = $request->all();
+        if (isset($input['id']) && (empty($input['id']) || $input['id'] === 'null' || $input['id'] === '0')) {
+            $input['id'] = null;
+        }
+        if (isset($input['supplier']) && trim($input['supplier']) === '') {
+            $input['supplier'] = null;
+        }
+        if (isset($input['category']) && trim($input['category']) === '') {
+            $input['category'] = null;
+        }
+        $request->replace($input);
+
         $data = $request->validate([
             'id'         => 'nullable|integer|exists:spare_parts,id',
             'name'       => 'required|string|max:100',
@@ -349,14 +362,15 @@ class SparePartController extends Controller
             'price'      => 'required|numeric|min:0.01|max:99999.99',
             'qty_to_add' => 'nullable|integer|min:0|max:999',
             'supplier'   => 'nullable|string|max:255',
-            'image_url'  => 'nullable|string|max:1000',
+            'image_url'  => 'nullable|string',
         ]);
 
         $qtyToAdd = (int)($data['qty_to_add'] ?? 0);
+        $partId   = !empty($data['id']) ? (int)$data['id'] : null;
 
-        if (isset($data['id'])) {
+        if ($partId) {
             // ── UPDATE existing part ──────────────────────────────────────
-            $part = SparePart::where('id', $data['id'])->firstOrFail();
+            $part = SparePart::where('id', $partId)->firstOrFail();
 
             // Enforce add-only: never let qty decrease via this form
             if ($qtyToAdd < 0) {
@@ -370,8 +384,8 @@ class SparePartController extends Controller
                 'category'       => $data['category'] ?? $part->category,
                 'price'          => $data['price'],
                 'stock_quantity' => $newStock,
-                'supplier'       => $data['supplier'] ?? $part->supplier,
-                'image_url'      => $data['image_url'] ?? $part->image_url,
+                'supplier'       => array_key_exists('supplier', $data) ? $data['supplier'] : $part->supplier,
+                'image_url'      => array_key_exists('image_url', $data) ? $data['image_url'] : $part->image_url,
             ]);
         } else {
             // ── CREATE new part ───────────────────────────────────────────
@@ -414,10 +428,10 @@ class SparePartController extends Controller
 
         $msg = $expenseId
             ? "✅ Stock added! +{$qtyToAdd} pcs of {$part->name} — Purchase recorded in Office Expenses."
-            : ($qtyToAdd === 0 ? "Part details updated successfully." : "Stock updated.");
+            : ($partId ? "Part details updated successfully." : "New part added successfully.");
 
         // Record Activity
-        $action = isset($data['id']) ? 'Updated Spare Part' : 'Created Spare Part';
+        $action = $partId ? 'Updated Spare Part' : 'Created Spare Part';
         $logNotes = "Part: {$part->name}\nPrice: ₱" . number_format($part->price, 2);
         if ($qtyToAdd > 0) $logNotes .= "\nStock Added: +{$qtyToAdd} units (New total: {$part->stock_quantity})";
         if ($expenseId) $logNotes .= "\nOffice Expense recorded: #{$expenseId}";

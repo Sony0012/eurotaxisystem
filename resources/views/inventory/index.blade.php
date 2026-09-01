@@ -2002,16 +2002,23 @@
     }
 
     async function saveNewPart() {
-        const id = document.getElementById('newPartId').value;
+        const idRaw = document.getElementById('newPartId').value;
+        const id = idRaw && idRaw.trim() !== '' && !isNaN(idRaw) ? parseInt(idRaw) : null;
         const name = document.getElementById('newPartName').value.trim();
-        const price = document.getElementById('newPartPrice').value;
+        const price = parseFloat(document.getElementById('newPartPrice').value);
         const qty_to_add = parseInt(document.getElementById('newPartQty').value) || 0;
-        const supplier = document.getElementById('newPartSupplier').value;
-        const image_url = generateDynamicPartSVG(name);
+        const supplier = document.getElementById('newPartSupplier').value.trim() || null;
         const meta = getPartAIMeta(name);
 
-        if(!name || !price) {
-            showToast('Part Name and Price are required.', 'error');
+        if (!name) {
+            showToast('Please enter the part name.', 'error');
+            document.getElementById('newPartName').focus();
+            return;
+        }
+
+        if (isNaN(price) || price <= 0) {
+            showToast('Please enter a valid price greater than ₱0.00.', 'error');
+            document.getElementById('newPartPrice').focus();
             return;
         }
 
@@ -2020,33 +2027,52 @@
             return;
         }
 
+        const btn = document.querySelector('button[onclick="saveNewPart()"]');
+        const txtSave = document.getElementById('txtSavePart');
+        const originalText = txtSave ? txtSave.innerText : 'Save Part';
+        if (btn) btn.disabled = true;
+        if (txtSave) txtSave.innerText = 'Saving...';
+
         try {
             const res = await fetch("{{ route('spare-parts.store') }}", {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}' 
+                },
                 body: JSON.stringify({
-                    id,
-                    name,
+                    id: id,
+                    name: name,
                     category: meta.category,
-                    price,
-                    qty_to_add,
-                    supplier,
-                    image_url
+                    price: price,
+                    qty_to_add: qty_to_add,
+                    supplier: supplier,
+                    image_url: null
                 })
             });
-            const result = await res.json();
-            if(result.success) {
-                showToast(result.message, 'success');
+
+            const result = await res.json().catch(() => ({}));
+
+            if (res.ok && result.success) {
+                showToast(result.message || 'Saved successfully!', 'success');
                 closePartMiniModal();
-                loadActiveParts();
-                if(qty_to_add > 0) {
+                await loadActiveParts();
+                if (qty_to_add > 0) {
                     loadHistory();
-                    setTimeout(() => window.location.reload(), 1500); // Reload to update metric cards
+                    setTimeout(() => window.location.reload(), 1200);
                 }
             } else {
-                showToast(result.message || 'Something went wrong.', 'error');
+                const errMsg = result.message || (result.errors ? Object.values(result.errors).flat().join(', ') : 'Failed to save part.');
+                showToast(errMsg, 'error');
             }
-        } catch(e) { console.error(e); }
+        } catch(e) { 
+            console.error('Save Part Error:', e);
+            showToast('A network error occurred while saving. Please try again.', 'error');
+        } finally {
+            if (btn) btn.disabled = false;
+            if (txtSave) txtSave.innerText = originalText;
+        }
     }
 
     function escapeHtml(str) {
