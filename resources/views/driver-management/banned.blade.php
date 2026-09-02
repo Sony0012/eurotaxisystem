@@ -98,7 +98,7 @@
                     </span>
                 </div>
                 <p id="policyBannerSummary" class="text-xs text-slate-500 font-medium mt-1">
-                    Drivers with <strong class="text-slate-900 font-bold" id="bannerMissedDays">{{ $autoBanSettings['auto_ban_missed_boundary_days'] ?? 3 }}</strong> consecutive missed boundaries or <strong class="text-slate-900 font-bold" id="bannerOverdueDays">{{ $autoBanSettings['auto_ban_overdue_unit_days'] ?? 2 }}</strong> unreturned days are automatically <span class="uppercase font-black {{ ($autoBanSettings['auto_ban_action_type'] ?? 'banned') === 'banned' ? 'text-red-600' : 'text-amber-600' }}" id="bannerActionType">{{ $autoBanSettings['auto_ban_action_type'] ?? 'BANNED' }}</span> on shift deadline.
+                    Drivers holding an unreturned vehicle for <strong class="text-slate-900 font-bold" id="bannerOverdueDays">{{ $autoBanSettings['auto_ban_overdue_unit_days'] ?? 3 }}</strong> overdue days (daily missed boundary charges) are automatically <span class="uppercase font-black {{ ($autoBanSettings['auto_ban_action_type'] ?? 'banned') === 'banned' ? 'text-red-600' : 'text-amber-600' }}" id="bannerActionType">{{ $autoBanSettings['auto_ban_action_type'] ?? 'BANNED' }}</span> on shift deadline.
                 </p>
             </div>
         </div>
@@ -329,41 +329,21 @@
                 </label>
             </div>
 
-            {{-- 1. Consecutive Missed Boundary Days Limit --}}
+            {{-- 1. Overdue Unreturned Vehicle Limit (Days) --}}
             <div class="space-y-2">
-                <label class="block text-[11px] font-black text-slate-700 uppercase tracking-widest">
-                    Consecutive Missed Boundary Days Limit <span class="text-red-500">*</span>
-                </label>
-                <div class="flex items-center gap-3">
-                    <button type="button" onclick="adjustSettingDays('setting_missed_days', -1)" class="w-11 h-11 bg-slate-100 hover:bg-slate-200 active:scale-95 text-slate-700 font-black rounded-xl text-lg flex items-center justify-center transition-all cursor-pointer select-none">
-                        -
-                    </button>
-                    <div class="relative flex-1">
-                        <input type="number" id="setting_missed_days" min="1" max="30"
-                            value="{{ $autoBanSettings['auto_ban_missed_boundary_days'] ?? 3 }}"
-                            oninput="updatePolicySimulator()"
-                            class="w-full text-center font-black text-base py-3 border-2 border-slate-200 rounded-xl focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 transition-all outline-none bg-slate-50/50">
-                        <span class="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400 pointer-events-none">Days</span>
-                    </div>
-                    <button type="button" onclick="adjustSettingDays('setting_missed_days', 1)" class="w-11 h-11 bg-slate-100 hover:bg-slate-200 active:scale-95 text-slate-700 font-black rounded-xl text-lg flex items-center justify-center transition-all cursor-pointer select-none">
-                        +
-                    </button>
+                <div class="flex items-center justify-between">
+                    <label class="block text-[11px] font-black text-slate-700 uppercase tracking-widest">
+                        Overdue Unreturned Vehicle Limit <span class="text-red-500">*</span>
+                    </label>
+                    <span class="text-[10px] font-bold text-amber-600 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-md">Auto Missed Boundary Tracking</span>
                 </div>
-                <p class="text-[10px] text-slate-400 font-medium">How many consecutive days of unpaid boundary before the driver is locked out.</p>
-            </div>
-
-            {{-- 2. Overdue Unreturned Vehicle Limit --}}
-            <div class="space-y-2">
-                <label class="block text-[11px] font-black text-slate-700 uppercase tracking-widest">
-                    Overdue Unreturned Vehicle Limit <span class="text-red-500">*</span>
-                </label>
                 <div class="flex items-center gap-3">
                     <button type="button" onclick="adjustSettingDays('setting_overdue_days', -1)" class="w-11 h-11 bg-slate-100 hover:bg-slate-200 active:scale-95 text-slate-700 font-black rounded-xl text-lg flex items-center justify-center transition-all cursor-pointer select-none">
                         -
                     </button>
                     <div class="relative flex-1">
                         <input type="number" id="setting_overdue_days" min="1" max="30"
-                            value="{{ $autoBanSettings['auto_ban_overdue_unit_days'] ?? 2 }}"
+                            value="{{ $autoBanSettings['auto_ban_overdue_unit_days'] ?? ($autoBanSettings['auto_ban_missed_boundary_days'] ?? 3) }}"
                             oninput="updatePolicySimulator()"
                             class="w-full text-center font-black text-base py-3 border-2 border-slate-200 rounded-xl focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 transition-all outline-none bg-slate-50/50">
                         <span class="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400 pointer-events-none">Days</span>
@@ -372,7 +352,7 @@
                         +
                     </button>
                 </div>
-                <p class="text-[10px] text-slate-400 font-medium">Days past vehicle shift deadline before auto-flagging vehicle and driver.</p>
+                <p class="text-[10px] text-slate-400 font-medium">Number of overdue days a driver holds the taxi past their shift deadline (daily missed boundary charges are auto-billed) before automatic lockout is executed.</p>
             </div>
 
             {{-- 3. Lockout Action Type --}}
@@ -1032,8 +1012,7 @@ function onActionTypeChange(action) {
 
 function updatePolicySimulator() {
     const isEnabled = document.getElementById('setting_auto_ban_enabled')?.checked ?? true;
-    const missedDays = parseInt(document.getElementById('setting_missed_days')?.value, 10) || 3;
-    const overdueDays = parseInt(document.getElementById('setting_overdue_days')?.value, 10) || 2;
+    const overdueDays = parseInt(document.getElementById('setting_overdue_days')?.value, 10) || 3;
     const actionRadios = document.getElementsByName('setting_action_type');
     let actionType = 'banned';
     for (const r of actionRadios) {
@@ -1057,7 +1036,7 @@ function updatePolicySimulator() {
         if (!isEnabled) {
             expText.innerHTML = `
                 <div class="text-rose-300 font-bold flex items-center gap-1.5">
-                    <span>⚠️</span> Auto-Lockout is currently <strong>TURNED OFF</strong>. No drivers will be automatically suspended or banned based on missed boundaries.
+                    <span>⚠️</span> Auto-Lockout is currently <strong>TURNED OFF</strong>. No drivers will be automatically suspended or banned based on unreturned vehicles.
                 </div>
             `;
         } else {
@@ -1067,9 +1046,9 @@ function updatePolicySimulator() {
 
             expText.innerHTML = `
                 <div class="space-y-2">
-                    <p>• <strong>Trigger Condition:</strong> When a driver hits <strong class="text-amber-400 font-bold">${missedDays} consecutive missed boundary days</strong> or <strong class="text-amber-400 font-bold">${overdueDays} unreturned days</strong>.</p>
-                    <p>• <strong>Lockout Action:</strong> The system automatically flags them as ${actionLabel}.</p>
-                    <p>• <strong>Execution Timing:</strong> Automated daily at shift deadline (11:59 PM). Driver mobile app access will be immediately blocked.</p>
+                    <p>• <strong>Vehicle & Boundary Trigger:</strong> Driver holds the taxi for <strong class="text-amber-400 font-bold">${overdueDays} overdue days</strong> past shift deadline without returning.</p>
+                    <p>• <strong>Daily Charge Accumulation:</strong> Daily missed boundary fees (₱ rate) are automatically billed for each overdue day.</p>
+                    <p>• <strong>Automated Lockout Penalty:</strong> Upon reaching Day ${overdueDays}, the driver is automatically ${actionLabel} at 11:59 PM shift deadline.</p>
                 </div>
             `;
         }
@@ -1084,9 +1063,8 @@ async function submitAutoBanSettings(e) {
     btn.innerHTML = '<span class="inline-block w-4 h-4 border-2 border-slate-900 border-t-transparent rounded-full animate-spin"></span> Saving...';
 
     const isEnabled = document.getElementById('setting_auto_ban_enabled').checked ? 1 : 0;
-    const missedDays = parseInt(document.getElementById('setting_missed_days').value, 10);
-    const overdueDays = parseInt(document.getElementById('setting_overdue_days').value, 10);
-    const suspDays = parseInt(document.getElementById('setting_suspension_days').value, 10);
+    const overdueDays = parseInt(document.getElementById('setting_overdue_days').value, 10) || 3;
+    const suspDays = parseInt(document.getElementById('setting_suspension_days').value, 10) || 7;
     
     let actionType = 'banned';
     const actionRadios = document.getElementsByName('setting_action_type');
@@ -1096,7 +1074,7 @@ async function submitAutoBanSettings(e) {
 
     const payload = {
         auto_ban_enabled: isEnabled,
-        auto_ban_missed_boundary_days: missedDays,
+        auto_ban_missed_boundary_days: overdueDays,
         auto_ban_overdue_unit_days: overdueDays,
         auto_ban_critical_incidents_threshold: 1,
         auto_ban_default_suspension_days: suspDays,
@@ -1118,12 +1096,10 @@ async function submitAutoBanSettings(e) {
         const result = await res.json();
         if (res.ok && result.success) {
             // Update the awareness banner values instantly without reload
-            const bannerMissed = document.getElementById('bannerMissedDays');
             const bannerOverdue = document.getElementById('bannerOverdueDays');
             const bannerAction = document.getElementById('bannerActionType');
             const policyBadge = document.getElementById('policyStatusBadge');
 
-            if (bannerMissed) bannerMissed.textContent = missedDays;
             if (bannerOverdue) bannerOverdue.textContent = overdueDays;
             if (bannerAction) {
                 bannerAction.textContent = actionType.toUpperCase();
