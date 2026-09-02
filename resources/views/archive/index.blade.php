@@ -470,12 +470,44 @@
         if (activeBtn) {
             activeBtn.classList.add('active');
         }
+
+        if (tabId === 'spare_parts') {
+            renderArchivedSparePartsIcons();
+        }
     }
 
     // Lightbox Functionality
     function openLightbox(src) {
         document.getElementById('lightbox-img').src = src;
         document.getElementById('lightbox').style.display = 'flex';
+    }
+
+    // ── Procedural Vector Icons for Archived Spare Parts ──
+    function renderArchivedSparePartsIcons() {
+        if (typeof generateDynamicPartSVG !== 'function') return;
+
+        document.querySelectorAll('.archived-part-icon-box').forEach(box => {
+            const name = box.getAttribute('data-part-name');
+            if (!name) return;
+            const svgUri = generateDynamicPartSVG(name);
+            const meta = getPartAIMeta(name);
+            
+            box.className = `archived-part-icon-box relative w-12 h-12 rounded-2xl p-1 flex items-center justify-center shrink-0 border ${meta.badgeBorder} ${meta.badgeBg} bg-white shadow-xs cursor-pointer overflow-hidden group-hover:scale-105 transition-transform`;
+            box.innerHTML = `<img src="${svgUri}" alt="${name}" class="w-full h-full object-contain filter drop-shadow-sm rounded-xl">`;
+            box.onclick = () => openSparePartVectorModal(svgUri, name);
+        });
+
+        document.querySelectorAll('.archived-part-meta').forEach(metaEl => {
+            const name = metaEl.getAttribute('data-part-name');
+            if (!name) return;
+            const meta = getPartAIMeta(name);
+            metaEl.innerHTML = `
+                <span class="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider ${meta.textClass}">
+                    <span class="w-1.5 h-1.5 rounded-full ${meta.dotClass}"></span>
+                    ${meta.category}
+                </span>
+            `;
+        });
     }
 
     // Handle initial tab from URL query parameter
@@ -485,6 +517,7 @@
         if (initialTab) {
             switchTab(initialTab);
         }
+        renderArchivedSparePartsIcons();
         if (window.lucide) lucide.createIcons();
     }
 
@@ -492,4 +525,5 @@
     document.addEventListener('page:loaded', initArchive);
     initArchive();
 </script>
+<script src="{{ asset('js/spare-parts-vector-engine.js') }}"></script>
 @endsection
