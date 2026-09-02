@@ -1112,34 +1112,23 @@ class DriverManagementV2Controller extends Controller
             return response()->json(['success' => false, 'message' => 'Driver not found.'], 404);
         }
 
-        $unpaidCharges = DB::table('driver_behavior')
+        // Fetch all incidents & behavioral charges for this driver
+        $allIncidents = DB::table('driver_behavior')
             ->where('driver_id', $id)
             ->whereNull('deleted_at')
-            ->where(function($q) {
-                $q->where('remaining_balance', '>', 0)
-                  ->orWhere('charge_status', 'pending');
-            })
             ->select('id', 'incident_type', 'severity', 'description', 'incident_date', 'total_charge_to_driver', 'remaining_balance', 'charge_status')
             ->orderBy('incident_date', 'desc')
             ->get();
 
-        $totalUnpaidAmount = (float) $unpaidCharges->sum('remaining_balance');
-        $missedBoundaryDaysCount = $unpaidCharges->where('incident_type', 'Missed Boundary')->count();
-
-        $incidents = DB::table('driver_behavior')
-            ->where('driver_id', $id)
-            ->whereNull('deleted_at')
-            ->select('incident_type', 'severity', 'description', 'incident_date')
-            ->orderBy('incident_date', 'desc')
-            ->get();
+        $totalUnpaidAmount = (float) $allIncidents->sum('remaining_balance');
+        $missedBoundaryDaysCount = $allIncidents->where('incident_type', 'Missed Boundary')->count();
 
         return response()->json([
             'success'                    => true,
             'driver'                     => $driver,
-            'unpaid_charges'             => $unpaidCharges,
+            'unpaid_charges'             => $allIncidents,
             'total_unpaid_amount'        => $totalUnpaidAmount,
             'missed_boundary_days_count' => $missedBoundaryDaysCount,
-            'incidents'                  => $incidents,
         ]);
     }
 

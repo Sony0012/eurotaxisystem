@@ -1113,9 +1113,10 @@ async function openChangeSuspensionModal(driverId, driverName, currentStatus) {
                                 <p class="break-words font-medium italic">"${c.description || 'Missed boundary charge'}"</p>
                             </td>
                             <td class="px-4 py-3 text-right whitespace-nowrap">
-                                <span class="text-xs font-black text-red-600">
-                                    ₱${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                </span>
+                                ${amount > 0 
+                                    ? `<span class="text-xs font-black text-red-600">₱${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>`
+                                    : `<span class="text-[10px] font-bold text-slate-500 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-md">₱0.00 (Disciplinary)</span>`
+                                }
                             </td>
                         </tr>
                     `;
