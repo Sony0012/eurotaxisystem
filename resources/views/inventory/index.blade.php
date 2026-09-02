@@ -86,9 +86,6 @@
             <button onclick="switchTab('history')" id="tab-history" class="inventory-tab px-5 py-2.5 rounded-xl text-sm font-bold bg-white text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-all whitespace-nowrap">
                 Purchase History
             </button>
-            <button onclick="switchTab('archived')" id="tab-archived" class="inventory-tab px-5 py-2.5 rounded-xl text-sm font-bold bg-white text-red-600 hover:bg-red-50 hover:text-red-700 transition-all whitespace-nowrap">
-                Archived
-            </button>
         </div>
         
         <div class="flex gap-3 w-full md:w-auto">
@@ -103,7 +100,7 @@
 
     <!-- Content Sections -->
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden relative min-h-[500px]">
-        <!-- Search bar (Only for Active and Archived) -->
+        <!-- Search bar (Only for Active Parts) -->
         <div id="searchContainer" class="p-5 border-b border-gray-100 bg-gray-50/50">
             <div class="relative max-w-lg">
                 <!-- Fake hidden inputs to trap aggressive Chrome autofill -->
@@ -149,24 +146,6 @@
                     </thead>
                     <tbody id="historyTable" class="divide-y divide-gray-50/80">
                         <tr><td colspan="3" class="text-center py-12 text-gray-400"><i data-lucide="loader-2" class="w-6 h-6 animate-spin mx-auto mb-3"></i>Loading history...</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- 3. Archived Parts -->
-        <div id="section-archived" class="inventory-section hidden">
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-100">
-                    <thead class="bg-gray-50/80">
-                        <tr>
-                            <th class="px-8 py-4 text-left text-[11px] font-black text-gray-400 uppercase tracking-widest">Part Name</th>
-                            <th class="px-8 py-4 text-left text-[11px] font-black text-gray-400 uppercase tracking-widest">Supplier</th>
-                            <th class="px-8 py-4 text-right text-[11px] font-black text-gray-400 uppercase tracking-widest">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="archivedTable" class="divide-y divide-gray-50/80">
-                        <tr><td colspan="3" class="text-center py-12 text-gray-400"><i data-lucide="loader-2" class="w-6 h-6 animate-spin mx-auto mb-3"></i>Loading archived parts...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -384,17 +363,16 @@
     function switchTab(tab) {
         currentTab = tab;
         document.querySelectorAll('.inventory-tab').forEach(el => {
-            el.className = 'inventory-tab px-4 py-2 rounded-lg text-sm font-bold bg-white text-gray-600 hover:bg-gray-50 transition whitespace-nowrap';
+            el.className = 'inventory-tab px-5 py-2.5 rounded-xl text-sm font-bold bg-white text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-all whitespace-nowrap';
         });
         document.querySelectorAll('.inventory-section').forEach(el => el.classList.add('hidden'));
         
         let activeClass = '';
         if (tab === 'active') activeClass = 'bg-gray-900 text-white';
         else if (tab === 'history') activeClass = 'bg-blue-600 text-white';
-        else if (tab === 'archived') activeClass = 'bg-red-600 text-white';
 
         const tabBtn = document.getElementById(`tab-${tab}`);
-        if (tabBtn) tabBtn.className = `inventory-tab px-4 py-2 rounded-lg text-sm font-bold transition whitespace-nowrap ${activeClass}`;
+        if (tabBtn) tabBtn.className = `inventory-tab px-5 py-2.5 rounded-xl text-sm font-bold transition-all shadow-sm whitespace-nowrap ${activeClass}`;
         const sec = document.getElementById(`section-${tab}`);
         if (sec) sec.classList.remove('hidden');
 
@@ -403,7 +381,6 @@
         if (searchBox) searchBox.classList.toggle('hidden', tab === 'history');
 
         if (tab === 'history' && purchaseHistory.length === 0) loadHistory();
-        if (tab === 'archived' && archivedParts.length === 0) loadArchivedParts();
     }
 
     function filterTables() {
@@ -413,9 +390,6 @@
         if (currentTab === 'active') {
             const filtered = activeParts.filter(p => (p.name || '').toLowerCase().includes(query) || (p.supplier || '').toLowerCase().includes(query));
             renderActiveParts(filtered);
-        } else if (currentTab === 'archived') {
-            const filtered = archivedParts.filter(p => (p.name || '').toLowerCase().includes(query) || (p.supplier || '').toLowerCase().includes(query));
-            renderArchivedParts(filtered);
         }
     }
 
@@ -454,24 +428,6 @@
             console.error('loadHistory error:', e);
             if (tbody) {
                 tbody.innerHTML = `<tr><td colspan="3" class="text-center py-12 text-red-500 font-bold text-sm">Failed to load purchase history. <button onclick="loadHistory()" class="ml-2 underline text-blue-600 font-bold cursor-pointer">Retry</button></td></tr>`;
-            }
-        }
-    }
-
-    async function loadArchivedParts() {
-        const tbody = document.getElementById('archivedTable');
-        try {
-            const res = await fetch("{{ route('spare-parts.archived') }}");
-            if (!res.ok) throw new Error('HTTP ' + res.status);
-            const result = await res.json();
-            if (result.success) {
-                archivedParts = result.data || [];
-                renderArchivedParts(archivedParts);
-            }
-        } catch(e) { 
-            console.error('loadArchivedParts error:', e);
-            if (tbody) {
-                tbody.innerHTML = `<tr><td colspan="3" class="text-center py-12 text-red-500 font-bold text-sm">Failed to load archived parts. <button onclick="loadArchivedParts()" class="ml-2 underline text-blue-600 font-bold cursor-pointer">Retry</button></td></tr>`;
             }
         }
     }
@@ -1888,50 +1844,6 @@
         }).join('');
     }
 
-    function renderArchivedParts(data) {
-        const tbody = document.getElementById('archivedTable');
-        if (!tbody) return;
-        if (data.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="3" class="text-center py-16 text-gray-500 text-sm font-medium">No archived parts found.</td></tr>`;
-            return;
-        }
-
-        tbody.innerHTML = data.map(p => {
-            const aiMeta = getPartAIMeta(p.name);
-            const partImg = generateDynamicPartSVG(p.name);
-
-            return `
-            <tr class="hover:bg-gray-50/80 transition-colors group">
-                <td class="px-8 py-4">
-                    <div class="flex items-center gap-3.5">
-                        <div class="relative w-11 h-11 rounded-2xl p-1 flex items-center justify-center shrink-0 border ${aiMeta.badgeBorder} ${aiMeta.badgeBg} shadow-xs cursor-pointer bg-white overflow-hidden"
-                             onclick="openImageModal('${addslashes(partImg)}')"
-                             title="Click to view procedural vector">
-                            <img src="${partImg}" alt="${escapeHtml(p.name)}" class="w-full h-full object-contain filter drop-shadow-sm rounded-xl">
-                        </div>
-                        <div class="min-w-0">
-                            <div class="text-sm font-black text-gray-700 tracking-tight">${escapeHtml(p.name)}</div>
-                            <div class="flex items-center gap-1 mt-0.5">
-                                <span class="text-[10px] font-black uppercase tracking-wider ${aiMeta.textClass}">${p.category || aiMeta.category}</span>
-                            </div>
-                        </div>
-                    </div>
-                </td>
-                <td class="px-8 py-4 text-xs font-bold text-gray-400 uppercase">${escapeHtml(p.supplier || 'Unspecified')}</td>
-                <td class="px-8 py-4 text-right flex justify-end gap-2">
-                    <button onclick="restorePart(${p.id})" title="Restore Item" class="p-2 text-green-600 hover:bg-green-100 rounded-xl transition-all">
-                        <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
-                    </button>
-                    <button onclick="forceDeletePart(${p.id})" title="Delete Permanently" class="p-2 text-red-500 hover:bg-red-100 rounded-xl transition-all">
-                        <i data-lucide="trash-2" class="w-4 h-4"></i>
-                    </button>
-                </td>
-            </tr>
-            `;
-        }).join('');
-        lucide.createIcons();
-    }
-
     // ── Strict Real-Time Input Sanitation & Validation Handlers ──
     function filterNumericKeydown(e, allowDecimal = false) {
         // Allow navigation, backspace, delete, tab, enter, escape, arrows, home, end
@@ -2255,54 +2167,27 @@
     }
 
     async function archivePart(id) {
-        if(!confirm('Are you sure you want to archive this part?')) return;
+        if (!confirm('Are you sure you want to archive this part?\n\nYou can view and restore it anytime in Archive Management.')) return;
         try {
             const res = await fetch(`{{ url('spare-parts') }}/${id}`, {
                 method: 'DELETE',
-                headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
+                headers: { 
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}' 
+                }
             });
-            const result = await res.json();
-            if(result.success) {
-                showToast('Part archived successfully', 'success');
-                loadActiveParts();
-                loadArchivedParts();
-                setTimeout(() => window.location.reload(), 1500);
-            }
-        } catch(e) { console.error(e); }
-    }
-
-    async function restorePart(id) {
-        try {
-            const res = await fetch(`{{ url('spare-parts/restore') }}/${id}`, {
-                method: 'POST',
-                headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
-            });
-            const result = await res.json();
-            if (result.success) {
-                showToast(result.message, 'success');
-                loadActiveParts();
-                loadArchivedParts();
-                setTimeout(() => window.location.reload(), 1500);
-            }
-        } catch(e) { console.error(e); }
-    }
-
-    async function forceDeletePart(id) {
-        if (!confirm('🛑 WARNING: This will permanently delete the part record. Proceed?')) return;
-        try {
-            const res = await fetch(`{{ url('spare-parts/permanent') }}/${id}`, {
-                method: 'DELETE',
-                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-                body: JSON.stringify({ archive_password: 'bypass' }) // If you use auth modal, adapt this
-            });
-            const result = await res.json();
-            if (result.success) {
-                showToast(result.message, 'success');
-                loadArchivedParts();
+            const result = await res.json().catch(() => ({}));
+            if (res.ok && result.success) {
+                showToast(result.message || 'Part archived successfully. You can restore it in Archive Management.', 'success');
+                await loadActiveParts();
+                setTimeout(() => window.location.reload(), 1200);
             } else {
-                showToast(result.message, 'error');
+                showToast(result.message || 'Failed to archive part.', 'error');
             }
-        } catch(e) { console.error(e); }
+        } catch(e) { 
+            console.error('Archive Part Error:', e);
+            showToast('A network error occurred while archiving.', 'error');
+        }
     }
 
     // --- Suppliers Logic ---
