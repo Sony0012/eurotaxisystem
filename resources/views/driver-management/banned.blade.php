@@ -686,14 +686,14 @@
                 </div>
 
                 <div class="border border-slate-200 rounded-2xl overflow-hidden bg-white shadow-2xs">
-                    <div class="max-h-56 overflow-y-auto custom-scrollbar">
-                        <table class="w-full divide-y divide-slate-100 text-left">
-                            <thead class="bg-slate-50 sticky top-0 z-10">
+                    <div class="max-h-60 sm:max-h-72 overflow-y-auto overflow-x-auto custom-scrollbar">
+                        <table class="w-full min-w-[500px] divide-y divide-slate-100 text-left border-collapse">
+                            <thead class="bg-slate-100/90 backdrop-blur-xs sticky top-0 z-20 border-b border-slate-200">
                                 <tr>
-                                    <th class="px-4 py-3 text-[10px] font-black text-slate-500 uppercase tracking-wider">Date</th>
-                                    <th class="px-4 py-3 text-[10px] font-black text-slate-500 uppercase tracking-wider">Charge / Incident Type</th>
-                                    <th class="px-4 py-3 text-[10px] font-black text-slate-500 uppercase tracking-wider">Description</th>
-                                    <th class="px-4 py-3 text-[10px] font-black text-slate-500 uppercase tracking-wider text-right">Amount Due</th>
+                                    <th class="px-4 py-3 text-[10px] font-black text-slate-600 uppercase tracking-wider w-32">Date</th>
+                                    <th class="px-4 py-3 text-[10px] font-black text-slate-600 uppercase tracking-wider w-44">Charge / Incident Type</th>
+                                    <th class="px-4 py-3 text-[10px] font-black text-slate-600 uppercase tracking-wider">Description</th>
+                                    <th class="px-4 py-3 text-[10px] font-black text-slate-600 uppercase tracking-wider text-right w-28">Amount Due</th>
                                 </tr>
                             </thead>
                             <tbody id="modalBreakdownTbody" class="divide-y divide-slate-100 text-xs font-medium text-slate-700">
@@ -703,6 +703,19 @@
                                     </td>
                                 </tr>
                             </tbody>
+                            <tfoot id="modalBreakdownTfoot" class="bg-slate-100/95 backdrop-blur-xs sticky bottom-0 z-20 border-t-2 border-slate-300 shadow-sm hidden">
+                                <tr>
+                                    <td colspan="3" class="px-4 py-3 text-xs font-black text-slate-800 uppercase tracking-wider">
+                                        <div class="flex items-center gap-2">
+                                            <i data-lucide="calculator" class="w-4 h-4 text-amber-600"></i>
+                                            <span>Total Outstanding Dues (Kabuuang Babayaran):</span>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-3 text-right whitespace-nowrap">
+                                        <span class="text-sm font-black text-red-600 tracking-tight" id="tableFooterTotalAmount">₱0.00</span>
+                                    </td>
+                                </tr>
+                            </tfoot>
                         </table>
                     </div>
                 </div>
@@ -1060,36 +1073,44 @@ async function openChangeSuspensionModal(driverId, driverName, currentStatus) {
             document.getElementById('breakdownCount').textContent = `${charges.length} ${charges.length === 1 ? 'Record' : 'Records'}`;
 
             const tbody = document.getElementById('modalBreakdownTbody');
+            const tfoot = document.getElementById('modalBreakdownTfoot');
+            const footerTotal = document.getElementById('tableFooterTotalAmount');
+
             if (charges.length === 0) {
+                if (tfoot) tfoot.classList.add('hidden');
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="4" class="px-4 py-8 text-center text-slate-400 font-bold">
-                            <i data-lucide="check-circle" class="w-6 h-6 mx-auto mb-1 text-emerald-500 opacity-80"></i>
-                            No pending boundary dues or unpaid charges recorded.
+                        <td colspan="4" class="px-4 py-10 text-center text-slate-400 font-bold">
+                            <i data-lucide="check-circle" class="w-8 h-8 mx-auto mb-2 text-emerald-500 opacity-90"></i>
+                            <div class="text-xs text-slate-600 font-black">No pending boundary dues or unpaid charges recorded.</div>
+                            <div class="text-[10px] text-slate-400 font-medium mt-0.5">This driver has zero outstanding debt balance.</div>
                         </td>
                     </tr>
                 `;
             } else {
+                if (tfoot) tfoot.classList.remove('hidden');
+                if (footerTotal) footerTotal.textContent = '₱' + parseFloat(totalDues).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                
                 tbody.innerHTML = charges.map(c => {
                     const formattedDate = c.incident_date ? new Date(c.incident_date).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }) : 'N/A';
                     const amount = parseFloat(c.remaining_balance || c.total_charge_to_driver || 0);
                     const isMissed = (c.incident_type || '').toLowerCase().includes('missed');
                     
                     return `
-                        <tr class="hover:bg-slate-50/80 transition-colors">
+                        <tr class="hover:bg-slate-50 transition-colors">
                             <td class="px-4 py-3 whitespace-nowrap text-[11px] font-black text-slate-800">
-                                <span class="inline-flex items-center gap-1">
-                                    <i data-lucide="calendar" class="w-3 h-3 text-slate-400"></i>
+                                <span class="inline-flex items-center gap-1.5">
+                                    <i data-lucide="calendar" class="w-3.5 h-3.5 text-slate-400"></i>
                                     ${formattedDate}
                                 </span>
                             </td>
                             <td class="px-4 py-3 whitespace-nowrap">
-                                <span class="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider ${isMissed ? 'bg-amber-100 text-amber-800 border border-amber-200' : 'bg-red-100 text-red-800 border border-red-200'}">
+                                <span class="px-2.5 py-1 rounded-md text-[9px] font-black uppercase tracking-wider ${isMissed ? 'bg-amber-100 text-amber-800 border border-amber-200' : 'bg-red-100 text-red-800 border border-red-200'}">
                                     ${c.incident_type || 'Charge'}
                                 </span>
                             </td>
                             <td class="px-4 py-3 text-[11px] text-slate-600">
-                                <p class="line-clamp-2 italic font-medium">"${c.description || 'Missed boundary charge'}"</p>
+                                <p class="break-words font-medium italic">"${c.description || 'Missed boundary charge'}"</p>
                             </td>
                             <td class="px-4 py-3 text-right whitespace-nowrap">
                                 <span class="text-xs font-black text-red-600">
