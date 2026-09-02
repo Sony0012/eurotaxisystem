@@ -148,11 +148,11 @@
     {{-- ── Banned Drivers Grid ── --}}
     <div id="bannedDriversGrid" class="grid grid-cols-1 md:grid-cols-2 gap-6">
         @forelse($bannedDrivers as $driver)
-            <div class="banned-profile-card bg-white rounded-[2rem] border border-gray-100 shadow-sm overflow-hidden flex flex-col cursor-pointer"
+            <div class="banned-profile-card bg-white rounded-[2rem] border border-gray-100 shadow-sm overflow-hidden flex flex-col cursor-pointer hover:shadow-md hover:border-amber-200/80 transition-all"
                  id="driver-card-{{ $driver->id }}"
                  data-status="{{ $driver->driver_status }}"
                  data-search-terms="{{ strtolower($driver->full_name . ' ' . ($driver->license_number ?? '') . ' ' . ($driver->contact_number ?? '')) }}"
-                 onclick="openDriverDetails({{ $driver->id }})">
+                 onclick="openChangeSuspensionModal({{ $driver->id }}, '{{ addslashes($driver->full_name) }}', '{{ $driver->driver_status }}')">
                 
                 {{-- Card Header --}}
                 <div class="p-6 border-b border-gray-50 flex items-start gap-4 bg-slate-50/50">
@@ -249,10 +249,11 @@
                 </div>
 
                 {{-- Action Footer --}}
-                <div class="p-5 border-t border-gray-50 bg-slate-50 flex justify-between items-center gap-3 relative z-50" onclick="event.stopPropagation()">
+                <div class="p-5 border-t border-gray-50 bg-slate-50 flex justify-between items-center gap-3 relative z-50">
                     {{-- Dues & Lockout Details Button --}}
                     <button type="button"
                         class="modify-suspension-btn px-4 py-2.5 bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-black rounded-xl transition-all flex items-center gap-2 border border-amber-200 hover:border-amber-300 active:scale-95 cursor-pointer relative z-50 shadow-2xs"
+                        onclick="event.stopPropagation(); openChangeSuspensionModal({{ $driver->id }}, '{{ addslashes($driver->full_name) }}', '{{ $driver->driver_status }}')"
                         data-id="{{ $driver->id }}"
                         data-name="{{ $driver->full_name }}"
                         data-status="{{ $driver->driver_status }}">
@@ -261,6 +262,7 @@
                     </button>
                     <button type="button"
                             class="restore-driver-btn px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-black rounded-xl transition-all flex items-center gap-2 shadow-md hover:shadow-lg active:scale-95 cursor-pointer relative z-50"
+                            onclick="event.stopPropagation(); performUnban({{ $driver->id }}, '{{ addslashes($driver->full_name) }}')"
                             data-id="{{ $driver->id }}"
                             data-name="{{ $driver->full_name }}">
                         <i data-lucide="shield-check" class="w-4 h-4 pointer-events-none text-emerald-400"></i> Restore Driver
@@ -1035,6 +1037,7 @@ async function openChangeSuspensionModal(driverId, driverName, currentStatus) {
     `;
 
     modal.classList.remove('hidden');
+    modal.style.display = 'flex';
     if (typeof lucide !== 'undefined') lucide.createIcons();
 
     // Fetch real-time breakdown data via AJAX
@@ -1105,7 +1108,11 @@ async function openChangeSuspensionModal(driverId, driverName, currentStatus) {
 }
 
 function closeChangeSuspensionModal() {
-    document.getElementById('changeSuspensionModal').classList.add('hidden');
+    const modal = document.getElementById('changeSuspensionModal');
+    if (modal) {
+        modal.classList.add('hidden');
+        modal.style.display = 'none';
+    }
 }
 
 function toggleChangeDuration() {
