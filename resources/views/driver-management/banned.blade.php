@@ -641,7 +641,7 @@
                 {{-- Total Unpaid Dues --}}
                 <div class="bg-gradient-to-br from-red-50 to-rose-50/60 border border-red-200/80 rounded-2xl p-4 shadow-2xs">
                     <div class="flex items-center justify-between text-red-600 mb-1">
-                        <span class="text-[10px] font-black uppercase tracking-wider">Total Dues (Babayaran)</span>
+                        <span class="text-[10px] font-black uppercase tracking-wider">Total Outstanding Dues</span>
                         <i data-lucide="wallet" class="w-4 h-4"></i>
                     </div>
                     <div class="text-xl sm:text-2xl font-black text-red-700 tracking-tight" id="modalTotalDues">
@@ -708,7 +708,7 @@
                                     <td colspan="3" class="px-4 py-3 text-xs font-black text-slate-800 uppercase tracking-wider">
                                         <div class="flex items-center gap-2">
                                             <i data-lucide="calculator" class="w-4 h-4 text-amber-600"></i>
-                                            <span>Total Outstanding Dues (Kabuuang Babayaran):</span>
+                                            <span>Total Outstanding Balance:</span>
                                         </div>
                                     </td>
                                     <td class="px-4 py-3 text-right whitespace-nowrap">

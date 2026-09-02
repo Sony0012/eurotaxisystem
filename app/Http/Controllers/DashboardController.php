@@ -1554,7 +1554,7 @@ class DashboardController extends Controller
 
                             // Dynamic Auto-Ban / Auto-Lockout Enforcement
                             $autoBanEnabled = DB::table('system_settings')->where('key', 'auto_ban_enabled')->value('value') ?? '1';
-                            $thresholdDays = (int)(DB::table('system_settings')->where('key', 'auto_ban_missed_boundary_days')->value('value') ?? 3);
+                            $thresholdDays = (int)(DB::table('system_settings')->where('key', 'auto_ban_overdue_unit_days')->value('value') ?? (DB::table('system_settings')->where('key', 'auto_ban_missed_boundary_days')->value('value') ?? 3));
                             $actionType = DB::table('system_settings')->where('key', 'auto_ban_action_type')->value('value') ?? 'banned';
                             $suspensionDays = (int)(DB::table('system_settings')->where('key', 'auto_ban_default_suspension_days')->value('value') ?? 7);
 
