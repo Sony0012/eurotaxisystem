@@ -1027,7 +1027,7 @@ class DriverManagementV2Controller extends Controller
 
         $bannedDrivers = $query->orderBy('d.updated_at', 'desc')->get();
 
-        // For each banned driver, fetch their recent critical or relevant incidents from driver_behavior that caused the ban
+        // For each banned driver, fetch their recent critical or relevant incidents and unpaid breakdown
         foreach ($bannedDrivers as $driver) {
             if ($driver->driver_status === 'suspended' && $driver->suspended_until) {
                 $now = \Carbon\Carbon::now()->timezone('Asia/Manila');
@@ -1044,9 +1044,24 @@ class DriverManagementV2Controller extends Controller
             $driver->ban_incidents = DB::table('driver_behavior')
                 ->where('driver_id', $driver->id)
                 ->whereNull('deleted_at')
-                ->select('incident_type', 'severity', 'description', 'incident_date')
+                ->select('incident_type', 'severity', 'description', 'incident_date', 'total_charge_to_driver', 'remaining_balance', 'charge_status')
                 ->orderBy('incident_date', 'desc')
                 ->get();
+
+            // Itemized unpaid/pending charges
+            $driver->unpaid_charges = DB::table('driver_behavior')
+                ->where('driver_id', $driver->id)
+                ->whereNull('deleted_at')
+                ->where(function($q) {
+                    $q->where('remaining_balance', '>', 0)
+                      ->orWhere('charge_status', 'pending');
+                })
+                ->select('id', 'incident_type', 'severity', 'description', 'incident_date', 'total_charge_to_driver', 'remaining_balance', 'charge_status')
+                ->orderBy('incident_date', 'desc')
+                ->get();
+
+            $driver->total_unpaid_amount = (float) $driver->unpaid_charges->sum('remaining_balance');
+            $driver->missed_days_count = $driver->unpaid_charges->where('incident_type', 'Missed Boundary')->count();
         }
 
         if ($request->ajax()) {
@@ -1068,13 +1083,64 @@ class DriverManagementV2Controller extends Controller
         $autoBanSettings = [
             'auto_ban_enabled'                      => DB::table('system_settings')->where('key', 'auto_ban_enabled')->value('value') ?? '1',
             'auto_ban_missed_boundary_days'         => DB::table('system_settings')->where('key', 'auto_ban_missed_boundary_days')->value('value') ?? '3',
-            'auto_ban_overdue_unit_days'            => DB::table('system_settings')->where('key', 'auto_ban_overdue_unit_days')->value('value') ?? '2',
+            'auto_ban_overdue_unit_days'            => DB::table('system_settings')->where('key', 'auto_ban_overdue_unit_days')->value('value') ?? '3',
             'auto_ban_critical_incidents_threshold' => DB::table('system_settings')->where('key', 'auto_ban_critical_incidents_threshold')->value('value') ?? '1',
             'auto_ban_default_suspension_days'      => DB::table('system_settings')->where('key', 'auto_ban_default_suspension_days')->value('value') ?? '7',
             'auto_ban_action_type'                  => DB::table('system_settings')->where('key', 'auto_ban_action_type')->value('value') ?? 'banned',
         ];
 
         return view('driver-management.banned', compact('bannedDrivers', 'search', 'activeDrivers', 'autoBanSettings'));
+    }
+
+    public function getDriverLockoutDetails($id)
+    {
+        $driver = DB::table('drivers as d')
+            ->where('d.id', $id)
+            ->leftJoin('units as u', function($join) {
+                $join->on('u.driver_id', '=', 'd.id')
+                     ->orOn('u.secondary_driver_id', '=', 'd.id');
+            })
+            ->select(
+                'd.id', 'd.first_name', 'd.last_name', 'd.license_number', 'd.contact_number',
+                'd.driver_status', 'd.suspended_until', 'd.suspension_reason', 'd.profile_photo',
+                'u.plate_number as current_unit_plate', 'u.boundary_rate as unit_boundary_rate',
+                DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')) as full_name")
+            )
+            ->first();
+
+        if (!$driver) {
+            return response()->json(['success' => false, 'message' => 'Driver not found.'], 404);
+        }
+
+        $unpaidCharges = DB::table('driver_behavior')
+            ->where('driver_id', $id)
+            ->whereNull('deleted_at')
+            ->where(function($q) {
+                $q->where('remaining_balance', '>', 0)
+                  ->orWhere('charge_status', 'pending');
+            })
+            ->select('id', 'incident_type', 'severity', 'description', 'incident_date', 'total_charge_to_driver', 'remaining_balance', 'charge_status')
+            ->orderBy('incident_date', 'desc')
+            ->get();
+
+        $totalUnpaidAmount = (float) $unpaidCharges->sum('remaining_balance');
+        $missedBoundaryDaysCount = $unpaidCharges->where('incident_type', 'Missed Boundary')->count();
+
+        $incidents = DB::table('driver_behavior')
+            ->where('driver_id', $id)
+            ->whereNull('deleted_at')
+            ->select('incident_type', 'severity', 'description', 'incident_date')
+            ->orderBy('incident_date', 'desc')
+            ->get();
+
+        return response()->json([
+            'success'                    => true,
+            'driver'                     => $driver,
+            'unpaid_charges'             => $unpaidCharges,
+            'total_unpaid_amount'        => $totalUnpaidAmount,
+            'missed_boundary_days_count' => $missedBoundaryDaysCount,
+            'incidents'                  => $incidents,
+        ]);
     }
 
     public function getAutoBanSettings()

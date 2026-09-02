@@ -208,6 +208,7 @@ Route::middleware(['auth', 'page_access'])->group(function () {
     Route::post('/driver-management/{id}/suspend-or-ban', [DriverManagementV2Controller::class, 'suspendOrBan'])->name('driver-management.suspend-or-ban');
     Route::get('/driver-management/auto-ban-settings', [DriverManagementV2Controller::class, 'getAutoBanSettings'])->name('driver-management.auto-ban-settings');
     Route::post('/driver-management/auto-ban-settings', [DriverManagementV2Controller::class, 'updateAutoBanSettings'])->name('driver-management.update-auto-ban-settings');
+    Route::get('/driver-management/{id}/lockout-details', [DriverManagementV2Controller::class, 'getDriverLockoutDetails'])->name('driver-management.lockout-details');
 
 
     // Driver Management Resource Routes
