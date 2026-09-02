@@ -1551,6 +1551,32 @@ class DashboardController extends Controller
                                     ]);
                                 }
                             }
+
+                            // Dynamic Auto-Ban / Auto-Lockout Enforcement
+                            $autoBanEnabled = DB::table('system_settings')->where('key', 'auto_ban_enabled')->value('value') ?? '1';
+                            $thresholdDays = (int)(DB::table('system_settings')->where('key', 'auto_ban_missed_boundary_days')->value('value') ?? 3);
+                            $actionType = DB::table('system_settings')->where('key', 'auto_ban_action_type')->value('value') ?? 'banned';
+                            $suspensionDays = (int)(DB::table('system_settings')->where('key', 'auto_ban_default_suspension_days')->value('value') ?? 7);
+
+                            if ($autoBanEnabled == '1' && $diffDays >= $thresholdDays) {
+                                $driver = DB::table('drivers')->where('id', $driverId)->first();
+                                if ($driver && !in_array($driver->driver_status, ['banned', 'suspended'])) {
+                                    if ($actionType === 'suspended') {
+                                        DB::table('drivers')->where('id', $driverId)->update([
+                                            'driver_status'    => 'suspended',
+                                            'suspended_until'  => Carbon::now()->addDays($suspensionDays),
+                                            'suspension_reason'=> "Auto-suspended: {$diffDays} consecutive days missed boundary (Policy Limit: {$thresholdDays} days).",
+                                            'updated_at'       => now(),
+                                        ]);
+                                    } else {
+                                        DB::table('drivers')->where('id', $driverId)->update([
+                                            'driver_status'    => 'banned',
+                                            'suspension_reason'=> "Auto-banned: {$diffDays} consecutive days missed boundary (Policy Limit: {$thresholdDays} days).",
+                                            'updated_at'       => now(),
+                                        ]);
+                                    }
+                                }
+                            }
                         }
                     }
                 }

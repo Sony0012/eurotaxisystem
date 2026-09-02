@@ -1065,7 +1065,69 @@ class DriverManagementV2Controller extends Controller
             ->orderBy('last_name')->orderBy('first_name')
             ->get();
 
-        return view('driver-management.banned', compact('bannedDrivers', 'search', 'activeDrivers'));
+        $autoBanSettings = [
+            'auto_ban_enabled'                      => DB::table('system_settings')->where('key', 'auto_ban_enabled')->value('value') ?? '1',
+            'auto_ban_missed_boundary_days'         => DB::table('system_settings')->where('key', 'auto_ban_missed_boundary_days')->value('value') ?? '3',
+            'auto_ban_overdue_unit_days'            => DB::table('system_settings')->where('key', 'auto_ban_overdue_unit_days')->value('value') ?? '2',
+            'auto_ban_critical_incidents_threshold' => DB::table('system_settings')->where('key', 'auto_ban_critical_incidents_threshold')->value('value') ?? '1',
+            'auto_ban_default_suspension_days'      => DB::table('system_settings')->where('key', 'auto_ban_default_suspension_days')->value('value') ?? '7',
+            'auto_ban_action_type'                  => DB::table('system_settings')->where('key', 'auto_ban_action_type')->value('value') ?? 'banned',
+        ];
+
+        return view('driver-management.banned', compact('bannedDrivers', 'search', 'activeDrivers', 'autoBanSettings'));
+    }
+
+    public function getAutoBanSettings()
+    {
+        $settings = [
+            'auto_ban_enabled'                      => DB::table('system_settings')->where('key', 'auto_ban_enabled')->value('value') ?? '1',
+            'auto_ban_missed_boundary_days'         => DB::table('system_settings')->where('key', 'auto_ban_missed_boundary_days')->value('value') ?? '3',
+            'auto_ban_overdue_unit_days'            => DB::table('system_settings')->where('key', 'auto_ban_overdue_unit_days')->value('value') ?? '2',
+            'auto_ban_critical_incidents_threshold' => DB::table('system_settings')->where('key', 'auto_ban_critical_incidents_threshold')->value('value') ?? '1',
+            'auto_ban_default_suspension_days'      => DB::table('system_settings')->where('key', 'auto_ban_default_suspension_days')->value('value') ?? '7',
+            'auto_ban_action_type'                  => DB::table('system_settings')->where('key', 'auto_ban_action_type')->value('value') ?? 'banned',
+        ];
+
+        return response()->json([
+            'success'  => true,
+            'settings' => $settings,
+        ]);
+    }
+
+    public function updateAutoBanSettings(Request $request)
+    {
+        $request->validate([
+            'auto_ban_enabled'                      => 'required|in:0,1',
+            'auto_ban_missed_boundary_days'         => 'required|integer|min:1|max:30',
+            'auto_ban_overdue_unit_days'            => 'required|integer|min:1|max:30',
+            'auto_ban_critical_incidents_threshold' => 'required|integer|min:1|max:10',
+            'auto_ban_default_suspension_days'      => 'required|integer|min:1|max:90',
+            'auto_ban_action_type'                  => 'required|in:suspended,banned',
+        ]);
+
+        $keys = [
+            'auto_ban_enabled'                      => $request->input('auto_ban_enabled'),
+            'auto_ban_missed_boundary_days'         => $request->input('auto_ban_missed_boundary_days'),
+            'auto_ban_overdue_unit_days'            => $request->input('auto_ban_overdue_unit_days'),
+            'auto_ban_critical_incidents_threshold' => $request->input('auto_ban_critical_incidents_threshold'),
+            'auto_ban_default_suspension_days'      => $request->input('auto_ban_default_suspension_days'),
+            'auto_ban_action_type'                  => $request->input('auto_ban_action_type'),
+        ];
+
+        foreach ($keys as $key => $val) {
+            DB::table('system_settings')->updateOrInsert(
+                ['key' => $key],
+                ['value' => (string)$val, 'group' => 'driver_auto_ban', 'updated_at' => now(), 'created_at' => now()]
+            );
+        }
+
+        ActivityLogController::log('Updated Auto-Ban Settings', "Auto-Ban policy updated: {$keys['auto_ban_missed_boundary_days']} missed boundary days threshold ({$keys['auto_ban_action_type']}).");
+
+        return response()->json([
+            'success'  => true,
+            'message'  => 'Auto-ban policy settings saved successfully.',
+            'settings' => $keys,
+        ]);
     }
 
     public function unban($id)
