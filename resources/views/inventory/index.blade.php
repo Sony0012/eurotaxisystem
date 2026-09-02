@@ -496,7 +496,8 @@
 
     // ── AI Masterpiece Automotive Procedural Vector Engine (100% Accurate & Database-Verified) ──
     function generateDynamicPartSVG(partName) {
-        const raw = (partName || 'Auto Part').toLowerCase().trim();
+        let raw = (partName || 'Auto Part').toLowerCase().trim();
+        raw = raw.replace(/^inventory\s*stock:\s*\d+\s*pcs\s*of\s*/i, '').trim();
         const id = 'svg_' + Math.random().toString(36).substring(2, 9);
 
         // Attribute Extraction
@@ -1284,7 +1285,8 @@
 
     // --- AI Semantic Categorization Engine (100% Comprehensive & Accurate) ---
     function getPartAIMeta(partName) {
-        const raw = (partName || '').toLowerCase().trim();
+        let raw = (partName || '').toLowerCase().trim();
+        raw = raw.replace(/^inventory\s*stock:\s*\d+\s*pcs\s*of\s*/i, '').trim();
         const customGeneratedSvg = generateDynamicPartSVG(partName);
 
         // 1. Clutch, Drivetrain & Bearings (Strict priority over rotors/discs)
@@ -1845,29 +1847,41 @@
 
         tbody.innerHTML = data.map(ph => {
             const dateStr = new Date(ph.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-            const aiMeta = getPartAIMeta(ph.description);
-            const partImg = generateDynamicPartSVG(ph.description);
+            const cleanPartName = (ph.description || '').replace(/^inventory\s*stock:\s*\d+\s*pcs\s*of\s*/i, '').trim();
+            const aiMeta = getPartAIMeta(cleanPartName || ph.description);
+            const partImg = generateDynamicPartSVG(cleanPartName || ph.description);
+            const qty = ph.quantity || 5;
+            const unitPrice = ph.unit_price ? `₱${parseFloat(ph.unit_price).toFixed(2)} / pc` : '';
 
             return `
-            <tr class="hover:bg-gray-50/80 transition-colors">
+            <tr class="hover:bg-gray-50/80 transition-colors group">
                 <td class="px-8 py-5 whitespace-nowrap">
-                    <div class="text-sm font-bold text-gray-700">${dateStr}</div>
+                    <div class="text-sm font-bold text-gray-800">${dateStr}</div>
+                    <div class="text-[10px] text-gray-400 font-bold uppercase mt-0.5 tracking-wider">${escapeHtml(ph.vendor_name || 'Toyota Supplier')}</div>
                 </td>
                 <td class="px-8 py-5">
                     <div class="flex items-center gap-3.5">
-                        <div class="relative w-11 h-11 rounded-2xl p-1 flex items-center justify-center shrink-0 border ${aiMeta.badgeBorder} ${aiMeta.badgeBg} shadow-xs cursor-pointer bg-white overflow-hidden"
+                        <div class="relative w-12 h-12 rounded-2xl p-1 flex items-center justify-center shrink-0 border ${aiMeta.badgeBorder} ${aiMeta.badgeBg} shadow-xs cursor-pointer bg-white overflow-hidden group-hover:scale-105 transition-transform"
                              onclick="openImageModal('${addslashes(partImg)}')"
                              title="Click to view procedural vector">
-                            <img src="${partImg}" alt="${escapeHtml(ph.description)}" class="w-full h-full object-contain filter drop-shadow-sm rounded-xl">
+                            <img src="${partImg}" alt="${escapeHtml(cleanPartName)}" class="w-full h-full object-contain filter drop-shadow-sm rounded-xl">
                         </div>
                         <div class="min-w-0">
-                            <div class="text-sm font-black text-gray-800 tracking-tight">${escapeHtml(ph.description)}</div>
-                            <div class="text-xs text-blue-500 font-bold uppercase mt-0.5 tracking-wider">${escapeHtml(ph.category)}</div>
+                            <div class="text-sm font-black text-gray-900 tracking-tight">${escapeHtml(cleanPartName || ph.description)}</div>
+                            <div class="flex items-center gap-2 mt-0.5">
+                                <span class="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider ${aiMeta.textClass}">
+                                    <span class="w-1.5 h-1.5 rounded-full ${aiMeta.dotClass}"></span>
+                                    ${aiMeta.category}
+                                </span>
+                                <span class="text-gray-300">·</span>
+                                <span class="text-[11px] font-bold text-slate-500">${qty} pcs ${unitPrice ? `(${unitPrice})` : ''}</span>
+                            </div>
                         </div>
                     </div>
                 </td>
-                <td class="px-8 py-5 text-right">
+                <td class="px-8 py-5 text-right whitespace-nowrap">
                     <div class="text-base font-black text-green-600">₱${parseFloat(ph.amount).toFixed(2)}</div>
+                    <span class="inline-flex px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-green-50 text-green-700">Approved</span>
                 </td>
             </tr>
             `;
