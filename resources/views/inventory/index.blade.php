@@ -237,17 +237,17 @@
                     </div>
                     <div class="relative">
                         <span class="absolute left-3.5 top-2.5 text-gray-400 font-bold text-sm">₱</span>
-                        <input type="text" id="newPartPrice" maxlength="9" oninput="handlePriceValidation(this)" onkeydown="filterNumericKeydown(event, true)" class="w-full pl-8 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-gray-50 focus:bg-white transition-colors font-medium tabular-nums" placeholder="0.00">
+                        <input type="text" id="newPartPrice" maxlength="12" oninput="handlePriceValidation(this)" onkeydown="filterNumericKeydown(event, true)" class="w-full pl-8 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-gray-50 focus:bg-white transition-colors font-medium tabular-nums" placeholder="0.00">
                     </div>
-                    <p id="priceError" class="hidden text-xs text-red-500 mt-1 font-medium">Price cannot exceed ₱500,000.00</p>
+                    <p id="priceError" class="hidden text-xs text-amber-600 mt-1 font-bold"></p>
                 </div>
                 <div>
                     <div class="flex justify-between items-center mb-1.5 ml-1">
                         <label id="lblQtyMode" class="block text-[10px] font-black text-gray-400 uppercase tracking-widest">Initial Qty</label>
                         <span class="text-[10px] text-gray-400 font-semibold">Max 10,000</span>
                     </div>
-                    <input type="text" id="newPartQty" maxlength="5" oninput="handleQtyValidation(this)" onkeydown="filterNumericKeydown(event, false)" class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-gray-50 focus:bg-white transition-colors font-medium tabular-nums" placeholder="0">
-                    <p id="qtyError" class="hidden text-xs text-red-500 mt-1 font-medium">Quantity cannot exceed 10,000 units.</p>
+                    <input type="text" id="newPartQty" maxlength="8" oninput="handleQtyValidation(this)" onkeydown="filterNumericKeydown(event, false)" class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-gray-50 focus:bg-white transition-colors font-medium tabular-nums" placeholder="0">
+                    <p id="qtyError" class="hidden text-xs text-amber-600 mt-1 font-bold"></p>
                 </div>
             </div>
             
@@ -1920,21 +1920,23 @@
 
     // ── Strict Real-Time Input Sanitation & Validation Handlers ──
     function filterNumericKeydown(e, allowDecimal = false) {
-        // Allow navigation, backspace, delete, tab, arrows
+        // Allow navigation, backspace, delete, tab, enter, escape, arrows, home, end
         if ([8, 9, 27, 13, 46, 37, 39, 36, 35].includes(e.keyCode) ||
-            ((e.ctrlKey || e.metaKey) && [65, 67, 86, 88].includes(e.keyCode))) {
+            ((e.ctrlKey || e.metaKey) && [65, 67, 86, 88, 90, 89].includes(e.keyCode))) {
             return;
         }
-        if (allowDecimal && (e.key === '.' || e.key === 'Decimal')) {
-            if (e.target.value.includes('.')) {
-                e.preventDefault();
+        // Allow Numpad digits (96-105) and Main digits (48-57)
+        if ((e.keyCode >= 48 && e.keyCode <= 57 && !e.shiftKey) || (e.keyCode >= 96 && e.keyCode <= 105)) {
+            return;
+        }
+        // Allow Decimal point
+        if (allowDecimal && (e.keyCode === 190 || e.keyCode === 110 || e.key === '.')) {
+            if (!e.target.value.includes('.')) {
+                return;
             }
-            return;
         }
-        // Block non-digit keys (e, E, +, -, etc.)
-        if (!/^[0-9]$/.test(e.key)) {
-            e.preventDefault();
-        }
+        // Block other keys
+        e.preventDefault();
     }
 
     function handlePartNameValidation(input) {
@@ -1957,23 +1959,35 @@
 
     function handlePriceValidation(input) {
         const errorEl = document.getElementById('priceError');
-        let val = input.value.replace(/[^0-9.]/g, '');
-        const parts = val.split('.');
-        if (parts.length > 2) {
-            val = parts[0] + '.' + parts.slice(1).join('');
+        let raw = input.value;
+        if (!raw) {
+            if (errorEl) errorEl.classList.add('hidden');
+            return;
         }
-        if (parts.length === 2 && parts[1].length > 2) {
-            val = parts[0] + '.' + parts[1].substring(0, 2);
+
+        // Keep only digits and single decimal point
+        let val = raw.replace(/[^0-9.]/g, '');
+        const dotIndex = val.indexOf('.');
+        if (dotIndex !== -1) {
+            val = val.substring(0, dotIndex + 1) + val.substring(dotIndex + 1).replace(/\./g, '');
+            const parts = val.split('.');
+            if (parts[1] && parts[1].length > 2) {
+                parts[1] = parts[1].substring(0, 2);
+                val = parts[0] + '.' + parts[1];
+            }
         }
+
+        // Clean redundant leading zeros (e.g., "0500" -> "500", but keep "0" or "0.")
         if (val.length > 1 && val.startsWith('0') && !val.startsWith('0.')) {
             val = val.replace(/^0+/, '') || '0';
         }
 
+        // AUTO-CORRECT TO MAXIMUM LIMIT (₱500,000) IF EXCEEDED!
         const num = parseFloat(val);
         if (!isNaN(num) && num > 500000) {
             val = '500000';
             if (errorEl) {
-                errorEl.innerText = 'Maximum price is ₱500,000.00';
+                errorEl.innerText = '⚠️ Max price is ₱500,000.00 (Auto-corrected to maximum)';
                 errorEl.classList.remove('hidden');
             }
         } else if (errorEl) {
@@ -1985,16 +1999,26 @@
 
     function handleQtyValidation(input) {
         const errorEl = document.getElementById('qtyError');
-        let val = input.value.replace(/[^0-9]/g, '');
+        let raw = input.value;
+        if (!raw) {
+            if (errorEl) errorEl.classList.add('hidden');
+            return;
+        }
+
+        // Keep only digits
+        let val = raw.replace(/[^0-9]/g, '');
+
+        // Clean excessive leading zeros
         if (val.length > 1 && val.startsWith('0')) {
             val = val.replace(/^0+/, '') || '0';
         }
 
+        // AUTO-CORRECT TO MAXIMUM LIMIT (10,000) IF EXCEEDED!
         const num = parseInt(val, 10);
         if (!isNaN(num) && num > 10000) {
             val = '10000';
             if (errorEl) {
-                errorEl.innerText = 'Maximum quantity is 10,000 units.';
+                errorEl.innerText = '⚠️ Max quantity is 10,000 units (Auto-corrected to maximum)';
                 errorEl.classList.remove('hidden');
             }
         } else if (errorEl) {
@@ -2057,7 +2081,8 @@
         nameInput.value = name;
         nameInput.readOnly = false; // EDITABLE so user can rename the part!
         
-        document.getElementById('newPartPrice').value = parseFloat(price).toFixed(2);
+        // Clean numeric format (without trailing .00 if whole number for easy typing)
+        document.getElementById('newPartPrice').value = parseFloat(price);
         document.getElementById('newPartQty').value = '0'; // 0 qty to add (pure detail edit)
         document.getElementById('newPartSupplier').value = supplier || '';
         document.getElementById('newPartImageUrl').value = generateDynamicPartSVG(name);
@@ -2085,7 +2110,7 @@
         nameInput.value = name;
         nameInput.readOnly = true; // Locked to this part
         
-        document.getElementById('newPartPrice').value = parseFloat(price).toFixed(2);
+        document.getElementById('newPartPrice').value = parseFloat(price);
         document.getElementById('newPartQty').value = ''; 
         document.getElementById('newPartSupplier').value = supplier || '';
         document.getElementById('newPartImageUrl').value = generateDynamicPartSVG(name);
