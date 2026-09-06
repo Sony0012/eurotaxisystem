@@ -240,6 +240,7 @@ class NotificationService
                 // Fetch everything directly from system_alerts which has 100% parity with pushes!
                 $dbAlerts = DB::table('system_alerts')
                     ->where('is_resolved', false)
+                    ->where('type', '!=', 'test_chime_alert')
                     ->whereNull('user_id') // Exclude driver-specific targeted alerts
                     ->orderByDesc('created_at')
                     ->limit(500)

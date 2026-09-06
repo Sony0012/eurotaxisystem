@@ -1758,18 +1758,8 @@
                     // Initialize with existing notifications to avoid spam on first load
                     data.notifications.forEach(n => {
                         const idStr = String(n.id);
-                        if (n.type === 'test_chime_alert') {
-                            // CRITICAL: DO NOT suppress test chime broadcasts on first load!
-                            // Trigger sound and banner instantly!
-                            if (!stored.includes(idStr)) {
-                                stored.push(idStr);
-                                playNotificationChime();
-                                showInAppNotificationBanner(n.title, n.message, n.url);
-                            }
-                        } else {
-                            if (!stored.includes(idStr)) {
-                                stored.push(idStr);
-                            }
+                        if (!stored.includes(idStr)) {
+                            stored.push(idStr);
                         }
                     });
                     window.notifiedIds = stored;
@@ -1894,24 +1884,6 @@
         function startNotificationPolling() {
             if (pollInterval) clearInterval(pollInterval);
             pollInterval = setInterval(pollNotifications, 6000); // Snappy real-time polling every 6 seconds
-        }
-
-        async function triggerTestNotificationBroadcast() {
-            const btn = document.getElementById('test-chime-broadcast-btn');
-            if (btn) btn.disabled = true;
-            try {
-                const res = await makeRequest('/web-notifications/trigger-test-chime', { method: 'POST' });
-                if (res && res.success) {
-                    alert('📢 Chime Broadcast triggered! Check your Oppo phone screen/sound in the next 6 seconds!');
-                } else {
-                    alert('Failed to trigger broadcast: ' + (res.error || 'Unknown error'));
-                }
-            } catch (e) {
-                console.error(e);
-                alert('Broadcast request failed: ' + (e.message || e) + '\n\nTip: Kung may lumang Service Worker cache ang iyong desktop browser, mangyaring pindutin ang CTRL + F5 sa keyboard (o Cmd + Shift + R sa Mac) upang tuluyang ma-clear ang cache, at subukan muli.');
-            } finally {
-                if (btn) btn.disabled = false;
-            }
         }
 
         document.addEventListener('DOMContentLoaded', () => {
