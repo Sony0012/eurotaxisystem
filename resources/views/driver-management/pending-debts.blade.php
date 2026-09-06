@@ -200,13 +200,13 @@
                     </div>
                 </div>
 
-                {{-- Print PDF Report Button --}}
-                <a href="{{ route('driver-management.debts.print') }}" target="_blank"
+                {{-- Print PDF Report Button (Pop-up print without opening new tab) --}}
+                <button type="button" onclick="triggerPrintDebtsPdf()" id="btnPrintPdf"
                     class="flex items-center gap-2 px-4 sm:px-5 py-3.5 bg-gradient-to-r from-red-600 to-rose-700 hover:from-red-500 hover:to-rose-600 text-white font-black text-xs uppercase tracking-widest rounded-2xl shadow-xl shadow-red-600/30 transition-all active:scale-95 cursor-pointer shrink-0 border border-white/20">
                     <i data-lucide="printer" class="w-4 h-4"></i>
                     <span class="hidden sm:inline">Print PDF</span>
                     <span class="sm:hidden">Print</span>
-                </a>
+                </button>
             </div>
         </div>
     </div>
@@ -1051,6 +1051,48 @@ function closeImageModal() {
             modal.classList.add('hidden');
         }, 300);
     }
+}
+
+/* ─── Trigger Pop-up Print without opening a new tab ─── */
+function triggerPrintDebtsPdf() {
+    const btn = document.getElementById('btnPrintPdf');
+    const origHtml = btn ? btn.innerHTML : '';
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<span class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span> <span>Preparing...</span>';
+    }
+
+    let printFrame = document.getElementById('debtPrintIframe');
+    if (!printFrame) {
+        printFrame = document.createElement('iframe');
+        printFrame.id = 'debtPrintIframe';
+        printFrame.style.position = 'fixed';
+        printFrame.style.right = '0';
+        printFrame.style.bottom = '0';
+        printFrame.style.width = '0';
+        printFrame.style.height = '0';
+        printFrame.style.border = '0';
+        printFrame.style.visibility = 'hidden';
+        document.body.appendChild(printFrame);
+    }
+
+    printFrame.onload = function() {
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = origHtml;
+            if (window.lucide) lucide.createIcons();
+        }
+        setTimeout(() => {
+            try {
+                printFrame.contentWindow.focus();
+                printFrame.contentWindow.print();
+            } catch (e) {
+                console.error('Print iframe error:', e);
+            }
+        }, 300);
+    };
+
+    printFrame.src = '{{ route("driver-management.debts.print") }}?preview=1';
 }
 </script>
 @endpush

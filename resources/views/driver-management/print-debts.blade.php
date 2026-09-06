@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Financial Liabilities & Driver Pending Debts Report &mdash; {{ date('Y-m-d') }}</title>
+    <title>Driver Liabilities & Settlement Report &mdash; {{ date('Y-m-d') }}</title>
     <style>
         @page {
-            margin: 10mm 12mm 15mm 12mm;
+            margin: 8mm 10mm 10mm 10mm;
             size: portrait;
         }
         * {
@@ -17,418 +17,326 @@
             print-color-adjust: exact !important;
         }
         body {
-            background: #fff;
-            font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
-            padding: 8mm 12mm 15mm 12mm;
-            color: #0f172a;
-            font-size: 11px;
-            line-height: 1.4;
+            background: #ffffff;
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Arial, sans-serif;
+            padding: 6mm 10mm;
+            color: #111827;
+            font-size: 10px;
+            line-height: 1.35;
         }
 
-        /* Screen Action Bar */
+        /* Screen Toolbar (hidden in print) */
         .no-print-bar {
-            background: #0f172a;
+            background: #1e293b;
             color: #fff;
-            padding: 12px 20px;
-            border-radius: 12px;
+            padding: 10px 18px;
+            border-radius: 8px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 25px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-        }
-        .no-print-bar .btn-group {
-            display: flex;
-            gap: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.12);
         }
         .btn-print {
-            background: #e11d48;
+            background: #dc2626;
             color: #fff;
             border: none;
-            padding: 8px 18px;
-            border-radius: 8px;
+            padding: 7px 16px;
+            border-radius: 6px;
             font-weight: 800;
-            font-size: 12px;
+            font-size: 11px;
             cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
             text-transform: uppercase;
             letter-spacing: 0.05em;
-            transition: background 0.2s;
         }
-        .btn-print:hover {
-            background: #be123c;
-        }
+        .btn-print:hover { background: #b91c1c; }
         .btn-back {
-            background: #334155;
-            color: #fff;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 8px;
-            font-weight: 700;
-            font-size: 12px;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            transition: background 0.2s;
-        }
-        .btn-back:hover {
             background: #475569;
+            color: #fff;
+            padding: 7px 14px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 11px;
+            text-decoration: none;
         }
+        .btn-back:hover { background: #334155; }
 
-        /* Header Branding */
-        .report-header {
+        /* Company Header */
+        .company-header {
             text-align: center;
-            margin-bottom: 20px;
-            border-bottom: 2px solid #0f172a;
-            padding-bottom: 15px;
+            border-bottom: 2px solid #111827;
+            padding-bottom: 10px;
+            margin-bottom: 12px;
         }
-        .report-header img {
-            max-height: 55px;
+        .company-logo {
+            max-height: 48px;
             width: auto;
             display: block;
-            margin: 0 auto 10px auto;
+            margin: 0 auto 6px auto;
         }
-        .company-name {
-            font-size: 11px;
-            font-weight: 800;
-            letter-spacing: 0.18em;
-            text-transform: uppercase;
-            color: #64748b;
-            margin-bottom: 2px;
-        }
-        h1 {
-            font-size: 19px;
-            font-weight: 900;
-            text-transform: uppercase;
-            letter-spacing: 0.06em;
-            color: #0f172a;
-            margin-bottom: 4px;
-        }
-        .report-subtitle {
-            font-size: 10px;
-            color: #475569;
+        .company-sub {
+            font-size: 9px;
             font-weight: 700;
+            letter-spacing: 0.14em;
             text-transform: uppercase;
-            letter-spacing: 0.1em;
+            color: #4b5563;
         }
-
-        /* Metadata Banner */
-        .meta-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 10px;
-            padding: 10px 14px;
-            margin-bottom: 20px;
-        }
-        .meta-item {
-            font-size: 10px;
-        }
-        .meta-item .label {
-            font-weight: 800;
+        .doc-title {
+            font-size: 16px;
+            font-weight: 900;
             text-transform: uppercase;
-            color: #64748b;
-            font-size: 8.5px;
-            letter-spacing: 0.05em;
-            margin-bottom: 2px;
+            letter-spacing: 0.04em;
+            color: #111827;
+            margin: 2px 0;
         }
-        .meta-item .value {
-            font-weight: 900;
-            color: #0f172a;
-            font-size: 11px;
-        }
-
-        /* Executive KPI Summary Cards */
-        .kpi-row {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 12px;
-            margin-bottom: 25px;
-        }
-        .kpi-card {
-            background: #ffffff;
-            border: 1.5px solid #e2e8f0;
-            border-radius: 10px;
-            padding: 10px 12px;
-            position: relative;
-        }
-        .kpi-card.danger {
-            border-color: #fca5a5;
-            background: #fff5f5;
-        }
-        .kpi-card.success {
-            border-color: #86efac;
-            background: #f0fdf4;
-        }
-        .kpi-card.primary {
-            border-color: #cbd5e1;
-            background: #f8fafc;
-        }
-        .kpi-label {
-            font-size: 8.5px;
-            font-weight: 900;
+        .doc-subtitle {
+            font-size: 9.5px;
+            color: #4b5563;
+            font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.08em;
-            color: #64748b;
-            margin-bottom: 3px;
         }
-        .kpi-card.danger .kpi-label { color: #dc2626; }
-        .kpi-card.success .kpi-label { color: #16a34a; }
-        .kpi-val {
-            font-size: 17px;
-            font-weight: 900;
-            letter-spacing: -0.02em;
-            color: #0f172a;
-        }
-        .kpi-card.danger .kpi-val { color: #b91c1c; }
-        .kpi-card.success .kpi-val { color: #15803d; }
 
-        /* Driver Section */
-        .driver-block {
-            margin-bottom: 22px;
-            border: 1.5px solid #cbd5e1;
-            border-radius: 10px;
-            overflow: hidden;
+        /* Summary Meta Table */
+        .summary-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 14px;
+            font-size: 9.5px;
+            border: 1px solid #d1d5db;
+        }
+        .summary-table td {
+            padding: 5px 8px;
+            border: 1px solid #d1d5db;
+            background: #f9fafb;
+        }
+        .summary-table .lbl {
+            font-weight: 800;
+            text-transform: uppercase;
+            color: #4b5563;
+            font-size: 8.5px;
+            width: 18%;
+        }
+        .summary-table .val {
+            font-weight: 900;
+            color: #111827;
+            width: 32%;
+        }
+        .summary-table .val.danger { color: #dc2626; font-size: 11px; }
+        .summary-table .val.success { color: #16a34a; font-size: 11px; }
+
+        /* Driver Block */
+        .driver-card {
+            border: 1.5px solid #374151;
+            border-radius: 6px;
+            margin-bottom: 14px;
             page-break-inside: avoid;
             break-inside: avoid;
+            overflow: hidden;
         }
-        .driver-header {
-            background: #0f172a;
+        .driver-info-bar {
+            background: #1f2937;
             color: #ffffff;
-            padding: 8px 14px;
+            padding: 6px 10px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            font-size: 10px;
         }
-        .driver-title {
-            font-size: 12px;
+        .driver-name-tag {
+            font-size: 11px;
             font-weight: 900;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            letter-spacing: 0.04em;
         }
-        .driver-plate-tag {
-            background: rgba(255,255,255,0.2);
-            border: 1px solid rgba(255,255,255,0.3);
-            padding: 2px 7px;
-            border-radius: 5px;
-            font-size: 9.5px;
-            font-weight: 800;
-            letter-spacing: 0.05em;
-        }
-        .driver-submeta {
-            font-size: 9.5px;
-            color: #cbd5e1;
+        .driver-meta-text {
+            font-size: 9px;
+            color: #e5e7eb;
             font-weight: 600;
         }
-        .driver-balance-badge {
+        .driver-balance-box {
             background: #dc2626;
-            color: #ffffff;
-            padding: 3px 9px;
-            border-radius: 6px;
+            color: #fff;
+            padding: 2px 7px;
+            border-radius: 4px;
             font-weight: 900;
-            font-size: 11px;
-            letter-spacing: 0.02em;
+            font-size: 10px;
         }
 
-        /* Table */
-        table {
+        /* Section Head inside Driver */
+        .section-subhead {
+            background: #f3f4f6;
+            padding: 4px 10px;
+            font-weight: 800;
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #374151;
+            border-bottom: 1px solid #e5e7eb;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* Tables */
+        table.debt-table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 10px;
+            font-size: 9px;
         }
-        thead tr {
-            background: #f1f5f9;
-            border-bottom: 1.5px solid #cbd5e1;
-        }
-        th {
-            padding: 6px 8px;
+        table.debt-table th {
+            background: #ffffff;
+            color: #374151;
             font-weight: 800;
             text-transform: uppercase;
-            font-size: 8.5px;
-            letter-spacing: 0.05em;
-            color: #334155;
+            font-size: 8px;
+            letter-spacing: 0.04em;
+            padding: 4px 6px;
+            border-bottom: 1px solid #9ca3af;
             text-align: left;
         }
-        th.center, td.center { text-align: center; }
-        th.right, td.right { text-align: right; }
-        
-        tbody tr {
-            border-bottom: 1px solid #e2e8f0;
-        }
-        tbody tr:nth-child(even) {
-            background: #f8fafc;
-        }
-        td {
-            padding: 6px 8px;
+        table.debt-table td {
+            padding: 4px 6px;
+            border-bottom: 1px solid #e5e7eb;
             vertical-align: middle;
-            color: #1e293b;
+            color: #1f2937;
         }
-        
-        .debt-desc {
-            font-weight: 600;
-            color: #0f172a;
+        table.debt-table tr:nth-child(even) td {
+            background: #f9fafb;
         }
-        .badge-type {
+        .text-right { text-align: right; }
+        .text-center { text-align: center; }
+
+        .type-badge {
             display: inline-block;
-            padding: 1.5px 5.5px;
-            border-radius: 4px;
-            font-size: 8px;
+            padding: 1px 4px;
+            border-radius: 3px;
+            font-size: 7.5px;
             font-weight: 800;
             text-transform: uppercase;
-            letter-spacing: 0.03em;
+            background: #f3f4f6;
+            border: 1px solid #d1d5db;
+            color: #374151;
         }
-        .badge-shortage { background: #ffe4e6; color: #9f1239; border: 1px solid #fecdd3; }
-        .badge-damage   { background: #ffedd5; color: #9a3412; border: 1px solid #fed7aa; }
-        .badge-parts    { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
-        .badge-general  { background: #e2e8f0; color: #334155; border: 1px solid #cbd5e1; }
 
-        .driver-subtotal-row {
-            background: #f8fafc;
-            border-top: 1.5px solid #cbd5e1;
-            font-weight: 900;
-            font-size: 10px;
+        .driver-subtotal-bar {
+            background: #f9fafb;
+            border-top: 1.5px solid #9ca3af;
+            padding: 5px 8px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            font-size: 9.5px;
+            font-weight: 800;
         }
-        .driver-subtotal-row td {
-            padding: 7px 8px;
+        .driver-subtotal-bar .amt {
+            color: #dc2626;
+            font-weight: 900;
         }
 
         /* Grand Total Box */
-        .grand-total-box {
-            background: #0f172a;
+        .grand-box {
+            background: #111827;
             color: #ffffff;
-            border-radius: 10px;
-            padding: 14px 18px;
-            margin: 25px 0;
+            border-radius: 6px;
+            padding: 10px 14px;
+            margin: 16px 0;
             display: flex;
             justify-content: space-between;
             align-items: center;
             page-break-inside: avoid;
         }
-        .grand-total-title {
-            font-size: 12px;
+        .grand-title {
+            font-size: 11px;
             font-weight: 900;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            color: #94a3b8;
-        }
-        .grand-total-numbers {
-            display: flex;
-            gap: 25px;
-            text-align: right;
-        }
-        .grand-item .label {
-            font-size: 8.5px;
-            font-weight: 800;
             text-transform: uppercase;
             letter-spacing: 0.06em;
-            color: #94a3b8;
         }
-        .grand-item .amount {
-            font-size: 15px;
+        .grand-stats {
+            display: flex;
+            gap: 20px;
+            text-align: right;
+            font-size: 10px;
+        }
+        .grand-stat-item .g-lbl {
+            font-size: 8px;
+            text-transform: uppercase;
+            font-weight: 700;
+            color: #9ca3af;
+        }
+        .grand-stat-item .g-val {
+            font-size: 13px;
             font-weight: 900;
-            letter-spacing: -0.01em;
         }
-        .grand-item .amount.highlight {
-            color: #f87171;
-            font-size: 17px;
-        }
-        .grand-item .amount.success {
-            color: #4ade80;
-        }
+        .grand-stat-item .g-val.danger { color: #f87171; }
+        .grand-stat-item .g-val.success { color: #4ade80; }
 
         /* Signatories */
-        .signatories-container {
+        .signatories {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 25px;
-            margin-top: 35px;
-            margin-bottom: 20px;
+            gap: 20px;
+            margin-top: 25px;
+            margin-bottom: 15px;
             page-break-inside: avoid;
         }
-        .signatory-card {
-            border: 1px dashed #cbd5e1;
-            border-radius: 8px;
-            padding: 12px 14px;
-            background: #ffffff;
+        .sig-box {
+            border-top: 1px solid #374151;
+            padding-top: 4px;
+            font-size: 9px;
         }
-        .signatory-role {
-            font-size: 8.5px;
-            font-weight: 900;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            color: #64748b;
-            margin-bottom: 30px;
-        }
-        .signatory-line {
-            border-top: 1px solid #334155;
-            padding-top: 5px;
-            font-size: 10px;
+        .sig-role {
             font-weight: 800;
-            color: #0f172a;
             text-transform: uppercase;
+            font-size: 7.5px;
+            color: #6b7280;
+            margin-bottom: 22px;
         }
-        .signatory-title {
-            font-size: 8.5px;
-            color: #64748b;
-            font-weight: 600;
+        .sig-name {
+            font-weight: 800;
+            text-transform: uppercase;
+            color: #111827;
+        }
+        .sig-title {
+            font-size: 8px;
+            color: #4b5563;
         }
 
         /* Footer */
         .report-footer {
             text-align: center;
-            margin-top: 25px;
-            padding-top: 12px;
-            border-top: 1px dashed #cbd5e1;
-            font-size: 9px;
-            color: #64748b;
+            margin-top: 15px;
+            padding-top: 8px;
+            border-top: 1px dashed #d1d5db;
+            font-size: 8px;
+            color: #6b7280;
         }
 
-        /* Print Media Queries */
+        /* Print Media Styles */
         @media print {
-            body {
-                padding: 0;
-            }
-            .no-print {
-                display: none !important;
-            }
-            .no-print-bar {
-                display: none !important;
-            }
-            .driver-block {
+            body { padding: 0; }
+            .no-print, .no-print-bar { display: none !important; }
+            .driver-card, .grand-box, .signatories {
                 break-inside: avoid;
                 page-break-inside: avoid;
-            }
-            .grand-total-box {
-                break-inside: avoid;
-            }
-            .signatories-container {
-                break-inside: avoid;
             }
         }
     </style>
 </head>
 <body @if(!request()->has('preview')) onload="window.print()" @endif>
 
-    {{-- Screen Interactive Action Bar --}}
+    {{-- Screen Interactive Action Bar (Hidden in Print) --}}
     <div class="no-print-bar no-print">
-        <div style="display: flex; align-items: center; gap: 10px;">
-            <span style="font-size: 16px;">📄</span>
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 15px;">📄</span>
             <div>
-                <div style="font-weight: 900; font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em;">Financial Liabilities Print & PDF Export</div>
-                <div style="font-size: 10px; color: #94a3b8;">Review report layout or click Print to save as PDF.</div>
+                <strong style="text-transform: uppercase; letter-spacing: 0.05em;">Financial Liabilities &amp; Settlement Statement</strong>
+                <span style="font-size: 9.5px; color: #94a3b8; margin-left: 8px;">Official Company Fleet Document</span>
             </div>
         </div>
-        <div class="btn-group">
+        <div style="display: flex; gap: 8px;">
             <a href="{{ route('driver-management.debts') }}" class="btn-back">
-                ← Back to Liabilities
+                ← Back to Dashboard
             </a>
             <button type="button" onclick="window.print()" class="btn-print">
                 🖨️ Print / Save as PDF
@@ -436,195 +344,219 @@
         </div>
     </div>
 
-    {{-- Report Header --}}
-    <div class="report-header">
-        <img src="{{ asset('image/logo.png') }}" alt="Euro Taxi Fleet Logo">
-        <div class="company-name">Euro Taxi Management System &bull; Fleet Operations</div>
-        <h1>Financial Liabilities &amp; Driver Pending Debts Report</h1>
-        <div class="report-subtitle">Official Audit, Incident Damages &amp; Boundary Shortages Summary</div>
+    {{-- Company Header --}}
+    <div class="company-header">
+        <img src="{{ asset('image/logo.png') }}" alt="Euro Taxi Fleet Logo" class="company-logo">
+        <div class="company-sub">Euro Taxi Management System &bull; Fleet Operations</div>
+        <h1 class="doc-title">Driver Financial Liabilities &amp; Settlement Statement</h1>
+        <div class="doc-subtitle">Official Statement of Outstanding Balances, Deductions &amp; Settlement Records</div>
     </div>
 
-    {{-- Metadata Grid --}}
-    <div class="meta-grid">
-        <div class="meta-item">
-            <div class="label">Report Generated</div>
-            <div class="value">{{ date('M d, Y &bull; h:i:s A') }}</div>
-        </div>
-        <div class="meta-item">
-            <div class="label">Generated By</div>
-            <div class="value">{{ auth()->user()->full_name ?? (auth()->user()->name ?? 'Authorized Auditor') }}</div>
-        </div>
-        <div class="meta-item">
-            <div class="label">Scope / Status</div>
-            <div class="value">All Active Pending Liabilities</div>
-        </div>
-        <div class="meta-item">
-            <div class="label">Total Records</div>
-            <div class="value">{{ $totalItems }} Outstanding Incident{{ $totalItems > 1 ? 's' : '' }}</div>
-        </div>
-    </div>
+    {{-- Summary Metadata Table --}}
+    <table class="summary-table">
+        <tr>
+            <td class="lbl">Date Generated:</td>
+            <td class="val">{{ date('F d, Y') }} &bull; {{ date('h:i A') }}</td>
+            <td class="lbl">Total Active Debtors:</td>
+            <td class="val">{{ $totalActiveDebtors }} Driver{{ $totalActiveDebtors > 1 ? 's' : '' }}</td>
+        </tr>
+        <tr>
+            <td class="lbl">Generated By:</td>
+            <td class="val">{{ auth()->user()->full_name ?? (auth()->user()->name ?? 'Fleet Billing Auditor') }}</td>
+            <td class="lbl">Net Outstanding Balance:</td>
+            <td class="val danger">₱{{ number_format($grandTotalPending, 2) }}</td>
+        </tr>
+        <tr>
+            <td class="lbl">Report Scope:</td>
+            <td class="val">All Driver Liabilities &amp; Settlement History</td>
+            <td class="lbl">Total Collections Recovered:</td>
+            <td class="val success">₱{{ number_format($totalCollections, 2) }}</td>
+        </tr>
+    </table>
 
-    {{-- Executive Summary KPI Cards --}}
-    <div class="kpi-row">
-        <div class="kpi-card primary">
-            <div class="kpi-label">Active Debtors</div>
-            <div class="kpi-val">{{ $totalDebtors }}</div>
-        </div>
-        <div class="kpi-card danger">
-            <div class="kpi-label">Total Outstanding Balance</div>
-            <div class="kpi-val">₱{{ number_format($grandTotalRemaining, 2) }}</div>
-        </div>
-        <div class="kpi-card success">
-            <div class="kpi-label">Total Recovered / Collections</div>
-            <div class="kpi-val">₱{{ number_format($totalCollections, 2) }}</div>
-        </div>
-        <div class="kpi-card primary">
-            <div class="kpi-label">Pending Debt Items</div>
-            <div class="kpi-val">{{ $totalItems }}</div>
-        </div>
-    </div>
-
-    {{-- Itemized Breakdown Per Driver --}}
+    {{-- Per-Driver Breakdown Section --}}
     @if(count($drivers) === 0)
-        <div style="text-align: center; padding: 40px 20px; border: 2px dashed #cbd5e1; border-radius: 12px; margin: 30px 0;">
-            <div style="font-size: 14px; font-weight: 800; color: #16a34a; text-transform: uppercase;">Zero Active Financial Liabilities</div>
-            <p style="font-size: 11px; color: #64748b; margin-top: 4px;">All driver charges, accident damages, and shortages have been fully settled.</p>
+        <div style="text-align: center; padding: 30px; border: 1.5px dashed #9ca3af; border-radius: 6px; margin: 20px 0;">
+            <strong style="color: #16a34a; text-transform: uppercase;">Zero Active Financial Liabilities</strong>
+            <p style="color: #6b7280; font-size: 9px; margin-top: 4px;">All driver boundary charges, damage repairs, and parts shortages have been fully settled.</p>
         </div>
     @else
         @foreach($drivers as $driver)
-            <div class="driver-block">
-                {{-- Driver Header --}}
-                <div class="driver-header">
-                    <div class="driver-title">
-                        <span>{{ $driver['driver_name'] }}</span>
-                        <span class="driver-plate-tag">Unit: {{ $driver['unit_plate'] }}</span>
+            <div class="driver-card">
+                {{-- Driver Header Bar --}}
+                <div class="driver-info-bar">
+                    <div>
+                        <span class="driver-name-tag">{{ $driver['driver_name'] }}</span>
+                        <span style="margin-left: 8px; background: rgba(255,255,255,0.15); padding: 1px 6px; border-radius: 3px; font-weight: 800; font-size: 8.5px;">
+                            Unit: {{ $driver['unit_plate'] }}
+                        </span>
                     </div>
-                    <div style="display: flex; align-items: center; gap: 14px;">
-                        <span class="driver-submeta">Lic: {{ $driver['license_number'] }} &bull; Contact: {{ $driver['contact_number'] }}</span>
-                        <span class="driver-balance-badge">Balance: ₱{{ number_format($driver['total_remaining'], 2) }}</span>
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <span class="driver-meta-text">Lic: {{ $driver['license_number'] }} &bull; Phone: {{ $driver['contact_number'] }}</span>
+                        <span class="driver-balance-box">
+                            Pending Due: ₱{{ number_format($driver['total_pending'], 2) }}
+                        </span>
                     </div>
                 </div>
 
-                {{-- Table of Driver's Debt Items --}}
-                <table>
-                    <thead>
-                        <tr>
-                            <th style="width: 32px;" class="center">#</th>
-                            <th style="width: 90px;">Date</th>
-                            <th style="width: 120px;">Incident Type</th>
-                            <th>Description / Incident Particulars</th>
-                            <th style="width: 85px;" class="right">Total Charge</th>
-                            <th style="width: 85px;" class="right">Amount Paid</th>
-                            <th style="width: 95px;" class="right">Balance Due</th>
-                            <th style="width: 60px;" class="center">Progress</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($driver['debts'] as $idx => $debt)
-                            @php
-                                $typeLower = strtolower($debt->incident_type ?? '');
-                                $descLower = strtolower($debt->description ?? '');
-                                
-                                if (str_contains($typeLower, 'boundary') || str_contains($descLower, 'boundary') || str_contains($typeLower, 'shortage')) {
-                                    $badgeCls = 'badge-shortage';
-                                    $typeLabel = 'Boundary Shortage';
-                                } elseif (str_contains($typeLower, 'damage') || str_contains($descLower, 'damage') || str_contains($typeLower, 'accident') || str_contains($descLower, 'accident')) {
-                                    $badgeCls = 'badge-damage';
-                                    $typeLabel = 'Vehicle Damage';
-                                } elseif (str_contains($typeLower, 'part') || str_contains($descLower, 'part') || str_contains($descLower, 'missing')) {
-                                    $badgeCls = 'badge-parts';
-                                    $typeLabel = 'Missing Parts';
-                                } else {
-                                    $badgeCls = 'badge-general';
-                                    $typeLabel = !empty($debt->incident_type) ? $debt->incident_type : 'General Liability';
-                                }
-
-                                $chg = (float)$debt->total_charge;
-                                $paid = (float)$debt->total_paid;
-                                $pct = $chg > 0 ? min(100, round(($paid / $chg) * 100)) : 0;
-                            @endphp
+                {{-- 1. Pending Liabilities Table --}}
+                @if(count($driver['pending_debts']) > 0)
+                    <div class="section-subhead">
+                        <span>Active / Outstanding Liabilities ({{ count($driver['pending_debts']) }} item{{ count($driver['pending_debts']) > 1 ? 's' : '' }})</span>
+                        <span style="color: #dc2626; font-weight: 900;">Subtotal Due: ₱{{ number_format($driver['total_pending'], 2) }}</span>
+                    </div>
+                    <table class="debt-table">
+                        <thead>
                             <tr>
-                                <td class="center" style="font-weight: 700; color: #64748b;">{{ $idx + 1 }}</td>
-                                <td style="font-weight: 700; white-space: nowrap;">
-                                    {{ date('M d, Y', strtotime($debt->date ?: $debt->timestamp)) }}
-                                </td>
-                                <td>
-                                    <span class="badge-type {{ $badgeCls }}">{{ $typeLabel }}</span>
-                                </td>
-                                <td>
-                                    <div class="debt-desc">{{ $debt->description }}</div>
-                                </td>
-                                <td class="right" style="font-weight: 700;">₱{{ number_format($debt->total_charge, 2) }}</td>
-                                <td class="right" style="font-weight: 700; color: #16a34a;">₱{{ number_format($debt->total_paid, 2) }}</td>
-                                <td class="right" style="font-weight: 900; color: #dc2626;">₱{{ number_format($debt->remaining_balance, 2) }}</td>
-                                <td class="center" style="font-weight: 800; font-size: 9px; color: {{ $pct > 0 ? '#16a34a' : '#64748b' }};">
-                                    {{ $pct }}%
-                                </td>
+                                <th style="width: 25px;" class="text-center">#</th>
+                                <th style="width: 75px;">Date Incurred</th>
+                                <th style="width: 100px;">Liability Type</th>
+                                <th>Description / Incident Particulars</th>
+                                <th style="width: 75px;" class="text-right">Total Charge</th>
+                                <th style="width: 70px;" class="text-right">Paid</th>
+                                <th style="width: 80px;" class="text-right">Balance Due</th>
                             </tr>
-                        @endforeach
-                    </tbody>
-                    <tfoot>
-                        <tr class="driver-subtotal-row">
-                            <td colspan="4" style="text-align: right; text-transform: uppercase; letter-spacing: 0.05em; color: #475569;">
-                                Subtotal for {{ $driver['driver_name'] }} ({{ count($driver['debts']) }} item{{ count($driver['debts']) > 1 ? 's' : '' }}):
-                            </td>
-                            <td class="right">₱{{ number_format($driver['subtotal_charge'], 2) }}</td>
-                            <td class="right" style="color: #16a34a;">₱{{ number_format($driver['subtotal_paid'], 2) }}</td>
-                            <td class="right" style="color: #dc2626; font-size: 11px;">₱{{ number_format($driver['total_remaining'], 2) }}</td>
-                            <td class="center">&mdash;</td>
-                        </tr>
-                    </tfoot>
-                </table>
+                        </thead>
+                        <tbody>
+                            @foreach($driver['pending_debts'] as $idx => $debt)
+                                <tr>
+                                    <td class="text-center" style="font-weight: 700; color: #6b7280;">{{ $idx + 1 }}</td>
+                                    <td style="font-weight: 700; white-space: nowrap;">
+                                        {{ date('M d, Y', strtotime($debt->date)) }}
+                                    </td>
+                                    <td>
+                                        <span class="type-badge">{{ $debt->incident_type ?: 'General Debt' }}</span>
+                                    </td>
+                                    <td style="font-weight: 600;">{{ $debt->description }}</td>
+                                    <td class="text-right">₱{{ number_format($debt->total_charge, 2) }}</td>
+                                    <td class="text-right" style="color: #16a34a;">₱{{ number_format($debt->total_paid, 2) }}</td>
+                                    <td class="text-right" style="font-weight: 900; color: #dc2626;">₱{{ number_format($debt->remaining_balance, 2) }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                @else
+                    <div class="section-subhead">
+                        <span>Active / Outstanding Liabilities</span>
+                        <span style="color: #16a34a; font-weight: 800;">✓ All active charges cleared</span>
+                    </div>
+                @endif
+
+                {{-- 2. Settlement & Payment History --}}
+                @if(count($driver['settled_debts']) > 0 || count($driver['expense_payments']) > 0)
+                    <div class="section-subhead" style="background: #ecfdf5; color: #065f46; border-top: 1px solid #d1fae5;">
+                        <span>Settlement &amp; Payment History</span>
+                        <span style="color: #059669; font-weight: 800;">Total Settled / Paid: ₱{{ number_format($driver['total_paid'], 2) }}</span>
+                    </div>
+                    <table class="debt-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 75px;">Settled Date</th>
+                                <th style="width: 100px;">Record Type</th>
+                                <th>Particulars / Description</th>
+                                <th style="width: 80px;" class="text-right">Amount Settled</th>
+                                <th style="width: 75px;" class="text-center">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($driver['settled_debts'] as $sDebt)
+                                <tr>
+                                    <td style="font-weight: 700; white-space: nowrap;">
+                                        {{ date('M d, Y', strtotime($sDebt->settled_at ?: $sDebt->date)) }}
+                                    </td>
+                                    <td>
+                                        <span class="type-badge" style="background: #dcfce7; color: #166534; border-color: #bbf7d0;">
+                                            {{ $sDebt->incident_type ?: 'Settled Charge' }}
+                                        </span>
+                                    </td>
+                                    <td style="color: #4b5563;">{{ $sDebt->description }}</td>
+                                    <td class="text-right" style="font-weight: 800; color: #15803d;">₱{{ number_format($sDebt->total_paid ?: $sDebt->total_charge, 2) }}</td>
+                                    <td class="text-center">
+                                        <span style="font-size: 7.5px; font-weight: 900; color: #15803d; text-transform: uppercase;">
+                                            Fully Settled
+                                        </span>
+                                    </td>
+                                </tr>
+                            @endforeach
+                            @foreach($driver['expense_payments'] as $pay)
+                                <tr>
+                                    <td style="font-weight: 700; white-space: nowrap;">
+                                        {{ date('M d, Y', strtotime($pay->date)) }}
+                                    </td>
+                                    <td>
+                                        <span class="type-badge" style="background: #e0f2fe; color: #0369a1; border-color: #bae6fd;">
+                                            Direct Cash-In
+                                        </span>
+                                    </td>
+                                    <td style="color: #4b5563;">{{ $pay->description }}</td>
+                                    <td class="text-right" style="font-weight: 800; color: #0369a1;">₱{{ number_format($pay->amount, 2) }}</td>
+                                    <td class="text-center">
+                                        <span style="font-size: 7.5px; font-weight: 900; color: #0369a1; text-transform: uppercase;">
+                                            Recorded Cash
+                                        </span>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                @endif
+
+                {{-- Driver Subtotal Footer Bar --}}
+                <div class="driver-subtotal-bar">
+                    <span>Total Incurred: <strong>₱{{ number_format($driver['total_charge'], 2) }}</strong></span>
+                    <span>Total Settled: <strong style="color: #16a34a;">₱{{ number_format($driver['total_paid'], 2) }}</strong></span>
+                    <span>Net Outstanding: <strong class="amt">₱{{ number_format($driver['total_pending'], 2) }}</strong></span>
+                </div>
             </div>
         @endforeach
     @endif
 
-    {{-- Grand Totals Summary Box --}}
-    <div class="grand-total-box">
+    {{-- Grand Consolidated Totals --}}
+    <div class="grand-box">
         <div>
-            <div class="grand-total-title">Consolidated Liabilities Grand Total</div>
-            <div style="font-size: 10px; color: #cbd5e1; margin-top: 2px;">
-                Covering {{ $totalDebtors }} active driver debtors across {{ $totalItems }} outstanding liability records.
+            <div class="grand-title">Consolidated Fleet Financial Totals</div>
+            <div style="font-size: 8.5px; color: #9ca3af; margin-top: 2px;">
+                Covering {{ count($drivers) }} driver records with {{ $totalActiveDebtors }} active debtor accounts.
             </div>
         </div>
-        <div class="grand-total-numbers">
-            <div class="grand-item">
-                <div class="label">Total Incurred Charges</div>
-                <div class="amount">₱{{ number_format($grandTotalCharge, 2) }}</div>
+        <div class="grand-stats">
+            <div class="grand-stat-item">
+                <div class="g-lbl">Total Charges Incurred</div>
+                <div class="g-val">₱{{ number_format($grandTotalCharge, 2) }}</div>
             </div>
-            <div class="grand-item">
-                <div class="label">Total Amount Paid</div>
-                <div class="amount success">₱{{ number_format($grandTotalPaid, 2) }}</div>
+            <div class="grand-stat-item">
+                <div class="g-lbl">Total Recovered Payments</div>
+                <div class="g-val success">₱{{ number_format($grandTotalPaid, 2) }}</div>
             </div>
-            <div class="grand-item">
-                <div class="label">Net Outstanding Balance</div>
-                <div class="amount highlight">₱{{ number_format($grandTotalRemaining, 2) }}</div>
+            <div class="grand-stat-item">
+                <div class="g-lbl">Net Outstanding Balance</div>
+                <div class="g-val danger">₱{{ number_format($grandTotalPending, 2) }}</div>
             </div>
         </div>
     </div>
 
-    {{-- Signatories & Authorization --}}
-    <div class="signatories-container">
-        <div class="signatory-card">
-            <div class="signatory-role">Prepared &amp; Verified By:</div>
-            <div class="signatory-line">{{ auth()->user()->full_name ?? (auth()->user()->name ?? 'Fleet Cashier / Staff') }}</div>
-            <div class="signatory-title">Cashier / Billing Operations</div>
+    {{-- Formal Signatories Block --}}
+    <div class="signatories">
+        <div class="sig-box">
+            <div class="sig-role">Prepared &amp; Verified By:</div>
+            <div class="sig-name">{{ auth()->user()->full_name ?? (auth()->user()->name ?? 'Fleet Billing Cashier') }}</div>
+            <div class="sig-title">Billing &amp; Cashier Operations</div>
         </div>
-        <div class="signatory-card">
-            <div class="signatory-role">Audited &amp; Reviewed By:</div>
-            <div class="signatory-line">Accounting Department</div>
-            <div class="signatory-title">Finance &amp; Audit Officer</div>
+        <div class="sig-box">
+            <div class="sig-role">Audited &amp; Checked By:</div>
+            <div class="sig-name">Accounting Department</div>
+            <div class="sig-title">Finance &amp; Audit Officer</div>
         </div>
-        <div class="signatory-card">
-            <div class="signatory-role">Approved By:</div>
-            <div class="signatory-line">Fleet Management</div>
-            <div class="signatory-title">General Operations Manager</div>
+        <div class="sig-box">
+            <div class="sig-role">Approved By:</div>
+            <div class="sig-name">Fleet Management</div>
+            <div class="sig-title">General Operations Manager</div>
         </div>
     </div>
 
-    {{-- Report Footer --}}
+    {{-- Document Footer --}}
     <div class="report-footer">
-        <p>Euro Taxi Fleet Management System &bull; Official Financial Liability &amp; Debts Summary Report &bull; Generated: {{ date('m/d/Y, h:i:s A') }}</p>
+        Euro Taxi Inc. &bull; Official Driver Financial Statement &amp; Settlement Report &bull; Document Verified &bull; Generated: {{ date('m/d/Y h:i:s A') }}
     </div>
 
 </body>

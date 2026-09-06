@@ -1384,58 +1384,108 @@ class DriverManagementV2Controller extends Controller
 
     public function printDebtsPdf()
     {
-        $debtsRaw = DB::table('driver_behavior as db')
-            ->join('drivers as d', 'db.driver_id', '=', 'd.id')
-            ->leftJoin('units as u', 'db.unit_id', '=', 'u.id')
-            ->where('db.charge_status', 'pending')
-            ->where('db.remaining_balance', '>', 0)
+        $driversRaw = DB::table('drivers as d')
             ->whereNull('d.deleted_at')
-            ->whereNull('db.deleted_at')
+            ->whereExists(function($q) {
+                $q->select(DB::raw(1))
+                  ->from('driver_behavior as db')
+                  ->whereColumn('db.driver_id', 'd.id')
+                  ->whereNull('db.deleted_at')
+                  ->where(function($q2) {
+                      $q2->where('db.remaining_balance', '>', 0)
+                         ->orWhere('db.charge_status', 'paid')
+                         ->orWhere('db.total_paid', '>', 0);
+                  });
+            })
+            ->leftJoin('units as u', function($join) {
+                $join->on('u.driver_id', '=', 'd.id')
+                     ->orOn('u.secondary_driver_id', '=', 'd.id');
+            })
             ->select(
-                'db.id', 'db.driver_id', 'db.incident_date as date', 'db.timestamp', 'db.description', 
-                'db.severity', 'db.total_charge_to_driver as total_charge', 
-                'db.total_paid', 'db.remaining_balance', 'db.incident_type',
+                'd.id', 'd.first_name', 'd.last_name', 'd.license_number', 'd.contact_number',
                 DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')) as driver_name"),
-                'd.license_number', 'd.contact_number',
                 'u.plate_number as unit_plate'
             )
+            ->groupBy('d.id', 'd.first_name', 'd.last_name', 'd.license_number', 'd.contact_number', 'u.plate_number')
             ->orderBy('d.last_name', 'asc')
             ->orderBy('d.first_name', 'asc')
-            ->orderBy('db.incident_date', 'asc')
             ->get();
 
         $drivers = [];
+        $grandTotalPending = 0;
         $grandTotalCharge = 0;
         $grandTotalPaid = 0;
-        $grandTotalRemaining = 0;
+        $totalActiveDebtors = 0;
+        $totalPendingItems = 0;
 
-        foreach ($debtsRaw as $debt) {
-            $dId = $debt->driver_id;
-            if (!isset($drivers[$dId])) {
-                $drivers[$dId] = [
-                    'driver_id'         => $dId,
-                    'driver_name'       => ucwords(strtolower(trim($debt->driver_name))),
-                    'license_number'    => $debt->license_number ?: '---',
-                    'contact_number'    => $debt->contact_number ?: '---',
-                    'unit_plate'        => $debt->unit_plate ?: 'NO UNIT',
-                    'subtotal_charge'   => 0,
-                    'subtotal_paid'     => 0,
-                    'total_remaining'   => 0,
-                    'debts'             => []
-                ];
+        foreach ($driversRaw as $d) {
+            $dId = $d->id;
+
+            // 1. Pending Debts
+            $pendingDebts = DB::table('driver_behavior')
+                ->where('driver_id', $dId)
+                ->where('charge_status', 'pending')
+                ->where('remaining_balance', '>', 0)
+                ->whereNull('deleted_at')
+                ->select('id', 'incident_date as date', 'description', 'incident_type', 'total_charge_to_driver as total_charge', 'total_paid', 'remaining_balance')
+                ->orderBy('incident_date', 'asc')
+                ->get();
+
+            // 2. Settled Debts (fully paid)
+            $settledDebts = DB::table('driver_behavior')
+                ->where('driver_id', $dId)
+                ->where('charge_status', 'paid')
+                ->whereNull('deleted_at')
+                ->select('id', 'incident_date as date', 'description', 'incident_type', 'total_charge_to_driver as total_charge', 'total_paid', 'remaining_balance', 'updated_at as settled_at')
+                ->orderBy('updated_at', 'desc')
+                ->get();
+
+            $driverFullName = trim($d->driver_name);
+
+            // 3. Payments in Expenses
+            $expensePayments = DB::table('expenses')
+                ->where('category', 'Damage Recovery')
+                ->where('status', 'approved')
+                ->whereNull('deleted_at')
+                ->where(function($q) use ($driverFullName, $d) {
+                    $q->where('description', 'like', "%{$driverFullName}%")
+                      ->orWhere('description', 'like', "%{$d->first_name}%");
+                })
+                ->select('id', 'date', 'description', 'amount')
+                ->orderBy('date', 'desc')
+                ->get()
+                ->map(function($p) {
+                    $p->amount = abs((float)$p->amount);
+                    return $p;
+                });
+
+            $driverPending = (float)$pendingDebts->sum('remaining_balance');
+            $driverCharge = (float)$pendingDebts->sum('total_charge') + (float)$settledDebts->sum('total_charge');
+            $driverPaid = (float)$pendingDebts->sum('total_paid') + (float)$settledDebts->sum('total_paid');
+
+            if ($driverPending > 0) {
+                $totalActiveDebtors++;
             }
-            $drivers[$dId]['subtotal_charge'] += (float)$debt->total_charge;
-            $drivers[$dId]['subtotal_paid'] += (float)$debt->total_paid;
-            $drivers[$dId]['total_remaining'] += (float)$debt->remaining_balance;
-            $drivers[$dId]['debts'][] = $debt;
+            $totalPendingItems += count($pendingDebts);
 
-            $grandTotalCharge += (float)$debt->total_charge;
-            $grandTotalPaid += (float)$debt->total_paid;
-            $grandTotalRemaining += (float)$debt->remaining_balance;
+            $grandTotalPending += $driverPending;
+            $grandTotalCharge += $driverCharge;
+            $grandTotalPaid += $driverPaid;
+
+            $drivers[] = [
+                'driver_id'         => $dId,
+                'driver_name'       => ucwords(strtolower(trim($d->driver_name))),
+                'license_number'    => $d->license_number ?: '---',
+                'contact_number'    => $d->contact_number ?: '---',
+                'unit_plate'        => $d->unit_plate ?: 'NO UNIT',
+                'pending_debts'     => $pendingDebts,
+                'settled_debts'     => $settledDebts,
+                'expense_payments'  => $expensePayments,
+                'total_pending'     => $driverPending,
+                'total_charge'      => $driverCharge,
+                'total_paid'        => $driverPaid,
+            ];
         }
-
-        $totalDebtors = count($drivers);
-        $totalItems = count($debtsRaw);
 
         // Total collected from damage recovery payments
         $totalCollections = DB::table('expenses')
@@ -1447,11 +1497,11 @@ class DriverManagementV2Controller extends Controller
 
         return view('driver-management.print-debts', compact(
             'drivers',
+            'grandTotalPending',
             'grandTotalCharge',
             'grandTotalPaid',
-            'grandTotalRemaining',
-            'totalDebtors',
-            'totalItems',
+            'totalActiveDebtors',
+            'totalPendingItems',
             'totalCollections'
         ));
     }
