@@ -99,16 +99,7 @@ class DriverManagementController extends Controller
 
     public function debtsPage()
     {
-        $autoBanSettings = [
-            'auto_ban_enabled'                      => DB::table('system_settings')->where('key', 'auto_ban_enabled')->value('value') ?? '1',
-            'auto_ban_missed_boundary_days'         => DB::table('system_settings')->where('key', 'auto_ban_missed_boundary_days')->value('value') ?? '3',
-            'auto_ban_overdue_unit_days'            => DB::table('system_settings')->where('key', 'auto_ban_overdue_unit_days')->value('value') ?? '3',
-            'auto_ban_critical_incidents_threshold' => DB::table('system_settings')->where('key', 'auto_ban_critical_incidents_threshold')->value('value') ?? '1',
-            'auto_ban_default_suspension_days'      => DB::table('system_settings')->where('key', 'auto_ban_default_suspension_days')->value('value') ?? '7',
-            'auto_ban_action_type'                  => DB::table('system_settings')->where('key', 'auto_ban_action_type')->value('value') ?? 'banned',
-        ];
-
-        return view('driver-management.pending-debts', compact('autoBanSettings'));
+        return view('driver-management.pending-debts');
     }
 
     public function index(Request $request)
@@ -1194,6 +1185,80 @@ class DriverManagementController extends Controller
             'success' => true,
             'message' => "Driver has been successfully " . ($action === 'suspend' ? 'suspended' : 'banned') . "."
         ]);
+    }
+
+    public function printDebtsPdf()
+    {
+        $debtsRaw = DB::table('driver_behavior as db')
+            ->join('drivers as d', 'db.driver_id', '=', 'd.id')
+            ->leftJoin('units as u', 'db.unit_id', '=', 'u.id')
+            ->where('db.charge_status', 'pending')
+            ->where('db.remaining_balance', '>', 0)
+            ->whereNull('d.deleted_at')
+            ->whereNull('db.deleted_at')
+            ->select(
+                'db.id', 'db.driver_id', 'db.incident_date as date', 'db.timestamp', 'db.description', 
+                'db.severity', 'db.total_charge_to_driver as total_charge', 
+                'db.total_paid', 'db.remaining_balance', 'db.incident_type',
+                DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')) as driver_name"),
+                'd.license_number', 'd.contact_number',
+                'u.plate_number as unit_plate'
+            )
+            ->orderBy('d.last_name', 'asc')
+            ->orderBy('d.first_name', 'asc')
+            ->orderBy('db.incident_date', 'asc')
+            ->get();
+
+        $drivers = [];
+        $grandTotalCharge = 0;
+        $grandTotalPaid = 0;
+        $grandTotalRemaining = 0;
+
+        foreach ($debtsRaw as $debt) {
+            $dId = $debt->driver_id;
+            if (!isset($drivers[$dId])) {
+                $drivers[$dId] = [
+                    'driver_id'         => $dId,
+                    'driver_name'       => ucwords(strtolower(trim($debt->driver_name))),
+                    'license_number'    => $debt->license_number ?: '---',
+                    'contact_number'    => $debt->contact_number ?: '---',
+                    'unit_plate'        => $debt->unit_plate ?: 'NO UNIT',
+                    'subtotal_charge'   => 0,
+                    'subtotal_paid'     => 0,
+                    'total_remaining'   => 0,
+                    'debts'             => []
+                ];
+            }
+            $drivers[$dId]['subtotal_charge'] += (float)$debt->total_charge;
+            $drivers[$dId]['subtotal_paid'] += (float)$debt->total_paid;
+            $drivers[$dId]['total_remaining'] += (float)$debt->remaining_balance;
+            $drivers[$dId]['debts'][] = $debt;
+
+            $grandTotalCharge += (float)$debt->total_charge;
+            $grandTotalPaid += (float)$debt->total_paid;
+            $grandTotalRemaining += (float)$debt->remaining_balance;
+        }
+
+        $totalDebtors = count($drivers);
+        $totalItems = count($debtsRaw);
+
+        // Total collected from damage recovery payments
+        $totalCollections = DB::table('expenses')
+            ->where('category', 'Damage Recovery')
+            ->where('status', 'approved')
+            ->whereNull('deleted_at')
+            ->sum('amount');
+        $totalCollections = abs((float)$totalCollections);
+
+        return view('driver-management.print-debts', compact(
+            'drivers',
+            'grandTotalCharge',
+            'grandTotalPaid',
+            'grandTotalRemaining',
+            'totalDebtors',
+            'totalItems',
+            'totalCollections'
+        ));
     }
 }
 
