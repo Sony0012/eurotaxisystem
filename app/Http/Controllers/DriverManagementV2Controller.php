@@ -889,6 +889,7 @@ class DriverManagementV2Controller extends Controller
                 'db.severity', 'db.total_charge_to_driver as total_charge', 
                 'db.total_paid', 'db.remaining_balance', 'db.incident_type',
                 DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')) as driver_name"),
+                'd.first_name', 'd.last_name',
                 'd.profile_photo',
                 'u.plate_number as unit_plate'
             )
@@ -906,15 +907,75 @@ class DriverManagementV2Controller extends Controller
                 $drivers[$dId] = [
                     'driver_id' => $dId,
                     'driver_name' => trim($debt->driver_name),
+                    'first_name' => $debt->first_name,
                     'profile_photo' => $debt->profile_photo,
                     'profile_photo_url' => $photoUrl,
                     'unit_plate' => $debt->unit_plate,
                     'total_remaining' => 0,
-                    'debts' => []
+                    'debts' => [],
+                    'settled_debts' => [],
+                    'expense_payments' => []
                 ];
             }
             $drivers[$dId]['total_remaining'] = round($drivers[$dId]['total_remaining'] + $debt->remaining_balance, 2);
             $drivers[$dId]['debts'][] = $debt;
+        }
+
+        if (!empty($drivers)) {
+            $driverIds = array_keys($drivers);
+
+            // 1. Fetch settled debts for these active debtor drivers
+            $settledRaw = DB::table('driver_behavior as db')
+                ->leftJoin('units as u', 'db.unit_id', '=', 'u.id')
+                ->whereIn('db.driver_id', $driverIds)
+                ->where('db.charge_status', 'paid')
+                ->whereNull('db.deleted_at')
+                ->select(
+                    'db.id', 'db.driver_id', 'db.incident_date as date', 'db.timestamp', 'db.description',
+                    'db.severity', 'db.total_charge_to_driver as total_charge',
+                    'db.total_paid', 'db.remaining_balance', 'db.incident_type',
+                    'db.updated_at as settled_at', 'db.created_at',
+                    'u.plate_number as unit_plate'
+                )
+                ->orderBy('db.updated_at', 'desc')
+                ->get();
+
+            foreach ($settledRaw as $sDebt) {
+                if (isset($drivers[$sDebt->driver_id])) {
+                    $drivers[$sDebt->driver_id]['settled_debts'][] = $sDebt;
+                }
+            }
+
+            // 2. Fetch damage recovery cash-in payments from expenses
+            $expensePayments = DB::table('expenses as e')
+                ->leftJoin('units as u', 'e.unit_id', '=', 'u.id')
+                ->where('e.category', 'Damage Recovery')
+                ->where('e.status', 'approved')
+                ->whereNull('e.deleted_at')
+                ->select(
+                    'e.id', 'e.date', 'e.description', 'e.amount', 'e.created_at', 'e.payment_method',
+                    'u.plate_number as unit_plate'
+                )
+                ->orderBy('e.created_at', 'desc')
+                ->orderBy('e.date', 'desc')
+                ->get()
+                ->map(function($p) {
+                    $p->amount = abs((float)$p->amount);
+                    return $p;
+                });
+
+            foreach ($drivers as $dId => &$dData) {
+                $fullName = strtolower(trim($dData['driver_name']));
+                $firstName = strtolower(trim($dData['first_name'] ?? ''));
+
+                foreach ($expensePayments as $ep) {
+                    $desc = strtolower($ep->description);
+                    if (($fullName && str_contains($desc, $fullName)) || ($firstName && strlen($firstName) >= 3 && str_contains($desc, $firstName))) {
+                        $dData['expense_payments'][] = $ep;
+                    }
+                }
+            }
+            unset($dData);
         }
 
         return response()->json(['success' => true, 'debts' => array_values($drivers)]);
