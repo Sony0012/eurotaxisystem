@@ -33,32 +33,76 @@ Route::post('/driver/register/verify-otp', [\App\Http\Controllers\Api\DriverAppC
 Route::post('/driver/register/resend-otp', [\App\Http\Controllers\Api\DriverAppController::class, 'resendRegistrationOtp']);
 Route::get('/cron/trigger-daily-coding', [NotificationController::class, 'triggerDailyCodingAlerts']);
 
-// Automated GitHub Deploy Webhook
+// Automated GitHub Deploy Webhook (Pure PHP - No exec required)
 Route::match(['get', 'post'], '/deploy-auto-pull-2026', function (Request $request) {
     $token = $request->query('token') ?: $request->input('token');
     if ($token !== 'eurotaxi_secret_deploy_2026') {
         return response()->json(['error' => 'Unauthorized token'], 403);
     }
 
-    $commands = [
-        'git fetch origin master 2>&1',
-        'git reset --hard origin/master 2>&1',
-        'php artisan optimize:clear 2>&1',
-        'php artisan view:clear 2>&1',
-        'php artisan config:clear 2>&1',
-        'php artisan route:clear 2>&1',
-        'php artisan migrate --force 2>&1',
+    $log = [];
+
+    // 1. Clean up test alerts from DB
+    try {
+        $del = \Illuminate\Support\Facades\DB::table('system_alerts')
+            ->where('type', 'test_chime_alert')
+            ->orWhere('title', 'like', '%Test Sound Broadcast%')
+            ->delete();
+        $log['cleaned_test_alerts'] = "Deleted {$del} test alerts from DB.";
+    } catch (\Exception $e) {
+        $log['cleaned_test_alerts_error'] = $e->getMessage();
+    }
+
+    // 2. Fetch latest files from GitHub master
+    $filesToSync = $request->input('files') ?: [
+        'app/Services/NotificationService.php',
+        'routes/web.php',
+        'routes/api.php',
+        'resources/views/layouts/app.blade.php',
     ];
 
-    $log = [];
-    foreach ($commands as $cmd) {
-        $output = [];
-        $status = 0;
-        exec($cmd, $output, $status);
-        $log[$cmd] = [
-            'status' => $status,
-            'output' => $output,
-        ];
+    $synced = [];
+    foreach ($filesToSync as $file) {
+        try {
+            $rawUrl = "https://raw.githubusercontent.com/Sony0012/eurotaxisystem/master/" . $file;
+            $ctx = stream_context_create([
+                'http' => [
+                    'timeout' => 15,
+                    'header'  => "User-Agent: EuroTaxi-Sync\r\n"
+                ],
+                'ssl' => [
+                    'verify_peer' => false,
+                    'verify_peer_name' => false
+                ]
+            ]);
+            $content = @file_get_contents($rawUrl, false, $ctx);
+            if ($content !== false && strlen($content) > 0) {
+                $dest = base_path($file);
+                @mkdir(dirname($dest), 0755, true);
+                file_put_contents($dest, $content);
+                $synced[] = $file;
+            }
+        } catch (\Exception $e) {
+            $log["sync_error_{$file}"] = $e->getMessage();
+        }
+    }
+    $log['synced_files'] = $synced;
+
+    // 3. Native Artisan clears
+    try {
+        \Illuminate\Support\Facades\Artisan::call('optimize:clear');
+        \Illuminate\Support\Facades\Artisan::call('view:clear');
+        \Illuminate\Support\Facades\Artisan::call('cache:clear');
+        \Illuminate\Support\Facades\Cache::forget('global_notifications');
+        $log['artisan'] = 'Optimizations, views, and cache cleared.';
+    } catch (\Exception $e) {
+        $log['artisan_error'] = $e->getMessage();
+    }
+
+    // 4. OPcache reset
+    if (function_exists('opcache_reset')) {
+        @opcache_reset();
+        $log['opcache'] = 'Reset';
     }
 
     return response()->json([
