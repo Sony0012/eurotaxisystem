@@ -99,7 +99,16 @@ class DriverManagementV2Controller extends Controller
 
     public function debtsPage()
     {
-        return view('driver-management.pending-debts');
+        $autoBanSettings = [
+            'auto_ban_enabled'                      => DB::table('system_settings')->where('key', 'auto_ban_enabled')->value('value') ?? '1',
+            'auto_ban_missed_boundary_days'         => DB::table('system_settings')->where('key', 'auto_ban_missed_boundary_days')->value('value') ?? '3',
+            'auto_ban_overdue_unit_days'            => DB::table('system_settings')->where('key', 'auto_ban_overdue_unit_days')->value('value') ?? '3',
+            'auto_ban_critical_incidents_threshold' => DB::table('system_settings')->where('key', 'auto_ban_critical_incidents_threshold')->value('value') ?? '1',
+            'auto_ban_default_suspension_days'      => DB::table('system_settings')->where('key', 'auto_ban_default_suspension_days')->value('value') ?? '7',
+            'auto_ban_action_type'                  => DB::table('system_settings')->where('key', 'auto_ban_action_type')->value('value') ?? 'banned',
+        ];
+
+        return view('driver-management.pending-debts', compact('autoBanSettings'));
     }
 
     public function index(Request $request)
