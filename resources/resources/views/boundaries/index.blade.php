@@ -422,14 +422,14 @@
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                 <div>
                                     <label class="block text-[10px] font-black text-amber-900 uppercase tracking-wider mb-1 flex items-center gap-1">
-                                        <i data-lucide="log-out" class="w-3 h-3 text-amber-600"></i> Oras ng Lumabas (Time Out)
+                                        <i data-lucide="log-out" class="w-3 h-3 text-amber-600"></i> Time Out (Departure)
                                     </label>
                                     <input type="datetime-local" name="breakdown_time_out" id="breakdownTimeOut" 
                                            class="w-full px-3 py-2 border border-amber-300 rounded-xl text-xs font-bold text-gray-800 bg-white focus:ring-2 focus:ring-amber-400 focus:border-amber-400 shadow-xs transition-all">
                                 </div>
                                 <div>
                                     <label class="block text-[10px] font-black text-amber-900 uppercase tracking-wider mb-1 flex items-center gap-1">
-                                        <i data-lucide="log-in" class="w-3 h-3 text-amber-600"></i> Oras ng Binalik (Time In)
+                                        <i data-lucide="log-in" class="w-3 h-3 text-amber-600"></i> Time In (Return)
                                     </label>
                                     <input type="datetime-local" name="breakdown_time_in" id="breakdownTimeIn" 
                                            class="w-full px-3 py-2 border border-amber-300 rounded-xl text-xs font-bold text-gray-800 bg-white focus:ring-2 focus:ring-amber-400 focus:border-amber-400 shadow-xs transition-all">
