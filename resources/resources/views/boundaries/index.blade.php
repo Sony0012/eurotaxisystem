@@ -376,13 +376,22 @@
                         <span class="text-[11px] font-black text-gray-600 uppercase tracking-widest">Exception Controls</span>
                     </div>
                     <div class="p-1">
-                        <label class="flex items-start gap-3 cursor-pointer p-3 rounded-lg hover:bg-orange-50 transition-colors group">
-                            <input type="checkbox" name="past_cutoff" id="past_cutoff" value="1" class="rounded border-gray-300 text-orange-600 focus:ring-orange-500 mt-0.5">
-                            <div class="flex flex-col">
-                                <span class="text-sm font-black text-gray-800 group-hover:text-orange-700 leading-tight mb-0.5 transition-colors">Late Remittance Enforcement</span>
-                                <span class="text-xs text-gray-500 font-medium leading-snug">Boundary submitted after the 10:00 AM deadline. Voids incentives.</span>
+                        <div class="p-3 rounded-lg hover:bg-orange-50/70 transition-colors group flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                            <label class="flex items-start gap-3 cursor-pointer flex-1">
+                                <input type="checkbox" name="past_cutoff" id="past_cutoff" value="1" class="rounded border-gray-300 text-orange-600 focus:ring-orange-500 mt-0.5">
+                                <div class="flex flex-col">
+                                    <span class="text-sm font-black text-gray-800 group-hover:text-orange-700 leading-tight mb-0.5 transition-colors">Late Remittance Enforcement</span>
+                                    <span class="text-xs text-gray-500 font-medium leading-snug">Boundary submitted after <span id="lateCutoffDisplay" class="font-bold text-orange-800">10:00 AM</span> cutoff. Voids incentives.</span>
+                                </div>
+                            </label>
+                            <div class="flex items-center gap-1.5 pl-7 sm:pl-0 shrink-0">
+                                <span class="text-[10px] font-black text-gray-400 uppercase tracking-wider flex items-center gap-1">
+                                    <i data-lucide="clock" class="w-3 h-3 text-orange-500"></i> Cutoff:
+                                </span>
+                                <input type="time" name="late_cutoff_time" id="lateCutoffTime" value="10:00" 
+                                       class="px-2 py-1 text-xs font-bold border border-orange-200 rounded-lg bg-white text-orange-950 focus:ring-2 focus:ring-orange-400 focus:border-orange-400 shadow-2xs transition-all">
                             </div>
-                        </label>
+                        </div>
 
                         <div class="h-px bg-gray-100 mx-3"></div>
 
@@ -469,13 +478,25 @@
 
                         <div class="h-px bg-gray-100 mx-3"></div>
 
-                        <label class="flex items-start gap-3 cursor-pointer p-3 rounded-lg hover:bg-orange-50 transition-colors group">
-                            <input type="checkbox" name="needs_maintenance_zero" id="needsMaintenanceZeroCheck" value="1" class="rounded border-gray-300 text-orange-600 focus:ring-orange-500 needs-maintenance-opt mt-0.5">
-                            <div class="flex flex-col">
-                                <span class="text-sm font-black text-gray-800 group-hover:text-orange-700 leading-tight mb-0.5 transition-colors">Early Shift Maintenance Failure</span>
-                                <span class="text-xs text-gray-500 font-medium leading-snug">Vehicle failure within 2 hours of deployment. Boundary is waived.</span>
+                        <div class="p-3 rounded-lg hover:bg-orange-50/70 transition-colors group flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                            <label class="flex items-start gap-3 cursor-pointer flex-1">
+                                <input type="checkbox" name="needs_maintenance_zero" id="needsMaintenanceZeroCheck" value="1" class="rounded border-gray-300 text-orange-600 focus:ring-orange-500 needs-maintenance-opt mt-0.5">
+                                <div class="flex flex-col">
+                                    <span class="text-sm font-black text-gray-800 group-hover:text-orange-700 leading-tight mb-0.5 transition-colors">Early Shift Maintenance Failure</span>
+                                    <span class="text-xs text-gray-500 font-medium leading-snug">Vehicle failure within <span id="earlyFailureHoursDisplay" class="font-bold text-orange-800">2.00</span> hours of deployment. Boundary is waived (₱0.00).</span>
+                                </div>
+                            </label>
+                            <div class="flex items-center gap-1.5 pl-7 sm:pl-0 shrink-0">
+                                <span class="text-[10px] font-black text-gray-400 uppercase tracking-wider flex items-center gap-1">
+                                    <i data-lucide="timer" class="w-3 h-3 text-orange-500"></i> Max:
+                                </span>
+                                <div class="flex items-center gap-1">
+                                    <input type="number" min="0.5" max="24" step="0.5" name="early_failure_max_hours" id="earlyFailureMaxHours" value="2" 
+                                           class="w-16 px-2 py-1 text-xs font-bold text-center border border-orange-200 rounded-lg bg-white text-orange-950 focus:ring-2 focus:ring-orange-400 focus:border-orange-400 shadow-2xs transition-all">
+                                    <span class="text-xs font-bold text-gray-500">hrs</span>
+                                </div>
                             </div>
-                        </label>
+                        </div>
 
                         <div class="h-px bg-gray-100 mx-3"></div>
 
@@ -1456,11 +1477,22 @@ function addBoundary() {
 
     document.getElementById('date').value = new Date().toLocaleDateString('en-CA');
 
-    // Auto-check the Past 10:00 AM Cut-off if current time is >= 10:00 AM
+    // Never auto-check Late Remittance per user instruction
     const pastCutoffCheckbox = document.getElementById('past_cutoff');
     if (pastCutoffCheckbox) {
-        pastCutoffCheckbox.checked = new Date().getHours() >= 10;
+        pastCutoffCheckbox.checked = false;
     }
+    const lateTimeInput = document.getElementById('lateCutoffTime');
+    if (lateTimeInput) {
+        lateTimeInput.value = '10:00';
+    }
+    updateLateCutoffDisplay();
+
+    const earlyHoursInput = document.getElementById('earlyFailureMaxHours');
+    if (earlyHoursInput) {
+        earlyHoursInput.value = '2';
+    }
+    updateEarlyFailureHoursDisplay();
 
     document.getElementById('boundaryModal').classList.remove('is-editing');
     const btc = document.getElementById('breakdownTimeContainer');
@@ -1541,10 +1573,23 @@ function editBoundary(id) {
         if (zeroMaintEl) zeroMaintEl.checked = false;
 
         // Re-check based on existing data
-        // Absent check removed per user request
-        if (notesLc.includes('past 10:00 am') && pastCutoffEl) {
+        if ((notesLc.includes('late remittance') || notesLc.includes('past')) && pastCutoffEl) {
             pastCutoffEl.checked = true;
+            const timeMatch = notesLc.match(/past\s+(\d{1,2}:\d{2}\s*(?:am|pm)?)/i);
+            if (timeMatch && timeMatch[1]) {
+                try {
+                    const parsedD = new Date(`1970-01-01 ${timeMatch[1]}`);
+                    if (!isNaN(parsedD.getTime())) {
+                        const h = String(parsedD.getHours()).padStart(2, '0');
+                        const m = String(parsedD.getMinutes()).padStart(2, '0');
+                        const lateTimeInput = document.getElementById('lateCutoffTime');
+                        if (lateTimeInput) lateTimeInput.value = `${h}:${m}`;
+                    }
+                } catch(e) {}
+            }
         }
+        updateLateCutoffDisplay();
+        updateEarlyFailureHoursDisplay();
         if (notesLc.includes('vehicle damaged') && damagedEl) {
             damagedEl.checked = true;
         }
@@ -1764,6 +1809,26 @@ function refreshShiftStatusForDriver(selectedDriverId) {
     } else {
         extraNotice.classList.add('hidden');
     }
+}
+
+function updateLateCutoffDisplay() {
+    const lateTimeInput = document.getElementById('lateCutoffTime');
+    const lateDisplay = document.getElementById('lateCutoffDisplay');
+    if (!lateTimeInput || !lateDisplay) return;
+    const val = lateTimeInput.value || '10:00';
+    const [h, m] = val.split(':').map(Number);
+    const period = (h >= 12) ? 'PM' : 'AM';
+    const hour12 = (h % 12) || 12;
+    const minStr = String(m || 0).padStart(2, '0');
+    lateDisplay.textContent = `${hour12}:${minStr} ${period}`;
+}
+
+function updateEarlyFailureHoursDisplay() {
+    const earlyInput = document.getElementById('earlyFailureMaxHours');
+    const earlyDisplay = document.getElementById('earlyFailureHoursDisplay');
+    if (!earlyInput || !earlyDisplay) return;
+    const val = parseFloat(earlyInput.value) || 2;
+    earlyDisplay.textContent = val.toFixed(2);
 }
 
 function formatDateTimeLocal(d) {
@@ -2050,6 +2115,26 @@ document.addEventListener('DOMContentLoaded', function() {
     if (timeInEl) {
         timeInEl.addEventListener('input', updateBreakdownComputation);
         timeInEl.addEventListener('change', updateBreakdownComputation);
+    }
+
+    // Handle late remittance cutoff time changes
+    const lateCutoffInput = document.getElementById('lateCutoffTime');
+    if (lateCutoffInput) {
+        lateCutoffInput.addEventListener('input', updateLateCutoffDisplay);
+        lateCutoffInput.addEventListener('change', updateLateCutoffDisplay);
+    }
+
+    // Handle early failure max hours changes
+    const earlyHoursEl = document.getElementById('earlyFailureMaxHours');
+    if (earlyHoursEl) {
+        earlyHoursEl.addEventListener('input', function() {
+            updateEarlyFailureHoursDisplay();
+            updateBreakdownComputation();
+        });
+        earlyHoursEl.addEventListener('change', function() {
+            updateEarlyFailureHoursDisplay();
+            updateBreakdownComputation();
+        });
     }
 });
 </script>

@@ -414,7 +414,13 @@ class BoundaryController extends Controller
                     $past_cutoff = $request->has('past_cutoff');
                     if ($past_cutoff) {
                         $has_incentive = false;
-                        $notes = trim($notes . " [Automatic Violation: Late Remittance (Past 10:00 AM)]");
+                        $late_cutoff_raw = $request->input('late_cutoff_time', '10:00');
+                        try {
+                            $formatted_cutoff = Carbon::createFromFormat('H:i', $late_cutoff_raw)->format('h:i A');
+                        } catch (\Exception $e) {
+                            $formatted_cutoff = '10:00 AM';
+                        }
+                        $notes = trim($notes . " [Automatic Violation: Late Remittance (Past " . $formatted_cutoff . ")]");
                         
                         // Auto-log to Driver Performance
                         \App\Models\DriverBehavior::create([
@@ -422,7 +428,7 @@ class BoundaryController extends Controller
                             'driver_id'     => $driver_id,
                             'incident_type' => 'Late Remittance',
                             'severity'      => 'medium',
-                            'description'   => 'Auto-logged [Late Remittance]: Driver remitted boundary after the 10:00 AM cutoff.',
+                            'description'   => "Auto-logged [Late Remittance]: Driver remitted boundary after the {$formatted_cutoff} cutoff.",
                             'incident_date' => $date,
                             'timestamp'     => $now,
                         ]);
@@ -528,12 +534,14 @@ class BoundaryController extends Controller
                             $rate_label = isset($datePricing['label']) ? " ({$datePricing['label']})" : "";
                             $comp_note = sprintf("%.2f hrs x ₱%.2f/hr (Base: ₱%.2f%s)", $hours_driven, $hourly_rate, $base_rate, $rate_label);
 
+                            $early_failure_threshold = max(0.5, (float) $request->input('early_failure_max_hours', 2));
+
                             $repair_desc = $needs_maintenance_half 
                                 ? "Automatic entry: Reported broken down during boundary turnover (Half Boundary).\nComputation: " . $comp_note
-                                : "Automatic entry: Reported broken down immediately upon deployment (No Boundary).";
+                                : "Automatic entry: Reported broken down immediately upon deployment (No Boundary - {$early_failure_threshold}hr threshold).";
                             
-                            if ($needs_maintenance_zero && $hours_driven > 2) {
-                                $repair_desc .= "\nNote: Driver claimed 'Free Boundary' but unit was out for " . number_format($hours_driven, 2) . " hrs.";
+                            if ($needs_maintenance_zero && $hours_driven > $early_failure_threshold) {
+                                $repair_desc .= "\nNote: Driver claimed 'Free Boundary' but unit was out for " . number_format($hours_driven, 2) . " hrs (Early shift threshold: {$early_failure_threshold} hrs).";
                             }
                             
                             $dispatcher_notes = trim($request->input('notes', ''));
@@ -558,7 +566,7 @@ class BoundaryController extends Controller
                             // Auto-log to Driver Performance
                             $behavior_desc = $needs_maintenance_half
                                 ? "Auto-logged [Breakdown]: Unit broke down after " . number_format($hours_driven, 2) . " hrs on shift."
-                                : "Auto-logged [Breakdown]: Unit broke down immediately upon deployment (<= 2 hrs).";
+                                : "Auto-logged [Breakdown]: Unit broke down immediately upon deployment (<= {$early_failure_threshold} hrs).";
                                 
                             if ($needs_maintenance_zero && $hours_driven > 2) {
                                 $behavior_desc = "Auto-logged [Breakdown]: Unit broke down after " . number_format($hours_driven, 2) . " hrs. No boundary collected.";
