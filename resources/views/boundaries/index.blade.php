@@ -400,9 +400,72 @@
                             <input type="checkbox" name="needs_maintenance_half" id="needsMaintenanceHalfCheck" value="1" class="rounded border-gray-300 text-yellow-600 focus:ring-yellow-500 needs-maintenance-opt mt-0.5">
                             <div class="flex flex-col">
                                 <span class="text-sm font-black text-gray-800 group-hover:text-yellow-700 leading-tight mb-0.5 transition-colors">Operational Breakdown (Prorated)</span>
-                                <span class="text-xs text-gray-500 font-medium leading-snug">Mechanical failure during transit. Applies prorated boundary calculation.</span>
+                                <span class="text-xs text-gray-500 font-medium leading-snug">Mechanical failure during transit. Applies prorated boundary calculation based on operational hours.</span>
                             </div>
                         </label>
+
+                        <!-- Expandable Manual Time & Breakdown Calculation Panel -->
+                        <div id="breakdownTimeContainer" class="hidden mt-1 mb-3 mx-3 p-4 bg-gradient-to-br from-amber-50 to-yellow-50/70 border border-amber-200 rounded-2xl shadow-xs space-y-3.5">
+                            <div class="flex items-center justify-between border-b border-amber-200/80 pb-2.5">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-6 h-6 rounded-lg bg-amber-500 text-white flex items-center justify-center text-xs shadow-xs">
+                                        <i data-lucide="clock" class="w-3.5 h-3.5"></i>
+                                    </div>
+                                    <span class="text-xs font-black text-amber-900 uppercase tracking-wider">Breakdown Operational Period</span>
+                                </div>
+                                <span id="breakdownShiftTypeBadge" class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-100 text-amber-800 border border-amber-300">
+                                    Regular Day
+                                </span>
+                            </div>
+
+                            <!-- Manual Time Inputs Grid -->
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-[10px] font-black text-amber-900 uppercase tracking-wider mb-1 flex items-center gap-1">
+                                        <i data-lucide="log-out" class="w-3 h-3 text-amber-600"></i> Oras ng Lumabas (Time Out)
+                                    </label>
+                                    <input type="datetime-local" name="breakdown_time_out" id="breakdownTimeOut" 
+                                           class="w-full px-3 py-2 border border-amber-300 rounded-xl text-xs font-bold text-gray-800 bg-white focus:ring-2 focus:ring-amber-400 focus:border-amber-400 shadow-xs transition-all">
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-black text-amber-900 uppercase tracking-wider mb-1 flex items-center gap-1">
+                                        <i data-lucide="log-in" class="w-3 h-3 text-amber-600"></i> Oras ng Binalik (Time In)
+                                    </label>
+                                    <input type="datetime-local" name="breakdown_time_in" id="breakdownTimeIn" 
+                                           class="w-full px-3 py-2 border border-amber-300 rounded-xl text-xs font-bold text-gray-800 bg-white focus:ring-2 focus:ring-amber-400 focus:border-amber-400 shadow-xs transition-all">
+                                </div>
+                            </div>
+
+                            <!-- Computation Info Box -->
+                            <div class="bg-white/95 border border-amber-200/90 rounded-xl p-3 space-y-2 text-xs shadow-xs">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-gray-500 font-bold flex items-center gap-1.5">
+                                        <i data-lucide="timer" class="w-3.5 h-3.5 text-gray-400"></i> Total Hours Rendered:
+                                    </span>
+                                    <span id="breakdownHoursDisplay" class="font-black text-amber-900">0.00 hrs</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-gray-500 font-bold flex items-center gap-1.5">
+                                        <i data-lucide="tag" class="w-3.5 h-3.5 text-gray-400"></i> Base Boundary Rate:
+                                    </span>
+                                    <span id="breakdownBaseRateDisplay" class="font-black text-gray-800">₱0.00</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-gray-500 font-bold flex items-center gap-1.5">
+                                        <i data-lucide="divide" class="w-3.5 h-3.5 text-gray-400"></i> Standard Hourly Rate:
+                                    </span>
+                                    <span id="breakdownHourlyRateDisplay" class="font-black text-gray-800">₱0.00 / hr</span>
+                                </div>
+                                <div class="border-t border-amber-100 pt-2 flex items-center justify-between">
+                                    <span class="text-amber-950 font-black flex items-center gap-1.5">
+                                        <i data-lucide="calculator" class="w-3.5 h-3.5 text-amber-600"></i> Prorated Target Boundary:
+                                    </span>
+                                    <span id="breakdownProratedAmountDisplay" class="font-black text-base text-amber-600">₱0.00</span>
+                                </div>
+                            </div>
+
+                            <input type="hidden" id="calculatedHours" name="hours_driven">
+                        </div>
 
                         <div class="h-px bg-gray-100 mx-3"></div>
 
@@ -433,18 +496,6 @@
                                 <span class="text-xs text-gray-500 font-medium leading-snug">Unit returned with insufficient fuel. Voids incentives.</span>
                             </div>
                         </label>
-
-                        <!-- Calculation Transparency Box -->
-                        <div id="breakdownComputationDraft" class="hidden mt-1 mb-2 mx-3 p-3 bg-blue-50 border border-blue-200 rounded-xl shadow-sm">
-                            <div class="flex items-center gap-2 mb-2">
-                                <i data-lucide="calculator" class="w-4 h-4 text-blue-600"></i>
-                                <span class="text-xs font-black text-blue-800 uppercase tracking-wider">Breakdown Computation</span>
-                            </div>
-                            <div id="breakdownMathDisplay" class="text-xs text-blue-900 font-bold leading-relaxed whitespace-pre-line">
-                                <!-- Injected calculation here -->
-                            </div>
-                            <input type="hidden" id="calculatedHours" name="hours_driven">
-                        </div>
                     </div>
                 </div>
             </div>
@@ -1412,7 +1463,12 @@ function addBoundary() {
     }
 
     document.getElementById('boundaryModal').classList.remove('is-editing');
-    document.getElementById('breakdownComputationDraft').classList.add('hidden');
+    const btc = document.getElementById('breakdownTimeContainer');
+    if (btc) btc.classList.add('hidden');
+    const tOut = document.getElementById('breakdownTimeOut');
+    const tIn = document.getElementById('breakdownTimeIn');
+    if (tOut) tOut.value = '';
+    if (tIn) tIn.value = '';
     document.getElementById('boundaryModal').classList.remove('hidden');
     lucide.createIcons();
 }
@@ -1710,86 +1766,174 @@ function refreshShiftStatusForDriver(selectedDriverId) {
     }
 }
 
-function updateBreakdownComputation() {
-    const modal = document.getElementById('boundaryModal');
-    const swappedAt = modal.getAttribute('data-current-swap');
-    const dailyRate = parseFloat(document.getElementById('boundaryAmount').dataset.originalTarget || 0);
+function formatDateTimeLocal(d) {
+    if (!d || isNaN(d.getTime())) return '';
+    const pad = (n) => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+function getRateDetails(year, plate, customRate, dateStr) {
+    const rules = window.boundaryRules || [];
+    const yr = parseInt(year) || 0;
+    const rate = parseFloat(customRate) || 0;
+    const date = dateStr ? new Date(dateStr) : new Date();
     
-    const amtInput = document.getElementById('boundaryAmount');
-    const actInput = document.getElementById('actualBoundary');
-    const mathDisplay = document.getElementById('breakdownMathDisplay');
-    const compBox = document.getElementById('breakdownComputationDraft');
+    const rule = rules.find(r => yr >= r.start_year && yr <= r.end_year);
+    const base = rate > 0 ? rate : (rule ? parseFloat(rule.regular_rate) : 1100);
+    
+    const dayOfWeek = date.getDay(); // 0 = Sunday, 6 = Saturday
+    const dayName = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][dayOfWeek];
+    const codingDay = deriveCodingDay(plate);
+    
+    let targetRate = base;
+    let label = 'Regular Day';
+    let isCoding = false;
+    
+    if (codingDay && dayName.toLowerCase() === codingDay.toLowerCase()) {
+        isCoding = true;
+        label = `Coding Day (${codingDay})`;
+        targetRate = (rule && rule.coding_rate > 0) ? parseFloat(rule.coding_rate) : (base / 2);
+    } else if (dayOfWeek === 6) {
+        const disc = rule ? parseFloat(rule.sat_discount) : 100;
+        targetRate = base - disc;
+        label = 'Saturday Discount';
+    } else if (dayOfWeek === 0) {
+        const disc = rule ? parseFloat(rule.sun_discount) : 200;
+        targetRate = base - disc;
+        label = 'Sunday Discount';
+    }
+    
+    return {
+        rate: targetRate,
+        label: label,
+        isCoding: isCoding,
+        dayName: dayName,
+        codingDay: codingDay
+    };
+}
+
+function updateBreakdownComputation() {
+    const unitId = document.getElementById('unitId').value;
+    const unitOption = document.querySelector(`.unit-option[data-id="${unitId}"]`);
     
     const halfCheck = document.getElementById('needsMaintenanceHalfCheck');
     const zeroCheck = document.getElementById('needsMaintenanceZeroCheck');
+    const timeContainer = document.getElementById('breakdownTimeContainer');
+    
+    const amtInput = document.getElementById('boundaryAmount');
+    const actInput = document.getElementById('actualBoundary');
+    
+    if (!halfCheck || !zeroCheck) return;
 
-    if (!halfCheck || !zeroCheck || (!halfCheck.checked && !zeroCheck.checked)) {
-        if (compBox) compBox.classList.add('hidden');
-        
-        // ROBUST RESET: Always return to original suggested rate if unselected
+    if (zeroCheck.checked) {
+        if (timeContainer) timeContainer.classList.add('hidden');
+        amtInput.value = '0.00';
+        if (actInput) actInput.value = '0.00';
+        return;
+    }
+
+    if (!halfCheck.checked) {
+        if (timeContainer) timeContainer.classList.add('hidden');
+        // Restore original full target if unselected
         if (amtInput && amtInput.dataset.originalTarget) {
-             const original = parseFloat(amtInput.dataset.originalTarget).toFixed(2);
-             if (amtInput.value !== original) {
-                 amtInput.value = original;
-                 if (actInput) actInput.value = original;
-             }
+            const orig = parseFloat(amtInput.dataset.originalTarget).toFixed(2);
+            amtInput.value = orig;
+            if (actInput && (!actInput.value || actInput.value === '0.00' || actInput.dataset.isAutoSet === 'true')) {
+                actInput.value = orig;
+            }
         }
         return;
     }
 
-    let swapDate;
-    if (swappedAt) {
-        swapDate = new Date(swappedAt);
-    } else {
-        // FALLBACK: If no handover timestamp exists, assume it started at 10:00 AM of the record date
-        // or 10:00 AM yesterday if it's currently past 10:00 AM today.
-        const recordDateVal = document.getElementById('date').value;
-        swapDate = new Date(recordDateVal + 'T10:00:00');
-        // If the resulting "start" is in the future relative to now, assume it started yesterday
-        if (swapDate > new Date()) {
-            swapDate.setDate(swapDate.getDate() - 1);
-        }
-    }
+    // Half/Prorated is checked: Show time inputs & calculation info
+    if (timeContainer) timeContainer.classList.remove('hidden');
 
-    const now = new Date();
-    const diffMs = now - swapDate;
-    const rawHours = diffMs / (1000 * 60 * 60);
-    const hoursDriven = Math.max(0, rawHours);
-    
-    // SMART CAP: A shift is max 24 hours. Anything beyond is a backlog, but for a 
-    // single daily boundary record, we cap the prorated charge to one full day.
-    const cappedHours = Math.min(24, hoursDriven);
-    const hoursDisplay = hoursDriven > 24 ? `24.00 (Capped from ${hoursDriven.toFixed(2)})` : hoursDriven.toFixed(2);
-    
-    const hourlyRate = (dailyRate / 24);
-    let prorated = hourlyRate * cappedHours;
-    
-    // FINAL SAFETY CAP: Never exceed the original daily target
-    if (prorated > dailyRate) prorated = dailyRate;
-    const proratedStr = prorated.toFixed(2);
+    const recordDateVal = document.getElementById('date').value || new Date().toISOString().split('T')[0];
+    const timeOutInput = document.getElementById('breakdownTimeOut');
+    const timeInInput = document.getElementById('breakdownTimeIn');
 
-    compBox.classList.remove('hidden');
-    document.getElementById('calculatedHours').value = cappedHours.toFixed(2);
-
-    if (zeroCheck.checked) {
-        if (cappedHours <= 2) {
-            mathDisplay.innerHTML = `<span class="flex justify-between"><span>Driven:</span> <span class="font-bold text-green-700">${hoursDisplay} hrs (<= 2hr)</span></span>
-                                     <span class="flex justify-between border-t border-blue-100 mt-1 pt-1"><span>Target:</span> <span class="font-bold text-green-700">₱0.00 (Free Boundary)</span></span>`;
-            amtInput.value = '0.00';
-            actInput.value = '0.00';
+    // Default time out if empty: use swapped_at or 06:00 AM of record date
+    if (timeOutInput && !timeOutInput.value) {
+        const swappedAt = unitOption ? unitOption.getAttribute('data-swapped-at') : null;
+        if (swappedAt) {
+            const swapDate = new Date(swappedAt);
+            timeOutInput.value = formatDateTimeLocal(swapDate);
         } else {
-            mathDisplay.innerHTML = `<span class="flex justify-between"><span>Driven:</span> <span class="font-bold text-red-600">${hoursDisplay} hrs (> 2hr)</span></span>
-                                     <span class="flex justify-between border-t border-blue-100 mt-1 pt-1"><span>Target (Hourly):</span> <span class="font-bold text-red-700">₱${parseFloat(proratedStr).toLocaleString()}</span></span>`;
-            amtInput.value = proratedStr;
-            actInput.value = proratedStr;
+            timeOutInput.value = `${recordDateVal}T06:00`;
         }
-    } else if (halfCheck.checked) {
-        mathDisplay.innerHTML = `<span class="flex justify-between"><span>Driven:</span> <span class="font-bold">${hoursDisplay} hrs</span></span>
-                                 <span class="flex justify-between"><span>Rate:</span> <span>₱${hourlyRate.toFixed(2)}/hr</span></span>
-                                 <span class="flex justify-between border-t border-blue-100 mt-1 pt-1"><span>Hourly Target:</span> <span class="font-bold text-blue-700">₱${parseFloat(proratedStr).toLocaleString()}</span></span>`;
-        amtInput.value = proratedStr;
-        actInput.value = proratedStr;
     }
+
+    // Default time in if empty: use current time
+    if (timeInInput && !timeInInput.value) {
+        timeInInput.value = formatDateTimeLocal(new Date());
+    }
+
+    // Calculate duration between Time Out and Time In
+    let startDate = timeOutInput && timeOutInput.value ? new Date(timeOutInput.value) : new Date(`${recordDateVal}T06:00`);
+    let endDate = timeInInput && timeInInput.value ? new Date(timeInInput.value) : new Date();
+
+    if (isNaN(startDate.getTime())) startDate = new Date();
+    if (isNaN(endDate.getTime())) endDate = new Date();
+
+    let diffMs = endDate - startDate;
+    if (diffMs < 0) diffMs = 0; // Prevent negative hours
+    const rawHours = diffMs / (1000 * 60 * 60);
+    const cappedHours = Math.min(24, Math.max(0, rawHours));
+
+    // Get pricing details for this unit and record date
+    const year = unitOption ? unitOption.getAttribute('data-year') : 0;
+    const plate = unitOption ? unitOption.getAttribute('data-plate') : '';
+    const customRate = unitOption ? unitOption.getAttribute('data-rate') : (amtInput.dataset.originalTarget || 0);
+
+    const priceInfo = getRateDetails(year, plate, customRate, recordDateVal);
+    const dailyRate = priceInfo.rate;
+    const hourlyRate = dailyRate / 24;
+    let prorated = hourlyRate * cappedHours;
+    if (prorated > dailyRate) prorated = dailyRate;
+
+    // Update UI Elements
+    const hoursDisplay = document.getElementById('breakdownHoursDisplay');
+    const baseRateDisplay = document.getElementById('breakdownBaseRateDisplay');
+    const hourlyRateDisplay = document.getElementById('breakdownHourlyRateDisplay');
+    const proratedDisplay = document.getElementById('breakdownProratedAmountDisplay');
+    const shiftBadge = document.getElementById('breakdownShiftTypeBadge');
+    const calcHoursInput = document.getElementById('calculatedHours');
+
+    if (hoursDisplay) {
+        const mins = Math.round((cappedHours % 1) * 60);
+        const hrs = Math.floor(cappedHours);
+        hoursDisplay.textContent = `${cappedHours.toFixed(2)} hrs (${hrs}h ${mins}m)`;
+    }
+    if (baseRateDisplay) {
+        baseRateDisplay.innerHTML = `₱${dailyRate.toLocaleString('en-PH', {minimumFractionDigits: 2, maximumFractionDigits: 2})} <span class="text-[10px] ${priceInfo.isCoding ? 'text-indigo-600 font-black' : 'text-gray-500 font-bold'}">(${priceInfo.label})</span>`;
+    }
+    if (hourlyRateDisplay) {
+        hourlyRateDisplay.textContent = `₱${hourlyRate.toFixed(2)} / hr`;
+    }
+    if (proratedDisplay) {
+        proratedDisplay.textContent = `₱${prorated.toLocaleString('en-PH', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+    }
+    if (shiftBadge) {
+        if (priceInfo.isCoding) {
+            shiftBadge.textContent = 'CODING DAY';
+            shiftBadge.className = 'px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-indigo-100 text-indigo-800 border border-indigo-300';
+        } else {
+            shiftBadge.textContent = priceInfo.label.toUpperCase();
+            shiftBadge.className = 'px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-100 text-amber-800 border border-amber-300';
+        }
+    }
+    if (calcHoursInput) {
+        calcHoursInput.value = cappedHours.toFixed(2);
+    }
+
+    // Set target and actual boundary
+    const proratedStr = prorated.toFixed(2);
+    amtInput.value = proratedStr;
+    if (actInput) {
+        actInput.value = proratedStr;
+        actInput.dataset.isAutoSet = 'true';
+    }
+    if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
 function triggerDriverAlerts(driverId, shortage) {
@@ -1895,6 +2039,18 @@ document.addEventListener('DOMContentLoaded', function() {
             updateBreakdownComputation();
         });
     });
+
+    // Handle manual time input changes for operational breakdown
+    const timeOutEl = document.getElementById('breakdownTimeOut');
+    const timeInEl = document.getElementById('breakdownTimeIn');
+    if (timeOutEl) {
+        timeOutEl.addEventListener('input', updateBreakdownComputation);
+        timeOutEl.addEventListener('change', updateBreakdownComputation);
+    }
+    if (timeInEl) {
+        timeInEl.addEventListener('input', updateBreakdownComputation);
+        timeInEl.addEventListener('change', updateBreakdownComputation);
+    }
 });
 </script>
 @endpush

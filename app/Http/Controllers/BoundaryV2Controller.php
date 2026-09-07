@@ -462,18 +462,29 @@ class BoundaryV2Controller extends Controller
                             $hourly_rate = 0;
                             $comp_note = "";
                             
-                            if ($unit->last_swapping_at) {
+                            if ($request->filled('breakdown_time_out')) {
+                                $swap_time = Carbon::parse($request->input('breakdown_time_out'));
+                            } elseif ($unit->last_swapping_at) {
                                 $swap_time = Carbon::parse($unit->last_swapping_at);
                             } else {
-                                // Fallback: Assume start was 10:00 AM of the record date (or yesterday if currently past 10AM)
-                                $swap_time = Carbon::parse($date . ' 10:00:00');
-                                if ($swap_time->isFuture()) {
-                                    $swap_time->subDay();
-                                }
+                                // Fallback: Assume start was 06:00 AM of the record date
+                                $swap_time = Carbon::parse($date . ' 06:00:00');
                             }
-                            $hours_driven = max(0, $swap_time->diffInMinutes($now) / 60);
-                            $hourly_rate = $unit->boundary_rate / 24;
-                            $comp_note = sprintf("%.2f hrs x ₱%.2f/hr", $hours_driven, $hourly_rate);
+
+                            if ($request->filled('breakdown_time_in')) {
+                                $now = Carbon::parse($request->input('breakdown_time_in'));
+                            }
+
+                            if ($request->filled('hours_driven')) {
+                                $hours_driven = max(0, (float) $request->input('hours_driven'));
+                            } else {
+                                $hours_driven = max(0, $swap_time->diffInMinutes($now) / 60);
+                            }
+
+                            $base_rate = (float) $datePricing['rate'];
+                            $hourly_rate = $base_rate / 24;
+                            $rate_label = isset($datePricing['label']) ? " ({$datePricing['label']})" : "";
+                            $comp_note = sprintf("%.2f hrs x ₱%.2f/hr (Base: ₱%.2f%s)", $hours_driven, $hourly_rate, $base_rate, $rate_label);
 
                             $repair_desc = $needs_maintenance_half 
                                 ? "Automatic entry: Reported broken down during boundary turnover (Half Boundary).\nComputation: " . $comp_note

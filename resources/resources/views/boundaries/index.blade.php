@@ -6,117 +6,147 @@
 
 @section('content')
 
-<!-- Search and Filters -->
-<div class="bg-white rounded-lg shadow p-6 mb-6">
-    <form class="flex flex-col sm:flex-row gap-4" method="GET" action="{{ route('boundaries.index') }}">
+<!-- 21st.dev Executive Search and Filters Bar -->
+<div class="bg-white/80 backdrop-blur-md rounded-2xl shadow-xs border border-slate-200/80 p-4 sm:p-5 mb-6">
+    <form class="flex flex-col lg:flex-row gap-3.5 items-stretch lg:items-center" method="GET" action="{{ route('boundaries.index') }}" onsubmit="event.preventDefault(); performLiveSearch();">
         <div class="flex-1">
             <div class="relative">
-                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <i data-lucide="search" class="h-5 w-5 text-gray-400"></i>
+                <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                    <i data-lucide="search" class="h-4 w-4"></i>
                 </div>
                 <input type="search"
                     id="liveSearchInput"
                     name="search"
                     value="{{ $search }}"
                     oninput="performLiveSearch()"
-                    class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none"
+                    class="block w-full pl-10 pr-9 py-2.5 bg-slate-50/90 border border-slate-200/80 rounded-xl text-slate-800 placeholder-slate-400 text-xs sm:text-sm focus:outline-none focus:bg-white focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all font-medium"
                     placeholder="Search by plate number or driver..."
-                 autocomplete="new-password" spellcheck="false" autocorrect="off" autocapitalize="off" readonly onfocus="this.removeAttribute('readonly');">
+                    autocomplete="new-password" spellcheck="false" autocorrect="off" autocapitalize="off" readonly onfocus="this.removeAttribute('readonly');">
+                <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                    <button type="button" onclick="document.getElementById('liveSearchInput').value=''; performLiveSearch();" class="text-slate-400 hover:text-slate-600 transition-colors">
+                        <i data-lucide="x-circle" class="w-3.5 h-3.5"></i>
+                    </button>
+                </div>
             </div>
         </div>
         
-        <div class="sm:w-40">
-            <input
-                type="date"
-                id="filterDate"
-                name="date"
-                value="{{ $date_filter }}"
-                onchange="performLiveSearch()"
-                class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none"
-            >
-        </div>
-        
-        <div class="sm:w-40">
-            <select
-                id="filterStatus"
-                name="status"
-                onchange="performLiveSearch()"
-                class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none"
-            >
-                <option value="">All Status</option>
-                <option value="pending" {{ $status_filter === 'pending' ? 'selected' : '' }}>Pending</option>
-                <option value="paid" {{ $status_filter === 'paid' ? 'selected' : '' }}>Paid</option>
-                <option value="shortage" {{ $status_filter === 'shortage' ? 'selected' : '' }}>Shortage</option>
-                <option value="excess" {{ $status_filter === 'excess' ? 'selected' : '' }}>Excess</option>
-            </select>
-        </div>
-        
-        <div class="flex gap-2">
-            <a href="{{ route('boundary-rules.index') }}"
-                class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-300 flex items-center gap-2 border border-gray-200 transition-all font-semibold"
-                title="Manage Year-Based Pricing Rules"
-            >
-                <i data-lucide="settings" class="w-4 h-4"></i>
-                Pricing Rules
-            </a>
+        <div class="flex flex-wrap sm:flex-nowrap items-center gap-3">
+            <div class="w-full sm:w-44">
+                <div class="relative">
+                    <input
+                        type="date"
+                        id="filterDate"
+                        name="date"
+                        value="{{ $date_filter }}"
+                        onchange="performLiveSearch()"
+                        class="block w-full px-3.5 py-2.5 bg-slate-50/90 border border-slate-200/80 rounded-xl text-slate-800 text-xs sm:text-sm font-bold focus:outline-none focus:bg-white focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all shadow-2xs"
+                    >
+                </div>
+            </div>
             
-            <button type="button"
-                onclick="addBoundary()"
-                class="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 flex items-center gap-2 shadow-sm font-bold"
-            >
-                <i data-lucide="plus" class="w-4 h-4"></i>
-                Add Boundary
-            </button>
+            <div class="w-full sm:w-40">
+                <select
+                    id="filterStatus"
+                    name="status"
+                    onchange="performLiveSearch()"
+                    class="block w-full px-3.5 py-2.5 bg-slate-50/90 border border-slate-200/80 rounded-xl text-slate-800 text-xs sm:text-sm font-bold focus:outline-none focus:bg-white focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all shadow-2xs"
+                >
+                    <option value="">All Status</option>
+                    <option value="pending" {{ $status_filter === 'pending' ? 'selected' : '' }}>Pending</option>
+                    <option value="paid" {{ $status_filter === 'paid' ? 'selected' : '' }}>Paid</option>
+                    <option value="shortage" {{ $status_filter === 'shortage' ? 'selected' : '' }}>Shortage</option>
+                    <option value="excess" {{ $status_filter === 'excess' ? 'selected' : '' }}>Excess</option>
+                </select>
+            </div>
+            
+            <div class="flex items-center gap-2.5 w-full sm:w-auto">
+                <a href="{{ route('boundary-rules.index') }}"
+                    class="flex-1 sm:flex-initial px-4 py-2.5 bg-slate-100/90 hover:bg-slate-200/80 text-slate-700 rounded-xl border border-slate-200/80 flex items-center justify-center gap-2 transition-all font-bold text-xs sm:text-sm shadow-2xs"
+                    title="Manage Year-Based Pricing Rules"
+                >
+                    <i data-lucide="settings" class="w-4 h-4 text-slate-500"></i>
+                    <span>Pricing Rules</span>
+                </a>
+                
+                <button type="button"
+                    onclick="addBoundary()"
+                    class="flex-1 sm:flex-initial px-4 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white rounded-xl shadow-md shadow-amber-500/25 flex items-center justify-center gap-2 font-black text-xs sm:text-sm transition-all cursor-pointer"
+                >
+                    <i data-lucide="plus" class="w-4 h-4"></i>
+                    <span>Add Boundary</span>
+                </button>
+            </div>
         </div>
     </form>
 </div>
 
-<!-- Daily Fleet Deployment Status -->
-<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6" id="fleetStatsBoard">
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex flex-col justify-center relative overflow-hidden">
-        <div class="absolute right-0 top-0 w-24 h-24 bg-gray-50 rounded-full -mr-10 -mt-10 pointer-events-none"></div>
-        <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1 relative z-10">Total Deployable Fleet</span>
-        <div class="flex items-end gap-2 relative z-10">
-            <span class="text-4xl font-black text-gray-800 tracking-tighter" id="stat_total_deployable">{{ $fleet_stats['total_deployable'] }}</span>
-            <span class="text-xs font-bold text-gray-500 mb-1.5 uppercase">Units</span>
+<!-- ─── 3D SVG KPI Executive Metrics Strip (21st.dev Style) ─── -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5 mb-6" id="fleetStatsBoard">
+    
+    <!-- 1. Total Deployable Fleet -->
+    <div class="relative overflow-hidden rounded-2xl shadow-xs border border-blue-200/80 bg-gradient-to-br from-white via-blue-50/40 to-blue-100/30 p-4 sm:p-5">
+        <div class="absolute left-0 inset-y-0 h-8 w-1 rounded-r-full bg-blue-500 my-auto"></div>
+        <div class="relative z-10 pl-2 pr-16">
+            <div class="text-blue-600 text-[9px] sm:text-[10px] font-black uppercase tracking-widest leading-none mb-1.5">Total Deployable Fleet</div>
+            <div class="flex items-baseline gap-2 mb-0.5">
+                <span class="text-3xl sm:text-4xl font-black text-slate-800 tracking-tight leading-none" id="stat_total_deployable">{{ $fleet_stats['total_deployable'] }}</span>
+                <span class="text-xs font-bold text-blue-600 uppercase tracking-wide">Units</span>
+            </div>
+            <div class="text-[10px] font-bold text-slate-400 uppercase tracking-tight">Active Service Fleet</div>
         </div>
+        <img src="{{ asset('image/kpi/taxi_3d.svg') }}" alt="Total Fleet" class="absolute -right-2 -bottom-2 w-16 h-16 sm:w-20 sm:h-20 object-contain pointer-events-none opacity-90 drop-shadow-sm">
     </div>
     
-    <div onclick="openPlatesModal('remitted')" class="bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl shadow-lg shadow-green-500/20 p-5 flex flex-col justify-center relative overflow-hidden text-white cursor-pointer hover:scale-[1.02] transition-transform active:scale-95">
-        <div class="absolute right-0 top-0 w-32 h-32 bg-white/10 rounded-full -mr-10 -mt-10 pointer-events-none"></div>
-        <div class="flex justify-between items-start relative z-10 mb-1">
-            <span class="text-[10px] font-black text-green-100 uppercase tracking-widest">Remitted Boundary Today</span>
-            <div class="px-2 py-0.5 bg-white/20 rounded text-[9px] font-bold uppercase tracking-wider backdrop-blur-sm">View List</div>
+    <!-- 2. Remitted Boundary Today (Clickable) -->
+    <div onclick="openPlatesModal('remitted')" class="relative overflow-hidden rounded-2xl shadow-xs hover:shadow-md border border-emerald-300/80 bg-gradient-to-br from-white via-emerald-50/50 to-emerald-100/40 p-4 sm:p-5 cursor-pointer transition-all duration-200 group">
+        <div class="absolute left-0 inset-y-0 h-8 w-1 rounded-r-full bg-emerald-500 my-auto"></div>
+        <div class="relative z-10 pl-2 pr-16">
+            <div class="flex items-center justify-between gap-2 mb-1.5">
+                <span class="text-emerald-700 text-[9px] sm:text-[10px] font-black uppercase tracking-widest leading-none">Remitted Today</span>
+                <span class="px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-700 text-[9px] font-black uppercase tracking-wider group-hover:bg-emerald-500 group-hover:text-white transition-colors">View List &rarr;</span>
+            </div>
+            <div class="flex items-baseline gap-2 mb-0.5">
+                <span class="text-3xl sm:text-4xl font-black text-emerald-600 tracking-tight leading-none" id="stat_total_remitted">{{ $fleet_stats['total_remitted'] }}</span>
+                <span class="text-xs font-bold text-emerald-700 uppercase tracking-wide">Units Paid</span>
+            </div>
+            <div class="text-[10px] font-bold text-emerald-600/75 uppercase tracking-tight">Boundary Collected Today</div>
         </div>
-        <div class="flex items-end gap-2 relative z-10">
-            <span class="text-4xl font-black tracking-tighter" id="stat_total_remitted">{{ $fleet_stats['total_remitted'] }}</span>
-            <span class="text-xs font-bold text-green-200 mb-1.5 uppercase">Units Paid</span>
-        </div>
+        <img src="{{ asset('image/kpi/profit_3d.svg') }}" alt="Remitted" class="absolute -right-2 -bottom-2 w-16 h-16 sm:w-20 sm:h-20 object-contain pointer-events-none opacity-90 drop-shadow-sm">
     </div>
     
-    <div onclick="openPlatesModal('vacant')" class="bg-gradient-to-br from-red-500 to-rose-600 rounded-2xl shadow-lg shadow-red-500/20 p-5 flex flex-col justify-center relative overflow-hidden text-white cursor-pointer hover:scale-[1.02] transition-transform active:scale-95">
-        <div class="absolute right-0 top-0 w-32 h-32 bg-white/10 rounded-full -mr-10 -mt-10 pointer-events-none"></div>
-        <div class="flex justify-between items-start relative z-10 mb-1">
-            <span class="text-[10px] font-black text-red-100 uppercase tracking-widest">Unremitted</span>
-            <div class="px-2 py-0.5 bg-white/20 rounded text-[9px] font-bold uppercase tracking-wider backdrop-blur-sm">Action Needed</div>
+    <!-- 3. Unremitted / Missing (Clickable) -->
+    <div onclick="openPlatesModal('vacant')" class="relative overflow-hidden rounded-2xl shadow-xs hover:shadow-md border border-rose-300/80 bg-gradient-to-br from-white via-rose-50/50 to-rose-100/40 p-4 sm:p-5 cursor-pointer transition-all duration-200 group">
+        <div class="absolute left-0 inset-y-0 h-8 w-1 rounded-r-full bg-rose-500 my-auto"></div>
+        <div class="relative z-10 pl-2 pr-16">
+            <div class="flex items-center justify-between gap-2 mb-1.5">
+                <span class="text-rose-700 text-[9px] sm:text-[10px] font-black uppercase tracking-widest leading-none">Unremitted</span>
+                <span class="px-2 py-0.5 rounded-full bg-rose-500/15 border border-rose-500/30 text-rose-700 text-[9px] font-black uppercase tracking-wider flex items-center gap-1 group-hover:bg-rose-500 group-hover:text-white transition-colors"><span class="w-1.5 h-1.5 rounded-full bg-rose-500 group-hover:bg-white animate-pulse"></span> Action Needed</span>
+            </div>
+            <div class="flex items-baseline gap-2 mb-0.5">
+                <span class="text-3xl sm:text-4xl font-black text-rose-600 tracking-tight leading-none" id="stat_total_vacant">{{ $fleet_stats['total_vacant'] }}</span>
+                <span class="text-xs font-bold text-rose-700 uppercase tracking-wide">Missing</span>
+            </div>
+            <div class="text-[10px] font-bold text-rose-600/75 uppercase tracking-tight">Pending Collection Today</div>
         </div>
-        <div class="flex items-end gap-2 relative z-10">
-            <span class="text-4xl font-black tracking-tighter" id="stat_total_vacant">{{ $fleet_stats['total_vacant'] }}</span>
-            <span class="text-xs font-bold text-red-200 mb-1.5 uppercase">Missing</span>
-        </div>
+        <img src="{{ asset('image/kpi/expenses_3d.svg') }}" alt="Unremitted" class="absolute -right-2 -bottom-2 w-16 h-16 sm:w-20 sm:h-20 object-contain pointer-events-none opacity-90 drop-shadow-sm">
     </div>
 </div>
 
-{{-- Plate Lists Modals --}}
-<div id="platesListModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm transition-all p-4">
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl overflow-hidden flex flex-col max-h-[80vh]">
+{{-- Plate Lists Modal (21st.dev Executive Theme) --}}
+<div id="platesListModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/80 backdrop-blur-md transition-all p-4">
+    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-3xl overflow-hidden flex flex-col max-h-[85vh] border border-slate-700/30">
         <div id="platesModalHeader" class="p-5 flex justify-between items-center shrink-0">
-            <h3 id="platesModalTitle" class="text-lg font-black text-white uppercase tracking-wider"></h3>
-            <button onclick="closePlatesModal()" class="text-white/60 hover:text-white p-1.5 rounded-full transition-colors bg-black/20 hover:bg-black/40 focus:outline-none">
-                <i data-lucide="x" class="w-5 h-5"></i>
+            <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-xl bg-white/15 flex items-center justify-center text-white backdrop-blur-sm shadow-xs">
+                    <i data-lucide="car" class="w-4 h-4"></i>
+                </div>
+                <h3 id="platesModalTitle" class="text-lg font-black text-white uppercase tracking-wider"></h3>
+            </div>
+            <button onclick="closePlatesModal()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white flex items-center justify-center transition-all duration-200 backdrop-blur-sm border border-white/10 focus:outline-none">
+                <i data-lucide="x" class="w-4 h-4"></i>
             </button>
         </div>
-        <div class="p-6 overflow-y-auto flex-1 bg-gray-50/50">
+        <div class="p-6 overflow-y-auto flex-1 bg-slate-50/60">
             <div id="platesModalContent" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
                 <!-- Plates injected here -->
             </div>
@@ -130,22 +160,22 @@
 </div>
 
 <!-- Boundary Modal -->
-<div id="boundaryModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4 transition-all">
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[95vh] flex flex-col overflow-hidden">
-        {{-- Header (Deep Navy matching Unit Details) --}}
-        <div class="bg-slate-800 p-5 shrink-0">
-            <div class="flex justify-between items-start">
+<div id="boundaryModal" class="fixed inset-0 bg-slate-955/80 backdrop-blur-md hidden z-50 flex items-center justify-center p-3 sm:p-5 transition-all bg-slate-950/80">
+    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-4xl max-h-[92vh] flex flex-col overflow-hidden border border-slate-700/30">
+        {{-- Header (Deep Navy 21st.dev Theme) --}}
+        <div class="bg-slate-900 border-b border-slate-800 p-5 shrink-0">
+            <div class="flex justify-between items-center">
                 <div class="flex items-center gap-3">
-                    <div class="p-2.5 bg-white/10 rounded-xl">
-                        <i data-lucide="calculator" class="w-6 h-6 text-yellow-500"></i>
+                    <div class="p-2.5 bg-white/10 rounded-xl text-amber-400 backdrop-blur-sm border border-white/10 shadow-xs">
+                        <i data-lucide="calculator" class="w-5 h-5"></i>
                     </div>
                     <div>
-                        <h3 class="text-xl font-black text-white tracking-wide" id="modalTitle">Add Boundary Record</h3>
-                        <p class="text-xs font-medium text-slate-300 mt-0.5">Record daily collections and evaluate driver performance.</p>
+                        <h3 class="text-xl font-black text-white tracking-tight" id="modalTitle">Add Boundary Record</h3>
+                        <p class="text-xs font-medium text-slate-400 mt-0.5">Record daily collections and evaluate driver performance.</p>
                     </div>
                 </div>
-                <button onclick="closeModal()" type="button" class="text-slate-400 hover:text-white bg-slate-700/50 hover:bg-slate-700 p-2 rounded-full transition-colors">
-                    <i data-lucide="x" class="w-5 h-5"></i>
+                <button onclick="closeModal()" type="button" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white flex items-center justify-center transition-all duration-200 backdrop-blur-sm border border-white/10">
+                    <i data-lucide="x" class="w-4 h-4"></i>
                 </button>
             </div>
         </div>
@@ -220,7 +250,8 @@
                                              data-plate="{{ $driver['current_plate'] }}"
                                              data-shortage="{{ $driver['net_shortage'] ?? 0 }}"
                                              data-has-accident-debt="{{ ($driver['has_accident_debt'] ?? 0) > 0 ? 'true' : 'false' }}"
-                                             data-accident-debt-amount="{{ $driver['total_accident_debt'] ?? 0 }}">
+                                             data-accident-debt-amount="{{ $driver['total_accident_debt'] ?? 0 }}"
+                                             data-debts="{{ json_encode($driver['pending_debts']) }}">
                                             <div class="font-black text-sm text-gray-900">{{ $driver['name'] }}</div>
                                             <div class="text-[11px] font-bold text-gray-500">{{ $driver['current_plate'] }}</div>
                                         </div>
@@ -238,21 +269,6 @@
                         <p class="text-sm font-black text-orange-800">Extra Driver Detected</p>
                         <p class="text-xs font-medium text-orange-700 mt-0.5">This driver is not regularly assigned to this unit. The record will be marked as <strong>Extra Driver</strong>.</p>
                     </div>
-                </div>
-
-                <div id="shortageBalanceAlert" class="hidden px-4 py-3 bg-red-50 border border-red-200 rounded-xl shadow-sm">
-                    <div class="flex items-start gap-3 mb-3">
-                        <span class="text-red-500 mt-0.5"><i data-lucide="alert-circle" class="w-5 h-5"></i></span>
-                        <div class="flex-1">
-                            <p class="text-sm font-black text-red-800">Past Balance Due</p>
-                            <p class="text-xs font-medium text-red-700 mt-0.5">This driver has an unpaid balance of <strong id="shortageBalanceAmount" class="font-black">₱0.00</strong> from previous shortages.</p>
-                        </div>
-                    </div>
-                    <button type="button" onclick="payFullBalance()" 
-                            class="w-full py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-black uppercase tracking-widest rounded-lg transition-colors shadow-sm focus:ring-2 focus:ring-red-500 focus:ring-offset-1">
-                        Pay Full Balance & Clear Debt
-                    </button>
-                    <input type="hidden" id="rawShortageAmount" value="0">
                 </div>
 
                 {{-- Shift Status --}}
@@ -275,6 +291,8 @@
                         <p id="shiftExtraText" class="text-xs text-orange-800 font-bold leading-snug pt-0.5"></p>
                     </div>
                 </div>
+
+
 
                 {{-- Three-Column Grid for Date, Target, Actual --}}
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
@@ -315,13 +333,15 @@
                     <div class="flex items-center justify-between gap-2 mb-3">
                         <div class="flex items-center gap-2">
                             <i data-lucide="shield-alert" class="w-4 h-4 text-red-600"></i>
-                            <span class="text-xs font-black text-red-800 uppercase tracking-widest">Damage/Incident Payment</span>
+                            <span class="text-xs font-black text-red-800 uppercase tracking-widest">Outstanding Liabilities</span>
                         </div>
                         <div class="text-right">
                             <div class="text-[10px] text-red-500 font-bold uppercase tracking-widest">Outstanding Debt</div>
                             <div id="damageDebtTotalDisplay" class="text-sm font-black text-red-700">₱0.00</div>
                         </div>
                     </div>
+                    
+                    <div id="driverDebtsList" class="mb-3 hidden space-y-1.5 max-h-36 overflow-y-auto pr-1"></div>
                     <div class="relative mb-2">
                         <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
                             <span class="text-red-600 font-black">₱</span>
@@ -332,7 +352,7 @@
                                placeholder="0.00">
                     </div>
                     <div class="flex justify-between items-center px-1">
-                        <p class="text-[10px] text-red-600 font-bold italic leading-tight">Enter amount paid toward damage debt today.</p>
+                        <p class="text-[10px] text-red-600 font-bold italic leading-tight">Enter amount paid toward outstanding liabilities today.</p>
                         <div class="text-right shrink-0 ml-3">
                             <div class="text-[10px] text-red-500 font-bold uppercase tracking-widest">Remaining After Payment</div>
                             <div id="damageRemainingDisplay" class="text-sm font-black text-red-700">₱0.00</div>
@@ -380,9 +400,72 @@
                             <input type="checkbox" name="needs_maintenance_half" id="needsMaintenanceHalfCheck" value="1" class="rounded border-gray-300 text-yellow-600 focus:ring-yellow-500 needs-maintenance-opt mt-0.5">
                             <div class="flex flex-col">
                                 <span class="text-sm font-black text-gray-800 group-hover:text-yellow-700 leading-tight mb-0.5 transition-colors">Operational Breakdown (Prorated)</span>
-                                <span class="text-xs text-gray-500 font-medium leading-snug">Mechanical failure during transit. Applies prorated boundary calculation.</span>
+                                <span class="text-xs text-gray-500 font-medium leading-snug">Mechanical failure during transit. Applies prorated boundary calculation based on operational hours.</span>
                             </div>
                         </label>
+
+                        <!-- Expandable Manual Time & Breakdown Calculation Panel -->
+                        <div id="breakdownTimeContainer" class="hidden mt-1 mb-3 mx-3 p-4 bg-gradient-to-br from-amber-50 to-yellow-50/70 border border-amber-200 rounded-2xl shadow-xs space-y-3.5">
+                            <div class="flex items-center justify-between border-b border-amber-200/80 pb-2.5">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-6 h-6 rounded-lg bg-amber-500 text-white flex items-center justify-center text-xs shadow-xs">
+                                        <i data-lucide="clock" class="w-3.5 h-3.5"></i>
+                                    </div>
+                                    <span class="text-xs font-black text-amber-900 uppercase tracking-wider">Breakdown Operational Period</span>
+                                </div>
+                                <span id="breakdownShiftTypeBadge" class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-100 text-amber-800 border border-amber-300">
+                                    Regular Day
+                                </span>
+                            </div>
+
+                            <!-- Manual Time Inputs Grid -->
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-[10px] font-black text-amber-900 uppercase tracking-wider mb-1 flex items-center gap-1">
+                                        <i data-lucide="log-out" class="w-3 h-3 text-amber-600"></i> Oras ng Lumabas (Time Out)
+                                    </label>
+                                    <input type="datetime-local" name="breakdown_time_out" id="breakdownTimeOut" 
+                                           class="w-full px-3 py-2 border border-amber-300 rounded-xl text-xs font-bold text-gray-800 bg-white focus:ring-2 focus:ring-amber-400 focus:border-amber-400 shadow-xs transition-all">
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-black text-amber-900 uppercase tracking-wider mb-1 flex items-center gap-1">
+                                        <i data-lucide="log-in" class="w-3 h-3 text-amber-600"></i> Oras ng Binalik (Time In)
+                                    </label>
+                                    <input type="datetime-local" name="breakdown_time_in" id="breakdownTimeIn" 
+                                           class="w-full px-3 py-2 border border-amber-300 rounded-xl text-xs font-bold text-gray-800 bg-white focus:ring-2 focus:ring-amber-400 focus:border-amber-400 shadow-xs transition-all">
+                                </div>
+                            </div>
+
+                            <!-- Computation Info Box -->
+                            <div class="bg-white/95 border border-amber-200/90 rounded-xl p-3 space-y-2 text-xs shadow-xs">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-gray-500 font-bold flex items-center gap-1.5">
+                                        <i data-lucide="timer" class="w-3.5 h-3.5 text-gray-400"></i> Total Hours Rendered:
+                                    </span>
+                                    <span id="breakdownHoursDisplay" class="font-black text-amber-900">0.00 hrs</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-gray-500 font-bold flex items-center gap-1.5">
+                                        <i data-lucide="tag" class="w-3.5 h-3.5 text-gray-400"></i> Base Boundary Rate:
+                                    </span>
+                                    <span id="breakdownBaseRateDisplay" class="font-black text-gray-800">₱0.00</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-gray-500 font-bold flex items-center gap-1.5">
+                                        <i data-lucide="divide" class="w-3.5 h-3.5 text-gray-400"></i> Standard Hourly Rate:
+                                    </span>
+                                    <span id="breakdownHourlyRateDisplay" class="font-black text-gray-800">₱0.00 / hr</span>
+                                </div>
+                                <div class="border-t border-amber-100 pt-2 flex items-center justify-between">
+                                    <span class="text-amber-950 font-black flex items-center gap-1.5">
+                                        <i data-lucide="calculator" class="w-3.5 h-3.5 text-amber-600"></i> Prorated Target Boundary:
+                                    </span>
+                                    <span id="breakdownProratedAmountDisplay" class="font-black text-base text-amber-600">₱0.00</span>
+                                </div>
+                            </div>
+
+                            <input type="hidden" id="calculatedHours" name="hours_driven">
+                        </div>
 
                         <div class="h-px bg-gray-100 mx-3"></div>
 
@@ -413,18 +496,6 @@
                                 <span class="text-xs text-gray-500 font-medium leading-snug">Unit returned with insufficient fuel. Voids incentives.</span>
                             </div>
                         </label>
-
-                        <!-- Calculation Transparency Box -->
-                        <div id="breakdownComputationDraft" class="hidden mt-1 mb-2 mx-3 p-3 bg-blue-50 border border-blue-200 rounded-xl shadow-sm">
-                            <div class="flex items-center gap-2 mb-2">
-                                <i data-lucide="calculator" class="w-4 h-4 text-blue-600"></i>
-                                <span class="text-xs font-black text-blue-800 uppercase tracking-wider">Breakdown Computation</span>
-                            </div>
-                            <div id="breakdownMathDisplay" class="text-xs text-blue-900 font-bold leading-relaxed whitespace-pre-line">
-                                <!-- Injected calculation here -->
-                            </div>
-                            <input type="hidden" id="calculatedHours" name="hours_driven">
-                        </div>
                     </div>
                 </div>
             </div>
@@ -443,26 +514,26 @@
 </div>
 
 {{-- View Boundary Info Modal --}}
-<div id="viewBoundaryModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm transition-all">
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-xl overflow-hidden max-h-[90vh] flex flex-col">
-        {{-- Header (Modern Dark Theme) --}}
-        <div class="bg-slate-800 p-5 shrink-0">
+<div id="viewBoundaryModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-md transition-all p-3 sm:p-5">
+    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-xl overflow-hidden max-h-[90vh] flex flex-col border border-slate-700/30">
+        {{-- Header (Modern 21st.dev Dark Theme) --}}
+        <div class="bg-slate-900 border-b border-slate-800 p-5 shrink-0">
             <div class="flex justify-between items-start">
                 <div class="flex items-center gap-3">
-                    <div class="p-2.5 bg-white/10 rounded-xl">
-                        <i data-lucide="banknote" class="w-6 h-6 text-yellow-500"></i>
+                    <div class="p-2.5 bg-white/10 rounded-xl text-amber-400 backdrop-blur-sm border border-white/10 shadow-xs">
+                        <i data-lucide="banknote" class="w-6 h-6 text-amber-400"></i>
                     </div>
                     <div>
                         <div class="flex items-center gap-2 mb-1">
                             <span id="vb_statusBadge" class="px-2 py-0.5 bg-white/10 rounded text-[9px] font-black uppercase tracking-widest text-slate-300 border border-white/10"></span>
                             <span id="vb_incentiveBadge" class="px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-widest text-white"></span>
                         </div>
-                        <h3 id="vb_plate" class="text-2xl font-black text-white tracking-tighter uppercase leading-tight"></h3>
+                        <h3 id="vb_plate" class="text-2xl font-black text-white tracking-tight uppercase leading-tight"></h3>
                         <p id="vb_driver" class="text-xs font-bold text-slate-400 uppercase tracking-wide"></p>
                     </div>
                 </div>
-                <button onclick="closeViewBoundary()" class="text-slate-400 hover:text-white bg-slate-700/50 hover:bg-slate-700 p-2 rounded-full transition-colors">
-                    <i data-lucide="x" class="w-5 h-5"></i>
+                <button onclick="closeViewBoundary()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white flex items-center justify-center transition-all duration-200 backdrop-blur-sm border border-white/10">
+                    <i data-lucide="x" class="w-4 h-4"></i>
                 </button>
             </div>
         </div>
@@ -539,26 +610,26 @@ function openPlatesModal(type) {
     const content = document.getElementById('platesModalContent');
     
     if (type === 'remitted') {
-        header.className = 'p-5 flex justify-between items-center shrink-0 bg-gradient-to-r from-green-600 to-emerald-700';
+        header.className = 'p-5 flex justify-between items-center shrink-0 bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 text-white';
         title.innerText = 'Remitted Units Today';
         
-        if (currentFleetStats.remitted_plates.length > 0) {
+        if (currentFleetStats.remitted_plates && currentFleetStats.remitted_plates.length > 0) {
             content.innerHTML = currentFleetStats.remitted_plates.map(plate => 
-                `<div class="flex items-center justify-center px-2 py-2.5 bg-white border-2 border-green-100 rounded-xl shadow-sm text-green-800 font-mono font-black text-sm tracking-wide hover:border-green-300 hover:shadow-md transition-all cursor-default">${plate}</div>`
+                `<div class="flex items-center justify-center px-3 py-2.5 bg-white border border-emerald-300/80 rounded-xl shadow-xs text-emerald-900 font-mono font-black text-xs sm:text-sm tracking-wider hover:border-emerald-500 hover:shadow-md transition-all cursor-default">${plate}</div>`
             ).join('');
         } else {
-            content.innerHTML = `<div class="col-span-full p-8 text-center text-gray-500 font-bold italic">No remitted units yet.</div>`;
+            content.innerHTML = `<div class="col-span-full p-10 text-center text-slate-400 font-bold italic">No remitted units recorded yet today.</div>`;
         }
     } else {
-        header.className = 'p-5 flex justify-between items-center shrink-0 bg-gradient-to-r from-red-600 to-rose-700';
-        title.innerText = 'Unremitted Units';
+        header.className = 'p-5 flex justify-between items-center shrink-0 bg-gradient-to-r from-rose-600 via-red-600 to-rose-700 text-white';
+        title.innerText = 'Unremitted Units (Pending Payment)';
         
-        if (currentFleetStats.vacant_plates.length > 0) {
+        if (currentFleetStats.vacant_plates && currentFleetStats.vacant_plates.length > 0) {
             content.innerHTML = currentFleetStats.vacant_plates.map(plate => 
-                `<div class="flex items-center justify-center px-2 py-2.5 bg-white border-2 border-red-100 rounded-xl shadow-sm text-red-800 font-mono font-black text-sm tracking-wide hover:border-red-300 hover:shadow-md transition-all cursor-default">${plate}</div>`
+                `<div class="flex items-center justify-center px-3 py-2.5 bg-white border border-rose-300/80 rounded-xl shadow-xs text-rose-900 font-mono font-black text-xs sm:text-sm tracking-wider hover:border-rose-500 hover:shadow-md transition-all cursor-default">${plate}</div>`
             ).join('');
         } else {
-            content.innerHTML = `<div class="col-span-full p-8 text-center text-gray-500 font-bold italic">All units accounted for!</div>`;
+            content.innerHTML = `<div class="col-span-full p-10 text-center text-emerald-600 font-black">All deployable fleet units have remitted today! 🎉</div>`;
         }
     }
     
@@ -941,6 +1012,7 @@ function initializeUnitDropdown() {
                 if (alertBox) alertBox.classList.add('hidden');
                 document.getElementById('driverId').value = '';
                 document.getElementById('driverDisplay').value = '';
+                updateDriverDebtDisplay(null);
 
                 // Source of Truth: Get the smart rate
                 const suggestedRate = getSmartTargetRate(year, plate, customRate, document.getElementById('date').value);
@@ -1108,42 +1180,10 @@ function initializeDriverDropdown() {
                     extraAlert.classList.add('hidden');
                 }
 
-                // Handle Shortage Balance Alert
-                const shortageAlert = document.getElementById('shortageBalanceAlert');
-                const shortageAmountSpan = document.getElementById('shortageBalanceAmount');
-                const rawShortageInput = document.getElementById('rawShortageAmount');
-
-                if (shortage > 0) {
-                    shortageAlert.classList.remove('hidden');
-                    shortageAmountSpan.textContent = "₱" + shortage.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
-                    rawShortageInput.value = shortage;
-                } else {
-                    shortageAlert.classList.add('hidden');
-                    rawShortageInput.value = 0;
-                }
+                // Handle Shortage Balance Alert (Legacy logic removed)
 
                 // Toggle Damage Payment field visibility based on accident debt
-                const hasAccidentDebt = this.getAttribute('data-has-accident-debt') === 'true';
-                const accidentDebtAmount = parseFloat(this.getAttribute('data-accident-debt-amount') || 0);
-                const damageContainer = document.getElementById('damagePaymentContainer');
-                const debtLabel = document.getElementById('accidentDebtBalanceLabel');
-
-                if (hasAccidentDebt && accidentDebtAmount > 0) {
-                    damageContainer.classList.remove('hidden');
-                    // Populate the outstanding debt display
-                    const fmt = (n) => '₱' + n.toLocaleString('en-PH', { minimumFractionDigits: 2 });
-                    const debtDisplay = document.getElementById('damageDebtTotalDisplay');
-                    const remainDisplay = document.getElementById('damageRemainingDisplay');
-                    if (debtDisplay) {
-                        debtDisplay.textContent = fmt(accidentDebtAmount);
-                        debtDisplay.dataset.rawDebt = accidentDebtAmount;
-                    }
-                    if (remainDisplay) remainDisplay.textContent = fmt(accidentDebtAmount);
-                    if (debtLabel) debtLabel.textContent = fmt(accidentDebtAmount);
-                } else {
-                    damageContainer.classList.add('hidden');
-                    document.getElementById('damage_payment').value = 0;
-                }
+                updateDriverDebtDisplay(driverId);
 
                 document.getElementById('driverId').dispatchEvent(new Event('change'));
 
@@ -1156,18 +1196,107 @@ function initializeDriverDropdown() {
     }
 }
 
-function payFullBalance() {
-    const dailyTarget = parseFloat(document.getElementById('boundaryAmount').value || 0);
-    const pastShortage = parseFloat(document.getElementById('rawShortageAmount').value || 0);
-    const actualCollectedInput = document.getElementById('actualBoundary');
+function updateDriverDebtDisplay(driverId, savedPayment = 0) {
+    const damageContainer = document.getElementById('damagePaymentContainer');
+    if (!damageContainer) return;
 
-    const totalToPay = dailyTarget + pastShortage;
-    actualCollectedInput.value = totalToPay.toFixed(2);
-    
-    // Visual feedback/confirmation
-    actualCollectedInput.classList.add('ring-4', 'ring-green-400');
-    setTimeout(() => actualCollectedInput.classList.remove('ring-4', 'ring-green-400'), 1000);
+    if (!driverId || driverId === '0' || driverId === 'all') {
+        damageContainer.classList.add('hidden');
+        document.getElementById('damage_payment').value = '';
+        renderDriverDebtsList(null);
+        return;
+    }
+
+    const driverOption = document.querySelector(`.driver-option[data-id="${driverId}"]`);
+    const hasAccidentDebt = driverOption && driverOption.getAttribute('data-has-accident-debt') === 'true';
+    const accidentDebtAmount = driverOption ? parseFloat(driverOption.getAttribute('data-accident-debt-amount') || 0) : 0;
+    const debtLabel = document.getElementById('accidentDebtBalanceLabel');
+
+    const totalDebt = (accidentDebtAmount > 0) ? accidentDebtAmount : parseFloat(savedPayment || 0);
+
+    if (hasAccidentDebt || parseFloat(savedPayment || 0) > 0) {
+        damageContainer.classList.remove('hidden');
+        const fmt = (n) => '₱' + n.toLocaleString('en-PH', { minimumFractionDigits: 2 });
+        const debtDisplay = document.getElementById('damageDebtTotalDisplay');
+        const remainDisplay = document.getElementById('damageRemainingDisplay');
+        if (debtDisplay) {
+            debtDisplay.textContent = fmt(totalDebt);
+            debtDisplay.dataset.rawDebt = totalDebt;
+        }
+        
+        const currentPaymentInput = document.getElementById('damage_payment');
+        const currentPayment = parseFloat(currentPaymentInput.value || 0);
+        const remaining = Math.max(0, totalDebt - currentPayment);
+        
+        if (remainDisplay) remainDisplay.textContent = fmt(remaining);
+        if (debtLabel) debtLabel.textContent = fmt(totalDebt);
+        renderDriverDebtsList(driverOption);
+    } else {
+        damageContainer.classList.add('hidden');
+        document.getElementById('damage_payment').value = '';
+        renderDriverDebtsList(null);
+    }
 }
+
+function renderDriverDebtsList(optionEl) {
+    const debtsListContainer = document.getElementById('driverDebtsList');
+    if (!debtsListContainer) return;
+
+    if (!optionEl) {
+        debtsListContainer.innerHTML = '';
+        debtsListContainer.classList.add('hidden');
+        return;
+    }
+
+    const debtsJson = optionEl.getAttribute('data-debts') || '[]';
+    let debts = [];
+    try {
+        debts = JSON.parse(debtsJson);
+    } catch(e) {
+        console.error("Failed to parse debts JSON", e);
+    }
+
+    if (debts.length > 0) {
+        let listHtml = '<div class="space-y-1.5">';
+        debts.forEach((debt) => {
+            const balance = parseFloat(debt.remaining_balance || 0);
+            const type = debt.incident_type || 'General Liability';
+            const desc = debt.description || '';
+            const dateStr = debt.incident_date ? new Date(debt.incident_date).toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
+            
+            let badgeClass = 'bg-slate-100 text-slate-600 border-slate-200';
+            if (type === 'Short Boundary') {
+                badgeClass = 'bg-rose-50 text-rose-600 border-rose-200';
+            } else if (type === 'Vehicle Damage') {
+                badgeClass = 'bg-orange-50 text-orange-600 border-orange-200';
+            }
+
+            listHtml += `
+                <div class="flex items-center justify-between p-2.5 bg-white border border-red-100/60 rounded-lg shadow-sm">
+                    <div class="min-w-0 flex-1 pr-2">
+                        <div class="flex items-center gap-1.5 flex-wrap">
+                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[8px] font-black uppercase tracking-wider border ${badgeClass}">
+                                ${type}
+                            </span>
+                            <span class="text-[9px] font-bold text-gray-400">${dateStr}</span>
+                        </div>
+                        <p class="text-xs font-bold text-gray-800 truncate mt-0.5">${desc}</p>
+                    </div>
+                    <div class="text-right shrink-0">
+                        <span class="text-xs font-black text-red-600">₱${balance.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                    </div>
+                </div>
+            `;
+        });
+        listHtml += '</div>';
+        debtsListContainer.innerHTML = listHtml;
+        debtsListContainer.classList.remove('hidden');
+    } else {
+        debtsListContainer.innerHTML = '';
+        debtsListContainer.classList.add('hidden');
+    }
+}
+
 
 // Actual Collected must NOT exceed the target boundary
 function validateActualCollected() {
@@ -1321,10 +1450,9 @@ function addBoundary() {
     // Hide alerts on fresh open
     const extraAlert = document.getElementById('extraDriverAlert');
     const shortageAlert = document.getElementById('shortageBalanceAlert');
-    const damageContainer = document.getElementById('damagePaymentContainer');
     if (extraAlert) extraAlert.classList.add('hidden');
     if (shortageAlert) shortageAlert.classList.add('hidden');
-    if (damageContainer) damageContainer.classList.add('hidden');
+    updateDriverDebtDisplay(null);
 
     document.getElementById('date').value = new Date().toLocaleDateString('en-CA');
 
@@ -1335,7 +1463,12 @@ function addBoundary() {
     }
 
     document.getElementById('boundaryModal').classList.remove('is-editing');
-    document.getElementById('breakdownComputationDraft').classList.add('hidden');
+    const btc = document.getElementById('breakdownTimeContainer');
+    if (btc) btc.classList.add('hidden');
+    const tOut = document.getElementById('breakdownTimeOut');
+    const tIn = document.getElementById('breakdownTimeIn');
+    if (tOut) tOut.value = '';
+    if (tIn) tIn.value = '';
     document.getElementById('boundaryModal').classList.remove('hidden');
     lucide.createIcons();
 }
@@ -1360,33 +1493,11 @@ function editBoundary(id) {
         document.getElementById('notes').value = boundary.notes || '';
         
         // Handle Damage Payment Visibility for Edit
-        const damageContainer = document.getElementById('damagePaymentContainer');
-        const driverOption = document.querySelector(`.driver-option[data-id="${boundary.driver_id}"]`);
-        const hasAccidentDebt = driverOption && driverOption.getAttribute('data-has-accident-debt') === 'true';
-        const accidentDebtAmount = driverOption ? parseFloat(driverOption.getAttribute('data-accident-debt-amount') || 0) : 0;
-        
-        if (hasAccidentDebt || savedDamagePayment > 0) {
-            if (damageContainer) damageContainer.classList.remove('hidden');
-            // Populate Outstanding Debt display
-            const fmt = (n) => '₱' + n.toLocaleString('en-PH', { minimumFractionDigits: 2 });
-            const debtDisplay = document.getElementById('damageDebtTotalDisplay');
-            const remainDisplay = document.getElementById('damageRemainingDisplay');
-            const totalDebt = accidentDebtAmount > 0 ? accidentDebtAmount : savedDamagePayment;
-            if (debtDisplay) {
-                debtDisplay.textContent = fmt(totalDebt);
-                debtDisplay.dataset.rawDebt = totalDebt;
-            }
-            const remaining = Math.max(0, totalDebt - savedDamagePayment);
-            if (remainDisplay) remainDisplay.textContent = fmt(remaining);
-        } else {
-            if (damageContainer) damageContainer.classList.add('hidden');
-        }
+        updateDriverDebtDisplay(boundary.driver_id, savedDamagePayment);
         
         // Hide alerts on fresh open
         const extraAlert = document.getElementById('extraDriverAlert');
-        const shortageAlert = document.getElementById('shortageBalanceAlert');
         if (extraAlert) extraAlert.classList.add('hidden');
-        if (shortageAlert) shortageAlert.classList.add('hidden');
 
         // Set Unit Display (guaranteed to fill required field even if inactive)
         const unitDisplay = document.getElementById('unitDisplay');
@@ -1517,6 +1628,9 @@ function updateShiftInfo(unitElement) {
         document.getElementById('driverDisplay').value = expectedName;
         const shortage = parseFloat(driverOption ? driverOption.getAttribute('data-shortage') : 0);
         if (typeof triggerDriverAlerts === 'function') triggerDriverAlerts(expectedId, shortage);
+        updateDriverDebtDisplay(expectedId);
+    } else {
+        updateDriverDebtDisplay(null);
     }
 
     // --- NEW: Smart Integration for Existing Absences ---
@@ -1589,6 +1703,8 @@ function updateShiftInfo(unitElement) {
             shiftInfoGroup.className = shiftInfoGroup.className.replace(/border-\S+/g, '').trim();
             shiftInfoGroup.classList.add(borderColor, bgColor);
             badgeContainer.innerHTML = badgeHtml;
+
+
         } else {
             // Shift still active
             mainLabel.textContent = expectedName ? `${expectedName} — On Shift` : 'Driver On Shift';
@@ -1599,6 +1715,9 @@ function updateShiftInfo(unitElement) {
             shiftInfoGroup.className = shiftInfoGroup.className.replace(/border-\S+/g, '').trim();
             shiftInfoGroup.classList.add('border-green-200', 'bg-green-50/20');
             badgeContainer.innerHTML = '<span class="px-1.5 py-0.5 bg-green-100 text-green-700 text-[9px] font-bold rounded-full border border-green-300 uppercase tracking-tighter shadow-sm">Incentive Eligible</span>';
+            
+            const missedChargeContainer = document.getElementById('chargeMissedDaysContainer');
+            if (missedChargeContainer) missedChargeContainer.classList.add('hidden');
         }
     } else {
         // No deadline set — first time or schedule cleared
@@ -1647,86 +1766,174 @@ function refreshShiftStatusForDriver(selectedDriverId) {
     }
 }
 
-function updateBreakdownComputation() {
-    const modal = document.getElementById('boundaryModal');
-    const swappedAt = modal.getAttribute('data-current-swap');
-    const dailyRate = parseFloat(document.getElementById('boundaryAmount').dataset.originalTarget || 0);
+function formatDateTimeLocal(d) {
+    if (!d || isNaN(d.getTime())) return '';
+    const pad = (n) => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+function getRateDetails(year, plate, customRate, dateStr) {
+    const rules = window.boundaryRules || [];
+    const yr = parseInt(year) || 0;
+    const rate = parseFloat(customRate) || 0;
+    const date = dateStr ? new Date(dateStr) : new Date();
     
-    const amtInput = document.getElementById('boundaryAmount');
-    const actInput = document.getElementById('actualBoundary');
-    const mathDisplay = document.getElementById('breakdownMathDisplay');
-    const compBox = document.getElementById('breakdownComputationDraft');
+    const rule = rules.find(r => yr >= r.start_year && yr <= r.end_year);
+    const base = rate > 0 ? rate : (rule ? parseFloat(rule.regular_rate) : 1100);
+    
+    const dayOfWeek = date.getDay(); // 0 = Sunday, 6 = Saturday
+    const dayName = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][dayOfWeek];
+    const codingDay = deriveCodingDay(plate);
+    
+    let targetRate = base;
+    let label = 'Regular Day';
+    let isCoding = false;
+    
+    if (codingDay && dayName.toLowerCase() === codingDay.toLowerCase()) {
+        isCoding = true;
+        label = `Coding Day (${codingDay})`;
+        targetRate = (rule && rule.coding_rate > 0) ? parseFloat(rule.coding_rate) : (base / 2);
+    } else if (dayOfWeek === 6) {
+        const disc = rule ? parseFloat(rule.sat_discount) : 100;
+        targetRate = base - disc;
+        label = 'Saturday Discount';
+    } else if (dayOfWeek === 0) {
+        const disc = rule ? parseFloat(rule.sun_discount) : 200;
+        targetRate = base - disc;
+        label = 'Sunday Discount';
+    }
+    
+    return {
+        rate: targetRate,
+        label: label,
+        isCoding: isCoding,
+        dayName: dayName,
+        codingDay: codingDay
+    };
+}
+
+function updateBreakdownComputation() {
+    const unitId = document.getElementById('unitId').value;
+    const unitOption = document.querySelector(`.unit-option[data-id="${unitId}"]`);
     
     const halfCheck = document.getElementById('needsMaintenanceHalfCheck');
     const zeroCheck = document.getElementById('needsMaintenanceZeroCheck');
+    const timeContainer = document.getElementById('breakdownTimeContainer');
+    
+    const amtInput = document.getElementById('boundaryAmount');
+    const actInput = document.getElementById('actualBoundary');
+    
+    if (!halfCheck || !zeroCheck) return;
 
-    if (!halfCheck || !zeroCheck || (!halfCheck.checked && !zeroCheck.checked)) {
-        if (compBox) compBox.classList.add('hidden');
-        
-        // ROBUST RESET: Always return to original suggested rate if unselected
+    if (zeroCheck.checked) {
+        if (timeContainer) timeContainer.classList.add('hidden');
+        amtInput.value = '0.00';
+        if (actInput) actInput.value = '0.00';
+        return;
+    }
+
+    if (!halfCheck.checked) {
+        if (timeContainer) timeContainer.classList.add('hidden');
+        // Restore original full target if unselected
         if (amtInput && amtInput.dataset.originalTarget) {
-             const original = parseFloat(amtInput.dataset.originalTarget).toFixed(2);
-             if (amtInput.value !== original) {
-                 amtInput.value = original;
-                 if (actInput) actInput.value = original;
-             }
+            const orig = parseFloat(amtInput.dataset.originalTarget).toFixed(2);
+            amtInput.value = orig;
+            if (actInput && (!actInput.value || actInput.value === '0.00' || actInput.dataset.isAutoSet === 'true')) {
+                actInput.value = orig;
+            }
         }
         return;
     }
 
-    let swapDate;
-    if (swappedAt) {
-        swapDate = new Date(swappedAt);
-    } else {
-        // FALLBACK: If no handover timestamp exists, assume it started at 10:00 AM of the record date
-        // or 10:00 AM yesterday if it's currently past 10:00 AM today.
-        const recordDateVal = document.getElementById('date').value;
-        swapDate = new Date(recordDateVal + 'T10:00:00');
-        // If the resulting "start" is in the future relative to now, assume it started yesterday
-        if (swapDate > new Date()) {
-            swapDate.setDate(swapDate.getDate() - 1);
-        }
-    }
+    // Half/Prorated is checked: Show time inputs & calculation info
+    if (timeContainer) timeContainer.classList.remove('hidden');
 
-    const now = new Date();
-    const diffMs = now - swapDate;
-    const rawHours = diffMs / (1000 * 60 * 60);
-    const hoursDriven = Math.max(0, rawHours);
-    
-    // SMART CAP: A shift is max 24 hours. Anything beyond is a backlog, but for a 
-    // single daily boundary record, we cap the prorated charge to one full day.
-    const cappedHours = Math.min(24, hoursDriven);
-    const hoursDisplay = hoursDriven > 24 ? `24.00 (Capped from ${hoursDriven.toFixed(2)})` : hoursDriven.toFixed(2);
-    
-    const hourlyRate = (dailyRate / 24);
-    let prorated = hourlyRate * cappedHours;
-    
-    // FINAL SAFETY CAP: Never exceed the original daily target
-    if (prorated > dailyRate) prorated = dailyRate;
-    const proratedStr = prorated.toFixed(2);
+    const recordDateVal = document.getElementById('date').value || new Date().toISOString().split('T')[0];
+    const timeOutInput = document.getElementById('breakdownTimeOut');
+    const timeInInput = document.getElementById('breakdownTimeIn');
 
-    compBox.classList.remove('hidden');
-    document.getElementById('calculatedHours').value = cappedHours.toFixed(2);
-
-    if (zeroCheck.checked) {
-        if (cappedHours <= 2) {
-            mathDisplay.innerHTML = `<span class="flex justify-between"><span>Driven:</span> <span class="font-bold text-green-700">${hoursDisplay} hrs (<= 2hr)</span></span>
-                                     <span class="flex justify-between border-t border-blue-100 mt-1 pt-1"><span>Target:</span> <span class="font-bold text-green-700">₱0.00 (Free Boundary)</span></span>`;
-            amtInput.value = '0.00';
-            actInput.value = '0.00';
+    // Default time out if empty: use swapped_at or 06:00 AM of record date
+    if (timeOutInput && !timeOutInput.value) {
+        const swappedAt = unitOption ? unitOption.getAttribute('data-swapped-at') : null;
+        if (swappedAt) {
+            const swapDate = new Date(swappedAt);
+            timeOutInput.value = formatDateTimeLocal(swapDate);
         } else {
-            mathDisplay.innerHTML = `<span class="flex justify-between"><span>Driven:</span> <span class="font-bold text-red-600">${hoursDisplay} hrs (> 2hr)</span></span>
-                                     <span class="flex justify-between border-t border-blue-100 mt-1 pt-1"><span>Target (Hourly):</span> <span class="font-bold text-red-700">₱${parseFloat(proratedStr).toLocaleString()}</span></span>`;
-            amtInput.value = proratedStr;
-            actInput.value = proratedStr;
+            timeOutInput.value = `${recordDateVal}T06:00`;
         }
-    } else if (halfCheck.checked) {
-        mathDisplay.innerHTML = `<span class="flex justify-between"><span>Driven:</span> <span class="font-bold">${hoursDisplay} hrs</span></span>
-                                 <span class="flex justify-between"><span>Rate:</span> <span>₱${hourlyRate.toFixed(2)}/hr</span></span>
-                                 <span class="flex justify-between border-t border-blue-100 mt-1 pt-1"><span>Hourly Target:</span> <span class="font-bold text-blue-700">₱${parseFloat(proratedStr).toLocaleString()}</span></span>`;
-        amtInput.value = proratedStr;
-        actInput.value = proratedStr;
     }
+
+    // Default time in if empty: use current time
+    if (timeInInput && !timeInInput.value) {
+        timeInInput.value = formatDateTimeLocal(new Date());
+    }
+
+    // Calculate duration between Time Out and Time In
+    let startDate = timeOutInput && timeOutInput.value ? new Date(timeOutInput.value) : new Date(`${recordDateVal}T06:00`);
+    let endDate = timeInInput && timeInInput.value ? new Date(timeInInput.value) : new Date();
+
+    if (isNaN(startDate.getTime())) startDate = new Date();
+    if (isNaN(endDate.getTime())) endDate = new Date();
+
+    let diffMs = endDate - startDate;
+    if (diffMs < 0) diffMs = 0; // Prevent negative hours
+    const rawHours = diffMs / (1000 * 60 * 60);
+    const cappedHours = Math.min(24, Math.max(0, rawHours));
+
+    // Get pricing details for this unit and record date
+    const year = unitOption ? unitOption.getAttribute('data-year') : 0;
+    const plate = unitOption ? unitOption.getAttribute('data-plate') : '';
+    const customRate = unitOption ? unitOption.getAttribute('data-rate') : (amtInput.dataset.originalTarget || 0);
+
+    const priceInfo = getRateDetails(year, plate, customRate, recordDateVal);
+    const dailyRate = priceInfo.rate;
+    const hourlyRate = dailyRate / 24;
+    let prorated = hourlyRate * cappedHours;
+    if (prorated > dailyRate) prorated = dailyRate;
+
+    // Update UI Elements
+    const hoursDisplay = document.getElementById('breakdownHoursDisplay');
+    const baseRateDisplay = document.getElementById('breakdownBaseRateDisplay');
+    const hourlyRateDisplay = document.getElementById('breakdownHourlyRateDisplay');
+    const proratedDisplay = document.getElementById('breakdownProratedAmountDisplay');
+    const shiftBadge = document.getElementById('breakdownShiftTypeBadge');
+    const calcHoursInput = document.getElementById('calculatedHours');
+
+    if (hoursDisplay) {
+        const mins = Math.round((cappedHours % 1) * 60);
+        const hrs = Math.floor(cappedHours);
+        hoursDisplay.textContent = `${cappedHours.toFixed(2)} hrs (${hrs}h ${mins}m)`;
+    }
+    if (baseRateDisplay) {
+        baseRateDisplay.innerHTML = `₱${dailyRate.toLocaleString('en-PH', {minimumFractionDigits: 2, maximumFractionDigits: 2})} <span class="text-[10px] ${priceInfo.isCoding ? 'text-indigo-600 font-black' : 'text-gray-500 font-bold'}">(${priceInfo.label})</span>`;
+    }
+    if (hourlyRateDisplay) {
+        hourlyRateDisplay.textContent = `₱${hourlyRate.toFixed(2)} / hr`;
+    }
+    if (proratedDisplay) {
+        proratedDisplay.textContent = `₱${prorated.toLocaleString('en-PH', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+    }
+    if (shiftBadge) {
+        if (priceInfo.isCoding) {
+            shiftBadge.textContent = 'CODING DAY';
+            shiftBadge.className = 'px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-indigo-100 text-indigo-800 border border-indigo-300';
+        } else {
+            shiftBadge.textContent = priceInfo.label.toUpperCase();
+            shiftBadge.className = 'px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-100 text-amber-800 border border-amber-300';
+        }
+    }
+    if (calcHoursInput) {
+        calcHoursInput.value = cappedHours.toFixed(2);
+    }
+
+    // Set target and actual boundary
+    const proratedStr = prorated.toFixed(2);
+    amtInput.value = proratedStr;
+    if (actInput) {
+        actInput.value = proratedStr;
+        actInput.dataset.isAutoSet = 'true';
+    }
+    if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
 function triggerDriverAlerts(driverId, shortage) {
@@ -1832,6 +2039,18 @@ document.addEventListener('DOMContentLoaded', function() {
             updateBreakdownComputation();
         });
     });
+
+    // Handle manual time input changes for operational breakdown
+    const timeOutEl = document.getElementById('breakdownTimeOut');
+    const timeInEl = document.getElementById('breakdownTimeIn');
+    if (timeOutEl) {
+        timeOutEl.addEventListener('input', updateBreakdownComputation);
+        timeOutEl.addEventListener('change', updateBreakdownComputation);
+    }
+    if (timeInEl) {
+        timeInEl.addEventListener('input', updateBreakdownComputation);
+        timeInEl.addEventListener('change', updateBreakdownComputation);
+    }
 });
 </script>
 @endpush
