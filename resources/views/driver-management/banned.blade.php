@@ -68,6 +68,12 @@
                     <span class="text-[10px] font-black text-red-400 uppercase tracking-widest block mb-0.5">Total Lockouts</span>
                     <span id="banned-count-badge" class="text-3xl font-black text-red-500 tracking-tighter">{{ count($bannedDrivers) }}</span>
                 </div>
+                {{-- PRINT PDF BUTTON --}}
+                <button type="button" id="btnPrintBannedPdf" onclick="triggerPrintBannedPdf()"
+                    class="flex items-center gap-2 px-5 py-4 bg-slate-800/90 hover:bg-slate-700 text-rose-300 hover:text-white font-black text-xs uppercase tracking-widest rounded-2xl border border-rose-500/30 shadow-xl shadow-black/20 transition-all active:scale-95 cursor-pointer">
+                    <i data-lucide="printer" class="w-4 h-4 text-rose-400"></i>
+                    <span>Print PDF</span>
+                </button>
                 {{-- AUTO-BAN SETTINGS BUTTON --}}
                 <button type="button" onclick="openAutoBanSettingsModal()"
                     class="flex items-center gap-2 px-5 py-4 bg-slate-800/90 hover:bg-slate-700 text-amber-300 hover:text-amber-200 font-black text-xs uppercase tracking-widest rounded-2xl border border-amber-500/30 shadow-xl shadow-black/20 transition-all active:scale-95 cursor-pointer">
@@ -138,6 +144,11 @@
         </div>
 
         <div class="flex items-center gap-3 w-full lg:w-auto shrink-0 justify-end">
+            <button type="button" onclick="triggerPrintBannedPdf()"
+                class="flex items-center justify-center gap-2 px-4 py-3 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-black rounded-xl transition-all active:scale-95 shadow-xs cursor-pointer w-full sm:w-auto">
+                <i data-lucide="printer" class="w-4 h-4"></i>
+                <span>Print PDF</span>
+            </button>
             <a href="{{ route('driver-management.index') }}"
                class="flex items-center justify-center gap-2 px-5 py-3 bg-slate-900 text-white text-xs font-black rounded-xl hover:bg-slate-800 transition-all active:scale-95 shadow-lg shadow-slate-200 w-full lg:w-auto">
                 <i data-lucide="arrow-left" class="w-4 h-4"></i> Back to Roster
@@ -1422,6 +1433,48 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 });
+
+/* ─── Trigger Pop-up Print without opening a new tab ─── */
+function triggerPrintBannedPdf() {
+    const btns = document.querySelectorAll('#btnPrintBannedPdf, [onclick="triggerPrintBannedPdf()"]');
+    btns.forEach(btn => {
+        btn.dataset.origHtml = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<span class="inline-block w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></span> <span>Preparing...</span>';
+    });
+
+    let printFrame = document.getElementById('bannedPrintIframe');
+    if (!printFrame) {
+        printFrame = document.createElement('iframe');
+        printFrame.id = 'bannedPrintIframe';
+        printFrame.style.position = 'fixed';
+        printFrame.style.right = '0';
+        printFrame.style.bottom = '0';
+        printFrame.style.width = '0';
+        printFrame.style.height = '0';
+        printFrame.style.border = '0';
+        printFrame.style.visibility = 'hidden';
+        document.body.appendChild(printFrame);
+    }
+
+    printFrame.onload = function() {
+        btns.forEach(btn => {
+            btn.disabled = false;
+            if (btn.dataset.origHtml) btn.innerHTML = btn.dataset.origHtml;
+            if (window.lucide) lucide.createIcons();
+        });
+        setTimeout(() => {
+            try {
+                printFrame.contentWindow.focus();
+                printFrame.contentWindow.print();
+            } catch (e) {
+                console.error('Print iframe error:', e);
+            }
+        }, 300);
+    };
+
+    printFrame.src = '{{ route("driver-management.banned.print") }}?preview=1';
+}
 </script>
 
 @include('driver-management.partials._driver_details_modal')

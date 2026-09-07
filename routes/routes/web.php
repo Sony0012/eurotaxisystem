@@ -178,6 +178,7 @@ Route::middleware(['auth', 'page_access'])->group(function () {
 
     // Driver Management — static paths MUST be registered before the resource
     // so "pending-debts" is not matched as driver-management/{id} (show).
+    Route::get('/driver-management/banned/print', [DriverManagementController::class, 'printBannedPdf'])->name('driver-management.banned.print');
     Route::get('/driver-management/banned', [DriverManagementController::class, 'banned'])->name('driver-management.banned');
     Route::get('/driver-management/debts', [DriverManagementController::class, 'debtsPage'])->name('driver-management.debts');
     Route::get('/driver-management/pending-debts', [DriverManagementController::class, 'getPendingDebts'])->name('driver-management.pending-debts');

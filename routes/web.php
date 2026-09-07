@@ -177,6 +177,7 @@ Route::middleware(['auth', 'page_access'])->group(function () {
     // so "pending-debts" is not matched as driver-management/{id} (show).
     Route::get('/driver-management/print', [DriverManagementV2Controller::class, 'printPdf'])->name('driver-management.print');
     Route::get('/driver-management/debts/print', [DriverManagementV2Controller::class, 'printDebtsPdf'])->name('driver-management.debts.print');
+    Route::get('/driver-management/banned/print', [DriverManagementV2Controller::class, 'printBannedPdf'])->name('driver-management.banned.print');
     Route::get('/driver-management/banned', [DriverManagementV2Controller::class, 'banned'])->name('driver-management.banned');
     Route::get('/driver-management/debts', [DriverManagementV2Controller::class, 'debtsPage'])->name('driver-management.debts');
     Route::get('/driver-management/pending-debts', [DriverManagementV2Controller::class, 'getPendingDebts'])->name('driver-management.pending-debts');

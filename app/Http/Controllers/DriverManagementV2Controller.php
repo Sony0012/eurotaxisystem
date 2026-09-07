@@ -1566,6 +1566,90 @@ class DriverManagementV2Controller extends Controller
             'totalCollections'
         ));
     }
+
+    public function printBannedPdf(Request $request)
+    {
+        $query = DB::table('drivers as d')
+            ->whereNull('d.deleted_at')
+            ->whereIn('d.driver_status', ['banned', 'suspended'])
+            ->leftJoin('users as creator', 'd.created_by', '=', 'creator.id')
+            ->leftJoin('units as u', function($join) {
+                $join->on('u.driver_id', '=', 'd.id')
+                     ->orOn('u.secondary_driver_id', '=', 'd.id');
+            })
+            ->select(
+                'd.id', 'd.first_name', 'd.last_name', 'd.license_number', 'd.license_expiry',
+                'd.contact_number', 'd.hire_date', 'd.address', 'd.driver_status', 'd.suspended_until', 'd.suspension_reason',
+                'd.profile_photo', 'd.created_at', 'd.updated_at',
+                DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')) as full_name"),
+                'creator.full_name as creator_name',
+                'u.plate_number as assigned_unit'
+            )
+            ->groupBy(
+                'd.id', 'd.first_name', 'd.last_name', 'd.license_number', 'd.license_expiry',
+                'd.contact_number', 'd.hire_date', 'd.address', 'd.driver_status', 'd.suspended_until', 'd.suspension_reason',
+                'd.profile_photo', 'd.created_at', 'd.updated_at', 'creator.full_name', 'u.plate_number'
+            )
+            ->orderBy('d.driver_status', 'asc') // 'banned' first, then 'suspended'
+            ->orderBy('d.updated_at', 'desc')
+            ->get();
+
+        $bannedCount = 0;
+        $suspendedCount = 0;
+        $totalOutstandingLiabilities = 0;
+
+        foreach ($query as $driver) {
+            if ($driver->driver_status === 'banned') {
+                $bannedCount++;
+            } else {
+                $suspendedCount++;
+            }
+
+            if ($driver->driver_status === 'suspended' && $driver->suspended_until) {
+                $now = \Carbon\Carbon::now()->timezone('Asia/Manila');
+                $until = \Carbon\Carbon::parse($driver->suspended_until)->timezone('Asia/Manila');
+                if ($until->gt($now)) {
+                    $driver->days_left = ceil($now->diffInSeconds($until, false) / 86400);
+                } else {
+                    $driver->days_left = 0;
+                }
+            } else {
+                $driver->days_left = null;
+            }
+
+            $driver->incidents = DB::table('driver_behavior')
+                ->where('driver_id', $driver->id)
+                ->whereNull('deleted_at')
+                ->select('id', 'incident_type', 'severity', 'description', 'incident_date', 'timestamp', 'total_charge_to_driver', 'remaining_balance', 'charge_status')
+                ->orderBy('incident_date', 'desc')
+                ->get();
+
+            $driver->total_unpaid = (float) $driver->incidents->where('remaining_balance', '>', 0)->sum('remaining_balance');
+            $totalOutstandingLiabilities += $driver->total_unpaid;
+        }
+
+        $totalLockouts = count($query);
+
+        $autoBanSettings = [
+            'auto_ban_enabled'                      => DB::table('system_settings')->where('key', 'auto_ban_enabled')->value('value') ?? '1',
+            'auto_ban_missed_boundary_days'         => DB::table('system_settings')->where('key', 'auto_ban_missed_boundary_days')->value('value') ?? '3',
+            'auto_ban_overdue_unit_days'            => DB::table('system_settings')->where('key', 'auto_ban_overdue_unit_days')->value('value') ?? '3',
+            'auto_ban_critical_incidents_threshold' => DB::table('system_settings')->where('key', 'auto_ban_critical_incidents_threshold')->value('value') ?? '1',
+            'auto_ban_default_suspension_days'      => DB::table('system_settings')->where('key', 'auto_ban_default_suspension_days')->value('value') ?? '7',
+            'auto_ban_action_type'                  => DB::table('system_settings')->where('key', 'auto_ban_action_type')->value('value') ?? 'banned',
+        ];
+
+        return view('driver-management.print-banned', [
+            'drivers'                     => $query,
+            'totalLockouts'               => $totalLockouts,
+            'bannedCount'                 => $bannedCount,
+            'suspendedCount'              => $suspendedCount,
+            'totalOutstandingLiabilities' => $totalOutstandingLiabilities,
+            'autoBanSettings'             => $autoBanSettings,
+            'generatedAt'                 => now()->timezone('Asia/Manila')->format('M d, Y h:i A'),
+            'generatedBy'                 => \Illuminate\Support\Facades\Auth::user()->full_name ?? 'System Administrator'
+        ]);
+    }
 }
 
 
