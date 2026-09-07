@@ -384,12 +384,15 @@
                                     <span class="text-xs text-gray-500 font-medium leading-snug">Boundary submitted after <span id="lateCutoffDisplay" class="font-bold text-orange-800">10:00 AM</span> cutoff. Voids incentives.</span>
                                 </div>
                             </label>
-                            <div class="flex items-center gap-1.5 pl-7 sm:pl-0 shrink-0">
+                            <div class="flex items-center gap-1.5 pl-7 sm:pl-0 shrink-0" onclick="event.stopPropagation();">
                                 <span class="text-[10px] font-black text-gray-400 uppercase tracking-wider flex items-center gap-1">
-                                    <i data-lucide="clock" class="w-3 h-3 text-orange-500"></i> Cutoff:
+                                    <i data-lucide="clock" class="w-3.5 h-3.5 text-orange-500"></i> Cutoff:
                                 </span>
-                                <input type="time" name="late_cutoff_time" id="lateCutoffTime" value="10:00" 
-                                       class="px-2 py-1 text-xs font-bold border border-orange-200 rounded-lg bg-white text-orange-950 focus:ring-2 focus:ring-orange-400 focus:border-orange-400 shadow-2xs transition-all">
+                                <div class="relative inline-flex items-center">
+                                    <input type="time" name="late_cutoff_time" id="lateCutoffTime" value="10:00" 
+                                           onclick="event.stopPropagation(); try { this.showPicker(); } catch(e){}"
+                                           class="px-3 py-1.5 text-xs font-black border border-orange-300 rounded-xl bg-white text-orange-950 focus:ring-2 focus:ring-orange-400 focus:border-orange-400 shadow-xs cursor-pointer hover:border-orange-400 hover:bg-orange-50/50 transition-all">
+                                </div>
                             </div>
                         </div>
 
@@ -483,17 +486,19 @@
                                 <input type="checkbox" name="needs_maintenance_zero" id="needsMaintenanceZeroCheck" value="1" class="rounded border-gray-300 text-orange-600 focus:ring-orange-500 needs-maintenance-opt mt-0.5">
                                 <div class="flex flex-col">
                                     <span class="text-sm font-black text-gray-800 group-hover:text-orange-700 leading-tight mb-0.5 transition-colors">Early Shift Maintenance Failure</span>
-                                    <span class="text-xs text-gray-500 font-medium leading-snug">Vehicle failure within <span id="earlyFailureHoursDisplay" class="font-bold text-orange-800">2.00</span> hours of deployment. Boundary is waived (₱0.00).</span>
+                                    <span class="text-xs text-gray-500 font-medium leading-snug">Vehicle failure within <span id="earlyFailureHoursDisplay" class="font-bold text-orange-800">2</span> hours of deployment. Boundary is waived (₱0.00).</span>
                                 </div>
                             </label>
-                            <div class="flex items-center gap-1.5 pl-7 sm:pl-0 shrink-0">
+                            <div class="flex items-center gap-1.5 pl-7 sm:pl-0 shrink-0" onclick="event.stopPropagation();">
                                 <span class="text-[10px] font-black text-gray-400 uppercase tracking-wider flex items-center gap-1">
-                                    <i data-lucide="timer" class="w-3 h-3 text-orange-500"></i> Max:
+                                    <i data-lucide="timer" class="w-3.5 h-3.5 text-orange-500"></i> Max:
                                 </span>
                                 <div class="flex items-center gap-1">
-                                    <input type="number" min="0.5" max="24" step="0.5" name="early_failure_max_hours" id="earlyFailureMaxHours" value="2" 
-                                           class="w-16 px-2 py-1 text-xs font-bold text-center border border-orange-200 rounded-lg bg-white text-orange-950 focus:ring-2 focus:ring-orange-400 focus:border-orange-400 shadow-2xs transition-all">
-                                    <span class="text-xs font-bold text-gray-500">hrs</span>
+                                    <input type="text" inputmode="decimal" maxlength="5" name="early_failure_max_hours" id="earlyFailureMaxHours" value="2" 
+                                           onclick="event.stopPropagation();"
+                                           class="w-16 px-2.5 py-1.5 text-xs font-black text-center border border-orange-300 rounded-xl bg-white text-orange-950 focus:ring-2 focus:ring-orange-400 focus:border-orange-400 shadow-xs transition-all"
+                                           placeholder="2">
+                                    <span class="text-xs font-black text-gray-500">hrs</span>
                                 </div>
                             </div>
                         </div>
@@ -1827,8 +1832,77 @@ function updateEarlyFailureHoursDisplay() {
     const earlyInput = document.getElementById('earlyFailureMaxHours');
     const earlyDisplay = document.getElementById('earlyFailureHoursDisplay');
     if (!earlyInput || !earlyDisplay) return;
-    const val = parseFloat(earlyInput.value) || 2;
-    earlyDisplay.textContent = val.toFixed(2);
+    let val = parseFloat(earlyInput.value);
+    if (isNaN(val) || val <= 0) {
+        val = 2;
+    } else if (val > 24) {
+        val = 24;
+    }
+    earlyDisplay.textContent = (val % 1 === 0) ? val.toString() : val.toFixed(2);
+}
+
+function applyEarlyFailureValidation(input) {
+    if (!input) return;
+
+    input.addEventListener('keydown', function(e) {
+        if (['Backspace', 'Tab', 'Enter', 'Delete', 'ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(e.key)) {
+            return;
+        }
+        if (e.ctrlKey || e.metaKey) return;
+        if (e.key === '.' && !this.value.includes('.')) {
+            return;
+        }
+        if (!/^[0-9]$/.test(e.key)) {
+            e.preventDefault();
+        }
+    });
+
+    function cleanAndClamp() {
+        let val = input.value;
+        // Strip everything except numbers and one decimal point
+        val = val.replace(/[^0-9.]/g, '');
+        
+        const parts = val.split('.');
+        if (parts.length > 2) {
+            val = parts[0] + '.' + parts.slice(1).join('');
+        }
+
+        if (val === '') {
+            updateEarlyFailureHoursDisplay();
+            return;
+        }
+
+        let num = parseFloat(val);
+        if (!isNaN(num)) {
+            // Strictly cap at 24 hours maximum
+            if (num > 24) {
+                val = '24';
+            } else if (val.includes('.')) {
+                let dotParts = val.split('.');
+                if (dotParts[1].length > 2) dotParts[1] = dotParts[1].substring(0, 2);
+                val = dotParts[0] + '.' + dotParts[1];
+            }
+        }
+        input.value = val;
+        updateEarlyFailureHoursDisplay();
+        updateBreakdownComputation();
+    }
+
+    input.addEventListener('input', cleanAndClamp);
+    input.addEventListener('change', cleanAndClamp);
+    input.addEventListener('blur', function() {
+        let val = this.value.trim();
+        let num = parseFloat(val);
+        if (isNaN(num) || num <= 0) {
+            this.value = '2';
+        } else if (num > 24) {
+            this.value = '24';
+        } else {
+            this.value = val.endsWith('.') ? val.slice(0, -1) : val;
+        }
+        updateEarlyFailureHoursDisplay();
+        updateBreakdownComputation();
+    });
 }
 
 function formatDateTimeLocal(d) {
@@ -2124,17 +2198,10 @@ document.addEventListener('DOMContentLoaded', function() {
         lateCutoffInput.addEventListener('change', updateLateCutoffDisplay);
     }
 
-    // Handle early failure max hours changes
+    // Handle early failure max hours validation and changes
     const earlyHoursEl = document.getElementById('earlyFailureMaxHours');
     if (earlyHoursEl) {
-        earlyHoursEl.addEventListener('input', function() {
-            updateEarlyFailureHoursDisplay();
-            updateBreakdownComputation();
-        });
-        earlyHoursEl.addEventListener('change', function() {
-            updateEarlyFailureHoursDisplay();
-            updateBreakdownComputation();
-        });
+        applyEarlyFailureValidation(earlyHoursEl);
     }
 });
 </script>
