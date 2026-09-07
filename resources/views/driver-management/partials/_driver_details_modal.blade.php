@@ -922,26 +922,37 @@
             if (data.incentive_breakdown && data.incentive_breakdown.length > 0) {
                 data.incentive_breakdown.forEach(b => {
                     const notes = (b.notes || '').toLowerCase();
-                    let reason = '';
-                    if (!b.has_incentive) {
-                        if (notes.includes('vehicle damaged')) reason = '<span class="px-2 py-0.5 bg-rose-50 text-rose-700 border border-rose-200 rounded-md text-[9px] font-black uppercase tracking-wider inline-flex items-center gap-1"><i data-lucide="alert-triangle" class="w-3 h-3"></i> Damage</span>';
-                        else if (notes.includes('maintenance')) reason = '<span class="px-2 py-0.5 bg-orange-50 text-orange-700 border border-orange-200 rounded-md text-[9px] font-black uppercase tracking-wider inline-flex items-center gap-1"><i data-lucide="wrench" class="w-3 h-3"></i> Breakdown</span>';
-                        else if (b.status === 'shortage') reason = '<span class="px-2 py-0.5 bg-amber-50 text-amber-700 border border-amber-200 rounded-md text-[9px] font-black uppercase tracking-wider inline-flex items-center gap-1"><i data-lucide="wallet" class="w-3 h-3"></i> Shortage</span>';
-                        else reason = '<span class="px-2 py-0.5 bg-slate-100 text-slate-600 border border-slate-200 rounded-md text-[9px] font-black uppercase tracking-wider inline-flex items-center gap-1"><i data-lucide="clock" class="w-3 h-3"></i> Late Turn</span>';
+                    const actualBound = parseFloat(b.actual_boundary || 0);
+                    const isEarned = Boolean(b.has_incentive && (b.status === 'paid' || b.status === 'excess'));
+                    const incentiveAmount = isEarned ? (actualBound * 0.05) : 0;
+
+                    let reasonBadge = '';
+                    if (isEarned) {
+                        reasonBadge = '<span class="px-2.5 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg text-[9px] font-black uppercase tracking-wider inline-flex items-center gap-1.5"><i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-600"></i> Qualified: Clean Shift</span>';
                     } else {
-                        reason = '<span class="text-[10px] font-bold text-emerald-600 inline-flex items-center gap-1"><i data-lucide="check-circle" class="w-3.5 h-3.5"></i> Clean Shift</span>';
+                        if (notes.includes('vehicle damaged')) {
+                            reasonBadge = '<span class="px-2.5 py-1 bg-rose-50 text-rose-700 border border-rose-200 rounded-lg text-[9px] font-black uppercase tracking-wider inline-flex items-center gap-1.5"><i data-lucide="alert-triangle" class="w-3.5 h-3.5 text-rose-600"></i> Voided: Vehicle Damage</span>';
+                        } else if (notes.includes('maintenance')) {
+                            reasonBadge = '<span class="px-2.5 py-1 bg-orange-50 text-orange-700 border border-orange-200 rounded-lg text-[9px] font-black uppercase tracking-wider inline-flex items-center gap-1.5"><i data-lucide="wrench" class="w-3.5 h-3.5 text-orange-600"></i> Voided: Maintenance Breakdown</span>';
+                        } else if (b.status === 'shortage' || parseFloat(b.shortage || 0) > 0) {
+                            reasonBadge = '<span class="px-2.5 py-1 bg-amber-50 text-amber-700 border border-amber-200 rounded-lg text-[9px] font-black uppercase tracking-wider inline-flex items-center gap-1.5"><i data-lucide="wallet" class="w-3.5 h-3.5 text-amber-600"></i> Voided: Boundary Shortage</span>';
+                        } else if (b.is_absent || b.status === 'absent') {
+                            reasonBadge = '<span class="px-2.5 py-1 bg-purple-50 text-purple-700 border border-purple-200 rounded-lg text-[9px] font-black uppercase tracking-wider inline-flex items-center gap-1.5"><i data-lucide="user-x" class="w-3.5 h-3.5 text-purple-600"></i> Voided: Unattended Shift</span>';
+                        } else {
+                            reasonBadge = '<span class="px-2.5 py-1 bg-slate-100 text-slate-700 border border-slate-200 rounded-lg text-[9px] font-black uppercase tracking-wider inline-flex items-center gap-1.5"><i data-lucide="clock" class="w-3.5 h-3.5 text-slate-500"></i> Voided: Late Remittance / Cutoff</span>';
+                        }
                     }
 
-                    let statusBadge = '';
-                    if (b.status === 'paid') statusBadge = '<span class="px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-md text-[9px] font-black uppercase tracking-wider">PAID</span>';
-                    else if (b.status === 'shortage') statusBadge = '<span class="px-2 py-0.5 bg-rose-50 text-rose-700 border border-rose-200 rounded-md text-[9px] font-black uppercase tracking-wider">SHORTAGE</span>';
-                    else if (b.status === 'excess') statusBadge = '<span class="px-2 py-0.5 bg-blue-50 text-blue-700 border border-blue-200 rounded-md text-[9px] font-black uppercase tracking-wider">EXCESS</span>';
-                    else statusBadge = `<span class="px-2 py-0.5 bg-slate-100 text-slate-700 rounded-md text-[9px] font-black uppercase">${(b.status||'—').toUpperCase()}</span>`;
+                    const rewardAmountBadge = isEarned
+                        ? `<span class="px-2.5 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg font-black text-xs font-mono inline-block">+₱${incentiveAmount.toLocaleString('en-PH', {minimumFractionDigits: 2})}</span>`
+                        : `<span class="px-2.5 py-1 bg-slate-100 text-slate-400 rounded-lg font-bold text-xs font-mono inline-block">₱0.00</span>`;
 
-                    const targetRate = parseFloat(b.boundary_amount || data.daily_boundary_target || data.assigned_boundary_rate || 0);
+                    const outcomeBadge = isEarned
+                        ? '<span class="px-2.5 py-1 bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-lg text-[9px] font-black uppercase tracking-widest inline-flex items-center gap-1 shadow-2xs"><i data-lucide="check-check" class="w-3 h-3"></i> EARNED (5%)</span>'
+                        : '<span class="px-2.5 py-1 bg-rose-100 text-rose-700 border border-rose-200 rounded-lg text-[9px] font-black uppercase tracking-widest inline-flex items-center gap-1"><i data-lucide="x-circle" class="w-3 h-3"></i> FORFEITED</span>';
 
                     incentiveRowsHtml += `
-                    <tr class="border-b border-slate-100 hover:bg-slate-50/80 transition-colors ${b.has_incentive ? '' : 'bg-rose-50/20'}">
+                    <tr class="border-b border-slate-100 hover:bg-slate-50/80 transition-colors ${isEarned ? '' : 'bg-rose-50/20'}">
                         <td class="p-4 font-bold text-slate-700 whitespace-nowrap">
                             <div class="flex items-center gap-2">
                                 <i data-lucide="calendar" class="w-3.5 h-3.5 text-slate-400"></i>
@@ -951,23 +962,19 @@
                         <td class="p-4 font-black font-mono text-slate-900 whitespace-nowrap">
                             <span class="px-2 py-1 bg-slate-100 border border-slate-200 rounded-lg text-xs">${b.plate_number || '—'}</span>
                         </td>
-                        <td class="p-4 font-bold text-slate-500 whitespace-nowrap">₱${targetRate.toLocaleString('en-PH', {minimumFractionDigits: 2})}</td>
-                        <td class="p-4 font-black text-slate-900 whitespace-nowrap">₱${parseFloat(b.actual_boundary || 0).toLocaleString('en-PH', {minimumFractionDigits: 2})}</td>
-                        <td class="p-4 whitespace-nowrap">${statusBadge}</td>
-                        <td class="p-4 text-center whitespace-nowrap">
-                            ${b.has_incentive 
-                                ? '<span class="px-2.5 py-1 bg-emerald-100 text-emerald-700 border border-emerald-200 rounded-lg text-[9px] font-black uppercase tracking-wider inline-flex items-center gap-1"><i data-lucide="check" class="w-3 h-3"></i> EARNED</span>' 
-                                : '<span class="px-2.5 py-1 bg-rose-100 text-rose-700 border border-rose-200 rounded-lg text-[9px] font-black uppercase tracking-wider inline-flex items-center gap-1"><i data-lucide="x" class="w-3 h-3"></i> MISSED</span>'}
-                        </td>
-                        <td class="p-4 whitespace-nowrap">${reason}</td>
+                        <td class="p-4 font-bold text-slate-600 whitespace-nowrap">₱${actualBound.toLocaleString('en-PH', {minimumFractionDigits: 2})}</td>
+                        <td class="p-4 whitespace-nowrap">${rewardAmountBadge}</td>
+                        <td class="p-4 whitespace-nowrap">${outcomeBadge}</td>
+                        <td class="p-4 whitespace-nowrap">${reasonBadge}</td>
                     </tr>`;
                 });
             } else {
-                incentiveRowsHtml = '<tr><td colspan="7" class="p-8 text-center text-slate-400 font-bold uppercase tracking-widest text-[10px]">No active shift logs recorded for this cycle</td></tr>';
+                incentiveRowsHtml = '<tr><td colspan="6" class="p-8 text-center text-slate-400 font-bold uppercase tracking-widest text-[10px]">No shift incentive records found for this driver</td></tr>';
             }
 
             const incentivesEl = document.getElementById('incentivesContent');
             if (incentivesEl) {
+                const totalIncentiveCash = parseFloat(data.total_incentive_earned !== undefined && data.total_incentive_earned !== null ? data.total_incentive_earned : (data.monthly_incentive || 0));
                 incentivesEl.innerHTML = `
                     <!-- SECTION 1: Operational Excellence & Strategic Intelligence (2 Columns) -->
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
@@ -1044,26 +1051,26 @@
                     <div class="mb-8">
                         <div class="flex items-center gap-2 mb-3">
                             <i data-lucide="gauge" class="w-4 h-4 text-emerald-600"></i>
-                            <h5 class="text-xs font-black text-slate-800 uppercase tracking-wider">Cycle Incentive Performance Metrics</h5>
+                            <h5 class="text-xs font-black text-slate-800 uppercase tracking-wider">Incentive Performance & Revenue Share Metrics</h5>
                         </div>
                         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                            <!-- Card 1: Monthly Reward -->
+                            <!-- Card 1: Total Earned Incentive -->
                             <div class="relative overflow-hidden rounded-3xl border border-slate-200/80 bg-gradient-to-br from-white via-emerald-50/40 to-teal-50/20 p-5 shadow-xs">
                                 <div class="flex items-center justify-between gap-3 relative z-10">
                                     <div class="min-w-0 flex-1">
                                         <span class="text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-slate-400 block mb-1">
-                                            Monthly Reward
+                                            Earned Incentive
                                         </span>
                                         <div class="text-xl sm:text-2xl font-black text-emerald-600 leading-tight tracking-tight tabular-nums truncate">
-                                            ₱${parseFloat(data.monthly_incentive||0).toLocaleString('en-PH',{minimumFractionDigits:2})}
+                                            ₱${totalIncentiveCash.toLocaleString('en-PH',{minimumFractionDigits:2})}
                                         </div>
                                         <div class="mt-2 flex items-center gap-1.5 text-[11px] font-bold text-emerald-600">
                                             <span class="inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
-                                            <span>5% Revenue Share</span>
+                                            <span>5% Net Revenue Share</span>
                                         </div>
                                     </div>
                                     <div class="w-12 h-12 sm:w-14 sm:h-14 shrink-0">
-                                        <img src="{{ asset("image/kpi/reward_cash_3d.svg") }}" alt="Monthly Reward" class="w-full h-full object-contain filter drop-shadow-md">
+                                        <img src="{{ asset("image/kpi/reward_cash_3d.svg") }}" alt="Earned Incentive" class="w-full h-full object-contain filter drop-shadow-md">
                                     </div>
                                 </div>
                             </div>
@@ -1076,11 +1083,11 @@
                                             Service Cycles
                                         </span>
                                         <div class="text-xl sm:text-2xl font-black text-slate-900 leading-tight tracking-tight tabular-nums truncate">
-                                            ${data.total_shifts_month||0}
+                                            ${data.incentive_earned_count||0} / ${data.total_shifts_month||0}
                                         </div>
                                         <div class="mt-2 flex items-center gap-1.5 text-[11px] font-bold text-blue-600">
                                             <span class="inline-flex h-1.5 w-1.5 rounded-full bg-blue-500"></span>
-                                            <span>${data.incentive_earned_count||0} / ${data.total_shifts_month||0} Success</span>
+                                            <span>${data.incentive_earned_count||0} Shift(s) Qualified</span>
                                         </div>
                                     </div>
                                     <div class="w-12 h-12 sm:w-14 sm:h-14 shrink-0">
@@ -1094,7 +1101,7 @@
                                 <div class="flex items-center justify-between gap-3 relative z-10">
                                     <div class="min-w-0 flex-1">
                                         <span class="text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-slate-400 block mb-1">
-                                            Quality Index
+                                            Incentive Rate
                                         </span>
                                         <div class="text-xl sm:text-2xl font-black ${rateColor} leading-tight tracking-tight tabular-nums truncate">
                                             ${incentiveRate}%
@@ -1117,10 +1124,10 @@
                                             Friction Points
                                         </span>
                                         <div class="grid grid-cols-2 gap-x-3 gap-y-1 text-[10px] font-black uppercase">
-                                            <div class="flex justify-between text-slate-600">Late: <span class="${(data.late_turn_missed||0) > 0 ? 'text-rose-600' : 'text-slate-900'}">${data.late_turn_missed||0}</span></div>
-                                            <div class="flex justify-between text-slate-600">Damage: <span class="${(data.damage_missed||0) > 0 ? 'text-rose-600' : 'text-slate-900'}">${data.damage_missed||0}</span></div>
-                                            <div class="flex justify-between text-slate-600">Behavior: <span class="${(data.behavior_missed||0) > 0 ? 'text-rose-600' : 'text-slate-900'}">${data.behavior_missed||0}</span></div>
-                                            <div class="flex justify-between text-slate-600">Shortage: <span class="${(data.shortage_missed||0) > 0 ? 'text-rose-600' : 'text-slate-900'}">${data.shortage_missed||0}</span></div>
+                                            <div class="flex justify-between text-slate-600">Damage: <span class="${(data.damage_missed||0) > 0 ? 'text-rose-600 font-bold' : 'text-slate-900'}">${data.damage_missed||0}</span></div>
+                                            <div class="flex justify-between text-slate-600">Late: <span class="${(data.late_turn_missed||0) > 0 ? 'text-rose-600 font-bold' : 'text-slate-900'}">${data.late_turn_missed||0}</span></div>
+                                            <div class="flex justify-between text-slate-600">Shortage: <span class="${(data.shortage_missed||0) > 0 ? 'text-rose-600 font-bold' : 'text-slate-900'}">${data.shortage_missed||0}</span></div>
+                                            <div class="flex justify-between text-slate-600">Behavior: <span class="${(data.behavior_missed||0) > 0 ? 'text-rose-600 font-bold' : 'text-slate-900'}">${data.behavior_missed||0}</span></div>
                                         </div>
                                     </div>
                                     <div class="w-12 h-12 sm:w-14 sm:h-14 shrink-0">
@@ -1131,14 +1138,17 @@
                         </div>
                     </div>
 
-                    <!-- SECTION 3: Chronological Incentive Shift Ledger -->
+                    <!-- SECTION 3: Shift-by-Shift Incentive Reward Ledger -->
                     <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
                         <div class="p-4 bg-slate-50 border-b border-slate-100 flex items-center justify-between flex-wrap gap-2">
                             <div class="flex items-center gap-2">
-                                <i data-lucide="list" class="w-4 h-4 text-emerald-600"></i>
-                                <h5 class="text-xs font-black text-slate-800 uppercase tracking-wider">Chronological Shift Incentive Log (Cycle: ${new Date().toLocaleString('en-PH', { month: 'long', year: 'numeric' })})</h5>
+                                <i data-lucide="award" class="w-4 h-4 text-emerald-600"></i>
+                                <div>
+                                    <h5 class="text-xs font-black text-slate-800 uppercase tracking-wider">Shift-by-Shift Incentive Reward Ledger</h5>
+                                    <p class="text-[10px] text-slate-400 font-medium">Record of 5% reward calculations, qualification status, and policy factors per shift.</p>
+                                </div>
                             </div>
-                            <span class="text-[10px] font-mono font-bold text-slate-500 bg-white px-2.5 py-1 rounded-md border border-slate-200">${data.incentive_breakdown ? data.incentive_breakdown.length : 0} Shift(s) Logged</span>
+                            <span class="text-[10px] font-mono font-bold text-slate-500 bg-white px-2.5 py-1 rounded-md border border-slate-200">${data.incentive_breakdown ? data.incentive_breakdown.length : 0} Shift Record(s)</span>
                         </div>
                         <div class="overflow-x-auto">
                             <table class="w-full text-xs text-left">
@@ -1146,11 +1156,10 @@
                                     <tr>
                                         <th class="p-4">Shift Date</th>
                                         <th class="p-4">Taxi Unit</th>
-                                        <th class="p-4">Target Rate</th>
-                                        <th class="p-4">Actual Collected</th>
-                                        <th class="p-4">Status</th>
-                                        <th class="p-4 text-center">Incentive Outcome</th>
-                                        <th class="p-4">Telemetry Factor</th>
+                                        <th class="p-4">Shift Remittance</th>
+                                        <th class="p-4">5% Reward Amount</th>
+                                        <th class="p-4">Reward Status</th>
+                                        <th class="p-4">Qualification / Policy Factor</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-slate-100">${incentiveRowsHtml}</tbody>

@@ -351,13 +351,20 @@ class DriverManagementV2Controller extends Controller
         $currentMonth = now()->month;
         $currentYear  = now()->year;
 
-        // All boundaries in lookback period
-        $allBoundaries = DB::table('boundaries')
+        // All boundaries of the driver for comprehensive metrics
+        $allTimeBoundaries = DB::table('boundaries')
             ->where('driver_id', $id)
             ->whereNull('deleted_at')
-            ->where('date', '>=', $lookbackFrom->toDateString())
             ->get();
 
+        $allTimeEarnedCount  = $allTimeBoundaries->where('has_incentive', 1)->count();
+        $allTimeTotalShifts  = $allTimeBoundaries->count();
+        $allTimeIncentive    = $allTimeBoundaries
+            ->where('has_incentive', 1)
+            ->whereIn('status', ['paid', 'excess'])
+            ->sum(fn($b) => floatval($b->actual_boundary) * 0.05);
+
+        // Current month boundaries
         $thisMonthBoundaries = DB::table('boundaries')
             ->where('driver_id', $id)
             ->whereNull('deleted_at')
@@ -373,46 +380,36 @@ class DriverManagementV2Controller extends Controller
         $total_incentive = $thisMonthBoundaries
             ->where('has_incentive', 1)
             ->whereIn('status', ['paid', 'excess'])
-            ->sum(fn($b) => $b->actual_boundary * 0.05);
+            ->sum(fn($b) => floatval($b->actual_boundary) * 0.05);
 
-        // Missed reason breakdown (current month - Unified from Behavior + Boundaries)
-        $late_turn_missed  = DB::table('driver_behavior')
+        // Friction Points / Missed Reasons
+        $late_turn_missed = DB::table('driver_behavior')
             ->where('driver_id', $id)
             ->whereNull('deleted_at')
-            ->whereMonth('incident_date', $currentMonth)
-            ->whereYear('incident_date', $currentYear)
             ->where('incident_type', 'Late Remittance')
             ->count();
 
-        $damage_missed     = DB::table('driver_behavior')
+        $damage_missed = DB::table('driver_behavior')
             ->where('driver_id', $id)
             ->whereNull('deleted_at')
-            ->whereMonth('incident_date', $currentMonth)
-            ->whereYear('incident_date', $currentYear)
             ->where('incident_type', 'Vehicle Damage')
             ->count();
 
-        $behavior_missed   = DB::table('driver_behavior')
+        $behavior_missed = DB::table('driver_behavior')
             ->where('driver_id', $id)
             ->whereNull('deleted_at')
-            ->whereMonth('incident_date', $currentMonth)
-            ->whereYear('incident_date', $currentYear)
             ->whereRaw($this->getViolationQuerySnippet())
             ->whereNotIn('incident_type', ['Late Remittance', 'Vehicle Damage', 'Short Boundary'])
             ->count();
 
-        $shortage_missed   = DB::table('driver_behavior')
+        $shortage_missed = DB::table('driver_behavior')
             ->where('driver_id', $id)
             ->whereNull('deleted_at')
-            ->whereMonth('incident_date', $currentMonth)
-            ->whereYear('incident_date', $currentYear)
             ->where('incident_type', 'Short Boundary')
             ->count();
 
-        // Backup check for boundaries that might have missed incentive for other reasons (e.g. manual toggle)
-        $other_missed = $thisMonthBoundaries->where('has_incentive', 0)->count() 
-            - ($late_turn_missed + $damage_missed + $shortage_missed);
-        $other_missed = max(0, $other_missed);
+        // Backup check for boundaries with 0 incentive
+        $other_missed = max(0, $allTimeBoundaries->where('has_incentive', 0)->count() - ($late_turn_missed + $damage_missed + $shortage_missed));
 
         // --- Full Eligibility Check (Non-Stacking Penalty Block Logic) ---
         $periodStart = now()->subDays(150)->toDateString();
@@ -458,7 +455,7 @@ class DriverManagementV2Controller extends Controller
         $is_eligible = !$currentPenaltyEnd || now()->gt($currentPenaltyEnd);
         $activeBlockStart = ($currentPenaltyEnd && now()->lte($currentPenaltyEnd)) ? $currentPenaltyStart->startOfDay() : null;
 
-        $has_shifts = $allBoundaries->count() > 0;
+        $has_shifts = $allTimeBoundaries->count() > 0;
         if (!$has_shifts) $is_eligible = false;
 
         $violations_no_incentive = 0;
@@ -514,11 +511,16 @@ class DriverManagementV2Controller extends Controller
         if ($violations_incidents > 0) $blocking_violations[] = "{$violations_incidents} behavior incident(s) on record";
         if (!$is_eligible && $currentPenaltyEnd) $blocking_violations[] = "Penalty Expires: " . $currentPenaltyEnd->format('M d, Y');
 
+        $effective_earned_count = $total_shifts > 0 ? $earned_count : $allTimeEarnedCount;
+        $effective_total_shifts = $total_shifts > 0 ? $total_shifts : $allTimeTotalShifts;
+        $effective_incentive_rate = $effective_total_shifts > 0 ? round(($effective_earned_count / $effective_total_shifts) * 100, 1) : 0;
+
+        $driver->total_incentive_earned   = round($allTimeIncentive, 2);
         $driver->monthly_incentive        = round($total_incentive, 2);
-        $driver->incentive_earned_count   = $earned_count;
-        $driver->incentive_missed_count   = $missed_count;
-        $driver->total_shifts_month       = $total_shifts;
-        $driver->incentive_rate           = $total_shifts > 0 ? round($earned_count / $total_shifts * 100, 1) : 0;
+        $driver->incentive_earned_count   = $effective_earned_count;
+        $driver->incentive_missed_count   = max(0, $effective_total_shifts - $effective_earned_count);
+        $driver->total_shifts_month       = $effective_total_shifts;
+        $driver->incentive_rate           = $effective_incentive_rate;
         $driver->late_turn_missed         = $late_turn_missed;
         $driver->damage_missed            = $damage_missed;
         $driver->behavior_missed          = $behavior_missed;
@@ -544,15 +546,21 @@ class DriverManagementV2Controller extends Controller
             ->limit(10)
             ->get();
 
-        // Per-shift incentive breakdown (last 15 records)
+        // Per-shift incentive breakdown (last 20 records)
         $driver->incentive_breakdown = DB::table('boundaries as b')
             ->where('b.driver_id', $id)
             ->whereNull('b.deleted_at')
             ->leftJoin('units as u', 'b.unit_id', '=', 'u.id')
             ->select('b.date', 'b.actual_boundary', 'b.boundary_amount', 'b.status', 'b.shortage', 'b.has_incentive', 'b.notes', 'u.plate_number')
             ->orderByDesc('b.date')
-            ->limit(15)
-            ->get();
+            ->limit(20)
+            ->get()
+            ->map(function ($row) {
+                $row->incentive_amount = ($row->has_incentive && in_array($row->status, ['paid', 'excess']))
+                    ? round(floatval($row->actual_boundary) * 0.05, 2)
+                    : 0.00;
+                return $row;
+            });
 
         // Recent performance logs for Performance tab (last 10)
         $driver->recent_performance = DB::table('boundaries as b')
