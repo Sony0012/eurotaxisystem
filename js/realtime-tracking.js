@@ -702,8 +702,8 @@ function updateMarker(unit) {
     } else {
         markers[unit.unit_id].bindPopup(popupContent, {
             className: 'pro-popup',
-            maxWidth: 320,
-            minWidth: 320,
+            maxWidth: 310,
+            minWidth: 310,
             offset: [0, 0],
             autoPan: false
         });

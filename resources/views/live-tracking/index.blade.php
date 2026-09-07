@@ -99,24 +99,14 @@
     display: none !important;
 }
 
-/* ── Content container with scrollbar and responsive max-height ── */
+/* ── Content container: Auto fit, auto adjust, no scrollbar ── */
 .pro-popup .leaflet-popup-content {
     margin: 0 !important;
     padding: 0 !important;
-    width: 320px !important;
-    max-height: min(480px, calc(100vh - 120px));
-    overflow-y: auto;
-    overflow-x: hidden;
-    scrollbar-width: thin;
-    scrollbar-color: #cbd5e1 transparent;
-    border-radius: 18px;
-}
-.pro-popup .leaflet-popup-content::-webkit-scrollbar {
-    width: 4px;
-}
-.pro-popup .leaflet-popup-content::-webkit-scrollbar-thumb {
-    background: #cbd5e1;
-    border-radius: 4px;
+    width: 310px !important;
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
 }
 
 /* ── Wrapper styling ── */
@@ -128,26 +118,27 @@
     border: 1px solid rgba(226, 232, 240, 0.9);
     padding: 0;
     overflow: visible !important;
-    width: 320px;
-    max-width: 320px;
+    width: 310px;
+    max-width: 310px;
+    height: auto !important;
     pointer-events: auto;
-    /* Center vertically to the car marker and offset to the right */
-    transform: translate(180px, 50%);
+    /* Center vertically to the car marker and offset to the right with comfortable breathing distance */
+    transform: translate(210px, 50%);
     transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s ease;
 }
 
-/* ── Speech bubble pointer / tail pointing left towards the car ── */
+/* ── Speech bubble pointer / tail pointing left towards the car with nice gap ── */
 .pro-popup .leaflet-popup-content-wrapper::before {
     content: '';
     position: absolute;
-    left: -11px;
+    left: -12px;
     top: 50%;
     transform: translateY(-50%);
     width: 0;
     height: 0;
     border-top: 10px solid transparent;
     border-bottom: 10px solid transparent;
-    border-right: 12px solid #ffffff;
+    border-right: 13px solid #ffffff;
     filter: drop-shadow(-3px 0 2px rgba(15, 23, 42, 0.08));
     z-index: 20;
     pointer-events: none;
@@ -158,8 +149,8 @@
     animation: popupSlideInDesktop 0.24s cubic-bezier(0.34, 1.56, 0.64, 1) both;
 }
 @keyframes popupSlideInDesktop {
-    from { opacity: 0; transform: translate(160px, 50%) scale(0.95); }
-    to   { opacity: 1; transform: translate(180px, 50%) scale(1); }
+    from { opacity: 0; transform: translate(190px, 50%) scale(0.95); }
+    to   { opacity: 1; transform: translate(210px, 50%) scale(1); }
 }
 
 /* ── Close button ── */

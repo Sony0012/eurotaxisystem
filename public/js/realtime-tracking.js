@@ -784,8 +784,8 @@ function updateMarker(unit) {
     } else {
         markers[unit.unit_id].bindPopup(popupContent, {
             className: 'pro-popup',
-            maxWidth: 320,
-            minWidth: 320,
+            maxWidth: 310,
+            minWidth: 310,
             offset: [0, 0],
             autoPan: false
         });
@@ -858,12 +858,12 @@ function centerMapOnPopup(unitId, animate = true) {
         const px = map.project(latlng, zoom);
         
         // Balanced camera centering for car + popup:
-        // On desktop (> 640px): Card is positioned to the right. Shift camera by +100px X.
-        // On mobile (<= 640px): Card is positioned above. Shift camera by -130px Y.
+        // On desktop (> 640px): Card is positioned to the right with breathing room. Shift camera by +115px X.
+        // On mobile (<= 640px): Card is positioned above. Shift camera by -140px Y.
         if (window.innerWidth > 640) {
-            px.x += 100;
+            px.x += 115;
         } else {
-            px.y -= 130;
+            px.y -= 140;
         }
         
         const targetLatLng = map.unproject(px, zoom);
