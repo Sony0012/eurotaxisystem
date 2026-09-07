@@ -702,11 +702,10 @@ function updateMarker(unit) {
     } else {
         markers[unit.unit_id].bindPopup(popupContent, {
             className: 'pro-popup',
-            maxWidth: 300,
-            offset: [220, 200],
-            autoPan: true,
-            autoPanPaddingTopLeft:     L.point(60, 140),
-            autoPanPaddingBottomRight: L.point(60,  60),
+            maxWidth: 320,
+            minWidth: 320,
+            offset: [0, 0],
+            autoPan: false
         });
     }
 

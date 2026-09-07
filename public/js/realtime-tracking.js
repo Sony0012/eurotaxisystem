@@ -784,9 +784,9 @@ function updateMarker(unit) {
     } else {
         markers[unit.unit_id].bindPopup(popupContent, {
             className: 'pro-popup',
-            maxWidth: 310,
-            minWidth: 310,
-            offset: [0, -35],
+            maxWidth: 320,
+            minWidth: 320,
+            offset: [0, 0],
             autoPan: false
         });
     }
@@ -857,21 +857,24 @@ function centerMapOnPopup(unitId, animate = true) {
         const zoom = Math.max(map.getZoom(), 16);
         const px = map.project(latlng, zoom);
         
-        // CSS translates the popup wrapper 200px right and 50% down 
-        // (so its center vertically aligns with the car marker).
-        // Therefore, the visual center of the popup is exactly at the car marker's Y,
-        // and +200px on X.
-        px.x += 200;
+        // Balanced camera centering for car + popup:
+        // On desktop (> 640px): Card is positioned to the right. Shift camera by +100px X.
+        // On mobile (<= 640px): Card is positioned above. Shift camera by -130px Y.
+        if (window.innerWidth > 640) {
+            px.x += 100;
+        } else {
+            px.y -= 130;
+        }
         
         const targetLatLng = map.unproject(px, zoom);
         if (animate) {
-            map.flyTo(targetLatLng, zoom, { animate: true, duration: 0.5 });
+            map.flyTo(targetLatLng, zoom, { animate: true, duration: 0.4 });
         } else {
             map.setView(targetLatLng, zoom, { animate: false });
         }
     } else {
         if (animate) {
-            map.flyTo(latlng, Math.max(map.getZoom(), 16), { animate: true, duration: 0.5 });
+            map.flyTo(latlng, Math.max(map.getZoom(), 16), { animate: true, duration: 0.4 });
         } else {
             map.setView(latlng, Math.max(map.getZoom(), 16), { animate: false });
         }
