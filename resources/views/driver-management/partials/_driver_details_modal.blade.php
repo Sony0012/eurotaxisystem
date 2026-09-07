@@ -31,6 +31,12 @@
                 <button type="button" class="driver-tab py-4 px-4 text-[10px] font-black uppercase tracking-widest border-b-2 border-transparent text-slate-400 hover:text-slate-600 transition-all flex items-center gap-2" data-tab="license">
                     <i data-lucide="file-text" class="w-3.5 h-3.5"></i> License & Documents
                 </button>
+                <button type="button" class="driver-tab py-4 px-4 text-[10px] font-black uppercase tracking-widest border-b-2 border-transparent text-slate-400 hover:text-slate-600 transition-all flex items-center gap-2" data-tab="boundaries">
+                    <i data-lucide="receipt" class="w-3.5 h-3.5"></i> Boundary History
+                </button>
+                <button type="button" class="driver-tab py-4 px-4 text-[10px] font-black uppercase tracking-widest border-b-2 border-transparent text-slate-400 hover:text-slate-600 transition-all flex items-center gap-2" data-tab="debts">
+                    <i data-lucide="wallet" class="w-3.5 h-3.5"></i> Debts & Liabilities
+                </button>
                 <button type="button" class="driver-tab py-4 px-4 text-[10px] font-black uppercase tracking-widest border-b-2 border-transparent text-slate-400 hover:text-slate-600 transition-all flex items-center gap-2" data-tab="incentives">
                     <i data-lucide="award" class="w-3.5 h-3.5"></i> Incentives
                 </button>
@@ -87,6 +93,32 @@
                             </div>
                         </form>
                     </div>
+                </div>
+            </div>
+
+            <div class="driver-tab-panel hidden" data-tab-panel="boundaries">
+                <div class="flex items-center gap-2 mb-6">
+                    <div class="w-1 h-6 bg-cyan-500 rounded-full"></div>
+                    <div>
+                        <h4 class="text-sm font-black text-slate-800 uppercase tracking-wider">Boundary History & Shift Records</h4>
+                        <p class="text-[11px] text-slate-400 font-medium">Historical breakdown of daily boundaries, actual collections, shortages, and incentives.</p>
+                    </div>
+                </div>
+                <div id="boundariesContent" class="text-sm text-slate-600 space-y-6">
+                    <p class="text-slate-400 animate-pulse">Loading boundary logs...</p>
+                </div>
+            </div>
+
+            <div class="driver-tab-panel hidden" data-tab-panel="debts">
+                <div class="flex items-center gap-2 mb-6">
+                    <div class="w-1 h-6 bg-rose-500 rounded-full"></div>
+                    <div>
+                        <h4 class="text-sm font-black text-slate-800 uppercase tracking-wider">Driver Debts & Financial Liabilities</h4>
+                        <p class="text-[11px] text-slate-400 font-medium">Full ledger of incident damage charges, boundary shortages, cash settlements, and remaining balances.</p>
+                    </div>
+                </div>
+                <div id="debtsContent" class="text-sm text-slate-600 space-y-6">
+                    <p class="text-slate-400 animate-pulse">Calculating debt ledger...</p>
                 </div>
             </div>
 
@@ -185,6 +217,7 @@
             const regKey = 'DRV-' + String(data.id || 0).padStart(4, '0');
             const unpaidShortage = parseFloat(data.net_shortage || 0);
             const pendingDebt = parseFloat(data.total_pending_debt || 0);
+            const totalPaidDebts = parseFloat(data.total_paid_debts || 0);
 
             document.getElementById('basicInfoContent').innerHTML = `
                 <!-- Left Column: Identity, Contacts & Liabilities -->
@@ -253,16 +286,25 @@
 
                     <!-- Outstanding Liabilities Card -->
                     <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs">
-                        <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-3">Outstanding Liabilities</span>
-                        <div class="grid grid-cols-2 gap-3">
-                            <div class="p-3.5 rounded-xl border ${unpaidShortage > 0 ? 'bg-rose-50/80 border-rose-200 text-rose-800' : 'bg-slate-50 border-slate-100 text-slate-700'}">
-                                <span class="text-[9px] font-black uppercase tracking-wider text-slate-400 block mb-1">Unpaid Shortage</span>
-                                <p class="text-sm font-black ${unpaidShortage > 0 ? 'text-rose-600' : 'text-slate-900'}">₱${unpaidShortage.toLocaleString('en-PH', {minimumFractionDigits: 2})}</p>
+                        <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                            <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Financial Liabilities & Debts</span>
+                            <button type="button" onclick="switchDriverTab('debts')" class="text-[10px] font-bold text-blue-600 hover:text-blue-800 uppercase tracking-wider flex items-center gap-1">
+                                Open Ledger <i data-lucide="arrow-right" class="w-3 h-3"></i>
+                            </button>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3 mt-3">
+                            <div class="p-3.5 rounded-xl border ${pendingDebt > 0 ? 'bg-rose-50/80 border-rose-200 text-rose-800' : 'bg-emerald-50/80 border-emerald-200 text-emerald-800'}">
+                                <span class="text-[9px] font-black uppercase tracking-wider text-slate-400 block mb-1">Outstanding Balance</span>
+                                <p class="text-sm font-black ${pendingDebt > 0 ? 'text-rose-600' : 'text-emerald-600'}">₱${pendingDebt.toLocaleString('en-PH', {minimumFractionDigits: 2})}</p>
                             </div>
-                            <div class="p-3.5 rounded-xl border ${pendingDebt > 0 ? 'bg-amber-50/80 border-amber-200 text-amber-800' : 'bg-slate-50 border-slate-100 text-slate-700'}">
-                                <span class="text-[9px] font-black uppercase tracking-wider text-slate-400 block mb-1">Pending Debt</span>
-                                <p class="text-sm font-black ${pendingDebt > 0 ? 'text-amber-600' : 'text-slate-900'}">₱${pendingDebt.toLocaleString('en-PH', {minimumFractionDigits: 2})}</p>
+                            <div class="p-3.5 rounded-xl border bg-emerald-50/80 border-emerald-200 text-emerald-800">
+                                <span class="text-[9px] font-black uppercase tracking-wider text-slate-400 block mb-1">Total Settled / Paid</span>
+                                <p class="text-sm font-black text-emerald-600">₱${totalPaidDebts.toLocaleString('en-PH', {minimumFractionDigits: 2})}</p>
                             </div>
+                        </div>
+                        <div class="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+                            <span class="text-slate-500 font-bold">Unpaid Shortage Dues:</span>
+                            <span class="font-black ${unpaidShortage > 0 ? 'text-rose-600' : 'text-slate-700'}">₱${unpaidShortage.toLocaleString('en-PH', {minimumFractionDigits: 2})}</span>
                         </div>
                     </div>
                 </div>
@@ -306,12 +348,14 @@
                                 <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
                                 <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest">30-Day Shift Activity</span>
                             </div>
-                            <span class="text-xs font-black text-emerald-600">${data.paid_shifts_count || 0} / ${data.shifts_count || 0} Paid Shifts</span>
+                            <button type="button" onclick="switchDriverTab('boundaries')" class="text-[10px] font-bold text-blue-600 hover:text-blue-800 uppercase tracking-wider flex items-center gap-1">
+                                View History <i data-lucide="arrow-right" class="w-3 h-3"></i>
+                            </button>
                         </div>
                         <div class="grid grid-cols-2 gap-3 pt-1">
                             <div class="p-3 bg-slate-50 rounded-xl border border-slate-100 text-center">
-                                <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-0.5">Missed Incentives</span>
-                                <span class="text-xs font-black text-slate-700">${data.missed_incentive_count || 0}</span>
+                                <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-0.5">Paid / Total Shifts</span>
+                                <span class="text-xs font-black text-emerald-600">${data.paid_shifts_count || 0} / ${data.shifts_count || 0}</span>
                             </div>
                             <div class="p-3 bg-slate-50 rounded-xl border border-slate-100 text-center">
                                 <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-0.5">Reported Incidents</span>
@@ -408,6 +452,438 @@
             // Re-initialize lucide icons for the new HTML
             if (typeof lucide !== 'undefined') {
                 lucide.createIcons();
+            }
+
+            // ===================== BOUNDARY HISTORY TAB =====================
+            const totalBoundaries = data.total_boundary_count || (data.boundary_history ? data.boundary_history.length : 0);
+            const totalColl = parseFloat(data.total_boundary_collected || 0);
+            const totalTarget = parseFloat(data.total_boundary_target || 0);
+            const totalShortage = parseFloat(data.total_boundary_shortage || 0);
+            const paidCount = data.total_boundary_paid_count || (data.boundary_history ? data.boundary_history.filter(b => b.status === 'paid').length : 0);
+            const shortCount = data.total_boundary_shortage_count || (data.boundary_history ? data.boundary_history.filter(b => b.status === 'shortage').length : 0);
+
+            let boundaryRowsHtml = '';
+            if (data.boundary_history && data.boundary_history.length > 0) {
+                data.boundary_history.forEach(b => {
+                    const actual = parseFloat(b.actual_boundary || 0);
+                    const target = parseFloat(b.boundary_amount || 0);
+                    const short = parseFloat(b.shortage || 0);
+                    const exc = parseFloat(b.excess || 0);
+                    const notes = (b.notes || '').trim();
+
+                    let statusBadge = '';
+                    if (b.status === 'paid') {
+                        statusBadge = '<span class="px-2.5 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg text-[9px] font-black uppercase tracking-wider">PAID</span>';
+                    } else if (b.status === 'shortage') {
+                        statusBadge = '<span class="px-2.5 py-1 bg-rose-50 text-rose-700 border border-rose-200 rounded-lg text-[9px] font-black uppercase tracking-wider">SHORTAGE</span>';
+                    } else if (b.status === 'excess') {
+                        statusBadge = '<span class="px-2.5 py-1 bg-blue-50 text-blue-700 border border-blue-200 rounded-lg text-[9px] font-black uppercase tracking-wider">EXCESS</span>';
+                    } else if (b.is_absent || b.status === 'absent') {
+                        statusBadge = '<span class="px-2.5 py-1 bg-purple-50 text-purple-700 border border-purple-200 rounded-lg text-[9px] font-black uppercase tracking-wider">ABSENT</span>';
+                    } else {
+                        statusBadge = `<span class="px-2.5 py-1 bg-slate-100 text-slate-700 border border-slate-200 rounded-lg text-[9px] font-black uppercase tracking-wider">${(b.status || 'RECORD').toUpperCase()}</span>`;
+                    }
+
+                    let varianceBadge = '';
+                    if (short > 0) {
+                        varianceBadge = `<span class="px-2 py-0.5 bg-rose-50 text-rose-600 border border-rose-100 rounded-md font-black text-xs">-₱${short.toLocaleString('en-PH', {minimumFractionDigits:2})}</span>`;
+                    } else if (exc > 0) {
+                        varianceBadge = `<span class="px-2 py-0.5 bg-blue-50 text-blue-600 border border-blue-100 rounded-md font-black text-xs">+₱${exc.toLocaleString('en-PH', {minimumFractionDigits:2})}</span>`;
+                    } else {
+                        varianceBadge = `<span class="text-emerald-600 font-bold text-xs">Balanced</span>`;
+                    }
+
+                    let incentiveBadge = b.has_incentive
+                        ? '<span class="px-2 py-0.5 bg-emerald-100 text-emerald-700 rounded-md text-[9px] font-black uppercase tracking-wider inline-flex items-center gap-1"><i data-lucide="check" class="w-3 h-3"></i> EARNED</span>'
+                        : '<span class="px-2 py-0.5 bg-rose-100 text-rose-700 rounded-md text-[9px] font-black uppercase tracking-wider inline-flex items-center gap-1"><i data-lucide="x" class="w-3 h-3"></i> MISSED</span>';
+
+                    boundaryRowsHtml += `
+                        <tr class="border-b border-slate-100 hover:bg-slate-50/80 transition-colors">
+                            <td class="p-4 font-bold text-slate-700 whitespace-nowrap">
+                                <div class="flex items-center gap-2">
+                                    <i data-lucide="calendar" class="w-3.5 h-3.5 text-slate-400"></i>
+                                    <span>${new Date(b.date).toLocaleDateString('en-PH', {month: 'short', day: 'numeric', year: 'numeric'})}</span>
+                                </div>
+                            </td>
+                            <td class="p-4 font-black font-mono text-slate-900 whitespace-nowrap">
+                                <span class="px-2 py-1 bg-slate-100 border border-slate-200 rounded-lg text-xs">${b.plate_number || '—'}</span>
+                            </td>
+                            <td class="p-4 font-bold text-slate-500 whitespace-nowrap">₱${target.toLocaleString('en-PH', {minimumFractionDigits:2})}</td>
+                            <td class="p-4 font-black text-slate-900 whitespace-nowrap">₱${actual.toLocaleString('en-PH', {minimumFractionDigits:2})}</td>
+                            <td class="p-4 whitespace-nowrap">${varianceBadge}</td>
+                            <td class="p-4 whitespace-nowrap">${statusBadge}</td>
+                            <td class="p-4 whitespace-nowrap">${incentiveBadge}</td>
+                            <td class="p-4 text-xs font-semibold text-slate-500 max-w-[200px] truncate" title="${notes}">${notes || '—'}</td>
+                        </tr>
+                    `;
+                });
+            } else {
+                boundaryRowsHtml = `<tr><td colspan="8" class="p-8 text-center text-slate-400 font-bold uppercase tracking-widest text-[10px]">No boundary history recorded for this driver</td></tr>`;
+            }
+
+            const boundariesEl = document.getElementById('boundariesContent');
+            if (boundariesEl) {
+                boundariesEl.innerHTML = `
+                    <!-- Boundary Summary KPI Cards -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                        <!-- Card 1: Total Shifts -->
+                        <div class="relative overflow-hidden rounded-3xl border border-slate-200/80 bg-gradient-to-br from-white via-cyan-50/30 to-sky-50/20 p-5 shadow-xs">
+                            <div class="flex items-center justify-between gap-3 relative z-10">
+                                <div class="min-w-0 flex-1">
+                                    <span class="text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-slate-400 block mb-1">Total Shifts</span>
+                                    <div class="text-xl sm:text-2xl font-black text-slate-900 leading-tight tracking-tight tabular-nums truncate">
+                                        ${totalBoundaries}
+                                    </div>
+                                    <div class="mt-2 flex items-center gap-1.5 text-[11px] font-bold text-cyan-600">
+                                        <span class="inline-flex h-1.5 w-1.5 rounded-full bg-cyan-500"></span>
+                                        <span>${paidCount} Paid / ${shortCount} Short</span>
+                                    </div>
+                                </div>
+                                <div class="w-12 h-12 sm:w-14 sm:h-14 shrink-0">
+                                    <img src="{{ asset("image/kpi/service_cycle_3d.svg") }}" alt="Shifts" class="w-full h-full object-contain filter drop-shadow-md">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card 2: Total Collected -->
+                        <div class="relative overflow-hidden rounded-3xl border border-slate-200/80 bg-gradient-to-br from-white via-emerald-50/40 to-teal-50/20 p-5 shadow-xs">
+                            <div class="flex items-center justify-between gap-3 relative z-10">
+                                <div class="min-w-0 flex-1">
+                                    <span class="text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-slate-400 block mb-1">Total Collected</span>
+                                    <div class="text-xl sm:text-2xl font-black text-emerald-600 leading-tight tracking-tight tabular-nums truncate">
+                                        ₱${totalColl.toLocaleString('en-PH', {minimumFractionDigits:2})}
+                                    </div>
+                                    <div class="mt-2 flex items-center gap-1.5 text-[11px] font-bold text-emerald-600">
+                                        <span class="inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                                        <span>All-Time Collections</span>
+                                    </div>
+                                </div>
+                                <div class="w-12 h-12 sm:w-14 sm:h-14 shrink-0">
+                                    <img src="{{ asset("image/kpi/reward_cash_3d.svg") }}" alt="Collections" class="w-full h-full object-contain filter drop-shadow-md">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card 3: Target Expected -->
+                        <div class="relative overflow-hidden rounded-3xl border border-slate-200/80 bg-gradient-to-br from-white via-blue-50/40 to-indigo-50/20 p-5 shadow-xs">
+                            <div class="flex items-center justify-between gap-3 relative z-10">
+                                <div class="min-w-0 flex-1">
+                                    <span class="text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-slate-400 block mb-1">Target Expected</span>
+                                    <div class="text-xl sm:text-2xl font-black text-slate-900 leading-tight tracking-tight tabular-nums truncate">
+                                        ₱${totalTarget.toLocaleString('en-PH', {minimumFractionDigits:2})}
+                                    </div>
+                                    <div class="mt-2 flex items-center gap-1.5 text-[11px] font-bold text-blue-600">
+                                        <span class="inline-flex h-1.5 w-1.5 rounded-full bg-blue-500"></span>
+                                        <span>Cumulative Target</span>
+                                    </div>
+                                </div>
+                                <div class="w-12 h-12 sm:w-14 sm:h-14 shrink-0">
+                                    <img src="{{ asset("image/kpi/owner_active_3d.svg") }}" alt="Target" class="w-full h-full object-contain filter drop-shadow-md">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card 4: Shortages Incurred -->
+                        <div class="relative overflow-hidden rounded-3xl border border-slate-200/80 bg-gradient-to-br from-white via-rose-50/40 to-red-50/20 p-5 shadow-xs">
+                            <div class="flex items-center justify-between gap-3 relative z-10">
+                                <div class="min-w-0 flex-1">
+                                    <span class="text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-slate-400 block mb-1">Total Shortages</span>
+                                    <div class="text-xl sm:text-2xl font-black ${totalShortage > 0 ? 'text-rose-600' : 'text-slate-900'} leading-tight tracking-tight tabular-nums truncate">
+                                        ₱${totalShortage.toLocaleString('en-PH', {minimumFractionDigits:2})}
+                                    </div>
+                                    <div class="mt-2 flex items-center gap-1.5 text-[11px] font-bold ${totalShortage > 0 ? 'text-rose-600' : 'text-emerald-600'}">
+                                        <span class="inline-flex h-1.5 w-1.5 rounded-full ${totalShortage > 0 ? 'bg-rose-500' : 'bg-emerald-500'}"></span>
+                                        <span>${totalShortage > 0 ? `${shortCount} Shortage Shift(s)` : 'Zero Shortage Track'}</span>
+                                    </div>
+                                </div>
+                                <div class="w-12 h-12 sm:w-14 sm:h-14 shrink-0">
+                                    <img src="{{ asset("image/kpi/friction_points_3d.svg") }}" alt="Shortages" class="w-full h-full object-contain filter drop-shadow-md">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Boundary Records Table -->
+                    <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+                        <div class="p-4 bg-slate-50 border-b border-slate-100 flex items-center justify-between flex-wrap gap-2">
+                            <div class="flex items-center gap-2">
+                                <i data-lucide="list" class="w-4 h-4 text-cyan-600"></i>
+                                <h5 class="text-xs font-black text-slate-800 uppercase tracking-wider">Complete Boundary Shift Ledger</h5>
+                            </div>
+                            <span class="text-[10px] font-mono font-bold text-slate-500 bg-white px-2.5 py-1 rounded-md border border-slate-200">${totalBoundaries} Total Entries</span>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-xs text-left">
+                                <thead class="bg-slate-50/50 text-slate-400 font-black uppercase tracking-widest border-b border-slate-100">
+                                    <tr>
+                                        <th class="p-4">Shift Date</th>
+                                        <th class="p-4">Taxi Unit</th>
+                                        <th class="p-4">Target Rate</th>
+                                        <th class="p-4">Actual Collected</th>
+                                        <th class="p-4">Variance</th>
+                                        <th class="p-4">Status</th>
+                                        <th class="p-4">Incentive</th>
+                                        <th class="p-4">Telemetry Notes</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100">${boundaryRowsHtml}</tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // ===================== DEBTS & LIABILITIES TAB =====================
+            const totalCharged = parseFloat(data.total_charged_all_time || 0);
+            const totalPaid = parseFloat(data.total_paid_debts || 0);
+            const totalPending = parseFloat(data.total_pending_debt || 0);
+            const pendingList = data.pending_debts || [];
+            const settledList = data.settled_debts || [];
+            const expenseList = data.expense_payments || [];
+
+            // Pending Debts Rows
+            let pendingRowsHtml = '';
+            if (pendingList.length > 0) {
+                pendingList.forEach(d => {
+                    const chg = parseFloat(d.total_charge || 0);
+                    const pd = parseFloat(d.total_paid || 0);
+                    const rem = parseFloat(d.remaining_balance || 0);
+                    const dateStr = d.date || d.timestamp || d.created_at;
+
+                    pendingRowsHtml += `
+                        <tr class="border-b border-slate-100 hover:bg-rose-50/20 transition-colors">
+                            <td class="p-4 font-bold text-slate-700 whitespace-nowrap">
+                                <div class="flex items-center gap-2">
+                                    <i data-lucide="calendar" class="w-3.5 h-3.5 text-slate-400"></i>
+                                    <span>${dateStr ? new Date(dateStr).toLocaleDateString('en-PH', {month: 'short', day: 'numeric', year: 'numeric'}) : '—'}</span>
+                                </div>
+                            </td>
+                            <td class="p-4 font-black text-slate-900">
+                                <span class="px-2 py-1 bg-slate-100 border border-slate-200 rounded-lg text-[10px] uppercase font-black tracking-wider">${(d.incident_type || 'INCIDENT').replace('_', ' ')}</span>
+                            </td>
+                            <td class="p-4 font-mono font-bold text-slate-800">${d.plate_number || '—'}</td>
+                            <td class="p-4 font-bold text-slate-600 whitespace-nowrap">₱${chg.toLocaleString('en-PH', {minimumFractionDigits:2})}</td>
+                            <td class="p-4 font-bold text-emerald-600 whitespace-nowrap">₱${pd.toLocaleString('en-PH', {minimumFractionDigits:2})}</td>
+                            <td class="p-4 font-black text-rose-600 whitespace-nowrap text-sm">₱${rem.toLocaleString('en-PH', {minimumFractionDigits:2})}</td>
+                            <td class="p-4 whitespace-nowrap">
+                                <span class="px-2.5 py-1 bg-amber-50 text-amber-700 border border-amber-200 rounded-lg text-[9px] font-black uppercase tracking-wider">${(d.charge_status || 'PENDING').toUpperCase()}</span>
+                            </td>
+                            <td class="p-4 text-xs font-semibold text-slate-500 max-w-[220px] truncate" title="${d.description || ''}">${d.description || '—'}</td>
+                        </tr>
+                    `;
+                });
+            } else {
+                pendingRowsHtml = `
+                    <tr>
+                        <td colspan="8" class="p-8 text-center">
+                            <div class="flex flex-col items-center justify-center gap-2 text-emerald-600">
+                                <div class="w-10 h-10 rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center">
+                                    <i data-lucide="shield-check" class="w-6 h-6 text-emerald-500"></i>
+                                </div>
+                                <p class="font-black uppercase tracking-wider text-xs">No Pending Liabilities</p>
+                                <p class="text-[11px] text-slate-400 font-medium">Driver has zero outstanding debts or unpaid charges.</p>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }
+
+            // Settled Debts Rows
+            let settledRowsHtml = '';
+            if (settledList.length > 0) {
+                settledList.forEach(s => {
+                    const chg = parseFloat(s.total_charge || 0);
+                    const pd = parseFloat(s.total_paid || 0);
+                    const dateStr = s.settled_at || s.updated_at || s.date || s.created_at;
+
+                    settledRowsHtml += `
+                        <tr class="border-b border-slate-100 hover:bg-emerald-50/20 transition-colors">
+                            <td class="p-4 font-bold text-slate-700 whitespace-nowrap">
+                                <div class="flex items-center gap-2">
+                                    <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-emerald-500"></i>
+                                    <span>${dateStr ? new Date(dateStr).toLocaleDateString('en-PH', {month: 'short', day: 'numeric', year: 'numeric'}) : '—'}</span>
+                                </div>
+                            </td>
+                            <td class="p-4 font-black text-slate-900">
+                                <span class="px-2 py-1 bg-slate-100 border border-slate-200 rounded-lg text-[10px] uppercase font-black tracking-wider">${(s.incident_type || 'CHARGE').replace('_', ' ')}</span>
+                            </td>
+                            <td class="p-4 font-mono font-bold text-slate-800">${s.plate_number || '—'}</td>
+                            <td class="p-4 font-bold text-slate-500 whitespace-nowrap">₱${chg.toLocaleString('en-PH', {minimumFractionDigits:2})}</td>
+                            <td class="p-4 font-black text-emerald-600 whitespace-nowrap">₱${pd.toLocaleString('en-PH', {minimumFractionDigits:2})}</td>
+                            <td class="p-4 whitespace-nowrap">
+                                <span class="px-2.5 py-1 bg-emerald-100 text-emerald-700 border border-emerald-200 rounded-lg text-[9px] font-black uppercase tracking-widest inline-flex items-center gap-1">
+                                    <i data-lucide="check-check" class="w-3 h-3"></i> FULLY SETTLED
+                                </span>
+                            </td>
+                            <td class="p-4 text-xs font-semibold text-slate-500 max-w-[220px] truncate" title="${s.description || ''}">${s.description || '—'}</td>
+                        </tr>
+                    `;
+                });
+            } else {
+                settledRowsHtml = `<tr><td colspan="7" class="p-8 text-center text-slate-400 font-bold uppercase tracking-widest text-[10px]">No settled debt records found</td></tr>`;
+            }
+
+            // Expense damage recovery cash-in payments
+            let expenseRowsHtml = '';
+            if (expenseList.length > 0) {
+                expenseList.forEach(e => {
+                    expenseRowsHtml += `
+                        <tr class="border-b border-slate-100 hover:bg-slate-50 transition-colors">
+                            <td class="p-4 font-bold text-slate-700">${new Date(e.date).toLocaleDateString('en-PH', {month: 'short', day: 'numeric', year: 'numeric'})}</td>
+                            <td class="p-4 font-black text-slate-800">${e.unit_plate || '—'}</td>
+                            <td class="p-4 font-black text-emerald-600">₱${parseFloat(e.amount || 0).toLocaleString('en-PH', {minimumFractionDigits:2})}</td>
+                            <td class="p-4"><span class="px-2 py-0.5 bg-slate-100 text-slate-700 rounded-md text-[10px] font-black uppercase">${e.payment_method || 'Cash'}</span></td>
+                            <td class="p-4 text-xs text-slate-600">${e.description || 'Damage Recovery Payment'}</td>
+                        </tr>
+                    `;
+                });
+            }
+
+            const debtsEl = document.getElementById('debtsContent');
+            if (debtsEl) {
+                debtsEl.innerHTML = `
+                    <!-- Debts Summary KPI Cards -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+                        <!-- Card 1: Total Charged All-Time -->
+                        <div class="relative overflow-hidden rounded-3xl border border-slate-200/80 bg-gradient-to-br from-white via-slate-50/80 to-slate-100/40 p-5 shadow-xs">
+                            <div class="flex items-center justify-between gap-3 relative z-10">
+                                <div class="min-w-0 flex-1">
+                                    <span class="text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-slate-400 block mb-1">Total Charged All-Time</span>
+                                    <div class="text-xl sm:text-2xl font-black text-slate-900 leading-tight tracking-tight tabular-nums truncate">
+                                        ₱${totalCharged.toLocaleString('en-PH', {minimumFractionDigits:2})}
+                                    </div>
+                                    <div class="mt-2 flex items-center gap-1.5 text-[11px] font-bold text-slate-500">
+                                        <span class="inline-flex h-1.5 w-1.5 rounded-full bg-slate-400"></span>
+                                        <span>${pendingList.length + settledList.length} Total Incident Charge(s)</span>
+                                    </div>
+                                </div>
+                                <div class="w-12 h-12 sm:w-14 sm:h-14 shrink-0">
+                                    <img src="{{ asset("image/kpi/friction_points_3d.svg") }}" alt="Total Charges" class="w-full h-full object-contain filter drop-shadow-md">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card 2: Total Paid & Settled -->
+                        <div class="relative overflow-hidden rounded-3xl border border-slate-200/80 bg-gradient-to-br from-white via-emerald-50/40 to-teal-50/20 p-5 shadow-xs">
+                            <div class="flex items-center justify-between gap-3 relative z-10">
+                                <div class="min-w-0 flex-1">
+                                    <span class="text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-slate-400 block mb-1">Total Paid & Settled</span>
+                                    <div class="text-xl sm:text-2xl font-black text-emerald-600 leading-tight tracking-tight tabular-nums truncate">
+                                        ₱${totalPaid.toLocaleString('en-PH', {minimumFractionDigits:2})}
+                                    </div>
+                                    <div class="mt-2 flex items-center gap-1.5 text-[11px] font-bold text-emerald-600">
+                                        <span class="inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                                        <span>${settledList.length} Debt Record(s) Settled</span>
+                                    </div>
+                                </div>
+                                <div class="w-12 h-12 sm:w-14 sm:h-14 shrink-0">
+                                    <img src="{{ asset("image/kpi/reward_cash_3d.svg") }}" alt="Settled" class="w-full h-full object-contain filter drop-shadow-md">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card 3: Active Outstanding Debt -->
+                        <div class="relative overflow-hidden rounded-3xl border border-slate-200/80 bg-gradient-to-br from-white via-${totalPending > 0 ? 'rose-50/40' : 'emerald-50/40'} to-${totalPending > 0 ? 'red-50/20' : 'teal-50/20'} p-5 shadow-xs">
+                            <div class="flex items-center justify-between gap-3 relative z-10">
+                                <div class="min-w-0 flex-1">
+                                    <span class="text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-slate-400 block mb-1">Outstanding Balance</span>
+                                    <div class="text-xl sm:text-2xl font-black ${totalPending > 0 ? 'text-rose-600' : 'text-emerald-600'} leading-tight tracking-tight tabular-nums truncate">
+                                        ₱${totalPending.toLocaleString('en-PH', {minimumFractionDigits:2})}
+                                    </div>
+                                    <div class="mt-2 flex items-center gap-1.5 text-[11px] font-bold ${totalPending > 0 ? 'text-rose-600' : 'text-emerald-600'}">
+                                        <span class="inline-flex h-1.5 w-1.5 rounded-full ${totalPending > 0 ? 'bg-rose-500' : 'bg-emerald-500'}"></span>
+                                        <span>${totalPending > 0 ? `${pendingList.length} Active Unpaid Item(s)` : 'Fully Cleared & Zero Balance'}</span>
+                                    </div>
+                                </div>
+                                <div class="w-12 h-12 sm:w-14 sm:h-14 shrink-0">
+                                    <img src="{{ asset("image/kpi/owner_active_3d.svg") }}" alt="Balance" class="w-full h-full object-contain filter drop-shadow-md">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Active & Pending Debts Table -->
+                    <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden mb-6">
+                        <div class="p-4 bg-slate-50 border-b border-slate-100 flex items-center justify-between flex-wrap gap-2">
+                            <div class="flex items-center gap-2">
+                                <i data-lucide="alert-circle" class="w-4 h-4 text-rose-500"></i>
+                                <h5 class="text-xs font-black text-slate-800 uppercase tracking-wider">Active & Pending Liabilities</h5>
+                            </div>
+                            <span class="text-[10px] font-mono font-bold ${totalPending > 0 ? 'text-rose-600 bg-rose-50 border-rose-200' : 'text-emerald-600 bg-emerald-50 border-emerald-200'} px-2.5 py-1 rounded-md border">${pendingList.length} Unsettled Item(s)</span>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-xs text-left">
+                                <thead class="bg-slate-50/50 text-slate-400 font-black uppercase tracking-widest border-b border-slate-100">
+                                    <tr>
+                                        <th class="p-4">Incident Date</th>
+                                        <th class="p-4">Classification</th>
+                                        <th class="p-4">Unit</th>
+                                        <th class="p-4">Initial Charge</th>
+                                        <th class="p-4">Paid So Far</th>
+                                        <th class="p-4">Remaining Balance</th>
+                                        <th class="p-4">Status</th>
+                                        <th class="p-4">Description</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100">${pendingRowsHtml}</tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Paid & Settled Debts History Table -->
+                    <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden mb-6">
+                        <div class="p-4 bg-slate-50 border-b border-slate-100 flex items-center justify-between flex-wrap gap-2">
+                            <div class="flex items-center gap-2">
+                                <i data-lucide="check-check" class="w-4 h-4 text-emerald-600"></i>
+                                <h5 class="text-xs font-black text-slate-800 uppercase tracking-wider">Paid & Settled Debts History</h5>
+                            </div>
+                            <span class="text-[10px] font-mono font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200">${settledList.length} Settled Record(s)</span>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-xs text-left">
+                                <thead class="bg-slate-50/50 text-slate-400 font-black uppercase tracking-widest border-b border-slate-100">
+                                    <tr>
+                                        <th class="p-4">Settled Date</th>
+                                        <th class="p-4">Classification</th>
+                                        <th class="p-4">Unit</th>
+                                        <th class="p-4">Total Charge</th>
+                                        <th class="p-4">Amount Paid</th>
+                                        <th class="p-4">Resolution</th>
+                                        <th class="p-4">Description</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100">${settledRowsHtml}</tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    ${expenseList.length > 0 ? `
+                        <!-- Damage Recovery Direct Cash Receipts -->
+                        <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+                            <div class="p-4 bg-slate-50 border-b border-slate-100 flex items-center justify-between flex-wrap gap-2">
+                                <div class="flex items-center gap-2">
+                                    <i data-lucide="receipt" class="w-4 h-4 text-blue-600"></i>
+                                    <h5 class="text-xs font-black text-slate-800 uppercase tracking-wider">Damage Recovery Accounting Cash-Ins</h5>
+                                </div>
+                                <span class="text-[10px] font-mono font-bold text-slate-500 bg-white px-2.5 py-1 rounded-md border border-slate-200">${expenseList.length} Payment(s)</span>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-xs text-left">
+                                    <thead class="bg-slate-50/50 text-slate-400 font-black uppercase tracking-widest border-b border-slate-100">
+                                        <tr>
+                                            <th class="p-4">Date</th>
+                                            <th class="p-4">Unit</th>
+                                            <th class="p-4">Amount</th>
+                                            <th class="p-4">Method</th>
+                                            <th class="p-4">Particulars</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-slate-100">${expenseRowsHtml}</tbody>
+                                </table>
+                            </div>
+                        </div>
+                    ` : ''}
+                `;
             }
 
             // ===================== INCENTIVES TAB =====================
@@ -857,16 +1333,30 @@
         }
     }
 
+    window.switchDriverTab = function(tabName) {
+        document.querySelectorAll('.driver-tab').forEach(t => {
+            t.classList.remove('border-blue-500', 'text-blue-600', 'active', 'border-yellow-500', 'text-yellow-600');
+            t.classList.add('border-transparent', 'text-slate-400');
+            if (t.dataset.tab === tabName) {
+                t.classList.add('border-blue-500', 'text-blue-600', 'active');
+                t.classList.remove('border-transparent', 'text-slate-400');
+            }
+        });
+        document.querySelectorAll('.driver-tab-panel').forEach(p => {
+            if (p.dataset.tabPanel === tabName) {
+                p.classList.remove('hidden');
+            } else {
+                p.classList.add('hidden');
+            }
+        });
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+    };
+
     document.querySelectorAll('.driver-tab').forEach(tab => {
         tab.addEventListener('click', () => {
-            document.querySelectorAll('.driver-tab').forEach(t => {
-                t.classList.remove('border-blue-500', 'text-blue-600', 'active');
-                t.classList.add('border-transparent', 'text-slate-400');
-            });
-            document.querySelectorAll('.driver-tab-panel').forEach(p => p.classList.add('hidden'));
-            tab.classList.add('border-blue-500', 'text-blue-600', 'active');
-            const panel = document.querySelector(`.driver-tab-panel[data-tab-panel="${tab.dataset.tab}"]`);
-            if (panel) panel.classList.remove('hidden');
+            if (tab.dataset.tab) {
+                switchDriverTab(tab.dataset.tab);
+            }
         });
     });
 

@@ -589,6 +589,89 @@ class DriverManagementV2Controller extends Controller
             ->whereRaw($this->getViolationQuerySnippet())
             ->count();
 
+        // Complete Boundary History
+        $driver->boundary_history = DB::table('boundaries as b')
+            ->where('b.driver_id', $id)
+            ->whereNull('b.deleted_at')
+            ->leftJoin('units as u', 'b.unit_id', '=', 'u.id')
+            ->select(
+                'b.id', 'b.date', 'b.actual_boundary', 'b.boundary_amount', 'b.status',
+                'b.shortage', 'b.excess', 'b.has_incentive', 'b.notes',
+                'b.vehicle_damaged', 'b.is_absent', 'u.plate_number'
+            )
+            ->orderByDesc('b.date')
+            ->orderByDesc('b.id')
+            ->get();
+
+        $driver->total_boundary_count          = $driver->boundary_history->count();
+        $driver->total_boundary_collected      = (float) $driver->boundary_history->sum('actual_boundary');
+        $driver->total_boundary_target         = (float) $driver->boundary_history->sum('boundary_amount');
+        $driver->total_boundary_shortage       = (float) $driver->boundary_history->sum('shortage');
+        $driver->total_boundary_excess         = (float) $driver->boundary_history->sum('excess');
+        $driver->total_boundary_paid_count     = $driver->boundary_history->where('status', 'paid')->count();
+        $driver->total_boundary_shortage_count = $driver->boundary_history->where('status', 'shortage')->count();
+
+        // Complete Debts & Paid Debts Ledger from driver_behavior
+        $allDebts = DB::table('driver_behavior as db')
+            ->where('db.driver_id', $id)
+            ->whereNull('db.deleted_at')
+            ->where(function($q) {
+                $q->where('db.total_charge_to_driver', '>', 0)
+                  ->orWhere('db.total_paid', '>', 0)
+                  ->orWhere('db.remaining_balance', '>', 0)
+                  ->orWhereIn('db.charge_status', ['pending', 'partial', 'paid', 'settled']);
+            })
+            ->leftJoin('units as u', 'db.unit_id', '=', 'u.id')
+            ->select(
+                'db.id', 'db.incident_date as date', 'db.timestamp', 'db.description',
+                'db.severity', 'db.total_charge_to_driver as total_charge',
+                'db.total_paid', 'db.remaining_balance', 'db.charge_status', 'db.incident_type',
+                'db.created_at', 'db.updated_at',
+                'u.plate_number'
+            )
+            ->orderByDesc('db.incident_date')
+            ->orderByDesc('db.id')
+            ->get();
+
+        $driver->pending_debts = $allDebts->filter(function($d) {
+            return (float)$d->remaining_balance > 0 && strtolower($d->charge_status ?? '') !== 'paid' && strtolower($d->charge_status ?? '') !== 'settled';
+        })->values();
+
+        $driver->settled_debts = $allDebts->filter(function($d) {
+            return (float)$d->remaining_balance <= 0 || strtolower($d->charge_status ?? '') === 'paid' || strtolower($d->charge_status ?? '') === 'settled';
+        })->values();
+
+        $driverFullName = trim($driver->full_name ?? '');
+        $driverFirstName = trim($driver->first_name ?? '');
+        $driver->expense_payments = DB::table('expenses as e')
+            ->leftJoin('units as u', 'e.unit_id', '=', 'u.id')
+            ->where('e.category', 'Damage Recovery')
+            ->where('e.status', 'approved')
+            ->whereNull('e.deleted_at')
+            ->where(function($q) use ($driverFullName, $driverFirstName) {
+                if (!empty($driverFullName)) {
+                    $q->where('e.description', 'like', "%{$driverFullName}%");
+                }
+                if (!empty($driverFirstName) && strlen($driverFirstName) >= 3) {
+                    $q->orWhere('e.description', 'like', "%{$driverFirstName}%");
+                }
+            })
+            ->select(
+                'e.id', 'e.date', 'e.description', 'e.amount', 'e.created_at', 'e.payment_method',
+                'u.plate_number'
+            )
+            ->orderByDesc('e.date')
+            ->get()
+            ->map(function($p) {
+                $p->amount = abs((float)$p->amount);
+                return $p;
+            });
+
+        $driver->total_charged_all_time = (float) $allDebts->sum('total_charge');
+        $driver->total_paid_debts       = (float) $allDebts->sum('total_paid');
+        $driver->total_pending_debt     = (float) $driver->pending_debts->sum('remaining_balance');
+        $driver->net_shortage           = (float) $driver->total_boundary_shortage;
+
         return response()->json($driver);
     }
 
