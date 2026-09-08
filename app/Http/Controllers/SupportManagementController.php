@@ -17,7 +17,7 @@ class SupportManagementController extends Controller
     {
         $selectedDriverId = $request->get('driver_id');
 
-        // Fetch all drivers with their latest message info
+        // Fetch all drivers with their latest message info and online status
         $drivers = User::where('role', 'driver')
             ->select('users.*')
             ->addSelect([
@@ -40,11 +40,23 @@ class SupportManagementController extends Controller
 
         $chatMessages = [];
         $selectedDriver = null;
+        $isDriverOnline = false;
+        $driverLastSeen = null;
 
         if ($selectedDriverId) {
             $selectedDriver = User::where('role', 'driver')->findOrFail($selectedDriverId);
             
-            // Mark messages as read
+            $isDriverOnline = (bool) $selectedDriver->is_online;
+            if (!$isDriverOnline && $selectedDriver->last_seen_at) {
+                $seenAt = \Carbon\Carbon::parse($selectedDriver->last_seen_at);
+                if ($seenAt->diffInMinutes(now()) <= 5) {
+                    $isDriverOnline = true;
+                } else {
+                    $driverLastSeen = $seenAt->diffForHumans();
+                }
+            }
+
+            // Mark driver messages as read
             SupportMessage::where('driver_id', $selectedDriverId)
                 ->where('sender_type', 'driver')
                 ->where('is_read', false)
@@ -56,7 +68,7 @@ class SupportManagementController extends Controller
                 ->get();
         }
 
-        return view('support.index', compact('drivers', 'selectedDriver', 'chatMessages'));
+        return view('support.index', compact('drivers', 'selectedDriver', 'chatMessages', 'isDriverOnline', 'driverLastSeen'));
     }
 
     /**
@@ -64,30 +76,61 @@ class SupportManagementController extends Controller
      */
     public function getMessagesJson($driverId)
     {
-        // Mark as read
+        // Mark driver messages as read
         SupportMessage::where('driver_id', $driverId)
             ->where('sender_type', 'driver')
             ->where('is_read', false)
             ->update(['is_read' => true]);
 
+        $driver = User::find($driverId);
+        $isOnline = false;
+        $lastSeen = null;
+        if ($driver) {
+            $isOnline = (bool) $driver->is_online;
+            if (!$isOnline && $driver->last_seen_at) {
+                $seenAt = \Carbon\Carbon::parse($driver->last_seen_at);
+                if ($seenAt->diffInMinutes(now()) <= 5) {
+                    $isOnline = true;
+                } else {
+                    $lastSeen = $seenAt->diffForHumans();
+                }
+            }
+        }
+
         $messages = SupportMessage::where('driver_id', $driverId)
             ->where('hidden_by_admin', false)
             ->orderBy('created_at', 'asc')
-            ->get();
+            ->get()
+            ->map(function ($msg) {
+                return [
+                    'id' => $msg->id,
+                    'driver_id' => $msg->driver_id,
+                    'sender_type' => $msg->sender_type,
+                    'sender_id' => $msg->sender_id,
+                    'message' => $msg->message,
+                    'attachment' => $msg->attachment,
+                    'is_read' => (bool) $msg->is_read,
+                    'created_at' => $msg->created_at ? $msg->created_at->toISOString() : null,
+                    'time' => $msg->created_at ? $msg->created_at->format('h:i A') : '',
+                    'human_time' => $msg->created_at ? $msg->created_at->diffForHumans() : '',
+                ];
+            });
 
         return response()->json([
             'success' => true,
+            'driver_is_online' => $isOnline,
+            'driver_last_seen' => $lastSeen,
             'messages' => $messages
         ]);
     }
 
     /**
-     * Get unread counts and latest messages for the driver list (AJAX).
+     * Get unread counts, latest messages, and online status for the driver list (AJAX).
      */
     public function getStatusJson()
     {
         $drivers = User::where('role', 'driver')
-            ->select('id')
+            ->select('id', 'first_name', 'last_name', 'full_name', 'is_online', 'last_seen_at')
             ->addSelect([
                 'latest_message' => SupportMessage::select('message')
                     ->whereColumn('driver_id', 'users.id')
@@ -102,7 +145,15 @@ class SupportManagementController extends Controller
                     ->where('sender_type', 'driver')
                     ->where('is_read', false)
             ])
-            ->get();
+            ->get()
+            ->map(function ($d) {
+                $isOnline = (bool) $d->is_online;
+                if (!$isOnline && $d->last_seen_at && \Carbon\Carbon::parse($d->last_seen_at)->diffInMinutes(now()) <= 5) {
+                    $isOnline = true;
+                }
+                $d->is_online_computed = $isOnline;
+                return $d;
+            });
 
         return response()->json([
             'success' => true,
@@ -125,6 +176,7 @@ class SupportManagementController extends Controller
             'sender_type' => 'admin',
             'sender_id' => Auth::id(),
             'message' => $request->message,
+            'is_read' => false,
         ]);
 
         // Send Push Notification to Driver
@@ -138,7 +190,31 @@ class SupportManagementController extends Controller
             );
         }
 
-        return response()->json(['success' => true, 'message' => 'Message sent.']);
+        $isOnline = false;
+        if ($driverUser) {
+            $isOnline = (bool) $driverUser->is_online;
+            if (!$isOnline && $driverUser->last_seen_at && \Carbon\Carbon::parse($driverUser->last_seen_at)->diffInMinutes(now()) <= 5) {
+                $isOnline = true;
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Message sent.',
+            'data' => [
+                'id' => $msg->id,
+                'driver_id' => $msg->driver_id,
+                'sender_type' => $msg->sender_type,
+                'sender_id' => $msg->sender_id,
+                'message' => $msg->message,
+                'attachment' => $msg->attachment,
+                'is_read' => false,
+                'created_at' => $msg->created_at ? $msg->created_at->toISOString() : now()->toISOString(),
+                'time' => $msg->created_at ? $msg->created_at->format('h:i A') : now()->format('h:i A'),
+                'human_time' => 'Just now',
+            ],
+            'driver_is_online' => $isOnline
+        ]);
     }
 
     /**
@@ -161,8 +237,7 @@ class SupportManagementController extends Controller
     }
 
     /**
-     * (Optional) Keep the old ticket-based show for backward compatibility if needed, 
-     * but we are moving to Messenger style.
+     * (Optional) Keep the old ticket-based show for backward compatibility if needed.
      */
     public function show($id)
     {

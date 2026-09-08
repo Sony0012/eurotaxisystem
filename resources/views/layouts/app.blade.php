@@ -2914,7 +2914,15 @@
         // 2. Instant Form Submissions
         document.addEventListener('submit', function(e) {
             const form = e.target;
-            if (form.getAttribute('target') === '_blank' || form.dataset.noLoader === 'true') return;
+            if (
+                !form ||
+                form.getAttribute('target') === '_blank' || 
+                form.dataset.noLoader === 'true' || 
+                form.id === 'chatForm' || 
+                form.id === 'staffChatForm' || 
+                form.classList?.contains('no-loader') ||
+                form.classList?.contains('ajax-form')
+            ) return;
             showGlobalLoader('Processing...');
         });
 
