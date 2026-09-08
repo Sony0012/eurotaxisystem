@@ -2665,28 +2665,21 @@
         // Expense Breakdown Chart - Premium Pie
         try {
             const expenseBreakdownCtx = document.getElementById('expenseBreakdownChart').getContext('2d');
-            let expenseBreakdownData = @json($expense_breakdown);
-            let isPlaceholder = false;
-            if (!expenseBreakdownData || expenseBreakdownData.length === 0 ||
-                (Array.isArray(expenseBreakdownData) && expenseBreakdownData.every(d => d.amount === 0))) {
-                isPlaceholder = true;
-                expenseBreakdownData = [
-                    { category: 'Maintenance', amount: 4500 },
-                    { category: 'Fuel & Oil', amount: 3200 },
-                    { category: 'Salaries', amount: 8000 },
-                    { category: 'Parts', amount: 2100 },
-                    { category: 'Others', amount: 1200 }
-                ];
-            }
-            const pieColors = ['#ef4444','#f59e0b','#10b981','#3b82f6','#8b5cf6','#ec4899','#06b6d4'];
-            const pieHover = ['#dc2626','#d97706','#059669','#2563eb','#7c3aed','#db2777','#0891b2'];
+            const rawExpenseData = @json($expense_breakdown) || [];
+            const hasExpenses = Array.isArray(rawExpenseData) && rawExpenseData.length > 0 && rawExpenseData.some(d => (Number(d.amount) || 0) > 0);
+            
+            const expLabels = hasExpenses ? rawExpenseData.map(d => d.category) : ['No Expenses Recorded'];
+            const expValues = hasExpenses ? rawExpenseData.map(d => Number(d.amount) || 0) : [0];
+            const pieColors = hasExpenses ? ['#ef4444','#f59e0b','#10b981','#3b82f6','#8b5cf6','#ec4899','#06b6d4'] : ['#e2e8f0'];
+            const pieHover  = hasExpenses ? ['#dc2626','#d97706','#059669','#2563eb','#7c3aed','#db2777','#0891b2'] : ['#cbd5e1'];
+            
             let isExpenseChartInitialized = false;
             function getExpenseChartConfig() {
                 return {
                     type: 'pie',
                     data: {
-                        labels: expenseBreakdownData.map(d => d.category),
-                        datasets: [{ data: expenseBreakdownData.map(d => 0), backgroundColor: pieColors, hoverBackgroundColor: pieHover, borderWidth: 3, borderColor: '#fff', hoverOffset: 12 }]
+                        labels: expLabels,
+                        datasets: [{ data: expValues.map(d => 0), backgroundColor: pieColors, hoverBackgroundColor: pieHover, borderWidth: 3, borderColor: '#fff', hoverOffset: hasExpenses ? 12 : 0 }]
                     },
                     options: {
                         responsive: true, maintainAspectRatio: false,
@@ -2696,13 +2689,14 @@
                                 backgroundColor: 'rgba(15,23,42,0.95)', padding: 14, cornerRadius: 12,
                                 callbacks: {
                                     label: function(ctx) {
+                                        if (!hasExpenses) return ' No expenses recorded yet';
                                         const total = ctx.dataset.data.reduce((a,b) => a+b, 0);
                                         const pct = total > 0 ? ((ctx.parsed / total) * 100).toFixed(1) : 0;
                                         return ` ${ctx.label}: ₱${ctx.parsed.toLocaleString()} (${pct}%)`;
                                     }
                                 }
                             },
-                            datalabels: { display: true, color: '#fff', font: { weight: 'bold', size: 16 }, formatter: (val, ctx) => { let sum = 0; ctx.dataset.data.forEach(n => { sum += Number(n) || 0; }); const v = Number(val) || 0; if (sum === 0 || v === 0) return ''; return Math.round((v / sum) * 100) + '%'; } }
+                            datalabels: { display: hasExpenses, color: '#fff', font: { weight: 'bold', size: 16 }, formatter: (val, ctx) => { let sum = 0; ctx.dataset.data.forEach(n => { sum += Number(n) || 0; }); const v = Number(val) || 0; if (sum === 0 || v === 0) return ''; return Math.round((v / sum) * 100) + '%'; } }
                         },
                         animation: { animateRotate: true, animateScale: true, duration: 1500, easing: 'easeOutQuart' }
                     }
@@ -2716,11 +2710,11 @@
                             window.expenseBreakdownChart = new Chart(expenseBreakdownCtx, getExpenseChartConfig());
                             isExpenseChartInitialized = true;
                         }
-                        window.expenseBreakdownChart.data.datasets[0].data = expenseBreakdownData.map(d => d.amount);
+                        window.expenseBreakdownChart.data.datasets[0].data = expValues;
                         window.expenseBreakdownChart.update();
                     } else {
                         if (isExpenseChartInitialized && window.expenseBreakdownChart) {
-                            window.expenseBreakdownChart.data.datasets[0].data = expenseBreakdownData.map(d => 0);
+                            window.expenseBreakdownChart.data.datasets[0].data = expValues.map(d => 0);
                             window.expenseBreakdownChart.update('none');
                         }
                     }
@@ -2729,33 +2723,27 @@
             expenseObserver.observe(document.getElementById('expenseBreakdownChart'));
         } catch (error) { console.error('Expense Chart Error:', error); }
 
-
-
-
         // Top Drivers Chart - Premium Horizontal Bar
         try {
             const topDriversCtx = document.getElementById('topDriversChart').getContext('2d');
-            let topDriversData = @json($top_drivers);
-            let isPlaceholder = false;
-            if (!topDriversData || topDriversData.length === 0 ||
-                (Array.isArray(topDriversData) && topDriversData.every(d => d.score === 0))) {
-                isPlaceholder = true;
-                topDriversData = [
-                    { name: 'Bernardo Silva', score: 28, total: 42000 },
-                    { name: 'Kevin De Bruyne', score: 26, total: 39000 },
-                    { name: 'Erling Haaland', score: 25, total: 37500 },
-                    { name: 'Phil Foden', score: 22, total: 33000 },
-                    { name: 'Rodri Hernandez', score: 20, total: 30000 }
-                ];
-            }
-            const barColors = topDriversData.map((_, i) => i===0?'#2563eb':i===1?'#7c3aed':i===2?'#0891b2':'#64748b');
+            const rawTopDriversData = @json($top_drivers) || [];
+            const hasTopDrivers = Array.isArray(rawTopDriversData) && rawTopDriversData.length > 0 && rawTopDriversData.some(d => (Number(d.score) || 0) > 0);
+            
+            const driverLabels = hasTopDrivers 
+                ? rawTopDriversData.map((d,i) => { const medals=['🥇','🥈','🥉']; return `${medals[i]||'  '} ${d.name}`; })
+                : ['No Shift Records Yet'];
+            const driverScores = hasTopDrivers ? rawTopDriversData.map(d => Number(d.score) || 0) : [0];
+            const barColors = hasTopDrivers 
+                ? rawTopDriversData.map((_, i) => i===0?'#2563eb':i===1?'#7c3aed':i===2?'#0891b2':'#64748b')
+                : ['#e2e8f0'];
+                
             let isTopDriversChartInitialized = false;
             function getTopDriversChartConfig() {
                 return {
                     type: 'bar',
                     data: {
-                        labels: topDriversData.map((d,i) => { const medals=['🥇','🥈','🥉']; return `${medals[i]||'  '} ${d.name}`; }),
-                        datasets: [{ label: 'Reliability Score', data: topDriversData.map(d => 0),
+                        labels: driverLabels,
+                        datasets: [{ label: 'Reliability Score', data: driverScores.map(d => 0),
                             backgroundColor: barColors, borderColor: barColors, borderWidth: 0,
                             borderRadius: 10, borderSkipped: false, barThickness: 28 }]
                     },
@@ -2765,8 +2753,12 @@
                             legend: { display: false },
                             tooltip: { backgroundColor: 'rgba(15,23,42,0.95)', padding: 14, cornerRadius: 12, displayColors: false,
                                 callbacks: {
-                                    label: ctx => ` ⭐ Reliability: ${ctx.parsed.x} clean service days`,
-                                    footer: items => { const amt = topDriversData[items[0].dataIndex].total; return ` ₱ Total Revenue: ₱${amt.toLocaleString()}`; }
+                                    label: ctx => hasTopDrivers ? ` ⭐ Reliability: ${ctx.parsed.x} clean service days` : ' No driver performance records yet',
+                                    footer: items => { 
+                                        if (!hasTopDrivers) return '';
+                                        const amt = rawTopDriversData[items[0].dataIndex]?.total || 0; 
+                                        return ` ₱ Total Revenue: ₱${amt.toLocaleString()}`; 
+                                    }
                                 }
                             },
                             datalabels: { color: '#fff', font: { weight: 'bold', size: 12 }, anchor: 'end', align: 'start', offset: 8, formatter: v => v>0?v:'' }
@@ -2787,11 +2779,11 @@
                             window.topDriversChart = new Chart(topDriversCtx, getTopDriversChartConfig());
                             isTopDriversChartInitialized = true;
                         }
-                        window.topDriversChart.data.datasets[0].data = topDriversData.map(d => d.score);
+                        window.topDriversChart.data.datasets[0].data = driverScores;
                         window.topDriversChart.update();
                     } else {
                         if (isTopDriversChartInitialized && window.topDriversChart) {
-                            window.topDriversChart.data.datasets[0].data = topDriversData.map(d => 0);
+                            window.topDriversChart.data.datasets[0].data = driverScores.map(d => 0);
                             window.topDriversChart.update('none');
                         }
                     }
@@ -2800,25 +2792,16 @@
             topDriversObserver.observe(document.getElementById('topDriversChart'));
         } catch (error) { console.error('Top Drivers Chart Error:', error); }
 
-
-
-
         // Unit Status Distribution Chart - Premium Donut
         try {
             const unitStatusDistCtx = document.getElementById('unitStatusChart').getContext('2d');
-            const unitStatusDistData = @json($unit_status_distribution_data);
-            const donutColors = ['#10b981','#3b82f6','#f59e0b','#ef4444'];
-            const donutHover = ['#059669','#2563eb','#d97706','#dc2626'];
-            let distLabels, distValues, distIsPlaceholder = false;
-            if (!unitStatusDistData || unitStatusDistData.length === 0 || unitStatusDistData.every(d => d.count === 0)) {
-                distIsPlaceholder = true;
-                distLabels = ['Active','Maintenance','Coding','Retired'];
-                distValues = [5,2,1,0];
-            } else {
-                distLabels = unitStatusDistData.map(d => d.status);
-                distValues = unitStatusDistData.map(d => d.count);
-            }
-            const totalUnits = distValues.reduce((a,b) => a+b, 0);
+            const unitStatusDistData = @json($unit_status_distribution_data) || [];
+            const donutColors = ['#10b981','#3b82f6','#f59e0b','#ef4444','#64748b'];
+            const donutHover  = ['#059669','#2563eb','#d97706','#dc2626','#475569'];
+            
+            const distLabels = unitStatusDistData.length > 0 ? unitStatusDistData.map(d => d.status) : ['Active','Under Maintenance','Coding','Missing / Stolen','Retired'];
+            const distValues = unitStatusDistData.length > 0 ? unitStatusDistData.map(d => Number(d.count) || 0) : [0, 0, 0, 0, 0];
+            
             let isUnitStatusChartInitialized = false;
             function getUnitStatusChartConfig() {
                 return {
