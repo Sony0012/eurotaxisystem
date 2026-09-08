@@ -1285,13 +1285,14 @@ class DashboardController extends Controller
         foreach ($activeMissingAlerts as $ama) {
             $plateStr = str_replace("🚨 Missing Unit: ", "", $ama->title);
             $u = DB::table('units')->where('plate_number', $plateStr)->whereNull('deleted_at')->first();
+            $hasBoundaries = $u ? DB::table('boundaries')->where('unit_id', $u->id)->whereNull('deleted_at')->exists() : false;
             
-            if (!$u || strtolower($u->status) === 'maintenance' || !$u->shift_deadline_at || Carbon::parse($u->shift_deadline_at)->diffInHours(now(), false) < 24) {
+            if (!$u || strtolower($u->status) === 'maintenance' || !$u->shift_deadline_at || Carbon::parse($u->shift_deadline_at)->diffInHours(now(), false) < 24 || !$hasBoundaries) {
                 DB::table('system_alerts')->where('id', $ama->id)->update(['is_resolved' => true, 'updated_at' => now()]);
             }
         }
 
-        // 3. Auto-generate Missing Unit Notifications
+        // 3. Auto-generate Missing Unit Notifications (Only for units with at least 1 boundary record)
         $missingUnits = DB::table('units')
             ->leftJoin('drivers', 'units.current_turn_driver_id', '=', 'drivers.id')
             ->whereNull('units.deleted_at')
@@ -1300,6 +1301,12 @@ class DashboardController extends Controller
             ->where('units.shift_deadline_at', '<', now()->subHours(24))
             ->where(function($q) {
                 $q->whereNotNull('units.driver_id')->orWhereNotNull('units.secondary_driver_id');
+            })
+            ->whereExists(function ($sub) {
+                $sub->select(DB::raw(1))
+                    ->from('boundaries')
+                    ->whereColumn('boundaries.unit_id', 'units.id')
+                    ->whereNull('boundaries.deleted_at');
             })
             ->select('units.id', 'units.plate_number', 'drivers.first_name', 'drivers.last_name', 'units.shift_deadline_at')
             ->get();
@@ -1510,6 +1517,12 @@ class DashboardController extends Controller
                 ->whereNull('deleted_at')
                 ->whereNotNull('shift_deadline_at')
                 ->whereNotIn('status', ['retired', 'maintenance'])
+                ->whereExists(function ($sub) {
+                    $sub->select(DB::raw(1))
+                        ->from('boundaries')
+                        ->whereColumn('boundaries.unit_id', 'units.id')
+                        ->whereNull('boundaries.deleted_at');
+                })
                 ->get();
 
             $now = Carbon::now();

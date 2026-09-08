@@ -962,7 +962,7 @@ class UnitController extends Controller
                 return $unit;
             });
 
-        // 2. Auto-detected missing units: has a driver, overdue boundary (>48h)
+        // 2. Auto-detected missing units: has a driver, overdue boundary (>48h), and MUST have at least 1 boundary on record
         $autoMissingUnits = DB::table('units')
             ->whereNull('deleted_at')
             ->whereNotIn('status', ['maintenance', 'retired', 'coding', 'missing'])
@@ -971,6 +971,12 @@ class UnitController extends Controller
             ->where(function($q) {
                 $q->whereNotNull('driver_id')
                   ->orWhereNotNull('secondary_driver_id');
+            })
+            ->whereExists(function ($sub) {
+                $sub->select(DB::raw(1))
+                    ->from('boundaries')
+                    ->whereColumn('boundaries.unit_id', 'units.id')
+                    ->whereNull('boundaries.deleted_at');
             })
             ->select('id', 'plate_number', 'make', 'model', 'year', 'status', 'driver_id', 'secondary_driver_id', 'shift_deadline_at')
             ->get()

@@ -21,7 +21,7 @@ class ResetOperationalData extends Command
      *
      * @var string
      */
-    protected $description = 'Clean and reset maintenance records, boundaries, expenses, and related operational data to fresh status.';
+    protected $description = 'Clean and reset maintenance records, boundaries, expenses, unit deadlines, alerts, and all operational test data to fresh zero state.';
 
     /**
      * Execute the console command.
@@ -38,6 +38,8 @@ class ResetOperationalData extends Command
             'rescue_requests' => 'Rescue Requests',
             'boundaries' => 'Boundary Collection Records',
             'expenses' => 'Expense Records',
+            'salaries' => 'Salaries / Payroll Records',
+            'driver_behavior' => 'Driver Behavior & Incident Logs',
         ];
 
         $counts = [];
@@ -52,20 +54,23 @@ class ResetOperationalData extends Command
             }
         }
 
-        // Check behavior records related to boundaries / maintenance
-        $behaviorCount = 0;
-        if (Schema::hasTable('driver_behavior')) {
-            $behaviorCount = DB::table('driver_behavior')
-                ->whereIn('incident_type', ['Short Boundary', 'Vehicle Damage', 'Late Remittance'])
-                ->count();
-            $this->line("- Boundary & Damage Behavior Logs (`driver_behavior`): <comment>{$behaviorCount}</comment> records");
-        }
-
-        // Units with maintenance status
+        // Units with maintenance or missing status or shift deadlines
         $maintenanceUnits = 0;
+        $missingUnits = 0;
+        $unitsWithDeadlines = 0;
         if (Schema::hasTable('units')) {
             $maintenanceUnits = DB::table('units')->where('status', 'maintenance')->count();
-            $this->line("- Units in maintenance status: <comment>{$maintenanceUnits}</comment> units");
+            $missingUnits = DB::table('units')->where('status', 'missing')->count();
+            $unitsWithDeadlines = DB::table('units')->whereNotNull('shift_deadline_at')->count();
+            $this->line("- Units in maintenance status: <comment>{$maintenanceUnits}</comment>");
+            $this->line("- Units in missing status: <comment>{$missingUnits}</comment>");
+            $this->line("- Units with active shift deadlines: <comment>{$unitsWithDeadlines}</comment>");
+        }
+
+        $systemAlertsCount = 0;
+        if (Schema::hasTable('system_alerts')) {
+            $systemAlertsCount = DB::table('system_alerts')->count();
+            $this->line("- System Alerts (`system_alerts`): <comment>{$systemAlertsCount}</comment>");
         }
 
         if ($isDryRun) {
@@ -74,7 +79,7 @@ class ResetOperationalData extends Command
         }
 
         if (!$this->option('force')) {
-            if (!$this->confirm('Are you sure you want to completely clean and reset Maintenance, Boundaries, and Expenses to fresh state?', true)) {
+            if (!$this->confirm('Are you sure you want to completely clean and reset Maintenance, Boundaries, Expenses, and all operational test data to fresh state?', true)) {
                 $this->warn("Operation cancelled.");
                 return Command::FAILURE;
             }
@@ -93,21 +98,29 @@ class ResetOperationalData extends Command
                 }
             }
 
-            // Also clean driver behavior entries that were generated purely for short boundaries, damages, or late remittance
-            if (Schema::hasTable('driver_behavior')) {
-                $deletedBehavior = DB::table('driver_behavior')
-                    ->whereIn('incident_type', ['Short Boundary', 'Vehicle Damage', 'Late Remittance'])
-                    ->delete();
-                $this->info("✓ Cleared {$deletedBehavior} related operational record(s) from `driver_behavior` (Short Boundary / Vehicle Damage / Late Remittance)");
+            // Clean system alerts (especially missing unit alerts)
+            if (Schema::hasTable('system_alerts')) {
+                $delAlerts = DB::table('system_alerts')->count();
+                DB::table('system_alerts')->truncate();
+                $this->info("✓ Cleared all {$delAlerts} alert(s) from `system_alerts`");
             }
 
-            // Reset any units stuck in 'maintenance' status back to 'active'
+            // Reset any units stuck in 'maintenance' or 'missing' status back to 'active', and clear legacy shift deadlines
             if (Schema::hasTable('units')) {
-                $resetUnits = DB::table('units')->where('status', 'maintenance')->update([
+                $resetUnits = DB::table('units')->whereIn('status', ['maintenance', 'missing'])->update([
                     'status' => 'active',
                     'updated_at' => now(),
                 ]);
-                $this->info("✓ Reset {$resetUnits} unit(s) from 'maintenance' to 'active'");
+                
+                $clearedDeadlines = DB::table('units')->update([
+                    'shift_deadline_at' => null,
+                    'last_swapping_at' => null,
+                    'current_turn_driver_id' => null,
+                    'updated_at' => now(),
+                ]);
+
+                $this->info("✓ Reset {$resetUnits} unit(s) from 'maintenance'/'missing' to 'active'");
+                $this->info("✓ Cleared shift deadlines and turnover anchors on {$clearedDeadlines} unit(s) (waiting for 1st boundary)");
             }
 
             // Clear application and dashboard caches
@@ -116,7 +129,7 @@ class ResetOperationalData extends Command
 
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-            $this->info("\n🎉 SUCCESS: All maintenance records, boundary records, expenses, and related operational data have been completely cleaned and reset to fresh state!");
+            $this->info("\n🎉 SUCCESS: All operational records and charts have been completely reset back to zero (fresh state)!");
             return Command::SUCCESS;
         } catch (\Exception $e) {
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
