@@ -98,13 +98,9 @@
                         <i data-lucide="file-text" class="w-4 h-4 text-gray-400"></i>
                         Document Page {{ $index + 1 }}
                     </h3>
-                    <form action="{{ route('driver-management.terms.delete') }}" method="POST" onsubmit="return confirm('Are you sure you want to archive this document?');">
-                        @csrf
-                        <input type="hidden" name="filename" value="{{ $image }}">
-                        <button type="submit" class="text-[10px] font-black uppercase tracking-wider text-amber-600 bg-amber-50 hover:bg-amber-100 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1 cursor-pointer active:scale-95 shadow-2xs">
-                            <i data-lucide="archive" class="w-3 h-3"></i> Archive
-                        </button>
-                    </form>
+                    <button type="button" onclick="archiveTerm('{{ addslashes($image) }}', this)" class="text-[10px] font-black uppercase tracking-wider text-amber-600 bg-amber-50 hover:bg-amber-100 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1 cursor-pointer active:scale-95 shadow-2xs">
+                        <i data-lucide="archive" class="w-3 h-3"></i> Archive
+                    </button>
                 </div>
                 <div class="p-6 flex justify-center items-center bg-gray-50 min-h-[500px] relative">
                     <img src="{{ asset('uploads/terms/' . $image) }}" alt="Terms Page {{ $index + 1 }}" 
@@ -281,6 +277,56 @@
             }
             
             reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    async function archiveTerm(filename, btn) {
+        if (!confirm('Are you sure you want to archive this document?\n\nYou can restore it anytime in Archive Management.')) {
+            return;
+        }
+
+        const originalContent = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<i data-lucide="loader-2" class="w-3 h-3 animate-spin"></i> Archiving...';
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+
+        try {
+            const response = await fetch("{{ route('driver-management.terms.delete') }}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({ filename: filename })
+            });
+
+            const result = await response.json().catch(() => ({}));
+
+            if (response.ok && result.success) {
+                const card = btn.closest('.group');
+                if (card) {
+                    card.style.transition = 'all 0.4s ease';
+                    card.style.opacity = '0';
+                    card.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 400);
+                } else {
+                    window.location.reload();
+                }
+            } else {
+                alert(result.message || 'Failed to archive document.');
+                btn.disabled = false;
+                btn.innerHTML = originalContent;
+                if (typeof lucide !== 'undefined') lucide.createIcons();
+            }
+        } catch (err) {
+            console.error('Archive error:', err);
+            alert('A network error occurred while archiving. Please try again.');
+            btn.disabled = false;
+            btn.innerHTML = originalContent;
+            if (typeof lucide !== 'undefined') lucide.createIcons();
         }
     }
 </script>

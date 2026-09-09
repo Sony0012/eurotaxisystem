@@ -58,7 +58,7 @@ class DriverManagementV2Controller extends Controller
             if ($request->expectsJson() || $request->ajax()) {
                 return response()->json(['success' => false, 'message' => 'Filename is required.'], 400);
             }
-            return back()->with('error', 'Filename is required.');
+            return redirect()->route('driver-management.terms')->with('error', 'Filename is required.');
         }
 
         $path = public_path('uploads/terms/' . $targetFilename);
@@ -74,13 +74,13 @@ class DriverManagementV2Controller extends Controller
             if ($request->expectsJson() || $request->ajax()) {
                 return response()->json(['success' => true, 'message' => 'Document archived successfully.']);
             }
-            return back()->with('success', 'Document archived successfully.');
+            return redirect()->route('driver-management.terms')->with('success', 'Document archived successfully.');
         }
 
         if ($request->expectsJson() || $request->ajax()) {
             return response()->json(['success' => false, 'message' => 'File not found.'], 404);
         }
-        return back()->with('error', 'File not found.');
+        return redirect()->route('driver-management.terms')->with('error', 'File not found.');
     }
 
     public function restoreTerm($filename)
