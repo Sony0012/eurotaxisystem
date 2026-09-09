@@ -98,9 +98,10 @@
                         <i data-lucide="file-text" class="w-4 h-4 text-gray-400"></i>
                         Document Page {{ $index + 1 }}
                     </h3>
-                    <form action="{{ route('driver-management.terms.delete', $image) }}" method="POST" onsubmit="return confirm('Are you sure you want to archive this document?');">
+                    <form action="{{ route('driver-management.terms.delete') }}" method="POST" onsubmit="return confirm('Are you sure you want to archive this document?');">
                         @csrf
-                        <button type="submit" class="text-[10px] font-black uppercase tracking-wider text-amber-600 bg-amber-50 hover:bg-amber-100 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1">
+                        <input type="hidden" name="filename" value="{{ $image }}">
+                        <button type="submit" class="text-[10px] font-black uppercase tracking-wider text-amber-600 bg-amber-50 hover:bg-amber-100 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1 cursor-pointer active:scale-95 shadow-2xs">
                             <i data-lucide="archive" class="w-3 h-3"></i> Archive
                         </button>
                     </form>

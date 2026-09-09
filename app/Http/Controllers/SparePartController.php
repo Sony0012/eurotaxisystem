@@ -356,96 +356,200 @@ class SparePartController extends Controller
         $request->replace($input);
 
         $data = $request->validate([
-            'id'         => 'nullable|integer|exists:spare_parts,id',
-            'name'       => ['required', 'string', 'min:2', 'max:70', 'regex:/^[a-zA-Z0-9\s\(\)\/\-\.,]+$/'],
-            'category'   => 'nullable|string|max:100',
-            'price'      => 'required|numeric|min:0.01|max:500000',
-            'qty_to_add' => 'nullable|integer|min:0|max:10000',
-            'supplier'   => 'nullable|string|max:255',
-            'image_url'  => 'nullable|string',
+            'id'             => 'nullable|integer|exists:spare_parts,id',
+            'name'           => ['required', 'string', 'min:2', 'max:70', 'regex:/^[a-zA-Z0-9\s\(\)\/\-\.,]+$/'],
+            'category'       => 'nullable|string|max:100',
+            'price'          => 'required|numeric|min:0.01|max:500000',
+            'stock_quantity' => 'nullable|integer|min:0|max:10000',
+            'qty_to_add'     => 'nullable|integer|min:0|max:10000',
+            'mode'           => 'nullable|string|in:add,edit,restock',
+            'supplier'       => 'nullable|string|max:255',
+            'image_url'      => 'nullable|string',
         ], [
-            'name.required'      => 'Part name is required.',
-            'name.min'           => 'Part name must be at least 2 characters.',
-            'name.max'           => 'Part name cannot exceed 70 characters.',
-            'name.regex'         => 'Part name cannot contain special symbols. Only letters, numbers, spaces, and () / - . are allowed.',
-            'price.required'     => 'Price is required.',
-            'price.numeric'      => 'Price must be a valid number.',
-            'price.min'          => 'Price must be at least ₱0.01.',
-            'price.max'          => 'Price cannot exceed ₱500,000.00.',
-            'qty_to_add.integer' => 'Quantity must be a whole number.',
-            'qty_to_add.min'     => 'Quantity cannot be negative.',
-            'qty_to_add.max'     => 'Quantity cannot exceed 10,000 units.',
+            'name.required'          => 'Part name is required.',
+            'name.min'               => 'Part name must be at least 2 characters.',
+            'name.max'               => 'Part name cannot exceed 70 characters.',
+            'name.regex'             => 'Part name cannot contain special symbols. Only letters, numbers, spaces, and () / - . are allowed.',
+            'price.required'         => 'Price is required.',
+            'price.numeric'          => 'Price must be a valid number.',
+            'price.min'              => 'Price must be at least ₱0.01.',
+            'price.max'              => 'Price cannot exceed ₱500,000.00.',
+            'stock_quantity.integer' => 'Stock quantity must be a whole number.',
+            'stock_quantity.min'     => 'Stock quantity cannot be negative.',
+            'stock_quantity.max'     => 'Stock quantity cannot exceed 10,000 units.',
+            'qty_to_add.integer'     => 'Quantity must be a whole number.',
+            'qty_to_add.min'         => 'Quantity cannot be negative.',
+            'qty_to_add.max'         => 'Quantity cannot exceed 10,000 units.',
         ]);
 
-        $qtyToAdd = (int)($data['qty_to_add'] ?? 0);
-        $partId   = !empty($data['id']) ? (int)$data['id'] : null;
+        $partId = !empty($data['id']) ? (int)$data['id'] : null;
+        $mode = $data['mode'] ?? ($partId ? 'edit' : 'add');
+        $userId = auth()->id() ?? (\App\Models\User::first()->id ?? 18);
+        $expenseId = null;
+        $diff = 0;
 
         if ($partId) {
             // ── UPDATE existing part ──────────────────────────────────────
             $part = SparePart::where('id', $partId)->firstOrFail();
+            $oldStock = (int)($part->stock_quantity ?? 0);
 
-            // Enforce add-only: never let qty decrease via this form
-            if ($qtyToAdd < 0) {
-                return response()->json(['success' => false, 'message' => 'Cannot reduce stock from here.'], 422);
+            if ($mode === 'edit' || (isset($data['stock_quantity']) && $mode !== 'restock')) {
+                // User directly edited total stock in the Edit modal
+                $newStock = isset($data['stock_quantity']) ? (int)$data['stock_quantity'] : $oldStock;
+                $diff = $newStock - $oldStock;
+
+                $part->update([
+                    'name'           => $data['name'],
+                    'category'       => $data['category'] ?? $part->category,
+                    'price'          => $data['price'],
+                    'stock_quantity' => $newStock,
+                    'supplier'       => array_key_exists('supplier', $data) ? $data['supplier'] : $part->supplier,
+                    'image_url'      => array_key_exists('image_url', $data) ? $data['image_url'] : $part->image_url,
+                ]);
+
+                if ($diff > 0) {
+                    // Added units: record additional expense
+                    $totalCost = $diff * (float)$data['price'];
+                    try {
+                        $expense = \App\Models\Expense::create([
+                            'category'         => 'Spare Parts Purchase',
+                            'expense_category' => 'Spare Parts Purchase',
+                            'spare_part_id'    => $part->id,
+                            'quantity'         => $diff,
+                            'unit_price'       => (float)$data['price'],
+                            'description'      => "Inventory Stock Increase (+{$diff} pcs): {$part->name}",
+                            'vendor_name'      => $part->supplier ?? 'Unspecified Supplier',
+                            'amount'           => $totalCost,
+                            'date'             => now()->toDateString(),
+                            'status'           => 'approved',
+                            'recorded_by'      => $userId,
+                            'created_by'       => $userId,
+                        ]);
+                        $expenseId = $expense->id;
+                    } catch (\Exception $e) {
+                        \Illuminate\Support\Facades\Log::error('Inventory Expense Increase Failed: ' . $e->getMessage());
+                    }
+                    $msg = "✅ Stock updated! +{$diff} pcs of {$part->name} (New total: {$newStock}) — ₱" . number_format($totalCost, 2) . " added to Office Expenses.";
+                } elseif ($diff < 0) {
+                    // Reduced units: record reduction/credit expense so money returns to expense pool
+                    $absDiff = abs($diff);
+                    $refundAmount = -($absDiff * (float)$data['price']);
+                    try {
+                        $expense = \App\Models\Expense::create([
+                            'category'         => 'Spare Parts Adjustment',
+                            'expense_category' => 'Spare Parts Adjustment',
+                            'spare_part_id'    => $part->id,
+                            'quantity'         => -$absDiff,
+                            'unit_price'       => (float)$data['price'],
+                            'description'      => "Inventory Stock Reduction / Return (-{$absDiff} pcs): {$part->name}",
+                            'vendor_name'      => $part->supplier ?? 'Unspecified Supplier',
+                            'amount'           => $refundAmount,
+                            'date'             => now()->toDateString(),
+                            'status'           => 'approved',
+                            'recorded_by'      => $userId,
+                            'created_by'       => $userId,
+                        ]);
+                        $expenseId = $expense->id;
+                    } catch (\Exception $e) {
+                        \Illuminate\Support\Facades\Log::error('Inventory Expense Reduction Failed: ' . $e->getMessage());
+                    }
+                    $msg = "✅ Stock updated! -{$absDiff} pcs of {$part->name} (New total: {$newStock}) — ₱" . number_format(abs($refundAmount), 2) . " credited back to Office Expenses.";
+                } else {
+                    $msg = "Part details updated successfully.";
+                }
+            } else {
+                // Restock mode (qty_to_add)
+                $qtyToAdd = (int)($data['qty_to_add'] ?? 0);
+                if ($qtyToAdd > 0) {
+                    $newStock = $oldStock + $qtyToAdd;
+                    $part->update([
+                        'name'           => $data['name'],
+                        'category'       => $data['category'] ?? $part->category,
+                        'price'          => $data['price'],
+                        'stock_quantity' => $newStock,
+                        'supplier'       => array_key_exists('supplier', $data) ? $data['supplier'] : $part->supplier,
+                        'image_url'      => array_key_exists('image_url', $data) ? $data['image_url'] : $part->image_url,
+                    ]);
+
+                    $totalCost = $qtyToAdd * (float)$data['price'];
+                    try {
+                        $expense = \App\Models\Expense::create([
+                            'category'         => 'Spare Parts Purchase',
+                            'expense_category' => 'Spare Parts Purchase',
+                            'spare_part_id'    => $part->id,
+                            'quantity'         => $qtyToAdd,
+                            'unit_price'       => (float)$data['price'],
+                            'description'      => "Inventory RESTOCK (+{$qtyToAdd} pcs): {$part->name}",
+                            'vendor_name'      => $part->supplier ?? 'Unspecified Supplier',
+                            'amount'           => $totalCost,
+                            'date'             => now()->toDateString(),
+                            'status'           => 'approved',
+                            'recorded_by'      => $userId,
+                            'created_by'       => $userId,
+                        ]);
+                        $expenseId = $expense->id;
+                    } catch (\Exception $e) {
+                        \Illuminate\Support\Facades\Log::error('Inventory Expense Restock Failed: ' . $e->getMessage());
+                    }
+                    $msg = "✅ Restock confirmed! +{$qtyToAdd} pcs of {$part->name} (New total: {$newStock}) — Purchase recorded in Office Expenses.";
+                } else {
+                    $part->update([
+                        'name'           => $data['name'],
+                        'category'       => $data['category'] ?? $part->category,
+                        'price'          => $data['price'],
+                        'supplier'       => array_key_exists('supplier', $data) ? $data['supplier'] : $part->supplier,
+                    ]);
+                    $msg = "Part details updated successfully.";
+                }
             }
-
-            $newStock = (int)($part->stock_quantity ?? 0) + $qtyToAdd;
-
-            $part->update([
-                'name'           => $data['name'],
-                'category'       => $data['category'] ?? $part->category,
-                'price'          => $data['price'],
-                'stock_quantity' => $newStock,
-                'supplier'       => array_key_exists('supplier', $data) ? $data['supplier'] : $part->supplier,
-                'image_url'      => array_key_exists('image_url', $data) ? $data['image_url'] : $part->image_url,
-            ]);
         } else {
             // ── CREATE new part ───────────────────────────────────────────
+            $initialStock = isset($data['stock_quantity']) ? (int)$data['stock_quantity'] : (int)($data['qty_to_add'] ?? 0);
             $part = SparePart::create([
                 'name'           => $data['name'],
                 'category'       => $data['category'] ?? null,
                 'price'          => $data['price'],
-                'stock_quantity' => $qtyToAdd,
+                'stock_quantity' => $initialStock,
                 'supplier'       => $data['supplier'] ?? null,
                 'image_url'      => $data['image_url'] ?? null,
             ]);
-        }
 
-        // ── Auto-record as Office Expense if stock was added ──────────
-        $expenseId = null;
-        if ($qtyToAdd > 0) {
-            $totalCost = $qtyToAdd * (float)$data['price'];
-            $userId    = auth()->id() ?? (\App\Models\User::first()->id ?? 18);
-
-            try {
-                $expense = \App\Models\Expense::create([
-                    'category'         => 'Spare Parts Purchase',
-                    'expense_category' => 'Spare Parts Purchase',
-                    'spare_part_id'    => $part->id,
-                    'quantity'         => $qtyToAdd,
-                    'unit_price'       => (float)$data['price'],
-                    'description'      => "Inventory STOCK: {$qtyToAdd} pcs of {$part->name}",
-                    'vendor_name'      => $part->supplier ?? 'Unspecified Supplier',
-                    'amount'           => $totalCost,
-                    'date'             => now()->toDateString(),
-                    'status'           => 'approved',
-                    'recorded_by'      => $userId,
-                    'created_by'       => $userId,
-                ]);
-                $expenseId = $expense->id;
-            } catch (\Exception $e) {
-                \Illuminate\Support\Facades\Log::error('Inventory Expense Record Failed: ' . $e->getMessage());
+            if ($initialStock > 0) {
+                $totalCost = $initialStock * (float)$data['price'];
+                try {
+                    $expense = \App\Models\Expense::create([
+                        'category'         => 'Spare Parts Purchase',
+                        'expense_category' => 'Spare Parts Purchase',
+                        'spare_part_id'    => $part->id,
+                        'quantity'         => $initialStock,
+                        'unit_price'       => (float)$data['price'],
+                        'description'      => "Initial Stock Purchase (+{$initialStock} pcs): {$part->name}",
+                        'vendor_name'      => $part->supplier ?? 'Unspecified Supplier',
+                        'amount'           => $totalCost,
+                        'date'             => now()->toDateString(),
+                        'status'           => 'approved',
+                        'recorded_by'      => $userId,
+                        'created_by'       => $userId,
+                    ]);
+                    $expenseId = $expense->id;
+                } catch (\Exception $e) {
+                    \Illuminate\Support\Facades\Log::error('Initial Stock Expense Failed: ' . $e->getMessage());
+                }
             }
-        }
 
-        $msg = $expenseId
-            ? "✅ Stock added! +{$qtyToAdd} pcs of {$part->name} — Purchase recorded in Office Expenses."
-            : ($partId ? "Part details updated successfully." : "New part added successfully.");
+            $msg = $expenseId
+                ? "✅ New part added with {$initialStock} pcs of {$part->name} — Purchase recorded in Office Expenses."
+                : "New part added successfully.";
+        }
 
         // Record Activity
         $action = $partId ? 'Updated Spare Part' : 'Created Spare Part';
         $logNotes = "Part: {$part->name}\nPrice: ₱" . number_format($part->price, 2);
-        if ($qtyToAdd > 0) $logNotes .= "\nStock Added: +{$qtyToAdd} units (New total: {$part->stock_quantity})";
+        if ($diff != 0) {
+            $logNotes .= $diff > 0 
+                ? "\nStock Increased: +{$diff} units (New total: {$part->stock_quantity})" 
+                : "\nStock Reduced: " . $diff . " units (New total: {$part->stock_quantity})";
+        }
         if ($expenseId) $logNotes .= "\nOffice Expense recorded: #{$expenseId}";
         ActivityLogController::log($action, $logNotes);
 

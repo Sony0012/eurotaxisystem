@@ -51,21 +51,35 @@ class DriverManagementV2Controller extends Controller
         return back()->with('error', 'Failed to upload image.');
     }
 
-    public function deleteTerm($filename)
+    public function deleteTerm(Request $request, $filename = null)
     {
-        $path = public_path('uploads/terms/' . $filename);
+        $targetFilename = $filename ?? $request->input('filename');
+        if (!$targetFilename) {
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json(['success' => false, 'message' => 'Filename is required.'], 400);
+            }
+            return back()->with('error', 'Filename is required.');
+        }
+
+        $path = public_path('uploads/terms/' . $targetFilename);
         if (file_exists($path)) {
             $archiveDir = public_path('uploads/archives/terms');
             if (!file_exists($archiveDir)) {
                 mkdir($archiveDir, 0755, true);
             }
-            rename($path, $archiveDir . '/' . $filename);
+            rename($path, $archiveDir . '/' . $targetFilename);
             
-            \App\Http\Controllers\ActivityLogController::log('Archived Driver Term', "Term Document: {$filename} moved to archive.");
+            \App\Http\Controllers\ActivityLogController::log('Archived Driver Term', "Term Document: {$targetFilename} moved to archive.");
             
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json(['success' => true, 'message' => 'Document archived successfully.']);
+            }
             return back()->with('success', 'Document archived successfully.');
         }
 
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json(['success' => false, 'message' => 'File not found.'], 404);
+        }
         return back()->with('error', 'File not found.');
     }
 

@@ -185,7 +185,9 @@ Route::middleware(['auth', 'page_access'])->group(function () {
     Route::post('/driver-management/pay-debt', [DriverManagementV2Controller::class, 'payDebt'])->name('driver-management.pay-debt');
     Route::get('/driver-management/terms', [DriverManagementV2Controller::class, 'terms'])->name('driver-management.terms');
     Route::post('/driver-management/terms', [DriverManagementV2Controller::class, 'uploadTerm'])->name('driver-management.terms.upload');
-    Route::post('/driver-management/terms/{filename}', [DriverManagementV2Controller::class, 'deleteTerm'])->name('driver-management.terms.delete');
+    Route::post('/driver-management/terms/archive', [DriverManagementV2Controller::class, 'deleteTerm'])->name('driver-management.terms.delete');
+    Route::post('/driver-management/terms/{filename}/delete', [DriverManagementV2Controller::class, 'deleteTerm']);
+    Route::post('/driver-management/terms/{filename}', [DriverManagementV2Controller::class, 'deleteTerm']);
     Route::post('/driver-management/terms/{filename}/restore', [DriverManagementV2Controller::class, 'restoreTerm'])->name('driver-management.terms.restore');
     Route::delete('/driver-management/terms/{filename}/force', [DriverManagementV2Controller::class, 'forceDeleteTerm'])->name('driver-management.terms.force-delete');
     Route::post('/driver-management/{id}/unban', [DriverManagementV2Controller::class, 'unban'])->name('driver-management.unban');

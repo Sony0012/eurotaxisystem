@@ -1997,7 +1997,7 @@
         document.getElementById('partMiniModal').classList.add('hidden');
     }
 
-    // ── 1. Dedicated Edit Part Modal (Editable Name, Price, Supplier, Live SVG Preview) ──
+    // ── 1. Dedicated Edit Part Modal (Editable Name, Price, Total Stock, Supplier, Live SVG Preview) ──
     function openEditPartModal(id, name, price, qty, supplier) {
         openPartMiniModal('edit');
         document.getElementById('newPartId').value = id;
@@ -2009,13 +2009,13 @@
         
         // Clean numeric format (without trailing .00 if whole number for easy typing)
         document.getElementById('newPartPrice').value = parseFloat(price);
-        document.getElementById('newPartQty').value = '0'; // 0 qty to add (pure detail edit)
+        document.getElementById('newPartQty').value = parseInt(qty) || 0; // Display actual current stock quantity
         document.getElementById('newPartSupplier').value = supplier || '';
         document.getElementById('newPartImageUrl').value = generateDynamicPartSVG(name);
 
         document.getElementById('miniModalTitle').innerText = 'Edit Part Details';
-        document.getElementById('miniModalSubtitle').innerText = 'Modify part name, price, supplier, or category';
-        document.getElementById('lblQtyMode').innerHTML = `Stock Qty <span class="text-gray-400 font-normal ml-1">(Current: ${qty})</span>`;
+        document.getElementById('miniModalSubtitle').innerText = 'Modify part name, price, total stock, supplier, or category';
+        document.getElementById('lblQtyMode').innerHTML = `Total Stock Qty <span class="text-gray-400 font-normal ml-1">(Current: ${qty})</span>`;
         document.getElementById('txtSavePart').innerText = 'Save Changes';
 
         const iconContainer = document.getElementById('miniModalIcon');
@@ -2064,9 +2064,13 @@
         const id = idRaw && idRaw.trim() !== '' && !isNaN(idRaw) ? parseInt(idRaw) : null;
         const name = document.getElementById('newPartName').value.trim();
         const price = parseFloat(document.getElementById('newPartPrice').value);
-        const qty_to_add = parseInt(document.getElementById('newPartQty').value) || 0;
+        const qtyVal = parseInt(document.getElementById('newPartQty').value) || 0;
         const supplier = document.getElementById('newPartSupplier').value.trim() || null;
         const meta = getPartAIMeta(name);
+
+        const isEdit = Boolean(id && !document.getElementById('newPartName').readOnly);
+        const isRestock = Boolean(id && document.getElementById('newPartName').readOnly);
+        const mode = isEdit ? 'edit' : (isRestock ? 'restock' : 'add');
 
         // Strict Validations
         if (!name) {
@@ -2099,13 +2103,13 @@
             return;
         }
 
-        if (qty_to_add < 0) {
+        if (qtyVal < 0) {
             showToast('Quantity cannot be negative.', 'error');
             document.getElementById('newPartQty').focus();
             return;
         }
 
-        if (qty_to_add > 10000) {
+        if (qtyVal > 10000) {
             showToast('Quantity cannot exceed 10,000 units.', 'error');
             document.getElementById('newPartQty').focus();
             return;
@@ -2130,7 +2134,9 @@
                     name: name,
                     category: meta.category,
                     price: price,
-                    qty_to_add: qty_to_add,
+                    stock_quantity: qtyVal,
+                    qty_to_add: qtyVal,
+                    mode: mode,
                     supplier: supplier,
                     image_url: null
                 })
@@ -2142,10 +2148,8 @@
                 showToast(result.message || 'Saved successfully!', 'success');
                 closePartMiniModal();
                 await loadActiveParts();
-                if (qty_to_add > 0) {
-                    loadHistory();
-                    setTimeout(() => window.location.reload(), 1200);
-                }
+                loadHistory();
+                setTimeout(() => window.location.reload(), 1200);
             } else {
                 const errMsg = result.message || (result.errors ? Object.values(result.errors).flat().join(', ') : 'Failed to save part.');
                 showToast(errMsg, 'error');
