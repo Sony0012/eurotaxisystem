@@ -26,10 +26,10 @@
                              onclick="openLightbox('{{ asset('uploads/archives/terms/' . $filename) }}')">
                     </div>
                     <div class="p-4 border-t border-slate-100 bg-white flex justify-between gap-2">
-                        <button type="button" onclick="archiveRestore('{{ route('driver-management.terms.restore', $filename) }}')" class="flex-1 flex justify-center items-center gap-1.5 text-xs font-bold text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 px-3 py-2 rounded-xl shadow-2xs active:scale-95 transition-all">
+                        <button type="button" onclick="archiveRestore('{{ route('driver-management.terms.restore', $filename) }}', this)" class="flex-1 flex justify-center items-center gap-1.5 text-xs font-bold text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 px-3 py-2 rounded-xl shadow-2xs active:scale-95 transition-all cursor-pointer">
                             <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Restore
                         </button>
-                        <button type="button" onclick="archiveForceDelete('{{ route('driver-management.terms.force-delete', $filename) }}')" class="flex-1 flex justify-center items-center gap-1.5 text-xs font-bold text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 px-3 py-2 rounded-xl shadow-2xs active:scale-95 transition-all">
+                        <button type="button" onclick="archiveForceDelete('{{ route('driver-management.terms.force-delete', $filename) }}', this)" class="flex-1 flex justify-center items-center gap-1.5 text-xs font-bold text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 px-3 py-2 rounded-xl shadow-2xs active:scale-95 transition-all cursor-pointer">
                             <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Delete
                         </button>
                     </div>
