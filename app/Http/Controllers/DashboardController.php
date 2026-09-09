@@ -212,8 +212,16 @@ class DashboardController extends Controller
 
             // 1. Get units with essential joined data and aggregate subqueries to avoid N+1
             $unitsQuery = DB::table('units as u')
-                ->leftJoin('drivers as d1', 'u.driver_id', '=', 'd1.id')
-                ->leftJoin('drivers as d2', 'u.secondary_driver_id', '=', 'd2.id');
+                ->leftJoin('drivers as d1', function($j) {
+                    $j->on('u.driver_id', '=', 'd1.id')
+                      ->whereNull('d1.deleted_at')
+                      ->whereNotIn('d1.driver_status', ['banned', 'suspended']);
+                })
+                ->leftJoin('drivers as d2', function($j) {
+                    $j->on('u.secondary_driver_id', '=', 'd2.id')
+                      ->whereNull('d2.deleted_at')
+                      ->whereNotIn('d2.driver_status', ['banned', 'suspended']);
+                });
 
             if ($hasUDeleted) {
                 $unitsQuery->whereNull('u.deleted_at');
@@ -980,8 +988,16 @@ class DashboardController extends Controller
             }
             $today = now()->format('l');
 
-            $unitsQuery->leftJoin('drivers as d1', 'u.driver_id', '=', 'd1.id');
-            $unitsQuery->leftJoin('drivers as d2', 'u.secondary_driver_id', '=', 'd2.id');
+            $unitsQuery->leftJoin('drivers as d1', function($j) {
+                $j->on('u.driver_id', '=', 'd1.id')
+                  ->whereNull('d1.deleted_at')
+                  ->whereNotIn('d1.driver_status', ['banned', 'suspended']);
+            });
+            $unitsQuery->leftJoin('drivers as d2', function($j) {
+                $j->on('u.secondary_driver_id', '=', 'd2.id')
+                  ->whereNull('d2.deleted_at')
+                  ->whereNotIn('d2.driver_status', ['banned', 'suspended']);
+            });
 
             $latestC = DB::table('coding_records')
                 ->select('unit_id', DB::raw('MAX(id) as latest_id'));
@@ -1660,6 +1676,11 @@ class DashboardController extends Controller
                                             'updated_at'       => now(),
                                         ]);
                                     }
+
+                                    // Unassign auto-banned or auto-suspended driver from all units immediately
+                                    DB::table('units')->where('driver_id', $driverId)->update(['driver_id' => null, 'updated_at' => now()]);
+                                    DB::table('units')->where('secondary_driver_id', $driverId)->update(['secondary_driver_id' => null, 'updated_at' => now()]);
+                                    DB::table('units')->where('current_turn_driver_id', $driverId)->update(['current_turn_driver_id' => null, 'updated_at' => now()]);
                                 }
                             }
                         }

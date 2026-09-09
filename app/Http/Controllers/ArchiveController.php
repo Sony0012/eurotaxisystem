@@ -120,6 +120,13 @@ class ArchiveController extends Controller
             Driver::where('user_id', $item->id)->update(['user_id' => null]);
         }
 
+        // Safety: Unlink any unit assignments before permanently deleting a Driver
+        if (in_array($type, ['driver', 'drivers'])) {
+            Unit::where('driver_id', $item->id)->update(['driver_id' => null, 'updated_at' => now()]);
+            Unit::where('secondary_driver_id', $item->id)->update(['secondary_driver_id' => null, 'updated_at' => now()]);
+            Unit::where('current_turn_driver_id', $item->id)->update(['current_turn_driver_id' => null, 'updated_at' => now()]);
+        }
+
         $item->forceDelete();
 
         system_log("Permanently Deleted " . ucfirst($type), "Item: {$name} was permanently wiped from the database.");
@@ -172,6 +179,13 @@ class ArchiveController extends Controller
         // Safety: Unlink any driver records before permanently deleting Users
         if (in_array($type, ['user', 'users', 'user_account', 'user_accounts', 'driver_account', 'driver_accounts'])) {
             Driver::whereIn('user_id', $ids)->update(['user_id' => null]);
+        }
+
+        // Safety: Unlink any unit assignments before permanently deleting Drivers
+        if (in_array($type, ['driver', 'drivers'])) {
+            Unit::whereIn('driver_id', $ids)->update(['driver_id' => null, 'updated_at' => now()]);
+            Unit::whereIn('secondary_driver_id', $ids)->update(['secondary_driver_id' => null, 'updated_at' => now()]);
+            Unit::whereIn('current_turn_driver_id', $ids)->update(['current_turn_driver_id' => null, 'updated_at' => now()]);
         }
 
         $items = $model::withTrashed()->whereIn('id', $ids)->get();

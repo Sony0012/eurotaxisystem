@@ -416,6 +416,12 @@ class DriverBehaviorV2Controller extends Controller
                     'secondary_driver_id' => null,
                     'updated_at' => now()
                 ]);
+            DB::table('units')
+                ->where('current_turn_driver_id', $data['driver_id'])
+                ->update([
+                    'current_turn_driver_id' => null,
+                    'updated_at' => now()
+                ]);
 
             if ($isStolen) {
                 // Update unit status to missing

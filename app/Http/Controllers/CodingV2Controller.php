@@ -54,8 +54,17 @@ class CodingV2Controller extends Controller
         
         // 1. Get the FULL fleet for the calendar and overall stats (unfiltered)
         $full_fleet = DB::table('units as u')
-            ->leftJoin('drivers as drv1', 'u.driver_id', '=', 'drv1.id')
-            ->leftJoin('drivers as drv2', 'u.secondary_driver_id', '=', 'drv2.id')
+            ->whereNull('u.deleted_at')
+            ->leftJoin('drivers as drv1', function($join) {
+                $join->on('u.driver_id', '=', 'drv1.id')
+                     ->whereNull('drv1.deleted_at')
+                     ->whereNotIn('drv1.driver_status', ['banned', 'suspended']);
+            })
+            ->leftJoin('drivers as drv2', function($join) {
+                $join->on('u.secondary_driver_id', '=', 'drv2.id')
+                     ->whereNull('drv2.deleted_at')
+                     ->whereNotIn('drv2.driver_status', ['banned', 'suspended']);
+            })
             ->select(
                 'u.*', 
                 DB::raw("CONCAT(COALESCE(drv1.first_name,''), ' ', COALESCE(drv1.last_name,'')) as driver1_name"),

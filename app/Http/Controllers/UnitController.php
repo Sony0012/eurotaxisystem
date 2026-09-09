@@ -27,8 +27,16 @@ class UnitController extends Controller
 
         $query = DB::table('units as u')
             ->whereNull('u.deleted_at')
-            ->leftJoin('drivers as drv1', 'u.driver_id', '=', 'drv1.id')
-            ->leftJoin('drivers as drv2', 'u.secondary_driver_id', '=', 'drv2.id')
+            ->leftJoin('drivers as drv1', function($join) {
+                $join->on('u.driver_id', '=', 'drv1.id')
+                     ->whereNull('drv1.deleted_at')
+                     ->whereNotIn('drv1.driver_status', ['banned', 'suspended']);
+            })
+            ->leftJoin('drivers as drv2', function($join) {
+                $join->on('u.secondary_driver_id', '=', 'drv2.id')
+                     ->whereNull('drv2.deleted_at')
+                     ->whereNotIn('drv2.driver_status', ['banned', 'suspended']);
+            })
             ->select(
                 'u.*', 
                 DB::raw("CONCAT(COALESCE(drv1.first_name,''), ' ', COALESCE(drv1.last_name,''), '|', COALESCE(drv1.contact_number, '')) as primary_driver"),
@@ -182,7 +190,7 @@ class UnitController extends Controller
         // Drivers list for add/edit modal
         $all_drivers = DB::table('drivers as d')
             ->whereNull('d.deleted_at')
-            ->where('d.driver_status', '!=', 'banned')
+            ->whereNotIn('d.driver_status', ['banned', 'suspended'])
             ->select(
                 'd.id', 
                 DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')) as full_name"), 
@@ -478,6 +486,8 @@ class UnitController extends Controller
         if (!empty($driver_ids)) {
             $assigned_drivers = DB::table('drivers as d')
                 ->whereIn('d.id', $driver_ids)
+                ->whereNull('d.deleted_at')
+                ->whereNotIn('d.driver_status', ['banned', 'suspended'])
                 ->select('d.id', DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')) as full_name"), 'd.license_number', 'd.contact_number', 'd.license_expiry', 'd.hire_date', 'd.daily_boundary_target', 'd.profile_photo')
                 ->get()->map(function($d) {
                     $item = (array) $d;
@@ -674,6 +684,8 @@ class UnitController extends Controller
         if (!empty($driver_ids)) {
             $assigned_drivers = DB::table('drivers as d')
                 ->whereIn('d.id', $driver_ids)
+                ->whereNull('d.deleted_at')
+                ->whereNotIn('d.driver_status', ['banned', 'suspended'])
                 ->select('d.id', DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')) as full_name"), 'd.license_number', 'd.contact_number', 'd.license_expiry', 'd.hire_date', 'd.daily_boundary_target', 'd.profile_photo')
                 ->get()->map(function($d) {
                     $item = (array) $d;
@@ -1295,8 +1307,17 @@ class UnitController extends Controller
     public function printPdf()
     {
         $units = DB::table('units as u')
-            ->leftJoin('drivers as drv1', 'u.driver_id', '=', 'drv1.id')
-            ->leftJoin('drivers as drv2', 'u.secondary_driver_id', '=', 'drv2.id')
+            ->whereNull('u.deleted_at')
+            ->leftJoin('drivers as drv1', function($join) {
+                $join->on('u.driver_id', '=', 'drv1.id')
+                     ->whereNull('drv1.deleted_at')
+                     ->whereNotIn('drv1.driver_status', ['banned', 'suspended']);
+            })
+            ->leftJoin('drivers as drv2', function($join) {
+                $join->on('u.secondary_driver_id', '=', 'drv2.id')
+                     ->whereNull('drv2.deleted_at')
+                     ->whereNotIn('drv2.driver_status', ['banned', 'suspended']);
+            })
             ->select(
                 'u.*',
                 DB::raw("CONCAT(COALESCE(drv1.first_name,''), ' ', COALESCE(drv1.last_name,'')) as driver1_name"),

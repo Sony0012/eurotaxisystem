@@ -47,4 +47,21 @@ class Driver extends Model
     {
         return $this->belongsTo(User::class, 'user_id');
     }
+
+    protected static function booted()
+    {
+        static::deleting(function ($driver) {
+            Unit::where('driver_id', $driver->id)->update(['driver_id' => null, 'updated_at' => now()]);
+            Unit::where('secondary_driver_id', $driver->id)->update(['secondary_driver_id' => null, 'updated_at' => now()]);
+            Unit::where('current_turn_driver_id', $driver->id)->update(['current_turn_driver_id' => null, 'updated_at' => now()]);
+        });
+
+        static::saved(function ($driver) {
+            if (in_array($driver->driver_status, ['banned', 'suspended'])) {
+                Unit::where('driver_id', $driver->id)->update(['driver_id' => null, 'updated_at' => now()]);
+                Unit::where('secondary_driver_id', $driver->id)->update(['secondary_driver_id' => null, 'updated_at' => now()]);
+                Unit::where('current_turn_driver_id', $driver->id)->update(['current_turn_driver_id' => null, 'updated_at' => now()]);
+            }
+        });
+    }
 }

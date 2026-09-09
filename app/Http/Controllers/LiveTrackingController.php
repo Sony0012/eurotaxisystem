@@ -118,8 +118,17 @@ class LiveTrackingController extends Controller
         try {
             // Get all units with their latest GPS data
             $tracked_units = DB::table('units as u')
-                ->leftJoin('drivers as d1', 'u.driver_id', '=', 'd1.id')
-                ->leftJoin('drivers as d2', 'u.secondary_driver_id', '=', 'd2.id')
+                ->whereNull('u.deleted_at')
+                ->leftJoin('drivers as d1', function($j) {
+                    $j->on('u.driver_id', '=', 'd1.id')
+                      ->whereNull('d1.deleted_at')
+                      ->whereNotIn('d1.driver_status', ['banned', 'suspended']);
+                })
+                ->leftJoin('drivers as d2', function($j) {
+                    $j->on('u.secondary_driver_id', '=', 'd2.id')
+                      ->whereNull('d2.deleted_at')
+                      ->whereNotIn('d2.driver_status', ['banned', 'suspended']);
+                })
                 ->leftJoin('gps_tracking as g', 'u.id', '=', 'g.unit_id')
                 ->select(
                     'u.id', 'u.plate_number', 'u.make', 'u.model', 'u.status', 'u.imei', 'u.gps_provider', 'u.gps_password',
@@ -278,8 +287,17 @@ class LiveTrackingController extends Controller
     {
         try {
             $units = DB::table('units as u')
-                ->leftJoin('drivers as d1', 'u.driver_id', '=', 'd1.id')
-                ->leftJoin('drivers as d2', 'u.secondary_driver_id', '=', 'd2.id')
+                ->whereNull('u.deleted_at')
+                ->leftJoin('drivers as d1', function($j) {
+                    $j->on('u.driver_id', '=', 'd1.id')
+                      ->whereNull('d1.deleted_at')
+                      ->whereNotIn('d1.driver_status', ['banned', 'suspended']);
+                })
+                ->leftJoin('drivers as d2', function($j) {
+                    $j->on('u.secondary_driver_id', '=', 'd2.id')
+                      ->whereNull('d2.deleted_at')
+                      ->whereNotIn('d2.driver_status', ['banned', 'suspended']);
+                })
                 ->leftJoin('gps_tracking as g', 'u.id', '=', 'g.unit_id')
                 ->select(
                     'u.id', 'u.plate_number', 'u.imei', 'u.status', 'u.driver_id', 'u.gps_provider', 'u.gps_password',

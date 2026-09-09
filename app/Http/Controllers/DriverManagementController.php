@@ -836,8 +836,9 @@ class DriverManagementController extends Controller
         $driver = Driver::where('id', $id)->first();
         if ($driver) {
             // Unassign from units before soft-deleting
-            DB::table('units')->where('driver_id', $driver->id)->update(['driver_id' => null]);
-            DB::table('units')->where('secondary_driver_id', $driver->id)->update(['secondary_driver_id' => null]);
+            DB::table('units')->where('driver_id', $driver->id)->update(['driver_id' => null, 'updated_at' => now()]);
+            DB::table('units')->where('secondary_driver_id', $driver->id)->update(['secondary_driver_id' => null, 'updated_at' => now()]);
+            DB::table('units')->where('current_turn_driver_id', $driver->id)->update(['current_turn_driver_id' => null, 'updated_at' => now()]);
             $name = $driver->first_name . ' ' . $driver->last_name;
             $driver->delete();
             
