@@ -1036,6 +1036,19 @@
                 setTimeout(() => document.getElementById('global-archive-pwd')?.focus(), 100);
             });
 
+            const globalArchivePwdInput = document.getElementById('global-archive-pwd');
+            if (globalArchivePwdInput) {
+                globalArchivePwdInput.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        document.getElementById('global-confirm-archive-delete')?.click();
+                    } else if (e.key === 'Escape') {
+                        e.preventDefault();
+                        closeGlobalArchiveSecurityModal();
+                    }
+                });
+            }
+
             document.getElementById('global-confirm-archive-delete').addEventListener('click', function() {
                 const password = document.getElementById('global-archive-pwd').value;
                 if (!password) { alert('Please enter the password.'); return; }

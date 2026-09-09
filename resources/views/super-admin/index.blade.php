@@ -1620,11 +1620,11 @@
         <input type="hidden" id="pw-user-id">
         <div class="mb-4">
             <label style="font-size:.75rem; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:#64748b; display:block; margin-bottom:.5rem;">New Password</label>
-            <input type="password" id="pw-new" class="sa-input" placeholder="Minimum 6 characters">
+            <input type="password" id="pw-new" class="sa-input" placeholder="Minimum 6 characters" onkeydown="if(event.key==='Enter') submitPasswordReset()">
         </div>
         <div class="mb-5">
             <label style="font-size:.75rem; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:#64748b; display:block; margin-bottom:.5rem;">Confirm Password</label>
-            <input type="password" id="pw-confirm" class="sa-input" placeholder="Repeat new password">
+            <input type="password" id="pw-confirm" class="sa-input" placeholder="Repeat new password" onkeydown="if(event.key==='Enter') submitPasswordReset()">
         </div>
         <div class="flex gap-3 justify-end">
             <button class="btn-ghost" onclick="closePwModal()">Cancel</button>
@@ -1985,7 +1985,7 @@
          <p style="color: #64748b; font-size: .85rem; margin-bottom: 1.5rem;">To permanently delete this item, please enter the **Archive Deletion Password** below.</p>
          
          <div class="mb-6">
-             <input type="password" id="archive-security-pwd" class="sa-input" style="text-align: center; font-size: 1.2rem; letter-spacing: .2em;" placeholder="â€¢â€¢â€¢â€¢â€¢â€¢">
+              <input type="password" id="archive-security-pwd" class="sa-input" style="text-align: center; font-size: 1.2rem; letter-spacing: .2em;" placeholder="••••••" onkeydown="if(event.key==='Enter') document.getElementById('btn-confirm-permanent-delete')?.click();">
          </div>
          
          <div style="background: #fffbeb; border: 1px solid #fef3c7; border-radius: .75rem; padding: .75rem; margin-bottom: 1.5rem; display: flex; align-items: flex-start; gap: .75rem; text-align: left;">

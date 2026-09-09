@@ -1345,6 +1345,20 @@
                     <script>
                         document.addEventListener('DOMContentLoaded', function() {
                             const confirmBtn = document.getElementById('btn-confirm-permanent-delete');
+                            const pwdInput = document.getElementById('archive-security-pwd');
+
+                            if (pwdInput) {
+                                pwdInput.addEventListener('keydown', function(e) {
+                                    if (e.key === 'Enter') {
+                                        e.preventDefault();
+                                        confirmBtn?.click();
+                                    } else if (e.key === 'Escape') {
+                                        e.preventDefault();
+                                        document.getElementById('archiveSecurityModal')?.classList.remove('open');
+                                    }
+                                });
+                            }
+
                             if (confirmBtn) {
                                 confirmBtn.addEventListener('click', async function() {
                                     const password = document.getElementById('archive-security-pwd').value;
