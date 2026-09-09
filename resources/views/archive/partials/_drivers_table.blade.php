@@ -2,16 +2,22 @@
     <table class="w-full divide-y divide-slate-100">
         <thead class="bg-slate-50/70">
             <tr>
-                <th class="px-6 sm:px-8 py-4 text-left text-xs font-black text-slate-400 uppercase tracking-widest">Driver Name</th>
-                <th class="px-6 sm:px-8 py-4 text-left text-xs font-black text-slate-400 uppercase tracking-widest">License No.</th>
-                <th class="px-6 sm:px-8 py-4 text-left text-xs font-black text-slate-400 uppercase tracking-widest">Date Archived</th>
+                <th class="w-10 px-4 sm:px-6 py-4 text-center">
+                    <input type="checkbox" class="archive-select-all rounded border-slate-300 text-amber-500 focus:ring-amber-400 h-4 w-4 cursor-pointer" title="Select All">
+                </th>
+                <th class="px-4 sm:px-6 py-4 text-left text-xs font-black text-slate-400 uppercase tracking-widest">Driver Name</th>
+                <th class="px-4 sm:px-6 py-4 text-left text-xs font-black text-slate-400 uppercase tracking-widest">License No.</th>
+                <th class="px-4 sm:px-6 py-4 text-left text-xs font-black text-slate-400 uppercase tracking-widest">Date Archived</th>
                 <th class="px-6 sm:px-8 py-4 text-right text-xs font-black text-slate-400 uppercase tracking-widest">Actions</th>
             </tr>
         </thead>
         <tbody class="bg-white divide-y divide-slate-100">
             @forelse($items as $driver)
-            <tr class="hover:bg-slate-50/80 transition-colors">
-                <td class="px-6 sm:px-8 py-5 whitespace-nowrap">
+            <tr class="hover:bg-slate-50/80 transition-colors" data-id="{{ $driver->id }}">
+                <td class="w-10 px-4 sm:px-6 py-5 text-center">
+                    <input type="checkbox" class="archive-row-cb rounded border-slate-300 text-amber-500 focus:ring-amber-400 h-4 w-4 cursor-pointer" value="{{ $driver->id }}" data-id="{{ $driver->id }}">
+                </td>
+                <td class="px-4 sm:px-6 py-5 whitespace-nowrap">
                     <div class="flex items-center gap-3">
                         <div class="relative w-9 h-9 rounded-xl overflow-hidden shrink-0 border border-amber-300 bg-slate-100 shadow-2xs">
                             @if(!empty($driver->profile_photo))
@@ -26,10 +32,10 @@
                         </div>
                     </div>
                 </td>
-                <td class="px-6 sm:px-8 py-5 whitespace-nowrap text-xs font-mono font-bold text-slate-600">
+                <td class="px-4 sm:px-6 py-5 whitespace-nowrap text-xs font-mono font-bold text-slate-600">
                     {{ $driver->license_number ?: 'N/A' }}
                 </td>
-                <td class="px-6 sm:px-8 py-5 whitespace-nowrap">
+                <td class="px-4 sm:px-6 py-5 whitespace-nowrap">
                     <span class="inline-flex items-center gap-1.5 text-xs font-bold text-rose-700 bg-rose-50 border border-rose-200 px-2.5 py-1 rounded-xl">
                         <i data-lucide="clock" class="w-3 h-3 text-rose-500"></i>
                         {{ $driver->deleted_at->format('M d, Y h:i A') }}
@@ -52,7 +58,7 @@
             </tr>
             @empty
             <tr>
-                <td colspan="4" class="px-6 sm:px-8 py-16 text-center">
+                <td colspan="5" class="px-6 sm:px-8 py-16 text-center">
                     <div class="flex flex-col items-center gap-3 text-slate-400">
                         <div class="w-16 h-16 rounded-2xl bg-slate-50 flex items-center justify-center">
                             <i data-lucide="users" class="w-8 h-8 opacity-40"></i>

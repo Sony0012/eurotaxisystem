@@ -2,6 +2,9 @@
     <table class="w-full divide-y divide-slate-100">
         <thead class="bg-slate-50/70">
             <tr>
+                <th class="w-10 px-4 sm:px-6 py-4 text-center">
+                    <input type="checkbox" class="archive-select-all rounded border-slate-300 text-amber-500 focus:ring-amber-400 h-4 w-4 cursor-pointer" title="Select All">
+                </th>
                 <th class="px-6 sm:px-8 py-4 text-left text-xs font-black text-slate-400 uppercase tracking-widest">Case Info</th>
                 <th class="px-6 sm:px-8 py-4 text-left text-xs font-black text-slate-400 uppercase tracking-widest">Date Archived</th>
                 <th class="px-6 sm:px-8 py-4 text-right text-xs font-black text-slate-400 uppercase tracking-widest">Actions</th>
@@ -9,7 +12,10 @@
         </thead>
         <tbody class="bg-white divide-y divide-slate-100">
             @forelse($items as $case)
-            <tr class="hover:bg-slate-50/80 transition-colors">
+            <tr class="hover:bg-slate-50/80 transition-colors" data-id="{{ $case->id }}">
+                <td class="w-10 px-4 sm:px-6 py-5 text-center">
+                    <input type="checkbox" class="archive-row-cb rounded border-slate-300 text-amber-500 focus:ring-amber-400 h-4 w-4 cursor-pointer" value="{{ $case->id }}" data-id="{{ $case->id }}">
+                </td>
                 <td class="px-6 sm:px-8 py-5 whitespace-nowrap">
                     <div class="flex items-center gap-3">
                         <div class="w-9 h-9 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center font-black text-xs shadow-2xs shrink-0">
@@ -44,7 +50,7 @@
             </tr>
             @empty
             <tr>
-                <td colspan="3" class="px-6 sm:px-8 py-16 text-center">
+                <td colspan="4" class="px-6 sm:px-8 py-16 text-center">
                     <div class="flex flex-col items-center gap-3 text-slate-400">
                         <div class="w-16 h-16 rounded-2xl bg-slate-50 flex items-center justify-center">
                             <i data-lucide="file-text" class="w-8 h-8 opacity-40"></i>

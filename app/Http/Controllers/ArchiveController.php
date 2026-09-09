@@ -130,22 +130,133 @@ class ArchiveController extends Controller
         return back()->with('success', ucfirst($type) . ' permanently deleted.');
     }
 
+    public function bulkForceDelete(Request $request)
+    {
+        $password = $request->input('archive_password');
+        if (!\App\Models\SystemSetting::verifyPassword($password)) {
+            $msg = !\App\Models\SystemSetting::get('archive_deletion_password')
+                ? 'Archive deletion password is not set. Please set it in the System Security tab.'
+                : 'Invalid archive deletion password.';
+
+            return response()->json(['success' => false, 'message' => $msg], 422);
+        }
+
+        $type = $request->input('type');
+        $ids = (array) $request->input('ids', []);
+
+        if (empty($ids)) {
+            return response()->json(['success' => false, 'message' => 'No items selected.'], 400);
+        }
+
+        // Special handling for driver_terms
+        if ($type === 'driver_terms' || $type === 'driver_term') {
+            $termsArchiveDir = public_path('uploads/archives/terms');
+            $deletedCount = 0;
+            foreach ($ids as $filename) {
+                $cleanFilename = basename($filename);
+                $filePath = $termsArchiveDir . DIRECTORY_SEPARATOR . $cleanFilename;
+                if (file_exists($filePath)) {
+                    @unlink($filePath);
+                    $deletedCount++;
+                }
+            }
+            system_log("Bulk Deleted Driver Terms", "Permanently deleted {$deletedCount} archived driver term document(s).");
+            return response()->json(['success' => true, 'message' => "{$deletedCount} term document(s) permanently deleted.", 'deleted_ids' => $ids]);
+        }
+
+        $model = $this->getModelByType($type);
+        if (!$model) {
+            return response()->json(['success' => false, 'message' => 'Invalid model type.'], 400);
+        }
+
+        // Safety: Unlink any driver records before permanently deleting Users
+        if (in_array($type, ['user', 'users', 'user_account', 'user_accounts', 'driver_account', 'driver_accounts'])) {
+            Driver::whereIn('user_id', $ids)->update(['user_id' => null]);
+        }
+
+        $items = $model::withTrashed()->whereIn('id', $ids)->get();
+        $count = $items->count();
+
+        foreach ($items as $item) {
+            $item->forceDelete();
+        }
+
+        system_log("Bulk Permanently Deleted " . ucfirst($type), "Permanently wiped {$count} " . ucfirst($type) . " record(s) from database.");
+
+        return response()->json([
+            'success' => true,
+            'message' => "{$count} item(s) permanently deleted.",
+            'deleted_ids' => $ids
+        ]);
+    }
+
+    public function bulkRestore(Request $request)
+    {
+        $type = $request->input('type');
+        $ids = (array) $request->input('ids', []);
+
+        if (empty($ids)) {
+            return response()->json(['success' => false, 'message' => 'No items selected.'], 400);
+        }
+
+        // Special handling for driver_terms
+        if ($type === 'driver_terms' || $type === 'driver_term') {
+            $termsArchiveDir = public_path('uploads/archives/terms');
+            $termsActiveDir = public_path('uploads/terms');
+            if (!file_exists($termsActiveDir)) {
+                @mkdir($termsActiveDir, 0777, true);
+            }
+            $restoredCount = 0;
+            foreach ($ids as $filename) {
+                $cleanFilename = basename($filename);
+                $src = $termsArchiveDir . DIRECTORY_SEPARATOR . $cleanFilename;
+                $dest = $termsActiveDir . DIRECTORY_SEPARATOR . $cleanFilename;
+                if (file_exists($src)) {
+                    @rename($src, $dest);
+                    $restoredCount++;
+                }
+            }
+            system_log("Bulk Restored Driver Terms", "Restored {$restoredCount} archived driver term document(s).");
+            return response()->json(['success' => true, 'message' => "{$restoredCount} term document(s) restored successfully.", 'restored_ids' => $ids]);
+        }
+
+        $model = $this->getModelByType($type);
+        if (!$model) {
+            return response()->json(['success' => false, 'message' => 'Invalid model type.'], 400);
+        }
+
+        $items = $model::withTrashed()->whereIn('id', $ids)->get();
+        $count = $items->count();
+
+        foreach ($items as $item) {
+            $item->restore();
+        }
+
+        system_log("Bulk Restored " . ucfirst($type), "Restored {$count} " . ucfirst($type) . " record(s) from the archive.");
+
+        return response()->json([
+            'success' => true,
+            'message' => "{$count} item(s) restored successfully.",
+            'restored_ids' => $ids
+        ]);
+    }
+
     private function getModelByType($type)
     {
         return match ($type) {
-            'unit' => Unit::class,
-            'driver' => Driver::class,
-            'expense' => Expense::class,
-            'boundary' => Boundary::class,
+            'unit', 'units' => Unit::class,
+            'driver', 'drivers' => Driver::class,
+            'expense', 'expenses' => Expense::class,
+            'boundary', 'boundaries' => Boundary::class,
             'maintenance' => Maintenance::class,
-            'franchise_case' => FranchiseCase::class,
+            'franchise_case', 'franchise_cases' => FranchiseCase::class,
             'staff' => Staff::class,
-            'incident' => \App\Models\DriverBehavior::class,
-            'accident' => \App\Models\RescueRequest::class,
-            'pricing_rule' => BoundaryRule::class,
-            'supplier' => Supplier::class,
-            'spare_part' => \App\Models\SparePart::class,
-            'user' => \App\Models\User::class,
+            'incident', 'incidents' => \App\Models\DriverBehavior::class,
+            'accident', 'accidents' => \App\Models\RescueRequest::class,
+            'pricing_rule', 'pricing_rules' => BoundaryRule::class,
+            'supplier', 'suppliers' => Supplier::class,
+            'spare_part', 'spare_parts' => \App\Models\SparePart::class,
+            'user', 'users', 'user_account', 'user_accounts', 'driver_account', 'driver_accounts' => \App\Models\User::class,
 
             default => null,
         };

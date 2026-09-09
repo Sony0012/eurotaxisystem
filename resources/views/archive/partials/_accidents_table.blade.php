@@ -2,6 +2,9 @@
     <table class="w-full divide-y divide-slate-100">
         <thead class="bg-slate-50/70">
             <tr>
+                <th class="w-10 px-4 sm:px-6 py-4 text-center">
+                    <input type="checkbox" class="archive-select-all rounded border-slate-300 text-amber-500 focus:ring-amber-400 h-4 w-4 cursor-pointer" title="Select All">
+                </th>
                 <th class="px-6 sm:px-8 py-4 text-left text-xs font-black text-slate-400 uppercase tracking-widest">Date / Time</th>
                 <th class="px-6 sm:px-8 py-4 text-left text-xs font-black text-slate-400 uppercase tracking-widest">Driver</th>
                 <th class="px-6 sm:px-8 py-4 text-left text-xs font-black text-slate-400 uppercase tracking-widest">Unit</th>
@@ -11,7 +14,10 @@
         </thead>
         <tbody class="bg-white divide-y divide-slate-100">
             @forelse($items as $item)
-            <tr class="hover:bg-slate-50/80 transition-colors">
+            <tr class="hover:bg-slate-50/80 transition-colors" data-id="{{ $item->id }}">
+                <td class="w-10 px-4 sm:px-6 py-5 text-center">
+                    <input type="checkbox" class="archive-row-cb rounded border-slate-300 text-amber-500 focus:ring-amber-400 h-4 w-4 cursor-pointer" value="{{ $item->id }}" data-id="{{ $item->id }}">
+                </td>
                 <td class="px-6 sm:px-8 py-5 whitespace-nowrap">
                     <div class="text-xs sm:text-sm font-black text-slate-900">{{ \Carbon\Carbon::parse($item->created_at)->format('M d, Y') }}</div>
                     <div class="text-xs text-slate-400 font-mono font-bold">{{ \Carbon\Carbon::parse($item->created_at)->format('h:i A') }}</div>
@@ -48,7 +54,7 @@
             </tr>
             @empty
             <tr>
-                <td colspan="5" class="px-6 sm:px-8 py-16 text-center">
+                <td colspan="6" class="px-6 sm:px-8 py-16 text-center">
                     <div class="flex flex-col items-center gap-3 text-slate-400">
                         <div class="w-16 h-16 rounded-2xl bg-slate-50 flex items-center justify-center">
                             <i data-lucide="ambulance" class="w-8 h-8 opacity-40"></i>

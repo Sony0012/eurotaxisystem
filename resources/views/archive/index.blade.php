@@ -297,6 +297,23 @@
             </div>
         </div>
 
+        <!-- Bulk Action Toolbar (appears when 1 or more items are checked) -->
+        <div id="archive-bulk-toolbar" class="hidden px-6 sm:px-8 py-3.5 bg-amber-500/10 border-b border-amber-200/80 flex flex-wrap items-center justify-between gap-3 transition-all">
+            <div class="flex items-center gap-2.5">
+                <span class="inline-flex items-center justify-center min-w-[24px] h-6 px-2 rounded-lg bg-amber-500 text-white font-black text-xs" id="bulk-selected-count">0</span>
+                <span class="text-xs sm:text-sm font-black text-amber-900">item(s) selected</span>
+                <button type="button" onclick="archiveDeselectAll()" class="text-xs font-bold text-amber-700 hover:text-amber-900 underline ml-2 cursor-pointer">Deselect All</button>
+            </div>
+            <div class="flex items-center gap-2">
+                <button type="button" id="btn-bulk-restore" onclick="archiveBulkRestore()" class="inline-flex items-center gap-1.5 text-xs font-bold text-blue-700 bg-white hover:bg-blue-50 border border-blue-200 px-3.5 py-2 rounded-xl shadow-2xs active:scale-95 transition-all cursor-pointer">
+                    <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Restore Selected
+                </button>
+                <button type="button" id="btn-bulk-delete" onclick="archiveBulkForceDelete()" class="inline-flex items-center gap-1.5 text-xs font-bold text-white bg-red-600 hover:bg-red-700 border border-red-600 px-3.5 py-2 rounded-xl shadow-xs active:scale-95 transition-all cursor-pointer">
+                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Delete Permanently
+                </button>
+            </div>
+        </div>
+
         <!-- Tab Content Areas (All 14 Modules) -->
         <div class="p-0">
             <!-- 1. Units Tab -->
@@ -385,19 +402,19 @@
 <script>
     // ── Global Archive Configuration for Empty States ─────────────────────
     const archiveEmptyStates = {
-        units: { icon: 'car', title: 'No archived units found', desc: 'Archived taxi units will appear here for restoration or deletion.', cols: 3 },
-        drivers: { icon: 'users', title: 'No archived drivers found', desc: 'Drivers moved to archive will appear here for restoration or deletion.', cols: 4 },
-        user_accounts: { icon: 'shield', title: 'No archived user accounts found', desc: 'Deactivated or deleted accounts will appear here.', cols: 5 },
-        expenses: { icon: 'receipt', title: 'No archived expenses found', desc: 'Expenses deleted from Office Expenses will appear here.', cols: 5 },
-        maintenance: { icon: 'wrench', title: 'No archived maintenance records found', desc: 'Deleted maintenance items will appear here.', cols: 5 },
-        boundaries: { icon: 'wallet', title: 'No archived boundary records found', desc: 'Archived boundaries will appear here.', cols: 5 },
-        staff: { icon: 'user-cog', title: 'No archived staff records found', desc: 'Archived staff employees will appear here.', cols: 4 },
-        incidents: { icon: 'alert-triangle', title: 'No archived incidents found', desc: 'Behavioral and operational incidents moved to archive will appear here.', cols: 5 },
-        accidents: { icon: 'ambulance', title: 'No archived accidents found', desc: 'Accident and SOS emergency tickets moved to archive will appear here.', cols: 5 },
-        pricing_rules: { icon: 'scale', title: 'No archived pricing rules found', desc: 'Pricing and boundary calculation rules in archive will appear here.', cols: 4 },
-        suppliers: { icon: 'truck', title: 'No archived suppliers found', desc: 'Suppliers deleted from supplier management will appear here.', cols: 6 },
-        spare_parts: { icon: 'package', title: 'No archived spare parts found', desc: 'Spare parts you archive from Inventory will appear here.', cols: 5 },
-        franchise_cases: { icon: 'file-text', title: 'No archived franchise cases found', desc: 'LTFRB franchise case dockets moved to archive will appear here.', cols: 3 },
+        units: { icon: 'car', title: 'No archived units found', desc: 'Archived taxi units will appear here for restoration or deletion.', cols: 4 },
+        drivers: { icon: 'users', title: 'No archived drivers found', desc: 'Drivers moved to archive will appear here for restoration or deletion.', cols: 5 },
+        user_accounts: { icon: 'shield', title: 'No archived user accounts found', desc: 'Deactivated or deleted accounts will appear here.', cols: 6 },
+        expenses: { icon: 'receipt', title: 'No archived expenses found', desc: 'Expenses deleted from Office Expenses will appear here.', cols: 6 },
+        maintenance: { icon: 'wrench', title: 'No archived maintenance records found', desc: 'Deleted maintenance items will appear here.', cols: 6 },
+        boundaries: { icon: 'wallet', title: 'No archived boundary records found', desc: 'Archived boundaries will appear here.', cols: 6 },
+        staff: { icon: 'user-cog', title: 'No archived staff records found', desc: 'Archived staff employees will appear here.', cols: 5 },
+        incidents: { icon: 'alert-triangle', title: 'No archived incidents found', desc: 'Behavioral and operational incidents moved to archive will appear here.', cols: 6 },
+        accidents: { icon: 'ambulance', title: 'No archived accidents found', desc: 'Accident and SOS emergency tickets moved to archive will appear here.', cols: 6 },
+        pricing_rules: { icon: 'scale', title: 'No archived pricing rules found', desc: 'Pricing and boundary calculation rules in archive will appear here.', cols: 5 },
+        suppliers: { icon: 'truck', title: 'No archived suppliers found', desc: 'Suppliers deleted from supplier management will appear here.', cols: 7 },
+        spare_parts: { icon: 'package', title: 'No archived spare parts found', desc: 'Spare parts you archive from Inventory will appear here.', cols: 6 },
+        franchise_cases: { icon: 'file-text', title: 'No archived franchise cases found', desc: 'LTFRB franchise case dockets moved to archive will appear here.', cols: 4 },
         driver_terms: { icon: 'scroll', title: 'No archived terms', desc: 'There are no deleted driver terms documents in storage.' }
     };
 
@@ -444,13 +461,15 @@
     }
 
     // ── Dynamic Counter Decrement Engine ─────────────────────────────────
-    function decrementArchiveCounters(tabId) {
+    function decrementArchiveCounters(tabId, count = 1) {
+        const decrementBy = Math.max(1, parseInt(count || 1, 10));
+
         // 1. Update tab pill counter
         const tabBtn = document.querySelector(`[data-tab="${tabId}"]`);
         if (tabBtn) {
             const pill = tabBtn.querySelector('.pill-counter');
             if (pill) {
-                const currentPillCount = Math.max(0, parseInt(pill.textContent.trim() || '0', 10) - 1);
+                const currentPillCount = Math.max(0, parseInt(pill.textContent.trim() || '0', 10) - decrementBy);
                 pill.textContent = currentPillCount;
             }
         }
@@ -458,7 +477,7 @@
         // 2. Update tab content container data-count & active badge
         const tabContent = document.getElementById('tab-' + tabId);
         if (tabContent) {
-            const newTabCount = Math.max(0, parseInt(tabContent.getAttribute('data-count') || '0', 10) - 1);
+            const newTabCount = Math.max(0, parseInt(tabContent.getAttribute('data-count') || '0', 10) - decrementBy);
             tabContent.setAttribute('data-count', newTabCount);
             
             // If this tab is currently the active visible tab, update card badge
@@ -471,7 +490,7 @@
         // 3. Update top summary statistics
         const totalStatEl = document.getElementById('stat-total-archived');
         if (totalStatEl) {
-            const total = Math.max(0, parseInt(totalStatEl.textContent.replace(/,/g, '').trim() || '0', 10) - 1);
+            const total = Math.max(0, parseInt(totalStatEl.textContent.replace(/,/g, '').trim() || '0', 10) - decrementBy);
             totalStatEl.textContent = total.toLocaleString();
         }
 
@@ -481,13 +500,13 @@
         if (fleetTabs.includes(tabId)) {
             const fleetStatEl = document.getElementById('stat-fleet-drivers');
             if (fleetStatEl) {
-                const fleet = Math.max(0, parseInt(fleetStatEl.textContent.replace(/,/g, '').trim() || '0', 10) - 1);
+                const fleet = Math.max(0, parseInt(fleetStatEl.textContent.replace(/,/g, '').trim() || '0', 10) - decrementBy);
                 fleetStatEl.textContent = fleet.toLocaleString();
             }
         } else if (opsFinancialTabs.includes(tabId)) {
             const opsStatEl = document.getElementById('stat-financial-ops');
             if (opsStatEl) {
-                const ops = Math.max(0, parseInt(opsStatEl.textContent.replace(/,/g, '').trim() || '0', 10) - 1);
+                const ops = Math.max(0, parseInt(opsStatEl.textContent.replace(/,/g, '').trim() || '0', 10) - decrementBy);
                 opsStatEl.textContent = ops.toLocaleString();
             }
         }
@@ -552,7 +571,59 @@
         return 'units';
     }
 
-    // ── Global Archive In-Place Restore Action ─────────────────────────────
+    // ── Bulk Toolbar & Selection State Engine ─────────────────────────────
+    function updateBulkToolbar() {
+        const activeTabId = getCurrentActiveTabId();
+        const tabContainer = document.getElementById('tab-' + activeTabId);
+        const toolbar = document.getElementById('archive-bulk-toolbar');
+        const countBadge = document.getElementById('bulk-selected-count');
+
+        if (!tabContainer || !toolbar) return;
+
+        const rowCheckboxes = tabContainer.querySelectorAll('.archive-row-cb');
+        const checkedBoxes = tabContainer.querySelectorAll('.archive-row-cb:checked');
+        const selectAllCb = tabContainer.querySelector('.archive-select-all');
+
+        const selectedCount = checkedBoxes.length;
+        const totalCount = rowCheckboxes.length;
+
+        if (countBadge) countBadge.textContent = selectedCount;
+
+        if (selectedCount > 0) {
+            toolbar.classList.remove('hidden');
+        } else {
+            toolbar.classList.add('hidden');
+        }
+
+        if (selectAllCb) {
+            if (totalCount > 0 && selectedCount === totalCount) {
+                selectAllCb.checked = true;
+                selectAllCb.indeterminate = false;
+            } else if (selectedCount > 0 && selectedCount < totalCount) {
+                selectAllCb.checked = false;
+                selectAllCb.indeterminate = true;
+            } else {
+                selectAllCb.checked = false;
+                selectAllCb.indeterminate = false;
+            }
+        }
+    }
+
+    function archiveDeselectAll() {
+        const activeTabId = getCurrentActiveTabId();
+        const tabContainer = document.getElementById('tab-' + activeTabId);
+        if (tabContainer) {
+            tabContainer.querySelectorAll('.archive-row-cb').forEach(cb => cb.checked = false);
+            const selectAllCb = tabContainer.querySelector('.archive-select-all');
+            if (selectAllCb) {
+                selectAllCb.checked = false;
+                selectAllCb.indeterminate = false;
+            }
+        }
+        updateBulkToolbar();
+    }
+
+    // ── Global Archive In-Place Restore Action (Single) ───────────────────
     async function archiveRestore(restoreUrl, btnEl) {
         if (!confirm('Are you sure you want to restore this archived record back to active?')) return;
 
@@ -589,12 +660,14 @@
                     row.style.transform = 'scale(0.96) translateY(-4px)';
                     setTimeout(() => {
                         row.remove();
-                        decrementArchiveCounters(tabId);
+                        decrementArchiveCounters(tabId, 1);
                         checkAndUpdateEmptyState(tabId);
+                        updateBulkToolbar();
                     }, 350);
                 } else {
-                    decrementArchiveCounters(tabId);
+                    decrementArchiveCounters(tabId, 1);
                     checkAndUpdateEmptyState(tabId);
+                    updateBulkToolbar();
                 }
                 showArchiveToast(result.message || 'Item restored successfully.', 'success');
             } else {
@@ -617,7 +690,7 @@
         }
     }
 
-    // ── Global Archive In-Place Force Delete Action ────────────────────────
+    // ── Global Archive In-Place Force Delete Action (Single) ──────────────
     async function archiveForceDelete(deleteUrl, btnEl) {
         if (typeof window.promptArchiveDeletionPassword !== 'function') {
             alert('Security verification modal is not available. Please refresh the page.');
@@ -662,12 +735,14 @@
                     row.style.transform = 'scale(0.96) translateY(-4px)';
                     setTimeout(() => {
                         row.remove();
-                        decrementArchiveCounters(tabId);
+                        decrementArchiveCounters(tabId, 1);
                         checkAndUpdateEmptyState(tabId);
+                        updateBulkToolbar();
                     }, 350);
                 } else {
-                    decrementArchiveCounters(tabId);
+                    decrementArchiveCounters(tabId, 1);
                     checkAndUpdateEmptyState(tabId);
+                    updateBulkToolbar();
                 }
                 showArchiveToast(result.message || 'Item permanently deleted.', 'success');
             } else {
@@ -690,7 +765,171 @@
         }
     }
 
+    // ── Global Archive In-Place Bulk Restore Action ───────────────────────
+    async function archiveBulkRestore() {
+        const activeTabId = getCurrentActiveTabId();
+        const tabContainer = document.getElementById('tab-' + activeTabId);
+        if (!tabContainer) return;
+
+        const checkedBoxes = Array.from(tabContainer.querySelectorAll('.archive-row-cb:checked'));
+        const ids = checkedBoxes.map(cb => cb.value);
+
+        if (ids.length === 0) {
+            showArchiveToast('No items selected for restoration.', 'error');
+            return;
+        }
+
+        if (!confirm(`Are you sure you want to restore ${ids.length} selected item(s) back to active?`)) {
+            return;
+        }
+
+        const btn = document.getElementById('btn-bulk-restore');
+        let originalHtml = '';
+        if (btn) {
+            originalHtml = btn.innerHTML;
+            btn.disabled = true;
+            btn.style.opacity = '0.7';
+            btn.innerHTML = `<i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i> Restoring (${ids.length})...`;
+            if (window.lucide) lucide.createIcons();
+        }
+
+        try {
+            const response = await fetch("{{ route('archive.bulkRestore') }}", {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                },
+                body: JSON.stringify({
+                    type: activeTabId,
+                    ids: ids
+                })
+            });
+
+            const result = await response.json();
+
+            if (response.ok && result.success !== false) {
+                checkedBoxes.forEach(cb => {
+                    const row = cb.closest('tr') || cb.closest('.grid > div');
+                    if (row) {
+                        row.style.pointerEvents = 'none';
+                        row.style.transition = 'all 0.35s cubic-bezier(0.4, 0, 0.2, 1)';
+                        row.style.opacity = '0';
+                        row.style.transform = 'scale(0.96) translateY(-4px)';
+                        setTimeout(() => row.remove(), 350);
+                    }
+                });
+
+                setTimeout(() => {
+                    decrementArchiveCounters(activeTabId, ids.length);
+                    checkAndUpdateEmptyState(activeTabId);
+                    archiveDeselectAll();
+                }, 360);
+
+                showArchiveToast(result.message || `${ids.length} item(s) restored successfully.`, 'success');
+            } else {
+                showArchiveToast(result.message || 'Error restoring selected items.', 'error');
+            }
+        } catch (err) {
+            showArchiveToast('A network error occurred. Please try again.', 'error');
+        } finally {
+            if (btn) {
+                btn.disabled = false;
+                btn.style.opacity = '1';
+                btn.innerHTML = originalHtml;
+                if (window.lucide) lucide.createIcons();
+            }
+        }
+    }
+
+    // ── Global Archive In-Place Bulk Force Delete Action ──────────────────
+    async function archiveBulkForceDelete() {
+        const activeTabId = getCurrentActiveTabId();
+        const tabContainer = document.getElementById('tab-' + activeTabId);
+        if (!tabContainer) return;
+
+        const checkedBoxes = Array.from(tabContainer.querySelectorAll('.archive-row-cb:checked'));
+        const ids = checkedBoxes.map(cb => cb.value);
+
+        if (ids.length === 0) {
+            showArchiveToast('No items selected for permanent deletion.', 'error');
+            return;
+        }
+
+        if (typeof window.promptArchiveDeletionPassword !== 'function') {
+            alert('Security verification modal is not available. Please refresh the page.');
+            return;
+        }
+
+        const password = await window.promptArchiveDeletionPassword();
+        if (!password) return; // User cancelled
+
+        const btn = document.getElementById('btn-bulk-delete');
+        let originalHtml = '';
+        if (btn) {
+            originalHtml = btn.innerHTML;
+            btn.disabled = true;
+            btn.style.opacity = '0.7';
+            btn.innerHTML = `<i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i> Deleting (${ids.length})...`;
+            if (window.lucide) lucide.createIcons();
+        }
+
+        try {
+            const response = await fetch("{{ route('archive.bulkForceDelete') }}", {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                },
+                body: JSON.stringify({
+                    type: activeTabId,
+                    ids: ids,
+                    archive_password: password
+                })
+            });
+
+            const result = await response.json();
+
+            if (response.ok && result.success !== false) {
+                checkedBoxes.forEach(cb => {
+                    const row = cb.closest('tr') || cb.closest('.grid > div');
+                    if (row) {
+                        row.style.pointerEvents = 'none';
+                        row.style.transition = 'all 0.35s cubic-bezier(0.4, 0, 0.2, 1)';
+                        row.style.opacity = '0';
+                        row.style.transform = 'scale(0.96) translateY(-4px)';
+                        setTimeout(() => row.remove(), 350);
+                    }
+                });
+
+                setTimeout(() => {
+                    decrementArchiveCounters(activeTabId, ids.length);
+                    checkAndUpdateEmptyState(activeTabId);
+                    archiveDeselectAll();
+                }, 360);
+
+                showArchiveToast(result.message || `${ids.length} item(s) permanently deleted.`, 'success');
+            } else {
+                showArchiveToast(result.message || 'Invalid deletion password or error occurred.', 'error');
+            }
+        } catch (err) {
+            showArchiveToast('A network error occurred. Please try again.', 'error');
+        } finally {
+            if (btn) {
+                btn.disabled = false;
+                btn.style.opacity = '1';
+                btn.innerHTML = originalHtml;
+                if (window.lucide) lucide.createIcons();
+            }
+        }
+    }
+
     function switchTab(tabId) {
+        // Deselect checkboxes when changing tabs
+        archiveDeselectAll();
+
         // Hide all tab content
         document.querySelectorAll('.tab-content').forEach(content => {
             content.classList.add('hidden');
@@ -724,6 +963,9 @@
         if (tabId === 'spare_parts') {
             renderArchivedSparePartsIcons();
         }
+
+        // Reset bulk toolbar state for new tab
+        updateBulkToolbar();
 
         // Preserve tab in URL and sessionStorage without page reload
         try {
@@ -767,6 +1009,23 @@
             `;
         });
     }
+
+    // ── Event Delegation for Checkbox Changes ──
+    document.addEventListener('change', function(e) {
+        if (e.target && e.target.classList.contains('archive-select-all')) {
+            const activeTabId = getCurrentActiveTabId();
+            const tabContainer = document.getElementById('tab-' + activeTabId);
+            if (tabContainer) {
+                const rowCheckboxes = tabContainer.querySelectorAll('.archive-row-cb');
+                rowCheckboxes.forEach(cb => {
+                    cb.checked = e.target.checked;
+                });
+            }
+            updateBulkToolbar();
+        } else if (e.target && e.target.classList.contains('archive-row-cb')) {
+            updateBulkToolbar();
+        }
+    });
 
     // Handle initial tab from URL query parameter or sessionStorage
     function initArchive() {

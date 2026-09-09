@@ -264,6 +264,8 @@ Route::middleware(['auth', 'page_access'])->group(function () {
     Route::get('/archive', [ArchiveController::class, 'index'])->name('archive.index');
     Route::post('/archive/restore/{type}/{id}', [ArchiveController::class, 'restore'])->name('archive.restore');
     Route::delete('/archive/force-delete/{type}/{id}', [ArchiveController::class, 'forceDelete'])->name('archive.forceDelete');
+    Route::post('/archive/bulk-restore', [ArchiveController::class, 'bulkRestore'])->name('archive.bulkRestore');
+    Route::delete('/archive/bulk-force-delete', [ArchiveController::class, 'bulkForceDelete'])->name('archive.bulkForceDelete');
 
     // ─── System Settings - Boundary Rules ───────────────────
     Route::get('/boundary-rules', [BoundarySettingsController::class, 'index'])->name('boundary-rules.index');

@@ -9,15 +9,22 @@
         </div>
     </div>
 @else
-    <div class="p-6 sm:p-8">
+    <div class="p-6 sm:p-8 space-y-4">
+        <div class="flex items-center gap-2.5 pb-2 border-b border-slate-100">
+            <input type="checkbox" class="archive-select-all rounded border-slate-300 text-amber-500 focus:ring-amber-400 h-4 w-4 cursor-pointer" id="select-all-driver-terms">
+            <label for="select-all-driver-terms" class="text-xs font-black uppercase tracking-wider text-slate-500 cursor-pointer select-none">Select All Documents</label>
+        </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             @foreach($items as $filename)
-                <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden group flex flex-col hover:border-slate-300 transition-all">
-                    <div class="p-4 border-b border-slate-100 bg-slate-50/70 flex justify-between items-center">
-                        <h3 class="font-black text-slate-800 text-xs truncate flex items-center gap-1.5" title="{{ $filename }}">
-                            <i data-lucide="file-text" class="w-3.5 h-3.5 text-slate-400 shrink-0"></i>
-                            <span class="truncate">{{ $filename }}</span>
-                        </h3>
+                <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden group flex flex-col hover:border-slate-300 transition-all" data-id="{{ $filename }}">
+                    <div class="p-4 border-b border-slate-100 bg-slate-50/70 flex justify-between items-center gap-2">
+                        <div class="flex items-center gap-2 min-w-0">
+                            <input type="checkbox" class="archive-row-cb rounded border-slate-300 text-amber-500 focus:ring-amber-400 h-4 w-4 cursor-pointer shrink-0" value="{{ $filename }}" data-id="{{ $filename }}">
+                            <h3 class="font-black text-slate-800 text-xs truncate flex items-center gap-1.5" title="{{ $filename }}">
+                                <i data-lucide="file-text" class="w-3.5 h-3.5 text-slate-400 shrink-0"></i>
+                                <span class="truncate">{{ $filename }}</span>
+                            </h3>
+                        </div>
                     </div>
                     <div class="p-4 flex-1 flex justify-center items-center bg-slate-50/50">
                         <img src="{{ asset('uploads/archives/terms/' . $filename) }}" alt="Archived Term" 
