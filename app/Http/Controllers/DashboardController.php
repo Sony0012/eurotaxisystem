@@ -76,6 +76,9 @@ class DashboardController extends Controller
         // Unit performance (top performing units)
         $unit_performance = $this->getUnitPerformanceData();
 
+        // Executive Fleet Health & Insights (100% Dynamic & Accurate)
+        $fleet_insights = $this->getFleetInsightsData($unit_performance);
+
         // Unit status distribution data
         $unit_status_data = $this->getUnitStatusDistributionData();
         $unit_status_distribution_data = $unit_status_data;
@@ -92,7 +95,7 @@ class DashboardController extends Controller
         return view('dashboard', compact(
             'stats', 'alerts', 'revenue_trend', 'weekly_data', 
             'unit_status_data', 'unit_status_distribution_data', 
-            'unit_performance', 'expense_breakdown', 'top_drivers',
+            'unit_performance', 'fleet_insights', 'expense_breakdown', 'top_drivers',
             'initial_maintenance'
         ));
     }
@@ -124,6 +127,7 @@ class DashboardController extends Controller
             $unit_status_data = $this->getUnitStatusDistributionData();
             $revenue_trend = $this->getRevenueTrendData(30);
             $unit_performance = $this->getUnitPerformanceData();
+            $fleet_insights = $this->getFleetInsightsData($unit_performance);
             $expense_breakdown = $this->getExpenseBreakdownData();
             $top_drivers = $this->getTopDriversData();
 
@@ -136,6 +140,7 @@ class DashboardController extends Controller
                     'unit_status_data' => $unit_status_data,
                     'revenue_trend' => $revenue_trend,
                     'unit_performance' => $unit_performance,
+                    'fleet_insights' => $fleet_insights,
                     'expense_breakdown' => $expense_breakdown,
                     'top_drivers' => $top_drivers
                 ],
@@ -1412,7 +1417,7 @@ class DashboardController extends Controller
 
     private function getUnitPerformanceData()
     {
-        $thirtyDaysAgo = now()->subDays(30)->toDateString();
+        $thirtyDaysAgo = now()->timezone('Asia/Manila')->subDays(30)->toDateString();
 
         return DB::table('units as u')
             ->whereNull('u.deleted_at')
@@ -1431,9 +1436,76 @@ class DashboardController extends Controller
                 return [
                     'unit' => $unit->plate_number,
                     'performance' => (float) $unit->total_boundary,
-                    'target' => (float) $unit->boundary_rate * 30,
+                    'target' => (float) ($unit->boundary_rate * 30),
                 ];
             });
+    }
+
+    private function getFleetInsightsData($unitPerformance = null)
+    {
+        if ($unitPerformance === null) {
+            $unitPerformance = $this->getUnitPerformanceData();
+        }
+
+        $items = collect($unitPerformance);
+        $totalActual = (float) $items->sum('performance');
+        $totalTarget = (float) $items->sum('target');
+
+        $healthPercentage = $totalTarget > 0 ? round(($totalActual / $totalTarget) * 100, 1) : 0;
+
+        // Calculate 30-day previous growth / comparison
+        $thirtyDaysAgo = now()->timezone('Asia/Manila')->subDays(30)->toDateString();
+        $sixtyDaysAgo = now()->timezone('Asia/Manila')->subDays(60)->toDateString();
+
+        $prevTotalActual = (float) DB::table('boundaries as b')
+            ->join('units as u', 'b.unit_id', '=', 'u.id')
+            ->whereNull('b.deleted_at')
+            ->whereNull('u.deleted_at')
+            ->where('u.status', 'active')
+            ->whereBetween('b.date', [$sixtyDaysAgo, $thirtyDaysAgo])
+            ->sum('b.actual_boundary');
+
+        $growthPercentage = 0;
+        if ($prevTotalActual > 0) {
+            $growthPercentage = round((($totalActual - $prevTotalActual) / $prevTotalActual) * 100, 1);
+        } elseif ($totalActual > 0) {
+            $growthPercentage = 100.0;
+        }
+
+        // Top Performer (only if actual revenue > 0)
+        $topUnit = $items->first(function($u) {
+            $perf = is_array($u) ? ($u['performance'] ?? 0) : ($u->performance ?? 0);
+            return $perf > 0;
+        });
+
+        $topPlate = null;
+        $topAmount = 0;
+        if ($topUnit) {
+            $topPlate = is_array($topUnit) ? $topUnit['unit'] : $topUnit->unit;
+            $topAmount = is_array($topUnit) ? ($topUnit['performance'] ?? 0) : ($topUnit->performance ?? 0);
+        }
+
+        // Dynamic insight message based on real data
+        if ($totalActual <= 0) {
+            $insightMessage = 'No boundary collections recorded for active units in the last 30 days yet.';
+        } elseif ($healthPercentage >= 80) {
+            $insightMessage = 'Most units are meeting or exceeding their 30-day boundary targets.';
+        } elseif ($healthPercentage >= 50) {
+            $insightMessage = 'Fleet is operating at moderate efficiency across active units.';
+        } else {
+            $insightMessage = 'Fleet boundary collections are currently below 50% of monthly targets.';
+        }
+
+        return [
+            'health_percentage' => $healthPercentage,
+            'growth_percentage' => $growthPercentage,
+            'total_actual' => $totalActual,
+            'total_target' => $totalTarget,
+            'has_data' => $totalActual > 0,
+            'top_plate' => $topPlate,
+            'top_amount' => $topAmount,
+            'insight_message' => $insightMessage,
+        ];
     }
 
     private function getExpenseBreakdownData()

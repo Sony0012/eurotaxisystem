@@ -171,6 +171,10 @@ class RealTimeDashboard {
             window.unitPerformanceChart.data.datasets[1].data = charts.unit_performance.map(d => d.target);
             window.unitPerformanceChart.update('none');
         }
+
+        if (charts.fleet_insights && typeof window.updateExecutiveInsights === 'function') {
+            window.updateExecutiveInsights(charts.fleet_insights);
+        }
     }
 
     updateAlerts(alerts) {

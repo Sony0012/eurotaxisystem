@@ -841,18 +841,37 @@
                     <div>
                         <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-2">Fleet Health</p>
                         <div class="flex items-end gap-2">
-                            <p class="text-3xl font-bold text-slate-800 leading-none">82%</p>
-                            <p class="text-xs font-bold text-green-600 flex items-center mb-0.5">
-                                <i data-lucide="trending-up" class="w-3 h-3 mr-0.5"></i> +2.4%
-                            </p>
+                            <p class="text-3xl font-bold text-slate-800 leading-none" id="insightFleetHealth">{{ $fleet_insights['health_percentage'] ?? 0 }}%</p>
+                            @if(($fleet_insights['has_data'] ?? false))
+                                @if(($fleet_insights['growth_percentage'] ?? 0) >= 0)
+                                    <p class="text-xs font-bold text-emerald-600 flex items-center mb-0.5" id="insightGrowthBadge">
+                                        <i data-lucide="trending-up" class="w-3 h-3 mr-0.5"></i> +{{ $fleet_insights['growth_percentage'] }}%
+                                    </p>
+                                @else
+                                    <p class="text-xs font-bold text-rose-600 flex items-center mb-0.5" id="insightGrowthBadge">
+                                        <i data-lucide="trending-down" class="w-3 h-3 mr-0.5"></i> {{ $fleet_insights['growth_percentage'] }}%
+                                    </p>
+                                @endif
+                            @else
+                                <p class="text-[10px] font-bold text-slate-400 flex items-center mb-0.5 px-2 py-0.5 rounded-md bg-slate-200/60" id="insightGrowthBadge">
+                                    0% Base
+                                </p>
+                            @endif
                         </div>
-                        <p class="text-[11px] text-slate-500 mt-2 leading-relaxed font-medium">Most units are meeting over 80% of their monthly boundary targets.</p>
+                        <p class="text-[11px] text-slate-500 mt-2 leading-relaxed font-medium" id="insightHealthDesc">
+                            {{ $fleet_insights['insight_message'] ?? 'No collections recorded in the last 30 days yet.' }}
+                        </p>
                     </div>
                     
                     <div class="pt-6 border-t border-gray-200">
                         <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-2">Top Performer</p>
-                        <p class="text-base font-bold text-slate-800" id="insightTopPlate">--</p>
-                        <p class="text-[11px] text-slate-500 mt-2 font-medium">Consistency in daily collections makes this your most reliable asset.</p>
+                        @if(!empty($fleet_insights['top_plate']))
+                            <p class="text-base font-bold text-slate-800" id="insightTopPlate">{{ $fleet_insights['top_plate'] }}</p>
+                            <p class="text-[11px] text-slate-500 mt-1 font-medium" id="insightTopDesc">Collected <strong>₱{{ number_format($fleet_insights['top_amount'] ?? 0) }}</strong> over the last 30 days.</p>
+                        @else
+                            <p class="text-base font-bold text-slate-400 italic" id="insightTopPlate">No Active Data</p>
+                            <p class="text-[11px] text-slate-400 mt-1 font-medium" id="insightTopDesc">No boundary collections logged in the last 30 days.</p>
+                        @endif
                     </div>
 
                     <div class="pt-6 border-t border-gray-200">
@@ -2653,10 +2672,52 @@
             
             chartObserver.observe(document.getElementById('unitPerformanceChart'));
 
-            // Update Executive Insight: Top Performer
-            if (unitPerformanceData && unitPerformanceData.length > 0) {
-                const topUnit = unitPerformanceData[0]; // Data is sorted by performance descending
-                document.getElementById('insightTopPlate').textContent = topUnit.unit;
+            // Update Executive Insights Dynamically
+            window.updateExecutiveInsights = function(insights) {
+                if (!insights) return;
+                const healthEl = document.getElementById('insightFleetHealth');
+                const growthBadge = document.getElementById('insightGrowthBadge');
+                const healthDesc = document.getElementById('insightHealthDesc');
+                const topPlate = document.getElementById('insightTopPlate');
+                const topDesc = document.getElementById('insightTopDesc');
+
+                if (healthEl) healthEl.textContent = (insights.health_percentage || 0) + '%';
+                
+                if (healthDesc) {
+                    healthDesc.textContent = insights.insight_message || 'No collections recorded in the last 30 days yet.';
+                }
+
+                if (growthBadge) {
+                    if (!insights.has_data) {
+                        growthBadge.className = 'text-[10px] font-bold text-slate-400 flex items-center mb-0.5 px-2 py-0.5 rounded-md bg-slate-200/60';
+                        growthBadge.innerHTML = '0% Base';
+                    } else if ((insights.growth_percentage || 0) >= 0) {
+                        growthBadge.className = 'text-xs font-bold text-emerald-600 flex items-center mb-0.5';
+                        growthBadge.innerHTML = `<i data-lucide="trending-up" class="w-3 h-3 mr-0.5"></i> +${insights.growth_percentage}%`;
+                    } else {
+                        growthBadge.className = 'text-xs font-bold text-rose-600 flex items-center mb-0.5';
+                        growthBadge.innerHTML = `<i data-lucide="trending-down" class="w-3 h-3 mr-0.5"></i> ${insights.growth_percentage}%`;
+                    }
+                }
+
+                if (topPlate) {
+                    if (insights.top_plate) {
+                        topPlate.className = 'text-base font-bold text-slate-800';
+                        topPlate.textContent = insights.top_plate;
+                        if (topDesc) topDesc.innerHTML = `Collected <strong>₱${Number(insights.top_amount || 0).toLocaleString()}</strong> over the last 30 days.`;
+                    } else {
+                        topPlate.className = 'text-base font-bold text-slate-400 italic';
+                        topPlate.textContent = 'No Active Data';
+                        if (topDesc) topDesc.textContent = 'No boundary collections logged in the last 30 days.';
+                    }
+                }
+
+                if (typeof lucide !== 'undefined') lucide.createIcons();
+            };
+
+            const initialFleetInsights = @json($fleet_insights ?? null);
+            if (initialFleetInsights) {
+                window.updateExecutiveInsights(initialFleetInsights);
             }
         } catch (error) {
             console.error('Unit Performance Chart Error:', error);
