@@ -102,7 +102,7 @@
                                 <span>Edit</span>
                             </button>
                             
-                            <form action="{{ route('boundary-rules.destroy', $rule->uuid) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to archive this pricing bracket?')">
+                            <form action="{{ route('boundary-rules.destroy', $rule->id) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to archive this pricing bracket?')">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="px-3 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-600 hover:text-white transition-all duration-200 flex items-center gap-1.5 font-bold shadow-sm group">
