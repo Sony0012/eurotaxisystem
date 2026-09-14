@@ -814,9 +814,50 @@ class BoundaryController extends Controller
                     $clean_notes .= " [Automatic Violation: Short Boundary]";
                 }
 
+                $damage_payment = (float) $request->input('damage_payment', 0);
+                $old_damage_payment = (float) ($boundary->damage_payment ?? 0);
+                $diff_damage_payment = $damage_payment - $old_damage_payment;
+
+                if ($diff_damage_payment > 0) {
+                    $remaining_to_pay = $diff_damage_payment;
+                    $pending_debts = \App\Models\DriverBehavior::where('driver_id', $boundary->driver_id)
+                        ->where('charge_status', 'pending')
+                        ->where('remaining_balance', '>', 0)
+                        ->orderBy('timestamp', 'asc')
+                        ->get();
+                        
+                    foreach ($pending_debts as $debt) {
+                        if ($remaining_to_pay <= 0) break;
+                        $to_deduct = min($remaining_to_pay, $debt->remaining_balance);
+                        $debt->total_paid += $to_deduct;
+                        $debt->remaining_balance -= $to_deduct;
+                        if ($debt->remaining_balance <= 0) {
+                            $debt->charge_status = 'paid';
+                        }
+                        $debt->save();
+                        $remaining_to_pay -= $to_deduct;
+                    }
+                } elseif ($diff_damage_payment < 0) {
+                    $to_restore = abs($diff_damage_payment);
+                    $paid_debts = \App\Models\DriverBehavior::where('driver_id', $boundary->driver_id)
+                        ->where('total_paid', '>', 0)
+                        ->orderBy('timestamp', 'desc')
+                        ->get();
+                    foreach ($paid_debts as $debt) {
+                        if ($to_restore <= 0) break;
+                        $can_revert = min($to_restore, $debt->total_paid);
+                        $debt->total_paid -= $can_revert;
+                        $debt->remaining_balance += $can_revert;
+                        $debt->charge_status = 'pending';
+                        $debt->save();
+                        $to_restore -= $can_revert;
+                    }
+                }
+
                 $boundary->update([
                     'boundary_amount' => $boundary_amount,
                     'actual_boundary' => $actual_boundary,
+                    'damage_payment'  => $damage_payment,
                     'shortage'        => $shortage,
                     'excess'          => $excess,
                     'status'          => $status,

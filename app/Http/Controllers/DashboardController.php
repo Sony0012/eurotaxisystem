@@ -160,7 +160,7 @@ class DashboardController extends Controller
         $revenueData = DB::table('boundaries')
             ->whereNull('deleted_at')
             ->whereDate('date', '>=', $startDate)
-            ->select(DB::raw('DATE(date) as revenue_date'), DB::raw('SUM(actual_boundary) as total_revenue'))
+            ->select(DB::raw('DATE(date) as revenue_date'), DB::raw('SUM(actual_boundary + COALESCE(damage_payment, 0)) as total_revenue'))
             ->groupBy(DB::raw('DATE(date)'))
             ->orderBy('revenue_date', 'asc')
             ->get()
@@ -396,6 +396,7 @@ class DashboardController extends Controller
                     'b.id',
                     'b.unit_id',
                     'b.actual_boundary',
+                    'b.damage_payment',
                     'b.boundary_amount',
                     'b.date',
                     'b.created_at',
@@ -418,13 +419,19 @@ class DashboardController extends Controller
                     $driverName = trim(($collection->first_name ?? '') . ' ' . ($collection->last_name ?? ''));
                     if (empty($driverName)) $driverName = $collection->nickname ?? 'No Driver Assigned';
                     
+                    $actual = (float) ($collection->actual_boundary ?? 0);
+                    $damage = (float) ($collection->damage_payment ?? 0);
+                    $total = $actual + $damage;
+                    
                     return [
                         'id' => $collection->id,
                         'unit_id' => $collection->unit_id,
                         'plate_number' => $collection->plate_number,
                         'driver_name' => $driverName,
                         'driver_id' => $collection->driver_id,
-                        'boundary_amount' => (float) ($collection->actual_boundary ?? 0),
+                        'boundary_amount' => $total,
+                        'actual_boundary' => $actual,
+                        'damage_payment'  => $damage,
                         'date' => $collection->date,
                         'time' => isset($collection->created_at) ? \Carbon\Carbon::parse($collection->created_at)->format('h:i A') : 'N/A', 
                         'location' => 'Main Office', 
@@ -442,9 +449,9 @@ class DashboardController extends Controller
 
             $stats = [
                 'total_today' => (int) (DB::table('boundaries')->when($hasBDeleted, fn($q)=>$q->whereNull('deleted_at'))->whereDate('date', $today)->count()),
-                'amount_yesterday' => (float) (DB::table('boundaries')->when($hasBDeleted, fn($q)=>$q->whereNull('deleted_at'))->whereDate('date', $yesterday)->sum('actual_boundary') ?? 0),
-                'amount_monthly' => (float) (DB::table('boundaries')->when($hasBDeleted, fn($q)=>$q->whereNull('deleted_at'))->whereMonth('date', $month)->whereYear('date', $year)->sum('actual_boundary') ?? 0),
-                'total_yearly_amount' => (float) (DB::table('boundaries')->when($hasBDeleted, fn($q)=>$q->whereNull('deleted_at'))->whereYear('date', $year)->sum('actual_boundary') ?? 0),
+                'amount_yesterday' => (float) (DB::table('boundaries')->when($hasBDeleted, fn($q)=>$q->whereNull('deleted_at'))->whereDate('date', $yesterday)->sum(DB::raw('actual_boundary + COALESCE(damage_payment, 0)')) ?? 0),
+                'amount_monthly' => (float) (DB::table('boundaries')->when($hasBDeleted, fn($q)=>$q->whereNull('deleted_at'))->whereMonth('date', $month)->whereYear('date', $year)->sum(DB::raw('actual_boundary + COALESCE(damage_payment, 0)')) ?? 0),
+                'total_yearly_amount' => (float) (DB::table('boundaries')->when($hasBDeleted, fn($q)=>$q->whereNull('deleted_at'))->whereYear('date', $year)->sum(DB::raw('actual_boundary + COALESCE(damage_payment, 0)')) ?? 0),
                 'filter_date' => $date
             ];
 
@@ -485,6 +492,7 @@ class DashboardController extends Controller
                     'b.id',
                     'b.unit_id',
                     'b.actual_boundary',
+                    'b.damage_payment',
                     'b.boundary_amount',
                     'b.date',
                     'u.plate_number',
@@ -501,12 +509,20 @@ class DashboardController extends Controller
                 ->orderBy('b.id', 'desc')
                 ->get()
                 ->map(function($item) {
+                    $actual = (float) ($item->actual_boundary ?? 0);
+                    $damage = (float) ($item->damage_payment ?? 0);
+                    $totalBoundary = $actual + $damage;
+                    $desc = 'Boundary Collection - ' . ($item->plate_number ?? 'N/A');
+                    if ($damage > 0) {
+                        $desc .= ' (Boundary: ₱' . number_format($actual, 2) . ', Debt: ₱' . number_format($damage, 2) . ')';
+                    }
+
                     return [
                         'id' => $item->id,
                         'type' => 'income',
-                        'description' => 'Boundary Collection - ' . ($item->plate_number ?? 'N/A'),
+                        'description' => $desc,
                         'category' => 'Boundary Income',
-                        'amount' => (float) ($item->actual_boundary ?? 0),
+                        'amount' => $totalBoundary,
                         'date' => $item->date,
                         'source' => $item->plate_number ?? 'N/A',
                         'reference' => 'Boundary #' . $item->id,
@@ -524,6 +540,7 @@ class DashboardController extends Controller
                     $expenseTable = 'expenses';
                     $expQuery = DB::table('expenses as oe')
                         ->leftJoin('users as u', 'oe.created_by', '=', 'u.id')
+                        ->where('oe.status', 'approved')
                         ->select([
                             'oe.id',
                             'oe.category as expense_type',
@@ -543,12 +560,27 @@ class DashboardController extends Controller
                         ->orderBy('oe.id', 'desc')
                         ->get()
                         ->map(function($item) {
+                            if ($item->expense_type === 'Damage Recovery') {
+                                return [
+                                    'id' => $item->id,
+                                    'type' => 'income',
+                                    'description' => $item->description ?: 'Driver Debt Recovery',
+                                    'category' => 'Debt Recovery',
+                                    'amount' => abs((float) ($item->amount ?? 0)),
+                                    'date' => $item->date,
+                                    'source' => $item->user_name ?: 'Office / Cashier',
+                                    'reference' => 'Recovery #' . $item->id,
+                                    'expense_type' => 'Debt Recovery',
+                                    'user_name' => $item->user_name ?: 'Office Staff'
+                                ];
+                            }
+
                             return [
                                 'id' => $item->id,
                                 'type' => 'expense',
                                 'description' => $item->description ?: $item->expense_type,
                                 'category' => $item->expense_type,
-                                'amount' => abs((float) ($item->amount ?? 0)),
+                                'amount' => (float) ($item->amount ?? 0),
                                 'date' => $item->date,
                                 'source' => $item->user_name ?: 'Office / System',
                                 'reference' => 'Expense #' . $item->id,
@@ -670,11 +702,11 @@ class DashboardController extends Controller
                 ->values();
 
             // Calculate statistics
-            $totalIncome = (float) $incomeData->sum('amount');
-            $totalExpenses = (float) ($expenseData->sum('amount') + 
-                            $maintenanceExpenses->sum('amount') + 
-                            $codingExpenses->sum('amount') + 
-                            $salaryExpenses->sum('amount'));
+            $pureIncome = $allData->where('type', 'income');
+            $pureExpenses = $allData->where('type', '!=', 'income');
+
+            $totalIncome = (float) $pureIncome->sum('amount');
+            $totalExpenses = (float) $pureExpenses->sum('amount');
             $netIncome = $totalIncome - $totalExpenses;
             $profitMargin = $totalIncome > 0 ? (($netIncome / $totalIncome) * 100) : 0;
 
@@ -683,13 +715,13 @@ class DashboardController extends Controller
                 'total_expenses' => $totalExpenses,
                 'net_income' => $netIncome,
                 'profit_margin' => $profitMargin,
-                'income_count' => $incomeData->count(),
-                'expense_count' => $expenseData->count(),
+                'income_count' => $pureIncome->count(),
+                'expense_count' => $pureExpenses->count(),
                 'total_transactions' => $allData->count(),
                 'expense_table_used' => $expenseTable,
                 'debug_info' => [
-                    'income_data_count' => $incomeData->count(),
-                    'expense_data_count' => $expenseData->count(),
+                    'income_data_count' => $pureIncome->count(),
+                    'expense_data_count' => $pureExpenses->count(),
                     'expense_table_found' => $expenseTable ? 'yes' : 'no'
                 ]
             ];
@@ -1183,13 +1215,15 @@ class DashboardController extends Controller
             // 5. Financials (Today)
             $bTodayQ = DB::table('boundaries')->whereDate('date', $today);
             if ($hasBDeleted) $bTodayQ->whereNull('deleted_at');
-            $stats['today_boundary'] = (float) ($bTodayQ->sum('actual_boundary') ?? 0);
+            $stats['today_boundary'] = (float) ($bTodayQ->sum(DB::raw('actual_boundary + COALESCE(damage_payment, 0)')) ?? 0);
 
             $genExToday = 0;
+            $officeRecoveryToday = 0;
             if (Schema::hasTable('expenses')) {
-                $eQ = DB::table('expenses')->whereDate('date', $today);
-                if ($hasEDeleted) $eQ->whereNull('deleted_at');
-                $genExToday = (float) ($eQ->sum('amount') ?? 0);
+                $eTodayApproved = DB::table('expenses')->whereDate('date', $today)->where('status', 'approved');
+                if ($hasEDeleted) $eTodayApproved->whereNull('deleted_at');
+                $genExToday = (float) ((clone $eTodayApproved)->where('category', '!=', 'Damage Recovery')->sum('amount') ?? 0);
+                $officeRecoveryToday = (float) ((clone $eTodayApproved)->where('category', 'Damage Recovery')->sum(DB::raw('ABS(amount)')) ?? 0);
             }
 
             $salExToday = 0;
@@ -1204,8 +1238,9 @@ class DashboardController extends Controller
                 $mntExToday = (float) ($mTodayQ->sum('cost') ?? 0);
             }
             
-            $stats['total_expenses_today'] = abs($genExToday) + abs($salExToday) + abs($mntExToday);
-            $stats['net_income'] = $stats['today_boundary'] - $stats['total_expenses_today'];
+            $stats['total_revenue_today'] = $stats['today_boundary'] + $officeRecoveryToday;
+            $stats['total_expenses_today'] = $genExToday + $salExToday + $mntExToday;
+            $stats['net_income'] = $stats['total_revenue_today'] - $stats['total_expenses_today'];
 
             // 6. Financials (This Month)
             $month = now()->timezone('Asia/Manila')->month;
@@ -1213,13 +1248,15 @@ class DashboardController extends Controller
 
             $bMonthQ = DB::table('boundaries')->whereMonth('date', $month)->whereYear('date', $year);
             if ($hasBDeleted) $bMonthQ->whereNull('deleted_at');
-            $stats['month_boundary'] = (float) ($bMonthQ->sum('actual_boundary') ?? 0);
+            $stats['month_boundary'] = (float) ($bMonthQ->sum(DB::raw('actual_boundary + COALESCE(damage_payment, 0)')) ?? 0);
 
             $genExMonth = 0;
+            $officeRecoveryMonth = 0;
             if (Schema::hasTable('expenses')) {
-                $eMonthQ = DB::table('expenses')->whereMonth('date', $month)->whereYear('date', $year);
-                if ($hasEDeleted) $eMonthQ->whereNull('deleted_at');
-                $genExMonth = (float) ($eMonthQ->sum('amount') ?? 0);
+                $eMonthApproved = DB::table('expenses')->whereMonth('date', $month)->whereYear('date', $year)->where('status', 'approved');
+                if ($hasEDeleted) $eMonthApproved->whereNull('deleted_at');
+                $genExMonth = (float) ((clone $eMonthApproved)->where('category', '!=', 'Damage Recovery')->sum('amount') ?? 0);
+                $officeRecoveryMonth = (float) ((clone $eMonthApproved)->where('category', 'Damage Recovery')->sum(DB::raw('ABS(amount)')) ?? 0);
             }
 
             $salExMonth = 0;
@@ -1234,8 +1271,9 @@ class DashboardController extends Controller
                 $mntExMonth = (float) ($mMonthQ->sum('cost') ?? 0);
             }
             
-            $stats['total_expenses_month'] = abs($genExMonth) + abs($salExMonth) + abs($mntExMonth);
-            $stats['net_income_month'] = $stats['month_boundary'] - $stats['total_expenses_month'];
+            $stats['total_revenue_month'] = $stats['month_boundary'] + $officeRecoveryMonth;
+            $stats['total_expenses_month'] = $genExMonth + $salExMonth + $mntExMonth;
+            $stats['net_income_month'] = $stats['total_revenue_month'] - $stats['total_expenses_month'];
 
             $stats['roi_achieved'] = $stats['roi_units']; // Harmonize for JS
 
@@ -1378,13 +1416,16 @@ class DashboardController extends Controller
     {
         return collect(range(6, 0))->map(function ($daysAgo) {
             $date = now()->subDays($daysAgo)->toDateString();
-            $boundary = DB::table('boundaries')->whereNull('deleted_at')->whereDate('date', $date)->sum('actual_boundary') ?? 0;
-            $expenses = abs((float)(DB::table('expenses')->whereNull('deleted_at')->whereDate('date', $date)->sum('amount') ?? 0));
+            $boundary = (float) (DB::table('boundaries')->whereNull('deleted_at')->whereDate('date', $date)->sum(DB::raw('actual_boundary + COALESCE(damage_payment, 0)')) ?? 0);
+            $expenses = (float) (DB::table('expenses')->whereNull('deleted_at')->where('status', 'approved')->where('category', '!=', 'Damage Recovery')->whereDate('date', $date)->sum('amount') ?? 0);
+            $recovery = (float) (DB::table('expenses')->whereNull('deleted_at')->where('status', 'approved')->where('category', 'Damage Recovery')->whereDate('date', $date)->sum(DB::raw('ABS(amount)')) ?? 0);
+            $totalInflow = $boundary + $recovery;
+
             return [
                 'day'      => now()->subDays($daysAgo)->format('D'),
-                'boundary' => (float) $boundary,
-                'expenses' => (float) $expenses,
-                'net'      => (float) ($boundary - $expenses),
+                'boundary' => $totalInflow,
+                'expenses' => $expenses,
+                'net'      => (float) ($totalInflow - $expenses),
             ];
         })->values()->toArray();
     }
@@ -1394,10 +1435,11 @@ class DashboardController extends Controller
         return collect(range($period - 1, 0))->map(function ($daysAgo) {
             $label = now()->subDays($daysAgo)->format('M j');
             $date = now()->subDays($daysAgo)->toDateString();
-            $boundary = DB::table('boundaries')->whereNull('deleted_at')->whereDate('date', $date)->sum('actual_boundary') ?? 0;
+            $boundary = (float) (DB::table('boundaries')->whereNull('deleted_at')->whereDate('date', $date)->sum(DB::raw('actual_boundary + COALESCE(damage_payment, 0)')) ?? 0);
+            $recovery = (float) (DB::table('expenses')->whereNull('deleted_at')->where('status', 'approved')->where('category', 'Damage Recovery')->whereDate('date', $date)->sum(DB::raw('ABS(amount)')) ?? 0);
             return [
                 'date' => $label,
-                'revenue' => (float) $boundary,
+                'revenue' => (float) ($boundary + $recovery),
             ];
         })->values()->toArray();
     }
@@ -1529,9 +1571,11 @@ class DashboardController extends Controller
         $month = now()->month;
         $year = now()->year;
 
-        // 1. General Expenses from 'expenses' table
+        // 1. General Expenses from 'expenses' table (approved, non-recovery)
         $genExpenses = DB::table('expenses')
             ->whereNull('deleted_at')
+            ->where('status', 'approved')
+            ->where('category', '!=', 'Damage Recovery')
             ->select('category', DB::raw('SUM(amount) as total'))
             ->whereMonth('date', $month)
             ->whereYear('date', $year)

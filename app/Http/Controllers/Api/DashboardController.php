@@ -46,17 +46,17 @@ class DashboardController extends Controller
             $year      = now()->timezone('Asia/Manila')->year;
             $month     = now()->timezone('Asia/Manila')->month;
 
-            $stats['today_boundary'] = (float)(DB::table('boundaries')->whereNull('deleted_at')->whereDate('date', $today)->sum('actual_boundary') ?? 0);
-            $stats['yesterday_boundary'] = (float)(DB::table('boundaries')->whereNull('deleted_at')->whereDate('date', $yesterday)->sum('actual_boundary') ?? 0);
-            $stats['month_boundary'] = (float)(DB::table('boundaries')->whereNull('deleted_at')->whereMonth('date', $month)->whereYear('date', $year)->sum('actual_boundary') ?? 0);
-            $stats['year_boundary'] = (float)(DB::table('boundaries')->whereNull('deleted_at')->whereYear('date', $year)->sum('actual_boundary') ?? 0);
+            $stats['today_boundary'] = (float)(DB::table('boundaries')->whereNull('deleted_at')->whereDate('date', $today)->sum(DB::raw('actual_boundary + COALESCE(damage_payment, 0)')) ?? 0);
+            $stats['yesterday_boundary'] = (float)(DB::table('boundaries')->whereNull('deleted_at')->whereDate('date', $yesterday)->sum(DB::raw('actual_boundary + COALESCE(damage_payment, 0)')) ?? 0);
+            $stats['month_boundary'] = (float)(DB::table('boundaries')->whereNull('deleted_at')->whereMonth('date', $month)->whereYear('date', $year)->sum(DB::raw('actual_boundary + COALESCE(damage_payment, 0)')) ?? 0);
+            $stats['year_boundary'] = (float)(DB::table('boundaries')->whereNull('deleted_at')->whereYear('date', $year)->sum(DB::raw('actual_boundary + COALESCE(damage_payment, 0)')) ?? 0);
 
             // Detailed boundaries for today (for modal)
             $boundaryList = DB::table('boundaries as b')
                 ->join('units as u', 'b.unit_id', '=', 'u.id')
                 ->leftJoin('drivers as d', 'b.driver_id', '=', 'd.id')
                 ->select(
-                    'b.id', 'b.actual_boundary', 'b.status', 'b.date',
+                    'b.id', 'b.actual_boundary', 'b.damage_payment', 'b.status', 'b.date',
                     'u.plate_number',
                     DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')) as driver_name")
                 )
@@ -65,25 +65,35 @@ class DashboardController extends Controller
                 ->orderByDesc('b.created_at')
                 ->get();
 
-            // Expenses
-            $genEx  = (float)(DB::table('expenses')->whereNull('deleted_at')->whereDate('date', $today)->sum('amount') ?? 0);
+            // Expenses (approved only, Damage Recovery separated as cash inflow)
+            $eTodayApproved = DB::table('expenses')->whereNull('deleted_at')->where('status', 'approved')->whereDate('date', $today);
+            $genEx  = (float)((clone $eTodayApproved)->where('category', '!=', 'Damage Recovery')->sum('amount') ?? 0);
+            $officeRecToday = (float)((clone $eTodayApproved)->where('category', 'Damage Recovery')->sum(DB::raw('ABS(amount)')) ?? 0);
             $salEx  = (float)(DB::table('salaries')->whereDate('pay_date', $today)->sum('total_salary') ?? 0);
             $mntEx  = (float)(DB::table('maintenance')->whereNull('deleted_at')->whereDate('date_started', $today)->where('status', '!=', 'cancelled')->sum('cost') ?? 0);
-            $stats['total_expenses_today'] = abs($genEx) + abs($salEx) + abs($mntEx);
+            
+            $stats['total_revenue_today']  = $stats['today_boundary'] + $officeRecToday;
+            $stats['total_expenses_today'] = $genEx + $salEx + $mntEx;
             $stats['today_expenses']       = $stats['total_expenses_today'];
             $stats['expense_general']      = $genEx;
             $stats['expense_salary']       = $salEx;
             $stats['expense_maintenance']  = $mntEx;
 
             // Month expenses (Matching Web: whereMonth and whereYear)
-            $mGenEx = (float)(DB::table('expenses')->whereNull('deleted_at')->whereMonth('date', $month)->whereYear('date', $year)->sum('amount') ?? 0);
+            $eMonthApproved = DB::table('expenses')->whereNull('deleted_at')->where('status', 'approved')->whereMonth('date', $month)->whereYear('date', $year);
+            $mGenEx = (float)((clone $eMonthApproved)->where('category', '!=', 'Damage Recovery')->sum('amount') ?? 0);
+            $officeRecMonth = (float)((clone $eMonthApproved)->where('category', 'Damage Recovery')->sum(DB::raw('ABS(amount)')) ?? 0);
             $mSalEx = (float)(DB::table('salaries')->whereMonth('pay_date', $month)->whereYear('pay_date', $year)->sum('total_salary') ?? 0);
             $mMntEx = (float)(DB::table('maintenance')->whereNull('deleted_at')->whereMonth('date_started', $month)->whereYear('date_started', $year)->where('status', '!=', 'cancelled')->sum('cost') ?? 0);
-            $stats['total_expenses_month'] = abs($mGenEx) + abs($mSalEx) + abs($mMntEx);
+            
+            $stats['total_revenue_month']  = $stats['month_boundary'] + $officeRecMonth;
+            $stats['total_expenses_month'] = $mGenEx + $mSalEx + $mMntEx;
 
             // 3. Expense Breakdown (Detailed Categories from Web)
             $genExpenses = DB::table('expenses')
                 ->whereNull('deleted_at')
+                ->where('status', 'approved')
+                ->where('category', '!=', 'Damage Recovery')
                 ->select('category', DB::raw('SUM(amount) as total'))
                 ->whereMonth('date', $month)
                 ->whereYear('date', $year)
@@ -103,8 +113,8 @@ class DashboardController extends Controller
             $expenseBreakdown = array_values(array_filter($expenseBreakdown, fn($e) => $e['value'] > 0));
 
             // Net income
-            $stats['net_income']       = $stats['today_boundary'] - $stats['total_expenses_today'];
-            $stats['net_income_month'] = $stats['month_boundary'] - $stats['total_expenses_month'];
+            $stats['net_income']       = $stats['total_revenue_today'] - $stats['total_expenses_today'];
+            $stats['net_income_month'] = $stats['total_revenue_month'] - $stats['total_expenses_month'];
 
             // Maintenance units
             $stats['maintenance_units'] = DB::table('maintenance')
@@ -124,15 +134,17 @@ class DashboardController extends Controller
             $revenueTrend = [];
             for ($i = $days - 1; $i >= 0; $i--) {
                 $d    = now()->timezone('Asia/Manila')->subDays($i)->toDateString();
-                $rev  = (float)(DB::table('boundaries')->whereNull('deleted_at')->whereDate('date', $d)->sum('actual_boundary') ?? 0);
-                $gx   = abs((float)(DB::table('expenses')->whereNull('deleted_at')->whereDate('date', $d)->sum('amount') ?? 0));
+                $rev  = (float)(DB::table('boundaries')->whereNull('deleted_at')->whereDate('date', $d)->sum(DB::raw('actual_boundary + COALESCE(damage_payment, 0)')) ?? 0);
+                $gx   = (float)(DB::table('expenses')->whereNull('deleted_at')->where('status', 'approved')->where('category', '!=', 'Damage Recovery')->whereDate('date', $d)->sum('amount') ?? 0);
+                $rec  = (float)(DB::table('expenses')->whereNull('deleted_at')->where('status', 'approved')->where('category', 'Damage Recovery')->whereDate('date', $d)->sum(DB::raw('ABS(amount)')) ?? 0);
+                $totalInflow = $rev + $rec;
 
                 $label = ($days <= 30)
                     ? now()->timezone('Asia/Manila')->subDays($i)->format('M d')
                     : now()->timezone('Asia/Manila')->subDays($i)->format('M d y');
 
-                // Matching Web: Trend only shows boundaries vs general expenses
-                $revenueTrend[] = ['date' => $label, 'revenue' => $rev, 'expenses' => $gx, 'netIncome' => $rev - $gx];
+                // Matching Web: Trend shows total revenue inflow vs approved general expenses
+                $revenueTrend[] = ['date' => $label, 'revenue' => $totalInflow, 'expenses' => $gx, 'netIncome' => $totalInflow - $gx];
             }
 
             // 4. UNIT PERFORMANCE (Copying Web Logic Exactly)

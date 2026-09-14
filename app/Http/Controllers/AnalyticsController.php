@@ -102,27 +102,32 @@ class AnalyticsController extends Controller
         // ── Financial Health Analysis ────────────────────────────────────────
         $financial_totals = DB::table('boundaries')->whereNull('deleted_at')
             ->whereBetween('date', [$date_from, $date_to])
-            ->selectRaw('SUM(actual_boundary) as total_boundary, SUM(shortage) as total_shortage')
+            ->selectRaw('SUM(actual_boundary + COALESCE(damage_payment, 0)) as total_boundary, SUM(shortage) as total_shortage')
             ->first();
         
-        $total_boundary = $financial_totals->total_boundary ?? 0;
-        $total_shortage = $financial_totals->total_shortage ?? 0;
+        $total_boundary = (float) ($financial_totals->total_boundary ?? 0);
+        $total_shortage = (float) ($financial_totals->total_shortage ?? 0);
         
-        $total_expenses = DB::table('expenses')->whereNull('deleted_at')
-            ->whereBetween('date', [$date_from, $date_to])->sum('amount') ?? 0;
+        $eApprovedQuery = DB::table('expenses')->whereNull('deleted_at')
+            ->where('status', 'approved')
+            ->whereBetween('date', [$date_from, $date_to]);
+
+        $total_expenses = (float) ((clone $eApprovedQuery)->where('category', '!=', 'Damage Recovery')->sum('amount') ?? 0);
+        $total_recovery = (float) ((clone $eApprovedQuery)->where('category', 'Damage Recovery')->sum(DB::raw('ABS(amount)')) ?? 0);
             
-        $total_maintenance = DB::table('maintenance')->whereNull('deleted_at')
-            ->whereBetween('date_started', [$date_from, $date_to])->sum('cost') ?? 0;
+        $total_maintenance = (float) (DB::table('maintenance')->whereNull('deleted_at')->where('status', '!=', 'cancelled')
+            ->whereBetween('date_started', [$date_from, $date_to])->sum('cost') ?? 0);
             
-        $total_salaries = DB::table('salaries')
-            ->whereBetween('pay_date', [$date_from, $date_to])->sum('total_salary') ?? 0;
+        $total_salaries = (float) (DB::table('salaries')
+            ->whereBetween('pay_date', [$date_from, $date_to])->sum('total_salary') ?? 0);
             
+        $grand_total_revenue = $total_boundary + $total_recovery;
         $grand_total_expenses = $total_expenses + $total_maintenance + $total_salaries;
         
         $avg_boundary_rate = DB::table('units')->whereNull('deleted_at')->avg('boundary_rate') ?? 1000;
         $break_even_days   = $avg_boundary_rate > 0 ? ceil($grand_total_expenses / $avg_boundary_rate) : 0;
         
-        $net_income = $total_boundary - $grand_total_expenses;
+        $net_income = $grand_total_revenue - $grand_total_expenses;
         $revenue_leakage_pct = $total_boundary > 0 ? round(($total_shortage / ($total_boundary + $total_shortage)) * 100, 1) : 0;
 
         // ── Operational Efficiency ───────────────────────────────────────────
@@ -216,19 +221,31 @@ class AnalyticsController extends Controller
         $monthlyBoundaries = DB::table('boundaries')
             ->whereNull('deleted_at')
             ->whereBetween('date', [$sixMonthsAgo, $lastMonthEnd])
-            ->selectRaw('DATE_FORMAT(date, "%Y-%m") as month, SUM(actual_boundary) as total')
+            ->selectRaw('DATE_FORMAT(date, "%Y-%m") as month, SUM(actual_boundary + COALESCE(damage_payment, 0)) as total')
             ->groupByRaw('DATE_FORMAT(date, "%Y-%m")')
             ->get()->pluck('total', 'month');
 
         $monthlyExpenses = DB::table('expenses')
             ->whereNull('deleted_at')
+            ->where('status', 'approved')
+            ->where('category', '!=', 'Damage Recovery')
             ->whereBetween('date', [$sixMonthsAgo, $lastMonthEnd])
             ->selectRaw('DATE_FORMAT(date, "%Y-%m") as month, SUM(amount) as total')
             ->groupByRaw('DATE_FORMAT(date, "%Y-%m")')
             ->get()->pluck('total', 'month');
 
+        $monthlyRecoveries = DB::table('expenses')
+            ->whereNull('deleted_at')
+            ->where('status', 'approved')
+            ->where('category', 'Damage Recovery')
+            ->whereBetween('date', [$sixMonthsAgo, $lastMonthEnd])
+            ->selectRaw('DATE_FORMAT(date, "%Y-%m") as month, SUM(ABS(amount)) as total')
+            ->groupByRaw('DATE_FORMAT(date, "%Y-%m")')
+            ->get()->pluck('total', 'month');
+
         $monthlyMaintenance = DB::table('maintenance')
             ->whereNull('deleted_at')
+            ->where('status', '!=', 'cancelled')
             ->whereBetween('date_started', [$sixMonthsAgo, $lastMonthEnd])
             ->selectRaw('DATE_FORMAT(date_started, "%Y-%m") as month, SUM(cost) as total')
             ->groupByRaw('DATE_FORMAT(date_started, "%Y-%m")')
@@ -245,7 +262,7 @@ class AnalyticsController extends Controller
             $monthKey   = date('Y-m', strtotime("-$i months"));
             $monthLabel = date('M Y', strtotime("-$i months"));
 
-            $boundary    = (float)($monthlyBoundaries[$monthKey] ?? 0);
+            $boundary    = (float)($monthlyBoundaries[$monthKey] ?? 0) + (float)($monthlyRecoveries[$monthKey] ?? 0);
             $expense     = (float)($monthlyExpenses[$monthKey] ?? 0);
             $maintenance = (float)($monthlyMaintenance[$monthKey] ?? 0);
             $salary      = (float)($monthlySalaries[$monthKey] ?? 0);
