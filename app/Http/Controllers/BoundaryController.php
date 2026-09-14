@@ -297,6 +297,7 @@ class BoundaryController extends Controller
             $driver_id       = (int) $request->input('driver_id', 0);
             $date            = $request->input('date', date('Y-m-d'));
             $boundary_amount = (float) $request->input('boundary_amount', 0);
+            $actual_boundary = (float) $request->input('actual_boundary', 0);
             $raw_fund = $request->input('driver_fund');
             if ($raw_fund === null || trim($raw_fund) === '') {
                 $driver_fund = 0.00;
@@ -721,6 +722,7 @@ class BoundaryController extends Controller
         if ($action === 'update_boundary') {
             $id              = (int) $request->input('id', 0);
             $boundary_amount = (float) $request->input('boundary_amount', 0);
+            $actual_boundary = (float) $request->input('actual_boundary', 0);
             $raw_fund = $request->input('driver_fund');
             if ($raw_fund === null || trim($raw_fund) === '') {
                 $driver_fund = 0.00;
