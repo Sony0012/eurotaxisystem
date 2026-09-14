@@ -187,8 +187,8 @@
             
             <div class="p-6 overflow-y-auto flex-1 space-y-5">
                 
-                {{-- Two-Column Grid for Unit & Driver --}}
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                {{-- Three-Column Grid for Unit, Driver, and Shift Date --}}
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
                         <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-1.5">Unit <span class="text-red-500">*</span></label>
                         <div class="relative">
@@ -260,6 +260,12 @@
                             </div>
                         </div>
                     </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-1.5">Shift Date <span class="text-red-500">*</span></label>
+                        <input type="date" name="date" id="date" required value="{{ date('Y-m-d') }}" 
+                               class="w-full px-3 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-sm font-bold shadow-sm bg-white">
+                    </div>
                 </div>
 
                 {{-- Alerts --}}
@@ -292,73 +298,88 @@
                     </div>
                 </div>
 
-
-
-                {{-- Four-Column Grid for Date, Target, Actual, Pondo --}}
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <div>
-                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-1.5">Date <span class="text-red-500">*</span></label>
-                        <input type="date" name="date" id="date" required value="{{ date('Y-m-d') }}" 
-                               class="w-full px-3 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-sm font-bold shadow-sm">
-                    </div>
-                    
-                    <div>
-                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-1.5">Target Boundary <span class="text-red-500">*</span></label>
+                {{-- Four Aligned Financial Cards --}}
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+                    <!-- Card 1: Target Boundary -->
+                    <div class="p-3.5 rounded-2xl border-2 border-yellow-200/90 bg-yellow-50/50 flex flex-col justify-between shadow-xs">
+                        <div class="flex items-center justify-between mb-1.5">
+                            <span class="block text-[11px] font-black text-yellow-800 uppercase tracking-wider">Target Boundary</span>
+                            <span class="text-[9px] font-black text-yellow-700 bg-yellow-100 px-1.5 py-0.5 rounded-md border border-yellow-200">Quota</span>
+                        </div>
                         <div class="relative">
-                            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                                <span class="text-gray-500 font-black">₱</span>
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <span class="text-yellow-600 font-black text-sm">₱</span>
                             </div>
                             <input type="number" name="boundary_amount" id="boundaryAmount" required step="0.01" min="0" readonly
-                                   class="w-full pl-8 px-3 py-2.5 border-2 border-yellow-100 bg-yellow-50/50 rounded-xl focus:ring-0 cursor-not-allowed font-black text-gray-600 shadow-inner text-base"
-                                   title="Target boundary for this shift. This is fixed based on year-based rules.">
+                                   class="w-full pl-7 px-3 py-2 border-2 border-yellow-200/80 bg-white/90 rounded-xl font-black text-gray-700 text-base shadow-inner cursor-not-allowed"
+                                   title="Target boundary for this shift. Fixed based on year-based rules.">
                         </div>
+                        <span class="text-[10px] text-yellow-700/80 font-semibold mt-1.5 block">Standard fixed shift rate</span>
                     </div>
-                    
-                    <div>
-                        <label class="block text-xs font-bold text-blue-600 uppercase tracking-widest mb-1.5">Actual Collected <span class="text-red-500">*</span></label>
+
+                    <!-- Card 2: Actual Collected -->
+                    <div class="p-3.5 rounded-2xl border-2 border-blue-200 bg-blue-50/40 flex flex-col justify-between shadow-xs">
+                        <div class="flex items-center justify-between mb-1.5">
+                            <span class="block text-[11px] font-black text-blue-800 uppercase tracking-wider">Actual Collected <span class="text-red-500">*</span></span>
+                            <span class="text-[9px] font-black text-blue-700 bg-blue-100 px-1.5 py-0.5 rounded-md border border-blue-200">Required</span>
+                        </div>
                         <div class="relative">
-                            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                                <span class="text-blue-600 font-black">₱</span>
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <span class="text-blue-600 font-black text-sm">₱</span>
                             </div>
-                            <input type="number" name="actual_boundary" id="actualBoundary" required step="0.01" min="0" 
+                            <input type="text" inputmode="decimal" name="actual_boundary" id="actualBoundary" required
                                    oninput="validateActualCollected(); if(typeof updateTotalRemittanceDisplay === 'function') updateTotalRemittanceDisplay();"
-                                   class="w-full pl-8 px-3 py-2.5 border-2 border-blue-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-black text-blue-800 shadow-sm text-base"
+                                   onkeydown="return preventNonNumeric(event)"
+                                   onpaste="setTimeout(() => { validateActualCollected(); if(typeof updateTotalRemittanceDisplay === 'function') updateTotalRemittanceDisplay(); }, 0)"
+                                   class="w-full pl-7 px-3 py-2 border-2 border-blue-300 bg-white rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-black text-blue-900 shadow-sm text-base"
                                    placeholder="0.00">
                         </div>
+                        <span class="text-[10px] text-blue-700/80 font-semibold mt-1.5 block">Company boundary payment</span>
                     </div>
 
-                    <div>
+                    <!-- Card 3: Driver Fund (Pondo) (Optional, max 10k) -->
+                    <div class="p-3.5 rounded-2xl border-2 border-emerald-200 bg-emerald-50/40 flex flex-col justify-between shadow-xs relative">
                         <div class="flex items-center justify-between mb-1.5">
-                            <label class="block text-xs font-bold text-emerald-600 uppercase tracking-widest">Driver Fund (Pondo) <span class="text-emerald-500">*</span></label>
-                            <span class="text-[9px] font-black text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded-full border border-emerald-200">+₱100 Savings</span>
+                            <div class="flex items-center gap-1">
+                                <span class="block text-[11px] font-black text-emerald-800 uppercase tracking-wider">Driver Fund (Pondo)</span>
+                            </div>
+                            <span class="text-[9px] font-black text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded-md border border-emerald-200 uppercase">Optional</span>
                         </div>
                         <div class="relative">
-                            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                                <span class="text-emerald-600 font-black">₱</span>
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <span class="text-emerald-600 font-black text-sm">₱</span>
                             </div>
-                            <input type="number" name="driver_fund" id="driverFund" step="0.01" min="0" value="100.00"
-                                   oninput="if(typeof updateTotalRemittanceDisplay === 'function') updateTotalRemittanceDisplay();"
-                                   class="w-full pl-8 px-3 py-2.5 border-2 border-emerald-200 bg-emerald-50/40 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 font-black text-emerald-800 shadow-sm text-base"
-                                   placeholder="100.00"
-                                   title="Driver's personal savings fund for maintenance and savings (+₱100 standard).">
+                            <input type="text" inputmode="decimal" name="driver_fund" id="driverFund" value="100.00" maxlength="8"
+                                   oninput="validatePondoInput(this)"
+                                   onkeydown="return preventInvalidPondoChars(event)"
+                                   onpaste="setTimeout(() => validatePondoInput(this), 0)"
+                                   class="w-full pl-7 px-3 py-2 border-2 border-emerald-300 bg-white rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 font-black text-emerald-900 shadow-sm text-base"
+                                   placeholder="0.00"
+                                   title="Optional savings fund for driver maintenance or future expenditures (Max ₱10,000.00).">
+                        </div>
+                        <div class="flex items-center justify-between mt-1.5 text-[10px]">
+                            <span class="text-emerald-700/80 font-semibold">Driver savings</span>
+                            <span class="text-emerald-700 font-black uppercase text-[9px] tracking-tight">Max ₱10,000</span>
+                        </div>
+                        <div id="pondoMaxWarning" class="hidden absolute -bottom-6 left-0 right-0 bg-red-600 text-white text-[10px] font-black py-0.5 px-2 rounded-md shadow-md text-center z-10">
+                            Maximum fund is ₱10,000.00!
                         </div>
                     </div>
-                </div>
 
-                {{-- Live Total Cash Remittance Summary --}}
-                <div class="p-3 bg-gradient-to-r from-blue-50/80 via-emerald-50/80 to-slate-50 border border-slate-200/90 rounded-xl flex items-center justify-between shadow-xs">
-                    <div class="flex items-center gap-2">
-                        <div class="w-6 h-6 rounded-lg bg-slate-800 text-amber-400 flex items-center justify-center text-xs shadow-xs">
-                            <i data-lucide="wallet" class="w-3.5 h-3.5"></i>
+                    <!-- Card 4: Total Cash Remitted by Driver -->
+                    <div class="p-3.5 rounded-2xl border-2 border-slate-800 bg-slate-900 text-white flex flex-col justify-between shadow-md">
+                        <div class="flex items-center justify-between mb-1.5">
+                            <span class="block text-[11px] font-black text-slate-300 uppercase tracking-wider">Total Cash Remitted</span>
+                            <div class="w-5 h-5 rounded-md bg-amber-400/20 text-amber-400 flex items-center justify-center">
+                                <i data-lucide="wallet" class="w-3.5 h-3.5"></i>
+                            </div>
                         </div>
-                        <div class="flex flex-col">
-                            <span class="text-xs font-black text-slate-800 tracking-tight">Total Cash Remitted by Driver</span>
-                            <span class="text-[10px] text-slate-500 font-medium">Actual Boundary + Driver Fund (Pondo)<span id="summaryLiabText" class="hidden text-red-600 font-bold"> + Debt Payment</span></span>
+                        <div class="py-0.5">
+                            <div class="text-xl font-black text-amber-400 tracking-tight leading-tight" id="totalRemittanceDisplay">₱100.00</div>
                         </div>
-                    </div>
-                    <div class="text-right">
-                        <div class="text-xs text-slate-400 font-bold uppercase tracking-wider">Total Received</div>
-                        <div class="text-base font-black text-slate-900 tracking-tight" id="totalRemittanceDisplay">₱100.00</div>
+                        <div class="text-[10px] text-slate-400 truncate mt-1">
+                            Actual + Pondo<span id="summaryLiabText" class="hidden text-red-400 font-bold"> + Debt</span>
+                        </div>
                     </div>
                 </div>
 
@@ -1685,6 +1706,96 @@ function closeModal() {
     document.getElementById('boundaryModal').classList.add('hidden');
 }
 
+function validatePondoInput(input) {
+    if (!input) return;
+    
+    // 1. Strip all characters except numbers 0-9 and period
+    let val = input.value.replace(/[^0-9.]/g, '');
+    
+    // 2. Prevent multiple decimal dots
+    const parts = val.split('.');
+    if (parts.length > 2) {
+        val = parts[0] + '.' + parts.slice(1).join('');
+    }
+    
+    // 3. Limit to max 2 decimal places
+    if (parts.length === 2 && parts[1].length > 2) {
+        val = parts[0] + '.' + parts[1].slice(0, 2);
+    }
+    
+    // 4. Maximum limit of ₱10,000.00
+    const num = parseFloat(val);
+    if (!isNaN(num) && num > 10000) {
+        val = '10000';
+        showPondoMaxWarning();
+    }
+    
+    input.value = val;
+    updateTotalRemittanceDisplay();
+}
+
+function preventInvalidPondoChars(e) {
+    const allowedKeys = ['Backspace', 'Delete', 'Tab', 'Enter', 'Escape', 'ArrowLeft', 'ArrowRight', 'Home', 'End'];
+    if (allowedKeys.includes(e.key) || e.ctrlKey || e.metaKey) {
+        return true;
+    }
+    
+    // Allow dot '.' only once
+    if (e.key === '.') {
+        if (e.target.value.includes('.')) {
+            e.preventDefault();
+            return false;
+        }
+        return true;
+    }
+    
+    // Only allow digits 0-9. Reject letters, e, E, +, -, spaces, and all symbols
+    if (!/^[0-9]$/.test(e.key)) {
+        e.preventDefault();
+        return false;
+    }
+    
+    return true;
+}
+
+function preventNonNumeric(e) {
+    const allowedKeys = ['Backspace', 'Delete', 'Tab', 'Enter', 'Escape', 'ArrowLeft', 'ArrowRight', 'Home', 'End'];
+    if (allowedKeys.includes(e.key) || e.ctrlKey || e.metaKey) return true;
+    if (e.key === '.' && !e.target.value.includes('.')) return true;
+    if (!/^[0-9]$/.test(e.key)) {
+        e.preventDefault();
+        return false;
+    }
+    return true;
+}
+
+let pondoWarnTimer = null;
+function showPondoMaxWarning() {
+    const el = document.getElementById('pondoMaxWarning');
+    if (el) {
+        el.classList.remove('hidden');
+        clearTimeout(pondoWarnTimer);
+        pondoWarnTimer = setTimeout(() => {
+            el.classList.add('hidden');
+        }, 3000);
+    }
+}
+
+function validateActualCollected() {
+    const actInput = document.getElementById('actualBoundary');
+    if (actInput) {
+        let val = actInput.value.replace(/[^0-9.]/g, '');
+        const parts = val.split('.');
+        if (parts.length > 2) {
+            val = parts[0] + '.' + parts.slice(1).join('');
+        }
+        if (parts.length === 2 && parts[1].length > 2) {
+            val = parts[0] + '.' + parts[1].slice(0, 2);
+        }
+        actInput.value = val;
+    }
+}
+
 function updateTotalRemittanceDisplay() {
     const actInput = document.getElementById('actualBoundary');
     const fundInput = document.getElementById('driverFund');
@@ -2291,6 +2402,32 @@ document.addEventListener('DOMContentLoaded', function() {
     const earlyHoursEl = document.getElementById('earlyFailureMaxHours');
     if (earlyHoursEl) {
         applyEarlyFailureValidation(earlyHoursEl);
+    }
+
+    // Strict validation on boundaryForm submission
+    const boundaryForm = document.getElementById('boundaryForm');
+    if (boundaryForm) {
+        boundaryForm.addEventListener('submit', function(e) {
+            const fundInput = document.getElementById('driverFund');
+            if (fundInput && fundInput.value.trim() !== '') {
+                const raw = fundInput.value.trim();
+                // Reject if contains symbols or letters
+                if (!/^\d+(\.\d{1,2})?$/.test(raw)) {
+                    e.preventDefault();
+                    alert('Driver Fund (Pondo) must be a valid number without letters or symbols.');
+                    fundInput.focus();
+                    return false;
+                }
+                const num = parseFloat(raw);
+                if (num > 10000) {
+                    e.preventDefault();
+                    showPondoMaxWarning();
+                    alert('Driver Fund (Pondo) cannot exceed ₱10,000.00.');
+                    fundInput.focus();
+                    return false;
+                }
+            }
+        });
     }
 });
 </script>

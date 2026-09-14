@@ -297,8 +297,18 @@ class BoundaryController extends Controller
             $driver_id       = (int) $request->input('driver_id', 0);
             $date            = $request->input('date', date('Y-m-d'));
             $boundary_amount = (float) $request->input('boundary_amount', 0);
-            $actual_boundary = (float) $request->input('actual_boundary', 0);
-            $driver_fund     = (float) $request->input('driver_fund', 100);
+            $raw_fund = $request->input('driver_fund');
+            if ($raw_fund === null || trim($raw_fund) === '') {
+                $driver_fund = 0.00;
+            } else {
+                if (!is_numeric($raw_fund) || (float) $raw_fund < 0) {
+                    return back()->with('error', 'Driver Fund (Pondo) must be a valid positive number without letters or symbols.');
+                }
+                $driver_fund = round((float) $raw_fund, 2);
+                if ($driver_fund > 10000) {
+                    return back()->with('error', 'Driver Fund (Pondo) cannot exceed ₱10,000.00.');
+                }
+            }
             $notes           = $request->input('notes', '');
             $vehicle_damaged = $request->has('vehicle_damaged');
             $needs_maintenance_half = $request->has('needs_maintenance_half');
@@ -711,8 +721,18 @@ class BoundaryController extends Controller
         if ($action === 'update_boundary') {
             $id              = (int) $request->input('id', 0);
             $boundary_amount = (float) $request->input('boundary_amount', 0);
-            $actual_boundary = (float) $request->input('actual_boundary', 0);
-            $driver_fund     = (float) $request->input('driver_fund', 0);
+            $raw_fund = $request->input('driver_fund');
+            if ($raw_fund === null || trim($raw_fund) === '') {
+                $driver_fund = 0.00;
+            } else {
+                if (!is_numeric($raw_fund) || (float) $raw_fund < 0) {
+                    return back()->with('error', 'Driver Fund (Pondo) must be a valid positive number without letters or symbols.');
+                }
+                $driver_fund = round((float) $raw_fund, 2);
+                if ($driver_fund > 10000) {
+                    return back()->with('error', 'Driver Fund (Pondo) cannot exceed ₱10,000.00.');
+                }
+            }
             $notes           = $request->input('notes', '');
             
             $is_absent = $request->has('is_absent');
