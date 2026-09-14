@@ -301,20 +301,21 @@
                 {{-- Four Aligned Financial Cards --}}
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
                     <!-- Card 1: Target Boundary -->
-                    <div class="p-3.5 rounded-2xl border-2 border-yellow-200/90 bg-yellow-50/50 flex flex-col justify-between shadow-xs">
+                    <div class="p-3.5 rounded-2xl border-2 border-yellow-300 bg-yellow-50/50 flex flex-col justify-between shadow-xs">
                         <div class="flex items-center justify-between mb-1.5">
-                            <span class="block text-[11px] font-black text-yellow-800 uppercase tracking-wider">Target Boundary</span>
-                            <span class="text-[9px] font-black text-yellow-700 bg-yellow-100 px-1.5 py-0.5 rounded-md border border-yellow-200">Quota</span>
+                            <span class="block text-[11px] font-black text-yellow-800 uppercase tracking-wider">Target Boundary <span class="text-red-500">*</span></span>
+                            <span class="text-[9px] font-black text-yellow-700 bg-yellow-100 px-1.5 py-0.5 rounded-md border border-yellow-200 uppercase">Quota</span>
                         </div>
                         <div class="relative">
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                 <span class="text-yellow-600 font-black text-sm">₱</span>
                             </div>
-                            <input type="number" name="boundary_amount" id="boundaryAmount" required step="0.01" min="0" readonly
-                                   class="w-full pl-7 px-3 py-2 border-2 border-yellow-200/80 bg-white/90 rounded-xl font-black text-gray-700 text-base shadow-inner cursor-not-allowed"
-                                   title="Target boundary for this shift. Fixed based on year-based rules.">
+                            <input type="text" inputmode="decimal" name="boundary_amount" id="boundaryAmount" required
+                                   class="w-full pl-7 px-3 py-2 border-2 border-yellow-300 bg-white rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 font-black text-gray-900 text-base shadow-sm"
+                                   placeholder="0.00"
+                                   title="Target boundary quota for this shift. Can be manually edited.">
                         </div>
-                        <span class="text-[10px] text-yellow-700/80 font-semibold mt-1.5 block">Standard fixed shift rate</span>
+                        <span class="text-[10px] text-yellow-700/80 font-semibold mt-1.5 block">Shift quota (editable)</span>
                     </div>
 
                     <!-- Card 2: Actual Collected -->
@@ -1603,6 +1604,11 @@ function addBoundary() {
     if (tOut) tOut.value = '';
     if (tIn) tIn.value = '';
 
+    const bAmt = document.getElementById('boundaryAmount');
+    if (bAmt) bAmt.readOnly = false;
+    const actInput = document.getElementById('actualBoundary');
+    if (actInput) actInput.dataset.touched = 'false';
+
     const driverFundInput = document.getElementById('driverFund');
     if (driverFundInput) {
         driverFundInput.value = '100.00';
@@ -1669,8 +1675,9 @@ function editBoundary(id) {
         const driverDisplay = document.getElementById('driverDisplay');
         driverDisplay.value = boundary.driver_name || 'Unknown Driver';
 
-        // Keep target boundary amount readonly per user policy
-        document.getElementById('boundaryAmount').readOnly = true;
+        // Target boundary amount is editable
+        const amtEl = document.getElementById('boundaryAmount');
+        if (amtEl) amtEl.readOnly = false;
 
         // Parse existing exception rules from notes
         const notesLc = (boundary.notes || '').toLowerCase();
@@ -2371,13 +2378,19 @@ document.addEventListener('DOMContentLoaded', function() {
         amtInput.addEventListener('input', function() {
             const val = this.value || '0.00';
             this.dataset.originalTarget = val;
-            if (actualInput) actualInput.value = val;
+            const isEditing = document.getElementById('boundaryModal').classList.contains('is-editing');
+            if (!isEditing && actualInput && (!actualInput.value || actualInput.value === '0.00' || actualInput.dataset.touched !== 'true')) {
+                actualInput.value = val;
+            }
             updateBreakdownComputation();
         });
     }
 
     if (actualInput) {
         applyStrictValidation(actualInput);
+        actualInput.addEventListener('input', function() {
+            this.dataset.touched = 'true';
+        });
         actualInput.addEventListener('change', function() {
             // Prevent pure zero input if not a breakdown case
             const zeroCheck = document.getElementById('needsMaintenanceZeroCheck');
