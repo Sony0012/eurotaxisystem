@@ -184,6 +184,9 @@
             @csrf
             <input type="hidden" name="action" id="formAction" value="add_boundary">
             <input type="hidden" name="id" id="boundaryId">
+            <input type="hidden" name="filter_date_state" id="filter_date_state" value="">
+            <input type="hidden" name="filter_search_state" id="filter_search_state" value="">
+            <input type="hidden" name="filter_status_state" id="filter_status_state" value="">
             
             <div class="p-6 overflow-y-auto flex-1 space-y-5">
                 
@@ -919,11 +922,14 @@ function performLiveSearch() {
         const status = document.getElementById('filterStatus').value;
 
         // Build the URL with current filters
-        const params = new URLSearchParams({
-            search: search,
-            date: date,
-            status: status
-        });
+        const params = new URLSearchParams();
+        if (search) params.set('search', search);
+        if (date) params.set('date', date);
+        if (status) params.set('status', status);
+
+        // Keep the browser URL updated with current date/filters so refresh and redirect stay on the selected date
+        const newUrl = `${window.location.pathname}${params.toString() ? '?' + params.toString() : ''}`;
+        window.history.replaceState({ path: newUrl }, '', newUrl);
 
         try {
             const response = await fetch(`{{ route('boundaries.index') }}?${params.toString()}`, {
@@ -1780,6 +1786,15 @@ function editBoundary(id) {
         document.getElementById('modalTitle').textContent = 'Edit Boundary Record';
         document.getElementById('formAction').value = 'update_boundary';
         document.getElementById('boundaryId').value = boundary.id;
+
+        // Retain the current date filter so page does not jump to today/latest on save
+        const curFilterDate = document.getElementById('filterDate')?.value;
+        const stateDateEl = document.getElementById('filter_date_state');
+        if (stateDateEl) stateDateEl.value = curFilterDate || boundary.date || '';
+        const stateSearchEl = document.getElementById('filter_search_state');
+        if (stateSearchEl) stateSearchEl.value = document.getElementById('liveSearchInput')?.value || '';
+        const stateStatusEl = document.getElementById('filter_status_state');
+        if (stateStatusEl) stateStatusEl.value = document.getElementById('filterStatus')?.value || '';
         document.getElementById('unitId').value = boundary.unit_id;
         document.getElementById('driverId').value = boundary.driver_id;
         document.getElementById('date').value = boundary.date;
@@ -2616,6 +2631,18 @@ document.addEventListener('DOMContentLoaded', function() {
     const boundaryForm = document.getElementById('boundaryForm');
     if (boundaryForm) {
         boundaryForm.addEventListener('submit', function(e) {
+            // Keep the active filter date and params
+            const curFilterDate = document.getElementById('filterDate')?.value;
+            const recordDate = document.getElementById('date')?.value;
+            const stateDateEl = document.getElementById('filter_date_state');
+            if (stateDateEl) {
+                stateDateEl.value = curFilterDate || recordDate || '';
+            }
+            const stateSearchEl = document.getElementById('filter_search_state');
+            if (stateSearchEl) stateSearchEl.value = document.getElementById('liveSearchInput')?.value || '';
+            const stateStatusEl = document.getElementById('filter_status_state');
+            if (stateStatusEl) stateStatusEl.value = document.getElementById('filterStatus')?.value || '';
+
             const fundInput = document.getElementById('driverFund');
             if (fundInput && fundInput.value.trim() !== '') {
                 const raw = fundInput.value.trim();

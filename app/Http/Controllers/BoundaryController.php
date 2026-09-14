@@ -771,7 +771,18 @@ class BoundaryController extends Controller
                         );
                     } catch (\Exception $e) {}
 
-                    return back()->with('success', 'Boundary record added successfully');
+                    $targetDate = $request->input('filter_date_state') 
+                        ?: ($date ?: date('Y-m-d'));
+
+                    $redirectParams = ['date' => $targetDate];
+                    if ($request->filled('filter_search_state')) {
+                        $redirectParams['search'] = $request->input('filter_search_state');
+                    }
+                    if ($request->filled('filter_status_state')) {
+                        $redirectParams['status'] = $request->input('filter_status_state');
+                    }
+
+                    return redirect()->route('boundaries.index', $redirectParams)->with('success', 'Boundary record added successfully');
                 }
             } else {
                 $missing = [];
@@ -1068,52 +1079,22 @@ class BoundaryController extends Controller
                     ]);
                 }
 
-                // --- Auto-log Shortage to Driver Performance for UPDATES ---
-                $existingDebt = \App\Models\DriverBehavior::where('unit_id', $boundary->unit_id)
-                    ->where('incident_date', $boundary->date)
-                    ->where('incident_type', 'Short Boundary')
-                    ->first();
-
-                if ($shortage > 0) {
-                    if ($existingDebt) {
-                        $remaining = max(0, round($shortage - $existingDebt->total_paid, 2));
-                        $existingDebt->update([
-                            'driver_id'              => $boundary->driver_id,
-                            'description'            => "Auto-logged [Shortage/Update]: Driver remitted ₱" . number_format($actual_boundary, 2) . " instead of ₱" . number_format($boundary_amount, 2),
-                            'total_charge_to_driver' => $shortage,
-                            'remaining_balance'      => $remaining,
-                            'charge_status'          => $remaining > 0 ? 'pending' : 'paid',
-                        ]);
-                    } else {
-                        \App\Models\DriverBehavior::create([
-                            'unit_id'                 => $boundary->unit_id,
-                            'driver_id'               => $boundary->driver_id,
-                            'incident_type'           => 'Short Boundary',
-                            'severity'                => 'medium',
-                            'description'             => "Auto-logged [Shortage/Update]: Driver remitted ₱" . number_format($actual_boundary, 2) . " instead of ₱" . number_format($boundary_amount, 2),
-                            'incident_date'           => $boundary->date,
-                            'timestamp'               => $now_ts,
-                            'total_charge_to_driver'  => $shortage,
-                            'total_paid'              => 0,
-                            'remaining_balance'       => $shortage,
-                            'charge_status'           => 'pending',
-                        ]);
-                    }
-                } else {
-                    if ($existingDebt) {
-                        $existingDebt->update([
-                            'driver_id'         => $boundary->driver_id,
-                            'remaining_balance' => 0,
-                            'charge_status'     => 'paid',
-                        ]);
-                    }
-                }
-
                 $plate = DB::table('units')->where('id', $boundary->unit_id)->value('plate_number');
                 $driverName = DB::table('drivers')->where('id', $boundary->driver_id)->select(DB::raw("CONCAT(first_name, ' ', last_name) as name"))->value('name');
                 ActivityLogController::log('Updated Boundary Record', "Unit: {$plate}\nDriver: {$driverName}\nNew Amount: ₱" . number_format($actual_boundary, 2) . " (" . ucfirst($status) . ")");
 
-                return back()->with('success', 'Boundary record updated successfully');
+                $targetDate = $request->input('filter_date_state') 
+                    ?: ($boundary->date ?: $request->input('date', date('Y-m-d')));
+
+                $redirectParams = ['date' => $targetDate];
+                if ($request->filled('filter_search_state')) {
+                    $redirectParams['search'] = $request->input('filter_search_state');
+                }
+                if ($request->filled('filter_status_state')) {
+                    $redirectParams['status'] = $request->input('filter_status_state');
+                }
+
+                return redirect()->route('boundaries.index', $redirectParams)->with('success', 'Boundary record updated successfully');
             } else {
                 return back()->with('error', 'Please fill in all required fields (Target amount must be valid)');
             }
@@ -1161,7 +1142,16 @@ class BoundaryController extends Controller
 
         ActivityLogController::log('Archived Boundary Record', "Unit: {$plate}\nDate: {$date}");
 
-        return back()->with('success', 'Boundary record archived.');
+        $targetDate = $request->input('filter_date_state') ?: ($date ?: date('Y-m-d'));
+        $redirectParams = ['date' => $targetDate];
+        if ($request->filled('filter_search_state')) {
+            $redirectParams['search'] = $request->input('filter_search_state');
+        }
+        if ($request->filled('filter_status_state')) {
+            $redirectParams['status'] = $request->input('filter_status_state');
+        }
+
+        return redirect()->route('boundaries.index', $redirectParams)->with('success', 'Boundary record archived.');
     }
     public function show($id) { return back(); }
     public function create() { return back(); }
