@@ -261,14 +261,15 @@ class DriverManagementV2Controller extends Controller
             $query->where('df.type', $request->input('type'));
         }
 
+        $today = now()->toDateString();
         if ($request->filled('date')) {
-            $query->whereDate('df.date', $request->input('date'));
+            $query->whereDate('df.date', min($request->input('date'), $today));
         }
         if ($request->filled('date_from')) {
-            $query->whereDate('df.date', '>=', $request->input('date_from'));
+            $query->whereDate('df.date', '>=', min($request->input('date_from'), $today));
         }
         if ($request->filled('date_to')) {
-            $query->whereDate('df.date', '<=', $request->input('date_to'));
+            $query->whereDate('df.date', '<=', min($request->input('date_to'), $today));
         }
 
         $query->orderByDesc('df.date')->orderByDesc('df.id');

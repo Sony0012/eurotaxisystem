@@ -226,7 +226,7 @@
                                 <i data-lucide="chevron-left" class="w-4 h-4"></i>
                             </button>
                             <span class="font-bold text-slate-800 text-sm tracking-tight text-center" id="calMonthYearTitle"></span>
-                            <button type="button" onclick="calendarNavMonth(1, event)" class="w-7 h-7 flex items-center justify-center text-slate-400 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer" title="Next Month">
+                            <button type="button" id="calNextMonthBtn" onclick="calendarNavMonth(1, event)" class="w-7 h-7 flex items-center justify-center text-slate-400 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer" title="Next Month">
                                 <i data-lucide="chevron-right" class="w-4 h-4"></i>
                             </button>
                         </div>
@@ -525,7 +525,7 @@
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Transaction Date <span class="text-red-500">*</span></label>
-                    <input type="date" id="disburseDateInput" required value="{{ date('Y-m-d') }}" class="w-full px-3 py-2.5 border border-slate-300 rounded-xl text-xs font-bold text-slate-800 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500">
+                    <input type="date" id="disburseDateInput" required max="{{ date('Y-m-d') }}" value="{{ date('Y-m-d') }}" class="w-full px-3 py-2.5 border border-slate-300 rounded-xl text-xs font-bold text-slate-800 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500">
                 </div>
             </div>
 
@@ -664,6 +664,12 @@
             return;
         }
 
+        const todayStr = new Date().toISOString().split('T')[0];
+        if (date > todayStr) {
+            Swal.fire({ icon: 'warning', title: 'Invalid Date', text: 'Transaction date cannot be in the advance or future.' });
+            return;
+        }
+
         if (amount <= 0) {
             Swal.fire({ icon: 'warning', title: 'Invalid Amount', text: 'Please enter a valid disbursement amount greater than ₱0.00.' });
             return;
@@ -725,12 +731,25 @@
     const calMonths = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
     const calMonthsShort = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
+    function getLocalTodayStr() {
+        const now = new Date();
+        const y = now.getFullYear();
+        const m = String(now.getMonth() + 1).padStart(2, '0');
+        const d = String(now.getDate()).padStart(2, '0');
+        return `${y}-${m}-${d}`;
+    }
+
     let calStartDate = "{{ request('date') ?: request('date_from') }}" || null;
     let calEndDate = "{{ request('date') ? '' : request('date_to') }}" || null;
     let calHoverDate = null;
 
-    // Initialize calendar view to start date or today
+    const todayStrInit = getLocalTodayStr();
+    if (calStartDate && calStartDate > todayStrInit) calStartDate = todayStrInit;
+    if (calEndDate && calEndDate > todayStrInit) calEndDate = todayStrInit;
+
+    // Initialize calendar view to start date or today (never into future)
     let initCalDate = calStartDate ? new Date(calStartDate + 'T00:00:00') : new Date();
+    if (initCalDate > new Date()) initCalDate = new Date();
     let calViewYear = initCalDate.getFullYear();
     let calViewMonth = initCalDate.getMonth(); // 0 - 11
 
@@ -750,10 +769,19 @@
 
         if (dropdown.classList.contains('hidden')) {
             dropdown.classList.remove('hidden');
+            const now = new Date();
             if (calStartDate) {
                 const d = new Date(calStartDate + 'T00:00:00');
-                calViewYear = d.getFullYear();
-                calViewMonth = d.getMonth();
+                if (d > now) {
+                    calViewYear = now.getFullYear();
+                    calViewMonth = now.getMonth();
+                } else {
+                    calViewYear = d.getFullYear();
+                    calViewMonth = d.getMonth();
+                }
+            } else {
+                calViewYear = now.getFullYear();
+                calViewMonth = now.getMonth();
             }
             renderCustomCalendar();
             if (typeof lucide !== 'undefined') lucide.createIcons();
@@ -770,6 +798,13 @@
 
     function calendarNavMonth(delta, event) {
         if (event) event.stopPropagation();
+        const today = new Date();
+        if (delta > 0) {
+            // Strictly forbid navigating to future months
+            if (calViewYear > today.getFullYear() || (calViewYear === today.getFullYear() && calViewMonth >= today.getMonth())) {
+                return;
+            }
+        }
         calViewMonth += delta;
         if (calViewMonth < 0) {
             calViewMonth = 11;
@@ -787,6 +822,25 @@
         const gridEl = document.getElementById('calDaysGrid');
         if (!titleEl || !gridEl) return;
 
+        const today = new Date();
+        const todayStr = getLocalTodayStr();
+
+        // Check if calendar view is at or beyond current month & year
+        const isCurrentOrFutureMonth = (calViewYear > today.getFullYear()) || 
+            (calViewYear === today.getFullYear() && calViewMonth >= today.getMonth());
+        
+        // Prevent next month button if at current or future month
+        const nextBtn = document.getElementById('calNextMonthBtn');
+        if (nextBtn) {
+            if (isCurrentOrFutureMonth) {
+                nextBtn.disabled = true;
+                nextBtn.classList.add('opacity-25', 'cursor-not-allowed', 'pointer-events-none');
+            } else {
+                nextBtn.disabled = false;
+                nextBtn.classList.remove('opacity-25', 'cursor-not-allowed', 'pointer-events-none');
+            }
+        }
+
         titleEl.textContent = `${calMonths[calViewMonth]} ${calViewYear}`;
 
         // Monday-based start index (0 = Mon, 6 = Sun)
@@ -795,24 +849,37 @@
         const totalDaysInMonth = new Date(calViewYear, calViewMonth + 1, 0).getDate();
         const prevMonthDays = new Date(calViewYear, calViewMonth, 0).getDate();
 
-        const today = new Date();
-        const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
-
         let html = '';
 
         // Previous month filler days (dimmed text-slate-300)
         for (let i = startDayIndex - 1; i >= 0; i--) {
             const dNum = prevMonthDays - i;
-            html += `<div class="h-8 flex items-center justify-center text-slate-300 font-medium text-xs cursor-default">${dNum}</div>`;
+            html += `<div class="h-8 flex items-center justify-center text-slate-300 font-medium text-xs cursor-default select-none">${dNum}</div>`;
         }
 
-        // Active range calculation
-        const activeStart = calStartDate;
-        const activeEnd = calEndDate || (calStartDate && !calEndDate && calHoverDate && calHoverDate > calStartDate ? calHoverDate : null);
+        // Active range calculation (strictly bounded by today)
+        const activeStart = (calStartDate && calStartDate <= todayStr) ? calStartDate : null;
+        let activeEnd = (calEndDate && calEndDate <= todayStr) ? calEndDate : null;
+        if (!activeEnd && activeStart && calHoverDate && calHoverDate > activeStart && calHoverDate <= todayStr) {
+            activeEnd = calHoverDate;
+        }
 
         // Current month days
         for (let d = 1; d <= totalDaysInMonth; d++) {
             const dateStr = `${calViewYear}-${String(calViewMonth + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+            const isFuture = dateStr > todayStr;
+
+            if (isFuture) {
+                // Advance date is strictly forbidden - disabled styling, non-clickable, no hover
+                html += `
+                    <div class="h-8 flex items-center justify-center relative cursor-not-allowed select-none">
+                        <div class="w-7 h-7 mx-auto rounded-xl flex items-center justify-center text-xs font-normal text-slate-300 select-none cursor-not-allowed opacity-40 pointer-events-none">
+                            ${d}
+                        </div>
+                    </div>
+                `;
+                continue;
+            }
 
             const isStart = activeStart === dateStr;
             const isEnd = activeEnd === dateStr;
@@ -858,7 +925,7 @@
         const totalRendered = startDayIndex + totalDaysInMonth;
         const trailingDays = (7 - (totalRendered % 7)) % 7;
         for (let nextD = 1; nextD <= trailingDays; nextD++) {
-            html += `<div class="h-8 flex items-center justify-center text-slate-300 font-medium text-xs cursor-default">${nextD}</div>`;
+            html += `<div class="h-8 flex items-center justify-center text-slate-300 font-medium text-xs cursor-default select-none">${nextD}</div>`;
         }
 
         gridEl.innerHTML = html;
@@ -866,6 +933,8 @@
 
     function onCalDateClick(dateStr, event) {
         if (event) event.stopPropagation();
+        const todayStr = getLocalTodayStr();
+        if (dateStr > todayStr) return; // Strict validation: Advance date disallowed
 
         if (!calStartDate || (calStartDate && calEndDate)) {
             // First click: sets Start Date (single date initially)
@@ -908,6 +977,8 @@
     }
 
     function onCalDateHover(dateStr) {
+        const todayStr = getLocalTodayStr();
+        if (dateStr > todayStr) return; // Disallow hover on advance dates
         if (calStartDate && !calEndDate) {
             if (calHoverDate !== dateStr) {
                 calHoverDate = dateStr;
@@ -920,6 +991,10 @@
         if (event) event.stopPropagation();
         const dropdown = document.getElementById('customCalendarDropdown');
         if (dropdown) dropdown.classList.add('hidden');
+
+        const todayStr = getLocalTodayStr();
+        if (calStartDate && calStartDate > todayStr) calStartDate = todayStr;
+        if (calEndDate && calEndDate > todayStr) calEndDate = todayStr;
 
         const inputDate = document.getElementById('filter_date');
         const inputFrom = document.getElementById('filter_date_from');
@@ -951,8 +1026,8 @@
 
     function setCalPreset(preset, event) {
         if (event) event.stopPropagation();
+        const todayStr = getLocalTodayStr();
         const now = new Date();
-        const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
 
         if (preset === 'today') {
             calStartDate = todayStr;
