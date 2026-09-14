@@ -741,7 +741,6 @@
 
     let calStartDate = "{{ request('date') ?: request('date_from') }}" || null;
     let calEndDate = "{{ request('date') ? '' : request('date_to') }}" || null;
-    let calHoverDate = null;
 
     const todayStrInit = getLocalTodayStr();
     if (calStartDate && calStartDate > todayStrInit) calStartDate = todayStrInit;
@@ -784,7 +783,6 @@
                 calViewMonth = now.getMonth();
             }
             renderCustomCalendar();
-            if (typeof lucide !== 'undefined') lucide.createIcons();
         } else {
             dropdown.classList.add('hidden');
         }
@@ -814,7 +812,6 @@
             calViewYear++;
         }
         renderCustomCalendar();
-        if (typeof lucide !== 'undefined') lucide.createIcons();
     }
 
     function renderCustomCalendar() {
@@ -859,10 +856,7 @@
 
         // Active range calculation (strictly bounded by today)
         const activeStart = (calStartDate && calStartDate <= todayStr) ? calStartDate : null;
-        let activeEnd = (calEndDate && calEndDate <= todayStr) ? calEndDate : null;
-        if (!activeEnd && activeStart && calHoverDate && calHoverDate > activeStart && calHoverDate <= todayStr) {
-            activeEnd = calHoverDate;
-        }
+        const activeEnd = (calEndDate && calEndDate <= todayStr) ? calEndDate : null;
 
         // Current month days
         for (let d = 1; d <= totalDaysInMonth; d++) {
@@ -870,7 +864,7 @@
             const isFuture = dateStr > todayStr;
 
             if (isFuture) {
-                // Advance date is strictly forbidden - disabled styling, non-clickable, no hover
+                // Advance date is strictly forbidden - disabled styling, non-clickable
                 html += `
                     <div class="h-8 flex items-center justify-center relative cursor-not-allowed select-none">
                         <div class="w-7 h-7 mx-auto rounded-xl flex items-center justify-center text-xs font-normal text-slate-300 select-none cursor-not-allowed opacity-40 pointer-events-none">
@@ -887,7 +881,7 @@
             const isToday = dateStr === todayStr;
 
             let cellBg = '';
-            let btnClasses = 'w-7 h-7 mx-auto rounded-xl flex items-center justify-center text-xs font-bold transition-all relative z-10 ';
+            let btnClasses = 'w-7 h-7 mx-auto rounded-xl flex items-center justify-center text-xs font-bold transition-colors relative z-10 ';
 
             if (isStart && isEnd) {
                 btnClasses += 'bg-amber-500 text-white shadow-xs';
@@ -912,7 +906,6 @@
 
             html += `
                 <div class="h-8 flex items-center justify-center relative ${cellBg}" 
-                     onmouseenter="onCalDateHover('${dateStr}')" 
                      onclick="onCalDateClick('${dateStr}', event)">
                     <div class="${btnClasses}">
                         ${d}
@@ -940,7 +933,6 @@
             // First click: sets Start Date (single date initially)
             calStartDate = dateStr;
             calEndDate = null;
-            calHoverDate = null;
         } else if (calStartDate && !calEndDate) {
             if (dateStr === calStartDate) {
                 // Clicked same date: keep as single date
@@ -953,7 +945,6 @@
                 // Clicked later date: sets end date for range
                 calEndDate = dateStr;
             }
-            calHoverDate = null;
         }
 
         updateDisplayPreview();
@@ -973,17 +964,6 @@
         } else {
             display.textContent = 'Select Date or Range';
             display.className = 'truncate text-slate-400 font-normal';
-        }
-    }
-
-    function onCalDateHover(dateStr) {
-        const todayStr = getLocalTodayStr();
-        if (dateStr > todayStr) return; // Disallow hover on advance dates
-        if (calStartDate && !calEndDate) {
-            if (calHoverDate !== dateStr) {
-                calHoverDate = dateStr;
-                renderCustomCalendar();
-            }
         }
     }
 
@@ -1043,7 +1023,6 @@
 
         updateDisplayPreview();
         renderCustomCalendar();
-        if (typeof lucide !== 'undefined') lucide.createIcons();
         // Stays open!
     }
 
@@ -1051,7 +1030,6 @@
         if (event) event.stopPropagation();
         calStartDate = null;
         calEndDate = null;
-        calHoverDate = null;
 
         updateDisplayPreview();
         renderCustomCalendar();
