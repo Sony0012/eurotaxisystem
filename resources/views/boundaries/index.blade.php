@@ -1424,6 +1424,9 @@ function renderDriverDebtsList(optionEl) {
         return;
     }
 
+    const driverId = optionEl.getAttribute('data-id') || document.getElementById('driverId')?.value || 0;
+    const isEditing = document.getElementById('boundaryModal')?.classList.contains('is-editing') || document.getElementById('formAction')?.value === 'update_boundary';
+
     const debtsJson = optionEl.getAttribute('data-debts') || '[]';
     let debts = [];
     try {
@@ -1448,18 +1451,27 @@ function renderDriverDebtsList(optionEl) {
             }
 
             listHtml += `
-                <div class="flex items-center justify-between p-2.5 bg-white border border-red-100/60 rounded-lg shadow-sm">
-                    <div class="min-w-0 flex-1 pr-2">
+                <div class="flex items-center justify-between p-2.5 bg-white border border-red-100/60 rounded-lg shadow-sm gap-2 transition-all duration-200" id="liability-row-${debt.id}">
+                    <div class="min-w-0 flex-1 pr-1">
                         <div class="flex items-center gap-1.5 flex-wrap">
                             <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[8px] font-black uppercase tracking-wider border ${badgeClass}">
                                 ${type}
                             </span>
                             <span class="text-[9px] font-bold text-gray-400">${dateStr}</span>
                         </div>
-                        <p class="text-xs font-bold text-gray-800 truncate mt-0.5">${desc}</p>
+                        <p class="text-xs font-bold text-gray-800 truncate mt-0.5" title="${desc}">${desc}</p>
                     </div>
-                    <div class="text-right shrink-0">
+                    <div class="flex items-center gap-2 shrink-0">
                         <span class="text-xs font-black text-red-600">₱${balance.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                        ${isEditing ? `
+                            <button type="button" 
+                                    onclick="removeLiability(${debt.id}, ${driverId}, this)" 
+                                    class="px-2 py-1 bg-red-50 hover:bg-red-100 active:scale-95 text-red-600 hover:text-red-700 text-[10px] font-black rounded-md border border-red-200 transition-all flex items-center gap-1 cursor-pointer shadow-xs" 
+                                    title="Remove this liability (for typos or mistaken entries)">
+                                <i data-lucide="trash-2" class="w-3 h-3 text-red-500"></i>
+                                <span>Remove</span>
+                            </button>
+                        ` : ''}
                     </div>
                 </div>
             `;
@@ -1467,9 +1479,93 @@ function renderDriverDebtsList(optionEl) {
         listHtml += '</div>';
         debtsListContainer.innerHTML = listHtml;
         debtsListContainer.classList.remove('hidden');
+        if (window.lucide) {
+            lucide.createIcons();
+        }
     } else {
         debtsListContainer.innerHTML = '';
         debtsListContainer.classList.add('hidden');
+    }
+}
+
+async function removeLiability(debtId, driverId, btn) {
+    if (!confirm("Are you sure you want to remove this liability record? This will cancel this liability item (used for correcting typos or mistaken inputs).")) {
+        return;
+    }
+
+    const originalHtml = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="animate-spin inline-block text-[10px]">↻</span> <span class="text-[10px]">Removing...</span>';
+
+    try {
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content 
+            || document.querySelector('input[name="_token"]')?.value;
+        const formData = new FormData();
+        formData.append('_token', csrfToken);
+        formData.append('action', 'remove_liability');
+        formData.append('liability_id', debtId);
+        formData.append('driver_id', driverId);
+
+        const response = await fetch("{{ route('boundaries.store') }}", {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
+            }
+        });
+
+        const data = await response.json();
+        if (data.success) {
+            // Update driverOption element data
+            const driverOption = document.querySelector(`.driver-option[data-id="${driverId}"]`);
+            if (driverOption) {
+                driverOption.setAttribute('data-accident-debt-amount', data.total_accident_debt);
+                driverOption.setAttribute('data-has-accident-debt', data.total_accident_debt > 0 ? 'true' : 'false');
+                driverOption.setAttribute('data-debts', JSON.stringify(data.debts || []));
+            }
+
+            // Animate and remove row
+            const row = document.getElementById(`liability-row-${debtId}`) || btn.closest('.flex.items-center.justify-between');
+            if (row) {
+                row.classList.add('opacity-0', 'scale-95');
+                setTimeout(() => {
+                    row.remove();
+                    if (data.total_accident_debt <= 0) {
+                        const damageContainer = document.getElementById('damagePaymentContainer');
+                        if (damageContainer) damageContainer.classList.add('hidden');
+                        const damagePaymentInput = document.getElementById('damage_payment');
+                        if (damagePaymentInput) damagePaymentInput.value = '';
+                        const debtsListContainer = document.getElementById('driverDebtsList');
+                        if (debtsListContainer) {
+                            debtsListContainer.innerHTML = '';
+                            debtsListContainer.classList.add('hidden');
+                        }
+                    } else {
+                        updateDriverDebtDisplay(driverId, 0);
+                    }
+                    if (typeof updateTotalRemittanceDisplay === 'function') {
+                        updateTotalRemittanceDisplay();
+                    }
+                }, 200);
+            } else {
+                updateDriverDebtDisplay(driverId, 0);
+                if (typeof updateTotalRemittanceDisplay === 'function') {
+                    updateTotalRemittanceDisplay();
+                }
+            }
+        } else {
+            alert(data.message || 'Failed to remove liability.');
+            btn.disabled = false;
+            btn.innerHTML = originalHtml;
+            if (window.lucide) lucide.createIcons();
+        }
+    } catch (err) {
+        console.error('Error removing liability:', err);
+        alert('An unexpected error occurred while removing the liability.');
+        btn.disabled = false;
+        btn.innerHTML = originalHtml;
+        if (window.lucide) lucide.createIcons();
     }
 }
 
@@ -1680,6 +1776,7 @@ function editBoundary(id) {
     }
     
     if (boundary) {
+        document.getElementById('boundaryModal').classList.add('is-editing');
         document.getElementById('modalTitle').textContent = 'Edit Boundary Record';
         document.getElementById('formAction').value = 'update_boundary';
         document.getElementById('boundaryId').value = boundary.id;
@@ -1808,6 +1905,7 @@ function editBoundary(id) {
 
 function closeModal() {
     document.getElementById('boundaryModal').classList.add('hidden');
+    document.getElementById('boundaryModal').classList.remove('is-editing');
 }
 
 function validatePondoInput(input) {

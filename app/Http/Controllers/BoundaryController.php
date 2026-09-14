@@ -293,6 +293,63 @@ class BoundaryController extends Controller
     public function store(Request $request)
     {
         $action = $request->input('action', '');
+
+        if ($action === 'remove_liability') {
+            $liability_id = (int) $request->input('liability_id', 0);
+            $driver_id    = (int) $request->input('driver_id', 0);
+
+            if (!$liability_id) {
+                return response()->json(['success' => false, 'message' => 'Invalid liability ID.'], 422);
+            }
+
+            $liability = \App\Models\DriverBehavior::find($liability_id);
+            if (!$liability) {
+                return response()->json(['success' => false, 'message' => 'Liability record not found.'], 404);
+            }
+
+            if ($driver_id > 0 && $liability->driver_id != $driver_id) {
+                return response()->json(['success' => false, 'message' => 'Driver liability mismatch.'], 403);
+            }
+
+            $targetDriverId = $liability->driver_id;
+
+            // Soft-delete / cancel the liability
+            $liability->update([
+                'charge_status'     => 'cancelled',
+                'remaining_balance' => 0,
+                'deleted_at'        => now(),
+            ]);
+
+            // If linked to a boundary, clean up notes
+            if ($liability->boundary_id) {
+                $linkedBoundary = Boundary::find($liability->boundary_id);
+                if ($linkedBoundary && str_contains($linkedBoundary->notes, '[Automatic Violation: Short Boundary]')) {
+                    $linkedBoundary->update([
+                        'notes' => trim(str_replace('[Automatic Violation: Short Boundary]', '', $linkedBoundary->notes)),
+                    ]);
+                }
+            }
+
+            // Re-fetch remaining active pending debts for this driver
+            $remainingDebts = DB::table('driver_behavior')
+                ->where('driver_id', $targetDriverId)
+                ->where('charge_status', 'pending')
+                ->where('remaining_balance', '>', 0)
+                ->whereNull('deleted_at')
+                ->select('id', 'driver_id', 'incident_type', 'incident_date', 'description', 'remaining_balance')
+                ->orderBy('incident_date', 'asc')
+                ->get();
+
+            $total_debt = (float) $remainingDebts->sum('remaining_balance');
+
+            return response()->json([
+                'success'             => true,
+                'message'             => 'Liability record removed successfully.',
+                'driver_id'           => $targetDriverId,
+                'total_accident_debt' => $total_debt,
+                'debts'               => $remainingDebts,
+            ]);
+        }
         
         if ($action === 'add_boundary') {
             $unit_id         = (int) $request->input('unit_id', 0);
@@ -387,7 +444,7 @@ class BoundaryController extends Controller
                             ]);
                         } else {
                             $notes = trim($notes . " [Automatic Violation: Short Boundary]");
-                            \App\Models\DriverBehavior::create([
+                            $shortageIncident = \App\Models\DriverBehavior::create([
                                 'unit_id'                 => $unit_id,
                                 'driver_id'               => $driver_id,
                                 'incident_type'           => 'Short Boundary',
@@ -624,6 +681,10 @@ class BoundaryController extends Controller
                         'created_by'      => Auth::id(),
                     ]);
 
+                    if (isset($shortageIncident) && $shortageIncident) {
+                        $shortageIncident->update(['boundary_id' => $boundary->id]);
+                    }
+
                     // --- DRIVER SAVINGS / MAINTENANCE FUND (PONDO) RECORDING ---
                     if ($driver_fund > 0) {
                         $plateNo = DB::table('units')->where('id', $unit_id)->value('plate_number');
@@ -858,9 +919,68 @@ class BoundaryController extends Controller
                 $excess   = max(0, $actual_boundary - $boundary_amount);
                 $status   = $shortage > 0 ? 'shortage' : ($excess > 0 ? 'excess' : 'paid');
 
+                // --- Sync Short Boundary Liabilities in driver_behavior ---
+                $existingShortageIncidents = \App\Models\DriverBehavior::where('incident_type', 'Short Boundary')
+                    ->where(function($q) use ($boundary) {
+                        $q->where('boundary_id', $boundary->id)
+                          ->orWhere(function($sub) use ($boundary) {
+                              $sub->where('driver_id', $boundary->driver_id)
+                                  ->where('unit_id', $boundary->unit_id)
+                                  ->where('incident_date', $boundary->date);
+                          });
+                    })
+                    ->whereNull('deleted_at')
+                    ->get();
+
                 if ($shortage > 0) {
                     $has_incentive = false;
                     $clean_notes .= " [Automatic Violation: Short Boundary]";
+                    $desc = "Auto-logged [Shortage]: Driver remitted ₱" . number_format($actual_boundary, 2) . " instead of ₱" . number_format($boundary_amount, 2);
+
+                    if ($existingShortageIncidents->isNotEmpty()) {
+                        $primary = $existingShortageIncidents->first();
+                        $paid = (float) ($primary->total_paid ?? 0);
+                        $newRemaining = max(0, $shortage - $paid);
+                        $primary->update([
+                            'boundary_id'            => $boundary->id,
+                            'total_charge_to_driver' => $shortage,
+                            'remaining_balance'      => $newRemaining,
+                            'charge_status'          => $newRemaining <= 0 ? 'paid' : 'pending',
+                            'description'            => $desc,
+                        ]);
+                        // If multiple duplicates exist, cancel them
+                        foreach ($existingShortageIncidents->slice(1) as $dup) {
+                            $dup->update([
+                                'charge_status'     => 'cancelled',
+                                'remaining_balance' => 0,
+                                'deleted_at'        => now(),
+                            ]);
+                        }
+                    } else {
+                        \App\Models\DriverBehavior::create([
+                            'unit_id'                => $boundary->unit_id,
+                            'driver_id'              => $boundary->driver_id,
+                            'boundary_id'            => $boundary->id,
+                            'incident_type'          => 'Short Boundary',
+                            'severity'               => 'medium',
+                            'description'            => $desc,
+                            'incident_date'          => $boundary->date,
+                            'timestamp'              => $now_ts,
+                            'total_charge_to_driver' => $shortage,
+                            'total_paid'             => 0,
+                            'remaining_balance'      => $shortage,
+                            'charge_status'          => 'pending',
+                        ]);
+                    }
+                } else {
+                    // Shortage is 0 or excess: Cancel / soft-delete any existing Short Boundary incidents for this boundary
+                    foreach ($existingShortageIncidents as $inc) {
+                        $inc->update([
+                            'charge_status'     => 'cancelled',
+                            'remaining_balance' => 0,
+                            'deleted_at'        => now(),
+                        ]);
+                    }
                 }
 
                 $damage_payment = (float) $request->input('damage_payment', 0);
