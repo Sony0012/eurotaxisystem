@@ -199,6 +199,7 @@
                         </label>
                         <div class="relative">
                             <input type="text" id="unitDisplay" required 
+                                   autocomplete="new-password" spellcheck="false" autocorrect="off" autocapitalize="off" data-lpignore="true" data-form-type="other"
                                    class="w-full px-3 py-2.5 border border-gray-300 rounded-xl bg-white cursor-pointer focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-sm font-bold shadow-sm"
                                    placeholder="Type to search units...">
                             <input type="hidden" name="unit_id" id="unitId" required>
@@ -241,6 +242,7 @@
                         <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-1.5">Driver <span class="text-red-500">*</span></label>
                         <div class="relative">
                             <input type="text" id="driverDisplay" required 
+                                   autocomplete="new-password" spellcheck="false" autocorrect="off" autocapitalize="off" data-lpignore="true" data-form-type="other"
                                    class="w-full px-3 py-2.5 border border-gray-300 rounded-xl bg-white cursor-pointer focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-sm font-bold shadow-sm"
                                    placeholder="Type to search drivers...">
                             <input type="hidden" name="driver_id" id="driverId" required>

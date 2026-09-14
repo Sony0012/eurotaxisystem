@@ -136,7 +136,11 @@
                     <label class="block text-[10px] font-black uppercase tracking-wider text-slate-500 mb-1">Search Keywords</label>
                     <div class="relative">
                         <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                        <input type="text" name="search" value="{{ request('search') }}" placeholder="Driver name, plate, or note..." class="w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500">
+                        <input type="search" name="search" id="ledgerSearchInput" value="{{ request('search') }}" 
+                               placeholder="Driver name, plate, or note..." 
+                               autocomplete="new-password" spellcheck="false" autocorrect="off" autocapitalize="off" data-lpignore="true" data-form-type="other"
+                               readonly onfocus="this.removeAttribute('readonly');"
+                               class="w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500">
                     </div>
                 </div>
 
@@ -300,7 +304,11 @@
                 <p class="text-xs text-slate-500 font-medium">Overview of individual driver reserves, lifetime deposits, damage deductions, and available balances.</p>
                 <div class="relative w-72">
                     <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                    <input type="text" id="directorySearchInput" onkeyup="filterDirectoryTable()" placeholder="Search in directory..." class="w-full pl-9 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-emerald-500">
+                    <input type="search" id="directorySearchInput" name="driver_directory_query" onkeyup="filterDirectoryTable()" 
+                           placeholder="Search in directory..." 
+                           autocomplete="new-password" spellcheck="false" autocorrect="off" autocapitalize="off" data-lpignore="true" data-form-type="other"
+                           readonly onfocus="this.removeAttribute('readonly');"
+                           class="w-full pl-9 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-emerald-500">
                 </div>
             </div>
 
@@ -481,23 +489,54 @@
             tabBtnTransactions.className = 'px-4 py-3 border-b-2 font-black text-xs uppercase tracking-wider transition-all flex items-center gap-2 border-transparent text-slate-500 hover:text-slate-800';
             viewDirectory.classList.remove('hidden');
             viewTransactions.classList.add('hidden');
+            setTimeout(sanitizeSearchAutofill, 20);
         }
         if (typeof lucide !== 'undefined') lucide.createIcons();
     }
 
     function filterDirectoryTable() {
-        const query = (document.getElementById('directorySearchInput').value || '').toLowerCase();
+        const inputEl = document.getElementById('directorySearchInput');
+        if (!inputEl) return;
+        let rawVal = inputEl.value || '';
+        // If browser autofilled an email, clear it immediately
+        if (rawVal.includes('@')) {
+            inputEl.value = '';
+            rawVal = '';
+        }
+        const query = rawVal.toLowerCase().trim();
         const rows = document.querySelectorAll('.directory-row');
         rows.forEach(r => {
             const name = r.getAttribute('data-name') || '';
             const plate = r.getAttribute('data-plate') || '';
-            if (name.includes(query) || plate.includes(query)) {
+            if (!query || name.includes(query) || plate.includes(query)) {
                 r.style.display = '';
             } else {
                 r.style.display = 'none';
             }
         });
     }
+
+    function sanitizeSearchAutofill() {
+        const dirInput = document.getElementById('directorySearchInput');
+        if (dirInput && dirInput.value && dirInput.value.includes('@')) {
+            dirInput.value = '';
+            filterDirectoryTable();
+        }
+        const ledgerSearch = document.getElementById('ledgerSearchInput');
+        if (ledgerSearch && ledgerSearch.value && ledgerSearch.value.includes('@')) {
+            @if(!request()->has('search') || request('search') === '')
+                ledgerSearch.value = '';
+            @endif
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        sanitizeSearchAutofill();
+        setTimeout(sanitizeSearchAutofill, 50);
+        setTimeout(sanitizeSearchAutofill, 200);
+        setTimeout(sanitizeSearchAutofill, 600);
+        setTimeout(sanitizeSearchAutofill, 1200);
+    });
 
     function openLedgerDisburseModal(driverId = null, driverName = null, balance = null) {
         const select = document.getElementById('disburseDriverSelect');
