@@ -192,7 +192,7 @@
                                 </div>
                                 <div class="flex items-center gap-1 shrink-0">
                                     @if(request('date') || request('date_from') || request('date_to'))
-                                        <span onclick="clearSelectedDate(event)" class="text-slate-400 hover:text-rose-500 p-0.5 rounded-full hover:bg-slate-100 transition-colors cursor-pointer" title="Clear Date">
+                                        <span onclick="clearSelectedDate(event, true)" class="text-slate-400 hover:text-rose-500 p-0.5 rounded-full hover:bg-slate-100 transition-colors cursor-pointer" title="Clear Date">
                                             <i data-lucide="x" class="w-3.5 h-3.5"></i>
                                         </span>
                                     @else
@@ -252,7 +252,7 @@
                             <div class="flex items-center gap-1">
                                 <button type="button" onclick="setCalPreset('today', event)" class="px-2 py-1 text-slate-600 hover:text-amber-600 font-bold rounded-md hover:bg-amber-50 transition-colors cursor-pointer">Today</button>
                                 <button type="button" onclick="setCalPreset('month', event)" class="px-2 py-1 text-slate-600 hover:text-amber-600 font-bold rounded-md hover:bg-amber-50 transition-colors cursor-pointer">Month</button>
-                                <button type="button" onclick="clearSelectedDate(event)" class="px-2 py-1 text-rose-500 hover:text-rose-700 font-bold rounded-md hover:bg-rose-50 transition-colors cursor-pointer">Clear</button>
+                                <button type="button" onclick="clearSelectedDate(event, false)" class="px-2 py-1 text-rose-500 hover:text-rose-700 font-bold rounded-md hover:bg-rose-50 transition-colors cursor-pointer">Clear</button>
                             </div>
                             <div class="flex items-center gap-1">
                                 <button type="button" onclick="closeCalendarPicker(event)" class="px-2 py-1 text-slate-400 hover:text-slate-600 font-bold rounded-md transition-colors cursor-pointer">
@@ -874,13 +874,10 @@
             calHoverDate = null;
         } else if (calStartDate && !calEndDate) {
             if (dateStr === calStartDate) {
-                // Clicked same date: confirm single date & apply immediately
+                // Clicked same date: keep as single date
                 calEndDate = null;
-                calHoverDate = null;
-                applyDateSelection();
-                return;
             } else if (dateStr < calStartDate) {
-                // Clicked earlier date: make it the new start date
+                // Clicked earlier date: reorder
                 calEndDate = calStartDate;
                 calStartDate = dateStr;
             } else {
@@ -888,12 +885,26 @@
                 calEndDate = dateStr;
             }
             calHoverDate = null;
-            // Both start and end selected: apply range!
-            applyDateSelection();
-            return;
         }
 
+        updateDisplayPreview();
         renderCustomCalendar();
+        // Stays open so user can review and click Apply!
+    }
+
+    function updateDisplayPreview() {
+        const display = document.getElementById('display_selected_date');
+        if (!display) return;
+        if (calStartDate && calEndDate && calStartDate !== calEndDate) {
+            display.textContent = `${formatCalDisplay(calStartDate)} — ${formatCalDisplay(calEndDate)}`;
+            display.className = 'truncate text-slate-900 font-bold';
+        } else if (calStartDate) {
+            display.textContent = formatCalDisplay(calStartDate);
+            display.className = 'truncate text-slate-900 font-bold';
+        } else {
+            display.textContent = 'Select Date or Range';
+            display.className = 'truncate text-slate-400 font-normal';
+        }
     }
 
     function onCalDateHover(dateStr) {
@@ -913,38 +924,27 @@
         const inputDate = document.getElementById('filter_date');
         const inputFrom = document.getElementById('filter_date_from');
         const inputTo = document.getElementById('filter_date_to');
-        const display = document.getElementById('display_selected_date');
 
         if (calStartDate && calEndDate && calStartDate !== calEndDate) {
             // Date Range
             if (inputDate) inputDate.value = '';
             if (inputFrom) inputFrom.value = calStartDate;
             if (inputTo) inputTo.value = calEndDate;
-            if (display) {
-                display.textContent = `${formatCalDisplay(calStartDate)} — ${formatCalDisplay(calEndDate)}`;
-                display.className = 'truncate text-slate-900 font-bold';
-            }
         } else if (calStartDate) {
             // Single Date (None Date Range)
             if (inputDate) inputDate.value = calStartDate;
             if (inputFrom) inputFrom.value = '';
             if (inputTo) inputTo.value = '';
-            if (display) {
-                display.textContent = formatCalDisplay(calStartDate);
-                display.className = 'truncate text-slate-900 font-bold';
-            }
         } else {
             // Cleared
             if (inputDate) inputDate.value = '';
             if (inputFrom) inputFrom.value = '';
             if (inputTo) inputTo.value = '';
-            if (display) {
-                display.textContent = 'Select Date or Range';
-                display.className = 'truncate text-slate-400 font-normal';
-            }
         }
 
-        // Auto-submit filter form
+        updateDisplayPreview();
+
+        // Submit form now that user clicked Apply
         const form = document.getElementById('datePickerContainer')?.closest('form');
         if (form) form.submit();
     }
@@ -957,20 +957,33 @@
         if (preset === 'today') {
             calStartDate = todayStr;
             calEndDate = null;
-            applyDateSelection();
+            calViewYear = now.getFullYear();
+            calViewMonth = now.getMonth();
         } else if (preset === 'month') {
             calStartDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`;
             calEndDate = todayStr;
-            applyDateSelection();
+            calViewYear = now.getFullYear();
+            calViewMonth = now.getMonth();
         }
+
+        updateDisplayPreview();
+        renderCustomCalendar();
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+        // Stays open!
     }
 
-    function clearSelectedDate(event) {
+    function clearSelectedDate(event, autoSubmit = false) {
         if (event) event.stopPropagation();
         calStartDate = null;
         calEndDate = null;
         calHoverDate = null;
-        applyDateSelection();
+
+        updateDisplayPreview();
+        renderCustomCalendar();
+
+        if (autoSubmit) {
+            applyDateSelection(event);
+        }
     }
 
     // Close calendar on outside click
