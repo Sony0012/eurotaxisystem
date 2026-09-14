@@ -98,11 +98,27 @@
                                         @else
                                             @php
                                                 $notes_lc = strtolower($boundary['notes'] ?? '');
+                                                $is_late_case = str_contains($notes_lc, 'late remittance') || str_contains($notes_lc, 'past cutoff');
                                                 $is_damage_case = str_contains($notes_lc, 'vehicle damaged') || str_contains($notes_lc, 'maintenance') || str_contains($notes_lc, 'breakdown');
+                                                $is_absent_case = str_contains($notes_lc, 'absent');
                                             @endphp
-                                            <span class="px-1.5 py-0.5 bg-rose-500/10 text-rose-700 text-[8px] font-black rounded border border-rose-200/80 uppercase tracking-wider w-fit">
-                                                {{ $is_damage_case ? 'Damaged / B-Down' : 'Late Turn ⏰' }}
-                                            </span>
+                                            @if ($is_late_case)
+                                                <span class="px-1.5 py-0.5 bg-orange-500/10 text-orange-700 text-[8px] font-black rounded border border-orange-200/80 uppercase tracking-wider w-fit">
+                                                    Late Remittance ⏰
+                                                </span>
+                                            @elseif ($is_damage_case)
+                                                <span class="px-1.5 py-0.5 bg-rose-500/10 text-rose-700 text-[8px] font-black rounded border border-rose-200/80 uppercase tracking-wider w-fit">
+                                                    Damaged / B-Down
+                                                </span>
+                                            @elseif ($is_absent_case)
+                                                <span class="px-1.5 py-0.5 bg-rose-500/10 text-rose-700 text-[8px] font-black rounded border border-rose-200/80 uppercase tracking-wider w-fit">
+                                                    Absent ❌
+                                                </span>
+                                            @else
+                                                <span class="px-1.5 py-0.5 bg-slate-500/10 text-slate-600 text-[8px] font-black rounded border border-slate-200/80 uppercase tracking-wider w-fit">
+                                                    No Incentive
+                                                </span>
+                                            @endif
                                         @endif
                                     @endif
                                     @if ($boundary['shortage'] > 0)

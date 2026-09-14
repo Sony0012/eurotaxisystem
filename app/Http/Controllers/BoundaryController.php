@@ -38,6 +38,7 @@ class BoundaryController extends Controller
                 'b.*',
                 'u.plate_number',
                 'u.year as unit_year',
+                'u.unit_type',
                 'u.coding_day as unit_coding_day',
                 DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')) as driver_name"),
                 'creator.full_name as creator_name',
@@ -126,7 +127,7 @@ class BoundaryController extends Controller
             ->whereNull('deleted_at')
             ->where('status', '!=', 'retired')
             ->where('status', '!=', 'missing')
-            ->select('id', 'plate_number', 'make', 'model', 'year', 'boundary_rate', 'coding_day', 'driver_id', 'secondary_driver_id', 'current_turn_driver_id', 'last_swapping_at', 'shift_deadline_at')
+            ->select('id', 'plate_number', 'make', 'model', 'year', 'unit_type', 'boundary_rate', 'coding_day', 'driver_id', 'secondary_driver_id', 'current_turn_driver_id', 'last_swapping_at', 'shift_deadline_at')
             ->orderBy('plate_number')
             ->get()
             ->map(function ($unit) use ($absentDriversToday) {
@@ -241,7 +242,8 @@ class BoundaryController extends Controller
                 'year' => $b->unit_year,
                 'plate_number' => $b->plate_number,
                 'boundary_rate' => $b->boundary_amount,
-                'coding_day' => $b->unit_coding_day
+                'coding_day' => $b->unit_coding_day,
+                'unit_type' => $b->unit_type ?? ''
             ], $boundary_rules, $b->date);
 
             $item = (array) $b;
@@ -348,7 +350,8 @@ class BoundaryController extends Controller
                         'year' => $unit ? $unit->year : 0,
                         'plate_number' => $unit ? $unit->plate_number : '',
                         'boundary_rate' => $unit ? $unit->boundary_rate : 0,
-                        'coding_day' => $unit ? $unit->coding_day : null
+                        'coding_day' => $unit ? $unit->coding_day : null,
+                        'unit_type' => $unit ? $unit->unit_type : ''
                     ], $boundary_rules, $date);
 
                     if ($boundary_amount <= 0 || !$request->has('boundary_amount')) {

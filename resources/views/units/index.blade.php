@@ -448,7 +448,28 @@
                                 placeholder="e.g., NCP1512071757"
                                 oninput="this.value = this.value.toUpperCase()">
                         </div>
-
+                        <div class="space-y-2">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Status</label>
+                            <select name="status" id="addStatus"
+                                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent">
+                                <option value="active" selected>Active</option>
+                                <option value="at_risk">At Risk / Missing</option>
+                                <option value="maintenance">Maintenance</option>
+                                <option value="coding">Coding</option>
+                                <option value="retired">Retired</option>
+                                <option value="vacant">Vacant</option>
+                            </select>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Unit Type</label>
+                            <select name="unit_type" id="addUnitType" onchange="onUnitTypeChange(this.value, 'add')"
+                                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent">
+                                <option value="new" selected>New</option>
+                                <option value="old">Old</option>
+                                <option value="rented">Rented</option>
+                                <option value="boundary_hulog">Boundary Hulog</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
 
@@ -801,11 +822,12 @@
                         </div>
                         <div class="space-y-2">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Unit Type</label>
-                            <select name="unit_type" id="editUnitType"
+                            <select name="unit_type" id="editUnitType" onchange="onUnitTypeChange(this.value, 'edit')"
                                 class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                                 <option value="new">New</option>
                                 <option value="old">Old</option>
                                 <option value="rented">Rented</option>
+                                <option value="boundary_hulog">Boundary Hulog</option>
                             </select>
                         </div>
                     </div>
@@ -1488,6 +1510,18 @@
         function closeEditUnitModal() {
             document.getElementById('editUnitModal').classList.add('hidden');
             document.getElementById('editCodingStatusDisplay').innerHTML = '';
+        }
+
+        function onUnitTypeChange(type, mode) {
+            const isEdit = mode === 'edit';
+            const rateInput = document.getElementById(isEdit ? 'editBoundaryRate' : 'addBoundaryRate');
+            if (!rateInput) return;
+            
+            if (type === 'boundary_hulog') {
+                rateInput.value = '1,000.00';
+            } else if (rateInput.value === '1,000.00' || rateInput.value === '1000' || !rateInput.value) {
+                rateInput.value = '1,100.00';
+            }
         }
 
         // Edit Unit - Searchable Driver Dropdowns

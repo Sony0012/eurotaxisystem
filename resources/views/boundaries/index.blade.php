@@ -190,7 +190,10 @@
                 {{-- Three-Column Grid for Unit, Driver, and Shift Date --}}
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
-                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-1.5">Unit <span class="text-red-500">*</span></label>
+                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-1.5 flex items-center justify-between">
+                            <span>Unit <span class="text-red-500">*</span></span>
+                            <span id="modalUnitTypeBadge" class="hidden px-2 py-0.5 text-[9px] font-black uppercase rounded-md border tracking-wider"></span>
+                        </label>
                         <div class="relative">
                             <input type="text" id="unitDisplay" required 
                                    class="w-full px-3 py-2.5 border border-gray-300 rounded-xl bg-white cursor-pointer focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-sm font-bold shadow-sm"
@@ -208,6 +211,7 @@
                                          data-name="{{ $unit['plate_number'] }}"
                                          data-plate="{{ $unit['plate_number'] }}"
                                          data-year="{{ $unit['year'] ?? 0 }}"
+                                         data-unit-type="{{ $unit['unit_type'] ?? 'new' }}"
                                          data-model="{{ $unit['make_model'] ?? '' }}"
                                          data-rate="{{ $unit['boundary_rate'] ?? 0 }}"
                                          data-coding-day="{{ $unit['coding_day'] ?? '' }}"
@@ -217,7 +221,12 @@
                                          data-deadline="{{ $unit['shift_deadline_at'] }}"
                                          data-swapped-at="{{ $unit['last_swapping_at'] }}"
                                          data-has-absent-today="{{ $unit['has_absent_today'] ? 'true' : 'false' }}">
-                                        <div class="font-black text-sm text-gray-900">{{ $unit['plate_number'] }}</div>
+                                        <div class="flex items-center justify-between">
+                                            <div class="font-black text-sm text-gray-900">{{ $unit['plate_number'] }}</div>
+                                            @if(($unit['unit_type'] ?? '') === 'boundary_hulog')
+                                                <span class="text-[9px] font-black px-1.5 py-0.5 bg-amber-100 text-amber-900 rounded border border-amber-300 uppercase tracking-tight">Boundary Hulog</span>
+                                            @endif
+                                        </div>
                                         <div class="text-[11px] font-bold text-gray-500">{{ $unit['make_model'] ?? 'N/A' }}</div>
                                     </div>
                                 @endforeach
@@ -1024,15 +1033,18 @@ document.getElementById('unitId').addEventListener('change', function() {
 
 // Auto-recalculate boundary when date changes
 document.getElementById('date').addEventListener('change', function() {
-    const unitSelect = document.getElementById('unitId');
-    if(unitSelect.selectedIndex < 0) return;
-    const selectedOption = unitSelect.options[unitSelect.selectedIndex];
-    const rate = parseFloat(selectedOption.getAttribute('data-rate'));
-    const codingDay = selectedOption.getAttribute('data-coding-day');
+    const unitId = document.getElementById('unitId').value;
+    const unitDisplay = document.getElementById('unitDisplay');
+    const unitOption = unitId ? document.querySelector(`.unit-option[data-id="${unitId}"]`) : null;
     
-    if (rate) {
-        // Source of Truth: Recalculate smart rate based on new date
-        const suggestedRate = getSmartTargetRate(selectedOption.getAttribute('data-year'), selectedOption.getAttribute('data-plate'), rate, this.value);
+    const year = unitOption ? unitOption.getAttribute('data-year') : (unitDisplay ? unitDisplay.getAttribute('data-year') : 0);
+    const plate = unitOption ? unitOption.getAttribute('data-plate') : (unitDisplay ? unitDisplay.getAttribute('data-plate') : '');
+    const rate = parseFloat(unitOption ? unitOption.getAttribute('data-rate') : (unitDisplay ? (unitDisplay.getAttribute('data-rate') || 0) : 0));
+    const unitType = unitOption ? unitOption.getAttribute('data-unit-type') : (unitDisplay ? (unitDisplay.getAttribute('data-unit-type') || '') : '');
+    
+    if (year || rate || unitType) {
+        // Source of Truth: Recalculate smart rate based on new date and unitType
+        const suggestedRate = getSmartTargetRate(year, plate, rate, this.value, unitType);
         document.getElementById('boundaryAmount').value = suggestedRate;
         document.getElementById('boundaryAmount').dataset.originalTarget = suggestedRate;
         document.getElementById('actualBoundary').value = suggestedRate;
@@ -1042,17 +1054,38 @@ document.getElementById('date').addEventListener('change', function() {
     }
 });
 
-function getSmartTargetRate(year, plate, customRate, dateStr) {
+function getSmartTargetRate(year, plate, customRate, dateStr, unitType) {
     const rules = window.boundaryRules || [];
     const yr = parseInt(year) || 0;
     const rate = parseFloat(customRate) || 0;
     const date = dateStr ? new Date(dateStr) : new Date();
+    const isHulog = unitType && unitType.toLowerCase().includes('hulog');
     
-    // Find rule for the year
-    const rule = rules.find(r => yr >= r.start_year && yr <= r.end_year);
+    // Find matching rule:
+    let rule = null;
+    if (isHulog) {
+        // Prioritize rule with 'hulog' in name
+        rule = rules.find(r => (r.name || '').toLowerCase().includes('hulog') && (yr === 0 || (yr >= r.start_year && yr <= r.end_year)));
+        if (!rule) {
+            rule = rules.find(r => (r.name || '').toLowerCase().includes('hulog'));
+        }
+    }
+    if (!rule) {
+        // Match standard rule by year range, EXCLUDING hulog rules for regular units
+        rule = rules.find(r => {
+            const ruleIsHulog = (r.name || '').toLowerCase().includes('hulog');
+            if (!isHulog && ruleIsHulog) return false;
+            return yr >= r.start_year && yr <= r.end_year;
+        });
+    }
     
-    // Base rate priority: Custom -> Rule -> Default
-    const base = rate > 0 ? rate : (rule ? parseFloat(rule.regular_rate) : 1100);
+    // Base rate priority:
+    let base = 1100;
+    if (isHulog && rule) {
+        base = (rate > 0 && rate !== 1100) ? rate : parseFloat(rule.regular_rate);
+    } else {
+        base = rate > 0 ? rate : (rule ? parseFloat(rule.regular_rate) : 1100);
+    }
     
     // Day of week
     const dayOfWeek = date.getDay(); // 0 = Sunday, 6 = Saturday
@@ -1069,11 +1102,11 @@ function getSmartTargetRate(year, plate, customRate, dateStr) {
     
     // 2. Weekend Check
     if (dayOfWeek === 6) { // Saturday
-        const disc = rule ? parseFloat(rule.sat_discount) : 100;
+        const disc = rule ? parseFloat(rule.sat_discount) : (isHulog ? 75 : 100);
         return (base - disc).toFixed(2);
     }
     if (dayOfWeek === 0) { // Sunday
-        const disc = rule ? parseFloat(rule.sun_discount) : 200;
+        const disc = rule ? parseFloat(rule.sun_discount) : (isHulog ? 125 : 200);
         return (base - disc).toFixed(2);
     }
     
@@ -1125,10 +1158,30 @@ function initializeUnitDropdown() {
                 const plate = this.getAttribute('data-plate');
                 const year = this.getAttribute('data-year');
                 const customRate = this.getAttribute('data-rate');
+                const unitType = this.getAttribute('data-unit-type') || 'new';
 
                 document.getElementById('unitId').value = unitId;
                 unitDisplay.value = unitPlate;
+                unitDisplay.setAttribute('data-unit-type', unitType);
+                unitDisplay.setAttribute('data-year', year);
+                unitDisplay.setAttribute('data-plate', plate);
+                unitDisplay.setAttribute('data-rate', customRate);
                 unitDropdown.classList.add('hidden');
+
+                const typeBadge = document.getElementById('modalUnitTypeBadge');
+                if (typeBadge) {
+                    if (unitType === 'boundary_hulog') {
+                        typeBadge.className = 'px-2 py-0.5 text-[9px] font-black uppercase rounded-md border tracking-wider bg-amber-100 text-amber-900 border-amber-300';
+                        typeBadge.innerText = 'Boundary Hulog';
+                        typeBadge.classList.remove('hidden');
+                    } else if (unitType) {
+                        typeBadge.className = 'px-2 py-0.5 text-[9px] font-black uppercase rounded-md border tracking-wider bg-blue-50 text-blue-700 border-blue-200';
+                        typeBadge.innerText = unitType.replace('_', ' ');
+                        typeBadge.classList.remove('hidden');
+                    } else {
+                        typeBadge.classList.add('hidden');
+                    }
+                }
 
                 // Reset extra driver alert when unit changes
                 const alertBox = document.getElementById('extraDriverAlert');
@@ -1138,7 +1191,7 @@ function initializeUnitDropdown() {
                 updateDriverDebtDisplay(null);
 
                 // Source of Truth: Get the smart rate
-                const suggestedRate = getSmartTargetRate(year, plate, customRate, document.getElementById('date').value);
+                const suggestedRate = getSmartTargetRate(year, plate, customRate, document.getElementById('date').value, unitType);
                 const boundaryInput = document.getElementById('boundaryAmount');
                 if (boundaryInput) {
                     boundaryInput.value = suggestedRate;
@@ -1656,11 +1709,32 @@ function editBoundary(id) {
         unitDisplay.value = boundary.plate_number || 'Unknown Unit';
         
         const unitOption = document.querySelector(`.unit-option[data-id="${boundary.unit_id}"]`);
+        const unitType = unitOption ? (unitOption.getAttribute('data-unit-type') || 'new') : (boundary.unit_type || 'new');
+        unitDisplay.setAttribute('data-unit-type', unitType);
+        
+        const typeBadge = document.getElementById('modalUnitTypeBadge');
+        if (typeBadge) {
+            if (unitType === 'boundary_hulog') {
+                typeBadge.className = 'px-2 py-0.5 text-[9px] font-black uppercase rounded-md border tracking-wider bg-amber-100 text-amber-900 border-amber-300';
+                typeBadge.innerText = 'Boundary Hulog';
+                typeBadge.classList.remove('hidden');
+            } else if (unitType) {
+                typeBadge.className = 'px-2 py-0.5 text-[9px] font-black uppercase rounded-md border tracking-wider bg-blue-50 text-blue-700 border-blue-200';
+                typeBadge.innerText = unitType.replace('_', ' ');
+                typeBadge.classList.remove('hidden');
+            } else {
+                typeBadge.classList.add('hidden');
+            }
+        }
+
         if (unitOption) {
             const pId = unitOption.getAttribute('data-primary-driver');
             const sId = unitOption.getAttribute('data-secondary-driver');
             unitDisplay.setAttribute('data-primary-id', pId || '');
             unitDisplay.setAttribute('data-secondary-id', sId || '');
+            unitDisplay.setAttribute('data-year', unitOption.getAttribute('data-year') || '');
+            unitDisplay.setAttribute('data-plate', unitOption.getAttribute('data-plate') || '');
+            unitDisplay.setAttribute('data-rate', unitOption.getAttribute('data-rate') || '');
             
             // Critical for computation box
             const swappedAt = unitOption.getAttribute('data-swapped-at');
@@ -1693,8 +1767,8 @@ function editBoundary(id) {
         if (halfMaintEl) halfMaintEl.checked = false;
         if (zeroMaintEl) zeroMaintEl.checked = false;
 
-        // Re-check based on existing data
-        if ((notesLc.includes('late remittance') || notesLc.includes('past')) && pastCutoffEl) {
+        // Re-check based on existing data - ONLY if explicitly marked as Late Remittance
+        if ((notesLc.includes('late remittance') || notesLc.includes('past cutoff')) && pastCutoffEl) {
             pastCutoffEl.checked = true;
             const timeMatch = notesLc.match(/past\s+(\d{1,2}:\d{2}\s*(?:am|pm)?)/i);
             if (timeMatch && timeMatch[1]) {

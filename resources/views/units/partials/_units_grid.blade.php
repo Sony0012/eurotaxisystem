@@ -83,7 +83,7 @@
                             {{ $unit->make }} {{ $unit->model }}
                         </h4>
                         <p class="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">
-                            {{ $unit->year }} • {{ strtoupper($unit->unit_type ?? 'NEW') }}
+                            {{ $unit->year }} • {{ strtoupper(str_replace('_', ' ', $unit->unit_type ?? 'NEW')) }}
                         </p>
                         
                         {{-- Boundary Rate Badge --}}

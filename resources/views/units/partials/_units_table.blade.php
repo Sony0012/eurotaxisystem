@@ -62,7 +62,14 @@
                             <span class="text-xs md:text-sm font-black text-gray-900">{{ $unit->make }} {{ $unit->model }}</span>
                             <span class="text-[10px] md:text-xs font-bold text-gray-400">{{ $unit->year }}</span>
                             <div class="mt-1.5">
-                                <span class="px-1.5 md:px-2 py-0.5 bg-blue-50 text-blue-600 text-[8px] md:text-[9px] font-black uppercase rounded border border-blue-100">New</span>
+                                @php
+                                    $uType = $unit->unit_type ?? 'new';
+                                    $typeLabel = ucwords(str_replace('_', ' ', $uType));
+                                    $typeClass = $uType === 'boundary_hulog'
+                                        ? 'bg-amber-100 text-amber-900 border-amber-300 font-extrabold'
+                                        : 'bg-blue-50 text-blue-600 border-blue-100';
+                                @endphp
+                                <span class="px-1.5 md:px-2 py-0.5 text-[8px] md:text-[9px] font-black uppercase rounded border {{ $typeClass }}">{{ $typeLabel }}</span>
                             </div>
                         </div>
                     </td>
