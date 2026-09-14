@@ -72,7 +72,13 @@
                                 </div>
                             </td>
                             <td class="px-5 py-3.5 whitespace-nowrap text-xs text-slate-900 font-black tracking-tight">
-                                {{ formatCurrency($boundary['actual_boundary'] ?? 0) }}
+                                <div>{{ formatCurrency($boundary['actual_boundary'] ?? 0) }}</div>
+                                @if(!empty($boundary['driver_fund']) && (float)$boundary['driver_fund'] > 0)
+                                    <div class="text-[10px] font-bold text-emerald-600 mt-0.5 flex items-center gap-1">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block"></span>
+                                        +{{ formatCurrency($boundary['driver_fund']) }} Pondo
+                                    </div>
+                                @endif
                             </td>
                             <td class="px-5 py-3.5 whitespace-nowrap">
                                 @php

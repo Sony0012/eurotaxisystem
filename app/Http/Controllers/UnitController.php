@@ -506,10 +506,10 @@ class UnitController extends Controller
             ->where('unit_id', $unit_id)
             ->whereNull('deleted_at')
             ->selectRaw('
-                SUM(actual_boundary) as total_boundary,
-                SUM(CASE WHEN MONTH(date)=MONTH(CURDATE()) AND YEAR(date)=YEAR(CURDATE()) THEN actual_boundary ELSE 0 END) as monthly_boundary,
+                SUM(actual_boundary + COALESCE(damage_payment, 0)) as total_boundary,
+                SUM(CASE WHEN MONTH(date)=MONTH(CURDATE()) AND YEAR(date)=YEAR(CURDATE()) THEN (actual_boundary + COALESCE(damage_payment, 0)) ELSE 0 END) as monthly_boundary,
                 SUM(CASE WHEN MONTH(date)=MONTH(CURDATE()) AND YEAR(date)=YEAR(CURDATE()) THEN boundary_amount ELSE 0 END) as monthly_expected_boundary,
-                SUM(actual_boundary) as paid_boundary
+                SUM(actual_boundary + COALESCE(damage_payment, 0)) as paid_boundary
             ')->first();
 
         $maintenance_cost = DB::table('maintenance')
@@ -703,9 +703,9 @@ class UnitController extends Controller
             ->where('unit_id', $unit_id)
             ->whereNull('deleted_at')
             ->selectRaw('
-                SUM(actual_boundary) as total_boundary,
-                SUM(CASE WHEN MONTH(date)=MONTH(CURDATE()) AND YEAR(date)=YEAR(CURDATE()) THEN actual_boundary ELSE 0 END) as monthly_boundary,
-                SUM(actual_boundary) as paid_boundary
+                SUM(actual_boundary + COALESCE(damage_payment, 0)) as total_boundary,
+                SUM(CASE WHEN MONTH(date)=MONTH(CURDATE()) AND YEAR(date)=YEAR(CURDATE()) THEN (actual_boundary + COALESCE(damage_payment, 0)) ELSE 0 END) as monthly_boundary,
+                SUM(actual_boundary + COALESCE(damage_payment, 0)) as paid_boundary
             ')->first();
 
         $maintenance_cost = DB::table('maintenance')

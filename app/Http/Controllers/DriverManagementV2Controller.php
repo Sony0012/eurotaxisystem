@@ -161,7 +161,9 @@ class DriverManagementV2Controller extends Controller
                 // Net unpaid shortage: merged into total_pending_debt via driver_behavior
                 DB::raw("0 as net_shortage"),
                 // Total Pending Accident/Incident/Shortage Debt
-                DB::raw("(SELECT COALESCE(SUM(remaining_balance), 0) FROM driver_behavior WHERE driver_id = d.id AND deleted_at IS NULL AND charge_status = 'pending') as total_pending_debt")
+                DB::raw("(SELECT COALESCE(SUM(remaining_balance), 0) FROM driver_behavior WHERE driver_id = d.id AND deleted_at IS NULL AND charge_status = 'pending') as total_pending_debt"),
+                // Driver Savings / Maintenance Fund Balance (Pondo)
+                DB::raw("(SELECT COALESCE(SUM(CASE WHEN type = 'deposit' THEN amount ELSE -amount END), 0) FROM driver_funds WHERE driver_id = d.id AND deleted_at IS NULL) as driver_fund_balance")
             );
 
         if ($search) {
@@ -249,6 +251,7 @@ class DriverManagementV2Controller extends Controller
             'available' => DB::table('drivers')->whereNull('deleted_at')->where('driver_status', 'available')->count(),
             'assigned'  => DB::table('drivers')->whereNull('deleted_at')->where('driver_status', 'assigned')->count(),
             'on_leave'  => DB::table('drivers')->whereNull('deleted_at')->where('driver_status', 'on_leave')->count(),
+            'total_driver_funds' => (float) (DB::table('driver_funds')->whereNull('deleted_at')->selectRaw("SUM(CASE WHEN type = 'deposit' THEN amount ELSE -amount END) as bal")->value('bal') ?? 0),
         ];
 
         // Status Filter Counts for Dropdown Options
@@ -324,7 +327,9 @@ class DriverManagementV2Controller extends Controller
                 DB::raw("(SELECT COUNT(*) FROM boundaries WHERE expected_driver_id = d.id AND driver_id != d.id AND deleted_at IS NULL AND date >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY)) as absent_count"),
                 // Outstanding Liabilities (Shortages are now tracked in driver_behavior)
                 DB::raw("0 as net_shortage"),
-                DB::raw("(SELECT COALESCE(SUM(remaining_balance), 0) FROM driver_behavior WHERE driver_id = d.id AND deleted_at IS NULL AND charge_status = 'pending') as total_pending_debt")
+                DB::raw("(SELECT COALESCE(SUM(remaining_balance), 0) FROM driver_behavior WHERE driver_id = d.id AND deleted_at IS NULL AND charge_status = 'pending') as total_pending_debt"),
+                // Driver Savings / Maintenance Fund Balance (Pondo)
+                DB::raw("(SELECT COALESCE(SUM(CASE WHEN type = 'deposit' THEN amount ELSE -amount END), 0) FROM driver_funds WHERE driver_id = d.id AND deleted_at IS NULL) as driver_fund_balance")
             )
             ->first();
 
@@ -694,7 +699,88 @@ class DriverManagementV2Controller extends Controller
         $driver->total_pending_debt     = (float) $driver->pending_debts->sum('remaining_balance');
         $driver->net_shortage           = (float) $driver->total_boundary_shortage;
 
+        // Driver Savings & Maintenance Fund Ledger
+        $fundLedger = DB::table('driver_funds as df')
+            ->where('df.driver_id', $id)
+            ->whereNull('df.deleted_at')
+            ->leftJoin('boundaries as b', 'df.boundary_id', '=', 'b.id')
+            ->leftJoin('units as u', 'b.unit_id', '=', 'u.id')
+            ->leftJoin('users as creator', 'df.created_by', '=', 'creator.id')
+            ->select(
+                'df.id', 'df.driver_id', 'df.boundary_id', 'df.type',
+                'df.amount', 'df.balance_after', 'df.description', 'df.date',
+                'df.created_at',
+                'u.plate_number',
+                'creator.full_name as creator_name'
+            )
+            ->orderByDesc('df.date')
+            ->orderByDesc('df.id')
+            ->get();
+
+        $totalFundDeposited = (float) $fundLedger->where('type', 'deposit')->sum('amount');
+        $totalFundWithdrawn = (float) $fundLedger->whereIn('type', ['withdrawal', 'maintenance_share'])->sum('amount');
+        $driverFundBalance  = max(0, $totalFundDeposited - $totalFundWithdrawn);
+
+        $driver->total_fund_deposited = $totalFundDeposited;
+        $driver->total_fund_withdrawn = $totalFundWithdrawn;
+        $driver->driver_fund_balance  = $driverFundBalance;
+        $driver->fund_ledger          = $fundLedger;
+
         return response()->json($driver);
+    }
+
+    public function withdrawFund(Request $request, $id)
+    {
+        $request->validate([
+            'amount'      => 'required|numeric|min:1',
+            'type'        => 'required|in:withdrawal,maintenance_share',
+            'description' => 'required|string|max:255',
+            'date'        => 'required|date',
+        ]);
+
+        $driver = Driver::findOrFail($id);
+        $amount = round((float) $request->input('amount'), 2);
+        $type = $request->input('type');
+        $description = trim($request->input('description'));
+        $date = $request->input('date');
+
+        $currentBalance = (float) DB::table('driver_funds')
+            ->where('driver_id', $id)
+            ->whereNull('deleted_at')
+            ->selectRaw("SUM(CASE WHEN type = 'deposit' THEN amount ELSE -amount END) as balance")
+            ->value('balance');
+
+        if ($amount > $currentBalance) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Requested amount (₱' . number_format($amount, 2) . ') exceeds current fund balance of ₱' . number_format($currentBalance, 2) . '.'
+            ], 422);
+        }
+
+        $newBalance = max(0, $currentBalance - $amount);
+
+        $record = \App\Models\DriverFund::create([
+            'driver_id'     => $id,
+            'type'          => $type,
+            'amount'        => $amount,
+            'balance_after' => $newBalance,
+            'description'   => $description,
+            'date'          => $date,
+            'created_by'    => \Illuminate\Support\Facades\Auth::id(),
+        ]);
+
+        $actionLabel = $type === 'maintenance_share' ? 'Maintenance Co-Payment' : 'Driver Savings Withdrawal';
+        ActivityLogController::log(
+            "Driver Fund {$actionLabel}",
+            "Driver: {$driver->full_name}\nAmount: ₱" . number_format($amount, 2) . "\nPurpose: {$description}\nRemaining Fund: ₱" . number_format($newBalance, 2)
+        );
+
+        return response()->json([
+            'success'     => true,
+            'message'     => "Successfully disbursed ₱" . number_format($amount, 2) . " from Driver Fund.",
+            'new_balance' => $newBalance,
+            'record'      => $record
+        ]);
     }
 
     public function store(Request $request)

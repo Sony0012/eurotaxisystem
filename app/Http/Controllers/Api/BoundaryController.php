@@ -29,6 +29,7 @@ class BoundaryController extends Controller
                 'u.year as unit_year',
                 'b.boundary_amount as expectedAmount',
                 'b.actual_boundary as paidAmount',
+                'b.damage_payment as damagePayment',
                 'b.status',
                 'b.shortage',
                 'b.notes',
@@ -54,7 +55,9 @@ class BoundaryController extends Controller
         // Summary stats
         $stats = [
             'totalExpected' => $formattedRecords->sum('expectedAmount'),
-            'totalCollected' => $formattedRecords->sum('paidAmount'),
+            'totalCollected' => $formattedRecords->sum(function($r) {
+                return (float) $r->paidAmount + (float) ($r->damagePayment ?? 0);
+            }),
             'paid' => $formattedRecords->where('status', 'Paid')->count(),
             'shortage' => $formattedRecords->where('status', 'Shortage')->count(),
             'unpaid' => 0, 

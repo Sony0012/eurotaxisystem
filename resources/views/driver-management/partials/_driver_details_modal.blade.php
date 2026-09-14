@@ -43,6 +43,9 @@
                 <button type="button" class="driver-tab py-4 px-4 text-[10px] font-black uppercase tracking-widest border-b-2 border-transparent text-slate-400 hover:text-slate-600 transition-all flex items-center gap-2" data-tab="performance">
                     <i data-lucide="trending-up" class="w-3.5 h-3.5"></i> Performance
                 </button>
+                <button type="button" class="driver-tab py-4 px-4 text-[10px] font-black uppercase tracking-widest border-b-2 border-transparent text-slate-400 hover:text-slate-600 transition-all flex items-center gap-2" data-tab="funds">
+                    <i data-lucide="piggy-bank" class="w-3.5 h-3.5 text-emerald-500"></i> Savings Fund (Pondo)
+                </button>
             </nav>
         </div>
 
@@ -141,6 +144,24 @@
                     <p class="text-slate-400 animate-pulse">Fetching operational data...</p>
                 </div>
             </div>
+
+            <div class="driver-tab-panel hidden" data-tab-panel="funds">
+                <div class="flex items-center justify-between gap-2 mb-6 flex-wrap">
+                    <div class="flex items-center gap-2">
+                        <div class="w-1 h-6 bg-emerald-500 rounded-full"></div>
+                        <div>
+                            <h4 class="text-sm font-black text-slate-800 uppercase tracking-wider">Driver Savings & Maintenance Fund (Pondo)</h4>
+                            <p class="text-[11px] text-slate-400 font-medium">Accumulated savings from daily boundary remittances (+₱100 standard). Can be withdrawn or used for vehicle maintenance after 6 months.</p>
+                        </div>
+                    </div>
+                    <button type="button" onclick="openWithdrawFundModal()" class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-black uppercase tracking-wider shadow-md shadow-emerald-500/20 transition-all flex items-center gap-1.5 cursor-pointer">
+                        <i data-lucide="hand-coins" class="w-4 h-4"></i> Disburse / Withdraw Fund
+                    </button>
+                </div>
+                <div id="fundsContent" class="text-sm text-slate-600 space-y-6">
+                    <p class="text-slate-400 animate-pulse">Calculating savings fund ledger...</p>
+                </div>
+            </div>
         </div>
 
         {{-- Footer --}}
@@ -150,6 +171,69 @@
                 Close Details
             </button>
         </div>
+    </div>
+</div>
+
+{{-- Withdraw / Disburse Driver Fund Modal --}}
+<div id="withdrawFundModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-[70] flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden border border-slate-200">
+        <div class="bg-slate-900 p-5 text-white flex justify-between items-center">
+            <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-xl bg-emerald-500/20 border border-emerald-400/30 flex items-center justify-center text-emerald-400">
+                    <i data-lucide="piggy-bank" class="w-4 h-4"></i>
+                </div>
+                <div>
+                    <h3 class="text-sm font-black uppercase tracking-wider">Disburse / Withdraw Fund</h3>
+                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Driver Savings & Maintenance Fund</p>
+                </div>
+            </div>
+            <button type="button" onclick="closeWithdrawFundModal()" class="text-slate-400 hover:text-white transition-colors">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+
+        <form id="withdrawFundForm" onsubmit="submitWithdrawFund(event)" class="p-6 space-y-4">
+            <input type="hidden" id="withdrawDriverId" value="">
+
+            <div class="p-3.5 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center justify-between">
+                <div>
+                    <span class="text-[10px] font-black uppercase tracking-wider text-emerald-800">Available Savings Fund</span>
+                    <p id="withdrawAvailableDisplay" class="text-lg font-black text-emerald-700">₱0.00</p>
+                </div>
+                <span class="text-[9px] font-black bg-emerald-200 text-emerald-900 px-2 py-0.5 rounded-full uppercase tracking-wider">Withdrawable</span>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Disbursement Type <span class="text-red-500">*</span></label>
+                <select id="withdrawType" required class="w-full px-3 py-2.5 border border-slate-300 rounded-xl text-xs font-bold text-slate-800 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500">
+                    <option value="withdrawal">Driver Personal Savings Withdrawal (Cashout)</option>
+                    <option value="maintenance_share">Vehicle Maintenance Co-Payment (After 6 Months Term)</option>
+                </select>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Amount (₱) <span class="text-red-500">*</span></label>
+                    <input type="number" id="withdrawAmount" required min="1" step="0.01" class="w-full px-3 py-2.5 border border-slate-300 rounded-xl text-sm font-black text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" placeholder="0.00">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Date <span class="text-red-500">*</span></label>
+                    <input type="date" id="withdrawDate" required value="{{ date('Y-m-d') }}" class="w-full px-3 py-2.5 border border-slate-300 rounded-xl text-xs font-bold text-slate-800 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Purpose / Notes <span class="text-red-500">*</span></label>
+                <textarea id="withdrawDescription" required rows="2" maxlength="250" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs text-slate-800 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 font-medium" placeholder="Reason for withdrawal or maintenance repair details..."></textarea>
+            </div>
+
+            <div class="pt-2 flex justify-end gap-2">
+                <button type="button" onclick="closeWithdrawFundModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-all cursor-pointer">Cancel</button>
+                <button type="submit" id="btnSubmitWithdrawFund" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-black uppercase tracking-wider shadow-md shadow-emerald-500/20 transition-all flex items-center gap-1.5 cursor-pointer">
+                    <i data-lucide="check-circle" class="w-4 h-4"></i> Confirm Disbursement
+                </button>
+            </div>
+        </form>
     </div>
 </div>
 
@@ -295,6 +379,31 @@
                         <div class="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
                             <span class="text-slate-500 font-bold">Unpaid Shortage Dues:</span>
                             <span class="font-black ${unpaidShortage > 0 ? 'text-rose-600' : 'text-slate-700'}">₱${unpaidShortage.toLocaleString('en-PH', {minimumFractionDigits: 2})}</span>
+                        </div>
+                    </div>
+
+                    <!-- Driver Savings & Maintenance Fund (Pondo) Overview Card -->
+                    <div class="bg-gradient-to-br from-emerald-50/90 to-teal-50/50 p-5 rounded-2xl border border-emerald-200/90 shadow-xs">
+                        <div class="flex items-center justify-between pb-3 border-b border-emerald-100">
+                            <div class="flex items-center gap-2">
+                                <div class="p-1 bg-emerald-500 text-white rounded-md shadow-2xs">
+                                    <i data-lucide="piggy-bank" class="w-3.5 h-3.5"></i>
+                                </div>
+                                <span class="text-[10px] font-black text-emerald-800 uppercase tracking-widest">Savings & Maintenance Fund (Pondo)</span>
+                            </div>
+                            <button type="button" onclick="switchDriverTab('funds')" class="text-[10px] font-bold text-emerald-700 hover:text-emerald-900 uppercase tracking-wider flex items-center gap-1 cursor-pointer">
+                                Open Ledger <i data-lucide="arrow-right" class="w-3 h-3"></i>
+                            </button>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3 mt-3">
+                            <div class="p-3.5 rounded-xl border bg-white/90 border-emerald-200 shadow-2xs">
+                                <span class="text-[9px] font-black uppercase tracking-wider text-slate-400 block mb-1">Available Fund</span>
+                                <p class="text-base font-black text-emerald-700">₱${parseFloat(data.driver_fund_balance || 0).toLocaleString('en-PH', {minimumFractionDigits: 2})}</p>
+                            </div>
+                            <div class="p-3.5 rounded-xl border bg-white/90 border-emerald-200 shadow-2xs">
+                                <span class="text-[9px] font-black uppercase tracking-wider text-slate-400 block mb-1">Lifetime Deposited</span>
+                                <p class="text-base font-black text-slate-800">₱${parseFloat(data.total_fund_deposited || 0).toLocaleString('en-PH', {minimumFractionDigits: 2})}</p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1285,7 +1394,217 @@
                     </div>
                 </div>`;
 
+            // --- Savings & Maintenance Fund Tab Content ---
+            const fundLedger = data.fund_ledger || [];
+            const fundBal = parseFloat(data.driver_fund_balance || 0);
+            const totalFundDep = parseFloat(data.total_fund_deposited || 0);
+            const totalFundWdn = parseFloat(data.total_fund_withdrawn || 0);
+
+            window.currentDriverFundData = {
+                id: data.id,
+                name: data.full_name,
+                balance: fundBal
+            };
+
+            let fundRowsHtml = '';
+            if (fundLedger.length > 0) {
+                fundLedger.forEach(item => {
+                    const amt = parseFloat(item.amount || 0);
+                    const balAfter = parseFloat(item.balance_after || 0);
+                    const dateStr = item.date ? new Date(item.date).toLocaleDateString('en-PH', {month: 'short', day: 'numeric', year: 'numeric'}) : '—';
+                    
+                    let typeBadge = '';
+                    let amtDisplay = '';
+                    if (item.type === 'deposit') {
+                        typeBadge = '<span class="px-2.5 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg text-[10px] font-black uppercase tracking-wider inline-flex items-center gap-1"><i data-lucide="arrow-down-left" class="w-3 h-3 text-emerald-600"></i> Boundary Pondo</span>';
+                        amtDisplay = `<span class="font-black text-emerald-600">+₱${amt.toLocaleString('en-PH', {minimumFractionDigits: 2})}</span>`;
+                    } else if (item.type === 'maintenance_share') {
+                        typeBadge = '<span class="px-2.5 py-1 bg-amber-50 text-amber-700 border border-amber-200 rounded-lg text-[10px] font-black uppercase tracking-wider inline-flex items-center gap-1"><i data-lucide="wrench" class="w-3 h-3 text-amber-600"></i> Maintenance Share</span>';
+                        amtDisplay = `<span class="font-black text-amber-600">-₱${amt.toLocaleString('en-PH', {minimumFractionDigits: 2})}</span>`;
+                    } else {
+                        typeBadge = '<span class="px-2.5 py-1 bg-rose-50 text-rose-700 border border-rose-200 rounded-lg text-[10px] font-black uppercase tracking-wider inline-flex items-center gap-1"><i data-lucide="arrow-up-right" class="w-3 h-3 text-rose-600"></i> Driver Cashout</span>';
+                        amtDisplay = `<span class="font-black text-rose-600">-₱${amt.toLocaleString('en-PH', {minimumFractionDigits: 2})}</span>`;
+                    }
+
+                    fundRowsHtml += `
+                        <tr class="border-b border-slate-100 hover:bg-emerald-50/20 transition-colors">
+                            <td class="p-4 font-bold text-slate-700 whitespace-nowrap">${dateStr}</td>
+                            <td class="p-4 whitespace-nowrap">${typeBadge}</td>
+                            <td class="p-4 font-mono font-bold text-slate-800">${item.plate_number || '—'}</td>
+                            <td class="p-4 text-xs font-semibold text-slate-600 max-w-[240px] truncate" title="${item.description || ''}">${item.description || '—'}</td>
+                            <td class="p-4 whitespace-nowrap">${amtDisplay}</td>
+                            <td class="p-4 font-black text-slate-800 whitespace-nowrap">₱${balAfter.toLocaleString('en-PH', {minimumFractionDigits: 2})}</td>
+                            <td class="p-4 text-[11px] font-bold text-slate-400 whitespace-nowrap">${item.creator_name || 'System'}</td>
+                        </tr>
+                    `;
+                });
+            } else {
+                fundRowsHtml = `<tr><td colspan="7" class="p-8 text-center text-slate-400 font-bold uppercase tracking-widest text-[10px]">No savings or maintenance fund transactions recorded yet</td></tr>`;
+            }
+
+            const fundsEl = document.getElementById('fundsContent');
+            if (fundsEl) {
+                fundsEl.innerHTML = `
+                    <!-- Fund Summary KPI Cards -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+                        <!-- Card 1: Available Balance -->
+                        <div class="relative overflow-hidden rounded-3xl border border-emerald-200/80 bg-gradient-to-br from-emerald-50/90 via-teal-50/50 to-white p-5 shadow-xs">
+                            <div class="flex items-center justify-between gap-3 relative z-10">
+                                <div class="min-w-0 flex-1">
+                                    <span class="text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-emerald-700 block mb-1">Available Fund Balance</span>
+                                    <div class="text-xl sm:text-2xl font-black text-emerald-800 leading-tight tracking-tight tabular-nums truncate">
+                                        ₱${fundBal.toLocaleString('en-PH', {minimumFractionDigits: 2})}
+                                    </div>
+                                    <div class="mt-2 flex items-center gap-1.5 text-[11px] font-bold text-emerald-600">
+                                        <span class="inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                                        <span>Ready for Withdrawal / Maintenance</span>
+                                    </div>
+                                </div>
+                                <div class="w-12 h-12 sm:w-14 sm:h-14 shrink-0">
+                                    <img src="{{ asset("image/kpi/reward_cash_3d.svg") }}" alt="Fund" class="w-full h-full object-contain filter drop-shadow-md">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card 2: Total Contributed -->
+                        <div class="relative overflow-hidden rounded-3xl border border-slate-200/80 bg-gradient-to-br from-white via-slate-50/80 to-slate-100/40 p-5 shadow-xs">
+                            <div class="flex items-center justify-between gap-3 relative z-10">
+                                <div class="min-w-0 flex-1">
+                                    <span class="text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-slate-400 block mb-1">Lifetime Pondo Remitted</span>
+                                    <div class="text-xl sm:text-2xl font-black text-slate-900 leading-tight tracking-tight tabular-nums truncate">
+                                        ₱${totalFundDep.toLocaleString('en-PH', {minimumFractionDigits: 2})}
+                                    </div>
+                                    <div class="mt-2 flex items-center gap-1.5 text-[11px] font-bold text-slate-500">
+                                        <span class="inline-flex h-1.5 w-1.5 rounded-full bg-slate-400"></span>
+                                        <span>Total Contributed From Shifts</span>
+                                    </div>
+                                </div>
+                                <div class="w-12 h-12 sm:w-14 sm:h-14 shrink-0">
+                                    <img src="{{ asset("image/kpi/owner_active_3d.svg") }}" alt="Deposits" class="w-full h-full object-contain filter drop-shadow-md">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card 3: Total Disbursed -->
+                        <div class="relative overflow-hidden rounded-3xl border border-slate-200/80 bg-gradient-to-br from-white via-rose-50/40 to-slate-50/20 p-5 shadow-xs">
+                            <div class="flex items-center justify-between gap-3 relative z-10">
+                                <div class="min-w-0 flex-1">
+                                    <span class="text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-slate-400 block mb-1">Total Disbursed / Used</span>
+                                    <div class="text-xl sm:text-2xl font-black text-rose-700 leading-tight tracking-tight tabular-nums truncate">
+                                        ₱${totalFundWdn.toLocaleString('en-PH', {minimumFractionDigits: 2})}
+                                    </div>
+                                    <div class="mt-2 flex items-center gap-1.5 text-[11px] font-bold text-rose-600">
+                                        <span class="inline-flex h-1.5 w-1.5 rounded-full bg-rose-400"></span>
+                                        <span>Cashouts & Maintenance Co-Pay</span>
+                                    </div>
+                                </div>
+                                <div class="w-12 h-12 sm:w-14 sm:h-14 shrink-0">
+                                    <img src="{{ asset("image/kpi/service_cycle_3d.svg") }}" alt="Disbursements" class="w-full h-full object-contain filter drop-shadow-md">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Fund Ledger Table -->
+                    <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+                        <div class="p-4 bg-slate-50 border-b border-slate-100 flex items-center justify-between flex-wrap gap-2">
+                            <div class="flex items-center gap-2">
+                                <i data-lucide="receipt" class="w-4 h-4 text-emerald-600"></i>
+                                <span class="text-xs font-black text-slate-800 uppercase tracking-widest">Savings & Maintenance Fund Ledger</span>
+                            </div>
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">${fundLedger.length} Transaction(s)</span>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs">
+                                <thead class="bg-slate-50 text-slate-400 font-black uppercase tracking-widest border-b border-slate-100">
+                                    <tr>
+                                        <th class="p-4">Date</th>
+                                        <th class="p-4">Type</th>
+                                        <th class="p-4">Unit Plate</th>
+                                        <th class="p-4">Description / Remarks</th>
+                                        <th class="p-4">Amount</th>
+                                        <th class="p-4">Running Balance</th>
+                                        <th class="p-4">Processed By</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100">${fundRowsHtml}</tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+            }
+
             lucide.createIcons();
+        });
+    }
+
+    function openWithdrawFundModal() {
+        if (!window.currentDriverFundData) return;
+        document.getElementById('withdrawDriverId').value = window.currentDriverFundData.id;
+        document.getElementById('withdrawAvailableDisplay').textContent = '₱' + window.currentDriverFundData.balance.toLocaleString('en-PH', {minimumFractionDigits: 2});
+        document.getElementById('withdrawAmount').value = '';
+        document.getElementById('withdrawAmount').max = window.currentDriverFundData.balance;
+        document.getElementById('withdrawDescription').value = '';
+        document.getElementById('withdrawDate').value = new Date().toLocaleDateString('en-CA');
+        document.getElementById('withdrawFundModal').classList.remove('hidden');
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+    }
+
+    function closeWithdrawFundModal() {
+        document.getElementById('withdrawFundModal').classList.add('hidden');
+    }
+
+    function submitWithdrawFund(e) {
+        e.preventDefault();
+        const driverId = document.getElementById('withdrawDriverId').value;
+        const amount = parseFloat(document.getElementById('withdrawAmount').value || 0);
+        const type = document.getElementById('withdrawType').value;
+        const date = document.getElementById('withdrawDate').value;
+        const description = document.getElementById('withdrawDescription').value;
+
+        if (amount <= 0) {
+            alert('Please enter a valid disbursement amount.');
+            return;
+        }
+        if (window.currentDriverFundData && amount > window.currentDriverFundData.balance) {
+            alert('Withdrawal amount exceeds available fund balance of ₱' + window.currentDriverFundData.balance.toLocaleString('en-PH', {minimumFractionDigits: 2}));
+            return;
+        }
+
+        const btn = document.getElementById('btnSubmitWithdrawFund');
+        const origHtml = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = 'Processing...';
+
+        fetch(`/driver-management/${driverId}/withdraw-fund`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({ amount, type, date, description })
+        })
+        .then(r => r.json())
+        .then(res => {
+            btn.disabled = false;
+            btn.innerHTML = origHtml;
+            if (res.success) {
+                closeWithdrawFundModal();
+                if (typeof showNotification === 'function') {
+                    showNotification(res.message, 'success');
+                } else {
+                    alert(res.message);
+                }
+                openDriverDetails(driverId);
+            } else {
+                alert(res.message || 'Error processing disbursement.');
+            }
+        })
+        .catch(err => {
+            btn.disabled = false;
+            btn.innerHTML = origHtml;
+            alert('Network error occurred while processing disbursement.');
         });
     }
 

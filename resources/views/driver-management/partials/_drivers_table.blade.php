@@ -12,6 +12,8 @@
                 </th>
                 <th class="px-3 md:px-6 py-4 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest financial-target-col hidden lg:table-cell">Financial
                     Target</th>
+                <th class="px-3 md:px-6 py-4 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest hidden md:table-cell">
+                    Savings Fund (Pondo)</th>
                 <th class="px-3 md:px-6 py-4 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest rating-col hidden lg:table-cell">Rating
                 </th>
                 <th
@@ -74,6 +76,17 @@
                                             <span class="text-[10px] font-black tracking-tight whitespace-nowrap">
                                                 ₱{{ number_format($driver->total_pending_debt, 0) }} <span
                                                     class="text-[8px] opacity-70">DEBT</span>
+                                            </span>
+                                        </div>
+                                    @endif
+
+                                    @if(isset($driver->driver_fund_balance) && (float)$driver->driver_fund_balance > 0)
+                                        <div class="flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg shadow-2xs"
+                                            title="Accumulated Driver Savings & Maintenance Fund: ₱{{ number_format($driver->driver_fund_balance, 2) }}">
+                                            <i data-lucide="piggy-bank" class="w-3 h-3 text-emerald-600"></i>
+                                            <span class="text-[10px] font-black tracking-tight whitespace-nowrap">
+                                                ₱{{ number_format($driver->driver_fund_balance, 0) }} <span
+                                                    class="text-[8px] opacity-75">PONDO</span>
                                             </span>
                                         </div>
                                     @endif
@@ -174,6 +187,23 @@
                                     {{ $driver->target_label }}
                                 </span>
                             @endif
+                        </div>
+                    </td>
+
+                    {{-- Driver Savings Fund (Pondo) --}}
+                    <td class="px-3 md:px-6 py-4 md:py-5 whitespace-nowrap hidden md:table-cell">
+                        <div class="flex flex-col gap-1">
+                            <div class="flex items-center gap-1.5">
+                                <div class="w-6 h-6 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0 shadow-2xs">
+                                    <i data-lucide="piggy-bank" class="w-3.5 h-3.5"></i>
+                                </div>
+                                <span class="text-sm md:text-base font-black text-emerald-800 tracking-tight">
+                                    ₱{{ number_format($driver->driver_fund_balance ?? 0, 2) }}
+                                </span>
+                            </div>
+                            <span class="text-[9px] font-bold text-emerald-600 uppercase tracking-widest pl-7">
+                                Available Fund
+                            </span>
                         </div>
                     </td>
 

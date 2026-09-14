@@ -294,8 +294,8 @@
 
 
 
-                {{-- Three-Column Grid for Date, Target, Actual --}}
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                {{-- Four-Column Grid for Date, Target, Actual, Pondo --}}
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div>
                         <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-1.5">Date <span class="text-red-500">*</span></label>
                         <input type="date" name="date" id="date" required value="{{ date('Y-m-d') }}" 
@@ -321,10 +321,44 @@
                                 <span class="text-blue-600 font-black">₱</span>
                             </div>
                             <input type="number" name="actual_boundary" id="actualBoundary" required step="0.01" min="0" 
-                                   oninput="validateActualCollected()"
+                                   oninput="validateActualCollected(); if(typeof updateTotalRemittanceDisplay === 'function') updateTotalRemittanceDisplay();"
                                    class="w-full pl-8 px-3 py-2.5 border-2 border-blue-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-black text-blue-800 shadow-sm text-base"
                                    placeholder="0.00">
                         </div>
+                    </div>
+
+                    <div>
+                        <div class="flex items-center justify-between mb-1.5">
+                            <label class="block text-xs font-bold text-emerald-600 uppercase tracking-widest">Driver Fund (Pondo) <span class="text-emerald-500">*</span></label>
+                            <span class="text-[9px] font-black text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded-full border border-emerald-200">+₱100 Savings</span>
+                        </div>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                                <span class="text-emerald-600 font-black">₱</span>
+                            </div>
+                            <input type="number" name="driver_fund" id="driverFund" step="0.01" min="0" value="100.00"
+                                   oninput="if(typeof updateTotalRemittanceDisplay === 'function') updateTotalRemittanceDisplay();"
+                                   class="w-full pl-8 px-3 py-2.5 border-2 border-emerald-200 bg-emerald-50/40 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 font-black text-emerald-800 shadow-sm text-base"
+                                   placeholder="100.00"
+                                   title="Driver's personal savings fund for maintenance and savings (+₱100 standard).">
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Live Total Cash Remittance Summary --}}
+                <div class="p-3 bg-gradient-to-r from-blue-50/80 via-emerald-50/80 to-slate-50 border border-slate-200/90 rounded-xl flex items-center justify-between shadow-xs">
+                    <div class="flex items-center gap-2">
+                        <div class="w-6 h-6 rounded-lg bg-slate-800 text-amber-400 flex items-center justify-center text-xs shadow-xs">
+                            <i data-lucide="wallet" class="w-3.5 h-3.5"></i>
+                        </div>
+                        <div class="flex flex-col">
+                            <span class="text-xs font-black text-slate-800 tracking-tight">Total Cash Remitted by Driver</span>
+                            <span class="text-[10px] text-slate-500 font-medium">Actual Boundary + Driver Fund (Pondo)<span id="summaryLiabText" class="hidden text-red-600 font-bold"> + Debt Payment</span></span>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-xs text-slate-400 font-bold uppercase tracking-wider">Total Received</div>
+                        <div class="text-base font-black text-slate-900 tracking-tight" id="totalRemittanceDisplay">₱100.00</div>
                     </div>
                 </div>
 
@@ -347,7 +381,7 @@
                             <span class="text-red-600 font-black">₱</span>
                         </div>
                         <input type="number" name="damage_payment" id="damage_payment" step="0.01" min="0"
-                               oninput="updateDamagePaymentInfo()"
+                               oninput="updateDamagePaymentInfo(); if(typeof updateTotalRemittanceDisplay === 'function') updateTotalRemittanceDisplay();"
                                class="w-full pl-8 px-3 py-2.5 border-2 border-red-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 font-black text-red-800 shadow-sm text-base"
                                placeholder="0.00">
                     </div>
@@ -577,15 +611,23 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-2 gap-4 mb-5">
-                <div class="bg-yellow-50 rounded-xl p-4 border border-yellow-100">
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
+                <div class="bg-yellow-50 rounded-xl p-3.5 border border-yellow-100">
                     <p class="text-[10px] font-black text-yellow-600 uppercase tracking-widest mb-1">Target Boundary</p>
-                    <p id="vb_boundaryAmount" class="text-xl font-black text-yellow-800"></p>
+                    <p id="vb_boundaryAmount" class="text-lg font-black text-yellow-800"></p>
                     <p id="vb_rateLabel" class="text-[10px] text-yellow-600 font-bold mt-0.5"></p>
                 </div>
-                <div class="bg-green-50 rounded-xl p-4 border border-green-100">
+                <div class="bg-green-50 rounded-xl p-3.5 border border-green-100">
                     <p class="text-[10px] font-black text-green-600 uppercase tracking-widest mb-1">Actual Collected</p>
-                    <p id="vb_actualBoundary" class="text-xl font-black text-green-800"></p>
+                    <p id="vb_actualBoundary" class="text-lg font-black text-green-800"></p>
+                </div>
+                <div class="bg-emerald-50 rounded-xl p-3.5 border border-emerald-100">
+                    <p class="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-1">Driver Fund (Pondo)</p>
+                    <p id="vb_driverFund" class="text-lg font-black text-emerald-800">₱0.00</p>
+                </div>
+                <div class="bg-blue-50 rounded-xl p-3.5 border border-blue-100">
+                    <p class="text-[10px] font-black text-blue-600 uppercase tracking-widest mb-1">Total Remitted</p>
+                    <p id="vb_totalRemitted" class="text-lg font-black text-blue-900">₱0.00</p>
                 </div>
             </div>
 
@@ -702,6 +744,17 @@ function openViewBoundary(id) {
     document.getElementById('vb_boundaryAmount').innerText = '₱' + parseFloat(r.boundary_amount || 0).toLocaleString('en-PH', {minimumFractionDigits: 2});
     document.getElementById('vb_actualBoundary').innerText = '₱' + parseFloat(r.actual_boundary || 0).toLocaleString('en-PH', {minimumFractionDigits: 2});
     document.getElementById('vb_rateLabel').innerText = r.rate_label || '';
+
+    const pondoAmount = parseFloat(r.driver_fund || 0);
+    const actualAmount = parseFloat(r.actual_boundary || 0);
+    const damageAmount = parseFloat(r.damage_payment || 0);
+    const totalCollectedFromDriver = actualAmount + pondoAmount + damageAmount;
+    if (document.getElementById('vb_driverFund')) {
+        document.getElementById('vb_driverFund').innerText = '₱' + pondoAmount.toLocaleString('en-PH', {minimumFractionDigits: 2});
+    }
+    if (document.getElementById('vb_totalRemitted')) {
+        document.getElementById('vb_totalRemitted').innerText = '₱' + totalCollectedFromDriver.toLocaleString('en-PH', {minimumFractionDigits: 2});
+    }
 
 
     // Shortage / Excess
@@ -1506,6 +1559,13 @@ function addBoundary() {
     const tIn = document.getElementById('breakdownTimeIn');
     if (tOut) tOut.value = '';
     if (tIn) tIn.value = '';
+
+    const driverFundInput = document.getElementById('driverFund');
+    if (driverFundInput) {
+        driverFundInput.value = '100.00';
+    }
+    updateTotalRemittanceDisplay();
+
     document.getElementById('boundaryModal').classList.remove('hidden');
     lucide.createIcons();
 }
@@ -1527,6 +1587,11 @@ function editBoundary(id) {
         document.getElementById('actualBoundary').value = boundary.actual_boundary || '';
         const savedDamagePayment = parseFloat(boundary.damage_payment || 0);
         document.getElementById('damage_payment').value = savedDamagePayment > 0 ? savedDamagePayment.toFixed(2) : '';
+        const driverFundInput = document.getElementById('driverFund');
+        if (driverFundInput) {
+            driverFundInput.value = boundary.driver_fund !== undefined && boundary.driver_fund !== null ? parseFloat(boundary.driver_fund).toFixed(2) : '0.00';
+        }
+        updateTotalRemittanceDisplay();
         document.getElementById('notes').value = boundary.notes || '';
         
         // Handle Damage Payment Visibility for Edit
@@ -1618,6 +1683,30 @@ function editBoundary(id) {
 
 function closeModal() {
     document.getElementById('boundaryModal').classList.add('hidden');
+}
+
+function updateTotalRemittanceDisplay() {
+    const actInput = document.getElementById('actualBoundary');
+    const fundInput = document.getElementById('driverFund');
+    const dmgInput = document.getElementById('damage_payment');
+    
+    const actual = parseFloat(actInput?.value || 0) || 0;
+    const fund = parseFloat(fundInput?.value || 0) || 0;
+    const damage = parseFloat(dmgInput?.value || 0) || 0;
+    const total = actual + fund + damage;
+    
+    const displayEl = document.getElementById('totalRemittanceDisplay');
+    if (displayEl) {
+        displayEl.textContent = '₱' + total.toLocaleString('en-PH', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    }
+    const liabText = document.getElementById('summaryLiabText');
+    if (liabText) {
+        if (damage > 0) {
+            liabText.classList.remove('hidden');
+        } else {
+            liabText.classList.add('hidden');
+        }
+    }
 }
 
 window.boundaryRules = @json($boundary_rules ?? []);

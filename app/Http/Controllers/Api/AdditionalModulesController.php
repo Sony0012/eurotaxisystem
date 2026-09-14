@@ -385,11 +385,15 @@ class AdditionalModulesController extends Controller
 
         $thisMonthAmount = DB::table('expenses')
             ->whereNull('deleted_at')
+            ->where('status', 'approved')
+            ->where('category', '!=', 'Damage Recovery')
             ->whereRaw('DATE_FORMAT(date, "%Y-%m") = ?', [$thisMonth])
             ->sum('amount') ?? 0;
 
         $lastMonthAmount = DB::table('expenses')
             ->whereNull('deleted_at')
+            ->where('status', 'approved')
+            ->where('category', '!=', 'Damage Recovery')
             ->whereRaw('DATE_FORMAT(date, "%Y-%m") = ?', [$lastMonth])
             ->sum('amount') ?? 0;
 
@@ -401,6 +405,8 @@ class AdditionalModulesController extends Controller
         $stats = [
             'today' => DB::table('expenses')
                 ->whereNull('deleted_at')
+                ->where('status', 'approved')
+                ->where('category', '!=', 'Damage Recovery')
                 ->whereDate('date', date('Y-m-d'))
                 ->sum('amount') ?? 0,
             'this_month' => $thisMonthAmount,
@@ -410,6 +416,8 @@ class AdditionalModulesController extends Controller
             'by_category' => DB::table('expenses')
                 ->selectRaw('category, COUNT(*) as count, SUM(amount) as total')
                 ->whereNull('deleted_at')
+                ->where('status', 'approved')
+                ->where('category', '!=', 'Damage Recovery')
                 ->whereBetween('date', [$date_from, $date_to])
                 ->groupBy('category')
                 ->get(),
@@ -596,7 +604,7 @@ class AdditionalModulesController extends Controller
             ->whereNull('deleted_at')
             ->whereMonth('date', $month)
             ->whereYear('date', $year)
-            ->sum('actual_boundary') ?? 0;
+            ->sum(DB::raw('actual_boundary + COALESCE(damage_payment, 0)')) ?? 0;
  
         $total_salaries = $monthlyRecords->sum('total_salary');
         $employees_paid = $monthlyRecords->unique(function ($item) {
@@ -939,7 +947,7 @@ class AdditionalModulesController extends Controller
         $unit_filter = $request->input('unit', '');
 
         $where_clause = "WHERE u.deleted_at IS NULL";
-        $params = [$date_from, $date_to, $date_from, $date_to, $date_from, $date_to, $date_from, $date_to, $date_from, $date_to, $date_from, $date_to, $date_from, $date_to];
+        $params = [$date_from, $date_to, $date_from, $date_to, $date_from, $date_to];
         
         if (!empty($unit_filter)) {
             $where_clause .= " AND u.plate_number = ?";
@@ -947,25 +955,55 @@ class AdditionalModulesController extends Controller
         }
 
         $sql = "SELECT 
-                u.id, u.plate_number, COALESCE(u.make, 'Unknown') as make, COALESCE(u.model, 'Unknown') as model, COALESCE(u.year, 0) as year, COALESCE(u.purchase_cost, 0) as purchase_cost, COALESCE(u.boundary_rate, 0) as boundary_rate,
-                COALESCE(SUM(CASE WHEN b.date BETWEEN ? AND ? THEN b.actual_boundary ELSE 0 END), 0) as total_boundary,
-                COALESCE(SUM(CASE WHEN b.date BETWEEN ? AND ? THEN b.boundary_amount ELSE 0 END), 0) as total_target_boundary,
-                COALESCE(COUNT(DISTINCT CASE WHEN b.date BETWEEN ? AND ? THEN b.id END), 0) as boundary_days,
-                COALESCE(SUM(CASE WHEN m.date_started BETWEEN ? AND ? THEN m.cost ELSE 0 END), 0) as total_maintenance,
-                COALESCE(COUNT(DISTINCT CASE WHEN m.date_started BETWEEN ? AND ? THEN m.id END), 0) as maintenance_days,
-                COALESCE(SUM(CASE WHEN e.date BETWEEN ? AND ? THEN e.amount ELSE 0 END), 0) as total_expenses,
-                COALESCE(COUNT(DISTINCT CASE WHEN e.date BETWEEN ? AND ? THEN e.id END), 0) as expense_days
+                u.id,
+                u.plate_number,
+                COALESCE(u.make, 'Unknown') as make,
+                COALESCE(u.model, 'Unknown') as model,
+                COALESCE(u.year, 0) as year,
+                COALESCE(u.purchase_cost, 0) as purchase_cost,
+                COALESCE(u.boundary_rate, 0) as boundary_rate,
+                COALESCE(b.total_boundary, 0) as total_boundary,
+                COALESCE(b.total_target_boundary, 0) as total_target_boundary,
+                COALESCE(b.boundary_days, 0) as boundary_days,
+                COALESCE(m.total_maintenance, 0) as total_maintenance,
+                COALESCE(m.maintenance_days, 0) as maintenance_days,
+                COALESCE(e.total_expenses, 0) as total_expenses,
+                COALESCE(e.total_recovery, 0) as total_recovery,
+                COALESCE(e.expense_days, 0) as expense_days
             FROM units u
-            LEFT JOIN boundaries b ON u.id = b.unit_id AND b.deleted_at IS NULL
-            LEFT JOIN maintenance m ON u.id = m.unit_id AND m.deleted_at IS NULL
-            LEFT JOIN expenses e ON u.id = e.unit_id AND e.deleted_at IS NULL
+            LEFT JOIN (
+                SELECT unit_id,
+                       SUM(actual_boundary + COALESCE(damage_payment, 0)) as total_boundary,
+                       SUM(boundary_amount) as total_target_boundary,
+                       COUNT(DISTINCT id) as boundary_days
+                FROM boundaries
+                WHERE deleted_at IS NULL AND date BETWEEN ? AND ?
+                GROUP BY unit_id
+            ) b ON u.id = b.unit_id
+            LEFT JOIN (
+                SELECT unit_id,
+                       SUM(cost) as total_maintenance,
+                       COUNT(DISTINCT id) as maintenance_days
+                FROM maintenance
+                WHERE deleted_at IS NULL AND (status IS NULL OR LOWER(status) != 'cancelled') AND date_started BETWEEN ? AND ?
+                GROUP BY unit_id
+            ) m ON u.id = m.unit_id
+            LEFT JOIN (
+                SELECT unit_id,
+                       SUM(CASE WHEN category != 'Damage Recovery' THEN amount ELSE 0 END) as total_expenses,
+                       SUM(CASE WHEN category = 'Damage Recovery' THEN ABS(amount) ELSE 0 END) as total_recovery,
+                       COUNT(DISTINCT id) as expense_days
+                FROM expenses
+                WHERE deleted_at IS NULL AND status = 'approved' AND date BETWEEN ? AND ?
+                GROUP BY unit_id
+            ) e ON u.id = e.unit_id
             $where_clause
-            GROUP BY u.id, u.plate_number, u.make, u.model, u.year, u.purchase_cost, u.boundary_rate
             ORDER BY u.plate_number";
 
         $profitability = DB::select($sql, $params);
 
         foreach ($profitability as &$unit) {
+            $unit->total_boundary = $unit->total_boundary + $unit->total_recovery;
             $unit->net_income = $unit->total_boundary - $unit->total_maintenance - $unit->total_expenses;
             $unit->profit_margin = $unit->total_boundary > 0 ? (($unit->net_income / $unit->total_boundary) * 100) : 0;
             $unit->roi_percentage = $unit->purchase_cost > 0 ? (($unit->net_income / $unit->purchase_cost) * 100) : 0;
@@ -1010,6 +1048,9 @@ class AdditionalModulesController extends Controller
         $maintenances = DB::table('maintenance')
             ->where('unit_id', $unit_id)
             ->whereNull('deleted_at')
+            ->where(function($q) {
+                $q->whereNull('status')->orWhereRaw('LOWER(status) != "cancelled"');
+            })
             ->whereBetween('date_started', [$date_from, $date_to])
             ->orderBy('date_started', 'desc')
             ->get();
@@ -1017,6 +1058,7 @@ class AdditionalModulesController extends Controller
         $expenses = DB::table('expenses')
             ->where('unit_id', $unit_id)
             ->whereNull('deleted_at')
+            ->where('status', 'approved')
             ->whereBetween('date', [$date_from, $date_to])
             ->orderBy('date', 'desc')
             ->get();
@@ -1040,11 +1082,16 @@ class AdditionalModulesController extends Controller
                 $join->on('u.id', '=', 'b.unit_id')->whereBetween('b.date', [$date_from, $date_to])->whereNull('b.deleted_at');
             })
             ->leftJoin('maintenance as m', function($join) use ($date_from, $date_to) {
-                $join->on('u.id', '=', 'm.unit_id')->whereBetween('m.date_started', [$date_from, $date_to])->whereNull('m.deleted_at');
+                $join->on('u.id', '=', 'm.unit_id')
+                    ->whereBetween('m.date_started', [$date_from, $date_to])
+                    ->whereNull('m.deleted_at')
+                    ->where(function($q) {
+                        $q->whereNull('m.status')->orWhereRaw('LOWER(m.status) != "cancelled"');
+                    });
             })
             ->select(
                 'u.plate_number', 'u.make', 'u.model', 'u.purchase_cost',
-                DB::raw('COALESCE(SUM(b.actual_boundary), 0) as total_revenue'),
+                DB::raw('COALESCE(SUM(b.actual_boundary + COALESCE(b.damage_payment, 0)), 0) as total_revenue'),
                 DB::raw('COALESCE(SUM(m.cost), 0) as total_maintenance'),
                 DB::raw('COUNT(DISTINCT b.id) as active_days')
             )

@@ -54,11 +54,15 @@ class OfficeExpenseV4Controller extends Controller
 
         $thisMonthAmount = DB::table('expenses')
             ->whereNull('deleted_at')
+            ->where('status', 'approved')
+            ->where('category', '!=', 'Damage Recovery')
             ->whereRaw('DATE_FORMAT(date, "%Y-%m") = ?', [$thisMonth])
             ->sum('amount') ?? 0;
 
         $lastMonthAmount = DB::table('expenses')
             ->whereNull('deleted_at')
+            ->where('status', 'approved')
+            ->where('category', '!=', 'Damage Recovery')
             ->whereRaw('DATE_FORMAT(date, "%Y-%m") = ?', [$lastMonth])
             ->sum('amount') ?? 0;
 
@@ -68,6 +72,8 @@ class OfficeExpenseV4Controller extends Controller
         $stats = [
             'today' => DB::table('expenses')
                 ->whereNull('deleted_at')
+                ->where('status', 'approved')
+                ->where('category', '!=', 'Damage Recovery')
                 ->whereDate('date', date('Y-m-d'))
                 ->sum('amount') ?? 0,
             'this_month' => $thisMonthAmount,
@@ -77,6 +83,8 @@ class OfficeExpenseV4Controller extends Controller
             'by_category' => DB::table('expenses')
                 ->selectRaw('category, COUNT(*) as count, SUM(amount) as total')
                 ->whereNull('deleted_at')
+                ->where('status', 'approved')
+                ->where('category', '!=', 'Damage Recovery')
                 ->whereBetween('date', [$date_from, $date_to])
                 ->groupBy('category')
                 ->get(),
@@ -269,6 +277,29 @@ class OfficeExpenseV4Controller extends Controller
         ActivityLogController::log('Archived Office Expense', "Expense: {$desc} moved to archive.");
 
         return $this->preserveStateAndRedirect('office-expenses.index', ['success' => 'Expense archived successfully']);
+    }
+
+    public function approve($id)
+    {
+        $expense = Expense::where('id', $id)->firstOrFail();
+        $expense->update([
+            'status' => 'approved',
+            'approved_by' => auth()->id(),
+            'approved_at' => now(),
+        ]);
+        ActivityLogController::log('Approved Office Expense', "Record #{$id} approved.");
+        return back()->with('success', 'Expense approved successfully.');
+    }
+
+    public function reject($id)
+    {
+        $expense = Expense::where('id', $id)->firstOrFail();
+        $expense->update([
+            'status' => 'rejected',
+            'updated_by' => auth()->id(),
+        ]);
+        ActivityLogController::log('Rejected Office Expense', "Record #{$id} rejected.");
+        return back()->with('success', 'Expense rejected.');
     }
 }
 

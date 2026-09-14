@@ -298,6 +298,7 @@ class BoundaryController extends Controller
             $date            = $request->input('date', date('Y-m-d'));
             $boundary_amount = (float) $request->input('boundary_amount', 0);
             $actual_boundary = (float) $request->input('actual_boundary', 0);
+            $driver_fund     = (float) $request->input('driver_fund', 100);
             $notes           = $request->input('notes', '');
             $vehicle_damaged = $request->has('vehicle_damaged');
             $needs_maintenance_half = $request->has('needs_maintenance_half');
@@ -596,6 +597,7 @@ class BoundaryController extends Controller
                         'date'            => $date,
                         'boundary_amount' => $boundary_amount,
                         'actual_boundary' => $actual_boundary,
+                        'driver_fund'     => $driver_fund,
                         'damage_payment'  => $damage_payment,
                         'shortage'        => $shortage,
                         'excess'          => $excess,
@@ -607,6 +609,27 @@ class BoundaryController extends Controller
                         'has_incentive'   => $has_incentive,
                         'created_by'      => Auth::id(),
                     ]);
+
+                    // --- DRIVER SAVINGS / MAINTENANCE FUND (PONDO) RECORDING ---
+                    if ($driver_fund > 0) {
+                        $plateNo = DB::table('units')->where('id', $unit_id)->value('plate_number');
+                        $currentBal = (float) DB::table('driver_funds')
+                            ->where('driver_id', $driver_id)
+                            ->whereNull('deleted_at')
+                            ->selectRaw("SUM(CASE WHEN type = 'deposit' THEN amount ELSE -amount END) as bal")
+                            ->value('bal');
+
+                        \App\Models\DriverFund::create([
+                            'driver_id'     => $driver_id,
+                            'boundary_id'   => $boundary->id,
+                            'type'          => 'deposit',
+                            'amount'        => $driver_fund,
+                            'balance_after' => $currentBal + $driver_fund,
+                            'description'   => "Daily boundary savings (Unit " . ($plateNo ?: 'N/A') . ")",
+                            'date'          => $date,
+                            'created_by'    => Auth::id(),
+                        ]);
+                    }
 
                     // --- AUTOMATIC DEBT DEDUCTION LOGIC ---
                     if ($damage_payment > 0) {
@@ -689,6 +712,7 @@ class BoundaryController extends Controller
             $id              = (int) $request->input('id', 0);
             $boundary_amount = (float) $request->input('boundary_amount', 0);
             $actual_boundary = (float) $request->input('actual_boundary', 0);
+            $driver_fund     = (float) $request->input('driver_fund', 0);
             $notes           = $request->input('notes', '');
             
             $is_absent = $request->has('is_absent');
@@ -857,6 +881,7 @@ class BoundaryController extends Controller
                 $boundary->update([
                     'boundary_amount' => $boundary_amount,
                     'actual_boundary' => $actual_boundary,
+                    'driver_fund'     => $driver_fund,
                     'damage_payment'  => $damage_payment,
                     'shortage'        => $shortage,
                     'excess'          => $excess,
@@ -866,6 +891,37 @@ class BoundaryController extends Controller
                     'vehicle_damaged' => $vehicle_damaged ? 1 : 0,
                     'is_absent'       => $is_absent ? 1 : 0,
                 ]);
+
+                // --- Sync Driver Savings Fund (Pondo) in Ledger ---
+                $fundEntry = \App\Models\DriverFund::where('boundary_id', $boundary->id)->first();
+                if ($fundEntry) {
+                    if ($driver_fund > 0) {
+                        $fundEntry->update([
+                            'amount' => $driver_fund,
+                            'date'   => $boundary->date,
+                        ]);
+                    } else {
+                        $fundEntry->delete();
+                    }
+                } elseif ($driver_fund > 0) {
+                    $plateNo = DB::table('units')->where('id', $boundary->unit_id)->value('plate_number');
+                    $currentBal = (float) DB::table('driver_funds')
+                        ->where('driver_id', $boundary->driver_id)
+                        ->whereNull('deleted_at')
+                        ->selectRaw("SUM(CASE WHEN type = 'deposit' THEN amount ELSE -amount END) as bal")
+                        ->value('bal');
+
+                    \App\Models\DriverFund::create([
+                        'driver_id'     => $boundary->driver_id,
+                        'boundary_id'   => $boundary->id,
+                        'type'          => 'deposit',
+                        'amount'        => $driver_fund,
+                        'balance_after' => $currentBal + $driver_fund,
+                        'description'   => "Daily boundary savings (Unit " . ($plateNo ?: 'N/A') . ")",
+                        'date'          => $boundary->date,
+                        'created_by'    => Auth::id(),
+                    ]);
+                }
 
                 // --- Auto-log Shortage to Driver Performance for UPDATES ---
                 $existingDebt = \App\Models\DriverBehavior::where('unit_id', $boundary->unit_id)
@@ -928,6 +984,34 @@ class BoundaryController extends Controller
         $boundary = Boundary::where('id', $id)->firstOrFail();
         $plate = DB::table('units')->where('id', $boundary->unit_id)->value('plate_number');
         $date = $boundary->date;
+
+        // Restore any damage payment credited towards driver debts
+        if (!empty($boundary->damage_payment) && $boundary->damage_payment > 0) {
+            $to_restore = (float) $boundary->damage_payment;
+            $paid_debts = \App\Models\DriverBehavior::where('driver_id', $boundary->driver_id)
+                ->where('total_paid', '>', 0)
+                ->orderBy('timestamp', 'desc')
+                ->get();
+            foreach ($paid_debts as $debt) {
+                if ($to_restore <= 0) break;
+                $can_revert = min($to_restore, $debt->total_paid);
+                $debt->total_paid -= $can_revert;
+                $debt->remaining_balance += $can_revert;
+                $debt->charge_status = 'pending';
+                $debt->save();
+                $to_restore -= $can_revert;
+            }
+        }
+
+        // Clean up any auto-logged Short Boundary or Absent incident for this boundary to prevent orphaned debt
+        \App\Models\DriverBehavior::where('unit_id', $boundary->unit_id)
+            ->where('incident_date', $boundary->date)
+            ->whereIn('incident_type', ['Short Boundary', 'Absent / No Show'])
+            ->delete();
+
+        // Clean up linked DriverFund transaction
+        \App\Models\DriverFund::where('boundary_id', $boundary->id)->delete();
+
         $boundary->delete();
 
         ActivityLogController::log('Archived Boundary Record', "Unit: {$plate}\nDate: {$date}");

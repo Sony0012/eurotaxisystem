@@ -30,6 +30,7 @@ class Boundary extends Model
         'date',
         'boundary_amount',
         'actual_boundary',
+        'driver_fund',
         'shortage',
         'excess',
         'status',
@@ -44,6 +45,8 @@ class Boundary extends Model
 
     protected $casts = [
         'boundary_amount' => 'float',
+        'actual_boundary' => 'float',
+        'driver_fund'     => 'float',
         'date' => 'date',
     ];
 
@@ -55,5 +58,10 @@ class Boundary extends Model
     public function driver()
     {
         return $this->belongsTo(Driver::class, 'driver_id');
+    }
+
+    public function fundTransaction()
+    {
+        return $this->hasOne(DriverFund::class, 'boundary_id');
     }
 }
