@@ -170,31 +170,36 @@
                     </select>
                 </div>
 
-                <!-- Date Range (From & To with Custom Compact Calendar matching Image 2) -->
+                <!-- Single Date Filter with Custom Compact Calendar -->
                 <div class="lg:col-span-3 relative" id="datePickerContainer">
-                    <div class="flex items-end gap-1.5">
+                    <label class="block text-[10px] font-black uppercase tracking-wider text-slate-500 mb-1">Date</label>
+                    <div class="flex items-center gap-1.5">
                         <div class="flex-1 min-w-0">
-                            <label class="block text-[10px] font-black uppercase tracking-wider text-slate-500 mb-1 truncate">Date From</label>
-                            <button type="button" onclick="openCalendarPicker('from', event)" id="btnDateFrom" class="w-full px-2 py-2 bg-white border border-slate-200 hover:border-amber-400 focus:border-amber-500 rounded-xl text-xs font-bold text-slate-700 flex items-center justify-between transition-all shadow-2xs text-left group">
-                                <span id="display_date_from" class="truncate {{ request('date_from') ? 'text-slate-900' : 'text-slate-400 font-normal' }}">
-                                    {{ request('date_from') ? \Carbon\Carbon::parse(request('date_from'))->format('M d, Y') : 'Start Date' }}
-                                </span>
-                                <i data-lucide="calendar" class="w-3.5 h-3.5 text-amber-500 shrink-0 ml-1 group-hover:scale-110 transition-transform"></i>
+                            <button type="button" onclick="openCalendarPicker(event)" id="btnSingleDate" class="w-full px-3 py-2 bg-white border border-slate-200 hover:border-amber-400 focus:border-amber-500 rounded-xl text-xs font-bold text-slate-700 flex items-center justify-between transition-all shadow-2xs text-left group">
+                                <div class="flex items-center gap-2 truncate">
+                                    <i data-lucide="calendar" class="w-4 h-4 text-amber-500 shrink-0 group-hover:scale-110 transition-transform"></i>
+                                    <span id="display_selected_date" class="truncate {{ (request('date') || request('date_from')) ? 'text-slate-900 font-bold' : 'text-slate-400 font-normal' }}">
+                                        @if(request('date'))
+                                            {{ \Carbon\Carbon::parse(request('date'))->format('M d, Y') }}
+                                        @elseif(request('date_from'))
+                                            {{ \Carbon\Carbon::parse(request('date_from'))->format('M d, Y') }}
+                                        @else
+                                            Select Date
+                                        @endif
+                                    </span>
+                                </div>
+                                <div class="flex items-center gap-1 shrink-0">
+                                    @if(request('date') || request('date_from'))
+                                        <span onclick="clearSelectedDate(event)" class="text-slate-400 hover:text-rose-500 p-0.5 rounded-full hover:bg-slate-100 transition-colors" title="Clear Date">
+                                            <i data-lucide="x" class="w-3.5 h-3.5"></i>
+                                        </span>
+                                    @else
+                                        <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400"></i>
+                                    @endif
+                                </div>
                             </button>
+                            <input type="hidden" name="date" id="filter_date" value="{{ request('date') ?: request('date_from') }}">
                         </div>
-                        <div class="flex-1 min-w-0">
-                            <label class="block text-[10px] font-black uppercase tracking-wider text-slate-500 mb-1 truncate">Date To</label>
-                            <button type="button" onclick="openCalendarPicker('to', event)" id="btnDateTo" class="w-full px-2 py-2 bg-white border border-slate-200 hover:border-amber-400 focus:border-amber-500 rounded-xl text-xs font-bold text-slate-700 flex items-center justify-between transition-all shadow-2xs text-left group">
-                                <span id="display_date_to" class="truncate {{ request('date_to') ? 'text-slate-900' : 'text-slate-400 font-normal' }}">
-                                    {{ request('date_to') ? \Carbon\Carbon::parse(request('date_to'))->format('M d, Y') : 'End Date' }}
-                                </span>
-                                <i data-lucide="calendar" class="w-3.5 h-3.5 text-amber-500 shrink-0 ml-1 group-hover:scale-110 transition-transform"></i>
-                            </button>
-                        </div>
-
-                        <!-- Real hidden inputs for the GET request form -->
-                        <input type="hidden" name="date_from" id="filter_date_from" value="{{ request('date_from') }}">
-                        <input type="hidden" name="date_to" id="filter_date_to" value="{{ request('date_to') }}">
 
                         <!-- Filter Submit Button -->
                         <button type="submit" class="px-3.5 py-2 bg-slate-900 text-white rounded-xl text-xs font-bold hover:bg-slate-800 transition-all flex items-center justify-center shrink-0 shadow-2xs" title="Apply Filter">
@@ -202,7 +207,7 @@
                         </button>
 
                         <!-- Reset Filter Button -->
-                        @if(request()->anyFilled(['search', 'driver_id', 'type', 'date_from', 'date_to']))
+                        @if(request()->anyFilled(['search', 'driver_id', 'type', 'date', 'date_from', 'date_to']))
                             <a href="{{ route('driver-management.funds-ledger') }}" class="px-3 py-2 bg-slate-200 text-slate-700 rounded-xl text-xs font-bold hover:bg-slate-300 transition-all flex items-center justify-center shrink-0 shadow-2xs" title="Reset Filters">
                                 <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
                             </a>
@@ -238,15 +243,14 @@
                             <!-- Populated dynamically -->
                         </div>
 
-                        <!-- Quick Presets & Apply Footer -->
+                        <!-- Quick Action Footer -->
                         <div class="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-[11px]">
-                            <div class="flex items-center gap-1">
-                                <button type="button" onclick="setCalPreset('today', event)" class="px-2 py-1 text-slate-600 hover:text-amber-600 font-bold rounded-md hover:bg-amber-50 transition-colors cursor-pointer">Today</button>
-                                <button type="button" onclick="setCalPreset('this_month', event)" class="px-2 py-1 text-slate-600 hover:text-amber-600 font-bold rounded-md hover:bg-amber-50 transition-colors cursor-pointer">Month</button>
-                                <button type="button" onclick="resetCalSelection(event)" class="px-2 py-1 text-rose-500 hover:text-rose-700 font-bold rounded-md hover:bg-rose-50 transition-colors cursor-pointer">Clear</button>
+                            <div class="flex items-center gap-1.5">
+                                <button type="button" onclick="setCalToday(event)" class="px-2.5 py-1 text-slate-600 hover:text-amber-600 font-bold rounded-md hover:bg-amber-50 transition-colors cursor-pointer">Today</button>
+                                <button type="button" onclick="clearSelectedDate(event)" class="px-2.5 py-1 text-rose-500 hover:text-rose-700 font-bold rounded-md hover:bg-rose-50 transition-colors cursor-pointer">Clear</button>
                             </div>
-                            <button type="button" onclick="applyCalSelection(event)" class="px-3 py-1 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-lg shadow-2xs transition-colors flex items-center gap-1 cursor-pointer">
-                                Apply
+                            <button type="button" onclick="closeCalendarPicker(event)" class="px-3 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-lg transition-colors cursor-pointer">
+                                Close
                             </button>
                         </div>
                     </div>
@@ -707,37 +711,35 @@
         });
     }
 
-    // --- Custom Compact Calendar Range Picker (Styled exactly as Image 2) ---
+    // --- Custom Compact Single Date Calendar Picker (Matching User's Image) ---
     const calMonths = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
     const calMonthsShort = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
-    let calSelectedFrom = "{{ request('date_from') }}" || null;
-    let calSelectedTo = "{{ request('date_to') }}" || null;
-    let calHoveredDate = null;
+    let calSelectedDate = "{{ request('date') ?: request('date_from') }}" || null;
 
-    // Initialize calendar view to selected start date or today
-    let initCalDate = calSelectedFrom ? new Date(calSelectedFrom + 'T00:00:00') : new Date();
+    // Initialize calendar view to selected date or today
+    let initCalDate = calSelectedDate ? new Date(calSelectedDate + 'T00:00:00') : new Date();
     let calViewYear = initCalDate.getFullYear();
     let calViewMonth = initCalDate.getMonth(); // 0 - 11
 
     function formatCalDisplay(yyyy_mm_dd) {
         if (!yyyy_mm_dd) return '';
-        const parts = yyyy_mm_dd.split('-');
-        if (parts.length !== 3) return yyyy_mm_dd;
+        const parts = yyy_mm_dd.split('-');
+        if (parts.length !== 3) return yyy_mm_dd;
         const m = parseInt(parts[1], 10) - 1;
         const d = String(parseInt(parts[2], 10)).padStart(2, '0');
         return (calMonthsShort[m] || '') + ' ' + d + ', ' + parts[0];
     }
 
-    function openCalendarPicker(target, event) {
+    function openCalendarPicker(event) {
         if (event) event.stopPropagation();
         const dropdown = document.getElementById('customCalendarDropdown');
         if (!dropdown) return;
 
         if (dropdown.classList.contains('hidden')) {
             dropdown.classList.remove('hidden');
-            if (calSelectedFrom) {
-                const d = new Date(calSelectedFrom + 'T00:00:00');
+            if (calSelectedDate) {
+                const d = new Date(calSelectedDate + 'T00:00:00');
                 calViewYear = d.getFullYear();
                 calViewMonth = d.getMonth();
             }
@@ -746,6 +748,12 @@
         } else {
             dropdown.classList.add('hidden');
         }
+    }
+
+    function closeCalendarPicker(event) {
+        if (event) event.stopPropagation();
+        const dropdown = document.getElementById('customCalendarDropdown');
+        if (dropdown) dropdown.classList.add('hidden');
     }
 
     function calendarNavMonth(delta, event) {
@@ -786,47 +794,27 @@
             html += `<div class="h-8 flex items-center justify-center text-slate-300 font-medium text-xs cursor-default">${dNum}</div>`;
         }
 
-        // Active range calculation
-        const activeFrom = calSelectedFrom;
-        const activeTo = calSelectedTo || (calSelectedFrom && calHoveredDate && calHoveredDate >= calSelectedFrom ? calHoveredDate : null);
-
         // Current month days
         for (let d = 1; d <= totalDaysInMonth; d++) {
             const dateStr = `${calViewYear}-${String(calViewMonth + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
 
-            const isStart = activeFrom === dateStr;
-            const isEnd = activeTo === dateStr;
-            const isBetween = activeFrom && activeTo && dateStr > activeFrom && dateStr < activeTo;
+            const isSelected = calSelectedDate === dateStr;
             const isToday = dateStr === todayStr;
 
-            let cellBg = '';
-            let btnClasses = 'w-7 h-7 mx-auto rounded-xl flex items-center justify-center text-xs font-bold transition-all relative z-10 ';
+            let btnClasses = 'w-7 h-7 mx-auto rounded-xl flex items-center justify-center text-xs font-bold transition-all cursor-pointer ';
 
-            if (isStart && isEnd) {
+            if (isSelected) {
+                // Solid vibrant amber pill
                 btnClasses += 'bg-amber-500 text-white shadow-xs';
-            } else if (isStart) {
-                btnClasses += 'bg-amber-500 text-white shadow-xs';
-                if (activeTo) {
-                    cellBg = 'bg-gradient-to-r from-transparent 50% to-[#fef3c7] 50%';
-                }
-            } else if (isEnd) {
-                btnClasses += 'bg-amber-500 text-white shadow-xs';
-                if (activeFrom) {
-                    cellBg = 'bg-gradient-to-l from-transparent 50% to-[#fef3c7] 50%';
-                }
-            } else if (isBetween) {
-                cellBg = 'bg-[#fef3c7]';
-                btnClasses += 'text-[#92400e] font-bold';
             } else if (isToday) {
-                btnClasses += 'border-2 border-amber-500 text-amber-600 hover:bg-amber-50 cursor-pointer';
+                // Today indicator with amber border outline (matching day 14 in user's image)
+                btnClasses += 'border-2 border-amber-500 text-amber-600 hover:bg-amber-50';
             } else {
-                btnClasses += 'text-slate-700 hover:bg-slate-100 cursor-pointer';
+                btnClasses += 'text-slate-700 hover:bg-amber-50 hover:text-amber-700';
             }
 
             html += `
-                <div class="h-8 flex items-center justify-center relative ${cellBg}" 
-                     onmouseenter="onCalDateHover('${dateStr}')" 
-                     onclick="onCalDateClick('${dateStr}', event)">
+                <div class="h-8 flex items-center justify-center" onclick="onCalSelectDate('${dateStr}', event)">
                     <div class="${btnClasses}">
                         ${d}
                     </div>
@@ -844,108 +832,53 @@
         gridEl.innerHTML = html;
     }
 
-    function onCalDateClick(dateStr, event) {
+    function onCalSelectDate(dateStr, event) {
         if (event) event.stopPropagation();
+        calSelectedDate = dateStr;
 
-        if (!calSelectedFrom || (calSelectedFrom && calSelectedTo)) {
-            // First click: sets Start Date
-            calSelectedFrom = dateStr;
-            calSelectedTo = null;
-            calHoveredDate = null;
-        } else if (calSelectedFrom && !calSelectedTo) {
-            // Second click: sets End Date
-            if (dateStr < calSelectedFrom) {
-                calSelectedTo = calSelectedFrom;
-                calSelectedFrom = dateStr;
-            } else {
-                calSelectedTo = dateStr;
-            }
-            calHoveredDate = null;
+        const input = document.getElementById('filter_date');
+        const display = document.getElementById('display_selected_date');
+        const dropdown = document.getElementById('customCalendarDropdown');
+
+        if (input) input.value = dateStr;
+        if (display) {
+            display.textContent = formatCalDisplay(dateStr);
+            display.className = 'truncate text-slate-900 font-bold';
         }
 
-        updateInputsAndDisplay();
-        renderCustomCalendar();
+        if (dropdown) dropdown.classList.add('hidden');
+
+        // Automatically submit filter form
+        const form = dropdown ? dropdown.closest('form') : null;
+        if (form) form.submit();
     }
 
-    function onCalDateHover(dateStr) {
-        if (calSelectedFrom && !calSelectedTo) {
-            if (calHoveredDate !== dateStr) {
-                calHoveredDate = dateStr;
-                renderCustomCalendar();
-            }
-        }
-    }
-
-    function updateInputsAndDisplay() {
-        const fromInput = document.getElementById('filter_date_from');
-        const toInput = document.getElementById('filter_date_to');
-        const displayFrom = document.getElementById('display_date_from');
-        const displayTo = document.getElementById('display_date_to');
-
-        if (fromInput) fromInput.value = calSelectedFrom || '';
-        if (toInput) toInput.value = calSelectedTo || '';
-
-        if (displayFrom) {
-            if (calSelectedFrom) {
-                displayFrom.textContent = formatCalDisplay(calSelectedFrom);
-                displayFrom.className = 'truncate text-slate-900 font-bold';
-            } else {
-                displayFrom.textContent = 'Start Date';
-                displayFrom.className = 'truncate text-slate-400 font-normal';
-            }
-        }
-
-        if (displayTo) {
-            if (calSelectedTo) {
-                displayTo.textContent = formatCalDisplay(calSelectedTo);
-                displayTo.className = 'truncate text-slate-900 font-bold';
-            } else {
-                displayTo.textContent = 'End Date';
-                displayTo.className = 'truncate text-slate-400 font-normal';
-            }
-        }
-    }
-
-    function setCalPreset(preset, event) {
+    function setCalToday(event) {
         if (event) event.stopPropagation();
         const now = new Date();
-        const nowStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-
-        if (preset === 'today') {
-            calSelectedFrom = nowStr;
-            calSelectedTo = nowStr;
-            calViewYear = now.getFullYear();
-            calViewMonth = now.getMonth();
-        } else if (preset === 'this_month') {
-            calSelectedFrom = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`;
-            calSelectedTo = nowStr;
-            calViewYear = now.getFullYear();
-            calViewMonth = now.getMonth();
-        }
-
-        updateInputsAndDisplay();
-        renderCustomCalendar();
+        const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+        onCalSelectDate(todayStr, event);
     }
 
-    function resetCalSelection(event) {
+    function clearSelectedDate(event) {
         if (event) event.stopPropagation();
-        calSelectedFrom = null;
-        calSelectedTo = null;
-        calHoveredDate = null;
-        updateInputsAndDisplay();
-        renderCustomCalendar();
-    }
+        calSelectedDate = null;
 
-    function applyCalSelection(event) {
-        if (event) event.stopPropagation();
+        const input = document.getElementById('filter_date');
+        const display = document.getElementById('display_selected_date');
         const dropdown = document.getElementById('customCalendarDropdown');
-        if (dropdown) dropdown.classList.add('hidden');
-        
-        // Auto-submit the filter form to apply range immediately
-        const form = dropdown ? dropdown.closest('form') : null;
-        if (form) {
-            form.submit();
+
+        if (input) input.value = '';
+        if (display) {
+            display.textContent = 'Select Date';
+            display.className = 'truncate text-slate-400 font-normal';
         }
+
+        if (dropdown) dropdown.classList.add('hidden');
+
+        // Automatically submit filter form to reset
+        const form = dropdown ? dropdown.closest('form') : document.getElementById('datePickerContainer')?.closest('form');
+        if (form) form.submit();
     }
 
     // Close calendar on outside click

@@ -261,6 +261,9 @@ class DriverManagementV2Controller extends Controller
             $query->where('df.type', $request->input('type'));
         }
 
+        if ($request->filled('date')) {
+            $query->whereDate('df.date', $request->input('date'));
+        }
         if ($request->filled('date_from')) {
             $query->whereDate('df.date', '>=', $request->input('date_from'));
         }
