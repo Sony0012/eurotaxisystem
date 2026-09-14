@@ -9,12 +9,13 @@
                     <th class="px-5 py-3.5 text-left text-[10px] sm:text-[11px] font-extrabold text-slate-500 uppercase tracking-widest">Target</th>
                     <th class="px-5 py-3.5 text-left text-[10px] sm:text-[11px] font-extrabold text-slate-500 uppercase tracking-widest">Actual Paid</th>
                     <th class="px-5 py-3.5 text-left text-[10px] sm:text-[11px] font-extrabold text-slate-500 uppercase tracking-widest">Status</th>
+                    <th class="px-5 py-3.5 text-right text-[10px] sm:text-[11px] font-extrabold text-slate-500 uppercase tracking-widest">Action</th>
                 </tr>
             </thead>
             <tbody class="bg-white divide-y divide-slate-100">
                 @if (empty($boundaries) || count($boundaries) === 0)
                     <tr>
-                        <td colspan="6" class="px-6 py-20 text-center">
+                        <td colspan="7" class="px-6 py-20 text-center">
                             <div class="inline-flex flex-col items-center justify-center max-w-sm mx-auto">
                                 <div class="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center mb-4 shadow-xs">
                                     <i data-lucide="receipt" class="w-8 h-8 text-amber-600"></i>
@@ -110,6 +111,15 @@
                                         <div class="text-[10px] font-black text-sky-600 tracking-tight">+{{ formatCurrency($boundary['excess']) }}</div>
                                     @endif
                                 </div>
+                            </td>
+                            <td class="px-5 py-3.5 whitespace-nowrap text-right" onclick="event.stopPropagation();">
+                                <button type="button" 
+                                        onclick="event.stopPropagation(); editBoundary({{ $boundary['id'] }})" 
+                                        class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 hover:bg-amber-100 active:bg-amber-200 text-amber-900 border border-amber-300 rounded-xl font-black text-xs transition-all shadow-xs hover:shadow hover:border-amber-400 active:scale-95 cursor-pointer"
+                                        title="Edit Boundary Record">
+                                    <i data-lucide="edit-3" class="w-3.5 h-3.5 text-amber-600"></i>
+                                    <span>Edit</span>
+                                </button>
                             </td>
                         </tr>
                     @endforeach

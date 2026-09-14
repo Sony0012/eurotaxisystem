@@ -673,7 +673,12 @@
         </div>
 
         {{-- Footer --}}
-        <div class="bg-gray-50 px-6 py-4 border-t border-gray-200 flex justify-end gap-3 shrink-0">
+        <div class="bg-gray-50 px-6 py-4 border-t border-gray-200 flex justify-between items-center gap-3 shrink-0">
+            <button type="button" id="vb_editBtn" onclick="const id = currentViewingBoundaryId; closeViewBoundary(); editBoundary(id);"
+                class="px-4 py-2.5 text-xs font-black text-amber-900 bg-amber-100 hover:bg-amber-200 active:bg-amber-300 border border-amber-300 rounded-xl transition-all shadow-2xs hover:shadow-xs active:scale-95 flex items-center gap-2 cursor-pointer">
+                <i data-lucide="edit-3" class="w-4 h-4 text-amber-700"></i>
+                <span>Edit Record</span>
+            </button>
             <button onclick="closeViewBoundary()"
                 class="px-5 py-2.5 text-sm font-bold text-gray-600 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 focus:ring-4 focus:ring-gray-100 transition-all shadow-sm uppercase tracking-tight">
                 Close
@@ -688,6 +693,8 @@
 <script>
 // Boundary records keyed by ID for the view modal
 const boundaryRecords = @json(collect($boundariesArray)->keyBy('id'));
+let currentBoundariesData = @json($boundariesArray);
+let currentViewingBoundaryId = null;
 
 // Fleet Stats global object
 let currentFleetStats = @json($fleet_stats);
@@ -736,6 +743,7 @@ document.getElementById('platesListModal').addEventListener('click', function(e)
 });
 
 function openViewBoundary(id) {
+    currentViewingBoundaryId = id;
     const r = boundaryRecords[id];
     if (!r) return;
 
@@ -921,6 +929,14 @@ function performLiveSearch() {
                 tableWrapper.innerHTML = result.html;
                 if (typeof lucide !== 'undefined') lucide.createIcons();
 
+                // Update in-memory boundary records for View and Edit
+                if (result.boundaries) {
+                    currentBoundariesData = result.boundaries;
+                    result.boundaries.forEach(b => {
+                        boundaryRecords[b.id] = b;
+                    });
+                }
+
                 // Update Fleet Stats Board
                 if (result.fleet_stats) {
                     currentFleetStats = result.fleet_stats;
@@ -961,6 +977,12 @@ async function fetchPage(url) {
         if (result.html) {
             tableWrapper.innerHTML = result.html;
             if (typeof lucide !== 'undefined') lucide.createIcons();
+            if (result.boundaries) {
+                currentBoundariesData = result.boundaries;
+                result.boundaries.forEach(b => {
+                    boundaryRecords[b.id] = b;
+                });
+            }
             // Scroll to top of table
             tableWrapper.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
@@ -1592,10 +1614,11 @@ function addBoundary() {
 }
 
 function editBoundary(id) {
-    const boundaryData = @json($boundariesArray);
-    
     // Use Object.values to handle both Array and Associative Object structures safely
-    const boundary = Object.values(boundaryData).find(b => b.id == id);
+    let boundary = Object.values(currentBoundariesData).find(b => b.id == id);
+    if (!boundary && boundaryRecords && boundaryRecords[id]) {
+        boundary = boundaryRecords[id];
+    }
     
     if (boundary) {
         document.getElementById('modalTitle').textContent = 'Edit Boundary Record';
