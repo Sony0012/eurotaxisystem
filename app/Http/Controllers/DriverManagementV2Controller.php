@@ -718,7 +718,7 @@ class DriverManagementV2Controller extends Controller
             ->get();
 
         $totalFundDeposited = (float) $fundLedger->where('type', 'deposit')->sum('amount');
-        $totalFundWithdrawn = (float) $fundLedger->whereIn('type', ['withdrawal', 'maintenance_share'])->sum('amount');
+        $totalFundWithdrawn = (float) $fundLedger->whereIn('type', ['withdrawal', 'maintenance_share', 'damage_deduction', 'company_liability'])->sum('amount');
         $driverFundBalance  = max(0, $totalFundDeposited - $totalFundWithdrawn);
 
         $driver->total_fund_deposited = $totalFundDeposited;
@@ -733,7 +733,7 @@ class DriverManagementV2Controller extends Controller
     {
         $request->validate([
             'amount'      => 'required|numeric|min:1',
-            'type'        => 'required|in:withdrawal,maintenance_share',
+            'type'        => 'required|in:withdrawal,maintenance_share,damage_deduction,company_liability',
             'description' => 'required|string|max:255',
             'date'        => 'required|date',
         ]);
@@ -769,11 +769,20 @@ class DriverManagementV2Controller extends Controller
             'created_by'    => \Illuminate\Support\Facades\Auth::id(),
         ]);
 
-        $actionLabel = $type === 'maintenance_share' ? 'Maintenance Co-Payment' : 'Driver Savings Withdrawal';
-        ActivityLogController::log(
-            "Driver Fund {$actionLabel}",
-            "Driver: {$driver->full_name}\nAmount: ₱" . number_format($amount, 2) . "\nPurpose: {$description}\nRemaining Fund: ₱" . number_format($newBalance, 2)
-        );
+        $typeLabels = [
+            'withdrawal'        => 'Driver Cash Withdrawal',
+            'damage_deduction'  => 'Accident/Collision Damage Deduction',
+            'maintenance_share' => 'Vehicle Maintenance Deduction',
+            'company_liability' => 'Company Liability/Debt Deduction',
+        ];
+        $label = $typeLabels[$type] ?? 'Fund Deduction';
+
+        if (class_exists('\App\Http\Controllers\ActivityLogController')) {
+            \App\Http\Controllers\ActivityLogController::log(
+                'Driver Fund ' . $label,
+                "Driver: {$driver->full_name}\nType: {$label}\nAmount: ₱" . number_format($amount, 2) . "\nPurpose: {$description}\nRemaining Fund: ₱" . number_format($newBalance, 2)
+            );
+        }
 
         return response()->json([
             'success'     => true,

@@ -204,10 +204,12 @@
             </div>
 
             <div>
-                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Disbursement Type <span class="text-red-500">*</span></label>
+                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Disbursement / Deduction Type <span class="text-red-500">*</span></label>
                 <select id="withdrawType" required class="w-full px-3 py-2.5 border border-slate-300 rounded-xl text-xs font-bold text-slate-800 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500">
-                    <option value="withdrawal">Driver Personal Savings Withdrawal (Cashout)</option>
-                    <option value="maintenance_share">Vehicle Maintenance Co-Payment (After 6 Months Term)</option>
+                    <option value="withdrawal">Driver Personal Savings Withdrawal (Cashout / Ipon)</option>
+                    <option value="damage_deduction">Accident / Collision Damage Deduction (Bawas Bangga / Sira sa Taxi)</option>
+                    <option value="maintenance_share">Vehicle Maintenance Co-Payment (Hatian sa Pagawa after 6 mos)</option>
+                    <option value="company_liability">Company Liability / Debt Settlement (Kaltas sa Utang/Shortage)</option>
                 </select>
             </div>
 
@@ -380,6 +382,14 @@
                             <span class="text-slate-500 font-bold">Unpaid Shortage Dues:</span>
                             <span class="font-black ${unpaidShortage > 0 ? 'text-rose-600' : 'text-slate-700'}">₱${unpaidShortage.toLocaleString('en-PH', {minimumFractionDigits: 2})}</span>
                         </div>
+                        ${(pendingDebt > 0 || unpaidShortage > 0) && parseFloat(data.driver_fund_balance || 0) > 0 ? `
+                            <div class="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between gap-2">
+                                <span class="text-[10px] font-bold text-amber-700">Available Pondo: ₱${parseFloat(data.driver_fund_balance || 0).toLocaleString('en-PH', {minimumFractionDigits:2})}</span>
+                                <button type="button" onclick="openWithdrawFundModal('damage_deduction', ${(Math.min((pendingDebt > 0 ? pendingDebt : unpaidShortage), parseFloat(data.driver_fund_balance || 0))).toFixed(2)}, 'Deduction for accident / damage liability settlement')" class="px-2.5 py-1 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-[10px] font-black uppercase tracking-wider transition-all flex items-center gap-1 shadow-xs cursor-pointer">
+                                    <i data-lucide="shield-alert" class="w-3 h-3"></i> Offset via Pondo
+                                </button>
+                            </div>
+                        ` : ''}
                     </div>
 
                     <!-- Driver Savings & Maintenance Fund (Pondo) Overview Card -->
@@ -1418,12 +1428,18 @@
                     if (item.type === 'deposit') {
                         typeBadge = '<span class="px-2.5 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg text-[10px] font-black uppercase tracking-wider inline-flex items-center gap-1"><i data-lucide="arrow-down-left" class="w-3 h-3 text-emerald-600"></i> Boundary Pondo</span>';
                         amtDisplay = `<span class="font-black text-emerald-600">+₱${amt.toLocaleString('en-PH', {minimumFractionDigits: 2})}</span>`;
+                    } else if (item.type === 'damage_deduction') {
+                        typeBadge = '<span class="px-2.5 py-1 bg-rose-50 text-rose-700 border border-rose-200 rounded-lg text-[10px] font-black uppercase tracking-wider inline-flex items-center gap-1"><i data-lucide="shield-alert" class="w-3 h-3 text-rose-600"></i> Bangga / Damage</span>';
+                        amtDisplay = `<span class="font-black text-rose-600">-₱${amt.toLocaleString('en-PH', {minimumFractionDigits: 2})}</span>`;
                     } else if (item.type === 'maintenance_share') {
                         typeBadge = '<span class="px-2.5 py-1 bg-amber-50 text-amber-700 border border-amber-200 rounded-lg text-[10px] font-black uppercase tracking-wider inline-flex items-center gap-1"><i data-lucide="wrench" class="w-3 h-3 text-amber-600"></i> Maintenance Share</span>';
                         amtDisplay = `<span class="font-black text-amber-600">-₱${amt.toLocaleString('en-PH', {minimumFractionDigits: 2})}</span>`;
+                    } else if (item.type === 'company_liability') {
+                        typeBadge = '<span class="px-2.5 py-1 bg-purple-50 text-purple-700 border border-purple-200 rounded-lg text-[10px] font-black uppercase tracking-wider inline-flex items-center gap-1"><i data-lucide="receipt" class="w-3 h-3 text-purple-600"></i> Debt / Liability</span>';
+                        amtDisplay = `<span class="font-black text-purple-600">-₱${amt.toLocaleString('en-PH', {minimumFractionDigits: 2})}</span>`;
                     } else {
-                        typeBadge = '<span class="px-2.5 py-1 bg-rose-50 text-rose-700 border border-rose-200 rounded-lg text-[10px] font-black uppercase tracking-wider inline-flex items-center gap-1"><i data-lucide="arrow-up-right" class="w-3 h-3 text-rose-600"></i> Driver Cashout</span>';
-                        amtDisplay = `<span class="font-black text-rose-600">-₱${amt.toLocaleString('en-PH', {minimumFractionDigits: 2})}</span>`;
+                        typeBadge = '<span class="px-2.5 py-1 bg-blue-50 text-blue-700 border border-blue-200 rounded-lg text-[10px] font-black uppercase tracking-wider inline-flex items-center gap-1"><i data-lucide="arrow-up-right" class="w-3 h-3 text-blue-600"></i> Driver Cashout</span>';
+                        amtDisplay = `<span class="font-black text-blue-600">-₱${amt.toLocaleString('en-PH', {minimumFractionDigits: 2})}</span>`;
                     }
 
                     fundRowsHtml += `
@@ -1538,13 +1554,17 @@
         });
     }
 
-    function openWithdrawFundModal() {
+    function openWithdrawFundModal(preselectedType = 'withdrawal', defaultAmount = '', defaultDesc = '') {
         if (!window.currentDriverFundData) return;
-        document.getElementById('withdrawDriverId').value = window.currentDriverFundData.id;
-        document.getElementById('withdrawAvailableDisplay').textContent = '₱' + window.currentDriverFundData.balance.toLocaleString('en-PH', {minimumFractionDigits: 2});
-        document.getElementById('withdrawAmount').value = '';
-        document.getElementById('withdrawAmount').max = window.currentDriverFundData.balance;
-        document.getElementById('withdrawDescription').value = '';
+        const d = window.currentDriverFundData;
+        document.getElementById('withdrawDriverId').value = d.id;
+        document.getElementById('withdrawAvailableDisplay').textContent = '₱' + d.balance.toLocaleString('en-PH', {minimumFractionDigits: 2});
+        document.getElementById('withdrawAmount').max = d.balance;
+        document.getElementById('withdrawAmount').value = defaultAmount ? defaultAmount : '';
+        if (preselectedType) {
+            document.getElementById('withdrawType').value = preselectedType;
+        }
+        document.getElementById('withdrawDescription').value = defaultDesc ? defaultDesc : '';
         document.getElementById('withdrawDate').value = new Date().toLocaleDateString('en-CA');
         document.getElementById('withdrawFundModal').classList.remove('hidden');
         if (typeof lucide !== 'undefined') lucide.createIcons();
