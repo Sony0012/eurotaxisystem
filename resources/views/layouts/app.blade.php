@@ -431,6 +431,10 @@
                                     <i data-lucide="wallet" class="w-3.5 h-3.5 {{ request()->routeIs('driver-management.debts') ? 'text-rose-600' : 'text-slate-400' }}"></i> 
                                     <span class="text-[10px] uppercase tracking-wider font-bold">Pending Debts</span>
                                 </a>
+                                <a href="{{ route('driver-management.funds-ledger') }}" class="{{ request()->routeIs('driver-management.funds-ledger') ? 'text-emerald-700 font-bold bg-emerald-50/50 block rounded-xl py-2 px-3' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50 block rounded-xl py-2 px-3' }} flex items-center gap-2">
+                                    <i data-lucide="piggy-bank" class="w-3.5 h-3.5 {{ request()->routeIs('driver-management.funds-ledger') ? 'text-emerald-600' : 'text-slate-400' }}"></i> 
+                                    <span class="text-[10px] uppercase tracking-wider font-bold">Funds & Pondo Ledger</span>
+                                </a>
                             </div>
                         </div>
                         @endif

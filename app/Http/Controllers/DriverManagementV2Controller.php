@@ -116,6 +116,173 @@ class DriverManagementV2Controller extends Controller
         return view('driver-management.pending-debts');
     }
 
+    public function fundsLedgerPage(Request $request)
+    {
+        // 1. Overall System KPI Metrics
+        $totalDeposited = (float) DB::table('driver_funds')
+            ->whereNull('deleted_at')
+            ->where('type', 'deposit')
+            ->sum('amount');
+
+        $totalDeducted = (float) DB::table('driver_funds')
+            ->whereNull('deleted_at')
+            ->whereIn('type', ['withdrawal', 'damage_deduction', 'maintenance_share', 'company_liability'])
+            ->sum('amount');
+
+        $totalAvailable = max(0, $totalDeposited - $totalDeducted);
+
+        $totalDamages = (float) DB::table('driver_funds')
+            ->whereNull('deleted_at')
+            ->where('type', 'damage_deduction')
+            ->sum('amount');
+
+        $totalMaintenance = (float) DB::table('driver_funds')
+            ->whereNull('deleted_at')
+            ->where('type', 'maintenance_share')
+            ->sum('amount');
+
+        $totalLiabilities = (float) DB::table('driver_funds')
+            ->whereNull('deleted_at')
+            ->where('type', 'company_liability')
+            ->sum('amount');
+
+        $totalCashouts = (float) DB::table('driver_funds')
+            ->whereNull('deleted_at')
+            ->where('type', 'withdrawal')
+            ->sum('amount');
+
+        $fundedDriversCount = DB::table('driver_funds')
+            ->whereNull('deleted_at')
+            ->distinct('driver_id')
+            ->count('driver_id');
+
+        $stats = [
+            'total_available'   => $totalAvailable,
+            'total_deposited'   => $totalDeposited,
+            'total_deducted'    => $totalDeducted,
+            'total_damages'     => $totalDamages,
+            'total_maintenance' => $totalMaintenance,
+            'total_liabilities' => $totalLiabilities,
+            'total_cashouts'    => $totalCashouts,
+            'funded_drivers'    => $fundedDriversCount,
+        ];
+
+        // 2. All active drivers with balances for dropdown & per-driver directory
+        $drivers = DB::table('drivers as d')
+            ->whereNull('d.deleted_at')
+            ->leftJoin('units as u', function($j) {
+                $j->on('u.driver_id', '=', 'd.id')
+                  ->orOn('u.secondary_driver_id', '=', 'd.id');
+            })
+            ->select(
+                'd.id', 'd.first_name', 'd.last_name', 'd.license_number', 'd.contact_number', 'd.profile_photo',
+                DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')) as full_name"),
+                'u.plate_number as assigned_plate'
+            )
+            ->groupBy('d.id', 'd.first_name', 'd.last_name', 'd.license_number', 'd.contact_number', 'd.profile_photo', 'u.plate_number')
+            ->orderBy('d.last_name')
+            ->orderBy('d.first_name')
+            ->get();
+
+        // Calculate each driver's fund breakdown
+        $balancesByDriver = DB::table('driver_funds')
+            ->whereNull('deleted_at')
+            ->select(
+                'driver_id',
+                DB::raw("SUM(CASE WHEN type = 'deposit' THEN amount ELSE 0 END) as total_deposit"),
+                DB::raw("SUM(CASE WHEN type != 'deposit' THEN amount ELSE 0 END) as total_withdrawn"),
+                DB::raw("SUM(CASE WHEN type = 'damage_deduction' THEN amount ELSE 0 END) as damage_deductions"),
+                DB::raw("SUM(CASE WHEN type = 'maintenance_share' THEN amount ELSE 0 END) as maintenance_deductions"),
+                DB::raw("SUM(CASE WHEN type = 'company_liability' THEN amount ELSE 0 END) as liability_deductions"),
+                DB::raw("SUM(CASE WHEN type = 'withdrawal' THEN amount ELSE 0 END) as cash_withdrawals"),
+                DB::raw("SUM(CASE WHEN type = 'deposit' THEN amount ELSE -amount END) as current_balance")
+            )
+            ->groupBy('driver_id')
+            ->get()
+            ->keyBy('driver_id');
+
+        $drivers = $drivers->map(function($d) use ($balancesByDriver) {
+            $b = $balancesByDriver->get($d->id);
+            $d->total_deposit = (float)($b->total_deposit ?? 0);
+            $d->total_withdrawn = (float)($b->total_withdrawn ?? 0);
+            $d->damage_deductions = (float)($b->damage_deductions ?? 0);
+            $d->maintenance_deductions = (float)($b->maintenance_deductions ?? 0);
+            $d->liability_deductions = (float)($b->liability_deductions ?? 0);
+            $d->cash_withdrawals = (float)($b->cash_withdrawals ?? 0);
+            $d->current_balance = max(0, (float)($b->current_balance ?? 0));
+            return $d;
+        });
+
+        // 3. Transactions Query with Pagination
+        $transactions = $this->buildFundsQuery($request)->paginate(25)->withQueryString();
+
+        return view('driver-management.funds-ledger', compact('stats', 'drivers', 'transactions'));
+    }
+
+    public function getFundsLedgerData(Request $request)
+    {
+        $transactions = $this->buildFundsQuery($request)->paginate(25);
+        return response()->json($transactions);
+    }
+
+    private function buildFundsQuery(Request $request)
+    {
+        $query = DB::table('driver_funds as df')
+            ->whereNull('df.deleted_at')
+            ->leftJoin('drivers as d', 'df.driver_id', '=', 'd.id')
+            ->leftJoin('boundaries as b', 'df.boundary_id', '=', 'b.id')
+            ->leftJoin('units as u', 'b.unit_id', '=', 'u.id')
+            ->leftJoin('users as creator', 'df.created_by', '=', 'creator.id')
+            ->select(
+                'df.id', 'df.driver_id', 'df.boundary_id', 'df.type', 'df.amount',
+                'df.balance_after', 'df.description', 'df.date', 'df.created_at',
+                'd.first_name', 'd.last_name', 'd.license_number', 'd.contact_number', 'd.profile_photo',
+                DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')) as driver_name"),
+                'u.plate_number as shift_plate',
+                'creator.full_name as creator_name'
+            );
+
+        if ($request->filled('search')) {
+            $s = trim($request->input('search'));
+            $query->where(function($q) use ($s) {
+                $q->where('d.first_name', 'like', "%{$s}%")
+                  ->orWhere('d.last_name', 'like', "%{$s}%")
+                  ->orWhere('d.license_number', 'like', "%{$s}%")
+                  ->orWhere('u.plate_number', 'like', "%{$s}%")
+                  ->orWhere('df.description', 'like', "%{$s}%");
+            });
+        }
+
+        if ($request->filled('driver_id')) {
+            $query->where('df.driver_id', $request->input('driver_id'));
+        }
+
+        if ($request->filled('type') && $request->input('type') !== 'all') {
+            $query->where('df.type', $request->input('type'));
+        }
+
+        if ($request->filled('date_from')) {
+            $query->whereDate('df.date', '>=', $request->input('date_from'));
+        }
+        if ($request->filled('date_to')) {
+            $query->whereDate('df.date', '<=', $request->input('date_to'));
+        }
+
+        $query->orderByDesc('df.date')->orderByDesc('df.id');
+
+        return $query;
+    }
+
+    public function printFundsLedgerPdf(Request $request)
+    {
+        $transactions = $this->buildFundsQuery($request)->limit(500)->get();
+        $driver = null;
+        if ($request->filled('driver_id')) {
+            $driver = Driver::find($request->input('driver_id'));
+        }
+        return view('driver-management.funds-ledger-print', compact('transactions', 'driver'));
+    }
+
     public function index(Request $request)
     {
         $search        = $request->input('search', '');

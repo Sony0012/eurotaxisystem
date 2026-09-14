@@ -180,6 +180,9 @@ Route::middleware(['auth', 'page_access'])->group(function () {
     Route::get('/driver-management/banned/print', [DriverManagementV2Controller::class, 'printBannedPdf'])->name('driver-management.banned.print');
     Route::get('/driver-management/banned', [DriverManagementV2Controller::class, 'banned'])->name('driver-management.banned');
     Route::get('/driver-management/debts', [DriverManagementV2Controller::class, 'debtsPage'])->name('driver-management.debts');
+    Route::get('/driver-management/funds-ledger', [DriverManagementV2Controller::class, 'fundsLedgerPage'])->name('driver-management.funds-ledger');
+    Route::get('/driver-management/funds-ledger/data', [DriverManagementV2Controller::class, 'getFundsLedgerData'])->name('driver-management.funds-ledger.data');
+    Route::get('/driver-management/funds-ledger/print', [DriverManagementV2Controller::class, 'printFundsLedgerPdf'])->name('driver-management.funds-ledger.print');
     Route::get('/driver-management/pending-debts', [DriverManagementV2Controller::class, 'getPendingDebts'])->name('driver-management.pending-debts');
     Route::get('/driver-management/debt-history', [DriverManagementV2Controller::class, 'getDebtHistory'])->name('driver-management.debt-history');
     Route::post('/driver-management/pay-debt', [DriverManagementV2Controller::class, 'payDebt'])->name('driver-management.pay-debt');
